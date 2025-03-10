@@ -23,34 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import { GUID_ID_REGEX } from '../regex'
 
-import { defineComponent, removeComponent, setComponent, useEntityContext } from '@ir-engine/ecs'
-import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
-
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { NodeIDSchema } from '../../gltf/NodeIDComponent'
-
-export const GeneralAudioComponent = defineComponent({
-  name: 'EE_generalAudio',
-
-  jsonID: 'EE_audio_general',
-
-  schema: S.Object({
-    mediaUUID: NodeIDSchema()
-  }),
-
-  onRemove: (entity, component) => {
-    removeComponent(entity, MediaComponent)
-  },
-
-  reactor: function () {
-    const entity = useEntityContext()
-
-    useEffect(() => {
-      setComponent(entity, MediaComponent)
-    }, [])
-
-    return null
-  }
-})
+/**
+ * Method used to validate if the given id is a valid guid
+ * @param id
+ * @returns
+ */
+export const isValidId = (id: string) => {
+  return GUID_ID_REGEX.test(id)
+}

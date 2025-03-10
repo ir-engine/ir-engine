@@ -50,7 +50,7 @@ export const VALID_HEIRARCHY_SEARCH_REGEX = /[.*+?^${}()|[\]\\]/g
 /**
  * This regex is used to validate a string that conforms to the UUID version 4 format. It ensures that the string consists of exactly 32 hexadecimal digits arranged in the 8-4-4-4-12 pattern, separated by hyphens.
  */
-export const USER_ID_REGEX = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
+export const GUID_ID_REGEX = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
 
 /**
  * Email regex. Source: https://fightingforalostcause.net/content/misc/2006/compare-email-regex.php
@@ -119,7 +119,7 @@ export const PROJECT_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]/
  */
 export const PROJECT_CAPTURE_REGEX = /projects\/([a-zA-Z0-9-_@]+)\/([a-zA-Z0-9-_]+)/
 
-export const PATH_REGEX = /^[a-zA-Z0-9-_@.\/]+$/
+export const PATH_REGEX = /^(?:[a-zA-Z0-9][-_@.a-zA-Z0-9]*\/)*[a-zA-Z0-9][-_@.()\sa-zA-Z0-9]*(?:\/)?$/
 
 /**
  * This regex matches strings that start with `projects/`, followed by one or more characters that can be letters, digits, hyphens, underscores, or forward slashes, and then `/public/`.
@@ -147,4 +147,6 @@ export const BUILDER_CHART_REGEX = /ir-engine-builder-([0-9]+\.[0-9]+\.[0-9]+)/g
 
 export const UNIQUEIFIED_VITE_KEY_REGEX = /[.-]{1}[a-zA-Z0-9-_]{8}.(js|css)(.map)?$/
 
-export const REMOVE_EDGE_SLASH_REGEX = /^\/|\/$/g
+export const REMOVE_EDGE_SLASH_REGEX = /^\/+|\/+$/g
+
+export const TRAILING_SLASH_REGEX = /\/+$/

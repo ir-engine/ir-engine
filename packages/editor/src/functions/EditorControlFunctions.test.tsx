@@ -44,14 +44,15 @@ import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { AssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SplineComponent } from '@ir-engine/engine/src/scene/components/SplineComponent'
-import { getMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
 import { EntityTreeComponent } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { NodeFunctions } from '@ir-engine/engine/src/gltf/NodeFunctions'
-import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
+import { NodeID, NodeIDComponent, NodesBySourceState } from '@ir-engine/engine/src/gltf/NodeIDComponent'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { startEngineReactor } from '@ir-engine/engine/tests/startEngineReactor'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
@@ -895,6 +896,89 @@ describe('EditorControlFunctions', () => {
       const newEntity = getComponent(rootEntity, EntityTreeComponent).children[2]
       assert.equal(newEntity, authoringNode4Entity)
       assert.equal(getComponent(newEntity, NodeIDComponent), node4ID)
+    })
+
+    it('should reparent to another source', async () => {
+      const node1ID = NodeIDComponent.generate()
+      const node2ID = NodeIDComponent.generate()
+      const node3ID = NodeIDComponent.generate()
+
+      const gltf: GLTF.IGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0, 1] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'node1',
+            extensions: {
+              [NodeIDComponent.jsonID]: node1ID,
+              [GLTFComponent.jsonID]: {
+                src: '/sub-asset.gltf'
+              }
+            }
+          },
+          {
+            name: 'node2',
+            extensions: {
+              [NodeIDComponent.jsonID]: node2ID
+            }
+          }
+        ]
+      }
+
+      const subAssetGLTF: GLTF.IGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'node3',
+            extensions: {
+              [NodeIDComponent.jsonID]: node3ID
+            }
+          }
+        ]
+      }
+
+      Cache.add('/test.gltf', gltf)
+      Cache.add('/sub-asset.gltf', subAssetGLTF)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
+      getMutableState(EditorState).rootEntity.set(rootEntity)
+      await waitForScene(rootEntity)
+
+      const simulationNode1Entity = NodeFunctions.getEntityFromNodeID(rootEntity, node1ID)!
+      const authoringNode1Entity = LayerFunctions.getAuthoringCounterpart(simulationNode1Entity)
+
+      const simulationNode2Entity = NodeFunctions.getEntityFromNodeID(rootEntity, node2ID)!
+      const authoringNode2Entity = LayerFunctions.getAuthoringCounterpart(simulationNode2Entity)
+
+      const subAssetSourceID = GLTFComponent.getInstanceID(simulationNode1Entity)
+
+      const simulationNode3Entity = UUIDComponent.getEntityByUUID(
+        NodeIDComponent.getUUIDBySourceAndNodeID(subAssetSourceID, node3ID)!
+      )
+      const authoringNode3Entity = LayerFunctions.getAuthoringCounterpart(simulationNode3Entity)
+
+      EditorControlFunctions.reparentObject([authoringNode2Entity], null, null, authoringNode3Entity)
+
+      await vi.waitUntil(() => getState(NodesBySourceState)[subAssetSourceID][node3ID])
+
+      const reparentedSimulationNode2Entity = NodeFunctions.getEntityFromNodeID(authoringNode1Entity, node2ID)!
+      const reparentedAuthoringNode2Entity = LayerFunctions.getAuthoringCounterpart(reparentedSimulationNode2Entity)
+
+      assert.equal(reparentedAuthoringNode2Entity, authoringNode2Entity)
+      assert.equal(getComponent(reparentedAuthoringNode2Entity, NodeIDComponent), node2ID)
+      assert.equal(
+        getComponent(reparentedAuthoringNode2Entity, SourceComponent),
+        getComponent(authoringNode3Entity, SourceComponent)
+      )
+      assert.equal(getComponent(reparentedAuthoringNode2Entity, EntityTreeComponent).parentEntity, authoringNode3Entity)
+      const expectedUUID = NodeIDComponent.getUUIDBySourceAndNodeID(subAssetSourceID, node2ID)
+      assert.equal(getComponent(reparentedAuthoringNode2Entity, UUIDComponent), expectedUUID)
     })
   })
 

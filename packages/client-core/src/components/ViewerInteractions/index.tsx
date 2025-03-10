@@ -81,7 +81,7 @@ export const ViewerInteractions = () => {
   const isScreenOpaque = loadingScreenOpacity.value > 0
 
   return (
-    <div style={{ opacity: 1 - loadingScreenOpacity.value }} className="relative h-dvh w-full p-6">
+    <div style={{ opacity: 1 - loadingScreenOpacity.value }} className="fixed h-dvh w-full p-6">
       <div className="pointer-events-auto absolute left-0 top-0 h-fit w-full pt-[inherit]">
         <MediaIconsBox />
       </div>
@@ -111,6 +111,7 @@ export const ViewerInteractions = () => {
         {Object.entries(externalInjectedMenus).map(([menuName, props]) => (
           <LocationIconButton
             key={menuName}
+            title={props.title}
             icon={props.icon}
             onClick={() => PopoverState.showPopupover(props.component as JSX.Element)}
           />

@@ -249,10 +249,10 @@ const resourceCallbacks = {
         //@ts-ignore
         // asset.onUpdate = null
         if (discardUponUpload) {
-          setTimeout(() => {
-            asset.source.data = null
-            asset.mipmaps = []
-          }, 100)
+          // setTimeout(() => {
+          //   asset.source.data = null
+          //   asset.mipmaps = []
+          // }, 500)
         }
       }
       if ((asset as CompressedTexture).isCompressedTexture && discardUponUpload) {

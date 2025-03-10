@@ -142,9 +142,9 @@ export const WebRTCPeerConnection = (props: {
         dataChannel.send('')
         if (receivedPoll) {
           clearInterval(interval)
-          // once connected, send all our cached actions to the peer
+          // once connected, send all our own cached actions to the peer
           const selfCachedActions = Engine.instance.store.actions.cached.filter(
-            (action) => action.$topic === network.topic
+            (action) => action.$topic === network.topic && action.$peer === Engine.instance.store.peerID
           )
           network.messageToPeer(peerID, selfCachedActions)
         }

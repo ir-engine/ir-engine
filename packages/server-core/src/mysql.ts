@@ -76,7 +76,7 @@ export default (app: Application): void => {
             enableColors: true
           }
         : undefined,
-      client: 'mysql',
+      client: 'mysql2',
       connection: {
         user: appConfig.db.username,
         password: appConfig.db.password,

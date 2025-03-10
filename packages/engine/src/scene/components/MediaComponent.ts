@@ -53,6 +53,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AudioState } from '../../audio/AudioState'
 import { removePannerNode } from '../../audio/PositionalAudioFunctions'
+import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 import { PlayMode } from '../constants/PlayMode'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
 import isHLS from '../functions/isHLS'
@@ -96,6 +97,12 @@ export const MediaElementComponent = defineComponent({
     if (!json) return
     if (typeof json.element === 'object' && json.element !== component.element.get({ noproxy: true }))
       component.element.set(json.element as HTMLMediaElement)
+  },
+
+  onRemove: (entity, component) => {
+    if (component.element) {
+      component.element.value.remove()
+    }
   },
 
   reactor: () => {
@@ -149,7 +156,8 @@ export const MediaComponent = defineComponent({
     track: S.NonSerialized(S.Number(-1)),
     currentTrackTime: S.NonSerialized(S.Number(0)),
     currentTrackDuration: S.NonSerialized(S.Number(0)),
-    isCurrentTrackLoaded: S.NonSerialized(S.Bool(false))
+    isCurrentTrackLoaded: S.NonSerialized(S.Bool(false)),
+    externalMediaNodeID: NodeIDSchema()
     /**
      * TODO: refactor this into a ScheduleComponent for invoking callbacks at scheduled times
      * The auto start time for the playlist, in Unix/Epoch time (milliseconds).
@@ -225,47 +233,70 @@ export function MediaReactor() {
 
     media.ended.set(false)
 
-    if (!mediaElement || !mediaElement.element || mediaElement.element.nodeName.value.toLowerCase() !== assetClass) {
+    const checkMediaElement = getComponent(entity, MediaElementComponent)
+    if (
+      !checkMediaElement ||
+      !checkMediaElement.element ||
+      checkMediaElement.element.nodeName.toLowerCase() !== assetClass
+    ) {
       setUpMediaElement(entity, path, media, audioContext, gainNodeMixBuses)
     }
 
-    setComponent(entity, MediaElementComponent)
-    const mediaElementState = getMutableComponent(entity, MediaElementComponent)
+    const mutableMediaElement = getMutableComponent(entity, MediaElementComponent)
 
-    if (mediaElementState.element.src.value === path && media.isCurrentTrackLoaded.value) {
-      const duration = mediaElementState.element.duration.value
+    if (mutableMediaElement.element.src.value === path && media.isCurrentTrackLoaded.value) {
+      const duration = mutableMediaElement.element.duration.value
       media.currentTrackDuration.set(duration)
       return
     }
 
-    mediaElementState.hls.value?.destroy()
-    mediaElementState.hls.set(undefined)
-    ;(mediaElementState.element.value as HTMLMediaElement).crossOrigin = 'anonymous'
-    ;(mediaElementState.element.value as HTMLMediaElement).ontimeupdate = (event) => {
-      if (!mediaElementState.element) return
-      const time = (mediaElementState.element.value as HTMLMediaElement).currentTime
-      media.currentTrackTime.set(time)
+    mutableMediaElement.hls.value?.destroy()
+    mutableMediaElement.hls.set(undefined)
+    ;(mutableMediaElement.element.value as HTMLMediaElement).crossOrigin = 'anonymous'
+    ;(mutableMediaElement.element.value as HTMLMediaElement).ontimeupdate = (event) => {
+      const localMedia = getMutableComponent(entity, MediaComponent)
+      const localMediaElement = getComponent(entity, MediaElementComponent)
+      if (!localMedia) return
+      if (!localMediaElement) return
+      if (!localMediaElement.element) return
+      const time = (localMediaElement.element as HTMLMediaElement).currentTime
+      localMedia.currentTrackTime.set(time)
     }
     media.isCurrentTrackLoaded.set(false)
-    ;(mediaElementState.element.value as HTMLMediaElement).onloadeddata = (event) => {
-      const time = (mediaElementState.element.value as HTMLMediaElement).duration
-      media.currentTrackDuration.set(time)
-      media.isCurrentTrackLoaded.set(true)
+    ;(mutableMediaElement.element.value as HTMLMediaElement).onloadeddata = (event) => {
+      const localMedia = getMutableComponent(entity, MediaComponent)
+      const localMediaElement = getComponent(entity, MediaElementComponent)
+      if (!localMedia) return
+      if (!localMediaElement) return
+      if (!localMediaElement.element) return
+      const time = (localMediaElement.element as HTMLMediaElement).duration
+      localMedia.currentTrackDuration.set(time)
+      localMedia.isCurrentTrackLoaded.set(true)
     }
     if (isHLS(path)) {
       setupHLS(entity, path).then((hls) => {
-        mediaElementState.hls.set(hls)
-        mediaElementState.hls.value!.attachMedia(mediaElementState.element.value as HTMLMediaElement)
+        mutableMediaElement.hls.set(hls)
+        mutableMediaElement.hls.value!.attachMedia(mutableMediaElement.element.value as HTMLMediaElement)
       })
     } else {
-      mediaElementState.element.src.set(path)
+      mutableMediaElement.element.src.set(path)
     }
 
     if (!media.paused.value) {
-      mediaElementState.value.element.play()
+      mutableMediaElement.value.element.play()
     }
     validateTime()
   }
+
+  useEffect(() => {
+    if (media.resources.length > 0 && media.track.value < 0) {
+      media.track.set(0)
+      if (getAutoPlay()) {
+        media.paused.set(false)
+        playTrack()
+      }
+    }
+  }, [media.resources.length])
 
   useEffect(() => {
     if (!rendererEntity) return
@@ -506,12 +537,19 @@ const setUpMediaElement = (
   }
 ) => {
   const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
+
+  const hasMediaElementComponent = hasComponent(entity, MediaElementComponent)
+  let element: HTMLMediaElement | null = null
+  if (hasMediaElementComponent) {
+    element = getComponent(entity, MediaElementComponent).element as HTMLMediaElement
+  } else {
+    element = document.createElement(assetClass) as HTMLMediaElement
+  }
+
   setComponent(entity, MediaElementComponent, {
-    element: document.createElement(assetClass) as HTMLMediaElement
+    element: element
   })
   const mediaElementState = getMutableComponent(entity, MediaElementComponent)
-
-  const element = mediaElementState.element.value as HTMLMediaElement
 
   element.crossOrigin = 'anonymous'
   element.preload = 'auto'

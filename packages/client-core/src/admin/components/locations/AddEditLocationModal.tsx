@@ -18,7 +18,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { lazy, useEffect } from 'react'
+import React, { lazy, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
@@ -107,16 +107,19 @@ const locationTypeOptions = [
 
 const LOCATION_MAX = 10
 
-export default function AddEditLocationModal(props: {
+type AddEditLocationModalProps = Readonly<{
   action: string
   location?: LocationType
   sceneID?: string | null
   sceneModified?: boolean
   inStudio?: boolean
+  projectFullName?: string
 
   onPublish?: () => Promise<void>
   onPublishSuccess?: (location: LocationType) => void
-}) {
+}>
+
+export default function AddEditLocationModal(props: AddEditLocationModalProps) {
   const { t } = useTranslation()
   const compressionLoading = useHookstate(false)
   const locationID = useHookstate(props.location?.id || null)
@@ -165,12 +168,36 @@ export default function AddEditLocationModal(props: {
     }
   }, [location])
 
+  const projectQueryParam = props.action === 'studio' && !props.inStudio ? props.projectFullName : undefined
+
   const scenes = useFind(staticResourcePath, {
     query: {
       paginate: false,
-      type: 'scene'
+      type: 'scene',
+      project: projectQueryParam
     }
   })
+
+  const scenesOptions = useMemo(() => {
+    if (scenes.status === 'pending') {
+      return [{ value: '', label: t('common:select.fetching') }]
+    }
+    if (scenes.status === 'success' && scenes.data.length) {
+      return [
+        { value: '', label: t('admin:components.location.selectScene'), disabled: true },
+        ...scenes.data.map((scene) => {
+          const project = scene.project
+          const name = scene.key.split('/').pop()!.split('.').at(0)!
+          return {
+            label: `${name} (${project})`,
+            value: scene.id
+          }
+        })
+      ]
+    }
+    return []
+  }, [scenes])
+
   const handlePublishFolder = async () => {
     PopoverState.showPopupover(<CompressedPublishConfirmation />)
     const { projectName, sceneName, rootEntity, sceneAssetID, scenePath } = getState(EditorState)
@@ -327,7 +354,7 @@ export default function AddEditLocationModal(props: {
           saveScenePath + '/' + scenename
         )
 
-        await handlePublish()
+        await handlePublish(true)
         //re-open the original scene
         const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${scenePath}`
         window.open(studioUrl, '_blank')?.focus()
@@ -340,7 +367,7 @@ export default function AddEditLocationModal(props: {
     }
   }
 
-  const handlePublish = async () => {
+  const handlePublish = async (inCompress = false) => {
     errors.set(getDefaultErrors())
 
     if (!name.value.trim()) {
@@ -367,7 +394,7 @@ export default function AddEditLocationModal(props: {
       errors.serverError.set(e.message)
     }
 
-    if (props.onPublish) {
+    if (!inCompress && props.onPublish) {
       try {
         await props.onPublish()
       } catch (e) {
@@ -483,21 +510,7 @@ export default function AddEditLocationModal(props: {
               value={scene.value}
               onChange={(value: string) => scene.set(value)}
               disabled={!!props.sceneID || scenes.status !== 'success' || isLoading}
-              options={
-                scenes.status === 'pending'
-                  ? [{ value: '', label: t('common:select.fetching') }]
-                  : [
-                      { value: '', label: t('admin:components.location.selectScene'), disabled: true },
-                      ...scenes.data.map((scene) => {
-                        const project = scene.project
-                        const name = scene.key.split('/').pop()!.split('.').at(0)!
-                        return {
-                          label: `${name} (${project})`,
-                          value: scene.id
-                        }
-                      })
-                    ]
-              }
+              options={scenesOptions}
               state={errors.scene.value ? 'error' : undefined}
               helperText={errors.scene.value}
               width="full"
@@ -589,7 +602,11 @@ export default function AddEditLocationModal(props: {
                 {unPublishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
               </Button>
             )}
-            <Button data-testid="publish-panel-publish-or-update-button" disabled={isLoading} onClick={handlePublish}>
+            <Button
+              data-testid="publish-panel-publish-or-update-button"
+              disabled={isLoading}
+              onClick={() => handlePublish()}
+            >
               {location?.id
                 ? t('common:components.update')
                 : props.sceneModified

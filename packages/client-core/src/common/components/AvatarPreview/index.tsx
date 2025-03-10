@@ -35,7 +35,8 @@ import {
   removeEntity,
   setComponent,
   UndefinedEntity,
-  useOptionalComponent
+  useOptionalComponent,
+  UUIDComponent
 } from '@ir-engine/ecs'
 import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { EnvMapSourceType } from '@ir-engine/engine/src/scene/constants/EnvMapEnum'
@@ -71,15 +72,16 @@ const AvatarPreview = ({ fill, avatarUrl, onAvatarError, onAvatarLoaded }: Props
   const { t } = useTranslation()
   const panelRef = useRef() as React.MutableRefObject<HTMLCanvasElement>
   const { sceneEntity, cameraEntity } = useRender3DPanelSystem(panelRef)
-  const loaded = GLTFComponent.useSceneLoaded(sceneEntity)
   const errors = ErrorComponent.useComponentErrors(sceneEntity, GLTFComponent)
 
   const avatar = useHookstate(UndefinedEntity)
+  const loaded = GLTFComponent.useSceneLoaded(avatar.value)
 
   useEffect(() => {
     if (!avatarUrl) return
 
     avatar.set(createEntity())
+    setComponent(avatar.value, UUIDComponent, UUIDComponent.generateUUID())
     setComponent(avatar.value, TransformComponent)
     setComponent(avatar.value, VisibleComponent)
     setComponent(avatar.value, EntityTreeComponent, { parentEntity: sceneEntity })
@@ -100,20 +102,16 @@ const AvatarPreview = ({ fill, avatarUrl, onAvatarError, onAvatarLoaded }: Props
     setComponent(lightEntity, NameComponent, 'Ambient Light')
     setComponent(lightEntity, EntityTreeComponent, { parentEntity: sceneEntity })
 
+    setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: avatar.value })
+    //workaround to prevent a few frames of untextured, tposing avatars
+    removeComponent(sceneEntity, VisibleComponent)
+    setComponent(avatar.value, GLTFComponent, { src: avatarUrl })
     return () => {
       removeEntity(lightEntity)
       removeEntity(avatar.value)
+      removeComponent(cameraEntity, AssetPreviewCameraComponent)
     }
   }, [avatarUrl])
-
-  useEffect(() => {
-    if (!avatarUrl) return
-    setComponent(sceneEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
-    setComponent(avatar.value, GLTFComponent, { src: avatarUrl })
-    //workaround to prevent a few frames of untextured, tposing avatars
-    removeComponent(sceneEntity, VisibleComponent)
-    setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: avatar.value })
-  }, [avatar])
 
   useEffect(() => {
     if (!loaded) return

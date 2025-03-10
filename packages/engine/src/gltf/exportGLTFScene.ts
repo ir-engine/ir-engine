@@ -72,6 +72,7 @@ import { SourceComponent } from '../scene/components/SourceComponent'
 import { handleScenePaths } from '../scene/functions/GLTFConversion'
 import { GLTFComponent } from './GLTFComponent'
 import { NodeIDComponent } from './NodeIDComponent'
+import { SceneDeltaExporterExtension } from './SceneDeltaExporterExtension'
 
 const WEBGL_CONSTANTS = {
   POINTS: 0x0000,
@@ -198,9 +199,9 @@ type GLTFSceneExportContext = {
   }
 }
 
-export type ExportExtension = new () => GLTFSceneExportExtension
+export type ExportExtension = GLTFSceneExportExtension
 
-export const defaultExportExtensionList = [] as ExportExtension[]
+export const defaultExportExtensionList = [SceneDeltaExporterExtension] as (() => ExportExtension)[]
 
 type TypedArrayConstructor =
   | Int8ArrayConstructor
@@ -319,9 +320,9 @@ export async function exportGLTFScene(
   projectName: string,
   relativePath: string,
   exportRoot = true,
-  exportExtensionTypes: ExportExtension[] = defaultExportExtensionList
+  exportExtensionTypes: ExportExtension[] = defaultExportExtensionList.map((ext) => ext())
 ) {
-  const exportExtensions = exportExtensionTypes.map((ext) => new ext())
+  const exportExtensions = exportExtensionTypes //.map((ext) => new ext())
 
   const gltf = {
     asset: { generator: 'IREngine.SceneExporter', version: '2.0' },
@@ -437,15 +438,14 @@ const exportMesh = async (mesh: Mesh, gltf: GLTF.IGLTF, context: GLTFSceneExport
       if (attributeName.slice(0, 5) === 'morph') continue
 
       const attribute = geometry.attributes[attributeName]
-      if (attribute instanceof InterleavedBufferAttribute) {
-        throw new Error('InterleavedBufferAttribute not supported')
-      }
 
       const convertedName = nameConversion[attributeName] || attributeName.toUpperCase()
 
       let attributeIndex = -1
       if (context.cache.attributes.has(attribute)) {
         attributeIndex = context.cache.attributes.get(attribute)!
+      } else if (attribute instanceof InterleavedBufferAttribute) {
+        attributeIndex = exportAccessor(toDeInterleaved(attribute), gltf, context)
       } else {
         attributeIndex = exportAccessor(attribute, gltf, context)
       }
@@ -490,6 +490,10 @@ const exportMesh = async (mesh: Mesh, gltf: GLTF.IGLTF, context: GLTFSceneExport
   context.cache.meshes.set(mesh, meshIndex)
 
   return meshIndex
+}
+
+const toDeInterleaved = (attribute: InterleavedBufferAttribute): BufferAttribute => {
+  return attribute.clone(undefined)
 }
 
 const exportAccessor = (
