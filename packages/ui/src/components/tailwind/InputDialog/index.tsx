@@ -94,15 +94,14 @@ export const InputDialog = ({ title, fields, onSubmit, onClose, modalProps }: In
         {fields.map((field, index) => {
           if (field.type === 'radio') {
             return (
-              <>
-                {field.label && <Label className="mb-1">{field.label}</Label>}
+              <div>
+                {field.label && <Label className="mb-4">{field.label}</Label>}
                 <RadioGroup
-                  horizontal
                   options={field.options || []}
                   value={fieldValues[field.id].value || ''}
-                  onChange={(e) => handleChange(e.target.value, field.id, index)}
+                  onChange={(value) => handleChange(value, field.id, index)}
                 />
-              </>
+              </div>
             )
           } else {
             return (
