@@ -38,6 +38,7 @@ import {
   inviteCodeLookupPath,
   locationPath,
   messagePath,
+  moderationBanPath,
   UserID,
   userKickPath,
   userPath,
@@ -152,6 +153,17 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
   const userId = user.id
   // disallow users from joining media servers if they are not age verified
   if (instance.channelId && !user.ageVerified) return false
+  const thisUserBanned = (await app.service(moderationBanPath).find({
+    query: {
+      banUserId: userId,
+      banned: true,
+      $limit: 0
+    }
+  })) as any
+  if (thisUserBanned.total > 0) {
+    logger.info(`User "${userId}" is banned.`)
+    return false
+  }
 
   const authorizedUsers = (await app.service(instanceAuthorizedUserPath).find({
     query: {
