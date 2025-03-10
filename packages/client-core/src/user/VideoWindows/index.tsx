@@ -201,10 +201,10 @@ const ReportUserWindow = () => {
             disabled={!videoMediaStream}
             onClick={() => toggleVideo()}
           >
-            {!videoStreamPaused ? (
-              <VideoRecorderLg className="h-5 w-5 text-text-primary-button" />
-            ) : (
+            {videoStreamPaused || !videoMediaStream ? (
               <VideoRecorderOffLg className="h-5 w-5 text-text-primary-button" />
+            ) : (
+              <VideoRecorderLg className="h-5 w-5 text-text-primary-button" />
             )}
           </button>
           <button
@@ -212,10 +212,10 @@ const ReportUserWindow = () => {
             disabled={!audioMediaStream}
             onClick={() => toggleAudio()}
           >
-            {!audioStreamPaused ? (
-              <Microphone01Md className="h-5 w-5 text-text-primary-button" />
-            ) : (
+            {audioStreamPaused || !audioMediaStream ? (
               <MicrophoneOff className="h-5 w-5 text-text-primary-button" />
+            ) : (
+              <Microphone01Md className="h-5 w-5 text-text-primary-button" />
             )}
           </button>
           <button
