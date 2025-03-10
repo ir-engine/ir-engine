@@ -348,7 +348,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
         await saveSceneGLTF(
           sceneAssetID!,
           projectName,
-          sceneName.replace('.gltf', '-duplicated.gltf'),
+          sceneName.replace('.gltf', '-compressed.gltf'),
           abortController.signal,
           true,
           saveScenePath + '/' + scenename
