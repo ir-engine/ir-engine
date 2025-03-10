@@ -37,16 +37,13 @@ import { useEngineCanvas } from '@ir-engine/spatial/src/renderer/functions/useEn
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 
 import { useEngineInjection } from '@ir-engine/client-core/src/components/World/EngineHooks'
-import { useUserBannedCheck } from '@ir-engine/client-core/src/hooks/useUserBanned'
 import { LoadingUISystemState } from '@ir-engine/client-core/src/systems/LoadingUISystem'
-import { useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import '../styles.scss'
 
 const LocationRoutes = () => {
   const ref = useRef<HTMLElement>(document.body)
-  const ready = useMutableState(LoadingUISystemState).value.ready
-
-  useUserBannedCheck()
+  const ready = useHookstate(getMutableState(LoadingUISystemState).ready).value
 
   useSpatialEngine()
   useEngineCanvas(ref)
@@ -56,22 +53,21 @@ const LocationRoutes = () => {
 
   return (
     <Suspense>
-      {projectsLoaded ? (
+      {projectsLoaded && (
         <Routes>
           <Route path=":locationName" element={<LocationPage online />} />
         </Routes>
-      ) : (
-        !ready && (
-          <div className="flex h-screen w-screen items-center justify-center bg-white" style={{ zIndex: 1000000 }}>
-            <LoadingView
-              fullScreen
-              animated
-              className="block h-12 w-12"
-              title={t('common:loader.loadingApp')}
-              titleClassname="text-[#262626]"
-            />
-          </div>
-        )
+      )}
+      {!ready && (
+        <div className="flex h-screen w-screen items-center justify-center bg-white" style={{ zIndex: 1000000 }}>
+          <LoadingView
+            fullScreen
+            animated
+            className="block h-12 w-12"
+            title={t('common:loader.loadingApp')}
+            titleClassname="text-[#262626]"
+          />
+        </div>
       )}
       <Debug />
     </Suspense>
