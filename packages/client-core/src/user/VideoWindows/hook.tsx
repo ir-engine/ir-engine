@@ -130,7 +130,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   useEffect(() => {
     audioElement.muted = audioStreamPaused || isSelf
-    audioElement.volume = audioStreamPaused || isSelf ? 0 : volume
+    audioElement.volume = volume
   }, [audioStreamPaused])
 
   useEffect(() => {
