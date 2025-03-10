@@ -204,9 +204,10 @@ function NewMessage() {
 
 function ReportUserButton({ userId }: { userId: UserID }) {
   const peerId = NetworkState.mediaNetwork.users[userId]?.[0]
+  const peerMediaChannelState = useMutableState(PeerMediaChannelState)
   if (!peerId) return null
 
-  const isCameraVisibile = useMutableState(PeerMediaChannelState)[peerId]?.['cam']?.value
+  const isCameraVisibile = peerMediaChannelState[peerId]?.['cam']?.value
   if (!isCameraVisibile) return null
 
   return (
