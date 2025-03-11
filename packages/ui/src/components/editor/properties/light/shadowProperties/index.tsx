@@ -63,7 +63,6 @@ export const LightShadowProperties: EditorComponentType = (props: LightShadowPro
 
     scene.traverse((object) => {
       if (object instanceof Mesh) {
-        console.log(object)
         object.updateMatrixWorld() // Ensure the object's world matrix is up-to-date
         boundingBox.expandByObject(object) // Expand the bounding box to include the object
       }
