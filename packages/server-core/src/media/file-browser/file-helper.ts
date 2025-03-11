@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { StaticResourceType, invalidationPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
+import { FileToAssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getStats } from '../static-resource/static-resource-helper'
@@ -52,7 +52,7 @@ export const uploadStaticResource = async (app: Application, args: StaticResourc
 
   const storageProvider = getStorageProvider()
 
-  const assetClass = AssetLoader.getAssetClass(key)
+  const assetClass = FileToAssetType(key)
   const stats = await getStats(body, contentType)
   const hash = createStaticResourceHash(body)
 
