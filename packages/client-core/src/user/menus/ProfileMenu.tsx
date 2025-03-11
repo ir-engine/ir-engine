@@ -414,7 +414,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             )}
 
             {acceptedTOS && apiKey?.id && (
-              <button onClick={() => showApiKey.set(!showApiKey.value)} className="w-fit text-text-secondary">
+              <button onClick={() => showApiKey.set(!showApiKey.value)} className="w-fit text-text-primary">
                 <Text fontSize="sm">
                   {showApiKey.value ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
                 </Text>
@@ -465,6 +465,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             initialized && 'top-[4.5rem]'
           )}
         >
+          {apiKey?.id && <div className="h-2"></div>}
           {isGuest && !originallyAcceptedTOS && (
             <>
               <div className="flex w-full items-center justify-start gap-x-1">
