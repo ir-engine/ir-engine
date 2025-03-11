@@ -140,10 +140,14 @@ const RigidBodyReactor = () => {
   const physicsWorld = Physics.useWorld(entity)!
 
   useEffect(() => {
+    if (!component.initialized.value) return
+    TransformComponent.dirty[entity] = 1
+  }, [component.initialized.value])
+
+  useEffect(() => {
     if (!physicsWorld) return
     Physics.createRigidBody(physicsWorld, entity)
     component.initialized.set(true)
-    TransformComponent.dirty[entity] = 1
     return () => {
       Physics.removeRigidbody(physicsWorld, entity)
       if (!hasComponent(entity, RigidBodyComponent)) return
@@ -156,6 +160,7 @@ const RigidBodyReactor = () => {
     const type = component.type.value
     setComponent(entity, getTagComponentForRigidBody(type))
     Physics.setRigidBodyType(physicsWorld, entity, type)
+    TransformComponent.dirty[entity] = 1
     return () => {
       removeComponent(entity, getTagComponentForRigidBody(type))
     }
