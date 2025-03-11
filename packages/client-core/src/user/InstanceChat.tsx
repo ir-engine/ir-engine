@@ -26,11 +26,19 @@ Infinite Reality Engine. All Rights Reserved.
 import { useFind, useMutation } from '@ir-engine/common'
 import { InstanceID, MessageType, messagePath } from '@ir-engine/common/src/schema.type.module'
 import { useTouchOutside } from '@ir-engine/common/src/utils/useClickOutside'
-import { State, dispatchAction, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { State, UserID, dispatchAction, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
+import { PeerMediaChannelState } from '@ir-engine/network/src/media/PeerMediaChannelState'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { Button } from '@ir-engine/ui'
-import { MessageTextSquare01Lg, MessageTextSquare01Md, Send01Lg, Send01Sm, XCloseLg } from '@ir-engine/ui/src/icons'
+import {
+  ArrowTopRightOnSquareSm,
+  MessageTextSquare01Lg,
+  MessageTextSquare01Md,
+  Send01Lg,
+  Send01Sm,
+  XCloseLg
+} from '@ir-engine/ui/src/icons'
 import React, { createContext, useContext, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
@@ -38,6 +46,7 @@ import { useMediaNetwork } from '../common/services/MediaInstanceConnectionServi
 import { PopoverState } from '../common/services/PopoverState'
 import { ChannelState } from '../social/services/ChannelService'
 import { AvatarUIActions, AvatarUIState } from '../systems/state/AvatarUIState'
+import { ReportUserState } from '../util/ReportUserState'
 import LocationIconButton from './components/LocationIconButton'
 import ProfileMenu from './menus/ProfileMenu'
 import { AuthState } from './services/AuthService'
@@ -107,7 +116,7 @@ function NewMessage() {
   const user = useMutableState(AuthState).user
   const usersTyping = useMutableState(AvatarUIState).usersTyping[user?.id.value].value
   const messageMutation = useMutation(messagePath, false)
-  const { messages, setNewMessage, isChatOpen, unreadMessages } = useInstanceChatMessages()
+  const { messages, setNewMessage, isChatOpen } = useInstanceChatMessages()
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleComposedMessage = (event: React.ChangeEvent<HTMLInputElement>): void => {
@@ -193,6 +202,21 @@ function NewMessage() {
   )
 }
 
+function ReportUserButton({ userId }: { userId: UserID }) {
+  const peerId = NetworkState.mediaNetwork.users[userId]?.[0]
+  const peerMediaChannelState = useMutableState(PeerMediaChannelState)
+  if (!peerId) return null
+
+  const isCameraVisibile = peerMediaChannelState[peerId]?.['cam']?.value
+  if (!isCameraVisibile) return null
+
+  return (
+    <button onClick={() => ReportUserState.setReportedPeerId(peerId)}>
+      <ArrowTopRightOnSquareSm />
+    </button>
+  )
+}
+
 function Message({ message, hideUsername }: { message: MessageType; hideUsername: boolean }) {
   const user = useMutableState(AuthState).user
   const { newMessages } = useInstanceChatMessages()
@@ -215,8 +239,10 @@ function Message({ message, hideUsername }: { message: MessageType; hideUsername
         hideUsername && '-mt-3'
       )}
     >
-      {message.sender.id !== user.id.value && !hideUsername && (
-        <div className="text-xs font-bold text-text-primary lg:text-lg">{message.sender.name}</div>
+      {message.senderId !== user.id.value && !hideUsername && (
+        <div className="flex items-center gap-x-2 text-xs font-bold text-text-primary lg:text-lg">
+          {message.sender.name} <ReportUserButton userId={message.senderId} />
+        </div>
       )}
       <div className="text-sm tracking-[-0.14px] text-text-primary lg:text-base lg:tracking-normal">{message.text}</div>
     </div>
