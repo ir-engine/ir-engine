@@ -183,6 +183,7 @@ const getToken = async (): Promise<string> => {
 export const AuthState = defineState({
   name: 'AuthState',
   initial: () => ({
+    isAuthenticated: false,
     isProcessing: false,
     error: '',
     authUser: AuthUserSeed,
@@ -306,6 +307,7 @@ export const AuthService = {
       } else {
         logger.warn('No response received from reAuthenticate()!')
       }
+      getMutableState(AuthState).isAuthenticated.set(true)
     } catch (err) {
       logger.error(err, 'Error on resolving auth user in doLoginAuto, logging out')
       authState.merge({ user: UserSeed, authUser: AuthUserSeed })
@@ -857,7 +859,9 @@ function parseLoginDisplayCredential(credentials) {
 }
 
 export const useAuthenticated = () => {
-  const userID = useHookstate(getMutableState(AuthState).user.id).value
+  const authState = getMutableState(AuthState)
+  const userID = useHookstate(authState.user.id).value
+  const isAuthenticated = useHookstate(authState.isAuthenticated).value
 
   useEffect(() => {
     AuthService.doLoginAuto()
@@ -870,5 +874,5 @@ export const useAuthenticated = () => {
     getMutableState(EngineState).userID.set(userID)
   }, [userID])
 
-  return userID !== ''
+  return isAuthenticated
 }

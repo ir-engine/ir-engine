@@ -182,11 +182,13 @@ const Select = ({
   }, [value, localValue, selectedOptionIndex, filteredOptions])
 
   useEffect(() => {
-    const index = filteredOptions.findIndex((option) => option.value === localValue.value)
-    if (index !== -1) {
-      setDisplayText(filteredOptions[index].label)
+    if (filteredOptions.length) {
+      const index = filteredOptions.findIndex((option) => option.value === localValue.value)
+      if (index !== -1) {
+        setDisplayText(filteredOptions[index].label)
+      }
     }
-  }, [localValue])
+  }, [localValue, filteredOptions])
 
   useEffect(() => {
     if (searchString === '') {
@@ -241,6 +243,8 @@ const Select = ({
       resizeObserver.disconnect()
     }
   }, [])
+
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const togglePopup = () => {
     if (popupRef.current) {
@@ -318,9 +322,11 @@ const Select = ({
                 )}
               >
                 <input
+                  ref={inputRef}
                   onClick={() => {
                     if (!disabled) {
                       togglePopup()
+                      setTimeout(() => inputRef.current?.focus(), 0)
                     }
                   }}
                   type="text"

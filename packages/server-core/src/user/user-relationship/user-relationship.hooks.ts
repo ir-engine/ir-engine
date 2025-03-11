@@ -35,8 +35,8 @@ import {
   userRelationshipQueryValidator
 } from '@ir-engine/common/src/schemas/user/user-relationship.schema'
 import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import setLoggedInUserInQuery from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-query'
-
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
@@ -107,8 +107,8 @@ const clearBlockingRelationships = async (context: HookContext<UserRelationshipS
   const { relatedUserId, userRelationshipType } = context.data as UserRelationshipData
   const user = context.params.user
 
-  if (userRelationshipType === 'blocking') {
-    await context.app.service(userRelationshipPath).remove(relatedUserId, { user })
+  if (userRelationshipType === 'blocking' && isValidId(relatedUserId as string) && user) {
+    await context.app.service(userRelationshipPath).remove(relatedUserId as string, { user })
   }
 }
 

@@ -438,15 +438,14 @@ const exportMesh = async (mesh: Mesh, gltf: GLTF.IGLTF, context: GLTFSceneExport
       if (attributeName.slice(0, 5) === 'morph') continue
 
       const attribute = geometry.attributes[attributeName]
-      if (attribute instanceof InterleavedBufferAttribute) {
-        throw new Error('InterleavedBufferAttribute not supported')
-      }
 
       const convertedName = nameConversion[attributeName] || attributeName.toUpperCase()
 
       let attributeIndex = -1
       if (context.cache.attributes.has(attribute)) {
         attributeIndex = context.cache.attributes.get(attribute)!
+      } else if (attribute instanceof InterleavedBufferAttribute) {
+        attributeIndex = exportAccessor(toDeInterleaved(attribute), gltf, context)
       } else {
         attributeIndex = exportAccessor(attribute, gltf, context)
       }
@@ -491,6 +490,10 @@ const exportMesh = async (mesh: Mesh, gltf: GLTF.IGLTF, context: GLTFSceneExport
   context.cache.meshes.set(mesh, meshIndex)
 
   return meshIndex
+}
+
+const toDeInterleaved = (attribute: InterleavedBufferAttribute): BufferAttribute => {
+  return attribute.clone(undefined)
 }
 
 const exportAccessor = (

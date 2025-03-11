@@ -23,26 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import NumericInput, { NumericInputProp } from '..'
-import Scrubber from '../../../layout/Scrubber'
+import { GUID_ID_REGEX } from '../regex'
 
-const removeNumericInputOnlyProps = (props) => {
-  const removeElement = (object, keyToRemove) => {
-    const { [keyToRemove]: removedKey, ...updatedObject } = object
-    return updatedObject
-  }
-  props = removeElement(props, 'inputClassName')
-  props = removeElement(props, 'prefixIconClassName')
-  props = removeElement(props, 'PreFixIcon')
-  props = removeElement(props, 'prefixClassName')
-  props = removeElement(props, 'suffixIconClassName')
-  props = removeElement(props, 'SuffixIcon')
-  return props
+/**
+ * Method used to validate if the given id is a valid guid
+ * @param id
+ * @returns
+ */
+export const isValidId = (id: string) => {
+  return GUID_ID_REGEX.test(id)
 }
-
-export default (props: NumericInputProp) => (
-  <Scrubber className="w-full" {...removeNumericInputOnlyProps(props)}>
-    <NumericInput className="w-full" {...props} />
-  </Scrubber>
-)

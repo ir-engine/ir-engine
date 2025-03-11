@@ -25,8 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { BadRequest } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, discard, discardQuery, iff, iffElse, isProvider, keepQuery } from 'feathers-hooks-common'
-
 import { locationAdminPath } from '@ir-engine/common/src/schemas/social/location-admin.schema'
 import { locationAuthorizedUserPath } from '@ir-engine/common/src/schemas/social/location-authorized-user.schema'
 import { locationSettingPath } from '@ir-engine/common/src/schemas/social/location-setting.schema'
@@ -40,7 +38,9 @@ import {
   LocationType
 } from '@ir-engine/common/src/schemas/social/location.schema'
 import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import verifyScope from '@ir-engine/server-core/src/hooks/verify-scope'
+import { disallow, discard, discardQuery, iff, iffElse, isProvider, keepQuery } from 'feathers-hooks-common'
 
 import { projectHistoryPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
@@ -173,7 +173,8 @@ const removeLocationSetting = async (context: HookContext<LocationService>) => {
   if (context.id) {
     const location = await context.app.service(locationPath).get(context.id)
 
-    if (location.locationSetting) await context.app.service(locationSettingPath).remove(location.locationSetting.id)
+    if (location.locationSetting && isValidId(location.locationSetting.id))
+      await context.app.service(locationSettingPath).remove(location.locationSetting.id)
   }
 }
 
