@@ -57,6 +57,7 @@ function NodeHierarchyItem({ node, onClick }: { node: AssetCategoryNode; onClick
         collapsed={!isOpen}
         onClick={handleClick}
         style={{ paddingLeft: `${32 * node.depth}px` }}
+        className="bg-surface-1"
       />
 
       {isOpen &&

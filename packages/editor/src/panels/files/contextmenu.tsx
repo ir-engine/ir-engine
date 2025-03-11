@@ -250,7 +250,7 @@ export function FileContextMenu({
 
   return (
     <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)}>
-      <div className="w-40 overflow-hidden rounded" style={{ backgroundColor: `rgba(var(--tw-color-surface-0), 0.9)` }}>
+      <div className="w-40 overflow-hidden rounded bg-surface-0">
         {fileActions
           .filter((action) => action.condition || Object.keys(action).length === 0)
           .map((action, index, arr) => {
