@@ -27,6 +27,7 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import { isValidFileName } from '@ir-engine/common/src/utils/validateFileName'
 import {
   Component,
   Entity,
@@ -62,6 +63,7 @@ import { SelectionState } from '../../services/SelectionServices'
 export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?: Entity; isExportLookDev?: boolean }) {
   const defaultPrefabFolder = useHookstate<string>('assets/custom-prefabs')
   const prefabName = useHookstate<string>('prefab')
+  const resultFileName = useHookstate(isValidFileName(prefabName.value))
   const prefabTag = useHookstate<string[]>(['prefab'])
   const { t } = useTranslation()
   const isOverwriteModalVisible = useHookstate(false)
@@ -210,6 +212,7 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
           onSubmit={onExportPrefab}
           className="w-[50vw] max-w-2xl"
           onClose={PopoverState.hidePopupover}
+          submitButtonDisabled={!resultFileName.value.isValid}
         >
           <Input
             value={defaultPrefabFolder.value}
@@ -221,12 +224,18 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
           />
           <Input
             value={prefabName.value}
-            onChange={(event) => prefabName.set(event.target.value)}
+            onChange={(event) => {
+              resultFileName.set(isValidFileName(event.target.value))
+              prefabName.set(event.target.value)
+            }}
             labelProps={{
               text: 'Name',
               position: 'top'
             }}
+            minLength={4}
             maxLength={64}
+            state={!resultFileName.value.isValid ? 'error' : undefined}
+            helperText={!resultFileName.value.isValid ? resultFileName.value.error : undefined}
           />
           {!isExportLookDev && (
             <div>

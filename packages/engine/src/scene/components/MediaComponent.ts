@@ -310,11 +310,11 @@ export function MediaReactor() {
       const mediaComponent = getOptionalComponent(entity, MediaElementComponent)
 
       // handle when we dont have autoplay enabled but have programatically started playback
-      if (!media.autoplay.value && !media.paused.value) mediaComponent?.element.play()
+      if (!getAutoPlay() && !media.paused.value) mediaComponent?.element.play()
       // handle when we have autoplay enabled but have paused playback
-      if (media.autoplay.value && media.paused.value) media.paused.set(false)
+      if (getAutoPlay() && media.paused.value) media.paused.set(false)
       // handle when we have autoplay and mediaComponent is paused
-      if (media.autoplay.value && !media.paused.value && mediaComponent?.element.paused) {
+      if (getAutoPlay() && !media.paused.value && mediaComponent?.element.paused) {
         mediaComponent.element.play()
         const autoplay = getAutoPlay()
         media.paused.set(!autoplay)
@@ -415,21 +415,24 @@ export function MediaReactor() {
 
       // If no paths or currently play path has been removed stop the track from playing
       // and signal to move to next track if one exists
-      if (hasComponent(entity, MediaElementComponent)) {
-        const mediaElement = getComponent(entity, MediaElementComponent).element
 
-        if (paths.length === 0 || media.track.value >= paths.length) {
-          mediaElement.pause()
-          mediaElement.src = ''
-          mediaElement.load()
-          removeComponent(entity, MediaElementComponent)
-          media.track.set(-1)
-        } else {
-          const currentSrc = paths[media.track.value]
-          //if the currently played track has been updated to a new src path
-          if (currentSrc !== mediaElement.src) {
-            playTrack()
-          }
+      let mediaElement: HTMLMediaElement | undefined = undefined
+
+      if (hasComponent(entity, MediaElementComponent)) {
+        mediaElement = getComponent(entity, MediaElementComponent).element
+      }
+
+      if (mediaElement && (paths.length === 0 || media.track.value >= paths.length)) {
+        mediaElement.pause()
+        mediaElement.src = ''
+        mediaElement.load()
+        removeComponent(entity, MediaElementComponent)
+        media.track.set(-1)
+      } else {
+        const currentSrc = paths[media.track.value]
+        //if the currently played track has been updated to a new src path
+        if (!mediaElement || currentSrc !== mediaElement.src) {
+          playTrack()
         }
       }
 
@@ -440,7 +443,7 @@ export function MediaReactor() {
         }
       }
     },
-    [media.resources]
+    [media.resources, media.resources[media.track.value]]
   )
 
   useEffect(() => {
