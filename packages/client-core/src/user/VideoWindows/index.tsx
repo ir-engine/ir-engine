@@ -27,7 +27,7 @@ import React from 'react'
 
 import { UserID, userPath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { getState, NO_PROXY, PeerID, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, NO_PROXY, PeerID, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 
 import { useGet } from '@ir-engine/common'
@@ -50,10 +50,11 @@ import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionSe
 import { PopoverState } from '../../common/services/PopoverState'
 import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { LocationState } from '../../social/services/LocationService'
+import { ReportUserState } from '../../util/ReportUserState'
 import { FilteredUsersState } from '../../world/FilteredUsersSystem'
 import ReportMenu from '../menus/ReportMenu'
 import { AuthState } from '../services/AuthService'
-import { ReportUserProvider, useReportUser, useUserMediaWindowHook } from './hook'
+import { useUserMediaWindowHook } from './hook'
 import { SingleVideoWindow, SingleVideoWindowWidget } from './window'
 
 type WindowType = { peerID: PeerID; type: 'cam' | 'screen' }
@@ -144,34 +145,36 @@ export const useMediaWindows = () => {
 export const VideoWindows = () => {
   const windows = useMediaWindows()
   return (
-    <ReportUserProvider>
+    <>
       <div className="flex flex-col gap-y-2">
         {windows.map(({ peerID, type }) => (
           <SingleVideoWindow type={type} peerID={peerID} key={type + '-' + peerID} />
         ))}
       </div>
       <ReportUserWindowWrapper />
-    </ReportUserProvider>
+    </>
   )
 }
 
 const ReportUserWindowWrapper = () => {
-  const { reportedPeerId } = useReportUser()
-  if (reportedPeerId) return <ReportUserWindow />
+  const { reportedPeerId } = useMutableState(ReportUserState)
+  if (reportedPeerId.value && getMutableState(PeerMediaChannelState)[reportedPeerId.value]['cam'])
+    return <ReportUserWindow />
   return null
 }
 
 const ReportUserWindow = () => {
   const { t } = useTranslation()
-  const { reportedPeerId, resetPeerId } = useReportUser()
-  const reportedUserId = NetworkState.mediaNetwork.peers?.[reportedPeerId!]?.userId
+  const { reportedPeerId } = useMutableState(ReportUserState)
+  const reportedUserId = NetworkState.mediaNetwork.peers?.[reportedPeerId.value!]?.userId
   const avatarThumbnail = useUserAvatarThumbnail(reportedUserId)
   const reportedUser = useGet(userPath, reportedUserId).data
   const currentLocation = getState(LocationState).currentLocation.location
-  const { toggleVideo, toggleAudio, audioStreamPaused, videoStreamPaused } = useUserMediaWindowHook({
-    peerID: reportedPeerId!,
-    type: 'cam'
-  })
+  const { toggleVideo, toggleAudio, audioStreamPaused, videoStreamPaused, audioMediaStream, videoMediaStream } =
+    useUserMediaWindowHook({
+      peerID: reportedPeerId.value!,
+      type: 'cam'
+    })
 
   if (!reportedPeerId || !reportedUserId || !reportedUser) return null
 
@@ -185,20 +188,31 @@ const ReportUserWindow = () => {
           <Text className="text-text-primary" fontWeight="medium" fontSize="lg">
             {reportedUser.name}
           </Text>
-          <button className="grid h-10 w-10 rotate-180 place-items-center text-[#585858]" onClick={() => resetPeerId()}>
+          <button
+            className="grid h-10 w-10 rotate-180 place-items-center text-[#585858]"
+            onClick={() => ReportUserState.resetPeerId()}
+          >
             <ArrowTopRightOnSquareLg />
           </button>
         </div>
         <div className="flex items-center gap-x-4">
-          <button className="rounded-full bg-ui-secondary p-[15px]" onClick={() => toggleVideo()}>
-            {!videoStreamPaused ? (
+          <button
+            className="rounded-full bg-ui-secondary p-[15px] disabled:bg-ui-inactive-secondary"
+            disabled={!videoMediaStream}
+            onClick={() => toggleVideo()}
+          >
+            {videoStreamPaused || !videoMediaStream ? (
               <VideoRecorderOffLg className="h-5 w-5 text-text-primary-button" />
             ) : (
               <VideoRecorderLg className="h-5 w-5 text-text-primary-button" />
             )}
           </button>
-          <button className="rounded-full bg-ui-secondary p-[15px]" onClick={() => toggleAudio()}>
-            {!audioStreamPaused ? (
+          <button
+            className="rounded-full bg-ui-secondary p-[15px] disabled:bg-ui-inactive-secondary"
+            disabled={!audioMediaStream}
+            onClick={() => toggleAudio()}
+          >
+            {audioStreamPaused || !audioMediaStream ? (
               <MicrophoneOff className="h-5 w-5 text-text-primary-button" />
             ) : (
               <Microphone01Md className="h-5 w-5 text-text-primary-button" />
@@ -255,14 +269,12 @@ export const VideoWindowsWidget = () => {
   }
 
   return (
-    <ReportUserProvider>
-      <div className="flex flex-col gap-y-2">
-        {windows
-          .filter(({ peerID }) => peerMediaChannelState[peerID].value)
-          .map(({ peerID, type }) => (
-            <SingleVideoWindowWidget type={type} peerID={peerID} key={type + '-' + peerID} />
-          ))}
-      </div>
-    </ReportUserProvider>
+    <div className="flex flex-col gap-y-2">
+      {windows
+        .filter(({ peerID }) => peerMediaChannelState[peerID].value)
+        .map(({ peerID, type }) => (
+          <SingleVideoWindowWidget type={type} peerID={peerID} key={type + '-' + peerID} />
+        ))}
+    </div>
   )
 }
