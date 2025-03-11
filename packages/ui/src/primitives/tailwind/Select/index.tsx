@@ -50,6 +50,7 @@ export interface SelectProps<T = string | number> {
   width?: 'sm' | 'md' | 'lg' | 'full'
   inputHeight?: InputProps['height']
   onChange: (value: T) => void
+  /** Callback fired when user is typing text */
   onInputChange?: (value: string) => void
   onOpen?: (isOpen: boolean) => void
   value: T
@@ -342,7 +343,6 @@ const Select = ({
                     setDisplayText(e.target.value)
                     setSearchString(e.target.value)
                     onInputChange && onInputChange(e.target.value)
-                    onInputChange && ref.current && ref.current.focus()
                   }}
                 />
 
