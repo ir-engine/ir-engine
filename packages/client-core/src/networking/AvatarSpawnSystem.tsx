@@ -108,11 +108,14 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
     const rootUUID = getComponent(sceneEntity, UUIDComponent)
     const avatarSpawnPose = getRandomSpawnPoint(userID)
     const user = getState(AuthState).user
-
+    /**@todo force default avatars. Temporary solution for memory related crashing on iOS. */
+    const avatarURL = iOS
+      ? config.client.fileServer + '/projects/ir-engine/default-project/assets/avatars/irRobot.vrm'
+      : userAvatar.avatar.modelResource!.url
     spawnLocalAvatarInWorld({
       parentUUID: rootUUID,
       avatarSpawnPose,
-      avatarURL: userAvatar.avatar.modelResource!.url!,
+      avatarURL,
       name: user.name
     })
 
