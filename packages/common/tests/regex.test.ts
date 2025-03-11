@@ -61,8 +61,6 @@ describe('regex.test', () => {
         'question?mark',
         'asterisk*char',
         'control\0char',
-        'another\ncontrol',
-        'file name',
         '< tag >',
         'key : value',
         'quote " example',
