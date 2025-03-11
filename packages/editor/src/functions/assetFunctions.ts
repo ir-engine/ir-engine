@@ -208,7 +208,8 @@ export const filterExistingFiles = async (projectName: string, directoryPath: st
 export const handleUploadFiles = (
   projectName: string,
   directoryPath: string,
-  files: FileList | File[]
+  files: FileList | File[],
+  updateThumbnail = true
 ): Promise<string[]> => {
   const { ktx2: compressedImage } = CommonKnownContentTypes
   const importSettingsState = getMutableState(ImportSettingsState)
@@ -242,6 +243,7 @@ export const handleUploadFiles = (
         ]
       })
         .promise.then((response) => {
+          if (!updateThumbnail) return response[0]
           //get the static resource record for this file, so we can make it's thumbnail null, since it was oerwritten
           const checkStaticResourceThumbnail = async (path) => {
             await API.instance
@@ -288,11 +290,13 @@ export const handleUploadFiles = (
 export const inputFileWithAddToScene = ({
   projectName,
   directoryPath,
-  preserveDirectory
+  preserveDirectory,
+  updateThumbnail = true
 }: {
   projectName: string
   directoryPath: string
   preserveDirectory?: boolean
+  updateThumbnail?: boolean
 }): Promise<null> =>
   new Promise((resolve, reject) => {
     const el = document.createElement('input')
@@ -327,12 +331,14 @@ const createFileUploader = ({
   projectName,
   directoryPath,
   preserveDirectory,
-  acceptedFileTypes
+  acceptedFileTypes,
+  updateThumbnail = true
 }: {
   projectName: string
   directoryPath: string
   preserveDirectory?: boolean
   acceptedFileTypes: string
+  updateThumbnail?: boolean
 }): Promise<string> =>
   new Promise((resolve, reject) => {
     const el = document.createElement('input')
@@ -349,7 +355,7 @@ const createFileUploader = ({
         if (el.files?.length) {
           const newFiles = sanitizeFiles(el.files)
           const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
-          const [uploadedFileUrl] = await handleUploadFiles(projectName, directoryPath, uniqueFiles)
+          const [uploadedFileUrl] = await handleUploadFiles(projectName, directoryPath, uniqueFiles, updateThumbnail)
 
           if (uploadedFileUrl) {
             resolve(uploadedFileUrl)
@@ -375,14 +381,24 @@ export const uploadImageFile = (params: {
   directoryPath: string
   preserveDirectory?: boolean
   acceptedFileTypes?: string
-}): Promise<string> => createFileUploader({ ...params, acceptedFileTypes: params.acceptedFileTypes ?? 'image/*' })
+}): Promise<string> =>
+  createFileUploader({
+    ...params,
+    acceptedFileTypes: params.acceptedFileTypes ?? 'image/*',
+    updateThumbnail: false
+  })
 
 // currently only supporting mp4
 export const uploadVideoFile = (params: {
   projectName: string
   directoryPath: string
   preserveDirectory?: boolean
-}): Promise<string> => createFileUploader({ ...params, acceptedFileTypes: 'video/mp4,.mp4' })
+}): Promise<string> =>
+  createFileUploader({
+    ...params,
+    acceptedFileTypes: 'video/mp4,.mp4',
+    updateThumbnail: false
+  })
 
 export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], args?: object[]) => {
   const promises: CancelableUploadPromiseReturnType<string>[] = []
