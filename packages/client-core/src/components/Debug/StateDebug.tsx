@@ -90,7 +90,7 @@ export function StateDebug() {
   return (
     <div className="m-1 bg-neutral-600 p-1">
       <div className="my-0.5">
-        <Text>{t('common:debug.state')}</Text>
+        <Text className="text-text-primary-button">{t('common:debug.state')}</Text>
         <Input
           type="text"
           placeholder="Search..."

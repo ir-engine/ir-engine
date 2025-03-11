@@ -23,26 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import NumericInput, { NumericInputProp } from '..'
-import Scrubber from '../../../layout/Scrubber'
+import { defineState, getMutableState, PeerID } from '@ir-engine/hyperflux'
 
-const removeNumericInputOnlyProps = (props) => {
-  const removeElement = (object, keyToRemove) => {
-    const { [keyToRemove]: removedKey, ...updatedObject } = object
-    return updatedObject
+export const ReportUserState = defineState({
+  name: 'ReportUserState',
+  initial: () => ({
+    reportedPeerId: undefined as PeerID | undefined
+  }),
+  setReportedPeerId: (peerId: PeerID) => {
+    getMutableState(ReportUserState).reportedPeerId.set(peerId)
+  },
+  resetPeerId: () => {
+    getMutableState(ReportUserState).reportedPeerId.set(undefined)
   }
-  props = removeElement(props, 'inputClassName')
-  props = removeElement(props, 'prefixIconClassName')
-  props = removeElement(props, 'PreFixIcon')
-  props = removeElement(props, 'prefixClassName')
-  props = removeElement(props, 'suffixIconClassName')
-  props = removeElement(props, 'SuffixIcon')
-  return props
-}
-
-export default (props: NumericInputProp) => (
-  <Scrubber className="w-full" {...removeNumericInputOnlyProps(props)}>
-    <NumericInput className="w-full" {...props} />
-  </Scrubber>
-)
+})

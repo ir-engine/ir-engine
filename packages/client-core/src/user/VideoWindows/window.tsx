@@ -31,7 +31,8 @@ import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 import React, { useEffect, useRef } from 'react'
 
 import { useTranslation } from 'react-i18next'
-import { Props, useReportUser, useUserMediaWindowHook } from './hook'
+import { ReportUserState } from '../../util/ReportUserState'
+import { Props, useUserMediaWindowHook } from './hook'
 
 export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
   const { isSelf, isPiP, isScreen, videoMediaStream, avatarThumbnail, videoStreamPaused, togglePiP } =
@@ -41,7 +42,6 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
     })
 
   const { t } = useTranslation()
-  const { setReportedPeerId: setReportedUserId } = useReportUser()
   const peerMediaChannelState = useHookstate(
     getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
   )
@@ -107,7 +107,7 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
           className={`hidden lg:group-hover/video-window:flex ${isMoreButtonVisible.value ? 'flex' : ''}`}
           onClick={() => {
             isMoreButtonVisible.set(false)
-            setReportedUserId(peerID)
+            ReportUserState.setReportedPeerId(peerID)
           }}
         >
           {t('user:videoWindows.more')}

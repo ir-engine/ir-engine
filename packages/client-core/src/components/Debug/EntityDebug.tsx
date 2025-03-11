@@ -207,7 +207,7 @@ export const EntityDebug = () => {
   return (
     <div className="m-1 bg-neutral-600 p-1">
       <div className="my-1">
-        <Text>{t('common:debug.scenes')}</Text>
+        <Text className="text-text-primary-button">{t('common:debug.scenes')}</Text>
         <JSONTree
           data={entityTree.get(NO_PROXY)}
           shouldExpandNodeInitially={shouldExpandNodeInitially}
@@ -215,7 +215,7 @@ export const EntityDebug = () => {
         />
       </div>
       <div className="my-1">
-        <Text>{t('common:debug.entities')}</Text>
+        <Text className="text-text-primary-button">{t('common:debug.entities')}</Text>
         <Input
           placeholder="Search..."
           value={entitySearch.value}
@@ -225,11 +225,11 @@ export const EntityDebug = () => {
         <JSONTree data={namedEntities.get(NO_PROXY)} />
       </div>
       <div className="my-1">
-        <Text>{t('common:debug.suspendedEntities')}</Text>
+        <Text className="text-text-primary-button">{t('common:debug.suspendedEntities')}</Text>
         <JSONTree data={suspendedEntities} />
       </div>
       <div className="my-1">
-        <Text>{t('common:debug.erroredEntities')}</Text>
+        <Text className="text-text-primary-button">{t('common:debug.erroredEntities')}</Text>
         <JSONTree data={erroredComponents.get(NO_PROXY)} />
       </div>
     </div>
