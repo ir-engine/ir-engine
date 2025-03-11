@@ -438,6 +438,14 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
               checked={media.muteEditor.value}
               onChange={commitProperty(MediaComponent, 'muteEditor')}
             />
+            {mediaMode === MediaMode.video && (
+              <Checkbox
+                label={t('editor:properties.media.info-controls')}
+                variantTextPlacement={'right'}
+                checked={media.controls.value}
+                onChange={commitProperty(MediaComponent, 'controls')}
+              />
+            )}
           </InputGroup>
 
           <InputGroup name="Play Mode" label={t('editor:properties.media.playmode')}>
