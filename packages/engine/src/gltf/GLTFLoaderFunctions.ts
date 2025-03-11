@@ -55,6 +55,7 @@ import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import {
   MaterialInstanceComponent,
+  MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
@@ -131,6 +132,7 @@ import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { SourceID } from '../scene/components/SourceComponent'
 import {
   MATERIAL_JSON_ID,
+  MATERIAL_PROTOTYPE_JSON_ID,
   SceneDeltaEntry,
   SceneDeltaRegistry,
   SceneDeltaState
@@ -791,6 +793,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
 
   await Promise.all(promises)
 
+  const userData = {}
   //apply deltas
   const deltaState = getState(SceneDeltaState)
   const sourceDelta = deltaState[GLTFComponent.removeHashes(options.documentID)]
@@ -799,8 +802,17 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
     const nodeDelta = sourceDelta[nodeID]
     if (nodeDelta) {
       const materialDelta = nodeDelta[MATERIAL_JSON_ID]
+      const materialPrototype = nodeDelta[MATERIAL_PROTOTYPE_JSON_ID]
       if (materialDelta) {
-        Object.assign(materialParams, materialDelta)
+        const prototype = getState(MaterialPrototypeDefinitions)[materialPrototype]
+        if (materialPrototype) materialConstructor = prototype.prototypeConstructor
+        for (const key in materialDelta) {
+          if (prototype.arguments[key]?.type === 'color') {
+            materialParams[key] = new Color(materialDelta[key])
+          } else {
+            materialParams[key] = materialDelta[key]
+          }
+        }
       }
     }
   }

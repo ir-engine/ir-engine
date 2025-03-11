@@ -130,8 +130,19 @@ export async function addMediaNode(
                 }
               }
               const uuids = getComponent(entity, MaterialInstanceComponent).uuid
-              uuids[materialIndex] = getComponent(material, UUIDComponent)
-              setComponent(entity, MaterialInstanceComponent, { uuid: uuids })
+              const materialUUID = getComponent(material, UUIDComponent)
+              /**@todo we should be setting the uuid of the material instance component to the uuid of the new material */
+              //uuids[materialIndex] = materialUUID,
+              //setComponent(entity, MaterialInstanceComponent, { uuid: uuids })
+              /**scene deltas do not yet support this, so a temporary hackfix is to modify existing materials to match */
+              const materialComponent = getComponent(material, MaterialStateComponent)
+              EditorControlFunctions.updateMaterialPrototype(
+                UUIDComponent.getEntityByUUID(uuids[materialIndex], Layers.Authoring),
+                materialComponent.material.userData?.type
+              )
+              EditorControlFunctions.modifyMaterial([uuids[materialIndex]], uuids[materialIndex], [
+                getComponent(material, MaterialStateComponent).parameters
+              ])
               foundTarget = true
             })
             if (foundTarget) break

@@ -34,6 +34,7 @@ import { SceneState } from '../../gltf/GLTFState'
 export type SceneDeltaEntry<C extends Component> = Record<string, Partial<SerializedComponentType<C>>>
 
 export const MATERIAL_JSON_ID = 'materialParameters' as const
+export const MATERIAL_PROTOTYPE_JSON_ID = 'prototypeConstructor' as const
 
 export type MaterialDeltaEntry = Record<typeof MATERIAL_JSON_ID, any>
 
@@ -55,7 +56,7 @@ export const SceneDeltaState = defineState({
     componentMap[component.jsonID] = { ...componentMap[component.jsonID], ...delta }
     source[nodeID].set(componentMap)
   },
-  registerMaterialDelta(entity: Entity, props: any) {
+  registerMaterialDelta(entity: Entity, props?: any, prototype?: string) {
     if (!hasComponent(entity, SourceComponent) || !hasComponent(entity, NodeIDComponent)) return
     const sourceID = GLTFComponent.removeHashes(getComponent(entity, SourceComponent))
     const nodeID = getComponent(entity, NodeIDComponent)
@@ -64,7 +65,8 @@ export const SceneDeltaState = defineState({
     const source = state[sourceID]
     if (!source.value[nodeID]) source[nodeID].set({} as MaterialDeltaEntry)
     const componentMap = source[nodeID].get(NO_PROXY_STEALTH) as MaterialDeltaEntry
-    componentMap[MATERIAL_JSON_ID] = { ...componentMap[MATERIAL_JSON_ID], ...props }
+    if (props) componentMap[MATERIAL_JSON_ID] = { ...componentMap[MATERIAL_JSON_ID], ...props }
+    if (prototype) componentMap[MATERIAL_PROTOTYPE_JSON_ID] = prototype
     source[nodeID].set(componentMap)
   },
   reactor: () => {
