@@ -80,7 +80,7 @@ export const LightShadowProperties: EditorComponentType = (props: LightShadowPro
 
     // Calculate bias based on scene scale, resolution, and depth range
     const bias = -(sceneScale / (shadowMapResolution * depthRangeFactor))
-    lightComponent.shadowBias.set(bias)
+    commitProperty(props.component, 'shadowBias')(bias)
   }
   return (
     <>
