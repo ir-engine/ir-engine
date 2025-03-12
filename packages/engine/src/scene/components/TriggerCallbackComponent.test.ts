@@ -44,7 +44,7 @@ import {
   assertColliderComponentEquals
 } from '@ir-engine/spatial/src/physics/components/ColliderComponent.test'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
-import { CollisionGroups, DefaultCollisionMask } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
+import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
@@ -193,8 +193,8 @@ describe('TriggerCallbackComponent', () => {
         massCenter: new Vector3(1, 2, 3),
         friction: 1.0,
         restitution: 0.1,
-        collisionLayer: CollisionGroups.Default,
-        collisionMask: DefaultCollisionMask
+        collisionLayer: CollisionGroups.Trigger,
+        collisionMask: CollisionGroups.Avatars
       }
       setComponent(testEntity, ColliderComponent, ColliderComponentData)
       assertColliderComponentEquals(getComponent(testEntity, ColliderComponent), ColliderComponentData)
