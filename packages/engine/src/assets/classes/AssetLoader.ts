@@ -40,6 +40,7 @@ import { DomainConfigState } from '../state/DomainConfigState'
 
 /**
  * Get asset type from the asset file extension.
+ * @deprecated use FileToAssetExt instead
  * @param assetFileName Name of the Asset file.
  * @returns Asset type of the file.
  */
@@ -49,6 +50,7 @@ const getAssetType = (assetFileName: string): AssetExt => {
 
 /**
  * Get asset class from the asset file extension.
+ * @deprecated use FileToAssetType instead
  * @param assetFileName Name of the Asset file.
  * @returns Asset class of the file.
  */

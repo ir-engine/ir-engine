@@ -69,7 +69,6 @@ import {
   getFilesRecursive
 } from '@ir-engine/common/src/utils/fsHelperFunctions'
 import { isValidId } from '@ir-engine/common/src/utils/isValidId'
-import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { getState } from '@ir-engine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@ir-engine/projects/ProjectConfigInterface'
 
@@ -1784,7 +1783,7 @@ export const uploadLocalProjectToProvider = async (
       }
 
       const isScene = oldManifestScenes && oldManifestScenes.includes(filePathRelative)
-      const thisFileClass = AssetLoader.getAssetClass(key)
+      const thisFileClass = FileToAssetType(key)
       const hash = createStaticResourceHash(fileResult)
       const stats = await getStats(fileResult, contentType)
       const resourceInfo = resourcesJson?.[filePathRelative]
