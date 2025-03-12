@@ -113,7 +113,6 @@ export async function addMediaNode(
 
       AssetState.loadAsync(url, false, UUIDComponent.generateUUID(), UndefinedEntity, Layers.Authoring as LayerID).then(
         (assetEntity) => {
-          /** @todo do we need to get rid of the gltf entity here? */
           const [material] = getChildrenWithComponents(assetEntity, [MaterialStateComponent])
           let foundTarget = false
           for (const intersection of intersections) {
@@ -130,8 +129,9 @@ export async function addMediaNode(
                 }
               }
               const uuids = getComponent(entity, MaterialInstanceComponent).uuid
-              const materialUUID = getComponent(material, UUIDComponent)
+
               /**@todo we should be setting the uuid of the material instance component to the uuid of the new material */
+              //const materialUUID = getComponent(material, UUIDComponent)
               //uuids[materialIndex] = materialUUID,
               //setComponent(entity, MaterialInstanceComponent, { uuid: uuids })
               /**scene deltas do not yet support this, so a temporary hackfix is to modify existing materials to match */
@@ -143,6 +143,7 @@ export async function addMediaNode(
               EditorControlFunctions.modifyMaterial([uuids[materialIndex]], uuids[materialIndex], [
                 getComponent(material, MaterialStateComponent).parameters
               ])
+              removeEntity(assetEntity)
               foundTarget = true
             })
             if (foundTarget) break

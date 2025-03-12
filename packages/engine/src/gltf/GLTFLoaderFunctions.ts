@@ -631,7 +631,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
 
   // if (materialDef.extensions) addUnknownExtensionsToUserData(GLTFExtensions, material, materialDef)
 
-  const materialParams = {} as any
+  let materialParams = {} as any
   const promises = [] as Promise<void>[]
   const materialExtensions = materialDef.extensions || {}
 
@@ -806,6 +806,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
       if (materialDelta) {
         const prototype = getState(MaterialPrototypeDefinitions)[materialPrototype]
         if (materialPrototype) materialConstructor = prototype.prototypeConstructor
+        materialParams = {}
         for (const key in materialDelta) {
           if (prototype.arguments[key]?.type === 'color') {
             materialParams[key] = new Color(materialDelta[key])
