@@ -808,6 +808,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
         const prototype = getState(MaterialPrototypeDefinitions)[materialPrototype ?? materialConstructor.name] // this is insanely brittle but will do for now
         if (materialPrototype) {
           materialConstructor = prototype.prototypeConstructor
+          materialConstructorParameters = {}
         }
         for (const key in materialDelta) {
           switch (prototype.arguments[key]?.type) {

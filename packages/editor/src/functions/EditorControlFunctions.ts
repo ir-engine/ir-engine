@@ -246,7 +246,9 @@ const setupMaterialParameters = (entity: Entity, properties: { [_: string]: any 
     console.log(properties[k], prototypeArgs[k].type)
     switch (prototypeArgs[k].type) {
       case 'texture': {
-        materialComponent.parameters[k].set((v as Texture).source.data.src)
+        const src = (v as Texture).source.data?.src as string | undefined
+        if (!src) break
+        materialComponent.parameters[k].set(src?.startsWith('blob:') ? src.substring(5) : src)
         break
       }
       case 'color': {
