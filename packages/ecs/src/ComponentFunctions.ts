@@ -1107,6 +1107,8 @@ export function getAuthoringCounterpart(entity: Entity) {
     return entity
   }
   return LayerComponents[Layers.Simulation].refs[entity]
+    ? LayerComponents[Layers.Simulation].refs[entity]
+    : UndefinedEntity
 }
 
 export function getSimulationCounterpart(entity: Entity) {

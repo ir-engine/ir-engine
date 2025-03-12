@@ -60,6 +60,7 @@ const collisionQuery = defineQuery([CollisionComponent])
 const execute = () => {
   for (const entity of collisionQuery()) {
     for (const [e, hit] of getComponent(entity, CollisionComponent)) {
+      console.log(hit.type)
       if (hit.type === CollisionEvents.TRIGGER_START || hit.type === CollisionEvents.TRIGGER_END) {
         triggerEnterOrExit(entity, e, hit)
       }

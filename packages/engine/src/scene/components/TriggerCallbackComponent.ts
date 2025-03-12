@@ -23,9 +23,24 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent, removeComponent, setComponent, useEntityContext } from '@ir-engine/ecs'
+import {
+  defineComponent,
+  getAuthoringCounterpart,
+  getComponent,
+  removeComponent,
+  setComponent,
+  UndefinedEntity,
+  useAncestorWithComponents,
+  useEntityContext,
+  useOptionalComponent
+} from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { CreateSchemaValue } from '@ir-engine/ecs/src/schemas/JSONSchemaUtils'
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
+import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
+import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { useEffect } from 'react'
 import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 
@@ -54,14 +69,58 @@ export const TriggerCallbackComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
+    const updateEntity = getAuthoringCounterpart(entity) === UndefinedEntity ? entity : getAuthoringCounterpart(entity)
+    const updateCollider = useOptionalComponent(updateEntity, ColliderComponent)
+    const updateRigidbody = useAncestorWithComponents(entity, [RigidBodyComponent])
 
     useEffect(() => {
       setComponent(entity, TriggerComponent)
+
       return () => {
         removeComponent(entity, TriggerComponent)
+        const collider = getComponent(updateEntity, ColliderComponent)
+        if (collider) {
+          //reset to defaults, since not a trigger
+          const defaults = CreateSchemaValue(updateEntity, ColliderComponent.schema)
+          setComponent(updateEntity, ColliderComponent, {
+            shape: defaults.shape,
+            collisionLayer: defaults.collisionLayer,
+            collisionMask: defaults.collisionMask
+          })
+        }
       }
     }, [])
+
+    useEffect(() => {
+      //make sure collider is set to trigger supported values
+      let defaultShape: any = supportedTriggerShapes[0]
+      if (updateCollider) {
+        if (supportedTriggerShapes.includes(updateCollider.shape.value as any)) {
+          defaultShape = updateCollider.shape.value
+        }
+      }
+      setComponent(updateEntity, ColliderComponent, {
+        shape: defaultShape,
+        collisionLayer: CollisionGroups.Trigger,
+        collisionMask: CollisionGroups.Avatars
+      })
+    }, [!!updateCollider?.value])
+
+    useEffect(() => {
+      if (updateRigidbody) return
+      setComponent(updateEntity, RigidBodyComponent)
+    }, [updateRigidbody])
 
     return null
   }
 })
+
+export const supportedTriggerShapes = [
+  Shapes.Sphere,
+  Shapes.Capsule
+  //Shapes.Cylinder,
+  //Shapes.Box,
+  // Shapes.ConvexHull,
+  //Shapes.Mesh
+  // Shapes.Heightfield
+]
