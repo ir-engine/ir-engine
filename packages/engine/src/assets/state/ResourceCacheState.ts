@@ -34,8 +34,8 @@ export enum ResourceStatus {
   Error
 }
 
-export const AssetCacheState = defineState({
-  name: 'AssetCacheState',
+export const ResourceCacheState = defineState({
+  name: 'ResourceCacheState',
   initial: {} as Record<
     string,
     {

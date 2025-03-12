@@ -39,9 +39,6 @@ Infinite Reality Engine. All Rights Reserved.
  */
 
 import {
-	CompressedTexture,
-	CompressedArrayTexture,
-	CompressedCubeTexture,
 	Data3DTexture,
 	DataTexture,
 	DisplayP3ColorSpace,
@@ -99,6 +96,7 @@ import WebWorker from 'web-worker'
 import { FileLoader } from '../base/FileLoader';
 import { Loader } from '../base/Loader';
 import { isClient } from '@ir-engine/hyperflux'
+import { RefetchableCompressedCubeTexture, RefetchableCompressedArrayTexture, RefetchableCompressedTexture } from '../texture/RefetchableTexture';
 
 const _taskCache = new WeakMap();
 
@@ -116,7 +114,7 @@ class KTX2Loader extends Loader {
 		this.transcoderBinary = null;
 		this.transcoderPending = null;
 
-		this.workerPool = new WorkerPool();
+		this.workerPool = new WorkerPool(1);
 		this.workerSourceURL = '';
 		this.workerConfig = null;
 
@@ -300,15 +298,17 @@ class KTX2Loader extends Loader {
 
 		if ( container.faceCount === 6 ) {
 
-			texture = new CompressedCubeTexture( faces, format, UnsignedByteType );
+			texture = new RefetchableCompressedCubeTexture( faces, format, UnsignedByteType );
+			texture.loader = this;
 
 		} else {
 
 			const mipmaps = faces[ 0 ].mipmaps;
 
 			texture = container.layerCount > 1
-				? new CompressedArrayTexture( mipmaps, width, height, container.layerCount, format, UnsignedByteType )
-				: new CompressedTexture( mipmaps, width, height, format, UnsignedByteType );
+				? new RefetchableCompressedArrayTexture( mipmaps, width, height, container.layerCount, format, UnsignedByteType )
+				: new RefetchableCompressedTexture( mipmaps, width, height, format, UnsignedByteType );
+			texture.loader = this;
 
 		}
 

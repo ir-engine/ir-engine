@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   AnimationClip,
   BufferAttribute,
-  Cache,
   CompressedTexture,
   InterleavedBufferAttribute,
   Light,
@@ -44,6 +43,7 @@ import {
   QueryReactor,
   getAncestorWithComponents,
   getAuthoringCounterpart,
+  getComponent,
   getOptionalComponent,
   useComponent,
   useEntityContext
@@ -53,10 +53,18 @@ import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/Obje
 
 import React, { useEffect } from 'react'
 import { Geometry } from '../common/constants/Geometry'
+import { isIPhone } from '../common/functions/isMobile'
 import iterateObject3D from '../common/functions/iterateObject3D'
 import { ColliderComponent } from '../physics/components/ColliderComponent'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { PerformanceState } from '../renderer/PerformanceState'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'
+
+declare module 'three/src/textures/Texture.js' {
+  export interface Texture {
+    refetchSource?(): void
+  }
+}
 
 export interface DisposableObject {
   uuid: string
@@ -66,7 +74,7 @@ export interface DisposableObject {
   disposed?: boolean
 }
 
-Cache.enabled = false
+// Cache.enabled = true
 
 export enum ResourceType {
   Mesh = 'Mesh',
@@ -243,43 +251,54 @@ const resourceCallbacks = {
       discardUponUpload = false
     ) => {
       if (!asset.image) return
+
       resource.metadata.merge({ onGPU: false, discarded: false })
       asset.onUpdate = () => {
-        resource.metadata.merge({ onGPU: true, discarded: discardUponUpload })
-        //@ts-ignore
-        // asset.onUpdate = null
-        if (discardUponUpload) {
-          // setTimeout(() => {
-          //   asset.source.data = null
-          //   asset.mipmaps = []
-          // }, 500)
+        const prevSize = resource.metadata.size.value ?? 0
+        // TODO: we should be tracking texture sources, not textures objects
+        resourceState.totalBufferCount.set(resourceState.totalBufferCount.value - prevSize)
+
+        resource.metadata.merge({ textureWidth: asset.image.width })
+
+        //Compressed texture size
+        if (asset.mipmaps[0]) {
+          let size = 0
+          for (const mip of asset.mipmaps) {
+            size += mip.data.byteLength
+          }
+          resource.metadata.size.set(size)
+          // Non compressed texture size
+        } else {
+          const height = asset.image.height
+          const width = asset.image.width
+          const size = width * height * 4
+          resource.metadata.size.set(size)
+        }
+
+        const viewer = getState(ReferenceSpaceState).viewerEntity
+        const renderer = getComponent(viewer, RendererComponent)
+        const gl = renderer.renderContext as WebGL2RenderingContext
+        if (discardUponUpload && gl.fenceSync && isIPhone) {
+          const sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0)
+          if (sync) {
+            const checkSync = () => {
+              const status = gl.clientWaitSync(sync, 0, 0)
+              if (status === gl.TIMEOUT_EXPIRED) {
+                requestAnimationFrame(checkSync)
+              } else {
+                gl.deleteSync(sync)
+                resource.metadata.merge({ onGPU: true, discarded: true })
+                asset.source.data = null
+                asset.mipmaps = []
+              }
+            }
+            requestAnimationFrame(checkSync)
+          }
         }
       }
-      if ((asset as CompressedTexture).isCompressedTexture && discardUponUpload) {
-        // for some reason, this is necessary for the onUpdate to trigger
+      if (!asset.needsUpdate && discardUponUpload) {
         asset.needsUpdate = true
       }
-      //Compressed texture size
-      if (asset.mipmaps[0]) {
-        let size = 0
-        for (const mip of asset.mipmaps) {
-          size += mip.data.byteLength
-        }
-        resource.metadata.size.set(size)
-        // Non compressed texture size
-      } else {
-        const height = asset.image.height
-        const width = asset.image.width
-        const size = width * height * 4
-        resource.metadata.size.set(size)
-      }
-      /** @todo why did we put the id on the source data? */
-      // if ((asset as CompressedTexture).isCompressedTexture) {
-      //   const id = resource.id.value
-      //   if (id.endsWith('ktx2')) asset.source.data.src = id
-      // }`
-      resource.metadata.merge({ textureWidth: asset.image.width })
-      resourceState.totalBufferCount.set(resourceState.totalBufferCount.value + resource.metadata.size.value!)
     },
     onUnload: (
       asset: Texture | CompressedTexture,
@@ -639,6 +658,16 @@ const useEntityResource = (entity: Entity, state: State<ResourceAssetType>) => {
   }, [state])
 }
 
+const getAllResourcesOfType = (type: ResourceType) => {
+  const resources = getState(ResourceState).resources
+  const result = [] as Resource[]
+  for (const key in resources) {
+    const resource = resources[key]
+    if (resource.type === type) result.push(resource)
+  }
+  return result
+}
+
 export const ResourceState = defineState({
   name: 'ResourceState',
 
@@ -655,6 +684,8 @@ export const ResourceState = defineState({
   debugWarn: (...data: any[]) => {
     if (getState(ResourceState).debug) console.warn(...data)
   },
+
+  getAllResourcesOfType,
 
   resourceCallbacks,
   useEntityResource,

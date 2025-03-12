@@ -49,7 +49,7 @@ import { Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockAnimatedAvatar } from '../../../tests/avatar/mockAnimatedAvatar'
 import { startEngineReactor } from '../../../tests/startEngineReactor'
-import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
+import { overrideFileLoaderEach } from '../../../tests/util/loadGLTFAssetNode'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarIKComponent, AvatarIKTargetComponent, IKMatrixComponent } from '../components/AvatarIKComponents'
 import { NormalizedBoneComponent } from '../components/NormalizedBoneComponent'
@@ -61,7 +61,7 @@ import { AvatarIkReactor, AvatarIKSystem } from './AvatarIKSystem'
 
 const default_url = 'packages/projects/default-project/assets'
 describe('AvatarIKSystem', () => {
-  overrideFileLoaderLoad()
+  overrideFileLoaderEach()
 
   beforeEach(async () => {
     createEngine()

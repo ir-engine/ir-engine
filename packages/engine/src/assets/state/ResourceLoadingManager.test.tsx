@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { GLTF } from '@gltf-transform/core'
 import assert from 'assert'
-import { Cache, LoadingManager } from 'three'
+import { LoadingManager } from 'three'
 import { DoneCallback, afterEach, beforeEach, describe, it } from 'vitest'
 
 import { createEntity, destroyEngine } from '@ir-engine/ecs'
@@ -65,7 +65,6 @@ describe.skip('ResourceLoadingManager', () => {
       const controller = new AbortController()
 
       assert.doesNotThrow(() => {
-        Cache.add(url, gltf)
         setDefaultLoadingManager(
           new ResourceLoadingManager((startUrl) => {
             assert(startUrl === url)

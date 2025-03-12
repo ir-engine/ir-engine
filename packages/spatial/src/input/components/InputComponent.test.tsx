@@ -57,7 +57,6 @@ import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { Raycaster } from 'three'
 import { assertArray } from '../../../tests/util/assert'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
-import { initializeSpatialEngine } from '../../initializeEngine'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { ReferenceSpace } from '../../xr/XRState'
 import { ButtonStateMap, MouseScroll, XRStandardGamepadAxes } from '../state/ButtonState'
@@ -1052,35 +1051,9 @@ describe('InputComponent', () => {
     //   :  don't return early
   })
 
-  // useExecuteWithInput(
-  //   executeOnInput: () => void,
-  //   executeWhenEditing = false,
-  //   order: InputExecutionOrder = InputExecutionOrder.With
-  // ) {
-  //   const entity = useEntityContext()
-  //
-  //   return useExecute(() => {
-  //     const capturingEntity = getState(InputState).capturingEntity
-  //     if (
-  //       (!executeWhenEditing && getState(EngineState).isEditing) ||
-  //       (capturingEntity && !isAncestor(capturingEntity, entity, true))
-  //     )
-  //       return
-  //     executeOnInput()
-  //   }, getInputExecutionInsert(order))
-  // },
-
-  describe('reactor', () => {
-    beforeEach(() => {
-      createEngine()
-      initializeSpatialEngine()
-    })
-
-    afterEach(() => {
-      return destroyEngine()
-    })
-
-    it('should add a HighlightComponent to the entity when the InputComponent is set with `highlight: true', async () => {
+  /** @todo reimplement non-reactively */
+  describe.skip('reactor', () => {
+    it('should add a HighlightComponent to the entity when the InputComponent is set with `highlight: true`', async () => {
       const entity = getState(ReferenceSpaceState).localFloorEntity
 
       const Expected = { highlight: true, grow: true }

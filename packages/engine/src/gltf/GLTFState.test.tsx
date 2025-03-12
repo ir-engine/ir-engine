@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { GLTF } from '@gltf-transform/core'
 import assert from 'assert'
-import { Cache, Color, Euler, Matrix4, Quaternion, Vector3 } from 'three'
+import { Color, Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 
 import {
@@ -46,6 +46,7 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { HemisphereLightComponent } from '@ir-engine/spatial/src/renderer/components/lights/HemisphereLightComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { overrideFileLoader } from '../../tests/util/loadGLTFAssetNode'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { AssetState, GLTFLoadSystem } from './GLTFState'
 import { NodeFunctions } from './NodeFunctions'
@@ -62,11 +63,12 @@ const toSignificantFigures = (array: number[], figures: number) => {
 
 const timeout = globalThis.setTimeout
 
+const { override, restore } = overrideFileLoader()
+
 describe.skip('GLTFState', () => {
   let physicsWorldEntity: Entity
 
   beforeEach(async () => {
-    Cache.enabled = true
     createEngine()
 
     await Physics.load()
@@ -84,9 +86,9 @@ describe.skip('GLTFState', () => {
   })
 
   afterEach(() => {
-    Cache.enabled = false
     globalThis.setTimeout = timeout
 
+    restore()
     return destroyEngine()
   })
 
@@ -108,8 +110,7 @@ describe.skip('GLTFState', () => {
         }
       ]
     }
-
-    Cache.add('/test.gltf', gltf)
+    override({ '/test.gltf': gltf })
 
     const gltfEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity)
 
@@ -164,7 +165,7 @@ describe.skip('GLTFState', () => {
       ]
     }
 
-    Cache.add('/test.gltf', gltf)
+    override({ '/test.gltf': gltf })
 
     const gltfEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity)
 
@@ -231,7 +232,7 @@ describe.skip('GLTFState', () => {
       ]
     }
 
-    Cache.add('/test.gltf', gltf)
+    override({ '/test.gltf': gltf })
 
     const gltfEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity)
 
@@ -308,7 +309,7 @@ describe.skip('GLTFState', () => {
       ]
     }
 
-    Cache.add('/test.gltf', gltf)
+    override({ '/test.gltf': gltf })
 
     const gltfEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity)
 
@@ -368,7 +369,7 @@ describe.skip('GLTFState', () => {
       ]
     }
 
-    Cache.add('/test.gltf', gltf)
+    override({ '/test.gltf': gltf })
 
     const gltfEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity)
 

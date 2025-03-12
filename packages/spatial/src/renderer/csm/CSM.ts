@@ -415,7 +415,6 @@ export class CSM {
         shader.uniforms.shadowFar = { value: far }
 
         shaders.set(material, shader)
-        this.needsUpdate = true
       }
     }
 
