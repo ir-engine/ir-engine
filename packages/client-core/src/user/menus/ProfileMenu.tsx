@@ -637,7 +637,6 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
           <button
             className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
             onClick={() => {
-              console.log('Opening logout')
               PopoverState.hidePopupover() // Close the ProfileMenu popover
               PopoverState.showPopupover(
                 <ConfirmDialog
