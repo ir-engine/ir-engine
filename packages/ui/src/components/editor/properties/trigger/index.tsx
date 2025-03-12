@@ -23,7 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityTreeComponent, getComponent, useAncestorWithComponents, useComponent, useQuery } from '@ir-engine/ecs'
+import {
+  EntityTreeComponent,
+  getComponent,
+  hasComponent,
+  useAncestorWithComponents,
+  useComponent,
+  useQuery
+} from '@ir-engine/ecs'
 import {
   EditorComponentType,
   commitProperties,
@@ -38,6 +45,7 @@ import { TriggerCallbackComponent } from '@ir-engine/engine/src/scene/components
 import { useHookstate } from '@ir-engine/hyperflux'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -62,6 +70,16 @@ const TriggerProperties: EditorComponentType = (props) => {
   const callbackQuery = useQuery([CallbackComponent, NameComponent, NodeIDComponent, EntityTreeComponent])
 
   useEffect(() => {
+    if (!hasComponent(props.entity, ColliderComponent)) {
+      const nodes = SelectionState.getSelectedEntities()
+      EditorControlFunctions.addOrRemoveComponent(nodes, ColliderComponent, true)
+    }
+
+    if (!hasComponent(props.entity, RigidBodyComponent)) {
+      const nodes = SelectionState.getSelectedEntities()
+      EditorControlFunctions.addOrRemoveComponent(nodes, RigidBodyComponent, true)
+    }
+
     const options = [] as TargetOptionType[]
     for (const entity of callbackQuery) {
       const callbacks = getComponent(entity, CallbackComponent)
