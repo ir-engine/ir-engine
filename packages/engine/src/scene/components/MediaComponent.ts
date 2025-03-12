@@ -182,12 +182,12 @@ export function MediaReactor() {
   const audioContext = getState(AudioState).audioContext
   const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
   const rendererEntity = useRendererEntity(entity)
+  const engineState = useMutableState(EngineState)
 
   function validateTime() {
-    if (!hasComponent(entity, MediaElementComponent)) return
-    const mediaElementComponent = getMutableComponent(entity, MediaElementComponent)
+    if (!mediaElement) return
 
-    const element = mediaElementComponent.element.value as HTMLMediaElement
+    const element = mediaElement.element.value as HTMLMediaElement
     let time = media.seekTime.value
 
     if (time > element.duration) {
@@ -196,11 +196,11 @@ export function MediaReactor() {
     if (time < 0) {
       time = 0
     }
-    setTime(mediaElementComponent.element, time)
+    setTime(mediaElement.element, time)
   }
 
   const getAutoPlay = () => {
-    const isEditing = getState(EngineState).isEditing
+    const isEditing = engineState.isEditing.value
     return isEditing ? false : media.autoplay.value
   }
 
@@ -299,6 +299,13 @@ export function MediaReactor() {
   }, [media.resources.length])
 
   useEffect(() => {
+    if (!mediaElement) return
+    const autoPlay = getAutoPlay()
+    media.paused.set(!autoPlay)
+    validateTime()
+  }, [media.autoplay, mediaElement, engineState.isEditing])
+
+  useEffect(() => {
     if (!rendererEntity) return
     setComponent(entity, BoundingBoxComponent)
     setComponent(entity, InputComponent, { highlight: false, grow: false })
@@ -370,14 +377,6 @@ export function MediaReactor() {
       removeCallback(entity, StandardCallbacks.RESET)
     }
   }, [rendererEntity])
-
-  useEffect(() => {
-    if (!mediaElement) return
-    const isEditing = getState(EngineState).isEditing
-    if (isEditing) return
-    const autoPlay = getAutoPlay()
-    media.paused.set(!autoPlay)
-  }, [media.autoplay, mediaElement, getState(EngineState).isEditing])
 
   useEffect(() => {
     if (!mediaElement) return
