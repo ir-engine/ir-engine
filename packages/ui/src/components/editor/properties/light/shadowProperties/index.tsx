@@ -28,13 +28,12 @@ import { useTranslation } from 'react-i18next'
 import { getComponent, iterateEntityNode } from '@ir-engine/ecs'
 import { Component, getOptionalComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { getState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { Button, Checkbox } from '@ir-engine/ui'
 import React from 'react'
@@ -52,7 +51,6 @@ type LightShadowPropertiesProps = {
  * OnChangeShadowMapResolution used to customize properties of LightShadowProperties
  * Used with LightNodeEditors.
  */
-const sceneQuery = defineQuery([SceneComponent])
 
 export const LightShadowProperties: EditorComponentType = (props: LightShadowPropertiesProps) => {
   const { t } = useTranslation()
@@ -60,19 +58,17 @@ export const LightShadowProperties: EditorComponentType = (props: LightShadowPro
   const cameraEntity = getState(ReferenceSpaceState).viewerEntity
   const camera = getComponent(cameraEntity, CameraComponent)
   const lightComponent = useComponent(props.entity, props.component) as any
+  const { rootEntity } = getState(EditorState)
 
   const calculateShadowBias = () => {
     const boundingBox = new Box3()
-    const sceneEntities = sceneQuery()
-    for (const entity of sceneEntities) {
-      iterateEntityNode(entity, (entity) => {
-        const mesh = getOptionalComponent(entity, MeshComponent)
-        if (mesh?.geometry?.boundingBox) {
-          mesh.updateMatrixWorld()
-          boundingBox.expandByObject(mesh)
-        }
-      })
-    }
+    iterateEntityNode(rootEntity, (entity) => {
+      const mesh = getOptionalComponent(entity, MeshComponent)
+      if (mesh?.geometry?.boundingBox) {
+        mesh.updateMatrixWorld()
+        boundingBox.expandByObject(mesh)
+      }
+    })
 
     const size = new Vector3()
     boundingBox.getSize(size)
