@@ -23,19 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  defineComponent,
-  getAuthoringCounterpart,
-  removeComponent,
-  setComponent,
-  UndefinedEntity,
-  useAncestorWithComponents,
-  useEntityContext,
-  useOptionalComponent
-} from '@ir-engine/ecs'
+import { defineComponent, removeComponent, setComponent, useEntityContext } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
-import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
 import { useEffect } from 'react'
 import { NodeIDSchema } from '../../gltf/NodeIDComponent'
@@ -65,13 +54,9 @@ export const TriggerCallbackComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const updateEntity = getAuthoringCounterpart(entity) === UndefinedEntity ? entity : getAuthoringCounterpart(entity)
-    const updateCollider = useOptionalComponent(updateEntity, ColliderComponent)
-    const updateRigidbody = useAncestorWithComponents(entity, [RigidBodyComponent])
 
     useEffect(() => {
       setComponent(entity, TriggerComponent)
-
       return () => {
         removeComponent(entity, TriggerComponent)
       }
