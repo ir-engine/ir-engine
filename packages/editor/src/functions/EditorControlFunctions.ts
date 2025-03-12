@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Euler, Material, Matrix4, Quaternion, Vector3 } from 'three'
+import { Euler, Material, Matrix4, Quaternion, Texture, Vector3 } from 'three'
 
 import {
   EntityTreeComponent,
@@ -76,6 +76,7 @@ import {
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { extractDefaults } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import { Color } from 'three'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
@@ -204,31 +205,61 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
     const materialEntity = UUIDComponent.getEntityByUUID(materialId, Layers.Authoring)
     const material = getComponent(materialEntity, MaterialStateComponent).material
     if (!material) return
+    if (!material) throw new Error('Updating properties on undefined material')
     const props = properties[i] ?? properties[0]
-    Object.entries(props).map(([k, v]) => {
-      if (!material) throw new Error('Updating properties on undefined material')
+    for (const [key, value] of Object.entries(props)) {
       if (
-        ![undefined, null].includes(v) &&
-        ![undefined, null].includes(material[k]) &&
-        typeof material[k] === 'object' &&
-        typeof material[k].set === 'function'
+        ![undefined, null].includes(value) &&
+        ![undefined, null].includes(material[key]) &&
+        typeof material[key] === 'object' &&
+        typeof material[key].set === 'function'
       ) {
-        material[k].set(v)
+        material[key].set(value)
       } else {
-        material[k] = v
+        material[key] = value
       }
-      getMutableComponent(materialEntity, MaterialStateComponent).parameters[k].set(v)
-    })
-    const sceneID = getComponent(materialEntity, SourceComponent)
+    }
+
+    setupMaterialParameters(materialEntity, props)
+
     getMutableComponent(
       LayerFunctions.getLayerRelationsEntities(materialEntity)![0][1],
       MaterialStateComponent
     ).material.plugins.set(material.plugins)
+
     EditorState.markModifiedScene(materialEntity)
     if (!EditorState.isInActiveScene(materialEntity)) {
-      SceneDeltaState.registerMaterialDelta(materialEntity, props)
+      SceneDeltaState.registerMaterialDelta(
+        materialEntity,
+        getComponent(materialEntity, MaterialStateComponent).parameters
+      )
     }
   }
+}
+
+/**sets up parameters for editing and serialization into a scene delta */
+const setupMaterialParameters = (entity: Entity, properties: { [_: string]: any }) => {
+  const materialComponent = getMutableComponent(entity, MaterialStateComponent)
+  const prototypeArgs = getState(MaterialPrototypeDefinitions)[materialComponent.material.type.value].arguments
+  Object.entries(properties).map(([k, v]) => {
+    if (!properties[k] || !prototypeArgs[k]?.type) return
+    console.log(properties[k], prototypeArgs[k].type)
+    switch (prototypeArgs[k].type) {
+      case 'texture': {
+        materialComponent.parameters[k].set((v as Texture).source.data.src)
+        console.log(v)
+        break
+      }
+      case 'color': {
+        materialComponent.parameters[k].set((v as Color).getHex())
+        break
+      }
+      default: {
+        materialComponent.parameters[k].set(v)
+        break
+      }
+    }
+  })
 }
 
 const lookDevComponent: Component[] = [
@@ -653,6 +684,7 @@ export const EditorControlFunctions = {
   modifyProperty,
   modifyName,
   modifyMaterial,
+  setupMaterialParameters,
   updateMaterialPrototype,
   createObjectFromSceneElement,
   duplicateObject,

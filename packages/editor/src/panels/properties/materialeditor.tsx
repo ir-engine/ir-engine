@@ -173,11 +173,11 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
     }
     return prop
   }
-
   const materialParameters = useHookstate({})
 
   useEffect(() => {
     prototypeName.set(material.type)
+    EditorControlFunctions.setupMaterialParameters(entity, material)
 
     materialParameters.set(
       Object.fromEntries(

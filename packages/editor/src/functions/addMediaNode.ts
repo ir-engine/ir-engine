@@ -141,7 +141,7 @@ export async function addMediaNode(
                 materialComponent.material.userData?.type
               )
               EditorControlFunctions.modifyMaterial([uuids[materialIndex]], uuids[materialIndex], [
-                getComponent(material, MaterialStateComponent).parameters
+                getComponent(material, MaterialStateComponent).material
               ])
               removeEntity(assetEntity)
               foundTarget = true
