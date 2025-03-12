@@ -29,11 +29,17 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { EditorComponentType, commitProperties } from '@ir-engine/editor/src/components/properties/Util'
+import {
+  EditorComponentType,
+  commitProperties,
+  commitProperty,
+  updateProperty
+} from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { PrimitiveGeometryComponent } from '@ir-engine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { GeometryTypeEnum } from '@ir-engine/engine/src/scene/constants/GeometryTypeEnum'
 import InputGroup from '../../../input/Group'
+import NumericInput from '../../../input/Numeric'
 import SelectInput from '../../../input/Select'
 
 /**
@@ -110,7 +116,7 @@ export const PrimitiveGeometryNodeEditor: EditorComponentType = (props) => {
   // const geometry = useOptionalComponent(entity, MeshComponent)?.geometry.get(NO_PROXY) as Geometry & {
   //   parameters?: Record<string, any>
   // }
-
+  console.log(primitiveGeometry)
   return (
     <NodeEditor
       {...props}
@@ -135,6 +141,17 @@ export const PrimitiveGeometryNodeEditor: EditorComponentType = (props) => {
           onChange={(key) => commitProperty(PrimitiveGeometryComponent, `geometryParams.${key}` as any)}
         />
       )} */}
+      <InputGroup name="width" label={t('editor:properties.primitiveGeometry.lbl-width')}>
+        <NumericInput
+          min={0}
+          smallStep={0.1}
+          mediumStep={1}
+          largeStep={10}
+          value={primitiveGeometry.geometryParams.width.value}
+          onChange={updateProperty(PrimitiveGeometryComponent, 'geometryParams.width' as any)}
+          onRelease={commitProperty(PrimitiveGeometryComponent, 'geometryParams.width' as any)}
+        />
+      </InputGroup>
     </NodeEditor>
   )
 }
