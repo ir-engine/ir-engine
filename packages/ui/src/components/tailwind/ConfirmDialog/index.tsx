@@ -28,6 +28,8 @@ import React from 'react'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useHookstate } from '@ir-engine/hyperflux'
 
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { twMerge } from 'tailwind-merge'
 import Modal, { ModalProps } from '../../../primitives/tailwind/Modal'
 import Text from '../../../primitives/tailwind/Text'
 
@@ -62,15 +64,24 @@ export const ConfirmDialog = ({ title, text, onSubmit, onClose, modalProps }: Co
         PopoverState.hidePopupover()
         onClose?.()
       }}
-      className="w-[50vw] max-w-2xl"
+      className={twMerge(
+        'w-[50vw] max-w-2xl bg-surface-1',
+        isMobile ? 'h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl' : ''
+      )}
       submitLoading={modalProcessing.value}
+      rawChildren={
+        <div
+          className={twMerge(
+            'flex flex-col items-center gap-2',
+            isMobile ? 'h-[calc(90dvh-4rem-4.5rem)] justify-center' : ''
+          )}
+        >
+          <Text className="text-text-secondary">{text}</Text>
+          {errorText.value && <Text className="text-red-700	">{errorText.value}</Text>}
+        </div>
+      }
       {...modalProps}
-    >
-      <div className="flex flex-col items-center gap-2">
-        <Text>{text}</Text>
-        {errorText.value && <Text className="text-red-700	">{errorText.value}</Text>}
-      </div>
-    </Modal>
+    ></Modal>
   )
 }
 
