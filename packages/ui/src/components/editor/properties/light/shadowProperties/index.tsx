@@ -25,18 +25,20 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useTranslation } from 'react-i18next'
 
-import { getComponent } from '@ir-engine/ecs'
-import { Component, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, iterateEntityNode } from '@ir-engine/ecs'
+import { Component, getOptionalComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
+import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { getState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { Button, Checkbox } from '@ir-engine/ui'
 import React from 'react'
-import { Box3, Mesh, Vector3 } from 'three'
+import { Box3, Vector3 } from 'three'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 
@@ -50,28 +52,31 @@ type LightShadowPropertiesProps = {
  * OnChangeShadowMapResolution used to customize properties of LightShadowProperties
  * Used with LightNodeEditors.
  */
+const sceneQuery = defineQuery([SceneComponent])
+
 export const LightShadowProperties: EditorComponentType = (props: LightShadowPropertiesProps) => {
   const { t } = useTranslation()
   const shadowMapResolution = getState(RendererState).shadowMapResolution
   const cameraEntity = getState(ReferenceSpaceState).viewerEntity
   const camera = getComponent(cameraEntity, CameraComponent)
-  const { scene } = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)
   const lightComponent = useComponent(props.entity, props.component) as any
 
   const calculateShadowBias = () => {
     const boundingBox = new Box3()
+    const sceneEntities = sceneQuery()
+    for (const entity of sceneEntities) {
+      iterateEntityNode(entity, (entity) => {
+        const mesh = getOptionalComponent(entity, MeshComponent)
+        if (mesh?.geometry?.boundingBox) {
+          mesh.updateMatrixWorld()
+          boundingBox.expandByObject(mesh)
+        }
+      })
+    }
 
-    scene.traverse((object) => {
-      if (object instanceof Mesh) {
-        object.updateMatrixWorld() // Ensure the object's world matrix is up-to-date
-        boundingBox.expandByObject(object) // Expand the bounding box to include the object
-      }
-    })
-
-    // Calculate the scale (the size of the bounding box)
     const size = new Vector3()
-    boundingBox.getSize(size) // Get the size of the bounding box
-    const sceneScale = Math.max(size.x, size.y, size.z) // You can use the largest dimension as the scene scale
+    boundingBox.getSize(size)
+    const sceneScale = Math.max(size.x, size.y, size.z)
 
     const cameraNear = camera.near
     const cameraFar = camera.far
