@@ -35,7 +35,6 @@ import { AuthUserSeed, resolveAuthUser } from '@ir-engine/common/src/interfaces/
 import multiLogger from '@ir-engine/common/src/logger'
 import {
   AuthStrategiesType,
-  HasAccessType,
   IdentityProviderType,
   InstanceID,
   UserApiKeyType,
