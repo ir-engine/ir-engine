@@ -29,7 +29,7 @@ import fs from 'fs'
 import path from 'path'
 
 import { fileBrowserPath } from '@ir-engine/common/src/schemas/media/file-browser.schema'
-import { KTX2EncodeArguments } from '@ir-engine/engine/src/assets/constants/CompressionParms'
+import type { KTX2EncodeArguments } from '@ir-engine/engine/src/assets/constants/CompressionParms'
 
 import { Application } from '../../../declarations'
 

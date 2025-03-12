@@ -134,7 +134,10 @@ function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection
         }
       }
     }
-  } else if (ValidMeshForBVH(mesh)) origMeshRaycastFunc.call(mesh, raycaster, intersects)
+  } else if (ValidMeshForBVH(mesh)) {
+    // only use fallback for meshes that don't have an entity assigned - should only be XRUI
+    if (!mesh.entity) origMeshRaycastFunc.call(mesh, raycaster, intersects)
+  }
 }
 
 // https://github.com/mrdoob/three.js/blob/dev/src/math/Matrix4.js#L732
@@ -218,7 +221,6 @@ const MeshBVHReactor = () => {
 export const MeshBVHSystem = defineSystem({
   uuid: 'ee.engine.MeshBVHSystem',
   insert: { after: PresentationSystemGroup },
-  /** @todo this breaks the studio currently */
   reactor: () => <QueryReactor Components={[MeshComponent]} ChildEntityReactor={MeshBVHReactor} />
 })
 
