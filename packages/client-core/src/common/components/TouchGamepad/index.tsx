@@ -26,6 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { Joystick } from 'react-joystick-component'
 
+import BasepadImage from '@ir-engine/client/public/basepad.svg'
+import StickypadImage from '@ir-engine/client/public/stickypad.svg'
 import { InteractableState } from '@ir-engine/engine/src/interaction/functions/interactableFunctions'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { isTouchAvailable } from '@ir-engine/spatial/src/common/functions/DetectFeatures'
@@ -33,8 +35,6 @@ import { AnyButton } from '@ir-engine/spatial/src/input/state/ButtonState'
 import { XRState, isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import { IJoystickUpdateEvent } from 'react-joystick-component/build/lib/Joystick'
 import { AppState } from '../../services/AppService'
-import BasepadImage from './basepad.svg'
-import StickypadImage from './stickypad.svg'
 
 const triggerButton = (button: AnyButton, pressed: boolean): void => {
   const eventType = pressed ? 'touchgamepadbuttondown' : 'touchgamepadbuttonup'
