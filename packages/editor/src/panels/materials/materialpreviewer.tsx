@@ -99,8 +99,24 @@ function MaterialPreviewCanvas() {
 export const MaterialPreviewer = () => {
   const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
   if (!selectedMaterial.value) return null
+
+  const disableScroll = (event: Event) => {
+    event.stopPropagation()
+    event.preventDefault()
+  }
+
+  const captureMouse = () => {
+    window.addEventListener('wheel', disableScroll, { passive: false })
+    window.addEventListener('touchmove', disableScroll, { passive: false })
+  }
+
+  const releaseMouse = () => {
+    window.removeEventListener('wheel', disableScroll)
+    window.removeEventListener('touchmove', disableScroll)
+  }
+
   return (
-    <div className="rounded-lg bg-zinc-800 p-2">
+    <div className="rounded-lg bg-zinc-800 p-2" onMouseEnter={captureMouse} onMouseLeave={releaseMouse}>
       <MaterialPreviewCanvas />
     </div>
   )
