@@ -40,6 +40,7 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { CommonKnownContentTypes } from '@ir-engine/common/src/utils/CommonKnownContentTypes'
 import { cleanFileNameFile, cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
+import { isValidFileName } from '@ir-engine/common/src/utils/validateFileName'
 import { KTX2EncodeArguments } from '@ir-engine/engine/src/assets/constants/CompressionParms'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
@@ -106,25 +107,36 @@ function isValidFileType(file): { isValid: boolean; errorMessage?: string } {
   }
 }
 
-export function sanitizeFiles(files: FileList | File[]): File[] {
+export function validatedFiles(files: FileList | File[]): File[] {
   const { maxFileSizeToUpload } = config.client
-
   const invalidSizeFiles: string[] = []
   const newFiles: File[] = []
+
   for (const file of files) {
+    // Check file size
     if (file.size > maxFileSizeToUpload) {
       invalidSizeFiles.push(file.name)
       continue
     }
-    const newFile = cleanFileNameFile(file)
-    const { isValid, errorMessage } = isValidFileType(newFile)
-    if (!isValid) {
+
+    // Check file type
+    const { isValid: isValidType, errorMessage } = isValidFileType(file)
+    if (!isValidType) {
       NotificationService.dispatchNotify(
         i18n.t('editor:errors.fileNotSupported', { file: file.name, errorMessage: errorMessage || '' }) as string,
         { variant: 'warning' }
       )
+      continue
     }
-    newFiles.push(newFile)
+
+    // Check filename
+    const fileNameWithOutExtension = file.name.replace(/\.[^/.]+$/, '')
+    const resultFileNameValid = isValidFileName(fileNameWithOutExtension)
+    if (!resultFileNameValid.isValid) {
+      NotificationService.dispatchNotify(resultFileNameValid.error, { variant: 'warning', autoHideDuration: 20000 })
+      continue
+    }
+    newFiles.push(file)
   }
 
   if (invalidSizeFiles.length > 0) {
@@ -306,7 +318,7 @@ export const inputFileWithAddToScene = ({
     el.onchange = async () => {
       try {
         if (el.files?.length) {
-          const newFiles = sanitizeFiles(el.files)
+          const newFiles = validatedFiles(el.files)
           const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
           await handleUploadFiles(projectName, directoryPath, uniqueFiles)
         }
@@ -347,7 +359,7 @@ const createFileUploader = ({
     el.onchange = async () => {
       try {
         if (el.files?.length) {
-          const newFiles = sanitizeFiles(el.files)
+          const newFiles = validatedFiles(el.files)
           const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
           const [uploadedFileUrl] = await handleUploadFiles(projectName, directoryPath, uniqueFiles)
 
