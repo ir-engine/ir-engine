@@ -795,6 +795,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
 
   await Promise.all(promises)
 
+  const deltaPromises = [] as Promise<void>[]
   //apply deltas
   const deltaState = getState(SceneDeltaState)
   const sourceDelta = deltaState[GLTFComponent.removeHashes(options.documentID)]
@@ -816,9 +817,16 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
               materialConstructorParameters[key] = new Color(materialDelta[key])
               break
             case 'texture':
-              getTextureAsync(materialDelta[key]).then((texture) => {
-                materialConstructorParameters[key] = texture
-              })
+              deltaPromises.push(
+                new Promise<void>(async (resolve) => {
+                  const texture = getTextureAsync(materialDelta[key])
+
+                  if (texture) {
+                    materialConstructorParameters[key] = texture
+                  }
+                  resolve()
+                })
+              )
               break
           }
         }
@@ -826,7 +834,10 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
     }
   }
 
+  await Promise.all(deltaPromises)
+
   const material = new materialConstructor(materialConstructorParameters)
+  console.log(materialConstructorParameters, materialDef.name)
   const uuid = getComponent(materialEntity, UUIDComponent)
   material.uuid = uuid
   material.name = materialDef.name || 'Material-' + materialIndex
