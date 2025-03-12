@@ -188,7 +188,6 @@ const updateMaterialPrototype = (materialEntity: Entity, newPrototype: string) =
   materialComponent.material.set(newMaterial)
   materialComponent.parameters.set({})
   materialComponent.prototype.set(newPrototype)
-  // for (const key in prototype.arguments) materialComponent.parameters[key].set(prototype.arguments[key].default)
 
   EditorState.markModifiedScene(materialEntity)
   if (!EditorState.isInActiveScene(materialEntity)) {
