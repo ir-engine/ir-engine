@@ -247,7 +247,6 @@ const setupMaterialParameters = (entity: Entity, properties: { [_: string]: any 
     switch (prototypeArgs[k].type) {
       case 'texture': {
         materialComponent.parameters[k].set((v as Texture).source.data.src)
-        console.log(v)
         break
       }
       case 'color': {

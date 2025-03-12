@@ -805,9 +805,10 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
       const materialDelta = nodeDelta[MATERIAL_JSON_ID]
       const materialPrototype = nodeDelta[MATERIAL_PROTOTYPE_JSON_ID]
       if (materialDelta) {
-        const prototype = getState(MaterialPrototypeDefinitions)[materialPrototype]
-        if (materialPrototype) materialConstructor = prototype.prototypeConstructor
-        materialConstructorParameters = {}
+        const prototype = getState(MaterialPrototypeDefinitions)[materialPrototype ?? materialConstructor.name] // this is insanely brittle but will do for now
+        if (materialPrototype) {
+          materialConstructor = prototype.prototypeConstructor
+        }
         for (const key in materialDelta) {
           switch (prototype.arguments[key]?.type) {
             case 'color':
