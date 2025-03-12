@@ -94,7 +94,7 @@ export default function SceneItem({
       <div className="inline-flex items-start justify-between self-stretch">
         <div className="inline-flex w-full flex-col items-start justify-start">
           <div className="space-between flex w-full flex-row">
-            <Tooltip content={sceneName}>
+            <Tooltip content={sceneName} position="top">
               <Text
                 component="h3"
                 fontWeight="semibold"
