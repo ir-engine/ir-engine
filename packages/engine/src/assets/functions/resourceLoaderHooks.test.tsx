@@ -34,7 +34,7 @@ import { getState, startReactor, useHookstate } from '@ir-engine/hyperflux'
 import { ResourceState } from '@ir-engine/spatial/src/resources/ResourceState'
 
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
-import { overrideFileLoaderLoad, overrideTextureLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
+import { overrideFileLoaderEach, overrideTextureLoaderEach } from '../../../tests/util/loadGLTFAssetNode'
 import { useTexture } from './resourceLoaderHooks'
 
 describe.skip('ResourceLoaderHooks', () => {
@@ -43,8 +43,8 @@ describe.skip('ResourceLoaderHooks', () => {
   const texURL = '/packages/projects/default-project/assets/drop-shadow.png'
   const texURL2 = '/packages/projects/default-project/assets/galaxyTexture.jpg'
 
-  overrideFileLoaderLoad()
-  overrideTextureLoaderLoad()
+  overrideFileLoaderEach()
+  overrideTextureLoaderEach()
 
   beforeEach(async () => {
     createEngine()

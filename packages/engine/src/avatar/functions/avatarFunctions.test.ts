@@ -26,7 +26,7 @@
 // import { assert, describe, it, beforeEach, afterEach, before, after } from 'vitest'
 // import { AnimationClip, Bone, Group, SkinnedMesh, Vector3 } from 'three'
 
-// import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
+// import { overrideFileLoaderEach } from '../../../tests/util/loadGLTFAssetNode'
 // import { AssetLoader } from '../../assets/classes/AssetLoader'
 // import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
 // import { loadDRACODecoderNode } from '../../assets/loaders/gltf/NodeDracoLoader'
@@ -45,7 +45,7 @@
 
 // const animGLB = '/packages/projects/default-project/assets/Animations.glb'
 
-// overrideFileLoaderLoad()
+// overrideFileLoaderEach()
 
 // before(async () => {
 //   await loadDRACODecoderNode()

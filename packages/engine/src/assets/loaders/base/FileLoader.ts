@@ -27,6 +27,7 @@ import { Cache, LoadingManager } from 'three'
 
 import { parseStorageProviderURLs } from '../../functions/parseSceneJSON'
 import { Loader } from './Loader'
+import { ResourceCache } from './ResourceCache'
 
 const loading = {}
 
@@ -60,7 +61,15 @@ class FileLoader<TData = unknown> extends Loader<TData> {
 
     url = this.manager.resolveURL(url)
 
-    const cached = Cache.get(url)
+    // Create a cache key
+    const cacheKey = JSON.stringify({
+      url,
+      responseType: this.responseType,
+      mimeType: this.mimeType,
+      headers: this.requestHeader,
+      withCredentials: this.withCredentials
+    })
+    const cached = Cache.get(cacheKey)
 
     if (cached !== undefined) {
       this.manager.itemStart(url)
@@ -77,8 +86,8 @@ class FileLoader<TData = unknown> extends Loader<TData> {
 
     // Check if request is duplicate
 
-    if (loading[url] !== undefined) {
-      loading[url].push({
+    if (loading[cacheKey] !== undefined) {
+      loading[cacheKey].push({
         onLoad: onLoad,
         onProgress: onProgress,
         onError: onError
@@ -88,19 +97,20 @@ class FileLoader<TData = unknown> extends Loader<TData> {
     }
 
     // Initialise array for duplicate requests
-    loading[url] = []
+    loading[cacheKey] = []
 
-    loading[url].push({
+    loading[cacheKey].push({
       onLoad: onLoad,
       onProgress: onProgress,
       onError: onError
     })
 
+    const isBlob = url.startsWith('blob:')
+
     // create request
     const req = new Request(url, {
       headers: new Headers(this.requestHeader),
       credentials: this.withCredentials ? 'include' : 'same-origin'
-      // An abort controller could be added within a future PR
     })
 
     // record states ( avoid data race )
@@ -108,28 +118,38 @@ class FileLoader<TData = unknown> extends Loader<TData> {
     const responseType = this.responseType
     const manager = this.manager
 
+    // use native cache if available
+    let fromCache = false
+    let responsePromise: Promise<Response>
+    if (!isBlob && ResourceCache) {
+      responsePromise = ResourceCache.get(req.url).then((response) => {
+        if (!response) return fetch(req, { signal })
+        fromCache = true
+        return response
+      })
+    } else {
+      responsePromise = fetch(req, { signal })
+    }
+
     // start the fetch
-    fetch(req, { signal })
+    responsePromise
       .then((response) => {
-        if (response.status === 200 || response.status === 0) {
+        if (response.ok || response.status === 0) {
           // Some browsers return HTTP Status 0 when using non-http protocol
           // e.g. 'file://' or 'data://'. Handle as success.
 
-          if (response.status === 0) {
-            console.warn('THREE.FileLoader: HTTP Status 0 received.')
-          }
-
-          // Workaround: Checking if response.body === undefined for Alipay browser #23548
-
+          // If the response is already loaded (e.g. blob: URLs), or streaming is not supported, return the response
           if (
             typeof ReadableStream === 'undefined' ||
             response.body == undefined ||
-            response.body.getReader == undefined
+            response.body.getReader == undefined ||
+            isBlob ||
+            fromCache
           ) {
             return response
           }
 
-          const callbacks = loading[url]
+          const callbacks = loading[cacheKey]
           const reader = response.body.getReader()
 
           // Nginx needs X-File-Size check
@@ -164,7 +184,7 @@ class FileLoader<TData = unknown> extends Loader<TData> {
                     }
                   })
                   .catch((err) => {
-                    delete loading[url]
+                    delete loading[cacheKey]
 
                     for (let i = 0, il = callbacks.length; i < il; i++) {
                       const callback = callbacks[i]
@@ -183,6 +203,21 @@ class FileLoader<TData = unknown> extends Loader<TData> {
             `fetch for "${response.url}" responded with ${response.status}: ${response.statusText}`,
             response
           )
+        }
+      })
+      .then((response) => {
+        if (!isBlob && ResourceCache) {
+          return response
+            .clone()
+            .arrayBuffer()
+            .then((buffer) => {
+              return ResourceCache!.put(req.url, buffer)
+            })
+            .then(() => {
+              return response
+            })
+        } else {
+          return response
         }
       })
       .then((response) => {
@@ -216,12 +251,12 @@ class FileLoader<TData = unknown> extends Loader<TData> {
         }
       })
       .then((data) => {
-        // Add to cache only on HTTP success, so that we do not cache
-        // error response bodies as proper responses to requests.
-        Cache.add(url, data)
+        if (!data) throw new Error('No data returned from fetch')
+        // Add to cache with response type in the key
+        Cache.add(cacheKey, data)
 
-        const callbacks = loading[url]
-        delete loading[url]
+        const callbacks = loading[cacheKey]
+        delete loading[cacheKey]
 
         for (let i = 0, il = callbacks.length; i < il; i++) {
           const callback = callbacks[i]
@@ -231,7 +266,7 @@ class FileLoader<TData = unknown> extends Loader<TData> {
       .catch((err) => {
         // Abort errors and other errors are handled the same
 
-        const callbacks = loading[url]
+        const callbacks = loading[cacheKey]
 
         if (callbacks === undefined) {
           // When onLoad was called and url was deleted in `loading`
@@ -239,7 +274,7 @@ class FileLoader<TData = unknown> extends Loader<TData> {
           throw err
         }
 
-        delete loading[url]
+        delete loading[cacheKey]
 
         for (let i = 0, il = callbacks.length; i < il; i++) {
           const callback = callbacks[i]

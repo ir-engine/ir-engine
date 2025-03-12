@@ -44,25 +44,43 @@ const toArrayBuffer = (buf) => {
 const original = FileLoader.prototype.load
 const textureOriginal = TextureLoader.prototype.load
 
-export function overrideFileLoaderLoad() {
-  beforeEach(() => {
+export const overrideFileLoader = () => {
+  const override = (map?: Record<string, any>) => {
     function overrideLoad(url, onLoad, onProgress, onError) {
+      if (map && map[url]) {
+        setTimeout(() => onLoad(map[url]), 1)
+        return
+      }
       try {
         const assetPathAbsolute = path.join(appRootPath.path, url)
         const buffer = toArrayBuffer(fs.readFileSync(assetPathAbsolute))
-        setTimeout(() => onLoad(buffer), 0)
+        setTimeout(() => onLoad(buffer), 1)
       } catch (e) {
         onError(e)
       }
     }
     FileLoader.prototype.load = overrideLoad
+  }
+
+  const restore = () => {
+    FileLoader.prototype.load = original
+  }
+
+  return { override, restore }
+}
+
+const { override, restore } = overrideFileLoader()
+
+export function overrideFileLoaderEach(map?: Record<string, any>) {
+  beforeEach(() => {
+    override(map)
   })
   afterEach(() => {
-    FileLoader.prototype.load = original
+    restore()
   })
 }
 
-export function overrideTextureLoaderLoad() {
+export function overrideTextureLoaderEach() {
   beforeEach(() => {
     function overrideLoad(
       url: string,

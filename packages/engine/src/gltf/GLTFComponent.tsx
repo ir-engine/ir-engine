@@ -500,7 +500,7 @@ const useGLTFDocument = (entity: Entity) => {
     const signal = abortController.signal
 
     const onError = (error: ErrorEvent) => {
-      addError(entity, GLTFComponent, 'LOADING_ERROR', 'Error loading model')
+      addError(entity, GLTFComponent, 'LOADING_ERROR', 'Error loading model' + error)
     }
 
     loadGLTFFile(

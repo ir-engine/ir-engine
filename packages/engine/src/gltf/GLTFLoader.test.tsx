@@ -52,7 +52,7 @@ import {
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { InstancedMesh, MathUtils, MeshStandardMaterial } from 'three'
 import { startEngineReactor } from '../../tests/startEngineReactor'
-import { overrideFileLoaderLoad } from '../../tests/util/loadGLTFAssetNode'
+import { overrideFileLoaderEach } from '../../tests/util/loadGLTFAssetNode'
 import { loadDRACODecoderNode, NodeDRACOLoader } from '../assets/loaders/gltf/NodeDracoLoader'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
@@ -88,7 +88,7 @@ const setupEntity = () => {
 }
 
 describe('GLTF Loader', async () => {
-  overrideFileLoaderLoad()
+  overrideFileLoaderEach()
 
   beforeEach(async () => {
     createEngine()

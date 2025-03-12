@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useLayoutEffect } from 'react'
-
 import {
   defineSystem,
   EngineState,
@@ -34,19 +32,12 @@ import {
   useEntityContext,
   useExecute
 } from '@ir-engine/ecs'
-import {
-  defineComponent,
-  hasComponent,
-  removeComponent,
-  setComponent,
-  useComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
 
 import { getAncestorWithComponents, isAncestor } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import {
   AnyAxis,
   AnyButton,
@@ -216,15 +207,15 @@ export const InputComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const input = useComponent(entity, InputComponent)
+    // const input = useComponent(entity, InputComponent)
 
-    useLayoutEffect(() => {
-      if (!input.inputSources.length || !input.highlight.value) return
-      setComponent(entity, HighlightComponent)
-      return () => {
-        removeComponent(entity, HighlightComponent)
-      }
-    }, [input.inputSources, input.highlight])
+    // useLayoutEffect(() => {
+    //   if (!input.inputSources.length || !input.highlight.value) return
+    //   setComponent(entity, HighlightComponent)
+    //   return () => {
+    //     removeComponent(entity, HighlightComponent)
+    //   }
+    // }, [input.inputSources, input.highlight])
 
     // useEffect(() => {
     //   // perhaps we don't need to create a rigidbody; we just want to be able to add anything in this tree to the `input` layer,

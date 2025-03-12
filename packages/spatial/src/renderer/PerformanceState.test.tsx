@@ -29,7 +29,7 @@ import React, { useEffect } from 'react'
 import sinon from 'sinon'
 import { DoneCallback, afterAll, afterEach, beforeAll, beforeEach, describe, it } from 'vitest'
 
-import { ComponentType, destroyEngine } from '@ir-engine/ecs'
+import { ComponentType, Entity, createEntity, destroyEngine, setComponent } from '@ir-engine/ecs'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 
 import { EngineState } from '@ir-engine/ecs'
@@ -55,6 +55,7 @@ describe('PerformanceState', () => {
 
   let screen
   let dpr
+  let rendererEntity: Entity
 
   beforeAll(() => {
     screen = globalThis.window.screen
@@ -81,6 +82,8 @@ describe('PerformanceState', () => {
       initialized: true,
       enabled: true
     })
+    rendererEntity = createEntity()
+    setComponent(rendererEntity, RendererComponent, mockRenderer)
   })
 
   afterEach(() => {
@@ -88,7 +91,7 @@ describe('PerformanceState', () => {
   })
 
   it('Builds Performance State', async () => {
-    await PerformanceManager.buildPerformanceState(mockRenderer, {
+    await PerformanceManager.buildPerformanceState(rendererEntity, {
       renderer: 'nvidia corporation, nvidia geforce rtx 3070/pcie/sse2, '
     })
     const performanceState = getState(PerformanceState)

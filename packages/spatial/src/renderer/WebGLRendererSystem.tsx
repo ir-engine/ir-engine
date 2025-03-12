@@ -58,6 +58,7 @@ import { getNestedChildren } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { Effect, EffectComposer, EffectPass, OutlineEffect, Pass } from 'postprocessing'
 import { CameraComponent } from '../camera/components/CameraComponent'
+import { ResourceState, ResourceType } from '../resources/ResourceState'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { XRState } from '../xr/XRState'
 import { ObjectComponent } from './components/ObjectComponent'
@@ -213,9 +214,59 @@ export const RendererComponent = defineComponent({
 
     useEffect(() => {
       const canvas = rendererComponent.canvas.value as HTMLCanvasElement
+
+      const handleWebGLContextLost = (e) => {
+        console.log('Browser lost the context.', e, rendererComponent.webGLLostContext.value)
+        e.preventDefault()
+        // const renderer = getComponent(entity, RendererComponent)
+        // if (renderer.renderer) renderer.renderer.dispose()
+        // if (renderer.effectComposer) renderer.effectComposer.dispose()
+        rendererComponent.needsResize.set(false)
+        // rendererComponent.renderContext.set(null)
+        // rendererComponent.renderer.set(null)
+
+        setTimeout(() => {
+          rendererComponent.webGLLostContext.get(NO_PROXY)!.restoreContext()
+        }, 1)
+      }
+
+      /** @todo this seems unnecessary, since threejs recovers internally */
+      const handleWebGLContextRestore = (e) => {
+        // const canvas = rendererComponent.canvas.value as HTMLCanvasElement
+        // const context = canvas.getContext('webgl2')
+        // rendererComponent.renderContext.set(context)
+        rendererComponent.needsResize.set(true)
+        console.log("Browser's context is restored.", e)
+
+        const textures = ResourceState.getAllResourcesOfType(ResourceType.Texture).map(
+          (resource) => resource.asset
+        ) as Texture[]
+        for (const texture of textures) {
+          texture.needsUpdate = true
+        }
+      }
+
+      canvas.addEventListener('webglcontextlost', handleWebGLContextLost)
+      canvas.addEventListener('webglcontextrestored', handleWebGLContextRestore)
+
       const context = canvas.getContext('webgl2')
+      if (context) {
+        /**
+         * This can be tested with document.getElementById('engine-renderer-canvas').getContext('webgl2').getExtension('WEBGL_lose_context').loseContext();
+         */
+        rendererComponent.webGLLostContext.set(context.getExtension('WEBGL_lose_context'))
+
+        if (!rendererComponent.webGLLostContext.value) {
+          console.warn('Browser does not support `WEBGL_lose_context` extension')
+        }
+      }
 
       rendererComponent.renderContext.set(context)
+
+      return () => {
+        canvas.removeEventListener('webglcontextlost', handleWebGLContextLost)
+        canvas.removeEventListener('webglcontextrestored', handleWebGLContextRestore)
+      }
     }, [])
 
     useEffect(() => {
@@ -268,45 +319,9 @@ export const RendererComponent = defineComponent({
 
       renderer.autoClear = true
 
-      /**
-       * This can be tested with document.getElementById('engine-renderer-canvas').getContext('webgl2').getExtension('WEBGL_lose_context').loseContext();
-       */
-      rendererComponent.webGLLostContext.set(context.getExtension('WEBGL_lose_context'))
-
-      if (!rendererComponent.webGLLostContext.value) {
-        console.warn('Browser does not support `WEBGL_lose_context` extension')
-      }
-
-      const handleWebGLContextLost = (e) => {
-        console.log('Browser lost the context.', e, rendererComponent.webGLLostContext.value)
-        e.preventDefault()
-        rendererComponent.needsResize.set(false)
-        setTimeout(() => {
-          rendererComponent.webGLLostContext.get(NO_PROXY)!.restoreContext()
-        }, 1)
-      }
-
-      /** @todo this seems unnecessary, since threejs recovers internally */
-      // const handleWebGLContextRestore = (e) => {
-      //   const canvas = rendererComponent.canvas.value as HTMLCanvasElement
-      //   canvas.removeEventListener('webglcontextlost', handleWebGLContextLost)
-      //   canvas.removeEventListener('webglcontextrestored', handleWebGLContextRestore)
-      //   const context = rendererComponent.supportWebGL2.value
-      //     ? canvas.getContext('webgl2')!
-      //     : canvas.getContext('webgl')!
-      //   rendererComponent.renderContext.set(context)
-      //   rendererComponent.needsResize.set(true)
-      //   console.log("Browser's context is restored.", e)
-      // }
-
-      canvas.addEventListener('webglcontextlost', handleWebGLContextLost)
-
       return () => {
         canvas.removeEventListener('resize', onResize, false)
         window.removeEventListener('resize', onResize, false)
-
-        canvas.removeEventListener('webglcontextlost', handleWebGLContextLost)
-        // canvas.removeEventListener('webglcontextrestored', handleWebGLContextRestore)
 
         renderer.dispose()
         composer.dispose()
@@ -358,8 +373,6 @@ export const RendererComponent = defineComponent({
         console.warn(e) /** @todo Implement user messaging Ex: (Can not use multiple convolution effects) */
       }
 
-      effectComposer.setRenderer(rendererComponent.renderer.value as WebGLRenderer)
-
       return () => {
         if (!hasComponent(entity, RendererComponent)) return
         if (enabled) {
@@ -398,6 +411,8 @@ export const render = (
   delta: number,
   effectComposer = true
 ) => {
+  if (!renderer.renderer) return
+
   const xrFrame = getState(XRState).xrFrame
 
   const canvasParent = renderer.canvas!.parentElement
@@ -584,3 +599,14 @@ export const WebGLRendererSystem = defineSystem({
     )
   }
 })
+
+// temp helper
+// globalThis.reuploadAllTextures = () => {
+//   const textures = ResourceState.getAllResourcesOfType(ResourceType.Texture).map(
+//     (resource) => resource.asset
+//   ) as Texture[]
+//   console.log(textures)
+//   for (const texture of textures) {
+//     texture.needsUpdate = true
+//   }
+// }
