@@ -39,10 +39,7 @@ import {
 } from '@ir-engine/ecs'
 import { Physics, PhysicsWorld } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
-import {
-  ColliderComponentDefaults,
-  assertColliderComponentEquals
-} from '@ir-engine/spatial/src/physics/components/ColliderComponent.test'
+import { assertColliderComponentEquals } from '@ir-engine/spatial/src/physics/components/ColliderComponent.test'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
@@ -61,6 +58,23 @@ const TriggerCallbackComponentDefaults = {
     onExit: null | string
     target: null | EntityUUID
   }>
+}
+
+export const TriggerColliderComponentDefaults = {
+  // also used in TriggerComponent.test.ts
+  shape: Shapes.Sphere,
+  mass: 1,
+  massCenter: new Vector3(),
+  friction: 0.5,
+  restitution: 0.5,
+  collisionLayer: CollisionGroups.Trigger,
+  collisionMask: CollisionGroups.Avatars,
+
+  matchMesh: true,
+  centerOffset: new Vector3(0, 0, 0),
+  boxSize: new Vector3(1, 1, 1),
+  radius: 1,
+  height: 2
 }
 
 function assertTriggerCallbackComponentEqual(data, expected) {
@@ -185,7 +199,7 @@ describe('TriggerCallbackComponent', () => {
     })
 
     it("should call Physics.setTrigger on the entity's collider when a new ColliderComponent is set", () => {
-      assertColliderComponentEquals(getComponent(testEntity, ColliderComponent), ColliderComponentDefaults)
+      assertColliderComponentEquals(getComponent(testEntity, ColliderComponent), TriggerColliderComponentDefaults)
       removeComponent(testEntity, ColliderComponent)
       const ColliderComponentData = {
         shape: Shapes.Sphere,
