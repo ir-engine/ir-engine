@@ -39,9 +39,12 @@ import {
 } from '@ir-engine/ecs'
 import { Physics, PhysicsWorld } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
-import { assertColliderComponentEquals } from '@ir-engine/spatial/src/physics/components/ColliderComponent.test'
+import {
+  ColliderComponentDefaults,
+  assertColliderComponentEquals
+} from '@ir-engine/spatial/src/physics/components/ColliderComponent.test'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
-import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
+import { CollisionGroups, DefaultCollisionMask } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
@@ -58,23 +61,6 @@ const TriggerCallbackComponentDefaults = {
     onExit: null | string
     target: null | EntityUUID
   }>
-}
-
-export const TriggerColliderComponentDefaults = {
-  // also used in TriggerComponent.test.ts
-  shape: Shapes.Sphere,
-  mass: 1,
-  massCenter: new Vector3(),
-  friction: 0.5,
-  restitution: 0.5,
-  collisionLayer: CollisionGroups.Trigger,
-  collisionMask: CollisionGroups.Avatars,
-
-  matchMesh: true,
-  centerOffset: new Vector3(0, 0, 0),
-  boxSize: new Vector3(1, 1, 1),
-  radius: 1,
-  height: 2
 }
 
 function assertTriggerCallbackComponentEqual(data, expected) {
@@ -199,7 +185,7 @@ describe('TriggerCallbackComponent', () => {
     })
 
     it("should call Physics.setTrigger on the entity's collider when a new ColliderComponent is set", () => {
-      assertColliderComponentEquals(getComponent(testEntity, ColliderComponent), TriggerColliderComponentDefaults)
+      assertColliderComponentEquals(getComponent(testEntity, ColliderComponent), ColliderComponentDefaults)
       removeComponent(testEntity, ColliderComponent)
       const ColliderComponentData = {
         shape: Shapes.Sphere,
@@ -207,8 +193,8 @@ describe('TriggerCallbackComponent', () => {
         massCenter: new Vector3(1, 2, 3),
         friction: 1.0,
         restitution: 0.1,
-        collisionLayer: CollisionGroups.Trigger,
-        collisionMask: CollisionGroups.Avatars
+        collisionLayer: CollisionGroups.Default,
+        collisionMask: DefaultCollisionMask
       }
       setComponent(testEntity, ColliderComponent, ColliderComponentData)
       assertColliderComponentEquals(getComponent(testEntity, ColliderComponent), ColliderComponentData)
