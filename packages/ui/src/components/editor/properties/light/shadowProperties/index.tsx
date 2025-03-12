@@ -100,7 +100,7 @@ export const LightShadowProperties: EditorComponentType = (props: LightShadowPro
           onRelease={commitProperty(props.component, 'shadowBias')}
         />
         <Button onClick={calculateShadowBias} className="mt-2">
-          Calculate Shadow Bias
+          {t('editor:properties.directionalLight.lbl-calculateShadowBias')}
         </Button>
       </InputGroup>
       <InputGroup name="Shadow Radius" label={t('editor:properties.directionalLight.lbl-shadowRadius')}>
