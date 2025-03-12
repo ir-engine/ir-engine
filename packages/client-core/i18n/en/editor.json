@@ -466,7 +466,8 @@
       "lbl-shadowBias": "Shadow Bias",
       "lbl-shadowRadius": "Shadow Radius",
       "lbl-showCameraHelper": "Show Camera Helper",
-      "lbl-castShadows": "Cast Shadows"
+      "lbl-castShadows": "Cast Shadows",
+      "lbl-calculateShadowBias": "Calculate Shadow Bias"
     },
     "groundPlane": {
       "name": "Ground Plane",
