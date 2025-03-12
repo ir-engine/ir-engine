@@ -392,8 +392,9 @@ export class LocalStorage implements StorageProviderInterface {
    * List all the files/folders in the directory.
    * @param relativeDirPath Name of folder in the storage.
    */
-  listFolderContent = async (relativeDirPath: string): Promise<FileBrowserContentType[]> => {
-    const absoluteDirPath = path.join(this.PATH_PREFIX, relativeDirPath)
+  listFolderContent = async (relativeDirPath: string, recursive = false): Promise<FileBrowserContentType[]> => {
+    let absoluteDirPath = path.join(this.PATH_PREFIX, relativeDirPath)
+    if (recursive) absoluteDirPath = path.join(absoluteDirPath, '**')
 
     const folder = glob
       .sync(path.join(absoluteDirPath, '*/'))
