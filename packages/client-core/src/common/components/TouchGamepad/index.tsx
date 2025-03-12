@@ -26,8 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { Joystick } from 'react-joystick-component'
 
-import BasepadImage from '@ir-engine/client/public/basepad.svg'
-import StickypadImage from '@ir-engine/client/public/stickypad.svg'
 import { InteractableState } from '@ir-engine/engine/src/interaction/functions/interactableFunctions'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { isTouchAvailable } from '@ir-engine/spatial/src/common/functions/DetectFeatures'
@@ -110,8 +108,8 @@ export const TouchGamepad = () => {
     <>
       <div className="pointer-events-auto fixed bottom-[15%] left-[15%] select-none [&>div]:m-auto">
         <Joystick
-          baseImage={StickypadImage}
-          stickImage={BasepadImage}
+          baseImage="/stickypad.svg"
+          stickImage="/basepad.svg"
           size={27}
           stickSize={80}
           throttle={100}
