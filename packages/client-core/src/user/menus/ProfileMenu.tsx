@@ -52,7 +52,6 @@ import {
 import { API } from '@ir-engine/common'
 import { USERNAME_MAX_LENGTH } from '@ir-engine/common/src/constants/UserConstants'
 import { INVALID_USER_NAME_REGEX } from '@ir-engine/common/src/regex'
-import { useClickOutside, useTouchOutside } from '@ir-engine/common/src/utils/useClickOutside'
 import { iOS, isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
@@ -230,7 +229,6 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const updateUserName = (e: React.MouseEvent | React.KeyboardEvent | MouseEvent | TouchEvent) => {
     e.preventDefault()
     handleUpdateUsername()
-    usernameRef.current?.blur()
   }
 
   const handleUsernameChange = (e) => {
@@ -378,16 +376,6 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
 
   const enableConnect = authState?.value?.emailMagicLink || authState?.value?.smsMagicLink
 
-  const usernameRef = useRef<HTMLInputElement>(null)
-
-  useClickOutside(usernameRef, (e) => {
-    updateUserName(e)
-  })
-
-  useTouchOutside(usernameRef, (e) => {
-    updateUserName(e)
-  })
-
   return (
     <div className="absolute z-50 h-fit max-h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 smh:max-h-[60dvh] smh:px-8 smh:py-6">
       <div className="relative grid w-full grid-cols-5 gap-x-2">
@@ -523,7 +511,6 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
         )}
       >
         <Input
-          ref={usernameRef}
           value={username.value || ('' as UserName)}
           state={errorUsername.value ? 'error' : undefined}
           helperText={errorUsername.value}
