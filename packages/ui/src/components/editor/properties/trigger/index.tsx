@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   EntityTreeComponent,
+  getAncestorWithComponents,
   getComponent,
   hasComponent,
   useAncestorWithComponents,
@@ -75,7 +76,7 @@ const TriggerProperties: EditorComponentType = (props) => {
       EditorControlFunctions.addOrRemoveComponent(nodes, ColliderComponent, true)
     }
 
-    if (!hasComponent(props.entity, RigidBodyComponent)) {
+    if (!getAncestorWithComponents(props.entity, [RigidBodyComponent])) {
       const nodes = SelectionState.getSelectedEntities()
       EditorControlFunctions.addOrRemoveComponent(nodes, RigidBodyComponent, true)
     }
