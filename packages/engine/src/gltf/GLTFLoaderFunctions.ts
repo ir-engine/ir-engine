@@ -58,6 +58,7 @@ import {
   MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { setupMaterialParameters } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import {
@@ -819,14 +820,16 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
             case 'texture':
               deltaPromises.push(
                 new Promise<void>(async (resolve) => {
-                  const texture = getTextureAsync(materialDelta[key])
-
-                  if (texture) {
-                    materialConstructorParameters[key] = texture
+                  const texture = await getTextureAsync(materialDelta[key])
+                  if (texture[0]) {
+                    texture[0].colorSpace = SRGBColorSpace
+                    materialConstructorParameters[key] = texture[0]
                   }
                   resolve()
                 })
               )
+            default:
+              materialConstructorParameters[key] = materialDelta[key]
               break
           }
         }
@@ -837,12 +840,12 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   await Promise.all(deltaPromises)
 
   const material = new materialConstructor(materialConstructorParameters)
-  console.log(materialConstructorParameters, materialDef.name)
   const uuid = getComponent(materialEntity, UUIDComponent)
   material.uuid = uuid
   material.name = materialDef.name || 'Material-' + materialIndex
 
   setComponent(materialEntity, MaterialStateComponent, { material })
+  setupMaterialParameters(materialEntity, materialConstructorParameters)
 
   assignExtrasToUserData(material, materialDef)
 

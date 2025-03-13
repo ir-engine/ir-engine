@@ -65,7 +65,7 @@ export const SceneDeltaState = defineState({
     const source = state[sourceID]
     if (!source.value[nodeID]) source[nodeID].set({} as MaterialDeltaEntry)
     const componentMap = source[nodeID].get(NO_PROXY_STEALTH) as MaterialDeltaEntry
-    if (props) componentMap[MATERIAL_JSON_ID] = { ...componentMap[MATERIAL_JSON_ID], ...props }
+    if (props) componentMap[MATERIAL_JSON_ID] = { ...props }
     if (prototype) componentMap[MATERIAL_PROTOTYPE_JSON_ID] = prototype
     source[nodeID].set(componentMap)
   },
