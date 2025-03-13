@@ -66,6 +66,7 @@ export const OverlayComponent = defineComponent({
       clearErrors(entity, OverlayComponent)
       if (overlayComponent.src.value) return
       try {
+        if (overlayComponent.type.value !== 'iframe') return
         new URL(overlayComponent.src.value)
       } catch {
         return addError(entity, OverlayComponent, 'INVALID_URL', 'Please enter a valid URL.')
