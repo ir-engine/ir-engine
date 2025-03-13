@@ -90,6 +90,7 @@ export class GCSStorage implements StorageProviderInterface {
    * @param directoryPath Directory of file in the storage.
    */
   async doesExist(fileName: string, directoryPath: string): Promise<boolean> {
+    if (directoryPath[0] === '/') directoryPath = directoryPath.slice(1)
     const file = this.provider.bucket(this.bucket).file(path.join(directoryPath, fileName))
     const response = await file.exists()
     return response[0]
@@ -100,6 +101,7 @@ export class GCSStorage implements StorageProviderInterface {
    * @param directoryPath Directory of file in the storage.
    */
   async isDirectory(fileName: string, directoryPath: string): Promise<boolean> {
+    if (directoryPath[0] === '/') directoryPath = directoryPath.slice(1)
     const joinedPath = path.join(directoryPath, fileName, '/')
     const response = await this.provider.bucket(this.bucket).getFiles({
       prefix: joinedPath,
@@ -309,6 +311,15 @@ export class GCSStorage implements StorageProviderInterface {
    * @param keys List of keys.
    */
   async deleteResources(keys: string[]) {
+    const firstKeySplit = keys[0].split('/')
+    const fileName = firstKeySplit[firstKeySplit.length - 1]
+    const filePath = path.join(...firstKeySplit.slice(0, firstKeySplit.length - 1))
+    //When deleting a folder, the first key passed in will be the folder path
+    //Since GCS doesn't have folders, it can't be deleted via file.delete on the key
+    //Instead, this will delete everything in the folder, which will also delete the folder itself.
+    //Unsure how else to delete an empty folder
+    if (await this.isDirectory(fileName, filePath))
+      await this.provider.bucket(this.bucket).deleteFiles({ prefix: keys[0] + '/' })
     return await Promise.all(
       keys.map(async (key) => {
         return this.provider.bucket(this.bucket).file(key).delete({
