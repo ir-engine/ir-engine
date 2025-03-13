@@ -35,7 +35,6 @@ import { AuthUserSeed, resolveAuthUser } from '@ir-engine/common/src/interfaces/
 import multiLogger from '@ir-engine/common/src/logger'
 import {
   AuthStrategiesType,
-  HasAccessType,
   IdentityProviderType,
   InstanceID,
   UserApiKeyType,
@@ -129,7 +128,9 @@ const getToken = async (): Promise<string> => {
   }
 
   const clientUrl = config.client.clientUrl
-  const hasAccess = (await communicator
+  return waitForToken(win, clientUrl)
+  /** @todo renable once UI is redone. No Shared login for now */
+  /* const hasAccess = (await communicator
     .sendMessage('checkAccess')
     .then((message) => {
       return message.data
@@ -177,7 +178,7 @@ const getToken = async (): Promise<string> => {
     }
   } else {
     return waitForToken(win, clientUrl)
-  }
+  } */
 }
 
 export const AuthState = defineState({

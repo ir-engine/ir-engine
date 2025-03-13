@@ -198,7 +198,30 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
     return []
   }, [scenes])
 
+  const validate = (): boolean => {
+    errors.set(getDefaultErrors())
+
+    if (!name.value.trim()) {
+      errors.name.set(t('admin:components.location.nameCantEmpty'))
+    }
+    if (!maxUsers.value) {
+      errors.maxUsers.set(t('admin:components.location.maxUserCantEmpty'))
+    }
+    if (maxUsers.value > LOCATION_MAX) {
+      errors.maxUsers.set(t('admin:components.location.maxUserExceeded'))
+    }
+    if (!scene.value) {
+      errors.scene.set(t('admin:components.location.sceneCantEmpty'))
+    }
+
+    return !Object.values(errors.value).some((value) => value.length > 0)
+  }
+
   const handlePublishFolder = async () => {
+    const isValid = validate()
+    if (!isValid) {
+      return
+    }
     PopoverState.showPopupover(<CompressedPublishConfirmation />)
     const { projectName, sceneName, rootEntity, sceneAssetID, scenePath } = getState(EditorState)
     const abortController = new AbortController()
@@ -368,21 +391,8 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
   }
 
   const handlePublish = async (inCompress = false) => {
-    errors.set(getDefaultErrors())
-
-    if (!name.value.trim()) {
-      errors.name.set(t('admin:components.location.nameCantEmpty'))
-    }
-    if (!maxUsers.value) {
-      errors.maxUsers.set(t('admin:components.location.maxUserCantEmpty'))
-    }
-    if (maxUsers.value > LOCATION_MAX) {
-      errors.maxUsers.set(t('admin:components.location.maxUserExceeded'))
-    }
-    if (!scene.value) {
-      errors.scene.set(t('admin:components.location.sceneCantEmpty'))
-    }
-    if (Object.values(errors.value).some((value) => value.length > 0)) {
+    const isValid = validate()
+    if (!isValid) {
       return
     }
     publishLoading.set(true)
@@ -557,6 +567,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
                     fullWidth
                     height="xl"
                     placeholder="5 - Default"
+                    max={LOCATION_MAX}
                   />
                   <Toggle
                     label={t('admin:components.location.lbl-ve')}
