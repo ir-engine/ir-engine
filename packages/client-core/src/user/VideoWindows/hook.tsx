@@ -240,18 +240,26 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const handleVisibilityChange = () => {
     if (document.hidden) {
-      if (!videoStreamPaused) {
+      if (!videoStreamPaused && mediaStreamState.webcamMediaStream.value) {
         resumeVideoOnUnhide.current = true
+        peerMediaChannelState.videoStreamPaused.set(true)
         toggleVideo()
       }
-      if (!audioStreamPaused) {
+      if (!audioStreamPaused && mediaStreamState.microphoneMediaStream.value) {
         resumeAudioOnUnhide.current = true
+        peerMediaChannelState.audioStreamPaused.set(true)
         toggleAudio()
       }
     }
     if (!document.hidden) {
-      if (resumeVideoOnUnhide.current) toggleVideo()
-      if (resumeAudioOnUnhide.current) toggleAudio()
+      if (resumeVideoOnUnhide.current) {
+        peerMediaChannelState.videoStreamPaused.set(false)
+        toggleVideo()
+      }
+      if (resumeAudioOnUnhide.current) {
+        peerMediaChannelState.audioStreamPaused.set(false)
+        toggleAudio()
+      }
       resumeVideoOnUnhide.current = false
       resumeAudioOnUnhide.current = false
     }
