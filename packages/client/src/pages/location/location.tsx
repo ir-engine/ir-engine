@@ -59,14 +59,8 @@ const LocationRoutes = () => {
         </Routes>
       )}
       {!ready && (
-        <div className="flex h-screen w-screen items-center justify-center bg-white" style={{ zIndex: 1000000 }}>
-          <LoadingView
-            fullScreen
-            animated
-            className="block h-12 w-12"
-            title={t('common:loader.loadingApp')}
-            titleClassname="text-[#262626]"
-          />
+        <div className="flex h-dvh w-dvw items-center justify-center bg-white" style={{ zIndex: 1000000 }}>
+          <LoadingView fullScreen animated title={t('common:loader.loadingApp')} titleClassname="text-black" />
         </div>
       )}
       <Debug />

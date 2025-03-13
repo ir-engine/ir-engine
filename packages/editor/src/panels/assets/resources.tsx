@@ -44,6 +44,7 @@ import { twMerge } from 'tailwind-merge'
 import { FilesViewModeSettings } from '../../services/FilesState'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileIcon } from '../files/fileicon'
+import { FileUploadProgress } from '../files/loaders'
 import DeleteFileModal from '../files/modals/DeleteFileModal'
 import { ASSETS_PAGE_LIMIT, calculateItemsToFetch } from './helpers'
 import { useAssetsQuery } from './hooks'
@@ -415,7 +416,7 @@ function ResourceItems() {
   return (
     <div className="relative flex w-full ">
       <div className="relative flex w-[95%] flex-col">
-        {' '}
+        <FileUploadProgress />{' '}
         {resources.length === 0 && !resourcesLoading && (
           <div className="col-start-2 flex h-full w-full items-center justify-center text-text-secondary">
             {t('editor:layout.scene-assets.no-search-results')}
