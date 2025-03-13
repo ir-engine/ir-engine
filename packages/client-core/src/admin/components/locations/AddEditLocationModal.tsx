@@ -387,9 +387,13 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
     }
     publishLoading.set(true)
 
+    const updateSceneID = getState(EditorState).sceneAssetID
+
     try {
-      await SceneThumbnailState.createThumbnail()
-      await SceneThumbnailState.uploadThumbnail()
+      if (updateSceneID) {
+        await SceneThumbnailState.createThumbnail()
+        await SceneThumbnailState.uploadThumbnail()
+      }
     } catch (e) {
       errors.serverError.set(e.message)
     }
@@ -404,7 +408,6 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
       }
     }
 
-    const updateSceneID = getState(EditorState).sceneAssetID
     const locationData: LocationData = {
       name: name.value.trim(),
       sceneId: updateSceneID || (location?.sceneId as string),
