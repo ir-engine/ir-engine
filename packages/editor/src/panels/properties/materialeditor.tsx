@@ -50,11 +50,7 @@ import {
   PrototypeArgument
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { getDefaultType } from '@ir-engine/spatial/src/renderer/materials/constants/DefaultArgs'
-import {
-  extractValues,
-  formatMaterialArgs,
-  setupMaterialParameters
-} from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { extractValues, formatMaterialArgs } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { Button, Tooltip } from '@ir-engine/ui'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
@@ -177,11 +173,11 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
     }
     return prop
   }
+
   const materialParameters = useHookstate({})
 
   useEffect(() => {
     prototypeName.set(material.type)
-    setupMaterialParameters(entity, material)
 
     materialParameters.set(
       Object.fromEntries(

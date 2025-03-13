@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Euler, Material, Matrix4, Quaternion, SRGBColorSpace, Vector3 } from 'three'
+import { Euler, Material, Matrix4, Quaternion, Vector3 } from 'three'
 
 import {
   EntityTreeComponent,
@@ -63,7 +63,6 @@ import { DirectionalLightComponent, HemisphereLightComponent } from '@ir-engine/
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { getTextureAsync } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { serializeEntity } from '@ir-engine/engine/src/scene/functions/serializeWorld'
@@ -75,9 +74,8 @@ import {
   MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { extractDefaults, setupMaterialParameters } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { extractDefaults } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
-import { Color } from 'three'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
@@ -160,7 +158,7 @@ const updateMaterialPrototype = (materialEntity: Entity, newPrototype: string) =
   const materialComponent = getOptionalMutableComponent(materialEntity, MaterialStateComponent)
   if (!materialComponent) return
   const material = materialComponent.material.value
-  materialComponent.prototype.set(newPrototype)
+
   if (!material || newPrototype === material.type) return
   const prototype = getState(MaterialPrototypeDefinitions)[newPrototype]
   if (!prototype) return
@@ -189,12 +187,9 @@ const updateMaterialPrototype = (materialEntity: Entity, newPrototype: string) =
 
   materialComponent.material.set(newMaterial)
   materialComponent.parameters.set({})
+  for (const key in prototype.arguments) materialComponent.parameters[key].set(prototype.arguments[key].default)
 
   EditorState.markModifiedScene(materialEntity)
-  if (!EditorState.isInActiveScene(materialEntity)) {
-    SceneDeltaState.registerMaterialDelta(materialEntity, {}, newPrototype)
-  }
-
   return newMaterial
 }
 
@@ -205,49 +200,30 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
     const materialEntity = UUIDComponent.getEntityByUUID(materialId, Layers.Authoring)
     const material = getComponent(materialEntity, MaterialStateComponent).material
     if (!material) return
-    if (!material) throw new Error('Updating properties on undefined material')
     const props = properties[i] ?? properties[0]
-    const materialComponent = getMutableComponent(materialEntity, MaterialStateComponent)
-    const prototype = getState(MaterialPrototypeDefinitions)[materialComponent.prototype.value].arguments
-    const texturePromises = [] as Promise<void>[]
-    for (const [key, value] of Object.entries(props)) {
-      switch (prototype[key]?.type) {
-        case 'texture':
-          texturePromises.push(
-            new Promise<void>(async (resolve) => {
-              const texture = await getTextureAsync(value)
-              if (texture[0]) {
-                texture[0].colorSpace = SRGBColorSpace
-                material[key] = texture[0]
-              }
-              resolve()
-            })
-          )
-          break
-        case 'color':
-          material[key] = value.isColor ? value : new Color(value)
-          break
-        default:
-          material[key] = value
+    Object.entries(props).map(([k, v]) => {
+      if (!material) throw new Error('Updating properties on undefined material')
+      if (
+        ![undefined, null].includes(v) &&
+        ![undefined, null].includes(material[k]) &&
+        typeof material[k] === 'object' &&
+        typeof material[k].set === 'function'
+      ) {
+        material[k].set(v)
+      } else {
+        material[k] = v
       }
-    }
-
-    Promise.all(texturePromises).then(() => {
-      setupMaterialParameters(materialEntity, getComponent(materialEntity, MaterialStateComponent).material)
-      EditorState.markModifiedScene(materialEntity)
-      if (!EditorState.isInActiveScene(materialEntity)) {
-        SceneDeltaState.registerMaterialDelta(
-          materialEntity,
-          getComponent(materialEntity, MaterialStateComponent).parameters,
-          material.userData?.type ?? material.type
-        )
-      }
+      getMutableComponent(materialEntity, MaterialStateComponent).parameters[k].set(v)
     })
-
+    const sceneID = getComponent(materialEntity, SourceComponent)
     getMutableComponent(
       LayerFunctions.getLayerRelationsEntities(materialEntity)![0][1],
       MaterialStateComponent
     ).material.plugins.set(material.plugins)
+    EditorState.markModifiedScene(materialEntity)
+    if (!EditorState.isInActiveScene(materialEntity)) {
+      SceneDeltaState.registerMaterialDelta(materialEntity, props)
+    }
   }
 }
 
