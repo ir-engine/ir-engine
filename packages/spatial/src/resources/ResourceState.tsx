@@ -255,10 +255,7 @@ const resourceCallbacks = {
         const renderer = getComponent(viewer, RendererComponent)
         const gl = renderer.renderContext as WebGL2RenderingContext
         if (discardUponUpload && gl.fenceSync && isIPhone) {
-          const sync = gl.fenceSync(
-            gl.SYNC_GPU_COMMANDS_COMPLETE,
-            gl.getParameter(gl.MAX_CLIENT_WAIT_TIMEOUT_WEBGL) - 1
-          )
+          const sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0)
           if (sync) {
             const checkSync = () => {
               const status = gl.clientWaitSync(sync, 0, 0)
