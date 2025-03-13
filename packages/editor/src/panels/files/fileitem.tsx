@@ -64,7 +64,7 @@ export function TableWrapper({ children, handleSort }: { children: React.ReactNo
   return (
     <table className="w-full">
       <thead>
-        <tr className="h-8 divide-x divide-[#42454D] border-b-[0.5px] border-[#42454D] bg-[#191B1F] text-left text-[#E7E7E7]">
+        <tr className="h-8 divide-x divide-[#42454D] border-b-[0.5px] border-[#42454D] bg-ui-background text-left text-text-primary">
           {availableTableColumns
             .filter((header) => selectedTableColumns[header])
             .map((header) => (
@@ -106,7 +106,7 @@ function FileItemRow({
   const tableColumns = {
     name: (
       <span
-        className="flex h-7 max-h-7 flex-row items-center gap-2 font-figtree text-[#e7e7e7]"
+        className="flex h-7 max-h-7 flex-row items-center gap-2 font-figtree text-text-primary"
         style={{ fontSize: `${fontSize}px` }}
       >
         {file.isFolder ? <IoIosArrowForward /> : <VscBlank />}
@@ -126,10 +126,10 @@ function FileItemRow({
       key={file?.key}
       ref={(ref) => drag(drop(ref))}
       className={twMerge(
-        'h-9 rounded text-[#a3a3a3]',
+        'h-9 rounded text-text-primary',
         isOver && 'border-2 border-gray-400',
         className,
-        !isSelected ? 'hover:bg-[#2F3137]' : 'bg-[#375DAF]'
+        !isSelected ? 'hover:bg-ui-hover-background' : 'bg-ui-primary'
       )}
       onContextMenu={onContextMenu}
       onClick={onClick}

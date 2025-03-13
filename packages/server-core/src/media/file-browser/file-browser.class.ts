@@ -170,7 +170,7 @@ export class FileBrowserService
   async find(params?: FileBrowserParams) {
     if (!params) params = {}
     if (!params.query) params.query = {}
-    const { $skip, $limit } = params.query
+    const { $skip, $limit, recursive } = params.query
     let { directory } = params.query
 
     const skip = $skip ? $skip : 0
@@ -182,7 +182,7 @@ export class FileBrowserService
 
     ensureProjectsDirectory(directory)
 
-    let result = await storageProvider.listFolderContent(directory)
+    let result = await storageProvider.listFolderContent(directory, !!recursive)
     Object.entries(params.query).forEach(([key, value]) => {
       if (value['$like']) {
         result = result.filter(

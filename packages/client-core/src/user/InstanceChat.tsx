@@ -37,7 +37,8 @@ import {
   MessageTextSquare01Md,
   Send01Lg,
   Send01Sm,
-  XCloseLg
+  XCloseLg,
+  XCloseSm
 } from '@ir-engine/ui/src/icons'
 import React, { createContext, useContext, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -177,7 +178,7 @@ function NewMessage() {
     <div className="mt-5 flex w-full items-center justify-end">
       <div
         className={twMerge(
-          'height-[30px] lg:height-[74px] mr-4 flex items-center justify-between rounded-[37px] bg-ui-background transition-[width,transform] duration-500 lg:mr-0 lg:bg-black/50',
+          'height-[30px] lg:height-[74px] mr-4 flex items-center justify-between rounded-[37px] bg-ui-background transition-[width,transform] duration-500 lg:ml-[13px] lg:mr-0 lg:bg-black/50',
           isChatOpen.value ? 'w-full translate-x-0' : 'hidden'
         )}
       >
@@ -283,6 +284,7 @@ function MessagesWrapper() {
   const { isChatOpen, unreadMessages } = useInstanceChatMessages()
   const ageVerified = useMutableState(AuthState).user.ageVerified.value
   const isGuest = useMutableState(AuthState).user.isGuest.value
+  const isHidden = useHookstate(false)
   useTouchOutside(ref, () => {
     if (!isChatOpen.value) return
     isChatOpen.set(false)
@@ -290,27 +292,39 @@ function MessagesWrapper() {
 
   return (
     <div className="flex items-end">
-      <div className="relative max-w-16">
-        {!isChatOpen.value && unreadMessages.value && (
-          <div className="absolute right-0 top-0 h-4 w-4 rounded-full bg-blue-500" />
-        )}
-        {isChatOpen.value && (
-          <LocationIconButton
-            icon={isChatOpen.value ? XCloseLg : MessageTextSquare01Lg}
-            onClick={() => isChatOpen.set(!isChatOpen.value)}
-            className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
-          />
-        )}
-        {!isChatOpen.value && (
-          <LocationIconButton
-            icon={MessageTextSquare01Md}
-            onClick={() => isChatOpen.set(!isChatOpen.value)}
-            className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
-          />
-        )}
-      </div>
-      {isChatOpen.value && (!ageVerified as any) ? (
-        <div className="ml-[13px] rounded-lg bg-surface-4 p-4">
+      {ageVerified && (
+        <div className="relative max-w-16">
+          {!isChatOpen.value && unreadMessages.value && (
+            <div className="absolute right-0 top-0 h-4 w-4 rounded-full bg-blue-500" />
+          )}
+          {!isMobile && isChatOpen.value && (
+            <LocationIconButton
+              icon={isChatOpen.value ? XCloseLg : MessageTextSquare01Lg}
+              onClick={() => isChatOpen.set(!isChatOpen.value)}
+              className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
+            />
+          )}
+          {!isChatOpen.value && (
+            <LocationIconButton
+              icon={MessageTextSquare01Md}
+              onClick={() => isChatOpen.set(!isChatOpen.value)}
+              className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
+            />
+          )}
+        </div>
+      )}
+      {!isHidden.value && !ageVerified ? (
+        <div className="static rounded-lg bg-surface-4 p-4">
+          {isMobile && (
+            <button
+              onClick={() => isHidden.set(!isHidden.value)}
+              className={twMerge(
+                'absolute left-[-18px] top-[-13px] flex h-[36px] w-[36px] select-none items-center justify-center rounded-full bg-ui-tertiary'
+              )}
+            >
+              <XCloseSm className={twMerge('h-[15px] w-[15px] text-text-primary')} />
+            </button>
+          )}
           <div className="mx-auto text-center font-semibold text-[#3B3A3A]">{t('user:instanceChat.wantToChat')}</div>
           <Button
             variant="secondary"
