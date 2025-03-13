@@ -91,16 +91,18 @@ function handler(event) {
     var avatarsRegex = new RegExp(avatarsRegexRoot)
     var recordingsRegexRoot = __$recordingsRegex$__
     var recordingsRegex = new RegExp(recordingsRegexRoot)
+    var reportsRegexRoot = __$reportsRegex$__
+    var reportsRegex = new RegExp(reportsRegexRoot)
     var publicRegexRoot = __$publicRegex$__
     var publicRegex = new RegExp(publicRegexRoot)
     var tempRegex = new RegExp('/temp/')
     
     if (publicRegex.test(request.uri)) {
         request.uri = '/client' + request.uri
-    } else if (projectsRegex.test(request.uri) || recordingsRegex.test(request.uri) || avatarsRegex.test(request.uri) || tempRegex.test(request.uri)) {
-        // Projects, temp files, avatars, and recordings paths should be passed as-is
+    } else if (projectsRegex.test(request.uri) || recordingsRegex.test(request.uri) || avatarsRegex.test(request.uri) || reportsRegex.test(request.uri) || tempRegex.test(request.uri)) {
+        // Projects, temp files, avatars, recordings, and reports paths should be passed as-is
     } else {
-      // Anything that is not a static/public file, or a project or recording file, is assumed to be some sort
+      // Anything that is not a static/public file, or a project, recording, avatar, or report file, is assumed to be some sort
       // of engine route and passed to index.html to be handled by the router
       request.uri = '/client/index.html'
     }
@@ -499,6 +501,7 @@ export class S3Provider implements StorageProviderInterface {
     const projectsRegex = '^/projects/'
     const recordingsRegex = '^/recordings/'
     const avatarsRegex = '^/avatars/'
+    const reportsRegex = '^/reports/'
     let publicRegex = ''
     fs.readdirSync(path.join(appRootPath.path, 'packages', 'client', 'dist'), { withFileTypes: true }).forEach(
       (dirent) => {
@@ -518,6 +521,7 @@ export class S3Provider implements StorageProviderInterface {
     return CFFunctionTemplate.replace('__$projectsRegex$__', `'${projectsRegex}'`)
       .replace('__$avatarsRegex$__', `'${avatarsRegex}'`)
       .replace('__$recordingsRegex$__', `'${recordingsRegex}'`)
+      .replace('__$reportsRegex$__', `'${reportsRegex}'`)
       .replace('__$publicRegex$__', `'${publicRegex}'`)
   }
 

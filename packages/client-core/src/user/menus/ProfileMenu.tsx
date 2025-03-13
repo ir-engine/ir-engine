@@ -36,6 +36,7 @@ import {
   authenticationSettingPath,
   clientSettingPath,
   identityProviderPath,
+  projectSettingPath,
   scopePath,
   userApiKeyPath,
   userPath
@@ -135,6 +136,13 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const originallyAgeVerified = useHookstate(checked18OrOver)
   const originallyAcceptedTOS = useHookstate(acceptedTOS).value
   const currentLocation = getState(LocationState).currentLocation.location
+
+  const projectSettings = useFind(projectSettingPath, {
+    query: {
+      projectId: currentLocation.projectId
+    }
+  })
+  const creatorPrivacyPolicyUrl = projectSettings.data.find((setting) => setting.key === 'PrivacyPolicyUrl')
 
   const avatarSelectMenuRef = useRef<{
     handleClose: () => Promise<void>
@@ -792,11 +800,25 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
         </div>
       )}
 
-      <a href={clientSetting?.privacyPolicy} target="_blank">
-        <Text className="mt-1 w-full text-center text-text-primary smh:mt-5" fontSize="sm">
-          {t('user:usermenu.profile.privacyPolicy')}
-        </Text>
-      </a>
+      <div className="mt-1 flex w-full items-center justify-center gap-x-2 smh:mt-5">
+        <a href={clientSetting?.privacyPolicy} target="_blank">
+          <Text className="text-center text-text-primary" fontSize="sm">
+            {t('user:usermenu.profile.privacyPolicy')}
+          </Text>
+        </a>
+        {creatorPrivacyPolicyUrl?.value && (
+          <>
+            <Text className="text-center text-text-primary" fontSize="sm">
+              |
+            </Text>
+            <a href={creatorPrivacyPolicyUrl.value} target="_blank">
+              <Text className="text-center text-text-primary" fontSize="sm">
+                {t('user:usermenu.profile.creatorPrivacyPolicy')}
+              </Text>
+            </a>
+          </>
+        )}
+      </div>
     </div>
   )
 }
