@@ -117,12 +117,6 @@ export const SceneThumbnailState = defineState({
       .patch(staticResourceId, { thumbnailKey: _thumbnailKey, thumbnailMode, project: projectName })
 
     if (entity) commitProperty(SceneSettingsComponent, 'thumbnailURL', [entity])(thumbnailURL.href)
-    sceneThumbnailState.merge({
-      thumbnailURL: null,
-      oldThumbnailURL: currentThumbnail,
-      thumbnail: null,
-      uploadingThumbnail: false
-    })
   },
   createLoadingScreen: async () => {
     const sceneThumbnailState = getMutableState(SceneThumbnailState)
