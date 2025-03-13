@@ -1104,13 +1104,7 @@
       "lbl-ring": "Ring",
       "lbl-torus": "Torus",
       "lbl-polyhedron": "Polyhedron",
-      "lbl-torusknot": "Torus Knot",
-      "lbl-width": "Width",
-      "lbl-height": "Height",
-      "lbl-depth": "Depth",
-      "lbl-widthSegments": "Width Segments",
-      "lbl-heightSegments": "Height Segments",
-      "lbl-depthSegments": "Depth Segments"
+      "lbl-torusknot": "Torus Knot"
     },
     "portal": {
       "name": "Portal",
