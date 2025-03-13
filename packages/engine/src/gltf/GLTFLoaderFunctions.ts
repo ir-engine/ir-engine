@@ -55,10 +55,8 @@ import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import {
   MaterialInstanceComponent,
-  MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { setupMaterialParameters } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import {
@@ -105,7 +103,6 @@ import {
 } from 'three'
 import { parseStorageProviderURLs } from '../assets/functions/parseSceneJSON'
 import { loadResource, unloadResourcesForEntity } from '../assets/functions/resourceLoaderFunctions'
-import { getTextureAsync } from '../assets/functions/resourceLoaderHooks'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { Loader } from '../assets/loaders/base/Loader'
 import {
@@ -134,7 +131,6 @@ import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { SourceID } from '../scene/components/SourceComponent'
 import {
   MATERIAL_JSON_ID,
-  MATERIAL_PROTOTYPE_JSON_ID,
   SceneDeltaEntry,
   SceneDeltaRegistry,
   SceneDeltaState
@@ -633,7 +629,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
 
   // if (materialDef.extensions) addUnknownExtensionsToUserData(GLTFExtensions, material, materialDef)
 
-  let materialConstructorParameters = {} as any
+  const materialParams = {} as any
   const promises = [] as Promise<void>[]
   const materialExtensions = materialDef.extensions || {}
 
@@ -641,10 +637,10 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   if (!materialExtensions[EXTENSIONS.EE_MATERIAL] && materialExtensions[EXTENSIONS.KHR_MATERIALS_UNLIT]) {
     const kmuExtension = KHRUnlitExtensionComponent
     materialConstructor = kmuExtension.getMaterialType() as any
-    promises.push(kmuExtension.extendMaterialParams(options, materialConstructorParameters, materialDef) as any)
+    promises.push(kmuExtension.extendMaterialParams(options, materialParams, materialDef) as any)
   } else {
-    materialConstructorParameters.color = new Color(1.0, 1.0, 1.0)
-    materialConstructorParameters.opacity = 1.0
+    materialParams.color = new Color(1.0, 1.0, 1.0)
+    materialParams.opacity = 1.0
 
     if (typeof materialDef.pbrMetallicRoughness?.baseColorTexture !== 'undefined') {
       promises.push(
@@ -655,7 +651,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
           )
           if (map) {
             map.colorSpace = SRGBColorSpace
-            materialConstructorParameters.map = map
+            materialParams.map = map
           }
           resolve()
         })
@@ -665,16 +661,16 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
     if (typeof materialDef.pbrMetallicRoughness?.baseColorFactor !== 'undefined') {
       if (Array.isArray(materialDef.pbrMetallicRoughness?.baseColorFactor)) {
         const array = materialDef.pbrMetallicRoughness.baseColorFactor
-        ;(materialConstructorParameters.color = new Color().setRGB(array[0], array[1], array[2], LinearSRGBColorSpace)),
-          (materialConstructorParameters.opacity = array[3])
+        ;(materialParams.color = new Color().setRGB(array[0], array[1], array[2], LinearSRGBColorSpace)),
+          (materialParams.opacity = array[3])
       }
     }
-    materialConstructorParameters.metalness =
+    materialParams.metalness =
       materialDef.pbrMetallicRoughness?.metallicFactor !== undefined
         ? materialDef.pbrMetallicRoughness.metallicFactor
         : 1.0
 
-    materialConstructorParameters.roughness =
+    materialParams.roughness =
       materialDef.pbrMetallicRoughness?.roughnessFactor !== undefined
         ? materialDef.pbrMetallicRoughness.roughnessFactor
         : 1.0
@@ -688,7 +684,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
           )
 
           if (metalnessMap) {
-            materialConstructorParameters.metalnessMap = metalnessMap
+            materialParams.metalnessMap = metalnessMap
           }
           resolve()
         })
@@ -704,7 +700,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
           )
 
           if (roughnessMap) {
-            materialConstructorParameters.roughnessMap = roughnessMap
+            materialParams.roughnessMap = roughnessMap
           }
           resolve()
         })
@@ -712,51 +708,50 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
     }
   }
 
-  materialConstructorParameters.side = materialDef.doubleSided === true ? DoubleSide : FrontSide
+  materialParams.side = materialDef.doubleSided === true ? DoubleSide : FrontSide
 
   const alphaMode = materialDef.alphaMode || ALPHA_MODES.OPAQUE
-  materialConstructorParameters.transparent = alphaMode === ALPHA_MODES.BLEND
+  materialParams.transparent = alphaMode === ALPHA_MODES.BLEND
 
   // See: https://github.com/mrdoob/three.js/issues/17706
   if (alphaMode === ALPHA_MODES.BLEND) {
-    materialConstructorParameters.depthWrite = false
+    materialParams.depthWrite = false
   }
 
   if (materialDef.alphaMode === ALPHA_MODES.MASK) {
-    materialConstructorParameters.alphaTest =
-      typeof materialDef.alphaCutoff === 'number' ? materialDef.alphaCutoff : 0.5
+    materialParams.alphaTest = typeof materialDef.alphaCutoff === 'number' ? materialDef.alphaCutoff : 0.5
   } else {
-    materialConstructorParameters.alphaTest = 0
+    materialParams.alphaTest = 0
   }
 
   if (typeof materialDef.normalTexture !== 'undefined') {
     const normalMap = await GLTFLoaderFunctions.assignTexture(options, materialDef.normalTexture)
 
     if (normalMap) {
-      materialConstructorParameters.normalMap = normalMap
+      materialParams.normalMap = normalMap
     }
   }
 
   if (materialDef.normalTexture?.scale) {
     const scale = materialDef.normalTexture.scale
-    materialConstructorParameters.normalScale = new Vector2(scale, scale)
+    materialParams.normalScale = new Vector2(scale, scale)
   } else {
-    materialConstructorParameters.normalScale = new Vector2(1, 1)
+    materialParams.normalScale = new Vector2(1, 1)
   }
 
   if (typeof materialDef.occlusionTexture !== 'undefined') {
     const aoMap = await GLTFLoaderFunctions.assignTexture(options, materialDef.occlusionTexture)
 
     if (aoMap) {
-      materialConstructorParameters.aoMap = aoMap
+      materialParams.aoMap = aoMap
     }
   }
 
-  materialConstructorParameters.aoMapIntensity = materialDef.occlusionTexture?.strength ?? 1.0
+  materialParams.aoMapIntensity = materialDef.occlusionTexture?.strength ?? 1.0
 
   const emissiveFactor = materialDef.emissiveFactor
   if (emissiveFactor) {
-    materialConstructorParameters.emissive = new Color().setRGB(
+    materialParams.emissive = new Color().setRGB(
       emissiveFactor[0],
       emissiveFactor[1],
       emissiveFactor[2],
@@ -771,7 +766,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
 
         if (emissiveMap) {
           emissiveMap.colorSpace = SRGBColorSpace
-          materialConstructorParameters.emissiveMap = emissiveMap
+          materialParams.emissiveMap = emissiveMap
         }
         resolve()
       })
@@ -790,13 +785,12 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
       else console.warn('GLTFLoaderFunctions: Material type not found.')
     }
     if (typeof Component.extendMaterialParams === 'function') {
-      promises.push(Component.extendMaterialParams(options, materialConstructorParameters, materialDef, materialIndex))
+      promises.push(Component.extendMaterialParams(options, materialParams, materialDef, materialIndex))
     }
   }
 
   await Promise.all(promises)
 
-  const deltaPromises = [] as Promise<void>[]
   //apply deltas
   const deltaState = getState(SceneDeltaState)
   const sourceDelta = deltaState[GLTFComponent.removeHashes(options.documentID)]
@@ -805,47 +799,18 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
     const nodeDelta = sourceDelta[nodeID]
     if (nodeDelta) {
       const materialDelta = nodeDelta[MATERIAL_JSON_ID]
-      const materialPrototype = nodeDelta[MATERIAL_PROTOTYPE_JSON_ID]
       if (materialDelta) {
-        const prototype = getState(MaterialPrototypeDefinitions)[materialPrototype ?? materialConstructor.name] // this is insanely brittle but will do for now
-        if (materialPrototype) {
-          materialConstructor = prototype.prototypeConstructor
-          materialConstructorParameters = {}
-        }
-        for (const key in materialDelta) {
-          switch (prototype.arguments[key]?.type) {
-            case 'color':
-              materialConstructorParameters[key] = new Color(materialDelta[key])
-              break
-            case 'texture':
-              deltaPromises.push(
-                new Promise<void>(async (resolve) => {
-                  const texture = await getTextureAsync(materialDelta[key])
-                  if (texture[0]) {
-                    texture[0].colorSpace = SRGBColorSpace
-                    materialConstructorParameters[key] = texture[0]
-                  }
-                  resolve()
-                })
-              )
-            default:
-              materialConstructorParameters[key] = materialDelta[key]
-              break
-          }
-        }
+        Object.assign(materialParams, materialDelta)
       }
     }
   }
 
-  await Promise.all(deltaPromises)
-
-  const material = new materialConstructor(materialConstructorParameters)
+  const material = new materialConstructor(materialParams)
   const uuid = getComponent(materialEntity, UUIDComponent)
   material.uuid = uuid
   material.name = materialDef.name || 'Material-' + materialIndex
 
-  setComponent(materialEntity, MaterialStateComponent, { material })
-  setupMaterialParameters(materialEntity, materialConstructorParameters)
+  setComponent(materialEntity, MaterialStateComponent, { material, parameters: materialParams })
 
   assignExtrasToUserData(material, materialDef)
 
