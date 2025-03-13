@@ -111,7 +111,7 @@ export const Radio = ({ disabled, label, onClick, value, description, checked, v
   )
 }
 
-type OptionType = {
+export type OptionType = {
   value: string
   label?: string
   description?: string
