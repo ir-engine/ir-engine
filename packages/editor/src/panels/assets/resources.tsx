@@ -198,7 +198,7 @@ export function FileCard({
             theme="secondary"
             fontSize="sm"
             className={twMerge(
-              'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2',
+              'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2 text-text-secondary',
               isSelected ? 'rounded bg-[#375DAF]' : 'rounded group-hover:bg-[#2F3137]'
             )}
             data-testid={dataTestIdJson?.fileNameId}
