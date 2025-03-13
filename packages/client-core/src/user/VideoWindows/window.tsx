@@ -93,7 +93,13 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
         onMouseOver={() => isMoreButtonVisible.set((prev) => !prev)}
       >
         {(!videoMediaStream || videoStreamPaused) && (
-          <img src={avatarThumbnail} alt={t('user:avatar.avatar')} crossOrigin="anonymous" draggable={false} />
+          <img
+            src={avatarThumbnail}
+            alt={t('user:avatar.avatar')}
+            crossOrigin="anonymous"
+            draggable={false}
+            className="bg-[radial-gradient(circle,_#DDDDDD,_#726B65)]"
+          />
         )}
         <span
           className="[&>video]:h-full [&>video]:w-full [&>video]:object-cover"
