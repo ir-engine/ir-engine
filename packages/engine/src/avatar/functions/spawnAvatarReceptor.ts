@@ -127,7 +127,6 @@ export const createAvatarCollider = (entity: Entity) => {
   })
 }
 
-const avatarCapsuleOffset = 0.25
 export const setAvatarColliderTransform = (entity: Entity) => {
   const avatarCollider = getOptionalComponent(entity, AvatarColliderComponent)
   if (!avatarCollider) {
@@ -138,6 +137,8 @@ export const setAvatarColliderTransform = (entity: Entity) => {
   const avatarRadius = eyeOffset + camera.near
   const avatarComponent = getComponent(entity, AvatarComponent)
   const halfHeight = avatarComponent.avatarHeight * 0.5
+  // we currently need an offset as the capsule prevents moving up slopes if it is flush with your feet
+  const avatarCapsuleOffset = avatarRadius / 4
 
   setComponent(colliderEntity, TransformComponent, {
     position: new Vector3(0, halfHeight + avatarCapsuleOffset, 0),
