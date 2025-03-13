@@ -259,17 +259,13 @@ const resourceCallbacks = {
           if (sync) {
             const checkSync = () => {
               const status = gl.clientWaitSync(sync, 0, 0)
-              if (
-                status === gl.TIMEOUT_EXPIRED ||
-                status === gl.ALREADY_SIGNALED ||
-                status === gl.CONDITION_SATISFIED
-              ) {
+              if (status === gl.TIMEOUT_EXPIRED) {
+                requestAnimationFrame(checkSync)
+              } else {
                 gl.deleteSync(sync)
                 resource.metadata.merge({ onGPU: true, discarded: true })
                 asset.source.data = null
                 asset.mipmaps = []
-              } else {
-                requestAnimationFrame(checkSync)
               }
             }
             requestAnimationFrame(checkSync)
