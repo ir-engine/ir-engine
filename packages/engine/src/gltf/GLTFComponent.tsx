@@ -58,7 +58,6 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformComponent } from '@ir-engine/spatial'
 import { ShapeSchema } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
@@ -209,14 +208,13 @@ export const GLTFComponentReactor = () => {
   const entity = useEntityContext()
   const gltfComponent = useComponent(entity, GLTFComponent)
   const documentLoaded = useHookstate(false)
+  const sceneLoaded = GLTFComponent.useSceneLoaded(entity)
 
   useEffect(() => {
-    if (!documentLoaded.value) return
+    if (!sceneLoaded) return
 
     const occlusion = gltfComponent.cameraOcclusion.value
-    const entities = SourceComponent.getEntitiesBySource(GLTFComponent.getInstanceID(entity)).filter(
-      (curr) => !hasComponent(curr, GLTFComponent) && hasComponent(curr, ObjectComponent)
-    )
+    const entities = SourceComponent.getEntitiesBySource(GLTFComponent.getInstanceID(entity))
 
     if (!occlusion) {
       ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
@@ -229,7 +227,7 @@ export const GLTFComponentReactor = () => {
         ObjectLayerMaskComponent.enableLayer(curr, ObjectLayers.Camera)
       }
     }
-  }, [gltfComponent.cameraOcclusion.value, documentLoaded.value])
+  }, [gltfComponent.cameraOcclusion.value, sceneLoaded])
 
   useGLTFDocument(entity)
 
@@ -280,8 +278,6 @@ export const GLTFComponentReactor = () => {
       }
     }
   }, [gltfComponent.document])
-
-  const sceneLoaded = GLTFComponent.useSceneLoaded(entity)
 
   const scene = useOptionalComponent(entity, SceneComponent)
 
