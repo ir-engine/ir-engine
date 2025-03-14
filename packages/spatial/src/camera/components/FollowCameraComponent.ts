@@ -38,7 +38,7 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
-import { MathUtils, Raycaster, Vector3 } from 'three'
+import { Clock, MathUtils, Raycaster, Vector3 } from 'three'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { Vector3_Up, Vector3_Zero } from '../../common/constants/MathConstants'
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
@@ -107,6 +107,7 @@ export const FollowCameraComponent = defineComponent({
       rayLength: S.Number(15.0),
       rayFrequency: S.Number(0.1),
       rayConeAngle: S.Number(Math.PI / 12),
+      camRayCastClock: S.Class(() => new Clock()),
       camRayCastCache: S.Object({
         maxDistance: S.Number(-1),
         targetHit: S.Bool(false)
@@ -435,6 +436,12 @@ const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
 
   // Cache the raycast result for 0.1 seconds
   const raycastProps = followCamera.raycastProps
+  const { camRayCastCache, camRayCastClock, cameraRays, rayConeAngle } = raycastProps
+  if (camRayCastCache.maxDistance != -1 && camRayCastClock.getElapsedTime() < raycastProps.rayFrequency) {
+    return camRayCastCache
+  }
+
+  camRayCastClock.start()
 
   const sceneObjects = cameraLayerQuery().flatMap((e) => getComponent(e, MeshComponent))
 
@@ -443,7 +450,7 @@ const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   followCamera.targetToCamera.subVectors(cameraTransform.position, target)
   // raycaster.ray.origin.sub(targetToCamVec.multiplyScalar(0.1)) // move origin behind camera
 
-  createConeOfVectors(followCamera.targetToCamera, raycastProps.cameraRays, raycastProps.rayConeAngle)
+  createConeOfVectors(followCamera.targetToCamera, cameraRays, rayConeAngle)
 
   let maxDistance = Math.min(followCamera.thirdPersonMaxDistance, raycastProps.rayLength)
 
@@ -459,7 +466,7 @@ const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   }
 
   //Check the cone for minimum distance
-  followCamera.raycastProps.cameraRays.forEach((rayDir, i) => {
+  cameraRays.forEach((rayDir, i) => {
     raycaster.set(target, rayDir)
     const hits = raycaster.intersectObjects(sceneObjects, false)
 
@@ -468,9 +475,8 @@ const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
     }
   })
 
-  followCamera.raycastProps.camRayCastCache.targetHit =
-    followCamera.raycastProps.camRayCastCache.maxDistance != maxDistance
-  followCamera.raycastProps.camRayCastCache.maxDistance = maxDistance
+  camRayCastCache.maxDistance = maxDistance
+  camRayCastCache.targetHit = !!hits[0]
 
-  return followCamera.raycastProps.camRayCastCache
+  return camRayCastCache
 }
