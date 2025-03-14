@@ -88,7 +88,7 @@ export const SceneDeltaState = defineState({
       }
     }, [sceneState.keys])
 
-    // check for changes in the scene name to update deltas accordingly
+    // validate deltas by checking for changes in the scene name, then update deltas accordingly
     const sceneSource = useMutableState(NodesBySourceState)
     useEffect(() => {
       if (!sceneSource[sceneSource.keys[0]].value) return
@@ -104,6 +104,7 @@ export const SceneDeltaState = defineState({
                   getComponent(nodes[node], GLTFComponent).src
                 }` as SourceID
               )
+              if (newSourceID === delta) continue
               deltas[newSourceID].set(deltas[delta].get(NO_PROXY))
               deltas[delta].set(none)
             }
