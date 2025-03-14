@@ -208,7 +208,13 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
     if (!material) throw new Error('Updating properties on undefined material')
     const props = properties[i] ?? properties[0]
     const materialComponent = getMutableComponent(materialEntity, MaterialStateComponent)
-    const prototype = getState(MaterialPrototypeDefinitions)[materialComponent.prototype.value].arguments
+    /**@todo consolidate material prototype tracking */
+    const prototype =
+      getState(MaterialPrototypeDefinitions)[
+        materialComponent.prototype.value ||
+          materialComponent.material.value.userData?.type ||
+          materialComponent.material.type.value
+      ].arguments
     const texturePromises = [] as Promise<void>[]
     for (const [key, value] of Object.entries(props)) {
       switch (prototype[key]?.type) {
