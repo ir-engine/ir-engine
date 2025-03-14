@@ -242,11 +242,7 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
       setupMaterialParameters(materialEntity, getComponent(materialEntity, MaterialStateComponent).material)
       EditorState.markModifiedScene(materialEntity)
       if (!EditorState.isInActiveScene(materialEntity)) {
-        SceneDeltaState.registerMaterialDelta(
-          materialEntity,
-          getComponent(materialEntity, MaterialStateComponent).parameters,
-          material.userData?.type ?? material.type
-        )
+        SceneDeltaState.registerMaterialDelta(materialEntity, props)
       }
     })
 
