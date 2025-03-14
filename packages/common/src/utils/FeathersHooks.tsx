@@ -87,6 +87,7 @@ export const FeathersState = defineState({
         {
           fetch: () => void
           query: any
+          refs: number
           response: unknown
           status: 'pending' | 'success' | 'error'
           error: string
@@ -111,7 +112,7 @@ const FeathersChildReactor = (props: { serviceName: keyof ServiceTypes }) => {
   const fetch = () => {
     const feathersState = getState(FeathersState)
     for (const queryId in feathersState[props.serviceName]) {
-      feathersState[props.serviceName][queryId].fetch()
+      if (feathersState[props.serviceName][queryId].refs > 0) feathersState[props.serviceName][queryId].fetch()
     }
   }
 
@@ -186,6 +187,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       [queryId]: {
         fetch,
         query: queryParams,
+        refs: 0,
         response: null,
         status: 'pending',
         error: ''
@@ -207,7 +209,11 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       })
       fetch()
     }
-  }, [serviceName, method, queryId])
+    state.refs.set(state.refs.value + 1)
+    return () => {
+      state.refs.set(state.refs.value - 1)
+    }
+  }, [queryId])
 
   const state = useHookstate(getMutableState(FeathersState)[serviceName][queryId]).get(NO_PROXY)
   const data = state.response as Awaited<ReturnType<ServiceTypes[S][M]>> | undefined
