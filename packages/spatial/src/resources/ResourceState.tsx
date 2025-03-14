@@ -325,6 +325,7 @@ const resourceCallbacks = {
       let size = 0
 
       const checkUploaded = () => {
+        if (!resource.get(NO_PROXY).metadata) return
         resource.metadata.merge({ onGPU: needsUploaded === 0, discarded: needsUploaded === 0 && discardUponUpload })
       }
 
