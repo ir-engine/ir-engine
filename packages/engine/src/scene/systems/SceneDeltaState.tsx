@@ -23,10 +23,18 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Component, Entity, getComponent, hasComponent, SerializedComponentType } from '@ir-engine/ecs'
-import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
+import { Component, Entity, getComponent, hasComponent, SerializedComponentType, UUIDComponent } from '@ir-engine/ecs'
+import { NodeID, NodeIDComponent, NodesBySourceState } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { SourceComponent, SourceID } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { defineState, getMutableState, NO_PROXY_STEALTH, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import {
+  defineState,
+  getMutableState,
+  NO_PROXY,
+  NO_PROXY_STEALTH,
+  none,
+  useHookstate,
+  useMutableState
+} from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { SceneState } from '../../gltf/GLTFState'
@@ -79,6 +87,30 @@ export const SceneDeltaState = defineState({
         currentRoot.set(newRoot)
       }
     }, [sceneState.keys])
+
+    // check for changes in the scene name to update deltas accordingly
+    const sceneSource = useMutableState(NodesBySourceState)
+    useEffect(() => {
+      if (!sceneSource[sceneSource.keys[0]].value) return
+      const nodes = sceneSource[sceneSource.keys[0]].value as Record<NodeID, Entity>
+      const deltas = getMutableState(SceneDeltaState)
+
+      for (const delta in deltas.value) {
+        for (const node in nodes) {
+          if (delta.includes(node)) {
+            if (hasComponent(nodes[node], GLTFComponent)) {
+              const newSourceID = GLTFComponent.removeHashes(
+                `${getComponent(nodes[node], UUIDComponent)}-${
+                  getComponent(nodes[node], GLTFComponent).src
+                }` as SourceID
+              )
+              deltas[newSourceID].set(deltas[delta].get(NO_PROXY))
+              deltas[delta].set(none)
+            }
+          }
+        }
+      }
+    }, [sceneSource.keys[0]])
     return null
   }
 })
