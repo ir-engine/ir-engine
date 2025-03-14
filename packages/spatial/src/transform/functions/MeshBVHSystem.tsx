@@ -112,21 +112,21 @@ function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection
     tmpInverseMatrix.copy(mesh.matrixWorld).invert()
     ray.copy(raycaster.ray).applyMatrix4(tmpInverseMatrix)
 
-    // extractMatrixScale(mesh.matrixWorld, _worldScale)
-    // direction.copy(ray.direction).multiply(_worldScale)
+    extractMatrixScale(mesh.matrixWorld, _worldScale)
+    direction.copy(ray.direction).multiply(_worldScale)
 
-    // const scaleFactor = direction.length()
-    // const near = raycaster.near / scaleFactor
-    // const far = raycaster.far / scaleFactor
+    const scaleFactor = direction.length()
+    const near = raycaster.near / scaleFactor
+    const far = raycaster.far / scaleFactor
 
     const bvh = geometry.boundsTree
     if (raycaster.firstHitOnly === true) {
-      const hit = convertRaycastIntersect(bvh.raycastFirst(ray, mesh.material), mesh, raycaster)
+      const hit = convertRaycastIntersect(bvh.raycastFirst(ray, mesh.material, near, far), mesh, raycaster)
       if (hit) {
         intersects.push(hit)
       }
     } else {
-      const hits = bvh.raycast(ray, mesh.material)
+      const hits = bvh.raycast(ray, mesh.material, near, far)
       for (let i = 0, l = hits.length; i < l; i++) {
         const hit = convertRaycastIntersect(hits[i], mesh, raycaster)
         if (hit) {
