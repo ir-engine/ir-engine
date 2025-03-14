@@ -38,9 +38,10 @@ if (typeof navigator !== 'undefined' && typeof globalThis?.window !== 'undefined
 }
 
 export const iOS =
-  typeof navigator !== 'undefined' &&
-  (['iPad Simulator', 'iPhone Simulator', 'iPod Simulator', 'iPad', 'iPhone', 'iPod'].includes(navigator.platform) ||
-    (navigator.userAgent.includes('Mac') && 'ontouchend' in document))
+  (typeof navigator !== 'undefined' &&
+    /iPhone Simulator|iPad Simulator|iPod Simulator|iPad|iPhone|iPod/.test(navigator.userAgent)) || //Newest way to detect
+  ['iPhone Simulator', 'iPad Simulator', 'iPod Simulator', 'iPhone', 'iPad', 'iPod'].includes(navigator.platform) || //older way to detect for IOS
+  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) //Detects iPads that identify as MacIntel (common in newer iPads with Magic Keyboard).
 
 export const isSafari =
   typeof navigator !== 'undefined' && /^((?!chrome|android).)*safari/i.test(navigator.userAgent.toLowerCase())

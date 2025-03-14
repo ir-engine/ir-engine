@@ -35,6 +35,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
+import { useHookstate } from '@ir-engine/hyperflux'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
@@ -62,18 +63,24 @@ export function useApplyCollidersToChildMeshesEffect(entity: Entity) {
   const rigidbodyEntity = useAncestorWithComponents(entity, [RigidBodyComponent])
   const rigidbodyComponent = useOptionalComponent(rigidbodyEntity, RigidBodyComponent)
   const component = useComponent(entity, GLTFComponent)
+  const meshesToApplyColliders = useHookstate([] as Entity[])
+
+  useEffect(() => {
+    if (meshesToApplyColliders.length === 0) {
+      const entitiesArray =
+        !childMeshEntities.includes(entity) && hasComponent(entity, MeshComponent)
+          ? ([...childMeshEntities, entity] as Entity[])
+          : childMeshEntities
+      meshesToApplyColliders.set(entitiesArray.filter((entity) => !hasComponent(entity, ColliderComponent)))
+    }
+  }, [childMeshEntities.length])
 
   //populate/update collider state
   useLayoutEffect(() => {
-    if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return
-
-    const entitiesArray =
-      !childMeshEntities.includes(entity) && hasComponent(entity, MeshComponent)
-        ? ([...childMeshEntities, entity] as Entity[])
-        : childMeshEntities
+    if (meshesToApplyColliders.length === 0 || !rigidbodyComponent?.initialized?.value || !physicsWorld) return
 
     forceUpdateMatrices(entity)
-    for (const childMeshEntity of entitiesArray) {
+    for (const childMeshEntity of meshesToApplyColliders.value) {
       if (component.applyColliders.value) {
         setComponent(childMeshEntity, ColliderComponent, { shape: component.shape.value, matchMesh: true })
         forceUpdateMatrices(childMeshEntity)
@@ -81,7 +88,13 @@ export function useApplyCollidersToChildMeshesEffect(entity: Entity) {
         removeComponent(childMeshEntity, ColliderComponent)
       }
     }
-  }, [physicsWorld, component.shape, !!rigidbodyComponent?.initialized?.value, component.applyColliders])
+  }, [
+    physicsWorld,
+    component.shape,
+    meshesToApplyColliders.value.length,
+    !!rigidbodyComponent?.initialized?.value,
+    component.applyColliders
+  ])
 
   useEffect(() => {
     return () => {

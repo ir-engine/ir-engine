@@ -108,8 +108,8 @@ export const TouchGamepad = () => {
     <>
       <div className="pointer-events-auto fixed bottom-[15%] left-[15%] select-none [&>div]:m-auto">
         <Joystick
-          baseImage="/stickypad.svg"
-          stickImage="/basepad.svg"
+          baseImage="/static/stickypad.svg"
+          stickImage="/static/basepad.svg"
           size={27}
           stickSize={80}
           throttle={100}
