@@ -23,18 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Component, Entity, getComponent, hasComponent, SerializedComponentType, UUIDComponent } from '@ir-engine/ecs'
-import { NodeID, NodeIDComponent, NodesBySourceState } from '@ir-engine/engine/src/gltf/NodeIDComponent'
-import { SourceComponent, SourceID } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import {
-  defineState,
-  getMutableState,
-  NO_PROXY,
-  NO_PROXY_STEALTH,
-  none,
-  useHookstate,
-  useMutableState
-} from '@ir-engine/hyperflux'
+  Component,
+  Entity,
+  getAncestorWithComponents,
+  getComponent,
+  hasComponent,
+  SerializedComponentType
+} from '@ir-engine/ecs'
+import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
+import { SourceComponent, SourceID } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { defineState, getMutableState, NO_PROXY_STEALTH, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { SceneState } from '../../gltf/GLTFState'
@@ -54,23 +53,23 @@ export const SceneDeltaState = defineState({
   registerDelta<C extends Component>(entity: Entity, component: C, delta: Partial<SerializedComponentType<C>>) {
     if (!hasComponent(entity, SourceComponent) || !hasComponent(entity, NodeIDComponent)) return
     if (!component.jsonID) return
-    const sourceID = GLTFComponent.removeHashes(getComponent(entity, SourceComponent))
+    const rootNodeID = getComponent(getAncestorWithComponents(entity, [GLTFComponent]), NodeIDComponent)
     const nodeID = getComponent(entity, NodeIDComponent)
     const state = getMutableState(SceneDeltaState)
-    if (!state.value[sourceID]) state[sourceID].set({})
-    const source = state[sourceID]
+    if (!state.value[rootNodeID]) state[rootNodeID].set({})
+    const source = state[rootNodeID]
     if (!source.value[nodeID]) source[nodeID].set({} as SceneDeltaEntry<C>)
     const componentMap = source[nodeID].get(NO_PROXY_STEALTH) as SceneDeltaEntry<C>
     componentMap[component.jsonID] = { ...componentMap[component.jsonID], ...delta }
     source[nodeID].set(componentMap)
   },
   registerMaterialDelta(entity: Entity, props?: any, prototype?: string) {
-    if (!hasComponent(entity, SourceComponent) || !hasComponent(entity, NodeIDComponent)) return
-    const sourceID = GLTFComponent.removeHashes(getComponent(entity, SourceComponent))
+    if (!hasComponent(entity, NodeIDComponent)) return
+    const rootNodeID = getComponent(getAncestorWithComponents(entity, [GLTFComponent]), NodeIDComponent)
     const nodeID = getComponent(entity, NodeIDComponent)
     const state = getMutableState(SceneDeltaState)
-    if (!state.value[sourceID]) state[sourceID].set({})
-    const source = state[sourceID]
+    if (!state.value[rootNodeID]) state[rootNodeID].set({})
+    const source = state[rootNodeID]
     if (!source.value[nodeID]) source[nodeID].set({} as MaterialDeltaEntry)
     const componentMap = source[nodeID].get(NO_PROXY_STEALTH) as MaterialDeltaEntry
     if (props) componentMap[MATERIAL_JSON_ID] = { ...componentMap[MATERIAL_JSON_ID], ...props }
@@ -87,37 +86,5 @@ export const SceneDeltaState = defineState({
         currentRoot.set(newRoot)
       }
     }, [sceneState.keys])
-
-    // validate deltas by checking for changes in the scene name, then update deltas accordingly
-    const sceneSource = useMutableState(NodesBySourceState)
-    useEffect(() => {
-      let nodes = null as Record<string, Entity> | null
-      // get the source for the current root
-      for (const source in sceneSource.value) {
-        if (source.includes(currentRoot.value)) {
-          nodes = sceneSource[source].get(NO_PROXY)
-          break
-        }
-      }
-
-      const deltas = getMutableState(SceneDeltaState)
-      for (const delta in deltas.value) {
-        for (const node in nodes) {
-          if (delta.includes(node)) {
-            if (hasComponent(nodes[node], GLTFComponent)) {
-              const newSourceID = GLTFComponent.removeHashes(
-                `${getComponent(nodes[node], UUIDComponent)}-${
-                  getComponent(nodes[node], GLTFComponent).src
-                }` as SourceID
-              )
-              if (newSourceID === delta) continue
-              deltas[newSourceID].set(deltas[delta].get(NO_PROXY))
-              deltas[delta].set(none)
-            }
-          }
-        }
-      }
-    }, [sceneSource.keys])
-    return null
   }
 })

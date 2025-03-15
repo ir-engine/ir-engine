@@ -799,7 +799,8 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   const deltaPromises = [] as Promise<void>[]
   //apply deltas
   const deltaState = getState(SceneDeltaState)
-  const sourceDelta = deltaState[GLTFComponent.removeHashes(options.documentID)]
+  const sourceDelta = deltaState[getComponent(options.entity, NodeIDComponent)]
+
   if (sourceDelta) {
     const nodeID = getComponent(materialEntity, NodeIDComponent)
     const nodeDelta = sourceDelta[nodeID]

@@ -139,7 +139,7 @@ export async function addMediaNode(
               const materialComponent = getComponent(material, MaterialStateComponent)
               const materialToMutate = UUIDComponent.getEntityByUUID(uuids[materialIndex], Layers.Authoring)
               // wipe out any existing deltas for this material
-              SceneDeltaState.registerMaterialDelta(entity, {})
+              SceneDeltaState.registerMaterialDelta(materialToMutate, {})
               EditorControlFunctions.updateMaterialPrototype(
                 materialToMutate,
                 materialComponent.material.userData?.type ?? materialComponent.material.type
