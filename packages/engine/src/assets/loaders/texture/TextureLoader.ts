@@ -63,7 +63,7 @@ class TextureLoader extends Loader<Texture> {
   maxResolution: number | undefined
   flipped: boolean
 
-  constructor(manager?: LoadingManager, maxResolution?: number, flipped: boolean = false) {
+  constructor(manager?: LoadingManager, maxResolution?: number, flipped: boolean = true) {
     super(manager)
     if (maxResolution) this.maxResolution = maxResolution
     else if (iOS) this.maxResolution = iOSMaxResolution
