@@ -182,7 +182,7 @@ describe('EditorControlFunctions', () => {
       assert(!hasComponent(authoringChildEntity, VisibleComponent))
     })
 
-    it.only('registers a delta for adding a component', async () => {
+    it('registers a delta for adding a component', async () => {
       const node1ID = NodeIDComponent.generate()
       const node2ID = NodeIDComponent.generate()
 
