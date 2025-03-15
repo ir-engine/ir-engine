@@ -32,7 +32,7 @@ import {
   SerializedComponentType
 } from '@ir-engine/ecs'
 import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
-import { SourceComponent, SourceID } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { defineState, getMutableState, NO_PROXY_STEALTH, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
@@ -45,7 +45,7 @@ export const MATERIAL_PROTOTYPE_JSON_ID = 'prototypeConstructor' as const
 
 export type MaterialDeltaEntry = Record<typeof MATERIAL_JSON_ID, any>
 
-export type SceneDeltaRegistry = Record<SourceID, Record<NodeID, SceneDeltaEntry<any> | MaterialDeltaEntry>>
+export type SceneDeltaRegistry = Record<NodeID, Record<NodeID, SceneDeltaEntry<any> | MaterialDeltaEntry>>
 
 export const SceneDeltaState = defineState({
   name: 'SceneDeltaState',
