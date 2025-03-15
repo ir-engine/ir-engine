@@ -154,6 +154,9 @@ export const setupMaterialParameters = (entity: Entity, properties: { [_: string
     }
   })
 
-  setComponent(entity, MaterialStateComponent, { parameters: params })
+  setComponent(entity, MaterialStateComponent, {
+    parameters: params,
+    prototype: properties.userData?.type || properties.type
+  })
   return params
 }

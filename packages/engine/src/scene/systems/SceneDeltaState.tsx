@@ -73,7 +73,7 @@ export const SceneDeltaState = defineState({
     const source = state[sourceID]
     if (!source.value[nodeID]) source[nodeID].set({} as MaterialDeltaEntry)
     const componentMap = source[nodeID].get(NO_PROXY_STEALTH) as MaterialDeltaEntry
-    if (props) componentMap[MATERIAL_JSON_ID] = { ...props }
+    if (props) componentMap[MATERIAL_JSON_ID] = { ...componentMap[MATERIAL_JSON_ID], ...props }
     if (prototype) componentMap[MATERIAL_PROTOTYPE_JSON_ID] = prototype
     source[nodeID].set(componentMap)
   },
@@ -91,10 +91,16 @@ export const SceneDeltaState = defineState({
     // validate deltas by checking for changes in the scene name, then update deltas accordingly
     const sceneSource = useMutableState(NodesBySourceState)
     useEffect(() => {
-      if (!sceneSource[sceneSource.keys[0]].value) return
-      const nodes = sceneSource[sceneSource.keys[0]].value as Record<NodeID, Entity>
-      const deltas = getMutableState(SceneDeltaState)
+      let nodes = null as Record<string, Entity> | null
+      // get the source for the current root
+      for (const source in sceneSource.value) {
+        if (source.includes(currentRoot.value)) {
+          nodes = sceneSource[source].get(NO_PROXY)
+          break
+        }
+      }
 
+      const deltas = getMutableState(SceneDeltaState)
       for (const delta in deltas.value) {
         for (const node in nodes) {
           if (delta.includes(node)) {
@@ -111,7 +117,7 @@ export const SceneDeltaState = defineState({
           }
         }
       }
-    }, [sceneSource.keys[0]])
+    }, [sceneSource.keys])
     return null
   }
 })

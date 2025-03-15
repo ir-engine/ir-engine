@@ -807,11 +807,12 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
       const materialDelta = nodeDelta[MATERIAL_JSON_ID]
       const materialPrototype = nodeDelta[MATERIAL_PROTOTYPE_JSON_ID]
       if (materialDelta) {
-        const prototype = getState(MaterialPrototypeDefinitions)[materialPrototype ?? materialConstructor.name] // this is insanely brittle but will do for now
-        if (materialPrototype) {
-          materialConstructor = prototype.prototypeConstructor
-          materialConstructorParameters = {}
-        }
+        const prototype = getState(MaterialPrototypeDefinitions)[materialPrototype]
+        materialConstructor = prototype.prototypeConstructor
+        // optionally serializing the uuid to determine if we need to replace the material -
+        // this is insanely brittle but will do for now
+        if (materialDelta.uuid) materialConstructorParameters = {}
+
         for (const key in materialDelta) {
           switch (prototype.arguments[key]?.type) {
             case 'color':
@@ -845,7 +846,11 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   material.name = materialDef.name || 'Material-' + materialIndex
 
   setComponent(materialEntity, MaterialStateComponent, { material })
-  setupMaterialParameters(materialEntity, materialConstructorParameters)
+  setupMaterialParameters(materialEntity, {
+    ...materialConstructorParameters,
+    uuid: material.uuid,
+    name: material.name
+  })
 
   assignExtrasToUserData(material, materialDef)
 
