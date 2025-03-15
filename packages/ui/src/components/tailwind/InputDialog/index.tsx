@@ -29,7 +29,9 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { useHookstate } from '@ir-engine/hyperflux'
 
 import Input from '../../../primitives/tailwind/Input'
+import Label from '../../../primitives/tailwind/Label'
 import Modal, { ModalProps } from '../../../primitives/tailwind/Modal'
+import RadioGroup, { OptionType } from '../../../primitives/tailwind/Radio'
 
 interface InputDialogProps {
   title?: string
@@ -42,7 +44,9 @@ interface InputDialogProps {
 interface FieldOptions {
   id: string
   label: string
+  type?: 'radio' | 'text'
   defaultValue?: string
+  options?: OptionType[]
   placeholder?: string
   validate?: (input: string) => void
 }
@@ -87,19 +91,34 @@ export const InputDialog = ({ title, fields, onSubmit, onClose, modalProps }: In
       {...modalProps}
     >
       <div className="flex gap-4">
-        {fields.map((field, index) => (
-          <Input
-            key={field.id}
-            value={fieldValues[field.id].value || ''}
-            onChange={(e) => handleChange(e.target.value, field.id, index)}
-            labelProps={{
-              text: field.label,
-              position: 'top'
-            }}
-            fullWidth
-            placeholder={field.placeholder}
-          />
-        ))}
+        {fields.map((field, index) => {
+          if (field.type === 'radio') {
+            return (
+              <div>
+                {field.label && <Label className="mb-4">{field.label}</Label>}
+                <RadioGroup
+                  options={field.options || []}
+                  value={fieldValues[field.id].value || ''}
+                  onChange={(value) => handleChange(value, field.id, index)}
+                />
+              </div>
+            )
+          } else {
+            return (
+              <Input
+                key={field.id}
+                value={fieldValues[field.id].value || ''}
+                onChange={(e) => handleChange(e.target.value, field.id, index)}
+                labelProps={{
+                  text: field.label,
+                  position: 'top'
+                }}
+                fullWidth
+                placeholder={field.placeholder}
+              />
+            )
+          }
+        })}
       </div>
     </Modal>
   )
