@@ -57,6 +57,7 @@ import { EngineState, useChildrenWithComponents } from '@ir-engine/ecs'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
+import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics.ts'
 import { SearchParamState } from '../common/services/RouterService'
 import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
 import { LocationState } from '../social/services/LocationService'
@@ -99,9 +100,10 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   })
 
   const userAvatar = userAvatarQuery.data[0]
+  const physicsWorld = Physics.useWorld(sceneEntity)!
 
   useEffect(() => {
-    if (isSpectating || !userAvatar) return
+    if (isSpectating || !userAvatar || !physicsWorld) return
 
     const rootUUID = getComponent(sceneEntity, UUIDComponent)
     const avatarSpawnPose = getRandomSpawnPoint(userID)
@@ -127,7 +129,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
         dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(selfAvatarEntity, UUIDComponent) }))
       }
     }
-  }, [isSpectating, !!userAvatar])
+  }, [isSpectating, !!userAvatar, physicsWorld])
 
   const selfAvatarEntity = AvatarComponent.useSelfAvatarEntity()
   const errorWithAvatar = useHasComponent(selfAvatarEntity, ErrorComponent)
