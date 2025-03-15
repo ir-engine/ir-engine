@@ -317,3 +317,35 @@ jobs:
       - run: git config --global user.email "you@example.com" && git config --global user.name "Your Name"
       - run: cd packages/${{ matrix.package }} && npm run test
         timeout-minutes: 20
+
+  npm_builds:
+    needs: install-modules
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: .
+          key: dir-${{github.sha}}
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
+      - name: Checkout Engine
+        uses: actions/checkout@v4
+        with:
+          path: ir-engine
+          ref: ${{ env.checkout_branch }}
+      - name: Checkout NPM Build Test
+        uses: actions/checkout@v4
+        with:
+          repository: ir-engine/ir-engine-npm-tests
+          path: ir-engine-npm-tests
+      - name: Run npm build test
+        run: |
+          cd ./ir-engine-npm-tests
+          npm i
+          npm run setup
+          npm run test

@@ -1,9 +1,9 @@
 {
   "name": "@ir-engine/hyperflux",
   "version": "1.6.0",
-  "files": ["index.cjs", "index.js", "index.d.ts"],
-  "main": "./index.cjs",
-  "module": "./index.js",
+  "files": ["index.umd.js", "index.mjs", "index.d.ts"],
+  "main": "./index.umd.js",
+  "module": "./index.mjs",
   "types": "./index.d.ts",
   "description": "Agent Centric Reactive Data Management for Infinite Reality Engine",
   "publishConfig": {
@@ -19,10 +19,10 @@
     "url": "https://github.com/ir-engine/ir-engine/issues"
   },
   "dependencies": {
-    "@hookstate/core": "npm:@speigg/hookstate@4.0.1-fix-111-106.2",
+    "@hookstate/core": "^4.0.0",
     "@hookstate/identifiable": "^4.0.0",
     "react": "18.2.0",
-    "react-reconciler": "^0.29.0",
+    "react-reconciler": "0.29.0",
     "ts-matches": "5.3.0",
     "ts-toolbelt": "^9.6.0",
     "uuid": "9.0.0"
