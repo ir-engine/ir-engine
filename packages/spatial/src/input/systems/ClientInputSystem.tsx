@@ -51,7 +51,12 @@ import { InputHeuristicState, boundingBoxHeuristic, meshHeuristic } from '../fun
 import ClientInputHooks from '../functions/ClientInputHooks'
 import { InputState } from '../state/InputState'
 
-const pointersQuery = defineQuery([InputPointerComponent, InputSourceComponent, Not(XRSpaceComponent)])
+const pointersQuery = defineQuery([
+  InputPointerComponent,
+  InputSourceComponent,
+  TransformComponent,
+  Not(XRSpaceComponent)
+])
 const xrSpacesQuery = defineQuery([XRSpaceComponent, TransformComponent])
 const inputSourceQuery = defineQuery([InputSourceComponent])
 const inputsQuery = defineQuery([InputComponent])
