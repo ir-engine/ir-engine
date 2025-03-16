@@ -57,12 +57,10 @@ const ClickawayListener = (props: { children: React.ReactNode; onClickOutside: V
       }
     }
 
-    document.addEventListener('mousedown', handler)
-    document.addEventListener('touchstart', handler)
+    document.addEventListener('pointerup', handler)
 
     return () => {
-      document.removeEventListener('mousedown', handler)
-      document.removeEventListener('touchstart', handler)
+      document.removeEventListener('pointerup', handler)
     }
   }, [])
 
