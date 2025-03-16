@@ -40,7 +40,6 @@ import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNe
 import { defineState, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { WorldNetworkAction } from '@ir-engine/network'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics.ts'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 
@@ -86,12 +85,11 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   const { avatarURL, name } = useHookstate(getMutableState(AvatarState)[entityUUID])
   const entity = UUIDComponent.useEntityByUUID(entityUUID)
   const hasTransformComponent = useOptionalComponent(entity, TransformComponent)
-  const physicsWorld = Physics.useWorld(entity)!
 
   useLayoutEffect(() => {
-    if (!entity || !hasTransformComponent || !physicsWorld) return
+    if (!entity || !hasTransformComponent) return
     spawnAvatarReceptor(entityUUID)
-  }, [entity, hasTransformComponent, physicsWorld])
+  }, [entity, hasTransformComponent])
 
   useEffect(() => {
     if (!entity || !avatarURL.value) return
