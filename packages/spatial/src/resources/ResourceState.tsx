@@ -255,24 +255,17 @@ const resourceCallbacks = {
         const renderer = getComponent(viewer, RendererComponent)
         const gl = renderer.renderContext as WebGL2RenderingContext
         if (discardUponUpload && gl.fenceSync && isIPhone) {
-          const sync = gl.fenceSync(
-            gl.SYNC_GPU_COMMANDS_COMPLETE,
-            gl.getParameter(gl.MAX_CLIENT_WAIT_TIMEOUT_WEBGL) - 1
-          )
+          const sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0)
           if (sync) {
             const checkSync = () => {
               const status = gl.clientWaitSync(sync, 0, 0)
-              if (
-                status === gl.TIMEOUT_EXPIRED ||
-                status === gl.ALREADY_SIGNALED ||
-                status === gl.CONDITION_SATISFIED
-              ) {
+              if (status === gl.TIMEOUT_EXPIRED) {
+                requestAnimationFrame(checkSync)
+              } else {
                 gl.deleteSync(sync)
                 resource.metadata.merge({ onGPU: true, discarded: true })
                 asset.source.data = null
                 asset.mipmaps = []
-              } else {
-                requestAnimationFrame(checkSync)
               }
             }
             requestAnimationFrame(checkSync)
@@ -332,6 +325,7 @@ const resourceCallbacks = {
       let size = 0
 
       const checkUploaded = () => {
+        if (!resource.get(NO_PROXY).metadata) return
         resource.metadata.merge({ onGPU: needsUploaded === 0, discarded: needsUploaded === 0 && discardUponUpload })
       }
 

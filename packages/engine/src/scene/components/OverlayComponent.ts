@@ -65,6 +65,7 @@ export const OverlayComponent = defineComponent({
     useEffect(() => {
       clearErrors(entity, OverlayComponent)
       if (overlayComponent.src.value) return
+      if (overlayComponent.type.value !== 'iframe') return
       try {
         new URL(overlayComponent.src.value)
       } catch {

@@ -680,6 +680,10 @@ const exportMaterial = async (
   if (cache.has(material)) return cache.get(material)!
 
   const materialEntityUUID = material.uuid as EntityUUID
+
+  //do not export fallback material
+  if (materialEntityUUID === MaterialStateComponent.fallbackMaterialUUID) return null
+
   const materialEntity = UUIDComponent.getEntityByUUID(materialEntityUUID)
   if (materialEntity === UndefinedEntity) {
     return null
