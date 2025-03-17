@@ -1524,7 +1524,6 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
   const deltas = getState(SceneDeltaState)?.[getComponent(options.entity, NodeIDComponent)]?.[nodeID]
   if (deltas) {
     for (const [componentName, delta] of Object.entries(deltas)) {
-      console.log(componentName, delta)
       const Component = ComponentJSONIDMap.get(componentName)
       if (!Component) continue
       deserializeComponent(nodeEntity, Component, delta as SceneDeltaEntry<typeof Component>)
