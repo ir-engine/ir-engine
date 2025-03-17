@@ -1666,8 +1666,8 @@ const getResourceType = (key: string, resource?: ResourceType) => {
   if (key.startsWith('public/thumbnails') || key.endsWith('.thumbnail.jpg')) return 'thumbnail'
   if (key.startsWith('public/scenes') && (key.endsWith('.gltf') || key.endsWith('.scene.json'))) return 'scene'
   if (!resource) return 'file'
-  if (staticResourceClasses.includes(FileToAssetType(key))) return 'asset'
   if (resource.type) return resource.type
+  if (staticResourceClasses.includes(FileToAssetType(key))) return 'asset'
   if (resource.tags) return 'asset'
   return 'file'
 }
