@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ComponentType, EngineState, entityExists, useEntityContext } from '@ir-engine/ecs'
+import { ComponentType, EngineState, entityExists, getAncestorWithComponents, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -41,6 +41,7 @@ import { NO_PROXY, State, getState, isClient, useMutableState } from '@ir-engine
 import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
@@ -200,6 +201,11 @@ export function MediaReactor() {
   }
 
   const getAutoPlay = () => {
+    // ensure the scene is active before autoplaying
+    const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
+    if (!sceneEntity) return false
+    const sceneComponent = getComponent(sceneEntity, SceneComponent)
+    if (!sceneComponent.active) return false
     const isEditing = engineState.isEditing.value
     return isEditing ? false : media.autoplay.value
   }
@@ -314,6 +320,12 @@ export function MediaReactor() {
     // in order to ensure media will play programmatically
 
     const handleAutoplay = () => {
+      // We need to not remove listeners if the scene has not yet loaded, such that later click events can trigger the autoplay
+      const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
+      if (!sceneEntity) return false
+      const sceneComponent = getComponent(sceneEntity, SceneComponent)
+      if (!sceneComponent.active) return
+
       const mediaComponent = getOptionalComponent(entity, MediaElementComponent)
 
       // handle when we dont have autoplay enabled but have programatically started playback
