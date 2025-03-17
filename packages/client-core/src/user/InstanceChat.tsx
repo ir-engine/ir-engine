@@ -296,20 +296,19 @@ function MessagesWrapper() {
         )}
         {isChatOpen.value && (
           <LocationIconButton
-            icon={isChatOpen.value ? XCloseLg : MessageTextSquare01Lg}
+            icon={XCloseLg}
             onClick={() => isChatOpen.set(!isChatOpen.value)}
-            className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
+            className={twMerge(ageVerified && isMobile && 'hidden')}
           />
         )}
         {!isChatOpen.value && (
           <LocationIconButton
-            icon={MessageTextSquare01Md}
+            icon={isMobile ? MessageTextSquare01Md : MessageTextSquare01Lg}
             onClick={() => isChatOpen.set(!isChatOpen.value)}
-            className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
           />
         )}
       </div>
-      {isChatOpen.value && (!ageVerified as any) ? (
+      {isChatOpen.value && !ageVerified ? (
         <div className="ml-[13px] rounded-lg bg-surface-4 p-4">
           <div className="mx-auto text-center font-semibold text-[#3B3A3A]">{t('user:instanceChat.wantToChat')}</div>
           <Button
