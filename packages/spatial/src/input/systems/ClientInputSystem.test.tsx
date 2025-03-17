@@ -343,14 +343,17 @@ describe('ClientInputSystem', () => {
       const one = createEntity()
       setComponent(one, InputPointerComponent, { pointerId: 1, cameraEntity: cameraEntity })
       setComponent(one, InputSourceComponent)
+      setComponent(one, TransformComponent)
       assert.equal(hasComponent(one, XRSpaceComponent), false)
       const two = createEntity()
       setComponent(two, InputPointerComponent, { pointerId: 2, cameraEntity: cameraEntity })
       setComponent(two, InputSourceComponent)
+      setComponent(two, TransformComponent)
       assert.equal(hasComponent(two, XRSpaceComponent), false)
       const three = createEntity()
       setComponent(three, InputPointerComponent, { pointerId: 3, cameraEntity: otherCameraEntity })
       setComponent(three, InputSourceComponent)
+      setComponent(three, TransformComponent)
       assert.equal(hasComponent(three, XRSpaceComponent), false)
 
       const StaleEntities = [one, two] as Entity[]

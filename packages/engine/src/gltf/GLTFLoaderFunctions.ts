@@ -799,19 +799,21 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   const deltaPromises = [] as Promise<void>[]
   //apply deltas
   const deltaState = getState(SceneDeltaState)
-  const sourceDelta = deltaState[GLTFComponent.removeHashes(options.documentID)]
+  const sourceDelta = deltaState[getComponent(options.entity, NodeIDComponent)]
+
   if (sourceDelta) {
     const nodeID = getComponent(materialEntity, NodeIDComponent)
     const nodeDelta = sourceDelta[nodeID]
     if (nodeDelta) {
       const materialDelta = nodeDelta[MATERIAL_JSON_ID]
       const materialPrototype = nodeDelta[MATERIAL_PROTOTYPE_JSON_ID]
-      if (materialDelta) {
-        const prototype = getState(MaterialPrototypeDefinitions)[materialPrototype ?? materialConstructor.name] // this is insanely brittle but will do for now
-        if (materialPrototype) {
-          materialConstructor = prototype.prototypeConstructor
-          materialConstructorParameters = {}
-        }
+      if (materialDelta && materialPrototype) {
+        const prototype = getState(MaterialPrototypeDefinitions)[materialPrototype]
+        materialConstructor = prototype.prototypeConstructor
+        // optionally serializing the uuid to determine if we need to replace the material -
+        // this is insanely brittle but will do for now
+        if (materialDelta.uuid) materialConstructorParameters = {}
+
         for (const key in materialDelta) {
           switch (prototype.arguments[key]?.type) {
             case 'color':
@@ -845,7 +847,11 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   material.name = materialDef.name || 'Material-' + materialIndex
 
   setComponent(materialEntity, MaterialStateComponent, { material })
-  setupMaterialParameters(materialEntity, materialConstructorParameters)
+  setupMaterialParameters(materialEntity, {
+    ...materialConstructorParameters,
+    uuid: material.uuid,
+    name: material.name
+  })
 
   assignExtrasToUserData(material, materialDef)
 
@@ -978,7 +984,7 @@ const loadTexture = (options: GLTFParserOptions, textureIndex: number) => {
   if (basisu) loader = getState(AssetLoaderState).gltfLoader.ktx2Loader!
   else if (handler) loader = handler as Loader<unknown, string>
   else {
-    const textureLoader = new TextureLoader(undefined, true)
+    const textureLoader = new TextureLoader(undefined, undefined, false)
     loader = textureLoader
     loader.setRequestHeader(options.requestHeader)
   }
@@ -1515,8 +1521,7 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
   await Promise.all(extensionPending)
 
   //apply deltas if they exist in state
-  const hashlessDocumentID = GLTFComponent.removeHashes(options.documentID)
-  const deltas = getState(SceneDeltaState)?.[hashlessDocumentID]?.[nodeID]
+  const deltas = getState(SceneDeltaState)?.[getComponent(options.entity, NodeIDComponent)]?.[nodeID]
   if (deltas) {
     for (const [componentName, delta] of Object.entries(deltas)) {
       const Component = ComponentJSONIDMap.get(componentName)

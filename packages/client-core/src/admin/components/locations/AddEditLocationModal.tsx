@@ -105,7 +105,7 @@ const locationTypeOptions = [
   { label: 'Showroom', value: 'showroom' }
 ]
 
-const LOCATION_MAX = 10
+const LOCATION_MAX = 5
 
 type AddEditLocationModalProps = Readonly<{
   action: string
