@@ -32,7 +32,6 @@ import {
   SerializedComponentType
 } from '@ir-engine/ecs'
 import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { defineState, getMutableState, NO_PROXY_STEALTH, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
@@ -51,7 +50,7 @@ export const SceneDeltaState = defineState({
   name: 'SceneDeltaState',
   initial: {} as SceneDeltaRegistry,
   registerDelta<C extends Component>(entity: Entity, component: C, delta: Partial<SerializedComponentType<C>>) {
-    if (!hasComponent(entity, SourceComponent) || !hasComponent(entity, NodeIDComponent)) return
+    if (!hasComponent(entity, NodeIDComponent)) return
     if (!component.jsonID) return
     const rootNodeID = getComponent(getAncestorWithComponents(entity, [GLTFComponent]), NodeIDComponent)
     const nodeID = getComponent(entity, NodeIDComponent)
