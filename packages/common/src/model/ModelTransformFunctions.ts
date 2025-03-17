@@ -80,7 +80,7 @@ import {
   EEResourceIDExtension
 } from '@ir-engine/engine/src/assets/compression/extensions/EE_ResourceIDTransformer'
 import { UploadRequestState } from '@ir-engine/engine/src/assets/state/UploadRequestState'
-import { MATCH_ASSET_PROJECT_FILENAME_REGEX } from '../regex'
+import { MATCH_ASSET_PROJECT_FILENAME_REGEX, VALID_FILENAME_REGEX } from '../regex'
 import ModelTransformLoader from './ModelTransformLoader'
 /**
  * https://ir.world/projects/ir-engine/default-project/assets/collisioncube-LOD0.glb
@@ -352,9 +352,9 @@ const meshoptCompression: Transform = (document: Document) => {
 }
 
 const hashBuffer = (buffer: Uint8Array): string => {
-  const hash = createHash('sha256')
-  hash.update(buffer)
-  return hash.digest('hex')
+  let hash = createHash('sha256').update(buffer).digest('hex')
+  hash = hash.slice(0, 50) // Ensuring max length constraint with VALID_FILENAME_REGEX
+  return `buffer_${hash}`
 }
 
 enum Status {
@@ -605,12 +605,22 @@ const createTextureOperations = (
 
   return operations
 }
+const validTextureFileName = (input: string) => {
+  let result = ''
+  if (VALID_FILENAME_REGEX.test(input)) {
+    return input
+  }
+  result = input.replace(/[^a-zA-Z0-9-_.]/g, '') // Remove invalid characters
+  if (result.length > 64) {
+    result = result.slice(-64)
+  }
+  return result
+}
 
 const transformTexture = async (resultCache: Map<string, Texture>, operation: TextureOperation, index: number) => {
   const { shouldResize, shouldConvertToKTX, texture, params } = operation
 
   const hash = hashTextureOperation(operation)
-
   const prevResult = resultCache.get(hash)
   if (prevResult != null && prevResult !== texture) {
     const originalName = texture.getName()
@@ -638,7 +648,8 @@ const transformTexture = async (resultCache: Map<string, Texture>, operation: Te
     )
     texture.copy(nuTexture)
     texture.setName(originalName)
-    texture.setURI(nuURI)
+    //reset URI to the valid file name
+    texture.setURI(validTextureFileName(nuURI))
   }
 
   if (shouldConvertToKTX) {
@@ -657,7 +668,8 @@ const transformTexture = async (resultCache: Map<string, Texture>, operation: Te
 
     texture.setImage(new Uint8Array(compressedData))
     texture.setMimeType('image/ktx2')
-    texture.setURI(texture.getURI().replace(/\.[^.]+$/, '.ktx2'))
+    //reset URI to the valid file name
+    texture.setURI(validTextureFileName(texture.getURI().replace(/\.[^.]+$/, '.ktx2')))
   }
 
   if (shouldResize || shouldConvertToKTX) {
@@ -666,8 +678,12 @@ const transformTexture = async (resultCache: Map<string, Texture>, operation: Te
     let newURI = uri.split('/').at(-1)!
     const [_, fileName, extension] = /(.*)\.([^.]+)$/.exec(newURI)!
     newURI = `${fileName}-${index}.${extension}`
-    texture.setURI(newURI)
+    //reset URI to the valid file name
+    texture.setURI(validTextureFileName(newURI))
   }
+  let textureURI = texture.getURI()
+  textureURI = 'image-' + textureURI.slice(6)
+  texture.setURI(textureURI)
   resultCache.set(hash, texture)
 }
 

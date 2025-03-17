@@ -182,7 +182,13 @@ export class GCSStorage implements StorageProviderInterface {
   async putObject(data: StorageObjectPutInterface, params: PutObjectParams = {}): Promise<boolean> {
     if (!data.Key) return false
     // key should not contain '/' at the beginning
-    const key = data.Key[0] === '/' ? data.Key.substring(1) : data.Key
+    let key = data.Key[0] === '/' ? data.Key.substring(1) : data.Key
+
+    if (params.isDirectory) {
+      data.Body = Buffer.alloc(0)
+      data.ContentType = 'application/x-empty'
+      key += '/'
+    }
 
     const file = this.provider.bucket(this.bucket).file(key)
 

@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { removeFromFileThumbnailsSeen } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import {
   CancelableUploadPromiseArrayReturnType,
@@ -39,6 +40,7 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { CommonKnownContentTypes } from '@ir-engine/common/src/utils/CommonKnownContentTypes'
 import { cleanFileNameFile, cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
+import { isValidFileName } from '@ir-engine/common/src/utils/validateFileName'
 import { KTX2EncodeArguments } from '@ir-engine/engine/src/assets/constants/CompressionParms'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
@@ -105,25 +107,36 @@ function isValidFileType(file): { isValid: boolean; errorMessage?: string } {
   }
 }
 
-export function sanitizeFiles(files: FileList | File[]): File[] {
+export function validatedFiles(files: FileList | File[]): File[] {
   const { maxFileSizeToUpload } = config.client
-
   const invalidSizeFiles: string[] = []
   const newFiles: File[] = []
+
   for (const file of files) {
+    // Check file size
     if (file.size > maxFileSizeToUpload) {
       invalidSizeFiles.push(file.name)
       continue
     }
-    const newFile = cleanFileNameFile(file)
-    const { isValid, errorMessage } = isValidFileType(newFile)
-    if (!isValid) {
+
+    // Check file type
+    const { isValid: isValidType, errorMessage } = isValidFileType(file)
+    if (!isValidType) {
       NotificationService.dispatchNotify(
         i18n.t('editor:errors.fileNotSupported', { file: file.name, errorMessage: errorMessage || '' }) as string,
         { variant: 'warning' }
       )
+      continue
     }
-    newFiles.push(newFile)
+
+    // Check filename
+    const fileNameWithOutExtension = file.name.replace(/\.[^/.]+$/, '')
+    const resultFileNameValid = isValidFileName(fileNameWithOutExtension)
+    if (!resultFileNameValid.isValid) {
+      NotificationService.dispatchNotify(resultFileNameValid.error, { variant: 'warning', autoHideDuration: 20000 })
+      continue
+    }
+    newFiles.push(file)
   }
 
   if (invalidSizeFiles.length > 0) {
@@ -207,7 +220,8 @@ export const filterExistingFiles = async (projectName: string, directoryPath: st
 export const handleUploadFiles = (
   projectName: string,
   directoryPath: string,
-  files: FileList | File[]
+  files: FileList | File[],
+  updateThumbnail = true
 ): Promise<string[]> => {
   const { ktx2: compressedImage } = CommonKnownContentTypes
   const importSettingsState = getMutableState(ImportSettingsState)
@@ -240,10 +254,41 @@ export const handleUploadFiles = (
           }
         ]
       })
-        .promise.then((response) => response[0])
-        .catch(() => {
-          NotificationService.dispatchNotify(i18n.t('editor:errors.fileUploadFailed') as string, { variant: 'error' })
-          throw new Error('Upload failed')
+        .promise.then((response) => {
+          if (!updateThumbnail) return response[0]
+          //get the static resource record for this file, so we can make it's thumbnail null, since it was oerwritten
+          const checkStaticResourceThumbnail = async (path) => {
+            await API.instance
+              .service(staticResourcePath)
+              .find({
+                query: { key: { $in: [path] } }
+              })
+              .then((reponse) => {
+                if (reponse.data.length > 0) {
+                  const staticResourceId = reponse.data[0].id
+                  const updateStaticResourceThumbnail = async (id: string) => {
+                    await API.instance
+                      .service(staticResourcePath)
+                      .patch(id, { thumbnailKey: null, thumbnailMode: null })
+                  }
+                  updateStaticResourceThumbnail(staticResourceId)
+                }
+              })
+              .catch((e) => console.error(e))
+            return path
+          }
+          const fileURL = new URL(response[0])
+          fileURL.search = ''
+          fileURL.hash = ''
+          const file = fileURL.href.replace(config.client.fileServer + '/', '')
+          removeFromFileThumbnailsSeen([file])
+          return checkStaticResourceThumbnail(file)
+        })
+        .catch((e) => {
+          NotificationService.dispatchNotify(i18n.t('editor:errors.fileUploadFailed', { reason: e }) as string, {
+            variant: 'error',
+            autoHideDuration: 20000
+          })
         })
     })
   )
@@ -257,11 +302,13 @@ export const handleUploadFiles = (
 export const inputFileWithAddToScene = ({
   projectName,
   directoryPath,
-  preserveDirectory
+  preserveDirectory,
+  updateThumbnail = true
 }: {
   projectName: string
   directoryPath: string
   preserveDirectory?: boolean
+  updateThumbnail?: boolean
 }): Promise<null> =>
   new Promise((resolve, reject) => {
     const el = document.createElement('input')
@@ -275,7 +322,7 @@ export const inputFileWithAddToScene = ({
     el.onchange = async () => {
       try {
         if (el.files?.length) {
-          const newFiles = sanitizeFiles(el.files)
+          const newFiles = validatedFiles(el.files)
           const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
           await handleUploadFiles(projectName, directoryPath, uniqueFiles)
         }
@@ -296,12 +343,14 @@ const createFileUploader = ({
   projectName,
   directoryPath,
   preserveDirectory,
-  acceptedFileTypes
+  acceptedFileTypes,
+  updateThumbnail = true
 }: {
   projectName: string
   directoryPath: string
   preserveDirectory?: boolean
   acceptedFileTypes: string
+  updateThumbnail?: boolean
 }): Promise<string> =>
   new Promise((resolve, reject) => {
     const el = document.createElement('input')
@@ -316,9 +365,9 @@ const createFileUploader = ({
     el.onchange = async () => {
       try {
         if (el.files?.length) {
-          const newFiles = sanitizeFiles(el.files)
+          const newFiles = validatedFiles(el.files)
           const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
-          const [uploadedFileUrl] = await handleUploadFiles(projectName, directoryPath, uniqueFiles)
+          const [uploadedFileUrl] = await handleUploadFiles(projectName, directoryPath, uniqueFiles, updateThumbnail)
 
           if (uploadedFileUrl) {
             resolve(uploadedFileUrl)
@@ -344,14 +393,24 @@ export const uploadImageFile = (params: {
   directoryPath: string
   preserveDirectory?: boolean
   acceptedFileTypes?: string
-}): Promise<string> => createFileUploader({ ...params, acceptedFileTypes: params.acceptedFileTypes ?? 'image/*' })
+}): Promise<string> =>
+  createFileUploader({
+    ...params,
+    acceptedFileTypes: params.acceptedFileTypes ?? 'image/*',
+    updateThumbnail: false
+  })
 
 // currently only supporting mp4
 export const uploadVideoFile = (params: {
   projectName: string
   directoryPath: string
   preserveDirectory?: boolean
-}): Promise<string> => createFileUploader({ ...params, acceptedFileTypes: 'video/mp4,.mp4' })
+}): Promise<string> =>
+  createFileUploader({
+    ...params,
+    acceptedFileTypes: 'video/mp4,.mp4',
+    updateThumbnail: false
+  })
 
 export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], args?: object[]) => {
   const promises: CancelableUploadPromiseReturnType<string>[] = []

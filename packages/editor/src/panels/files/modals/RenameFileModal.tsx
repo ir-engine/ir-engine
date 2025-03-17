@@ -29,7 +29,6 @@ import { useTranslation } from 'react-i18next'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useMutation } from '@ir-engine/common'
 import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
-import { getDecodedFileName, getEncodedFileName } from '@ir-engine/common/src/utils/cleanFileName'
 import { isValidFileName } from '@ir-engine/common/src/utils/validateFileName'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { Input } from '@ir-engine/ui'
@@ -38,19 +37,17 @@ import { FileDataType } from '../../../constants/AssetTypes'
 
 export default function RenameFileModal({ projectName, file }: { projectName: string; file: FileDataType }) {
   const { t } = useTranslation()
-  const newFileName = useHookstate(getDecodedFileName(file.name))
+  const newFileName = useHookstate(file.name)
   const fileService = useMutation(fileBrowserPath)
-  const isValid = isValidFileName(getEncodedFileName(newFileName.value))
+  const resultFileName = isValidFileName(newFileName.value)
 
   const handleSubmit = async () => {
-    const encodedName = getEncodedFileName(newFileName.value)
-
-    if (isValidFileName(encodedName)) {
+    if (resultFileName.isValid) {
       fileService.update(null, {
         oldProject: projectName,
         newProject: projectName,
         oldName: file.fullName,
-        newName: file.isFolder ? encodedName : `${encodedName}.${file.type}`,
+        newName: file.isFolder ? newFileName.value : `${newFileName.value}.${file.type}`,
         oldPath: file.path,
         newPath: file.path,
         isCopy: false
@@ -65,14 +62,14 @@ export default function RenameFileModal({ projectName, file }: { projectName: st
       className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
-      submitButtonDisabled={!isValid}
+      submitButtonDisabled={!resultFileName.isValid}
     >
       <Input
         value={newFileName.value}
         data-testid="rename-file-input"
         onChange={(event) => newFileName.set(event.target.value)}
-        state={!isValid ? 'error' : undefined}
-        helperText={!isValid ? t('editor:layout.filebrowser.renameFileError') : undefined}
+        state={!resultFileName.isValid ? 'error' : undefined}
+        helperText={!resultFileName.isValid ? resultFileName.error : undefined}
       />
     </Modal>
   )
