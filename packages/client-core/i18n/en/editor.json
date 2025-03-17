@@ -1409,7 +1409,9 @@
         "resize": "Resize",
         "width": "Width",
         "height": "Height"
-      }
+      },
+      "addToAssets": "Add to Asset",
+      "addToFavorites": "Add to Favorite"
     },
     "scene-assets": {
       "no-category": "No category selected",

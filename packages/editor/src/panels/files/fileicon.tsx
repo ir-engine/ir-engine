@@ -119,11 +119,11 @@ export const FileIcon = ({
 
     if (thumbnailURL) {
       return (
-        <div className={`${isMinified ? '' : 'h-full w-full'}`}>
+        <div className={`${isMinified ? 'h-4 w-4' : 'h-full w-full'}`}>
           <div className="relative">
             <Tag className="top-2" />
           </div>
-          <div className={`${isMinified ? '' : 'h-full w-full'}`}>
+          <div className={`${isMinified ? 'h-4 w-4' : 'h-full w-full'}`}>
             <img
               className={twMerge(imageClass, 'p-0', 'object-contain', imageLoaded.value ? 'block' : 'hidden')}
               crossOrigin="anonymous"

@@ -25,19 +25,23 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { API, useFind } from '@ir-engine/common'
 import { REMOVE_EDGE_SLASH_REGEX } from '@ir-engine/common/src/regex'
+import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { getDecodedFileName } from '@ir-engine/common/src/utils/cleanFileName'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
 import { Slider, ViewportButton } from '@ir-engine/ui/editor'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import {
+  ArchiveSm,
   ArrowLeftSm,
   CogSm,
   Download01Sm,
   FolderPlusSm,
   FolderSm,
   Grid01Sm,
+  Pin02Sm,
   PlusCircleSm,
   Refresh1Sm,
   SearchSmSm
@@ -46,10 +50,12 @@ import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaList } from 'react-icons/fa'
+import { LuPinOff } from 'react-icons/lu'
 import { twMerge } from 'tailwind-merge'
 import { handleUploadFiles, inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
-import { FilesState, FilesViewModeSettings, FilesViewModeState } from '../../services/FilesState'
+import { FilesState, FilesViewModeSettings, FilesViewModeState, SelectedFilesState } from '../../services/FilesState'
+import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { availableTableColumns, useCurrentFiles } from './helpers'
 import { handleDownloadProject } from './loaders'
 
@@ -263,7 +269,7 @@ export default function FilesToolbar() {
               id="downloadProject"
             />
           </Tooltip>
-          <div className="flex h-7 items-center gap-2 rounded p-2">
+          <div className="flex h-7 items-center gap-x-1 rounded">
             <button className="p-1 text-text-secondary hover:text-text-primary">
               <FaList
                 className={twMerge('h-5 w-5', filesViewMode.value === 'list' ? 'cursor-auto text-ui-primary' : '')}
@@ -280,7 +286,7 @@ export default function FilesToolbar() {
         </>
       }
       uploadButton={
-        <>
+        <div className="flex flex-row gap-2">
           <Button
             size="l"
             disabled={!showUploadButtons}
@@ -320,7 +326,7 @@ export default function FilesToolbar() {
             <FolderSm />
             <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFolder')}</span>
           </Button>
-        </>
+        </div>
       }
     />
   )
@@ -344,12 +350,58 @@ export function PanelToolbar({
   utilsComponent?: React.ReactNode
 }) {
   const { t } = useTranslation()
-  const { createNewFolder } = useCurrentFiles()
+  const { createNewFolder, refreshDirectory } = useCurrentFiles()
+
+  const selectedFiles = useMutableState(SelectedFilesState).value.filter((file) => !file.isFolder)
+  console.log('selectedFiles', selectedFiles)
+  const assetUrl = useMutableState(ClickPlacementState).selectedAsset.value
   const filesState = useMutableState(FilesState)
   const originalPath = useMutableState(EditorState).projectName.value
   const showBackButton =
     filesState.selectedDirectory.value.replace(REMOVE_EDGE_SLASH_REGEX, '').split('/').length >
     (originalPath?.split('/').length || 0) + 1
+
+  const query = React.useMemo(
+    () => ({
+      $or: [
+        {
+          key: {
+            $in: selectedFiles.map(({ key }) => key)
+          }
+        },
+        {
+          key: assetUrl && assetUrl.split(`/`)[3].split('?')[0]
+        }
+      ],
+      $limit: 10000
+    }),
+    [selectedFiles, assetUrl]
+  )
+
+  const { data: resources } = useFind(staticResourcePath, {
+    query
+  })
+
+  const toggleFavorite = async () => {
+    toggleTag('myFavorite')
+  }
+
+  const toggleAsset = async () => {
+    toggleTag('myAsset')
+  }
+
+  const toggleTag = async (tag: string) => {
+    for (const resource of resources) {
+      if (resource.tags === undefined) return
+      const hasTag = resource.tags.includes(tag)
+      const updatedTags = hasTag ? resource.tags.filter((existingTag) => existingTag !== tag) : [...resource.tags, tag]
+
+      await API.instance.service(staticResourcePath).patch(resource.id, { tags: updatedTags })
+    }
+    refreshDirectory()
+  }
+
+  const hasMyFavoriteTag = resources.some((resource) => resource.tags?.includes('myFavorite'))
 
   return (
     <div
@@ -358,7 +410,7 @@ export function PanelToolbar({
     >
       {/* Tools */}
       <div className="flex items-center gap-x-1 divide-x divide-ui-outline">
-        <div className="flex items-center">
+        <div className="flex items-center gap-x-1">
           {showBackButton && (
             <div>
               <Tooltip content={t('editor:layout.filebrowser.back')}>
@@ -382,10 +434,22 @@ export function PanelToolbar({
           <Tooltip content={t('editor:layout.filebrowser.addNewFolder')}>
             <ViewportButton onClick={createNewFolder} icon={FolderPlusSm} />
           </Tooltip>
+
           <ViewModeSettings />
         </div>
-        {utilsComponent && <div className="flex items-center">{utilsComponent}</div>}
-        <div className="flex items-center gap-x-2 px-1">{uploadButton}</div>
+
+        <div className="flex h-6 items-center">
+          <Tooltip content={t('editor:layout.filebrowser.addToFavorites')}>
+            <ViewportButton onClick={toggleFavorite} icon={hasMyFavoriteTag ? LuPinOff : Pin02Sm} />
+          </Tooltip>
+          <Tooltip content={t('editor:layout.filebrowser.addToAssets')}>
+            <ViewportButton onClick={toggleAsset} icon={ArchiveSm} />
+          </Tooltip>
+        </div>
+
+        {utilsComponent && <div className="flex h-6 items-center">{utilsComponent}</div>}
+
+        <div className="flex h-6 items-center pl-2">{uploadButton}</div>
       </div>
 
       {/* Breadcrumb */}

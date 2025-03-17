@@ -39,6 +39,7 @@ export interface EditorDropdownItemProps extends React.HTMLAttributes<HTMLDivEle
   onRightIcon2Click?: () => void
   collapsed?: boolean
   className?: string
+  hasChildren?: boolean
 }
 
 export default function EditorDropdownItem({
@@ -53,6 +54,7 @@ export default function EditorDropdownItem({
   onClick,
   className,
   collapsed,
+  hasChildren,
   ...props
 }: EditorDropdownItemProps) {
   const iconClassname = twMerge(
@@ -79,7 +81,9 @@ export default function EditorDropdownItem({
       }}
       {...props}
     >
-      {collapsed ? <ChevronRightSm className={iconClassname} /> : <ChevronDownSm className={iconClassname} />}
+      <span className={!hasChildren ? 'invisible' : ''}>
+        {collapsed ? <ChevronRightSm className={iconClassname} /> : <ChevronDownSm className={iconClassname} />}
+      </span>{' '}
       {ItemIcon ? <ItemIcon className={iconClassname} /> : <Maximize02Sm className={iconClassname} />}
       <span className="flex-1 text-sm">{label}</span>
       {RightIcon1 && <RightIcon1 className={iconClassname} onClick={onRightIcon1Click} />}

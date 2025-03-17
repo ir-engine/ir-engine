@@ -37,13 +37,14 @@ import { DragPreviewImage, useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
+import { ResourceType } from '.'
 import { FilesViewModeSettings } from '../../services/FilesState'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileIcon } from '../files/fileicon'
 import { FileUploadProgress } from '../files/loaders'
 import DeleteFileModal from '../files/modals/DeleteFileModal'
 import { ASSETS_PAGE_LIMIT, calculateItemsToFetch } from './helpers'
-import { useAssetsQuery } from './hooks'
+import { useAssetsCategory, useAssetsQuery } from './hooks'
 
 interface MetadataTableRowProps {
   label: string
@@ -175,7 +176,7 @@ export function FileCard({
         <div
           className={twMerge(
             `box-border rounded border border-0 font-figtree`,
-            isSelected ? 'rounded border border-[#375DAF] bg-[#2C2E30]' : 'group-hover:bg-[#202225]'
+            isSelected ? 'border-ui-select-primary bg-ui-select-quadrary' : 'group-hover:bg-ui-hover-tertiary'
           )}
           style={{
             height: iconSize,
@@ -195,11 +196,10 @@ export function FileCard({
 
         <Tooltip content={name} position="bottom">
           <Text
-            theme="secondary"
             fontSize="sm"
             className={twMerge(
-              'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2',
-              isSelected ? 'rounded bg-[#375DAF]' : 'rounded group-hover:bg-[#2F3137]'
+              'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2 text-text-secondary',
+              isSelected ? 'rounded bg-ui-select-primary text-white' : 'rounded group-hover:bg-ui-hover-quadrary'
             )}
             data-testid={dataTestIdJson?.fileNameId}
           >
@@ -240,7 +240,7 @@ function ResourceFile({
     if (preview) preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
 
-  const isSelected = useMutableState(ClickPlacementState).selectedAsset.value === resource.url
+  const selectedAsset = useMutableState(ClickPlacementState).selectedAsset.value
 
   const handleLoad = () => {
     onLoad?.()
@@ -257,13 +257,16 @@ function ResourceFile({
         <FileCard
           item={resource}
           name={name}
-          onClick={() => ClickPlacementState.setSelectedAsset(resource.url)}
+          onClick={() => {
+            console.log('asset url', resource.url)
+            console.log('selected', selectedAsset, resource.url), ClickPlacementState.setSelectedAsset(resource.url)
+          }}
           onContextMenu={(event) => {
             event.preventDefault()
             event.stopPropagation()
             anchorEvent.set(event)
           }}
-          isSelected={isSelected}
+          // isSelected={isSelected}
           info={resource.mimeType}
           assetType={assetType}
           dataTestIdJson={{
@@ -282,11 +285,10 @@ function ResourceFile({
   )
 }
 
-function SideNavBar({ handleScrollToPage }) {
+function SideNavBar({ resourceLength, handleScrollToPage }) {
   const [navBarActivated, setNavBarActivated] = useState<boolean>(false) // Track the navbar activation
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null) // Track the hovered index
-  const { resources, staticResourcesPagination } = useAssetsQuery()
-  const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
+  const pages = Math.ceil(resourceLength / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
 
   return (
     <div className="relative p-2">
@@ -335,12 +337,7 @@ function SideNavBar({ handleScrollToPage }) {
                 hoveredIndex === i ? 'text-white' : ''
               )}
             >
-              {i === 0
-                ? '▲'
-                : Math.min(
-                    (i + 1) * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()),
-                    staticResourcesPagination.total.value
-                  )}
+              {i === 0 ? '▲' : Math.min((i + 1) * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()), resourceLength)}
             </span>
           </div>
         ))}
@@ -349,19 +346,18 @@ function SideNavBar({ handleScrollToPage }) {
   )
 }
 
-function BottomPaginationNavBar({ handleScrollToPage }) {
+function BottomPaginationNavBar({ resourceLength, handleScrollToPage }) {
   const { t } = useTranslation()
-  const { resources, staticResourcesPagination } = useAssetsQuery()
-  const totalPages = Math.ceil(staticResourcesPagination.total.value / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
-  const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
+  const { staticResourcesPagination } = useAssetsQuery()
+  const pages = Math.ceil(resourceLength / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
 
   return (
     <div className="flex h-20 flex-col items-center justify-center">
       <div className="text-[10px] text-text-secondary">
-        {t('editor:layout.scene-assets.total-assets', { total: resources.length })}
+        {t('editor:layout.scene-assets.total-assets', { total: resourceLength })}
       </div>
       <div className="m-3 flex h-[1px] w-36 flex-row gap-[0.19rem]">
-        {Array.from({ length: totalPages }, (_, i) =>
+        {Array.from({ length: pages }, (_, i) =>
           i > pages ? (
             <div key={i} className="h-[10px] w-1/4 border-t-[1px] border-solid border-gray-700"></div>
           ) : (
@@ -377,9 +373,9 @@ function BottomPaginationNavBar({ handleScrollToPage }) {
   )
 }
 
-function ResourceItems() {
+function ResourceItems({ resources }) {
   const { t } = useTranslation()
-  const { resourcesLoading, resources, staticResourcesPagination } = useAssetsQuery()
+  const { resourcesLoading, staticResourcesPagination } = useAssetsQuery()
   const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]) // Create a ref array
   const fileIconsLoaded = useHookstate(0)
@@ -424,10 +420,7 @@ function ResourceItems() {
                 )}
                 <span className="ml-auto text-[#42454D]">
                   {i * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()) + 1} -{' '}
-                  {Math.min(
-                    (i + 1) * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()),
-                    staticResourcesPagination.total.value
-                  )}
+                  {Math.min((i + 1) * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()), resources.length)}
                 </span>
               </div>
               <div
@@ -476,18 +469,21 @@ function ResourceItems() {
         )}
       </div>
       {/* Sticky Mini Navbar */}
-      <SideNavBar handleScrollToPage={handleScrollToPage} />
+      <SideNavBar resourceLength={resources.length} handleScrollToPage={handleScrollToPage} />
     </div>
   )
 }
 
 export default function Resources() {
-  const { resourcesLoading, staticResourcesPagination, refetchResources } = useAssetsQuery()
+  const { resourcesLoading, staticResourcesPagination, refetchResources, resources } = useAssetsQuery()
+  const { activeTab, assets: myAssets } = useAssetsCategory()
+
+  const canLoadMore = staticResourcesPagination.skip.value < staticResourcesPagination.total.value
 
   return (
     <div id="asset-panel" className="relative flex h-full w-full flex-col overflow-auto bg-surface-1">
       <InfiniteScroll
-        disableEvent={staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || resourcesLoading}
+        disableEvent={!canLoadMore || resourcesLoading}
         onScrollBottom={() => {
           staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT + calculateItemsToFetch())
           refetchResources()
@@ -497,7 +493,9 @@ export default function Resources() {
           className="relative mt-auto flex h-full w-full flex-wrap gap-2"
           data-testid="assets-panel-resource-items-container"
         >
-          <ResourceItems />
+          {resources.length ? (
+            <ResourceItems resources={activeTab.value === ResourceType.ASSETS ? resources : myAssets} />
+          ) : null}
         </div>
       </InfiniteScroll>
       <div className="mx-auto mb-10" />

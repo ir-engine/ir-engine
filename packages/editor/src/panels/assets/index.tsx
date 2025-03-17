@@ -57,21 +57,25 @@ export const AssetsPanelTab: TabData = {
   content: <AssetsContainer />
 }
 
-enum SidebarType {
+export enum ResourceType {
   FAVORITES = 'favorites',
+  MY_ASSETS = 'my_assets',
   ASSETS = 'assets',
-  FILES = 'files'
+  FILES = 'files',
+  ALL = 'all'
 }
 
 function AssetsContainer() {
-  const sidebarType = useHookstate(undefined)
-
-  const toolbar = sidebarType.value === SidebarType.FILES ? <FilesToolbar /> : <Topbar />
-  const rightChildren = sidebarType.value === SidebarType.FILES ? <FileBrowser /> : <Resources />
-
-  const handleSidebarChange = (category) => {
-    sidebarType.set(category)
+  const activeTab = useHookstate(ResourceType.ALL)
+  const resourceComponents = {
+    [ResourceType.FILES]: <FileBrowser />
   }
+
+  const rightChildren = resourceComponents[activeTab.value] || <Resources />
+
+  const toolbar = activeTab.value === ResourceType.FILES ? <FilesToolbar /> : <Topbar />
+
+  const handleSidebarChange = (category) => activeTab.set(category)
 
   return (
     <div className="flex h-full flex-col">
@@ -79,7 +83,7 @@ function AssetsContainer() {
         <AssetsQueryProvider>
           {toolbar}
           <VerticalDivider
-            leftChildren={<CategoriesList selected={sidebarType.value} onClick={handleSidebarChange} />}
+            leftChildren={<CategoriesList selected={activeTab.value} onClick={handleSidebarChange} />}
             rightChildren={rightChildren}
           />
         </AssetsQueryProvider>

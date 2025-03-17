@@ -25,11 +25,12 @@ Infinite Reality Engine. All Rights Reserved.
 
 import capitalizeFirstLetter from '@ir-engine/common/src/utils/capitalizeFirstLetter'
 import { getDecodedFileName } from '@ir-engine/common/src/utils/cleanFileName'
-import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import EditorDropdownItem from '@ir-engine/ui/src/components/editor/DropdownItem'
 import { CubeOutlineLg, File04Lg, Folder, Pin02Lg } from '@ir-engine/ui/src/icons'
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
+import { ResourceType } from '.'
 import { EditorState } from '../../services/EditorServices'
 import { FilesState } from '../../services/FilesState'
 import { useCurrentFiles } from '../files/helpers'
@@ -58,6 +59,7 @@ function NodeHierarchyItem({ node, onClick }: { node: AssetCategoryNode; onClick
         collapsed={!isOpen}
         onClick={handleClick}
         style={{ paddingLeft: `${32 * node.depth}px` }}
+        hasChildren={node.children.length > 0}
       />
 
       {isOpen &&
@@ -78,13 +80,18 @@ function FolderCategory({ item }: { item: AssetCategoryNode }) {
 }
 
 function AssetCategory({ item }: { item: AssetCategoryNode }) {
-  const { currentCategoryPath } = useAssetsCategory()
+  const { currentCategoryPath, activeTab } = useAssetsCategory()
   const { refetchResources, staticResourcesPagination } = useAssetsQuery()
 
   const handleClickCategory = (item) => {
-    currentCategoryPath.set(item)
-    staticResourcesPagination.skip.set(0)
-    refetchResources()
+    if (item.name === 'Project Assets') {
+      activeTab.set(ResourceType.MY_ASSETS)
+    } else {
+      currentCategoryPath.set(item)
+      staticResourcesPagination.skip.set(0)
+      refetchResources()
+      activeTab.set(ResourceType.ASSETS)
+    }
   }
 
   return <NodeHierarchyItem node={item} onClick={handleClickCategory} />
@@ -98,11 +105,14 @@ const SideBarIcons = {
 
 function SidebarSection({ Icon, label, items, onClick, isActive }) {
   const [isHover, setIsHover] = React.useState(false)
+  const { activeTab } = useAssetsCategory()
+
   const toggleDropdown = () => {
     if (isActive) {
       onClick(undefined)
     } else {
       onClick(label)
+      activeTab.set(label)
     }
   }
 
@@ -149,9 +159,11 @@ export default function CategoriesList({ selected, onClick }) {
   const { files, categories: folderCategories } = useCurrentFiles()
 
   const [sidebarSections, setSidebarSections] = React.useState<{
+    favorites: AssetCategoryNode[]
     assets: AssetCategoryNode[]
     files: AssetCategoryNode[]
   }>({
+    favorites: [],
     assets: [],
     files: []
   })
@@ -160,14 +172,17 @@ export default function CategoriesList({ selected, onClick }) {
     if (assetCategories) {
       setSidebarSections({
         ...sidebarSections,
-        assets: [...assetCategories] as AssetCategoryNode[]
+        assets: [
+          { name: 'Project Assets', path: '', depth: 0, children: [] },
+          { name: 'iR Studio Assets', path: '', depth: 0, children: [...assetCategories] }
+        ] as AssetCategoryNode[]
       })
     }
 
     if (files.length) {
       setSidebarSections({
         ...sidebarSections,
-        files: [...folderCategories.get({ noproxy: true })] as AssetCategoryNode[]
+        files: [...folderCategories.get(NO_PROXY)] as AssetCategoryNode[]
       })
     }
   }, [assetCategories, folderCategories.value])

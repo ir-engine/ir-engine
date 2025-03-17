@@ -24,10 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
-import { API } from '@ir-engine/common'
-import { StaticResourceQuery, StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import { API, useFind } from '@ir-engine/common'
+import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { State, getState, useHookstate, usePrevious } from '@ir-engine/hyperflux'
 import React, { ReactNode, createContext, useContext, useEffect } from 'react'
+import { ResourceType } from '.'
 import { AssetsPanelCategories, MyAssetCategory } from '../../services/AssetPanelCategoriesState'
 import { AssetCategoryNode } from './categories'
 import { ASSETS_PAGE_LIMIT, calculateItemsToFetch, convertToHierarchy, iterativelyListTags } from './helpers'
@@ -40,23 +41,27 @@ const AssetsQueryContext = createContext({
   staticResourcesPagination: null! as State<{ total: number; skip: number }>,
 
   category: {
+    activeTab: null! as State<ResourceType>,
+    assets: [] as StaticResourceType[],
     currentCategoryPath: null! as State<AssetCategoryNode | undefined>,
     sidebarWidth: null! as State<number>
   }
 })
 
-export const assetCategories = convertToHierarchy(AssetsPanelCategories.initial)
+const START_DEPTH = 1
+export const assetCategories = convertToHierarchy(AssetsPanelCategories.initial, START_DEPTH)
 
 export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
   const search = useHookstate({ local: '', query: '' })
   const staticResourcesPagination = useHookstate({ total: 0, skip: 0 })
   const resources = useHookstate<StaticResourceType[]>([])
   const resourcesLoading = useHookstate(false)
-
   const currentCategoryPath = useHookstate<AssetCategoryNode | undefined>(undefined)
 
   const categorySidbarWidth = useHookstate(300)
   const previousSearchQuery = usePrevious(search.query)
+
+  const activeTab = useHookstate<ResourceType>(ResourceType.FAVORITES)
 
   const staticResourcesFindApi = () => {
     const abortController = new AbortController()
@@ -67,50 +72,18 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
     const performFetch = () => {
       const tags = selectedCategory ? [selectedCategory.name, ...iterativelyListTags(selectedCategory.children)] : []
 
-      let query = {} as StaticResourceQuery
-      if (selectedCategory?.name === MyAssetCategory) {
-        const selfUser = getState(AuthState).user
-        query = {
-          key: {
-            $like: `%${search.query.value}%`
-          },
-          type: {
-            $or: [{ type: 'asset' }]
-          },
-          userId: selfUser.id,
-          $sort: { name: 1 },
-          $limit: ASSETS_PAGE_LIMIT + calculateItemsToFetch(),
-          $skip: Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
-        } as StaticResourceQuery
-      } else {
-        query = {
-          key: {
-            $like: `%${search.query.value}%`
-          },
-          type: {
-            $or: [{ type: 'asset' }]
-          },
-          tags: selectedCategory
-            ? {
-                $or: tags.flatMap((tag) => [
-                  { tags: { $like: `%${tag.toLowerCase()}%` } },
-                  { tags: { $like: `%${tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase()}%` } },
-                  {
-                    tags: {
-                      $like: `%${tag
-                        .split(' ')
-                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                        .join(' ')}%`
-                    }
-                  }
-                ])
-              }
-            : undefined,
-          $sort: { name: 1 },
-          $limit: ASSETS_PAGE_LIMIT + calculateItemsToFetch(),
-          $skip: Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
-        } as StaticResourceQuery
+      const baseQuery = {
+        key: { $like: `%${search.query.value}%` },
+        type: { $or: [{ type: 'asset' }] },
+        $sort: { name: 1 },
+        $limit: ASSETS_PAGE_LIMIT + calculateItemsToFetch(),
+        $skip: Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
       }
+
+      const query =
+        selectedCategory?.name === MyAssetCategory
+          ? { ...baseQuery, userId: getState(AuthState).user.id }
+          : { ...baseQuery, tags: selectedCategory ? formatTags(tags) : undefined }
 
       API.instance
         .service(staticResourcePath)
@@ -123,10 +96,25 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
           } else {
             resources.set(fetchedResources.data)
           }
+
           staticResourcesPagination.merge({ total: resources.length })
           resourcesLoading.set(false)
         })
     }
+
+    const formatTags = (tags) => ({
+      $or: tags.flatMap((tag) => {
+        const formattedTag = capitalize(tag)
+        return [
+          { tags: { $like: `%${tag.toLowerCase()}%` } },
+          { tags: { $like: `%${formattedTag}%` } },
+          { tags: { $like: `%${capitalizeWords(tag)}%` } }
+        ]
+      })
+    })
+
+    const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
+    const capitalizeWords = (str) => str.split(' ').map(capitalize).join(' ')
 
     performFetch()
 
@@ -140,6 +128,18 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
     return () => abortSignal()
   }, [])
 
+  const query = React.useMemo(() => {
+    return activeTab.value === ResourceType.FAVORITES
+      ? { tags: { $like: '%myFavorite%' } }
+      : activeTab.value === ResourceType.MY_ASSETS
+      ? { tags: { $like: '%myAsset%' } }
+      : {}
+  }, [activeTab.value])
+
+  const { data: assets } = useFind(staticResourcePath, {
+    query
+  })
+
   return (
     <AssetsQueryContext.Provider
       value={{
@@ -149,6 +149,8 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
         resourcesLoading: resourcesLoading.value,
         staticResourcesPagination,
         category: {
+          activeTab,
+          assets: assets as StaticResourceType[],
           currentCategoryPath,
           sidebarWidth: categorySidbarWidth
         }
