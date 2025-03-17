@@ -219,7 +219,9 @@ export function FileContextMenu({
         selectedFiles
           .filter((file) => !file.isFolder.value)
           .map((file) => {
-            addMediaNode(file.url.value)
+            addMediaNode(file.url.value, undefined, undefined, [
+              { name: TransformComponent.jsonID, props: { position: new Vector3() } }
+            ])
           })
         setAnchorEvent(undefined)
       },

@@ -181,6 +181,11 @@ const onKeyZ = (control: boolean, shift: boolean) => {
   }
 }
 
+const onKeyY = () => {
+  const sourceID = GLTFComponent.getInstanceID(getState(EditorState).rootEntity)
+  if (EditorHistoryState.canRedo(sourceID)) dispatchAction(EditorHistoryActions.redo({ sourceID }))
+}
+
 const onEqual = () => {
   const rendererState = useMutableState(RendererState)
   rendererState.gridHeight.set(rendererState.gridHeight.value + 1)
@@ -300,6 +305,7 @@ const execute = () => {
   if (buttons.KeyF?.down) onKeyF()
   if (buttons.KeyZ?.down)
     onKeyZ(usesCtrlKey() ? !!buttons.ControlLeft?.pressed : !!buttons.MetaLeft?.pressed, !!buttons.ShiftLeft?.pressed)
+  if (buttons.KeyY?.down) onKeyY()
   if (buttons.Equal?.down) onEqual()
   if (buttons.Minus?.down) onMinus()
   if (buttons.Escape?.down) onEscape()

@@ -32,7 +32,7 @@
     "@feathersjs/client": "5.0.5",
     "@feathersjs/primus-client": "4.5.15",
     "@feathersjs/rest-client": "5.0.5",
-    "@hookstate/core": "npm:@speigg/hookstate@4.0.1-fix-111-106.2",
+    "@hookstate/core": "^4.0.0",
     "@ir-engine/common": "^1.6.0",
     "@ir-engine/engine": "^1.6.0",
     "@ir-engine/hyperflux": "^1.6.0",
