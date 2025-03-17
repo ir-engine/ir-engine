@@ -70,6 +70,7 @@ import {
   removeComponent,
   setComponent,
   useComponent,
+  useHasComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -736,8 +737,6 @@ export type ParticleSystemComponentType = {
 
   system?: ParticleSystem | undefined
   behaviors?: Behavior[] | undefined
-  _loadIndex: number
-  _refresh: number
 }
 
 export const ParticleSystemJSONParametersValidator = matches.shape({
@@ -890,9 +889,7 @@ export const ParticleSystemComponent = defineComponent({
     systemParameters: DEFAULT_PARTICLE_SYSTEM_PARAMETERS,
     behaviorParameters: S.Array(S.Type<BehaviorJSON>()),
     behaviors: S.NonSerialized(S.Optional(S.Array(S.Type<Behavior>()))),
-    system: S.NonSerialized(S.Type<ParticleSystem>()),
-    _loadIndex: S.NonSerialized(S.Number(0)),
-    _refresh: S.NonSerialized(S.Number(0))
+    system: S.NonSerialized(S.Type<ParticleSystem>())
   }),
 
   onSet: (entity, component, json) => {
@@ -903,8 +900,6 @@ export const ParticleSystemComponent = defineComponent({
       })
 
     !!json?.behaviorParameters && component.behaviorParameters.set(JSON.parse(JSON.stringify(json.behaviorParameters)))
-    ;(!!json?.systemParameters || !!json?.behaviorParameters) &&
-      component._refresh.set((component._refresh.value + 1) % 1000)
   },
 
   toJSON: (component) => ({
@@ -998,36 +993,29 @@ export const ParticleSystemComponent = defineComponent({
       dudMaterial.needsUpdate = true
     }, [texture])
 
-    useEffect(() => {
-      const component = componentState.value
+    const doLoadEmissionGeo =
+      componentState.systemParameters.shape.type.value === 'mesh_surface' &&
+      AssetLoader.getAssetClass(componentState.systemParameters.shape.mesh.value ?? '') === AssetType.Model
 
-      const doLoadEmissionGeo =
-        component.systemParameters.shape.type === 'mesh_surface' &&
-        AssetLoader.getAssetClass(component.systemParameters.shape.mesh ?? '') === AssetType.Model
+    const doLoadInstancingGeo =
+      componentState.systemParameters.instancingGeometry.value &&
+      AssetLoader.getAssetClass(componentState.systemParameters.instancingGeometry.value) === AssetType.Model
 
-      const doLoadInstancingGeo =
-        component.systemParameters.instancingGeometry &&
-        AssetLoader.getAssetClass(component.systemParameters.instancingGeometry) === AssetType.Model
+    const doLoadTexture =
+      componentState.systemParameters.texture.value &&
+      AssetLoader.getAssetClass(componentState.systemParameters.texture.value) === AssetType.Image
 
-      const doLoadTexture =
-        component.systemParameters.texture &&
-        AssetLoader.getAssetClass(component.systemParameters.texture) === AssetType.Image
+    const loadedEmissionGeo = !!shapeMeshEntity || !doLoadEmissionGeo
+    const loadedInstanceGeo = !!geoDependencyEntity || !doLoadInstancingGeo
+    const loadedTexture = !!texture || !doLoadTexture
 
-      const loadedEmissionGeo = (doLoadEmissionGeo && shapeMeshEntity) || !doLoadEmissionGeo
-      const loadedInstanceGeo = (doLoadInstancingGeo && geoDependencyEntity) || !doLoadInstancingGeo
-      const loadedTexture = (doLoadTexture && texture) || !doLoadTexture
-
-      if (loadedEmissionGeo && loadedInstanceGeo && loadedTexture) {
-        componentState._loadIndex.set(componentState._loadIndex.value + 1)
-      }
-    }, [geoDependencyEntity, shapeMeshEntity, texture, componentState._refresh])
+    const dependenciesLoaded = loadedEmissionGeo && loadedInstanceGeo && loadedTexture
 
     const sceneEntity = useAncestorWithComponents(entity, [SceneComponent])
+    const visible = useHasComponent(entity, VisibleComponent)
 
     useEffect(() => {
-      // loadIndex of 0 means particle system dependencies haven't loaded yet
-      if (!componentState._loadIndex.value) return
-      if (!sceneEntity) return
+      if (!dependenciesLoaded || !sceneEntity || !visible) return
 
       const component = componentState.get(NO_PROXY)
       const rendererInstance = createBatchedRenderer(entity)
@@ -1044,10 +1032,21 @@ export const ParticleSystemComponent = defineComponent({
       componentState.behaviors.set(behaviors)
 
       const emitterAsObj3D = nuSystem.emitter
-      emitterAsObj3D.userData['_refresh'] = component._refresh
+      emitterAsObj3D.parent = renderer
       setComponent(entity, ObjectComponent, emitterAsObj3D)
+      // quarks expects the parent property on the emitter object to be the renderer, otherwise it will dispose the emitter
+      Object.defineProperties(emitterAsObj3D, {
+        parent: {
+          get() {
+            return renderer
+          },
+          set(value) {
+            if (value != undefined) throw new Error('Cannot set parent of proxified object')
+            console.warn('Setting to nil value is not supported ObjectComponent.ts')
+          }
+        }
+      })
       setComponent(entity, EntityTreeComponent, { parentEntity: renderer.entity })
-      // emitterAsObj3D.parent = renderer
       const transformComponent = getComponent(entity, TransformComponent)
       emitterAsObj3D.matrix = transformComponent.matrix
       componentState.system.set(nuSystem)
@@ -1071,7 +1070,7 @@ export const ParticleSystemComponent = defineComponent({
         emitterAsObj3D.dispose()
         removeBatchedRenderer(sceneID!)
       }
-    }, [componentState._loadIndex, sceneEntity])
+    }, [componentState.systemParameters, componentState.behaviorParameters, dependenciesLoaded, sceneEntity, visible])
 
     return null
   }

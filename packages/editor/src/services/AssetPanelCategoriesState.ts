@@ -36,6 +36,7 @@ export const AssetsPanelCategories = defineState({
         // Backdrop: {},
         // Stage: {}
       },
+      Rooms: {},
       Architectural: {
         Floor: {},
         Ceiling: {},

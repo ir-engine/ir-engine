@@ -161,16 +161,16 @@ export function FileUploadProgress() {
 
 function GeneratingThumbnailsProgress() {
   const { t } = useTranslation()
-  const thumbnailJobState = useMutableState(FileThumbnailJobState)
+  const thumbnailJobs = useMutableState(FileThumbnailJobState).jobs
 
-  if (!thumbnailJobState.length) return null
+  if (!thumbnailJobs.length) return null
 
   return (
     <LoadingView
       titleClassname="mt-0"
       containerClassName="flex-row mt-1"
       className="mx-2 my-auto h-6 w-6"
-      title={t('editor:layout.filebrowser.generatingThumbnails', { count: thumbnailJobState.length })}
+      title={t('editor:layout.filebrowser.generatingThumbnails', { count: thumbnailJobs.length })}
     />
   )
 }

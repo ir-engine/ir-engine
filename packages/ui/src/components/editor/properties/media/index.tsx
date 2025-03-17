@@ -420,6 +420,14 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
             label={t('editor:properties.media.lbl-mediaOptions')}
             info={t('editor:properties.media.info-mediaOptions')}
           >
+            {mediaMode === MediaMode.video && (
+              <Checkbox
+                label={t('editor:properties.media.info-controls')}
+                variantTextPlacement={'right'}
+                checked={media.controls.value}
+                onChange={commitProperty(MediaComponent, 'controls')}
+              />
+            )}
             <Checkbox
               label={t('editor:properties.media.lbl-mediaSynchronize')}
               variantTextPlacement={'right'}

@@ -105,7 +105,7 @@ const locationTypeOptions = [
   { label: 'Showroom', value: 'showroom' }
 ]
 
-const LOCATION_MAX = 10
+const LOCATION_MAX = 5
 
 type AddEditLocationModalProps = Readonly<{
   action: string
@@ -198,7 +198,30 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
     return []
   }, [scenes])
 
+  const validate = (): boolean => {
+    errors.set(getDefaultErrors())
+
+    if (!name.value.trim()) {
+      errors.name.set(t('admin:components.location.nameCantEmpty'))
+    }
+    if (!maxUsers.value) {
+      errors.maxUsers.set(t('admin:components.location.maxUserCantEmpty'))
+    }
+    if (maxUsers.value > LOCATION_MAX) {
+      errors.maxUsers.set(t('admin:components.location.maxUserExceeded'))
+    }
+    if (!scene.value) {
+      errors.scene.set(t('admin:components.location.sceneCantEmpty'))
+    }
+
+    return !Object.values(errors.value).some((value) => value.length > 0)
+  }
+
   const handlePublishFolder = async () => {
+    const isValid = validate()
+    if (!isValid) {
+      return
+    }
     PopoverState.showPopupover(<CompressedPublishConfirmation />)
     const { projectName, sceneName, rootEntity, sceneAssetID, scenePath } = getState(EditorState)
     const abortController = new AbortController()
@@ -348,7 +371,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
         await saveSceneGLTF(
           sceneAssetID!,
           projectName,
-          sceneName.replace('.gltf', '-duplicated.gltf'),
+          sceneName.replace('.gltf', '-compressed.gltf'),
           abortController.signal,
           true,
           saveScenePath + '/' + scenename
@@ -368,28 +391,19 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
   }
 
   const handlePublish = async (inCompress = false) => {
-    errors.set(getDefaultErrors())
-
-    if (!name.value.trim()) {
-      errors.name.set(t('admin:components.location.nameCantEmpty'))
-    }
-    if (!maxUsers.value) {
-      errors.maxUsers.set(t('admin:components.location.maxUserCantEmpty'))
-    }
-    if (maxUsers.value > LOCATION_MAX) {
-      errors.maxUsers.set(t('admin:components.location.maxUserExceeded'))
-    }
-    if (!scene.value) {
-      errors.scene.set(t('admin:components.location.sceneCantEmpty'))
-    }
-    if (Object.values(errors.value).some((value) => value.length > 0)) {
+    const isValid = validate()
+    if (!isValid) {
       return
     }
     publishLoading.set(true)
 
+    const updateSceneID = getState(EditorState).sceneAssetID
+
     try {
-      await SceneThumbnailState.createThumbnail()
-      await SceneThumbnailState.uploadThumbnail()
+      if (updateSceneID) {
+        await SceneThumbnailState.createThumbnail()
+        await SceneThumbnailState.uploadThumbnail()
+      }
     } catch (e) {
       errors.serverError.set(e.message)
     }
@@ -403,10 +417,10 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
         return
       }
     }
-    const updateSceneID = getState(EditorState).sceneAssetID
+
     const locationData: LocationData = {
       name: name.value.trim(),
-      sceneId: updateSceneID as string,
+      sceneId: updateSceneID || (location?.sceneId as string),
       maxUsersPerInstance: maxUsers.value,
       locationSetting: {
         locationId: '' as LocationID,
@@ -557,6 +571,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
                     fullWidth
                     height="xl"
                     placeholder="5 - Default"
+                    max={LOCATION_MAX}
                   />
                   <Toggle
                     label={t('admin:components.location.lbl-ve')}

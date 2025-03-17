@@ -36,7 +36,7 @@ export class WorkerPool {
 
   private workerCreator?: () => Worker
 
-  constructor(pool = 4) {
+  constructor(pool = 1) {
     this.limit = pool
   }
 
