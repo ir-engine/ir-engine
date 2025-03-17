@@ -135,8 +135,7 @@ function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection
       }
     }
   } else if (ValidMeshForBVH(mesh)) {
-    // only use fallback for meshes that don't have an entity assigned - should only be XRUI
-    if (!mesh.entity) origMeshRaycastFunc.call(mesh, raycaster, intersects)
+    origMeshRaycastFunc.call(mesh, raycaster, intersects)
   }
 }
 
