@@ -122,12 +122,7 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
         .then((fetchedResources) => {
           if (abortController.signal.aborted) return
 
-          if (
-            !forceRefresh &&
-            staticResourcesPagination.skip.value > 0 &&
-            previousSearchQuery === search.query.value &&
-            !forceRefresh
-          ) {
+          if (!forceRefresh && staticResourcesPagination.skip.value > 0 && previousSearchQuery === search.query.value) {
             resources.merge(fetchedResources.data)
           } else {
             resources.set(fetchedResources.data)
