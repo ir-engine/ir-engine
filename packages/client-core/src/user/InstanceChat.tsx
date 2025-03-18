@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useFind, useMutation } from '@ir-engine/common'
 import { InstanceID, MessageType, messagePath } from '@ir-engine/common/src/schema.type.module'
 import { useTouchOutside } from '@ir-engine/common/src/utils/useClickOutside'
+import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
 import { State, UserID, dispatchAction, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { PeerMediaChannelState } from '@ir-engine/network/src/media/PeerMediaChannelState'
@@ -90,6 +91,9 @@ const InstanceChatProvider = ({ children }: { children: React.ReactNode }) => {
     messagesResponse.data.forEach((message) => {
       if (!(message.id in newMessages.value)) {
         setNewMessage(message.id)
+        if (message.senderId !== user.id.value && !message.isNotification) {
+          AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.message)
+        }
       }
     })
   }, [messagesResponse.data, messagesResponse.status])

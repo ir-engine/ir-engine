@@ -361,5 +361,7 @@ describe('XRDetectedPlaneComponent', () => {
   }) //:: foundPlane
 
   /** @todo */
-  describe('reactor', () => {}) //:: reactor
+  describe('reactor', () => {
+    // @todo Copy+Paste+Modify statement list from XRDetectedMeshComponent
+  }) //:: reactor
 }) //:: XRDetectedPlaneComponent
