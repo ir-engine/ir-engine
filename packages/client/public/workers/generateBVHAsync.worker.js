@@ -34,10 +34,10 @@ onmessage = function ({ data }) {
 
   try {
     const geometry = new THREE.BufferGeometry()
+    geometry.setAttribute('position', new THREE.BufferAttribute(position, 3, false))
     if (index) {
       geometry.index = new THREE.BufferAttribute(index, 1, false)
     }
-    geometry.setAttribute('position', new THREE.BufferAttribute(position, 3, false))
     if (groups) {
       for (group of groups) {
         geometry.addGroup(group.start, group.count, group.materialIndex)
@@ -58,8 +58,7 @@ onmessage = function ({ data }) {
     postMessage(
       {
         error: null,
-        serialized,
-        position
+        serialized
       },
       transferrables
     )

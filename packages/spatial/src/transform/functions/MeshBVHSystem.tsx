@@ -49,7 +49,13 @@ import {
   removeEntityNodeRecursively,
   useEntityContext
 } from '@ir-engine/ecs'
-import { getComponent, setComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  Layers,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { getMutableState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
@@ -220,7 +226,9 @@ const MeshBVHReactor = () => {
 export const MeshBVHSystem = defineSystem({
   uuid: 'ee.engine.MeshBVHSystem',
   insert: { after: PresentationSystemGroup },
-  reactor: () => <QueryReactor Components={[MeshComponent]} ChildEntityReactor={MeshBVHReactor} />
+  reactor: () => (
+    <QueryReactor Components={[MeshComponent]} ChildEntityReactor={MeshBVHReactor} layer={Layers.Simulation} />
+  )
 })
 
 /**

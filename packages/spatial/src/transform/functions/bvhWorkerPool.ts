@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Box3, BufferAttribute, BufferGeometry, InstancedMesh, InterleavedBufferAttribute, Mesh } from 'three'
+import { Box3, BufferAttribute, BufferGeometry, InstancedMesh, Mesh, TypedArray } from 'three'
 import { MeshBVH, SerializedBVH } from 'three-mesh-bvh'
 import Worker from 'web-worker'
 
@@ -58,8 +58,7 @@ export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options =
   const geometry = mesh.geometry as BufferGeometry
 
   const index = geometry.index ? Uint32Array.from(geometry.index.array) : null
-  const pos = Float32Array.from((geometry.attributes.position as BufferAttribute | InterleavedBufferAttribute).array)
-  const groups = structuredClone(geometry.groups)
+  const pos = Float32Array.from((geometry.attributes.position as BufferAttribute).array)
 
   const transferrables = [pos as ArrayLike<number>]
   if (index) {
@@ -70,20 +69,26 @@ export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options =
     {
       index,
       position: pos,
-      groups: groups,
+      groups: [...geometry.groups],
       options
     },
     transferrables.map((arr: any) => arr.buffer)
   )
 
-  const { error, serialized, position } = response.data
+  const { error, serialized } = response.data
 
   if (error) {
     return console.error(error)
   } else {
     const bvh = MeshBVH.deserialize(serialized, geometry, { setIndex: false })
-    ;(geometry.attributes.position as BufferAttribute).array = position
-    geometry.attributes.position.needsUpdate = true
+    if (serialized.index) {
+      if (geometry.index) {
+        geometry.index.array = serialized.index as TypedArray
+      } else {
+        const newIndex = new BufferAttribute(serialized.index as TypedArray, 1, false)
+        geometry.setIndex(newIndex)
+      }
+    }
     geometry.boundingBox = bvh.getBoundingBox(new Box3())
     geometry.boundsTree = bvh
 
@@ -94,5 +99,4 @@ export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options =
 type BVHWorkerResponse = {
   error?: string
   serialized: SerializedBVH
-  position: Float32Array
 }
