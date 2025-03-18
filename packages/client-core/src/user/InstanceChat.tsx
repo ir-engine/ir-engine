@@ -91,7 +91,7 @@ const InstanceChatProvider = ({ children }: { children: React.ReactNode }) => {
     messagesResponse.data.forEach((message) => {
       if (!(message.id in newMessages.value)) {
         setNewMessage(message.id)
-        if (message.senderId !== user.id.value) {
+        if (message.senderId !== user.id.value && !message.isNotification) {
           AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.message)
         }
       }
