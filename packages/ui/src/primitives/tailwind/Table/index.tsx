@@ -117,19 +117,20 @@ const Table = ({ containerClassName, className, children }: TableProps) => {
   )
 }
 
+type TablePaginationProps = Readonly<{
+  className?: string
+  totalPages: number
+  currentPage: number
+  neighbours?: number
+  onPageChange: (newPage: number) => void
+}>
 const TablePagination = ({
   className,
   neighbours = 1,
   totalPages,
   currentPage,
   onPageChange
-}: {
-  className?: string
-  totalPages: number
-  currentPage: number
-  neighbours?: number
-  onPageChange: (newPage: number) => void
-}) => {
+}: TablePaginationProps) => {
   const { t } = useTranslation()
   const commonClasses = twMerge('pt-4 text-sm font-medium text-text-secondary enabled:hover:text-text-primary')
   const controlsClasses = twMerge(commonClasses, 'px-2 pt-5 enabled:text-text-primary')
@@ -141,6 +142,10 @@ const TablePagination = ({
     prevPages.push(i)
   }
   prevPages.reverse()
+  // Display 2 prev elements and the current one when is the last item and hast more than 2 pages
+  if (currentPage > 1 && currentPage + 1 === totalPages) {
+    prevPages.unshift(prevPages[0] - 1)
+  }
 
   const nextPages = [] as number[]
   for (let i = currentPage + 1; i < Math.min(totalPages, currentPage + neighbours + 1); i++) {
