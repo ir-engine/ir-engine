@@ -678,6 +678,127 @@ describe('XRAnchorSystem', () => {
   }) //:: Fields
 
   /** @todo */
+  describe('reactor', () => {
+    it.todo('should be a reactor that does nothing if EngineState.viewerEntity.value is falsy', () => {})
+    describe('when the component mounts ..', () => {
+      it.todo(
+        'should set XRAnchorSystemState.scenePlacementEntity to a new entity that has the components [NameComponent, XRScenePlacementComponent, TransformComponent, EntityTreeComponent, VisibleComponent, InputComponent]',
+        () => {}
+      )
+      it.todo(
+        'should set XRAnchorSystemState.originAnchorEntity to a new entity that has the components [NameComponent, EntityTreeComponent, GroupComponent]',
+        () => {}
+      )
+      // @todo How or what to test for the mergeBufferGeometries line
+    }) //:: mount
+
+    describe('[scenePlacementMode, xrSession] #1', () => {
+      it.todo('should not do anything if XRState.session.value is falsy', () => {})
+      describe("when XRState.scenePlacementMode is 'unplaced' ..", () => {
+        it.todo('.. should remove the XRHitTestComponent from XRAnchorSystemState.scenePlacementEntity', () => {})
+        it.todo('.. should remove the XRAnchorComponent from XRAnchorSystemState.scenePlacementEntity', () => {})
+        it.todo('.. should remove the VisibleComponent from XRAnchorSystemState.originAnchorEntity', () => {})
+        it.todo('.. should return early and not do anything else', () => {})
+      })
+
+      describe("when XRState.scenePlacementMode is 'placing' and XRSession.interactionMode is 'screen-space' ..", () => {
+        it.todo('.. should set a VisibleComponent for XRAnchorSystemState.originAnchorEntity', () => {})
+        it.todo(
+          '.. should set a XRHitTestComponent for XRAnchorSystemState.originAnchorEntity with the expected options',
+          () => {}
+        )
+      })
+
+      describe("when XRState.scenePlacementMode is 'placed' ..", () => {
+        it.todo('.. should remove the VisibleComponent from XRAnchorSystemState.originAnchorEntity', () => {})
+        it.todo(
+          '.. should not run the rest of the placed block when XRAnchorSystemState.scenePlacementEntity.XRHitTestComponent.results.value[0] is falsy',
+          () => {}
+        )
+        describe('when XRAnchorSystemState.scenePlacementEntity.XRHitTestComponent.results.value[0].createAnchor is falsy ..', () => {
+          describe('when XRAnchorSystemState.scenePlacementEntity.XRHitTestComponent.results.value[0].getPose(ReferenceSpace.localFloor) is truthy ..', () => {
+            it.todo(
+              '.. should call XRState.xrFrame.createAnchor with ReferenceSpace.localFloor and XRAnchorSystemState.scenePlacementEntity.XRHitTestComponent.results.value[0].getPose(ReferenceSpace.localFloor) as arguments',
+              () => {}
+            )
+            it.todo(
+              '.. should resolve the call to XRState.xrFrame.createAnchor with a function that calls anchor.delete() and not do anything else when active is false',
+              () => {}
+            )
+            it.todo(
+              '.. should resolve the call to XRState.xrFrame.createAnchor with a function that sets an XRAnchorComponent with the promise anchor for XRAnchorSystemState.scenePlacementEntity when active is true',
+              () => {}
+            )
+          })
+          it.todo('.. should remove the XRHitTestComponent from XRAnchorSystemState.scenePlacementEntity', () => {})
+          it.todo('.. should return early and not do anything else after this if block', () => {})
+        })
+        describe('when XRAnchorSystemState.scenePlacementEntity.XRHitTestComponent.results.value[0].createAnchor is truthy ..', () => {
+          describe('when promise resolved as truthy ..', () => {
+            it.todo('.. should call anchor.delete() when active is false and not do anything else', () => {})
+            it.todo(
+              '.. should set an XRAnchorComponent with the promise anchor for XRAnchorSystemState.scenePlacementEntity when active is true',
+              () => {}
+            )
+            it.todo(
+              '.. should remove the XRHitTestComponent from XRAnchorSystemState.scenePlacementEntity when active is true and no error was thrown',
+              () => {}
+            )
+            it.todo(
+              '.. should remove the XRHitTestComponent from XRAnchorSystemState.scenePlacementEntity when active is true and any error was thrown',
+              () => {}
+            )
+          })
+          describe('when promise resolved as falsy ..', () => {
+            it.todo('.. should remove the XRHitTestComponent from XRAnchorSystemState.scenePlacementEntity', () => {})
+          })
+        })
+      })
+    }) //:: [scenePlacementMode, xrSession] #1
+
+    describe('[scenePlacementMode, xrSession] #2', () => {
+      it.todo("should not do anything if XRState.scenePlacementMode is not 'placing'", () => {})
+      it.todo('should not do anything if XRState.session is falsy', () => {})
+      it.todo('should set InputState.capturingEntity to XRAnchorSystemState.scenePlacementEntity', () => {})
+      describe('when the component unmounts / cleanup ..', () => {
+        it.todo(
+          '.. should set InputState.capturingEntity to UndefinedEntity if InputState.capturingEntity is XRAnchorSystemState.scenePlacementEntity',
+          () => {}
+        )
+      }) //:: cleanup
+    }) //:: [scenePlacementMode, xrSession] #2
+
+    describe('[scenePlacementMode, xrSession, inputSourceEntities.length]', () => {
+      it.todo('should not do anything if XRState.session is falsy', () => {})
+      it.todo("should not do anything if XRState.session.interactionMode is not 'world-space'", () => {})
+      it.todo("should not do anything if XRState.scenePlacementMode is not 'placing'", () => {})
+      describe('for all entities that have an InputSourceComponent ..', () => {
+        it.todo('.. should not do anything if the entity is falsy', () => {})
+        it.todo(
+          ".. should not do anything for the entity if its InputSourceComponent.source.targetRayMode is not 'tracked-pointer'",
+          () => {}
+        )
+        it.todo(
+          ".. should not do anything for the entity if its InputSourceComponent.source.gamepad?.mapping is not 'xr-standard'",
+          () => {}
+        )
+        it.todo(
+          '.. should not do anything for the entity if its InputSourceComponent.source.handedness is not InputState.preferredHand',
+          () => {}
+        )
+        it.todo('.. should set a VisibleComponent for XRAnchorSystemState.originAnchorEntity', () => {})
+        it.todo(
+          '.. should set a XRHitTestComponent for XRAnchorSystemState.originAnchorEntity with entity.InputSourceComponent.source.targetRaySpace as its options.space value',
+          () => {}
+        )
+        it.todo(
+          '.. should set a XRHitTestComponent for XRAnchorSystemState.originAnchorEntity with the expected options.entityTypes',
+          () => {}
+        )
+      })
+    }) //:: [scenePlacementMode, xrSession, inputSourceEntities.length]
+  }) //:: reactor
+
+  /** @todo */
   describe('execute', () => {}) //:: execute
-  describe('reactor', () => {}) //:: reactor
 }) //:: XRAnchorSystem
