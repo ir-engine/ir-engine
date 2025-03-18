@@ -26,6 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { iff, isProvider } from 'feathers-hooks-common'
 import { SYNC } from 'feathers-sync'
 
+import { BadRequest } from '@feathersjs/errors'
+import { HookContext } from '../../../declarations'
 import verifyScope from '../../hooks/verify-scope'
 
 // An example of calculating the remaining space left on a hypothetical project max size
@@ -49,6 +51,25 @@ import verifyScope from '../../hooks/verify-scope'
 //   return context
 // }
 
+function isValidFileType(fileType: string): boolean {
+  return (
+    fileType.startsWith('image/') ||
+    fileType.startsWith('audio/') ||
+    fileType.startsWith('video/') ||
+    fileType.endsWith('.gltf') ||
+    fileType.endsWith('.glb')
+  )
+}
+
+const validateFile = (context: HookContext) => {
+  const args = context.arguments
+  const file = args?.[1]?.files?.[0]
+
+  if (!isValidFileType(file.mimetype)) {
+    throw new BadRequest('Unsupported file type')
+  }
+}
+
 export default {
   before: {
     all: [iff(isProvider('external'), verifyScope('editor', 'write'))],
@@ -58,14 +79,16 @@ export default {
       (context) => {
         context[SYNC] = false
         return context
-      }
+      },
+      validateFile
     ],
     update: [],
     patch: [
       (context) => {
         context[SYNC] = false
         return context
-      }
+      },
+      validateFile
     ],
     remove: []
   },
