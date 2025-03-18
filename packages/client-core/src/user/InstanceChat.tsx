@@ -260,7 +260,7 @@ function Messages() {
   useEffect(() => {
     if (!scrollRef.current || !isChatOpen.value) return
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-  }, [isChatOpen])
+  }, [isChatOpen, messages])
 
   if (!isChatOpen.value) return null
   return (
