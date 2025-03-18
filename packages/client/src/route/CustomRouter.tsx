@@ -33,7 +33,6 @@ import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 
 import $404 from '../pages/404'
 import $503 from '../pages/503'
-import $banned from '../pages/_banned'
 
 function CustomRouter() {
   const customRoutes = useCustomRoutes()
@@ -48,7 +47,6 @@ function CustomRouter() {
         fallback={<LoadingView fullScreen className={`block h-12 w-12`} title={t('common:loader.loadingRoutes')} />}
       >
         <Routes>
-          <Route key="banned" path="/banned/*" element={<$banned />} />
           {customRoutes.map((route, i) => {
             const { route: r, component, props: p, componentProps } = route
             const Element = component as any

@@ -34,6 +34,7 @@ import {
   defineComponent,
   getComponent,
   getMutableComponent,
+  removeComponent,
   removeEntity,
   setComponent,
   useComponent,
@@ -44,6 +45,7 @@ import { defineState, getMutableState, getState, useHookstate } from '@ir-engine
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { NameComponent } from '../common/NameComponent'
 import { MeshComponent } from '../renderer/components/MeshComponent'
+import { ObjectComponent } from '../renderer/components/ObjectComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { shadowMaterial } from './XRDetectedPlaneComponent'
@@ -74,15 +76,43 @@ export const XRDetectedMeshComponent = defineComponent({
     const scenePlacementMode = useHookstate(getMutableState(XRState).scenePlacementMode)
 
     useEffect(() => {
+      if (!component.mesh.value) return
+
+      const geometry = XRDetectedMeshComponent.createGeometryFromMesh(component.mesh.value)
+      component.geometry.set(geometry)
+
+      const shadowMesh = new Mesh(geometry, shadowMaterial)
+      // const placementHelper = new Mesh(geometry, placementHelperMaterial)
+
+      setComponent(entity, ObjectComponent, shadowMesh)
+      // addObjectToGroup(entity, placementHelper)
+
+      component.shadowMesh.set(shadowMesh)
+      // component.placementHelper.set(placementHelper)
+
       return () => {
-        component.geometry.value?.dispose()
+        removeComponent(entity, ObjectComponent)
+        // removeObjectFromGroup(entity, placementHelper)
       }
-    }, [])
+    }, [component.mesh])
 
     useEffect(() => {
-      const placementHelper = component.placementHelper.value as Mesh
-      placementHelper.visible = scenePlacementMode.value === 'placing'
-    }, [scenePlacementMode])
+      const shadowMesh = component.shadowMesh.value
+      const geometry = component.geometry.value
+
+      // @ts-expect-error Allow assignment to a readonly property
+      shadowMesh.geometry = geometry
+
+      return () => {
+        geometry.dispose()
+      }
+    }, [component.geometry])
+
+    /** @warning Currently broken. Makes the other hooks behave unexpectedly */
+    // useEffect(() => {
+    //   const placementHelper = component.placementHelper.value as Mesh
+    //   placementHelper.visible = scenePlacementMode.value === 'placing'
+    // }, [scenePlacementMode])
 
     return null
   },
