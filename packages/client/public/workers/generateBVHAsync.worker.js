@@ -45,7 +45,7 @@ onmessage = function ({ data }) {
     }
     options.lazyGeneration = false
     const bvh = new MeshBVHLib.MeshBVH(geometry, { setBoundingBox: false, ...options })
-    const serialized = MeshBVHLib.MeshBVH.serialize(bvh, { copyIndexBuffer: false })
+    const serialized = MeshBVHLib.MeshBVH.serialize(bvh, { cloneBuffers: false })
 
     let transferrables = [position.buffer, ...serialized.roots]
     if (serialized.index) {
