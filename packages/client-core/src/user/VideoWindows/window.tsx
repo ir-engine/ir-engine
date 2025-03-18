@@ -30,6 +30,7 @@ import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 import React, { useEffect, useRef } from 'react'
 
+import { useClickOutside, useTouchOutside } from '@ir-engine/common/src/utils/useClickOutside'
 import { useTranslation } from 'react-i18next'
 import { ReportUserState } from '../../util/ReportUserState'
 import { Props, useUserMediaWindowHook } from './hook'
@@ -51,6 +52,7 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasCtxRef = useRef<CanvasRenderingContext2D>()
   const isMoreButtonVisible = useHookstate(false)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   // @todo - currently this adds lots of systems unnecessarily
   // useDrawMocapLandmarks(videoElement, canvasCtxRef, canvasRef, peerID)
@@ -74,8 +76,11 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
     if (canvasRef.current) canvasCtxRef.current = canvasRef.current.getContext('2d')!
   })
 
+  useClickOutside(containerRef, () => isMoreButtonVisible.set(false))
+  useTouchOutside(containerRef, () => isMoreButtonVisible.set(false))
+
   return (
-    <div className="group/video-window flex items-center gap-x-2">
+    <div className="group/video-window flex items-center gap-x-2" ref={containerRef}>
       <div
         tabIndex={0}
         id={peerID + '_' + type + '_container'}
@@ -88,7 +93,13 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
         onMouseOver={() => isMoreButtonVisible.set((prev) => !prev)}
       >
         {(!videoMediaStream || videoStreamPaused) && (
-          <img src={avatarThumbnail} alt={t('user:avatar.avatar')} crossOrigin="anonymous" draggable={false} />
+          <img
+            src={avatarThumbnail}
+            alt={t('user:avatar.avatar')}
+            crossOrigin="anonymous"
+            draggable={false}
+            className="bg-[radial-gradient(circle,_#DDDDDD,_#726B65)]"
+          />
         )}
         <span
           className="[&>video]:h-full [&>video]:w-full [&>video]:object-cover"

@@ -62,7 +62,7 @@ const kubernetesEnabled = process.env.KUBERNETES === 'true'
 const testEnabled = process.env.TEST === 'true'
 
 if (!testEnabled) {
-  register()
+  if (process.env.APP_ENV === 'development' || process.env.LOCAL === 'true') register()
 
   // ensure process fails properly
   process.on('exit', async (code) => {

@@ -38,6 +38,8 @@ import { createLocations } from '@ir-engine/projects/createLocations'
 import { ProjectEventHooks } from '@ir-engine/projects/ProjectConfigInterface'
 import { Application } from '@ir-engine/server-core/declarations'
 
+import { routePath } from '@ir-engine/common/src/schemas/route/route.schema'
+import { activateRoute } from '@ir-engine/server-core/src/route/route/route'
 import updateAvatarRecords from '@ir-engine/server-core/src/util/updateAvatarRecords'
 import manifestJson from './manifest.json'
 
@@ -110,6 +112,12 @@ const config = {
       apartment: 'public/scenes/apartment.gltf',
       default: 'public/scenes/default.gltf',
       ['sky-station']: 'public/scenes/sky-station.gltf'
+    })
+
+    await activateRoute(app.service(routePath))({
+      project: manifestJson.name,
+      route: '/banned',
+      activate: true
     })
     await updateAvatarRecords(app, avatarsFolder, manifestJson.name)
   },

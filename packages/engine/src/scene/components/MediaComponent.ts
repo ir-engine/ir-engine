@@ -182,12 +182,12 @@ export function MediaReactor() {
   const audioContext = getState(AudioState).audioContext
   const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
   const rendererEntity = useRendererEntity(entity)
+  const engineState = useMutableState(EngineState)
 
   function validateTime() {
-    if (!hasComponent(entity, MediaElementComponent)) return
-    const mediaElementComponent = getMutableComponent(entity, MediaElementComponent)
+    if (!mediaElement) return
 
-    const element = mediaElementComponent.element.value as HTMLMediaElement
+    const element = mediaElement.element.value as HTMLMediaElement
     let time = media.seekTime.value
 
     if (time > element.duration) {
@@ -196,11 +196,11 @@ export function MediaReactor() {
     if (time < 0) {
       time = 0
     }
-    setTime(mediaElementComponent.element, time)
+    setTime(mediaElement.element, time)
   }
 
   const getAutoPlay = () => {
-    const isEditing = getState(EngineState).isEditing
+    const isEditing = engineState.isEditing.value
     return isEditing ? false : media.autoplay.value
   }
 
@@ -299,6 +299,13 @@ export function MediaReactor() {
   }, [media.resources.length])
 
   useEffect(() => {
+    if (!mediaElement) return
+    const autoPlay = getAutoPlay()
+    media.paused.set(!autoPlay)
+    validateTime()
+  }, [media.autoplay, !!mediaElement, engineState.isEditing])
+
+  useEffect(() => {
     if (!rendererEntity) return
     setComponent(entity, BoundingBoxComponent)
     setComponent(entity, InputComponent, { highlight: false, grow: false })
@@ -310,11 +317,11 @@ export function MediaReactor() {
       const mediaComponent = getOptionalComponent(entity, MediaElementComponent)
 
       // handle when we dont have autoplay enabled but have programatically started playback
-      if (!media.autoplay.value && !media.paused.value) mediaComponent?.element.play()
+      if (!getAutoPlay() && !media.paused.value) mediaComponent?.element.play()
       // handle when we have autoplay enabled but have paused playback
-      if (media.autoplay.value && media.paused.value) media.paused.set(false)
+      if (getAutoPlay() && media.paused.value) media.paused.set(false)
       // handle when we have autoplay and mediaComponent is paused
-      if (media.autoplay.value && !media.paused.value && mediaComponent?.element.paused) {
+      if (getAutoPlay() && !media.paused.value && mediaComponent?.element.paused) {
         mediaComponent.element.play()
         const autoplay = getAutoPlay()
         media.paused.set(!autoplay)
@@ -373,14 +380,6 @@ export function MediaReactor() {
 
   useEffect(() => {
     if (!mediaElement) return
-    const isEditing = getState(EngineState).isEditing
-    if (isEditing) return
-    const autoPlay = getAutoPlay()
-    media.paused.set(!autoPlay)
-  }, [media.autoplay, mediaElement, getState(EngineState).isEditing])
-
-  useEffect(() => {
-    if (!mediaElement) return
     if (media.paused.value) {
       mediaElement.element.value.pause()
     } else {
@@ -391,7 +390,7 @@ export function MediaReactor() {
         })
       }
     }
-  }, [media.paused, mediaElement])
+  }, [media.paused, !!mediaElement])
 
   useEffect(() => {
     if (!mediaElement) return
@@ -415,21 +414,24 @@ export function MediaReactor() {
 
       // If no paths or currently play path has been removed stop the track from playing
       // and signal to move to next track if one exists
-      if (hasComponent(entity, MediaElementComponent)) {
-        const mediaElement = getComponent(entity, MediaElementComponent).element
 
-        if (paths.length === 0 || media.track.value >= paths.length) {
-          mediaElement.pause()
-          mediaElement.src = ''
-          mediaElement.load()
-          removeComponent(entity, MediaElementComponent)
-          media.track.set(-1)
-        } else {
-          const currentSrc = paths[media.track.value]
-          //if the currently played track has been updated to a new src path
-          if (currentSrc !== mediaElement.src) {
-            playTrack()
-          }
+      let mediaElement: HTMLMediaElement | undefined = undefined
+
+      if (hasComponent(entity, MediaElementComponent)) {
+        mediaElement = getComponent(entity, MediaElementComponent).element
+      }
+
+      if (mediaElement && (paths.length === 0 || media.track.value >= paths.length)) {
+        mediaElement.pause()
+        mediaElement.src = ''
+        mediaElement.load()
+        removeComponent(entity, MediaElementComponent)
+        media.track.set(-1)
+      } else {
+        const currentSrc = paths[media.track.value]
+        //if the currently played track has been updated to a new src path
+        if (!mediaElement || currentSrc !== mediaElement.src) {
+          playTrack()
         }
       }
 
@@ -440,7 +442,7 @@ export function MediaReactor() {
         }
       }
     },
-    [media.resources]
+    [media.resources, media.resources[media.track.value]]
   )
 
   useEffect(() => {

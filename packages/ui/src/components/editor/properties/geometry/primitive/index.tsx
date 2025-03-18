@@ -29,11 +29,17 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { EditorComponentType, commitProperties } from '@ir-engine/editor/src/components/properties/Util'
+import {
+  EditorComponentType,
+  commitProperties,
+  commitProperty,
+  updateProperty
+} from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { PrimitiveGeometryComponent } from '@ir-engine/engine/src/scene/components/PrimitiveGeometryComponent'
-import { GeometryTypeEnum } from '@ir-engine/engine/src/scene/constants/GeometryTypeEnum'
+import { GeometryTypeEnum, GeometryTypeParamsEnum } from '@ir-engine/engine/src/scene/constants/GeometryTypeEnum'
 import InputGroup from '../../../input/Group'
+import NumericInput from '../../../input/Numeric'
 import SelectInput from '../../../input/Select'
 
 /**
@@ -106,6 +112,7 @@ export const PrimitiveGeometryNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.entity
   const primitiveGeometry = useComponent(entity, PrimitiveGeometryComponent)
+  const primitiveGeometryParams = GeometryTypeParamsEnum[primitiveGeometry.geometryType.value] || {}
   /** @todo properties should be explicit rather than generated from the geometry parameters */
   // const geometry = useOptionalComponent(entity, MeshComponent)?.geometry.get(NO_PROXY) as Geometry & {
   //   parameters?: Record<string, any>
@@ -124,17 +131,28 @@ export const PrimitiveGeometryNodeEditor: EditorComponentType = (props) => {
           options={GeometryOption}
           value={primitiveGeometry.geometryType.value}
           onChange={(value: GeometryTypeEnum) => {
-            commitProperties(PrimitiveGeometryComponent, { geometryType: value, geometryParams: {} })
+            commitProperties(PrimitiveGeometryComponent, {
+              geometryType: value,
+              geometryParams: Object.fromEntries(
+                Object.entries(GeometryTypeParamsEnum[value] || {}).map(([key, config]) => [key, config.default])
+              )
+            })
           }}
         />
       </InputGroup>
-      {/* {geometry && (
-        <ParameterInput
-          entity={`${props.entity}-primitive-geometry`}
-          values={geometry?.parameters ?? {}}
-          onChange={(key) => commitProperty(PrimitiveGeometryComponent, `geometryParams.${key}` as any)}
-        />
-      )} */}
+      {Object.entries(primitiveGeometryParams).map(([key, config]: [string, any]) => (
+        <InputGroup name={key} label={key}>
+          <NumericInput
+            min={config.min}
+            smallStep={0.1}
+            mediumStep={1}
+            largeStep={10}
+            value={primitiveGeometry.geometryParams[key].value}
+            onChange={updateProperty(PrimitiveGeometryComponent, `geometryParams.${key}` as any)}
+            onRelease={commitProperty(PrimitiveGeometryComponent, `geometryParams.${key}` as any)}
+          />
+        </InputGroup>
+      ))}
     </NodeEditor>
   )
 }

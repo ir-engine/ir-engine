@@ -24,10 +24,13 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
+import { getMutableState, NO_PROXY } from '@ir-engine/hyperflux'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import { TabData } from 'rc-dock'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { FilesState } from '../../services/FilesState'
+import { ImportSettingsState } from '../../services/ImportSettingsState'
 import FileBrowser from '../files/filebrowser'
 import { CurrentFilesQueryProvider } from '../files/helpers'
 import FilesToolbar from '../files/toolbar'
@@ -68,6 +71,15 @@ function AssetsContainer() {
 
   const toolbar = sidebarType.value === SidebarType.FILES ? <FilesToolbar /> : <Topbar />
   const rightChildren = sidebarType.value === SidebarType.FILES ? <FileBrowser /> : <Resources />
+
+  useEffect(() => {
+    if (sidebarType.value === SidebarType.ASSETS) {
+      const projectName = getMutableState(FilesState).projectName.get(NO_PROXY)
+      const importFolder = getMutableState(ImportSettingsState).importFolder.get(NO_PROXY)
+      const dir = `projects/${projectName}${importFolder}`
+      getMutableState(FilesState).selectedDirectory.set(dir)
+    }
+  }, [sidebarType])
 
   const handleSidebarChange = (category) => {
     sidebarType.set(category)

@@ -197,7 +197,7 @@ const ShareMenu = (): JSX.Element => {
 
   return (
     <div className="relative z-50 h-fit max-h-[90dvh] min-w-[720px] rounded-2xl bg-surface-4 pb-4 pt-[16.5px] smh:max-h-[60dvh] smh:w-[50vw] smh:max-w-2xl smh:pb-0">
-      <div className="mx-8 grid grid-cols-3 gap-x-3 gap-y-3">
+      <div className="mx-[32px] grid grid-cols-3 gap-y-3">
         <div className="col-span-3 flex w-full items-center justify-center smh:hidden">
           <Text fontWeight="medium" className="text-text-primary">
             {t('user:usermenu.share.description-share')}
@@ -212,8 +212,8 @@ const ShareMenu = (): JSX.Element => {
           </div>
 
           <div className="flex w-fit items-center justify-center smh:w-full">
-            <div className="rounded-md bg-white p-4">
-              <QRCodeSVG className="h-[114px] w-[131px] smh:h-[161px] smh:w-[184px]" value={shareLink} />
+            <div className="rounded-lg bg-white p-4">
+              <QRCodeSVG className="h-[130px] w-[147px] smh:h-[161px] smh:w-[184px]" value={shareLink} />
             </div>
           </div>
         </div>

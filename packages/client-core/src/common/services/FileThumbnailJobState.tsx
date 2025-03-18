@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { API } from '@ir-engine/common'
+import { API, PaginationQuery } from '@ir-engine/common'
 import {
   FileBrowserContentType,
   fileBrowserUploadPath,
@@ -47,7 +47,8 @@ import {
   defineState,
   getMutableState,
   useHookstate,
-  useImmediateEffect
+  useImmediateEffect,
+  useMutableState
 } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
@@ -89,7 +90,6 @@ export function generateThumbnailKey(src: string, projectName: string) {
 type ThumbnailJob = {
   key: string
   project: string // the project name
-  id: string // the existing static resource ID
 }
 
 const seekVideo = (video: HTMLVideoElement, time: number): Promise<void> =>
@@ -115,55 +115,104 @@ const drawToCanvas = (source: CanvasImageSource): Promise<HTMLCanvasElement | nu
   return Promise.resolve(canvas)
 }
 
-const uploadThumbnail = async (src: string, projectName: string, staticResourceId: string, blob: Blob | null) => {
+const uploadThumbnail = async (src: string, projectName: string, blob: Blob | null) => {
   if (!blob) return
   const thumbnailMode = 'automatic'
   const thumbnailKey = generateThumbnailKey(src, projectName)
   const file = new File([blob], thumbnailKey)
-  const thumbnailURL = new URL(
-    await uploadToFeathersService(fileBrowserUploadPath, [file], {
-      args: [
-        {
-          fileName: file.name,
-          project: projectName,
-          path: 'public/thumbnails/' + file.name,
-          contentType: file.type,
-          type: 'thumbnail',
-          thumbnailKey,
-          thumbnailMode
+  try {
+    const thumbnailURL = new URL(
+      await uploadToFeathersService(fileBrowserUploadPath, [file], {
+        args: [
+          {
+            fileName: file.name,
+            project: projectName,
+            path: 'public/thumbnails/' + file.name,
+            contentType: file.type,
+            type: 'thumbnail',
+            thumbnailKey,
+            thumbnailMode
+          }
+        ]
+      }).promise
+    )
+    thumbnailURL.search = ''
+    thumbnailURL.hash = ''
+    const _thumbnailKey = thumbnailURL.href.replace(config.client.fileServer + '/', '')
+
+    const fileURL = new URL(src)
+    fileURL.search = ''
+    fileURL.hash = ''
+    const fileKeyKey = fileURL.href.replace(config.client.fileServer + '/', '')
+
+    await API.instance
+      .service(staticResourcePath)
+      .find({
+        query: { key: { $in: [fileKeyKey] } }
+      })
+      .then((reponse) => {
+        if (reponse.data.length > 0) {
+          const staticResourceId = reponse.data[0].id
+          const updateThumbnailKey = async (staticResourceId) => {
+            await API.instance
+              .service(staticResourcePath)
+              .patch(staticResourceId, { thumbnailKey: _thumbnailKey, thumbnailMode, project: projectName })
+          }
+          updateThumbnailKey(staticResourceId)
+        } else {
+          console.error('static Resource not foudn for key - ', fileKeyKey)
         }
-      ]
-    }).promise
-  )
-  thumbnailURL.search = ''
-  thumbnailURL.hash = ''
-  const _thumbnailKey = thumbnailURL.href.replace(config.client.fileServer + '/', '')
-  await API.instance
-    .service(staticResourcePath)
-    .patch(staticResourceId, { thumbnailKey: _thumbnailKey, thumbnailMode, project: projectName })
+      })
+      .catch((e) => console.error(e))
+  } catch {
+    ;(e) => console.error(e)
+  }
 }
 
-const seenResources = new Set<string>()
+export const removeFromFileThumbnailsSeen = (files: readonly string[]) => {
+  const jobState = getMutableState(FileThumbnailJobState)
+  const seenResources = jobState.seenResources.get(NO_PROXY) as string[]
+  files.forEach((file) => {
+    const index = seenResources.indexOf(file)
+    if (index >= 0) {
+      seenResources.splice(index, 1)
+    }
+  })
+  jobState.seenResources.set(seenResources)
+}
 
 export const FileThumbnailJobState = defineState({
   name: 'FileThumbnailJobState',
-  initial: [] as ThumbnailJob[],
+  initial: {
+    seenResources: [] as string[],
+    jobs: [] as ThumbnailJob[]
+  },
   reactor: () => <ThumbnailJobReactor />,
   removeCurrentJob: () => {
     const jobState = getMutableState(FileThumbnailJobState)
-    jobState.set((prev) => {
+    jobState.jobs.set((prev) => {
       prev.splice(0, 1)
       return prev
     })
   },
   useGenerateThumbnails: async (files: readonly FileBrowserContentType[]) => {
+    const jobState = useMutableState(FileThumbnailJobState)
+    const seenResources = jobState.seenResources
+
+    const fileList = files
+      .map((file) => (file.thumbnailURL || file.type === 'folder' ? undefined : file.key))
+      .filter((key) => key !== undefined)
+      .filter((key) => !seenResources.value.includes(key))
+
+    const query = {
+      key: {
+        $in: fileList
+      },
+      thumbnailKey: 'null'
+    } as PaginationQuery
+
     const resourceQuery = useFind(staticResourcePath, {
-      query: {
-        key: {
-          $in: files.map((file) => file.key).filter((key) => !seenResources.has(key))
-        },
-        thumbnailKey: 'null'
-      }
+      query: query
     })
 
     /**
@@ -171,8 +220,8 @@ export const FileThumbnailJobState = defineState({
      */
     useEffect(() => {
       for (const resource of resourceQuery.data) {
-        if (seenResources.has(resource.key)) continue
-        seenResources.add(resource.key)
+        if (seenResources.value.includes(resource.key)) continue
+        seenResources.merge([resource.key])
 
         if (resource.type === 'thumbnail') {
           //set thumbnail's thumbnail as itself
@@ -184,13 +233,19 @@ export const FileThumbnailJobState = defineState({
 
         if (resource.thumbnailKey != null || !extensionCanHaveThumbnail(resource.key.split('.').pop() ?? '')) continue
 
-        getMutableState(FileThumbnailJobState).merge([
-          {
-            key: resource.url,
-            project: resource.project!,
-            id: resource.id
-          }
-        ])
+        const fileJobs = getMutableState(FileThumbnailJobState).jobs
+        if (
+          fileJobs.value.filter((fj) => {
+            fj.key === resource.url
+          }).length < 1
+        ) {
+          fileJobs.merge([
+            {
+              key: resource.url,
+              project: resource.project!
+            }
+          ])
+        }
       }
 
       // If there are more files left to be processed in the list we have specified, refetch the query
@@ -301,7 +356,6 @@ const useRenderEntities = (src: string): [Entity, Entity, Entity, Entity] => {
 type RenderThumbnailProps = {
   src: string
   project: string
-  id: string
   onError: (err) => void
 }
 
@@ -312,7 +366,7 @@ const renderThumbnail = (
   cameraEntity: Entity,
   props: RenderThumbnailProps
 ) => {
-  const { src, project, id, onError } = props
+  const { src, project, onError } = props
 
   tryCatch(() => {
     setCameraFocusOnBox(entity, cameraEntity)
@@ -333,7 +387,7 @@ const renderThumbnail = (
     canvas!.toBlob((blob: Blob) => {
       tryCatch(
         () =>
-          uploadThumbnail(src, project, id, blob).then(() => {
+          uploadThumbnail(src, project, blob).then(() => {
             FileThumbnailJobState.removeCurrentJob()
           }),
         (err) => {
@@ -345,7 +399,7 @@ const renderThumbnail = (
 }
 
 const RenderVideoThumbnail = (props: RenderThumbnailProps) => {
-  const { src, project, id, onError } = props
+  const { src, project, onError } = props
 
   useEffect(() => {
     if (!src) return
@@ -357,7 +411,7 @@ const RenderVideoThumbnail = (props: RenderThumbnailProps) => {
       seekVideo(video, 1)
         .then(() => drawToCanvas(video))
         .then(getCanvasBlob)
-        .then((blob) => tryCatch(() => uploadThumbnail(src, project, id, blob), onError))
+        .then((blob) => tryCatch(() => uploadThumbnail(src, project, blob), onError))
         .then(() => video.remove())
         .then(() => FileThumbnailJobState.removeCurrentJob())
     }, onError)
@@ -366,7 +420,7 @@ const RenderVideoThumbnail = (props: RenderThumbnailProps) => {
 }
 
 const RenderImageThumbnail = (props: RenderThumbnailProps) => {
-  const { src, project, id, onError } = props
+  const { src, project, onError } = props
 
   useEffect(() => {
     if (!src) return
@@ -379,7 +433,7 @@ const RenderImageThumbnail = (props: RenderThumbnailProps) => {
         .decode()
         .then(() => drawToCanvas(image))
         .then(getCanvasBlob)
-        .then((blob) => tryCatch(() => uploadThumbnail(src, project, id, blob), onError))
+        .then((blob) => tryCatch(() => uploadThumbnail(src, project, blob), onError))
         .then(() => FileThumbnailJobState.removeCurrentJob())
     }, onError)
   }, [src])
@@ -387,7 +441,7 @@ const RenderImageThumbnail = (props: RenderThumbnailProps) => {
 }
 
 const RenderModelThumbnail = (props: RenderThumbnailProps) => {
-  const { src, project, id, onError } = props
+  const { src, onError } = props
   const [entity, lightEntity, skyboxEntity, cameraEntity] = useRenderEntities(src)
   const errors = ErrorComponent.useComponentErrors(entity, GLTFComponent)
   const loaded = GLTFComponent.useSceneLoaded(entity)
@@ -411,7 +465,7 @@ const RenderModelThumbnail = (props: RenderThumbnailProps) => {
 }
 
 const RenderTextureThumbnail = (props: RenderThumbnailProps) => {
-  const { src, project, id, onError } = props
+  const { src, project, onError } = props
   const [texture, error] = useTexture(src)
 
   useEffect(() => {
@@ -428,7 +482,7 @@ const RenderTextureThumbnail = (props: RenderThumbnailProps) => {
         })
         .then(() => drawToCanvas(image))
         .then(getCanvasBlob)
-        .then((blob) => tryCatch(() => uploadThumbnail(src, project, id, blob), onError))
+        .then((blob) => tryCatch(() => uploadThumbnail(src, project, blob), onError))
         .then(() => image.remove())
         .then(() => FileThumbnailJobState.removeCurrentJob())
     }, onError)
@@ -442,7 +496,7 @@ const RenderTextureThumbnail = (props: RenderThumbnailProps) => {
 }
 
 const RenderMaterialThumbnail = (props: RenderThumbnailProps) => {
-  const { src, project, id, onError } = props
+  const { src, project, onError } = props
   const [entity, lightEntity, skyboxEntity, cameraEntity] = useRenderEntities(src)
   const gltfEntity = useGLTFComponent(src, entity)
   const errors = ErrorComponent.useComponentErrors(gltfEntity ?? UndefinedEntity, GLTFComponent)
@@ -482,7 +536,7 @@ const RenderMaterialThumbnail = (props: RenderThumbnailProps) => {
 }
 
 const RenderLookDevThumbnail = (props: RenderThumbnailProps) => {
-  const { src, project, id, onError } = props
+  const { src, onError } = props
   const [entity, lightEntity, skyboxEntity, cameraEntity] = useRenderEntities(src)
   const errors = ErrorComponent.useComponentErrors(entity, GLTFComponent)
   const [lookdevSkybox] = useChildrenWithComponents(entity, [SkyboxComponent])
@@ -509,7 +563,7 @@ const RenderLookDevThumbnail = (props: RenderThumbnailProps) => {
 const ThumbnailJobReactor = () => {
   const jobState = useHookstate(getMutableState(FileThumbnailJobState))
   const currentJob = useHookstate(null as ThumbnailJob | null)
-  const { key: src, project, id } = currentJob.value ?? { key: '', project: '', id: '' }
+  const { key: src, project } = currentJob.value ?? { key: '', project: '', id: '' }
   const strippedSrc = stripSearchFromURL(src)
   let extension = strippedSrc
   if (strippedSrc.endsWith('.material.gltf')) {
@@ -528,28 +582,28 @@ const ThumbnailJobReactor = () => {
   }
 
   useEffect(() => {
-    if (jobState.length > 0) {
-      const newJob = jobState[0].get(NO_PROXY)
+    if (jobState.jobs.length > 0) {
+      const newJob = jobState.jobs[0].get(NO_PROXY)
       currentJob.set(JSON.parse(JSON.stringify(newJob)))
     } else {
       currentJob.set(null)
     }
-  }, [jobState.length])
+  }, [jobState.jobs.length])
 
   const renderThumbnailForType = (type: ThumbnailFileType) => {
     switch (type) {
       case 'video':
-        return <RenderVideoThumbnail src={src} project={project} id={id} onError={onError} />
+        return <RenderVideoThumbnail src={src} project={project} onError={onError} />
       case 'image':
-        return <RenderImageThumbnail src={src} project={project} id={id} onError={onError} />
+        return <RenderImageThumbnail src={src} project={project} onError={onError} />
       case 'model':
-        return <RenderModelThumbnail src={src} project={project} id={id} onError={onError} />
+        return <RenderModelThumbnail src={src} project={project} onError={onError} />
       case 'texture':
-        return <RenderTextureThumbnail src={src} project={project} id={id} onError={onError} />
+        return <RenderTextureThumbnail src={src} project={project} onError={onError} />
       case 'material':
-        return <RenderMaterialThumbnail src={src} project={project} id={id} onError={onError} />
+        return <RenderMaterialThumbnail src={src} project={project} onError={onError} />
       case 'lookDev':
-        return <RenderLookDevThumbnail src={src} project={project} id={id} onError={onError} />
+        return <RenderLookDevThumbnail src={src} project={project} onError={onError} />
       default:
         return null
     }
