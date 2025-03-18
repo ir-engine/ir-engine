@@ -58,7 +58,7 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
   const categorySidbarWidth = useHookstate(300)
   const previousSearchQuery = usePrevious(search.query)
 
-  const staticResourcesFindApi = () => {
+  const staticResourcesFindApi = (forceRefresh = false) => {
     const abortController = new AbortController()
     const selectedCategory = currentCategoryPath.value
 
@@ -80,7 +80,9 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
           userId: selfUser.id,
           $sort: { name: 1 },
           $limit: ASSETS_PAGE_LIMIT + calculateItemsToFetch(),
-          $skip: Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
+          $skip: forceRefresh
+            ? 0
+            : Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
         } as StaticResourceQuery
       } else {
         query = {
@@ -108,7 +110,9 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
             : undefined,
           $sort: { name: 1 },
           $limit: ASSETS_PAGE_LIMIT + calculateItemsToFetch(),
-          $skip: Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
+          $skip: forceRefresh
+            ? 0
+            : Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
         } as StaticResourceQuery
       }
 
@@ -118,7 +122,7 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
         .then((fetchedResources) => {
           if (abortController.signal.aborted) return
 
-          if (staticResourcesPagination.skip.value > 0 && previousSearchQuery === search.query.value) {
+          if (staticResourcesPagination.skip.value > 0 && previousSearchQuery === search.query.value && !forceRefresh) {
             resources.merge(fetchedResources.data)
           } else {
             resources.set(fetchedResources.data)
@@ -145,7 +149,9 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
       value={{
         search,
         resources: resources.value as StaticResourceType[],
-        refetchResources: staticResourcesFindApi,
+        refetchResources: () => {
+          staticResourcesFindApi(true)
+        },
         resourcesLoading: resourcesLoading.value,
         staticResourcesPagination,
         category: {

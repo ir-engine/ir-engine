@@ -35,7 +35,7 @@
     "@ir-engine/hyperflux": "^1.6.0",
     "@ir-engine/ui": "^1.6.0",
     "@ir-engine/visual-script": "^1.6.0",
-    "@hookstate/core": "npm:@speigg/hookstate@4.0.1-fix-111-106.2",
+    "@hookstate/core": "^4.0.0",
     "i18next": "21.6.16",
     "lodash": "4.17.21",
     "potpack": "^2.0.0",

@@ -31,6 +31,7 @@ import {
   EntityTreeComponent,
   getComponent,
   getMutableComponent,
+  getSimulationCounterpart,
   removeComponent,
   removeEntity,
   setComponent,
@@ -248,7 +249,7 @@ export const InteractableComponent = defineComponent({
     uiEntity: S.NonSerialized(S.Entity()),
     label: S.String('E'),
     uiVisibilityOverride: S.NonSerialized(S.Enum(XRUIVisibilityOverride, XRUIVisibilityOverride.none)),
-    uiActivationType: S.NonSerialized(S.Enum(XRUIActivationType, XRUIActivationType.proximity)),
+    uiActivationType: S.Enum(XRUIActivationType, XRUIActivationType.proximity),
     activationDistance: S.Number(2),
     clickInteract: S.Bool(false),
     highlighted: S.NonSerialized(S.Bool(false)),
@@ -307,8 +308,9 @@ export const InteractableComponent = defineComponent({
     )
 
     useEffect(() => {
+      const simulationEntity = getSimulationCounterpart(entity)
       if (!isEditing.value) {
-        const uiEntity = addInteractableUI(entity)
+        const uiEntity = addInteractableUI(simulationEntity)
         return () => {
           if (uiEntity) {
             removeEntity(uiEntity)

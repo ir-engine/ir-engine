@@ -23,37 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { v4 as uuidv4 } from 'uuid'
+import { defineState, getMutableState, PeerID } from '@ir-engine/hyperflux'
 
-import { LocationID, locationPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-
-import { Application } from '../../declarations'
-
-export const createTestLocation = async (app: Application, params = { isInternal: true } as any) => {
-  const name = `Test Location ${uuidv4()}`
-
-  const scene = await app.service(staticResourcePath).find({
-    query: {
-      key: 'projects/ir-engine/default-project/public/scenes/default.gltf'
-    }
-  })
-
-  return await app.service(locationPath).create(
-    {
-      name,
-      sceneId: scene.data[0].id,
-      maxUsersPerInstance: 5,
-      locationSetting: {
-        locationType: 'public',
-        audioEnabled: true,
-        videoEnabled: true,
-        faceStreamingEnabled: false,
-        screenSharingEnabled: false,
-        locationId: '' as LocationID
-      },
-      isLobby: false,
-      isFeatured: false
-    },
-    { ...params }
-  )
-}
+export const ReportUserState = defineState({
+  name: 'ReportUserState',
+  initial: () => ({
+    reportedPeerId: undefined as PeerID | undefined
+  }),
+  setReportedPeerId: (peerId: PeerID) => {
+    getMutableState(ReportUserState).reportedPeerId.set(peerId)
+  },
+  resetPeerId: () => {
+    getMutableState(ReportUserState).reportedPeerId.set(undefined)
+  }
+})

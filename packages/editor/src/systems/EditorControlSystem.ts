@@ -83,7 +83,10 @@ import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 
 export const EditorButtonBindings = {
   Undo: [[KeyboardButton.ControlLeft, KeyboardButton.KeyZ]],
-  Redo: [[KeyboardButton.ControlLeft, KeyboardButton.ShiftLeft, KeyboardButton.KeyZ]],
+  Redo: [
+    [KeyboardButton.ControlLeft, KeyboardButton.ShiftLeft, KeyboardButton.KeyZ],
+    [KeyboardButton.ControlLeft, KeyboardButton.KeyY]
+  ],
   ObjectGridSnap: [KeyboardButton.KeyB],
   TransformModeTranslate: [KeyboardButton.KeyW],
   TransformModeRotate: [KeyboardButton.KeyE],
@@ -162,7 +165,7 @@ const onRedo = () => {
 }
 
 const onIncreaseGridHeight = () => {
-  const rendererState = getMutableState(RendererState)
+  const rendererState = useMutableState(RendererState)
   rendererState.gridHeight.set(rendererState.gridHeight.value + 1)
 }
 

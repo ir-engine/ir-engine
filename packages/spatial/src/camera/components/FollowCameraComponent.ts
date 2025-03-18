@@ -38,7 +38,7 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
-import { Clock, MathUtils, Raycaster, Vector3 } from 'three'
+import { Clock, MathUtils, Quaternion, Raycaster, Vector3 } from 'three'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { Vector3_Up, Vector3_Zero } from '../../common/constants/MathConstants'
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
@@ -209,6 +209,8 @@ const raycaster = new Raycaster()
 
 const MODE_SWITCH_DEBOUNCE = 0.03
 const LERP_TIME = 1
+const _targetRotation = new Quaternion()
+const _targetPosition = new Vector3()
 
 const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   const follow = getComponent(cameraEntity, FollowCameraComponent)
@@ -244,8 +246,8 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
 
   follow.targetPosition
     .copy(follow.targetOffset)
-    .applyQuaternion(TransformComponent.getWorldRotation(referenceEntity, targetTransform.rotation))
-    .add(TransformComponent.getWorldPosition(referenceEntity, new Vector3()))
+    .applyQuaternion(TransformComponent.getWorldRotation(referenceEntity, _targetRotation))
+    .add(TransformComponent.getWorldPosition(referenceEntity, _targetPosition))
 
   follow.currentTargetPosition.lerpVectors(
     follow.originalPosition ?? follow.currentTargetPosition,

@@ -69,7 +69,7 @@
     "sceneCreationFail": "Scene creation failed. {{reason}}",
     "uploadAborted": "Upload aborted",
     "uploadFailed": "Upload failed {{reason}}",
-    "fileUploadFailed": "File upload failed",
+    "fileUploadFailed": "File upload failed; {{reason}}",
     "assetDeletionFail": "Asset deletion failed. {{reason}}",
     "projectAssetDeletionFail": "Project Asset deletion failed. {{reason}}",
     "networkError": "Network Error: {{status}}. {{text}}",
@@ -464,7 +464,8 @@
       "lbl-shadowBias": "Shadow Bias",
       "lbl-shadowRadius": "Shadow Radius",
       "lbl-showCameraHelper": "Show Camera Helper",
-      "lbl-castShadows": "Cast Shadows"
+      "lbl-castShadows": "Cast Shadows",
+      "lbl-calculateShadowBias": "Calculate Shadow Bias"
     },
     "groundPlane": {
       "name": "Ground Plane",

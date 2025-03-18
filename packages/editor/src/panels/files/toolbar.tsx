@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { REMOVE_EDGE_SLASH_REGEX } from '@ir-engine/common/src/regex'
-import { getDecodedFileName } from '@ir-engine/common/src/utils/cleanFileName'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
 import { Slider, ViewportButton } from '@ir-engine/ui/editor'
@@ -125,7 +124,7 @@ function BreadcrumbItems() {
               className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-base text-text-secondary hover:underline"
               data-testid={'files-panel-breadcrumb-current-directory'}
             >
-              {getDecodedFileName(file)}
+              {file}
             </span>
           ) : (
             <a
@@ -134,7 +133,7 @@ function BreadcrumbItems() {
               data-testid={`files-panel-breadcrumb-nested-level-${index}`}
             >
               <span className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-base text-text-secondary hover:underline">
-                {getDecodedFileName(file)}
+                {file}
               </span>
             </a>
           )}

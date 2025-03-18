@@ -26,13 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   EngineState,
   EntityTreeComponent,
+  SystemDefinitions,
   createEngine,
   createEntity,
   destroyEngine,
   setComponent
 } from '@ir-engine/ecs'
-import { getMutableState } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
+import { getMutableState, startReactor } from '@ir-engine/hyperflux'
+import { MeshBVHSystem, TransformComponent } from '@ir-engine/spatial'
 import { destroySpatialEngine, destroySpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { IntersectionData } from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
@@ -43,10 +44,12 @@ import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLa
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
-import { afterEach, assert, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it, vi } from 'vitest'
 import { assertFloat } from '../../../spatial/tests/util/assert'
 import { mockSpatialEngine } from '../../../spatial/tests/util/mockSpatialEngine'
 import { editorInputHeuristic } from './TransformGizmoSystem'
+
+const meshBVHReactor = SystemDefinitions.get(MeshBVHSystem)!.reactor!
 
 describe('TransformGizmoSystem', () => {
   describe('editorInputHeuristic', () => {
@@ -65,7 +68,7 @@ describe('TransformGizmoSystem', () => {
     describe('if there are gizmoPickerObjects ...', () => {
       // objects will be the combined ObjectComponent arrays of all gizmoPickerObjectsQuery entities
 
-      it('... should add the parentObject.entity and hit.distance to the `@param intersectionData` for every gizmoPickerObject hit by the `@param caster`', () => {
+      it('... should add the parentObject.entity and hit.distance to the `@param intersectionData` for every gizmoPickerObject hit by the `@param caster`', async () => {
         const box1 = new Mesh(new BoxGeometry(0.5, 0.5, 0.5), new MeshBasicMaterial())
         const one = createEntity()
         setComponent(one, TransformComponent, { position: new Vector3(1, 1, 1) })
@@ -105,6 +108,10 @@ describe('TransformGizmoSystem', () => {
 
         const data = new Set<IntersectionData>()
 
+        startReactor(meshBVHReactor)
+
+        await vi.waitUntil(() => [box1, box2, box3].every((box) => box.geometry.boundsTree), { timeout: 10000 })
+
         editorInputHeuristic(viewerEntity, data, rayOrigin, rayDirection)
 
         assert.notEqual(data.size, 0)
@@ -119,7 +126,7 @@ describe('TransformGizmoSystem', () => {
 
     describe('if there are no gizmoPickerObjects ...', () => {
       // objects will be the combined ObjectComponent arrays of the inputObjectsQuery entities
-      it('... should add the parentObject.entity and hit.distance to the `@param intersectionData` for every inputrObject hit by the `@param caster`', () => {
+      it('... should add the parentObject.entity and hit.distance to the `@param intersectionData` for every inputrObject hit by the `@param caster`', async () => {
         const box1 = new Mesh(new BoxGeometry(2, 2, 2), new MeshBasicMaterial())
         const one = createEntity()
         setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
@@ -155,6 +162,10 @@ describe('TransformGizmoSystem', () => {
         const rayDirection = new Vector3(3, 3, 3).normalize()
 
         const data = new Set<IntersectionData>()
+
+        startReactor(meshBVHReactor)
+
+        await vi.waitUntil(() => [box1, box2, box3].every((box) => box.geometry.boundsTree), { timeout: 10000 })
 
         editorInputHeuristic(viewerEntity, data, rayOrigin, rayDirection)
 
