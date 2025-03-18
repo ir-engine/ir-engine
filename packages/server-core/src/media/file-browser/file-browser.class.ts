@@ -79,12 +79,10 @@ const ensureProjectPermissionAndPublicOrAssetsDirectory = async (
   const fileNameSplit = pathSplit[pathSplit.length - 1].split('.')
   const isDirectory = fileNameSplit.length === 1
   const filePath = path.join(...pathSplit.slice(0, isDirectory ? pathSplit.length : pathSplit.length - 1))
-  if (!isValidFilePath(filePath))
-    throw new BadRequest(
-      'Invalid path: ' +
-        filePath +
-        '; directories can only contain alphanumeric characters, dashes, underscores, dots, and @'
-    )
+
+  const resultFilePath = isValidFilePath(filePath)
+
+  if (!resultFilePath.isValid) throw new BadRequest(resultFilePath.error)
   if (!isDirectory) {
     let fileName = '',
       extension = ''
@@ -95,16 +93,11 @@ const ensureProjectPermissionAndPublicOrAssetsDirectory = async (
       fileName = fileNameSplit[0]
       extension = ''
     }
-    if (!isValidFileName(fileName))
-      throw new BadRequest(
-        'Invalid file name: ' +
-          fileName +
-          '; file names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots'
-      )
-    if (!isValidFileExtension(extension))
-      throw new BadRequest(
-        'Invalid file extension: ' + extension + '; file extension must be 2-4 alphanumeric characters'
-      )
+    const resultFileName = isValidFileName(fileName)
+    if (!resultFileName.isValid) throw new BadRequest(resultFileName.error)
+
+    const resultFileExtension = isValidFileExtension(extension)
+    if (!resultFileExtension.isValid) throw new BadRequest(resultFileExtension.error)
   }
 
   await verifyProjectPermission(['owner', 'editor'])({
@@ -177,7 +170,7 @@ export class FileBrowserService
   async find(params?: FileBrowserParams) {
     if (!params) params = {}
     if (!params.query) params.query = {}
-    const { $skip, $limit } = params.query
+    const { $skip, $limit, recursive } = params.query
     let { directory } = params.query
 
     const skip = $skip ? $skip : 0
@@ -189,7 +182,7 @@ export class FileBrowserService
 
     ensureProjectsDirectory(directory)
 
-    let result = await storageProvider.listFolderContent(directory)
+    let result = await storageProvider.listFolderContent(directory, !!recursive)
     Object.entries(params.query).forEach(([key, value]) => {
       if (value['$like']) {
         result = result.filter(
@@ -270,12 +263,8 @@ export class FileBrowserService
 
     await ensureProjectPermissionAndPublicOrAssetsDirectory(directory, projectName, this.app, params!)
 
-    if (!isValidFilePath(joinedDirectory))
-      throw new BadRequest(
-        'Invalid directory: ' +
-          joinedDirectory +
-          '; directories can only contain alphanumeric characters, dashes, underscores, dots, and @'
-      )
+    const resultFilePath = isValidFilePath(joinedDirectory)
+    if (!resultFilePath.isValid) throw new BadRequest(resultFilePath.error)
 
     const parentPath = path.dirname(directory)
     const key = await getIncrementalName(path.basename(directory), parentPath, storageProvider, true)

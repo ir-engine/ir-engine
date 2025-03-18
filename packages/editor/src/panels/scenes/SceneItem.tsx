@@ -84,7 +84,10 @@ export default function SceneItem({
     >
       <div className="flex max-h-40 shrink grow basis-0 items-center justify-center self-stretch rounded bg-surface-4">
         <img
-          className={twMerge(scene.thumbnailURL ? 'rounded' : 'h-auto max-h-32 w-full max-w-32 ')}
+          className={twMerge(
+            'h-full w-full object-cover',
+            scene.thumbnailURL ? 'rounded' : 'h-auto max-h-32 w-full max-w-32'
+          )}
           src={scene.thumbnailURL || defaultThumbnail}
           alt={defaultThumbnail}
           data-testid="scene-thumbnail"
@@ -92,7 +95,7 @@ export default function SceneItem({
         />
       </div>
       <div className="inline-flex items-start justify-between self-stretch">
-        <div className="inline-flex w-full flex-col items-start justify-start">
+        <div className="inline-flex w-full flex-col items-start justify-start gap-1.5">
           <div className="space-between flex w-full flex-row">
             <Tooltip content={sceneName}>
               <Text

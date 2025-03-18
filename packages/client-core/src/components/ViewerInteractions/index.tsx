@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useLayoutEffect } from 'react'
+import React, { useLayoutEffect, useRef } from 'react'
 
 import { TouchGamepad } from '@ir-engine/client-core/src/common/components/TouchGamepad'
 import UserMenus from '@ir-engine/client-core/src/user/menus'
@@ -47,9 +47,14 @@ import ScreenRotateImage from './screen-rotate.svg'
 export const ViewerInteractions = () => {
   const isPortrait = useHookstate(window.matchMedia('(orientation: portrait)').matches)
   const userID = useHookstate(getMutableState(EngineState).userID).value
-  const loadingScreenOpacity = useHookstate(getMutableState(LoadingSystemState).loadingScreenOpacity)
+  const loadingScreenVisible = useHookstate(getMutableState(LoadingSystemState).loadingScreenVisible).value
   const { t } = useTranslation()
   const externalInjectedMenus = useMutableState(ViewerMenuState).externalInjectedMenus.get(NO_PROXY)
+  const locationContainer = useRef<HTMLDivElement>(null)
+
+  useLayoutEffect(() => {
+    if (locationContainer.current) locationContainer.current.style.opacity = '0'
+  }, [locationContainer])
 
   useLayoutEffect(() => {
     const orientationChangeHandler = () => {
@@ -78,10 +83,8 @@ export const ViewerInteractions = () => {
     )
   }
 
-  const isScreenOpaque = loadingScreenOpacity.value > 0
-
   return (
-    <div style={{ opacity: 1 - loadingScreenOpacity.value }} className="fixed h-dvh w-full p-6">
+    <div id="location-container" ref={locationContainer} className="fixed h-dvh w-full p-6">
       <div className="pointer-events-auto absolute left-0 top-0 h-fit w-full pt-[inherit]">
         <MediaIconsBox />
       </div>
@@ -93,7 +96,7 @@ export const ViewerInteractions = () => {
       <div
         className={twMerge(
           'absolute bottom-0 left-0 h-fit w-full pb-[inherit]',
-          isScreenOpaque ? 'pointer-events-none' : 'pointer-events-auto '
+          loadingScreenVisible ? 'pointer-events-none' : 'pointer-events-auto '
         )}
       >
         <UserMenus />

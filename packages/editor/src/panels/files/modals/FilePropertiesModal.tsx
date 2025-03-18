@@ -86,11 +86,10 @@ export default function FilePropertiesModal() {
 
   const handleRegenerateThumbnail = () => {
     for (const resource of fileStaticResources.value) {
-      getMutableState(FileThumbnailJobState).merge([
+      getMutableState(FileThumbnailJobState).jobs.merge([
         {
           key: resource.url,
-          project: resource.project!,
-          id: resource.id
+          project: resource.project!
         }
       ])
     }

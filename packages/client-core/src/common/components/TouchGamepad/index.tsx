@@ -33,8 +33,6 @@ import { AnyButton } from '@ir-engine/spatial/src/input/state/ButtonState'
 import { XRState, isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import { IJoystickUpdateEvent } from 'react-joystick-component/build/lib/Joystick'
 import { AppState } from '../../services/AppService'
-import BasepadImage from './basepad.svg'
-import StickypadImage from './stickypad.svg'
 
 const triggerButton = (button: AnyButton, pressed: boolean): void => {
   const eventType = pressed ? 'touchgamepadbuttondown' : 'touchgamepadbuttonup'
@@ -110,8 +108,8 @@ export const TouchGamepad = () => {
     <>
       <div className="pointer-events-auto fixed bottom-[15%] left-[15%] select-none [&>div]:m-auto">
         <Joystick
-          baseImage={StickypadImage}
-          stickImage={BasepadImage}
+          baseImage="/static/stickypad.svg"
+          stickImage="/static/basepad.svg"
           size={27}
           stickSize={80}
           throttle={100}

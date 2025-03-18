@@ -24,7 +24,15 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { camelCaseToSpacedString } from '@ir-engine/common/src/utils/camelCaseToSpacedString'
-import { hasComponent, SerializedComponentType, useAncestorWithComponents, useComponent } from '@ir-engine/ecs'
+import {
+  getComponent,
+  LayerComponents,
+  Layers,
+  SerializedComponentType,
+  useAncestorWithComponents,
+  useComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs'
 import { commitProperty, EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { EditorHistoryFunctions } from '@ir-engine/editor/src/services/EditorHistoryState'
@@ -57,11 +65,14 @@ const shapeTypeOptions = Object.entries(Shapes)
 export const ColliderComponentEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const colliderComponent = useComponent(props.entity, ColliderComponent)
+  const authoringComponent = getComponent(props.entity, LayerComponents[Layers.Authoring])
+  const linkedEntity = authoringComponent.relations[Layers.Simulation]
+  const meshComponent = useOptionalComponent(linkedEntity, MeshComponent)
 
   const isMeshOrConvexHull =
     colliderComponent.shape.value === Shapes.Mesh || colliderComponent.shape.value === Shapes.ConvexHull
 
-  const showMatchMesh = !isMeshOrConvexHull && hasComponent(props.entity, MeshComponent)
+  const showMatchMesh = !isMeshOrConvexHull && !!meshComponent
   const hasRigidBody = useAncestorWithComponents(props.entity, [RigidBodyComponent])
 
   const shape = colliderComponent.shape.value
