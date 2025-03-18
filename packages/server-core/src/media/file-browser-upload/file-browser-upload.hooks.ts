@@ -51,13 +51,14 @@ import verifyScope from '../../hooks/verify-scope'
 //   return context
 // }
 
-function isValidFileType(fileType: string): boolean {
+function isValidFileType(fileType: string, fileName: string): boolean {
   return (
     fileType.startsWith('image/') ||
     fileType.startsWith('audio/') ||
     fileType.startsWith('video/') ||
-    fileType.endsWith('.gltf') ||
-    fileType.endsWith('.glb')
+    (fileType === 'application/octet-stream' && (fileName.endsWith('.gltf') || fileName.endsWith('.glb'))) ||
+    fileName.endsWith('.bin') ||
+    (fileType === 'application/macbinary' && fileName.endsWith('.bin'))
   )
 }
 
@@ -65,7 +66,7 @@ const validateFile = (context: HookContext) => {
   const args = context.arguments
   const file = args?.[1]?.files?.[0]
 
-  if (!isValidFileType(file.mimetype)) {
+  if (!isValidFileType(file.mimetype, file.originalname)) {
     throw new BadRequest('Unsupported file type')
   }
 }
