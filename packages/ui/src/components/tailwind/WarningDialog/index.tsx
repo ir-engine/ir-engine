@@ -36,10 +36,10 @@ interface WarningDialogProps {
 const WarningDialog = ({ title, description, modalProps }: WarningDialogProps) => {
   return (
     <Modal
-      onClose={ModalState.hidePopupover}
+      onClose={ModalState.closeModal}
       showCloseButton={false}
       submitButtonDisabled={true}
-      onSubmit={() => ModalState.hidePopupover()}
+      onSubmit={() => ModalState.closeModal()}
       className="w-[50vw] max-w-2xl bg-yellow-600"
       hideFooter={true}
       {...modalProps}

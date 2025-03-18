@@ -33,11 +33,11 @@ import Modal from './index'
 
 const ModelStory = ({ title }) => {
   const onClose = () => {
-    ModalState.hidePopupover()
+    ModalState.closeModal()
   }
 
   const onOpen = () => {
-    ModalState.showPopupover(
+    ModalState.openModal(
       <Modal title={title} onClose={onClose} onSubmit={() => {}}>
         <div className="mb-5 flex flex-col border-b border-[#e5e7eb]">
           <label className="text-secondary">Location</label>
@@ -65,11 +65,11 @@ const ModelStory = ({ title }) => {
 
 const MultipleModelStory = ({ title }) => {
   const onClose = () => {
-    ModalState.hidePopupover()
+    ModalState.closeModal()
   }
 
   const onSecondPopupOpen = () => {
-    ModalState.showPopupover(
+    ModalState.openModal(
       <Modal title={title} onClose={onClose} onSubmit={() => {}}>
         <div className="mb-5 flex flex-col border-b border-[#e5e7eb]">
           <label className="text-secondary">Location</label>
@@ -91,7 +91,7 @@ const MultipleModelStory = ({ title }) => {
     <div>
       <Button
         onClick={() => {
-          ModalState.showPopupover(
+          ModalState.openModal(
             <Modal title="First Modal" onClose={onClose}>
               <Button onClick={onSecondPopupOpen}>Click to open modal</Button>
             </Modal>

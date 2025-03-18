@@ -59,7 +59,7 @@ export default function ImageConvertModal({
       })
       .then(() => {
         refreshDirectory()
-        ModalState.hidePopupover()
+        ModalState.closeModal()
       })
   }
 
@@ -68,7 +68,7 @@ export default function ImageConvertModal({
       title={t('editor:layout.filebrowser.convert')}
       className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
-      onClose={ModalState.hidePopupover}
+      onClose={ModalState.closeModal}
       submitLoading={modalProcessing.value}
     >
       <div className="ml-32 flex flex-col gap-4">
