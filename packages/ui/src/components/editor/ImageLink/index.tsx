@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useHookstate } from '@ir-engine/hyperflux'
 import React, { ImgHTMLAttributes, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
@@ -61,12 +62,13 @@ const imageVariants = {
 export default function ImageLink({ src, onChange, onBlur, variant = 'full', ...props }: ImageLinkProps) {
   const { t } = useTranslation()
   const imageRef = useRef<HTMLImageElement>(null)
+  const validSrc = useHookstate<typeof ImageUrlFallback | string>(ImageUrlFallback)
 
   useEffect(() => {
     if (!imageRef.current) return
     const onErrorCallback = () => {
       if (!imageRef.current) return
-      imageRef.current.src = ImageUrlFallback
+      validSrc.set(ImageUrlFallback)
     }
 
     imageRef.current.addEventListener('error', onErrorCallback)
@@ -78,15 +80,17 @@ export default function ImageLink({ src, onChange, onBlur, variant = 'full', ...
   }, [])
 
   useEffect(() => {
-    if (!src && imageRef.current) {
-      imageRef.current.src = ImageUrlFallback
+    if (!src || (src && !URL.canParse(src))) {
+      validSrc.set(ImageUrlFallback)
+      return
     }
+    validSrc.set(src)
   }, [src])
 
   return (
     <div className={twMerge('flex flex-col bg-ui-background', containerVariants[variant])}>
       <img
-        src={src}
+        src={validSrc.value}
         className={twMerge(
           'mx-auto rounded',
           imageVariants[variant],

@@ -35,12 +35,13 @@ const acceptDropItems = [...ItemTypes.Images, ItemTypes.File]
 
 export interface DroppableImageInputProps extends Omit<ImageLinkProps, 'onBlur'> {
   onBlur: (value: string) => void
+  onChange: (value: string) => void
 }
 
 /**
  * allows dropping of a file/asset and takes care of uploading it
  */
-export default function DroppableImageInput({ onBlur, ...props }: DroppableImageInputProps) {
+export default function DroppableImageInput({ onBlur, onChange, ...props }: DroppableImageInputProps) {
   const onUpload = useUpload({
     multiple: false,
     accepts: ImageFileTypes
@@ -71,7 +72,7 @@ export default function DroppableImageInput({ onBlur, ...props }: DroppableImage
 
   return (
     <div className={twMerge('rounded-[10px]', canDrop && isOver && 'border border-dotted border-white')} ref={dropRef}>
-      <ImageLink onBlur={onBlur} {...props} />
+      <ImageLink onBlur={onBlur} {...props} onChange={onChange} />
     </div>
   )
 }
