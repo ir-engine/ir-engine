@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 
 import Button from '../Button'
 import PopupMenu from '../PopupMenu'
@@ -33,11 +33,11 @@ import Modal from './index'
 
 const ModelStory = ({ title }) => {
   const onClose = () => {
-    PopoverState.hidePopupover()
+    ModalState.hidePopupover()
   }
 
   const onOpen = () => {
-    PopoverState.showPopupover(
+    ModalState.showPopupover(
       <Modal title={title} onClose={onClose} onSubmit={() => {}}>
         <div className="mb-5 flex flex-col border-b border-[#e5e7eb]">
           <label className="text-secondary">Location</label>
@@ -65,11 +65,11 @@ const ModelStory = ({ title }) => {
 
 const MultipleModelStory = ({ title }) => {
   const onClose = () => {
-    PopoverState.hidePopupover()
+    ModalState.hidePopupover()
   }
 
   const onSecondPopupOpen = () => {
-    PopoverState.showPopupover(
+    ModalState.showPopupover(
       <Modal title={title} onClose={onClose} onSubmit={() => {}}>
         <div className="mb-5 flex flex-col border-b border-[#e5e7eb]">
           <label className="text-secondary">Location</label>
@@ -91,7 +91,7 @@ const MultipleModelStory = ({ title }) => {
     <div>
       <Button
         onClick={() => {
-          PopoverState.showPopupover(
+          ModalState.showPopupover(
             <Modal title="First Modal" onClose={onClose}>
               <Button onClick={onSecondPopupOpen}>Click to open modal</Button>
             </Modal>

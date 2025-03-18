@@ -78,8 +78,8 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { FaApple } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
 import { initialAuthState, initialOAuthConnectedState } from '../../common/initialAuthState'
+import { ModalState } from '../../common/services/ModalState'
 import { NotificationService } from '../../common/services/NotificationService'
-import { PopoverState } from '../../common/services/PopoverState'
 import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { useZendesk } from '../../hooks/useZendesk'
 import { LocationState } from '../../social/services/LocationService'
@@ -369,7 +369,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     if (avatarSelectMenuRef.current) {
       avatarSelectMenuRef.current?.handleClose()
     } else {
-      PopoverState.hidePopupover()
+      ModalState.closeModal()
     }
   }
 
@@ -395,7 +395,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               !iOS && (
                 <button
                   onClick={() => {
-                    PopoverState.showPopupover(
+                    ModalState.openModal(
                       <AvatarSelectMenu ref={avatarSelectMenuRef} showBackButton={true} previewEnabled={true} />,
                       onAvatarSelectClose
                     )
@@ -439,7 +439,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               initialized ? 'justify-self-end' : 'col-start-3'
             )}
             onClick={() => {
-              PopoverState.showPopupover(<SettingsMenu />)
+              ModalState.openModal(<SettingsMenu />)
             }}
           >
             <CogLg className="h-[1.875rem] w-[1.875rem]" />
@@ -456,9 +456,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
                 variant="red"
                 fullWidth={!isMobile}
                 className="w-[136px] rounded-[10px] lg:w-full"
-                onClick={() =>
-                  PopoverState.showPopupover(<ReportMenu type="location" locationId={currentLocation.id} />)
-                }
+                onClick={() => ModalState.openModal(<ReportMenu type="location" locationId={currentLocation.id} />)}
               >
                 <ReportWebsiteDefaullg />
                 {t('user:usermenu.profile.reportWorld')}
@@ -621,20 +619,20 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
           <button
             className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
             onClick={() => {
-              PopoverState.hidePopupover() // Close the ProfileMenu popover
-              PopoverState.showPopupover(
+              ModalState.closeModal() // Close the ProfileMenu popover
+              ModalState.openModal(
                 <ConfirmDialog
                   text={t('user:usermenu.profile.logout.title')}
                   onSubmit={async () => {
                     handleLogout()
                   }}
                   onClose={() => {
-                    PopoverState.showPopupover(<ProfileMenu />)
+                    ModalState.openModal(<ProfileMenu />)
                   }}
                 />,
                 () => {
-                  PopoverState.hidePopupover()
-                  PopoverState.showPopupover(<ProfileMenu />)
+                  ModalState.closeModal()
+                  ModalState.openModal(<ProfileMenu />)
                 }
               )
             }}
@@ -646,8 +644,8 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
           <button
             className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
             onClick={() => {
-              PopoverState.hidePopupover() // Close the ProfileMenu popover
-              PopoverState.showPopupover(
+              ModalState.closeModal() // Close the ProfileMenu popover
+              ModalState.openModal(
                 <ConfirmDialog
                   title={t('user:usermenu.profile.delete.finalDeleteConfirm')}
                   text={t('user:usermenu.profile.delete.finalDeleteText')}
@@ -656,12 +654,12 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
                     AuthService.logoutUser()
                   }}
                   onClose={() => {
-                    PopoverState.showPopupover(<ProfileMenu />)
+                    ModalState.openModal(<ProfileMenu />)
                   }}
                 />,
                 () => {
-                  PopoverState.hidePopupover()
-                  PopoverState.showPopupover(<ProfileMenu />)
+                  ModalState.closeModal()
+                  ModalState.openModal(<ProfileMenu />)
                 }
               )
             }}
