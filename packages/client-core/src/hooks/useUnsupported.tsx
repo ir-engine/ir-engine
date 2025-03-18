@@ -77,13 +77,13 @@ export const useBrowserCheck = () => {
       )
     }
 
-    if (isMobile && !acknowledgedUnsupportedDevice) {
-      NotificationService.dispatchNotify(
-        'Not optimized for mobile, experience might have issues. For best experience use desktop Chrome.',
-        {
-          variant: 'warning'
-        }
-      )
-    }
+    // if (isMobile && !acknowledgedUnsupportedDevice) {
+    //   NotificationService.dispatchNotify(
+    //     'Not optimized for mobile, experience might have issues. For best experience use desktop Chrome.',
+    //     {
+    //       variant: 'warning'
+    //     }
+    //   )
+    // }
   }, [])
 }

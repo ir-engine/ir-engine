@@ -46,8 +46,16 @@ export default defineConfig({
         'uuid',
         '@hookstate/core',
         '@hookstate/identifiable'
-      ]
-    }
+      ],
+      output: {
+        globals: {
+          react: 'React',
+          'react-reconciler': 'ReactReconciler'
+        }
+      }
+    },
+    sourcemap: true,
+    emptyOutDir: true
   },
   plugins: [
     /** @ts-ignore @todo update vite version - builds fine without */

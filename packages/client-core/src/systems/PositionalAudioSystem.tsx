@@ -95,7 +95,7 @@ const execute = () => {
    */
   const networkedAvatarAudioEntities = networkedAvatarAudioQuery()
   for (const entity of networkedAvatarAudioEntities) {
-    if (!network) continue
+    if (!network?.peers) continue
 
     const networkObject = getComponent(entity, NetworkObjectComponent)
     const ownerID = networkObject.ownerId

@@ -56,6 +56,105 @@ export enum GeometryTypeEnum {
   'TorusKnotGeometry'
 }
 
+export const GeometryTypeParamsEnum = {
+  [GeometryTypeEnum.BoxGeometry]: {
+    width: { default: 1, min: 0 },
+    height: { default: 1, min: 0 },
+    depth: { default: 1, min: 0 },
+    widthSegments: { default: 1, min: 1 },
+    heightSegments: { default: 1, min: 1 },
+    depthSegments: { default: 1, min: 1 }
+  },
+
+  [GeometryTypeEnum.SphereGeometry]: {
+    radius: { default: 1, min: 0 },
+    widthSegments: { default: 32, min: 3 },
+    heightSegments: { default: 16, min: 2 },
+    phiStart: { default: 0, min: 0 },
+    phiLength: { default: Math.PI * 2, min: 0 },
+    thetaStart: { default: 0, min: 0 },
+    thetaLength: { default: Math.PI, min: 0 }
+  },
+
+  [GeometryTypeEnum.CylinderGeometry]: {
+    radiusTop: { default: 1, min: 0 },
+    radiusBottom: { default: 1, min: 0 },
+    height: { default: 1, min: 0 },
+    radialSegments: { default: 8, min: 3 },
+    heightSegments: { default: 1, min: 1 },
+    openEnded: { default: false },
+    thetaStart: { default: 0, min: 0 },
+    thetaLength: { default: Math.PI * 2, min: 0 }
+  },
+
+  [GeometryTypeEnum.CapsuleGeometry]: {
+    radius: { default: 1, min: 0 },
+    length: { default: 1, min: 0 },
+    capSegments: { default: 4, min: 1 },
+    radialSegments: { default: 8, min: 3 }
+  },
+
+  [GeometryTypeEnum.PlaneGeometry]: {
+    width: { default: 1, min: 0 },
+    height: { default: 1, min: 0 },
+    widthSegments: { default: 1, min: 1 },
+    heightSegments: { default: 1, min: 1 }
+  },
+
+  [GeometryTypeEnum.CircleGeometry]: {
+    radius: { default: 1, min: 0 },
+    segments: { default: 32, min: 3 },
+    thetaStart: { default: 0, min: 0 },
+    thetaLength: { default: Math.PI * 2, min: 0 }
+  },
+
+  [GeometryTypeEnum.RingGeometry]: {
+    innerRadius: { default: 0.5, min: 0 },
+    outerRadius: { default: 1, min: 0 },
+    thetaSegments: { default: 32, min: 3 },
+    phiSegments: { default: 1, min: 1 },
+    thetaStart: { default: 0, min: 0 },
+    thetaLength: { default: Math.PI * 2, min: 0 }
+  },
+
+  [GeometryTypeEnum.TorusGeometry]: {
+    radius: { default: 1, min: 0 },
+    tube: { default: 0.4, min: 0 },
+    radialSegments: { default: 8, min: 3 },
+    tubularSegments: { default: 6, min: 3 },
+    arc: { default: Math.PI * 2, min: 0 }
+  },
+
+  [GeometryTypeEnum.DodecahedronGeometry]: {
+    radius: { default: 1, min: 0 },
+    detail: { default: 0, min: 0 }
+  },
+
+  [GeometryTypeEnum.IcosahedronGeometry]: {
+    radius: { default: 1, min: 0 },
+    detail: { default: 0, min: 0 }
+  },
+
+  [GeometryTypeEnum.OctahedronGeometry]: {
+    radius: { default: 1, min: 0 },
+    detail: { default: 0, min: 0 }
+  },
+
+  [GeometryTypeEnum.TetrahedronGeometry]: {
+    radius: { default: 1, min: 0 },
+    detail: { default: 0, min: 0 }
+  },
+
+  [GeometryTypeEnum.TorusKnotGeometry]: {
+    radius: { default: 1, min: 0 },
+    tube: { default: 0.4, min: 0 },
+    tubularSegments: { default: 64, min: 3 },
+    radialSegments: { default: 8, min: 3 },
+    p: { default: 2, min: 1 },
+    q: { default: 3, min: 1 }
+  }
+}
+
 export const GeometryTypeToClass = {
   [GeometryTypeEnum.BoxGeometry]: BoxGeometry,
   [GeometryTypeEnum.SphereGeometry]: SphereGeometry,

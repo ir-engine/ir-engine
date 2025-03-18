@@ -29,7 +29,7 @@ import path from 'path'
 import sharp from 'sharp'
 
 import { fileBrowserPath } from '@ir-engine/common/src/schemas/media/file-browser.schema'
-import { ImageConvertParms } from '@ir-engine/engine/src/assets/constants/ImageConvertParms'
+import type { ImageConvertParms } from '@ir-engine/engine/src/assets/constants/ImageConvertParms'
 
 import { imageConvertPath } from '@ir-engine/common/src/schema.type.module'
 import { Application } from '../../../declarations'

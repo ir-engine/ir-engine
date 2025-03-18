@@ -202,6 +202,8 @@ export const useXRInputSources = () => {
   }, [xrState.session])
 }
 
+const emulatedInputPointerEntityName = 'InputSource-emulated-pointer'
+
 export const CanvasInputReactor = () => {
   const cameraEntity = useEntityContext()
   const xrState = useMutableState(XRState)
@@ -225,8 +227,11 @@ export const CanvasInputReactor = () => {
     }
 
     const onPointerEnter = (event: PointerEvent) => {
-      const pointerEntity = createEntity()
-      setComponent(pointerEntity, NameComponent, 'InputSource-emulated-pointer')
+      const pointerEntity =
+        InputPointerComponent.getPointersForCamera(cameraEntity).find(
+          (e) => getOptionalComponent(e, NameComponent) === emulatedInputPointerEntityName
+        ) ?? createEntity()
+      setComponent(pointerEntity, NameComponent, emulatedInputPointerEntityName)
       setComponent(pointerEntity, TransformComponent)
       setComponent(pointerEntity, InputSourceComponent)
       setComponent(pointerEntity, InputPointerComponent, {
@@ -247,7 +252,13 @@ export const CanvasInputReactor = () => {
     const onPointerLeave = (event: PointerEvent) => {
       const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, event.pointerId)
       ClientInputFunctions.redirectPointerEventsToXRUI(cameraEntity, event)
-      removeEntity(pointerEntity)
+
+      // because touch events don't have a leave event, we instead need to clear the state instead of removing the entity
+      if (event.pointerType === 'touch') {
+        clearPointerState(pointerEntity)
+      } else {
+        removeEntity(pointerEntity)
+      }
     }
 
     const onPointerClick = (event: PointerEvent) => {
@@ -268,7 +279,13 @@ export const CanvasInputReactor = () => {
         const pointer = getOptionalComponent(pointerEntity, InputPointerComponent)
         if (pointer) {
           state[button]!.downPosition = new Vector3(pointer.position.x, pointer.position.y, 0)
-          //rotation will never be defined for the mouse or touch
+          // touch input don't trigger pointermove events, so we need to set the position here
+          if (event.pointerType === 'touch') {
+            pointer.position.set(
+              ((event.clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
+              ((event.clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
+            )
+          }
         }
       } else if (state[button]) {
         state[button]!.up = true
