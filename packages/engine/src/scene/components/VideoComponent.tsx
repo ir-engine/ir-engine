@@ -292,60 +292,59 @@ function VideoReactor() {
 
   // update mesh
   useEffect(() => {
-    if (!media || !media.isCurrentTrackLoaded.value) return
-
     const videoMesh = mesh.value as Mesh<PlaneGeometry | SphereGeometry, ShaderMaterial>
-    resizeVideoMesh(videoMesh)
-
-    const uvOffset = new Vector2(0, 0)
-    const uvScale = new Vector2(1, 1)
-
-    const imageSize = getTextureSize(videoMesh.material.uniforms.map.value as Texture | CompressedTexture)
-    video.currentVideoSize.set(imageSize)
-    const imageRatio = imageSize.x / imageSize.y || 1
-
     const size = video.size.value
     const [containerWidth, containerHeight] = [size.x, size.y]
-    const containerRatio = containerWidth / containerHeight
 
-    let isPlacementHorz = true
-    if (video.fit.value == 'horizontal') {
-      isPlacementHorz = true
-    }
-    if (video.fit.value == 'vertical') {
-      isPlacementHorz = false
-    }
-    if (video.fit.value == 'contain') {
-      if (imageRatio > containerRatio) {
-        isPlacementHorz = true
-      } else {
-        isPlacementHorz = false
-      }
-    }
-    if (video.fit.value == 'cover') {
-      if (imageRatio > containerRatio) {
-        isPlacementHorz = false
-      } else {
+    if (media && media.isCurrentTrackLoaded.value) {
+      resizeVideoMesh(videoMesh)
+
+      const uvOffset = new Vector2(0, 0)
+      const uvScale = new Vector2(1, 1)
+
+      const imageSize = getTextureSize(videoMesh.material.uniforms.map.value as Texture | CompressedTexture)
+      video.currentVideoSize.set(imageSize)
+      const imageRatio = imageSize.x / imageSize.y || 1
+
+      const containerRatio = containerWidth / containerHeight
+
+      let isPlacementHorz = true
+      if (video.fit.value == 'horizontal') {
         isPlacementHorz = true
       }
-    }
+      if (video.fit.value == 'vertical') {
+        isPlacementHorz = false
+      }
+      if (video.fit.value == 'contain') {
+        if (imageRatio > containerRatio) {
+          isPlacementHorz = true
+        } else {
+          isPlacementHorz = false
+        }
+      }
+      if (video.fit.value == 'cover') {
+        if (imageRatio > containerRatio) {
+          isPlacementHorz = false
+        } else {
+          isPlacementHorz = true
+        }
+      }
 
-    if (isPlacementHorz) {
-      uvScale.y = imageRatio / containerRatio
-      uvScale.x = 1
-      uvOffset.y = (1 - uvScale.y) / 2
-    } else {
-      uvScale.x = 1 / imageRatio / (1 / containerRatio)
-      uvScale.y = 1
-      uvOffset.x = (1 - uvScale.x) / 2
-    }
+      if (isPlacementHorz) {
+        uvScale.y = imageRatio / containerRatio
+        uvScale.x = 1
+        uvOffset.y = (1 - uvScale.y) / 2
+      } else {
+        uvScale.x = 1 / imageRatio / (1 / containerRatio)
+        uvScale.y = 1
+        uvOffset.x = (1 - uvScale.x) / 2
+      }
 
+      fitPlacementUvOffset.set(uvOffset)
+      fitPlacementUvScale.set(uvScale)
+    }
     videoMesh.scale.x = containerWidth
     videoMesh.scale.y = containerHeight
-
-    fitPlacementUvOffset.set(uvOffset)
-    fitPlacementUvScale.set(uvScale)
-    //}, [!!mesh, video.size, video.fit, video.texture, mesh?.material])
   }, [!!mesh, video.size, video.fit, video.texture, mesh?.material, media?.isCurrentTrackLoaded])
 
   useEffect(() => {
