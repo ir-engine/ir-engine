@@ -25,9 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { BadRequest, Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
-import { v4 } from 'uuid'
-
 import { isDev } from '@ir-engine/common/src/config'
 import { scopeTypePath } from '@ir-engine/common/src/schemas/scope/scope-type.schema'
 import { scopePath, ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
@@ -41,10 +38,12 @@ import {
 } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { checkScope as checkScopeMethod } from '@ir-engine/common/src/utils/checkScope'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
+import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
+import { v4 } from 'uuid'
 import checkScope from '../../hooks/check-scope'
 
 import { Paginated } from '@feathersjs/feathers'
-import { USER_ID_REGEX } from '@ir-engine/common/src/regex'
 import {
   projectPath,
   projectPermissionPath,
@@ -191,10 +190,10 @@ async function addIdentityProviderType(context: HookContext<IdentityProviderServ
     context.params!.provider &&
     !['password', 'email', 'sms'].includes((context!.actualData as IdentityProviderData).type as string)
   ) {
-    if (!USER_ID_REGEX.test(data.token as string))
+    if (!isValidId(data.token as string))
       //Ensure that guest tokens are UUIDs
       data.token = v4()
-    if (!USER_ID_REGEX.test(actualData.token as string))
+    if (!isValidId(actualData.token as string))
       //Ensure that guest tokens are UUIDs
       actualData.token = v4()
     data.type = 'guest' //Non-password/magiclink create requests must always be for guests

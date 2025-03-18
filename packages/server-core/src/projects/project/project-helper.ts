@@ -68,7 +68,7 @@ import {
   deleteFolderRecursive,
   getFilesRecursive
 } from '@ir-engine/common/src/utils/fsHelperFunctions'
-import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import { getState } from '@ir-engine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@ir-engine/projects/ProjectConfigInterface'
 
@@ -97,8 +97,6 @@ import IDockerImage = google.devtools.artifactregistry.v1.IDockerImage
 export const dockerHubRegex = /^[\w\d\s\-_]+\/[\w\d\s\-_]+:([\w\d\s\-_.]+)$/
 export const publicECRRepoRegex = /^public.ecr.aws\/[a-zA-Z0-9]+\/([a-z0-9\-_\\]+)$/
 export const publicECRTagRegex = /^public.ecr.aws\/[a-zA-Z0-9]+\/[a-z0-9\-_\\]+:([\w\d\s\-_.]+?)$/
-export const GCPArtifactRegistryRepoRegex =
-  /^[a-zA-Z0-9\-]+-docker.pkg.dev\/[a-zA-Z0-9\-_\\]+\/([a-zA-Z0-9\-_\\]+)\/([a-zA-Z0-9\-_\\]+)$/
 export const privateECRRepoRegex = /^[a-zA-Z0-9]+.dkr.ecr.([\w\d\s\-_]+).amazonaws.com\/([a-z0-9\-_\\]+)$/
 export const privateECRTagRegex = /^[a-zA-Z0-9]+.dkr.ecr.([\w\d\s\-_]+).amazonaws.com\/[a-z0-9\-_\\]+:([\w\d\s\-_.]+)$/
 
@@ -779,7 +777,7 @@ export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> 
   const builderRepo = `${process.env.SOURCE_REPO_URL}/${process.env.SOURCE_REPO_NAME_STEM}-builder`
   const publicECRExec = publicECRRepoRegex.exec(builderRepo)
   const privateECRExec = privateECRRepoRegex.exec(builderRepo)
-  const gcpECRRegex = GCPArtifactRegistryRepoRegex.exec(builderRepo)
+  const isGCP = config.server.storageProvider === 'gcs'
   if (publicECRExec) {
     const awsCredentials = `[default]\naws_access_key_id=${config.aws.eks.accessKeyId}\naws_secret_access_key=${config.aws.eks.secretAccessKey}\n[role]\nrole_arn = ${config.aws.eks.roleArn}\nsource_profile = default`
 
@@ -862,11 +860,31 @@ export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> 
       logger.error(err)
       return []
     }
-  } else if (gcpECRRegex) {
+  } else if (isGCP) {
     const arClient = new ArtifactRegistryClient()
     let images = [] as IDockerImage[]
+    let gcpBuilderRepo = `${process.env.SOURCE_REPO_URL}/${process.env.SOURCE_REPO_NAME_STEM}-builder`
+    switch (config.server.releaseName) {
+      case 'mt-qat-dev':
+      case 'mt-dev':
+      case 'mt-int':
+      case 'mt-stg':
+      case 'mt-prd':
+        gcpBuilderRepo += '-mt'
+        break
+    }
+    switch (config.server.releaseName) {
+      case 'qat-dev':
+      case 'mt-qat-dev':
+        gcpBuilderRepo += '-qat'
+        break
+      case 'mt-int':
+        gcpBuilderRepo += '-int'
+        break
+    }
+    gcpBuilderRepo += `/${process.env.SOURCE_REPO_NAME_STEM}-builder`
     const input = {
-      parent: getParent(builderRepo)
+      parent: getParent(gcpBuilderRepo)
     } as any
     try {
       const iterableResponse = arClient.listDockerImagesAsync(input)
@@ -1665,8 +1683,8 @@ const getResourceType = (key: string, resource?: ResourceType) => {
   if (key.startsWith('public/thumbnails') || key.endsWith('.thumbnail.jpg')) return 'thumbnail'
   if (key.startsWith('public/scenes') && (key.endsWith('.gltf') || key.endsWith('.scene.json'))) return 'scene'
   if (!resource) return 'file'
-  if (staticResourceClasses.includes(FileToAssetType(key))) return 'asset'
   if (resource.type) return resource.type
+  if (staticResourceClasses.includes(FileToAssetType(key))) return 'asset'
   if (resource.tags) return 'asset'
   return 'file'
 }
@@ -1783,7 +1801,7 @@ export const uploadLocalProjectToProvider = async (
       }
 
       const isScene = oldManifestScenes && oldManifestScenes.includes(filePathRelative)
-      const thisFileClass = AssetLoader.getAssetClass(key)
+      const thisFileClass = FileToAssetType(key)
       const hash = createStaticResourceHash(fileResult)
       const stats = await getStats(fileResult, contentType)
       const resourceInfo = resourcesJson?.[filePathRelative]
@@ -1853,7 +1871,7 @@ export const uploadLocalProjectToProvider = async (
   await Promise.all(
     Array.from(existingKeySet.values()).map(async (id) => {
       try {
-        await app.service(staticResourcePath).remove(id, { ignoreResourcesJson: true })
+        if (isValidId(id)) await app.service(staticResourcePath).remove(id, { ignoreResourcesJson: true })
       } catch (error) {
         logger.warn(`Error deleting resource: ${error}`)
       }

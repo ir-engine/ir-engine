@@ -35,7 +35,6 @@ import { AuthUserSeed, resolveAuthUser } from '@ir-engine/common/src/interfaces/
 import multiLogger from '@ir-engine/common/src/logger'
 import {
   AuthStrategiesType,
-  HasAccessType,
   IdentityProviderType,
   InstanceID,
   UserApiKeyType,
@@ -129,7 +128,9 @@ const getToken = async (): Promise<string> => {
   }
 
   const clientUrl = config.client.clientUrl
-  const hasAccess = (await communicator
+  return waitForToken(win, clientUrl)
+  /** @todo renable once UI is redone. No Shared login for now */
+  /* const hasAccess = (await communicator
     .sendMessage('checkAccess')
     .then((message) => {
       return message.data
@@ -177,12 +178,13 @@ const getToken = async (): Promise<string> => {
     }
   } else {
     return waitForToken(win, clientUrl)
-  }
+  } */
 }
 
 export const AuthState = defineState({
   name: 'AuthState',
   initial: () => ({
+    isAuthenticated: false,
     isProcessing: false,
     error: '',
     authUser: AuthUserSeed,
@@ -306,6 +308,7 @@ export const AuthService = {
       } else {
         logger.warn('No response received from reAuthenticate()!')
       }
+      getMutableState(AuthState).isAuthenticated.set(true)
     } catch (err) {
       logger.error(err, 'Error on resolving auth user in doLoginAuto, logging out')
       authState.merge({ user: UserSeed, authUser: AuthUserSeed })
@@ -857,7 +860,9 @@ function parseLoginDisplayCredential(credentials) {
 }
 
 export const useAuthenticated = () => {
-  const userID = useHookstate(getMutableState(AuthState).user.id).value
+  const authState = getMutableState(AuthState)
+  const userID = useHookstate(authState.user.id).value
+  const isAuthenticated = useHookstate(authState.isAuthenticated).value
 
   useEffect(() => {
     AuthService.doLoginAuto()
@@ -870,5 +875,5 @@ export const useAuthenticated = () => {
     getMutableState(EngineState).userID.set(userID)
   }, [userID])
 
-  return userID !== ''
+  return isAuthenticated
 }

@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VideoConstants } from '@ir-engine/network'
+import * as VideoConstants from '@ir-engine/network/src/constants/VideoConstants'
 
 import configFile from './appconfig'
 import { SctpParameters } from './types/SctpParameters'

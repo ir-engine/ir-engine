@@ -50,6 +50,8 @@ export interface SelectProps<T = string | number> {
   width?: 'sm' | 'md' | 'lg' | 'full'
   inputHeight?: InputProps['height']
   onChange: (value: T) => void
+  /** Callback fired when user is typing text */
+  onInputChange?: (value: string) => void
   onOpen?: (isOpen: boolean) => void
   value: T
   labelProps?: InputProps['labelProps']
@@ -76,6 +78,7 @@ const Select = ({
   width = 'md',
   inputHeight = 'l',
   onChange,
+  onInputChange,
   onOpen,
   value,
   labelProps,
@@ -180,11 +183,13 @@ const Select = ({
   }, [value, localValue, selectedOptionIndex, filteredOptions])
 
   useEffect(() => {
-    const index = filteredOptions.findIndex((option) => option.value === localValue.value)
-    if (index !== -1) {
-      setDisplayText(filteredOptions[index].label)
+    if (filteredOptions.length) {
+      const index = filteredOptions.findIndex((option) => option.value === localValue.value)
+      if (index !== -1) {
+        setDisplayText(filteredOptions[index].label)
+      }
     }
-  }, [localValue])
+  }, [localValue, filteredOptions])
 
   useEffect(() => {
     if (searchString === '') {
@@ -239,6 +244,8 @@ const Select = ({
       resizeObserver.disconnect()
     }
   }, [])
+
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const togglePopup = () => {
     if (popupRef.current) {
@@ -316,9 +323,11 @@ const Select = ({
                 )}
               >
                 <input
+                  ref={inputRef}
                   onClick={() => {
                     if (!disabled) {
                       togglePopup()
+                      setTimeout(() => inputRef.current?.focus(), 0)
                     }
                   }}
                   type="text"
@@ -333,6 +342,7 @@ const Select = ({
                     popupRef.current && popupRef.current.open()
                     setDisplayText(e.target.value)
                     setSearchString(e.target.value)
+                    onInputChange && onInputChange(e.target.value)
                   }}
                 />
 

@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { avatarPath } from '@ir-engine/common/src/schema.type.module'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import { Application } from '@ir-engine/server-core/declarations'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
@@ -54,7 +55,7 @@ export default async function (app: Application, avatarsFolder: string, manifest
   })
   await Promise.all(
     existingAvatars.map(async (existingAvatar) => {
-      if (!existingAvatar.modelResource && !existingAvatar.thumbnailResource)
+      if (!existingAvatar.modelResource && !existingAvatar.thumbnailResource && isValidId(existingAvatar.id))
         return await app.service(avatarPath).remove(existingAvatar.id)
       else return Promise.resolve()
     })

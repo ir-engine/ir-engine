@@ -55,6 +55,7 @@ import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceCo
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
 import { serializeEntity } from '@ir-engine/engine/src/scene/functions/serializeWorld'
+import { SceneDeltaState } from '@ir-engine/engine/src/scene/systems/SceneDeltaState'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { getState } from '@ir-engine/hyperflux'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -113,7 +114,6 @@ export async function addMediaNode(
 
       AssetState.loadAsync(url, false, UUIDComponent.generateUUID(), UndefinedEntity, Layers.Authoring as LayerID).then(
         (assetEntity) => {
-          /** @todo do we need to get rid of the gltf entity here? */
           const [material] = getChildrenWithComponents(assetEntity, [MaterialStateComponent])
           let foundTarget = false
           for (const intersection of intersections) {
@@ -130,8 +130,24 @@ export async function addMediaNode(
                 }
               }
               const uuids = getComponent(entity, MaterialInstanceComponent).uuid
-              uuids[materialIndex] = getComponent(material, UUIDComponent)
-              setComponent(entity, MaterialInstanceComponent, { uuid: uuids })
+
+              /**@todo we should be setting the uuid of the material instance component to the uuid of the new material */
+              //const materialUUID = getComponent(material, UUIDComponent)
+              //uuids[materialIndex] = materialUUID,
+              //setComponent(entity, MaterialInstanceComponent, { uuid: uuids })
+              /**scene deltas do not yet support this, so a temporary hackfix is to modify existing materials to match */
+              const materialComponent = getComponent(material, MaterialStateComponent)
+              const materialToMutate = UUIDComponent.getEntityByUUID(uuids[materialIndex], Layers.Authoring)
+              // wipe out any existing deltas for this material
+              SceneDeltaState.registerMaterialDelta(materialToMutate, {})
+              EditorControlFunctions.updateMaterialPrototype(
+                materialToMutate,
+                materialComponent.material.userData?.type ?? materialComponent.material.type
+              )
+              EditorControlFunctions.modifyMaterial([uuids[materialIndex]], uuids[materialIndex], [
+                getComponent(material, MaterialStateComponent).parameters
+              ])
+              removeEntity(assetEntity)
               foundTarget = true
             })
             if (foundTarget) break

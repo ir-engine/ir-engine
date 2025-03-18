@@ -301,7 +301,7 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
           >
             {mediaElement && (
               <>
-                {mediaMode == MediaMode.video && showVideoPreview.value && (
+                {mediaMode === MediaMode.video && showVideoPreview.value && (
                   <div ref={videoPreviewParentRef} className="my-1">
                     <div className={'relative aspect-video w-full'}>
                       <Video
@@ -420,6 +420,14 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
             label={t('editor:properties.media.lbl-mediaOptions')}
             info={t('editor:properties.media.info-mediaOptions')}
           >
+            {mediaMode === MediaMode.video && (
+              <Checkbox
+                label={t('editor:properties.media.info-controls')}
+                variantTextPlacement={'right'}
+                checked={media.controls.value}
+                onChange={commitProperty(MediaComponent, 'controls')}
+              />
+            )}
             <Checkbox
               label={t('editor:properties.media.lbl-mediaSynchronize')}
               variantTextPlacement={'right'}
