@@ -83,6 +83,7 @@ export const GroundPlaneComponent = defineComponent({
       mesh.material.polygonOffset = true
       mesh.material.polygonOffsetFactor = -0.01
       mesh.material.polygonOffsetUnits = 1
+      mesh.material.fog = false
 
       setComponent(entity, MeshComponent, mesh)
 
