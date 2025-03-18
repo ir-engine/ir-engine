@@ -70,6 +70,7 @@ export const NameComponent = defineComponent({
 
   /** @deprecated - will be removed in the future */
   getEntitiesByName: (name: string) => {
-    return [...getState(NameComponentState).entitiesByName[name]]
+    const entities = getState(NameComponentState).entitiesByName[name]
+    return entities ? [...entities] : []
   }
 })

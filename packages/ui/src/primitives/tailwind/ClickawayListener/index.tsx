@@ -28,6 +28,7 @@ import React from 'react'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 
 import { getState } from '@ir-engine/hyperflux'
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile.ts'
 import { useEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
@@ -57,12 +58,11 @@ const ClickawayListener = (props: { children: React.ReactNode; onClickOutside: V
       }
     }
 
-    document.addEventListener('mousedown', handler)
-    document.addEventListener('touchstart', handler)
+    const eventName = isMobile ? 'pointerup' : 'mousedown'
+    document.addEventListener(eventName, handler)
 
     return () => {
-      document.removeEventListener('mousedown', handler)
-      document.removeEventListener('touchstart', handler)
+      document.removeEventListener(eventName, handler)
     }
   }, [])
 

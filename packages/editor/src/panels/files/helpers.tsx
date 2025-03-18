@@ -42,7 +42,7 @@ import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import React, { ReactNode, createContext, useContext, useEffect } from 'react'
 import { DnDFileType, FileDataType } from '../../constants/AssetTypes'
-import { filterExistingFiles, handleUploadFiles, sanitizeFiles } from '../../functions/assetFunctions'
+import { filterExistingFiles, handleUploadFiles, validatedFiles } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { FilesState } from '../../services/FilesState'
 import { AssetCategoryNode } from '../assets/categories'
@@ -77,7 +77,8 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
   const filesQuery = useFind(fileBrowserPath, {
     query: {
       $limit: FILES_PAGE_LIMIT,
-      directory: filesState.searchText.value ? `${directory}/**` : directory
+      directory,
+      recursive: !!filesState.searchText.value
     }
   })
 
@@ -281,7 +282,7 @@ export function useFileBrowserDrop() {
       if (filesToUpload.length) {
         try {
           const uniqueFiles = await filterExistingFiles(filesState.projectName.value, path, filesToUpload)
-          const sanitizedFiles = sanitizeFiles(uniqueFiles)
+          const sanitizedFiles = validatedFiles(uniqueFiles)
           await handleUploadFiles(filesState.projectName.value, path, sanitizedFiles)
         } catch (err) {
           NotificationService.dispatchNotify(err.message, { variant: 'error' })

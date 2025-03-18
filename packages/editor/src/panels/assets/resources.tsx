@@ -22,6 +22,10 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import {
+  FileThumbnailJobState,
+  removeFromFileThumbnailsSeen
+} from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import ProgressBar from '@ir-engine/client-core/src/systems/ui/LoadingDetailView/SimpleProgressBar'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
@@ -83,7 +87,7 @@ function ResourceFileContextMenu({
 }) {
   const { t } = useTranslation()
   const userID = useMutableState(AuthState).user.id.value
-  const { refetchResources } = useAssetsQuery()
+  const { refetchResources, staticResourcesPagination } = useAssetsQuery()
 
   const splitResourceKey = resource.key.split('/')
   const name = resource.name || splitResourceKey.at(-1)!
@@ -127,6 +131,7 @@ function ResourceFileContextMenu({
                   ]}
                   onComplete={(err?: unknown) => {
                     if (!err) {
+                      removeFromFileThumbnailsSeen([resource.key])
                       refetchResources()
                     }
                   }}
@@ -199,7 +204,9 @@ export function FileCard({
             fontSize="sm"
             className={twMerge(
               'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2',
-              isSelected ? 'rounded bg-[#375DAF]' : 'rounded group-hover:bg-[#2F3137]'
+              isSelected
+                ? 'rounded bg-ui-select-background text-ui-select-primary'
+                : 'rounded text-ui-hover-primary group-hover:bg-ui-hover-background'
             )}
             data-testid={dataTestIdJson?.fileNameId}
           >
@@ -379,7 +386,7 @@ function BottomPaginationNavBar({ handleScrollToPage }) {
 
 function ResourceItems() {
   const { t } = useTranslation()
-  const { resourcesLoading, resources, staticResourcesPagination } = useAssetsQuery()
+  const { resourcesLoading, resources, staticResourcesPagination, refetchResources } = useAssetsQuery()
   const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]) // Create a ref array
   const fileIconsLoaded = useHookstate(0)
@@ -400,6 +407,11 @@ function ResourceItems() {
   const handleFileIconLoad = () => {
     fileIconsLoaded.set(fileIconsLoaded.get() + 1)
   }
+
+  const thumbnailJobState = useMutableState(FileThumbnailJobState)
+  useEffect(() => {
+    refetchResources()
+  }, [thumbnailJobState.jobs.length])
 
   return (
     <div className="relative flex w-full ">
