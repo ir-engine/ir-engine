@@ -75,7 +75,6 @@ import { SceneDynamicLoadComponent } from '../scene/components/SceneDynamicLoadC
 import { SourceComponent, SourceID } from '../scene/components/SourceComponent'
 import { addError, removeError } from '../scene/functions/ErrorFunctions'
 import { SceneJsonType } from '../scene/types/SceneTypes'
-import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
 import { GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
 import { AssetState } from './GLTFState'
 import { NodeID, NodeIDComponent } from './NodeIDComponent'
@@ -455,11 +454,6 @@ export const loadGLTFFile = (
         }
       } else {
         json = data
-      }
-
-      /** Migrate old scene json format */
-      if ('entities' in json && 'root' in json) {
-        json = migrateSceneJSONToGLTF(json)
       }
 
       onLoad(parseStorageProviderURLs(JSON.parse(JSON.stringify(json))), body)

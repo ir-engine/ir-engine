@@ -36,8 +36,8 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaPlus } from 'react-icons/fa'
 import { LuUserMinus } from 'react-icons/lu'
+import { ModalState } from '../../../common/services/ModalState'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { PopoverState } from '../../../common/services/PopoverState'
 import { BanUsersModal } from './BanUsersModal'
 import ModerationBanTable from './ModerationBanTable'
 
@@ -85,7 +85,7 @@ export const ModerationBanContainer = ({ search }) => {
       console.error(error)
     }
 
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
   }
 
   return (
@@ -100,7 +100,7 @@ export const ModerationBanContainer = ({ search }) => {
             <p className="mb-6 text-gray-400">{t('admin:components.moderation.manageAccess')}</p>
             <Button
               variant="primary"
-              onClick={() => PopoverState.showPopupover(<BanUsersModal onSubmit={handleBanUser} />)}
+              onClick={() => ModalState.openModal(<BanUsersModal onSubmit={handleBanUser} />)}
               className="mx-auto flex items-center justify-center rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700"
             >
               <FaPlus className="mr-2" />
@@ -113,7 +113,7 @@ export const ModerationBanContainer = ({ search }) => {
           <div className="mb-4 flex items-center justify-between">
             <Button
               variant="primary"
-              onClick={() => PopoverState.showPopupover(<BanUsersModal onSubmit={handleBanUser} />)}
+              onClick={() => ModalState.openModal(<BanUsersModal onSubmit={handleBanUser} />)}
               className="flex items-center justify-center rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700"
             >
               <FaPlus className="mr-2" />

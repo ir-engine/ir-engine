@@ -26,7 +26,7 @@ import {
   FileThumbnailJobState,
   removeFromFileThumbnailsSeen
 } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import ProgressBar from '@ir-engine/client-core/src/systems/ui/LoadingDetailView/SimpleProgressBar'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
@@ -46,8 +46,9 @@ import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileIcon } from '../files/fileicon'
 import { FileUploadProgress } from '../files/loaders'
 import DeleteFileModal from '../files/modals/DeleteFileModal'
+import { AssetCategoryNode } from './categories'
 import { ASSETS_PAGE_LIMIT, calculateItemsToFetch } from './helpers'
-import { useAssetsQuery } from './hooks'
+import { useAssetsCategory, useAssetsQuery } from './hooks'
 
 interface MetadataTableRowProps {
   label: string
@@ -115,7 +116,7 @@ function ResourceFileContextMenu({
             size="sm"
             fullWidth
             onClick={() => {
-              PopoverState.showPopupover(
+              ModalState.openModal(
                 <DeleteFileModal
                   files={[
                     {
@@ -387,6 +388,8 @@ function BottomPaginationNavBar({ handleScrollToPage }) {
 function ResourceItems() {
   const { t } = useTranslation()
   const { resourcesLoading, resources, staticResourcesPagination, refetchResources } = useAssetsQuery()
+  const { currentCategoryPath } = useAssetsCategory()
+  const currentCategory = currentCategoryPath.get({ noproxy: true }) as AssetCategoryNode
   const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]) // Create a ref array
   const fileIconsLoaded = useHookstate(0)
@@ -412,6 +415,11 @@ function ResourceItems() {
   useEffect(() => {
     refetchResources()
   }, [thumbnailJobState.jobs.length])
+
+  useEffect(() => {
+    fileIconsToLoad.set(0)
+    fileIconsLoaded.set(0)
+  }, [currentCategory?.path])
 
   return (
     <div className="relative flex w-full ">
