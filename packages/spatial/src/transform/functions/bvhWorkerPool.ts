@@ -69,17 +69,23 @@ export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options =
     {
       index,
       position: pos,
-      groups: [...geometry.groups],
+      groups: geometry.groups ? [...geometry.groups] : undefined,
       options
     },
     transferrables.map((arr: any) => arr.buffer)
   )
 
-  const { error, serialized } = response.data
+  const { error, serialized, groups } = response.data
 
   if (error) {
     return console.error(error)
   } else {
+    if (groups) {
+      geometry.groups = []
+      for (const group of groups) {
+        geometry.addGroup(group.start, group.count, group.materialIndex)
+      }
+    }
     geometry.setIndex(new BufferAttribute(serialized.index as any, 1, false))
     const bvh = MeshBVH.deserialize(serialized, geometry, { setIndex: false })
     geometry.boundingBox = bvh.getBoundingBox(new Box3())
@@ -92,4 +98,9 @@ export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options =
 type BVHWorkerResponse = {
   error?: string
   serialized: SerializedBVH
+  groups?: Array<{
+    start: number
+    count: number
+    materialIndex?: number | undefined
+  }>
 }

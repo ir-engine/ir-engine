@@ -39,7 +39,7 @@ onmessage = function ({ data }) {
       geometry.index = new THREE.BufferAttribute(index, 1, false)
     }
     if (groups) {
-      for (group of groups) {
+      for (const group of groups) {
         geometry.addGroup(group.start, group.count, group.materialIndex)
       }
     }
@@ -58,7 +58,8 @@ onmessage = function ({ data }) {
     postMessage(
       {
         error: null,
-        serialized
+        serialized,
+        groups: geometry.groups
       },
       transferrables
     )
