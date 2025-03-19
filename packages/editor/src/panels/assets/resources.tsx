@@ -133,7 +133,7 @@ function ResourceFileContextMenu({
                   onComplete={(err?: unknown) => {
                     if (!err) {
                       removeFromFileThumbnailsSeen([resource.key])
-                      refetchResources()
+                      refetchResources(true)
                     }
                   }}
                 />
@@ -387,9 +387,7 @@ function BottomPaginationNavBar({ handleScrollToPage }) {
 
 function ResourceItems() {
   const { t } = useTranslation()
-  const { resourcesLoading, resources, staticResourcesPagination, refetchResources } = useAssetsQuery()
-  const { currentCategoryPath } = useAssetsCategory()
-  const currentCategory = currentCategoryPath.get({ noproxy: true }) as AssetCategoryNode
+  const { category, resourcesLoading, resources, staticResourcesPagination, refetchResources } = useAssetsQuery()
   const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]) // Create a ref array
   const fileIconsLoaded = useHookstate(0)
@@ -413,13 +411,13 @@ function ResourceItems() {
 
   const thumbnailJobState = useMutableState(FileThumbnailJobState)
   useEffect(() => {
-    refetchResources()
+    refetchResources(true)
   }, [thumbnailJobState.jobs.length])
 
   useEffect(() => {
-    fileIconsToLoad.set(0)
     fileIconsLoaded.set(0)
-  }, [currentCategory?.path])
+    fileIconsToLoad.set(0)
+  }, [category.currentCategoryPath])
 
   return (
     <div className="relative flex w-full ">
