@@ -67,6 +67,14 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
     const performFetch = () => {
       const tags = selectedCategory ? [selectedCategory.name, ...iterativelyListTags(selectedCategory.children)] : []
 
+      const skip = forceRefresh
+        ? 0
+        : Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
+
+      const limit = forceRefresh
+        ? ASSETS_PAGE_LIMIT + calculateItemsToFetch() + staticResourcesPagination.skip.value
+        : ASSETS_PAGE_LIMIT + calculateItemsToFetch()
+
       let query = {} as StaticResourceQuery
       if (selectedCategory?.name === MyAssetCategory) {
         const selfUser = getState(AuthState).user
@@ -79,10 +87,8 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
           },
           userId: selfUser.id,
           $sort: { name: 1 },
-          $limit: ASSETS_PAGE_LIMIT + calculateItemsToFetch(),
-          $skip: forceRefresh
-            ? 0
-            : Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
+          $limit: limit,
+          $skip: skip
         } as StaticResourceQuery
       } else {
         query = {
