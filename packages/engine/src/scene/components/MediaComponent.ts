@@ -380,15 +380,31 @@ export function MediaReactor() {
 
   useEffect(() => {
     if (!mediaElement) return
+    const element = mediaElement.element.value as HTMLMediaElement
+
+    const resetMuted = () => {
+      element.muted = false
+      document.removeEventListener('click', resetMuted)
+      document.removeEventListener('touchstart', resetMuted)
+    }
+
     if (media.paused.value) {
-      mediaElement.element.value.pause()
+      element.pause()
     } else {
-      const promise = mediaElement.element.value.play()
-      if (promise) {
-        promise.catch((error) => {
-          console.error(error)
-        })
-      }
+      element.play().catch((error) => {
+        if (error.name === 'NotAllowedError') {
+          element.muted = true
+          element.play()
+
+          document.addEventListener('click', resetMuted)
+          document.addEventListener('touchstart', resetMuted)
+        }
+      })
+    }
+
+    return () => {
+      document.removeEventListener('click', resetMuted)
+      document.removeEventListener('touchstart', resetMuted)
     }
   }, [media.paused, !!mediaElement])
 
