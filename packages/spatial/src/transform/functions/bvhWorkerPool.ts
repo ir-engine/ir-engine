@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Box3, BufferAttribute, BufferGeometry, InstancedMesh, Mesh } from 'three'
+import { Box3, BufferAttribute, BufferGeometry, InstancedMesh, Mesh, TypedArray } from 'three'
 import { MeshBVH, SerializedBVH } from 'three-mesh-bvh'
 import Worker from 'web-worker'
 
@@ -86,7 +86,7 @@ export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options =
         geometry.addGroup(group.start, group.count, group.materialIndex)
       }
     }
-    geometry.setIndex(new BufferAttribute(serialized.index as any, 1, false))
+    geometry.setIndex(new BufferAttribute(serialized.index as TypedArray, 1, false))
     const bvh = MeshBVH.deserialize(serialized, geometry, { setIndex: false })
     geometry.boundingBox = bvh.getBoundingBox(new Box3())
     geometry.boundsTree = bvh
