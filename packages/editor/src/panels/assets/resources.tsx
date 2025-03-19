@@ -385,7 +385,7 @@ function BottomPaginationNavBar({ handleScrollToPage }) {
 
 function ResourceItems() {
   const { t } = useTranslation()
-  const { resourcesLoading, resources, staticResourcesPagination, refetchResources } = useAssetsQuery()
+  const { category, resourcesLoading, resources, staticResourcesPagination, refetchResources } = useAssetsQuery()
   const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]) // Create a ref array
   const fileIconsLoaded = useHookstate(0)
@@ -411,6 +411,11 @@ function ResourceItems() {
   useEffect(() => {
     refetchResources()
   }, [thumbnailJobState.jobs.length])
+
+  useEffect(() => {
+    fileIconsLoaded.set(0)
+    fileIconsToLoad.set(0)
+  }, [category.currentCategoryPath])
 
   return (
     <div className="relative flex w-full ">
