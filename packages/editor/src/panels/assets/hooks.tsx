@@ -35,7 +35,7 @@ import { ASSETS_PAGE_LIMIT, calculateItemsToFetch, convertToHierarchy, iterative
 const AssetsQueryContext = createContext({
   search: null! as State<{ local: string; query: string }>,
   resources: [] as StaticResourceType[],
-  refetchResources: () => {},
+  refetchResources: (forceRefresh?: boolean) => {},
   resourcesLoading: false,
   staticResourcesPagination: null! as State<{ total: number; skip: number }>,
 
@@ -151,8 +151,8 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
       value={{
         search,
         resources: resources.value as StaticResourceType[],
-        refetchResources: () => {
-          staticResourcesFindApi(true)
+        refetchResources: (forceRefresh = false) => {
+          staticResourcesFindApi(forceRefresh)
         },
         resourcesLoading: resourcesLoading.value,
         staticResourcesPagination,
