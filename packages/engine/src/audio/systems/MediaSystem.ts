@@ -84,7 +84,7 @@ export class AudioEffectPlayer {
   }
 
   #queue = new Set<string>()
-  //
+
   play = (sound: string, volumeMultiplier = getState(AudioState).notificationVolume) => {
     if (!this.#els.length) return
 
