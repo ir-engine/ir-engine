@@ -36,6 +36,7 @@ import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { ButtonStateMap } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 import { DefaultButtonAlias } from './InputComponent'
+import { isMobile } from '../../common/functions/isMobile'
 
 export const InputSourceComponent = defineComponent({
   name: 'InputSourceComponent',
@@ -69,7 +70,7 @@ export const InputSourceComponent = defineComponent({
             hapticActuators: [],
             id: 'emulated-gamepad-' + entity,
             index: 0,
-            mapping: 'xr-standard',
+            mapping: isMobile ? 'xr-standard' : '',
             timestamp: performance.now(),
             vibrationActuator: null
           } as unknown as Gamepad),
