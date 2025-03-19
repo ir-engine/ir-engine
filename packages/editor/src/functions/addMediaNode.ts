@@ -36,6 +36,7 @@ import {
 } from '@ir-engine/ecs'
 import {
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   LayerID,
@@ -57,13 +58,14 @@ import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/Volu
 import { serializeEntity } from '@ir-engine/engine/src/scene/functions/serializeWorld'
 import { SceneDeltaState } from '@ir-engine/engine/src/scene/systems/SceneDeltaState'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
-import { getState } from '@ir-engine/hyperflux'
+import { getState, none } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import {
   MaterialInstanceComponent,
+  MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { EditorHistoryFunctions } from '../services/EditorHistoryState'
@@ -146,7 +148,16 @@ export async function addMediaNode(
               const materialComponent = getComponent(material, MaterialStateComponent)
               const materialToMutate = UUIDComponent.getEntityByUUID(uuids[materialIndex], Layers.Authoring)
               // wipe out any existing deltas for this material
-              SceneDeltaState.registerMaterialDelta(materialToMutate, {})
+              const existingDelta =
+                SceneDeltaState.getSource(materialToMutate)?.[getComponent(materialToMutate, NodeIDComponent)]
+              if (existingDelta.value) {
+                //another hack
+                const mat = getComponent(materialToMutate, MaterialStateComponent).material
+                const constructor =
+                  getState(MaterialPrototypeDefinitions)[mat.userData?.type || mat.type].prototypeConstructor
+                getMutableComponent(materialToMutate, MaterialStateComponent).material.set(new constructor())
+                existingDelta.set(none)
+              }
               EditorControlFunctions.updateMaterialPrototype(
                 materialToMutate,
                 materialComponent.material.userData?.type ?? materialComponent.material.type
