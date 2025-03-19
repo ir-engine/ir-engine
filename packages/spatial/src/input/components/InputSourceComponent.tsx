@@ -31,12 +31,12 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getState } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { isMobile } from '../../common/functions/isMobile'
 import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { ButtonStateMap } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 import { DefaultButtonAlias } from './InputComponent'
-import { isMobile } from '../../common/functions/isMobile'
 
 export const InputSourceComponent = defineComponent({
   name: 'InputSourceComponent',
