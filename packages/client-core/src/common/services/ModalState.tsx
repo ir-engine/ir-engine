@@ -33,7 +33,7 @@ export interface ModalData {
 }
 
 /**
- * Popover state for tailwind routes
+ * Modal state for tailwind routes
  */
 export const ModalState = defineState({
   name: 'ee.client.ModalState',
@@ -42,7 +42,8 @@ export const ModalState = defineState({
     backdrop: 'blur' as BackdropType
   },
 
-  /**shows a popupover. if a previous popover was already present, the `element` popover will be current showed */
+  /**shows a modal.
+   * if a previous modal was already present, the `element` modal will be current showed */
   openModal: (
     element: JSX.Element,
     onClickOutside?: ModalData['onClickOutside'],
@@ -59,7 +60,8 @@ export const ModalState = defineState({
       getMutableState(ModalState).backdrop.set('transparent')
     }
   },
-  /**close the current popover. if a previous popover was present, the previous one will be shown */
+  /**close the current modal.
+   * if a previous modal was present, the previous one will be shown */
   closeModal: () => {
     const currentCount = getMutableState(ModalState).modals.length
     getMutableState(ModalState).modals.set((prevElements) => {
@@ -67,10 +69,10 @@ export const ModalState = defineState({
       return prevElements
     })
     if (currentCount === 1) {
-      /* if the current popover is the last one, the backdrop will be reset to blur */
+      /* if the current modal is the last one, the backdrop will be reset to blur */
       getMutableState(ModalState).backdrop.set('blur')
     }
   },
-  /**Returns true if there are any open popovers, false otherwise, based on the length of the elements array in ModalState.*/
+  /**Returns true if there are any open modals, false otherwise, based on the length of the elements array in ModalState.*/
   isModalOpen: () => getMutableState(ModalState).modals.length > 0
 })
