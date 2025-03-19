@@ -32,7 +32,7 @@ import { getMutableState, NO_PROXY, useHookstate, useMutableState } from '@ir-en
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
-import { PopoverState } from '../../common/services/PopoverState'
+import { ModalState } from '../../common/services/ModalState'
 import { LoadingSystemState } from '../../systems/state/LoadingState'
 import LocationIconButton from '../../user/components/LocationIconButton'
 import InstanceChat from '../../user/InstanceChat'
@@ -116,7 +116,7 @@ export const ViewerInteractions = () => {
             key={menuName}
             title={props.title}
             icon={props.icon}
-            onClick={() => PopoverState.showPopupover(props.component as JSX.Element)}
+            onClick={() => ModalState.openModal(props.component as JSX.Element)}
           />
         ))}
       </div>

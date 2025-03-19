@@ -36,8 +36,8 @@ import {
   HiOutlineUsers
 } from 'react-icons/hi2'
 
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@ir-engine/client-core/src/common/services/ProjectService'
 import { useFind, useSearch } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
@@ -113,7 +113,7 @@ export default function ProjectTable(props: { search: string }) {
       }).catch((err) => {
         NotificationService.dispatchNotify(err.message, { variant: 'error' })
       })
-      if (activeProjectId?.value === project.id) PopoverState.hidePopupover()
+      if (activeProjectId?.value === project.id) ModalState.closeModal()
     }
 
     return (
@@ -124,7 +124,7 @@ export default function ProjectTable(props: { search: string }) {
           disabled={project.name === 'ir-engine/default-project'}
           onClick={() => {
             activeProjectId.set(project.id)
-            PopoverState.showPopupover(
+            ModalState.openModal(
               <AddEditProjectModal update={true} inputProject={project} onSubmit={handleProjectUpdate} />
             )
           }}
@@ -137,7 +137,7 @@ export default function ProjectTable(props: { search: string }) {
           className="mr-2 h-min whitespace-pre  text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={!project || !project.repositoryPath || project.name === 'ir-engine/default-project'}
           onClick={() => {
-            PopoverState.showPopupover(
+            ModalState.openModal(
               <ConfirmDialog
                 text={`${t('admin:components.project.confirmPushProjectToGithub')}? ${project.name} - ${
                   project.repositoryPath
@@ -158,7 +158,7 @@ export default function ProjectTable(props: { search: string }) {
           className="mr-2 h-min whitespace-pre  text-[#214AA6] disabled:opacity-50 dark:text-white"
           onClick={() => {
             activeProjectId.set(project.id)
-            PopoverState.showPopupover(<ManageUserPermissionModal project={project} />)
+            ModalState.openModal(<ManageUserPermissionModal project={project} />)
           }}
         >
           <HiOutlineUsers />
@@ -169,7 +169,7 @@ export default function ProjectTable(props: { search: string }) {
           className="mr-2 h-min whitespace-pre  text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={config.client.localBuildOrDev}
           onClick={() => {
-            PopoverState.showPopupover(
+            ModalState.openModal(
               <ConfirmDialog
                 text={`${t('admin:components.project.confirmProjectInvalidate')} '${project.name}'?`}
                 onSubmit={async () => {
@@ -190,7 +190,7 @@ export default function ProjectTable(props: { search: string }) {
           size="sm"
           className="mr-2 h-min whitespace-pre  text-[#214AA6] disabled:opacity-50 dark:text-white"
           onClick={() => {
-            PopoverState.showPopupover(<ProjectHistoryModal projectId={project.id} projectName={project.name} />)
+            ModalState.openModal(<ProjectHistoryModal projectId={project.id} projectName={project.name} />)
           }}
         >
           <HiOutlineClock />
@@ -201,7 +201,7 @@ export default function ProjectTable(props: { search: string }) {
           className="h-min whitespace-pre  text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={project.name === 'ir-engine/default-project'}
           onClick={() => {
-            PopoverState.showPopupover(
+            ModalState.openModal(
               <ConfirmDialog
                 text={`${t('admin:components.project.confirmProjectDelete')} '${project.name}'?`}
                 onSubmit={async () => {
