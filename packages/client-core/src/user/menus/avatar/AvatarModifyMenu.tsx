@@ -47,7 +47,7 @@ import { Button, Input } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import { Upload01Lg, User01Lg, XCloseLg } from '@ir-engine/ui/src/icons'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import { PopoverState } from '../../../common/services/PopoverState'
+import { ModalState } from '../../../common/services/ModalState'
 import { AvatarService } from '../../services/AvatarService'
 import AvatarCreatorMenu2, { SupportedSdks } from './AvatarCreatorMenu'
 import AvatarSelectMenu from './AvatarSelectMenu'
@@ -234,7 +234,7 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
 
   const handleGenerateThumbnail = () => {
     if (thumbnailSrc) {
-      PopoverState.showPopupover(
+      ModalState.openModal(
         <ConfirmDialog
           text={t('admin:components.avatar.confirmThumbnailReplace')}
           onSubmit={handleProcessGenerateThumbnail}
@@ -258,7 +258,7 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
 
     const blob = await getCanvasBlob(canvas)
     setState({ ...state, thumbnailUrl: 'thumbnail.png', thumbnailFile: new File([blob!], 'thumbnail.png') })
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
   }
 
   const handleSave = async () => {
@@ -291,10 +291,10 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
           avatarFile,
           thumbnailFile
         )
-        PopoverState.showPopupover(<AvatarSelectMenu showBackButton={true} previewEnabled={true} />)
+        ModalState.openModal(<AvatarSelectMenu showBackButton={true} previewEnabled={true} />)
       } else if (avatarFile && thumbnailFile) {
         await AvatarService.createAvatar(avatarFile, thumbnailFile, state.name, false)
-        PopoverState.hidePopupover()
+        ModalState.closeModal()
       }
     } catch (err) {
       console.error(err)
@@ -309,7 +309,7 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
       onSubmit={handleSave}
       submitLoading={isSaving}
       title={selectedAvatar ? t('user:avatar.titleEditAvatar') : t('user:avatar.createAvatar')}
-      onClose={() => PopoverState.hidePopupover()}
+      onClose={() => ModalState.closeModal()}
       className="pointer-events-auto w-[50vw] min-w-[720px] max-w-2xl"
     >
       <div className="grid grid-cols-2 gap-x-4">
@@ -322,7 +322,7 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
               fullWidth
               onClick={() => {
                 const Menu = AvatarCreatorMenu2(SupportedSdks.ReadyPlayerMe)
-                PopoverState.showPopupover(<Menu showBackButton={false} previewEnabled={true} />)
+                ModalState.openModal(<Menu showBackButton={false} previewEnabled={true} />)
               }}
             >
               {t('user:usermenu.profile.useReadyPlayerMe')}
@@ -334,7 +334,7 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
               fullWidth
               onClick={() => {
                 const Menu = AvatarCreatorMenu2(SupportedSdks.Avaturn)
-                PopoverState.showPopupover(<Menu showBackButton={false} previewEnabled={true} />)
+                ModalState.openModal(<Menu showBackButton={false} previewEnabled={true} />)
               }}
             >
               {t('user:usermenu.profile.useAvaturn')}
