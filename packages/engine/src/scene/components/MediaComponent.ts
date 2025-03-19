@@ -398,6 +398,8 @@ export function MediaReactor() {
 
           document.addEventListener('click', resetMuted)
           document.addEventListener('touchstart', resetMuted)
+        } else {
+          console.error(error)
         }
       })
     }
