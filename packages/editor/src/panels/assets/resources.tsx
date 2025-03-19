@@ -46,8 +46,9 @@ import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileIcon } from '../files/fileicon'
 import { FileUploadProgress } from '../files/loaders'
 import DeleteFileModal from '../files/modals/DeleteFileModal'
+import { AssetCategoryNode } from './categories'
 import { ASSETS_PAGE_LIMIT, calculateItemsToFetch } from './helpers'
-import { useAssetsQuery } from './hooks'
+import { useAssetsCategory, useAssetsQuery } from './hooks'
 
 interface MetadataTableRowProps {
   label: string
@@ -387,6 +388,8 @@ function BottomPaginationNavBar({ handleScrollToPage }) {
 function ResourceItems() {
   const { t } = useTranslation()
   const { resourcesLoading, resources, staticResourcesPagination, refetchResources } = useAssetsQuery()
+  const { currentCategoryPath } = useAssetsCategory()
+  const currentCategory = currentCategoryPath.get({ noproxy: true }) as AssetCategoryNode
   const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]) // Create a ref array
   const fileIconsLoaded = useHookstate(0)
@@ -412,6 +415,11 @@ function ResourceItems() {
   useEffect(() => {
     refetchResources()
   }, [thumbnailJobState.jobs.length])
+
+  useEffect(() => {
+    fileIconsToLoad.set(0)
+    fileIconsLoaded.set(0)
+  }, [currentCategory?.path])
 
   return (
     <div className="relative flex w-full ">
