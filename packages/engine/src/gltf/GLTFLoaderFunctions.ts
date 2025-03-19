@@ -815,7 +815,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
         if (materialDelta.uuid || materialPrototype) materialConstructorParameters = {}
 
         for (const key in materialDelta) {
-          if (!materialDelta[key]) continue
+          if (materialDelta[key] === null) continue
           switch (prototype.arguments[key]?.type) {
             case 'color':
               materialConstructorParameters[key] = new Color(materialDelta[key])
