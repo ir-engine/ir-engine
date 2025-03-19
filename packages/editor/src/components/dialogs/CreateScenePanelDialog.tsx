@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { Button } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
@@ -36,11 +36,7 @@ export default function CreateSceneDialog() {
   const element = useMutableState(UIAddonsState).editor.newScene.get(NO_PROXY)
   const { t } = useTranslation()
   return (
-    <Modal
-      title={t('editor:dialog.createScene.title')}
-      className="w-[15vw] max-w-2xl"
-      onClose={PopoverState.hidePopupover}
-    >
+    <Modal title={t('editor:dialog.createScene.title')} className="w-[15vw] max-w-2xl" onClose={ModalState.closeModal}>
       <div className="flex w-full flex-col justify-center gap-1">
         <Button
           size="sm"
@@ -49,7 +45,7 @@ export default function CreateSceneDialog() {
           onClick={() => {
             onNewScene()
             logNewScene('editor', 'editor')
-            PopoverState.hidePopupover()
+            ModalState.closeModal()
           }}
         >
           {t('editor:dialog.createScene.create')}

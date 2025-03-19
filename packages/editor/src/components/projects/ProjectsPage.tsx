@@ -26,8 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import AddEditProjectModal from '@ir-engine/client-core/src/admin/components/project/AddEditProjectModal'
 import ManageUserPermissionModal from '@ir-engine/client-core/src/admin/components/project/ManageUserPermissionModal'
 import { ProjectUpdateState } from '@ir-engine/client-core/src/admin/services/ProjectUpdateService'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@ir-engine/client-core/src/common/services/ProjectService'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useFind } from '@ir-engine/common'
@@ -276,7 +276,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
     }).catch((err) => {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     })
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
   }
 
   const renderProjectList = (projects: ProjectType[], areInstalledProjects?: boolean) => {
@@ -387,7 +387,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
 
           <Button
             onClick={() => {
-              PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={false} />)
+              ModalState.openModal(<AddEditProjectModal onSubmit={handleProjectUpdate} update={false} />)
             }}
             variant="tertiary"
           >
@@ -451,7 +451,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
               onClick={() => {
                 if (projectContextState.project) {
                   setProjectContextState({ event: undefined, project: null })
-                  PopoverState.showPopupover(<ManageUserPermissionModal project={projectContextState.project} />)
+                  ModalState.openModal(<ManageUserPermissionModal project={projectContextState.project} />)
                 }
               }}
               variant="tertiary"
@@ -470,7 +470,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
                 onClick={() => {
                   if (projectContextState.project) {
                     setProjectContextState({ event: undefined, project: null })
-                    PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={true} />)
+                    ModalState.openModal(<AddEditProjectModal onSubmit={handleProjectUpdate} update={true} />)
                   }
                 }}
                 variant="tertiary"
@@ -489,7 +489,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
                 onClick={() => {
                   if (projectContextState.project) {
                     setProjectContextState({ event: undefined, project: null })
-                    PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={true} />)
+                    ModalState.openModal(<AddEditProjectModal onSubmit={handleProjectUpdate} update={true} />)
                   }
                 }}
                 variant="tertiary"
@@ -508,7 +508,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
                 onClick={() => {
                   if (projectContextState.project) {
                     setProjectContextState({ event: undefined, project: null })
-                    PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={true} />)
+                    ModalState.openModal(<AddEditProjectModal onSubmit={handleProjectUpdate} update={true} />)
                   }
                 }}
                 variant="tertiary"
@@ -534,7 +534,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
             <Button
               onClick={() => {
                 setProjectContextState({ event: undefined, project: null })
-                PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={false} />)
+                ModalState.openModal(<AddEditProjectModal onSubmit={handleProjectUpdate} update={false} />)
               }}
               variant="tertiary"
               fullWidth

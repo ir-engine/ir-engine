@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useFind, useMutation } from '@ir-engine/common'
 import {
   InstanceID,
@@ -121,7 +121,7 @@ export default function ViewUsersModal({ instanceId }: { instanceId: string }) {
       title="View"
       className="w-[50vw] max-w-2xl"
       onClose={() => {
-        PopoverState.hidePopupover()
+        ModalState.closeModal()
       }}
     >
       {instanceUsersQuery.data.length === 0 ? (

@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import AddEditLocationModal from '@ir-engine/client-core/src/admin/components/locations/AddEditLocationModal'
 import ProfilePill from '@ir-engine/client-core/src/common/components/ProfilePill'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { RouterState } from '@ir-engine/client-core/src/common/services/RouterService'
 import { useProjectPermissions } from '@ir-engine/client-core/src/hooks/useUserProjectPermission'
 import { useFind } from '@ir-engine/common'
@@ -71,7 +71,7 @@ export const confirmSceneSaveIfModified = async () => {
 
   if (isModified && isSceneExists) {
     return new Promise((resolve) => {
-      PopoverState.showPopupover(<QuitToDashboardConfirmationDialog resolve={resolve} />)
+      ModalState.openModal(<QuitToDashboardConfirmationDialog resolve={resolve} />)
     })
   }
   return true
@@ -83,7 +83,7 @@ const onClickNewScene = async () => {
   const newSceneUIAddons = getState(UIAddonsState).editor.newScene
 
   if (Object.keys(newSceneUIAddons).length > 0) {
-    PopoverState.showPopupover(<CreateSceneDialog />)
+    ModalState.openModal(<CreateSceneDialog />)
   } else {
     onNewScene()
   }
@@ -124,11 +124,11 @@ const generateToolbarMenu = () => {
     },
     {
       name: t('editor:menubar.saveAs'),
-      action: () => PopoverState.showPopupover(<SaveNewSceneDialog />)
+      action: () => ModalState.openModal(<SaveNewSceneDialog />)
     },
     {
       name: t('editor:menubar.importSettings'),
-      action: () => PopoverState.showPopupover(<ImportSettingsPanel />)
+      action: () => ModalState.openModal(<ImportSettingsPanel />)
     },
     {
       name: t('editor:menubar.importAsset'),
@@ -136,7 +136,7 @@ const generateToolbarMenu = () => {
     },
     {
       name: t('editor:menubar.exportLookdev'),
-      action: () => PopoverState.showPopupover(<CreatePrefabPanel isExportLookDev={true} />)
+      action: () => ModalState.openModal(<CreatePrefabPanel isExportLookDev={true} />)
     },
     {
       name: t('editor:menubar.quit'),
@@ -218,7 +218,7 @@ export default function Toolbar() {
                 data-testid="publish-button"
                 disabled={!hasPublishAccess}
                 onClick={() =>
-                  PopoverState.showPopupover(
+                  ModalState.openModal(
                     <AddEditLocationModal
                       action="studio"
                       sceneID={sceneAssetID.value}

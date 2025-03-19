@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { t } from 'i18next'
 import React from 'react'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useHookstate } from '@ir-engine/hyperflux'
 
 import Modal, { ModalProps } from '../../../primitives/tailwind/Modal'
@@ -47,7 +47,7 @@ export const ConfirmDialog = ({ title, text, onSubmit, onClose, modalProps }: Co
     modalProcessing.set(true)
     try {
       await onSubmit()
-      PopoverState.hidePopupover()
+      ModalState.closeModal()
     } catch (error) {
       errorText.set(error.message)
     }
@@ -59,7 +59,7 @@ export const ConfirmDialog = ({ title, text, onSubmit, onClose, modalProps }: Co
       title={title || t('admin:components.common.confirmation')}
       onSubmit={handled}
       onClose={() => {
-        PopoverState.hidePopupover()
+        ModalState.closeModal()
         onClose?.()
       }}
       className="h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl bg-surface-1 smh:h-auto smh:min-w-fit"
