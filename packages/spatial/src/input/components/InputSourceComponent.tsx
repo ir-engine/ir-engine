@@ -69,7 +69,7 @@ export const InputSourceComponent = defineComponent({
             hapticActuators: [],
             id: 'emulated-gamepad-' + entity,
             index: 0,
-            mapping: '',
+            mapping: 'xr-standard',
             timestamp: performance.now(),
             vibrationActuator: null
           } as unknown as Gamepad),
