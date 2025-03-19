@@ -31,7 +31,7 @@ import { RecordingType, recordingPath } from '@ir-engine/common/src/schema.type.
 import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import { Trash04Lg } from '@ir-engine/ui/src/icons'
-import { PopoverState } from '../../../common/services/PopoverState'
+import { ModalState } from '../../../common/services/ModalState'
 import DataTable from '../../common/Table'
 import { recordingColumns } from '../../common/constants/recordings'
 import ActionButton from '../ActionButton'
@@ -78,7 +78,7 @@ export default function RecordingsTable({ search }: { search: string }) {
             icon={Trash04Lg}
             title={t('admin:components.common.delete')}
             onClick={() => {
-              PopoverState.showPopupover(
+              ModalState.openModal(
                 <ConfirmDialog
                   text={`${t('admin:components.recording.confirmRecordingDelete')} (${row.id}) ?`}
                   onSubmit={async () => {

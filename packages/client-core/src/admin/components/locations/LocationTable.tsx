@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { locationPath, LocationType, scopePath, ScopeType } from '@ir-engine/common/src/schema.type.module'
 import { isValidId } from '@ir-engine/common/src/utils/isValidId'
@@ -114,7 +114,7 @@ export default function LocationTable({ search }: { search: string }) {
           <ActionButton
             icon={Edit01Lg}
             title={t('admin:components.common.view')}
-            onClick={() => PopoverState.showPopupover(<AddEditLocationModal action="admin" location={row} />)}
+            onClick={() => ModalState.openModal(<AddEditLocationModal action="admin" location={row} />)}
             variant="green"
           />
 
@@ -122,7 +122,7 @@ export default function LocationTable({ search }: { search: string }) {
             icon={Trash04Lg}
             title={t('admin:components.common.delete')}
             onClick={() =>
-              PopoverState.showPopupover(
+              ModalState.openModal(
                 <ConfirmDialog
                   text={`${t('admin:components.location.confirmLocationDelete')} '${row.name}'?`}
                   onSubmit={async () => {

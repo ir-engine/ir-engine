@@ -21,7 +21,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { lazy, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useFind, useMutation } from '@ir-engine/common'
 import { config } from '@ir-engine/common/src/config'
 import { ModelTransformStatus, transformModel } from '@ir-engine/common/src/model/ModelTransformFunctions'
@@ -222,7 +222,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
     if (!isValid) {
       return
     }
-    PopoverState.showPopupover(<CompressedPublishConfirmation />)
+    ModalState.openModal(<CompressedPublishConfirmation />)
     const { projectName, sceneName, rootEntity, sceneAssetID, scenePath } = getState(EditorState)
     const abortController = new AbortController()
     try {
@@ -381,10 +381,10 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
         //re-open the original scene
         const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${scenePath}`
         window.open(studioUrl, '_blank')?.focus()
-        PopoverState.hidePopupover()
+        ModalState.closeModal()
       }
     } catch (error) {
-      PopoverState.showPopupover(
+      ModalState.openModal(
         <ErrorDialog title={t('editor:savingError')} description={error?.message || t('editor:savingErrorMsg')} />
       )
     }
@@ -598,11 +598,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
         </div>
 
         <div className="grid grid-flow-col border-t border-t-ui-outline px-6 py-5">
-          <Button
-            variant="tertiary"
-            data-testid="publish-panel-cancel-button"
-            onClick={() => PopoverState.hidePopupover()}
-          >
+          <Button variant="tertiary" data-testid="publish-panel-cancel-button" onClick={() => ModalState.closeModal()}>
             {t('common:components.cancel')}
           </Button>
           <div className="ml-auto flex items-center gap-2">
