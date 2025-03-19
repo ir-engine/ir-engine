@@ -23,16 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  VRM,
-  VRM1Meta,
-  VRMHumanBone,
-  VRMHumanBoneList,
-  VRMHumanBoneName,
-  VRMHumanBones,
-  VRMHumanoid,
-  VRMParameters
-} from '@pixiv/three-vrm'
 import type * as V0VRM from '@pixiv/types-vrm-0.0'
 
 import { AnimationAction, Euler, Group, Matrix4, Object3D, Quaternion, Vector3 } from 'three'
@@ -57,6 +47,7 @@ import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/Obje
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { hipsRegex, mixamoVRMRigMap } from '../AvatarBoneMatching'
+import { VRMHumanBoneName } from '../maps/VRMHumanBoneName'
 import { NormalizedBoneComponent } from './NormalizedBoneComponent'
 
 /**@todo refactor into generalized AnimationGraphComponent */
@@ -170,22 +161,6 @@ export function createVRM(rootEntity: Entity) {
         (value as Quaternion).clone().invert()
       ])
     )
-
-    const scene = getComponent(rootEntity, ObjectComponent)
-
-    const meta = vrmExtensionDefinition.meta! as any
-
-    const vrm = new VRM({
-      humanoid,
-      scene,
-      meta
-      // expressionManager: gltf.userData.vrmExpressionManager,
-      // firstPerson: gltf.userData.vrmFirstPerson,
-      // lookAt: gltf.userData.vrmLookAt,
-      // materials: gltf.userData.vrmMToonMaterials,
-      // springBoneManager: gltf.userData.vrmSpringBoneManager,
-      // nodeConstraintManager: gltf.userData.vrmNodeConstraintManager,
-    } as VRMParameters)
 
     setComponent(rootEntity, AvatarRigComponent, { vrm })
     linkNormalizedBones(vrm)

@@ -35,10 +35,10 @@ import {
 } from '@ir-engine/ecs'
 import { TransformComponent } from '@ir-engine/spatial'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { getHips } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
+import { VRMHumanBoneName } from '../maps/VRMHumanBoneName'
 
 const restRotationInverse = new Quaternion()
 const parentRestWorldRotation = new Quaternion()

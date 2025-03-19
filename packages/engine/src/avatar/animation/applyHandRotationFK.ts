@@ -23,12 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
-
 import { Entity, getComponent } from '@ir-engine/ecs'
 import { XRJointAvatarBoneMap } from '@ir-engine/spatial/src/xr/XRComponents'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { NormalizedBoneComponent } from '../components/NormalizedBoneComponent'
+import { VRMHumanBoneName } from '../maps/VRMHumanBoneName'
 
 export const applyHandRotationFK = (avatarEntity: Entity, handedness: 'left' | 'right', rotations: Float32Array) => {
   const bones = Object.values(XRJointAvatarBoneMap)

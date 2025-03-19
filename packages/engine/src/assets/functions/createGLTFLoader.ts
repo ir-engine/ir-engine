@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VRMLoaderPlugin } from '@pixiv/three-vrm'
-import { Group, WebGLRenderer } from 'three'
+import { WebGLRenderer } from 'three'
 
 import { getState, isClient } from '@ir-engine/hyperflux'
 
@@ -67,7 +66,7 @@ export const createGLTFLoader = (keepMaterials = false) => {
   loader.register((parser) => new KHRMaterialsPBRSpecularGlossinessExtension(parser))
   loader.register((parser) => new EEECSImporterExtension(parser))
   loader.register((parser) => new HubsComponentsExtension(parser))
-  loader.register((parser) => new VRMLoaderPlugin(parser, { helperRoot: new Group(), autoUpdateHumanBones: false }))
+  //loader.register((parser) => new VRMLoaderPlugin(parser, { helperRoot: new Group(), autoUpdateHumanBones: false }))
   loader.register((parser) => new CachedImageLoadExtension(parser))
   loader.register((parser) => new ResourceManagerLoadExtension(parser))
 

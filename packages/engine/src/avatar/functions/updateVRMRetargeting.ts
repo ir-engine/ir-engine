@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 
 import { EntityTreeComponent } from '@ir-engine/ecs'
@@ -34,6 +33,7 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
+import { VRMHumanBoneName } from '../maps/VRMHumanBoneName'
 
 export const updateVRMRetargeting = (avatarEntity: Entity) => {
   const vrm = getComponent(avatarEntity, AvatarRigComponent).vrm
