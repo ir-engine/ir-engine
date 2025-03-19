@@ -24,8 +24,15 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { UndefinedEntity, createEngine, createEntity, destroyEngine, getComponent, setComponent } from '@ir-engine/ecs'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { assertArray } from '../../tests/util/assert'
+import { CustomWebXRPolyfill } from '../../tests/webxr/emulator'
+
+import { EntityTreeComponent, hasComponent, removeComponent, removeEntity } from '@ir-engine/ecs'
+import { getMutableState } from '@ir-engine/hyperflux'
+import { destroyEmulatedXREngine, mockEmulatedXREngine } from '../../tests/util/mockEmulatedXREngine'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
+import { TransformComponent } from '../transform/components/TransformComponent'
 import {
   XRAnchorComponent,
   XRHandComponent,
@@ -34,6 +41,12 @@ import {
   XRRightHandComponent,
   XRSpaceComponent
 } from './XRComponents'
+import { ReferenceSpace } from './XRState'
+
+/** @note Runs once on the `describe` implied by vitest for this file */
+beforeAll(() => {
+  new CustomWebXRPolyfill()
+})
 
 const XRHandRotationDefaults = [
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -115,7 +128,63 @@ describe('XRHitTestComponent', () => {
   }) //:: Fields
 
   /** @todo */
-  describe('reactor', () => {}) //:: reactor
+  describe('reactor', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      await mockEmulatedXREngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      destroyEmulatedXREngine()
+      destroyEngine()
+    })
+
+    // @todo How to check the contents of the function inside the `.then(fn)` call?
+    describe("when XRHitTestComponent.options has a field called 'space' ..", () => {
+      it.todo(
+        '.. should call XRState.session.requestHitTestSource with XRHitTestComponent.options and a .then callback that [??]',
+        () => {}
+      )
+    })
+
+    // @todo How to check the contents of the function inside the `.then(fn)` call?
+    describe("when XRHitTestComponent.options does not have a field called 'space' ..", () => {
+      it.todo(
+        '.. should call XRState.session.requestHitTestSource with XRHitTestComponent.options and a .then callback that [??]',
+        () => {}
+      )
+    })
+
+    // @todo Why is the cancel spy not getting triggered ?
+    it.todo('should call XRHitTestComponent.source.cancel when it unmounts', async () => {
+      // Set the data as expected
+      const resultSpy = vi.fn()
+      setComponent(testEntity, XRHitTestComponent, { source: { cancel: resultSpy } })
+      // Sanity check before running
+      expect(resultSpy).not.toHaveBeenCalled()
+      // Run and Check the result
+      await vi.waitFor(() => {
+        removeComponent(testEntity, XRHitTestComponent)
+        expect(resultSpy).toHaveBeenCalledOnce()
+      })
+    })
+
+    // @todo Use the test above, but with the opposite case
+    it.todo('should not do anything if the entityContext does not have an XRHitTestComponent', () => {
+      const Expected = false
+      // Set the data as expected
+      // Sanity check before running
+      // Run and Check the result
+      const result = true
+      expect(result).toBe(Expected)
+    })
+
+    it.todo('should trigger when entityContext.XRHitTestComponent.options changes', () => {})
+  }) //:: reactor
 }) //:: XRHitTestComponent
 
 describe('XRAnchorComponent', () => {
@@ -125,8 +194,34 @@ describe('XRAnchorComponent', () => {
     })
   }) //:: Fields
 
-  /** @todo */
-  describe('reactor', () => {}) //:: reactor
+  describe('reactor', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      await mockEmulatedXREngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      destroyEmulatedXREngine()
+      destroyEngine()
+    })
+
+    it('should call entityContext.XRAnchorComponent.anchor.delete when it unmounts', async () => {
+      // Set the data as expected
+      const resultSpy = vi.fn()
+      setComponent(testEntity, XRAnchorComponent, { anchor: { delete: resultSpy } as unknown as XRAnchor })
+      // Sanity check before running
+      expect(resultSpy).not.toHaveBeenCalled()
+      // Run and Check the result
+      await vi.waitFor(() => {
+        removeComponent(testEntity, XRAnchorComponent)
+        expect(resultSpy).toHaveBeenCalledOnce()
+      })
+    })
+  }) //:: reactor
 }) //:: XRAnchorComponent
 
 describe('XRSpaceComponent', () => {
@@ -136,6 +231,67 @@ describe('XRSpaceComponent', () => {
     })
   }) //:: Fields
 
-  /** @todo */
-  describe('reactor', () => {}) //:: reactor
+  describe('reactor', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      await mockEmulatedXREngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      destroyEmulatedXREngine()
+      destroyEngine()
+    })
+
+    it('should set an EntityTreeComponent to the entityContext with EngineState.localFloorEntity as its parentEntity when entityContext.XRSpaceComponent.baseSpace is ReferenceSpace.localFloor', () => {
+      const Expected = createEntity()
+      // Set the data as expected
+      getMutableState(ReferenceSpaceState).localFloorEntity.set(Expected)
+      // Sanity check before running
+      expect(hasComponent(testEntity, EntityTreeComponent)).toBe(false)
+      // Run and Check the result
+      setComponent(testEntity, XRSpaceComponent, { baseSpace: ReferenceSpace.localFloor! })
+      const result = getComponent(testEntity, EntityTreeComponent).parentEntity
+      expect(result).toBe(Expected)
+    })
+
+    it('should set an EntityTreeComponent to the entityContext with EngineState.viewerEntity as its parentEntity when entityContext.XRSpaceComponent.baseSpace is ReferenceSpace.viewer', () => {
+      const Expected = createEntity()
+      // Set the data as expected
+      getMutableState(ReferenceSpaceState).viewerEntity.set(Expected)
+      // Sanity check before running
+      expect(hasComponent(testEntity, EntityTreeComponent)).toBe(false)
+      // Run and Check the result
+      setComponent(testEntity, XRSpaceComponent, { baseSpace: ReferenceSpace.viewer! })
+      const result = getComponent(testEntity, EntityTreeComponent).parentEntity
+      expect(result).toBe(Expected)
+    })
+
+    it('should set an EntityTreeComponent to the entityContext with UndefinedEntity as its parentEntity when entityContext.XRSpaceComponent.baseSpace is not ReferenceSpace.viewer or ReferenceSpace.localFloor', () => {
+      const Expected = UndefinedEntity
+      // Sanity check before running
+      expect(hasComponent(testEntity, EntityTreeComponent)).toBe(false)
+      // Run and Check the result
+      setComponent(testEntity, XRSpaceComponent, { baseSpace: undefined })
+      const result = getComponent(testEntity, EntityTreeComponent).parentEntity
+      expect(result).toBe(Expected)
+    })
+
+    it('should set a TransformComponent to the entityContext', () => {
+      const Expected = true
+      const Initial = !Expected
+      // Sanity check before running
+      const before = hasComponent(testEntity, TransformComponent)
+      expect(before).toBe(Initial)
+      expect(before).not.toBe(Expected)
+      // Run and Check the result
+      setComponent(testEntity, XRSpaceComponent)
+      const result = hasComponent(testEntity, TransformComponent)
+      expect(result).not.toBe(Initial)
+      expect(result).toBe(Expected)
+    })
+  }) //:: reactor
 }) //:: XRSpaceComponent

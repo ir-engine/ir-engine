@@ -41,6 +41,9 @@ const config: ProjectConfigInterface = {
     '/location': {
       component: () => import('@ir-engine/client/src/pages/location/location')
     },
+    '/banned': {
+      component: () => import('@ir-engine/client/src/pages/_banned')
+    },
     '/studio': {
       component: () => import('@ir-engine/client/src/pages/editor')
     },
