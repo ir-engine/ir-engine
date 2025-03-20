@@ -22,6 +22,31 @@ if [ "$DESTINATION_REPO_PROVIDER" = "aws" ]; then
     aws ecr-public describe-repositories --repository-names $DESTINATION_REPO_NAME --region us-east-1 || aws ecr-public create-repository --repository-name $DESTINATION_REPO_NAME_STEM-$PACKAGE --region us-east-1
   fi
 elif [ "$DESTINATION_REPO_PROVIDER" == "gcp" ]; then
+  echo "Log into Docker with GCP credentials"
+  DESTINATION_REPO_NAME=$DESTINATION_REPO_NAME_STEM-$PACKAGE/$DESTINATION_REPO_NAME_STEM-$PACKAGE
+
+  # Apply environment-specific suffixes based on APP_HOST
+  if [[ "$APP_HOST" =~ "studio" ]] || [[ "$APP_HOST" =~ "mt-stg" ]]; then
+    SUFFIX="mt"
+  elif [[ "$APP_HOST" =~ "mt-rc" ]]; then
+    SUFFIX="mt-rc"
+  elif [[ "$APP_HOST" =~ "mt-int" ]]; then
+      SUFFIX="mt-int"
+  elif [[ "$APP_HOST" =~ "mt-qat" ]]; then
+      SUFFIX="mt-qat"
+  elif [[ "$APP_HOST" =~ "mt" ]]; then
+      SUFFIX="mt"
+  elif [[ "$APP_HOST" =~ "qat" ]]; then
+      SUFFIX="qat"
+  else
+      SUFFIX=""
+  fi
+    
+  # Only modify the repo name if a suffix was identified
+  if [ -n "$SUFFIX" ]; then
+      DESTINATION_REPO_NAME="$DESTINATION_REPO_NAME_STEM-$PACKAGE-$SUFFIX/$DESTINATION_REPO_NAME_STEM-$PACKAGE"
+  fi    
+
   gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
   # Insert GCP credentials fetching here, and apply that to docker login
 else
