@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { PopoverState } from '../../../common/services/PopoverState'
+import { ModalState } from '../../../common/services/ModalState'
 import { ProjectHistory } from './ProjectHistory'
 
 export const ProjectHistoryModal = ({ projectId, projectName }: { projectId: string; projectName: string }) => {
@@ -36,7 +36,7 @@ export const ProjectHistoryModal = ({ projectId, projectName }: { projectId: str
       className="relative max-h-full w-[75vw] p-4"
       title={t('admin:components.project.projectHistory')}
       onClose={() => {
-        PopoverState.hidePopupover()
+        ModalState.closeModal()
       }}
     >
       <ProjectHistory projectId={projectId} projectName={projectName} />

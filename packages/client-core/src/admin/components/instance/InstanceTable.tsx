@@ -30,7 +30,7 @@ import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import { EyeLg, Trash04Lg } from '@ir-engine/ui/src/icons'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { PopoverState } from '../../../common/services/PopoverState'
+import { ModalState } from '../../../common/services/ModalState'
 import DataTable from '../../common/Table'
 import { instanceColumns } from '../../common/constants/instance'
 import ActionButton from '../ActionButton'
@@ -79,14 +79,14 @@ export default function InstanceTable({ search }: { search: string }) {
           <ActionButton
             icon={EyeLg}
             onClick={() => {
-              PopoverState.showPopupover(<ViewModal instanceId={row.id} />)
+              ModalState.openModal(<ViewModal instanceId={row.id} />)
             }}
           />
 
           <ActionButton
             icon={Trash04Lg}
             onClick={() => {
-              PopoverState.showPopupover(
+              ModalState.openModal(
                 <ConfirmDialog
                   text={`${t('admin:components.instance.confirmInstanceDelete')} (${row.id}) ?`}
                   onSubmit={async () => {

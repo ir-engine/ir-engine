@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useFind, useMutation } from '@ir-engine/common'
 import { InstanceID, MessageType, messagePath } from '@ir-engine/common/src/schema.type.module'
 import { useTouchOutside } from '@ir-engine/common/src/utils/useClickOutside'
+import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
 import { State, UserID, dispatchAction, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { PeerMediaChannelState } from '@ir-engine/network/src/media/PeerMediaChannelState'
@@ -44,7 +45,7 @@ import React, { createContext, useContext, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import { useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
-import { PopoverState } from '../common/services/PopoverState'
+import { ModalState } from '../common/services/ModalState'
 import { ChannelState } from '../social/services/ChannelService'
 import { AvatarUIActions, AvatarUIState } from '../systems/state/AvatarUIState'
 import { ReportUserState } from '../util/ReportUserState'
@@ -90,6 +91,9 @@ const InstanceChatProvider = ({ children }: { children: React.ReactNode }) => {
     messagesResponse.data.forEach((message) => {
       if (!(message.id in newMessages.value)) {
         setNewMessage(message.id)
+        if (message.senderId !== user.id.value && !message.isNotification) {
+          AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.message)
+        }
       }
     })
   }, [messagesResponse.data, messagesResponse.status])
@@ -256,7 +260,7 @@ function Messages() {
   useEffect(() => {
     if (!scrollRef.current || !isChatOpen.value) return
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-  }, [isChatOpen])
+  }, [isChatOpen, messages])
 
   if (!isChatOpen.value) return null
   return (
@@ -329,7 +333,7 @@ function MessagesWrapper() {
           <Button
             variant="secondary"
             className="mx-auto mt-4 rounded-[20px]"
-            onClick={() => PopoverState.showPopupover(<ProfileMenu />)}
+            onClick={() => ModalState.openModal(<ProfileMenu />)}
           >
             {isGuest ? t('user:instanceChat.register') : t('user:instanceChat.verifyAge')}
           </Button>

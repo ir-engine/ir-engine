@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useFind, useMutation } from '@ir-engine/common'
 import { LocationID, locationPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
@@ -51,7 +51,7 @@ export default function PatchServerModal() {
         NotificationService.dispatchNotify(patchResponse.message, {
           variant: patchResponse.status ? 'success' : 'error'
         })
-        PopoverState.hidePopupover()
+        ModalState.closeModal()
       })
       .catch((e) => {
         state.locationError.set(e.message)
@@ -73,7 +73,7 @@ export default function PatchServerModal() {
       title={t('admin:components.setting.patchInstanceserver')}
       className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
-      onClose={PopoverState.hidePopupover}
+      onClose={ModalState.closeModal}
       submitLoading={modalProcessing.value}
     >
       <Select

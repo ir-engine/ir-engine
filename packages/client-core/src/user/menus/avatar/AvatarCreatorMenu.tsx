@@ -37,7 +37,7 @@ import { ArrowLeftLg, XCloseLg } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import AvatarPreview from '../../../common/components/AvatarPreview'
-import { PopoverState } from '../../../common/services/PopoverState'
+import { ModalState } from '../../../common/services/ModalState'
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../util/avatarIdFunctions'
 import { AvatarService } from '../../services/AvatarService'
 import { DiscardAvatarChangesMenu } from './DiscardAvatarChangesMenu'
@@ -234,15 +234,15 @@ const AvatarCreatorMenu = (selectedSdk: string) =>
       )
 
       loading.set(LoadingState.None)
-      PopoverState.hidePopupover()
+      ModalState.closeModal()
     }
 
     const handleClose = () => {
-      PopoverState.showPopupover(
+      ModalState.openModal(
         <DiscardAvatarChangesMenu
           handleConfirm={() => {
-            PopoverState.hidePopupover()
-            PopoverState.hidePopupover()
+            ModalState.closeModal()
+            ModalState.closeModal()
           }}
         />
       )
