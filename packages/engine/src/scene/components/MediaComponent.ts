@@ -384,8 +384,7 @@ export function MediaReactor() {
 
     const resetMuted = () => {
       element.muted = false
-      document.removeEventListener('click', resetMuted)
-      document.removeEventListener('touchstart', resetMuted)
+      document.removeEventListener('pointerdown', resetMuted)
     }
 
     if (media.paused.value) {
@@ -396,8 +395,7 @@ export function MediaReactor() {
           element.muted = true
           element.play()
 
-          document.addEventListener('click', resetMuted)
-          document.addEventListener('touchstart', resetMuted)
+          document.addEventListener('pointerdown', resetMuted)
         } else {
           console.error(error)
         }
@@ -405,8 +403,7 @@ export function MediaReactor() {
     }
 
     return () => {
-      document.removeEventListener('click', resetMuted)
-      document.removeEventListener('touchstart', resetMuted)
+      document.removeEventListener('pointerdown', resetMuted)
     }
   }, [media.paused, !!mediaElement])
 
