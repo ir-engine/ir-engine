@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Box3, BufferAttribute, BufferGeometry, InstancedMesh, InterleavedBufferAttribute, Mesh } from 'three'
+import { Box3, BufferAttribute, BufferGeometry, InstancedMesh, Mesh, TypedArray } from 'three'
 import { MeshBVH, SerializedBVH } from 'three-mesh-bvh'
 import Worker from 'web-worker'
 
@@ -45,7 +45,7 @@ const createWorker = () => {
 export const bvhWorkerPool = new WorkerPool(1)
 bvhWorkerPool.setWorkerCreator(createWorker)
 
-export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options = { indirect: true } as any) {
+export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options = { indirect: false }) {
   if (
     !mesh.isMesh ||
     (mesh as InstancedMesh).isInstancedMesh ||
@@ -58,7 +58,7 @@ export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options =
   const geometry = mesh.geometry as BufferGeometry
 
   const index = geometry.index ? Uint32Array.from(geometry.index.array) : null
-  const pos = Float32Array.from((geometry.attributes.position as BufferAttribute | InterleavedBufferAttribute).array)
+  const pos = Float32Array.from((geometry.attributes.position as BufferAttribute).array)
 
   const transferrables = [pos as ArrayLike<number>]
   if (index) {
@@ -69,28 +69,26 @@ export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options =
     {
       index,
       position: pos,
+      groups: geometry.groups ? [...geometry.groups] : undefined,
       options
     },
     transferrables.map((arr: any) => arr.buffer)
   )
 
-  const { serialized, error } = response.data
+  const { error, serialized, groups } = response.data
 
   if (error) {
     return console.error(error)
   } else {
-    const bvh = MeshBVH.deserialize(serialized, geometry, { setIndex: false })
-    const boundsOptions = Object.assign(
-      {
-        setBoundingBox: true
-      },
-      options
-    )
-
-    if (boundsOptions.setBoundingBox) {
-      geometry.boundingBox = bvh.getBoundingBox(new Box3())
+    if (groups) {
+      geometry.groups = []
+      for (const group of groups) {
+        geometry.addGroup(group.start, group.count, group.materialIndex)
+      }
     }
-
+    geometry.setIndex(new BufferAttribute(serialized.index as TypedArray, 1, false))
+    const bvh = MeshBVH.deserialize(serialized, geometry, { setIndex: false })
+    geometry.boundingBox = bvh.getBoundingBox(new Box3())
     geometry.boundsTree = bvh
 
     return bvh
@@ -98,6 +96,11 @@ export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options =
 }
 
 type BVHWorkerResponse = {
-  serialized: SerializedBVH
   error?: string
+  serialized: SerializedBVH
+  groups?: Array<{
+    start: number
+    count: number
+    materialIndex?: number | undefined
+  }>
 }
