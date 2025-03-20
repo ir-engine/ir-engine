@@ -126,7 +126,7 @@ type TablePaginationProps = Readonly<{
 }>
 const TablePagination = ({
   className,
-  neighbours = 1,
+  neighbours = 2,
   totalPages,
   currentPage,
   onPageChange
@@ -142,10 +142,6 @@ const TablePagination = ({
     prevPages.push(i)
   }
   prevPages.reverse()
-  // Display 2 prev elements and the current one when is the last item and hast more than 2 pages
-  if (currentPage > 1 && currentPage + 1 === totalPages) {
-    prevPages.unshift(prevPages[0] - 1)
-  }
 
   const nextPages = [] as number[]
   for (let i = currentPage + 1; i < Math.min(totalPages, currentPage + neighbours + 1); i++) {
