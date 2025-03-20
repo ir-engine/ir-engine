@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
@@ -84,7 +84,7 @@ const onEditorWarning = (warning) => {
   })
 
   // popover design doesnt match the figma designs, we use notification for now
-  /*PopoverState.showPopupover(
+  /*ModalState.showPopupover(
     <WarningDialog title={t('editor:warning')} description={warning || t('editor:warningMsg')} />
   )*/
 }
@@ -92,11 +92,11 @@ const onEditorWarning = (warning) => {
 const onEditorError = (error) => {
   console.error(error)
   if (error['aborted']) {
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
     return
   }
 
-  PopoverState.showPopupover(
+  ModalState.openModal(
     <ErrorDialog title={error.title || t('editor:error')} description={error.message || t('editor:errorMsg')} />
   )
 }

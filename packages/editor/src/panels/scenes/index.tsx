@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useFind, useRealtime } from '@ir-engine/common'
 import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import CreateSceneDialog from '@ir-engine/editor/src/components/dialogs/CreateScenePanelDialog'
@@ -66,7 +66,7 @@ function ScenesPanel() {
     isCreatingScene.set(true)
     const newSceneUIAddons = getState(UIAddonsState).editor.newScene
     if (Object.keys(newSceneUIAddons).length > 0) {
-      PopoverState.showPopupover(<CreateSceneDialog />)
+      ModalState.openModal(<CreateSceneDialog />)
     } else {
       await onNewScene()
     }

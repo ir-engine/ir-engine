@@ -22,7 +22,7 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { ThemeState } from '@ir-engine/client-core/src/common/services/ThemeService'
 import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import IRLogoModalDark from '@ir-engine/client/public/iR-logo-Modal-dark.png'
@@ -72,7 +72,7 @@ export default function SceneItem({
         refetchProjectsData()
       }
     }
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
   }
 
   const defaultThumbnail = theme?.value === 'dark' ? IRLogoModalLight : IRLogoModalDark
@@ -126,7 +126,7 @@ export default function SceneItem({
               disabled: false,
               icon: <Edit01Sm />,
               onClick: () => {
-                PopoverState.showPopupover(
+                ModalState.openModal(
                   <RenameSceneModal
                     sceneName={sceneName}
                     scene={scene}
@@ -141,7 +141,7 @@ export default function SceneItem({
               disabled: disableDeleteScene,
               icon: <Trash04Sm />,
               onClick: () => {
-                PopoverState.showPopupover(
+                ModalState.openModal(
                   <ConfirmDialog
                     title={t('editor:hierarchy.lbl-deleteScene')}
                     text={t('editor:hierarchy.lbl-deleteSceneDescription', { sceneName })}

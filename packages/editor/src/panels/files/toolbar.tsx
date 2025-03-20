@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { REMOVE_EDGE_SLASH_REGEX } from '@ir-engine/common/src/regex'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
@@ -72,12 +72,12 @@ export const showMultipleFileModal = (projectName: string, directoryPath: string
 
   const onSubmit = async () => {
     await handleUploadFiles(projectName, directoryPath, files)
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
   }
 
-  PopoverState.showPopupover(
+  ModalState.openModal(
     <>
-      <Modal title={'test'} className="w-[50vw] max-w-2xl" onSubmit={onSubmit} onClose={PopoverState.hidePopupover}>
+      <Modal title={'test'} className="w-[50vw] max-w-2xl" onSubmit={onSubmit} onClose={ModalState.closeModal}>
         <div className="flex flex-col rounded-lg bg-[#0e0f11] px-5 py-10 text-center">
           Warning: You will overwrite existing files by uploading these. Do you wish to continue? <br />
           {fileNames.length > 0 && `Files: ${fileNames.join(', ')}`}

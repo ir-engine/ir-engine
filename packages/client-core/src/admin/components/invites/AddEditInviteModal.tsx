@@ -26,8 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { InviteService } from '@ir-engine/client-core/src/social/services/InviteService'
 import { useFind, useMutation } from '@ir-engine/common'
 import {
@@ -182,7 +182,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
 
     try {
       await Promise.all(sendInvitePromises)
-      PopoverState.hidePopupover()
+      ModalState.closeModal()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
       submitLoading.set(false)
@@ -194,7 +194,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
       title={invite?.id ? t('admin:components.invite.update') : t('admin:components.invite.create')}
       className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
-      onClose={PopoverState.hidePopupover}
+      onClose={ModalState.closeModal}
       submitLoading={submitLoading.value}
     >
       <div className="relative grid w-full gap-6">

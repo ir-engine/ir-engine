@@ -32,7 +32,7 @@ import { buildStatusPath, BuildStatusType } from '@ir-engine/common/src/schema.t
 
 import { Button } from '@ir-engine/ui'
 import TruncatedText from '@ir-engine/ui/src/primitives/tailwind/TruncatedText'
-import { PopoverState } from '../../../../common/services/PopoverState'
+import { ModalState } from '../../../../common/services/ModalState'
 import { buildStatusColumns, BuildStatusRowType } from '../../../common/constants/build-status'
 import DataTable from '../../../common/Table'
 import BuildStatusLogsModal, { BuildStatusBadge, getStartOrEndDate } from './BuildStatusLogsModal'
@@ -69,7 +69,7 @@ export default function BuildStatusTable() {
           size="sm"
           disabled={!row.logs || !row.logs.length}
           onClick={() => {
-            PopoverState.showPopupover(<BuildStatusLogsModal buildStatus={row} />)
+            ModalState.openModal(<BuildStatusLogsModal buildStatus={row} />)
           }}
         >
           <HiEye />
