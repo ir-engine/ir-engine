@@ -36,7 +36,7 @@ import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { Button, DropdownItem } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
-import { ChevronDownSm, SquaresLg } from '@ir-engine/ui/src/icons'
+import { ChevronDownSm, File04Sm, SquaresLg, UploadCloud02Sm } from '@ir-engine/ui/src/icons'
 import { t } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -204,8 +204,15 @@ export default function Toolbar() {
           <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
         </div> */}
         <div className="flex items-center gap-2.5">
-          <span className="text-text-secondary">{projectName.value}</span>
-          <span className="text-text-secondary">{' / '}</span>
+          <File04Sm />
+          {projectName.value!.split('/').map((part, index) => (
+            <>
+              <span key={index} className="text-text-secondary">
+                {part}
+              </span>
+              <span className="text-text-secondary">{' / '}</span>
+            </>
+          ))}
           <span className="text-text-primary">{sceneName.value}</span>
         </div>
 
@@ -229,8 +236,9 @@ export default function Toolbar() {
                     />
                   )
                 }
-                className="rounded-[32px] py-1 text-base"
+                className="rounded-[8px] py-1 text-base"
               >
+                <UploadCloud02Sm />
                 {t('editor:toolbar.lbl-publish')}
               </Button>
             </div>
