@@ -70,10 +70,6 @@ export const EnvMapEditor: EditorComponentType = (props) => {
     commitProperty(EnvMapComponent, 'envMapCubemapURL')(directory)
   }, [])
 
-  const onChangeEnvMapSourceURL = useCallback((value) => {
-    commitProperty(EnvMapComponent, 'envMapSourceURL')(value)
-  }, [])
-
   const envmapComponent = useComponent(entity, EnvMapComponent)
 
   const errors = getEntityErrors(props.entity, EnvMapComponent)
@@ -123,7 +119,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
               <DroppableImageInput
                 src={envmapComponent.envMapSourceURL.value}
                 onBlur={commitProperty(EnvMapComponent, 'envMapSourceURL')}
-                onChange={onChangeEnvMapSourceURL}
+                onChange={updateProperty(EnvMapComponent, 'envMapSourceURL')}
               />
             )}
             {errors?.MISSING_FILE && (
