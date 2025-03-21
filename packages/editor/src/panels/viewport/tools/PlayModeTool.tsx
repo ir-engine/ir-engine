@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { useGet } from '@ir-engine/common'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { EngineState, getComponent } from '@ir-engine/ecs'
+import { EngineState, getComponent, useOptionalComponent } from '@ir-engine/ecs'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
@@ -40,6 +40,7 @@ const PlayModeTool: React.FC = () => {
 
   const engineState = useHookstate(getMutableState(EngineState))
   const editorState = useHookstate(getMutableState(EditorState))
+  const gltfURL = useOptionalComponent(editorState.rootEntity.value, GLTFComponent)?.src?.value
 
   const onTogglePlayMode = () => {
     engineState.isEditing.set(!engineState.isEditing.value)
@@ -55,7 +56,7 @@ const PlayModeTool: React.FC = () => {
     return () => {
       getMutableState(LocationState).currentLocation.location.sceneURL.set('')
     }
-  }, [engineState.isEditing.value, staticResource.data])
+  }, [engineState.isEditing.value, staticResource.data, gltfURL, editorState.scenePath.value])
 
   return (
     <div id="preview" className="flex items-center">

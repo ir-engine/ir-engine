@@ -49,14 +49,17 @@ export type SceneDeltaRegistry = Record<NodeID, Record<NodeID, SceneDeltaEntry<a
 export const SceneDeltaState = defineState({
   name: 'SceneDeltaState',
   initial: {} as SceneDeltaRegistry,
-  registerDelta<C extends Component>(entity: Entity, component: C, delta: Partial<SerializedComponentType<C>>) {
-    if (!hasComponent(entity, NodeIDComponent)) return
-    if (!component.jsonID) return
+  getSource: (entity: Entity) => {
     const rootNodeID = getComponent(getAncestorWithComponents(entity, [GLTFComponent]), NodeIDComponent)
-    const nodeID = getComponent(entity, NodeIDComponent)
     const state = getMutableState(SceneDeltaState)
     if (!state.value[rootNodeID]) state[rootNodeID].set({})
     const source = state[rootNodeID]
+    return source
+  },
+  registerDelta<C extends Component>(entity: Entity, component: C, delta: Partial<SerializedComponentType<C>>) {
+    if (!component.jsonID || !hasComponent(entity, NodeIDComponent)) return
+    const source = SceneDeltaState.getSource(entity)
+    const nodeID = getComponent(entity, NodeIDComponent)
     if (!source.value[nodeID]) source[nodeID].set({} as SceneDeltaEntry<C>)
     const componentMap = source[nodeID].get(NO_PROXY_STEALTH) as SceneDeltaEntry<C>
     componentMap[component.jsonID] = { ...componentMap[component.jsonID], ...delta }
@@ -64,11 +67,8 @@ export const SceneDeltaState = defineState({
   },
   registerMaterialDelta(entity: Entity, props?: any, prototype?: string) {
     if (!hasComponent(entity, NodeIDComponent)) return
-    const rootNodeID = getComponent(getAncestorWithComponents(entity, [GLTFComponent]), NodeIDComponent)
+    const source = SceneDeltaState.getSource(entity)
     const nodeID = getComponent(entity, NodeIDComponent)
-    const state = getMutableState(SceneDeltaState)
-    if (!state.value[rootNodeID]) state[rootNodeID].set({})
-    const source = state[rootNodeID]
     if (!source.value[nodeID]) source[nodeID].set({} as MaterialDeltaEntry)
     const componentMap = source[nodeID].get(NO_PROXY_STEALTH) as MaterialDeltaEntry
     if (props) componentMap[MATERIAL_JSON_ID] = { ...componentMap[MATERIAL_JSON_ID], ...props }
