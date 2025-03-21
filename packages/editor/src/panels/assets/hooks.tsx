@@ -35,7 +35,7 @@ import { ASSETS_PAGE_LIMIT, calculateItemsToFetch, convertToHierarchy, iterative
 const AssetsQueryContext = createContext({
   search: null! as State<{ local: string; query: string }>,
   resources: [] as StaticResourceType[],
-  refetchResources: () => {},
+  refetchResources: (forceRefresh?: boolean) => {},
   resourcesLoading: false,
   staticResourcesPagination: null! as State<{ total: number; skip: number }>,
 
@@ -58,7 +58,7 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
   const categorySidbarWidth = useHookstate(300)
   const previousSearchQuery = usePrevious(search.query)
 
-  const staticResourcesFindApi = () => {
+  const staticResourcesFindApi = (forceRefresh = false) => {
     const abortController = new AbortController()
     const selectedCategory = currentCategoryPath.value
 
@@ -66,6 +66,14 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
 
     const performFetch = () => {
       const tags = selectedCategory ? [selectedCategory.name, ...iterativelyListTags(selectedCategory.children)] : []
+
+      const skip = forceRefresh
+        ? 0
+        : Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
+
+      const limit = forceRefresh
+        ? ASSETS_PAGE_LIMIT + calculateItemsToFetch() + staticResourcesPagination.skip.value
+        : ASSETS_PAGE_LIMIT + calculateItemsToFetch()
 
       let query = {} as StaticResourceQuery
       if (selectedCategory?.name === MyAssetCategory) {
@@ -79,8 +87,8 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
           },
           userId: selfUser.id,
           $sort: { name: 1 },
-          $limit: ASSETS_PAGE_LIMIT + calculateItemsToFetch(),
-          $skip: Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
+          $limit: limit,
+          $skip: skip
         } as StaticResourceQuery
       } else {
         query = {
@@ -108,7 +116,9 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
             : undefined,
           $sort: { name: 1 },
           $limit: ASSETS_PAGE_LIMIT + calculateItemsToFetch(),
-          $skip: Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
+          $skip: forceRefresh
+            ? 0
+            : Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
         } as StaticResourceQuery
       }
 
@@ -118,12 +128,14 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
         .then((fetchedResources) => {
           if (abortController.signal.aborted) return
 
-          if (staticResourcesPagination.skip.value > 0 && previousSearchQuery === search.query.value) {
+          if (!forceRefresh && staticResourcesPagination.skip.value > 0 && previousSearchQuery === search.query.value) {
             resources.merge(fetchedResources.data)
           } else {
             resources.set(fetchedResources.data)
           }
+
           staticResourcesPagination.merge({ total: resources.length })
+
           resourcesLoading.set(false)
         })
     }
@@ -145,7 +157,9 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
       value={{
         search,
         resources: resources.value as StaticResourceType[],
-        refetchResources: staticResourcesFindApi,
+        refetchResources: (forceRefresh = false) => {
+          staticResourcesFindApi(forceRefresh)
+        },
         resourcesLoading: resourcesLoading.value,
         staticResourcesPagination,
         category: {

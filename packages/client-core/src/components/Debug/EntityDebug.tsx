@@ -54,6 +54,7 @@ import {
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Input } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { useFrameUpdate } from './useFrameUpdate'
 
 const renderEntityTreeRoots = (roots: Entity[]) => {
   return Object.fromEntries(
@@ -153,6 +154,8 @@ const authoringSources = defineQuery([GLTFComponent], Layers.Authoring)
 export const EntityDebug = () => {
   const { t } = useTranslation()
 
+  useFrameUpdate()
+
   const namedEntities = useHookstate({})
   const erroredComponents = useHookstate([] as any[])
   const suspendedEntities = useMutableState(SuspendedQueryChildState)
@@ -204,7 +207,7 @@ export const EntityDebug = () => {
   return (
     <div className="m-1 bg-neutral-600 p-1">
       <div className="my-1">
-        <Text>{t('common:debug.scenes')}</Text>
+        <Text className="text-text-primary-button">{t('common:debug.scenes')}</Text>
         <JSONTree
           data={entityTree.get(NO_PROXY)}
           shouldExpandNodeInitially={shouldExpandNodeInitially}
@@ -212,7 +215,7 @@ export const EntityDebug = () => {
         />
       </div>
       <div className="my-1">
-        <Text>{t('common:debug.entities')}</Text>
+        <Text className="text-text-primary-button">{t('common:debug.entities')}</Text>
         <Input
           placeholder="Search..."
           value={entitySearch.value}
@@ -222,11 +225,11 @@ export const EntityDebug = () => {
         <JSONTree data={namedEntities.get(NO_PROXY)} />
       </div>
       <div className="my-1">
-        <Text>{t('common:debug.suspendedEntities')}</Text>
+        <Text className="text-text-primary-button">{t('common:debug.suspendedEntities')}</Text>
         <JSONTree data={suspendedEntities} />
       </div>
       <div className="my-1">
-        <Text>{t('common:debug.erroredEntities')}</Text>
+        <Text className="text-text-primary-button">{t('common:debug.erroredEntities')}</Text>
         <JSONTree data={erroredComponents.get(NO_PROXY)} />
       </div>
     </div>

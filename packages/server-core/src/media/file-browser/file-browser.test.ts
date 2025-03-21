@@ -541,9 +541,9 @@ describe('file-browser.test', () => {
           ),
         {
           message:
-            'Invalid file name: ' +
+            'Invalid name: ' +
             invalidFileFullName.split('.')[0] +
-            '; file names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots'
+            '; file or folder names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots.'
         }
       )
     })
@@ -565,9 +565,9 @@ describe('file-browser.test', () => {
           ),
         {
           message:
-            'Invalid file name: ' +
+            'Invalid name: ' +
             longFileFullName.split('.')[0] +
-            '; file names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots'
+            '; file or folder names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots.'
         }
       )
     })
@@ -589,9 +589,9 @@ describe('file-browser.test', () => {
           ),
         {
           message:
-            'Invalid file name: ' +
+            'Invalid name: ' +
             shortFileFullName.split('.')[0] +
-            '; file names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots'
+            '; file or folder names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots.'
         }
       )
     })
@@ -3298,9 +3298,9 @@ describe('file-browser.test', () => {
           ),
         {
           message:
-            'Invalid file name: ' +
+            'Invalid name: ' +
             invalidFileName.split('.')[0] +
-            '; file names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots'
+            '; file or folder names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots.'
         }
       )
 
@@ -3330,9 +3330,9 @@ describe('file-browser.test', () => {
           ),
         {
           message:
-            'Invalid file name: ' +
+            'Invalid name: ' +
             invalidFileName.split('.')[0] +
-            '; file names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots'
+            '; file or folder names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots.'
         }
       )
 
@@ -3362,9 +3362,9 @@ describe('file-browser.test', () => {
           ),
         {
           message:
-            'Invalid file name: ' +
+            'Invalid name: ' +
             shortFileName.split('.')[0] +
-            '; file names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots'
+            '; file or folder names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots.'
         }
       )
 
@@ -3392,9 +3392,9 @@ describe('file-browser.test', () => {
           ),
         {
           message:
-            'Invalid file name: ' +
+            'Invalid name: ' +
             shortFileName.split('.')[0] +
-            '; file names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots'
+            '; file or folder names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots.'
         }
       )
 
@@ -3422,9 +3422,9 @@ describe('file-browser.test', () => {
           ),
         {
           message:
-            'Invalid file name: ' +
+            'Invalid name: ' +
             longFileName.split('.')[0] +
-            '; file names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots'
+            '; file or folder names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots.'
         }
       )
 
@@ -3452,9 +3452,9 @@ describe('file-browser.test', () => {
           ),
         {
           message:
-            'Invalid file name: ' +
+            'Invalid name: ' +
             longFileName.split('.')[0] +
-            '; file names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots'
+            '; file or folder names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots.'
         }
       )
 
@@ -3679,7 +3679,7 @@ describe('file-browser.test', () => {
             }
           ),
         {
-          message: 'Cannot move a folder into itself'
+          message: 'Cannot move a folder into itself or its own subfolder'
         }
       )
 
@@ -4076,9 +4076,9 @@ describe('file-browser.test', () => {
           }),
         {
           message:
-            'Invalid file name: ' +
+            'Invalid name: ' +
             shortFileName.split('.')[0] +
-            '; file names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots'
+            '; file or folder names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots.'
         }
       )
     })
@@ -4091,9 +4091,9 @@ describe('file-browser.test', () => {
           }),
         {
           message:
-            'Invalid file name: ' +
+            'Invalid name: ' +
             longFileName.split('.')[0] +
-            '; file names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots'
+            '; file or folder names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots.'
         }
       )
     })

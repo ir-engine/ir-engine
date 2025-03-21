@@ -26,8 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { BadRequest } from '@feathersjs/errors'
 import { Id, Paginated, ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
-import { v4 as uuidv4 } from 'uuid'
-
 import { InstanceID, instancePath } from '@ir-engine/common/src/schemas/networking/instance.schema'
 import { ScopeType, ScopeTypeInterface, scopePath } from '@ir-engine/common/src/schemas/scope/scope.schema'
 import { ChannelUserType, channelUserPath } from '@ir-engine/common/src/schemas/social/channel-user.schema'
@@ -38,6 +36,8 @@ import { LocationID, locationPath } from '@ir-engine/common/src/schemas/social/l
 import { IdentityProviderType, identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { userRelationshipPath } from '@ir-engine/common/src/schemas/user/user-relationship.schema'
 import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
+import { v4 as uuidv4 } from 'uuid'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -167,7 +167,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
         const inviter = await this.app.service(userPath).get(invite.userId)
 
         if (inviter == null) {
-          await this.app.service(invitePath).remove(invite.id)
+          if (isValidId(invite.id)) await this.app.service(invitePath).remove(invite.id)
           throw new BadRequest('Invalid user ID')
         }
 
@@ -234,7 +234,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
           .find({ query: { id: invite.targetObjectId, $limit: 1 } })) as Paginated<ChannelType>
 
         if (channel.total === 0) {
-          await this.app.service(invitePath).remove(invite.id)
+          if (isValidId(invite.id)) await this.app.service(invitePath).remove(invite.id)
           throw new BadRequest('Invalid channel ID')
         }
 
@@ -254,7 +254,8 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
       }
 
       params.preventUserRelationshipRemoval = true
-      if (invite.deleteOnUse) await this.app.service(invitePath).remove(invite.id, params as any)
+      if (invite.deleteOnUse && isValidId(invite.id))
+        await this.app.service(invitePath).remove(invite.id, params as any)
 
       returned.token = await this.app
         .service('authentication')

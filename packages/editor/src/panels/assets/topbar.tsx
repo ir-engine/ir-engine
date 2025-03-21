@@ -39,23 +39,30 @@ import { AssetCategoryNode } from './categories'
 import { findCategoryByPath } from './helpers'
 import { assetCategories, useAssetsCategory, useAssetsQuery } from './hooks'
 
-export const uploadFiles = () => {
-  const projectName = getState(EditorState).projectName
-  const importFolder = getState(ImportSettingsState).importFolder
+export const uploadFiles = (): Promise<null> =>
+  new Promise((resolve, reject) => {
+    const projectName = getState(EditorState).projectName
+    const importFolder = getState(ImportSettingsState).importFolder
 
-  try {
-    validateImportFolderPath(importFolder)
-  } catch (e) {
-    NotificationService.dispatchNotify(e.message, { variant: 'error' })
-  }
+    try {
+      validateImportFolderPath(importFolder)
+    } catch (e) {
+      NotificationService.dispatchNotify(e.message, { variant: 'error' })
+      reject(e)
+    }
 
-  return inputFileWithAddToScene({
-    projectName: projectName as string,
-    directoryPath: `projects/${projectName}${importFolder}`
-  }).catch((err) => {
-    NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    inputFileWithAddToScene({
+      projectName: projectName as string,
+      directoryPath: `projects/${projectName}${importFolder}`
+    })
+      .then((data) => {
+        resolve(data)
+      })
+      .catch((err) => {
+        NotificationService.dispatchNotify(err.message, { variant: 'error' })
+        reject(err)
+      })
   })
-}
 
 export function AssetsBreadcrumbs() {
   const { currentCategoryPath } = useAssetsCategory()

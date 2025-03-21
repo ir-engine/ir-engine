@@ -28,10 +28,6 @@ import {
   BufferAttribute,
   Cache,
   CompressedTexture,
-  CubeReflectionMapping,
-  CubeRefractionMapping,
-  EquirectangularReflectionMapping,
-  EquirectangularRefractionMapping,
   InterleavedBufferAttribute,
   Light,
   Line,
@@ -48,6 +44,7 @@ import {
   QueryReactor,
   getAncestorWithComponents,
   getAuthoringCounterpart,
+  getComponent,
   getOptionalComponent,
   useComponent,
   useEntityContext
@@ -55,8 +52,10 @@ import {
 import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import React, { useEffect } from 'react'
 import { Geometry } from '../common/constants/Geometry'
+import { isIPhone } from '../common/functions/isMobile'
 import iterateObject3D from '../common/functions/iterateObject3D'
 import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { PerformanceState } from '../renderer/PerformanceState'
@@ -251,16 +250,26 @@ const resourceCallbacks = {
       asset.onUpdate = () => {
         resource.metadata.merge({ onGPU: true, discarded: discardUponUpload })
         //@ts-ignore
-        asset.onUpdate = null
-        const isEnvMapTexture =
-          asset.mapping === EquirectangularReflectionMapping ||
-          asset.mapping === EquirectangularRefractionMapping ||
-          asset.mapping === CubeReflectionMapping ||
-          asset.mapping === CubeRefractionMapping
-        if (discardUponUpload && !isEnvMapTexture) {
-          /** @todo re-enable discard */
-          asset.source.data = null
-          asset.mipmaps = []
+        // asset.onUpdate = null
+        const viewer = getState(ReferenceSpaceState).viewerEntity
+        const renderer = getComponent(viewer, RendererComponent)
+        const gl = renderer.renderContext as WebGL2RenderingContext
+        if (discardUponUpload && gl.fenceSync && isIPhone) {
+          const sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0)
+          if (sync) {
+            const checkSync = () => {
+              const status = gl.clientWaitSync(sync, 0, 0)
+              if (status === gl.TIMEOUT_EXPIRED) {
+                requestAnimationFrame(checkSync)
+              } else {
+                gl.deleteSync(sync)
+                resource.metadata.merge({ onGPU: true, discarded: true })
+                asset.source.data = null
+                asset.mipmaps = []
+              }
+            }
+            requestAnimationFrame(checkSync)
+          }
         }
       }
       if ((asset as CompressedTexture).isCompressedTexture && discardUponUpload) {
@@ -316,6 +325,7 @@ const resourceCallbacks = {
       let size = 0
 
       const checkUploaded = () => {
+        if (!resource.get(NO_PROXY).metadata) return
         resource.metadata.merge({ onGPU: needsUploaded === 0, discarded: needsUploaded === 0 && discardUponUpload })
       }
 

@@ -31,7 +31,7 @@ import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNe
 import { dispatchAction, useHookstate } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import React, { HTMLProps, useLayoutEffect, useRef } from 'react'
-import { PopoverState } from '../../common/services/PopoverState'
+import { ModalState } from '../../common/services/ModalState'
 
 const iconItems = [
   {
@@ -241,7 +241,7 @@ const EmoteMenu = (): JSX.Element => {
         entityUUID: getComponent(selfAvatarEntity, UUIDComponent)
       })
     )
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
   }
 
   const dimensions = useHookstate({ width: 474, height: 440 })
@@ -251,9 +251,23 @@ const EmoteMenu = (): JSX.Element => {
 
   useLayoutEffect(() => {
     if (isMobile) {
+      const viewportWidth = window.visualViewport?.width || window.innerWidth
+      const viewportHeight = window.visualViewport?.height || window.innerHeight
+
+      const aspectRatio = dimensions.width.value / dimensions.height.value
+      const paddingFactor = 0.9 // 90% of the viewport
+
+      let maxWidth = viewportWidth * paddingFactor
+      let maxHeight = viewportWidth / aspectRatio
+
+      if (maxHeight > viewportHeight) {
+        maxHeight = viewportHeight * paddingFactor
+        maxWidth = viewportHeight * aspectRatio
+      }
+
       dimensions.set((prev) => ({
-        width: prev.width * 0.75,
-        height: prev.height * 0.75
+        width: maxWidth,
+        height: maxHeight
       }))
     }
   }, [])

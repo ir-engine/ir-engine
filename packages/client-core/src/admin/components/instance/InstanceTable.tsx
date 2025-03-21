@@ -25,12 +25,12 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { InstanceType, instancePath } from '@ir-engine/common/src/schema.type.module'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import { EyeLg, Trash04Lg } from '@ir-engine/ui/src/icons'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { validate as isValidUUID } from 'uuid'
-import { PopoverState } from '../../../common/services/PopoverState'
+import { ModalState } from '../../../common/services/ModalState'
 import DataTable from '../../common/Table'
 import { instanceColumns } from '../../common/constants/instance'
 import ActionButton from '../ActionButton'
@@ -51,13 +51,13 @@ export default function InstanceTable({ search }: { search: string }) {
     {
       $or: [
         {
-          id: isValidUUID(search) ? search : undefined
+          id: isValidId(search) ? search : undefined
         },
         {
-          locationId: isValidUUID(search) ? search : undefined
+          locationId: isValidId(search) ? search : undefined
         },
         {
-          channelId: isValidUUID(search) ? search : undefined
+          channelId: isValidId(search) ? search : undefined
         }
       ]
     },
@@ -79,14 +79,14 @@ export default function InstanceTable({ search }: { search: string }) {
           <ActionButton
             icon={EyeLg}
             onClick={() => {
-              PopoverState.showPopupover(<ViewModal instanceId={row.id} />)
+              ModalState.openModal(<ViewModal instanceId={row.id} />)
             }}
           />
 
           <ActionButton
             icon={Trash04Lg}
             onClick={() => {
-              PopoverState.showPopupover(
+              ModalState.openModal(
                 <ConfirmDialog
                   text={`${t('admin:components.instance.confirmInstanceDelete')} (${row.id}) ?`}
                   onSubmit={async () => {

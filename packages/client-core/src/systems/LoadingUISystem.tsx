@@ -87,6 +87,10 @@ export const LoadingUISystemState = defineState({
       },
       meshEntity: UndefinedEntity,
       transition,
+      /**
+       * Ready is set to true either when the loading screen is ready to be shown,
+       *   the scene is ready to be viewed, or an error condition has been met - whichever comes first
+       */
       ready: false
     }
   },
@@ -228,22 +232,16 @@ const SceneSettingsChildReactor = (props: { entity: Entity }) => {
     mesh.material.map = loadingTexture
     mesh.material.needsUpdate = true
     mesh.material.map.needsUpdate = true
-    getComponent(Engine.instance.viewerEntity, RendererComponent)
-      .renderer!.compileAsync(mesh, getComponent(Engine.instance.viewerEntity, CameraComponent))
-      .then(() => {
-        state.ready.set(true)
-      })
-      .catch((error) => {
-        console.error(error)
-        state.ready.set(true)
-      })
+    getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!.initTexture(loadingTexture)
+
+    getMutableState(LoadingUISystemState).ready.set(true)
   }, [loadingTexture])
 
   useEffect(() => {
     if (!error) return
 
     console.error(error)
-    state.ready.set(true)
+    getMutableState(LoadingUISystemState).ready.set(true)
   }, [error])
 
   /** Scene data changes */
@@ -313,11 +311,19 @@ const execute = () => {
 
   mainThemeColor.set(colors.alternate)
 
-  transition.update(ecsState.deltaSeconds, (opacity) => {
-    getMutableState(LoadingSystemState).loadingScreenOpacity.set(opacity)
+  let opacity = 0
+
+  transition.update(ecsState.deltaSeconds, (val) => {
+    opacity = val
+    const current = getState(LoadingSystemState).loadingScreenVisible
+    if ((current && opacity === 0) || (!current && opacity > 0)) {
+      getMutableState(LoadingSystemState).loadingScreenVisible.set(opacity > 0)
+    }
+    const container = document.getElementById('location-container')
+    if (!container) return
+    container.style.opacity = (1 - val).toString()
   })
 
-  const opacity = getState(LoadingSystemState).loadingScreenOpacity
   const isReady = opacity > 0 && ready
 
   setVisibleComponent(meshEntity, isReady)

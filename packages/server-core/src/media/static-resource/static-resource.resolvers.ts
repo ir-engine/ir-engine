@@ -37,12 +37,16 @@ import type { HookContext } from '@ir-engine/server-core/declarations'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): StaticResourceType => {
-  const dependencies = rawData.dependencies ? (JSON.parse(rawData.dependencies) as string[]) : []
+  const dependencies = rawData.dependencies
+    ? typeof rawData.dependencies === 'string'
+      ? (JSON.parse(rawData.dependencies) as string[])
+      : (rawData.dependencies as string[])
+    : []
 
   const result: StaticResourceType = { ...rawData, url: '', dependencies, tags: undefined, stats: undefined }
 
   if (rawData.tags) {
-    let tags = JSON.parse(rawData.tags) as string[]
+    let tags = typeof rawData.tags === 'string' ? (JSON.parse(rawData.tags) as string[]) : (rawData.tags as string[])
 
     // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
     // was serialized multiple times, therefore we need to parse it twice.
@@ -54,7 +58,7 @@ export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): S
   }
 
   if (rawData.stats) {
-    let stats = JSON.parse(rawData.stats) as Record<string, any>
+    let stats = typeof rawData.stats === 'string' ? (JSON.parse(rawData.stats) as Record<string, any>) : rawData.stats
 
     // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
     // was serialized multiple times, therefore we need to parse it twice.

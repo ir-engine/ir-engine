@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useHookstate } from '@ir-engine/hyperflux'
 import { ChevronDownSm, HelpIconSm, XCloseSm } from '@ir-engine/ui/src/icons'
 import Fuse from 'fuse.js'
 import React, { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
@@ -49,6 +50,8 @@ export interface SelectProps<T = string | number> {
   width?: 'sm' | 'md' | 'lg' | 'full'
   inputHeight?: InputProps['height']
   onChange: (value: T) => void
+  /** Callback fired when user is typing text */
+  onInputChange?: (value: string) => void
   onOpen?: (isOpen: boolean) => void
   value: T
   labelProps?: InputProps['labelProps']
@@ -75,6 +78,7 @@ const Select = ({
   width = 'md',
   inputHeight = 'l',
   onChange,
+  onInputChange,
   onOpen,
   value,
   labelProps,
@@ -99,7 +103,8 @@ const Select = ({
   const [filteredOptions, setFilteredOptions] = useState(options)
   const [searchString, setSearchString] = useState('')
   const fuseRef = useRef<Fuse<OptionType> | null>(null)
-  const [localValue, setLocalValue] = useState(value)
+  const [touchMoved, setTouchedMoved] = useState(false)
+  const localValue = useHookstate(value)
   const id = useId()
   const [triggerWidth, setTriggerWidth] = useState(0)
   const popupRef = useRef<PopupActions>(null)
@@ -111,6 +116,10 @@ const Select = ({
       })
     }
   }, [searchMode])
+
+  useEffect(() => {
+    localValue.set(value)
+  }, [value])
 
   useLayoutEffect(() => {
     const updateDirection = () => {
@@ -160,32 +169,27 @@ const Select = ({
   }, [selectedOptionIndex])
 
   useEffect(() => {
-    if (localValue === '') {
-      setDisplayText('')
-      return
-    }
+    if (filteredOptions.length > 0) {
+      const index = filteredOptions.findIndex((option) => option.value === localValue.value)
 
-    if (
-      0 <= selectedOptionIndex &&
-      selectedOptionIndex < filteredOptions.length &&
-      filteredOptions[selectedOptionIndex].value === localValue
-    ) {
-      setDisplayText(filteredOptions[selectedOptionIndex].label)
-      return
-    }
-
-    const index = filteredOptions.findIndex((option) => option.value === localValue)
-
-    if (index === -1) {
-      if (searchMode === undefined) {
-        console.warn('No corresponding option found. Defaulting to null.')
-        setDisplayText('')
-        return
+      if (index === -1) {
+        if (searchMode === undefined) {
+          console.warn('No corresponding option found. Defaulting to null.')
+          setDisplayText('')
+          return
+        }
       }
-    } else {
-      setDisplayText(filteredOptions[index].label)
     }
-  }, [localValue, selectedOptionIndex, filteredOptions])
+  }, [value, localValue, selectedOptionIndex, filteredOptions])
+
+  useEffect(() => {
+    if (filteredOptions.length) {
+      const index = filteredOptions.findIndex((option) => option.value === localValue.value)
+      if (index !== -1) {
+        setDisplayText(filteredOptions[index].label)
+      }
+    }
+  }, [localValue, filteredOptions])
 
   useEffect(() => {
     if (searchString === '') {
@@ -241,6 +245,8 @@ const Select = ({
     }
   }, [])
 
+  const inputRef = useRef<HTMLInputElement>(null)
+
   const togglePopup = () => {
     if (popupRef.current) {
       popupRef.current.toggle()
@@ -252,6 +258,21 @@ const Select = ({
       popupRef.current.close()
     }
   }
+
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [positionStyle, setPositionStyle] = useState({})
+
+  useEffect(() => {
+    if (ref.current && contentRef.current) {
+      const refTop = ref.current.getBoundingClientRect().top
+      const contentHeight = contentRef.current.getBoundingClientRect().height
+      const gap = 10
+
+      setPositionStyle({
+        top: `${refTop - contentHeight - gap}px`
+      })
+    }
+  }, [filteredOptions])
 
   return (
     <Popup
@@ -302,22 +323,26 @@ const Select = ({
                 )}
               >
                 <input
+                  ref={inputRef}
                   onClick={() => {
                     if (!disabled) {
                       togglePopup()
+                      setTimeout(() => inputRef.current?.focus(), 0)
                     }
                   }}
                   type="text"
                   className={twMerge(
-                    'focus:outline-non w-full bg-inherit text-text-secondary',
+                    'w-full bg-inherit text-text-secondary focus:border-transparent focus:outline-none focus:ring-0',
                     searchMode === undefined ? 'cursor-pointer' : 'cursor-text',
                     disabled ? 'cursor-not-allowed' : ''
                   )}
                   value={displayText}
                   readOnly={searchMode === undefined}
                   onChange={(e) => {
-                    setSearchString(e.target.value)
+                    popupRef.current && popupRef.current.open()
                     setDisplayText(e.target.value)
+                    setSearchString(e.target.value)
+                    onInputChange && onInputChange(e.target.value)
                   }}
                 />
 
@@ -358,11 +383,18 @@ const Select = ({
       closeOnDocumentClick
       arrow={false}
       ref={popupRef}
-      position={['bottom left', 'top left']}
+      position={['bottom center', 'top center']}
       repositionOnResize={true}
-      contentStyle={{ padding: '0px', border: 'none' }}
+      contentStyle={{
+        padding: '0px',
+        border: 'none',
+        ...positionStyle
+      }}
+      onOpen={() => onOpen?.(true)}
+      onClose={() => onOpen?.(false)}
     >
       <div
+        ref={contentRef}
         className={`z-50 flex flex-col overflow-y-auto overflow-x-hidden rounded-lg`}
         style={{
           width: triggerWidth,
@@ -389,7 +421,7 @@ const Select = ({
 
           if (['Enter', ' '].includes(e.code)) {
             closePopup()
-            setLocalValue(filteredOptions[newIndex].value)
+            localValue.set(filteredOptions[newIndex].value)
             setSelectedOptionIndex(newIndex)
             setDisplayText(filteredOptions[newIndex].label)
             onChange(filteredOptions[newIndex].value)
@@ -402,13 +434,13 @@ const Select = ({
             <DropdownItem
               key={index}
               {...optionProps}
-              selected={localValue === currentValue}
+              selected={localValue.value === currentValue}
               active={index === activeIndex}
               onMouseDown={(e) => {
                 e.stopPropagation()
                 e.preventDefault()
                 closePopup()
-                setLocalValue(currentValue)
+                localValue.set(currentValue)
                 setSelectedOptionIndex(index)
                 setDisplayText(optionProps.label)
                 onChange(currentValue)
@@ -419,10 +451,25 @@ const Select = ({
               onMouseLeave={() => {
                 setActiveIndex(-1)
               }}
+              onTouchStart={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+              }}
+              onTouchMove={() => setTouchedMoved(true)}
+              onTouchEnd={() => {
+                if (!touchMoved) {
+                  closePopup()
+                  localValue.set(currentValue)
+                  setSelectedOptionIndex(index)
+                  setDisplayText(optionProps.label)
+                  onChange(currentValue)
+                }
+                setTouchedMoved(false)
+              }}
               onKeyUp={(e) => {
                 if (e.code === 'Enter') {
                   closePopup()
-                  setLocalValue(currentValue)
+                  localValue.set(currentValue)
                   setSelectedOptionIndex(index)
                   setDisplayText(optionProps.label)
                   onChange(currentValue)

@@ -37,6 +37,7 @@ import {
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { Geometry } from '@ir-engine/spatial/src/common/constants/Geometry'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { DoubleSide } from 'three'
 import { GeometryTypeEnum, GeometryTypeToFactory } from '../constants/GeometryTypeEnum'
 
 const createGeometry = (geometryType: GeometryTypeEnum, geometryParams: Record<string, any>): Geometry => {
@@ -57,14 +58,13 @@ export const PrimitiveGeometryComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const geometryComponent = useComponent(entity, PrimitiveGeometryComponent)
-
     useEffect(() => {
       setComponent(
         entity,
         MeshComponent,
         new Mesh(
           createGeometry(geometryComponent.geometryType.value, geometryComponent.geometryParams.value),
-          new MeshStandardMaterial()
+          new MeshStandardMaterial({ side: DoubleSide })
         )
       )
       return () => {

@@ -33,6 +33,7 @@ import {
 } from '@ir-engine/hyperflux'
 import { Input } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { useFrameUpdate } from './useFrameUpdate'
 
 const labelRenderer = (data: Record<string | number, any>) => {
   return (keyPath: (string | number)[], ...args) => {
@@ -60,6 +61,8 @@ const APISearchState = defineState({
 
 export function APIDebug() {
   const { t } = useTranslation()
+
+  useFrameUpdate()
 
   const apiSearch = useHookstate(getMutableState(APISearchState).search)
   const apiSearchLowercase = apiSearch.value.toLowerCase()
@@ -92,7 +95,7 @@ export function APIDebug() {
   return (
     <div className="m-1 bg-neutral-600 p-1">
       <div className="my-0.5">
-        <Text>{t('common:debug.api')}</Text>
+        <Text className="text-text-primary-button">{t('common:debug.api')}</Text>
         <Input
           type="text"
           placeholder="Search..."

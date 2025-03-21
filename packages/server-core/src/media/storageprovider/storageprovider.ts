@@ -24,11 +24,16 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import config from '../../appconfig'
+import GCSStorage from './gcs.storage'
 import LocalStorage from './local.storage'
 import S3Storage from './s3.storage'
 import { StorageProviderInterface } from './storageprovider.interface'
 
 const providers = {} as { [constructor: string]: StorageProviderInterface }
+const storages = {
+  s3: S3Storage,
+  gcs: GCSStorage
+}
 
 export const getStorageProvider = (provider = 'default') => providers[provider]
 
@@ -43,7 +48,10 @@ export const createStorageProvider = (constructor: StorageProviderConstructor) =
 }
 
 export const createDefaultStorageProvider = () => {
-  const StorageProvider = config.server.storageProvider !== 's3' ? LocalStorage : S3Storage
+  const StorageProvider =
+    config.server.storageProvider && storages[config.server.storageProvider]
+      ? storages[config.server.storageProvider]
+      : LocalStorage
   const provider = createStorageProvider(StorageProvider)
   providers['default'] = provider
   return provider

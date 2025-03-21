@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Euler, Material, Matrix4, Quaternion, Vector3 } from 'three'
+import { Euler, Material, Matrix4, Quaternion, SRGBColorSpace, Vector3 } from 'three'
 
 import {
   EntityTreeComponent,
@@ -54,7 +54,6 @@ import {
   SetComponentType
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
@@ -64,9 +63,11 @@ import { DirectionalLightComponent, HemisphereLightComponent } from '@ir-engine/
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { getTextureAsync } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { serializeEntity } from '@ir-engine/engine/src/scene/functions/serializeWorld'
+import { SceneDeltaState } from '@ir-engine/engine/src/scene/systems/SceneDeltaState'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
@@ -74,11 +75,13 @@ import {
   MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { extractDefaults } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { extractDefaults, setupMaterialParameters } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import { Color } from 'three'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
+import { getIncreamentedName } from './utils'
 
 const tempMatrix4 = new Matrix4()
 const tempVector = new Vector3()
@@ -97,6 +100,11 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
     if (hasComponent(entity, SceneComponent)) continue
     if (add) {
       setComponent(entity, component, args)
+      if (args) {
+        EditorControlFunctions.modifyProperty([entity], component, args)
+      } else {
+        setComponent(entity, component, args)
+      }
     } else {
       removeComponent(entity, component)
     }
@@ -128,7 +136,9 @@ const modifyProperty = <C extends Component<any, any>>(
   const affectedNodes = [] as NodeID[]
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
-
+    if (!EditorState.isInActiveScene(entity)) {
+      SceneDeltaState.registerDelta(entity, component, properties)
+    }
     const currentComponent = hasComponent(entity, component) ? serializeComponent(entity, component) : {}
     for (const [key, val] of Object.entries(properties)) {
       if (key.includes('.')) {
@@ -151,7 +161,7 @@ const updateMaterialPrototype = (materialEntity: Entity, newPrototype: string) =
   const materialComponent = getOptionalMutableComponent(materialEntity, MaterialStateComponent)
   if (!materialComponent) return
   const material = materialComponent.material.value
-
+  materialComponent.prototype.set(newPrototype)
   if (!material || newPrototype === material.type) return
   const prototype = getState(MaterialPrototypeDefinitions)[newPrototype]
   if (!prototype) return
@@ -180,10 +190,11 @@ const updateMaterialPrototype = (materialEntity: Entity, newPrototype: string) =
 
   materialComponent.material.set(newMaterial)
   materialComponent.parameters.set({})
-  for (const key in prototype.arguments) materialComponent.parameters[key].set(prototype.arguments[key].default)
 
-  const sceneID = getComponent(materialEntity, SourceComponent)
-  getMutableState(AssetModifiedState)[sceneID].set(true)
+  EditorState.markModifiedScene(materialEntity)
+  if (!EditorState.isInActiveScene(materialEntity)) {
+    SceneDeltaState.registerMaterialDelta(materialEntity, {}, newPrototype)
+  }
 
   return newMaterial
 }
@@ -195,27 +206,51 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
     const materialEntity = UUIDComponent.getEntityByUUID(materialId, Layers.Authoring)
     const material = getComponent(materialEntity, MaterialStateComponent).material
     if (!material) return
+    if (!material) throw new Error('Updating properties on undefined material')
     const props = properties[i] ?? properties[0]
-    Object.entries(props).map(([k, v]) => {
-      if (!material) throw new Error('Updating properties on undefined material')
-      if (
-        ![undefined, null].includes(v) &&
-        ![undefined, null].includes(material[k]) &&
-        typeof material[k] === 'object' &&
-        typeof material[k].set === 'function'
-      ) {
-        material[k].set(v)
-      } else {
-        material[k] = v
+    const materialComponent = getMutableComponent(materialEntity, MaterialStateComponent)
+    /**@todo consolidate material prototype tracking */
+    const prototype =
+      getState(MaterialPrototypeDefinitions)[
+        materialComponent.prototype.value ||
+          materialComponent.material.value.userData?.type ||
+          materialComponent.material.type.value
+      ].arguments
+    const texturePromises = [] as Promise<void>[]
+    for (const [key, value] of Object.entries(props)) {
+      switch (prototype[key]?.type) {
+        case 'texture':
+          texturePromises.push(
+            new Promise<void>(async (resolve) => {
+              const texture = await getTextureAsync(value)
+              if (texture[0]) {
+                texture[0].colorSpace = SRGBColorSpace
+                material[key] = texture[0]
+              }
+              resolve()
+            })
+          )
+          break
+        case 'color':
+          material[key] = value.isColor ? value : new Color(value)
+          break
+        default:
+          material[key] = value
       }
-      getMutableComponent(materialEntity, MaterialStateComponent).parameters[k].set(v)
+    }
+
+    Promise.all(texturePromises).then(() => {
+      setupMaterialParameters(materialEntity, getComponent(materialEntity, MaterialStateComponent).material)
+      EditorState.markModifiedScene(materialEntity)
+      if (!EditorState.isInActiveScene(materialEntity)) {
+        SceneDeltaState.registerMaterialDelta(materialEntity, props, materialComponent.prototype.value)
+      }
     })
-    const sceneID = getComponent(materialEntity, SourceComponent)
+
     getMutableComponent(
       LayerFunctions.getLayerRelationsEntities(materialEntity)![0][1],
       MaterialStateComponent
     ).material.plugins.set(material.plugins)
-    getMutableState(AssetModifiedState)[sceneID].set(true)
   }
 }
 
@@ -251,6 +286,10 @@ const createObjectFromSceneElement = (
   beforeEntity?: Entity,
   requestedName?: string
 ): { entityUUID: EntityUUID; sourceID: string } => {
+  if (requestedName) {
+    requestedName = getIncreamentedName(requestedName, parentEntity)
+  }
+
   const nodeID: NodeID =
     componentJson.find((comp) => comp.name === NodeIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
 
@@ -371,6 +410,9 @@ const positionObject = (
     }
 
     setComponent(entity, TransformComponent, { position: transform.position })
+    if (!EditorState.isInActiveScene(entity)) {
+      SceneDeltaState.registerDelta(entity, TransformComponent, { position: transform.position })
+    }
     getMutableComponent(entity, TransformComponent).position.set((v) => v)
     iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
@@ -407,6 +449,9 @@ const rotateObject = (nodes: Entity[], rotations: Quaternion[], space = getState
     }
 
     setComponent(entity, TransformComponent, { rotation: transform.rotation })
+    if (!EditorState.isInActiveScene(entity)) {
+      SceneDeltaState.registerDelta(entity, TransformComponent, { rotation: transform.rotation })
+    }
     getMutableComponent(entity, TransformComponent).rotation.set((v) => v)
     iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
@@ -435,6 +480,9 @@ const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: V
       .decompose(transform.position, transform.rotation, transform.scale)
 
     setComponent(entity, TransformComponent, { rotation: transform.rotation })
+    if (!EditorState.isInActiveScene(entity)) {
+      SceneDeltaState.registerDelta(entity, TransformComponent, { rotation: transform.rotation })
+    }
     getMutableComponent(entity, TransformComponent).rotation.set((v) => v)
     iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
@@ -481,6 +529,9 @@ const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = fals
     )
 
     setComponent(entity, TransformComponent, { scale: transformComponent.scale })
+    if (!EditorState.isInActiveScene(entity)) {
+      SceneDeltaState.registerDelta(entity, TransformComponent, { scale: transformComponent.scale })
+    }
     getMutableComponent(entity, TransformComponent).scale.set((v) => v)
     iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
@@ -515,7 +566,16 @@ const reparentObject = (
     EditorControlFunctions.rotateObject([entity], [worldRotation], TransformSpace.world)
     worldScaleObject([entity], [worldScale])
 
-    /** @todo handle the entity changing sources */
+    const newSourceID = hasComponent(parent, GLTFComponent)
+      ? GLTFComponent.getInstanceID(parent)
+      : getComponent(parent, SourceComponent)
+    setComponent(entity, SourceComponent, newSourceID)
+    setComponent(
+      entity,
+      UUIDComponent,
+      NodeIDComponent.getUUIDBySourceAndNodeID(newSourceID, getComponent(entity, NodeIDComponent))
+    )
+
     EditorState.markModifiedScene(entity)
   }
 }

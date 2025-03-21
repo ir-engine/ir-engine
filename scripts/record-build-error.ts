@@ -46,7 +46,7 @@ const options = cli.parse({
 cli.main(async () => {
   try {
     const knexClient = knex({
-      client: 'mysql',
+      client: 'mysql2',
       connection: {
         user: process.env.MYSQL_USER ?? 'server',
         password: process.env.MYSQL_PASSWORD ?? 'password',

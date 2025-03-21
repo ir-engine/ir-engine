@@ -23,14 +23,7 @@ import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
 
 import { Entity, getOptionalComponent, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
-import { ECSState } from '@ir-engine/ecs/src/ECSState'
-import {
-  defineState,
-  getMutableState,
-  syncStateWithLocalStorage,
-  useHookstate,
-  useMutableState
-} from '@ir-engine/hyperflux'
+import { defineState, syncStateWithLocalStorage, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Resource, ResourceState } from '@ir-engine/spatial/src/resources/ResourceState'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -73,7 +66,6 @@ const getEntityLabel = (entity: Entity, val: Resource) =>
 const getSizeLabel = (size: number) => ` (${roundToTwo(size / MB)} MB)`
 
 export function ResourceDebug() {
-  useHookstate(getMutableState(ECSState).frameTime).value
   const { t } = useTranslation()
 
   const resourceState = useMutableState(ResourceState)
@@ -137,7 +129,7 @@ export function ResourceDebug() {
   return (
     <div className="m-1 bg-neutral-600 p-1">
       <div className="my-1">
-        <Text>{t('common:debug.resources')}</Text>
+        <Text className="text-text-primary-button">{t('common:debug.resources')}</Text>
         {/* <Input
           type="text"
           placeholder="Search..."
@@ -147,11 +139,11 @@ export function ResourceDebug() {
         <JSONTree data={entriesSortedByType} hideRoot />
       </div>
       <div className="my-1">
-        <Text>{`Total VRAM: ${totalVRAM} MB`}</Text>
+        <Text className="text-text-primary-button">{`Total VRAM: ${totalVRAM} MB`}</Text>
         <JSONTree data={entriesOnGPU} />
       </div>
       <div className="my-1">
-        <Text>{`Total RAM: ${totalRAM} MB`}</Text>
+        <Text className="text-text-primary-button">{`Total RAM: ${totalRAM} MB`}</Text>
         <JSONTree data={entriesOnCPU} />
       </div>
     </div>

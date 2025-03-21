@@ -27,7 +27,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiArrowPath } from 'react-icons/hi2'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { AvatarService } from '@ir-engine/client-core/src/user/services/AvatarService'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@ir-engine/common/src/constants/AvatarConstants'
 import { AvatarType } from '@ir-engine/common/src/schema.type.module'
@@ -135,14 +135,14 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
       if (avatar?.id) {
         try {
           await AvatarService.patchAvatar(avatar, avatarAssets.name.value, true, avatarFile, avatarThumbnail)
-          PopoverState.hidePopupover()
+          ModalState.closeModal()
         } catch (e) {
           error.serverError.set(e.message)
         }
       } else {
         try {
           await AvatarService.createAvatar(avatarFile, avatarThumbnail, avatarAssets.name.value, true)
-          PopoverState.hidePopupover()
+          ModalState.closeModal()
         } catch (e) {
           error.serverError.set(e.message)
         }
@@ -222,7 +222,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
       title={avatar?.id ? t('admin:components.avatar.update') : t('admin:components.avatar.add')}
       className="w-[50vw]"
       onSubmit={handleSubmit}
-      onClose={PopoverState.hidePopupover}
+      onClose={ModalState.closeModal}
       submitButtonDisabled={
         avatarAssets.name.value.length === 0 ||
         (avatarAssets.source.value === 'file' && (!avatarAssets.model.value || !avatarAssets.thumbnail.value)) ||

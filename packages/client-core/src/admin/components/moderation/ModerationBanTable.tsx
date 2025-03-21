@@ -27,10 +27,10 @@ import DataTable, { ITableHeadCell } from '@ir-engine/client-core/src/admin/comm
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { moderationBanPath, ModerationBanType } from '@ir-engine/common/src/schema.type.module'
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import { t } from 'i18next'
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { validate as isValidUUID } from 'uuid'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { LocationLabel } from './common/LocationLabel'
 import { UserDisplayName } from './common/UserDisplayName'
@@ -80,7 +80,7 @@ export default function ModerationBanTable({ search }) {
     {
       $or: [
         {
-          banUserId: isValidUUID(search) ? search : undefined
+          banUserId: isValidId(search) ? search : undefined
         },
         {
           banReason: {

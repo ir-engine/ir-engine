@@ -21,7 +21,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { DrawingUtils } from '@mediapipe/tasks-vision'
 import hark from 'hark'
 import { t } from 'i18next'
-import React, { createContext, RefObject, useContext, useEffect, useRef } from 'react'
+import React, { RefObject, useEffect, useRef } from 'react'
 
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useGet } from '@ir-engine/common'
@@ -32,16 +32,7 @@ import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
 import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
 import { MotionCaptureSystem, timeSeriesMocapData } from '@ir-engine/engine/src/mocap/MotionCaptureSystem'
 import { applyScreenshareToTexture } from '@ir-engine/engine/src/scene/functions/applyScreenshareToTexture'
-import {
-  getMutableState,
-  getState,
-  NO_PROXY,
-  PeerID,
-  State,
-  useHookstate,
-  useMutableState,
-  UserID
-} from '@ir-engine/hyperflux'
+import { getMutableState, getState, NO_PROXY, PeerID, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { drawPoseToCanvas } from '@ir-engine/ui/src/pages/Capture'
@@ -53,26 +44,6 @@ import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 export interface Props {
   peerID: PeerID
   type: 'screen' | 'cam'
-}
-
-const ReportUserContext = createContext({ reportedUserId: undefined! as State<UserID | undefined> })
-
-export const ReportUserProvider = ({ children }: { children: React.ReactNode }) => {
-  const reportedUserId = useHookstate(undefined as UserID | undefined)
-  return <ReportUserContext.Provider value={{ reportedUserId }}>{children}</ReportUserContext.Provider>
-}
-
-export const useReportUser = () => {
-  const { reportedUserId } = useContext(ReportUserContext)
-  return {
-    reportedUserId: reportedUserId.value,
-    setReportedUserId: (userId: UserID) => {
-      reportedUserId.set(userId)
-    },
-    resetUserId: () => {
-      reportedUserId.set(undefined)
-    }
-  }
 }
 
 export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
@@ -159,7 +130,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   useEffect(() => {
     audioElement.muted = audioStreamPaused || isSelf
-    audioElement.volume = audioStreamPaused || isSelf ? 0 : volume
+    audioElement.volume = volume
   }, [audioStreamPaused])
 
   useEffect(() => {
@@ -184,8 +155,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     )
   }, [audioState.microphoneGain.value])
 
-  const toggleVideo = async (e) => {
-    e.stopPropagation()
+  const toggleVideo = async () => {
     if (isSelf && !isScreen) {
       MediaStreamState.toggleWebcamPaused()
     } else if (isSelf && isScreen) {
@@ -195,8 +165,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     }
   }
 
-  const toggleAudio = async (e) => {
-    e.stopPropagation()
+  const toggleAudio = async () => {
     if (isSelf && !isScreen) {
       MediaStreamState.toggleMicrophonePaused()
     } else if (isSelf && isScreen) {
@@ -251,28 +220,26 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const handleVisibilityChange = () => {
     if (document.hidden) {
-      if (!videoStreamPaused) {
+      if (!videoStreamPaused && mediaStreamState.webcamMediaStream.value) {
         resumeVideoOnUnhide.current = true
-        toggleVideo({
-          stopPropagation: () => {}
-        })
+        peerMediaChannelState.videoStreamPaused.set(true)
+        toggleVideo()
       }
-      if (!audioStreamPaused) {
+      if (!audioStreamPaused && mediaStreamState.microphoneMediaStream.value) {
         resumeAudioOnUnhide.current = true
-        toggleAudio({
-          stopPropagation: () => {}
-        })
+        peerMediaChannelState.audioStreamPaused.set(true)
+        toggleAudio()
       }
     }
     if (!document.hidden) {
-      if (resumeVideoOnUnhide.current)
-        toggleVideo({
-          stopPropagation: () => {}
-        })
-      if (resumeAudioOnUnhide.current)
-        toggleAudio({
-          stopPropagation: () => {}
-        })
+      if (resumeVideoOnUnhide.current) {
+        peerMediaChannelState.videoStreamPaused.set(false)
+        toggleVideo()
+      }
+      if (resumeAudioOnUnhide.current) {
+        peerMediaChannelState.audioStreamPaused.set(false)
+        toggleAudio()
+      }
       resumeVideoOnUnhide.current = false
       resumeAudioOnUnhide.current = false
     }
@@ -295,7 +262,6 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     username,
     selfUser,
     isSelf,
-    peerUserId: isSelf ? null : userId,
     videoMediaStream,
     audioMediaStream,
     avatarThumbnail,
