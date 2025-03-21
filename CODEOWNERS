@@ -1,5 +1,5 @@
 
-* @HexaField
+* @HexaField @ir-engine/qa
 
 /packages/client/ @barankyle @aditya-mitra
 /packages/client-core/ @aditya-mitra
@@ -46,4 +46,3 @@
 /dockerfiles/ @barankyle
 /certs/ @DanielBelmes
 /.github/ @DanielBelmes
-* @ir-engine/qa
