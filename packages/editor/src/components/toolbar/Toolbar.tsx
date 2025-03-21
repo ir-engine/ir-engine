@@ -207,7 +207,7 @@ export default function Toolbar() {
           <File04Sm />
           {projectName.value!.split('/').map((part, index) => (
             <Fragment key={index}>
-              <span key={index} className="text-text-secondary">
+              <span className="text-text-secondary">
                 {part}
               </span>
               <span className="text-text-secondary">{' / '}</span>
