@@ -133,7 +133,7 @@ function ResourceFileContextMenu({
                   onComplete={(err?: unknown) => {
                     if (!err) {
                       removeFromFileThumbnailsSeen([resource.key])
-                      refetchResources()
+                      refetchResources(true)
                     }
                   }}
                 />
@@ -413,7 +413,7 @@ function ResourceItems() {
 
   const thumbnailJobState = useMutableState(FileThumbnailJobState)
   useEffect(() => {
-    refetchResources()
+    refetchResources(true)
   }, [thumbnailJobState.jobs.length])
 
   useEffect(() => {
