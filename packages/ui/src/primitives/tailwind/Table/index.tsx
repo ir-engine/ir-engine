@@ -126,7 +126,7 @@ type TablePaginationProps = Readonly<{
 }>
 const TablePagination = ({
   className,
-  neighbours = 2,
+  neighbours = 1,
   totalPages,
   currentPage,
   onPageChange
@@ -136,6 +136,10 @@ const TablePagination = ({
   const controlsClasses = twMerge(commonClasses, 'px-2 pt-5 enabled:text-text-primary')
   const pageClasses = twMerge(commonClasses, 'px-4')
   const currentPageClasses = twMerge(pageClasses, 'border-t-2 border-ui-primary text-ui-primary')
+
+  if (currentPage + 1 == totalPages) {
+    neighbours = Math.max(2, neighbours)
+  }
 
   const prevPages = [] as number[]
   for (let i = currentPage - 1; i >= Math.max(0, currentPage - neighbours); i--) {
