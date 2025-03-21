@@ -206,7 +206,7 @@ export default function Toolbar() {
         <div className="flex items-center gap-2.5">
           <File04Sm />
           {projectName.value!.split('/').map((part, index) => (
-            <>
+            <Fragment key={index}>
               <span key={index} className="text-text-secondary">
                 {part}
               </span>
