@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useMutation } from '@ir-engine/common'
 import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
@@ -120,7 +120,7 @@ export function FileContextMenu({
       condition: selectedFiles.length === 1,
       label: t('editor:layout.filebrowser.renameAsset'),
       action: () => {
-        PopoverState.showPopupover(
+        ModalState.openModal(
           <RenameFileModal projectName={filesState.projectName.value} file={selectedFiles.value[0]} />
         )
         setAnchorEvent(undefined)
@@ -132,7 +132,7 @@ export function FileContextMenu({
       condition: hasSelection,
       label: t('editor:layout.assetGrid.deleteAsset'),
       action: () => {
-        PopoverState.showPopupover(
+        ModalState.openModal(
           <DeleteFileModal
             files={selectedFiles.get(NO_PROXY)}
             onComplete={(err) => {
@@ -150,7 +150,7 @@ export function FileContextMenu({
       condition: hasFiles && fileConsistsOfContentType(selectedFiles.value, 'model'),
       label: t('editor:layout.filebrowser.compress'),
       action: () => {
-        PopoverState.showPopupover(
+        ModalState.openModal(
           <ModelCompressionPanel selectedFiles={selectedFiles.value} refreshDirectory={refreshDirectory} />
         )
         setAnchorEvent(undefined)
@@ -162,7 +162,7 @@ export function FileContextMenu({
       condition: hasFiles && fileConsistsOfContentType(selectedFiles.value, 'image'),
       label: t('editor:layout.filebrowser.compress') + ' Image',
       action: () => {
-        PopoverState.showPopupover(
+        ModalState.openModal(
           <ImageCompressionPanel selectedFiles={selectedFiles.value} refreshDirectory={refreshDirectory} />
         )
         setAnchorEvent(undefined)
@@ -243,7 +243,7 @@ export function FileContextMenu({
       condition: hasSelection,
       label: t('editor:layout.filebrowser.viewAssetProperties'),
       action: () => {
-        PopoverState.showPopupover(<FilePropertiesModal />)
+        ModalState.openModal(<FilePropertiesModal />)
         setAnchorEvent(undefined)
       },
       testId: 'files-panel-file-item-context-menu-view-asset-properties-button'

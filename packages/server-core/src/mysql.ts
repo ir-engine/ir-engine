@@ -27,7 +27,6 @@ import knex, { Knex } from 'knex'
 
 import { isDev } from '@ir-engine/common/src/config'
 import appConfig from '@ir-engine/server-core/src/appconfig'
-import { delay } from '@ir-engine/spatial/src/common/functions/delay'
 
 import { Application } from '../declarations'
 import { seeder } from './seeder'
@@ -47,7 +46,13 @@ const checkLock = async (knexClient: Knex, delayInMs: number) => {
 
     if (existingData.length > 0 && existingData[0].is_locked === 1) {
       logger.info(`Knex migrations are locked. Waiting for ${delayInMs / 1000} seconds to check again.`)
-      await delay(delayInMs)
+
+      await new Promise<void>((resolve) => {
+        setTimeout(() => {
+          resolve()
+        }, delayInMs)
+      })
+
       const existingData = await trx('knex_migrations_lock').select()
 
       if (existingData.length > 0 && existingData[0].is_locked === 1) {

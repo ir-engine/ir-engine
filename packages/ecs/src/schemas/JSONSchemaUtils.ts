@@ -167,22 +167,17 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(
     }
     case 'Object': {
       if (!validValue(value)) return value
-
-      if (schema.options?.deserialize) return schema.options?.deserialize(curr, value) as Val
-
-      if (!value || typeof value !== 'object') return
+      if (typeof value !== 'object') return undefined
 
       const newValue = {} as Val
-
       const valueKeys = Object.keys(value as object)
-
-      const props = schema.properties as TProperties
+      const props = (schema.properties as TProperties) ?? {}
 
       for (const key of valueKeys) {
         if (!props[key]) continue
         newValue[key] = curr[key]
-        if (validValue(value[key])) {
-          const deserializedValue = DeserializeSchemaValue(entity, props[key], curr[key], value[key])
+        if (validValue(value![key])) {
+          const deserializedValue = DeserializeSchemaValue(entity, props[key], curr[key], value![key])
           if (typeof deserializedValue !== 'undefined') newValue[key] = deserializedValue
         }
       }
@@ -193,9 +188,7 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(
     case 'Class': {
       if (!validValue(value)) return value
 
-      if (schema.options?.deserialize) return schema.options?.deserialize(curr, value) as Val
-
-      const props = schema.properties as TProperties
+      const props = (schema.properties as TProperties) ?? {}
       const propKeys = Object.keys(props)
 
       for (const key of propKeys) {
@@ -445,7 +438,7 @@ export const CloneSerializable = <Val>(value: Val) => {
   else if (isArrayBuffer(value)) return value.slice(0)
   else if (Array.isArray(value))
     return value.map((item) => CloneSerializable(item))?.filter((item) => item !== NonSerializable)
-  else if (isSet(value)) return new Set(CloneSerializable([...value.entries()]))
+  else if (isSet(value)) return new Set(CloneSerializable([...value.values()]))
   else if (isMap(value)) return new Map(CloneSerializable([...value.entries()]))
   else if (type === 'object') {
     const obj = {}
@@ -610,7 +603,7 @@ const ConvertToSchema = <T extends Schema, Val>(schema: T, value: Val) => {
     case 'Record': {
       const props = schema.properties as TRecordSchema<TPropertyKeySchema, Schema>['properties']
       const keySchema = props.key
-      const valueSchema = props.value
+      const valueSchema = props.value ?? ({ [Kind]: 'NonSerialized' } as Schema)
 
       if (!isSerializable(valueSchema)) return null
       if (value && typeof value === 'object') {
@@ -673,4 +666,9 @@ const ConvertToSchema = <T extends Schema, Val>(schema: T, value: Val) => {
 export const SerializeSchema = <T extends Schema, Val>(schema: T, value: Val): Val => {
   const converted = ConvertToSchema(schema, value)
   return CloneSerializable(converted)
+}
+
+/** @private Exported for Unit Tests access */
+export const JSONSchemaUtilsFunctions = {
+  ConvertToSchema
 }
