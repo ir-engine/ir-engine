@@ -38,7 +38,7 @@ import { Button, DropdownItem } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import { ChevronDownSm, File04Sm, SquaresLg, UploadCloud02Sm } from '@ir-engine/ui/src/icons'
 import { t } from 'i18next'
-import React from 'react'
+import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { confirmSceneExists, onNewScene, onSaveScene, saveSceneGLTF } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
@@ -207,11 +207,9 @@ export default function Toolbar() {
           <File04Sm />
           {projectName.value!.split('/').map((part, index) => (
             <Fragment key={index}>
-              <span className="text-text-secondary">
-                {part}
-              </span>
+              <span className="text-text-secondary">{part}</span>
               <span className="text-text-secondary">{' / '}</span>
-            </>
+            </Fragment>
           ))}
           <span className="text-text-primary">{sceneName.value}</span>
         </div>
