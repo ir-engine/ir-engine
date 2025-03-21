@@ -29,6 +29,7 @@ import { SYNC } from 'feathers-sync'
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import verifyScope from '../../hooks/verify-scope'
+import { isValidFileType } from '../FileUtil'
 
 // An example of calculating the remaining space left on a hypothetical project max size
 // const projectNameRegex = /projects\/([^/]+)/
@@ -50,17 +51,6 @@ import verifyScope from '../../hooks/verify-scope'
 //   )
 //   return context
 // }
-
-function isValidFileType(fileType: string, fileName: string): boolean {
-  return (
-    fileType.startsWith('image/') ||
-    fileType.startsWith('audio/') ||
-    fileType.startsWith('video/') ||
-    (fileType === 'application/octet-stream' &&
-      (fileName.endsWith('.gltf') || fileName.endsWith('.glb') || fileName.endsWith('.bin'))) ||
-    (fileType === 'application/macbinary' && fileName.endsWith('.bin')) // Mac changes the mimetype to this when using browser document upload.
-  )
-}
 
 const validateFile = (context: HookContext) => {
   const args = context.arguments
