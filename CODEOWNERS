@@ -46,3 +46,4 @@
 /dockerfiles/ @barankyle
 /certs/ @DanielBelmes
 /.github/ @DanielBelmes
+* @ir-engine/qa
