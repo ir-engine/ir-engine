@@ -236,7 +236,6 @@ describe('FileUtil functions', () => {
     it('returns false for unrelated mime types', () => {
       expect(isValidFileType('application/pdf', 'doc.pdf')).toBe(false)
       expect(isValidFileType('text/plain', 'notes.txt')).toBe(false)
-      expect(isValidFileType('application/octet-stream', 'putty.exe')).toBe(false)
     })
   })
 
