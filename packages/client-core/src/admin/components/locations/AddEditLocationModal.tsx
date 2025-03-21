@@ -62,12 +62,13 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
-import { Button, DropdownItem, Input, Select } from '@ir-engine/ui'
+import { Button, DropdownItem, Input, Select, Tooltip } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
 import { CheckCircleLg, Copy02Sm, EllipsisVertical } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
+import { HiOutlineInformationCircle } from 'react-icons/hi2'
 import { Quaternion, Vector3 } from 'three'
 import { NotificationService } from '../../../common/services/NotificationService'
 import CompressedPublishConfirmation from './CompressedPublishConfirmation'
@@ -613,6 +614,12 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
                 {unPublishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
               </Button>
             )}
+            <Tooltip content={t('editor:toolbar.publishLocation.createCompressedScenePublishInfo')}>
+              <Button className="bg-[#2F3A4D]" onClick={handlePublishFolder}>
+                <HiOutlineInformationCircle />
+                {t('editor:toolbar.publishLocation.createCompressedScenePublish')}
+              </Button>
+            </Tooltip>
             <Button
               data-testid="publish-panel-publish-or-update-button"
               disabled={isLoading}
@@ -624,9 +631,6 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
                 ? t('editor:toolbar.publishLocation.saveAndPublish')
                 : t('editor:toolbar.publishLocation.title')}
               {publishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
-            </Button>
-            <Button onClick={handlePublishFolder}>
-              {t('editor:toolbar.publishLocation.createCompressedScenePublish')}
             </Button>
           </div>
         </div>

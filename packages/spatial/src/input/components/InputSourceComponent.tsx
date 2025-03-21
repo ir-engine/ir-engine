@@ -31,6 +31,7 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getState } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { isMobile } from '../../common/functions/isMobile'
 import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { ButtonStateMap } from '../state/ButtonState'
@@ -69,7 +70,7 @@ export const InputSourceComponent = defineComponent({
             hapticActuators: [],
             id: 'emulated-gamepad-' + entity,
             index: 0,
-            mapping: '',
+            mapping: isMobile ? 'xr-standard' : '',
             timestamp: performance.now(),
             vibrationActuator: null
           } as unknown as Gamepad),
