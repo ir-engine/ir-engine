@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { Button } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React from 'react'
@@ -35,7 +35,7 @@ export default function QuitToDashboardConfirmationDialog({ resolve }: { resolve
 
   const onClose = (quit: boolean) => {
     resolve(quit)
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
   }
   return (
     <Modal
@@ -44,7 +44,7 @@ export default function QuitToDashboardConfirmationDialog({ resolve }: { resolve
       hideFooter={true}
       onClose={() => {
         resolve(false)
-        PopoverState.hidePopupover()
+        ModalState.closeModal()
       }}
       rawChildren={
         <>

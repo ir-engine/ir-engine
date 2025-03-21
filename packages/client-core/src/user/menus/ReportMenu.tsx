@@ -43,8 +43,8 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import TextArea from '@ir-engine/ui/src/primitives/tailwind/TextArea'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
+import { ModalState } from '../../common/services/ModalState'
 import { NotificationService } from '../../common/services/NotificationService'
-import { PopoverState } from '../../common/services/PopoverState'
 import { uploadToFeathersService } from '../../util/upload'
 
 type ReportMenuProps = { type: ModerationTypeType; userId?: UserID; locationId?: LocationID }
@@ -80,7 +80,7 @@ const ReportMenu = (props: ReportMenuProps) => {
   const userReportsMutation = useMutation(moderationPath)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const closePopover = () => {
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
   }
 
   const formData = useHookstate({
@@ -177,7 +177,7 @@ const ReportMenu = (props: ReportMenuProps) => {
         )
       }
       closePopover()
-      PopoverState.showPopupover(<ReportSuccessReportModal handleClose={closePopover} />)
+      ModalState.openModal(<ReportSuccessReportModal handleClose={closePopover} />)
     } catch (error) {
       closePopover()
       NotificationService.dispatchNotify(`Something went wrong Reporting a ${typeReport}`, {

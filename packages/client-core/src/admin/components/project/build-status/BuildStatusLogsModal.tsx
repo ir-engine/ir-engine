@@ -35,7 +35,7 @@ import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
-import { PopoverState } from '../../../../common/services/PopoverState'
+import { ModalState } from '../../../../common/services/ModalState'
 
 const BuildStatusBadgeVariant = {
   success: 'success',
@@ -59,7 +59,7 @@ export default function BuildStatusLogsModal({ buildStatus }: { buildStatus: Bui
     <Modal
       className="w-[50vw]"
       title={t('admin:components.buildStatus.viewLogs')}
-      onClose={() => PopoverState.hidePopupover()}
+      onClose={() => ModalState.closeModal()}
     >
       <div className="grid grid-cols-2 gap-x-4 gap-y-6">
         <Input

@@ -30,7 +30,7 @@ import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Badge from '@ir-engine/ui/src/primitives/tailwind/Badge'
 
 import { Trash04Lg } from '@ir-engine/ui/src/icons'
-import { PopoverState } from '../../../common/services/PopoverState'
+import { ModalState } from '../../../common/services/ModalState'
 import { serverColumns, ServerRowType } from '../../common/constants/server'
 import DataTable from '../../common/Table'
 import { useServerInfoFind } from '../../services/ServerInfoQuery'
@@ -101,9 +101,7 @@ export default function ServerTable({
             size="sm"
             variant="primary"
             onClick={() => {
-              PopoverState.showPopupover(
-                <ServerLogsModal podName={row.name} containerName={row.containers?.at(-1)?.name} />
-              )
+              ModalState.openModal(<ServerLogsModal podName={row.name} containerName={row.containers?.at(-1)?.name} />)
             }}
           >
             {t('admin:components.server.viewLogs')}
@@ -113,7 +111,7 @@ export default function ServerTable({
             icon={Trash04Lg}
             title={t('admin:components.common.delete')}
             onClick={() => {
-              PopoverState.showPopupover(
+              ModalState.openModal(
                 <ConfirmDialog
                   text={`${t('admin:components.server.confirmPodDelete')} ${row.name}?`}
                   onSubmit={async () => {

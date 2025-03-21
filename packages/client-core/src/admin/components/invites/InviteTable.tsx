@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useFind, useSearch } from '@ir-engine/common'
 import { invitePath, InviteType, UserName } from '@ir-engine/common/src/schema.type.module'
 import { isValidId } from '@ir-engine/common/src/utils/isValidId'
@@ -106,15 +106,12 @@ export default function InviteTable({
       spawnDetails: row.spawnDetails ? JSON.stringify(row.spawnDetails) : '',
       action: (
         <div className="flex items-center gap-3">
-          <ActionButton
-            icon={Edit01Lg}
-            onClick={() => PopoverState.showPopupover(<AddEditInviteModal invite={row} />)}
-          />
+          <ActionButton icon={Edit01Lg} onClick={() => ModalState.openModal(<AddEditInviteModal invite={row} />)} />
 
           <ActionButton
             icon={Trash04Lg}
             title={t('admin:components.common.delete')}
-            onClick={() => PopoverState.showPopupover(<RemoveInviteModal invites={[row]} />)}
+            onClick={() => ModalState.openModal(<RemoveInviteModal invites={[row]} />)}
             variant="red"
           />
         </div>

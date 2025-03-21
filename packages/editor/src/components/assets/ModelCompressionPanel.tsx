@@ -44,7 +44,7 @@ import {
 import { Heuristic, VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
 import { NO_PROXY, none, useHookstate } from '@ir-engine/hyperflux'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useTranslation } from 'react-i18next'
 import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
 import exportGLTF from '../../functions/exportGLTF'
@@ -161,7 +161,7 @@ export default function ModelCompressionPanel({
 
   const applyPreset = (preset: ModelTransformParameters) => {
     selectedPreset.set(JSON.parse(JSON.stringify(preset)))
-    PopoverState.showPopupover(
+    ModalState.openModal(
       <ConfirmDialog text={t('editor:properties.model.transform.applyPresetConfirmation')} onSubmit={confirmPreset} />
     )
   }
@@ -276,7 +276,7 @@ export default function ModelCompressionPanel({
         <Button
           variant="tertiary"
           className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
-          onClick={() => PopoverState.hidePopupover()}
+          onClick={() => ModalState.closeModal()}
         >
           <MdClose />
         </Button>

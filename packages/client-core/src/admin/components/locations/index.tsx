@@ -27,7 +27,7 @@ import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMagnifyingGlass, HiPlus } from 'react-icons/hi2'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { Button, Input } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -70,7 +70,7 @@ export default function Locations() {
               size="sm"
               fullWidth
               onClick={() => {
-                PopoverState.showPopupover(<AddEditLocationModal action="admin" />)
+                ModalState.openModal(<AddEditLocationModal action="admin" />)
               }}
             >
               <HiPlus />

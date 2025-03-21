@@ -30,7 +30,7 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineExclamationTriangle } from 'react-icons/hi2'
-import { PopoverState } from '../../common/services/PopoverState'
+import { ModalState } from '../../common/services/ModalState'
 import { BrowserSupportState } from '../../hooks/useUnsupported'
 
 export const UnsupportedDevice = () => {
@@ -38,7 +38,7 @@ export const UnsupportedDevice = () => {
 
   const handleClose = () => {
     getMutableState(BrowserSupportState).acknowledgedUnsupportedDevice.set(true)
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
   }
 
   return (
