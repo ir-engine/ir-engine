@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
@@ -70,13 +70,13 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
   const isOverwriteConfirmed = useHookstate(false)
 
   const finishSavePrefab = () => {
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
     defaultPrefabFolder.set('assets/custom-prefabs')
     prefabName.set('prefab')
     prefabTag.set([])
     isOverwriteModalVisible.set(false)
     isOverwriteConfirmed.set(false)
-    PopoverState.showPopupover(<PrefabConfirmationPanelDialog />)
+    ModalState.openModal(<PrefabConfirmationPanelDialog />)
   }
 
   const exportLookDevPrefab = async (srcProject: string, fileName: string) => {
@@ -211,7 +211,7 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
           title={isExportLookDev ? 'Create Lookdev Prefab' : 'Create Prefab'}
           onSubmit={onExportPrefab}
           className="w-[50vw] max-w-2xl"
-          onClose={PopoverState.hidePopupover}
+          onClose={ModalState.closeModal}
           submitButtonDisabled={!resultFileName.value.isValid}
         >
           <Input

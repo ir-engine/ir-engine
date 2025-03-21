@@ -51,7 +51,14 @@ import { XRState } from '../../xr/XRState'
 import { DefaultButtonAlias, InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
-import { AnyButton, ButtonState, ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
+import {
+  AnyButton,
+  ButtonState,
+  ButtonStateMap,
+  createInitialButtonState,
+  MouseButton,
+  XRStandardGamepadAxes
+} from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 import ClientInputFunctions from './ClientInputFunctions'
 import normalizeWheel from './normalizeWheel'
@@ -86,10 +93,9 @@ export const useNonSpatialInputSources = () => {
     const handleTouchDirectionalPad = (event: CustomEvent): void => {
       const { stick, value }: { stick: 'LeftStick' | 'RightStick'; value: { x: number; y: number } } = event.detail
       if (!stick) return
-      const index = stick === 'LeftStick' ? 0 : 2
       const axes = inputSourceComponent.source.gamepad!.axes as number[]
-      axes[index + 0] = value.x
-      axes[index + 1] = value.y
+      axes[XRStandardGamepadAxes.XRStandardGamepadThumbstickX] = value.x
+      axes[XRStandardGamepadAxes.XRStandardGamepadThumbstickY] = value.y
     }
     document.addEventListener('touchstickmove', handleTouchDirectionalPad)
 

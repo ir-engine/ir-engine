@@ -81,6 +81,7 @@ import { Color } from 'three'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
+import { getIncreamentedName } from './utils'
 
 const tempMatrix4 = new Matrix4()
 const tempVector = new Vector3()
@@ -285,6 +286,10 @@ const createObjectFromSceneElement = (
   beforeEntity?: Entity,
   requestedName?: string
 ): { entityUUID: EntityUUID; sourceID: string } => {
+  if (requestedName) {
+    requestedName = getIncreamentedName(requestedName, parentEntity)
+  }
+
   const nodeID: NodeID =
     componentJson.find((comp) => comp.name === NodeIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
 

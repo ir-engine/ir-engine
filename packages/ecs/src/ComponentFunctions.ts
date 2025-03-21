@@ -672,13 +672,13 @@ export const deserializeComponent = <C extends Component>(
 ) => {
   if (Component.schema && HasRequiredSchema(Component.schema)) {
     const [valid, key] = HasRequiredSchemaValues(Component.schema as TSchema, json)
-    if (!valid) throw new Error(`${Component.name}:OnSet Missing required value for key ${key}`)
+    if (!valid) throw new Error(`${Component.name}:deserializeComponent Missing required value for key ${key}`)
   }
 
   /** @todo this can be replaced with setComponent rather than just some of the initializers once reactors are not forced to run synchronously */
   if (!hasComponent(entity, Component)) {
-    if (!entity) throw new Error('[setComponent]: entity is undefined')
-    if (!entityExists(entity)) throw new Error('[setComponent]: entity does not exist')
+    if (!entity) throw new Error('[deserializeComponent]: entity is undefined')
+    if (!entityExists(entity)) throw new Error('[deserializeComponent]: entity does not exist')
 
     if (Component.storage) {
       const nextSize = nextPowerOf2(entity + 1)
@@ -698,7 +698,8 @@ export const deserializeComponent = <C extends Component>(
 
   if (Component.schema && HasSchemaValidators(Component.schema)) {
     const [valid, key] = HasValidSchemaValues(Component.schema, args, component, entity)
-    if (!valid) throw new Error(`${component.name}:OnSet Invalid value for key ${key} ${JSON.stringify(args)}`)
+    if (!valid)
+      throw new Error(`${component.name}:deserializeComponent Invalid value for key ${key} ${JSON.stringify(args)}`)
   }
 
   setComponent(entity, Component, args)
@@ -831,148 +832,317 @@ function shouldPropagate(entityLayer: LayerID, layer: LayerID): boolean {
 }
 
 /**
+ * @description Returns an object containing the args required by {@link createPropagationArgs} when schema[Kind] is a Number
+ * */
+function createPropagationArgsNumber<C extends Component>(
+  schema: TTypedSchema<C>,
+  key: string | number,
+  obj: any,
+  layer: LayerID,
+  linkedLayer: LayerID,
+  entity: Entity,
+  component: C
+) {
+  if (obj === UndefinedEntity) return obj
+  if ((schema[Kind] as any) === 'Number' && schema?.options?.['id'] === 'Entity') {
+    const referencedEntity = obj as Entity
+
+    // if the entity is already in the linked layer, return the current arg
+    if (LayerComponent.get(referencedEntity) === linkedLayer) return referencedEntity
+
+    // otherwise return the linked entity
+    return getComponent(referencedEntity, LayerComponents[layer]).relations[linkedLayer]
+  } else {
+    return obj
+  }
+}
+
+/**
+ * @description Returns an object containing the args required by {@link createPropagationArgs} when schema[Kind] is of type any
+ * */
+function createPropagationArgsAny<C extends Component>(
+  schema: TTypedSchema<C>,
+  key: string | number,
+  obj: any,
+  layer: LayerID,
+  linkedLayer: LayerID,
+  entity: Entity,
+  component: C
+) {
+  if (!obj) return undefined
+  if (typeof obj === 'object' && 'clone' in obj && typeof obj.clone === 'function') {
+    return obj.clone()
+  } else if (Array.isArray(obj)) {
+    return [...obj] as any[]
+  } else {
+    return structuredClone(obj)
+  }
+}
+
+/**
+ * @description Returns an object containing the args required by {@link createPropagationArgs} when schema[Kind] is a Class
+ * */
+function createPropagationArgsClass<C extends Component>(
+  schema: TTypedSchema<C>,
+  key: string | number,
+  obj: any,
+  layer: LayerID,
+  linkedLayer: LayerID,
+  entity: Entity,
+  component: C
+) {
+  if (!obj) return undefined
+  if ('clone' in obj && typeof obj.clone === 'function') {
+    return obj.clone()
+  } else {
+    try {
+      return structuredClone(obj)
+    } catch (error) {
+      // throw new Error(
+      //   `[propagateSchema]: ${entity} ${component.name} ${key} is not a cloneable class. ` + error.message
+      // )
+      console.warn(`[propagateSchema]: ${entity} ${component.name} ${key} is not a cloneable class. ` + error.message)
+      return obj
+    }
+  }
+}
+
+/**
+ * @description Returns an object containing the args required by {@link createPropagationArgs} when schema[Kind] is an Object
+ * */
+function createPropagationArgsObject<C extends Component>(
+  schema: TTypedSchema<C>,
+  key: string | number,
+  obj: any,
+  layer: LayerID,
+  linkedLayer: LayerID,
+  entity: Entity,
+  component: C
+) {
+  if (!obj) return undefined
+  const props = schema.properties as any
+  const args = {} as any
+  for (const k in props) {
+    const parsed = CreatePropagationArgs.Inner(props[k], k, obj, layer, linkedLayer, entity, component)
+    if (typeof parsed === 'undefined') continue
+    args[k] = parsed
+  }
+  return args
+}
+
+/**
+ * @description Returns an object containing the args required by {@link createPropagationArgs} when schema[Kind] is a Record
+ * */
+function createPropagationArgsRecord<C extends Component>(
+  schema: TTypedSchema<C>,
+  key: string | number,
+  obj: any,
+  layer: LayerID,
+  linkedLayer: LayerID,
+  entity: Entity,
+  component: C
+) {
+  if (!obj) return undefined
+  const { key: _, value } = schema.properties as { key: any; value: any }
+  const args = {} as any
+  for (const k in obj) {
+    const parsed = CreatePropagationArgs.Inner(value, k, obj, layer, linkedLayer, entity, component)
+    if (typeof parsed === 'undefined') continue
+    args[k] = parsed
+  }
+  return args
+}
+
+/**
+ * @description Returns an object containing the args required by {@link createPropagationArgs} when schema[Kind] is an Array
+ * */
+function createPropagationArgsArray<C extends Component>(
+  schema: TTypedSchema<C>,
+  key: string | number,
+  obj: any,
+  layer: LayerID,
+  linkedLayer: LayerID,
+  entity: Entity,
+  component: C
+) {
+  if (!obj) return undefined
+  const props = schema.properties as any
+  const args = [] as any[]
+  for (let i = 0; i < obj.length; i++) {
+    const parsed = CreatePropagationArgs.Inner(props, i, obj, layer, linkedLayer, entity, component)
+    args[i] = parsed
+  }
+  return args
+}
+
+/**
+ * @description Returns an object containing the args required by {@link createPropagationArgs} when schema[Kind] is a Tuple
+ * */
+function createPropagationArgsTuple<C extends Component>(
+  schema: TTypedSchema<C>,
+  key: string | number,
+  obj: any,
+  layer: LayerID,
+  linkedLayer: LayerID,
+  entity: Entity,
+  component: C
+) {
+  if (!obj) return undefined
+  const props = schema.properties as any
+  const args = [] as any[]
+  for (let i = 0; i < props.length; i++) {
+    const parsed = CreatePropagationArgs.Inner(props[i], i, obj, layer, linkedLayer, entity, component)
+    args[i] = parsed
+  }
+  return args
+}
+
+/**
+ * @description Returns an object containing the args required by {@link createPropagationArgs} when schema[Kind] is a Union
+ * */
+function createPropagationArgsUnion<C extends Component>(
+  schema: TTypedSchema<C>,
+  key: string | number,
+  obj: any,
+  layer: LayerID,
+  linkedLayer: LayerID,
+  entity: Entity,
+  component: C
+) {
+  const props = schema.properties as any
+  for (const prop of props) {
+    const parsed = CreatePropagationArgs.Inner(prop, '', obj, layer, linkedLayer, entity, component)
+    if (typeof parsed !== 'undefined') return parsed
+  }
+  return null
+}
+
+/**
+ * @description Returns an object containing the args required by {@link createPropagationArgs} for the default case
+ * */
+function createPropagationArgsDefault<C extends Component>(
+  schema: TTypedSchema<C>,
+  key: string | number,
+  obj: any,
+  layer: LayerID,
+  linkedLayer: LayerID,
+  entity: Entity,
+  component: C
+) {
+  let props = schema.properties as any
+  if (!props) {
+    // must be SoA data
+    if (typeof obj === 'object') {
+      props = {
+        properties: Object.fromEntries(Object.keys(schema).map((key) => [key, { [Kind]: 'Any' }])),
+        [Kind]: 'Object'
+      }
+    } else if (typeof obj === 'number') {
+      return obj
+    }
+  }
+  return CreatePropagationArgs.Inner(props, '', obj, layer, linkedLayer, entity, component)
+}
+
+/**
+ * @description Returns an object containing the args required by {@link createPropagationArgs}
+ * */
+function createPropagationArgsInner<C extends Component>(
+  schema: TTypedSchema<C>,
+  key: string | number,
+  data: any,
+  layer: LayerID,
+  linkedLayer: LayerID,
+  entity: Entity,
+  component: C
+) {
+  const obj = key === '' ? data : data[key]
+  if (typeof obj === 'undefined') return undefined
+  switch (schema[Kind] as any) {
+    case 'Null':
+    case 'Undefined':
+    case 'Void':
+    case 'Bool':
+    case 'String':
+    case 'Enum':
+    case 'Literal': {
+      return obj
+    }
+    case 'Number': {
+      return CreatePropagationArgs.Number(schema, key, obj, layer, linkedLayer, entity, component)
+    }
+    case 'Any': {
+      return CreatePropagationArgs.Any(schema, key, obj, layer, linkedLayer, entity, component)
+    }
+    case 'Class': {
+      return CreatePropagationArgs.Class(schema, key, obj, layer, linkedLayer, entity, component)
+    }
+    case 'Object': {
+      return CreatePropagationArgs.Object(schema, key, obj, layer, linkedLayer, entity, component)
+    }
+    case 'Record': {
+      return CreatePropagationArgs.Record(schema, key, obj, layer, linkedLayer, entity, component)
+    }
+    case 'Array': {
+      return CreatePropagationArgs.Array(schema, key, obj, layer, linkedLayer, entity, component)
+    }
+    case 'Tuple': {
+      return CreatePropagationArgs.Tuple(schema, key, obj, layer, linkedLayer, entity, component)
+    }
+    case 'Union': {
+      return CreatePropagationArgs.Union(schema, key, obj, layer, linkedLayer, entity, component)
+    }
+    case 'NonSerialized': {
+      return undefined
+    }
+    case 'Partial':
+    case 'Required':
+    case 'Proxy':
+    default: {
+      return CreatePropagationArgs.Default(schema, key, obj, layer, linkedLayer, entity, component)
+    }
+  }
+}
+
+/**
+ * @private Collection of internal functions used by {@link createLayerPropagationArgs}.
+ *
+ * @note
+ * Usage of these functions through this object is preferable.
+ * Simplifies unit testing by allowing the definition of function spies directly from this object.
+ * */
+export const CreatePropagationArgs = {
+  Inner: createPropagationArgsInner,
+  Number: createPropagationArgsNumber,
+  Any: createPropagationArgsAny,
+  Class: createPropagationArgsClass,
+  Object: createPropagationArgsObject,
+  Record: createPropagationArgsRecord,
+  Array: createPropagationArgsArray,
+  Tuple: createPropagationArgsTuple,
+  Union: createPropagationArgsUnion,
+  Default: createPropagationArgsDefault
+}
+
+/**
  * @description Runs the `@param linkedLayer` propagation process for the schema of the given `@param C` Component
  * @note Checking whether this process/behavior should be run or not is done with the {@link shouldPropagate} helper function.
  * */
 function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedLayer: LayerID, component: C) {
   if (!component.schema) return
   const componentSchema = component.schema as TTypedSchema<C>
-  const layer = LayerComponent.get(entity)
-  const createArgs = (schema: TTypedSchema<C>, key: string | number, data: any) => {
-    const obj = key === '' ? data : data[key]
-    if (typeof obj === 'undefined') return
-    switch (schema[Kind] as any) {
-      case 'Null':
-      case 'Undefined':
-      case 'Void':
-      case 'Bool':
-      case 'String':
-      case 'Enum':
-      case 'Literal': {
-        return obj
-      }
-      case 'Number': {
-        if (obj === UndefinedEntity) return obj
-        if ((schema[Kind] as any) === 'Number' && schema?.options?.['id'] === 'Entity') {
-          const referencedEntity = obj as Entity
-
-          // if the entity is already in the linked layer, return the current arg
-          if (LayerComponent.get(referencedEntity) === linkedLayer) return referencedEntity
-
-          // otherwise return the linked entity
-          return getComponent(referencedEntity, LayerComponents[layer]).relations[linkedLayer]
-        } else {
-          return obj
-        }
-      }
-      case 'Any': {
-        if (!obj) return
-        if (typeof obj === 'object' && 'clone' in obj && typeof obj.clone === 'function') {
-          return obj.clone()
-        } else if (Array.isArray(obj)) {
-          return [...obj] as any[]
-        } else {
-          return structuredClone(obj)
-        }
-      }
-      case 'Class': {
-        if (!obj) return
-        if ('clone' in obj && typeof obj.clone === 'function') {
-          return obj.clone()
-        } else {
-          try {
-            return structuredClone(obj)
-          } catch (error) {
-            // throw new Error(
-            //   `[propagateSchema]: ${entity} ${component.name} ${key} is not a cloneable class. ` + error.message
-            // )
-            console.warn(
-              `[propagateSchema]: ${entity} ${component.name} ${key} is not a cloneable class. ` + error.message
-            )
-            return obj
-          }
-        }
-      }
-      case 'Object': {
-        if (!obj) return
-        const props = schema.properties as any
-        const args = {} as any
-        for (const k in props) {
-          const parsed = createArgs(props[k], k, obj)
-          if (typeof parsed === 'undefined') continue
-          args[k] = parsed
-        }
-        return args
-      }
-      case 'Record': {
-        if (!obj) return
-        const { key, value } = schema.properties as { key: any; value: any }
-        const args = {} as any
-        for (const k in obj) {
-          const parsed = createArgs(value, k, obj)
-          if (typeof parsed === 'undefined') continue
-          args[k] = parsed
-        }
-        return args
-      }
-      case 'Array': {
-        if (!obj) return
-        const props = schema.properties as any
-        const args = [] as any[]
-        for (let i = 0; i < obj.length; i++) {
-          const parsed = createArgs(props, i, obj)
-          args[i] = parsed
-        }
-        return args
-      }
-      case 'Tuple': {
-        if (!obj) return
-        const props = schema.properties as any
-        const args = [] as any[]
-        for (let i = 0; i < props.length; i++) {
-          const parsed = createArgs(props[i], i, obj)
-          args[i] = parsed
-        }
-        return args
-      }
-      case 'Union': {
-        const props = schema.properties as any
-        for (const prop of props) {
-          const parsed = createArgs(prop, '', obj)
-          if (typeof parsed !== 'undefined') return parsed
-        }
-        return null
-      }
-      case 'NonSerialized': {
-        return
-      }
-      case 'Partial':
-      case 'Required':
-      case 'Proxy':
-      default: {
-        let props = schema.properties as any
-        if (!props) {
-          // must be SoA data
-          if (typeof obj === 'object') {
-            props = {
-              properties: Object.fromEntries(Object.keys(schema).map((key) => [key, { [Kind]: 'Any' }])),
-              [Kind]: 'Object'
-            }
-          } else if (typeof obj === 'number') {
-            return obj
-          }
-        }
-        return createArgs(props, '', obj)
-      }
-    }
-  }
-
-  const vals = createArgs(componentSchema, '', getComponent(entity, component))
+  const vals = CreatePropagationArgs.Inner(
+    componentSchema,
+    '',
+    getComponent(entity, component),
+    LayerComponent.get(entity),
+    linkedLayer,
+    entity,
+    component
+  )
 
   for (const key in vals) {
-    if (typeof vals[key] === 'undefined') {
-      delete vals[key]
-    }
+    if (typeof vals[key] === 'undefined') delete vals[key]
   }
 
   return vals
@@ -1009,10 +1179,10 @@ export const LayerFunctions = {
   getLayerRelationsEntities,
   getLayerRelationsTypes,
   getLayerComponent,
+  getAuthoringCounterpart,
   shouldPropagate,
-  createLayerPropagationArgs,
   propagateLayer,
-  getAuthoringCounterpart
+  createLayerPropagationArgs
 }
 
 export const Layers = {

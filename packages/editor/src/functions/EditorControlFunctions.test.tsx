@@ -505,6 +505,93 @@ describe('EditorControlFunctions', () => {
       assert.equal(hemisphereLightComponent.intensity, 0.7)
     })
 
+    it('should create enities in hierarchy using the requested name, adding an increment if a sibling entity with the name already exists', async () => {
+      const nodeID = NodeIDComponent.generate()
+
+      const gltf: GLTF.IGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'node',
+            extensions: {
+              [NodeIDComponent.jsonID]: nodeID
+            }
+          }
+        ]
+      }
+
+      Cache.add('/test.gltf', gltf)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
+      getMutableState(EditorState).rootEntity.set(rootEntity)
+      await waitForScene(rootEntity)
+
+      const simulationNodeEntity = NodeFunctions.getEntityFromNodeID(rootEntity, nodeID)!
+      const authoringNodeEntity = LayerFunctions.getAuthoringCounterpart(simulationNodeEntity)
+
+      const requestedName = 'Test'
+
+      const { entityUUID: entity1UUID } = EditorControlFunctions.createObjectFromSceneElement(
+        [
+          {
+            name: HemisphereLightComponent.jsonID,
+            props: {
+              skyColor: new Color('blue').getHex(),
+              groundColor: new Color('red').getHex(),
+              intensity: 0.7
+            }
+          }
+        ],
+        authoringNodeEntity,
+        UndefinedEntity,
+        requestedName
+      )
+      const entity1 = UUIDComponent.getEntityByUUID(entity1UUID, Layers.Authoring)
+      assert(entity1)
+      assert.equal(getComponent(entity1, NameComponent), 'Test')
+
+      const { entityUUID: entity2UUID } = EditorControlFunctions.createObjectFromSceneElement(
+        [
+          {
+            name: HemisphereLightComponent.jsonID,
+            props: {
+              skyColor: new Color('blue').getHex(),
+              groundColor: new Color('red').getHex(),
+              intensity: 0.7
+            }
+          }
+        ],
+        authoringNodeEntity,
+        UndefinedEntity,
+        requestedName
+      )
+      const entity2 = UUIDComponent.getEntityByUUID(entity2UUID, Layers.Authoring)
+      assert(entity2)
+      assert.equal(getComponent(entity2, NameComponent), 'Test 1')
+
+      const { entityUUID: entity3UUID } = EditorControlFunctions.createObjectFromSceneElement(
+        [
+          {
+            name: HemisphereLightComponent.jsonID,
+            props: {
+              skyColor: new Color('blue').getHex(),
+              groundColor: new Color('red').getHex(),
+              intensity: 0.7
+            }
+          }
+        ],
+        authoringNodeEntity,
+        UndefinedEntity,
+        requestedName
+      )
+      const entity3 = UUIDComponent.getEntityByUUID(entity3UUID, Layers.Authoring)
+      assert(entity3)
+      assert.equal(getComponent(entity3, NameComponent), 'Test 2')
+    })
+
     it('should create a new object from a scene element as child of node', async () => {
       const nodeID = NodeIDComponent.generate()
 

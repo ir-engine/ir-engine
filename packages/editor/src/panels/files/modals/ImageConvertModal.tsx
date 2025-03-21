@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useMutation } from '@ir-engine/common'
 import { imageConvertPath } from '@ir-engine/common/src/schema.type.module'
 import { ImageConvertDefaultParms, ImageConvertParms } from '@ir-engine/engine/src/assets/constants/ImageConvertParms'
@@ -59,7 +59,7 @@ export default function ImageConvertModal({
       })
       .then(() => {
         refreshDirectory()
-        PopoverState.hidePopupover()
+        ModalState.closeModal()
       })
   }
 
@@ -68,7 +68,7 @@ export default function ImageConvertModal({
       title={t('editor:layout.filebrowser.convert')}
       className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
-      onClose={PopoverState.hidePopupover}
+      onClose={ModalState.closeModal}
       submitLoading={modalProcessing.value}
     >
       <div className="ml-32 flex flex-col gap-4">

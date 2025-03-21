@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { userHasProjectPermission } from '@ir-engine/client-core/src/hooks/useUserProjectPermission'
 import { API } from '@ir-engine/common'
 import { projectPermissionPath } from '@ir-engine/common/src/schema.type.module'
@@ -466,7 +466,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
                   className="p-0"
                   title={t('common:components.save')}
                   onClick={() =>
-                    PopoverState.showPopupover(
+                    ModalState.openModal(
                       <ConfirmDialog
                         onSubmit={onSaveChanges}
                         title={t('editor:dialog.saveModel.title')}
@@ -483,7 +483,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
                   className="p-0"
                   title={t('editor:dialog.revertModel.lbl-name')}
                   onClick={() =>
-                    PopoverState.showPopupover(
+                    ModalState.openModal(
                       <ConfirmDialog
                         onSubmit={onRevert}
                         title={t('editor:dialog.revertModel.title')}
