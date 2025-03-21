@@ -227,7 +227,8 @@
       "publicUrl": "Public URL",
       "publishSuccess": "Location Published Successfully",
       "noThumbnailPlaceholder": "Publish Scene to Generate a Preview Image",
-      "createCompressedScenePublish": "Create Compressed Scene and Publish"
+      "createCompressedScenePublish": "Compress and Publish",
+      "createCompressedScenePublishInfo": "This is a Beta feature that makes your space more optimized for mobile devices. If you encounter errors, please refresh your browser and try again, or use the regular “Publish” function for now."
     }
   },
   "properties": {

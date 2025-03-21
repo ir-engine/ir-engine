@@ -166,7 +166,9 @@ export class LoginService implements ServiceInterface {
         }
       })
 
-      if (isValidId(loginToken.id)) await this.app.service(loginTokenPath).remove(loginToken.id)
+      // Disabling auto-delete of login-tokens due to some devices and email services auto-following links
+      // Uncomment to re-enable
+      // if (isValidId(loginToken.id)) await this.app.service(loginTokenPath).remove(loginToken.id)
       await this.app.service(userPath).patch(identityProvider.userId, {
         isGuest: false
       })
