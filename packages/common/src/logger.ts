@@ -43,6 +43,10 @@ import { ServiceTypes } from '../declarations'
 import config from './config'
 import { logsApiPath } from './schema.type.module'
 
+import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { EngineState } from '@ir-engine/ecs'
+import { getState } from '@ir-engine/hyperflux'
+
 // Initialize the cache
 const engineCache = new NodeCache()
 
@@ -160,6 +164,8 @@ const multiLogger = {
               LogConfig.api.service(logsApiPath).create({
                 action: 'analytics',
                 level,
+		project: getState(EditorState).projectName,
+		user_id: getState(EngineState).userID,
                 component: opts.component,
                 ...logParams
               })
