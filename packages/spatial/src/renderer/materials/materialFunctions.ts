@@ -144,6 +144,7 @@ export const setupMaterialParameters = (entity: Entity, properties: { [_: string
   const params = {} as any
   Object.entries(properties).map(([k, v]) => {
     if (!properties[k]) return
+    if (typeof v === 'function') return
     if (v.isTexture) {
       const url = v.userData?.url
       if (url) params[k] = url
