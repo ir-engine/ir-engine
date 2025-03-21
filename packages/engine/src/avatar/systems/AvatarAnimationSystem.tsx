@@ -48,6 +48,7 @@ import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
 import { traverseEntityNode } from '@ir-engine/ecs'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
@@ -55,7 +56,6 @@ import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/Obje
 import React from 'react'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { addError, removeError } from '../../scene/functions/ErrorFunctions'
 import { getRootSpeed, updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { preloadedAnimations } from '../animation/Util'
 import { AnimationState } from '../AnimationManager'
@@ -224,11 +224,11 @@ const RigReactor = (props: { entity: Entity }) => {
       setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Avatar)
       setupAvatarProportions(entity)
     } catch (e) {
-      console.error('Failed to load avatar', e)
-      addError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
-      return () => {
-        removeError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
-      }
+      // console.error('Failed to load avatar', e)
+      // addError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
+      // return () => {
+      //   removeError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
+      // }
     }
   }, [gltfComponent?.progress?.value, gltfComponent?.src.value, avatarAnimationComponent])
 
@@ -242,15 +242,15 @@ const RigReactor = (props: { entity: Entity }) => {
 
 const AnimationReactor = (props: { entity: Entity }) => {
   const entity = props.entity
-  const rigComponent = useOptionalComponent(entity, AvatarRigComponent)
+  const avatarObject = useOptionalComponent(entity, ObjectComponent)
   const loadedAnimations = useMutableState(AnimationState).loadedAnimations
   useEffect(() => {
-    if (!rigComponent?.vrm?.scene?.value) return
+    if (!avatarObject?.value) return
     setComponent(entity, AnimationComponent, {
       animations: getAllLoadedAnimations(),
-      mixer: new AnimationMixer(rigComponent.vrm.scene.value as Group)
+      mixer: new AnimationMixer(avatarObject.value as Group)
     })
-  }, [rigComponent?.vrm, loadedAnimations])
+  }, [avatarObject?.value, loadedAnimations])
   return null
 }
 

@@ -23,68 +23,84 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import { EntityTreeComponent } from '@ir-engine/ecs'
-import { getComponent, getOptionalComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
-import { AvatarComponent } from '../components/AvatarComponent'
-import { VRMHumanBoneName } from '../maps/VRMHumanBoneName'
+import { BoneInverseComponent } from '../components/NormalizedBoneComponent'
+import { VRMHumanBoneList } from '../maps/VRMHumanBoneList'
 
 export const updateVRMRetargeting = (avatarEntity: Entity) => {
-  const vrm = getComponent(avatarEntity, AvatarRigComponent).vrm
-  if (!vrm?.humanoid) return
-
-  const humanoidRig = (vrm.humanoid as any)._normalizedHumanBones // as VRMHumanoidRig
-
-  const parentWorldRotations = humanoidRig._parentWorldRotations as Record<VRMHumanBoneName, Quaternion>
-  const parentWorldRotationInverses = humanoidRig._parentWorldRotationInverses as Record<VRMHumanBoneName, Quaternion>
-  const boneRotations = humanoidRig._boneRotations as Record<VRMHumanBoneName, Quaternion>
+  const rig = getComponent(avatarEntity, AvatarRigComponent)
+  if (!rig?.bonesToEntities.hips) return
 
   for (const boneName of VRMHumanBoneList) {
-    const boneNode = humanoidRig.original.getBoneNode(boneName) as Object3D | null
+    const boneEntity = rig.bonesToEntities[boneName]
+    const bone = getOptionalComponent(boneEntity, TransformComponent)
+    if (!bone) continue
 
-    if (boneNode != null) {
-      const rigBoneNode = humanoidRig.getBoneNode(boneName)! as Object3D
+    const parentEntity = getOptionalComponent(boneEntity, EntityTreeComponent)?.parentEntity
+    if (!parentEntity) continue
 
-      const entity = boneNode.entity
+    const boneInverseComponent = getOptionalComponent(parentEntity, BoneInverseComponent)
+    const parentWorldRotation = boneInverseComponent?.worldRotation
+    const parentInverseWorldRotation = boneInverseComponent?.inverseWorldRotation
 
-      const parentWorldRotation = parentWorldRotations[boneName] as Quaternion
-      const invParentWorldRotation = parentWorldRotationInverses[boneName] as Quaternion
-      const boneRotation = boneRotations[boneName] as Quaternion
+    if (!parentWorldRotation || !parentInverseWorldRotation) continue
 
-      _quatA
-        .copy(rigBoneNode.quaternion)
-        .multiply(parentWorldRotation)
-        .premultiply(invParentWorldRotation)
-        .multiply(boneRotation)
+    _quatA
+      .copy(bone.rotation)
+      .multiply(parentWorldRotation)
+      .premultiply(parentInverseWorldRotation)
+      .multiply(getComponent(boneEntity, BoneInverseComponent).worldRotation)
 
-      TransformComponent.rotation.x[entity] = _quatA.x
-      TransformComponent.rotation.y[entity] = _quatA.y
-      TransformComponent.rotation.z[entity] = _quatA.z
-      TransformComponent.rotation.w[entity] = _quatA.w
-      TransformComponent.dirty[entity] = 0
+    TransformComponent.rotation.x[boneEntity] = _quatA.x
+    TransformComponent.rotation.y[boneEntity] = _quatA.y
+    TransformComponent.rotation.z[boneEntity] = _quatA.z
+    TransformComponent.rotation.w[boneEntity] = _quatA.w
+    TransformComponent.dirty[boneEntity] = 0
 
-      if (boneName === 'hips') {
-        const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
-        if (!parentEntity) continue
-        const parentBone =
-          getOptionalComponent(parentEntity, BoneComponent) ?? getOptionalComponent(parentEntity, TransformComponent)
-        if (!parentBone) continue
-        _boneWorldPos.copy(rigBoneNode.position).applyMatrix4(parentBone?.matrixWorld)
-        _parentWorldMatrixInverse.copy(parentBone.matrixWorld).invert()
+    // if (boneNode != null) {
+    //   const rigBoneNode = humanoidRig.getBoneNode(boneName)! as Object3D
 
-        _boneWorldPos.applyMatrix4(_parentWorldMatrixInverse)
-        if (hasComponent(avatarEntity, AvatarComponent)) {
-          _boneWorldPos.multiplyScalar(getComponent(avatarEntity, AvatarComponent).hipsHeight)
-        }
-        boneNode.position.copy(_boneWorldPos)
-      }
-    }
+    //   const entity = boneNode.entity
+
+    //   const parentWorldRotation = parentWorldRotations[boneName] as Quaternion
+    //   const invParentWorldRotation = parentWorldRotationInverses[boneName] as Quaternion
+    //   const boneRotation = boneRotations[boneName] as Quaternion
+
+    //   _quatA
+    //     .copy(rigBoneNode.quaternion)
+    //     .multiply(parentWorldRotation)
+    //     .premultiply(invParentWorldRotation)
+    //     .multiply(boneRotation)
+
+    //   TransformComponent.rotation.x[entity] = _quatA.x
+    //   TransformComponent.rotation.y[entity] = _quatA.y
+    //   TransformComponent.rotation.z[entity] = _quatA.z
+    //   TransformComponent.rotation.w[entity] = _quatA.w
+    //   TransformComponent.dirty[entity] = 0
+
+    //   if (boneName === 'hips') {
+    //     const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
+    //     if (!parentEntity) continue
+    //     const parentBone =
+    //       getOptionalComponent(parentEntity, BoneComponent) ?? getOptionalComponent(parentEntity, TransformComponent)
+    //     if (!parentBone) continue
+    //     _boneWorldPos.copy(rigBoneNode.position).applyMatrix4(parentBone?.matrixWorld)
+    //     _parentWorldMatrixInverse.copy(parentBone.matrixWorld).invert()
+
+    //     _boneWorldPos.applyMatrix4(_parentWorldMatrixInverse)
+    //     if (hasComponent(avatarEntity, AvatarComponent)) {
+    //       _boneWorldPos.multiplyScalar(getComponent(avatarEntity, AvatarComponent).hipsHeight)
+    //     }
+    //     boneNode.position.copy(_boneWorldPos)
+    //   }
+    // }
   }
 }
 

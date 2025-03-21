@@ -25,10 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import type * as V0VRM from '@pixiv/types-vrm-0.0'
 
-import { AnimationAction, Euler, Group, Matrix4, Object3D, Quaternion, Vector3 } from 'three'
+import { AnimationAction, Euler, Group, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { GLTF } from '@gltf-transform/core'
-import { EntityTreeComponent, UUIDComponent, iterateEntityNode } from '@ir-engine/ecs'
+import { UUIDComponent, iterateEntityNode } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -41,14 +41,13 @@ import {
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformComponent } from '@ir-engine/spatial'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { hipsRegex, mixamoVRMRigMap } from '../AvatarBoneMatching'
+import { VRMHumanBoneList } from '../maps/VRMHumanBoneList'
 import { VRMHumanBoneName } from '../maps/VRMHumanBoneName'
-import { NormalizedBoneComponent } from './NormalizedBoneComponent'
+import { BoneInverseComponent } from './NormalizedBoneComponent'
 
 /**@todo refactor into generalized AnimationGraphComponent */
 export const AvatarAnimationComponent = defineComponent({
@@ -76,9 +75,7 @@ export const AvatarRigComponent = defineComponent({
   schema: S.Object({
     /** maps human bones to entities */
     bonesToEntities: S.Record(HumanBonesSchema, S.Entity()),
-    entitiesToBones: S.Record(S.Entity(), HumanBonesSchema),
-    /** The VRM model */
-    vrm: S.Type<VRM>()
+    entitiesToBones: S.Record(S.Entity(), HumanBonesSchema)
   }),
 
   setBone: (toRigEntity: Entity, boneEntity: Entity, boneName: VRMHumanBoneName) => {
@@ -88,7 +85,7 @@ export const AvatarRigComponent = defineComponent({
   },
 
   useAvatarLoaded: (entity: Entity) => {
-    return !!useOptionalComponent(entity, AvatarRigComponent)?.vrm.value
+    return !!useOptionalComponent(entity, AvatarRigComponent)?.bonesToEntities.hips
   },
 
   errors: ['UNSUPPORTED_AVATAR']
@@ -97,29 +94,9 @@ export const AvatarRigComponent = defineComponent({
 const _rightHandPos = new Vector3(),
   _rightUpperArmPos = new Vector3()
 
-const linkNormalizedBones = (vrm: VRM) => {
-  for (const bone in vrm.humanoid.rawHumanBones)
-    if (vrm.humanoid.rawHumanBones[bone]?.node && vrm.humanoid.normalizedHumanBones[bone]?.node) {
-      setComponent(
-        vrm.humanoid.rawHumanBones[bone].node.entity,
-        NormalizedBoneComponent,
-        vrm.humanoid.normalizedHumanBones[bone].node
-      )
-    }
-}
-
 export function createVRM(rootEntity: Entity) {
   const documentID = GLTFComponent.getInstanceID(rootEntity)
   const gltf = getComponent(rootEntity, GLTFComponent).document!
-
-  //formats an object of human bones to be used in the VRM constructor
-  const formatHumanBones = (humanBones: { [key: string]: { node: number } }) => {
-    const bones = [] as V0VRM.HumanoidBone[]
-    for (const bone in humanBones) {
-      bones.push({ bone: bone as V0VRM.HumanoidBoneName, node: humanBones[bone].node })
-    }
-    return bones
-  }
 
   if (!hasComponent(rootEntity, ObjectComponent)) {
     const obj3d = new Group()
@@ -131,55 +108,61 @@ export function createVRM(rootEntity: Entity) {
     entitiesToBones: {} as Record<Entity, VRMHumanBoneName>
   })
 
-  if (gltf.extensions?.VRM || gltf.extensions?.VRMC_vrm) {
-    const vrmExtensionDefinition = (gltf.extensions!.VRM as V0VRM.VRM) ?? (gltf.extensions.VRMC_vrm as V0VRM.VRM)
-    const humanBonesArray = Array.isArray(vrmExtensionDefinition.humanoid?.humanBones)
-      ? vrmExtensionDefinition.humanoid?.humanBones
-      : formatHumanBones(vrmExtensionDefinition.humanoid!.humanBones as any)
-    const bones = humanBonesArray.reduce((bones, bone) => {
-      const nodeID = `${documentID}-${bone.node}` as EntityUUID
-      const entity = UUIDComponent.getEntityByUUID(nodeID)
-      AvatarRigComponent.setBone(rootEntity, entity, bone.bone as VRMHumanBoneName)
-      bones[bone.bone!] = { node: getComponent(entity, BoneComponent) }
-      return bones
-    }, {} as VRMHumanBones)
-
-    /**hacky, @todo test with vrm1 */
-    iterateEntityNode(rootEntity, (entity) => {
-      const bone = getOptionalComponent(entity, BoneComponent)
-      bone?.matrixWorld.identity()
-      bone?.quaternion.set(0, 0, 0, 1)
-
-      if (entity !== bones.hips.node.parent?.entity) bone?.matrixWorld.makeRotationY(Math.PI)
-    })
-    bones.hips.node.rotateY(Math.PI)
-
-    const humanoid = new VRMHumanoid(bones)
-    ;(humanoid as any)._normalizedHumanBones._parentWorldRotationInverses = Object.fromEntries(
-      Object.entries((humanoid as any)._normalizedHumanBones._parentWorldRotations).map(([key, value]) => [
-        key,
-        (value as Quaternion).clone().invert()
-      ])
-    )
-
-    setComponent(rootEntity, AvatarRigComponent, { vrm })
-    linkNormalizedBones(vrm)
-
-    const humanoidAfter = vrm.humanoid as any
-    Object.values(humanoidAfter._normalizedHumanBones.humanBones).forEach((o: any) => {
-      const bone = o.node as Object3D
-      if (bone?.rotation) bone.rotation._onChangeCallback = () => {}
-      if (bone) bone.quaternion._onChangeCallback = () => {}
-    })
-    humanoidAfter._normalizedHumanBones.root.traverse((bone: Object3D) => {
-      if (bone?.rotation) bone.rotation._onChangeCallback = () => {}
-      if (bone) bone.quaternion._onChangeCallback = () => {}
-    })
-
-    return vrm
+  if (!gltf.extensions?.VRM && !gltf.extensions?.VRMC_vrm) {
+    return
   }
 
-  return createVRMFromGLTF(rootEntity, gltf)
+  //formats an object of human bones to be used in the VRM constructor
+  const formatHumanBones = (humanBones: { [key: string]: { node: number } }) => {
+    const bones = [] as V0VRM.HumanoidBone[]
+    for (const bone in humanBones) {
+      bones.push({ bone: bone as V0VRM.HumanoidBoneName, node: humanBones[bone].node })
+    }
+    return bones
+  }
+
+  const vrmExtensionDefinition = (gltf.extensions!.VRM as V0VRM.VRM) ?? (gltf.extensions.VRMC_vrm as V0VRM.VRM)
+  const humanBonesArray = Array.isArray(vrmExtensionDefinition.humanoid?.humanBones)
+    ? vrmExtensionDefinition.humanoid?.humanBones
+    : formatHumanBones(vrmExtensionDefinition.humanoid!.humanBones as any)
+
+  for (const bone of humanBonesArray) {
+    const nodeID = `${documentID}-${bone.node}` as EntityUUID
+    const entity = UUIDComponent.getEntityByUUID(nodeID)
+    console.log(entity)
+    AvatarRigComponent.setBone(rootEntity, entity, bone.bone as VRMHumanBoneName)
+    setComponent(entity, BoneInverseComponent, {
+      worldRotation: TransformComponent.getWorldRotation(entity, new Quaternion()),
+      inverseWorldRotation: TransformComponent.getWorldRotation(entity, new Quaternion()).invert()
+    })
+  }
+
+  // iterateEntityNode(rootEntity, (entity) => {
+  //   const bone = getOptionalComponent(entity, BoneComponent)
+  //   bone?.matrixWorld.identity()
+  //   bone?.quaternion.set(0, 0, 0, 1)
+  //   if (entity !== bones.hips.node.parent?.entity) bone?.matrixWorld.makeRotationY(Math.PI)
+  // })
+  // bones.hips.node.rotateY(Math.PI)
+  // const humanoid = new VRMHumanoid(bones)
+  // ;(humanoid as any)._normalizedHumanBones._parentWorldRotationInverses = Object.fromEntries(
+  //   Object.entries((humanoid as any)._normalizedHumanBones._parentWorldRotations).map(([key, value]) => [
+  //     key,
+  //     (value as Quaternion).clone().invert()
+  //   ])
+  // )
+  //linkNormalizedBones(vrm)
+  // const humanoidAfter = vrm.humanoid as any
+  // Object.values(humanoidAfter._normalizedHumanBones.humanBones).forEach((o: any) => {
+  //   const bone = o.node as Object3D
+  //   if (bone?.rotation) bone.rotation._onChangeCallback = () => {}
+  //   if (bone) bone.quaternion._onChangeCallback = () => {}
+  // })
+  // humanoidAfter._normalizedHumanBones.root.traverse((bone: Object3D) => {
+  //   if (bone?.rotation) bone.rotation._onChangeCallback = () => {}
+  //   if (bone) bone.quaternion._onChangeCallback = () => {}
+  // })
+  // return vrm
 }
 
 declare module '@pixiv/three-vrm-core' {
@@ -190,93 +173,76 @@ declare module '@pixiv/three-vrm-core' {
 }
 
 export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
-  const hipsEntity = iterateEntityNode(
-    rootEntity,
-    (entity) => entity,
-    (entity) => (hasComponent(entity, NameComponent) ? hipsRegex.test(getComponent(entity, NameComponent)) : false),
-    false,
-    true
-  )?.[0]
-
-  const hipsName = getComponent(hipsEntity, NameComponent)
-
-  const hipsParent = getOptionalComponent(hipsEntity, EntityTreeComponent)?.parentEntity
-  if (!hasComponent(hipsParent!, ObjectComponent)) setComponent(hipsParent!, ObjectComponent, new Object3D())
-
-  const bones = {} as VRMHumanBones
-
-  /**
-   * some mixamo rigs do not use the mixamo prefix, if they don't, we add
-   * a prefix to the rig names for matching to keys in the mixamoVRMRigMap
-   */
-  const mixamoPrefix = hipsName.includes('mixamorig') ? '' : 'mixamorig'
-  /**
-   * some mixamo rigs have an identifier or suffix after the mixamo prefix
-   * that must be removed for matching to keys in the mixamoVRMRigMap
-   */
-  const removeSuffix = mixamoPrefix ? false : !/[hp]/i.test(hipsName.charAt(9))
-
-  iterateEntityNode(rootEntity, (entity) => {
-    if (entity === rootEntity) return
-
-    const name = getOptionalComponent(entity, NameComponent)
-    if (!name) return
-
-    /**match the keys to create a humanoid bones object */
-    let boneName = mixamoPrefix + name
-
-    if (removeSuffix) boneName = boneName.slice(0, 9) + name.slice(10)
-
-    //remove colon from the bone name
-    if (boneName.includes(':')) boneName = boneName.replace(':', '')
-
-    const bone = mixamoVRMRigMap[boneName] as string
-    if (bone) {
-      const node = getComponent(entity, BoneComponent)
-      bones[bone] = { node } as VRMHumanBone
-      AvatarRigComponent.setBone(rootEntity, entity, bone as VRMHumanBoneName)
-      setComponent(entity, NormalizedBoneComponent, node)
-    }
-  })
-
-  enforceTPose(rootEntity)
-
-  const hips = getComponent(rootEntity, AvatarRigComponent).bonesToEntities.hips
-  const root = getComponent(hips, EntityTreeComponent).parentEntity
-  const transform = getOptionalComponent(root, TransformComponent)
-  transform?.matrixWorld.identity()
-
-  const humanoid = new VRMHumanoid(bones)
-  ;(humanoid as any)._normalizedHumanBones._parentWorldRotationInverses = Object.fromEntries(
-    Object.entries((humanoid as any)._normalizedHumanBones._parentWorldRotations).map(([key, value]) => [
-      key,
-      (value as Quaternion).clone().invert()
-    ])
-  )
-  const scene = getComponent(rootEntity, ObjectComponent)
-  const children = getComponent(rootEntity, EntityTreeComponent).children
-  const childName = getComponent(children[0], NameComponent)
-
-  const vrm = new VRM({
-    humanoid,
-    scene,
-    meta: { name: childName } as VRM1Meta
-    // expressionManager: gltf.userData.vrmExpressionManager,
-    // firstPerson: gltf.userData.vrmFirstPerson,
-    // lookAt: gltf.userData.vrmLookAt,
-    // materials: gltf.userData.vrmMToonMaterials,
-    // springBoneManager: gltf.userData.vrmSpringBoneManager,
-    // nodeConstraintManager: gltf.userData.vrmNodeConstraintManager,
-  } as VRMParameters)
-
-  setComponent(rootEntity, AvatarRigComponent, { vrm })
-  linkNormalizedBones(vrm)
-
-  if (!vrm.userData) vrm.userData = {}
-  humanoid.humanBones.rightHand.node.getWorldPosition(_rightHandPos)
-  humanoid.humanBones.rightUpperArm.node.getWorldPosition(_rightUpperArmPos)
-
-  return vrm
+  // const hipsEntity = iterateEntityNode(
+  //   rootEntity,
+  //   (entity) => entity,
+  //   (entity) => (hasComponent(entity, NameComponent) ? hipsRegex.test(getComponent(entity, NameComponent)) : false),
+  //   false,
+  //   true
+  // )?.[0]
+  // const hipsName = getComponent(hipsEntity, NameComponent)
+  // const hipsParent = getOptionalComponent(hipsEntity, EntityTreeComponent)?.parentEntity
+  // if (!hasComponent(hipsParent!, ObjectComponent)) setComponent(hipsParent!, ObjectComponent, new Object3D())
+  // const bones = {} as VRMHumanBones
+  // /**
+  //  * some mixamo rigs do not use the mixamo prefix, if they don't, we add
+  //  * a prefix to the rig names for matching to keys in the mixamoVRMRigMap
+  //  */
+  // const mixamoPrefix = hipsName.includes('mixamorig') ? '' : 'mixamorig'
+  // /**
+  //  * some mixamo rigs have an identifier or suffix after the mixamo prefix
+  //  * that must be removed for matching to keys in the mixamoVRMRigMap
+  //  */
+  // const removeSuffix = mixamoPrefix ? false : !/[hp]/i.test(hipsName.charAt(9))
+  // iterateEntityNode(rootEntity, (entity) => {
+  //   if (entity === rootEntity) return
+  //   const name = getOptionalComponent(entity, NameComponent)
+  //   if (!name) return
+  //   /**match the keys to create a humanoid bones object */
+  //   let boneName = mixamoPrefix + name
+  //   if (removeSuffix) boneName = boneName.slice(0, 9) + name.slice(10)
+  //   //remove colon from the bone name
+  //   if (boneName.includes(':')) boneName = boneName.replace(':', '')
+  //   const bone = mixamoVRMRigMap[boneName] as string
+  //   if (bone) {
+  //     const node = getComponent(entity, BoneComponent)
+  //     bones[bone] = { node } as VRMHumanBone
+  //     AvatarRigComponent.setBone(rootEntity, entity, bone as VRMHumanBoneName)
+  //     setComponent(entity, NormalizedBoneComponent, node)
+  //   }
+  // })
+  // enforceTPose(rootEntity)
+  // const hips = getComponent(rootEntity, AvatarRigComponent).bonesToEntities.hips
+  // const root = getComponent(hips, EntityTreeComponent).parentEntity
+  // const transform = getOptionalComponent(root, TransformComponent)
+  // transform?.matrixWorld.identity()
+  // const humanoid = new VRMHumanoid(bones)
+  // ;(humanoid as any)._normalizedHumanBones._parentWorldRotationInverses = Object.fromEntries(
+  //   Object.entries((humanoid as any)._normalizedHumanBones._parentWorldRotations).map(([key, value]) => [
+  //     key,
+  //     (value as Quaternion).clone().invert()
+  //   ])
+  // )
+  // const scene = getComponent(rootEntity, ObjectComponent)
+  // const children = getComponent(rootEntity, EntityTreeComponent).children
+  // const childName = getComponent(children[0], NameComponent)
+  // const vrm = new VRM({
+  //   humanoid,
+  //   scene,
+  //   meta: { name: childName } as VRM1Meta
+  //   // expressionManager: gltf.userData.vrmExpressionManager,
+  //   // firstPerson: gltf.userData.vrmFirstPerson,
+  //   // lookAt: gltf.userData.vrmLookAt,
+  //   // materials: gltf.userData.vrmMToonMaterials,
+  //   // springBoneManager: gltf.userData.vrmSpringBoneManager,
+  //   // nodeConstraintManager: gltf.userData.vrmNodeConstraintManager,
+  // } as VRMParameters)
+  // setComponent(rootEntity, AvatarRigComponent, { vrm })
+  // linkNormalizedBones(vrm)
+  // if (!vrm.userData) vrm.userData = {}
+  // humanoid.humanBones.rightHand.node.getWorldPosition(_rightHandPos)
+  // humanoid.humanBones.rightUpperArm.node.getWorldPosition(_rightUpperArmPos)
+  // return vrm
 }
 
 export const shoulderAngle = {
