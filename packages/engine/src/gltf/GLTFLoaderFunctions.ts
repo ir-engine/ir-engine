@@ -37,7 +37,6 @@ import {
   getComponent,
   getMutableComponent,
   hasComponent,
-  iterateEntityNode,
   removeComponent,
   setComponent,
   traverseEntityNode
@@ -1404,7 +1403,12 @@ const loadSkin = async (options: GLTFParserOptions, nodeEntity: Entity, nodeInde
   skinnedMesh.skeleton = skeleton
 }
 
-const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
+const loadNode = async (
+  options: GLTFParserOptions,
+  nodeIndex: number,
+  parentEntity: Entity | undefined,
+  childIndex: number | undefined
+) => {
   const json = options.document
 
   const nodeDef = json.nodes![nodeIndex]
@@ -1464,25 +1468,28 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
     }
   }
 
-  const dependencies = [] as Promise<any>[]
+  const nodeDependencies = [] as Promise<any>[]
+  const objDependencies = [] as Promise<any>[]
+
+  if (parentEntity) {
+    setComponent(nodeEntity, EntityTreeComponent, {
+      parentEntity: parentEntity,
+      childIndex: childIndex
+    })
+  }
+  computeTransformMatrix(nodeEntity)
 
   if (nodeDef.children) {
     for (let i = 0; i < nodeDef.children.length; i++) {
       const childIndex = nodeDef.children[i]
-      const nodePromise = getDependency(options, 'node', childIndex)
-      dependencies.push(nodePromise)
-      nodePromise.then((childEntity) => {
-        setComponent(childEntity, EntityTreeComponent, {
-          parentEntity: nodeEntity,
-          childIndex: i
-        })
-      })
+      const nodePromise = getDependency(options, 'node', childIndex, nodeEntity, i)
+      nodeDependencies.push(nodePromise)
     }
   }
 
   if (typeof nodeDef.mesh !== 'undefined') {
     const meshPromise = getDependency(options, 'mesh', nodeEntity, nodeIndex, nodeDef.mesh)
-    dependencies.push(meshPromise)
+    objDependencies.push(meshPromise)
   } else if (isBoneNode(json, nodeIndex)) {
     const bone = new Bone()
     // bone.name = node.name ?? 'Node-' + i
@@ -1495,14 +1502,15 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
   }
 
   if (typeof nodeDef.skin === 'number') {
-    dependencies.push(getDependency(options, 'skin', nodeEntity, nodeIndex))
+    objDependencies.push(getDependency(options, 'skin', nodeEntity, nodeIndex))
   }
 
   if (nodeDef.camera !== undefined) {
-    getDependency(options, 'camera', nodeEntity, nodeIndex)
+    objDependencies.push(getDependency(options, 'camera', nodeEntity, nodeIndex))
   }
 
-  await Promise.all(dependencies)
+  await Promise.all(nodeDependencies)
+  await Promise.all(objDependencies)
 
   const extensionPending = [] as Promise<void>[]
 
@@ -1535,6 +1543,7 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
 
 const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const json = options.document
+  const rootEntity = options.entity
 
   // load deltas into state before anything else
   const deltas = json.extensions?.[SCENE_DELTA_EXTENSION_NAME] as SceneDeltaRegistry | null
@@ -1552,7 +1561,7 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const pending = [] as Promise<Entity>[]
 
   for (let i = 0, il = nodeIds.length; i < il; i++) {
-    pending.push(getDependency(options, 'node', nodeIds[i]) as Promise<Entity>)
+    pending.push(getDependency(options, 'node', nodeIds[i], rootEntity) as Promise<Entity>)
   }
 
   const animationPromises = [] as Promise<AnimationClip>[]
@@ -1565,12 +1574,11 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
 
   const loadedNodeEntities = await Promise.all(pending)
 
-  for (const entity of loadedNodeEntities) {
-    setComponent(entity, EntityTreeComponent, { parentEntity: options.entity })
-    iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
-  }
+  //for (const entity of loadedNodeEntities) {
+  //  setComponent(entity, EntityTreeComponent, { parentEntity: options.entity })
+  //  iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
+  //}
 
-  const rootEntity = options.entity
   /** @todo this is a temporary hack */
   if (!hasComponent(rootEntity, ObjectComponent)) {
     const obj3d = new Object3D()
