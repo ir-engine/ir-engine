@@ -23,9 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { GoDotFill } from 'react-icons/go'
-
 import Badge from './index'
 
 export default {
@@ -43,7 +40,6 @@ export default {
 export const Default = {
   args: {
     label: 'Badge',
-    variant: 'warning',
-    icon: <GoDotFill />
+    variant: 'warning'
   }
 }
