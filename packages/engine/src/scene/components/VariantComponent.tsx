@@ -32,6 +32,7 @@ import {
   Static,
   UUIDComponent,
   createEntity,
+  getChildrenWithComponents,
   removeEntity,
   useChildrenWithComponents,
   useEntityContext
@@ -123,8 +124,18 @@ export const VariantComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const variantComponent = useComponent(entity, VariantComponent)
-
     const instancingComponent = useOptionalComponent(entity, InstancingComponent)
+    let childEntity = getChildrenWithComponents(entity, [GLTFComponent]).at(0)
+
+    useEffect(() => {
+      childEntity = createEntity()
+      setComponent(childEntity, UUIDComponent)
+      setComponent(childEntity, NameComponent, 'Variant Child w/ GLTFComponent')
+      setComponent(childEntity, TransformComponent)
+      setComponent(childEntity, EntityTreeComponent, { parentEntity: entity })
+      setComponent(childEntity, VisibleComponent)
+      setComponent(childEntity, GLTFComponent, { src: '' })
+    }, [])
 
     useEffect(() => {
       if (!variantComponent.levels.length) return
@@ -149,9 +160,8 @@ export const VariantComponent = defineComponent({
 
       const currentLevel = variantComponent.currentLevel.value
       const src = variantComponent.levels[currentLevel].src.value
-      if (!src) return
-
-      setComponent(entity, GLTFComponent, { src: src })
+      if (!src || !childEntity) return
+      setComponent(childEntity, GLTFComponent, { src: src })
     }, [instancingComponent, variantComponent.currentLevel, variantComponent.levels])
 
     useEffect(() => {
