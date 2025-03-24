@@ -37,6 +37,7 @@ import {
   getComponent,
   getMutableComponent,
   hasComponent,
+  iterateEntityNode,
   removeComponent,
   setComponent,
   traverseEntityNode
@@ -1403,12 +1404,7 @@ const loadSkin = async (options: GLTFParserOptions, nodeEntity: Entity, nodeInde
   skinnedMesh.skeleton = skeleton
 }
 
-const loadNode = async (
-  options: GLTFParserOptions,
-  nodeIndex: number,
-  parentEntity: Entity | undefined,
-  childIndex: number | undefined
-) => {
+const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
   const json = options.document
 
   const nodeDef = json.nodes![nodeIndex]
@@ -1419,7 +1415,6 @@ const loadNode = async (
   const nodeEntity = NodeIDComponent.create(options.documentID, nodeID, layerID)
 
   setComponent(nodeEntity, NameComponent, nodeDef.name ?? 'Node-' + nodeIndex)
-  setComponent(nodeEntity, TransformComponent)
 
   if (nodeDef.matrix) {
     const mat4 = new Matrix4().fromArray(nodeDef.matrix)
@@ -1433,6 +1428,8 @@ const loadNode = async (
     const rotation = new Quaternion().fromArray(nodeDef.rotation || [0, 0, 0, 1])
     const scale = new Vector3().fromArray(nodeDef.scale || [1, 1, 1])
     setComponent(nodeEntity, TransformComponent, { position, rotation, scale })
+  } else {
+    setComponent(nodeEntity, TransformComponent)
   }
 
   /** Always set visible extension if this is not an ECS node */
@@ -1471,19 +1468,17 @@ const loadNode = async (
   const nodeDependencies = [] as Promise<any>[]
   const objDependencies = [] as Promise<any>[]
 
-  if (parentEntity) {
-    setComponent(nodeEntity, EntityTreeComponent, {
-      parentEntity: parentEntity,
-      childIndex: childIndex
-    })
-  }
-  computeTransformMatrix(nodeEntity)
-
   if (nodeDef.children) {
     for (let i = 0; i < nodeDef.children.length; i++) {
       const childIndex = nodeDef.children[i]
-      const nodePromise = getDependency(options, 'node', childIndex, nodeEntity, i)
+      const nodePromise = getDependency(options, 'node', childIndex)
       nodeDependencies.push(nodePromise)
+      nodePromise.then((childEntity) => {
+        setComponent(childEntity, EntityTreeComponent, {
+          parentEntity: nodeEntity,
+          childIndex: i
+        })
+      })
     }
   }
 
@@ -1561,7 +1556,7 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const pending = [] as Promise<Entity>[]
 
   for (let i = 0, il = nodeIds.length; i < il; i++) {
-    pending.push(getDependency(options, 'node', nodeIds[i], rootEntity) as Promise<Entity>)
+    pending.push(getDependency(options, 'node', nodeIds[i]) as Promise<Entity>)
   }
 
   const animationPromises = [] as Promise<AnimationClip>[]
@@ -1574,10 +1569,17 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
 
   const loadedNodeEntities = await Promise.all(pending)
 
-  //for (const entity of loadedNodeEntities) {
-  //  setComponent(entity, EntityTreeComponent, { parentEntity: options.entity })
-  //  iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
-  //}
+  for (const entity of loadedNodeEntities) {
+    setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity })
+    iterateEntityNode(
+      entity,
+      (e) => {
+        computeTransformMatrix(e)
+        TransformComponent.dirty[e] = 1
+      },
+      (e) => hasComponent(e, TransformComponent)
+    )
+  }
 
   /** @todo this is a temporary hack */
   if (!hasComponent(rootEntity, ObjectComponent)) {
