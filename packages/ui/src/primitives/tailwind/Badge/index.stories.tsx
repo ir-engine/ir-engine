@@ -34,6 +34,14 @@ export default {
       type: 'figma',
       url: ''
     }
+  },
+  argTypes: {
+    variant: {
+      control: {
+        type: 'select'
+      },
+      options: ['success', 'successLight', 'danger', 'neutral', 'warning']
+    }
   }
 }
 
