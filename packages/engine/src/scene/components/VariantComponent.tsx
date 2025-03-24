@@ -79,12 +79,12 @@ export enum Devices {
   XR = 'XR'
 }
 
-const distanceMetadataSchema = S.Object({
+export const distanceMetadataSchema = S.Object({
   minDistance: S.Optional(S.Number()),
   maxDistance: S.Optional(S.Number())
 })
 
-const deviceMetadataSchema = S.Object({
+export const deviceMetadataSchema = S.Object({
   device: S.Optional(S.Enum(Devices))
 })
 
