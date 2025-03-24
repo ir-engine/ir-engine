@@ -204,7 +204,7 @@ export function FileCard({
             theme="secondary"
             fontSize="sm"
             className={twMerge(
-              'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2',
+              'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2 text-text-secondary',
               isSelected
                 ? 'rounded bg-ui-select-background text-ui-select-primary'
                 : 'rounded text-ui-hover-primary group-hover:bg-ui-hover-background'
