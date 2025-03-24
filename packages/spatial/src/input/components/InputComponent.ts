@@ -73,11 +73,7 @@ export const DefaultButtonAlias = {
 } satisfies Record<string, Array<AnyButton>>
 
 export const DefaultAxisAlias = {
-  FollowCameraZoomScroll: [
-    MouseScroll.VerticalScroll,
-    XRStandardGamepadAxes.XRStandardGamepadThumbstickY,
-    XRStandardGamepadAxes.XRStandardGamepadTouchpadY
-  ],
+  FollowCameraZoomScroll: [MouseScroll.VerticalScroll, XRStandardGamepadAxes.XRStandardGamepadTouchpadY],
   FollowCameraShoulderCamScroll: [MouseScroll.HorizontalScroll]
 } satisfies Record<string, Array<AnyAxis>>
 
