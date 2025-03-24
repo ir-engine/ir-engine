@@ -31,7 +31,8 @@ import {
   SerializedComponentType,
   useAncestorWithComponents,
   useComponent,
-  useOptionalComponent
+  useOptionalComponent,
+  UUIDComponent
 } from '@ir-engine/ecs'
 import { commitProperty, EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
@@ -110,6 +111,7 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
             onClick={() => {
               const nodes = SelectionState.getSelectedEntities()
               EditorHistoryFunctions.setComponent(nodes, RigidBodyComponent, { type: 'fixed' })
+              SelectionState.updateSelection(nodes.flatMap((node) => getComponent(node, UUIDComponent))) // to trigger the rerender for the editor panel
             }}
           >
             <HiPlus />
