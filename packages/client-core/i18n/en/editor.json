@@ -116,7 +116,7 @@
     }
   },
   "toolbar": {
-    "lbl-publish": "Publish",
+    "lbl-publish": "Publish & Save",
     "lbl-published": "Published",
     "lbl-simple": "Simple",
     "lbl-advanced": "Advanced",
