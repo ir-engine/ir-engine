@@ -23,40 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
-import { useGet } from '@ir-engine/common'
-import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { EngineState, getComponent, useOptionalComponent } from '@ir-engine/ecs'
-import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
-import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { EngineState } from '@ir-engine/ecs'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { Tooltip } from '@ir-engine/ui'
 import { PauseSquareLg, PlayLg } from '@ir-engine/ui/src/icons'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 const PlayModeTool: React.FC = () => {
   const { t } = useTranslation()
 
   const engineState = useHookstate(getMutableState(EngineState))
-  const editorState = useHookstate(getMutableState(EditorState))
-  const gltfURL = useOptionalComponent(editorState.rootEntity.value, GLTFComponent)?.src?.value
 
   const onTogglePlayMode = () => {
     engineState.isEditing.set(!engineState.isEditing.value)
   }
-
-  const staticResource = useGet(staticResourcePath, editorState.sceneAssetID.value!)
-
-  useEffect(() => {
-    if (engineState.isEditing.value || !staticResource.data) return
-    /** @todo upon saving the scene, the GLTFComponent src is not with the new hash, so we need to get the old src */
-    const loadedSceneURL = getComponent(editorState.rootEntity.value, GLTFComponent).src
-    getMutableState(LocationState).currentLocation.location.sceneURL.set(loadedSceneURL)
-    return () => {
-      getMutableState(LocationState).currentLocation.location.sceneURL.set('')
-    }
-  }, [engineState.isEditing.value, staticResource.data, gltfURL, editorState.scenePath.value])
 
   return (
     <div id="preview" className="flex items-center">

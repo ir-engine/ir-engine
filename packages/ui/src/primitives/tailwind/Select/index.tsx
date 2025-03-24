@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useHookstate } from '@ir-engine/hyperflux'
 import { ChevronDownSm, HelpIconSm, XCloseSm } from '@ir-engine/ui/src/icons'
 import Fuse from 'fuse.js'
-import React, { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import Popup from 'reactjs-popup'
 import { PopupActions } from 'reactjs-popup/dist/types'
 import { twMerge } from 'tailwind-merge'
@@ -100,7 +100,6 @@ const Select = ({
   const [activeIndex, setActiveIndex] = useState<number>(-1)
   const labelRef = useRef<HTMLLabelElement>(null)
   const [helperOffset, setHelperOffset] = useState('')
-  const [filteredOptions, setFilteredOptions] = useState(options)
   const [searchString, setSearchString] = useState('')
   const fuseRef = useRef<Fuse<OptionType> | null>(null)
   const [touchMoved, setTouchedMoved] = useState(false)
@@ -108,6 +107,43 @@ const Select = ({
   const id = useId()
   const [triggerWidth, setTriggerWidth] = useState(0)
   const popupRef = useRef<PopupActions>(null)
+
+  const filteredOptions = useMemo(() => {
+    if (searchString === '') {
+      return options
+    }
+
+    const searchStringLowerCase = searchString.toLowerCase()
+
+    switch (searchMode) {
+      case 'prefix':
+        return options.filter(
+          (option) =>
+            option?.label?.toLowerCase().startsWith(searchStringLowerCase) ||
+            option?.secondaryText?.toLowerCase().startsWith(searchStringLowerCase)
+        )
+
+      case 'substring':
+        return options.filter(
+          (option) =>
+            option?.label?.toLowerCase().includes(searchStringLowerCase) ||
+            option?.secondaryText?.toLowerCase().includes(searchStringLowerCase)
+        )
+
+      case 'fuzzy': {
+        if (!fuseRef.current) {
+          fuseRef.current = new Fuse(options, {
+            keys: ['label', 'secondaryText']
+          })
+        }
+        const searchResult = fuseRef.current.search(searchString)
+        return searchResult.map(({ item }) => item)
+      }
+
+      default:
+        return options
+    }
+  }, [options, searchString, searchMode])
 
   useEffect(() => {
     if (searchMode === 'fuzzy' && fuseRef.current !== null) {
@@ -190,41 +226,6 @@ const Select = ({
       }
     }
   }, [localValue, filteredOptions])
-
-  useEffect(() => {
-    if (searchString === '') {
-      setFilteredOptions(options)
-      return
-    }
-    const searchStringLowerCase = searchString.toLowerCase()
-    if (searchMode === 'prefix') {
-      setFilteredOptions(
-        options.filter(
-          (option) =>
-            option.label.toLowerCase().startsWith(searchStringLowerCase) ||
-            option.secondaryText?.toLowerCase().startsWith(searchStringLowerCase)
-        )
-      )
-    } else if (searchMode === 'substring') {
-      setFilteredOptions(
-        options.filter(
-          (option) =>
-            option.label.toLowerCase().includes(searchStringLowerCase) ||
-            option.secondaryText?.toLowerCase().includes(searchStringLowerCase)
-        )
-      )
-    } else if (searchMode === 'fuzzy') {
-      if (!fuseRef.current) {
-        fuseRef.current = new Fuse(options, {
-          keys: ['label', 'secondaryText']
-        })
-      }
-      const searchResult = fuseRef.current.search(searchString)
-      setFilteredOptions(searchResult.map(({ item }) => item))
-    } else {
-      setFilteredOptions(options)
-    }
-  }, [options, searchString])
 
   useEffect(() => {
     const element = document.getElementById(id)
