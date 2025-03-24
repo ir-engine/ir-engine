@@ -173,15 +173,15 @@ export function FileCard({
         onDoubleClick={onDoubleClick}
         onContextMenu={onContextMenu}
         className={twMerge(
-          'max-h-38 w-30 flex h-auto cursor-pointer flex-col items-center p-1.5 text-center',
+          'max-h-38 w-30 group flex h-auto cursor-pointer flex-col items-center p-1.5 text-center ',
           className
         )}
         data-testid={dataTestIdJson?.fileItemId}
       >
         <div
           className={twMerge(
-            `box-border rounded border border-0 font-figtree`,
-            isSelected ? 'rounded border border-[#375DAF] bg-[#2C2E30]' : 'group-hover:bg-[#202225]'
+            'box-border rounded border-0 p-2 font-figtree',
+            isSelected ? 'rounded border-2 border-text-link bg-[#2C2E30]' : 'group-hover:bg-ui-hover-background'
           )}
           style={{
             height: iconSize,
@@ -205,9 +205,7 @@ export function FileCard({
             fontSize="sm"
             className={twMerge(
               'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2 text-text-secondary',
-              isSelected
-                ? 'rounded bg-ui-select-background text-ui-select-primary'
-                : 'rounded text-ui-hover-primary group-hover:bg-ui-hover-background'
+              isSelected ? 'rounded bg-ui-primary' : 'rounded group-hover:bg-ui-hover-background'
             )}
             data-testid={dataTestIdJson?.fileNameId}
           >
