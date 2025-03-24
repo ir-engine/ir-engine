@@ -42,7 +42,7 @@ const downloadStateSnapshot = () => {
       .map(([key, state]) => {
         try {
           const value = state.get(NO_PROXY)
-          if (typeof 'value'! == 'object') {
+          if (typeof 'value'! === 'object') {
             return [key, JSON.parse(JSON.stringify(value))]
           }
           const obj = {} as typeof value
