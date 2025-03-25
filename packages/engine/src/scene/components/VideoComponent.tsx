@@ -304,49 +304,52 @@ function VideoReactor() {
 
     const uvOffset = new Vector2(0, 0)
     const uvScale = new Vector2(1, 1)
+    let imageSize = new Vector2(1, 1)
 
     const [containerWidth, containerHeight] = [transformComponent.value.scale.x, transformComponent.value.scale.y]
     const containerRatio = containerWidth / containerHeight
 
-    if (media && media.isCurrentTrackLoaded.value && video.fit.value !== 'stretch') {
-      const imageSize = getTextureSize(videoMesh.material.uniforms.map.value as Texture | CompressedTexture)
-      video.currentVideoSize.set(imageSize)
-      const imageRatio = imageSize.x / imageSize.y || 1
+    if (media && media.isCurrentTrackLoaded.value) {
+      imageSize = getTextureSize(videoMesh.material.uniforms.map.value as Texture | CompressedTexture)
+      if (video.fit.value !== 'stretch') {
+        const imageRatio = imageSize.x / imageSize.y || 1
 
-      let isPlacementHorz = true
-      if (video.fit.value == 'horizontal') {
-        isPlacementHorz = true
-      }
-      if (video.fit.value == 'vertical') {
-        isPlacementHorz = false
-      }
-
-      if (video.fit.value == 'contain') {
-        if (imageRatio > containerRatio) {
-          isPlacementHorz = true
-        } else {
-          isPlacementHorz = false
-        }
-      }
-      if (video.fit.value == 'cover') {
-        if (imageRatio > containerRatio) {
-          isPlacementHorz = false
-        } else {
+        let isPlacementHorz = true
+        if (video.fit.value == 'horizontal') {
           isPlacementHorz = true
         }
-      }
+        if (video.fit.value == 'vertical') {
+          isPlacementHorz = false
+        }
 
-      if (isPlacementHorz) {
-        uvScale.y = imageRatio / containerRatio
-        uvScale.x = 1
-        uvOffset.y = (1 - uvScale.y) / 2
-      } else {
-        uvScale.x = 1 / imageRatio / (1 / containerRatio)
-        uvScale.y = 1
-        uvOffset.x = (1 - uvScale.x) / 2
+        if (video.fit.value == 'contain') {
+          if (imageRatio > containerRatio) {
+            isPlacementHorz = true
+          } else {
+            isPlacementHorz = false
+          }
+        }
+        if (video.fit.value == 'cover') {
+          if (imageRatio > containerRatio) {
+            isPlacementHorz = false
+          } else {
+            isPlacementHorz = true
+          }
+        }
+
+        if (isPlacementHorz) {
+          uvScale.y = imageRatio / containerRatio
+          uvScale.x = 1
+          uvOffset.y = (1 - uvScale.y) / 2
+        } else {
+          uvScale.x = 1 / imageRatio / (1 / containerRatio)
+          uvScale.y = 1
+          uvOffset.x = (1 - uvScale.x) / 2
+        }
       }
     }
 
+    video.currentVideoSize.set(imageSize)
     fitPlacementUvOffset.set(uvOffset)
     fitPlacementUvScale.set(uvScale)
   }, [!!mesh, transformComponent.scale, video.fit, video.texture, mesh?.material, media?.isCurrentTrackLoaded])
