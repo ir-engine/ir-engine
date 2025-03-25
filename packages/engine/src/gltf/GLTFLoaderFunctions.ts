@@ -295,9 +295,9 @@ const addMorphTargets = async (
 
   if (!hasMorphPosition && !hasMorphNormal && !hasMorphColor) return Promise.resolve(geometry)
 
-  const pendingPositionAccessors = [] as Promise<BufferAttribute>[]
-  const pendingNormalAccessors = [] as Promise<BufferAttribute>[]
-  const pendingColorAccessors = [] as Promise<BufferAttribute>[]
+  const pendingPositionAccessors = [] as Promise<BufferAttribute | InterleavedBufferAttribute>[]
+  const pendingNormalAccessors = [] as Promise<BufferAttribute | InterleavedBufferAttribute>[]
+  const pendingColorAccessors = [] as Promise<BufferAttribute | InterleavedBufferAttribute>[]
 
   for (let i = 0, il = targets.length; i < il; i++) {
     const target = targets[i]
@@ -1099,8 +1099,8 @@ const loadAnimation = async (options: GLTFParserOptions, animationIndex: number)
   const animationName = animationDef.name ? animationDef.name : 'animation_' + animationIndex
 
   const pendingNodes = [] as Promise<Entity>[]
-  const pendingInputAccessors = [] as Promise<BufferAttribute | null>[]
-  const pendingOutputAccessors = [] as Promise<BufferAttribute | null>[]
+  const pendingInputAccessors = [] as Promise<BufferAttribute | InterleavedBufferAttribute>[]
+  const pendingOutputAccessors = [] as Promise<BufferAttribute | InterleavedBufferAttribute>[]
   const samplers = [] as GLTF.IAnimationSampler[]
   const targets = [] as GLTF.IAnimationChannelTarget[]
 
@@ -1112,7 +1112,7 @@ const loadAnimation = async (options: GLTFParserOptions, animationIndex: number)
     const input = animationDef.parameters !== undefined ? animationDef.parameters[sampler.input] : sampler.input
     const output = animationDef.parameters !== undefined ? animationDef.parameters[sampler.output] : sampler.output
 
-    if (target.node === undefined) continue
+    if (name === undefined) continue
 
     pendingNodes.push(getDependency(options, 'node', name))
     pendingInputAccessors.push(getDependency(options, 'accessor', input))
@@ -1156,8 +1156,8 @@ const loadAnimation = async (options: GLTFParserOptions, animationIndex: number)
 
 const _createAnimationTracks = (
   node: Entity,
-  inputAccessor: BufferAttribute,
-  outputAccessor: BufferAttribute,
+  inputAccessor: BufferAttribute | InterleavedBufferAttribute,
+  outputAccessor: BufferAttribute | InterleavedBufferAttribute,
   sampler: GLTF.IAnimationSampler,
   target: GLTF.IAnimationChannelTarget
 ) => {
@@ -1233,7 +1233,7 @@ const _createAnimationTracks = (
   return tracks
 }
 
-const _getArrayFromAccessor = (accessor: BufferAttribute) => {
+const _getArrayFromAccessor = (accessor: BufferAttribute | InterleavedBufferAttribute) => {
   let outputArray = accessor.array
 
   if (accessor.normalized) {
@@ -1374,7 +1374,7 @@ const loadSkin = async (options: GLTFParserOptions, nodeEntity: Entity, nodeInde
   const skinDef = json.skins![nodeDef.skin!]
 
   const [skinnedMesh, inverseBindMatrices, ...jointNodes] = (await Promise.all([
-    getDependency(options, 'mesh', nodeEntity, nodeIndex, nodeDef.mesh),
+    getDependency(options, 'mesh', nodeEntity, nodeIndex, nodeDef.mesh!),
     getDependency(options, 'accessor', skinDef.inverseBindMatrices!),
     ...skinDef.joints.map((joint) => getDependency(options, 'node', joint))
   ])) as [SkinnedMesh, BufferAttribute, ...Entity[]]
@@ -1466,14 +1466,13 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
     }
   }
 
-  const nodeDependencies = [] as Promise<any>[]
-  const objDependencies = [] as Promise<any>[]
+  const dependencies = [] as Promise<any>[]
 
   if (nodeDef.children) {
     for (let i = 0; i < nodeDef.children.length; i++) {
       const childIndex = nodeDef.children[i]
       const nodePromise = getDependency(options, 'node', childIndex)
-      nodeDependencies.push(nodePromise)
+      dependencies.push(nodePromise)
       nodePromise.then((childEntity) => {
         setComponent(childEntity, EntityTreeComponent, {
           parentEntity: nodeEntity,
@@ -1485,7 +1484,7 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
 
   if (typeof nodeDef.mesh !== 'undefined') {
     const meshPromise = getDependency(options, 'mesh', nodeEntity, nodeIndex, nodeDef.mesh)
-    objDependencies.push(meshPromise)
+    dependencies.push(meshPromise)
   } else if (isBoneNode(json, nodeIndex)) {
     const bone = new Bone()
     // bone.name = node.name ?? 'Node-' + i
@@ -1498,15 +1497,14 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
   }
 
   if (typeof nodeDef.skin === 'number') {
-    objDependencies.push(getDependency(options, 'skin', nodeEntity, nodeIndex))
+    dependencies.push(getDependency(options, 'skin', nodeEntity, nodeIndex))
   }
 
   if (nodeDef.camera !== undefined) {
-    objDependencies.push(getDependency(options, 'camera', nodeEntity, nodeIndex))
+    getDependency(options, 'camera', nodeEntity, nodeIndex)
   }
 
-  await Promise.all(nodeDependencies)
-  await Promise.all(objDependencies)
+  await Promise.all(dependencies)
 
   const extensionPending = [] as Promise<void>[]
 
@@ -1660,24 +1658,6 @@ type DependencyType =
   | 'animation'
   | 'camera'
 
-/** @todo integrate this with resource tracking or something */
-export const getDependency = (options: GLTFParserOptions, type: DependencyType, ...args: any[]) => {
-  const url = options.url
-  const cache = DependencyCache.get(url)
-  if (!cache) throw new Error('GLTFLoader: No cache found for url ' + url)
-
-  const cacheKey = type + ':' + JSON.stringify(args)
-  const dependency = cache.get(cacheKey)
-
-  if (!dependency) {
-    const dep = DependencyMap[type](options, ...args)
-    cache.set(cacheKey, dep)
-    return dep
-  }
-
-  return dependency
-}
-
 const DependencyMap = {
   scene: loadScene,
   node: loadNode,
@@ -1690,7 +1670,35 @@ const DependencyMap = {
   skin: loadSkin,
   animation: loadAnimation,
   camera: loadCamera
-} as Record<DependencyType, (options: GLTFParserOptions, ...args: any[]) => any>
+}
+
+type ExcludeFirst<T extends any[]> = T extends [infer First, ...infer Rest extends any[]] ? Rest : never
+
+/** @todo integrate this with resource tracking or something */
+export const getDependency = <
+  Type extends keyof typeof DependencyMap,
+  Func extends (typeof DependencyMap)[Type],
+  Args extends ExcludeFirst<[...Parameters<Func>]>
+>(
+  options: GLTFParserOptions,
+  type: Type,
+  ...args: Args
+) => {
+  const url = options.url
+  const cache = DependencyCache.get(url)
+  if (!cache) throw new Error('GLTFLoader: No cache found for url ' + url)
+
+  const cacheKey = type + ':' + JSON.stringify(args)
+  const dependency = cache.get(cacheKey) as ReturnType<Func>
+
+  if (!dependency) {
+    const dep = (DependencyMap[type] as (...args: any[]) => ReturnType<Func>)(options, ...args)
+    cache.set(cacheKey, dep)
+    return dep
+  }
+
+  return dependency
+}
 
 export const getNodeID = (node: GLTF.INode, documentID: SourceID, nodeIndex: number) =>
   (node.extensions?.[NodeIDComponent.jsonID] as NodeID) ?? (`${nodeIndex}` as NodeID)
