@@ -42,7 +42,7 @@ import { Button, Input } from '@ir-engine/ui'
 import { ArrowLeftLg, UserPlus01Sm, XCloseLg } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { twMerge } from 'tailwind-merge'
-import { PopoverState } from '../../../common/services/PopoverState'
+import { ModalState } from '../../../common/services/ModalState'
 import { AuthService, AuthState } from '../../services/AuthService'
 import AvatarCreatorMenu2, { SupportedSdks } from './AvatarCreatorMenu'
 import AvatarModifyMenu from './AvatarModifyMenu'
@@ -97,7 +97,7 @@ const AvatarSelectMenu = forwardRef(({ showBackButton, previewEnabled = true }: 
       if (!selfAvatarEntity || !hasComponent(selfAvatarEntity, SpawnEffectComponent)) {
         await userAvatarMutation.patch(null, { avatarId: selectedAvatarId.value }, { query: { userId } })
         if (selfAvatarEntity) avatarLoading.set(true)
-        else PopoverState.hidePopupover()
+        else ModalState.closeModal()
       }
     }
     selectedAvatarId.set('' as AvatarID)
@@ -122,7 +122,7 @@ const AvatarSelectMenu = forwardRef(({ showBackButton, previewEnabled = true }: 
   useEffect(() => {
     if (avatarLoading.value && selfAvatarLoaded) {
       avatarLoading.set(false)
-      PopoverState.hidePopupover()
+      ModalState.closeModal()
     }
   }, [selfAvatarLoaded, avatarLoading])
 
@@ -141,7 +141,7 @@ const AvatarSelectMenu = forwardRef(({ showBackButton, previewEnabled = true }: 
     if (userAvatarId !== selectedAvatarId.value) {
       await handleConfirmAvatar()
     }
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
   }
 
   // expose handleClose since only the parent component
@@ -156,7 +156,7 @@ const AvatarSelectMenu = forwardRef(({ showBackButton, previewEnabled = true }: 
     if (avatarCreatorMenuRef.current) {
       avatarCreatorMenuRef.current?.handleClose()
     } else {
-      PopoverState.hidePopupover()
+      ModalState.closeModal()
     }
   }
 
@@ -228,7 +228,7 @@ const AvatarSelectMenu = forwardRef(({ showBackButton, previewEnabled = true }: 
                   variant="primary"
                   onClick={() => {
                     const Menu = AvatarCreatorMenu2(SupportedSdks.ReadyPlayerMe)
-                    PopoverState.showPopupover(
+                    ModalState.openModal(
                       <Menu
                         ref={avatarCreatorMenuRef}
                         showBackButton={showBackButton}
@@ -247,7 +247,7 @@ const AvatarSelectMenu = forwardRef(({ showBackButton, previewEnabled = true }: 
                   className="min-w-[8rem] rounded-md text-sm font-normal"
                   variant="secondary"
                   onClick={() => {
-                    PopoverState.showPopupover(<AvatarModifyMenu />)
+                    ModalState.openModal(<AvatarModifyMenu />)
                   }}
                 >
                   {t('user:avatar.uploadAvatar')}
@@ -264,7 +264,7 @@ const AvatarSelectMenu = forwardRef(({ showBackButton, previewEnabled = true }: 
                       name={avatar.name}
                       type="rectangle"
                       onClick={() => selectedAvatarId.set(avatar.id)}
-                      onChange={() => PopoverState.showPopupover(<AvatarModifyMenu selectedAvatar={avatar} />)}
+                      onChange={() => ModalState.openModal(<AvatarModifyMenu selectedAvatar={avatar} />)}
                     />
                   </Fragment>
                 ))}

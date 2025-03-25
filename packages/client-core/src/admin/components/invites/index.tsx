@@ -27,7 +27,7 @@ import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMagnifyingGlass, HiPlus } from 'react-icons/hi2'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { InviteType } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { Button, Input } from '@ir-engine/ui'
@@ -77,7 +77,7 @@ export default function Invites() {
                   size="sm"
                   fullWidth
                   onClick={() => {
-                    PopoverState.showPopupover(<RemoveInviteModal invites={selectedInvites.value as InviteType[]} />)
+                    ModalState.openModal(<RemoveInviteModal invites={selectedInvites.value as InviteType[]} />)
                   }}
                 >
                   {t('admin:components.invite.removeInvites')}
@@ -89,7 +89,7 @@ export default function Invites() {
                 size="sm"
                 fullWidth
                 onClick={() => {
-                  PopoverState.showPopupover(<AddEditInviteModal />)
+                  ModalState.openModal(<AddEditInviteModal />)
                 }}
               >
                 <HiPlus />

@@ -35,7 +35,7 @@ import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Badge from '@ir-engine/ui/src/primitives/tailwind/Badge'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import { PopoverState } from '../../../common/services/PopoverState'
+import { ModalState } from '../../../common/services/ModalState'
 import { useUserAvatarThumbnail } from '../../../hooks/useUserAvatarThumbnail'
 import { FriendService, FriendState } from '../../../social/services/FriendService'
 import { AuthState } from '../../services/AuthService'
@@ -96,7 +96,7 @@ const AvatarContextMenu = ({ userId }: { userId: UserID }): JSX.Element => {
             fullWidth
             onClick={() => {
               FriendService.requestFriend(selfId, userId)
-              PopoverState.showPopupover(<FriendsMenu defaultSelectedTab="find" />)
+              ModalState.openModal(<FriendsMenu defaultSelectedTab="find" />)
             }}
           >
             {t('user:personMenu.addAsFriend')}
@@ -107,7 +107,7 @@ const AvatarContextMenu = ({ userId }: { userId: UserID }): JSX.Element => {
             fullWidth
             onClick={() => {
               FriendService.unfriend(selfId, userId)
-              PopoverState.showPopupover(<FriendsMenu defaultSelectedTab="find" />)
+              ModalState.openModal(<FriendsMenu defaultSelectedTab="find" />)
             }}
           >
             {t('user:personMenu.unFriend')}
@@ -120,7 +120,7 @@ const AvatarContextMenu = ({ userId }: { userId: UserID }): JSX.Element => {
               fullWidth
               onClick={() => {
                 FriendService.acceptFriend(selfId, userId)
-                PopoverState.showPopupover(<FriendsMenu />)
+                ModalState.openModal(<FriendsMenu />)
               }}
             >
               {t('user:personMenu.acceptRequest')}
@@ -130,7 +130,7 @@ const AvatarContextMenu = ({ userId }: { userId: UserID }): JSX.Element => {
               fullWidth
               onClick={() => {
                 FriendService.declineFriend(selfId, userId)
-                PopoverState.showPopupover(<FriendsMenu defaultSelectedTab="find" />)
+                ModalState.openModal(<FriendsMenu defaultSelectedTab="find" />)
               }}
             >
               {t('user:personMenu.declineRequest')}
@@ -145,7 +145,7 @@ const AvatarContextMenu = ({ userId }: { userId: UserID }): JSX.Element => {
               fullWidth
               onClick={() => {
                 FriendService.unfriend(selfId, userId)
-                PopoverState.showPopupover(<FriendsMenu defaultSelectedTab="find" />)
+                ModalState.openModal(<FriendsMenu defaultSelectedTab="find" />)
               }}
             >
               {t('user:personMenu.cancelRequest')}
@@ -158,7 +158,7 @@ const AvatarContextMenu = ({ userId }: { userId: UserID }): JSX.Element => {
             fullWidth
             onClick={() => {
               FriendService.blockUser(selfId, userId)
-              PopoverState.showPopupover(<FriendsMenu defaultSelectedTab="blocked" />)
+              ModalState.openModal(<FriendsMenu defaultSelectedTab="blocked" />)
             }}
           >
             {t('user:personMenu.block')}
@@ -170,7 +170,7 @@ const AvatarContextMenu = ({ userId }: { userId: UserID }): JSX.Element => {
             fullWidth
             onClick={() => {
               FriendService.unblockUser(selfId, userId)
-              PopoverState.showPopupover(<FriendsMenu />)
+              ModalState.openModal(<FriendsMenu />)
             }}
           >
             {t('user:personMenu.unblock')}

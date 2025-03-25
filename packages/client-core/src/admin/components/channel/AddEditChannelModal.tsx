@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useMutation } from '@ir-engine/common'
 import { channelPath, ChannelType } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
@@ -61,7 +61,7 @@ export default function AddEditChannelModal({ channel }: { channel?: ChannelType
       } else {
         channelMutation.create({ name: channelName.value })
       }
-      PopoverState.hidePopupover()
+      ModalState.closeModal()
     } catch (err) {
       errors.serverError.set(err.message)
     }
@@ -72,7 +72,7 @@ export default function AddEditChannelModal({ channel }: { channel?: ChannelType
       title={channel?.id ? t('admin:components.channel.update') : t('admin:components.channel.createChannel')}
       className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
-      onClose={PopoverState.hidePopupover}
+      onClose={ModalState.closeModal}
       submitLoading={submitLoading.value}
     >
       {errors.serverError.value && <p className="mb-3 text-red-700">{errors.serverError.value}</p>}

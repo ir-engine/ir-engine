@@ -48,7 +48,7 @@ import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
-import { PopoverState } from '../../common/services/PopoverState'
+import { ModalState } from '../../common/services/ModalState'
 import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { LocationState } from '../../social/services/LocationService'
 import { ReportUserState } from '../../util/ReportUserState'
@@ -230,9 +230,7 @@ const ReportUserWindow = () => {
             className="rounded-full bg-ui-error p-[15px]"
             title={t('user:videoWindows.reportUser')}
             onClick={() =>
-              PopoverState.showPopupover(
-                <ReportMenu type="user" userId={reportedUserId} locationId={currentLocation.id} />
-              )
+              ModalState.openModal(<ReportMenu type="user" userId={reportedUserId} locationId={currentLocation.id} />)
             }
           >
             <IoWarning className="h-5 w-5 text-text-primary-button" />

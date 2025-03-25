@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
@@ -43,9 +43,11 @@ import DragLayer from './dnd/DragLayer'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { useZendesk } from '@ir-engine/client-core/src/hooks/useZendesk'
+import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { API } from '@ir-engine/common'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { EntityUUID } from '@ir-engine/ecs'
+import { EngineState, EntityUUID, getComponent } from '@ir-engine/ecs'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { useSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { Button, Tooltip } from '@ir-engine/ui'
@@ -84,7 +86,7 @@ const onEditorWarning = (warning) => {
   })
 
   // popover design doesnt match the figma designs, we use notification for now
-  /*PopoverState.showPopupover(
+  /*ModalState.showPopupover(
     <WarningDialog title={t('editor:warning')} description={warning || t('editor:warningMsg')} />
   )*/
 }
@@ -92,11 +94,11 @@ const onEditorWarning = (warning) => {
 const onEditorError = (error) => {
   console.error(error)
   if (error['aborted']) {
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
     return
   }
 
-  PopoverState.showPopupover(
+  ModalState.openModal(
     <ErrorDialog title={error.title || t('editor:error')} description={error.message || t('editor:errorMsg')} />
   )
 }
@@ -139,7 +141,7 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
 }
 
 const EditorContainer = () => {
-  const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled } = useMutableState(EditorState)
+  const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, rootEntity } = useMutableState(EditorState)
   const editorUIAddon = useMutableState(UIAddonsState).editor
   const currentLoadedSceneURL = useHookstate(null as string | null)
 
@@ -186,6 +188,18 @@ const EditorContainer = () => {
 
   /** Call get state since it needs to be created */
   getState(EditorHistoryState)
+
+  const engineState = useHookstate(getMutableState(EngineState))
+
+  useEffect(() => {
+    if (engineState.isEditing.value || !rootEntity.value) return
+    /** @todo upon saving the scene, the GLTFComponent src is not with the new hash, so we need to get the old src */
+    const loadedSceneURL = getComponent(rootEntity.value, GLTFComponent).src
+    getMutableState(LocationState).currentLocation.location.sceneURL.set(loadedSceneURL)
+    return () => {
+      getMutableState(LocationState).currentLocation.location.sceneURL.set('')
+    }
+  }, [engineState.isEditing.value, rootEntity.value])
 
   const originEntity = useMutableState(ReferenceSpaceState).originEntity.value
 
