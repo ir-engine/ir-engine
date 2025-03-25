@@ -67,16 +67,18 @@ export function ColorJSONInput({ value, onChange }: { value: ColorJSON; onChange
 }
 
 export default function ColorGenerator({
+  path,
   scope,
   value,
   onChange
 }: {
+  path: string
   scope: State<ColorGeneratorJSON>
   value: ColorGeneratorJSON
-  onChange: (scope: State<any>) => (value: any) => void
+  onChange: (path: string) => (value: any) => void
 }) {
   const onChangeType = useCallback(() => {
-    const thisOnChange = onChange(scope.type)
+    const thisOnChange = onChange(path + '.type')
     return (type: typeof value.type) => {
       scope.set(ColorGeneratorJSONDefaults[type])
       thisOnChange(type)
@@ -86,7 +88,7 @@ export default function ColorGenerator({
   const ConstantColorInput = useCallback(() => {
     const constantScope = scope as State<ConstantColorJSON>
     const constant = constantScope.value
-    return <ColorJSONInput value={constant.color} onChange={onChange(constantScope.color)} />
+    return <ColorJSONInput value={constant.color} onChange={onChange(path + '.color')} />
   }, [scope])
 
   const ColorRangeInput = useCallback(() => {
@@ -95,10 +97,10 @@ export default function ColorGenerator({
     return (
       <>
         <InputGroup name="A" label="A">
-          <ColorJSONInput value={range.a} onChange={onChange(rangeScope.a)} />
+          <ColorJSONInput value={range.a} onChange={onChange(path + '.a')} />
         </InputGroup>
         <InputGroup name="B" label="B">
-          <ColorJSONInput value={range.b} onChange={onChange(rangeScope.b)} />
+          <ColorJSONInput value={range.b} onChange={onChange(path + '.b')} />
         </InputGroup>
       </>
     )
@@ -110,10 +112,10 @@ export default function ColorGenerator({
     return (
       <>
         <InputGroup name="A" label="A">
-          <ColorJSONInput value={random.a} onChange={onChange(randomScope.a)} />
+          <ColorJSONInput value={random.a} onChange={onChange(path + '.a')} />
         </InputGroup>
         <InputGroup name="B" label="B">
-          <ColorJSONInput value={random.b} onChange={onChange(randomScope.b)} />
+          <ColorJSONInput value={random.b} onChange={onChange(path + '.b')} />
         </InputGroup>
       </>
     )
@@ -122,7 +124,7 @@ export default function ColorGenerator({
   const onRemoveGradient = useCallback((element: State<ColorGradientFunctionJSON>) => {
     const gradientScope = scope as State<ColorGradientJSON>
     const gradient = gradientScope.value
-    const thisOnChange = onChange(gradientScope.functions)
+    const thisOnChange = onChange(path + '.functions')
     return () => {
       const nuFunctions = gradient.functions.filter((item) => item !== element.value)
       thisOnChange(JSON.parse(JSON.stringify(nuFunctions)))
@@ -167,7 +169,7 @@ export default function ColorGenerator({
             <div className="flex flex-col">
               <div className="flex items-center gap-x-1">
                 <Text fontSize="xs">Start</Text>
-                <NumericInput value={item.start} onChange={onChange(gradientScope.functions[index].start)} />
+                <NumericInput value={item.start} onChange={onChange(path + '.functions[' + index + '].start')} />
               </div>
 
               <div className="flex items-center gap-x-1">
@@ -175,7 +177,7 @@ export default function ColorGenerator({
                 <div className="col-span-1 grid">
                   <ColorJSONInput
                     value={item.function.a}
-                    onChange={onChange(gradientScope.functions[index].function.a)}
+                    onChange={onChange(path + '.functions[' + index + '].function.a')}
                   />
                 </div>
               </div>
@@ -185,7 +187,7 @@ export default function ColorGenerator({
                 <div className="col-span-1 grid">
                   <ColorJSONInput
                     value={item.function.b}
-                    onChange={onChange(gradientScope.functions[index].function.b)}
+                    onChange={onChange(path + '.functions[' + index + '].function.b')}
                   />
                 </div>
               </div>

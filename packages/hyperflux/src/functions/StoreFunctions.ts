@@ -45,10 +45,6 @@ export interface HyperStore {
    */
   peerID: PeerID
   /**
-   * The uuid of the logged-in user
-   */
-  userID: UserID
-  /**
    * A function which returns the current dispatch time (units are arbitrary)
    */
   getDispatchTime: () => number
@@ -60,6 +56,10 @@ export interface HyperStore {
    * The default dispatch delay (default is 0)
    */
   defaultDispatchDelay: () => number
+  /**
+   * The agent id
+   */
+  getAgentID: () => UserID
   /**
    * State dictionary
    */
@@ -114,6 +114,7 @@ export function createHyperStore(options?: {
   getDispatchTime?: () => number
   defaultDispatchDelay?: () => number
   getCurrentReactorRoot?: () => ReactorRoot | undefined
+  getAgentID?: () => UserID
 }) {
   const store: HyperStore = {
     defaultTopic: 'default' as Topic,
@@ -121,7 +122,7 @@ export function createHyperStore(options?: {
     getDispatchTime: options?.getDispatchTime ?? (() => 0),
     defaultDispatchDelay: options?.defaultDispatchDelay ?? (() => 0),
     getCurrentReactorRoot: options?.getCurrentReactorRoot ?? (() => undefined),
-    userID: '' as UserID,
+    getAgentID: () => 'default' as UserID,
     peerID: uuidv4() as PeerID,
     stateMap: {},
     stateReactors: {},

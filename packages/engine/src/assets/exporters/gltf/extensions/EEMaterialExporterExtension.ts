@@ -30,10 +30,11 @@ import { EntityUUID, getComponent, hasComponent, UUIDComponent } from '@ir-engin
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import {
   MaterialPlugins,
-  MaterialPrototypeComponent,
+  MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 
+import { getState } from '@ir-engine/hyperflux'
 import { injectMaterialDefaults } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
@@ -117,7 +118,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     delete materialDef.emissiveTexture
     delete materialDef.emissiveFactor
     const materialComponent = getComponent(materialEntity, MaterialStateComponent)
-    const prototype = getComponent(materialComponent.prototypeEntity!, MaterialPrototypeComponent)
+    const prototype = getState(MaterialPrototypeDefinitions)[materialComponent.material.type].prototypeConstructor
     const plugins = Object.keys(MaterialPlugins)
       .map((plugin) => {
         if (!hasComponent(materialEntity, MaterialPlugins[plugin])) return
@@ -133,7 +134,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     materialDef.extensions[this.name] = {
       uuid: getComponent(materialEntity, UUIDComponent),
       name: getComponent(materialEntity, NameComponent),
-      prototype: Object.keys(prototype.prototypeConstructor!)[0],
+      prototype: prototype.name,
       plugins: plugins,
       args: result
     }

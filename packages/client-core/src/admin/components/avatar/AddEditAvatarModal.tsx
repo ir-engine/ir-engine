@@ -27,7 +27,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiArrowPath } from 'react-icons/hi2'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { AvatarService } from '@ir-engine/client-core/src/user/services/AvatarService'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@ir-engine/common/src/constants/AvatarConstants'
 import { AvatarType } from '@ir-engine/common/src/schema.type.module'
@@ -35,8 +35,8 @@ import { cleanURL } from '@ir-engine/common/src/utils/cleanURL'
 import { AssetsPreviewPanel } from '@ir-engine/editor/src/components/assets/AssetsPreviewPanel'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Input, RadioGroup } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button, Input, RadioGroup } from '@ir-engine/ui'
+
 import DragNDrop from '@ir-engine/ui/src/primitives/tailwind/DragNDrop'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 
@@ -135,14 +135,14 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
       if (avatar?.id) {
         try {
           await AvatarService.patchAvatar(avatar, avatarAssets.name.value, true, avatarFile, avatarThumbnail)
-          PopoverState.hidePopupover()
+          ModalState.closeModal()
         } catch (e) {
           error.serverError.set(e.message)
         }
       } else {
         try {
           await AvatarService.createAvatar(avatarFile, avatarThumbnail, avatarAssets.name.value, true)
-          PopoverState.hidePopupover()
+          ModalState.closeModal()
         } catch (e) {
           error.serverError.set(e.message)
         }
@@ -222,7 +222,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
       title={avatar?.id ? t('admin:components.avatar.update') : t('admin:components.avatar.add')}
       className="w-[50vw]"
       onSubmit={handleSubmit}
-      onClose={PopoverState.hidePopupover}
+      onClose={ModalState.closeModal}
       submitButtonDisabled={
         avatarAssets.name.value.length === 0 ||
         (avatarAssets.source.value === 'file' && (!avatarAssets.model.value || !avatarAssets.thumbnail.value)) ||
@@ -285,12 +285,8 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
                   <p className="absolute right-2 top-2 max-w-[50%] text-wrap text-red-700">{error.model.value}</p>
                 )}
                 {avatarAssets.source.value === 'file' && (
-                  <Button
-                    disabled={!avatarAssets.model.value}
-                    startIcon={<HiArrowPath />}
-                    onClick={clearAvatar}
-                    className="absolute left-2 top-2"
-                  >
+                  <Button disabled={!avatarAssets.model.value} onClick={clearAvatar} className="absolute left-2 top-2">
+                    <HiArrowPath />
                     {t('admin:components.avatar.clearAvatar')}
                   </Button>
                 )}
@@ -349,10 +345,10 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
                 {avatarAssets.source.value === 'file' && (
                   <Button
                     disabled={!avatarAssets.thumbnail.value}
-                    startIcon={<HiArrowPath />}
                     onClick={clearThumbnail}
                     className="absolute left-2 top-2"
                   >
+                    <HiArrowPath />
                     {t('admin:components.avatar.clearThumbnail')}
                   </Button>
                 )}
@@ -388,7 +384,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
             }
             className="mt-2"
           >
-            Generate Thumbnail
+            {t('admin:components.avatar.saveThumbnail')}
           </Button>
         </div>
       </div>

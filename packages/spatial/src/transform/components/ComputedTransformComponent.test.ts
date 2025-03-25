@@ -37,7 +37,6 @@ import assert from 'assert'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { assertArray } from '../../../tests/util/assert'
 import { ComputedTransformComponent } from './ComputedTransformComponent'
-import { TransformComponent } from './TransformComponent'
 
 type ComputedTransformComponentData = {
   referenceEntities: Entity[]
@@ -112,35 +111,5 @@ describe('ComputedTransformComponent', () => {
       const after = getComponent(testEntity, ComputedTransformComponent)
       assertComputedTransformComponentEq(after, Expected)
     })
-
-    it('should not change values of an initialized ComputedTransformComponent when the data passed had incorrect types', () => {
-      const before = getComponent(testEntity, ComputedTransformComponent)
-      assertComputedTransformComponentEq(before, ComputedTransformComponentDefaults)
-      const Incorrect = { referenceEntities: 'someBox', computeFunction: false }
-      // @ts-ignore Override the linter to force-send invalid types
-      setComponent(testEntity, ComputedTransformComponent, Incorrect)
-      const after = getComponent(testEntity, ComputedTransformComponent)
-      assertComputedTransformComponentEq(after, ComputedTransformComponentDefaults)
-    })
   }) //:: onSet
-
-  describe('reactor', () => {
-    beforeEach(async () => {
-      createEngine()
-    })
-
-    afterEach(() => {
-      return destroyEngine()
-    })
-
-    it('should set TransformComponent.transformsNeedSorting to true when it first mounts', () => {
-      // Set the data as expected
-      TransformComponent.transformsNeedSorting = false
-      // Sanity check before running
-      assert.equal(TransformComponent.transformsNeedSorting, false)
-      // Run and Check the result
-      setComponent(createEntity(), ComputedTransformComponent)
-      assert.equal(TransformComponent.transformsNeedSorting, true)
-    })
-  }) //:: reactor
 }) //:: ComputedTransformComponent

@@ -23,28 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Types } from 'bitecs'
-import { useEffect } from 'react'
-import { Quaternion, Vector3 } from 'three'
+import { AxesHelper, Quaternion, Vector3 } from 'three'
 
-import { UUIDComponent } from '@ir-engine/ecs'
-import {
-  defineComponent,
-  getComponent,
-  getOptionalComponent,
-  removeComponent,
-  setComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { S, UUIDComponent, useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { UserID, getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent } from '@ir-engine/network'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { AxesHelperComponent } from '@ir-engine/spatial/src/common/debug/AxesHelperComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
+import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 
@@ -60,30 +53,18 @@ export type AvatarIKTargetsType = {
 
 export const AvatarIKTargetComponent = defineComponent({
   name: 'AvatarIKTargetComponent',
-  schema: { blendWeight: Types.f64 },
+  storage: { blendWeight: createResizableTypeArray(Float64Array) },
 
   reactor: function () {
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).avatarDebug)
 
-    useEffect(() => {
-      if (debugEnabled.value) {
-        setComponent(entity, AxesHelperComponent, {
-          name: 'avatar-ik-helper',
-          size: 0.5,
-          layerMask: ObjectLayerMasks.AvatarHelper
-        })
-      }
-
-      return () => {
-        removeComponent(entity, AxesHelperComponent)
-      }
-    }, [debugEnabled])
+    useHelperEntity(entity, () => new AxesHelper(0.125), debugEnabled.value, ObjectLayerMasks.AvatarHelper)
 
     return null
   },
 
-  getTargetEntity: (ownerID: UserID, targetName: (typeof ikTargets)[keyof typeof ikTargets]) => {
+  getTargetEntity: (ownerID: EntityUUID, targetName: (typeof ikTargets)[keyof typeof ikTargets]) => {
     return UUIDComponent.getEntityByUUID((ownerID + targetName) as EntityUUID)
   }
 })
@@ -102,29 +83,43 @@ type HandTargetReturn = { position: Vector3; rotation: Quaternion } | null
 export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetReturn => {
   const networkComponent = getComponent(entity, NetworkObjectComponent)
 
-  const targetEntity = NameComponent.entitiesByName[networkComponent.ownerId + '_' + hand]?.[0] // todo, how should be choose which one to use?
+  const targetEntity = NameComponent.getEntitiesByName(networkComponent.ownerId + '_' + hand)[0] // todo, how should be choose which one to use?
   if (targetEntity && AvatarIKTargetComponent.blendWeight[targetEntity] > 0)
     return getComponent(targetEntity, TransformComponent)
 
-  const rig = getOptionalComponent(entity, AvatarRigComponent)
-  if (!rig?.rawRig) return getComponent(entity, TransformComponent)
+  const rig = getOptionalComponent(entity, AvatarRigComponent)?.bonesToEntities
+  if (!rig?.rightHand || !rig?.leftHand || !rig?.head) return getComponent(entity, TransformComponent)
 
   switch (hand) {
-    case 'left':
+    case 'left': {
       return {
-        position: rig.rawRig.leftHand.node.getWorldPosition(vec3),
-        rotation: rig.rawRig.leftHand.node.getWorldQuaternion(quat)
+        position: TransformComponent.getWorldPosition(rig.leftHand, vec3),
+        rotation: TransformComponent.getWorldRotation(rig.leftHand, quat)
       }
+    }
     case 'right':
       return {
-        position: rig.rawRig.rightHand.node.getWorldPosition(vec3),
-        rotation: rig.rawRig.rightHand.node.getWorldQuaternion(quat)
+        position: TransformComponent.getWorldPosition(rig.rightHand, vec3),
+        rotation: TransformComponent.getWorldRotation(rig.rightHand, quat)
       }
     default:
     case 'none':
       return {
-        position: rig.rawRig.head.node.getWorldPosition(vec3),
-        rotation: rig.rawRig.head.node.getWorldQuaternion(quat)
+        position: TransformComponent.getWorldPosition(rig.head, vec3),
+        rotation: TransformComponent.getWorldRotation(rig.head, quat)
       }
   }
 }
+
+export const IKMatrixComponent = defineComponent({
+  name: 'IKMatricesComponent',
+  schema: S.Object({
+    /** contains ik solve data */
+    local: T.Mat4(),
+    world: T.Mat4()
+  })
+})
+
+export const AvatarIKComponent = defineComponent({
+  name: 'AvatarIKComponent'
+})

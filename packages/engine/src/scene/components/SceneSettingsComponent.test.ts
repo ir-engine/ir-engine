@@ -73,7 +73,7 @@ describe('SceneSettingsComponent', () => {
       backgroundColor: '#FFFFFF',
       alternativeColor: '#000000',
       sceneKillHeight: -10,
-      spectateEntity: null
+      spectateEntity: UndefinedEntity
     }
     const initialComponent = getComponent(entity, SceneSettingsComponent)
     // Check initial setting

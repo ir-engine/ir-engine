@@ -45,6 +45,7 @@ import {
   Vector2
 } from 'three'
 
+import { useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getMutableComponent,
@@ -57,12 +58,11 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState, ECSState as EngineState } from '@ir-engine/ecs/src/ECSState'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getState, isClient, NO_PROXY_STEALTH, none, State, usePrevious } from '@ir-engine/hyperflux'
 import { isIPhone, isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -319,16 +319,6 @@ export const UVOL2Component = defineComponent({
     loadingEffectStarted: S.Bool(false),
     loadingEffectEnded: S.Bool(false)
   }),
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (json.manifestPath) {
-      component.manifestPath.set(json.manifestPath)
-    }
-    if (json.data) {
-      component.data.set(json.data)
-    }
-  },
 
   setStartAndPlaybackTime: (entity: Entity, newMediaStartTime: number, newPlaybackStartDate: number) => {
     const volumetric = getMutableComponent(entity, LegacyVolumetricComponent)

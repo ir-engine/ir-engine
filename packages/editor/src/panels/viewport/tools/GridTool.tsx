@@ -23,47 +23,56 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { EngineState } from '@ir-engine/ecs/src/EngineState'
 import { useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { Tooltip } from '@ir-engine/ui'
+import { ViewportButton } from '@ir-engine/ui/editor'
 import NumericInput from '@ir-engine/ui/src/components/editor/input/Numeric'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
+import { GridDotsMd } from '@ir-engine/ui/src/icons'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MdBorderClear } from 'react-icons/md'
+import { EditorHelperState } from '../../../services/EditorHelperState'
 
 const GridTool = () => {
   const { t } = useTranslation()
 
+  const editorHelperState = useMutableState(EditorHelperState)
   const rendererState = useMutableState(RendererState)
+  const engineState = useMutableState(EngineState)
 
   const onToggleGridVisible = () => {
-    rendererState.gridVisibility.set(!rendererState.gridVisibility.value)
+    editorHelperState.gridVisibility.set(!editorHelperState.gridVisibility.value)
   }
 
   useEffect(() => {
-    if (!rendererState.gridVisibility.value) {
-      rendererState.gridVisibility.set(true)
+    if (!editorHelperState.gridVisibility.value) {
+      editorHelperState.gridVisibility.set(true)
     }
   }, [])
 
+  useEffect(() => {
+    if (engineState.isEditing.value) {
+      rendererState.gridVisibility.set(editorHelperState.gridVisibility.value)
+      rendererState.gridHeight.set(editorHelperState.gridHeight.value)
+    } else {
+      rendererState.gridVisibility.set(false)
+    }
+  }, [editorHelperState.gridVisibility, editorHelperState.gridHeight, engineState.isEditing])
+
   return (
-    <div className="flex items-center rounded bg-[#0E0F11]">
-      <Tooltip content={t('editor:toolbar.grid.info-toggleGridVisibility')}>
-        <Button
-          startIcon={<MdBorderClear className="text-theme-input" />}
+    <div className="flex items-center gap-x-1">
+      <Tooltip content={t('editor:toolbar.grid.info-toggleGridVisibility')} position="bottom">
+        <ViewportButton
           onClick={onToggleGridVisible}
-          variant={rendererState.gridVisibility.value ? 'outline' : 'transparent'}
-          className="px-0"
-          size="small"
+          icon={GridDotsMd}
+          selected={editorHelperState.gridVisibility.value}
         />
       </Tooltip>
-      <Tooltip content={t('editor:toolbar.grid.info-gridHeight')}>
+      <Tooltip content={t('editor:toolbar.grid.info-gridHeight')} position="bottom">
         <NumericInput
-          value={rendererState.gridHeight.value}
-          onChange={(value) => rendererState.gridHeight.set(value)}
-          className="h-5 w-16 rounded-sm border-theme-input bg-transparent px-2 py-1"
-          inputClassName="text-theme-gray3"
+          value={editorHelperState.gridHeight.value}
+          onChange={(value) => editorHelperState.gridHeight.set(value)}
           precision={0.01}
           smallStep={0.5}
           mediumStep={1}

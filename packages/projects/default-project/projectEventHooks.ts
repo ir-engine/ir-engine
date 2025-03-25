@@ -24,20 +24,25 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
-import fs from 'fs'
 import path from 'path'
 
-import { locationPath, LocationType, OembedType, ProjectType } from '@ir-engine/common/src/schema.type.module'
+import {
+  locationPath,
+  LocationType,
+  OembedType,
+  ProjectType,
+  staticResourcePath,
+  StaticResourceType
+} from '@ir-engine/common/src/schema.type.module'
 import { createLocations } from '@ir-engine/projects/createLocations'
 import { ProjectEventHooks } from '@ir-engine/projects/ProjectConfigInterface'
 import { Application } from '@ir-engine/server-core/declarations'
-import { getStorageProvider } from '@ir-engine/server-core/src/media/storageprovider/storageprovider'
 
-import { patchStaticResourceAsAvatar, supportedAvatars } from '@ir-engine/server-core/src/user/avatar/avatar-helper'
-import appRootPath from 'app-root-path'
+import { routePath } from '@ir-engine/common/src/schemas/route/route.schema'
+import { activateRoute } from '@ir-engine/server-core/src/route/route/route'
+import updateAvatarRecords from '@ir-engine/server-core/src/util/updateAvatarRecords'
 import manifestJson from './manifest.json'
 
-const projectRelativeFolder = path.resolve(appRootPath.path, 'packages/projects')
 const avatarsFolder = path.resolve(__dirname, 'assets/avatars')
 
 const handleOEmbedRequest = async (app: Application, project: ProjectType, url: URL, currentOEmbed: OembedType) => {
@@ -53,13 +58,11 @@ const handleOEmbedRequest = async (app: Application, project: ProjectType, url: 
       pagination: false
     } as any)) as any as LocationType[]
     if (locationResult.length === 0) throw new BadRequest('Invalid location name')
-    const projectName = locationResult[0].sceneAsset.project
-    const sceneName = locationResult[0].sceneAsset.key.split('/').pop()!.replace('.gltf', '')
-    const storageProvider = getStorageProvider()
+    const scene = (await app.service(staticResourcePath).get(locationResult[0].sceneId)) as StaticResourceType
     currentOEmbed.title = `${locationResult[0].name} - ${currentOEmbed.title}`
     currentOEmbed.description = `Join others in VR at ${locationResult[0].name}, directly from the web browser`
     currentOEmbed.type = 'photo'
-    currentOEmbed.url = `https://${storageProvider.getCacheDomain()}/projects/${projectName}/${sceneName}.thumbnail.jpeg`
+    currentOEmbed.url = scene.thumbnailURL
     currentOEmbed.height = 320
     currentOEmbed.width = 512
 
@@ -86,12 +89,10 @@ const handleOEmbedRequest = async (app: Application, project: ProjectType, url: 
         pagination: false
       } as any)) as any as LocationType[]
       if (locationResult.length > 0) {
-        const projectName = locationResult[0].sceneAsset.project
-        const sceneName = locationResult[0].sceneAsset.key.split('/').pop()!.replace('.gltf', '')
-        const storageProvider = getStorageProvider()
+        const scene = (await app.service(staticResourcePath).get(locationResult[0].sceneId)) as StaticResourceType
         currentOEmbed.title = `${locationResult[0].name} Studio - ${currentOEmbed.title}`
         currentOEmbed.type = 'photo'
-        currentOEmbed.url = `https://${storageProvider.getCacheDomain()}/projects/${projectName}/${sceneName}.thumbnail.jpeg`
+        currentOEmbed.url = scene.thumbnailURL
         currentOEmbed.height = 320
         currentOEmbed.width = 512
         return currentOEmbed
@@ -112,22 +113,17 @@ const config = {
       default: 'public/scenes/default.gltf',
       ['sky-station']: 'public/scenes/sky-station.gltf'
     })
-    await Promise.all(
-      fs
-        .readdirSync(avatarsFolder)
-        .filter((file) => supportedAvatars.includes(file.split('.').pop()!))
-        .map((file) =>
-          patchStaticResourceAsAvatar(
-            app,
-            manifestJson.name,
-            path.resolve(avatarsFolder, file).replace(projectRelativeFolder + '/', '')
-          )
-        )
-    )
+
+    await activateRoute(app.service(routePath))({
+      project: manifestJson.name,
+      route: '/banned',
+      activate: true
+    })
+    await updateAvatarRecords(app, avatarsFolder, manifestJson.name)
   },
-  // onUpdate: (app: Application) => {
-  //   return installAvatarsFromProject(app, avatarsFolder)
-  // },
+  onUpdate: async (app: Application) => {
+    await updateAvatarRecords(app, avatarsFolder, manifestJson.name)
+  },
   onOEmbedRequest: handleOEmbedRequest
   // TODO: remove avatars
   // onUninstall: (app: Application) => {

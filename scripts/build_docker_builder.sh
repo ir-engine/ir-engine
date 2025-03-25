@@ -54,4 +54,6 @@ then
   else
     npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $REPO_NAME-builder --region us-east-1 --service builder --releaseName $STAGE --public
   fi
+elif [ $REPO_PROVIDER === "gcp" ]; then
+  npx ts-node --swc ./scripts/prune_gcp_ar_images.ts --repoName $REPO_NAME-builder --service builder --releaseName $STAGE
 fi

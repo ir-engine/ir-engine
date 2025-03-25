@@ -29,7 +29,7 @@ import { instanceMethods, instancePath, InstanceType } from '@ir-engine/common/s
 import { scopePath, ScopeType, ScopeTypeInterface } from '@ir-engine/common/src/schemas/scope/scope.schema'
 import { channelPath, ChannelType } from '@ir-engine/common/src/schemas/social/channel.schema'
 import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
-
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import { Application, HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { InstanceService } from './instance.class'
@@ -102,7 +102,7 @@ export default (app: Application): void => {
             $limit: 1
           }
         })) as Paginated<ChannelType>
-        await app.service(channelPath).remove(channel.data[0].id)
+        if (isValidId(channel.data[0].id)) await app.service(channelPath).remove(channel.data[0].id)
       }
     } catch (e) {
       // fine - channel already cleaned up elsewhere

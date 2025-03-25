@@ -32,15 +32,15 @@ import loadVideoTexture from '../../scene/materials/functions/LoadVideoTexture'
 import { FileLoader } from '../loaders/base/FileLoader'
 import { Loader } from '../loaders/base/Loader'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
-import { FBXLoader } from '../loaders/fbx/FBXLoader'
+// import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { TextureLoader } from '../loaders/texture/TextureLoader'
 import { TGALoader } from '../loaders/tga/TGALoader'
-import { USDZLoader } from '../loaders/usdz/USDZLoader'
 import { AssetLoaderState } from '../state/AssetLoaderState'
 import { DomainConfigState } from '../state/DomainConfigState'
 
 /**
  * Get asset type from the asset file extension.
+ * @deprecated use FileToAssetExt instead
  * @param assetFileName Name of the Asset file.
  * @returns Asset type of the file.
  */
@@ -50,6 +50,7 @@ const getAssetType = (assetFileName: string): AssetExt => {
 
 /**
  * Get asset class from the asset file extension.
+ * @deprecated use FileToAssetType instead
  * @param assetFileName Name of the Asset file.
  * @returns Asset class of the file.
  */
@@ -67,14 +68,15 @@ export const getLoader = (assetType: AssetExt) => {
     case AssetExt.GLB:
     case AssetExt.VRM:
       return getState(AssetLoaderState).gltfLoader
-    case AssetExt.USDZ:
-      return new USDZLoader()
-    case AssetExt.FBX:
-      return new FBXLoader()
+    // case AssetExt.USDZ:
+    //   return new USDZLoader()
+    // case AssetExt.FBX:
+    //   return new FBXLoader()
     case AssetExt.TGA:
       return new TGALoader()
     case AssetExt.PNG:
     case AssetExt.JPEG:
+    case AssetExt.WEBP:
       return new TextureLoader()
     case AssetExt.AAC:
     case AssetExt.MP3:

@@ -37,7 +37,7 @@ import {
   Vector3
 } from 'three'
 
-import { Engine } from '@ir-engine/ecs'
+import { Engine, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -49,13 +49,12 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { useVideoFrameCallback } from '@ir-engine/spatial/src/common/functions/useVideoFrameCallback'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -119,16 +118,6 @@ export const UVOL1Component = defineComponent({
     loadingEffectStarted: S.Bool(false),
     loadingEffectEnded: S.Bool(false)
   }),
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (json.manifestPath) {
-      component.manifestPath.set(json.manifestPath)
-    }
-    if (json.data) {
-      component.data.set(json.data)
-    }
-  },
 
   reactor: UVOL1Reactor
 })
@@ -195,7 +184,7 @@ function UVOL1Reactor() {
     volumetric.currentTrackInfo.duration.set(component.data.frameData.length / component.data.frameRate.value)
 
     return () => {
-      removeObjectFromGroup(entity, mesh)
+      removeComponent(entity, ObjectComponent)
       videoTexture.dispose()
       const numberOfFrames = component.data.value.frameData.length
       removePlayedBuffer(numberOfFrames)
@@ -260,7 +249,7 @@ function UVOL1Reactor() {
         component.loadingEffectStarted.set(true)
       }
 
-      addObjectToGroup(entity, mesh)
+      setComponent(entity, ObjectComponent, mesh)
     }
 
     prepareMesh()

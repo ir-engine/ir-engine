@@ -32,10 +32,13 @@ import {
   createEntity,
   Engine,
   Entity,
+  EntityTreeComponent,
   getComponent,
   getOptionalComponent,
   removeEntity,
   setComponent,
+  useAncestorWithComponents,
+  useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
 import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
@@ -43,13 +46,19 @@ import { useEffect } from 'react'
 import { Vector3 } from 'three'
 import { NameComponent } from '../../common/NameComponent'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
-import { EntityTreeComponent, useAncestorWithComponents } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
 import { DefaultButtonAlias, InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
-import { AnyButton, ButtonState, ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
+import {
+  AnyButton,
+  ButtonState,
+  ButtonStateMap,
+  createInitialButtonState,
+  MouseButton,
+  XRStandardGamepadAxes
+} from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 import ClientInputFunctions from './ClientInputFunctions'
 import normalizeWheel from './normalizeWheel'
@@ -84,10 +93,9 @@ export const useNonSpatialInputSources = () => {
     const handleTouchDirectionalPad = (event: CustomEvent): void => {
       const { stick, value }: { stick: 'LeftStick' | 'RightStick'; value: { x: number; y: number } } = event.detail
       if (!stick) return
-      const index = stick === 'LeftStick' ? 0 : 2
       const axes = inputSourceComponent.source.gamepad!.axes as number[]
-      axes[index + 0] = value.x
-      axes[index + 1] = value.y
+      axes[XRStandardGamepadAxes.XRStandardGamepadThumbstickX] = value.x
+      axes[XRStandardGamepadAxes.XRStandardGamepadThumbstickY] = value.y
     }
     document.addEventListener('touchstickmove', handleTouchDirectionalPad)
 
@@ -127,7 +135,7 @@ export const useGamepadInputSources = () => {
     }
     const removeGamepad = (e: GamepadEvent) => {
       console.log('[ClientInputSystem] lost gamepad', e.gamepad)
-      NameComponent.entitiesByName['InputSource-gamepad-' + e.gamepad.id]?.forEach(removeEntity)
+      NameComponent.getEntitiesByName('InputSource-gamepad-' + e.gamepad.id).forEach(removeEntity)
     }
     window.addEventListener('gamepadconnected', addGamepad)
     window.addEventListener('gamepaddisconnected', removeGamepad)
@@ -200,14 +208,18 @@ export const useXRInputSources = () => {
   }, [xrState.session])
 }
 
+const emulatedInputPointerEntityName = 'InputSource-emulated-pointer'
+
 export const CanvasInputReactor = () => {
   const cameraEntity = useEntityContext()
   const xrState = useMutableState(XRState)
+  const rendererComponent = useComponent(cameraEntity, RendererComponent)
+
   useEffect(() => {
     if (xrState.session.value) return // pointer input sources are automatically handled by webxr
 
-    const rendererComponent = getComponent(cameraEntity, RendererComponent)
-    const canvas = rendererComponent.canvas!
+    const canvas = rendererComponent.canvas.value
+    if (!canvas) return
 
     /** Clear mouse events */
     const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick'] as AnyButton[]
@@ -221,8 +233,11 @@ export const CanvasInputReactor = () => {
     }
 
     const onPointerEnter = (event: PointerEvent) => {
-      const pointerEntity = createEntity()
-      setComponent(pointerEntity, NameComponent, 'InputSource-emulated-pointer')
+      const pointerEntity =
+        InputPointerComponent.getPointersForCamera(cameraEntity).find(
+          (e) => getOptionalComponent(e, NameComponent) === emulatedInputPointerEntityName
+        ) ?? createEntity()
+      setComponent(pointerEntity, NameComponent, emulatedInputPointerEntityName)
       setComponent(pointerEntity, TransformComponent)
       setComponent(pointerEntity, InputSourceComponent)
       setComponent(pointerEntity, InputPointerComponent, {
@@ -243,7 +258,13 @@ export const CanvasInputReactor = () => {
     const onPointerLeave = (event: PointerEvent) => {
       const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, event.pointerId)
       ClientInputFunctions.redirectPointerEventsToXRUI(cameraEntity, event)
-      removeEntity(pointerEntity)
+
+      // because touch events don't have a leave event, we instead need to clear the state instead of removing the entity
+      if (event.pointerType === 'touch') {
+        clearPointerState(pointerEntity)
+      } else {
+        removeEntity(pointerEntity)
+      }
     }
 
     const onPointerClick = (event: PointerEvent) => {
@@ -264,7 +285,13 @@ export const CanvasInputReactor = () => {
         const pointer = getOptionalComponent(pointerEntity, InputPointerComponent)
         if (pointer) {
           state[button]!.downPosition = new Vector3(pointer.position.x, pointer.position.y, 0)
-          //rotation will never be defined for the mouse or touch
+          // touch input don't trigger pointermove events, so we need to set the position here
+          if (event.pointerType === 'touch') {
+            pointer.position.set(
+              ((event.clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
+              ((event.clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
+            )
+          }
         }
       } else if (state[button]) {
         state[button]!.up = true
@@ -278,7 +305,7 @@ export const CanvasInputReactor = () => {
       const pointerComponent = getOptionalComponent(pointerEntity, InputPointerComponent)
       if (!pointerComponent) return
 
-      if (document.pointerLockElement === canvas) {
+      if (document.pointerLockElement === (canvas as HTMLCanvasElement)) {
         pointerComponent.position.set(
           pointerComponent.position.x + event.movementX / canvas.clientWidth,
           pointerComponent.position.y - event.movementY / canvas.clientHeight
@@ -348,14 +375,14 @@ export const CanvasInputReactor = () => {
       canvas.removeEventListener('click', onClick)
       canvas.removeEventListener('wheel', onWheelEvent)
     }
-  }, [xrState.session])
+  }, [xrState.session, rendererComponent.canvas])
 
   return null
 }
 
 export const MeshInputReactor = () => {
   const entity = useEntityContext()
-  const shouldReceiveInput = !!useAncestorWithComponents(entity, [InputComponent])
+  const shouldReceiveInput = useAncestorWithComponents(entity, [InputComponent])
 
   useImmediateEffect(() => {
     const inputState = getState(InputState)
@@ -367,7 +394,7 @@ export const MeshInputReactor = () => {
 
 export const BoundingBoxInputReactor = () => {
   const entity = useEntityContext()
-  const shouldReceiveInput = !!useAncestorWithComponents(entity, [InputComponent])
+  const shouldReceiveInput = useAncestorWithComponents(entity, [InputComponent])
   useImmediateEffect(() => {
     const inputState = getState(InputState)
     if (shouldReceiveInput) inputState.inputBoundingBoxes.add(entity)

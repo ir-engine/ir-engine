@@ -24,14 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import matches, { Validator } from 'ts-matches'
 
-import { Entity } from '@ir-engine/ecs'
+import { Entity, useAncestorWithComponents, useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, hasComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 import { useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
-import { useAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { GraphJSON, IRegistry, VisualScriptState, defaultVisualScript } from '@ir-engine/visual-script'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -48,24 +45,15 @@ export const VisualScriptComponent = defineComponent({
 
   schema: S.Object({
     domain: S.Enum(VisualScriptDomain, VisualScriptDomain.ECS),
-    visualScript: S.Nullable(S.Type<GraphJSON>()),
+    visualScript: S.Nullable(S.Type<GraphJSON>(), null, {
+      deserialize(curr, value) {
+        if (!value) return value
+        return parseStorageProviderURLs(value)
+      }
+    }),
     run: S.Bool(false),
     disabled: S.Bool(false)
   }),
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.disabled === 'boolean') component.disabled.set(json.disabled)
-    if (typeof json.run === 'boolean') component.run.set(json.run)
-    const domainValidator = matches.string as Validator<unknown, VisualScriptDomain>
-    if (domainValidator.test(json.domain)) {
-      component.domain.value !== json.domain && component.domain.set(json.domain!)
-    }
-    const visualScriptValidator = matches.object as Validator<unknown, GraphJSON>
-    if (visualScriptValidator.test(json.visualScript)) {
-      component.visualScript.set(parseStorageProviderURLs(json.visualScript)!)
-    }
-  },
 
   // we make reactor for each component handle the engine
   reactor: () => {

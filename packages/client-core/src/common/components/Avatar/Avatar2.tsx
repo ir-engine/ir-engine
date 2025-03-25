@@ -23,11 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React, { MouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FiEdit2 } from 'react-icons/fi'
+import { HiPencil } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
 import { handleSoundEffect } from '../../utils'
 
@@ -58,24 +59,30 @@ const Avatar = ({ alt, imageSrc, isSelected, name, showChangeButton, type, size,
         onPointerUp={handleSoundEffect}
         onPointerEnter={handleSoundEffect}
         className={twMerge(
-          'relative box-border flex h-32 max-h-[149px] min-h-32 max-w-[410px] cursor-pointer items-start gap-3 rounded-lg bg-[#191B1F] p-3',
-          isSelected ? 'border-2 border-blue-primary' : 'border border-[#42454D] hover:border hover:border-blue-primary'
+          'relative box-border flex h-[6.5rem] max-h-32 max-w-96 cursor-pointer items-start gap-3 rounded-lg bg-surface-2 p-3 shadow-sm ',
+          isSelected ? 'border-2 border-ui-select-primary' : 'border border-ui-outline'
         )}
       >
-        <img className="h-full w-24 max-w-24" src={imageSrc} alt={alt} crossOrigin="anonymous" />
+        <img className="h-auto w-20 max-w-20 self-center" src={imageSrc} alt={alt} crossOrigin="anonymous" />
         {showChangeButton && (
           <Button
-            rounded="partial"
-            size="small"
+            size="sm"
             fullWidth={false}
             variant="secondary"
             data-testid="edit-avatar-button"
-            className="absolute bottom-3 left-[4.25rem] h-8 w-10 border-[#162546] border-opacity-65 text-white"
-            startIcon={<FiEdit2 size={16} />}
+            className="absolute bottom-3 left-[4.25rem] h-8 w-10 rounded-md border-[#162546] border-opacity-65 text-white"
             onClick={handleChange}
-          />
+          >
+            <FiEdit2 size={16} />
+          </Button>
         )}
-        <span className="line-clamp-2 w-full text-base font-semibold text-theme-primary">{name}</span>
+        <Text
+          fontWeight="medium"
+          fontSize="base"
+          className="line-clamp-2  w-full text-ellipsis text-wrap text-text-primary"
+        >
+          {name}
+        </Text>
       </div>
     )
   } else if (type === 'thumbnail') {
@@ -116,15 +123,14 @@ const Avatar = ({ alt, imageSrc, isSelected, name, showChangeButton, type, size,
       />
       {showChangeButton && (
         <Button
-          rounded="full"
-          size="small"
-          fullWidth={false}
+          size="xs"
           variant="secondary"
           data-testid="edit-avatar-button"
-          className="h-8 w-10 border-[#162546] border-opacity-65 text-white"
-          startIcon={<FiEdit2 size={16} />}
+          className="h-8 w-10 rounded-full border-[#162546] border-opacity-65 text-white"
           onClick={handleChange}
-        />
+        >
+          <HiPencil size={16} />
+        </Button>
       )}
     </div>
   )

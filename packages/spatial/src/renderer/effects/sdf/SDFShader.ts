@@ -28,7 +28,7 @@ import { Matrix4, ShaderMaterial, Uniform, Vector3 } from 'three'
 import LogarithmicDepthBufferMaterialChunk from '../../constants/LogarithmicDepthBufferMaterialChunk'
 import { generateNoiseTexture } from '../../functions/generateNoiseTexture'
 
-const SDFShader = {
+const createSDFShader = () => ({
   shader: new ShaderMaterial({
     vertexShader: `
     #ifdef USE_FOG
@@ -323,5 +323,5 @@ const SDFShader = {
       lightDirection: new Uniform(new Vector3(1.0, 0.5, 1.0))
     }
   })
-}
-export { SDFShader }
+})
+export { createSDFShader }

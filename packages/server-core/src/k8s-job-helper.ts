@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { apiJobPath } from '@ir-engine/common/src/schemas/cluster/api-job.schema'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { getState } from '@ir-engine/hyperflux'
-import * as k8s from '@kubernetes/client-node'
+import { V1Job } from '@kubernetes/client-node'
 import { Application } from '../declarations'
 import { ServerState } from './ServerState'
 import config from './appconfig'
@@ -34,7 +34,7 @@ import { getPodsData } from './cluster/pods/pods-helper'
 
 export const createExecutorJob = async (
   app: Application,
-  jobBody: k8s.V1Job,
+  jobBody: V1Job,
   jobLabelSelector: string,
   timeout: number,
   jobId: string,
@@ -44,12 +44,17 @@ export const createExecutorJob = async (
 
   const name = jobBody.metadata!.name!
   try {
-    await k8BatchClient.deleteNamespacedJob(name, 'default', undefined, undefined, 0, undefined, 'Background')
+    await k8BatchClient.deleteNamespacedJob({
+      name,
+      namespace: config.server.namespace,
+      gracePeriodSeconds: 0,
+      propagationPolicy: 'Background'
+    })
   } catch (err) {
     console.log('Old job did not exist, continuing...')
   }
 
-  await k8BatchClient.createNamespacedJob('default', jobBody)
+  await k8BatchClient.createNamespacedJob({ namespace: config.server.namespace, body: jobBody })
   let counter = 0
   return new Promise((resolve, reject) => {
     if (!waitForFinish) resolve({})
@@ -80,7 +85,7 @@ export async function getJobBody(
   name: string,
   labels: { [key: string]: string },
   ttlSecondsAfterFinished = 86400 // This value is 1 day
-): Promise<k8s.V1Job> {
+): Promise<V1Job> {
   const apiPods = await getPodsData(
     `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=api`,
     'api',
@@ -95,7 +100,7 @@ export async function getJobBody(
 
   name = getValidPodName(name)
 
-  return {
+  const jobSpec: V1Job = {
     metadata: {
       name,
       labels
@@ -108,6 +113,7 @@ export async function getJobBody(
         },
         spec: {
           serviceAccountName: `${process.env.RELEASE_NAME}-ir-engine-api`,
+          restartPolicy: 'Never',
           containers: [
             {
               name,
@@ -118,12 +124,34 @@ export async function getJobBody(
                 return { name: key, value: value }
               })
             }
-          ],
-          restartPolicy: 'Never'
+          ]
         }
       }
     }
   }
+
+  // Only add initContainer if GOOGLE_PROJECT_ID is not an empty string
+  if (process.env.GOOGLE_PROJECT_ID) {
+    jobSpec.spec!.template.spec!.initContainers = [
+      {
+        name: 'cloud-sql-proxy',
+        image: 'gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.14.1',
+        restartPolicy: 'Always',
+        args: [
+          '--private-ip',
+          '--structured-logs',
+          '--port=3306',
+          '--auto-iam-authn',
+          `${process.env.GOOGLE_PROJECT_ID}:us-central1:${process.env.NAMESPACE}-mysql`
+        ],
+        securityContext: {
+          runAsNonRoot: true
+        }
+      }
+    ]
+  }
+
+  return jobSpec
 }
 
 /**

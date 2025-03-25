@@ -30,9 +30,9 @@ import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorCom
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 
 import { useComponent } from '@ir-engine/ecs'
+import DroppableImageInput from '@ir-engine/editor/src/components/assets/DroppableImageInput'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { ImageLink } from '@ir-engine/ui/editor'
 import { LuImage } from 'react-icons/lu'
 import InputGroup from '../../input/Group'
 import ImageSourceProperties from './sourceProperties'
@@ -50,12 +50,8 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.image.description')}
       Icon={ImageNodeEditor.iconComponent}
     >
-      <InputGroup
-        name="Image Url"
-        label={t('editor:properties.image.lbl-imgURL')}
-        labelClassName="text-nowrap text-[#A0A1A2]"
-      >
-        <ImageLink src={imageComponent.source.value} onBlur={commitProperty(ImageComponent, 'source')} />
+      <InputGroup name="Image Url" label={t('editor:properties.image.lbl-imgURL')}>
+        <DroppableImageInput src={imageComponent.source.value} onBlur={commitProperty(ImageComponent, 'source')} />
       </InputGroup>
       {errors ? (
         Object.entries(errors).map(([err, message]) => (

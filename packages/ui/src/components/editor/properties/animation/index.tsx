@@ -23,11 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getOptionalComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs'
+import { getOptionalComponent, LayerFunctions, useComponent, useOptionalComponent } from '@ir-engine/ecs'
 import {
-  EditorComponentType,
   commitProperties,
   commitProperty,
+  EditorComponentType,
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
@@ -44,7 +44,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaStreetView } from 'react-icons/fa'
 import { LoopOnce, LoopPingPong, LoopRepeat } from 'three'
-import { SelectOptionsType } from '../../../../primitives/tailwind/Select'
+import { OptionType } from '../../../../primitives/tailwind/Select'
 import InputGroup from '../../input/Group'
 import ModelInput from '../../input/Model'
 import NumericInput from '../../input/Numeric'
@@ -78,7 +78,8 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
     commitProperties(LoopAnimationComponent, {
       activeClipIndex: index
     })
-    getCallback(props.entity, 'xre.play')!()
+    const simulationEntity = LayerFunctions.getLayerRelationsEntities(entity)?.[0]?.[1]
+    if (simulationEntity) getCallback(simulationEntity, 'xre.play')!()
   }
 
   return (
@@ -92,7 +93,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Loop Animation" label={t('editor:properties.loopAnimation.lbl-loopAnimation')}>
         <SelectInput
           key={props.entity}
-          options={animationOptions.value as SelectOptionsType[]}
+          options={animationOptions.value as OptionType[]}
           value={loopAnimationComponent.value.activeClipIndex}
           onChange={onChangePlayingAnimation}
         />

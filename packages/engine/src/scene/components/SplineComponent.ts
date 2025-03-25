@@ -26,13 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { CatmullRomCurve3, Quaternion, Vector3 } from 'three'
 
+import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { SplineHelperComponent } from './debug/SplineHelperComponent'
 
 export const SplineComponent = defineComponent({
@@ -42,10 +43,10 @@ export const SplineComponent = defineComponent({
   schema: S.Object({
     elements: S.Array(
       S.Object({
-        position: S.Vec3(),
-        rotation: S.Quaternion()
+        position: T.Vec3(),
+        rotation: T.Quaternion()
       }),
-      [
+      () => [
         { position: new Vector3(-1, 0, -1), rotation: new Quaternion() },
         {
           position: new Vector3(1, 0, -1),
@@ -61,19 +62,8 @@ export const SplineComponent = defineComponent({
         }
       ]
     ),
-    curve: S.Class(() => new CatmullRomCurve3([], true))
+    curve: S.NonSerialized(S.Class(() => new CatmullRomCurve3([], true)))
   }),
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    json.elements &&
-      component.elements.set(
-        json.elements.map((e) => ({
-          position: new Vector3().copy(e.position),
-          rotation: new Quaternion().copy(e.rotation)
-        }))
-      )
-  },
 
   reactor: () => {
     const entity = useEntityContext()

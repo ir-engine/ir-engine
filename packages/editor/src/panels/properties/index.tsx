@@ -23,10 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { ErrorBoundary } from '@ir-engine/hyperflux'
+import { Tooltip } from '@ir-engine/ui'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { TabData } from 'rc-dock'
-import React from 'react'
+import React, { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import PropertiesEditor from './propertyeditor'
 
@@ -36,9 +37,9 @@ const PropertiesPanelTitle = () => {
   return (
     <div>
       <PanelDragContainer>
-        <PanelTitle>
-          <Tooltip content={t('editor:properties.info')}>{t('editor:properties.title')}</Tooltip>
-        </PanelTitle>
+        <Tooltip content={t('editor:properties.info')}>
+          <PanelTitle>{t('editor:properties.title')}</PanelTitle>
+        </Tooltip>
       </PanelDragContainer>
     </div>
   )
@@ -49,5 +50,11 @@ export const PropertiesPanelTab: TabData = {
   closable: true,
   cached: true,
   title: <PropertiesPanelTitle />,
-  content: <PropertiesEditor />
+  content: (
+    <ErrorBoundary fallback={<div>Error occured with the properties tab</div>}>
+      <Suspense>
+        <PropertiesEditor />
+      </Suspense>
+    </ErrorBoundary>
+  )
 }

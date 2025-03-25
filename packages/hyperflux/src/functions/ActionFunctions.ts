@@ -29,7 +29,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { createHookableFunction } from './createHookableFunction'
 
 import { OpaqueType } from '../types/OpaqueType'
-import { NetworkID, PeerID } from '../types/Types'
+import { NetworkID, PeerID, UserID } from '../types/Types'
 import { isDev } from './EnvironmentConstants'
 import { ReactorRoot } from './ReactorFunctions'
 import { setInitialState, StateDefinitions } from './StateFunctions'
@@ -49,7 +49,7 @@ export type Action = {
   type: string | string[]
 } & ActionOptions
 
-export type ActionRecipients = PeerID | PeerID[] | 'all' | 'others'
+export type ActionRecipients = PeerID | PeerID[] | 'all' | null | undefined
 
 export type ActionCacheOptions =
   | boolean
@@ -72,10 +72,18 @@ export type ActionOptions = {
   $uuid?: string
 
   /**
-   * The id of the sender's socket
+   * The id of the dispatching peer's unique identifier
    * Will be undefined if dispatched locally or not in a network
+   * - It is recommended that transports implement this upon receiving actions to ensure the peer is who they say they are
    */
   $peer?: PeerID
+
+  /**
+   * The user that dispatched this action
+   * Will be undefined if dispatched locally or not authenticated
+   * - It is recommended that transports implement this upon receiving actions to ensure the user is who they say they are
+   */
+  $user?: UserID
 
   /**
    * The intended recipients
@@ -221,6 +229,8 @@ export const ActionDefinitions = {} as Record<string, any>
 
 export type ActionReceptor<A extends ActionShape<Action>> = ((action: A) => void) & {
   matchesAction: Validator<A, any>
+  validate: (validator: (action: ResolvedActionType<A>) => boolean) => ActionReceptor<A>
+  validator?: (action: A) => boolean
 }
 
 export function isActionReceptor<A extends ActionShape<Action>>(f: any): f is ActionReceptor<A> {
@@ -304,6 +314,10 @@ export function defineAction<Shape extends Omit<ActionShape<Action>, keyof Actio
   actionCreator.receive = (actionReceptor: (action: ResolvedAction) => void) => {
     const hookableReceptor = createHookableFunction(actionReceptor)
     hookableReceptor['matchesAction'] = matchesShape
+    hookableReceptor['validate'] = (actionValidator: (action: ResolvedAction) => boolean) => {
+      hookableReceptor['validator'] = actionValidator
+      return hookableReceptor
+    }
     return hookableReceptor as typeof hookableReceptor & ActionReceptor<Shape>
   }
 
@@ -320,9 +334,11 @@ export function defineAction<Shape extends Omit<ActionShape<Action>, keyof Actio
 export const dispatchAction = <A extends Action>(_action: A) => {
   const action = JSON.parse(JSON.stringify(_action))
 
-  const agentId = HyperFlux.store.peerID
+  const peerID = HyperFlux.store.peerID
+  const agentID = HyperFlux.store.getAgentID()
 
-  action.$peer = action.$peer ?? agentId
+  action.$peer = action.$peer ?? peerID
+  action.$user = action.$user ?? agentID
   action.$to = action.$to ?? 'all'
   action.$time = action.$time ?? HyperFlux.store.getDispatchTime() + HyperFlux.store.defaultDispatchDelay()
   action.$cache = action.$cache ?? false
@@ -340,11 +356,13 @@ export const dispatchAction = <A extends Action>(_action: A) => {
   HyperFlux.store.actions.incoming.push(action as Required<ResolvedActionType>)
 
   addOutgoingTopicIfNecessary(topic)
+
+  return Object.freeze(action) as ResolvedActionType<A>
 }
 
 export function addOutgoingTopicIfNecessary(topic: Topic) {
   if (!HyperFlux.store.actions.outgoing[topic]) {
-    HyperFlux.store.logger('hyperflux:action').info(`Added topic ${topic}`)
+    // HyperFlux.store.logger('hyperflux:action').info(`Added topic ${topic}`)
     HyperFlux.store.actions.outgoing[topic] = {
       queue: [],
       history: [],
@@ -438,6 +456,7 @@ const createEventSourceQueues = (action: Required<ResolvedActionType>) => {
           try {
             const receptor = definitionReceptor as ActionReceptor<ResolvedActionType>
             if (receptor.matchesAction.test(action)) {
+              if (receptor.validator && !receptor.validator(action)) continue
               receptor(action)
               hasNewActions = true
             }
@@ -485,7 +504,7 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
     //actions had circular references. Just try/catching the logger.info call was not catching them properly,
     //So the solution was to attempt to JSON.stringify them manually first to see if that would error.
     try {
-      HyperFlux.store.logger('hyperflux:action').info(`[Action]: ${action.type} %o`, action)
+      // HyperFlux.store.logger('hyperflux:action').info(`[Action]: ${action.type} %o`, action)
     } catch (err) {
       console.log('error in logging action', action)
     }
@@ -522,9 +541,12 @@ const applyEventSourcingToAllQueues = () => {
  * Process incoming actions
  */
 export const applyIncomingActions = () => {
-  const { incoming } = HyperFlux.store.actions
+  const incoming = HyperFlux.store.actions.incoming
+  if (!incoming.length) return
+
   const now = HyperFlux.store.getDispatchTime()
-  for (const action of [...incoming]) {
+  const actions = incoming.slice()
+  for (const action of actions) {
     _forwardIfNecessary(action)
     if (action.$time <= now) _applyIncomingAction(action)
   }

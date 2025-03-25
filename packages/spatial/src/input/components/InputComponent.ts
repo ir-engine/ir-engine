@@ -27,21 +27,26 @@ import { useLayoutEffect } from 'react'
 
 import {
   defineSystem,
+  EngineState,
   getComponent,
-  getOptionalComponent,
   InputSystemGroup,
   UndefinedEntity,
+  useEntityContext,
   useExecute
 } from '@ir-engine/ecs'
-import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
-import { EngineState } from '../../EngineState'
 
+import { getAncestorWithComponents, isAncestor } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
-import { getAncestorWithComponents, isAncestor } from '../../transform/components/EntityTree'
 import {
   AnyAxis,
   AnyButton,
@@ -68,11 +73,7 @@ export const DefaultButtonAlias = {
 } satisfies Record<string, Array<AnyButton>>
 
 export const DefaultAxisAlias = {
-  FollowCameraZoomScroll: [
-    MouseScroll.VerticalScroll,
-    XRStandardGamepadAxes.XRStandardGamepadThumbstickY,
-    XRStandardGamepadAxes.XRStandardGamepadTouchpadY
-  ],
+  FollowCameraZoomScroll: [MouseScroll.VerticalScroll, XRStandardGamepadAxes.XRStandardGamepadTouchpadY],
   FollowCameraShoulderCamScroll: [MouseScroll.HorizontalScroll]
 } satisfies Record<string, Array<AnyAxis>>
 
@@ -88,7 +89,7 @@ export const InputComponent = defineComponent({
 
     //internal
     /** populated automatically by ClientInputSystem */
-    inputSources: S.Array(S.Entity())
+    inputSources: S.NonSerialized(S.Array(S.Entity()))
   }),
 
   useExecuteWithInput(
@@ -110,20 +111,20 @@ export const InputComponent = defineComponent({
   },
 
   getInputEntities(entityContext: Entity): Entity[] {
-    const inputSinkEntity = getAncestorWithComponents(entityContext, [InputSinkComponent])
-    const closestInputEntity = getAncestorWithComponents(entityContext, [InputComponent])
-    const inputSinkInputEntities = getOptionalComponent(inputSinkEntity, InputSinkComponent)?.inputEntities ?? []
-    const inputEntities = [closestInputEntity, ...inputSinkInputEntities]
-    return inputEntities.filter(
-      (entity, index) => inputEntities.indexOf(entity) === index && entity !== UndefinedEntity
-    ) // remove duplicates
+    const inputSinkEntity = getAncestorWithComponents(entityContext, inputSinkComponentQueryComponents)
+    const closestInputEntity = getAncestorWithComponents(entityContext, inputComponentQueryComponents)
+    if (hasComponent(inputSinkEntity, InputSinkComponent)) {
+      const inputSinkInputEntities = getComponent(inputSinkEntity, InputSinkComponent).inputEntities
+      const inputEntities = [closestInputEntity, ...inputSinkInputEntities]
+      return inputEntities.filter(filterInputEntities) // remove duplicates
+    } else {
+      return closestInputEntity === UndefinedEntity ? [] : [closestInputEntity]
+    }
   },
 
   getInputSourceEntities(entityContext: Entity) {
     const inputEntities = InputComponent.getInputEntities(entityContext)
-    return inputEntities.reduce<Entity[]>((prev, eid) => {
-      return [...prev, ...getComponent(eid, InputComponent).inputSources]
-    }, [])
+    return inputEntities.reduce<Entity[]>(reduceInputEntities, [] as Entity[])
   },
 
   getMergedButtons<AliasType extends InputAlias = typeof DefaultButtonAlias>(
@@ -150,14 +151,9 @@ export const InputComponent = defineComponent({
     inputSourceEntities: Entity[],
     inputAlias: AliasType = DefaultButtonAlias as unknown as AliasType
   ) {
-    const buttons = Object.assign(
-      {},
-      ...inputSourceEntities.map((eid) => {
-        return getComponent(eid, InputSourceComponent).buttons
-      })
-    ) as ButtonStateMap<AliasType>
+    const buttons = Object.assign({}, ...inputSourceEntities.map(mapInputButtons)) as ButtonStateMap<AliasType>
 
-    for (const key of Object.keys(inputAlias)) {
+    for (const key in inputAlias) {
       const k = key as keyof AliasType
       buttons[k] = inputAlias[key].reduce((acc: any, alias) => acc || buttons[alias], undefined)
     }
@@ -188,7 +184,7 @@ export const InputComponent = defineComponent({
       }
     }
 
-    for (const key of Object.keys(inputAlias)) {
+    for (const key in inputAlias) {
       axes[key as any] = inputAlias[key].reduce<number>((prev, alias) => {
         return getLargestMagnitudeNumber(prev, axes[alias] ?? 0)
       }, 0)
@@ -270,6 +266,10 @@ function getLargestMagnitudeNumber(a: number, b: number) {
   return Math.abs(a) > Math.abs(b) ? a : b
 }
 
+function filterInputEntities(entity: Entity, index: number, arr: Entity[]) {
+  return arr.indexOf(entity) === index && entity !== UndefinedEntity
+}
+
 export const enum InputExecutionOrder {
   'Before' = -1,
   'With' = 0,
@@ -292,3 +292,13 @@ export const InputExecutionSystemGroup = defineSystem({
   uuid: 'ee.engine.InputExecutionSystemGroup',
   insert: { with: InputSystemGroup }
 })
+
+const mapInputButtons = (eid: Entity) => getComponent(eid, InputSourceComponent).buttons
+
+const inputSinkComponentQueryComponents = [InputSinkComponent]
+const inputComponentQueryComponents = [InputComponent]
+
+const reduceInputEntities = (prev: Entity[], eid: Entity) => {
+  prev.push(...getComponent(eid, InputComponent).inputSources)
+  return prev
+}

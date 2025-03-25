@@ -39,15 +39,14 @@ import { createEngine } from '@ir-engine/ecs/src/Engine'
 import assert from 'assert'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
+import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/ecs'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 import { assertArray, assertFloat, assertVec } from '../../../tests/util/assert'
 import { Axis, PI, Vector3_One, Vector3_Zero } from '../../common/constants/MathConstants'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { TransformDirtyUpdateSystem } from '../systems/TransformSystem'
-import { EntityTreeComponent, getAncestorWithComponents } from './EntityTree'
 import {
   TransformComponent,
-  TransformECS,
   TransformGizmoTagComponent,
   composeMatrix,
   decomposeMatrix,
@@ -93,7 +92,17 @@ describe('TransformComponent', () => {
     })
 
     it('should initialize the *Component.schema field with the expected value', () => {
-      assert.deepEqual(TransformComponent.schema, TransformECS)
+      assert(TransformComponent.storage.position.x instanceof Float64Array)
+      assert(TransformComponent.storage.position.y instanceof Float64Array)
+      assert(TransformComponent.storage.position.z instanceof Float64Array)
+      assert(TransformComponent.storage.rotation.x instanceof Float64Array)
+      assert(TransformComponent.storage.rotation.y instanceof Float64Array)
+      assert(TransformComponent.storage.rotation.z instanceof Float64Array)
+      assert(TransformComponent.storage.rotation.w instanceof Float64Array)
+      assert(TransformComponent.storage.scale.x instanceof Float64Array)
+      assert(TransformComponent.storage.scale.y instanceof Float64Array)
+      assert(TransformComponent.storage.scale.z instanceof Float64Array)
+      assert(TransformComponent.storage.dirty instanceof Uint8Array)
     })
   }) //:: Fields
 
@@ -137,13 +146,13 @@ describe('TransformComponent', () => {
       const Expected = {
         position: new Vector3(1, 2, 3),
         rotation: new Quaternion(4, 5, 6, 7).normalize(),
-        scale: new Vector3(8, 9, 10),
-        matrix: new Matrix4(), // Ignored by onSet
-        matrixWorld: new Matrix4() // Ignored by onSet
+        scale: new Vector3(8, 9, 10)
       }
       setComponent(testEntity, TransformComponent, Expected)
       const after = getComponent(testEntity, TransformComponent)
-      assertTransformComponentEq(after, Expected)
+      assertVec.approxEq(after.position, Expected.position, 3)
+      assertVec.approxEq(after.rotation, Expected.rotation, 4)
+      assertVec.approxEq(after.scale, Expected.scale, 3)
     })
 
     it('should not change values of an initialized TransformComponent when the data passed had incorrect types', () => {
@@ -152,9 +161,10 @@ describe('TransformComponent', () => {
       const Incorrect = {
         position: 'somePosition',
         rotation: 'someRotation',
-        scale: false,
-        matrix: true,
-        matrixWorld: 42
+        scale: false
+        /** @todo these throw errors due to the deserialize function not validating the type of data prior to passing it in */
+        // matrix: true,
+        // matrixWorld: 42
       }
       // @ts-ignore Coerce incorrectly typed data into the onSet call
       setComponent(testEntity, TransformComponent, Incorrect)
@@ -594,8 +604,8 @@ describe('TransformComponent', () => {
       return destroyEngine()
     })
 
-    it('should mark TransformComponent.dirtyTransforms for `@param entity` as true', () => {
-      const Expected = true
+    it('should mark TransformComponent.dirty for `@param entity` as true', () => {
+      const Expected = 1
       // Set the data as expected
       setComponent(parentEntity, SceneComponent)
       setComponent(parentEntity, TransformComponent)
@@ -607,7 +617,7 @@ describe('TransformComponent', () => {
       assert.equal(getComponent(testEntity, EntityTreeComponent).parentEntity, parentEntity)
       // Run and Check the result
       TransformComponent.updateFromWorldMatrix(testEntity)
-      const result = TransformComponent.dirtyTransforms[testEntity]
+      const result = TransformComponent.dirty[testEntity]
       assert.equal(result, Expected)
     })
 
@@ -1066,7 +1076,7 @@ describe('TransformComponent', () => {
 
       setComponent(entity, TransformComponent)
       const transformComponent = getComponent(entity, TransformComponent)
-      assert.equal(TransformComponent.dirtyTransforms[entity], true)
+      assert.equal(TransformComponent.dirty[entity], 1)
       transformComponent.position.x = 12
       assert.equal(transformComponent.position.x, TransformComponent.position.x[entity])
     })

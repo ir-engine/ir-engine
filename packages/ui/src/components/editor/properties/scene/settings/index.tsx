@@ -28,7 +28,6 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
-import { EntityUUID } from '@ir-engine/ecs'
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   EditorComponentType,
@@ -40,14 +39,12 @@ import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEdito
 import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { getMutableState, useState } from '@ir-engine/hyperflux'
-import { Checkbox } from '@ir-engine/ui'
 import { ImageLink } from '@ir-engine/ui/editor'
 import { RiLandscapeLine } from 'react-icons/ri'
 import Button from '../../../../../primitives/tailwind/Button'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import InputGroup from '../../../input/Group'
-import NodeInput from '../../../input/Node'
 import NumericInput from '../../../input/Numeric'
 
 export const SceneSettingsEditor: EditorComponentType = (props) => {
@@ -73,7 +70,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
     image.src = url
   }
 
-  const useSpectatingEntity = useState(sceneSettingsComponent.spectateEntity.value !== null)
+  const useSpectatingEntity = useState(!!sceneSettingsComponent.spectateEntity.value)
 
   return (
     <NodeEditor
@@ -83,7 +80,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
       Icon={SceneSettingsEditor.iconComponent}
       entity={props.entity}
     >
-      <InputGroup
+      {/* <InputGroup
         name="Spectate Entity"
         label={t('editor:properties.sceneSettings.lbl-spectate')}
         info={t('editor:properties.sceneSettings.info-spectate')}
@@ -92,10 +89,6 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
           checked={useSpectatingEntity.value}
           onChange={(value) => {
             useSpectatingEntity.set(value)
-            commitProperty(
-              SceneSettingsComponent,
-              'spectateEntity'
-            )(useSpectatingEntity.value ? ('' as EntityUUID) : null)
           }}
         />
       </InputGroup>
@@ -106,42 +99,42 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
           info={t('editor:properties.sceneSettings.info-uuid')}
         >
           <NodeInput
-            value={sceneSettingsComponent.spectateEntity.value ?? ('' as EntityUUID)}
+            value={sceneSettingsComponent.spectateEntity.value}
             onRelease={commitProperty(SceneSettingsComponent, `spectateEntity`)}
             onChange={commitProperty(SceneSettingsComponent, `spectateEntity`)}
           />
         </InputGroup>
       ) : (
         <></>
-      )}
+      )} */}
+      {/*@note disabled as this functionality was broken and it has been replaced by ScenePreviewCamera*/}
+      {/*<InputGroup*/}
+      {/*  name="Thumbnail"*/}
+      {/*  label={t('editor:properties.sceneSettings.lbl-thumbnail')}*/}
+      {/*  info={t('editor:properties.sceneSettings.info-thumbnail')}*/}
+      {/*  className="w-auto"*/}
+      {/*>*/}
+      {/*  <div>*/}
+      {/*    <ImageLink src={sceneThumbnailState.thumbnailURL.value ?? sceneSettingsComponent.thumbnailURL.value} />*/}
 
-      <InputGroup
-        name="Thumbnail"
-        label={t('editor:properties.sceneSettings.lbl-thumbnail')}
-        info={t('editor:properties.sceneSettings.info-thumbnail')}
-        className="w-auto"
-      >
-        <div>
-          <ImageLink src={sceneThumbnailState.thumbnailURL.value ?? sceneSettingsComponent.thumbnailURL.value} />
-
-          <Button onClick={SceneThumbnailState.createThumbnail} className="mt-2 w-full">
-            {t('editor:properties.sceneSettings.generate')}
-          </Button>
-          {sceneThumbnailState.uploadingThumbnail.value ? (
-            <LoadingView spinnerOnly />
-          ) : (
-            <Button
-              onClick={() => {
-                SceneThumbnailState.uploadThumbnail(props.entity)
-              }}
-              disabled={!sceneThumbnailState.thumbnail.value}
-              className="mt-2 w-full"
-            >
-              {t('editor:properties.sceneSettings.save')}
-            </Button>
-          )}
-        </div>
-      </InputGroup>
+      {/*    <Button onClick={SceneThumbnailState.createThumbnail} className="mt-2 w-full">*/}
+      {/*      {t('editor:properties.sceneSettings.generate')}*/}
+      {/*    </Button>*/}
+      {/*    {sceneThumbnailState.uploadingThumbnail.value ? (*/}
+      {/*      <LoadingView spinnerOnly />*/}
+      {/*    ) : (*/}
+      {/*      <Button*/}
+      {/*        onClick={() => {*/}
+      {/*          SceneThumbnailState.uploadThumbnail(props.entity)*/}
+      {/*        }}*/}
+      {/*        disabled={!sceneThumbnailState.thumbnail.value}*/}
+      {/*        className="mt-2 w-full"*/}
+      {/*      >*/}
+      {/*        {t('editor:properties.sceneSettings.save')}*/}
+      {/*      </Button>*/}
+      {/*    )}*/}
+      {/*  </div>*/}
+      {/*</InputGroup>*/}
       <InputGroup
         name="Loading Screen"
         label={t('editor:properties.sceneSettings.lbl-loading')}

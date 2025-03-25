@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useFind, useRealtime } from '@ir-engine/common'
 import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import CreateSceneDialog from '@ir-engine/editor/src/components/dialogs/CreateScenePanelDialog'
@@ -31,13 +31,13 @@ import { confirmSceneSaveIfModified } from '@ir-engine/editor/src/components/too
 import { onNewScene } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { Button } from '@ir-engine/ui'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { PlusCircleSm } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import { TabData } from 'rc-dock'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiOutlinePlusCircle } from 'react-icons/hi2'
 import { UIAddonsState } from '../../services/UIAddonsState'
 import SceneItem from './SceneItem'
 
@@ -66,7 +66,7 @@ function ScenesPanel() {
     isCreatingScene.set(true)
     const newSceneUIAddons = getState(UIAddonsState).editor.newScene
     if (Object.keys(newSceneUIAddons).length > 0) {
-      PopoverState.showPopupover(<CreateSceneDialog />)
+      ModalState.openModal(<CreateSceneDialog />)
     } else {
       await onNewScene()
     }
@@ -74,22 +74,21 @@ function ScenesPanel() {
   }
 
   return (
-    <div className="h-full bg-[#0E0F11]">
-      <div className="mb-4 h-8 w-full overflow-hidden bg-[#212226]">
+    <div className="h-full bg-surface-1">
+      <div className="mb-4 w-full overflow-hidden bg-surface-4 p-1">
         <Button
-          startIcon={<HiOutlinePlusCircle />}
-          endIcon={isCreatingScene.value && <LoadingView spinnerOnly className="h-4 w-4" />}
           disabled={isCreatingScene.value}
-          rounded="none"
-          className="ml-auto h-8 bg-theme-highlight px-2"
-          size="small"
+          className="ml-auto h-8  px-2"
+          size="sm"
           data-testid="scene-panel-add-scene-button"
           onClick={handleCreateScene}
         >
-          {t('editor:newScene')}
+          <PlusCircleSm />
+          <span className="text-nowrap">{t('editor:newScene')}</span>
+          {isCreatingScene.value && <LoadingView spinnerOnly className="h-4 w-4" />}
         </Button>
       </div>
-      <div className="h-full bg-[#0E0F11]">
+      <div className="h-full bg-surface-1">
         {scenesLoading ? (
           <LoadingView title={t('editor:loadingScenes')} fullSpace className="block h-12 w-12" />
         ) : (
@@ -105,6 +104,7 @@ function ScenesPanel() {
                       editorState.sceneAssetID.set(null)
                     }
                   }}
+                  disableDeleteScene={editorState.sceneAssetID.value === scene.id}
                   onRenameScene={(newName) => {
                     editorState.scenePath.set(newName)
                   }}

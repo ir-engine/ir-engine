@@ -26,16 +26,13 @@ Infinite Reality Engine. All Rights Reserved.
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { DrawingUtils, FilesetResolver, NormalizedLandmark, PoseLandmarker } from '@mediapipe/tasks-vision'
 import React, { useEffect, useLayoutEffect, useRef } from 'react'
-import ReactSlider from 'react-slider'
 import { twMerge } from 'tailwind-merge'
 
 import { useWorldNetwork } from '@ir-engine/client-core/src/common/services/LocationInstanceConnectionService'
 import { useMediaNetwork } from '@ir-engine/client-core/src/common/services/MediaInstanceConnectionService'
-import { useEngineCanvas } from '@ir-engine/client-core/src/hooks/useEngineCanvas'
 import { useResizableVideoCanvas } from '@ir-engine/client-core/src/hooks/useResizableVideoCanvas'
 import { useScrubbableVideo } from '@ir-engine/client-core/src/hooks/useScrubbableVideo'
 import { CaptureClientSettingsState } from '@ir-engine/client-core/src/media/CaptureClientSettingsState'
-import { MediaStreamState } from '@ir-engine/client-core/src/media/MediaStreamState'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { useGet } from '@ir-engine/common'
 import {
@@ -51,7 +48,7 @@ import {
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
 import {
   MotionCaptureFunctions,
   MotionCaptureResults,
@@ -67,13 +64,17 @@ import {
   useMutableState
 } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
+import { useEngineCanvas } from '@ir-engine/spatial/src/renderer/functions/useEngineCanvas'
 import Header from '@ir-engine/ui/src/components/tailwind/Header'
 import RecordingsList from '@ir-engine/ui/src/components/tailwind/RecordingList'
 import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 import Video from '@ir-engine/ui/src/primitives/tailwind/Video'
 
 import { SocketWebRTCClientNetwork } from '@ir-engine/client-core/src/transports/mediasoup/MediasoupClientFunctions'
+import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { useVideoFrameCallback } from '@ir-engine/spatial/src/common/functions/useVideoFrameCallback'
+import { Slider } from '../../../editor'
 import Button from '../../primitives/tailwind/Button'
 
 /**
@@ -439,23 +440,24 @@ export const PlaybackControls = (props: { durationSeconds: number }) => {
           {playing.value ? 'Pause' : 'Play'}
         </Button>
       </div>
-      <ReactSlider
+      <Slider
         className="my-2 h-4 w-full cursor-pointer rounded-lg bg-gray-300"
         min={0}
-        value={playing.value ? currentTime.value : undefined}
+        value={playing.value ? currentTime.value! : 0}
         max={durationSeconds}
         step={1 / 60} // todo store recording framerate in recording
         onChange={setCurrentTime}
-        renderThumb={(props, state) => {
-          return (
-            <div
-              {...props}
-              className="font=[lato] h-4 w-8 rounded-full bg-white text-center text-sm font-bold shadow-md"
-            >
-              {Math.round(state.valueNow)}
-            </div>
-          )
-        }}
+        label="Time"
+        // renderThumb={(props, state) => {
+        //   return (
+        //     <div
+        //       {...props}
+        //       className="font=[lato] h-4 w-8 rounded-full bg-white text-center text-sm font-bold shadow-md"
+        //     >
+        //       {Math.round(state.valueNow)}
+        //     </div>
+        //   )
+        // }}
       />
     </div>
   )
@@ -484,7 +486,8 @@ const PlaybackMode = () => {
       !scene
     )
       return
-    return GLTFAssetState.loadScene(scene.url, scene.id)
+    const viewerEntity = getState(ReferenceSpaceState).viewerEntity
+    return SceneState.loadScene(scene.url, scene.id, viewerEntity)
   }, [scene])
 
   const ActiveRecording = () => {

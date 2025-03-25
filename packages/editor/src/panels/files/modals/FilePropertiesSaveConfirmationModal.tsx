@@ -29,7 +29,7 @@ import React from 'react'
 export default function FilePropertiesSaveConfirmationModal() {
   return (
     <div className="flex items-center justify-center">
-      <div className="z-10  w-[30vw] rounded-lg border border-gray-800 bg-theme-surface-main p-20 shadow-lg">
+      <div className="z-10  w-[30vw] rounded-lg border border-gray-800  p-20 shadow-lg">
         <ProgressBar
           bgColor={'#ffffff'}
           completed={50}

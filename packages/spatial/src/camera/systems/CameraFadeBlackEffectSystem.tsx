@@ -26,19 +26,19 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Color, DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
+import { createEntity, entityExists, removeEntity } from '@ir-engine/ecs'
 import { getComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { createEntity, entityExists, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { defineActionQueue, defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 
 import React from 'react'
-import { EngineState } from '../../EngineState'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { NameComponent } from '../../common/NameComponent'
 import { createTransitionState } from '../../common/functions/createTransitionState'
-import { addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { addObjectToGroup } from '../../renderer/components/ObjectComponent'
 import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
@@ -128,7 +128,7 @@ export const CameraFadeBlackEffectSystem = defineSystem({
   insert: { with: CameraSystem },
   execute,
   reactor: () => {
-    if (!useMutableState(EngineState).viewerEntity.value) return null
+    if (!useMutableState(ReferenceSpaceState).viewerEntity.value) return null
     return <Reactor />
   }
 })

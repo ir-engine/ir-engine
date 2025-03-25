@@ -26,13 +26,13 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { SRGBColorSpace } from 'three'
 
+import { createEntity, useEntityContext } from '@ir-engine/ecs'
 import { getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
-import { createEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { QueryReactor, defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getMutableState, getState, isClient, useHookstate } from '@ir-engine/hyperflux'
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
@@ -61,16 +61,16 @@ const execute = () => {
   const delta = getState(ECSState).deltaSeconds
 
   for (const entity of growQuery()) {
-    TransformComponent.dirtyTransforms[entity] = true
+    TransformComponent.dirty[entity] = 1
 
     const { opacityMultiplier, plateEntity, lightEntities } = getComponent(entity, SpawnEffectComponent)
     if (!plateEntity) continue
 
-    const plate = getComponent(plateEntity, GroupComponent)[0] as typeof SpawnEffectComponent.plateMesh
+    const plate = getComponent(plateEntity, ObjectComponent) as typeof SpawnEffectComponent.plateMesh
     plate.material.opacity = opacityMultiplier * (0.7 + 0.5 * Math.sin((Date.now() % 6283) * 5e-3))
 
     for (const rayEntity of lightEntities) {
-      const ray = getComponent(rayEntity, GroupComponent)[0] as typeof SpawnEffectComponent.lightMesh
+      const ray = getComponent(rayEntity, ObjectComponent) as typeof SpawnEffectComponent.lightMesh
       const rayTransform = getComponent(rayEntity, TransformComponent)
       rayTransform.position.y += 2 * delta
       rayTransform.scale.y = lightScale(rayTransform.position.y, ray.geometry.boundingSphere!.radius)
@@ -118,9 +118,7 @@ const AvatarPendingReactor = () => {
   return null
 }
 
-const reactor = () => {
-  if (!isClient) return null
-
+const LoadingAssetReactor = () => {
   const assetsReady = useHookstate(false)
 
   const [itemLight] = useTexture('/static/itemLight.png')
@@ -155,9 +153,7 @@ const reactor = () => {
     SpawnEffectComponent.plateMesh.name = 'plate_obj'
   }, [])
 
-  const loadingEffect = useHookstate(getMutableState(AnimationState).avatarLoadingEffect)
-
-  if (!loadingEffect.value || !assetsReady.value) return null
+  if (!assetsReady.value) return null
 
   return <QueryReactor Components={[AvatarRigComponent, GLTFComponent]} ChildEntityReactor={AvatarPendingReactor} />
 }
@@ -166,5 +162,13 @@ export const AvatarLoadingSystem = defineSystem({
   uuid: 'ee.engine.AvatarLoadingSystem',
   insert: { after: AvatarAnimationSystem },
   execute,
-  reactor
+  reactor: () => {
+    if (!isClient) return null
+
+    const loadingEffect = useHookstate(getMutableState(AnimationState).avatarLoadingEffect)
+
+    if (!loadingEffect.value) return null
+
+    return <LoadingAssetReactor />
+  }
 })

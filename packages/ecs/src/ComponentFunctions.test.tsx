@@ -22,20 +22,22 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import assert from 'assert'
+import sinon from 'sinon'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { act, render } from '@testing-library/react'
-import assert from 'assert'
-import { Types } from 'bitecs'
 import React, { useEffect } from 'react'
-import { afterEach, beforeEach, describe, it } from 'vitest'
 
-import sinon from 'sinon'
-import { DirectionalLight, Matrix4, Vector3 } from 'three'
+import { Kind, proxySoAStore, removeEntity, Schema } from '@ir-engine/ecs'
+import { DirectionalLight, Vector3 } from 'three'
 import {
   ComponentMap,
   defineComponent,
+  deserializeComponent,
   getAllComponents,
   getComponent,
+  getMutableComponent,
   hasComponent,
   hasComponents,
   removeComponent,
@@ -45,11 +47,37 @@ import {
 } from './ComponentFunctions'
 import { createEngine, destroyEngine } from './Engine'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
-import { createEntity, removeEntity } from './EntityFunctions'
+import { createEntity } from './EntityFunctions'
 import { UUIDComponent } from './UUIDComponent'
-import { ECSSchema } from './schemas/ECSSchemas'
-import { CheckSchemaValue, CreateSchemaValue } from './schemas/JSONSchemaUtils'
+import { createResizableTypeArray } from './bitecsLegacy'
+import {
+  CheckSchemaValue,
+  CreateSchemaValue,
+  HasValidSchemaValues,
+  IsSingleValueSchema
+} from './schemas/JSONSchemaUtils'
 import { S } from './schemas/JSONSchemas'
+
+class ProxyClass {
+  x = 0
+}
+
+const proxifyClass = (store: { x: Float32Array }, entity: Entity, proxiedClass = new ProxyClass()): ProxyClass => {
+  store.x[entity] = proxiedClass.x
+  return Object.defineProperties(proxiedClass as ProxyClass, {
+    entity: { value: entity, configurable: true, writable: true },
+    store: { value: store, configurable: true, writable: true },
+    x: {
+      get() {
+        return this.store.x[this.entity]
+      },
+      set(n) {
+        return (this.store.x[this.entity] = n)
+      },
+      configurable: true
+    }
+  })
+}
 
 describe('ComponentFunctions', async () => {
   beforeEach(() => {
@@ -62,6 +90,56 @@ describe('ComponentFunctions', async () => {
   })
 
   describe('defineComponent', () => {
+    it('should not deserialize if property does not match schema', () => {
+      const Vector3Component = defineComponent({
+        name: 'Vector3Component',
+        schema: S.Object({
+          x: S.Number(0),
+          y: S.Number(0),
+          z: S.Number(4)
+        })
+      })
+
+      const entity = createEntity()
+      // @ts-expect-error
+      deserializeComponent(entity, Vector3Component, { otherval: 10 })
+      const vector3Component = getComponent(entity, Vector3Component)
+      assert.deepEqual(vector3Component, { x: 0, y: 0, z: 4 })
+    })
+
+    it('should not deserialize if property type does not match schema', () => {
+      const NestedObjectComponent = defineComponent({
+        name: 'NestedObjectComponent',
+        schema: S.Object({
+          obj: S.Object({
+            num: S.Number(0)
+          })
+        })
+      })
+
+      const entity = createEntity()
+      // @ts-expect-error
+      deserializeComponent(entity, NestedObjectComponent, { obj: 'test' })
+      const nestedObjectComponent = getComponent(entity, NestedObjectComponent)
+      assert.deepEqual(nestedObjectComponent, { obj: { num: 0 } })
+    })
+
+    it('should deserialize if values match schema', () => {
+      const Vector3Component = defineComponent({
+        name: 'Vector3Component',
+        schema: S.Object({
+          x: S.Number(0),
+          y: S.Number(0),
+          z: S.Number(4)
+        })
+      })
+
+      const entity = createEntity()
+      setComponent(entity, Vector3Component, { x: 12, y: 24, z: 36 })
+      const vector3Component = getComponent(entity, Vector3Component)
+      assert.deepEqual(vector3Component, { x: 12, y: 24, z: 36 })
+    })
+
     it('should create tag component', () => {
       const TagComponent = defineComponent({ name: 'TagComponent', onInit: () => true })
 
@@ -72,20 +150,19 @@ describe('ComponentFunctions', async () => {
     })
 
     it('should create mapped component with SoA', () => {
-      type Vector3ComponentType = {
-        x: number
-        y: number
-        z: number
-      }
-      const { f32 } = Types
-      const Vector3Schema = { x: f32, y: f32, z: f32 }
       const Vector3Component = defineComponent({
         name: 'Vector3Component',
-        schema: Vector3Schema
+        storage: {
+          x: createResizableTypeArray(Float32Array),
+          y: createResizableTypeArray(Float32Array),
+          z: createResizableTypeArray(Float32Array)
+        }
       })
 
       assert.equal(Vector3Component.name, 'Vector3Component')
-      assert.equal(Vector3Component.schema, Vector3Schema)
+      assert(Vector3Component.x instanceof Float32Array)
+      assert(Vector3Component.y instanceof Float32Array)
+      assert(Vector3Component.z instanceof Float32Array)
       assert.equal(ComponentMap.size, 1)
     })
 
@@ -103,7 +180,7 @@ describe('ComponentFunctions', async () => {
       setComponent(entity, Vector3Component)
       const vector3Component = getComponent(entity, Vector3Component)
       const json = Vector3Component.toJSON(vector3Component)
-      const fromSchema = CreateSchemaValue(Vector3Component.schema)
+      const fromSchema = CreateSchemaValue(entity, Vector3Component.schema)
       assert.deepEqual(vector3Component, fromSchema)
       assert.deepEqual(json, fromSchema)
       assert.deepEqual(json, vector3Component)
@@ -125,7 +202,7 @@ describe('ComponentFunctions', async () => {
       const vector3Component = getComponent(entity, Vector3Component)
       assert(CheckSchemaValue(Vector3Component.schema, vector3Component))
       assert(vector3Component.x === setValue.x && vector3Component.y === setValue.y)
-      assert(vector3Component.z === CreateSchemaValue(Vector3Component.schema).z)
+      assert(vector3Component.z === CreateSchemaValue(entity, Vector3Component.schema).z)
     })
 
     it('should override runtime data if onInit is specified', () => {
@@ -143,7 +220,7 @@ describe('ComponentFunctions', async () => {
       const entity = createEntity()
       setComponent(entity, Vector3Component, setValue)
       const vector3Component = getComponent(entity, Vector3Component)
-      const fromSchema = CreateSchemaValue(Vector3Component.schema)
+      const fromSchema = CreateSchemaValue(entity, Vector3Component.schema)
       assert(vector3Component instanceof Vector3)
       assert(vector3Component.isVector3)
       assert(vector3Component.x === setValue.x && vector3Component.y === setValue.y)
@@ -210,40 +287,43 @@ describe('ComponentFunctions', async () => {
       })
 
       const entity = createEntity()
-      const objComponent = setComponent(entity, ObjComponent, { other: 12 })
+      setComponent(entity, ObjComponent, { other: 12 })
+      const objComponent = getComponent(entity, ObjComponent)
       const json = ObjComponent.toJSON(objComponent)
       assert(!('light' in json))
       assert('other' in json)
       // The previous assert erases type for some reason
       assert((json as any).other === 12)
 
-      const topLevel = setComponent(entity, TopLevelComponent, 4)
+      setComponent(entity, TopLevelComponent, 4)
+      const topLevel = getComponent(entity, TopLevelComponent)
       assert(topLevel === 4)
       const nonJson = TopLevelComponent.toJSON(topLevel)
       assert(nonJson === null)
     })
 
-    it('throws error when onSet is called without required fields', () => {
-      const ObjComponent = defineComponent({
-        name: 'ObjComponent',
-        schema: S.Object({
-          light: S.Required(S.Class(() => new DirectionalLight())),
-          other: S.Number(0)
-        })
-      })
+    /** @todo this doesn't make any sense anymore, since a deserialized component will never deserialize into a required class, only ever into something like a vec3, color etc */
+    // it('throws error when deserializeComponent is called without required fields', () => {
+    //   const ObjComponent = defineComponent({
+    //     name: 'ObjComponent',
+    //     schema: S.Object({
+    //       light: S.Required(S.Class(() => new DirectionalLight())),
+    //       other: S.Number(0)
+    //     })
+    //   })
 
-      const TopLevelComponent = defineComponent({
-        name: 'ObjComponent',
-        schema: S.Required(S.Class(() => new DirectionalLight()))
-      })
+    //   const TopLevelComponent = defineComponent({
+    //     name: 'ObjComponent',
+    //     schema: S.Required(S.Class(() => new DirectionalLight()))
+    //   })
 
-      const entity = createEntity()
-      const light = new DirectionalLight()
-      assert.throws(() => setComponent(entity, ObjComponent, { other: 12 }))
-      assert.doesNotThrow(() => setComponent(entity, ObjComponent, { light }))
-      assert.throws(() => setComponent(entity, TopLevelComponent))
-      assert.doesNotThrow(() => setComponent(entity, TopLevelComponent, light))
-    })
+    //   const entity = createEntity()
+    //   const light = new DirectionalLight()
+    //   assert.throws(() => deserializeComponent(entity, ObjComponent, { other: 12 }))
+    //   assert.doesNotThrow(() => deserializeComponent(entity, ObjComponent, { light }))
+    //   assert.throws(() => deserializeComponent(entity, TopLevelComponent), undefined)
+    //   assert.doesNotThrow(() => deserializeComponent(entity, TopLevelComponent, light))
+    // })
 
     it('uses schema initializers if they exist', () => {
       const spy = sinon.spy()
@@ -291,96 +371,320 @@ describe('ComponentFunctions', async () => {
 
       const Vec3Component = defineComponent({
         name: 'Vector3Component',
-        schema: S.Vec3()
+        schema: S.SerializedClass(
+          () => new Vector3(),
+          {
+            x: S.Number(),
+            y: S.Number(),
+            z: S.Number()
+          },
+          {
+            deserialize: (curr, value) => curr.copy(value),
+            id: 'Vec3'
+          }
+        )
       })
 
       const entity = createEntity()
 
-      const objComponent = setComponent(entity, ObjComponent, { val: 12 })
+      deserializeComponent(entity, ObjComponent, { val: 12 })
+      const objComponent = getComponent(entity, ObjComponent)
       assert(objComponent.val === 12 * 2)
       assert(spy.calledOnce)
 
-      const topLevelComponent = setComponent(entity, TopLevelComponent, 6)
+      deserializeComponent(entity, TopLevelComponent, 6)
+      const topLevelComponent = getComponent(entity, TopLevelComponent)
       assert(topLevelComponent === 6 * 3)
       assert(spy.calledTwice)
 
       const vec3 = new Vector3(12, 13, 14)
-      const vector3Component = setComponent(entity, Vector3Component, new Vector3(12, 13, 14))
+      deserializeComponent(entity, Vector3Component, new Vector3(12, 13, 14))
+      const vector3Component = getComponent(entity, Vector3Component)
       assert(!(vector3Component instanceof Vector3))
       assert(vec3.x === vector3Component.x && vec3.y === vector3Component.y && vec3.z === vector3Component.z)
       assert(vec3 !== vector3Component)
 
-      let vec3Component = setComponent(entity, Vec3Component)
+      deserializeComponent(entity, Vec3Component)
+      let vec3Component = getComponent(entity, Vec3Component)
       assert(vec3Component instanceof Vector3)
       assert(vec3Component.x === 0 && vec3Component.y === 0 && vec3Component.z === 0)
 
       const vec3Obj = { x: 11, y: 12, z: 13 }
-      vec3Component = setComponent(entity, Vec3Component, vec3Obj)
+      deserializeComponent(entity, Vec3Component, vec3Obj)
+      vec3Component = getComponent(entity, Vec3Component)
       assert(vec3Obj.x === vec3Component.x && vec3Obj.y === vec3Component.y && vec3Obj.z === vec3Component.z)
       assert(vec3Obj !== vec3Component)
       assert(vec3Component instanceof Vector3)
     })
 
-    it('ECS Schema is proxied', () => {
-      const Vector3Component = defineComponent({
-        name: 'Vector3Component',
-        schema: ECSSchema.Vec3
-      })
+    it('ECS Schema number is proxied via proxySoAStore', () => {
+      const proxyNumber = proxySoAStore(() => ProxyComponent.x)
 
-      const entity = createEntity()
-      setComponent(entity, Vector3Component)
-      const vector3Component = getComponent(entity, Vector3Component)
-      vector3Component.x = 12
-      assert(vector3Component.x === 12)
-      assert(vector3Component.x === Vector3Component.x[entity])
-    })
-
-    it('ECS Schema is proxied, nested objects', () => {
-      const TransformComponent = defineComponent({
-        name: 'Vector3Component',
-        schema: {
-          position: ECSSchema.Vec3,
-          rotation: ECSSchema.Quaternion,
-          scale: ECSSchema.Vec3
+      const ProxyComponent = defineComponent({
+        name: 'ProxyComponent',
+        schema: S.Object({
+          x: S.Proxy(S.Number(), proxyNumber)
+        }),
+        storage: {
+          x: createResizableTypeArray(Float32Array)
         }
       })
 
       const entity = createEntity()
-      setComponent(entity, TransformComponent)
-      const transformComponent = getComponent(entity, TransformComponent)
-      transformComponent.position.x = 12
-      assert(transformComponent.position.x === 12)
-      assert(transformComponent.position.x === TransformComponent.position.x[entity])
+      setComponent(entity, ProxyComponent)
+      const proxyComponent = getComponent(entity, ProxyComponent)
+      proxyComponent.x = 12
+      assert(proxyComponent.x === 12)
+      assert(proxyComponent.x === ProxyComponent.x[entity])
     })
 
-    it('ECS Schema is proxied, arrays', () => {
-      const TransformComponent = defineComponent({
-        name: 'Vector3Component',
-        schema: {
-          position: ECSSchema.Vec3,
-          rotation: ECSSchema.Quaternion,
-          scale: ECSSchema.Vec3,
-          matrix: ECSSchema.Mat4
+    it('ECS Schema class is proxied', () => {
+      const assignProxy = (entity: Entity): ProxyClass => proxifyClass(ProxyComponent.position, entity)
+
+      const ProxyComponent = defineComponent({
+        name: 'ProxyComponent',
+        schema: S.Object({
+          position: S.SerializedClass(assignProxy, { x: S.Number() })
+        }),
+        storage: {
+          position: {
+            x: createResizableTypeArray(Float32Array)
+          }
         }
       })
 
       const entity = createEntity()
-      setComponent(entity, TransformComponent)
-      const transformComponent = getComponent(entity, TransformComponent)
-      transformComponent.matrix[12] = 14
-      const mat = TransformComponent.matrix[entity]
-      assert(transformComponent.matrix[12] === 14)
-      assert(transformComponent.matrix[12] === TransformComponent.matrix[entity][12])
-      assert(transformComponent.matrix[12] === mat[12])
-
-      const mat4Elements = new Matrix4().elements
-      transformComponent.matrix.set(mat4Elements)
-
-      for (let i = 0; i < mat4Elements.length; i++) {
-        assert(transformComponent.matrix[i] === mat4Elements[i])
-        assert(TransformComponent.matrix[entity][i] === mat4Elements[i])
-      }
+      setComponent(entity, ProxyComponent)
+      const proxiedComponent = getComponent(entity, ProxyComponent)
+      proxiedComponent.position.x = 12
+      assert(proxiedComponent.position.x === 12)
+      assert(proxiedComponent.position.x === ProxyComponent.position.x[entity])
     })
+
+    describe('when `@param def`.schema is falsy ..', () => {
+      let testEntity = UndefinedEntity
+
+      beforeEach(() => {
+        testEntity = createEntity()
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+      })
+
+      it('should set Component.onSet to an empty function', () => {
+        const Expected = 0
+
+        const component = defineComponent({ name: 'TestComponent' })
+        expect(component.schema).toBeFalsy()
+        setComponent(testEntity, component, 21)
+        const result = component.onSet.length
+
+        expect(result).toBe(Expected)
+      })
+    })
+
+    describe('when `@param def`.schema is truthy ..', () => {
+      let testEntity = UndefinedEntity
+
+      beforeEach(() => {
+        testEntity = createEntity()
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+      })
+
+      describe('.. when `@param def`.schema represents a single value ...', () => {
+        describe('... when `@param def`.schema has a required schema value ....', () => {
+          it('.... should set (closure)`@param Component`.onSet to a function that throws an error when `@param json` returns an invalid schema value based on the `(closure)@param def`.schema ', () => {
+            const component = defineComponent({ name: 'TestComponent', schema: S.Required(S.Number(1234)) })
+            expect(IsSingleValueSchema(component.schema)).toBeTruthy()
+            setComponent(testEntity, component, 21)
+            const data = getComponent(testEntity, component)
+            const value = 'SomeString'
+
+            expect(() => {
+              component.onSet(testEntity, data as any, value as any)
+            }).toThrowError()
+          })
+
+          it('.... should set (closure)`@param Component`.onSet to a function that calls `@param component`.set with `@param component`.json as arguments', () => {
+            const Expected = 42
+
+            const component = defineComponent({ name: 'TestComponent', schema: S.Required(S.Number(1234)) })
+            expect(IsSingleValueSchema(component.schema)).toBeTruthy()
+            setComponent(testEntity, component, 21)
+            const data = getMutableComponent(testEntity, component)
+            const value = Expected
+            component.onSet(testEntity, data as any, value)
+
+            const result = getComponent(testEntity, component)
+            expect(result).toBe(Expected)
+          })
+        })
+
+        describe('... when `@param def`.schema does not have a required schema value ....', () => {
+          it(".... should set (closure)`@param Component`.onSet to a function that doesn't do anything (return early) when `@param json` is falsy", () => {
+            const Expected = 42
+
+            const component = defineComponent({ name: 'TestComponent', schema: S.Number(1234) })
+            expect(IsSingleValueSchema(component.schema)).toBeTruthy()
+            setComponent(testEntity, component, Expected)
+            const data = getMutableComponent(testEntity, component)
+            const value = 0 // Falsy value. Won't call onSet
+            component.onSet(testEntity, data as any, value)
+
+            const result = getComponent(testEntity, component)
+            expect(result).toBe(Expected)
+          })
+
+          it('.... should set (closure)`@param Component`.onSet to a function that calls `@param component`.set with `@param component`.json as arguments', () => {
+            const Expected = 42
+
+            const component = defineComponent({ name: 'TestComponent', schema: S.Number(1234) })
+            expect(IsSingleValueSchema(component.schema)).toBeTruthy()
+            setComponent(testEntity, component, 21)
+            const data = getMutableComponent(testEntity, component)
+            const value = Expected
+            component.onSet(testEntity, data as any, value)
+
+            const result = getComponent(testEntity, component)
+            expect(result).toBe(Expected)
+          })
+        })
+      })
+
+      describe('.. when `@param def`.schema represents multiple values ...', () => {
+        describe('... when `@param def`.schema has a required schema value ....', () => {
+          it('.... should set (closure)`@param Component`.onSet to a function that throws an error when `@param json` returns an invalid schema value based on the `(closure)@param def`.schema ', () => {
+            const component = defineComponent({
+              name: 'TestComponent',
+              schema: S.Required(S.Object({ one: S.Number(1234) }))
+            })
+            expect(IsSingleValueSchema(component.schema)).toBeFalsy()
+            setComponent(testEntity, component, { one: 21 })
+            const data = getComponent(testEntity, component)
+            const value = 'SomeString'
+
+            expect(() => {
+              component.onSet(testEntity, data as any, value as any)
+            }).toThrowError()
+          })
+
+          /** @todo Array is not a multivalue. Is this branch ever reachable? */
+          it.todo(
+            '.... should set (closure)`@param Component`.onSet to a function that calls component.set with `@param json` as arguments when json is an array',
+            () => {
+              // 3. Set input & dependencies data
+              // 1. Sanity check (input & dependencies)
+              // 2. Run the process
+              const component = defineComponent({
+                name: 'TestComponent',
+                schema: S.Required(S.Object({ one: S.Number(1234) }))
+              })
+              expect(IsSingleValueSchema(component.schema)).toBeFalsy()
+              setComponent(testEntity, component, { one: 21 })
+              const data = getComponent(testEntity, component)
+              const value = [1, 2, 3]
+              component.onSet(testEntity, data as any, value as any)
+
+              const result = getComponent(testEntity, component)
+            }
+          )
+
+          it(".... should set (closure)`@param Component`.onSet to a function that calls component.set with `@param json` as arguments when typeof json is not 'object'", () => {
+            const component = defineComponent({
+              name: 'TestComponent',
+              schema: S.Required(S.Object({ one: S.Number(1234) }))
+            })
+            expect(IsSingleValueSchema(component.schema)).toBeFalsy()
+            setComponent(testEntity, component, { one: 21 })
+            const data = getMutableComponent(testEntity, component)
+            const value = 'SomeString'
+            component.onSet(testEntity, data as any, value as any)
+            const result = getComponent(testEntity, component)
+
+            expect(result).toBe(value)
+          })
+
+          it(".... should set (closure)`@param Component`.onSet to a function that calls component.merge with `@param json` as arguments when json is not an array and typeof json is 'object'", () => {
+            const component = defineComponent({
+              name: 'TestComponent',
+              schema: S.Required(S.Object({ one: S.Number(1234) }))
+            })
+            expect(IsSingleValueSchema(component.schema)).toBeFalsy()
+            setComponent(testEntity, component, { one: 21 })
+            const data = getMutableComponent(testEntity, component)
+            const value = { one: 42 }
+            component.onSet(testEntity, data as any, value as any)
+            const result = getComponent(testEntity, component)
+
+            expect(result).toEqual(value)
+          })
+        })
+
+        describe('... when `@param def`.schema does not have a required schema value ....', () => {
+          it(".... should set (closure)`@param Component`.onSet to a function that doesn't do anything (return early) when `@param json` is falsy", () => {
+            const Expected = { one: 21 }
+
+            const component = defineComponent({ name: 'TestComponent', schema: S.Object({ one: S.Number(1234) }) })
+            expect(IsSingleValueSchema(component.schema)).toBeFalsy()
+            setComponent(testEntity, component, Expected)
+            const data = getMutableComponent(testEntity, component)
+            const value = 0
+            component.onSet(testEntity, data as any, value as any)
+
+            const result = getComponent(testEntity, component)
+            expect(result).toEqual(Expected)
+          })
+
+          /** @todo Array is not a multivalue. Is this branch ever reachable? */
+          it.todo(
+            '.... should set (closure)`@param Component`.onSet to a function that calls component.set with `@param json` as arguments when json is an array',
+            () => {
+              // 3. Set input & dependencies data
+              // 1. Sanity check (input & dependencies)
+              // 2. Run the process
+              const component = defineComponent({ name: 'TestComponent', schema: S.Object({ one: S.Number(1234) }) })
+              expect(IsSingleValueSchema(component.schema)).toBeFalsy()
+              setComponent(testEntity, component, { one: 21 })
+              const data = getComponent(testEntity, component)
+              const value = [1, 2, 3]
+              component.onSet(testEntity, data as any, value as any)
+
+              const result = getComponent(testEntity, component)
+            }
+          )
+
+          it(".... should set (closure)`@param Component`.onSet to a function that calls component.set with `@param json` as arguments when typeof json is not 'object'", () => {
+            const component = defineComponent({ name: 'TestComponent', schema: S.Object({ one: S.Number(1234) }) })
+            expect(IsSingleValueSchema(component.schema)).toBeFalsy()
+            setComponent(testEntity, component, { one: 21 })
+            const data = getMutableComponent(testEntity, component)
+            const value = 'SomeString'
+            component.onSet(testEntity, data as any, value as any)
+            const result = getComponent(testEntity, component)
+
+            expect(result).toBe(value)
+          })
+
+          it(".... should set (closure)`@param Component`.onSet to a function that calls component.merge with `@param json` as arguments when json is not an array and typeof json is not 'object'", () => {
+            const component = defineComponent({ name: 'TestComponent', schema: S.Object({ one: S.Number(1234) }) })
+            expect(IsSingleValueSchema(component.schema)).toBeFalsy()
+            setComponent(testEntity, component, { one: 21 })
+            const data = getMutableComponent(testEntity, component)
+            const value = { one: 42 }
+            component.onSet(testEntity, data as any, value as any)
+            const result = getComponent(testEntity, component)
+
+            expect(result).toEqual(value)
+          })
+        })
+      })
+    })
+
+    /** @todo Write the other Non-schema related unit tests for coverage */
   })
 
   describe('setComponent', () => {
@@ -415,16 +719,6 @@ describe('ComponentFunctions', async () => {
 
       assert.ok(component)
       assert.equal(component.val, 5)
-    })
-
-    it('should add component with SoA values', () => {
-      const { f32 } = Types
-      const ValueSchema = { value: f32 }
-      const TestComponent = defineComponent({ name: 'TestComponent', schema: ValueSchema })
-
-      const entity = createEntity()
-      TestComponent.value[entity] = 3
-      assert.equal(TestComponent.value[entity], 3)
     })
 
     it('should throw on null entity argument', () => {
@@ -502,17 +796,6 @@ describe('ComponentFunctions', async () => {
       assert.ok(hasComponent(entity, TestComponent))
     })
 
-    it('should have component with SoA values', () => {
-      const { f32 } = Types
-      const ValueSchema = { value: f32 }
-      const TestComponent = defineComponent({ name: 'TestComponent', schema: ValueSchema })
-
-      const entity = createEntity()
-      setComponent(entity, TestComponent)
-
-      assert.ok(hasComponent(entity, TestComponent))
-    })
-
     it('should return false for nullish entity argument', () => {
       const TestComponent = defineComponent({ name: 'TestComponent' })
       assert(!hasComponent(null!, TestComponent))
@@ -570,19 +853,6 @@ describe('ComponentFunctions', async () => {
       assert.ok(hasComponents(entity, [TestComponent, TestComponent2]))
     })
 
-    it('should have components with SoA values', () => {
-      const { f32 } = Types
-      const ValueSchema = { value: f32 }
-      const TestComponent = defineComponent({ name: 'TestComponent', schema: ValueSchema })
-      const TestComponent2 = defineComponent({ name: 'TestComponent2', schema: ValueSchema })
-
-      const entity = createEntity()
-      setComponent(entity, TestComponent)
-      setComponent(entity, TestComponent2)
-
-      assert.ok(hasComponents(entity, [TestComponent, TestComponent2]))
-    })
-
     it('should return false for nullish entity argument', () => {
       const TestComponent = defineComponent({ name: 'TestComponent' })
       const TestComponent2 = defineComponent({ name: 'TestComponent2' })
@@ -614,7 +884,7 @@ describe('ComponentFunctions', async () => {
       removeComponent(entity, TestComponent)
 
       assert.ok(!hasComponent(entity, TestComponent))
-      assert.ok(TestComponent.stateMap[entity]!.promised === true)
+      assert.ok(TestComponent.stateMap[entity] === undefined)
     })
 
     it('should remove component with AoS values', () => {
@@ -633,21 +903,6 @@ describe('ComponentFunctions', async () => {
 
       const entity = createEntity()
       setComponent(entity, TestComponent, { val: 2 })
-
-      assert.ok(hasComponent(entity, TestComponent))
-
-      removeComponent(entity, TestComponent)
-
-      assert.ok(!hasComponent(entity, TestComponent))
-    })
-
-    it('should remove component with SoA values', () => {
-      const { f32 } = Types
-      const ValueSchema = { value: f32 }
-      const TestComponent = defineComponent({ name: 'TestComponent', schema: ValueSchema })
-
-      const entity = createEntity()
-      setComponent(entity, TestComponent)
 
       assert.ok(hasComponent(entity, TestComponent))
 
@@ -676,6 +931,114 @@ describe('ComponentFunctions', async () => {
     })
   })
 })
+
+describe('deserializeComponent', () => {
+  let testEntity = UndefinedEntity
+
+  beforeEach(() => {
+    createEngine()
+    testEntity = createEntity()
+  })
+
+  afterEach(() => {
+    removeEntity(testEntity)
+    return destroyEngine()
+  })
+
+  it('should throw an error if `@param Component`.schema is truthy, it has a required schema entry and one of the `@param json` values is not a valid required schema value', () => {
+    const json = { one: 42, invalid: 'InvalidNumber' }
+    const schema = { [Kind]: 'Required', properties: { [Kind]: 'Number' } as Schema } as Schema
+    const component = defineComponent({ name: 'TestComponent', schema: schema })
+
+    expect(() => deserializeComponent(testEntity, component, json)).toThrowError()
+  })
+
+  it('should set the `@param Component` to `@param entity` when that entity does not have the component', () => {
+    const Expected = true
+
+    const json = { one: 42 }
+    const schema = { [Kind]: 'Required', properties: { one: { [Kind]: 'Number' } as Schema } } as Schema
+    const component = defineComponent({ name: 'TestComponent', schema: schema })
+
+    deserializeComponent(testEntity, component, json)
+
+    const result = hasComponent(testEntity, component)
+    expect(result).toBe(Expected)
+  })
+
+  it('should not do anything else (return early) when `@param json` is null', () => {
+    const json = null
+    const schema = S.String('TestString', { validate: () => false }) // validate=>false   would always trigger the error, but we pass null to json
+    const prev = 'PrevValue'
+    const onSet = (_: any, component: any, value: string) => {
+      component.set(value ?? 'Test')
+    }
+    const component = defineComponent({ name: 'TestComponent', schema: schema, onSet: onSet })
+
+    // 1. Sanity check (input & dependencies)
+    expect(component.schema).toBeTruthy()
+    expect(component.schema.options?.validate).toBeTruthy()
+    expect(HasValidSchemaValues(schema, json, prev, testEntity)[0]).toBeFalsy()
+
+    // @ts-expect-error Coerce null into string|undefined `@param json`
+    expect(() => deserializeComponent(testEntity, component, json)).not.toThrowError()
+  })
+
+  it('should not do anything else (return early) when `@param json` is undefined', () => {
+    const json = undefined
+    const schema = S.String('TestString', { validate: () => false }) // validate=>false   would always trigger the error, but we pass undefined to json
+    const prev = 'PrevValue'
+    const onSet = (_: any, component: any, value: string) => {
+      component.set(value ?? 'Test')
+    }
+    const component = defineComponent({ name: 'TestComponent', schema: schema, onSet: onSet })
+
+    // 1. Sanity check (input & dependencies)
+    expect(component.schema).toBeTruthy()
+    expect(component.schema.options?.validate).toBeTruthy()
+    expect(HasValidSchemaValues(schema, json, prev, testEntity)[0]).toBeFalsy()
+
+    expect(() => deserializeComponent(testEntity, component, json)).not.toThrowError()
+  })
+
+  it('should throw an error if `@param Component`.schema is truthy, .schema has validators and HasValidSchemaValues returns invalid for `@param json`', () => {
+    const json = 'Test42'
+    const schema = S.String('TestString', { validate: () => false }) // validate=>false   will always trigger the error for this case
+    const prev = 'PrevValue'
+    const onSet = (_: any, component: any, value: string) => {
+      component.set(value ?? 'Test')
+    }
+    const component = defineComponent({ name: 'TestComponent', schema: schema, onSet: onSet })
+
+    // 1. Sanity check (input & dependencies)
+    expect(component.schema).toBeTruthy()
+    expect(component.schema.options?.validate).toBeTruthy()
+    expect(HasValidSchemaValues(schema, json, prev, testEntity)[0]).toBeFalsy()
+
+    expect(() => deserializeComponent(testEntity, component, json)).toThrowError()
+  })
+
+  it('should set a new value for the `@param Component` of `@param entity` using the (deserialized) value of `@param json`', () => {
+    const Expected = 'ExpectedValue'
+
+    const json = Expected
+    const schema = S.String('TestString')
+    const prev = 'PrevValue'
+    const onSet = (_: any, component: any, value: string) => {
+      component.set(value ?? 'Test')
+    }
+    const component = defineComponent({ name: 'TestComponent', schema: schema, onSet: onSet })
+    // 1. Sanity check (input & dependencies)
+    expect(component.schema).toBeTruthy()
+    expect(component.schema.options?.validate).not.toBeTruthy()
+    expect(HasValidSchemaValues(schema, json, prev, testEntity)[0]).toBeTruthy()
+
+    expect(() => deserializeComponent(testEntity, component, json)).not.toThrowError()
+    const result = getComponent(testEntity, component)
+
+    expect(result).toBe(Expected)
+  })
+}) //:: deserializeComponent
 
 describe('ComponentFunctions Hooks', async () => {
   describe('useComponent', async () => {
@@ -846,7 +1209,7 @@ describe('ComponentFunctions Hooks', async () => {
 
       // Run the test case
       const tag = <Reactor />
-      assert.equal(TestComponent.stateMap[entity]!, undefined)
+      assert.equal(TestComponent.stateMap[entity], undefined)
       const { rerender, unmount } = render(tag)
       assert.equal(result, 1)
 

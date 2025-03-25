@@ -17,16 +17,30 @@ CMD ["scripts/strip-engine.sh"]
 
 # copy then compile the code
 
-ENV APP_ENV=production
+ENV APP_ENV=development 
 
-FROM node:18-buster-slim as runner
+FROM node:22-slim as runner
 WORKDIR /app
 
 # This commands runs the setup_helm.sh script to install helm and relevent installations
-COPY ../../scripts/setup_helm.sh .
+COPY scripts/setup_helm.sh .
 RUN chmod +x setup_helm.sh && ./setup_helm.sh
 
 
 COPY --from=builder /app ./
+
+# Install debugging tools (vim and default-mysql-client) and gcloud prerequisites 
+RUN apt-get update && \
+  apt-get install -y vim default-mysql-client apt-transport-https ca-certificates gnupg curl && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*
+
+# Install gcloud for Debian: https://cloud.google.com/sdk/docs/install
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
+  | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
+  && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+  | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
+  && apt-get update -y \
+  && apt-get install google-cloud-cli -y    
 
 CMD ["scripts/run-builder.sh"]

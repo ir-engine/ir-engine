@@ -25,7 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   Engine,
+  EngineState,
   Entity,
+  EntityTreeComponent,
   EntityUUID,
   UUIDComponent,
   UndefinedEntity,
@@ -37,20 +39,25 @@ import {
   removeComponent,
   setComponent
 } from '@ir-engine/ecs'
-import { HyperFlux, UserID, applyIncomingActions, dispatchAction, getState } from '@ir-engine/hyperflux'
+import {
+  HyperFlux,
+  UserID,
+  applyIncomingActions,
+  dispatchAction,
+  getMutableState,
+  getState
+} from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
-import { ArrowHelperComponent } from '@ir-engine/spatial/src/common/debug/ArrowHelperComponent'
 import { initializeSpatialEngine, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { Physics, PhysicsWorld } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { BodyTypes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { act, render } from '@testing-library/react'
-import React from 'react'
 import { Quaternion, Vector3 } from 'three'
 import { v4 } from 'uuid'
 import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -73,7 +80,7 @@ describe('MountPointComponent.ts', async () => {
 
   beforeEach(async () => {
     createEngine()
-    Engine.instance.store.userID = 'userId' as UserID
+    getMutableState(EngineState).userID.set('userId' as UserID)
     initializeSpatialEngine()
     initializeSpatialViewer()
     avatarTestEntity = createEntity()
@@ -81,11 +88,12 @@ describe('MountPointComponent.ts', async () => {
     sceneEntity = loadEmptyScene()
 
     setComponent(sceneEntity, SceneComponent)
-    setComponent(avatarTestEntity, UUIDComponent, Engine.instance.store.userID as string as EntityUUID)
+    setComponent(avatarTestEntity, UUIDComponent, Engine.instance.userID as string as EntityUUID)
     setComponent(mountPointTestEntity, UUIDComponent, v4() as EntityUUID)
     setComponent(mountPointTestEntity, TransformComponent)
     setComponent(mountPointTestEntity, InteractableComponent)
     setComponent(mountPointTestEntity, MountPointComponent)
+    setComponent(mountPointTestEntity, EntityTreeComponent)
 
     dispatchAction(
       AvatarNetworkAction.spawn({
@@ -115,13 +123,14 @@ describe('MountPointComponent.ts', async () => {
     })
 
     it('Should set the mount point component initial data', () => {
-      const customData = setComponent(mountPointTestEntity, MountPointComponent, {
-        type: 'seat',
+      const customData = {
+        type: 'seat' as const,
         dismountOffset: new Vector3(0, 0, 0.75),
         forceDismountPosition: true
-      })
+      }
+      setComponent(mountPointTestEntity, MountPointComponent, customData)
       const componentData = getComponent(mountPointTestEntity, MountPointComponent)
-      assert.equal(componentData, customData)
+      assert.deepEqual(componentData, customData)
     })
     describe('Reactor', () => {
       it('Should set mountEntity as callback to entity', () => {
@@ -133,8 +142,8 @@ describe('MountPointComponent.ts', async () => {
       it('Should update the UI to show or hide an Interacteable component in the dropdown button based on wheter or not its mounted', async () => {
         MountPointComponent.mountEntity(avatarTestEntity, mountPointTestEntity)
         applyIncomingActions()
-        const { rerender, unmount } = render(<></>)
-        await act(async () => rerender(MountPointComponent.reactor))
+        await act(() => render(null))
+
         // Github race condition
         await vi.waitFor(
           () => {
@@ -146,7 +155,9 @@ describe('MountPointComponent.ts', async () => {
         assert.equal(!!mountPointPresent, true)
         MountPointComponent.unmountEntity(avatarTestEntity)
         applyIncomingActions()
-        await act(async () => rerender(MountPointComponent.reactor))
+
+        await act(() => render(null))
+
         // Github race condition
         await vi.waitFor(
           () => {
@@ -161,7 +172,8 @@ describe('MountPointComponent.ts', async () => {
       it('Should add an arrow helper component if debug is enabled', () => {
         // Retrieve node helper visibility state from renderer state
         const debugFalse = getState(RendererState).nodeHelperVisibility
-        const arrowComponent = getOptionalComponent(mountPointTestEntity, ArrowHelperComponent)
+        const helperEntity = getOptionalComponent(mountPointTestEntity, EntityTreeComponent)!.children[0]
+        const arrowComponent = getOptionalComponent(helperEntity, ObjectComponent)
         assert.equal(!!arrowComponent, false)
         // Change it to true and check if the arrow component was added
         const debugTrue = debugFalse == true
@@ -275,17 +287,16 @@ describe('MountPointComponent.ts', async () => {
 
     beforeEach(async () => {
       avatarTestEntity = createEntity()
-      setComponent(avatarTestEntity, UUIDComponent, (Engine.instance.store.userID + '_avatar') as string as EntityUUID)
-      spawnAvatarReceptor(Engine.instance.store.userID as string as EntityUUID)
-      avatarTestEntity = AvatarComponent.getUserAvatarEntity(Engine.instance.store.userID)
+      setComponent(avatarTestEntity, UUIDComponent, (Engine.instance.userID + '_avatar') as string as EntityUUID)
+      spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
+      avatarTestEntity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
       await Physics.load()
       physicsWorldEntity = createEntity()
       setComponent(physicsWorldEntity, EntityTreeComponent)
       setComponent(physicsWorldEntity, UUIDComponent, v4() as EntityUUID)
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
-      const physicsWorldUUID = getComponent(physicsWorldEntity, UUIDComponent)
-      physicsWorld = Physics.createWorld(physicsWorldUUID)
+      physicsWorld = Physics.createWorld(physicsWorldEntity)
       physicsWorld.timestep = 1 / 60
       setComponent(avatarTestEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       setComponent(mountPointTestEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })

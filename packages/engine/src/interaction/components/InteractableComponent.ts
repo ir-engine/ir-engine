@@ -23,19 +23,20 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { MathUtils, Vector2, Vector3 } from 'three'
+import { MathUtils, Vector3 } from 'three'
 
 import {
   ECSState,
   Entity,
+  EntityTreeComponent,
   getComponent,
   getMutableComponent,
+  getSimulationCounterpart,
   removeComponent,
   removeEntity,
   setComponent,
   UndefinedEntity,
-  useEntityContext,
-  UUIDComponent
+  useEntityContext
 } from '@ir-engine/ecs'
 import {
   defineComponent,
@@ -47,30 +48,31 @@ import { getState, isClient, useImmediateEffect, useMutableState } from '@ir-eng
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
 import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
-import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import {
   BoundingBoxComponent,
   updateBoundingBox
 } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 import { WebLayer3D } from '@ir-engine/xrui'
 
+import { EngineState } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { useXRUIState } from '@ir-engine/engine/src/xrui/useXRUIState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { inFrustum } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { smootheLerpAlpha } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import {
   DistanceFromCameraComponent,
   DistanceFromLocalClientComponent
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-import { useXRUIState } from '@ir-engine/spatial/src/xrui/functions/useXRUIState'
 import { useEffect } from 'react'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { NodeFunctions } from '../../gltf/NodeFunctions'
+import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 import { createUI } from '../functions/createUI'
 import { InteractableState, InteractableTransitions } from '../functions/interactableFunctions'
 import { InteractiveModalState } from '../ui/InteractiveModalView'
@@ -91,25 +93,24 @@ export enum XRUIActivationType {
 }
 
 const xrDistVec3 = new Vector3()
-const inputPointerPosition = new Vector2()
-let inputPointerEntity = UndefinedEntity
 
-const updateXrDistVec3 = (selfAvatarEntity: Entity) => {
-  //TODO change from using rigidbody to use the transform position (+ height of avatar)
-  const selfAvatarRigidBodyComponent = getComponent(selfAvatarEntity, RigidBodyComponent)
-  const avatar = getComponent(selfAvatarEntity, AvatarComponent)
-  xrDistVec3.copy(selfAvatarRigidBodyComponent.position)
-  xrDistVec3.y += avatar.avatarHeight
+const updateXrDistVec3 = (targetEntity: Entity) => {
+  const transformComponent = getComponent(targetEntity, TransformComponent)
+  xrDistVec3.copy(transformComponent.position)
+  if (hasComponent(targetEntity, AvatarComponent)) {
+    const avatar = getComponent(targetEntity, AvatarComponent)
+    xrDistVec3.y += avatar.avatarHeight
+  }
 }
 
 const _center = new Vector3()
 const _size = new Vector3()
 
 export const updateInteractableUI = (entity: Entity) => {
-  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+  const targetEntity = AvatarComponent.getSelfAvatarEntity() ?? getState(ReferenceSpaceState).viewerEntity
   const interactable = getOptionalComponent(entity, InteractableComponent)
 
-  if (!selfAvatarEntity || !interactable || interactable.uiEntity == UndefinedEntity) return
+  if (!targetEntity || !interactable || interactable.uiEntity == UndefinedEntity) return
 
   const xrui = getOptionalComponent(interactable.uiEntity, XRUIComponent)
   const xruiTransform = getOptionalComponent(interactable.uiEntity, TransformComponent)
@@ -117,7 +118,7 @@ export const updateInteractableUI = (entity: Entity) => {
 
   const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
 
-  updateXrDistVec3(selfAvatarEntity)
+  updateXrDistVec3(targetEntity)
 
   const hasVisibleComponent = hasComponent(interactable.uiEntity, VisibleComponent)
   if (hasVisibleComponent) {
@@ -131,7 +132,7 @@ export const updateInteractableUI = (entity: Entity) => {
       xruiTransform.position.z = center.z
       xruiTransform.position.y = MathUtils.lerp(xruiTransform.position.y, center.y + 0.7 * size.y, alpha)
 
-      const cameraTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
+      const cameraTransform = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
       xruiTransform.rotation.copy(cameraTransform.rotation)
     } else {
       TransformComponent.getWorldPosition(entity, _center)
@@ -140,7 +141,7 @@ export const updateInteractableUI = (entity: Entity) => {
       xruiTransform.position.z = _center.z
       xruiTransform.position.y = MathUtils.lerp(xruiTransform.position.y, _center.y + 0.5, alpha)
 
-      const cameraTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
+      const cameraTransform = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
       xruiTransform.rotation.copy(cameraTransform.rotation)
     }
   }
@@ -226,9 +227,9 @@ const addInteractableUI = (entity: Entity) => {
     uiTransform.position.copy(_center)
   }
   getMutableComponent(entity, InteractableComponent).uiEntity.set(uiEntity)
-  setComponent(uiEntity, EntityTreeComponent, { parentEntity: getState(EngineState).originEntity })
+  setComponent(uiEntity, EntityTreeComponent, { parentEntity: getState(ReferenceSpaceState).originEntity })
   setComponent(uiEntity, ComputedTransformComponent, {
-    referenceEntities: [entity, getState(EngineState).viewerEntity],
+    referenceEntities: [entity, getState(ReferenceSpaceState).viewerEntity],
     computeFunction: () => updateInteractableUI(entity)
   })
 
@@ -248,7 +249,7 @@ export const InteractableComponent = defineComponent({
     uiEntity: S.NonSerialized(S.Entity()),
     label: S.String('E'),
     uiVisibilityOverride: S.NonSerialized(S.Enum(XRUIVisibilityOverride, XRUIVisibilityOverride.none)),
-    uiActivationType: S.NonSerialized(S.Enum(XRUIActivationType, XRUIActivationType.proximity)),
+    uiActivationType: S.Enum(XRUIActivationType, XRUIActivationType.proximity),
     activationDistance: S.Number(2),
     clickInteract: S.Bool(false),
     highlighted: S.NonSerialized(S.Bool(false)),
@@ -257,11 +258,11 @@ export const InteractableComponent = defineComponent({
         /**
          * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
          */
-        callbackID: S.Nullable(S.String()),
+        callbackID: S.String(),
         /**
          * empty string represents self
          */
-        target: S.Nullable(S.EntityUUID())
+        target: NodeIDSchema()
       })
     )
   }),
@@ -277,10 +278,12 @@ export const InteractableComponent = defineComponent({
       setComponent(entity, DistanceFromCameraComponent)
       setComponent(entity, DistanceFromLocalClientComponent)
       setComponent(entity, BoundingBoxComponent)
+      setComponent(entity, InputComponent)
       return () => {
         removeComponent(entity, DistanceFromCameraComponent)
         removeComponent(entity, DistanceFromLocalClientComponent)
         removeComponent(entity, BoundingBoxComponent)
+        removeComponent(entity, InputComponent)
       }
     }, [])
 
@@ -305,8 +308,9 @@ export const InteractableComponent = defineComponent({
     )
 
     useEffect(() => {
+      const simulationEntity = getSimulationCounterpart(entity)
       if (!isEditing.value) {
-        const uiEntity = addInteractableUI(entity)
+        const uiEntity = addInteractableUI(simulationEntity)
         return () => {
           if (uiEntity) {
             removeEntity(uiEntity)
@@ -326,8 +330,8 @@ export const InteractableComponent = defineComponent({
 const callInteractCallbacks = (entity: Entity) => {
   const interactable = getComponent(entity, InteractableComponent)
   for (const callback of interactable.callbacks) {
-    if (callback.target && !UUIDComponent.getEntityByUUID(callback.target)) continue
-    const targetEntity = callback.target ? UUIDComponent.getEntityByUUID(callback.target) : entity
+    if (callback.target && !NodeFunctions.getEntityFromNodeID(entity, callback.target)) continue
+    const targetEntity = callback.target ? NodeFunctions.getEntityFromNodeID(entity, callback.target) : entity
     if (targetEntity && callback.callbackID) {
       const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
       if (!callbacks) continue

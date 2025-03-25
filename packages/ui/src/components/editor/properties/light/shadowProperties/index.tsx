@@ -25,11 +25,19 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useTranslation } from 'react-i18next'
 
-import { Component, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, iterateEntityNode } from '@ir-engine/ecs'
+import { Component, getOptionalComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
-import { Checkbox } from '@ir-engine/ui'
+import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { getState } from '@ir-engine/hyperflux'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { Button, Checkbox } from '@ir-engine/ui'
 import React from 'react'
+import { Box3, Vector3 } from 'three'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 
@@ -43,11 +51,37 @@ type LightShadowPropertiesProps = {
  * OnChangeShadowMapResolution used to customize properties of LightShadowProperties
  * Used with LightNodeEditors.
  */
+
 export const LightShadowProperties: EditorComponentType = (props: LightShadowPropertiesProps) => {
   const { t } = useTranslation()
-
+  const shadowMapResolution = getState(RendererState).shadowMapResolution
+  const cameraEntity = getState(ReferenceSpaceState).viewerEntity
+  const camera = getComponent(cameraEntity, CameraComponent)
   const lightComponent = useComponent(props.entity, props.component) as any
+  const { rootEntity } = getState(EditorState)
 
+  const calculateShadowBias = () => {
+    const boundingBox = new Box3()
+    iterateEntityNode(rootEntity, (entity) => {
+      const mesh = getOptionalComponent(entity, MeshComponent)
+      if (mesh?.geometry?.boundingBox) {
+        mesh.updateMatrixWorld()
+        boundingBox.expandByObject(mesh)
+      }
+    })
+
+    const size = new Vector3()
+    boundingBox.getSize(size)
+    const sceneScale = Math.max(size.x, size.y, size.z)
+
+    const cameraNear = camera.near
+    const cameraFar = camera.far
+    const depthRangeFactor = cameraFar - cameraNear
+
+    // Calculate bias based on scene scale, resolution, and depth range
+    const bias = -(sceneScale / (shadowMapResolution * depthRangeFactor))
+    commitProperty(props.component, 'shadowBias')(bias)
+  }
   return (
     <>
       <InputGroup name="Cast Shadows" label={t('editor:properties.directionalLight.lbl-castShadows')}>
@@ -64,6 +98,20 @@ export const LightShadowProperties: EditorComponentType = (props: LightShadowPro
           value={lightComponent.shadowBias.value}
           onChange={updateProperty(props.component, 'shadowBias')}
           onRelease={commitProperty(props.component, 'shadowBias')}
+        />
+        <Button onClick={calculateShadowBias} className="mt-2">
+          {t('editor:properties.directionalLight.lbl-calculateShadowBias')}
+        </Button>
+      </InputGroup>
+      <InputGroup name="Shadow Radius" label={t('editor:properties.directionalLight.lbl-shadowRadius')}>
+        <NumericInput
+          mediumStep={0.01}
+          smallStep={0.1}
+          largeStep={1}
+          displayPrecision={0.0001}
+          value={lightComponent.shadowRadius.value}
+          onChange={updateProperty(props.component, 'shadowRadius')}
+          onRelease={commitProperty(props.component, 'shadowRadius')}
         />
       </InputGroup>
     </>

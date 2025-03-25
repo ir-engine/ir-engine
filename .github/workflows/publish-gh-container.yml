@@ -24,19 +24,19 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18.x
+          node-version: 22.x
       - name: Setup AWS
-        run: scripts/setup_aws.sh $EKS_AWS_ACCESS_KEY_ID $EKS_AWS_ACCESS_KEY_SECRET $AWS_REGION $CLUSTER_NAME
+        run: scripts/setup_aws.sh $EKS_AWS_ACCESS_KEY_ID $EKS_AWS_ACCESS_KEY_SECRET $STORAGE_REGION $CLUSTER_NAME
         env:
           EKS_AWS_ACCESS_KEY_ID: ${{ secrets.EKS_AWS_ACCESS_KEY_ID }}
           EKS_AWS_ACCESS_KEY_SECRET: ${{ secrets.EKS_AWS_ACCESS_KEY_SECRET }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+          STORAGE_REGION: ${{ secrets.STORAGE_REGION }}
           CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
       - name: Build Docker Image
-        run: bash scripts/build_docker.sh dev $PRIVATE_REPO $AWS_REGION
+        run: bash scripts/build_docker.sh dev $PRIVATE_REPO #STORAGE_REGION
         env:
           REPO_NAME: ${{ secrets.DEV_REPO_NAME }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+          STORAGE_REGION: ${{ secrets.STORAGE_REGION }}
           REPO_URL: ${{ secrets.DEV_REPO_URL }}
           REPO_PROVIDER: ${{ secrets.REPO_PROVIDER }}
           PRIVATE_REPO: ${{ secrets.PRIVATE_REPO }}

@@ -28,12 +28,12 @@ import '../patchEngineNode'
 import assert from 'assert'
 import fs from 'fs'
 import path from 'path/posix'
-import { afterAll, beforeAll, describe, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { projectsRootFolder } from './file-browser/file-browser.class'
-import { copyRecursiveSync, getIncrementalName } from './FileUtil'
+import { copyRecursiveSync, getIncrementalName, isValidFileType } from './FileUtil'
 import LocalStorage from './storageprovider/local.storage'
 
 const TEST_DIR = 'FileUtil-test-project'
@@ -127,8 +127,8 @@ describe('FileUtil functions', () => {
 
     it('should return incremental name for file if it exist already', async () => {
       const fileName = 'FileUtil_Incremental_Name_File_Test.txt'
-      const fileName_1 = 'FileUtil_Incremental_Name_File_Test(1).txt'
-      const fileName_2 = 'FileUtil_Incremental_Name_File_Test(2).txt'
+      const fileName_1 = 'FileUtil_Incremental_Name_File_Test_1.txt'
+      const fileName_2 = 'FileUtil_Incremental_Name_File_Test_2.txt'
 
       fs.writeFileSync(path.join(STORAGE_PATH, fileName), 'Hello world')
 
@@ -145,8 +145,8 @@ describe('FileUtil functions', () => {
 
     it('should return incremental name for directory if it exist already', async () => {
       const dirName = 'FileUtil_Incremental_Name_Dir_Test'
-      const dirName_1 = 'FileUtil_Incremental_Name_Dir_Test(1)'
-      const dirName_2 = 'FileUtil_Incremental_Name_Dir_Test(2)'
+      const dirName_1 = 'FileUtil_Incremental_Name_Dir_Test_1'
+      const dirName_2 = 'FileUtil_Incremental_Name_Dir_Test_2'
 
       fs.mkdirSync(path.join(STORAGE_PATH, dirName))
 
@@ -185,14 +185,57 @@ describe('FileUtil functions', () => {
 
       // try to create another 'testdir' directory
       name = await getIncrementalName(singularDirName, TEST_DIR, store, true)
-      assert.equal(name, `${singularDirName}(1)`, "Should return 'testdir(1)' as 'testdir' already exists")
+      assert.equal(name, `${singularDirName}_1`, "Should return 'testdir_1' as 'testdir' already exists")
 
       // try to create 'testdirs' directory
       name = await getIncrementalName(pluralDirName, TEST_DIR, store, true)
-      assert.equal(name, `${pluralDirName}(1)`, "Should return 'testdirs(1)' as 'testdirs' already exists")
+      assert.equal(name, `${pluralDirName}_1`, "Should return 'testdirs_1' as 'testdirs' already exists")
 
       fs.rmdirSync(path.join(STORAGE_PATH, singularDirName))
       fs.rmdirSync(path.join(STORAGE_PATH, pluralDirName))
+    })
+  })
+
+  describe('isValidFileType', () => {
+    it('returns true for valid image mime types', () => {
+      const fileType: string = 'image/png'
+      const fileName: string = 'file.png'
+      expect(isValidFileType(fileType, fileName)).toBe(true)
+    })
+
+    it('returns true for valid audio mime types', () => {
+      const fileType: string = 'audio/mpeg'
+      const fileName: string = 'song.mp3'
+      expect(isValidFileType(fileType, fileName)).toBe(true)
+    })
+
+    it('returns true for valid video mime types', () => {
+      const fileType: string = 'video/mp4'
+      const fileName: string = 'video.mp4'
+      expect(isValidFileType(fileType, fileName)).toBe(true)
+    })
+
+    it('returns true for application/octet-stream with valid extensions', () => {
+      expect(isValidFileType('application/octet-stream', 'model.gltf')).toBe(true)
+      expect(isValidFileType('application/octet-stream', 'model.glb')).toBe(true)
+      expect(isValidFileType('application/octet-stream', 'model.bin')).toBe(true)
+    })
+
+    it('returns true for application/macbinary with .bin extension', () => {
+      expect(isValidFileType('application/macbinary', 'macupload.bin')).toBe(true)
+    })
+
+    it('returns false for application/octet-stream with invalid extension', () => {
+      expect(isValidFileType('application/octet-stream', 'file.txt')).toBe(false)
+    })
+
+    it('returns false for application/macbinary with invalid extension', () => {
+      expect(isValidFileType('application/macbinary', 'file.doc')).toBe(false)
+    })
+
+    it('returns false for unrelated mime types', () => {
+      expect(isValidFileType('application/pdf', 'doc.pdf')).toBe(false)
+      expect(isValidFileType('text/plain', 'notes.txt')).toBe(false)
     })
   })
 

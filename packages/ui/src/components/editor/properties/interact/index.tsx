@@ -27,8 +27,14 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlinePanTool } from 'react-icons/md'
 
-import { getOptionalComponent, useQuery, UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { EntityTreeComponent, getOptionalComponent, useQuery } from '@ir-engine/ecs'
+import {
+  getComponent,
+  hasComponent,
+  LayerComponents,
+  Layers,
+  useComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   commitProperties,
   commitProperty,
@@ -37,6 +43,7 @@ import {
 } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import {
   InteractableComponent,
   XRUIActivationType
@@ -45,7 +52,6 @@ import { useHookstate } from '@ir-engine/hyperflux'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { Checkbox } from '@ir-engine/ui'
 import Button from '../../../../primitives/tailwind/Button'
 import InputGroup from '../../input/Group'
@@ -56,16 +62,16 @@ import StringInput from '../../input/String'
 type OptionsType = Array<{
   callbacks: Array<{
     label: string
-    value: string
+    value: NodeID | 'Self'
   }>
   label: string
-  value: string
+  value: NodeID | 'Self'
 }>
 
 export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const targets = useHookstate<OptionsType>([
-    { label: 'Self', value: getComponent(props.entity, UUIDComponent), callbacks: [] }
+    { label: 'Self', value: getComponent(props.entity, NodeIDComponent), callbacks: [] }
   ])
   const callbackQuery = useQuery([CallbackComponent])
 
@@ -78,13 +84,15 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
       EditorControlFunctions.addOrRemoveComponent([props.entity], InputComponent, true)
     }
 
-    const entityCallbacks = getOptionalComponent(props.entity, CallbackComponent)
+    const simulationEntity = LayerComponents[Layers.Authoring].refs[props.entity]
+
+    const entityCallbacks = getOptionalComponent(simulationEntity, CallbackComponent)
     if (entityCallbacks) {
       options.push({
         label: 'Self',
-        value: getComponent(props.entity, UUIDComponent),
+        value: getComponent(props.entity, NodeIDComponent),
         callbacks: Object.keys(entityCallbacks).map((cb) => {
-          return { label: cb, value: cb }
+          return { label: cb, value: cb as NodeID }
         })
       })
     } else {
@@ -95,13 +103,13 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
       })
     }
     for (const entity of callbackQuery) {
-      if (entity === props.entity || !hasComponent(entity, EntityTreeComponent)) continue
+      if (entity === simulationEntity || !hasComponent(entity, EntityTreeComponent)) continue
       const callbacks = getComponent(entity, CallbackComponent)
       options.push({
         label: getComponent(entity, NameComponent),
-        value: getComponent(entity, UUIDComponent),
+        value: getComponent(entity, NodeIDComponent),
         callbacks: Object.keys(callbacks).map((cb) => {
-          return { label: cb, value: cb }
+          return { label: cb, value: cb as NodeID }
         })
       })
     }

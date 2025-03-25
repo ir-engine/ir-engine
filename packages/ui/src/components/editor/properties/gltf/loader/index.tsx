@@ -23,11 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
+import { ProjectService, ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
 import config from '@ir-engine/common/src/config'
-import { useComponent } from '@ir-engine/ecs'
+import { camelCaseToSpacedString } from '@ir-engine/common/src/utils/camelCaseToSpacedString'
+import { hasComponent, useAncestorWithComponents, useChildrenWithComponents, useComponent } from '@ir-engine/ecs'
 import ErrorPopUp from '@ir-engine/editor/src/components/popup/ErrorPopUp'
-import { commitProperty, EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
@@ -35,27 +36,51 @@ import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
-import { getState, useHookstate } from '@ir-engine/hyperflux'
-import { Checkbox } from '@ir-engine/ui'
-import React, { useCallback } from 'react'
+import { getState, useHookstate, useMutableState, useState } from '@ir-engine/hyperflux'
+import { supportedColliderShapes } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
+import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { Checkbox, Input } from '@ir-engine/ui'
+import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { IoIosArrowBack, IoIosArrowDown } from 'react-icons/io'
 import { MdOutlineViewInAr } from 'react-icons/md'
 import Accordion from '../../../../../primitives/tailwind/Accordion'
 import Button from '../../../../../primitives/tailwind/Button'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
+import Text from '../../../../../primitives/tailwind/Text'
 import InputGroup from '../../../input/Group'
 import ModelInput from '../../../input/Model'
 import SelectInput from '../../../input/Select'
-import StringInput from '../../../input/String'
+
+import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import { EditorHistoryFunctions } from '@ir-engine/editor/src/services/EditorHistoryState'
+import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
+import { HiPlus } from 'react-icons/hi2'
+import { OptionType } from '../../../../../primitives/tailwind/Select'
+
+const shapeTypeOptions = Object.entries(Shapes)
+  .filter(([_, value]) => supportedColliderShapes.includes(value as any))
+  .map(([label, value]) => ({
+    label: camelCaseToSpacedString(label),
+    value
+  }))
 
 const GLTFNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const gltfComponent = useComponent(props.entity, GLTFComponent)
   const exporting = useHookstate(false)
   const editorState = getState(EditorState)
-  const projectState = getState(ProjectState)
-  const loadedProjects = useHookstate(() => projectState.projects.map((project) => project.name))
+  const projectState = useMutableState(ProjectState)
+  const loadedProjects = useState([] as OptionType[])
+  const hasRigidBody = useAncestorWithComponents(props.entity, [RigidBodyComponent])
+
+  const childMeshEntities = useChildrenWithComponents(props.entity, [MeshComponent])
+  const isMeshOrConvexHull =
+    gltfComponent.shape.value === Shapes.Mesh || gltfComponent.shape.value === Shapes.ConvexHull
+  const validRootMesh = hasComponent(props.entity, MeshComponent)
+  const validChildMeshes = childMeshEntities.length !== 0
+  const showMeshError = isMeshOrConvexHull && !(validChildMeshes || validRootMesh)
 
   const errors = ErrorComponent.useComponentErrors(props.entity, GLTFComponent)?.value
   const srcProject = useHookstate(() => {
@@ -91,12 +116,29 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
     }
     exporting.set(true)
     const fileName = `${srcPath.value}.${exportType.value}`
-    exportRelativeGLTF(props.entity, srcProject.value, fileName).then(() => {
+    exportRelativeGLTF(props.entity, srcProject.value, fileName, false).then(() => {
       const nuPath = pathJoin(config.client.fileServer, 'projects', srcProject.value, fileName)
       commitProperty(GLTFComponent, 'src')(nuPath)
       exporting.set(false)
     })
   }
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      await ProjectService.fetchProjects()
+    }
+    fetchProjects()
+  }, [])
+
+  useEffect(() => {
+    const projects = projectState.projects.value.map((project) => project.name)
+    const options =
+      projects.map((project) => ({
+        label: project,
+        value: project
+      })) ?? []
+    loadedProjects.set(options as unknown as OptionType[])
+  }, [projectState.projects])
 
   return (
     <NodeEditor
@@ -122,30 +164,52 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
           onChange={commitProperty(GLTFComponent, 'cameraOcclusion')}
         />
       </InputGroup>
-      <Accordion
-        className="space-y-4 p-4"
-        title={t('editor:properties.model.lbl-export')}
-        expandIcon={<IoIosArrowBack className="text-xl text-gray-300" />}
-        shrinkIcon={<IoIosArrowDown className="text-xl text-gray-300" />}
-        titleClassName="text-gray-300"
-        titleFontSize="base"
-      >
+      <InputGroup name="Apply Colliders" label={t('editor:properties.model.lbl-applyColliders')}>
+        <Checkbox
+          checked={gltfComponent.applyColliders.value}
+          onChange={commitProperty(GLTFComponent, 'applyColliders')}
+        />
+      </InputGroup>
+      {(!hasRigidBody && gltfComponent.applyColliders.value && (
+        <>
+          <Text className="ml-5 text-red-400">{t('editor:properties.model.lbl-warnRigidBody')}</Text>
+          <Button
+            title={t('editor:properties.model.lbl-addRigidBody')}
+            className="text-sm text-[#FFFFFF]"
+            onClick={() => {
+              const nodes = SelectionState.getSelectedEntities()
+              EditorControlFunctions.addOrRemoveComponent(nodes, RigidBodyComponent, true, { type: 'fixed' })
+              EditorHistoryFunctions.snapshot()
+            }}
+          >
+            <HiPlus />
+            {t('editor:properties.model.lbl-addRigidBody')}
+          </Button>
+        </>
+      )) ||
+        ''}
+      {(hasRigidBody && (
+        <InputGroup name="Shape" label={t('editor:properties.model.lbl-shape')}>
+          <SelectInput
+            options={shapeTypeOptions}
+            value={gltfComponent.shape.value}
+            onChange={commitProperty(GLTFComponent, 'shape')}
+          />
+        </InputGroup>
+      )) ||
+        ''}
+      <Accordion title={t('editor:properties.model.lbl-export')}>
         {!exporting.value && (
           <>
             <InputGroup name="Export Project" label="Project">
               <SelectInput
                 value={srcProject.value}
-                options={
-                  loadedProjects.value.map((project) => ({
-                    label: project,
-                    value: project
-                  })) ?? []
-                }
+                options={loadedProjects.value as OptionType[]}
                 onChange={(val) => srcProject.set(val as string)}
               />
             </InputGroup>
             <InputGroup name="File Path" label="File Path">
-              <StringInput value={srcPath.value} onChange={srcPath.set} />
+              <Input fullWidth value={srcPath.value} onChange={(e) => srcPath.set(e.target.value)} />
             </InputGroup>
             <InputGroup name="Export Type" label={t('editor:properties.model.lbl-exportType')}>
               <SelectInput
@@ -163,7 +227,7 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
                 onChange={(val) => exportType.set(val as string)}
               />
             </InputGroup>
-            <Button className="self-end" onClick={onExportModel}>
+            <Button className="self-end" onClick={onExportModel} fullWidth>
               {t('editor:properties.model.saveChanges')}
             </Button>
           </>

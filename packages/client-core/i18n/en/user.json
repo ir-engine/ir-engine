@@ -8,7 +8,9 @@
     "discardChanges": "Discard Changes",
     "confirmDiscardChange": "Changes you made may not be saved.",
     "changesLostAlert": "If you proceed all your changes will be lost.",
-    "discard": "Discard"
+    "discard": "Discard",
+    "userBannedMessage": "You have been banned from joining this space.",
+    "userBannedMessageDescription": "If you feel like this is an error, please contact customer support."
   },
   "auth": {
     "confirmEmail": {
@@ -21,7 +23,7 @@
       "username": "UserName + Password",
       "social": "Social"
     },
-    "magiklink": {
+    "magiclink": {
       "header": "Login Link",
       "descriptionEmail": "Please enter your email address and we'll send you a login link via Email.",
       "descriptionSMS": "Please enter your phone number and we'll send you a login link via SMS.",
@@ -126,6 +128,7 @@
     },
     "share": {
       "lbl-share": "Share",
+      "description-share": "Share this location",
       "ph-phoneEmail": "Invite by email or phone number",
       "ph-email": "Invite by email",
       "ph-phone": "Invite by phone number",
@@ -140,10 +143,8 @@
       "linkCopied": "Link copied to clipboard.",
       "friends": "Friends",
       "party": "Party",
-      "shareQuest": "Share to Quest",
       "shareDirect": "Share Direct Link",
       "shareEmbed": "Embed This Space",
-      "shareInvite": "Share by Invite",
       "shareTitle": "AR/VR World | Infinite Reality Engine",
       "shareDescription": "Check out AR/VR world on Infinite Reality Engine",
       "shareFailed": "Error during sharing"
@@ -213,7 +214,11 @@
       "showApiKey": "Show API key",
       "hideApiKey": "Hide API key",
       "apiKey": "API key",
-      "logout": "Log out",
+      "logout": {
+        "title": "Are you sure you want to log out?",
+        "submit": "Log out",
+        "cancel": "Cancel"
+      },
       "connectPhone": "Connect your Phone Number",
       "connectEmail": "Connect your Email",
       "connectPhoneEmail": "Connect your Email or Phone Number",
@@ -233,7 +238,6 @@
       "addSocial": "Connect your Social Logins",
       "logIn": "Log In",
       "agreeToRequired": "Please agree to all iR Studio requirements before proceeding:",
-      "agreeToRequiredPal": "Please agree to all iR PAL requirements before proceeding:",
       "agreeTOS": "I agree to the ",
       "termsOfService": "Infinite Reality Terms of Service",
       "agreeToMarketing": "I agree to opt-in to marketing communications",
@@ -281,23 +285,42 @@
       "userIdCopied": "User ID copied",
       "apiKeyCopied": "API Key copied",
       "refreshApiKey": "Refresh API Key",
-      "privacyPolicy": "Privacy Policy",
+      "privacyPolicy": "iR Studio Privacy Policy",
+      "creatorPrivacyPolicy": "Creator Privacy Policy",
       "helpChat": "Help Chat",
-      "reportWorld": "Report World"
+      "reportWorld": "Report Space",
+      "report": "Report a {{type}}",
+      "typeAbuse": "Type of abuse",
+      "selectAbuseTypeRequired": "Please select the type of abuse",
+      "selectOne": "Select One",
+      "reportDetails": "Report details",
+      "reportDetailsRequired": "Please enter report details",
+      "reportDetailsPlaceholder": "Use this section to include the necessary details for your report. Note that the upload attachment field below is required, so please be sure to attach any evidence you think is helpful to your report.",
+      "reportFileLabel": "Attachments",
+      "reportFileRequired": "Please attach at least one file",
+      "reportSuccessMessage": "Your report has been submitted."
     },
     "oauth": {
       "authenticating": "Authenticating..."
     },
-    "magikLink": {
+    "magicLink": {
       "wait": "Please wait a moment while processing..."
     }
   },
   "oauth": {
     "error": "Unfortunately, {{name}} authentication failed.",
-    "redirectToRoot": "Return to Home"
+    "redirectToRoot": "Return to Home",
+    "promptForConnection": "Connect to existing account?",
+    "askConnection": "{{email}} is already associated with an account. Would you like to link this {{service}} Single Sign-On to that account?",
+    "acceptConnection": "Yes",
+    "declineConnection": "No (create new account)"
   },
-  "magikLink": {
-    "wait": "Please wait a moment while processing..."
+  "magicLink": {
+    "wait": "Please wait a moment while processing...",
+    "promptForConnection": "Connect to existing account?",
+    "askConnection": "{{email}} is already associated with an account. Would you like to link this magiclink login to that account?",
+    "acceptConnection": "Yes",
+    "declineConnection": "No (create new account)"
   },
   "dashboard": {
     "header": "Dashboard",
@@ -323,14 +346,15 @@
     "server": "Server",
     "recordings": "Recordings",
     "channels": "Channels",
-    "crashReport": "Crash Report"
+    "crashReport": "Crash Report",
+    "moderation": "Moderation"
   },
   "resource": {
     "createResource": "Create Resource"
   },
   "avatar": {
     "titleEditAvatar": "Edit Avatar",
-    "titleSelectAvatar": "Select Your Avatar",
+    "titleSelectAvatar": "Change Your Avatar",
     "titleUploadAvatar": "Upload Avatar",
     "titleSelectThumbnail": "Select Thumbnail",
     "titleCustomizeAvatar": "Customize Your Avatar",
@@ -355,6 +379,7 @@
     "useUrlInstead": "Use url instead",
     "cancel": "Cancel",
     "createAvatar": "Create Avatar",
+    "uploadAvatar": "Upload Avatar",
     "delete": "Delete",
     "view": "View",
     "uploadAvatarInfo": "Update avatar Information",
@@ -384,11 +409,12 @@
     "enterThumbnailUrl": "Enter Thumbnail URL",
     "avatarName": "Avatar Name",
     "done": "Done",
-    "finishEditing": "Finish Editing",
     "discardAvatarChanges": "Discard Your Avatar?",
-    "InputAvatarName": "Enter an Avatar Name",
+    "InputAvatarName": "Name Your Avatar",
+    "saveAvatar": "Save Avatar",
     "savingAvatar": "Saving {{avatar}}",
-    "packagingAvatar": "Packaging & adding avatar to your Account..."
+    "packagingAvatar": "Packaging & adding avatar to your Account...",
+    "avatarPreviewDisabledMessage": "Preview Image not Available"
   },
   "menu": {
     "settings": "Profile",
@@ -410,7 +436,6 @@
     "exitFullScreen": "Exit FullScreen",
     "hide": "Hide",
     "show": "Show"
-    
   },
   "personMenu": {
     "inviteToParty": "Invite To Party",
@@ -452,7 +477,8 @@
     "requestAccepted": "has accepted your request to be friends"
   },
   "messages": {
-    "enterMessage": "Enter Message"
+    "enterMessage": "Enter Message",
+    "rotateLandscape": "Please rotate to landscape"
   },
   "roomMenu": {
     "createRoom": "Create a room",
@@ -465,5 +491,28 @@
     "locationRequired": "Please provide a location name.",
     "roomCodeLength": "Room code must be of 6 digits. No zeros allowed",
     "invalidRoomCode": "Unable to find a room with this code. Please enter a valid room code."
+  },
+  "instanceChat": {
+    "wantToChat": "Want to chat with others?",
+    "register": "Create an account",
+    "verifyAge": "Verify your age"
+  },
+  "videoWindows": {
+    "more": "More",
+    "reportUser": "Report User",
+    "blockUser": "Block User"
+  },
+  "moderation": {
+    "abuseReason": {
+      "nudity": "Nudity",
+      "fakeNewsScams": "Fake News & Scams",
+      "disturbingInappropriate": "Disturbing/Inappropriate",
+      "cheatingHacking": "Cheating/Hacking",
+      "bullyingHarassment": "Bullying/Harassment",
+      "illegalActivity": "Illegal Activity",
+      "copyrightInfringements": "Copyright & Other Infringements",
+      "childExploitation": "Child Exploitation",
+      "somethingElse": "Something Else"
+    }
   }
 }

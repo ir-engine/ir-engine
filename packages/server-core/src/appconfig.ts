@@ -42,7 +42,11 @@ import { githubRepoAccessWebhookPath } from '@ir-engine/common/src/schemas/user/
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { loginPath } from '@ir-engine/common/src/schemas/user/login.schema'
 
+import { HookContext } from '@feathersjs/feathers'
+import { defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
+import { EngineSettingType, instanceSignalingPath, projectsPath } from '@ir-engine/common/src/schema.type.module'
 import { jwtPublicKeyPath } from '@ir-engine/common/src/schemas/user/jwt-public-key.schema'
+import { parseValue } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { createHash } from 'crypto'
 import {
   APPLE_SCOPES,
@@ -58,7 +62,7 @@ const kubernetesEnabled = process.env.KUBERNETES === 'true'
 const testEnabled = process.env.TEST === 'true'
 
 if (!testEnabled) {
-  register()
+  if (process.env.APP_ENV === 'development' || process.env.LOCAL === 'true') register()
 
   // ensure process fails properly
   process.on('exit', async (code) => {
@@ -134,6 +138,8 @@ const server = {
   hostname: process.env.SERVER_HOST!,
   port: process.env.SERVER_PORT!,
   clientHost: process.env.APP_HOST!,
+  // DNS Provider Config
+  dnsProvider: process.env.DNS_PROVIDER || 'aws',
   // Public directory (used for favicon.ico, logo, etc)
   rootDir:
     process.env.BUILD_MODE! === 'individual'
@@ -164,10 +170,15 @@ const server = {
   local: process.env.LOCAL === 'true',
   releaseName: process.env.RELEASE_NAME || 'local',
   matchmakerEmulationMode: process.env.MATCHMAKER_EMULATION_MODE === 'true',
-  edgeCachingEnabled: process.env.STORAGE_PROVIDER! === 's3' && process.env.S3_DEV_MODE! !== 'local',
+  edgeCachingEnabled:
+    (process.env.STORAGE_PROVIDER! === 's3' && process.env.S3_DEV_MODE! !== 'local') ||
+    process.env.STORAGE_PROVIDER === 'gcs',
   instanceserverUnreachableTimeoutSeconds: process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS
     ? parseInt(process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS)
-    : 10
+    : 10,
+  namespace: (process.env.NAMESPACE as string) || 'default',
+  requireAgeVerification:
+    typeof process.env.REQUIRE_AGE_VERIFICATION === 'string' ? process.env.REQUIRE_AGE_VERIFICATION === 'true' : true
 }
 const obj = kubernetesEnabled ? { protocol: 'https', hostname: server.hostname } : { protocol: 'https', ...server }
 server.url = process.env.SERVER_URL || url.format(obj)
@@ -192,8 +203,9 @@ const client = {
   releaseName: process.env.RELEASE_NAME || 'local'
 }
 
-// TODO: rename to 'instanceserver'
 const instanceserver = {
+  p2pEnabled: process.env.P2P_INSTANCE_ENABLED === 'true',
+  p2pMaxConnections: parseInt(process.env.P2P_INSTANCE_MAX_CONNECTIONS!),
   clientHost: process.env.APP_HOST!,
   rtcStartPrt: parseInt(process.env.RTC_START_PORT!),
   rtcEndPort: parseInt(process.env.RTC_END_PORT!),
@@ -205,6 +217,9 @@ const instanceserver = {
   port: process.env.INSTANCESERVER_PORT!,
   locationName: process.env.PRELOAD_LOCATION_NAME!,
   shutdownDelayMs: parseInt(process.env.INSTANCESERVER_SHUTDOWN_DELAY_MS!) || 0
+}
+const instanceServerWebRtc = {
+  webRTCSettings: defaultWebRTCSettings
 }
 
 /**
@@ -228,10 +243,8 @@ const email = {
       pass: process.env.SMTP_PASS!
     }
   },
-  // Name and email of default sender (for login emails, etc)
   from: `${process.env.SMTP_FROM_NAME}` + ` <${process.env.SMTP_FROM_EMAIL}>`,
   subject: {
-    // Subject of the Login Link email
     'new-user': 'IR Engine Signup',
     location: 'IR Engine Location invitation',
     instance: 'IR Engine Location invitation',
@@ -241,10 +254,11 @@ const email = {
   },
   smsNameCharacterLimit: 20
 }
+export type EmailConfigType = typeof email
 
 type WhiteListItem = {
   path: string
-  methods: string[]
+  methods: string[] | { [key: string]: (context: HookContext) => Promise<boolean> }
 }
 
 /**
@@ -272,6 +286,8 @@ const authentication = {
     allowedDomainsPath,
     oembedPath,
     githubRepoAccessWebhookPath,
+    { path: instanceSignalingPath, methods: ['patch'] },
+    { path: projectsPath, methods: ['find'] },
     { path: identityProviderPath, methods: ['create'] },
     { path: routePath, methods: ['find'] },
     { path: acceptInvitePath, methods: ['get'] },
@@ -357,19 +373,17 @@ const aws = {
     endpoint: process.env.STORAGE_S3_ENDPOINT!,
     staticResourceBucket: testEnabled
       ? process.env.STORAGE_S3_TEST_RESOURCE_BUCKET!
-      : process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET!,
-    region: process.env.STORAGE_S3_REGION!,
+      : process.env.STORAGE_STATIC_RESOURCE_BUCKET!,
+    region: process.env.STORAGE_REGION!,
     avatarDir: process.env.STORAGE_S3_AVATAR_DIRECTORY!,
     s3DevMode: process.env.STORAGE_S3_DEV_MODE!,
     roleArn: process.env.STORAGE_AWS_ROLE_ARN
   },
   cloudfront: {
     domain:
-      process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true'
-        ? server.clientHost
-        : process.env.STORAGE_CLOUDFRONT_DOMAIN!,
+      process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' ? server.clientHost : process.env.STORAGE_CDN_DOMAIN!,
     distributionId: process.env.STORAGE_CLOUDFRONT_DISTRIBUTION_ID!,
-    region: process.env.STORAGE_CLOUDFRONT_REGION || process.env.STORAGE_S3_REGION
+    region: process.env.STORAGE_CLOUDFRONT_REGION || process.env.STORAGE_REGION
   },
   eks: {
     accessKeyId: process.env.EKS_AWS_ACCESS_KEY_ID!,
@@ -383,6 +397,21 @@ const aws = {
     senderId: process.env.AWS_SMS_SENDER_ID!,
     secretAccessKey: process.env.AWS_SMS_SECRET_ACCESS_KEY!
   }
+}
+export type AwsConfig = typeof aws
+
+/**
+ * GCP
+ */
+
+const gcp = {
+  gcs: {
+    cacheDomain: process.env.STORAGE_CDN_DOMAIN,
+    bucket: process.env.STORAGE_STATIC_RESOURCE_BUCKET,
+    edgeCacheService: process.env.GCP_EDGE_CACHE_SERVICE,
+    urlMap: process.env.GCP_URL_MAP
+  },
+  project: process.env.GCP_PROJECT
 }
 
 const chargebee = {
@@ -413,10 +442,6 @@ const blockchain = {
   blockchainUrlSecret: process.env.BLOCKCHAIN_URL_SECRET
 }
 
-const ipfs = {
-  enabled: process.env.USE_IPFS
-}
-
 const zendesk = {
   name: process.env.ZENDESK_KEY_NAME,
   secret: process.env.ZENDESK_SECRET,
@@ -437,15 +462,16 @@ const config = {
   deployStage: process.env.DEPLOY_STAGE!,
   authentication,
   aws,
+  gcp,
   chargebee,
   client,
   coil,
   db,
   email,
-  instanceserver,
-  ipfs,
+  'instance-server': instanceserver,
+  'instance-server-webrtc': instanceServerWebRtc,
   server,
-  taskserver,
+  'task-server': taskserver,
   redis,
   scopes,
   blockchain,
@@ -469,5 +495,23 @@ chargebeeInst.configure({
   site: process.env.CHARGEBEE_SITE!,
   api_key: config.chargebee.apiKey
 })
+
+/**
+ * Updates a nested configuration value in the appConfig object.
+ * @param key - The key of the nested configuration value, in dot notation.
+ * @param value - The value to set for the nested configuration.
+ * @param category - The category of the configuration.
+ */
+export function updateNestedConfig(appConfig: Record<string, any>, setting: EngineSettingType) {
+  const { key, value, dataType, category } = setting
+  const keys = key.split('.')
+  if (keys.length !== 2) {
+    return
+  }
+  if (!appConfig[category][keys[0]]) {
+    appConfig[category][keys[0]] = {}
+  }
+  appConfig[category][keys[0]][keys[1]] = parseValue(value, dataType)
+}
 
 export default config

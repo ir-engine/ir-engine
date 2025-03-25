@@ -23,31 +23,69 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import { REMOVE_EDGE_SLASH_REGEX } from '@ir-engine/common/src/regex'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
-import { Checkbox, Input } from '@ir-engine/ui'
-import { Slider } from '@ir-engine/ui/editor'
+import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
+import { Slider, ViewportButton } from '@ir-engine/ui/editor'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
+import {
+  ArrowLeftSm,
+  CogSm,
+  Download01Sm,
+  FolderPlusSm,
+  FolderSm,
+  Grid01Sm,
+  PlusCircleSm,
+  Refresh1Sm,
+  SearchSmSm
+} from '@ir-engine/ui/src/icons'
+import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaList } from 'react-icons/fa'
-import { FiDownload, FiGrid, FiRefreshCcw } from 'react-icons/fi'
-import { HiOutlineFolder, HiOutlinePlusCircle } from 'react-icons/hi'
-import { HiMagnifyingGlass } from 'react-icons/hi2'
-import { IoArrowBack, IoSettingsSharp } from 'react-icons/io5'
-import { PiFolderPlusBold } from 'react-icons/pi'
-import { inputFileWithAddToScene } from '../../functions/assetFunctions'
+import { twMerge } from 'tailwind-merge'
+import { handleUploadFiles, inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { FilesState, FilesViewModeSettings, FilesViewModeState } from '../../services/FilesState'
 import { availableTableColumns, useCurrentFiles } from './helpers'
 import { handleDownloadProject } from './loaders'
 
-const VIEW_MODES = [
-  { mode: 'list', icon: <FaList /> },
-  { mode: 'icons', icon: <FiGrid /> }
-]
+// keeping this here for now, Move this to icons or static folder
+export function BreadCrumbSlash() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g id="Breadcrumb">
+        <path
+          id="Icon"
+          d="M4.38843 12.4435L9.98843 1.24347L10.6142 1.55707L5.01423 12.7571L4.38843 12.4435Z"
+          fill="#B2B5BD"
+        />
+      </g>
+    </svg>
+  )
+}
+
+export const showMultipleFileModal = (projectName: string, directoryPath: string, files: File[]) => {
+  const fileNames = files.map((file) => file.name)
+
+  const onSubmit = async () => {
+    await handleUploadFiles(projectName, directoryPath, files)
+    ModalState.closeModal()
+  }
+
+  ModalState.openModal(
+    <>
+      <Modal title={'test'} className="w-[50vw] max-w-2xl" onSubmit={onSubmit} onClose={ModalState.closeModal}>
+        <div className="flex flex-col rounded-lg bg-[#0e0f11] px-5 py-10 text-center">
+          Warning: You will overwrite existing files by uploading these. Do you wish to continue? <br />
+          {fileNames.length > 0 && `Files: ${fileNames.join(', ')}`}
+        </div>
+      </Modal>
+    </>
+  )
+}
 
 function BreadcrumbItems() {
   const filesState = useMutableState(FilesState)
@@ -68,31 +106,33 @@ function BreadcrumbItems() {
   }
 
   let breadcrumbDirectoryFiles = filesState.selectedDirectory.value.slice(1, -1).split('/')
-
   const nestedIndex = breadcrumbDirectoryFiles.indexOf('projects')
-
-  breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx >= nestedIndex)
+  breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx > nestedIndex + 1)
 
   return (
-    <div className="flex h-6 w-96 items-center gap-2 rounded-lg border border-[#42454D] bg-[#141619] px-2">
-      <HiOutlineFolder className="text-sm text-[#A3A3A3]" />
+    <div className="flex items-center gap-2">
+      <FolderSm className="text-base text-text-primary" />
       {breadcrumbDirectoryFiles.map((file, index, arr) => (
         <Fragment key={index}>
-          {index !== 0 && <span className="cursor-default items-center text-sm text-[#A3A3A3]"> {'>'} </span>}
+          {index !== 0 && (
+            <span className="cursor-default items-center text-base text-text-primary">
+              <BreadCrumbSlash />
+            </span>
+          )}
           {index === arr.length - 1 ? (
             <span
-              className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3] hover:underline"
+              className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-base text-text-secondary hover:underline"
               data-testid={'files-panel-breadcrumb-current-directory'}
             >
               {file}
             </span>
           ) : (
             <a
-              className="inline-flex cursor-pointer items-center overflow-hidden text-sm text-[#A3A3A3] hover:text-theme-highlight hover:underline focus:text-theme-highlight"
+              className="hover: focus: inline-flex cursor-pointer items-center overflow-hidden text-sm text-text-secondary hover:underline"
               onClick={() => handleBreadcrumbDirectoryClick(file)}
               data-testid={`files-panel-breadcrumb-nested-level-${index}`}
             >
-              <span className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3] hover:underline">
+              <span className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-base text-text-secondary hover:underline">
                 {file}
               </span>
             </a>
@@ -110,54 +150,52 @@ const ViewModeSettings = () => {
 
   return (
     <Popup
-      contentStyle={{ background: '#15171b', border: 'solid', borderColor: '#5d646c' }}
+      contentStyle={{
+        background: 'var(--surface-1)',
+        border: 'solid',
+        borderColor: 'var(--ui-outline)',
+        borderWidth: '2px',
+        borderRadius: '0.5rem'
+      }}
       position={'bottom left'}
       trigger={
         <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-          <Button
-            startIcon={<IoSettingsSharp />}
-            className="h-7 w-7 rounded-lg bg-transparent p-0"
-            data-testid="files-panel-view-options-button"
-          />
+          <ViewportButton data-testid="files-panel-view-options-button" icon={CogSm} />
         </Tooltip>
       }
     >
       {filesViewMode.value === 'icons' ? (
         <div className="flex justify-end">
-          <div className="w-3/5">
+          <Slider
+            label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}
+            min={10}
+            max={100}
+            step={0.5}
+            value={viewModeSettings.icons.iconSize.value}
+            onChange={viewModeSettings.icons.iconSize.set}
+            onRelease={viewModeSettings.icons.iconSize.set}
+            data-testid="files-panel-view-options-icon-size-value-input-group"
+          />
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-y-1">
+          <div className="flex justify-end">
             <Slider
-              label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}
+              label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
+              data-testid="files-panel-view-options-list-font-size-value-input-group"
               min={10}
               max={100}
               step={0.5}
-              value={viewModeSettings.icons.iconSize.value}
-              onChange={viewModeSettings.icons.iconSize.set}
-              onRelease={viewModeSettings.icons.iconSize.set}
-              data-testid="files-panel-view-options-icon-size-value-input-group"
+              value={viewModeSettings.list.fontSize.value}
+              onChange={viewModeSettings.list.fontSize.set}
+              onRelease={viewModeSettings.list.fontSize.set}
             />
           </div>
-        </div>
-      ) : (
-        <div className="flex flex-col items-center">
-          <div className="flex justify-end">
-            <div className="w-3/5">
-              <Slider
-                label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
-                data-testid="files-panel-view-options-list-font-size-value-input-group"
-                min={10}
-                max={100}
-                step={0.5}
-                value={viewModeSettings.list.fontSize.value}
-                onChange={viewModeSettings.list.fontSize.set}
-                onRelease={viewModeSettings.list.fontSize.set}
-              />
+          <div className="flex w-full flex-col gap-y-1">
+            <div className="mt-1 flex flex-auto font-semibold text-text-primary">
+              <h3>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</h3>
             </div>
-          </div>
-          <div className="w-full">
-            <div className="mt-1 flex flex-auto text-white">
-              <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
-            </div>
-            <div>
+            <div className="flex flex-col gap-y-0.5">
               {availableTableColumns.map((column, index) => (
                 <Checkbox
                   checked={viewModeSettings.list.selectedTableColumns[column].value}
@@ -179,10 +217,8 @@ export default function FilesToolbar() {
   const { t } = useTranslation()
   const filesState = useMutableState(FilesState)
 
-  const originalPath = useMutableState(EditorState).projectName.value
   const filesViewMode = useMutableState(FilesViewModeState).viewMode
 
-  const showBackButton = filesState.selectedDirectory.value.split('/').length > (originalPath?.split('/').length || 0)
   const showDownloadButtons = filesState.selectedDirectory.value.startsWith(
     '/projects/' + filesState.projectName.value + '/'
   )
@@ -190,68 +226,28 @@ export default function FilesToolbar() {
     filesState.selectedDirectory.value.startsWith('/projects/' + filesState.projectName.value + '/public/') ||
     filesState.selectedDirectory.value.startsWith('/projects/' + filesState.projectName.value + '/assets/')
 
-  const { backDirectory, refreshDirectory, createNewFolder } = useCurrentFiles()
+  const { backDirectory, refreshDirectory } = useCurrentFiles()
 
   return (
-    <>
-      <div className="mb-1 flex h-8 items-center gap-2 bg-[#212226] py-1">
-        <div className="ml-2" />
-        {showBackButton && (
-          <div id="backDir" className="pointer-events-auto flex h-7 w-7 items-center rounded-lg">
-            <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
-              <Button
-                variant="transparent"
-                startIcon={<IoArrowBack />}
-                className={`p-0`}
-                data-testid="files-panel-back-directory-button"
-                onClick={backDirectory}
-              />
-            </Tooltip>
-          </div>
-        )}
-
-        <div id="refreshDir" className="flex h-7 w-7 items-center rounded-lg">
-          <Tooltip content={t('editor:layout.filebrowser.refresh')}>
-            <Button
-              variant="transparent"
-              startIcon={<FiRefreshCcw />}
-              className="p-0"
-              data-testid="files-panel-refresh-directory-button"
-              onClick={refreshDirectory}
-            />
-          </Tooltip>
-        </div>
-
-        <ViewModeSettings />
-
-        <div className="w-30 flex h-7 flex-row items-center gap-1 rounded bg-[#2F3137] px-1 py-1 ">
-          {VIEW_MODES.map(({ mode, icon }) => (
-            <Button
-              key={mode}
-              variant="transparent"
-              startIcon={icon}
-              className={`p-0 ${filesViewMode.value !== mode ? 'opacity-50' : ''}`}
-              onClick={() => filesViewMode.set(mode as 'icons' | 'list')}
-              data-testid={`files-panel-view-mode-${mode}-button`}
-            />
-          ))}
-        </div>
-
-        <div className="align-center flex h-6 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
-          <BreadcrumbItems />
-          <Input
-            placeholder={t('editor:layout.filebrowser.search-placeholder')}
-            value={filesState.searchText.value}
-            onChange={(e) => {
-              filesState.searchText.set(e.target.value)
-            }}
-            variantSize="xs"
-            startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
-            data-testid="files-panel-search-input"
-          />
-        </div>
-
-        <div id="downloadProject" className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
+    <PanelToolbar
+      onBackDirectory={backDirectory}
+      onRefreshDirectory={refreshDirectory}
+      breadcrumbComponent={<BreadcrumbItems />}
+      searchbar={
+        <Input
+          placeholder={t('editor:layout.filebrowser.search-placeholder')}
+          value={filesState.searchText.value}
+          onChange={(e) => {
+            filesState.searchText.set(e.target.value)
+          }}
+          height="xs"
+          startComponent={<SearchSmSm className="h-[14px] w-[14px] text-[#9CA0AA]" />}
+          data-testid="files-panel-search-input"
+        />
+      }
+      dataTestIdJson={{}}
+      utilsComponent={
+        <>
           <Tooltip
             content={
               showDownloadButtons
@@ -259,71 +255,143 @@ export default function FilesToolbar() {
                 : t('editor:layout.filebrowser.downloadProjectUnavailable')
             }
           >
-            <Button
-              variant="transparent"
-              startIcon={<FiDownload />}
-              className="p-0"
+            <ViewportButton
               onClick={() => handleDownloadProject(filesState.projectName.value, filesState.selectedDirectory.value)}
-              disabled={!showDownloadButtons}
               data-testid="files-panel-download-project-button"
+              icon={Download01Sm}
+              id="downloadProject"
             />
           </Tooltip>
-        </div>
+          <div className="flex h-7 items-center gap-2 rounded p-2">
+            <button className="p-1 text-text-secondary hover:text-text-primary">
+              <FaList
+                className={twMerge('h-5 w-5', filesViewMode.value === 'list' ? 'cursor-auto text-ui-primary' : '')}
+                onClick={() => filesViewMode.set('list')}
+              />
+            </button>
+            <button className="p-1 text-text-secondary hover:text-text-primary">
+              <Grid01Sm
+                className={twMerge('h-5 w-5', filesViewMode.value === 'icons' ? 'cursor-auto text-ui-primary' : '')}
+                onClick={() => filesViewMode.set('icons')}
+              />
+            </button>
+          </div>
+        </>
+      }
+      uploadButton={
+        <>
+          <Button
+            size="l"
+            disabled={!showUploadButtons}
+            onClick={() =>
+              inputFileWithAddToScene({
+                projectName: filesState.projectName.value,
+                directoryPath: filesState.selectedDirectory.get(NO_PROXY).slice(1)
+              })
+                .then(() => refreshDirectory())
+                .catch((err) => {
+                  NotificationService.dispatchNotify(err.message, { variant: 'error' })
+                })
+            }
+            data-testid="files-panel-upload-files-button"
+            className="disabled:bg-[#212226]"
+          >
+            <PlusCircleSm />
+            <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFiles')}</span>
+          </Button>
+          <Button
+            size="l"
+            disabled={!showUploadButtons}
+            className="disabled:bg-[#212226]"
+            onClick={() =>
+              inputFileWithAddToScene({
+                projectName: filesState.projectName.value,
+                directoryPath: filesState.selectedDirectory.get(NO_PROXY).slice(1),
+                preserveDirectory: true
+              })
+                .then(refreshDirectory)
+                .catch((err) => {
+                  NotificationService.dispatchNotify(err.message, { variant: 'error' })
+                })
+            }
+            data-testid="files-panel-upload-folder-button"
+          >
+            <FolderSm />
+            <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFolder')}</span>
+          </Button>
+        </>
+      }
+    />
+  )
+}
 
-        <div id="newFolder" className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
+export function PanelToolbar({
+  onBackDirectory,
+  onRefreshDirectory,
+  breadcrumbComponent,
+  searchbar,
+  dataTestIdJson,
+  uploadButton,
+  utilsComponent
+}: {
+  onBackDirectory: () => void
+  onRefreshDirectory: () => void
+  breadcrumbComponent?: React.ReactNode
+  searchbar?: React.ReactNode
+  dataTestIdJson?: Record<string, string>
+  uploadButton?: React.ReactNode
+  utilsComponent?: React.ReactNode
+}) {
+  const { t } = useTranslation()
+  const { createNewFolder } = useCurrentFiles()
+  const filesState = useMutableState(FilesState)
+  const originalPath = useMutableState(EditorState).projectName.value
+  const showBackButton =
+    filesState.selectedDirectory.value.replace(REMOVE_EDGE_SLASH_REGEX, '').split('/').length >
+    (originalPath?.split('/').length || 0) + 1
+
+  return (
+    <div
+      className="mb-1 flex items-center justify-between gap-2 bg-[#1E1F22] bg-surface-4 px-2 py-1"
+      data-testid={dataTestIdJson?.topbarId}
+    >
+      {/* Tools */}
+      <div className="flex items-center gap-x-1 divide-x divide-ui-outline">
+        <div className="flex items-center">
+          {showBackButton && (
+            <div>
+              <Tooltip content={t('editor:layout.filebrowser.back')}>
+                <ViewportButton
+                  data-testid={dataTestIdJson?.backButtonId}
+                  onClick={onBackDirectory}
+                  icon={ArrowLeftSm}
+                />
+              </Tooltip>
+            </div>
+          )}
+          <div>
+            <Tooltip content={t('editor:layout.filebrowser.refresh')}>
+              <ViewportButton
+                data-testid={dataTestIdJson?.refreshButtonId}
+                onClick={onRefreshDirectory}
+                icon={Refresh1Sm}
+              />
+            </Tooltip>
+          </div>
           <Tooltip content={t('editor:layout.filebrowser.addNewFolder')}>
-            <Button
-              variant="transparent"
-              startIcon={<PiFolderPlusBold />}
-              className="p-0"
-              onClick={createNewFolder}
-              data-testid="files-panel-create-new-folder-button"
-            />
+            <ViewportButton onClick={createNewFolder} icon={FolderPlusSm} />
           </Tooltip>
+          <ViewModeSettings />
         </div>
-
-        <Button
-          startIcon={<HiOutlinePlusCircle />}
-          disabled={!showUploadButtons}
-          rounded="none"
-          className="h-full whitespace-nowrap bg-theme-highlight px-2"
-          size="small"
-          onClick={() =>
-            inputFileWithAddToScene({
-              projectName: filesState.projectName.value,
-              directoryPath: filesState.selectedDirectory.get(NO_PROXY).slice(1)
-            })
-              .then(() => refreshDirectory())
-              .catch((err) => {
-                NotificationService.dispatchNotify(err.message, { variant: 'error' })
-              })
-          }
-          data-testid="files-panel-upload-files-button"
-        >
-          {t('editor:layout.filebrowser.uploadFiles')}
-        </Button>
-        <Button
-          startIcon={<HiOutlinePlusCircle />}
-          disabled={!showUploadButtons}
-          rounded="none"
-          className="h-full whitespace-nowrap bg-theme-highlight px-2"
-          size="small"
-          onClick={() =>
-            inputFileWithAddToScene({
-              projectName: filesState.projectName.value,
-              directoryPath: filesState.selectedDirectory.get(NO_PROXY).slice(1),
-              preserveDirectory: true
-            })
-              .then(refreshDirectory)
-              .catch((err) => {
-                NotificationService.dispatchNotify(err.message, { variant: 'error' })
-              })
-          }
-          data-testid="files-panel-upload-folder-button"
-        >
-          {t('editor:layout.filebrowser.uploadFolder')}
-        </Button>
+        {utilsComponent && <div className="flex items-center">{utilsComponent}</div>}
+        <div className="flex items-center gap-x-2 px-1">{uploadButton}</div>
       </div>
-    </>
+
+      {/* Breadcrumb */}
+      <div className="flex items-center justify-between">{breadcrumbComponent}</div>
+
+      {/* Search */}
+      <div>{searchbar}</div>
+    </div>
   )
 }

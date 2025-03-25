@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Entity, getComponent } from '@ir-engine/ecs'
-import { createDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import {
   CanvasTexture,
@@ -131,9 +130,7 @@ export function createReflectionProbeRenderTarget(entity: Entity, probes: Entity
   if (ctx) {
     ctx.drawImage(canvas, 0, 0)
   }
-  const [result, unload] = createDisposable(
-    CanvasTexture,
-    entity,
+  const result = new CanvasTexture(
     dupeCanvas,
     EquirectangularReflectionMapping,
     RepeatWrapping,
@@ -149,7 +146,7 @@ export function createReflectionProbeRenderTarget(entity: Entity, probes: Entity
 
   // const testEntity = createEntity()
   // setComponent(testEntity, EntityTreeComponent, {
-  //   parentEntity: getComponent(getState(EngineState).viewerEntity, SceneComponent).children[0]
+  //   parentEntity: getComponent(getState(ReferenceSpaceState).viewerEntity, SceneComponent).children[0]
   // })
   // setComponent(testEntity, TransformComponent, { position: new Vector3(0, randFloat(5, 15), 0) })
 
@@ -166,7 +163,7 @@ export function createReflectionProbeRenderTarget(entity: Entity, probes: Entity
   // })
   result.name = `ReflectionProbeTexture__${textureIndex++}`
   const fullUnload = () => {
-    unload()
+    result.dispose()
     scene.clear()
     quad.geometry.dispose()
     dupeCanvas.remove()

@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -29,12 +29,14 @@ import { Spark } from 'primus'
 import { API } from '@ir-engine/common'
 import {
   identityProviderPath,
+  InstanceAttendanceData,
   instanceAttendancePath,
   instanceAuthorizedUserPath,
   instancePath,
   InstanceType,
   InviteCode,
   inviteCodeLookupPath,
+  locationPath,
   messagePath,
   UserID,
   userKickPath,
@@ -42,13 +44,13 @@ import {
   UserType
 } from '@ir-engine/common/src/schema.type.module'
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
-import { AuthTask } from '@ir-engine/common/src/world/receiveJoinWorld'
-import { EntityUUID } from '@ir-engine/ecs'
+import { Engine, EntityUUID } from '@ir-engine/ecs'
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { respawnAvatar } from '@ir-engine/engine/src/avatar/functions/respawnAvatar'
-import { Action, getMutableState, getState, PeerID } from '@ir-engine/hyperflux'
-import { NetworkPeerFunctions, NetworkState, updatePeers } from '@ir-engine/network'
+import { AuthTask } from '@ir-engine/engine/src/avatar/functions/spawnLocalAvatarInWorld'
+import { Action, dispatchAction, getMutableState, getState, PeerID } from '@ir-engine/hyperflux'
+import { NetworkActions, NetworkState } from '@ir-engine/network'
 import { Application } from '@ir-engine/server-core/declarations'
 import config from '@ir-engine/server-core/src/appconfig'
 import { config as mediaConfig } from '@ir-engine/server-core/src/config'
@@ -57,7 +59,7 @@ import { ServerState } from '@ir-engine/server-core/src/ServerState'
 import getLocalServerIp from '@ir-engine/server-core/src/util/get-local-server-ip'
 import { SpawnPoseState } from '@ir-engine/spatial'
 import checkPositionIsValid from '@ir-engine/spatial/src/common/functions/checkPositionIsValid'
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
@@ -113,18 +115,18 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
     },
     paginate: false
   })) as any as InstanceType[]
-  const instanceservers = await serverState.k8AgonesClient.listNamespacedCustomObject(
-    'agones.dev',
-    'v1',
-    'default',
-    'gameservers'
-  )
+  const instanceservers = await serverState.k8AgonesClient.listNamespacedCustomObject({
+    group: 'agones.dev',
+    version: 'v1',
+    namespace: config.server.namespace,
+    plural: 'gameservers'
+  })
 
   await Promise.all(
     instances.map((instance) => {
       if (!instance.ipAddress) return false
       const [ip, port] = instance.ipAddress.split(':')
-      const match = (instanceservers?.body! as any).items.find((is) => {
+      const match = instanceservers.items.find((is) => {
         if (is.status.ports == null || is.status.address === '') return false
         const inputPort = is.status.ports.find((port) => port.name === 'default')
         return is.status.address === ip && inputPort.port.toString() === port
@@ -135,10 +137,6 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
           })
         : Promise.resolve()
     })
-  )
-
-  const isIds = (instanceservers?.body! as any).items.map((is) =>
-    isNameRegex.exec(is.metadata.name) != null ? isNameRegex.exec(is.metadata.name)![1] : null
   )
   return
 }
@@ -152,8 +150,8 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
  */
 export const authorizeUserToJoinServer = async (app: Application, instance: InstanceType, user: UserType) => {
   const userId = user.id
-  // disallow users from joining media servers if they haven't accepted the TOS
-  if (instance.channelId && !user.acceptedTOS) return false
+  // disallow users from joining media servers if they are not age verified
+  if (instance.channelId && !user.ageVerified) return false
 
   const authorizedUsers = (await app.service(instanceAuthorizedUserPath).find({
     query: {
@@ -200,7 +198,18 @@ export function getUserIdFromPeerID(network: SocketWebRTCServerNetwork, peerID: 
   return client?.userId
 }
 
-export const handleConnectingPeer = (
+function getCachedActionsForPeer(toPeerID: PeerID) {
+  // send all cached and outgoing actions to joining user
+  const cachedActions = [] as Required<Action>[]
+  for (const action of Engine.instance.store.actions.cached) {
+    if (action.$peer === toPeerID) continue
+    if (action.$to === 'all' || action.$to === toPeerID) cachedActions.push({ ...action, $stack: undefined! })
+  }
+
+  return cachedActions
+}
+
+export const handleConnectingPeer = async (
   network: SocketWebRTCServerNetwork,
   spark: Spark,
   peerID: PeerID,
@@ -209,13 +218,36 @@ export const handleConnectingPeer = (
 ) => {
   const userId = user.id
 
-  // Create a new client object
-  // and add to the dictionary
-  const existingUser = Object.values(network.peers).find((client) => client.userId === userId)
-  const userIndex = existingUser ? existingUser.userIndex : network.userIndexCount++
-  const peerIndex = network.peerIndexCount++
+  const app = API.instance as Application
 
-  NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex)
+  const instanceServerState = getState(InstanceServerState)
+
+  const headers = spark.headers
+
+  const newInstanceAttendance: InstanceAttendanceData = {
+    instanceId: instanceServerState.instance.id,
+    isChannel: instanceServerState.isMediaInstance,
+    userId: userId,
+    peerId: peerID
+  }
+  if (!instanceServerState.isMediaInstance) {
+    const location = await app.service(locationPath).get(instanceServerState.instance.locationId!, { headers })
+    newInstanceAttendance.sceneId = location.sceneId
+  }
+  const instanceAttendance = await app.service(instanceAttendancePath).create(newInstanceAttendance)
+
+  const joinAction = dispatchAction(
+    NetworkActions.peerJoined({
+      $cache: true,
+      $network: network.id,
+      $topic: network.topic,
+      $peer: peerID,
+      $user: userId,
+      peerID,
+      peerIndex: instanceAttendance.peerIndex,
+      userID: userId
+    })
+  )
 
   const onMessage = (message: any) => {
     network.onMessage(peerID, message)
@@ -227,37 +259,30 @@ export const handleConnectingPeer = (
     spark.write(data)
   }
 
-  const networkState = getMutableState(NetworkState).networks[network.id]
-  networkState.peers[peerID].merge({
-    transport: {
-      message,
-      buffer: () => {
-        // Intentional no-op. SocketWebRTCServerFunctions defines an override for network.bufferToPeer and network.bufferToAll
-      },
-      end: () => {
-        spark.end()
-      }
+  const networkState = getState(NetworkState).networks[network.id]
+  networkState.transports[peerID] = {
+    message,
+    buffer: () => {
+      // Intentional no-op. SocketWebRTCServerFunctions defines an override for network.bufferToPeer and network.bufferToAll
     },
-    media: {},
-    lastSeenTs: Date.now()
-  })
-
-  const updatePeersAction = updatePeers(network)
+    end: () => {
+      spark.end()
+    }
+  }
 
   logger.info('Connect to world from ' + userId)
 
-  const cachedActions = ([updatePeersAction] as Required<Action>[])
-    .concat(NetworkPeerFunctions.getCachedActionsForPeer(peerID))
+  const cachedActions = getCachedActionsForPeer(peerID)
     .map((action) => {
       return cloneDeep(action)
     })
+    .concat(joinAction)
 
-  const instanceServerState = getState(InstanceServerState)
   if (inviteCode && !instanceServerState.isMediaInstance) getUserSpawnFromInvite(network, user, inviteCode!)
 
   return {
     routerRtpCapabilities: network.routers[0].rtpCapabilities,
-    peerIndex: network.peerIDToPeerIndex[peerID]!,
+    peerIndex: instanceAttendance.peerIndex,
     cachedActions,
     hostPeerID: network.hostPeerID
   } as Omit<AuthTask, 'status'>
@@ -320,7 +345,7 @@ const getUserSpawnFromInvite = async (
         const inviterUserTransform = getComponent(inviterUserAvatarEntity, TransformComponent)
 
         /** @todo find nearest valid spawn position, rather than 2 in front */
-        const inviterUserObject3d = getComponent(inviterUserAvatarEntity, GroupComponent)[0]
+        const inviterUserObject3d = getComponent(inviterUserAvatarEntity, ObjectComponent)
         // Translate infront of the inviter
         inviterUserObject3d.translateZ(2)
 
@@ -386,8 +411,15 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
           )
         })
     }
-    NetworkPeerFunctions.destroyPeer(network, peerID)
-    updatePeers(network)
+    dispatchAction(
+      NetworkActions.peerLeft({
+        $cache: true,
+        $network: network.id,
+        $topic: network.topic,
+        peerID,
+        userID: userId
+      })
+    )
     logger.info(`Disconnecting user ${userId} on spark ${peerID}`)
   } else {
     logger.warn("Spark didn't match for disconnecting client.")

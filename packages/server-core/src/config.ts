@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VideoConstants } from '@ir-engine/network'
+import * as VideoConstants from '@ir-engine/network/src/constants/VideoConstants'
 
 import configFile from './appconfig'
 import { SctpParameters } from './types/SctpParameters'
@@ -44,22 +44,22 @@ export const config = {
       listenInfos: [
         {
           protocol: 'udp',
-          ip: configFile.instanceserver.domain! || '0.0.0.0',
+          ip: configFile['instance-server'].domain! || '0.0.0.0',
           announcedIp: null! as string,
-          port: process.env.DEV_CHANNEL === 'true' ? 30000 : configFile.instanceserver.rtcStartPrt
+          port: process.env.DEV_CHANNEL === 'true' ? 30000 : configFile['instance-server'].rtcStartPrt
         },
         {
           protocol: 'tcp',
-          ip: configFile.instanceserver.domain! || '0.0.0.0',
+          ip: configFile['instance-server'].domain! || '0.0.0.0',
           announcedIp: null! as string,
-          port: process.env.DEV_CHANNEL === 'true' ? 30000 : configFile.instanceserver.rtcStartPrt
+          port: process.env.DEV_CHANNEL === 'true' ? 30000 : configFile['instance-server'].rtcStartPrt
         }
       ]
     },
     worker: {
-      rtcMinPort: process.env.DEV_CHANNEL === 'true' ? 30000 : configFile.instanceserver.rtcStartPrt,
+      rtcMinPort: process.env.DEV_CHANNEL === 'true' ? 30000 : configFile['instance-server'].rtcStartPrt,
       rtcMaxPort:
-        (process.env.DEV_CHANNEL === 'true' ? 30000 : configFile.instanceserver.rtcStartPrt) + NUM_RTC_PORTS - 1,
+        (process.env.DEV_CHANNEL === 'true' ? 30000 : configFile['instance-server'].rtcStartPrt) + NUM_RTC_PORTS - 1,
       logLevel: 'info',
       logTags: ['info', 'ice', 'dtls', 'rtp', 'srtp', 'rtcp']
     },

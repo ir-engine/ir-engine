@@ -27,8 +27,8 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineRemoveCircleOutline } from 'react-icons/md'
 
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@ir-engine/client-core/src/common/services/ProjectService'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useFind } from '@ir-engine/common'
@@ -42,8 +42,7 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs'
 import { ImmutableObject, getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button, Input } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
@@ -56,7 +55,7 @@ export default function ManageUserPermissionModal({ project }: { project: Immuta
 
   const scopeQuery = useFind(scopePath, {
     query: {
-      userId: Engine.instance.store.userID,
+      userId: Engine.instance.userID,
       type: 'admin:admin' as ScopeType
     }
   })
@@ -82,7 +81,7 @@ export default function ManageUserPermissionModal({ project }: { project: Immuta
       return
     }
     try {
-      await ProjectService.createPermission(userInviteCode.value, project.id, 'reviewer')
+      await ProjectService.createPermission(userInviteCode.value, project.id, 'editor')
       projectPermissionsFindQuery.refetch()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -91,7 +90,7 @@ export default function ManageUserPermissionModal({ project }: { project: Immuta
 
   const handlePatchPermission = async (permission: ProjectPermissionType) => {
     try {
-      await ProjectService.patchPermission(permission.id, permission.type === 'owner' ? 'user' : 'owner')
+      await ProjectService.patchPermission(permission.id, permission.type === 'owner' ? 'editor' : 'owner')
       projectPermissionsFindQuery.refetch()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -115,7 +114,7 @@ export default function ManageUserPermissionModal({ project }: { project: Immuta
         handleCreatePermission()
       }}
       hideFooter={selfUserPermission !== 'owner'}
-      onClose={() => PopoverState.hidePopupover()}
+      onClose={() => ModalState.closeModal()}
     >
       {selfUserPermission === 'owner' && (
         <Input
@@ -147,11 +146,9 @@ export default function ManageUserPermissionModal({ project }: { project: Immuta
                 projectPermissionsFindQuery.data.length === 1
               }
             />
-            <Button
-              startIcon={<MdOutlineRemoveCircleOutline />}
-              title="Remove Access"
-              onClick={() => handleRemovePermission(permission.id)}
-            />
+            <Button title="Remove Access" onClick={() => handleRemovePermission(permission.id)}>
+              <MdOutlineRemoveCircleOutline />
+            </Button>
           </div>
         ))}
       </div>

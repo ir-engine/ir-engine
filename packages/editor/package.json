@@ -9,7 +9,7 @@
     "url": "git://github.com/ir-engine/ir-engine.git"
   },
   "engines": {
-    "node": ">= 18.12.0"
+    "node": ">= 22.11.0"
   },
   "publishConfig": {
     "access": "public"
@@ -35,12 +35,7 @@
     "@ir-engine/hyperflux": "^1.6.0",
     "@ir-engine/ui": "^1.6.0",
     "@ir-engine/visual-script": "^1.6.0",
-    "@hookstate/core": "npm:@speigg/hookstate@4.0.1-fix-111-106.2",
-    "@mui/icons-material": "5.15.15",
-    "@mui/material": "5.11.13",
-    "@mui/styles": "5.11.13",
-    "@types/react-window": "^1.8.8",
-    "@uiw/react-color-sketch": "^2.1.1",
+    "@hookstate/core": "^4.0.0",
     "i18next": "21.6.16",
     "lodash": "4.17.21",
     "potpack": "^2.0.0",
@@ -56,14 +51,14 @@
     "react-router-dom": "6.9.0",
     "react-window": "1.8.8",
     "reactflow": "^11.10.1",
-    "typescript": "5.4.5",
-    "use-http": "1.0.27",
+    "typescript": "5.6.3",
     "uuid": "9.0.0"
   },
   "devDependencies": {
     "@types/node": "18.15.5",
     "@types/react": "18.2.0",
     "@types/react-dom": "18.2.0",
+    "@types/react-window": "^1.8.8",
     "@types/three": "0.158.0",
     "@types/uuid": "^9.0.1",
     "rimraf": "4.4.0",

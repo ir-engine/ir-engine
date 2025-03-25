@@ -24,15 +24,15 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
-import { createHookableFunction, dispatchAction, getMutableState } from '@ir-engine/hyperflux'
+import { createHookableFunction, getMutableState, getState } from '@ir-engine/hyperflux'
 
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { Vector3_One, Vector3_Zero } from '../common/constants/MathConstants'
 import { isSafari } from '../common/functions/isMobile'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin } from '../transform/updateWorldOrigin'
 import { RendererComponent } from './../renderer/WebGLRendererSystem'
-import { ReferenceSpace, XRAction, XRState } from './XRState'
+import { ReferenceSpace, XRState } from './XRState'
 
 export const onSessionEnd = () => {
   const xrState = getMutableState(XRState)
@@ -42,37 +42,35 @@ export const onSessionEnd = () => {
   xrState.session.set(null)
   xrState.sceneScale.set(1)
 
-  getMutableState(XRState).xrFrame.set(null)
+  xrState.xrFrame.set(null)
 
-  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
+  const renderer = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)
   renderer.renderer!.domElement.style.display = ''
   renderer.needsResize = true
 
-  const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
+  const originTransform = getComponent(getState(ReferenceSpaceState).originEntity, TransformComponent)
   originTransform.position.copy(Vector3_Zero)
   originTransform.rotation.identity()
   originTransform.scale.copy(Vector3_One)
 
-  const localFloorTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
+  const localFloorTransform = getComponent(getState(ReferenceSpaceState).localFloorEntity, TransformComponent)
   localFloorTransform.position.copy(Vector3_Zero)
   localFloorTransform.rotation.identity()
   localFloorTransform.scale.copy(Vector3_One)
 
-  const viewerTransform = getComponent(Engine.instance.viewerEntity, TransformComponent)
+  const viewerTransform = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
   viewerTransform.scale.copy(Vector3_One)
 
   ReferenceSpace.origin = null
   ReferenceSpace.localFloor = null
   ReferenceSpace.viewer = null
 
-  dispatchAction(XRAction.sessionChanged({ active: false }))
-
   xrState.session.set(null)
 }
 
 export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' | 'immersive-vr') => {
   const xrState = getMutableState(XRState)
-  const xrManager = getComponent(Engine.instance.viewerEntity, RendererComponent).xrManager
+  const xrManager = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).xrManager
 
   // @todo - hack to detect nreal
   const params = new URL(document.location.href).searchParams
@@ -131,7 +129,8 @@ export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' |
   /** Hide the canvas - do not do this for the WebXR emulator */
   /** @todo currently, XRSession.visibilityState is undefined in the webxr emulator - we need a better check*/
   if (typeof xrSession.visibilityState === 'string') {
-    getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!.domElement.style.display = 'none'
+    getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!.domElement.style.display =
+      'none'
   }
 
   xrState.session.set(xrSession)
@@ -142,7 +141,7 @@ export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' |
 }
 
 export const getReferenceSpaces = (xrSession: XRSession) => {
-  const onLocalFloorReset = (ev: XRReferenceSpaceEvent) => {
+  const onLocalFloorReset = (_ev: XRReferenceSpaceEvent) => {
     /** @todo ev.transform is not yet implemented on the Quest browser */
     // if (ev.transform) {
     //   ReferenceSpace.localFloor = ev.referenceSpace.getOffsetReferenceSpace(ev.transform)
@@ -177,7 +176,6 @@ export const requestXRSession = createHookableFunction(
 
       getReferenceSpaces(xrSession)
 
-      dispatchAction(XRAction.sessionChanged({ active: true }))
       xrSession.addEventListener('end', onSessionEnd)
     } catch (e) {
       console.error('Failed to create XR Session', e)
@@ -192,9 +190,3 @@ export const requestXRSession = createHookableFunction(
 export const endXRSession = createHookableFunction(async () => {
   await getMutableState(XRState).session.value?.end()
 })
-
-/**
- * A hookable function that is fired when the XR Session has changed
- * @returns
- */
-export const xrSessionChanged = createHookableFunction((action: typeof XRAction.sessionChanged.matches._TYPE) => {})

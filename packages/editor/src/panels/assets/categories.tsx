@@ -23,91 +23,181 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { FilesViewModeSettings } from '@ir-engine/editor/src/services/FilesState'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import React, { ReactNode } from 'react'
-import { HiDotsVertical } from 'react-icons/hi'
-import { IoIosArrowDown, IoIosArrowForward } from 'react-icons/io'
+import capitalizeFirstLetter from '@ir-engine/common/src/utils/capitalizeFirstLetter'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import EditorDropdownItem from '@ir-engine/ui/src/components/editor/DropdownItem'
+import { CubeOutlineLg, File04Lg, Folder, Pin02Lg } from '@ir-engine/ui/src/icons'
+import React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { getParentCategories } from './helpers'
-import { useAssetsCategory, useAssetsQuery } from './hooks'
-import { AssetIconMap } from './icons'
+import { EditorState } from '../../services/EditorServices'
+import { FilesState } from '../../services/FilesState'
+import { useCurrentFiles } from '../files/helpers'
+import { assetCategories, useAssetsCategory, useAssetsQuery } from './hooks'
 
-function AssetCategory({ index }: { index: number }) {
-  const { categories, currentCategoryPath, expandedCategories } = useAssetsCategory()
+export type AssetCategoryNode = {
+  name: string
+  path: string
+  depth: number
+  children: AssetCategoryNode[]
+}
+
+function NodeHierarchyItem({ node, onClick }: { node: AssetCategoryNode; onClick: (item) => void }) {
+  const [isOpen, setIsOpen] = React.useState(false)
+
+  const handleClick = () => {
+    onClick(node)
+    setIsOpen(!isOpen)
+  }
+
+  return (
+    <>
+      <EditorDropdownItem
+        label={node.name}
+        ItemIcon={({ className }: { className: string }) => <Folder className={className} />}
+        collapsed={!isOpen}
+        onClick={handleClick}
+        style={{ paddingLeft: `${32 * node.depth}px` }}
+        className="bg-surface-1"
+      />
+
+      {isOpen &&
+        node.children &&
+        node.children.map((child) => <NodeHierarchyItem key={child.path} node={child} onClick={onClick} />)}
+    </>
+  )
+}
+
+function FolderCategory({ item }: { item: AssetCategoryNode }) {
+  const { changeDirectoryByPath } = useCurrentFiles()
+
+  const handleClick = (item) => {
+    changeDirectoryByPath(item.path ?? '')
+  }
+
+  return <NodeHierarchyItem node={item} onClick={handleClick} />
+}
+
+function AssetCategory({ item }: { item: AssetCategoryNode }) {
+  const { currentCategoryPath } = useAssetsCategory()
   const { refetchResources, staticResourcesPagination } = useAssetsQuery()
-  const category = categories[index].value
-  const selectedCategory = currentCategoryPath.at(-1)?.value
-  const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
 
-  const handleClickCategory = () => {
-    if (!category.isLeaf) expandedCategories[category.name].set(!category.collapsed)
-    currentCategoryPath.set([...getParentCategories(categories.value, category.name), category])
+  const handleClickCategory = (item) => {
+    currentCategoryPath.set(item)
     staticResourcesPagination.skip.set(0)
     refetchResources()
+  }
+
+  return <NodeHierarchyItem node={item} onClick={handleClickCategory} />
+}
+
+const SideBarIcons = {
+  favorites: Pin02Lg,
+  assets: CubeOutlineLg,
+  files: File04Lg
+}
+
+function SidebarSection({ Icon, label, items, onClick, isActive }) {
+  const [isHover, setIsHover] = React.useState(false)
+  const toggleDropdown = () => {
+    if (isActive) {
+      onClick(undefined)
+    } else {
+      onClick(label)
+    }
+  }
+
+  const renderListByType = {
+    assets: items.map((item: AssetCategoryNode, idx) => <AssetCategory item={item} key={item.name + idx} />),
+    files: items.map((item: AssetCategoryNode, idx) => <FolderCategory item={item} key={item.name + idx} />)
   }
 
   return (
     <div
       className={twMerge(
-        'rounded-md bg-[#141619]',
-        selectedCategory?.name === category.name && 'text-primary bg-[#191B1F]',
-        category.depth === 0 ? 'min-h-9' : 'min-h-7'
+        'transition-all duration-300 ease-in-out',
+        isActive && items.length > 0 ? 'h-auto flex-grow' : ''
       )}
-      style={{
-        height: `${fontSize}px`,
-        fontSize: `${fontSize}px`
-      }}
     >
       <div
         className={twMerge(
-          'flex h-full w-full cursor-pointer items-center gap-2 overflow-hidden text-[#B2B5BD]',
-          category.depth === 0 && !category.collapsed && 'mt-0'
+          'overflow-hidden rounded bg-surface-1 p-2 text-text-secondary',
+          'border-2',
+          isActive ? 'border-[#375DAF]' : 'border-transparent'
         )}
-        style={{
-          marginLeft: category.depth > 0 ? category.depth * 16 : 0
-        }}
-        data-testid={category.depth > 0 ? `assets-panel-subcategory-level-${category.depth}` : 'assets-panel-category'}
-        onClick={handleClickCategory}
+        onMouseEnter={() => setIsHover(true)}
+        onMouseLeave={() => setIsHover(false)}
       >
-        <Button
-          variant="transparent"
-          className={twMerge('m-0 p-0', category.isLeaf && 'invisible cursor-auto')}
-          title={category.collapsed ? 'expand' : 'collapse'}
-          startIcon={category.collapsed ? <IoIosArrowForward /> : <IoIosArrowDown />}
-          iconContainerClassName="ml-2"
-          data-testid={
-            category.collapsed ? 'assets-panel-category-expand-button' : 'assets-panel-category-collapse-button'
-          }
-        />
-        <AssetIconMap name={category.name} />
-        <div className="flex w-full items-center gap-1 text-nowrap pr-2" data-testid="assets-panel-category-name">
-          <span
-            className={twMerge(
-              "flex flex-row items-center gap-2 text-nowrap font-['Figtree'] text-[#e7e7e7]",
-              selectedCategory?.name === category.name && 'text-[#F5F5F5]'
-            )}
-          >
-            {category.name}
-          </span>
-        </div>
+        <button className="flex h-full w-full items-center justify-between" onClick={toggleDropdown}>
+          <div className="flex items-center gap-2">
+            <Icon />
+            <span>{capitalizeFirstLetter(label)}</span>
+          </div>
+        </button>
       </div>
+
+      {isActive && items.length > 0 && (
+        <div className="h-full overflow-y-auto rounded bg-surface-1 p-2 text-text-secondary">
+          {renderListByType[label] || <></>}
+        </div>
+      )}
     </div>
   )
 }
 
-export default function CategoriesList() {
-  const { sidebarWidth, categories } = useAssetsCategory()
+export default function CategoriesList({ selected, onClick }) {
+  const { sidebarWidth } = useAssetsCategory()
+  const { files, categories: folderCategories } = useCurrentFiles()
+
+  const [sidebarSections, setSidebarSections] = React.useState<{
+    assets: AssetCategoryNode[]
+    files: AssetCategoryNode[]
+  }>({
+    assets: [],
+    files: []
+  })
+
+  React.useEffect(() => {
+    if (assetCategories) {
+      setSidebarSections({
+        ...sidebarSections,
+        assets: [...assetCategories] as AssetCategoryNode[]
+      })
+    }
+
+    if (files.length) {
+      setSidebarSections({
+        ...sidebarSections,
+        files: [...folderCategories.get({ noproxy: true })] as AssetCategoryNode[]
+      })
+    }
+  }, [assetCategories, folderCategories.value])
+
+  const filesState = useMutableState(FilesState)
+
+  const projectName = useMutableState(EditorState).projectName.value
+  React.useEffect(() => {
+    if (projectName) {
+      filesState.merge({ selectedDirectory: `/projects/${projectName}/public/`, projectName: projectName })
+    }
+  }, [projectName])
 
   return (
     <div
-      className="mb-8 h-full space-y-1 overflow-x-hidden overflow-y-scroll bg-[#0E0F11] pb-8 pl-1 pr-2 pt-2"
+      className="mb-8 h-full space-y-1 overflow-x-hidden overflow-y-scroll bg-ui-background pb-8 pl-1 pr-2 pt-2"
       style={{ width: sidebarWidth.value }}
     >
-      {categories.value.map((category, index) => (
-        <AssetCategory key={category.name + index} index={index} />
-      ))}
+      {Object.entries(sidebarSections).map(([key, value]) => {
+        return (
+          <SidebarSection
+            isActive={key === selected}
+            key={key}
+            label={key}
+            items={value}
+            Icon={SideBarIcons[key]}
+            onClick={onClick}
+          />
+        )
+      })}
     </div>
   )
 }
@@ -116,30 +206,43 @@ export function VerticalDivider({
   leftChildren,
   rightChildren
 }: {
-  leftChildren: ReactNode
-  rightChildren: ReactNode
+  leftChildren: React.ReactNode
+  rightChildren: React.ReactNode
 }) {
   const { sidebarWidth } = useAssetsCategory()
   const isDragging = useHookstate(false)
+
+  const handleMouseDown = (event: React.MouseEvent) => {
+    event.preventDefault()
+    isDragging.set(true)
+  }
+
+  const handleMouseMove = (event: React.MouseEvent) => {
+    if (isDragging.value) {
+      const newWidth = Math.max(200, event.pageX)
+      sidebarWidth.set(newWidth)
+    }
+  }
+
+  const handleMouseUp = () => {
+    isDragging.set(false)
+  }
+
   return (
-    <div
-      className="flex h-full w-full overflow-hidden"
-      onMouseUp={() => isDragging.set(false)}
-      onMouseMove={(event) => {
-        if (isDragging.value) sidebarWidth.set(event.pageX)
-      }}
-    >
-      {leftChildren}
-      <div className="flex w-5 cursor-pointer items-center" data-testid="assets-panel-vertical-divider">
-        <HiDotsVertical
-          onMouseDown={(event) => {
-            event?.preventDefault()
-            isDragging.set(true)
-          }}
-          className={twMerge('cursor-grab text-white', isDragging.value && 'cursor-grabbing')}
+    <div className="flex h-full w-full overflow-hidden" onMouseUp={handleMouseUp} onMouseMove={handleMouseMove}>
+      <div style={{ width: `${sidebarWidth.value}px` }} className="h-full">
+        {leftChildren}
+      </div>
+
+      {/* Divider */}
+      <div className="flex w-2 cursor-ew-resize items-center bg-surface-1" data-testid="assets-panel-vertical-divider">
+        <div
+          onMouseDown={handleMouseDown}
+          className={twMerge('h-full w-full cursor-ew-resize text-white', isDragging.value && 'cursor-grabbing')}
         />
       </div>
-      {rightChildren}
+
+      <div className="h-full flex-1">{rightChildren}</div>
     </div>
   )
 }

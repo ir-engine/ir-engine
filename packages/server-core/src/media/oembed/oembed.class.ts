@@ -29,8 +29,9 @@ import { Paginated, Params, ServiceInterface } from '@feathersjs/feathers/lib/de
 import { OembedType } from '@ir-engine/common/src/schemas/media/oembed.schema'
 import { routePath, RouteType } from '@ir-engine/common/src/schemas/route/route.schema'
 import { clientSettingPath, ClientSettingType } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
-import { serverSettingPath, ServerSettingType } from '@ir-engine/common/src/schemas/setting/server-setting.schema'
 
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
+import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schema.type.module'
 import { projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
 import { Application } from '../../../declarations'
 import { getProjectConfig, onProjectEvent } from '../../projects/project/project-helper'
@@ -47,13 +48,17 @@ export class OembedService implements ServiceInterface<OembedType | BadRequest |
     if (!queryURL) return new BadRequest('Must provide a valid URL for OEmbed')
 
     const url = new URL(queryURL)
-    const serverSettingsResult = (await this.app.service(serverSettingPath).find()) as Paginated<ServerSettingType>
+    const serverSettingsResult = (await this.app.service(engineSettingPath).find({
+      query: {
+        category: 'server'
+      }
+    })) as Paginated<EngineSettingType>
     const clientSettingsResult = (await this.app.service(clientSettingPath).find()) as Paginated<ClientSettingType>
-
     if (serverSettingsResult.total > 0 && clientSettingsResult.total > 0) {
-      const serverSettings = serverSettingsResult.data[0]
       const clientSettings = clientSettingsResult.data[0]
-      if (serverSettings.clientHost !== url.origin.replace(/https:\/\//, ''))
+      const clientHost = serverSettingsResult.data.find((setting) => setting.key === EngineSettings.Server.ClientHost)
+        ?.value
+      if (clientHost !== url.origin.replace(/https:\/\//, ''))
         return new BadRequest('OEmbed request was for a different domain')
 
       const currentOEmbedResponse = {

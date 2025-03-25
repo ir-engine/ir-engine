@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useFind, useMutation } from '@ir-engine/common'
 import {
   InstanceID,
@@ -38,12 +38,11 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { toDateTimeSql, toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { Button } from '@ir-engine/ui'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Badge from '@ir-engine/ui/src/primitives/tailwind/Badge'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-
-import Badge from '@ir-engine/ui/src/primitives/tailwind/Badge'
 import { NotificationService } from '../../../common/services/NotificationService'
 
 const useKickUser = () => {
@@ -122,7 +121,7 @@ export default function ViewUsersModal({ instanceId }: { instanceId: string }) {
       title="View"
       className="w-[50vw] max-w-2xl"
       onClose={() => {
-        PopoverState.hidePopupover()
+        ModalState.closeModal()
       }}
     >
       {instanceUsersQuery.data.length === 0 ? (
@@ -153,7 +152,7 @@ export default function ViewUsersModal({ instanceId }: { instanceId: string }) {
                     })}
                   />
                   <Button
-                    variant="outline"
+                    variant="tertiary"
                     onClick={() => {
                       unbanUser({
                         userId: el.id,
@@ -167,7 +166,7 @@ export default function ViewUsersModal({ instanceId }: { instanceId: string }) {
               ) : (
                 <div className="flex items-center gap-2">
                   <Button
-                    variant="outline"
+                    variant="tertiary"
                     onClick={() => {
                       kickData.merge({
                         userId: el.id,
@@ -180,7 +179,7 @@ export default function ViewUsersModal({ instanceId }: { instanceId: string }) {
                     {t('admin:components.instance.kick')}
                   </Button>
                   <Button
-                    variant="outline"
+                    variant="tertiary"
                     onClick={() => {
                       kickData.merge({
                         userId: el.id,

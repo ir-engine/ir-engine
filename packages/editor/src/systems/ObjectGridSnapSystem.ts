@@ -30,6 +30,7 @@ import {
   defineQuery,
   defineSystem,
   Entity,
+  EntityTreeComponent,
   getComponent,
   getOptionalComponent,
   getOptionalMutableComponent,
@@ -44,16 +45,14 @@ import {
   ObjectGridSnapComponent
 } from '@ir-engine/engine/src/scene/components/ObjectGridSnapComponent'
 import { defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { TransformSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
+import { EngineState } from '@ir-engine/ecs'
 import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { SelectionState } from '../services/SelectionServices'
 import { ClickPlacementState } from './ClickPlacementSystem'
 
@@ -208,7 +207,7 @@ function setHelperColor(entity: Entity, color: Color) {
 }
 
 function resetHelperTransform(entity: Entity) {
-  const helper = getOptionalComponent(entity, BoundingBoxHelperComponent)?.entity
+  const helper = getOptionalComponent(entity, BoundingBoxHelperComponent)?.helperEntity
   if (helper) {
     setComponent(helper, TransformComponent, {
       position: new Vector3(),
@@ -235,7 +234,7 @@ export const ObjectGridSnapState = defineState({
     for (let i = 0; i < selectedEntities.length; i++) {
       const selectedEntity = selectedEntities[i]
       const selectedParent = selectedParents[i]
-      const helperEntity = getOptionalComponent(selectedEntity, BoundingBoxHelperComponent)?.entity
+      const helperEntity = getOptionalComponent(selectedEntity, BoundingBoxHelperComponent)?.helperEntity
       if (!helperEntity) {
         console.warn(`ObjectGridSnapSystem:apply No Helper entity found for selected entity: ${selectedEntity}`)
         continue
@@ -248,8 +247,6 @@ export const ObjectGridSnapState = defineState({
       TransformComponent.updateFromWorldMatrix(selectedParent)
       toCommit.push(selectedParent)
     }
-
-    EditorControlFunctions.commitTransformSave(toCommit)
   }
 })
 
@@ -343,7 +340,7 @@ export const ObjectGridSnapSystem = defineSystem({
         }
       }
 
-      const helperEntity = getOptionalComponent(selectedEntity, BoundingBoxHelperComponent)?.entity
+      const helperEntity = getOptionalComponent(selectedEntity, BoundingBoxHelperComponent)?.helperEntity
 
       const commitNoOp = () => {
         resetHelperTransform(selectedEntity)

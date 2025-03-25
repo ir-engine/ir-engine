@@ -27,10 +27,9 @@ import { useEffect } from 'react'
 
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { defineActionQueue, getMutableState } from '@ir-engine/hyperflux'
+import { getMutableState } from '@ir-engine/hyperflux'
 
-import { xrSessionChanged } from './XRSessionFunctions'
-import { XRAction, XRState } from './XRState'
+import { XRState } from './XRState'
 
 /**
  * System for XR session and input handling
@@ -43,24 +42,18 @@ const updateSessionSupportForMode = (mode: XRSessionMode) => {
 }
 
 const updateSessionSupport = () => {
-  updateSessionSupportForMode('inline')
-  updateSessionSupportForMode('immersive-ar')
-  updateSessionSupportForMode('immersive-vr')
-}
-
-const xrSessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
-
-const execute = () => {
-  for (const action of xrSessionChangedQueue()) xrSessionChanged(action)
+  XRSystemFunctions.updateSessionSupportForMode('inline')
+  XRSystemFunctions.updateSessionSupportForMode('immersive-ar')
+  XRSystemFunctions.updateSessionSupportForMode('immersive-vr')
 }
 
 const reactor = () => {
   useEffect(() => {
-    navigator.xr?.addEventListener('devicechange', updateSessionSupport)
-    updateSessionSupport()
+    navigator.xr?.addEventListener('devicechange', XRSystemFunctions.updateSessionSupport)
+    XRSystemFunctions.updateSessionSupport()
 
     return () => {
-      navigator.xr?.removeEventListener('devicechange', updateSessionSupport)
+      navigator.xr?.removeEventListener('devicechange', XRSystemFunctions.updateSessionSupport)
     }
   }, [])
   return null
@@ -69,6 +62,11 @@ const reactor = () => {
 export const XRSystem = defineSystem({
   uuid: 'ee.engine.XRSystem',
   insert: { before: InputSystemGroup },
-  execute,
   reactor
 })
+
+/** @note Internal usage. Exported for unit tests. */
+export const XRSystemFunctions = {
+  updateSessionSupportForMode,
+  updateSessionSupport
+}

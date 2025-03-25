@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Quaternion, Vector3 } from 'three'
+import { Quaternion } from 'three'
 
 import {
   ComponentType,
@@ -46,11 +46,7 @@ import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/In
 import { StandardGamepadButton } from '@ir-engine/spatial/src/input/state/ButtonState'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { ClientInputSystem } from '@ir-engine/spatial/src/input/systems/ClientInputSystem'
-import { RaycastArgs } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { RigidBodyFixedTagComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
-import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
-import { getInteractionGroups } from '@ir-engine/spatial/src/physics/functions/getInteractionGroups'
-import { SceneQueryType } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
@@ -62,6 +58,7 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { applyInputSourcePoseToIKTargets } from '../functions/applyInputSourcePoseToIKTargets'
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 
+import { Entity } from '@ir-engine/ecs'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import { FollowCameraMode } from '@ir-engine/spatial/src/camera/types/FollowCameraMode'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
@@ -111,15 +108,15 @@ export const AvatarAxesControlSchemeBehavior = {
     }
   }
 }
-const interactionGroups = getInteractionGroups(CollisionGroups.Default, CollisionGroups.Avatars)
+// const interactionGroups = getInteractionGroups(CollisionGroups.Default, CollisionGroups.Avatars)
 
-const raycastComponentData = {
-  type: SceneQueryType.Closest,
-  origin: new Vector3(),
-  direction: new Vector3(),
-  maxDistance: 100,
-  groups: interactionGroups
-} as RaycastArgs
+// const raycastComponentData = {
+//   type: SceneQueryType.Closest,
+//   origin: new Vector3(),
+//   direction: new Vector3(),
+//   maxDistance: 100,
+//   groups: interactionGroups
+// } as RaycastArgs
 
 const onShiftLeft = () => {
   const entity = AvatarComponent.getSelfAvatarEntity()
@@ -147,11 +144,11 @@ const onShiftLeft = () => {
 //   return false
 // }
 
-let clickCount = 0
-const clickTimeout = 0.6
-let douubleClickTimer = 0
-const secondClickTimeout = 0.2
-let secondClickTimer = 0
+// let clickCount = 0
+// const clickTimeout = 0.6
+// let douubleClickTimer = 0
+// const secondClickTimeout = 0.2
+// let secondClickTimer = 0
 
 // TODO: this should be done using the input system components,
 // which already performs raycasts and has the necessary data
@@ -187,14 +184,18 @@ const walkableQuery = defineQuery([RigidBodyFixedTagComponent, InputComponent])
 
 let mouseMovedDuringPrimaryClick = false
 
+const findWalkableWithInput = (entity: Entity) => getComponent(entity, InputComponent)?.inputSources.length
+
 const execute = () => {
+  if (!Engine.instance.userID) return
+
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
   if (!selfAvatarEntity) return
 
-  applyInputSourcePoseToIKTargets(Engine.instance.userID)
+  applyInputSourcePoseToIKTargets()
 
   const { deltaSeconds } = getState(ECSState)
-  setIkFootTarget(Engine.instance.userID, deltaSeconds)
+  setIkFootTarget(deltaSeconds)
 
   const inputState = getState(InputState)
   const avatarInputSettings = getState(AvatarInputSettingsState)
@@ -208,9 +209,7 @@ const execute = () => {
   if (!isMovementControlsEnabled) return
 
   if (!isCameraAttachedToAvatar && !getState(XRState).session) {
-    const firstWalkableEntityWithInput = walkableQuery().find(
-      (entity) => getComponent(entity, InputComponent)?.inputSources.length
-    )
+    const firstWalkableEntityWithInput = walkableQuery().find(findWalkableWithInput)
 
     if (firstWalkableEntityWithInput) {
       const inputComponent = getComponent(firstWalkableEntityWithInput, InputComponent)

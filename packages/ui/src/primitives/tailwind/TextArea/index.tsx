@@ -42,6 +42,7 @@ export interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElemen
   labelClassname?: string
   errorBorder?: boolean
   maxLength?: number
+  required?: TextareaHTMLAttributes<HTMLTextAreaElement>['required']
 }
 
 const variants = {
@@ -65,6 +66,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
       variant = 'outlined',
       labelClassname,
       errorBorder,
+      required,
       ...props
     },
     ref
@@ -75,8 +77,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
 
     const twClassname = twMerge(
       'text-base font-normal tracking-tight',
-      'textshadow-sm flex w-full rounded-lg border border-theme-primary bg-theme-surfaceInput px-3.5 py-2 transition-colors',
-      'dark:[color-scheme:dark]',
+      'textshadow-sm flex w-full rounded-lg border   px-3.5 py-2 transition-colors',
       'focus-visible:ring-ring placeholder:text-gray-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
       variant !== 'outlined' ? '' : 'focus-visible:ring-1',
       startComponent ? 'ps-10' : undefined,
@@ -97,13 +98,17 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
       containerClassName
     )
 
-    const containerClass =
-      variant === 'outlined' ? 'bg-theme-surface-main relative h-full w-full' : ' relative h-full w-full'
+    const containerClass = variant === 'outlined' ? ' relative h-full w-full' : ' relative h-full w-full'
     const labelClass = variant === 'outlined' ? '' : 'text-neutral-500 text-xs'
 
     return (
       <div className={twcontainerClassName}>
-        {label && <Label className={twMerge(`self-stretch ${labelClass}`, labelClassname)}>{label}</Label>}
+        {label && (
+          <Label className={twMerge(`self-stretch ${labelClass}`, labelClassname)}>
+            {required && <span className="text-xs text-ui-error">*</span>}
+            {label}
+          </Label>
+        )}
         <div className={containerClass}>
           {startComponent && (
             <div className="pointer-events-auto absolute inset-y-0 start-0 flex items-center ps-3.5">
@@ -123,9 +128,9 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
             <div className="pointer-events-auto absolute inset-y-0 end-0 flex items-center">{endComponent}</div>
           )}
         </div>
-        {description && <p className="self-stretch text-xs text-theme-secondary">{description}</p>}
+        {description && <p className="self-stretch text-xs ">{description}</p>}
         {error && (
-          <p className="inline-flex items-center gap-2.5 self-start text-sm text-theme-iconRed">
+          <p className="inline-flex items-center gap-2.5 self-start text-xs">
             <HiXCircle /> {error}
           </p>
         )}

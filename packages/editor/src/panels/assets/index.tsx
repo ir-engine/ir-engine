@@ -23,11 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useHookstate } from '@hookstate/core'
+import { getMutableState, NO_PROXY } from '@ir-engine/hyperflux'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import { TabData } from 'rc-dock'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FileUploadProgress } from '../files/loaders'
+import { FilesState } from '../../services/FilesState'
+import { ImportSettingsState } from '../../services/ImportSettingsState'
+import FileBrowser from '../files/filebrowser'
+import { CurrentFilesQueryProvider } from '../files/helpers'
+import FilesToolbar from '../files/toolbar'
 import CategoriesList, { VerticalDivider } from './categories'
 import { AssetsQueryProvider } from './hooks'
 import Resources from './resources'
@@ -54,14 +60,42 @@ export const AssetsPanelTab: TabData = {
   content: <AssetsContainer />
 }
 
+enum SidebarType {
+  FAVORITES = 'favorites',
+  ASSETS = 'assets',
+  FILES = 'files'
+}
+
 function AssetsContainer() {
+  const sidebarType = useHookstate(undefined)
+
+  const toolbar = sidebarType.value === SidebarType.FILES ? <FilesToolbar /> : <Topbar />
+  const rightChildren = sidebarType.value === SidebarType.FILES ? <FileBrowser /> : <Resources />
+
+  useEffect(() => {
+    if (sidebarType.value === SidebarType.ASSETS) {
+      const projectName = getMutableState(FilesState).projectName.get(NO_PROXY)
+      const importFolder = getMutableState(ImportSettingsState).importFolder.get(NO_PROXY)
+      const dir = `projects/${projectName}${importFolder}`
+      getMutableState(FilesState).selectedDirectory.set(dir)
+    }
+  }, [sidebarType])
+
+  const handleSidebarChange = (category) => {
+    sidebarType.set(category)
+  }
+
   return (
     <div className="flex h-full flex-col">
-      <AssetsQueryProvider>
-        <Topbar />
-        <FileUploadProgress />
-        <VerticalDivider leftChildren={<CategoriesList />} rightChildren={<Resources />} />
-      </AssetsQueryProvider>
+      <CurrentFilesQueryProvider>
+        <AssetsQueryProvider>
+          {toolbar}
+          <VerticalDivider
+            leftChildren={<CategoriesList selected={sidebarType.value} onClick={handleSidebarChange} />}
+            rightChildren={rightChildren}
+          />
+        </AssetsQueryProvider>
+      </CurrentFilesQueryProvider>
     </div>
   )
 }

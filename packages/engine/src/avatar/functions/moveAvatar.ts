@@ -376,6 +376,8 @@ export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, r
 export const updateLocalAvatarPosition = (entity: Entity) => {
   const world = Physics.getWorld(entity)
   if (!world) return
+  const body = world.Rigidbodies.get(entity) // check for body, else we could update the entity transform position to rigid body's default value (0, 0, 0), because physics world hasn't created and updated the body, yet
+  if (!body) return
 
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
@@ -387,7 +389,7 @@ export const updateLocalAvatarPosition = (entity: Entity) => {
   rigidbody.position.copy(rigidbody.targetKinematicPosition)
   transform.position.copy(rigidbody.targetKinematicPosition)
   Physics.setKinematicRigidbodyPose(world, entity, rigidbody.targetKinematicPosition, rigidbody.rotation)
-  delete TransformComponent.dirtyTransforms[entity]
+  TransformComponent.dirty[entity] = 0
 }
 
 const viewerQuat = new Quaternion()

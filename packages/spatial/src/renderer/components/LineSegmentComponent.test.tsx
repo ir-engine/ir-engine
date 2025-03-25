@@ -23,11 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { act, render } from '@testing-library/react'
 import assert from 'assert'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import sinon from 'sinon'
-import { afterEach, beforeEach, describe, DoneCallback, it } from 'vitest'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
   BoxGeometry,
@@ -42,26 +41,27 @@ import {
 } from 'three'
 
 import {
+  createEntity,
   Entity,
   getComponent,
   getMutableComponent,
   hasComponent,
   removeComponent,
+  removeEntity,
   setComponent,
   UndefinedEntity
 } from '@ir-engine/ecs'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
-import { getState } from '@ir-engine/hyperflux'
 
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 
+import { startReactor } from '@ir-engine/hyperflux'
+import { act, render } from '@testing-library/react'
 import { assertColor } from '../../../tests/util/assert'
 import { NameComponent } from '../../common/NameComponent'
-import { ResourceState } from '../../resources/ResourceState'
 import { ObjectLayerMasks, ObjectLayers } from '../constants/ObjectLayers'
-import { GroupComponent } from './GroupComponent'
 import { LineSegmentComponent } from './LineSegmentComponent'
+import { ObjectComponent } from './ObjectComponent'
 import { ObjectLayerComponents, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { VisibleComponent } from './VisibleComponent'
 
@@ -167,28 +167,26 @@ describe('LineSegmentComponent', () => {
   }) //:: onSet
 
   describe('reactor', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
+    beforeEach(() => {
       createEngine()
-      testEntity = createEntity()
     })
 
     afterEach(() => {
-      removeEntity(testEntity)
       return destroyEngine()
     })
 
     it('should call addObjectToGroup(lineSegment) with the entity when it mounts', () => {
-      assert.equal(hasComponent(testEntity, GroupComponent), false)
+      const testEntity = createEntity()
+      assert.equal(hasComponent(testEntity, ObjectComponent), false)
       setComponent(testEntity, LineSegmentComponent, {
         geometry: new BoxGeometry(1, 1, 1),
         material: new MeshBasicMaterial({ color: 0x111111 })
       })
-      assert.equal(hasComponent(testEntity, GroupComponent), true)
+      assert.equal(hasComponent(testEntity, ObjectComponent), true)
     })
 
     it('should set a VisibleComponent to the entity when it mounts', () => {
+      const testEntity = createEntity()
       assert.equal(hasComponent(testEntity, VisibleComponent), false)
       setComponent(testEntity, LineSegmentComponent, {
         geometry: new BoxGeometry(1, 1, 1),
@@ -198,18 +196,20 @@ describe('LineSegmentComponent', () => {
     })
 
     it('should call removeObjectFromGroup(lineSegment) with the entity when it unmounts', () => {
-      assert.equal(hasComponent(testEntity, GroupComponent), false)
+      const testEntity = createEntity()
+      assert.equal(hasComponent(testEntity, ObjectComponent), false)
       setComponent(testEntity, LineSegmentComponent, {
         geometry: new BoxGeometry(1, 1, 1),
         material: new MeshBasicMaterial({ color: 0x111111 })
       })
-      assert.equal(hasComponent(testEntity, GroupComponent), true)
-      removeComponent(testEntity, GroupComponent)
-      assert.equal(hasComponent(testEntity, GroupComponent), false)
+      assert.equal(hasComponent(testEntity, ObjectComponent), true)
+      removeComponent(testEntity, ObjectComponent)
+      assert.equal(hasComponent(testEntity, ObjectComponent), false)
     })
 
     it('should trigger when component.name changes', () => {
-      const Expected = 'TestLineName'
+      const testEntity = createEntity()
+      const Expected = 'line-segment'
       assert.equal(hasComponent(testEntity, NameComponent), false)
       const geometry = new BoxGeometry(1, 1, 1)
       setComponent(testEntity, LineSegmentComponent, {
@@ -226,7 +226,8 @@ describe('LineSegmentComponent', () => {
       assert.equal(result, Expected)
     })
 
-    it('should trigger when component.layerMask changes', () => {
+    it('should trigger when component.layerMask changes', async () => {
+      const testEntity = createEntity()
       const Expected = 42
       assert.equal(hasComponent(testEntity, ObjectLayerMaskComponent), false)
       const geometry = new BoxGeometry(1, 1, 1)
@@ -235,59 +236,51 @@ describe('LineSegmentComponent', () => {
         material: new MeshBasicMaterial({ color: 0x111111 })
       })
       assert.equal(hasComponent(testEntity, ObjectLayerMaskComponent), true)
-      assert.notEqual(getComponent(testEntity, ObjectLayerMaskComponent), Expected)
+      assert.notEqual(ObjectLayerMaskComponent.mask[testEntity], Expected)
       setComponent(testEntity, LineSegmentComponent, {
         layerMask: Expected,
         geometry: geometry,
         material: new MeshBasicMaterial({ color: 0x111111 })
       })
-      assert.equal(getComponent(testEntity, ObjectLayerMaskComponent), Expected)
+      await act(() => render(null))
+      assert.equal(ObjectLayerMaskComponent.mask[testEntity], Expected)
     })
 
-    it('should set the LineSegment layerMask correctly', () =>
-      new Promise((done: DoneCallback) => {
-        const entity = createEntity()
-        const geometry = new BoxGeometry(1, 1, 1)
-        const material = new MeshBasicMaterial({ color: 0xffff00 })
+    it('should set the LineSegment layerMask correctly', () => {
+      const entity = createEntity()
+      const geometry = new BoxGeometry(1, 1, 1)
+      const material = new MeshBasicMaterial({ color: 0xffff00 })
 
-        const layerMask = ObjectLayerMasks.NodeHelper
-        const layer = ObjectLayers.NodeHelper
+      const layerMask = ObjectLayerMasks.NodeHelper
+      const layer = ObjectLayers.NodeHelper
 
-        const Reactor = () => {
-          useEffect(() => {
-            setComponent(entity, LineSegmentComponent, {
-              geometry: geometry,
-              material: material,
-              layerMask: layerMask
-            })
-            return () => {
-              removeComponent(entity, LineSegmentComponent)
-            }
-          }, [])
+      const Reactor = startReactor(() => {
+        useEffect(() => {
+          setComponent(entity, LineSegmentComponent, {
+            geometry: geometry,
+            material: material,
+            layerMask: layerMask
+          })
+        }, [])
 
-          return <></>
-        }
+        return null
+      })
 
-        const { rerender, unmount } = render(<Reactor />)
+      Reactor.run()
 
-        act(async () => {
-          rerender(<Reactor />)
-        }).then(() => {
-          assert(hasComponent(entity, LineSegmentComponent))
-          assert(hasComponent(entity, GroupComponent))
-          assert(hasComponent(entity, ObjectLayerMaskComponent))
-          assert(hasComponent(entity, ObjectLayerComponents[layer]))
-          const group = getComponent(entity, GroupComponent)
-          const lineSegments = group[0] as LineSegments
-          assert(lineSegments.isLineSegments)
-          assert(lineSegments.layers.mask === layerMask)
-          unmount()
-          removeEntity(entity)
-          done()
-        })
-      }))
+      assert(hasComponent(entity, LineSegmentComponent))
+      assert(hasComponent(entity, ObjectComponent))
+      assert(hasComponent(entity, ObjectLayerMaskComponent))
+      assert(hasComponent(entity, ObjectLayerComponents[layer]))
+      const object = getComponent(entity, ObjectComponent)
+      const lineSegments = object as LineSegments
+      assert(lineSegments.isLineSegments)
+      assert(lineSegments.layers.mask === layerMask)
+      removeEntity(entity)
+    })
 
-    it('should trigger when component.color changes', () => {
+    it('should trigger when component.color changes', async () => {
+      const testEntity = createEntity()
       const Expected = new Color('#123456')
       assert.equal(hasComponent(testEntity, NameComponent), false)
       const geometry = new BoxGeometry(1, 1, 1)
@@ -305,146 +298,92 @@ describe('LineSegmentComponent', () => {
         geometry: geometry,
         material: material
       })
+      await act(() => render(null))
       const result = (getComponent(testEntity, LineSegmentComponent).material as MeshBasicMaterial).color
       assert.deepEqual(result, Expected)
     })
 
-    it('should create a LineSegmentComponent correctly', () =>
-      new Promise((done: DoneCallback) => {
-        const entity = createEntity()
-        const geometry = new BoxGeometry(1, 1, 1)
-        const material = new MeshBasicMaterial({ color: 0xffff00 })
+    it('should create a LineSegmentComponent correctly', () => {
+      const entity = createEntity()
+      const geometry = new BoxGeometry(1, 1, 1)
+      const material = new MeshBasicMaterial({ color: 0xffff00 })
 
-        const Reactor = () => {
-          useEffect(() => {
-            setComponent(entity, LineSegmentComponent, { geometry: geometry, material: material })
-          }, [])
+      const Reactor = startReactor(() => {
+        useEffect(() => {
+          setComponent(entity, LineSegmentComponent, { geometry: geometry, material: material })
+        }, [])
 
-          return <></>
-        }
+        return null
+      })
 
-        const { rerender, unmount } = render(<Reactor />)
+      Reactor.run()
 
-        const resourceState = getState(ResourceState)
+      assert(hasComponent(entity, LineSegmentComponent))
+      removeEntity(entity)
 
-        act(async () => {
-          assert(hasComponent(entity, LineSegmentComponent))
-          assert(resourceState.resources[geometry.uuid])
-          assert(resourceState.resources[material.uuid])
-          removeEntity(entity)
-          unmount()
-        }).then(() => {
-          assert(!hasComponent(entity, LineSegmentComponent))
-          assert(!resourceState.resources[geometry.uuid])
-          assert(!resourceState.resources[material.uuid])
-          done()
-        })
-      }))
+      Reactor.run()
 
-    it('should update the LineSegmentComponent data correctly', () =>
-      new Promise((done: DoneCallback) => {
-        const entity = createEntity()
-        const geometry = new BoxGeometry(1, 1, 1)
-        const material = new MeshBasicMaterial({ color: 0xffff00 })
+      assert(!hasComponent(entity, LineSegmentComponent))
+    })
 
-        const spy = sinon.spy()
-        geometry.dispose = spy
-        material.dispose = spy
+    it('should update the LineSegmentComponent data correctly', async () => {
+      const entity = createEntity()
+      const geometry = new BoxGeometry(1, 1, 1)
+      const material = new MeshBasicMaterial({ color: 0xffff00 })
 
-        const geoResourceID = geometry.uuid
-        const matResourceID = material.uuid
+      const spy = sinon.spy()
+      geometry.dispose = spy
+      material.dispose = spy
 
-        const geometry2 = new SphereGeometry(0.5)
-        const material2 = new LineBasicMaterial()
+      const geometry2 = new SphereGeometry(0.5)
+      const material2 = new LineBasicMaterial()
 
-        geometry2.dispose = spy
-        material2.dispose = spy
+      geometry2.dispose = spy
+      material2.dispose = spy
 
-        const Reactor = () => {
-          useEffect(() => {
-            setComponent(entity, LineSegmentComponent, { geometry: geometry, material: material })
-          }, [])
+      setComponent(entity, LineSegmentComponent, { geometry: geometry, material: material })
 
-          return <></>
-        }
+      await act(() => render(null))
 
-        const { rerender, unmount } = render(<Reactor />)
+      assert(hasComponent(entity, LineSegmentComponent))
 
-        const resourceState = getState(ResourceState)
-        act(async () => {
-          assert(hasComponent(entity, LineSegmentComponent))
-          assert(resourceState.resources[geoResourceID])
-          assert(
-            resourceState.resources[geoResourceID].asset &&
-              (resourceState.resources[geoResourceID].asset as BoxGeometry).type === 'BoxGeometry'
-          )
-          assert(resourceState.resources[matResourceID])
-          assert(
-            resourceState.resources[matResourceID].asset &&
-              (resourceState.resources[matResourceID].asset as MeshBasicMaterial).type === 'MeshBasicMaterial'
-          )
-          const lineSegmentComponent = getMutableComponent(entity, LineSegmentComponent)
-          lineSegmentComponent.geometry.set(geometry2)
-          lineSegmentComponent.material.set(material2)
-          rerender(<Reactor />)
-        }).then(() => {
-          sinon.assert.calledTwice(spy)
-          assert(
-            resourceState.resources[geoResourceID].asset &&
-              (resourceState.resources[geoResourceID].asset as SphereGeometry).type === 'SphereGeometry'
-          )
-          assert(
-            resourceState.resources[matResourceID].asset &&
-              (resourceState.resources[matResourceID].asset as LineBasicMaterial).type === 'LineBasicMaterial'
-          )
-          removeEntity(entity)
-          assert(!hasComponent(entity, LineSegmentComponent))
-          assert(!resourceState.resources[geoResourceID])
-          assert(!resourceState.resources[matResourceID])
-          assert(spy.callCount === 4)
-          unmount()
-          done()
-        })
-      }))
+      const lineSegmentComponent = getMutableComponent(entity, LineSegmentComponent)
+      lineSegmentComponent.geometry.set(geometry2)
+      lineSegmentComponent.material.set(material2)
 
-    it('should remove the LineSegmentComponent resources when it is unmounted', () =>
-      new Promise((done: DoneCallback) => {
-        const entity = createEntity()
-        const geometry = new BoxGeometry(1, 1, 1)
-        const material = new MeshBasicMaterial({ color: 0xffff00 })
+      await act(() => render(null))
 
-        const spy = sinon.spy()
-        geometry.dispose = spy
-        material.dispose = spy
+      sinon.assert.calledTwice(spy)
+    })
 
-        const Reactor = () => {
-          useEffect(() => {
-            setComponent(entity, LineSegmentComponent, { geometry: geometry, material: material })
-            return () => {
-              removeComponent(entity, LineSegmentComponent)
-            }
-          }, [])
+    it('should remove the LineSegmentComponent resources when it is unmounted', () => {
+      const entity = createEntity()
+      const geometry = new BoxGeometry(1, 1, 1)
+      const material = new MeshBasicMaterial({ color: 0xffff00 })
 
-          return <></>
-        }
+      const spy = sinon.spy()
+      geometry.dispose = spy
+      material.dispose = spy
 
-        const { rerender, unmount } = render(<Reactor />)
+      const Reactor = startReactor(() => {
+        useEffect(() => {
+          setComponent(entity, LineSegmentComponent, { geometry: geometry, material: material })
+          return () => {
+            removeComponent(entity, LineSegmentComponent)
+          }
+        }, [])
 
-        const resourceState = getState(ResourceState)
+        return null
+      })
+      Reactor.run()
 
-        act(async () => {
-          assert(hasComponent(entity, LineSegmentComponent))
-          assert(resourceState.resources[geometry.uuid])
-          assert(resourceState.resources[material.uuid])
-          unmount()
-        }).then(() => {
-          assert(!hasComponent(entity, LineSegmentComponent))
-          assert(!resourceState.resources[geometry.uuid])
-          assert(!resourceState.resources[material.uuid])
-          sinon.assert.calledTwice(spy)
-          removeEntity(entity)
-          done()
-        })
-      }))
+      assert(hasComponent(entity, LineSegmentComponent))
+
+      Reactor.stop()
+
+      assert(!hasComponent(entity, LineSegmentComponent))
+      sinon.assert.calledTwice(spy)
+      removeEntity(entity)
+    })
   }) //:: reactor
 })

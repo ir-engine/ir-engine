@@ -23,71 +23,43 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useLayoutEffect } from 'react'
-import { ColorRepresentation, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 'three'
+import { useEffect, useLayoutEffect } from 'react'
+import { Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 'three'
 
-import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { useEntityContext } from '@ir-engine/ecs'
+import {
+  defineComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { matches } from '@ir-engine/hyperflux'
-import { matchesColor } from '@ir-engine/spatial/src/common/functions/MatchesUtils'
+import { State } from '@ir-engine/hyperflux'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { BodyTypes, Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
-import { useMeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',
   jsonID: 'EE_ground_plane',
 
   schema: S.Object({
-    color: S.Color(0xffffff),
+    color: T.Color(0xffffff),
     visible: S.Bool(true)
   }),
-
-  onInit(entity) {
-    return {
-      color: 0xffffff as ColorRepresentation,
-      visible: true
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-
-    if (matchesColor.test(json.color)) component.color.set(json.color)
-    if (matches.boolean.test(json.visible)) component.visible.set(json.visible)
-  },
-
-  toJSON: (component) => {
-    return {
-      color: component.color,
-      visible: component.visible
-    }
-  },
 
   reactor: function () {
     const entity = useEntityContext()
 
     const component = useComponent(entity, GroundPlaneComponent)
 
-    const getMaterial = (): MeshLambertMaterial | ShadowMaterial => {
-      return component.visible.value ? new MeshLambertMaterial() : new ShadowMaterial({ opacity: 0.5 })
-    }
-
-    const mesh = useMeshComponent(entity, () => new PlaneGeometry(10000, 10000), getMaterial)
-
     useLayoutEffect(() => {
-      const meshVal = mesh.value as Mesh<PlaneGeometry, MeshLambertMaterial | ShadowMaterial>
-      meshVal.geometry.rotateX(-Math.PI / 2)
-      meshVal.name = 'GroundPlaneMesh'
-      meshVal.material.polygonOffset = true
-      meshVal.material.polygonOffsetFactor = -0.01
-      meshVal.material.polygonOffsetUnits = 1
-
       setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Scene)
       setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed })
       setComponent(entity, ColliderComponent, {
@@ -101,17 +73,34 @@ export const GroundPlaneComponent = defineComponent({
       }
     }, [])
 
-    useLayoutEffect(() => {
-      const color = component.color.value
-      if (mesh.material.color.value == color) return
-      mesh.material.color.value.set(component.color.value)
-    }, [component.color])
+    useEffect(() => {
+      const mesh = new Mesh(
+        new PlaneGeometry(10000, 10000),
+        component.visible.value ? new MeshLambertMaterial() : new ShadowMaterial({ opacity: 0.5, colorWrite: false })
+      )
+      mesh.geometry.rotateX(-Math.PI / 2)
+      mesh.name = 'GroundPlaneMesh'
+      mesh.material.polygonOffset = true
+      mesh.material.polygonOffsetFactor = -0.01
+      mesh.material.polygonOffsetUnits = 1
+
+      setComponent(entity, MeshComponent, mesh)
+
+      return () => {
+        removeComponent(entity, MeshComponent)
+      }
+    }, [component.visible.value])
+
+    const meshComponent = useOptionalComponent(entity, MeshComponent) as any as State<
+      Mesh<any, MeshLambertMaterial | ShadowMaterial>
+    >
 
     useLayoutEffect(() => {
-      const mat = getMaterial()
-      mat.color.set(component.color.value)
-      mesh.material.set(mat)
-    }, [component.visible])
+      if (!meshComponent) return
+      const color = component.color.value
+      if (meshComponent.material.color.value == color) return
+      meshComponent.material.color.value.set(component.color.value)
+    }, [component.color])
 
     return null
   }

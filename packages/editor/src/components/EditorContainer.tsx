@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { t } from 'i18next'
@@ -37,32 +37,32 @@ import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
-import { SaveSceneDialog } from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { useZendesk } from '@ir-engine/client-core/src/hooks/useZendesk'
+import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { API } from '@ir-engine/common'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { EntityUUID } from '@ir-engine/ecs'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { destroySpatialEngine, initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
+import { EngineState, EntityUUID, getComponent } from '@ir-engine/ecs'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { useSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
+import { Button, Tooltip } from '@ir-engine/ui'
 import 'rc-dock/dist/rc-dock.css'
 import { useTranslation } from 'react-i18next'
 import { IoHelpCircleOutline } from 'react-icons/io5'
-import { setCurrentEditorScene } from '../functions/sceneFunctions'
+import { onSaveScene, setCurrentEditorScene } from '../functions/sceneFunctions'
 import { AssetsPanelTab } from '../panels/assets'
-import { FilesPanelTab } from '../panels/files'
 import { HierarchyPanelTab } from '../panels/hierarchy'
 import { MaterialsPanelTab } from '../panels/materials'
 import { PropertiesPanelTab } from '../panels/properties'
 import { ScenePanelTab } from '../panels/scenes'
 import { ViewportPanelTab } from '../panels/viewport'
 import { VisualScriptPanelTab } from '../panels/visualscript'
+import { EditorHistoryState } from '../services/EditorHistoryState'
 import { EditorWarningState } from '../services/EditorWarningServices'
 import { UIAddonsState } from '../services/UIAddonsState'
 import './EditorContainer.css'
@@ -86,7 +86,7 @@ const onEditorWarning = (warning) => {
   })
 
   // popover design doesnt match the figma designs, we use notification for now
-  /*PopoverState.showPopupover(
+  /*ModalState.showPopupover(
     <WarningDialog title={t('editor:warning')} description={warning || t('editor:warningMsg')} />
   )*/
 }
@@ -94,17 +94,17 @@ const onEditorWarning = (warning) => {
 const onEditorError = (error) => {
   console.error(error)
   if (error['aborted']) {
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
     return
   }
 
-  PopoverState.showPopupover(
+  ModalState.openModal(
     <ErrorDialog title={error.title || t('editor:error')} description={error.message || t('editor:errorMsg')} />
   )
 }
 
 const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData => {
-  const tabs = [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
+  const tabs = [ScenePanelTab, AssetsPanelTab]
   flags.visualScriptPanelEnabled && tabs.push(VisualScriptPanelTab)
 
   return {
@@ -141,7 +141,7 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
 }
 
 const EditorContainer = () => {
-  const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled } = useMutableState(EditorState)
+  const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, rootEntity } = useMutableState(EditorState)
   const editorUIAddon = useMutableState(UIAddonsState).editor
   const currentLoadedSceneURL = useHookstate(null as string | null)
 
@@ -184,14 +184,24 @@ const EditorContainer = () => {
     }
   }, [scenePath.value])
 
-  useEffect(() => {
-    initializeSpatialEngine()
-    return () => {
-      destroySpatialEngine()
-    }
-  }, [])
+  useSpatialEngine()
 
-  const originEntity = useMutableState(EngineState).originEntity.value
+  /** Call get state since it needs to be created */
+  getState(EditorHistoryState)
+
+  const engineState = useHookstate(getMutableState(EngineState))
+
+  useEffect(() => {
+    if (engineState.isEditing.value || !rootEntity.value) return
+    /** @todo upon saving the scene, the GLTFComponent src is not with the new hash, so we need to get the old src */
+    const loadedSceneURL = getComponent(rootEntity.value, GLTFComponent).src
+    getMutableState(LocationState).currentLocation.location.sceneURL.set(loadedSceneURL)
+    return () => {
+      getMutableState(LocationState).currentLocation.location.sceneURL.set('')
+    }
+  }, [engineState.isEditing.value, rootEntity.value])
+
+  const originEntity = useMutableState(ReferenceSpaceState).originEntity.value
 
   useEffect(() => {
     if (!sceneAssetID.value || !currentLoadedSceneURL.value || !originEntity) return
@@ -205,7 +215,7 @@ const EditorContainer = () => {
 
   useHotkeys(`${cmdOrCtrlString}+s`, (e) => {
     e.preventDefault()
-    PopoverState.showPopupover(<SaveSceneDialog />)
+    onSaveScene()
   })
 
   const { initialized, isWidgetVisible, openChat } = useZendesk()
@@ -243,11 +253,7 @@ const EditorContainer = () => {
 
   return (
     <main className="pointer-events-auto">
-      <div
-        id="editor-container"
-        className="flex flex-col bg-black"
-        style={scenePath.value ? { background: 'transparent' } : {}}
-      >
+      <div id="editor-container" className="flex flex-col" style={scenePath.value ? { background: 'transparent' } : {}}>
         {uiEnabled.value && (
           <DndWrapper id="editor-container">
             <DragLayer />
@@ -270,21 +276,10 @@ const EditorContainer = () => {
       <PopupMenu />
       {!isWidgetVisible && initialized && (
         <div className="absolute bottom-3 right-4">
-          <Tooltip
-            position="left center"
-            contentStyle={{ transform: 'translate(10px)', animation: 'fadeIn 0.3s ease-in-out forwards' }}
-            key={t('editor:help')}
-            content={t('editor:help')}
-            arrow={true}
-          >
-            <Button
-              rounded="full"
-              size="small"
-              className="h-8 w-8 p-0"
-              iconContainerClassName="m-0"
-              startIcon={<IoHelpCircleOutline fontSize={24} />}
-              onClick={openChat}
-            />
+          <Tooltip position="left" key={t('editor:help')} content={t('editor:help')}>
+            <Button size="sm" className="h-8 w-8 p-0" onClick={openChat}>
+              <IoHelpCircleOutline fontSize={24} />
+            </Button>
           </Tooltip>
         </div>
       )}

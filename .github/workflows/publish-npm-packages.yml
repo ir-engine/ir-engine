@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 18.x
+          node-version: 22.x
           scope: '@ir-engine'
       - name: Config npm registry token
         run: npm config set '//npm.pkg.github.com/:_authToken' "${NPM_TOKEN}"

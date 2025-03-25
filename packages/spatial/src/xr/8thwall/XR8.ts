@@ -29,13 +29,13 @@ import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineQuery, useQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { dispatchAction, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { isMobile } from '../../common/functions/isMobile'
 import { PersistentAnchorComponent } from '../XRAnchorComponents'
 import { endXRSession, getReferenceSpaces, requestXRSession } from '../XRSessionFunctions'
-import { ReferenceSpace, XRAction, XRState } from '../XRState'
+import { ReferenceSpace, XRState } from '../XRState'
 import { XRSystem } from '../XRSystem'
 import { XR8Pipeline } from './XR8Pipeline'
 import { XR8Type } from './XR8Types'
@@ -209,7 +209,10 @@ const viewerInputSource = {
     index: 0,
     mapping: '',
     timestamp: Date.now() - performance.timeOrigin,
-    vibrationActuator: null
+    vibrationActuator: {
+      playEffect: async () => 'complete',
+      reset: async () => 'complete'
+    }
   },
   profiles: [] as string[]
 } as XRInputSource
@@ -289,7 +292,6 @@ const overrideXRSessionFunctions = () => {
     document.body.addEventListener('touchend', onTouchEnd)
 
     xrState.requestingSession.set(false)
-    dispatchAction(XRAction.sessionChanged({ active: true }))
   }
 
   endXRSession.implementation = async () => {
@@ -311,8 +313,6 @@ const overrideXRSessionFunctions = () => {
     document.body.removeEventListener('touchstart', onTouchStart)
     document.body.removeEventListener('touchmove', onTouchMove)
     document.body.removeEventListener('touchend', onTouchEnd)
-
-    dispatchAction(XRAction.sessionChanged({ active: false }))
   }
 }
 

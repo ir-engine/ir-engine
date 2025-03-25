@@ -25,17 +25,17 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiEye, HiTrash } from 'react-icons/hi2'
 
 import { useFind, useSearch } from '@ir-engine/common'
 import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 
 import { API } from '@ir-engine/common'
-import { PopoverState } from '../../../common/services/PopoverState'
+import { Edit01Lg, Trash04Lg } from '@ir-engine/ui/src/icons'
+import { ModalState } from '../../../common/services/ModalState'
 import DataTable from '../../common/Table'
 import { resourceColumns } from '../../common/constants/resources'
+import ActionButton from '../ActionButton'
 import AddEditResourceModal from './AddEditResourceModal'
 
 const RESOURCE_PAGE_LIMIT = 25
@@ -70,20 +70,19 @@ export default function ResourceTable({ search }: { search: string }) {
       project: el.project,
       action: (
         <div className="flex items-center justify-start gap-3">
-          <Button
+          <ActionButton
+            icon={Edit01Lg}
             onClick={() => {
-              PopoverState.showPopupover(<AddEditResourceModal selectedResource={el} />)
+              ModalState.openModal(<AddEditResourceModal selectedResource={el} />)
             }}
-            rounded="full"
-            className="h-8 w-8 justify-center border border-theme-primary bg-transparent p-0"
-          >
-            <HiEye className="place-self-center text-theme-primary" />
-          </Button>
-          <Button
-            rounded="full"
-            className="h-8 w-8 justify-center border border-theme-primary bg-transparent p-0"
+            variant="green"
+          />
+
+          <ActionButton
+            icon={Trash04Lg}
+            title={t('admin:components.common.delete')}
             onClick={() => {
-              PopoverState.showPopupover(
+              ModalState.openModal(
                 <ConfirmDialog
                   text={`${t('admin:components.resources.confirmResourceDelete')} '${el.key}'?`}
                   onSubmit={async () => {
@@ -92,9 +91,8 @@ export default function ResourceTable({ search }: { search: string }) {
                 />
               )
             }}
-          >
-            <HiTrash className="place-self-center text-theme-iconRed" />
-          </Button>
+            variant="red"
+          />
         </div>
       )
     }

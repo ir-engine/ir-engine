@@ -91,16 +91,18 @@ function handler(event) {
     var avatarsRegex = new RegExp(avatarsRegexRoot)
     var recordingsRegexRoot = __$recordingsRegex$__
     var recordingsRegex = new RegExp(recordingsRegexRoot)
+    var reportsRegexRoot = __$reportsRegex$__
+    var reportsRegex = new RegExp(reportsRegexRoot)
     var publicRegexRoot = __$publicRegex$__
     var publicRegex = new RegExp(publicRegexRoot)
     var tempRegex = new RegExp('/temp/')
     
     if (publicRegex.test(request.uri)) {
         request.uri = '/client' + request.uri
-    } else if (projectsRegex.test(request.uri) || recordingsRegex.test(request.uri) || avatarsRegex.test(request.uri) || tempRegex.test(request.uri)) {
-        // Projects, temp files, avatars, and recordings paths should be passed as-is
+    } else if (projectsRegex.test(request.uri) || recordingsRegex.test(request.uri) || avatarsRegex.test(request.uri) || reportsRegex.test(request.uri) || tempRegex.test(request.uri)) {
+        // Projects, temp files, avatars, recordings, and reports paths should be passed as-is
     } else {
-      // Anything that is not a static/public file, or a project or recording file, is assumed to be some sort
+      // Anything that is not a static/public file, or a project, recording, avatar, or report file, is assumed to be some sort
       // of engine route and passed to index.html to be handled by the router
       request.uri = '/client/index.html'
     }
@@ -128,16 +130,18 @@ export class S3Provider implements StorageProviderInterface {
     const awsCredentials = `[default]\naws_access_key_id=${config.aws.s3.accessKeyId}\naws_secret_access_key=${config.aws.s3.secretAccessKey}\n[role]\nrole_arn = ${config.aws.s3.roleArn}\nsource_profile = default`
 
     if (!fs.existsSync(awsPath)) fs.mkdirSync(awsPath, { recursive: true })
-    fs.writeFileSync(credentialsPath, Buffer.from(awsCredentials))
+    fs.writeFileSync(credentialsPath, awsCredentials)
 
     this.provider = new S3Client({
+      requestHandler: {
+        requestTimeout: 5_000,
+        httpsAgent: { maxSockets: 300 }
+      },
       credentials: fromIni({
         profile: config.aws.s3.roleArn ? 'role' : 'default',
         filepath: credentialsPath
       }),
-      endpoint: config.server.storageProviderExternalEndpoint
-        ? config.server.storageProviderExternalEndpoint
-        : config.aws.s3.endpoint,
+      endpoint: config.server.storageProviderExternalEndpoint || config.aws.s3.endpoint || undefined,
       region: config.aws.s3.region,
       forcePathStyle: true,
       maxAttempts: 5
@@ -152,7 +156,7 @@ export class S3Provider implements StorageProviderInterface {
   /**
    * Name of S3 bucket.
    */
-  bucket = config.aws.s3.staticResourceBucket
+  bucket = config.aws.s3.staticResourceBucket as string
 
   /**
    * Instance of S3 service object. This object has one method for each API operation.
@@ -162,18 +166,8 @@ export class S3Provider implements StorageProviderInterface {
   minioClient =
     config.aws.s3.s3DevMode === 'local'
       ? new Client({
-          endPoint: new URL(
-            config.server.storageProviderExternalEndpoint
-              ? config.server.storageProviderExternalEndpoint
-              : config.aws.s3.endpoint
-          ).hostname,
-          port: parseInt(
-            new URL(
-              config.server.storageProviderExternalEndpoint
-                ? config.server.storageProviderExternalEndpoint
-                : config.aws.s3.endpoint
-            ).port
-          ),
+          endPoint: new URL(config.server.storageProviderExternalEndpoint || config.aws.s3.endpoint).hostname,
+          port: parseInt(new URL(config.server.storageProviderExternalEndpoint || config.aws.s3.endpoint).port),
           useSSL: true,
           accessKey: config.aws.s3.accessKeyId,
           secretKey: config.aws.s3.secretAccessKey
@@ -200,7 +194,7 @@ export class S3Provider implements StorageProviderInterface {
         : config.aws.cloudfront.domain
       : `${config.aws.cloudfront.domain}/${this.bucket}`
 
-  originURLs = [this.cacheDomain]
+  originURLs = [this.cacheDomain as string]
 
   private bucketAssetURL =
     config.server.storageProvider === 's3'
@@ -337,7 +331,7 @@ export class S3Provider implements StorageProviderInterface {
    */
   async putObject(data: StorageObjectPutInterface, params: PutObjectParams = {}): Promise<boolean> {
     if (!data.Key) return false
-    // key should not contain '/' at the begining
+    // key should not contain '/' at the beginning
     const key = data.Key[0] === '/' ? data.Key.substring(1) : data.Key
 
     const args = params.isDirectory
@@ -456,7 +450,7 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   /**
-   * Invalidate items in the S3 storage.
+   * Invalidate items in S3
    * @param invalidationItems List of keys.
    */
   async createInvalidation(invalidationItems: string[]) {
@@ -507,6 +501,7 @@ export class S3Provider implements StorageProviderInterface {
     const projectsRegex = '^/projects/'
     const recordingsRegex = '^/recordings/'
     const avatarsRegex = '^/avatars/'
+    const reportsRegex = '^/reports/'
     let publicRegex = ''
     fs.readdirSync(path.join(appRootPath.path, 'packages', 'client', 'dist'), { withFileTypes: true }).forEach(
       (dirent) => {
@@ -526,6 +521,7 @@ export class S3Provider implements StorageProviderInterface {
     return CFFunctionTemplate.replace('__$projectsRegex$__', `'${projectsRegex}'`)
       .replace('__$avatarsRegex$__', `'${avatarsRegex}'`)
       .replace('__$recordingsRegex$__', `'${recordingsRegex}'`)
+      .replace('__$reportsRegex$__', `'${reportsRegex}'`)
       .replace('__$publicRegex$__', `'${publicRegex}'`)
   }
 

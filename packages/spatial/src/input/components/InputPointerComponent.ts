@@ -35,6 +35,7 @@ import {
 } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { defineState, getState, OpaqueType, useImmediateEffect } from '@ir-engine/hyperflux'
+import { T } from '../../schema/schemaFunctions'
 
 /**
  * @description
@@ -65,16 +66,11 @@ export const InputPointerComponent = defineComponent({
 
   schema: S.Object({
     pointerId: S.Number(-1),
-    position: S.Vec2(),
-    lastPosition: S.Vec2(),
-    movement: S.Vec2(),
+    position: T.Vec2(),
+    lastPosition: T.Vec2(),
+    movement: T.Vec2(),
     cameraEntity: S.Entity()
   }),
-
-  onSet(entity, component, json: { pointerId: number; cameraEntity: Entity }) {
-    if (typeof json.pointerId === 'number') component.pointerId.set(json.pointerId)
-    if (typeof json.cameraEntity === 'number') component.cameraEntity.set(json.cameraEntity)
-  },
 
   reactor: () => {
     const entity = useEntityContext()
@@ -100,7 +96,7 @@ export const InputPointerComponent = defineComponent({
 
   usePointersForCamera(cameraEntity: Entity) {
     const pointers = useQuery([InputPointerComponent])
-    return pointers.filter((entity) => getComponent(entity, InputPointerComponent).cameraEntity === cameraEntity)
+    return pointers.filter((entity) => getComponent(entity, InputPointerComponent)?.cameraEntity === cameraEntity)
   },
 
   getPointerByID(cameraEntity: Entity, pointerId: number) {

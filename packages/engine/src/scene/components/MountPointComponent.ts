@@ -24,9 +24,9 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Vector3 } from 'three'
+import { ArrowHelper, Vector3 } from 'three'
 
-import { UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
+import { UndefinedEntity, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -36,14 +36,14 @@ import {
   setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { dispatchAction, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
-import { ArrowHelperComponent } from '@ir-engine/spatial/src/common/debug/ArrowHelperComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
@@ -144,7 +144,7 @@ export const MountPointComponent = defineComponent({
 
   schema: S.Object({
     type: MountPointTypesSchema,
-    dismountOffset: S.Vec3({ x: 0, y: 0, z: 0.75 }),
+    dismountOffset: T.Vec3(new Vector3(0, 0, 0.75)),
     forceDismountPosition: S.Bool(false)
   }),
 
@@ -173,14 +173,7 @@ export const MountPointComponent = defineComponent({
       }
     }, [mountedEntities.mountsToMountedEntities])
 
-    useEffect(() => {
-      if (debugEnabled.value) {
-        setComponent(entity, ArrowHelperComponent, { name: 'mount-point-helper' })
-      }
-      return () => {
-        removeComponent(entity, ArrowHelperComponent)
-      }
-    }, [debugEnabled])
+    useHelperEntity(entity, () => new ArrowHelper(), debugEnabled.value)
 
     return null
   }

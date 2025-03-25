@@ -25,16 +25,15 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { useFind, useMutation } from '@ir-engine/common'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
+import { Button, Input } from '@ir-engine/ui'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 
 const ZendeskTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
@@ -84,6 +83,7 @@ const ZendeskTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
         return zendeskMutation.create({
           key,
           category: 'zendesk',
+          dataType: getDataType(setting[key]),
           value: setting[key],
           type: 'private'
         })
@@ -91,6 +91,7 @@ const ZendeskTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
       return zendeskMutation.patch(settingInDb.id, {
         key,
         category: 'zendesk',
+        dataType: getDataType(setting[key]),
         value: setting[key],
         type: 'private'
       })
@@ -116,8 +117,6 @@ const ZendeskTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
     <Accordion
       title={t('admin:components.setting.zendesk.header')}
       subtitle={t('admin:components.setting.zendesk.subtitle')}
-      expandIcon={<HiPlusSmall />}
-      shrinkIcon={<HiMinus />}
       ref={ref}
       open={open}
     >
@@ -154,17 +153,11 @@ const ZendeskTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
       </div>
 
       <div className="grid grid-cols-8 gap-6">
-        <Button size="small" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleReset}>
+        <Button size="sm" className="text-primary col-span-1 " fullWidth onClick={handleReset}>
           {t('admin:components.common.reset')}
         </Button>
-        <Button
-          size="small"
-          variant="primary"
-          className="col-span-1"
-          fullWidth
-          onClick={handleSubmit}
-          startIcon={state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
-        >
+        <Button size="sm" variant="primary" className="col-span-1" fullWidth onClick={handleSubmit}>
+          {state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
           {t('admin:components.common.save')}
         </Button>
       </div>

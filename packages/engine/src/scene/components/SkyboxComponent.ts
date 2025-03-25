@@ -24,9 +24,18 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Color, CubeReflectionMapping, CubeTexture, EquirectangularReflectionMapping, SRGBColorSpace } from 'three'
+import {
+  Color,
+  CubeReflectionMapping,
+  CubeTexture,
+  DataTexture,
+  EquirectangularReflectionMapping,
+  LinearFilter,
+  RGBAFormat,
+  SRGBColorSpace
+} from 'three'
 
-import { Engine } from '@ir-engine/ecs'
+import { Engine, entityExists, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -35,28 +44,30 @@ import {
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { entityExists, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { isClient, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
-import { loadCubeMapTexture } from '../constants/Util'
+import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
+
+const tempColor = new Color()
 
 export const SkyboxComponent = defineComponent({
   name: 'SkyboxComponent',
   jsonID: 'EE_skybox',
 
   schema: S.Object({
-    backgroundColor: S.Color(0x000000),
+    backgroundColor: T.Color(0x000000),
     equirectangularPath: S.String(''),
     cubemapPath: S.String(''),
     backgroundType: S.Number(1),
-    sky: S.Nullable(S.Type<Sky>()),
+    sky: S.NonSerialized(S.Nullable(S.Type<Sky>())),
     skyboxProps: S.Object({
       turbidity: S.Number(10),
       rayleigh: S.Number(1),
@@ -91,6 +102,7 @@ export const SkyboxComponent = defineComponent({
 
       texture.colorSpace = SRGBColorSpace
       texture.mapping = EquirectangularReflectionMapping
+      texture.minFilter = LinearFilter
       setComponent(entity, BackgroundComponent, texture)
     }, [texture, skyboxState.backgroundType])
 
@@ -104,7 +116,22 @@ export const SkyboxComponent = defineComponent({
 
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.color) return
-      setComponent(entity, BackgroundComponent, new Color(skyboxState.backgroundColor.value))
+
+      const col = skyboxState.backgroundColor.value ?? tempColor
+      const resolution = 64 // Min value required
+      /** @todo track this in resource manager */
+      const texture = new DataTexture(getRGBArray(new Color(col)), resolution, resolution, RGBAFormat)
+      // ResourceState.addResource(texture, texture.uuid, entity)
+      texture.needsUpdate = true
+      texture.colorSpace = SRGBColorSpace
+      texture.mapping = EquirectangularReflectionMapping
+      setComponent(entity, BackgroundComponent, texture)
+
+      return () => {
+        // ResourceState.unload(texture.uuid, entity)
+        texture.dispose()
+        removeComponent(entity, BackgroundComponent)
+      }
     }, [skyboxState.backgroundType, skyboxState.backgroundColor])
 
     useEffect(() => {

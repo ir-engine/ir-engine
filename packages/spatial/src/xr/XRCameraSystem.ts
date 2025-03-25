@@ -27,16 +27,17 @@ import { ArrayCamera, PerspectiveCamera, Vector2, Vector3, Vector4 } from 'three
 
 import { AnimationSystemGroup } from '@ir-engine/ecs'
 import { getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { defineActionQueue, getMutableState, getState } from '@ir-engine/hyperflux'
+import { getState, useMutableState } from '@ir-engine/hyperflux'
 
+import { useEffect } from 'react'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { Vector3_One } from '../common/constants/MathConstants'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRRendererState } from './WebXRManager'
-import { ReferenceSpace, XRAction, XRState } from './XRState'
+import { ReferenceSpace, XRState } from './XRState'
 import { XRSystem } from './XRSystem'
 
 const cameraLPos = new Vector3()
@@ -47,16 +48,18 @@ cameraL.layers.enable(1)
 cameraL.viewport = new Vector4()
 cameraL.matrixAutoUpdate = false
 cameraL.matrixWorldAutoUpdate = false
+cameraL.rotation._onChangeCallback = () => {}
+cameraL.quaternion._onChangeCallback = () => {}
 
 const cameraR = new PerspectiveCamera()
 cameraR.layers.enable(2)
 cameraR.viewport = new Vector4()
 cameraR.matrixAutoUpdate = false
 cameraR.matrixWorldAutoUpdate = false
+cameraR.rotation._onChangeCallback = () => {}
+cameraR.quaternion._onChangeCallback = () => {}
 
 const cameraPool = [cameraL, cameraR]
-
-const sessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
 /**
  * Assumes 2 cameras that are parallel and share an X-axis, and that
@@ -121,90 +124,89 @@ function updateProjectionFromCameraArrayUnion(camera: ArrayCamera) {
 }
 
 function updateCameraFromXRViewerPose() {
-  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-  const originTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
-  const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!
+  const camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent)
+  const originTransform = getComponent(getState(ReferenceSpaceState).localFloorEntity, TransformComponent)
+  const cameraTransform = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
+  const renderer = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!
   const xrState = getState(XRState)
   const pose = xrState.viewerPose
+  if (!pose) return
 
-  if (pose) {
-    const views = pose.views
-    const xrRendererState = getState(XRRendererState)
-    const glBaseLayer = xrRendererState.glBaseLayer
-    const glBinding = xrRendererState.glBinding
-    const glProjLayer = xrRendererState.glProjLayer
-    const newRenderTarget = xrRendererState.newRenderTarget
+  const views = pose.views
+  const xrRendererState = getState(XRRendererState)
+  const glBaseLayer = xrRendererState.glBaseLayer
+  const glBinding = xrRendererState.glBinding
+  const glProjLayer = xrRendererState.glProjLayer
+  const newRenderTarget = xrRendererState.newRenderTarget
+
+  if (glBaseLayer !== null) {
+    // @ts-ignore setRenderTargetFramebuffer is not in the type definition
+    renderer.setRenderTargetFramebuffer(newRenderTarget, glBaseLayer.framebuffer)
+    renderer.setRenderTarget(newRenderTarget)
+  }
+
+  cameraTransform.position.copy(pose.transform.position as any)
+  cameraTransform.rotation.copy(pose.transform.orientation as any)
+  cameraTransform.matrixWorld
+    .compose(cameraTransform.position, cameraTransform.rotation, Vector3_One)
+    .premultiply(originTransform.matrixWorld)
+    .decompose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
+  camera.matrixWorldInverse.copy(cameraTransform.matrixWorld).invert()
+
+  // check if it's necessary to rebuild camera list
+  let cameraListNeedsUpdate = false
+  if (views.length !== camera.cameras.length) {
+    camera.cameras.length = 0
+    cameraListNeedsUpdate = true
+  }
+
+  for (let i = 0; i < views.length; i++) {
+    const view = views[i]
+
+    let viewport: XRViewport | null = null
 
     if (glBaseLayer !== null) {
-      // @ts-ignore setRenderTargetFramebuffer is not in the type definition
-      renderer.setRenderTargetFramebuffer(newRenderTarget, glBaseLayer.framebuffer)
-      renderer.setRenderTarget(newRenderTarget)
+      viewport = glBaseLayer.getViewport(view)!
+    } else if (glBinding) {
+      const glSubImage = glBinding.getViewSubImage(glProjLayer!, view)
+      viewport = glSubImage.viewport
+
+      // For side-by-side projection, we only produce a single texture for both eyes.
+      if (i === 0) {
+        // @ts-ignore setRenderTargetTextures is not in the type definition
+        renderer.setRenderTargetTextures(
+          newRenderTarget,
+          glSubImage.colorTexture,
+          glProjLayer!.ignoreDepthValues ? undefined : glSubImage.depthStencilTexture
+        )
+
+        renderer.setRenderTarget(newRenderTarget)
+      }
     }
 
-    cameraTransform.position.copy(pose.transform.position as any)
-    cameraTransform.rotation.copy(pose.transform.orientation as any)
-    cameraTransform.matrixWorld
-      .compose(cameraTransform.position, cameraTransform.rotation, Vector3_One)
+    let viewCamera = cameraPool[i]
+
+    if (viewCamera === undefined) {
+      viewCamera = new PerspectiveCamera()
+      viewCamera.layers.enable(i)
+      viewCamera.viewport = new Vector4()
+      cameraPool[i] = viewCamera
+      viewCamera.matrixAutoUpdate = false
+      viewCamera.matrixWorldAutoUpdate = false
+    }
+
+    viewCamera.position.copy(view.transform.position as any)
+    viewCamera.quaternion.copy(view.transform.orientation as any)
+    viewCamera.matrixWorld
+      .compose(viewCamera.position, viewCamera.quaternion, Vector3_One)
       .premultiply(originTransform.matrixWorld)
-      .decompose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
-    camera.matrixWorldInverse.copy(cameraTransform.matrixWorld).invert()
+      .decompose(viewCamera.position, viewCamera.quaternion, viewCamera.scale)
+    viewCamera.matrixWorldInverse.copy(viewCamera.matrixWorld).invert()
+    viewCamera.projectionMatrix.fromArray(view.projectionMatrix)
+    if (viewport) viewCamera.viewport.set(viewport.x, viewport.y, viewport.width, viewport.height)
 
-    // check if it's necessary to rebuild camera list
-    let cameraListNeedsUpdate = false
-    if (views.length !== camera.cameras.length) {
-      camera.cameras.length = 0
-      cameraListNeedsUpdate = true
-    }
-
-    for (let i = 0; i < views.length; i++) {
-      const view = views[i]
-
-      let viewport: XRViewport | null = null
-
-      if (glBaseLayer !== null) {
-        viewport = glBaseLayer.getViewport(view)!
-      } else if (glBinding) {
-        const glSubImage = glBinding.getViewSubImage(glProjLayer!, view)
-        viewport = glSubImage.viewport
-
-        // For side-by-side projection, we only produce a single texture for both eyes.
-        if (i === 0) {
-          // @ts-ignore setRenderTargetTextures is not in the type definition
-          renderer.setRenderTargetTextures(
-            newRenderTarget,
-            glSubImage.colorTexture,
-            glProjLayer!.ignoreDepthValues ? undefined : glSubImage.depthStencilTexture
-          )
-
-          renderer.setRenderTarget(newRenderTarget)
-        }
-      }
-
-      let viewCamera = cameraPool[i]
-
-      if (viewCamera === undefined) {
-        viewCamera = new PerspectiveCamera()
-        viewCamera.layers.enable(i)
-        viewCamera.viewport = new Vector4()
-        cameraPool[i] = viewCamera
-        viewCamera.matrixAutoUpdate = false
-        viewCamera.matrixWorldAutoUpdate = false
-      }
-
-      viewCamera.position.copy(view.transform.position as any)
-      viewCamera.quaternion.copy(view.transform.orientation as any)
-      viewCamera.matrixWorld
-        .compose(viewCamera.position, viewCamera.quaternion, Vector3_One)
-        .premultiply(originTransform.matrixWorld)
-        .decompose(viewCamera.position, viewCamera.quaternion, viewCamera.scale)
-      viewCamera.matrixWorldInverse.copy(viewCamera.matrixWorld).invert()
-      viewCamera.projectionMatrix.fromArray(view.projectionMatrix)
-      if (viewport) viewCamera.viewport.set(viewport.x, viewport.y, viewport.width, viewport.height)
-
-      if (cameraListNeedsUpdate === true) {
-        camera.cameras.push(viewCamera)
-      }
+    if (cameraListNeedsUpdate === true) {
+      camera.cameras.push(viewCamera)
     }
   }
 }
@@ -214,18 +216,15 @@ let _currentDepthFar = null as number | null
 const _vec = new Vector2()
 
 export function updateXRCamera() {
-  const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)?.renderer
+  const viewerEntity = getState(ReferenceSpaceState).viewerEntity
+  if (!viewerEntity) return
+
+  const renderer = getOptionalComponent(viewerEntity, RendererComponent)?.renderer
   if (!renderer) return
 
-  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  const camera = getComponent(viewerEntity, CameraComponent)
   const xrState = getState(XRState)
   const session = xrState.session
-
-  for (const action of sessionChangedQueue()) {
-    if (!action.active) {
-      camera.updateProjectionMatrix()
-    }
-  }
 
   if (session === null) {
     camera.cameras = [cameraL]
@@ -258,26 +257,34 @@ export function updateXRCamera() {
   updateProjectionFromCameraArrayUnion(camera)
 }
 
-const xrSessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
-
 const execute = () => {
-  for (const action of xrSessionChangedQueue()) {
-    if (!action.active) {
-      _currentDepthNear = null
-      _currentDepthFar = null
-    }
-  }
-
   const { xrFrame } = getState(XRState)
   if (!xrFrame) return
 
-  getMutableState(XRState).viewerPose.set(ReferenceSpace.localFloor && xrFrame.getViewerPose(ReferenceSpace.localFloor))
+  getState(XRState).viewerPose = ReferenceSpace.localFloor && xrFrame.getViewerPose(ReferenceSpace.localFloor)
 }
 
 export const XRCameraInputSystem = defineSystem({
   uuid: 'ee.engine.XRCameraInputSystem',
   insert: { with: XRSystem },
-  execute
+  execute,
+  reactor: () => {
+    const xrSession = useMutableState(XRState).session.value
+
+    useEffect(() => {
+      if (!xrSession) return
+      return () => {
+        _currentDepthNear = null
+        _currentDepthFar = null
+        const viewerEntity = getState(ReferenceSpaceState).viewerEntity
+        if (!viewerEntity) return
+        const camera = getComponent(viewerEntity, CameraComponent)
+        camera.updateProjectionMatrix()
+      }
+    }, [xrSession])
+
+    return null
+  }
 })
 
 /**

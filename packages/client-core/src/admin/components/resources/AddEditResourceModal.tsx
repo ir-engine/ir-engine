@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { StaticResourceType, uploadAssetPath } from '@ir-engine/common/src/schema.type.module'
 import { cleanURL } from '@ir-engine/common/src/utils/cleanURL'
 import { AssetsPreviewPanel } from '@ir-engine/editor/src/components/assets/AssetsPreviewPanel'
@@ -36,8 +36,7 @@ import {
   MimeTypeToAssetType
 } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Input, RadioGroup } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button, Input, RadioGroup } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -156,7 +155,7 @@ export default function CreateResourceModal({ selectedResource }: { selectedReso
           args: { path: state.name.value, project: state.project.value }
         })
       }
-      PopoverState.hidePopupover()
+      ModalState.closeModal()
     } catch (e) {
       NotificationService.dispatchNotify(e.message, { variant: 'error' })
       errors.serverError.set(e.message)
@@ -166,7 +165,7 @@ export default function CreateResourceModal({ selectedResource }: { selectedReso
   return (
     <Modal
       title={t('admin:components.resources.createResource')}
-      onClose={PopoverState.hidePopupover}
+      onClose={ModalState.closeModal}
       className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
     >

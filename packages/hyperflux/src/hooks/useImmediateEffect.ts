@@ -23,7 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { DependencyList, EffectCallback, useLayoutEffect, useRef } from 'react'
+import { useHookstate } from '@hookstate/core'
+import { DependencyList, EffectCallback, useEffect, useLayoutEffect } from 'react'
+import { NO_PROXY_STEALTH } from '../functions/StateFunctions'
 
 function depsDiff(deps1, deps2) {
   return !(
@@ -34,25 +36,48 @@ function depsDiff(deps1, deps2) {
   )
 }
 
+function noop() {}
+
+/**
+ * Run an effect immediately on mount and whenever deps change.
+ *
+ * NOTE: this effect only runs after the component is first mounted
+ *
+ * @param effect
+ * @param deps
+ */
 export function useImmediateEffect(effect: EffectCallback, deps?: DependencyList) {
-  const cleanupRef = useRef<any>()
-  const depsRef = useRef<any>()
+  const cleanupRef = useHookstate<any>(null)
+  const depsRef = useHookstate<any>(null)
 
-  if (!depsRef.current || depsDiff(depsRef.current, deps)) {
-    depsRef.current = deps
+  // noop unless component is mounted to ensure we can clean up correctly
+  const isMounted = useHookstate(false)
+  useLayoutEffect(() => {
+    isMounted.set(true)
+  }, [])
 
-    if (cleanupRef.current) {
-      cleanupRef.current()
+  // make sure deps are hooked
+  useEffect(() => {}, deps)
+
+  // only run effect when mounted and whenever deps change
+  if (isMounted.value && depsDiff(depsRef.get(NO_PROXY_STEALTH), deps)) {
+    depsRef.set(deps)
+
+    // cleanup previous effect
+    const cleanup = cleanupRef.get(NO_PROXY_STEALTH)
+    if (cleanup) {
+      cleanup()
     }
 
-    cleanupRef.current = effect()
+    // run effect
+    cleanupRef.set(() => effect())
   }
 
+  // make sure final cleanup is called on unmount
   useLayoutEffect(() => {
     return () => {
-      if (cleanupRef.current) {
-        cleanupRef.current()
-      }
+      const cleanup = cleanupRef.get(NO_PROXY_STEALTH)
+      cleanup?.()
     }
   }, [])
 }

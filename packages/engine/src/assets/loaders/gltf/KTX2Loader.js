@@ -116,7 +116,7 @@ class KTX2Loader extends Loader {
 		this.transcoderBinary = null;
 		this.transcoderPending = null;
 
-		this.workerPool = new WorkerPool();
+		this.workerPool = new WorkerPool(1);
 		this.workerSourceURL = '';
 		this.workerConfig = null;
 
@@ -902,7 +902,8 @@ async function createRawTexture( container ) {
 		if ( container.pixelDepth > 0 ) throw new Error( 'THREE.KTX2Loader: Unsupported pixelDepth.' );
 
 		texture = new CompressedTexture( mipmaps, container.pixelWidth, container.pixelHeight );
-
+		texture.minFilter = mipmaps.length === 1 ? LinearFilter : LinearMipmapLinearFilter;
+		texture.magFilter = LinearFilter;
 	}
 
 	texture.mipmaps = mipmaps;

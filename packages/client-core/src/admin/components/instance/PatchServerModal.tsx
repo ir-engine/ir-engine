@@ -26,13 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useFind, useMutation } from '@ir-engine/common'
 import { LocationID, locationPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
+import { Input, Select } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 
@@ -52,7 +51,7 @@ export default function PatchServerModal() {
         NotificationService.dispatchNotify(patchResponse.message, {
           variant: patchResponse.status ? 'success' : 'error'
         })
-        PopoverState.hidePopupover()
+        ModalState.closeModal()
       })
       .catch((e) => {
         state.locationError.set(e.message)
@@ -74,17 +73,19 @@ export default function PatchServerModal() {
       title={t('admin:components.setting.patchInstanceserver')}
       className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
-      onClose={PopoverState.hidePopupover}
+      onClose={ModalState.closeModal}
       submitLoading={modalProcessing.value}
     >
       <Select
         options={locationsMenu}
-        currentValue={state.locationId.value}
-        onChange={(value) => {
+        value={state.locationId.value}
+        onChange={(value: string) => {
           state.locationId.set(value)
         }}
-        className="mb-5"
-        label={t('admin:components.instance.location')}
+        labelProps={{
+          text: t('admin:components.instance.location'),
+          position: 'top'
+        }}
       />
       <Input
         type="number"

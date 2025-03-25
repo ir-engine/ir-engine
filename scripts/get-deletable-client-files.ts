@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 
+import { UNIQUEIFIED_VITE_KEY_REGEX } from '@ir-engine/common/src/regex'
 import cli from 'cli'
 
 import {
@@ -32,26 +33,24 @@ import {
   getStorageProvider
 } from '@ir-engine/server-core/src/media/storageprovider/storageprovider'
 
-const UNIQUIFIED_FILE_NAME_REGEX = /[.-]{1}[a-zA-Z0-9]{8}$/
-
 cli.enable('status')
 
 cli.main(async () => {
   try {
     await createDefaultStorageProvider()
     const storageProvider = getStorageProvider()
-    let files = await storageProvider.listFolderContent('client', true)
-    files = files.filter((file) => UNIQUIFIED_FILE_NAME_REGEX.test(file.name))
+    let files = await storageProvider.listFolderContent('client/assets', true)
+    files = files.filter((file) => UNIQUEIFIED_VITE_KEY_REGEX.test(file.key))
     const putData = {
       Body: Buffer.from(JSON.stringify(files.map((file) => file.key))),
       ContentType: 'application/json',
-      Key: 'client/S3FilesToRemove.json'
+      Key: 'client/StorageProviderFilesToRemoveInitial.json'
     }
     await storageProvider.putObject(putData, { isDirectory: false })
-    console.log('Created list of S3 files to delete after deployment')
+    console.log('Created list of client files to delete after deployment')
     process.exit(0)
   } catch (err) {
-    console.log('Error in getting deletable S3 client files:')
+    console.log('Error in getting deletable client files:')
     console.log(err)
     cli.fatal(err)
   }

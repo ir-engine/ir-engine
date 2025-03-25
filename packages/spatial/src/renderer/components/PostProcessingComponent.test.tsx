@@ -27,31 +27,86 @@ import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 
 import assert from 'assert'
 import { MathUtils } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 
 import {
+  Entity,
+  EntityTreeComponent,
   EntityUUID,
   UUIDComponent,
   UndefinedEntity,
+  createEntity,
   getComponent,
   getMutableComponent,
+  removeEntity,
   serializeComponent,
   setComponent
 } from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
-import { noiseAddToEffectRegistry } from '@ir-engine/engine/src/postprocessing/NoiseEffect'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { act, render } from '@testing-library/react'
 import { Effect } from 'postprocessing'
-import React from 'react'
-import { EngineState } from '../../EngineState'
+import { useEffect } from 'react'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { destroySpatialEngine, initializeSpatialEngine } from '../../initializeEngine'
 import { RendererState } from '../RendererState'
+import { EffectReactorProps, PostProcessingEffectState } from '../effects/EffectRegistry'
 import { PostProcessingComponent } from './PostProcessingComponent'
+
+const effectKey = 'MockEffect'
+
+class MockEffect extends Effect {
+  args: any
+  constructor(args: any) {
+    super('MockEffect', TestShader)
+    this.args = args
+  }
+}
+
+export const MockEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
+  isActive
+  rendererEntity: Entity
+  effectData
+  effects
+}) => {
+  const { isActive, rendererEntity, effectData, effects } = props
+  const effectState = getState(PostProcessingEffectState)
+
+  useEffect(() => {
+    if (effectData[effectKey].value) return
+    effectData[effectKey].set(effectState[effectKey].defaultValues)
+  }, [])
+
+  useEffect(() => {
+    if (!isActive?.value) {
+      if (effects[effectKey].value) effects[effectKey].set(none)
+      return
+    }
+    const eff = new MockEffect(effectData[effectKey].value)
+    effects[effectKey].set(eff)
+    return () => {
+      effects[effectKey].set(none)
+    }
+  }, [isActive])
+
+  return null
+}
+
+const addMockEffectToRegistry = () => {
+  getMutableState(PostProcessingEffectState).merge({
+    [effectKey]: {
+      reactor: MockEffectProcessReactor,
+      defaultValues: {
+        isActive: false,
+        effectParam: false
+      },
+      schema: {
+        effectParam: { propertyType: 1, name: 'Effect Param' }
+      }
+    }
+  })
+}
 
 type PostProcessingComponentData = {
   enabled: boolean
@@ -235,7 +290,7 @@ describe('PostProcessingComponent', async () => {
 
       mockSpatialEngine()
 
-      rootEntity = getState(EngineState).viewerEntity
+      rootEntity = getState(ReferenceSpaceState).viewerEntity
 
       testEntity = createEntity()
       setComponent(testEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
@@ -255,32 +310,31 @@ describe('PostProcessingComponent', async () => {
     })
 
     it('should add and remove effects correctly', async () => {
-      const effectKey = 'NoiseEffect'
-      noiseAddToEffectRegistry()
+      const effectKey = 'MockEffect'
+      addMockEffectToRegistry()
 
-      const { rerender, unmount } = render(<></>)
+      setComponent(rootEntity, RendererComponent)
 
-      await act(async () => rerender(PostProcessingComponent.reactor))
+      await vi.waitFor(() => {
+        assert.ok(getComponent(testEntity, PostProcessingComponent).effects[effectKey])
+      })
 
       const postProcessingComponent = getMutableComponent(testEntity, PostProcessingComponent)
       postProcessingComponent.effects[effectKey].isActive.set(true)
 
-      setComponent(rootEntity, RendererComponent)
-      await act(async () => rerender(PostProcessingComponent.reactor))
-
-      // @ts-ignore Allow access to the EffectPass.effects private field
-      const before = getComponent(rootEntity, RendererComponent).effectComposer.EffectPass.effects
-      assert.equal(Boolean(before.find((el) => el.name == effectKey)), true, effectKey + ' should be turned on')
+      await vi.waitFor(() => {
+        // @ts-ignore Allow access to the EffectPass.effects private field
+        const before = getComponent(rootEntity, RendererComponent).effectComposer.EffectPass.effects
+        assert.equal(Boolean(before.find((el) => el.name == effectKey)), true, effectKey + ' should be turned on')
+      })
 
       postProcessingComponent.effects[effectKey].isActive.set(false)
 
-      await act(async () => rerender(PostProcessingComponent.reactor))
-
-      // @ts-ignore Allow access to the EffectPass.effects private field
-      const after = getComponent(rootEntity, RendererComponent).effectComposer.EffectPass.effects
-      assert.equal(Boolean(after.find((el) => el.name == effectKey)), false, effectKey + ' should be turned off')
-
-      unmount()
+      await vi.waitFor(() => {
+        // @ts-ignore Allow access to the EffectPass.effects private field
+        const after = getComponent(rootEntity, RendererComponent).effectComposer.EffectPass.effects
+        assert.equal(Boolean(after.find((el) => el.name == effectKey)), false, effectKey + ' should be turned off')
+      })
     })
   })
 })

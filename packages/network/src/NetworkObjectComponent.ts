@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useLayoutEffect } from 'react'
 
-import ECS, {
+import {
   Component,
   defineComponent,
   defineQuery,
@@ -33,40 +33,45 @@ import ECS, {
   Entity,
   getComponent,
   hasComponent,
+  proxySoAStore,
   removeComponent,
+  S,
   setComponent,
+  TTypedSchema,
   UndefinedEntity,
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
-import { matches, PeerID, UserID, Validator } from '@ir-engine/hyperflux'
+import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
+import { PeerID, UserID } from '@ir-engine/hyperflux'
 import { NetworkId } from '@ir-engine/network/src/NetworkId'
-import { ProxyWithECS } from '@ir-engine/spatial/src/common/proxies/ECSSchemaProxy'
 
 /** ID of last network created. */
 let availableNetworkId = 0 as NetworkId
 
+export const NetworkSchema = {
+  /** NetworkID type schema helper, defaults to 0 */
+  NetworkID: (options?: TTypedSchema<NetworkId>['options']) =>
+    S.Number(0, { ...options, id: 'NetworkID' } as any) as unknown as TTypedSchema<NetworkId>
+}
+
+const proxyNetworkId = proxySoAStore(() => NetworkObjectComponent.networkId)
+
 export const NetworkObjectComponent = defineComponent({
   name: 'NetworkObjectComponent',
 
-  schema: {
-    networkId: ECS.Types.ui32
-  },
+  schema: S.Object({
+    /** The user who is authority over this object. */
+    ownerId: S.UserID('' as UserID),
+    ownerPeer: S.PeerID('' as PeerID),
+    /** The peer who is authority over this object. */
+    authorityPeerID: S.PeerID('' as PeerID),
+    /** The network id for this object (this id is only unique per owner) */
+    networkId: S.Proxy(NetworkSchema.NetworkID(), proxyNetworkId)
+  }),
 
-  onInit: (initial) => {
-    return ProxyWithECS(
-      initial,
-      {
-        /** The user who is authority over this object. */
-        ownerId: '' as UserID,
-        ownerPeer: '' as PeerID,
-        /** The peer who is authority over this object. */
-        authorityPeerID: '' as PeerID,
-        /** The network id for this object (this id is only unique per owner) */
-        networkId: 0 as NetworkId
-      },
-      'networkId'
-    )
+  storage: {
+    networkId: createResizableTypeArray(Uint32Array)
   },
 
   reactor: function () {
@@ -156,5 +161,3 @@ export const NetworkObjectAuthorityTag = defineComponent({ name: 'NetworkObjectA
 export const NetworkObjectOwnedTag = defineComponent({ name: 'NetworkObjectOwnedTag' })
 
 export const NetworkObjectSendPeriodicUpdatesTag = defineComponent({ name: 'NetworkObjectSendPeriodicUpdatesTag' })
-
-export const matchesNetworkId = matches.number as Validator<unknown, NetworkId>

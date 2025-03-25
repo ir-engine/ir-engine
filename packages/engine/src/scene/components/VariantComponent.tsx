@@ -25,27 +25,35 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { Entity, EntityUUID, Static, UUIDComponent } from '@ir-engine/ecs'
+import {
+  Entity,
+  EntityTreeComponent,
+  EntityUUID,
+  Static,
+  UUIDComponent,
+  createEntity,
+  removeEntity,
+  useChildrenWithComponents,
+  useEntityContext
+} from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
   getMutableComponent,
+  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { addOBCPlugin } from '@ir-engine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
-import { EntityTreeComponent, useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import React from 'react'
@@ -82,7 +90,7 @@ const deviceMetadataSchema = S.Object({
 export type VariantMetadata = Static<typeof distanceMetadataSchema> | Static<typeof deviceMetadataSchema>
 
 export const VariantComponent = defineComponent({
-  name: 'EE_variant',
+  name: 'VariantComponent',
   jsonID: 'EE_variant',
 
   schema: S.Object({
@@ -240,8 +248,8 @@ const ChildMeshReactor = (props: { variantEntity: Entity; modelEntity: Entity; m
     const instancedMesh =
       mesh instanceof InstancedMesh
         ? mesh
-        : new InstancedMesh(mesh.geometry, mesh.material, instancingComponent.instanceMatrix.count)
-    instancedMesh.instanceMatrix = instancingComponent.instanceMatrix
+        : new InstancedMesh(mesh.geometry.clone(), mesh.material, instancingComponent.instanceMatrix.count)
+    instancedMesh.instanceMatrix.copy(instancingComponent.instanceMatrix)
     instancedMesh.frustumCulled = false
 
     //add distance culling shader plugin
@@ -276,9 +284,8 @@ uniform float minDistance;`
       })
     }
 
-    /** @todo rather than this, update the mesh component */
-    removeObjectFromGroup(props.meshEntity, mesh)
-    addObjectToGroup(props.meshEntity, instancedMesh)
+    removeComponent(props.meshEntity, MeshComponent)
+    setComponent(props.meshEntity, MeshComponent, instancedMesh)
   }, [])
 
   const level = useComponent(props.variantEntity, VariantComponent).levels[props.level].value
@@ -288,7 +295,7 @@ uniform float minDistance;`
     const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
 
     for (const material of materials) {
-      if (!material.shader) continue
+      if (!material.shader?.uniforms?.minDistance) continue
       material.shader.uniforms.minDistance.value = level.metadata['minDistance']
     }
   }, [level.metadata['minDistance']])
@@ -298,10 +305,49 @@ uniform float minDistance;`
     const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
 
     for (const material of materials) {
-      if (!material.shader) continue
+      if (!material.shader?.uniforms?.maxDistance) continue
       material.shader.uniforms.maxDistance.value = level.metadata['maxDistance']
     }
   }, [level.metadata['minDistance']])
 
   return null
 }
+
+/** @todo needs to be re-implemented */
+// const buildBudgetVariantMetadata = (
+//   level: VariantLevel,
+//   signal: AbortSignal,
+//   callback: (maxTextureSize: number, vertexCount: number) => void
+// ) => {
+//   const src = level.src
+//   const resources = getState(ResourceState).resources
+//   if (resources[src] && resources[src].status == ResourceStatus.Loaded) {
+//     const metadata = getState(ResourceState).resources[src].metadata as { verts: number; textureWidths: number[] }
+//     const maxTextureSize = metadata.textureWidths ? Math.max(...metadata.textureWidths) : 0
+//     const verts = metadata.verts
+//     callback(maxTextureSize, verts)
+//     return
+//   }
+
+//   loadResource(
+//     src,
+//     ResourceType.GLTF,
+//     UndefinedEntity,
+//     () => {
+//       const metadata = getState(ResourceState).resources[src].metadata as { verts: number; textureWidths: number[] }
+//       const maxTextureSize = metadata.textureWidths ? Math.max(...metadata.textureWidths) : 0
+//       const verts = metadata.verts
+//       callback(maxTextureSize, verts)
+//       ResourceState.unload(src, UndefinedEntity)
+//     },
+//     () => {},
+//     (error) => {
+//       console.warn(
+//         `VariantNodeEditor:buildBudgetVariantMetadata: error loading ${src} to build variant metadata`,
+//         error
+//       )
+//       callback(0, 0)
+//     },
+//     signal
+//   )
+// }

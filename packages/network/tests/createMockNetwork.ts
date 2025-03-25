@@ -23,20 +23,32 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getMutableState, NetworkID, PeerID, UserID } from '@ir-engine/hyperflux'
+import { applyIncomingActions, dispatchAction, getMutableState, NetworkID, PeerID, UserID } from '@ir-engine/hyperflux'
 
-import { NetworkPeerFunctions } from '../src/functions/NetworkPeerFunctions'
 import { createNetwork, NetworkTopics } from '../src/Network'
-import { addNetwork, NetworkState } from '../src/NetworkState'
+import { addNetwork, NetworkActions, NetworkState } from '../src/NetworkState'
 
 const instanceID = 'instanceID' as NetworkID
-const hostPeerID = 'hostPeerID' as PeerID
-const hostUserID = 'hostUserID' as UserID
 
-export const createMockNetwork = (networkType = NetworkTopics.world) => {
+export const createMockNetwork = (
+  networkType = NetworkTopics.world,
+  hostPeerID = 'hostPeerID' as PeerID | null,
+  hostUserID = null as UserID | null
+) => {
   if (networkType === NetworkTopics.world) getMutableState(NetworkState).hostIds.world.set(instanceID)
   else getMutableState(NetworkState).hostIds.media.set(instanceID)
   const network = createNetwork(instanceID, hostPeerID, networkType)
   addNetwork(network)
-  NetworkPeerFunctions.createPeer(network, hostPeerID, 0, hostUserID, 0)
+
+  if (hostPeerID && hostUserID) {
+    dispatchAction(
+      NetworkActions.peerJoined({
+        $network: network.id,
+        peerID: hostPeerID,
+        peerIndex: 0,
+        userID: hostUserID
+      })
+    )
+    applyIncomingActions()
+  }
 }

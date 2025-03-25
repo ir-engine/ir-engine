@@ -29,17 +29,18 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { EditorComponentType, commitProperties, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
+import {
+  EditorComponentType,
+  commitProperties,
+  commitProperty,
+  updateProperty
+} from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { PrimitiveGeometryComponent } from '@ir-engine/engine/src/scene/components/PrimitiveGeometryComponent'
-import { GeometryTypeEnum } from '@ir-engine/engine/src/scene/constants/GeometryTypeEnum'
-import { NO_PROXY } from '@ir-engine/hyperflux'
-import { Geometry } from '@ir-engine/spatial/src/common/constants/Geometry'
-import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { GeometryTypeEnum, GeometryTypeParamsEnum } from '@ir-engine/engine/src/scene/constants/GeometryTypeEnum'
 import InputGroup from '../../../input/Group'
+import NumericInput from '../../../input/Numeric'
 import SelectInput from '../../../input/Select'
-import ParameterInput from '../../parameter'
 
 /**
  * Types of skyboxes
@@ -110,19 +111,12 @@ const GeometryOption = [
 export const PrimitiveGeometryNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.entity
-  const hasError = getEntityErrors(entity, PrimitiveGeometryComponent)
   const primitiveGeometry = useComponent(entity, PrimitiveGeometryComponent)
-  const geometry = useComponent(entity, MeshComponent).geometry.get(NO_PROXY) as Geometry & {
-    parameters?: Record<string, any>
-  }
-
-  const renderPrimitiveGeometrySettings = () => (
-    <ParameterInput
-      entity={`${props.entity}-primitive-geometry`}
-      values={geometry.parameters ?? {}}
-      onChange={(key) => commitProperty(PrimitiveGeometryComponent, `geometryParams.${key}` as any)}
-    />
-  )
+  const primitiveGeometryParams = GeometryTypeParamsEnum[primitiveGeometry.geometryType.value] || {}
+  /** @todo properties should be explicit rather than generated from the geometry parameters */
+  // const geometry = useOptionalComponent(entity, MeshComponent)?.geometry.get(NO_PROXY) as Geometry & {
+  //   parameters?: Record<string, any>
+  // }
 
   return (
     <NodeEditor
@@ -137,11 +131,28 @@ export const PrimitiveGeometryNodeEditor: EditorComponentType = (props) => {
           options={GeometryOption}
           value={primitiveGeometry.geometryType.value}
           onChange={(value: GeometryTypeEnum) => {
-            commitProperties(PrimitiveGeometryComponent, { geometryType: value, geometryParams: {} })
+            commitProperties(PrimitiveGeometryComponent, {
+              geometryType: value,
+              geometryParams: Object.fromEntries(
+                Object.entries(GeometryTypeParamsEnum[value] || {}).map(([key, config]) => [key, config.default])
+              )
+            })
           }}
         />
       </InputGroup>
-      {renderPrimitiveGeometrySettings()}
+      {Object.entries(primitiveGeometryParams).map(([key, config]: [string, any]) => (
+        <InputGroup name={key} label={key}>
+          <NumericInput
+            min={config.min}
+            smallStep={0.1}
+            mediumStep={1}
+            largeStep={10}
+            value={primitiveGeometry.geometryParams[key].value}
+            onChange={updateProperty(PrimitiveGeometryComponent, `geometryParams.${key}` as any)}
+            onRelease={commitProperty(PrimitiveGeometryComponent, `geometryParams.${key}` as any)}
+          />
+        </InputGroup>
+      ))}
     </NodeEditor>
   )
 }

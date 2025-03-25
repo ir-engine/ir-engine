@@ -72,6 +72,8 @@ import {
 
 import { toTrianglesDrawMode } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 
+import { Entity } from '@ir-engine/ecs'
+import { SourceID } from '../../../scene/components/SourceComponent'
 import { FileLoader } from '../base/FileLoader'
 import { TextureLoader } from '../texture/TextureLoader'
 import {
@@ -105,13 +107,15 @@ export function getImageURIMimeType(uri) {
   return 'image/png'
 }
 
-declare module '@gltf-transform/core/dist/types/gltf.d.ts' {
+declare module '@gltf-transform/core' {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace GLTF {
     interface INode {
+      /** @deprecated */
       isBone?: boolean
     }
     interface IMesh {
+      /** @deprecated */
       isSkinnedMesh?: boolean
     }
     interface IBuffer {
@@ -124,8 +128,9 @@ declare module '@gltf-transform/core/dist/types/gltf.d.ts' {
 }
 
 export type GLTFParserOptions = {
+  entity: Entity
   body: null | ArrayBuffer
-  documentID: string
+  documentID: SourceID
   document: GLTF.IGLTF
   ktx2Loader: KTX2Loader
   manager: LoadingManager

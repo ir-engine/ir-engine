@@ -27,12 +27,18 @@ import { clamp } from 'lodash'
 import { AnimationAction, AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Vector3 } from 'three'
 
 import { UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, getMutableComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  hasComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { defineActionQueue, getState } from '@ir-engine/hyperflux'
 import { lerp } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
 
+import { NetworkObjectComponent, NetworkState } from '@ir-engine/network'
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -59,6 +65,11 @@ const epsilon = 0.01
 export const updateAnimationGraph = (avatarEntities: Entity[]) => {
   for (const newAnimation of animationQueue()) {
     const targetEntity = UUIDComponent.getEntityByUUID(newAnimation.entityUUID)
+    /** @todo this validation will require some more advanced tooling in event source state once we convert this module to use that paradigm */
+    const networkState = NetworkState.worldNetwork
+    if (targetEntity && networkState) {
+      if (newAnimation.$peer !== getOptionalComponent(targetEntity, NetworkObjectComponent)?.authorityPeerID) continue
+    }
     if (!hasComponent(targetEntity, AvatarAnimationComponent)) {
       console.warn(
         '[updateAnimationGraph]: AvatarAnimationComponent not found on entity',

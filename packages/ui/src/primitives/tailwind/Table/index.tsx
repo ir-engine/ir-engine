@@ -24,8 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { ReactNode } from 'react'
-import { GoChevronLeft, GoChevronRight } from 'react-icons/go'
-import { HiFastForward, HiRewind } from 'react-icons/hi'
+import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 
 interface TableCellProps extends React.HTMLAttributes<HTMLTableCellElement> {
@@ -34,12 +33,7 @@ interface TableCellProps extends React.HTMLAttributes<HTMLTableCellElement> {
 }
 
 const TableHeaderCell = ({ className, children, ...props }: TableCellProps) => {
-  const twClassName = twMerge(
-    'text-neutral-600 dark:text-white',
-    'p-4',
-    'border border-[0.5px] border-theme-primary',
-    className
-  )
+  const twClassName = twMerge('text-text-primary', 'p-4', 'border border-[0.5px] border-ui-outline ', className)
   return (
     <th className={twClassName} {...props}>
       {children}
@@ -57,7 +51,7 @@ const TableHeadRow = ({
   children: JSX.Element | JSX.Element[]
 }) => {
   const twClassName = twMerge('text-left capitalize', className)
-  const twClassNameThead = twMerge('sticky top-[-2px] z-10 bg-theme-table-secondary', theadClassName)
+  const twClassNameThead = twMerge('sticky top-[-2px] z-10 bg-surface-2', theadClassName)
   return (
     <thead className={twClassNameThead}>
       <tr className={twClassName}>{children}</tr>
@@ -68,8 +62,8 @@ const TableHeadRow = ({
 const TableCell = ({ className, children, ...props }: TableCellProps) => {
   const twClassName = twMerge(
     'p-4',
-    'border border-[0.5px] border-theme-primary',
-    'text-left text-neutral-600 dark:text-white',
+    'border border-[0.5px] border-ui-outline ',
+    'text-left text-text-primary',
     className
   )
   return (
@@ -84,7 +78,7 @@ interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   children?: ReactNode
 }
 const TableRow = ({ className, children, ...props }: TableRowProps) => {
-  const twClassName = twMerge('bg-theme-surface-main even:bg-theme-table-secondary', className)
+  const twClassName = twMerge('bg-surface-3 even:bg-surface-4', className)
   return (
     <tr className={twClassName} {...props}>
       {children}
@@ -136,10 +130,11 @@ const TablePagination = ({
   neighbours?: number
   onPageChange: (newPage: number) => void
 }) => {
-  const commonClasses = twMerge('pt-4 text-sm font-medium text-[#9CA0AA] enabled:hover:opacity-80')
-  const controlsClasses = twMerge(commonClasses, 'px-2 pt-5 enabled:text-white')
+  const { t } = useTranslation()
+  const commonClasses = twMerge('pt-4 text-sm font-medium text-text-secondary enabled:hover:text-text-primary')
+  const controlsClasses = twMerge(commonClasses, 'px-2 pt-5 enabled:text-text-primary')
   const pageClasses = twMerge(commonClasses, 'px-4')
-  const currentPageClasses = twMerge(pageClasses, 'border-t-2 border-[#375DAF] text-[#375DAF]')
+  const currentPageClasses = twMerge(pageClasses, 'border-t-2 border-ui-primary text-ui-primary')
 
   const prevPages = [] as number[]
   for (let i = currentPage - 1; i >= Math.max(0, currentPage - neighbours); i--) {
@@ -156,17 +151,12 @@ const TablePagination = ({
     <div className="flex-column mb-2 flex flex-wrap items-center justify-center pt-10 md:flex-row">
       <ul className="flex h-[38px] items-center justify-center">
         <li>
-          <button disabled={currentPage === 0} onClick={() => onPageChange(0)} className={controlsClasses}>
-            <HiRewind />
-          </button>
-        </li>
-        <li>
           <button
             disabled={currentPage === 0}
             className={twMerge(controlsClasses, 'mr-5')}
             onClick={() => onPageChange(Math.max(0, currentPage - 1))}
           >
-            <GoChevronLeft />
+            {t('common:table.pagination.prev')}
           </button>
         </li>
 
@@ -216,16 +206,7 @@ const TablePagination = ({
             onClick={() => onPageChange(Math.min(totalPages - 1, currentPage + 1))}
             className={twMerge(controlsClasses, 'ml-5')}
           >
-            <GoChevronRight />
-          </button>
-        </li>
-        <li>
-          <button
-            disabled={currentPage === totalPages - 1}
-            onClick={() => onPageChange(totalPages - 1)}
-            className={controlsClasses}
-          >
-            <HiFastForward />
+            {t('common:table.pagination.next')}
           </button>
         </li>
       </ul>
@@ -234,4 +215,4 @@ const TablePagination = ({
 }
 
 export default Table
-export { Table, TableBody, TableCell, TableHeadRow, TableHeaderCell, TablePagination, TableRow }
+export { Table, TableBody, TableCell, TableHeaderCell, TableHeadRow, TablePagination, TableRow }

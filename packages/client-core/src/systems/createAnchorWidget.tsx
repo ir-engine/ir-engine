@@ -28,17 +28,18 @@ import { MathUtils } from 'three'
 
 import { getComponent, removeComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
+import { createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
 import { dispatchAction, getMutableState, getState, startReactor, useHookstate } from '@ir-engine/hyperflux'
 import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
 import { XRStandardGamepadAxes, XRStandardGamepadButton } from '@ir-engine/spatial/src/input/state/ButtonState'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
-import { createXRUI } from '@ir-engine/spatial/src/xrui/functions/createXRUI'
-import { WidgetAppActions } from '@ir-engine/spatial/src/xrui/WidgetAppService'
-import { Widget, Widgets } from '@ir-engine/spatial/src/xrui/Widgets'
+import { WidgetAppActions } from './WidgetAppService'
+import { Widget, Widgets } from './Widgets'
 
 import { defineQuery } from '@ir-engine/ecs'
+import { Pin02Lg } from '@ir-engine/ui/src/icons'
 import { AnchorWidgetUI } from './ui/AnchorWidgetUI'
 
 const instanceSourceQuery = defineQuery([InputSourceComponent])
@@ -51,7 +52,7 @@ export function createAnchorWidget() {
   const widget: Widget = {
     ui,
     label: 'World Anchor',
-    icon: 'Anchor',
+    icon: Pin02Lg,
     onOpen: () => {
       xrState.scenePlacementMode.set('placing')
       dispatchAction(WidgetAppActions.showWidgetMenu({ shown: false }))

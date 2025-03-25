@@ -54,14 +54,14 @@ import {
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, NO_PROXY, none, State, useMutableState } from '@ir-engine/hyperflux'
 
+import { getNestedChildren } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { Effect, EffectComposer, EffectPass, OutlineEffect } from 'postprocessing'
+import { Effect, EffectComposer, EffectPass, OutlineEffect, Pass } from 'postprocessing'
 import { CameraComponent } from '../camera/components/CameraComponent'
-import { getNestedChildren } from '../transform/components/EntityTree'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
-import { XRLightProbeState } from '../xr/XRLightProbeSystem'
 import { XRState } from '../xr/XRState'
-import { GroupComponent } from './components/GroupComponent'
+import { ObjectComponent } from './components/ObjectComponent'
+import { ObjectLayerMaskComponent } from './components/ObjectLayerComponent'
 import { BackgroundComponent, EnvironmentMapComponent, FogComponent } from './components/SceneComponents'
 import { VisibleComponent } from './components/VisibleComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
@@ -83,6 +83,11 @@ declare module 'postprocessing' {
   }
 }
 
+type PassCount = {
+  pass: Pass
+  count: number
+}
+
 export const EffectSchema = S.Union([S.Any(), S.Type<Effect>(undefined, { isActive: S.Bool() })])
 
 export const RendererComponent = defineComponent({
@@ -95,8 +100,12 @@ export const RendererComponent = defineComponent({
 
       renderPass: S.Nullable(S.Type<RenderPass>()),
       normalPass: S.Nullable(S.Type<NormalPass>()),
+      passes: S.Record(S.String(), S.Type<Pass>()),
+      passesFakeMap: S.Record(S.String(), S.Type<PassCount>()),
+
       renderContext: S.Nullable(S.Type<WebGLRenderingContext | WebGL2RenderingContext>()),
       effects: S.Record(S.String(), EffectSchema),
+      effectInstances: S.Record(S.String(), S.Type<Effect>()),
 
       canvas: S.Nullable(S.Type<HTMLCanvasElement>()),
 
@@ -122,11 +131,77 @@ export const RendererComponent = defineComponent({
     return initial
   },
 
+  //TODO finish hashing this out
   /**
-   * @deprecated will be removed once threejs objects are not proxified. Should only be used in proxifyParentChildRelationships.ts
-   * see https://github.com/ir-engine/ir-engine/issues/9308
+   * Returns whether a postprocessing render pass is already registered (uses reference counting)
+   * @param entity
+   * @param passType
    */
-  activeRender: false,
+  passExists<T extends Pass>(entity: Entity, passType: new (...args: any[]) => T): boolean {
+    //return class name as string from constructor implicit name
+    const key = passType.name
+
+    const rendererComponent = getComponent(entity, RendererComponent)
+    const count = rendererComponent.passesFakeMap[key] ? rendererComponent.passesFakeMap[key].count : 0
+    return count > 0
+  },
+
+  getPass<T extends Pass>(entity: Entity, passType: new (...args: any[]) => T): T {
+    //return class name as string from constructor implicit name
+    const key = passType.name
+
+    const rendererComponent = getComponent(entity, RendererComponent)
+    return rendererComponent.passesFakeMap[key].pass as T
+  },
+
+  /**
+   * Registers a postprocessing render pass, and either creates a new instance or increments the reference count of the existing one.
+   * @param rendererEntity entity of the RendererComponent
+   * @param passType The type of pass to be registered, uses this as a unique key
+   * @param passFunction A function that returns a new instance of the pass (for custom initialization needs)
+   * @returns The pass instance
+   */
+  registerPass<T extends Pass>(
+    rendererEntity: Entity,
+    passType: new (...args: any[]) => T,
+    passFunction: (rendererEntity: Entity) => Pass
+  ): T {
+    //return class name as string from constructor implicit name
+    const key = passType.name
+
+    const rendererComponent = getComponent(rendererEntity, RendererComponent)
+    if (rendererComponent.passesFakeMap[key]) {
+      const count = rendererComponent.passesFakeMap[key].count
+      const existingPass = rendererComponent.passesFakeMap[key].pass
+      rendererComponent.passesFakeMap[key] = { pass: existingPass, count: count + 1 }
+    } else {
+      const generatedPass = passFunction(rendererEntity)
+      rendererComponent.passesFakeMap[key] = { pass: generatedPass, count: 1 }
+    }
+    return rendererComponent.passesFakeMap[key].pass as T
+  },
+
+  /**
+   * Unregisters a postprocessing render pass, and either decrements the reference count or removes the pass entirely.
+   * @param entity entity of the RendererComponent
+   * @param passType The type of pass to be unregistered, uses this as a unique key
+   */
+  unregisterPass<T extends Pass>(entity: Entity, passType: new (...args: any[]) => T) {
+    //return class name as string from constructor implicit name
+    const key = passType.name
+
+    const rendererComponent = getComponent(entity, RendererComponent)
+    const count = rendererComponent.passesFakeMap[key].count
+    if (count > 1) {
+      rendererComponent.passesFakeMap[key].count = count - 1
+    } else {
+      const effectComposerState = rendererComponent.effectComposer as EffectComposer
+      const pass = RendererComponent.getPass(entity, passType)
+      effectComposerState.removePass(pass)
+      rendererComponent.passesFakeMap[key] = none
+      delete rendererComponent.passesFakeMap[key]
+    }
+  },
 
   reactor: () => {
     const entity = useEntityContext()
@@ -135,60 +210,6 @@ export const RendererComponent = defineComponent({
     const hightlightState = useMutableState(HighlightState)
     const renderSettings = useMutableState(RendererState)
     const effectComposerState = rendererComponent.effectComposer as State<EffectComposer>
-
-    useEffect(() => {
-      if (!effectComposerState.value) return
-
-      const scene = rendererComponent.scene.value as Scene
-      const outlineEffect = new OutlineEffect(scene, camera, getState(HighlightState))
-      outlineEffect.selectionLayer = ObjectLayers.HighlightEffect
-      effectComposerState.OutlineEffect.set(outlineEffect)
-
-      return () => {
-        if (!hasComponent(entity, RendererComponent)) return
-        outlineEffect.dispose()
-        effectComposerState.OutlineEffect.set(none)
-      }
-    }, [!!effectComposerState.value, hightlightState])
-
-    useEffect(() => {
-      const effectComposer = effectComposerState.value
-      if (!effectComposer) return
-
-      const effectsVal = rendererComponent.effects.get(NO_PROXY) as Record<string, Effect>
-
-      const enabled = renderSettings.usePostProcessing.value
-
-      const effectArray = enabled ? Object.values(effectsVal) : []
-      if (effectComposer.OutlineEffect) effectArray.unshift(effectComposer.OutlineEffect as OutlineEffect)
-
-      const effectPass = new EffectPass(camera, ...effectArray)
-      effectComposerState.EffectPass.set(effectPass)
-
-      if (enabled) {
-        effectComposerState.merge(effectsVal)
-      }
-
-      try {
-        effectComposer.addPass(effectPass)
-      } catch (e) {
-        console.warn(e) /** @todo Implement user messaging Ex: (Can not use multiple convolution effects) */
-      }
-
-      effectComposer.setRenderer(rendererComponent.renderer.value as WebGLRenderer)
-
-      return () => {
-        if (!hasComponent(entity, RendererComponent)) return
-        if (enabled) {
-          for (const effect in effectsVal) {
-            effectsVal[effect].dispose()
-            effectComposerState[effect].set(none)
-          }
-        }
-        effectComposer.EffectPass.dispose()
-        effectComposer.removePass(effectPass)
-      }
-    }, [rendererComponent.effects, !!effectComposerState?.OutlineEffect?.value, renderSettings.usePostProcessing.value])
 
     useEffect(() => {
       const canvas = rendererComponent.canvas.value as HTMLCanvasElement
@@ -292,6 +313,76 @@ export const RendererComponent = defineComponent({
       }
     }, [rendererComponent.renderContext.value])
 
+    useEffect(() => {
+      if (!rendererComponent.effectComposer.value) return
+
+      const scene = rendererComponent.scene.value as Scene
+      const outlineEffect = new OutlineEffect(scene, camera, getState(HighlightState))
+      outlineEffect.selectionLayer = ObjectLayers.HighlightEffect
+      rendererComponent.effectInstances.OutlineEffect.set(outlineEffect)
+
+      return () => {
+        if (!hasComponent(entity, RendererComponent)) return
+        outlineEffect.dispose()
+        rendererComponent.effectInstances.OutlineEffect.set(none)
+      }
+    }, [!!rendererComponent.effectComposer.value, hightlightState])
+
+    useEffect(() => {
+      const effectComposer = effectComposerState.get(NO_PROXY)
+      if (!effectComposer) return
+
+      const effectsVal = rendererComponent.effects.get(NO_PROXY) as Record<string, Effect>
+
+      const enabled = renderSettings.usePostProcessing.get(NO_PROXY) as boolean
+
+      const effectArray = enabled ? Object.values(effectsVal) : []
+      if (rendererComponent.effectInstances.OutlineEffect.get(NO_PROXY))
+        effectArray.unshift(rendererComponent.effectInstances.OutlineEffect.get(NO_PROXY) as OutlineEffect)
+
+      const effectPass = new EffectPass(camera, ...effectArray)
+      effectComposerState.EffectPass.set(effectPass)
+
+      if (enabled) {
+        effectComposerState.merge(effectsVal)
+      }
+
+      try {
+        if (rendererComponent.passesFakeMap.value) {
+          for (const pass of Object.values(rendererComponent.passesFakeMap.value as Record<string, PassCount>)) {
+            effectComposer.addPass(pass.pass)
+          }
+        }
+        effectComposer.addPass(effectPass)
+      } catch (e) {
+        console.warn(e) /** @todo Implement user messaging Ex: (Can not use multiple convolution effects) */
+      }
+
+      effectComposer.setRenderer(rendererComponent.renderer.value as WebGLRenderer)
+
+      return () => {
+        if (!hasComponent(entity, RendererComponent)) return
+        if (enabled) {
+          for (const effect in effectsVal) {
+            effectsVal[effect].dispose()
+            effectComposerState[effect].set(none)
+          }
+        }
+        effectComposer.EffectPass.dispose()
+        effectComposer.removePass(effectPass)
+        if (rendererComponent.passesFakeMap.value) {
+          for (const pass of Object.values(rendererComponent.passesFakeMap.value as Record<string, PassCount>)) {
+            effectComposer.removePass(pass.pass)
+          }
+        }
+      }
+    }, [
+      rendererComponent.effects,
+      // rendererComponent.effectComposer.value,
+      rendererComponent?.effectInstances?.OutlineEffect.value,
+      renderSettings.usePostProcessing.value
+    ])
+
     return null
   }
 })
@@ -339,11 +430,12 @@ export const render = (
     renderer.needsResize = false
   }
 
-  RendererComponent.activeRender = true
+  ObjectComponent.activeRender = true
 
   /** Postprocessing does not support multipass yet, so just use basic renderer when in VR */
+  for (const c of camera.cameras) c.layers.mask = camera.layers.mask
+
   if (xrFrame || !effectComposer || !renderer.effectComposer) {
-    for (const c of camera.cameras) c.layers.mask = camera.layers.mask
     renderer.renderer!.clear()
     renderer.renderer!.render(scene, camera)
   } else {
@@ -352,7 +444,7 @@ export const render = (
     renderer.effectComposer.render(delta)
   }
 
-  RendererComponent.activeRender = false
+  ObjectComponent.activeRender = false
 }
 
 export const RenderSettingsState = defineState({
@@ -366,13 +458,15 @@ const rendererQuery = defineQuery([RendererComponent, CameraComponent])
 
 export const filterVisible = (entity: Entity) => hasComponent(entity, VisibleComponent)
 export const getNestedVisibleChildren = (entity: Entity) => getNestedChildren(entity, filterVisible)
-export const getSceneParameters = (entities: Entity[]) => {
+export const getSceneParameters = (entities: Entity[], cameraEntity: Entity) => {
   const vals = {
     background: null as Color | Texture | CubeTexture | null,
     environment: null as Texture | null,
     fog: null as FogBase | null,
     children: [] as Object3D[]
   }
+
+  const cameraLayers = ObjectLayerMaskComponent.mask[cameraEntity]
 
   for (const entity of entities) {
     if (hasComponent(entity, EnvironmentMapComponent)) {
@@ -384,8 +478,10 @@ export const getSceneParameters = (entities: Entity[]) => {
     if (hasComponent(entity, FogComponent)) {
       vals.fog = getComponent(entity, FogComponent)
     }
-    if (hasComponent(entity, GroupComponent)) {
-      vals.children.push(...getComponent(entity, GroupComponent)!)
+    // layer mask is faster with bitecs here than going through the object's proxy
+    const shouldRender = (ObjectLayerMaskComponent.mask[entity] & cameraLayers) !== 0
+    if (shouldRender && hasComponent(entity, ObjectComponent)) {
+      vals.children.push(getComponent(entity, ObjectComponent))
     }
   }
 
@@ -402,7 +498,7 @@ const execute = () => {
     const _scene = renderer.scene!
 
     const entitiesToRender = renderer.scenes.map(getNestedVisibleChildren).flat()
-    const { background, environment, fog, children } = getSceneParameters(entitiesToRender)
+    const { background, environment, fog, children } = getSceneParameters(entitiesToRender, entity)
     _scene.children = children
 
     const renderMode = getState(RendererState).renderMode
@@ -411,8 +507,7 @@ const execute = () => {
     _scene.background =
       sessionMode === 'immersive-ar' ? null : renderMode === RenderModes.WIREFRAME ? new Color(0xffffff) : background
 
-    const lightProbe = getState(XRLightProbeState).environment
-    _scene.environment = lightProbe ?? environment
+    _scene.environment = environment
 
     _scene.fog = fog
 

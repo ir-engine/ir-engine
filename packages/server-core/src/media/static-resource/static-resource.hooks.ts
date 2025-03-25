@@ -24,11 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import { BadRequest, Forbidden, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
-
-import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schemas/media/static-resource.schema'
-
 import { projectHistoryPath, projectPath } from '@ir-engine/common/src/schema.type.module'
+import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schemas/media/static-resource.schema'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
+import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 import { isEmpty } from 'lodash'
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -249,7 +248,8 @@ const deleteOldThumbnail = async (context: HookContext<StaticResourceService>) =
     })
     if (oldThumbnail.data.length) {
       const oldThumbnailResource = oldThumbnail.data[0]
-      await context.app.service(staticResourcePath).remove(oldThumbnailResource.id)
+      if (isValidId(oldThumbnailResource.id))
+        await context.app.service(staticResourcePath).remove(oldThumbnailResource.id)
     } else {
       logger.warn('Old thumbnail resource not found')
     }
@@ -380,7 +380,7 @@ export default {
             verifyScope('editor', 'write'),
             iffElse(
               hasProjectField,
-              [resolveProjectId(), verifyProjectPermission(['owner', 'editor', 'reviewer'])],
+              [resolveProjectId(), verifyProjectPermission(['owner', 'editor'])],
               [resolveProjectsByPermission()]
             ) as any
           ]

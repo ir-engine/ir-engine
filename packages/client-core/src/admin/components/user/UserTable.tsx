@@ -33,19 +33,18 @@ import { Engine } from '@ir-engine/ecs'
 import { State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { Checkbox } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
+import { Edit01Lg, InfoCircleLg, Trash04Lg } from '@ir-engine/ui/src/icons'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { truncateText } from '@ir-engine/ui/src/primitives/tailwind/TruncatedText'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegCircleCheck, FaRegCircleXmark } from 'react-icons/fa6'
-import { HiPencil, HiTrash } from 'react-icons/hi2'
-import { LuInfo } from 'react-icons/lu'
-import { PopoverState } from '../../../common/services/PopoverState'
+import { ModalState } from '../../../common/services/ModalState'
 import { AuthState } from '../../../user/services/AuthService'
 import DataTable from '../../common/Table'
 import { UserRowType, userColumns } from '../../common/constants/user'
+import ActionButton from '../ActionButton'
 import AccountIdentifiers from './AccountIdentifiers'
 import AddEditUserModal from './AddEditUserModal'
 
@@ -64,7 +63,7 @@ export const removeUsers = async (
       adminUserRemove(user.id)
     })
   )
-  PopoverState.hidePopupover()
+  ModalState.closeModal()
   modalProcessing.set(false)
 }
 
@@ -82,7 +81,7 @@ export default function UserTable({
 
   const scopeQuery = useFind(scopePath, {
     query: {
-      userId: Engine.instance.store.userID,
+      userId: Engine.instance.userID,
       type: 'location:write' as ScopeType,
       paginate: false
     }
@@ -135,7 +134,7 @@ export default function UserTable({
                 </>
               }
             >
-              <LuInfo className="ml-2 h-5 w-5 bg-transparent" />
+              <InfoCircleLg className="ml-2 h-5 w-5 bg-transparent text-text-secondary hover:text-text-primary" />
             </Tooltip>
           </div>
         ) : (
@@ -176,31 +175,27 @@ export default function UserTable({
         accountIdentifier: <AccountIdentifiers user={row} />,
         lastLogin: <RenderLogin />,
 
-        acceptedTOS: row.acceptedTOS ? (
-          <FaRegCircleCheck className="h-5 w-5 text-theme-iconGreen" />
+        ageVerified: row.ageVerified ? (
+          <FaRegCircleCheck className="h-5 w-5 " />
         ) : (
-          <FaRegCircleXmark className="h-5 w-5 text-theme-iconRed" />
+          <FaRegCircleXmark className="h-5 w-5 " />
         ),
         isGuest: row.isGuest.toString(),
+        createdAt: toDisplayDateTime(row.createdAt),
         action: (
           <div className="flex items-center justify-start gap-3">
-            <Button
-              rounded="full"
-              variant="outline"
-              className="h-8 w-8"
-              disabled={!userHasAccess}
+            <ActionButton
+              icon={Edit01Lg}
               title={t('admin:components.common.view')}
-              onClick={() => PopoverState.showPopupover(<AddEditUserModal user={row} />)}
-              startIcon={<HiPencil className="place-self-center text-theme-iconGreen" />}
+              onClick={() => ModalState.openModal(<AddEditUserModal user={row} />)}
+              variant="green"
             />
-            <Button
-              rounded="full"
-              variant="outline"
-              className="h-8 w-8"
-              disabled={user.id.value === row.id}
+
+            <ActionButton
+              icon={Trash04Lg}
               title={t('admin:components.common.delete')}
               onClick={() => {
-                PopoverState.showPopupover(
+                ModalState.openModal(
                   <ConfirmDialog
                     text={`${t('admin:components.user.confirmUserDelete')} '${row.name}'?`}
                     onSubmit={async () => {
@@ -209,7 +204,7 @@ export default function UserTable({
                   />
                 )
               }}
-              startIcon={<HiTrash className="place-self-center text-theme-iconRed" />}
+              variant="red"
             />
           </div>
         )

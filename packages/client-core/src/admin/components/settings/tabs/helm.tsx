@@ -25,16 +25,15 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { useFind, useMutation } from '@ir-engine/common'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { engineSettingPath, helmVersionPath } from '@ir-engine/common/src/schema.type.module'
+import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { Button, Select } from '@ir-engine/ui'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
@@ -100,6 +99,7 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
         return helmMutation.create({
           key,
           category: 'helm',
+          dataType: getDataType(setting[key]),
           value: setting[key],
           type: 'private'
         })
@@ -137,8 +137,6 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
     <Accordion
       title={t('admin:components.setting.helm.header')}
       subtitle={t('admin:components.setting.helm.subtitle')}
-      expandIcon={<HiPlusSmall />}
-      shrinkIcon={<HiMinus />}
       ref={ref}
       open={open}
     >
@@ -148,38 +146,36 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
 
       <div className="mb-6 grid w-full grid-cols-2 gap-2">
         <Select
-          label={t('admin:components.setting.helm.main')}
+          labelProps={{
+            text: t('admin:components.setting.helm.main'),
+            position: 'top'
+          }}
           options={mainVersionMenu}
           onChange={(value) => {
             selectedMainVersion.set(value as string)
           }}
-          currentValue={selectedMainVersion.value || ''}
-          className="col-span-1"
+          value={selectedMainVersion.value || ''}
         />
 
         <Select
-          label={t('admin:components.setting.helm.builder')}
+          labelProps={{
+            text: t('admin:components.setting.helm.builder'),
+            position: 'top'
+          }}
           options={builderVersionMenu}
           onChange={(value) => {
             selectedBuilderVersion.set(value as string)
           }}
-          currentValue={selectedBuilderVersion.value || ''}
-          className="col-span-1"
+          value={selectedBuilderVersion.value || ''}
         />
 
         <div className="col-span-1 mt-6 grid grid-cols-4 gap-6">
-          <Button size="small" className="text-primary col-span-1 bg-theme-highlight" onClick={handleCancel} fullWidth>
+          <Button size="sm" className="text-primary col-span-1 " onClick={handleCancel} fullWidth>
             {t('admin:components.common.reset')}
           </Button>
 
-          <Button
-            size="small"
-            variant="primary"
-            className="col-span-1"
-            onClick={handleSubmit}
-            startIcon={state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
-            fullWidth
-          >
+          <Button size="sm" variant="primary" className="col-span-1" onClick={handleSubmit} fullWidth>
+            {state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
             {t('admin:components.common.save')}
           </Button>
         </div>

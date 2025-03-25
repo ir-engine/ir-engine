@@ -24,12 +24,16 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import config from '../../appconfig'
-import IPFSStorage from './ipfs.storage'
+import GCSStorage from './gcs.storage'
 import LocalStorage from './local.storage'
 import S3Storage from './s3.storage'
 import { StorageProviderInterface } from './storageprovider.interface'
 
 const providers = {} as { [constructor: string]: StorageProviderInterface }
+const storages = {
+  s3: S3Storage,
+  gcs: GCSStorage
+}
 
 export const getStorageProvider = (provider = 'default') => providers[provider]
 
@@ -43,23 +47,11 @@ export const createStorageProvider = (constructor: StorageProviderConstructor) =
   return storageProvider
 }
 
-export const createIPFSStorageProvider = async () => {
-  const IPFSProvider = new IPFSStorage()
-  const podName = await IPFSProvider.getIPFSPod()
-
-  if (!podName) {
-    return console.log('Tried to initialize IPFS storage provider but could not communicate with the pod.')
-  }
-
-  await IPFSProvider.initialize(podName)
-
-  providers['ipfs'] = IPFSProvider
-  return IPFSProvider
-}
-
 export const createDefaultStorageProvider = () => {
   const StorageProvider =
-    config.server.storageProvider !== 's3' && config.server.storageProvider !== 'ipfs' ? LocalStorage : S3Storage
+    config.server.storageProvider && storages[config.server.storageProvider]
+      ? storages[config.server.storageProvider]
+      : LocalStorage
   const provider = createStorageProvider(StorageProvider)
   providers['default'] = provider
   return provider

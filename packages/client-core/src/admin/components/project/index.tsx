@@ -49,7 +49,7 @@ export default function AdminProject() {
 
   const scopeQuery = useFind(scopePath, {
     query: {
-      userId: Engine.instance.store.userID,
+      userId: Engine.instance.userID,
       type: 'projects:read' as ScopeType
     }
   })
@@ -140,7 +140,6 @@ export default function AdminProject() {
             disabled: false //config.client.localBuildOrDev
           }
         ]}
-        tabcontainerClassName="bg-theme-primary"
       />
     </>
   )

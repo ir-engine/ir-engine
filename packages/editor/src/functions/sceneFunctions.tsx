@@ -25,71 +25,88 @@ Infinite Reality Engine. All Rights Reserved.
 
 import i18n from 'i18next'
 
+import { GLTF } from '@gltf-transform/core'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { createScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import multiLogger from '@ir-engine/common/src/logger'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { cleanString } from '@ir-engine/common/src/utils/cleanString'
-import { EntityUUID, UndefinedEntity } from '@ir-engine/ecs'
-import { setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { EngineState, EntityUUID, UndefinedEntity } from '@ir-engine/ecs'
+import { Layers } from '@ir-engine/ecs/src/ComponentFunctions'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
-import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { handleScenePaths } from '@ir-engine/engine/src/scene/functions/GLTFConversion'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { AssetModifiedState, SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { exportGLTFScene } from '@ir-engine/engine/src/gltf/exportGLTFScene'
+import { getMutableState, getState, none } from '@ir-engine/hyperflux'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
+import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
+import React from 'react'
 import { EditorState } from '../services/EditorServices'
+import { SceneThumbnailState } from '../services/SceneThumbnailState'
 import { uploadProjectFiles } from './assetFunctions'
 
 const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
 
 const fileServer = config.client.fileServer
 
+export const confirmSceneExists = async (sceneFile: string) => {
+  const sceneName = cleanString(sceneFile!.replace('.scene.json', '').replace('.gltf', ''))
+  const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
+
+  const existingScene = await API.instance.service(staticResourcePath).find({
+    query: { key: `${currentSceneDirectory}/${sceneName}.gltf`, $limit: 1 }
+  })
+
+  return existingScene.data.length > 0
+}
+
 export const saveSceneGLTF = async (
   sceneAssetID: string,
   projectName: string,
   sceneFile: string,
   signal: AbortSignal,
-  saveAs?: boolean
+  saveAs?: boolean,
+  savePath?: string
 ) => {
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
 
   const { rootEntity } = getState(EditorState)
-  const sourceID = GLTFComponent.getInstanceID(rootEntity)
 
-  const sceneName = cleanString(sceneFile!.replace('.scene.json', '').replace('.gltf', ''))
-  const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
-
+  const sceneName = cleanString(sceneFile!.replace('.scene.json', '').replace('.gltf', '')) + '.gltf'
+  let currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
+  if (savePath) {
+    currentSceneDirectory = savePath
+  }
   if (saveAs) {
-    const existingScene = await API.instance.service(staticResourcePath).find({
-      query: { key: `${currentSceneDirectory}/${sceneName}.gltf`, $limit: 1 }
-    })
-
-    if (existingScene.data.length > 0) throw new Error(i18n.t('editor:errors.sceneAlreadyExists'))
+    const isSceneExists = await confirmSceneExists(sceneFile)
+    if (isSceneExists) throw new Error(i18n.t('editor:errors.sceneAlreadyExists'))
   }
 
-  const gltfData = getState(GLTFDocumentState)[sourceID]
+  const response = await exportGLTFScene(rootEntity, getState(EditorState).projectName!, sceneFile, false)
+  const gltfData = response[0] as GLTF.IGLTF
+  const files = response.slice(1) as File[]
+
   if (!gltfData) {
     logger.error('Failed to save scene, no gltf data found')
   }
-  const encodedGLTF = handleScenePaths(gltfData, 'encode')
-  const blob = [JSON.stringify(encodedGLTF, null, 2)]
-  const file = new File(blob, `${sceneName}.gltf`)
+
+  const blob = [new Blob([JSON.stringify(gltfData, null, 2)], { type: 'application/gltf+json' })]
+  const gltfFile = new File(blob, sceneFile)
 
   const currentScene = await API.instance.service(staticResourcePath).get(sceneAssetID)
 
   const [[newPath]] = await Promise.all(
     uploadProjectFiles(
       projectName,
-      [file],
+      [gltfFile, ...files],
       [currentSceneDirectory],
       [
         {
           type: 'scene',
           contentType: 'model/gltf+json',
-          thumbnailKey: currentScene.thumbnailKey
+          thumbnailKey: currentScene.thumbnailKey ?? ''
         }
       ]
     ).promises
@@ -113,6 +130,26 @@ export const saveSceneGLTF = async (
     scenePath: assetURL,
     projectName,
     sceneAssetID: result.data[0].id
+  })
+}
+
+export const logNewScene = (authoringApp: string, entryPoint: string = 'editor') => {
+  logger.analytics({
+    app_name: 'editor',
+    project: getState(EditorState).projectName,
+    user_id: getState(EngineState).userID,
+    event_name: 'editor',
+    event_value: 'new-scene',
+    event_properties: [
+      {
+        key: 'authoring-app',
+        value: authoringApp
+      },
+      {
+        key: 'entry-point',
+        value: entryPoint
+      }
+    ]
   })
 }
 
@@ -140,12 +177,54 @@ export const onNewScene = async (
 
 export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
   getMutableState(EngineState).isEditing.set(true)
-  const unload = GLTFAssetState.loadScene(sceneURL, uuid)
-  const gltfEntity = getState(GLTFAssetState)[sceneURL]
-  setComponent(gltfEntity, SceneComponent)
+  const viewerEntity = getState(ReferenceSpaceState).viewerEntity
+  const unload = SceneState.loadScene(sceneURL, uuid, viewerEntity, Layers.Authoring)
+  const gltfEntity = getState(SceneState)[sceneURL]
   getMutableState(EditorState).rootEntity.set(gltfEntity)
   return () => {
     unload()
     getMutableState(EditorState).rootEntity.set(UndefinedEntity)
+  }
+}
+
+/**
+ * onSaveScene
+ *
+ * @returns Promise<void>
+ */
+export const onSaveScene = async () => {
+  const { sceneAssetID, projectName, sceneName, rootEntity } = getState(EditorState)
+  const sceneModified = EditorState.isModified()
+
+  try {
+    await SceneThumbnailState.createThumbnail()
+    await SceneThumbnailState.uploadThumbnail()
+  } catch (error) {
+    console.error(error)
+  }
+
+  if (!sceneModified) {
+    ModalState.closeModal()
+    NotificationService.dispatchNotify(`${i18n.t('editor:dialog.saveScene.info-save-success')}`, { variant: 'success' })
+    return
+  }
+
+  const abortController = new AbortController()
+
+  try {
+    await saveSceneGLTF(sceneAssetID!, projectName!, sceneName!, abortController.signal)
+    NotificationService.dispatchNotify(`${i18n.t('editor:dialog.saveScene.info-save-success')}`, { variant: 'success' })
+    const sourceID = GLTFComponent.getInstanceID(rootEntity)
+    getMutableState(AssetModifiedState)[sourceID].set(none)
+
+    ModalState.closeModal()
+  } catch (error) {
+    console.error(error)
+    ModalState.openModal(
+      <ErrorDialog
+        title={i18n.t('editor:savingError')}
+        description={error.message || i18n.t('editor:savingErrorMsg')}
+      />
+    )
   }
 }

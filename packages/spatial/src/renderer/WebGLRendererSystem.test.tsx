@@ -26,10 +26,12 @@
 import {
   ECSState,
   Entity,
+  EntityTreeComponent,
   EntityUUID,
   SystemDefinitions,
   Timer,
   UUIDComponent,
+  UndefinedEntity,
   createEntity,
   destroyEngine,
   getComponent,
@@ -43,9 +45,8 @@ import React from 'react'
 import { Color, Group, MathUtils, Texture } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { mockEngineRenderer } from '../../tests/util/MockEngineRenderer'
-import { EngineState } from '../EngineState'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { CameraComponent } from '../camera/components/CameraComponent'
-import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { RendererState } from './RendererState'
 import {
   RendererComponent,
@@ -54,8 +55,7 @@ import {
   getSceneParameters
 } from './WebGLRendererSystem'
 import { FogSettingsComponent, FogType } from './components/FogSettingsComponent'
-import { GroupComponent, addObjectToGroup } from './components/GroupComponent'
-import { Object3DComponent } from './components/Object3DComponent'
+import { ObjectComponent } from './components/ObjectComponent'
 import { BackgroundComponent, EnvironmentMapComponent, SceneComponent } from './components/SceneComponents'
 import { VisibleComponent } from './components/VisibleComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
@@ -74,7 +74,7 @@ describe('WebGl Renderer System', () => {
     getMutableState(ECSState).timer.set(timer)
 
     rootEntity = createEntity()
-    getMutableState(EngineState).viewerEntity.set(rootEntity)
+    getMutableState(ReferenceSpaceState).viewerEntity.set(rootEntity)
     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, CameraComponent)
@@ -87,34 +87,26 @@ describe('WebGl Renderer System', () => {
 
     invisibleEntity = createEntity()
     setComponent(invisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-    setComponent(invisibleEntity, GroupComponent)
-    const invisibleObject3d = setComponent(invisibleEntity, Object3DComponent, new Group())
-    addObjectToGroup(invisibleEntity, invisibleObject3d)
+    setComponent(invisibleEntity, ObjectComponent, new Group())
     setComponent(invisibleEntity, EntityTreeComponent)
 
     visibleEntity = createEntity()
     setComponent(visibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(visibleEntity, VisibleComponent)
-    const visibleObject3d = setComponent(visibleEntity, Object3DComponent, new Group())
-    addObjectToGroup(visibleEntity, visibleObject3d)
-    setComponent(visibleEntity, GroupComponent)
+    setComponent(visibleEntity, ObjectComponent, new Group())
     setComponent(visibleEntity, EntityTreeComponent)
     setComponent(rootEntity, SceneComponent)
 
     nestedInvisibleEntity = createEntity()
     setComponent(nestedInvisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-    setComponent(nestedInvisibleEntity, GroupComponent)
-    const nestedInvisibleObject3d = setComponent(nestedInvisibleEntity, Object3DComponent, new Group())
-    addObjectToGroup(nestedInvisibleEntity, nestedInvisibleObject3d)
+    setComponent(nestedInvisibleEntity, ObjectComponent, new Group())
     setComponent(nestedInvisibleEntity, EntityTreeComponent)
     setComponent(visibleEntity, SceneComponent)
 
     nestedVisibleEntity = createEntity()
     setComponent(nestedVisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(nestedVisibleEntity, VisibleComponent)
-    const nestedVisibleObject3d = setComponent(nestedVisibleEntity, Object3DComponent, new Group())
-    addObjectToGroup(nestedVisibleEntity, nestedVisibleObject3d)
-    setComponent(nestedVisibleEntity, GroupComponent)
+    setComponent(nestedVisibleEntity, ObjectComponent, new Group())
     setComponent(nestedVisibleEntity, EntityTreeComponent)
     setComponent(invisibleEntity, SceneComponent)
 
@@ -126,7 +118,7 @@ describe('WebGl Renderer System', () => {
   })
 
   it('Test Background, Environment, Fog Components', async () => {
-    const { background, environment, fog, children } = getSceneParameters([rootEntity])
+    const { background, environment, fog, children } = getSceneParameters([rootEntity], UndefinedEntity)
     SystemDefinitions.get(WebGLRendererSystem)?.execute()
     assert(background, 'background component exists')
     const backgroundColor = background as Color

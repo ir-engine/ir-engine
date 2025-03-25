@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
 import { matches, Validator } from 'ts-matches'
 
 import { hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -31,12 +30,9 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { defineAction, defineActionQueue, getState } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { VisualScriptState } from '@ir-engine/visual-script'
+import { defineAction, defineActionQueue } from '@ir-engine/hyperflux'
 
-import { registerEngineProfile } from '../nodes/profiles/ProfileModule'
-import { VisualScriptComponent, VisualScriptDomain } from '../VisualScriptModule'
+import { VisualScriptComponent } from '../VisualScriptModule'
 
 export const VisualScriptActions = {
   execute: defineAction({
@@ -62,8 +58,6 @@ export const visualScriptQuery = defineQuery([VisualScriptComponent])
 const executeQueue = defineActionQueue(VisualScriptActions.execute.matches)
 const stopQueue = defineActionQueue(VisualScriptActions.stop.matches)
 const execute = () => {
-  if (getState(EngineState).isEditor) return
-
   for (const action of executeQueue()) {
     const entity = action.entity
     if (hasComponent(entity, VisualScriptComponent)) setComponent(entity, VisualScriptComponent, { run: true })
@@ -76,15 +70,16 @@ const execute = () => {
 }
 
 const reactor = () => {
-  useEffect(() => {
-    VisualScriptState.registerProfile(registerEngineProfile, VisualScriptDomain.ECS)
-  }, [])
+  /** @todo add back proper support for visual script */
+  // useEffect(() => {
+  //   VisualScriptState.registerProfile(registerEngineProfile, VisualScriptDomain.ECS)
+  // }, [])
   return null
 }
 
 export const VisualScriptSystem = defineSystem({
   uuid: 'ee.engine.VisualScriptSystem',
-  insert: { with: InputSystemGroup },
-  execute,
-  reactor
+  insert: { with: InputSystemGroup }
+  // execute,
+  // reactor
 })

@@ -26,17 +26,25 @@ Infinite Reality Engine. All Rights Reserved.
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   mode: 'jit',
-  content: ['../**/*.{ts,tsx}'],
+  content: [
+    '../client/**/*.{ts,tsx}',
+    '../client-core/**/*.{ts,tsx}',
+    '../common/**/*.{ts,tsx}',
+    '../engine/**/*.{ts,tsx}',
+    '../editor/**/*.{ts,tsx}',
+    '../projects/projects/**/*.{ts,tsx}',
+    '../ui/**/*.{ts,tsx}'
+  ],
   darkMode: ['class', '[data-theme="dark"]'],
   important: true, // important in prod is must be
   theme: {
     extend: {
       screens: {
-        'xsh': { 'raw': '(min-height: 500px)' },
-        'smh': { 'raw': '(min-height: 700px)' },
-        'mdh': { 'raw': '(min-height: 900px)' },
-        'lgh': { 'raw': '(min-height: 1100px)' },
-        'xlh': { 'raw': '(min-height: 1300px)' },
+        xsh: { raw: '(min-height: 500px)' },
+        smh: { raw: '(min-height: 700px)' },
+        mdh: { raw: '(min-height: 900px)' },
+        lgh: { raw: '(min-height: 1100px)' },
+        xlh: { raw: '(min-height: 1300px)' }
       },
       height: {
         'table-size-xs': 'calc(100vh - 436px)',
@@ -52,47 +60,93 @@ module.exports = {
           return acc
         }, {})
       },
-      textColor: {
-        theme: {
-          input: 'var(--text-input)',
-          primary: 'var(--text-primary)',
-          secondary: 'var(--text-secondary)',
-          highlight: 'var(--text-highlight)',
-          gray3: 'var(--text-gray3)',
-          iconGreen: 'var(--icon-green)',
-          iconRed: 'var(--icon-red)',
-          'menu-default': 'var(--text-menu-default)'
-        }
-      },
-      backgroundColor: {
-        theme: {
-          primary: 'var(--bg-primary)',
-          secondary: 'var(--bg-secondary)',
-          highlight: 'var(--bg-highlight)',
-          surfaceInput: 'var(--bg-surface-input)',
-          'surface-bg': 'var(--bg-surface-bg)',
-          'surface-main': 'var(--bg-surface-main)',
-          'surface-dropdown': 'var(--bg-surface-dropdown)',
-          'surface-card': 'var(--bg-surface-card)',
-          'table-secondary': 'var(--bg-table-secondary)',
-          'blue-secondary': 'var(--bg-blue-secondary)',
-          'studio-surface': 'var(--bg-studio-surface)',
-          bannerInformative: 'var(--bg-banner-informative)',
-          tagGreen: 'var(--bg-tag-green)',
-          tagLime: 'var(--bg-tag-lime)',
-          tagRed: 'var(--bg-tag-red)',
-          tagYellow: 'var(--bg-tag-yellow)'
-        }
-      },
-      borderColor: {
-        theme: {
-          primary: 'var(--border-primary)',
-          input: 'var(--border-input)',
-          focus: 'var(--border-focus)'
-        }
-      },
       colors: {
-        'blue-primary': 'var(--blue-primary)'
+        /* Surface Colors */
+        'surface-0': 'var(--surface-0)',
+        'surface-1': 'var(--surface-1)',
+        'surface-2': 'var(--surface-2)',
+        'surface-3': 'var(--surface-3)',
+        'surface-4': 'var(--surface-4)',
+        'surface-error': 'var(--surface-error)',
+        'surface-warning': 'var(--surface-warning)',
+        'surface-success': 'var(--surface-success)',
+
+        /* Surface Outline */
+        'surface-outline-1-1': 'var(--surface-outline-1-1)',
+        'surface-outline-2-1': 'var(--surface-outline-2-1)',
+        'surface-outline-3-1': 'var(--surface-outline-3-1)',
+        'surface-outline-4-1': 'var(--surface-outline-4-1)',
+        'surface-outline-5-1': 'var(--surface-outline-5-1)',
+
+        /* UI Elements / Default */
+        'ui-background': 'var(--ui-background)',
+        'ui-outline': 'var(--ui-outline)',
+        'ui-primary': 'var(--ui-primary)',
+        'ui-secondary': 'var(--ui-secondary)',
+        'ui-tertiary': 'var(--ui-tertiary)',
+        'ui-quadrary': 'var(--ui-quadrary)',
+        'ui-error': 'var(--ui-error)',
+        'ui-warning': 'var(--ui-warning)',
+        'ui-success': 'var(--ui-success)',
+
+        /* UI Elements / Hover */
+        'ui-hover-background': 'var(--ui-hover-background)',
+        'ui-hover-outline': 'var(--ui-hover-outline)',
+        'ui-hover-primary': 'var(--ui-hover-primary)',
+        'ui-hover-secondary': 'var(--ui-hover-secondary)',
+        'ui-hover-tertiary': 'var(--ui-hover-tertiary)',
+        'ui-hover-quadrary': 'var(--ui-hover-quadrary)',
+        'ui-hover-error': 'var(--ui-hover-error)',
+        'ui-hover-warning': 'var(--ui-hover-warning)',
+        'ui-hover-success': 'var(--ui-hover-success)',
+
+        /* UI Elements / Select */
+        'ui-select-background': 'var(--ui-select-background)',
+        'ui-select-outline': 'var(--ui-select-outline)',
+        'ui-select-primary': 'var(--ui-select-primary)',
+        'ui-select-secondary': 'var(--ui-select-secondary)',
+        'ui-select-tertiary': 'var(--ui-select-tertiary)',
+        'ui-select-quadrary': 'var(--ui-select-quadrary)',
+        'ui-select-error': 'var(--ui-select-error)',
+        'ui-select-warning': 'var(--ui-select-warning)',
+        'ui-select-success': 'var(--ui-select-success)',
+
+        /* UI Elements / Inactive */
+        'ui-inactive-background': 'var(--ui-inactive-background)',
+        'ui-inactive-outline': 'var(--ui-inactive-outline)',
+        'ui-inactive-primary': 'var(--ui-inactive-primary)',
+        'ui-inactive-secondary': 'var(--ui-inactive-secondary)',
+        'ui-inactive-tertiary': 'var(--ui-inactive-tertiary)',
+        'ui-inactive-quadrary': 'var(--ui-inactive-quadrary)',
+        'ui-inactive-error': 'var(--ui-inactive-error)',
+        'ui-inactive-warning': 'var(--ui-inactive-warning)',
+        'ui-inactive-success': 'var(--ui-inactive-success)',
+
+        /* Text Colors */
+        'text-primary-button': 'var(--text-primary-button)',
+        'text-primary': 'var(--text-primary)',
+        'text-secondary': 'var(--text-secondary)',
+        'text-tertiary': 'var(--text-tertiary)',
+        'text-inactive': 'var(--text-inactive)',
+        'text-link': 'var(--text-link)',
+        'text-error': 'var(--text-error)',
+        'text-warning': 'var(--text-warning)',
+        'text-success': 'var(--text-success)',
+
+        /* Chart Colors */
+        'chart-100': 'var(--chart-100)',
+        'chart-200': 'var(--chart-200)',
+        'chart-300': 'var(--chart-300)',
+        'chart-400': 'var(--chart-400)',
+        'chart-500': 'var(--chart-500)',
+        'chart-600': 'var(--chart-600)',
+        'chart-700': 'var(--chart-700)',
+        'chart-800': 'var(--chart-800)',
+        'chart-900': 'var(--chart-900)',
+        'chart-1000': 'var(--chart-1000)',
+        'chart-1100': 'var(--chart-1100)',
+        'chart-1200': 'var(--chart-1200)',
+        'chart-1300': 'var(--chart-1300)'
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
@@ -104,10 +158,15 @@ module.exports = {
           '0%': { opacity: '0.6' },
           '50%': { opacity: '1' },
           '100%': { opacity: '0.6' }
-        }
+        },
+        slideIn: {
+          "0%": { opacity: 0, transform: "translateY(20px)" },
+          "100%": { opacity: 1, transform: "translateY(0)" },
+        },
       },
       animation: {
-        twinkling: 'twinkling 5s alternate infinite'
+        twinkling: 'twinkling 5s alternate infinite',
+        slideIn: "slideIn 0.3s ease-out forwards",
       }
     }
   },

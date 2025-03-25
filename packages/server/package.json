@@ -27,12 +27,12 @@
     "config": "config/"
   },
   "engines": {
-    "node": ">= 18.12.0"
+    "node": ">= 22.11.0"
   },
   "scripts": {
     "check-errors": "tsc --noemit",
     "dev": "cross-env APP_ENV=development concurrently -n server,instanceserver,mediaserver,files -c '#FF9800,#A2789C,#00908F,#F93822' \"ts-node --swc src/index.ts\" \"cd ../instanceserver && npm run dev\" \"cd ../instanceserver && npm run dev-channel\"",
-    "start": "cross-env APP_ENV=production ts-node --swc src/index.ts",
+    "start": "NODE_OPTIONS='--heapsnapshot-signal=SIGUSR2' cross-env APP_ENV=production ts-node --swc src/index.ts",
     "dev-api-server": "ts-node --swc src/index.ts",
     "dev-api-server-nossl": "cross-env NOSSL=true ts-node --swc src/index.ts",
     "dev-nossl": "concurrently \"cross-env NOSSL=true ts-node --swc src/index.ts\" \"cd ../instanceserver && cross-env NOSSL=true ts-node --swc src/index.ts\"",
@@ -52,15 +52,14 @@
     "koa-send": "5.0.1",
     "koa-static": "5.0.0",
     "ps-list": "7.2.0",
-    "typescript": "5.4.5",
+    "typescript": "5.6.3",
     "uuid": "9.0.0"
   },
   "devDependencies": {
     "@types/koa-compress": "^4.0.3",
     "@types/node": "18.15.5",
     "concurrently": "7.6.0",
-    "http-server": "14.1.1",
-    "supertest": "6.3.3"
+    "http-server": "14.1.1"
   },
   "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c"
 }

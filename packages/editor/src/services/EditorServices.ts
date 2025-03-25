@@ -26,19 +26,13 @@ Infinite Reality Engine. All Rights Reserved.
 import { LayoutData } from 'rc-dock'
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { EntityUUID, getComponent } from '@ir-engine/ecs'
-import { UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
+import { EntityUUID, getComponent, getOptionalComponent } from '@ir-engine/ecs'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { LinkState } from '@ir-engine/engine/src/scene/components/LinkComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import {
-  defineState,
-  getMutableState,
-  getState,
-  syncStateWithLocalStorage,
-  useHookstate,
-  useMutableState
-} from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 
 export enum UIMode {
@@ -59,20 +53,37 @@ export const EditorState = defineState({
     panelLayout: {} as LayoutData,
     rootEntity: UndefinedEntity,
     uiEnabled: true,
-    uiMode: UIMode.ADVANCED,
-    acknowledgedUnsupportedBrowser: false,
-    acknowledgedUnsupportedDevice: false
+    uiMode: UIMode.ADVANCED
   }),
   useIsModified: () => {
     const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
-    const modifiedState = useMutableState(GLTFModifiedState)
+    const modifiedState = useMutableState(AssetModifiedState)
     if (!rootEntity) return false
-    return !!modifiedState[getComponent(rootEntity, SourceComponent)].value
+    return !!modifiedState[GLTFComponent.getInstanceID(rootEntity)].value
   },
   isModified: () => {
     const rootEntity = getState(EditorState).rootEntity
     if (!rootEntity) return false
-    return !!getState(GLTFModifiedState)[getComponent(rootEntity, SourceComponent)]
+    return !!getState(AssetModifiedState)[GLTFComponent.getInstanceID(rootEntity)]
+  },
+  markModifiedScene: (entity: Entity) => {
+    const sourceID = getOptionalComponent(entity, SourceComponent) || GLTFComponent.getInstanceID(entity)
+    if (!sourceID) return
+
+    const modifiedState = getMutableState(AssetModifiedState)
+    modifiedState[sourceID].set(true)
+    const activeScene = getState(EditorState).rootEntity
+    //also mark the active scene as modified due to scene deltas being added
+    const rootSourceID = GLTFComponent.getInstanceID(activeScene)
+    if (rootSourceID !== sourceID) {
+      modifiedState[rootSourceID].set(true)
+    }
+  },
+  isInActiveScene: (entity: Entity) => {
+    const rootEntity = getState(EditorState).rootEntity
+    const rootSourceID = GLTFComponent.getInstanceID(rootEntity)
+    const sourceID = getComponent(entity, SourceComponent)
+    return sourceID === rootSourceID
   },
   reactor: () => {
     const linkState = useMutableState(LinkState)
@@ -85,6 +96,5 @@ export const EditorState = defineState({
     }, [linkState.location])
 
     return null
-  },
-  extension: syncStateWithLocalStorage(['acknowledgedUnsupportedBrowser'])
+  }
 })

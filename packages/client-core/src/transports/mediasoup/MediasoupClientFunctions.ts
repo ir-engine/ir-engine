@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import * as mediasoupClient from 'mediasoup-client'
-import {
+import type {
   Consumer,
   DataProducer,
   DtlsParameters,
@@ -43,19 +42,12 @@ import config from '@ir-engine/common/src/config'
 import { BotUserAgent } from '@ir-engine/common/src/constants/BotUserAgent'
 import { MediaStreamAppData, NetworkConnectionParams } from '@ir-engine/common/src/interfaces/NetworkInterfaces'
 import multiLogger from '@ir-engine/common/src/logger'
-import {
-  ChannelID,
-  InstanceID,
-  InviteCode,
-  LocationID,
-  RoomCode,
-  UserID
-} from '@ir-engine/common/src/schema.type.module'
+import { ChannelID, InstanceID, InviteCode, LocationID, RoomCode } from '@ir-engine/common/src/schema.type.module'
 import { getSearchParamFromURL } from '@ir-engine/common/src/utils/getSearchParamFromURL'
-import { AuthTask, ReadyTask } from '@ir-engine/common/src/world/receiveJoinWorld'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineSystem, destroySystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
+import { AuthTask, ReadyTask } from '@ir-engine/engine/src/avatar/functions/spawnLocalAvatarInWorld'
 import {
   Action,
   NetworkID,
@@ -71,9 +63,6 @@ import {
 } from '@ir-engine/hyperflux'
 import {
   DataChannelType,
-  MediaTagType,
-  NetworkActions,
-  NetworkPeerFunctions,
   NetworkState,
   NetworkTopics,
   addNetwork,
@@ -89,19 +78,16 @@ import {
   MediasoupDataProducerActions,
   MediasoupDataProducerConsumerState
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupDataProducerConsumerState'
-import {
-  MediasoupMediaProducerActions,
-  MediasoupMediaProducerConsumerState
-} from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
+import { MediasoupMediaProducerActions } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import {
   MediasoupTransportActions,
   MediasoupTransportObjectsState,
   MediasoupTransportState,
   TransportType
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
+import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
 import { LocationInstanceState } from '../../common/services/LocationInstanceConnectionService'
 import { MediaInstanceState } from '../../common/services/MediaInstanceConnectionService'
-import { MediaStreamState } from '../../media/MediaStreamState'
 import { ChannelState } from '../../social/services/ChannelService'
 import { LocationState } from '../../social/services/LocationService'
 import { AuthState } from '../../user/services/AuthService'
@@ -137,18 +123,15 @@ export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
   network.primus?.removeAllListeners()
   network.primus?.end()
   removeNetwork(network)
-  /** Dispatch updatePeers locally to ensure event souce states know about this */
-  dispatchAction(
-    NetworkActions.updatePeers({
-      peers: [],
-      $to: Engine.instance.store.peerID,
-      $topic: network.topic,
-      $network: network.id
-    })
-  )
 }
 
-export const initializeNetwork = (id: InstanceID, hostPeerID: PeerID, topic: Topic, primus: Primus) => {
+export const initializeNetwork = (
+  id: InstanceID,
+  hostPeerID: PeerID,
+  topic: Topic,
+  primus: Primus,
+  mediasoupClient: Awaited<typeof import('mediasoup-client')>
+) => {
   const mediasoupDevice = new mediasoupClient.Device(
     navigator.userAgent === BotUserAgent ? { handlerName: 'Chrome74' } : undefined
   )
@@ -157,20 +140,8 @@ export const initializeNetwork = (id: InstanceID, hostPeerID: PeerID, topic: Top
     mediasoupDevice,
     primus,
     heartbeat: setInterval(() => {
-      network.messageToPeer(network.hostPeerID, [])
-    }, 1000),
-    pauseTrack: (peerID: PeerID, track: MediaTagType, pause: boolean) => {
-      const consumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
-        network.id,
-        peerID,
-        track
-      ) as ConsumerExtension
-      if (pause) {
-        MediasoupMediaProducerConsumerState.pauseConsumer(network, consumer.id)
-      } else {
-        MediasoupMediaProducerConsumerState.resumeConsumer(network, consumer.id)
-      }
-    }
+      network.messageToPeer(network.hostPeerID!, [])
+    }, 1000)
   })
 
   return network
@@ -202,6 +173,7 @@ export const connectToInstance = (
     const token = authState.authUser.accessToken
 
     const query: NetworkConnectionParams = {
+      peerID: Engine.instance.store.peerID,
       instanceID,
       locationId: locationID,
       channelId: channelID,
@@ -219,12 +191,18 @@ export const connectToInstance = (
         (config.client.appEnv === 'development' && config.client.localNginx !== 'true')
       ) {
         const queryString = new URLSearchParams(query).toString()
-        primus = new Primus(`https://${ipAddress as string}:${port.toString()}?${queryString}`)
+        primus = new Primus(`https://${ipAddress as string}:${port.toString()}?${queryString}`, {
+          pingTimeout: config.websocket.pingTimeout,
+          pingInterval: config.websocket.pingInterval
+        })
       } else {
         query.address = ipAddress
         query.port = port.toString()
         const queryString = new URLSearchParams(query).toString()
-        primus = new Primus(`${config.client.instanceserverUrl}?${queryString}`)
+        primus = new Primus(`${config.client.instanceserverUrl}?${queryString}`, {
+          pingTimeout: config.websocket.pingTimeout,
+          pingInterval: config.websocket.pingInterval
+        })
       }
     } catch (err) {
       logger.error('Failed to connect to primus', err)
@@ -419,15 +397,17 @@ export const connectToNetwork = async (
   const existingNetwork = getState(NetworkState).networks[instanceID]
   if (!existingNetwork) {
     getMutableState(NetworkState).hostIds[topic].set(instanceID)
-    const network = initializeNetwork(instanceID, hostPeerID, topic, primus)
+
+    const mediasoupClient = await import('mediasoup-client')
+    const network = initializeNetwork(instanceID, hostPeerID, topic, primus, mediasoupClient)
     addNetwork(network)
   }
 
   const network = getState(NetworkState).networks[instanceID] as SocketWebRTCClientNetwork
 
   network.primus.on('data', (message) => {
-    if (!message) return
-    network.onMessage(network.hostPeerID, message)
+    if (!message || !Array.isArray(message)) return console.warn('Invalid message', message)
+    network.onMessage(network.hostPeerID!, message)
   })
 
   const message = (data) => {
@@ -447,9 +427,7 @@ export const connectToNetwork = async (
     dataProducer.send(encode([fromPeerIndex, data]))
   }
 
-  // we can assume that the host peer is always first to connect
-  NetworkPeerFunctions.createPeer(network, hostPeerID, 0, instanceID as any as UserID, 0)
-  network.peers[hostPeerID].transport = {
+  network.transports[hostPeerID] = {
     message,
     buffer
   }
@@ -801,7 +779,8 @@ type Primus = EventEmitter & {
   online: boolean
   onlineHandler: () => void
   options: {
-    pingTimeout: 45000
+    pingTimeout: number
+    pingInterval: number
     queueSize: number
     reconnect: any
     strategy: string

@@ -24,95 +24,66 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { ReactNode } from 'react'
-
 import { twMerge } from 'tailwind-merge'
 
-export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
-  startIcon?: ReactNode
-  endIcon?: ReactNode
-  children?: ReactNode
-  size?: 'small' | 'medium' | 'large'
-  variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'success' | 'transparent'
-  disabled?: boolean
-  fullWidth?: boolean
-  rounded?: 'partial' | 'full' | 'none'
-  className?: string
-  iconContainerClassName?: string
-  textContainerClassName?: string
-}
-
-const roundedTypes = {
-  partial: 'rounded-md',
-  full: 'rounded-full',
-  none: 'rounded-none'
-}
-
 const sizes = {
-  small: 'text-sm px-3 py-1',
-  medium: 'text-base px-4 py-2',
-  large: 'text-lg px-7 py-3'
-}
+  xs: 'h-6',
+  sm: 'h-7',
+  l: 'h-8',
+  xl: 'h-10'
+} as const
 
 const variants = {
-  primary: 'bg-blue-primary',
-  secondary: 'bg-theme-blue-secondary',
-  outline: 'border border-solid border-theme-primary bg-[#212226] dark:bg-theme-highlight text-theme-primary',
-  danger: 'bg-red-500',
-  success: 'bg-teal-700',
-  transparent: 'bg-transparent dark:bg-transparent'
+  primary:
+    'bg-ui-primary text-text-primary-button hover:bg-ui-hover-primary focus:bg-ui-select-primary disabled:bg-ui-inactive-primary disabled:text-text-inactive',
+  secondary:
+    'bg-ui-secondary text-text-primary-button hover:bg-ui-hover-secondary focus:bg-ui-select-secondary disabled:bg-ui-inactive-secondary disabled:text-text-inactive',
+  tertiary:
+    'text-text-primary border border-ui-secondary hover:border-ui-hover-secondary focus:border-ui-select-secondary disabled:border-ui-inactive-secondary disabled:text-text-inactive',
+  green:
+    'bg-ui-success text-text-primary-button hover:bg-ui-hover-success focus:bg-ui-select-success disabled:bg-ui-inactive-success disabled:text-text-inactive',
+  red: 'bg-ui-error text-text-primary-button hover:bg-ui-hover-error focus:bg-ui-select-error disabled:bg-ui-inactive-error disabled:text-text-inactive'
+} as const
+
+const radiusMap: Record<keyof typeof variants, string> = {
+  primary: 'rounded-[0.625rem]',
+  secondary: 'rounded-[0.625rem]',
+  tertiary: 'rounded-[0.625rem]',
+  green: 'rounded-lg',
+  red: 'rounded-lg'
+} as const
+
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children?: ReactNode
+  size?: keyof typeof sizes
+  variant?: keyof typeof variants
+  fullWidth?: boolean
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      startIcon: StartIcon,
-      children,
-      endIcon: EndIcon,
-      size = 'medium',
-      fullWidth,
-      rounded = 'partial',
-      variant = 'primary',
-      disabled = false,
-      className,
-      iconContainerClassName,
-      textContainerClassName,
-      ...props
-    },
-    ref
-  ) => {
-    const twClassName = twMerge(
-      'flex items-center justify-center',
-      'font-medium text-white',
-      'transition ease-in-out',
-      'disabled:cursor-not-allowed',
-      (StartIcon || EndIcon) && 'justify-center',
-      sizes[size],
-      fullWidth ? 'w-full' : 'w-fit',
-      roundedTypes[rounded],
-      disabled ? 'bg-[#F3F4F6] text-[#9CA3AF] dark:bg-[#5F7DBF] dark:text-[#FFFFFF]' : '',
-      variants[variant],
-      className
-    )
+const Button = (
+  { children, size = 'l', fullWidth, variant = 'primary', className, ...props }: ButtonProps,
+  ref: React.ForwardedRef<HTMLButtonElement>
+) => {
+  return (
+    <button
+      ref={ref}
+      role="button"
+      className={twMerge(
+        'flex items-center justify-center gap-1',
+        radiusMap[variant],
+        'text-sm font-medium leading-4',
+        'px-4 py-1',
+        sizes[size],
+        fullWidth ? 'w-full' : 'w-fit',
+        'disabled:cursor-not-allowed',
+        variants[variant],
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </button>
+  )
+}
 
-    return (
-      <button ref={ref} role="button" disabled={disabled} className={twClassName} {...props}>
-        {StartIcon && <span className={twMerge('mx-1', iconContainerClassName)}>{StartIcon}</span>}
-        {children && (
-          <span
-            className={twMerge('mx-1', fullWidth ? 'mx-1 w-full' : '', textContainerClassName)}
-            data-testid="button-name"
-          >
-            {children}
-          </span>
-        )}
-        {EndIcon && (
-          <span className={twMerge('mx-1', iconContainerClassName)} data-testid="button-end-icon">
-            {EndIcon}
-          </span>
-        )}
-      </button>
-    )
-  }
-)
-
-export default Button
+export default React.forwardRef(Button)

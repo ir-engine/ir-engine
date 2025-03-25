@@ -24,10 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { removeComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { createXRUI } from '@ir-engine/spatial/src/xrui/functions/createXRUI'
-import { Widget, Widgets } from '@ir-engine/spatial/src/xrui/Widgets'
+import { Widget, Widgets } from './Widgets'
 
+import { VideoRecorderLg } from '@ir-engine/ui/src/icons'
 import { RecordingsWidgetUI } from './ui/RecordingsWidgetUI'
 
 export function createRecordingsWidget() {
@@ -37,7 +38,7 @@ export function createRecordingsWidget() {
   const widget: Widget = {
     ui,
     label: 'Recording',
-    icon: 'Videocam'
+    icon: VideoRecorderLg
   }
 
   const id = Widgets.registerWidget(ui.entity, widget)

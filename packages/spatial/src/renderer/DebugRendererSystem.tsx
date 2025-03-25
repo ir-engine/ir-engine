@@ -26,32 +26,31 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
 
-import { Entity, EntityUUID, QueryReactor, UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { createEntity, Entity, QueryReactor, removeEntity, useEntityContext } from '@ir-engine/ecs'
+import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import { NameComponent } from '../common/NameComponent'
-import { EngineState } from '../EngineState'
 import { RapierWorldState } from '../physics/classes/Physics'
-import { addObjectToGroup, GroupComponent } from '../renderer/components/GroupComponent'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
+import { addObjectToGroup, ObjectComponent } from '../renderer/components/ObjectComponent'
 import { setObjectLayers } from '../renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../renderer/constants/ObjectLayers'
 import { RendererState } from '../renderer/RendererState'
 import { WebGLRendererSystem } from '../renderer/WebGLRendererSystem'
-import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { createInfiniteGridHelper } from './components/InfiniteGridHelper'
 import { SceneComponent } from './components/SceneComponents'
 
-const PhysicsDebugEntities = new Map<EntityUUID, Entity>()
+const PhysicsDebugEntities = new Map<Entity, Entity>()
 
 const execute = () => {
   for (const [id, physicsDebugEntity] of Array.from(PhysicsDebugEntities)) {
     const world = getState(RapierWorldState)[id]
     if (!world) continue
-    const lineSegments = getComponent(physicsDebugEntity, GroupComponent)[0] as any as LineSegments
+    const lineSegments = getComponent(physicsDebugEntity, ObjectComponent) as any as LineSegments
     const debugRenderBuffer = world.debugRender()
     lineSegments.geometry.setAttribute('position', new BufferAttribute(debugRenderBuffer.vertices, 3))
     lineSegments.geometry.setAttribute('color', new BufferAttribute(debugRenderBuffer.colors, 4))
@@ -60,7 +59,6 @@ const execute = () => {
 
 const PhysicsReactor = () => {
   const entity = useEntityContext()
-  const uuid = useComponent(entity, UUIDComponent).value
   const engineRendererSettings = useMutableState(RendererState)
 
   useEffect(() => {
@@ -79,20 +77,20 @@ const PhysicsReactor = () => {
     setComponent(lineSegmentsEntity, EntityTreeComponent, { parentEntity: entity })
 
     setObjectLayers(lineSegments, ObjectLayers.PhysicsHelper)
-    PhysicsDebugEntities.set(uuid, lineSegmentsEntity)
+    PhysicsDebugEntities.set(entity, lineSegmentsEntity)
 
     return () => {
       removeEntity(lineSegmentsEntity)
-      PhysicsDebugEntities.delete(uuid)
+      PhysicsDebugEntities.delete(entity)
     }
-  }, [engineRendererSettings.physicsDebug, uuid])
+  }, [engineRendererSettings.physicsDebug])
 
   return null
 }
 
 const reactor = () => {
   const engineRendererSettings = useMutableState(RendererState)
-  const originEntity = useMutableState(EngineState).originEntity.value
+  const originEntity = useMutableState(ReferenceSpaceState).originEntity.value
 
   useEffect(() => {
     if (!engineRendererSettings.gridVisibility.value || !originEntity) return

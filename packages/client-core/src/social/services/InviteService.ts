@@ -27,7 +27,7 @@ import { Paginated } from '@feathersjs/feathers'
 import { useEffect } from 'react'
 
 import { API } from '@ir-engine/common'
-import { EMAIL_REGEX, INVITE_CODE_REGEX, PHONE_REGEX, USER_ID_REGEX } from '@ir-engine/common/src/regex'
+import { EMAIL_REGEX, INVITE_CODE_REGEX, PHONE_REGEX } from '@ir-engine/common/src/regex'
 import {
   InviteCode,
   InviteData,
@@ -36,6 +36,7 @@ import {
   inviteCodeLookupPath,
   invitePath
 } from '@ir-engine/common/src/schema.type.module'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
@@ -132,7 +133,7 @@ export const InviteService = {
     }
 
     if (data.inviteeId) {
-      if (!USER_ID_REGEX.test(data.inviteeId)) {
+      if (!isValidId(data.inviteeId)) {
         NotificationService.dispatchNotify('Invalid user ID', { variant: 'error' })
         return
       }

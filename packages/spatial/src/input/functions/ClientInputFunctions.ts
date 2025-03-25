@@ -31,6 +31,7 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   defineQuery,
   Entity,
+  getAncestorWithComponents,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -41,7 +42,6 @@ import {
 } from '@ir-engine/ecs'
 import { Quaternion, Vector3 } from 'three'
 import { PI, Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
-import { getAncestorWithComponents } from '../../transform/components/EntityTree'
 import { TransformComponent, TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
@@ -49,7 +49,7 @@ import { DefaultButtonAlias, InputComponent } from '../components/InputComponent
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import { ButtonState, ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
-import { HeuristicData, HeuristicFunctions, IntersectionData } from './ClientInputHeuristics'
+import { findProximity, findRaycastedInput, IntersectionData } from './ClientInputHeuristics'
 
 /** radian threshold for rotating state*/
 export const ROTATING_THRESHOLD = 1.5 * (PI / 180)
@@ -149,6 +149,7 @@ export const setInputSources = (startEntity: Entity, inputSources: Entity[]) => 
 
   for (const sinkEntityUUID of inputComponent.inputSinks) {
     const sinkEntity = sinkEntityUUID === 'Self' ? inputEntity : UUIDComponent.getEntityByUUID(sinkEntityUUID) //TODO why is this not sending input to my sinks
+    if (!hasComponent(sinkEntity, InputComponent)) continue
     const sinkInputComponent = getMutableComponent(sinkEntity, InputComponent)
     sinkInputComponent.inputSources.merge(inputSources)
   }
@@ -214,27 +215,24 @@ export const redirectPointerEventsToXRUI = (cameraEntity: Entity, evt: PointerEv
 
 const nonSpatialInputSource = defineQuery([InputSourceComponent, Not(TransformComponent)])
 
-export function assignInputSources(
-  sourceEid: Entity,
-  capturedEntity: Entity,
-  data: HeuristicData,
-  heuristic: HeuristicFunctions
-) {
+const sortByDistance = (a: IntersectionData, b: IntersectionData) => {
+  // - if a < b
+  // + if a > b
+  // 0 if equal
+  const aNum = hasComponent(a.entity, TransformGizmoTagComponent) ? -1 : 0
+  const bNum = hasComponent(b.entity, TransformGizmoTagComponent) ? -1 : 0
+  //aNum - bNum : 0 if equal, -1 if a has tag and b doesn't, 1 if a doesnt have tag and b does
+  return Math.sign(a.distance - b.distance) + (aNum - bNum)
+}
+
+export function assignInputSources(sourceEid: Entity, capturedEntity: Entity) {
   const isSpatialInput = hasComponent(sourceEid, TransformComponent)
 
   const intersectionData = new Set([] as IntersectionData[])
 
-  if (isSpatialInput) heuristic.raycastedInput(sourceEid, intersectionData, data, heuristic)
+  if (isSpatialInput) findRaycastedInput(sourceEid, intersectionData)
 
-  const sortedIntersections = Array.from(intersectionData).sort((a, b) => {
-    // - if a < b
-    // + if a > b
-    // 0 if equal
-    const aNum = hasComponent(a.entity, TransformGizmoTagComponent) ? -1 : 0
-    const bNum = hasComponent(b.entity, TransformGizmoTagComponent) ? -1 : 0
-    //aNum - bNum : 0 if equal, -1 if a has tag and b doesn't, 1 if a doesnt have tag and b does
-    return Math.sign(a.distance - b.distance) + (aNum - bNum)
-  })
+  const sortedIntersections = Array.from(intersectionData).sort(sortByDistance)
   const sourceState = getMutableComponent(sourceEid, InputSourceComponent)
 
   //TODO check all inputSources sorted by distance list of InputComponents from query, probably similar to the spatialInputQuery
@@ -244,7 +242,7 @@ export function assignInputSources(
     sortedIntersections.length === 0 &&
     !hasComponent(sourceEid, InputPointerComponent)
   ) {
-    heuristic.proximity(isSpatialInput, sourceEid, sortedIntersections, intersectionData)
+    findProximity(isSpatialInput, sourceEid, sortedIntersections, intersectionData)
   }
 
   const inputPointerComponent = getOptionalComponent(sourceEid, InputPointerComponent)

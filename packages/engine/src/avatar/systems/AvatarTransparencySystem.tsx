@@ -26,22 +26,23 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   Engine,
   Entity,
+  EntityArrayBoundary,
   PresentationSystemGroup,
+  QueryReactor,
   UUIDComponent,
   defineQuery,
   defineSystem,
   getComponent,
   getOptionalComponent,
   setComponent,
-  useOptionalComponent,
-  useQuery
+  useOptionalComponent
 } from '@ir-engine/ecs'
-import { getState, useHookstate } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import {
   TransparencyDitheringPluginComponent,
@@ -56,9 +57,11 @@ import { AvatarComponent } from '../components/AvatarComponent'
 const headDithering = 0
 const cameraDithering = 1
 const avatarQuery = defineQuery([AvatarComponent])
+
 const execute = () => {
   const selfEntity = AvatarComponent.getSelfAvatarEntity()
   if (!selfEntity) return
+
   const cameraAttached = XRState.isCameraAttachedToAvatar
 
   for (const entity of avatarQuery()) {
@@ -67,7 +70,7 @@ const execute = () => {
     if (!materials) setComponent(entity, TransparencyDitheringRootComponent, { materials: [] })
 
     const avatarComponent = getComponent(entity, AvatarComponent)
-    const cameraComponent = getOptionalComponent(getState(EngineState).viewerEntity, FollowCameraComponent)
+    const cameraComponent = getOptionalComponent(getState(ReferenceSpaceState).viewerEntity, FollowCameraComponent)
 
     if (!materials?.length) return
     for (const materialUUID of materials) {
@@ -96,33 +99,22 @@ const execute = () => {
 
 export const AvatarTransparencySystem = defineSystem({
   uuid: 'AvatarTransparencySystem',
-  execute,
   insert: { with: PresentationSystemGroup },
-  reactor: () => {
-    const selfEid = AvatarComponent.useSelfAvatarEntity()
-
-    const avatarQuery = useQuery([AvatarComponent])
-
-    return (
-      <>
-        {avatarQuery.map((childEntity) => (
-          <AvatarReactor key={childEntity} entity={childEntity} />
-        ))}
-      </>
-    )
-  }
+  execute,
+  reactor: () => <QueryReactor Components={[AvatarComponent]} ChildEntityReactor={AvatarReactor} />
 })
 
 const AvatarReactor = (props: { entity: Entity }) => {
   const entity = props.entity
   const sceneInstanceID = GLTFComponent.useInstanceID(entity)
-  const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
+  const childEntities = SourceComponent.useEntitiesBySource(sceneInstanceID)
+
   return (
-    <>
-      {childEntities.value?.map((childEntity) => (
-        <DitherChildReactor key={childEntity} entity={childEntity} rootEntity={entity} />
-      ))}
-    </>
+    <EntityArrayBoundary
+      entities={childEntities}
+      ChildEntityReactor={DitherChildReactor}
+      props={{ rootEntity: entity }}
+    />
   )
 }
 
@@ -130,14 +122,17 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   const entity = props.entity
   const materialComponentUUID = useOptionalComponent(entity, MaterialInstanceComponent)?.uuid
   const rootDitheringComponent = useOptionalComponent(props.rootEntity, TransparencyDitheringRootComponent)
+
   useEffect(() => {
     if (!materialComponentUUID?.value || !rootDitheringComponent) return
     for (const materialUUID of materialComponentUUID.value) {
       const material = UUIDComponent.getEntityByUUID(materialUUID)
+      if (!material) continue
       if (!rootDitheringComponent.materials.value.includes(materialUUID))
         rootDitheringComponent.materials.set([...rootDitheringComponent.materials.value, materialUUID])
       setComponent(material, TransparencyDitheringPluginComponent)
     }
-  }, [materialComponentUUID, rootDitheringComponent])
+  }, [materialComponentUUID, !!rootDitheringComponent])
+
   return null
 }

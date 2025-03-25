@@ -26,20 +26,38 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Mesh } from 'three'
 
-import { defineComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
-import { Entity } from '@ir-engine/ecs/src/Entity'
-import { createEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import {
+  Entity,
+  EntityTreeComponent,
+  S,
+  createEntity,
+  defineComponent,
+  getComponent,
+  getMutableComponent,
+  removeComponent,
+  removeEntity,
+  setComponent,
+  useComponent,
+  useEntityContext
+} from '@ir-engine/ecs'
+import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { NameComponent } from '../common/NameComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '../renderer/components/GroupComponent'
+import { MeshComponent } from '../renderer/components/MeshComponent'
+import { ObjectComponent } from '../renderer/components/ObjectComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { occlusionMat, placementHelperMaterial, shadowMaterial } from './XRDetectedPlaneComponent'
+import { shadowMaterial } from './XRDetectedPlaneComponent'
 import { ReferenceSpace, XRState } from './XRState'
+
+export const XRDetectedMeshComponentState = defineState({
+  name: 'XRDetectedMeshComponentState',
+  initial: () => ({
+    detectedMeshesMap: new Map<XRMesh, Entity>(),
+    meshesLastChangedTimes: new Map<XRMesh, number>()
+  })
+})
 
 export const XRDetectedMeshComponent = defineComponent({
   name: 'XRDetectedMeshComponent',
@@ -48,7 +66,6 @@ export const XRDetectedMeshComponent = defineComponent({
     mesh: S.Type<XRMesh>(),
     // internal
     shadowMesh: S.Type<Mesh>(),
-    occlusionMesh: S.Type<Mesh>(),
     geometry: S.Type<BufferGeometry>(),
     placementHelper: S.Type<Mesh>()
   }),
@@ -65,42 +82,37 @@ export const XRDetectedMeshComponent = defineComponent({
       component.geometry.set(geometry)
 
       const shadowMesh = new Mesh(geometry, shadowMaterial)
-      const occlusionMesh = new Mesh(geometry, occlusionMat)
-      const placementHelper = new Mesh(geometry, placementHelperMaterial)
+      // const placementHelper = new Mesh(geometry, placementHelperMaterial)
 
-      addObjectToGroup(entity, shadowMesh)
-      addObjectToGroup(entity, occlusionMesh)
-      addObjectToGroup(entity, placementHelper)
-      occlusionMesh.renderOrder = -1 /** @todo make a global config for AR occlusion mesh renderOrder */
+      setComponent(entity, ObjectComponent, shadowMesh)
+      // addObjectToGroup(entity, placementHelper)
 
       component.shadowMesh.set(shadowMesh)
-      component.occlusionMesh.set(occlusionMesh)
-      component.placementHelper.set(placementHelper)
+      // component.placementHelper.set(placementHelper)
 
       return () => {
-        removeObjectFromGroup(entity, shadowMesh)
-        removeObjectFromGroup(entity, occlusionMesh)
-        removeObjectFromGroup(entity, placementHelper)
+        removeComponent(entity, ObjectComponent)
+        // removeObjectFromGroup(entity, placementHelper)
       }
     }, [component.mesh])
 
     useEffect(() => {
       const shadowMesh = component.shadowMesh.value
-      const occlusionMesh = component.occlusionMesh.value
       const geometry = component.geometry.value
 
-      if (shadowMesh.geometry) (shadowMesh.geometry as any) = geometry
-      if (occlusionMesh.geometry) (occlusionMesh.geometry as any) = geometry
+      // @ts-expect-error Allow assignment to a readonly property
+      shadowMesh.geometry = geometry
 
       return () => {
         geometry.dispose()
       }
     }, [component.geometry])
 
-    useEffect(() => {
-      const placementHelper = component.placementHelper.value as Mesh
-      placementHelper.visible = scenePlacementMode.value === 'placing'
-    }, [scenePlacementMode])
+    /** @warning Currently broken. Makes the other hooks behave unexpectedly */
+    // useEffect(() => {
+    //   const placementHelper = component.placementHelper.value as Mesh
+    //   placementHelper.visible = scenePlacementMode.value === 'placing'
+    // }, [scenePlacementMode])
 
     return null
   },
@@ -120,12 +132,25 @@ export const XRDetectedMeshComponent = defineComponent({
     return geometry
   },
 
-  updateMeshGeometry: (entity: Entity, mesh: XRMesh) => {
-    XRDetectedMeshComponent.meshesLastChangedTimes.set(mesh, mesh.lastChangedTime)
-    const geometry = XRDetectedMeshComponent.createGeometryFromMesh(mesh)
+  updateMeshGeometry: (entity: Entity) => {
+    const state = getState(XRDetectedMeshComponentState)
+    const mesh = getComponent(entity, XRDetectedMeshComponent).mesh
+    const lastKnownTime = state.meshesLastChangedTimes.get(mesh)!
+    if (mesh.lastChangedTime > lastKnownTime) {
+      state.meshesLastChangedTimes.set(mesh, mesh.lastChangedTime)
+      const geometry = XRDetectedMeshComponent.createGeometryFromMesh(mesh)
+      const meshComponent = getMutableComponent(entity, XRDetectedMeshComponent)
+      meshComponent.geometry.value?.dispose()
+      meshComponent.shadowMesh.value?.geometry.dispose()
+      const meshObj = new Mesh(geometry, shadowMaterial)
+      setComponent(entity, MeshComponent, meshObj)
+      meshComponent.geometry.set(geometry)
+      meshComponent.shadowMesh.set(meshObj)
+    }
   },
 
-  updateMeshPose: (entity: Entity, mesh: XRMesh) => {
+  updateMeshPose: (entity: Entity) => {
+    const mesh = getComponent(entity, XRDetectedMeshComponent).mesh
     const planePose = getState(XRState).xrFrame!.getPose(mesh.meshSpace, ReferenceSpace.localFloor!)!
     if (!planePose) return
     TransformComponent.position.x[entity] = planePose.transform.position.x
@@ -137,23 +162,48 @@ export const XRDetectedMeshComponent = defineComponent({
     TransformComponent.rotation.w[entity] = planePose.transform.orientation.w
   },
 
-  foundMesh: (mesh: XRMesh) => {
+  getMeshEntity: (mesh: XRMesh) => {
+    const state = getState(XRDetectedMeshComponentState)
+    if (state.detectedMeshesMap.has(mesh)) return state.detectedMeshesMap.get(mesh)!
     const entity = createEntity()
-    setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
+    setComponent(entity, EntityTreeComponent, { parentEntity: getState(ReferenceSpaceState).localFloorEntity })
     setComponent(entity, TransformComponent)
     setVisibleComponent(entity, true)
     setComponent(entity, XRDetectedMeshComponent)
-    setComponent(entity, NameComponent, 'mesh-' + planeId++)
-
-    XRDetectedMeshComponent.meshesLastChangedTimes.set(mesh, mesh.lastChangedTime)
-    XRDetectedMeshComponent.updateMeshPose(entity, mesh)
-
+    setComponent(entity, NameComponent, 'xrmesh-' + planeId++ + '-' + mesh.semanticLabel)
     setComponent(entity, XRDetectedMeshComponent, { mesh: mesh })
-
-    XRDetectedMeshComponent.detectedMeshesMap.set(mesh, entity)
+    state.meshesLastChangedTimes.set(mesh, -1)
+    state.detectedMeshesMap.set(mesh, entity)
+    return entity
   },
-  detectedMeshesMap: new Map<XRMesh, Entity>(),
-  meshesLastChangedTimes: new Map<XRMesh, number>()
+
+  removeMeshEntity: (mesh: XRMesh) => {
+    const state = getState(XRDetectedMeshComponentState)
+    const entity = state.detectedMeshesMap.get(mesh)
+    if (!entity) return
+    removeEntity(entity)
+    state.detectedMeshesMap.delete(mesh)
+    state.meshesLastChangedTimes.delete(mesh)
+  },
+
+  purgeExpiredMeshes: (detectedMeshes: XRMeshSet) => {
+    const state = getState(XRDetectedMeshComponentState)
+    for (const [mesh, entity] of state.detectedMeshesMap) {
+      if (detectedMeshes.has(mesh)) continue
+      state.detectedMeshesMap.delete(mesh)
+      state.meshesLastChangedTimes.delete(mesh)
+      removeEntity(entity)
+    }
+  },
+
+  updateDetectedMeshes: (detectedMeshes: XRMeshSet) => {
+    XRDetectedMeshComponent.purgeExpiredMeshes(detectedMeshes)
+    for (const mesh of detectedMeshes) {
+      const entity = XRDetectedMeshComponent.getMeshEntity(mesh)
+      XRDetectedMeshComponent.updateMeshGeometry(entity)
+      XRDetectedMeshComponent.updateMeshPose(entity)
+    }
+  }
 })
 
 let planeId = 0

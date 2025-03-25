@@ -42,6 +42,7 @@ export type * from './schemas/media/file-browser.schema'
 export type * from './schemas/media/invalidation.schema'
 export type * from './schemas/media/oembed.schema'
 export type * from './schemas/media/static-resource.schema'
+export type * from './schemas/networking/allowed-domains.schema'
 export type * from './schemas/networking/instance-attendance.schema'
 export type * from './schemas/networking/instance-authorized-user.schema'
 export type * from './schemas/networking/instance-friends.schema'
@@ -68,14 +69,10 @@ export type * from './schemas/route/route.schema'
 export type * from './schemas/scope/scope-type.schema'
 export type * from './schemas/scope/scope.schema'
 export type * from './schemas/setting/authentication-setting.schema'
-export type * from './schemas/setting/aws-setting.schema'
 export type * from './schemas/setting/client-setting.schema'
-export type * from './schemas/setting/email-setting.schema'
 export type * from './schemas/setting/engine-setting.schema'
 export type * from './schemas/setting/feature-flag-setting.schema'
-export type * from './schemas/setting/instance-server-setting.schema'
 export type * from './schemas/setting/project-setting.schema'
-export type * from './schemas/setting/server-setting.schema'
 export type * from './schemas/social/channel-user.schema'
 export type * from './schemas/social/channel.schema'
 export type * from './schemas/social/invite-code-lookup.schema'
@@ -111,6 +108,10 @@ export type * from './schemas/user/user-setting.schema'
 export type * from './schemas/user/user.schema'
 export type * from './schemas/world/spawn-point.schema'
 
+export type * from './schemas/moderation/moderation-attachment.schema'
+export type * from './schemas/moderation/moderation-ban.schema'
+export type * from './schemas/moderation/moderation-file-upload.schema'
+export type * from './schemas/moderation/moderation.schema'
 export type * from './schemas/projects/project-history.schema'
 
 export const locationPath = 'location'
@@ -189,6 +190,8 @@ export const recordingResourceUploadPath = 'recording-resource-upload'
 
 export const instanceAttendancePath = 'instance-attendance'
 
+export const instanceSignalingPath = 'instance-signaling'
+
 export const fileBrowserPath = 'file-browser'
 
 export const fileBrowserUploadPath = 'file-browser-upload'
@@ -212,13 +215,7 @@ export const helmVersionPath = 'helm-version'
 
 export const projectSettingPath = 'project-setting'
 
-export const awsSettingPath = 'aws-setting'
-
-export const emailSettingPath = 'email-setting'
-
 export const featureFlagSettingPath = 'feature-flag-setting'
-
-export const instanceServerSettingPath = 'instance-server-setting'
 
 export const clientSettingPath = 'client-setting'
 
@@ -292,3 +289,8 @@ export const projectHistoryPath = 'project-history'
 export const metabaseUrlPath = 'metabase-url'
 
 export const engineSettingPath = 'engine-setting'
+
+export const moderationPath = 'moderation'
+export const moderationBanPath = 'moderation-ban'
+export const moderationAttachmentPath = 'moderation-attachment'
+export const moderationFileUploadPath = 'moderation-file-upload'

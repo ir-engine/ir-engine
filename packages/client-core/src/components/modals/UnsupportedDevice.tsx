@@ -23,14 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { getMutableState } from '@ir-engine/hyperflux'
+import { Button } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineExclamationTriangle } from 'react-icons/hi2'
+import { ModalState } from '../../common/services/ModalState'
+import { BrowserSupportState } from '../../hooks/useUnsupported'
 
 export const UnsupportedDevice = () => {
   const { t } = useTranslation()
+
+  const handleClose = () => {
+    getMutableState(BrowserSupportState).acknowledgedUnsupportedDevice.set(true)
+    ModalState.closeModal()
+  }
 
   return (
     <Modal className="w-10/12 md:w-6/12" hideFooter>
@@ -46,6 +55,9 @@ export const UnsupportedDevice = () => {
         <Text fontSize="lg" className="mt-4 text-[#b2b5bd]">
           {t('common:unsupportedDevice.description')}
         </Text>
+        <div className="mt-10 flex justify-between">
+          <Button onClick={handleClose}>{t('common:unsupportedDevice.continue')}</Button>
+        </div>
       </div>
     </Modal>
   )

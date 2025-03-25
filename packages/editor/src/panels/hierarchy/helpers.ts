@@ -22,27 +22,27 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-
-import { GLTF } from '@gltf-transform/core'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import {
   Entity,
-  entityExists,
-  EntityUUID,
+  EntityTreeComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
-  UndefinedEntity,
+  Layers,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { AllFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { nodeIsChild } from '@ir-engine/engine/src/gltf/gltfUtils'
+import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
+import { getState } from '@ir-engine/hyperflux'
 import { t } from 'i18next'
-import { CopyPasteFunctions } from '../../functions/CopyPasteFunctions'
+import { CopyPasteFunctions, EntityCopyDataType } from '../../functions/CopyPasteFunctions'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { isEntityGlb } from '../../functions/utils'
+import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { SelectionState } from '../../services/SelectionServices'
 
@@ -55,8 +55,6 @@ export type HierarchyTreeNodeType = {
   isCollapsed?: boolean
   isRendered?: boolean
 }
-
-type NestedHierarchyTreeNode = HierarchyTreeNodeType & { children: NestedHierarchyTreeNode[] }
 
 /* COMMON */
 
@@ -78,34 +76,51 @@ const getSelectedEntities = (entity?: Entity) => {
 }
 
 export const deleteNode = (entity: Entity) => {
-  EditorControlFunctions.removeObject(getSelectedEntities(entity))
+  EditorHistoryFunctions.removeEntity(getSelectedEntities(entity))
 }
 
 export const duplicateNode = (entity?: Entity) => {
   EditorControlFunctions.duplicateObject(getSelectedEntities(entity))
+  EditorHistoryFunctions.snapshot()
 }
 
 export const groupNodes = (entity?: Entity) => {
   EditorControlFunctions.groupObjects(getSelectedEntities(entity))
+  EditorHistoryFunctions.snapshot()
 }
 
 export const copyNodes = (entity?: Entity) => {
   CopyPasteFunctions.copyEntities(getSelectedEntities(entity))
 }
 
-export const pasteNodes = (entity?: Entity) => {
-  if (!entity) {
-    const selectedEntities = getMutableState(SelectionState).selectedEntities.value.slice(0)
-    if (selectedEntities.length > 0) {
-      entity = UUIDComponent.getEntityByUUID(selectedEntities[0])
-    }
+export const pasteNodes = (parentEntity?: Entity) => {
+  let parentEntities = [parentEntity] as Entity[]
+  if (!parentEntity) {
+    parentEntities = getSelectedEntities(parentEntity)
+  }
+
+  const ProcessEntityData = (parentEntity: Entity | undefined, nodeEntitiesData: EntityCopyDataType[]) => {
+    nodeEntitiesData.forEach((nodeEntityData) => {
+      const components = nodeEntityData.components.map((c) => ({ name: c.name, props: c.json }) as ComponentJsonType)
+      delete components[NodeIDComponent.jsonID]
+
+      const entityData = EditorControlFunctions.createObjectFromSceneElement(
+        components,
+        parentEntity,
+        getSelectedEntities(parentEntity)[0],
+        nodeEntityData.name
+      )
+      const newEntity = UUIDComponent.getEntityByUUID(entityData.entityUUID, Layers.Authoring)
+      ProcessEntityData(newEntity, nodeEntityData.children)
+    })
   }
 
   CopyPasteFunctions.getPastedEntities()
-    .then((nodeComponentJSONs) => {
-      nodeComponentJSONs.forEach((componentJSONs) => {
-        EditorControlFunctions.createObjectFromSceneElement(componentJSONs, entity, getSelectedEntities(entity)[0])
+    .then((nodeEntitiesData) => {
+      parentEntities.forEach((entity) => {
+        ProcessEntityData(entity, nodeEntitiesData)
       })
+      EditorHistoryFunctions.snapshot()
     })
     .catch(() => {
       NotificationService.dispatchNotify(t('editor:hierarchy.copy-paste.no-hierarchy-nodes') as string, {
@@ -114,126 +129,49 @@ export const pasteNodes = (entity?: Entity) => {
     })
 }
 
-/* HIERARCHY TREE WALKER */
-
-function buildHierarchyTree(
-  depth: number,
-  childIndex: number,
-  node: GLTF.INode,
-  nodes: GLTF.INode[],
-  array: NestedHierarchyTreeNode[],
-  lastChild: boolean,
-  sceneID: string,
-  showModelChildren: boolean,
+type WalkerEntry = {
+  entity: Entity
+  depth: number
+  lastChild: boolean
   isRendered: boolean
-) {
-  const uuid = node.extensions && (node.extensions[UUIDComponent.jsonID] as EntityUUID)
-  const entity = UUIDComponent.getEntityByUUID(uuid!)
-  if (!entity || !entityExists(entity)) return
+}
 
-  const item = {
-    depth,
-    childIndex,
-    entity: entity,
-    isCollapsed: !getState(HierarchyTreeState).expandedNodes[sceneID]?.[entity],
-    children: [],
-    isLeaf: !(node.children && node.children.length > 0),
-    lastChild: lastChild,
-    isRendered: isRendered
-  }
-  array.push(item)
+export function ecsHierarchyTreeWalker(rootEntity: Entity, enableHideGlbChildren: boolean): HierarchyTreeNodeType[] {
+  const result: HierarchyTreeNodeType[] = []
+  const frontier: WalkerEntry[] = [{ entity: rootEntity, depth: 0, lastChild: true, isRendered: true }]
+  while (frontier.length > 0) {
+    const { entity, depth, lastChild, isRendered: originalIsRendered } = frontier.pop()!
+    const eTree = getOptionalComponent(entity, EntityTreeComponent)
 
-  if (hasComponent(entity, GLTFComponent) && showModelChildren) {
-    const scene = GLTFComponent.getInstanceID(entity)
-    const snapshotState = getState(GLTFSnapshotState)
-    const snapshots = snapshotState[scene]
-    if (snapshots) {
-      const snapshotNodes = snapshots.snapshots[snapshots.index].nodes
-      if (snapshotNodes && snapshotNodes.length > 0) {
-        item.isLeaf = false
-        buildHierarchyTreeForNodes(
-          depth + 1,
-          snapshotNodes,
-          item.children,
-          sceneID,
-          showModelChildren,
-          isRendered && !item.isCollapsed
-        )
+    const hasGLTFComponent = hasComponent(entity, GLTFComponent)
+    const hasSourceComponent = hasComponent(entity, SourceComponent)
+
+    const valid = hasGLTFComponent || hasSourceComponent
+    if (!eTree || !valid) continue
+    const childIndex = eTree.childIndex ?? 0
+    const children = eTree.children
+
+    //@todo temporary check for glb so we don't display children we can't save edits to
+    const hideChildren = isEntityGlb(entity) && enableHideGlbChildren
+    const isLeaf = !children || children.length === 0 || hideChildren //check glb here to hide expansion chevron
+    const sourceID = GLTFComponent.getInstanceID(rootEntity)
+    const isCollapsed = !getState(HierarchyTreeState).expandedNodes[sourceID]?.[entity]
+    const isRendered = originalIsRendered && !isCollapsed
+    result.push({
+      entity,
+      depth,
+      childIndex,
+      lastChild,
+      isLeaf,
+      isCollapsed,
+      isRendered: originalIsRendered
+    })
+    if (children && !hideChildren) {
+      //do not push children of glb
+      for (let i = children.length - 1; i >= 0; i--) {
+        frontier.push({ entity: children[i], depth: depth + 1, lastChild: i === 0, isRendered })
       }
     }
   }
-
-  if (node.children) {
-    for (let i = 0; i < node.children.length; i++) {
-      const childIndex = node.children[i]
-      buildHierarchyTree(
-        depth + 1,
-        i,
-        nodes[childIndex],
-        nodes,
-        item.children,
-        i === node.children.length - 1,
-        sceneID,
-        showModelChildren,
-        isRendered && !item.isCollapsed
-      )
-    }
-  }
-}
-
-function buildHierarchyTreeForNodes(
-  depth: number,
-  nodes: GLTF.INode[],
-  outArray: NestedHierarchyTreeNode[],
-  sceneID: string,
-  showModelChildren: boolean,
-  isRendered: boolean
-) {
-  for (let i = 0; i < nodes.length; i++) {
-    if (nodeIsChild(i, nodes)) continue
-    buildHierarchyTree(depth, i, nodes[i], nodes, outArray, false, sceneID, showModelChildren, isRendered)
-  }
-  if (!outArray.length) return
-  outArray[outArray.length - 1].lastChild = true
-}
-
-function flattenTree(array: NestedHierarchyTreeNode[], outArray: HierarchyTreeNodeType[]) {
-  for (const item of array) {
-    if (!item.entity) continue
-    outArray.push({
-      depth: item.depth,
-      entity: item.entity,
-      childIndex: item.childIndex,
-      lastChild: item.lastChild,
-      isLeaf: item.isLeaf,
-      isCollapsed: item.isCollapsed,
-      isRendered: item.isRendered
-    })
-    flattenTree(item.children, outArray)
-  }
-}
-
-export function gltfHierarchyTreeWalker(
-  rootEntity: Entity,
-  nodes: GLTF.INode[],
-  showModelChildren: boolean
-): HierarchyTreeNodeType[] {
-  const outArray = [] as NestedHierarchyTreeNode[]
-
-  const sceneID = getComponent(rootEntity, SourceComponent)
-  const rootNode = {
-    depth: 0,
-    entity: rootEntity,
-    parentEntity: UndefinedEntity,
-    childIndex: 0,
-    lastChild: true,
-    isCollapsed: !getState(HierarchyTreeState).expandedNodes[sceneID]?.[rootEntity],
-    isRendered: true
-  }
-  const tree = [rootNode] as HierarchyTreeNodeType[]
-
-  buildHierarchyTreeForNodes(1, nodes, outArray, sceneID, showModelChildren, !rootNode.isCollapsed)
-  flattenTree(outArray, tree)
-
-  return tree
+  return result
 }

@@ -26,14 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BufferGeometry, Color, LineBasicMaterial, LineSegments, Material, NormalBufferAttributes } from 'three'
 
-import { defineComponent, setComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
-import { NO_PROXY } from '@ir-engine/hyperflux'
+import { defineComponent, removeComponent, setComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { NO_PROXY, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
-import { useDisposable, useResource } from '../../resources/resourceHooks'
+import { T } from '../../schema/schemaFunctions'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { ObjectComponent } from './ObjectComponent'
 import { ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { setVisibleComponent } from './VisibleComponent'
 
@@ -44,28 +44,26 @@ export const LineSegmentComponent = defineComponent({
     name: S.String('line-segment'),
     geometry: S.Required(S.Type<BufferGeometry>()),
     material: S.Class(() => new LineBasicMaterial() as Material),
-    color: S.Optional(S.Color()),
-    layerMask: S.Number(ObjectLayers.NodeHelper),
-    entity: S.Optional(S.Entity())
+    color: S.Optional(T.Color()),
+    layerMask: S.Number(ObjectLayers.NodeHelper)
   }),
 
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, LineSegmentComponent)
-    const [geometryState] = useResource(component.geometry.value, entity, component.geometry.uuid.value)
-    const [materialState] = useResource(component.material.value, entity, component.material.uuid.value)
-    const [lineSegment] = useDisposable(
-      LineSegments,
-      entity,
-      geometryState.value as BufferGeometry<NormalBufferAttributes>,
-      materialState.value as Material
-    )
+    const lineSegment = useHookstate(
+      () =>
+        new LineSegments(
+          component.geometry.value as BufferGeometry<NormalBufferAttributes>,
+          component.material.value as Material
+        )
+    ).value as LineSegments
 
-    useEffect(() => {
-      addObjectToGroup(entity, lineSegment)
+    useImmediateEffect(() => {
+      setComponent(entity, ObjectComponent, lineSegment)
       setVisibleComponent(entity, true)
       return () => {
-        removeObjectFromGroup(entity, lineSegment)
+        removeComponent(entity, ObjectComponent)
       }
     }, [])
 
@@ -74,8 +72,8 @@ export const LineSegmentComponent = defineComponent({
     }, [component.name])
 
     useEffect(() => {
-      setComponent(entity, ObjectLayerMaskComponent, component.layerMask.value)
-    }, [component.layerMask])
+      ObjectLayerMaskComponent.setMask(entity, component.layerMask.value)
+    }, [component.layerMask.value])
 
     useEffect(() => {
       const color = component.color.value
@@ -85,24 +83,24 @@ export const LineSegmentComponent = defineComponent({
         mat.color.set(color)
         mat.needsUpdate = true
       }
-    }, [component.color])
+    }, [component.color.value])
 
     useEffect(() => {
       const geo = component.geometry.get(NO_PROXY) as BufferGeometry<NormalBufferAttributes>
-      if (geo != geometryState.value) {
-        geometryState.set(geo)
-        lineSegment.geometry = geo
+      lineSegment.geometry = geo
+      return () => {
+        geo.dispose()
       }
-    }, [component.geometry])
+    }, [component.geometry.value])
 
     useEffect(() => {
       const mat = component.material.get(NO_PROXY) as Material
-      if (mat != materialState.value) {
-        materialState.set(component.material.get(NO_PROXY))
-        lineSegment.material = mat
-      }
+      lineSegment.material = mat
       mat.needsUpdate = true
-    }, [component.material])
+      return () => {
+        mat.dispose()
+      }
+    }, [component.material.value])
 
     return null
   }

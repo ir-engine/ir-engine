@@ -32,11 +32,11 @@ import { RecordingType, recordingPath } from '@ir-engine/common/src/schema.type.
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { PeerID, defineState, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
-import { WidgetAppService } from '@ir-engine/spatial/src/xrui/WidgetAppService'
 import { startPlayback } from '@ir-engine/ui/src/pages/Capture'
+import { WidgetAppService } from '../WidgetAppService'
 
+import { PeerMediaChannelState } from '@ir-engine/network/src/media/PeerMediaChannelState'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
-import { PeerMediaChannelState } from '../../media/PeerMediaChannelState'
 
 // TODO replace these templates with our generalised ones for XRUI
 const Checkbox = (props: { label: string; disabled?: boolean; checked: boolean; onChange: () => void }) => {

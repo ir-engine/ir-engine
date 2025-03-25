@@ -26,30 +26,25 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
-import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
-import IconButtonWithTooltip from '@ir-engine/ui/src/primitives/mui/IconButtonWithTooltip'
-
 import multiLogger from '@ir-engine/common/src/logger'
+import { Expand06Lg } from '@ir-engine/ui/src/icons'
+import LocationIconButton from '../../user/components/LocationIconButton'
 import { clientContextParams } from '../../util/ClientContextState'
-import { useShelfStyles } from '../Shelves/useShelfStyles'
-import styles from './index.module.scss'
 
 const logger = multiLogger.child({ component: 'client-core:FullScreen', modifier: clientContextParams })
 
 export const Fullscreen = () => {
   const { t } = useTranslation()
   const [fullScreenActive, setFullScreenActive] = useState(false)
-  const { bottomShelfStyle } = useShelfStyles()
 
   useEffect(() => {
     const onFullScreenChange = () => {
       if (document.fullscreenElement) {
         setFullScreenActive(true)
-        logger.info({ event_name: 'view_fullscreen', event_value: true })
+        logger.analytics({ event_name: 'view_fullscreen', event_value: true })
       } else {
         setFullScreenActive(false)
-        logger.info({ event_name: 'view_fullscreen', event_value: false })
+        logger.analytics({ event_name: 'view_fullscreen', event_value: false })
       }
     }
 
@@ -66,30 +61,13 @@ export const Fullscreen = () => {
   }
 
   return (
-    <div className={styles.fullScreen} style={{ pointerEvents: 'auto' }}>
-      {fullScreenActive ? (
-        <IconButtonWithTooltip
-          title={t('user:menu.exitFullScreen')}
-          type="solid"
-          className={`${bottomShelfStyle}`}
-          onClick={() => setFullscreen(false)}
-          sizePx={50}
-          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-          icon={<Icon type="FullscreenExit" />}
-        />
-      ) : (
-        <IconButtonWithTooltip
-          title={t('user:menu.enterFullScreen')}
-          className={`${bottomShelfStyle}`}
-          type="solid"
-          onClick={() => setFullscreen(true)}
-          sizePx={50}
-          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-          icon={<Icon type="ZoomOutMap" />}
-        />
-      )}
-    </div>
+    <LocationIconButton
+      tooltip={{
+        title: fullScreenActive ? t('user:menu.exitFullScreen') : t('user:menu.enterFullScreen'),
+        position: 'top'
+      }}
+      icon={Expand06Lg}
+      onClick={() => setFullscreen(!fullScreenActive)}
+    />
   )
 }

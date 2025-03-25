@@ -34,7 +34,7 @@ import { profile } from '@ir-engine/ecs/src/Timer'
 import { defineState, getMutableState, getState, State, useMutableState } from '@ir-engine/hyperflux'
 import { RendererComponent, RenderSettingsState } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 
-import { EngineState } from '../EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { RendererState } from './RendererState'
 
 type PerformanceTier = 0 | 1 | 2 | 3 | 4 | 5
@@ -96,7 +96,7 @@ const tieredSettings = {
   [5]: {
     engine: {
       useShadows: true,
-      shadowMapResolution: 2048,
+      shadowMapResolution: 1024, // @todo we should probably make this opt in or only allow on high end GPUs
       usePostProcessing: true,
       forceBasicMaterials: false,
       renderScale: 1

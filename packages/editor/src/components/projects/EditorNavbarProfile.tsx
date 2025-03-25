@@ -23,12 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import React from 'react'
 
-import { PopupMenuServices } from '@ir-engine/client-core/src/user/components/UserMenu/PopupMenuService'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
+import ProfileMenu from '@ir-engine/client-core/src/user/menus/ProfileMenu'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
-import { UserMenus } from '@ir-engine/client-core/src/user/UserUISystem'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { MdPerson } from 'react-icons/md'
 
@@ -36,19 +35,15 @@ export const EditorNavbarProfile = () => {
   const name = useHookstate(getMutableState(AuthState).user.name)
 
   const handleClick = () => {
-    PopupMenuServices.showPopupMenu(UserMenus.Profile)
+    ModalState.openModal(<ProfileMenu />)
   }
 
   return (
     <>
-      <Button
-        onClick={handleClick}
-        className="flex items-center"
-        endIcon={<MdPerson className="text-2xl" />}
-        variant="transparent"
-      >
+      <button onClick={handleClick} className="flex items-center gap-1 font-medium text-white">
         <span>{name.value}</span>
-      </Button>
+        <MdPerson className="text-2xl" />
+      </button>
     </>
   )
 }

@@ -30,32 +30,36 @@ import { useLocation } from 'react-router-dom'
 import { useMediaNetwork } from '@ir-engine/client-core/src/common/services/MediaInstanceConnectionService'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { ECSRecordingActions, PlaybackState, RecordingState } from '@ir-engine/common/src/recording/ECSRecordingSystem'
-import { Engine, defineQuery, getOptionalComponent } from '@ir-engine/ecs'
 import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
 import { dispatchAction, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { SpectateEntityState } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
-import { endXRSession, requestXRSession } from '@ir-engine/spatial/src/xr/XRSessionFunctions'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
-import { RegisteredWidgets, WidgetAppActions } from '@ir-engine/spatial/src/xrui/WidgetAppService'
-import CircularProgress from '@ir-engine/ui/src/primitives/mui/CircularProgress'
-import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
-import IconButtonWithTooltip from '@ir-engine/ui/src/primitives/mui/IconButtonWithTooltip'
+import { RegisteredWidgets, WidgetAppActions } from '../../systems/WidgetAppService'
 
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import multiLogger from '@ir-engine/common/src/logger'
-import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
+import { EngineState } from '@ir-engine/ecs'
+import { MediaStreamService, MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
-import { VrIcon } from '../../common/components/Icons/VrIcon'
+import {
+  Microphone01Lg,
+  Microphone01Md,
+  MicrophoneOff,
+  VideoRecorderLg,
+  VideoRecorderMd,
+  VideoRecorderOffLg,
+  VideoRecorderOffMd
+} from '@ir-engine/ui/src/icons'
+import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+import { MdFlipCameraAndroid } from 'react-icons/md'
 import { SearchParamState } from '../../common/services/RouterService'
-import { MediaStreamService, MediaStreamState } from '../../media/MediaStreamState'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
+import LocationIconButton from '../../user/components/LocationIconButton'
 import { clientContextParams } from '../../util/ClientContextState'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
-import styles from './index.module.scss'
 
-const sceneSettings = defineQuery([SceneSettingsComponent])
 const logger = multiLogger.child({ component: 'client-core:MediaIconsBox', modifier: clientContextParams })
 
 export const MediaIconsBox = () => {
@@ -90,9 +94,8 @@ export const MediaIconsBox = () => {
   const isScreenVideoEnabled =
     !!mediaStreamState.screenshareMediaStream.value && mediaStreamState.screenshareEnabled.value
 
-  const spectating =
-    !!useHookstate(getMutableState(SpectateEntityState)[Engine.instance.userID]).value &&
-    getOptionalComponent(sceneSettings()?.[0], SceneSettingsComponent)?.spectateEntity === null
+  const userID = useMutableState(EngineState).userID.value
+  const spectating = !!useHookstate(getMutableState(SpectateEntityState)[userID]).value
   const xrState = useMutableState(XRState)
   const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
   const xrMode = xrState.sessionMode.value
@@ -138,137 +141,115 @@ export const MediaIconsBox = () => {
   }
 
   return (
-    <section
-      className={`${styles.drawerBox} ${topShelfStyle} flex items-center justify-center gap-2`}
-      style={{ pointerEvents: 'auto' }}
-    >
+    <div className="pointer-events-auto z-10 flex w-full items-center justify-center gap-x-6">
       {networkState.config.media.value && !mediaNetworkState?.ready?.value && (
-        <div className={styles.loader}>
-          <CircularProgress />
-          <div
-            style={{
-              // default values will be overridden by theme
-              fontFamily: 'Lato',
-              fontSize: '12px',
-              color: '#585858',
-              padding: '16px'
-            }}
-          >
-            {t('common:loader.connectingToMedia') as string}
-          </div>
-        </div>
+        <LoadingView className="h-10 w-10" title={t('common:loader.connectingToMedia')} />
       )}
+
       {audioEnabled && hasAudioDevice && mediaNetworkReady && mediaNetworkState?.ready?.value ? (
-        <IconButtonWithTooltip
+        <LocationIconButton
+          tooltip={{
+            title: t('user:menu.toggleMute')
+          }}
+          icon={isCamAudioEnabled ? (isMobile ? Microphone01Md : Microphone01Lg) : MicrophoneOff}
           id="UserAudio"
-          title={t('user:menu.toggleMute')}
           onClick={MediaStreamState.toggleMicrophonePaused}
-          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-          icon={<Icon type={isCamAudioEnabled ? 'Mic' : 'MicOff'} />}
-          type="solid"
-          sizePx={50}
         />
       ) : null}
       {videoEnabled && hasVideoDevice && mediaNetworkReady && mediaNetworkState?.ready.value ? (
         <>
-          <IconButtonWithTooltip
+          <LocationIconButton
+            tooltip={{
+              title: t('user:menu.toggleVideo')
+            }}
+            icon={
+              isCamVideoEnabled
+                ? isMobile
+                  ? VideoRecorderMd
+                  : VideoRecorderLg
+                : isMobile
+                ? VideoRecorderOffMd
+                : VideoRecorderOffLg
+            }
             id="UserVideo"
-            title={t('user:menu.toggleVideo')}
             onClick={() => {
               MediaStreamState.toggleWebcamPaused()
-              logger.info({ event_name: 'toggle_camera', value: isCamVideoEnabled })
+              logger.analytics({ event_name: 'toggle_camera', value: isCamVideoEnabled })
             }}
-            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-            icon={<Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />}
-            type="solid"
-            sizePx={50}
+            loadingState={!!mediaStreamState.webcamMediaStream.value != mediaStreamState.webcamEnabled.value}
           />
+
           {isCamVideoEnabled && numVideoDevices > 1 && (
-            <IconButtonWithTooltip
+            <LocationIconButton
               id="FlipVideo"
-              title={t('user:menu.cycleCamera')}
+              tooltip={{
+                title: t('user:menu.cycleCamera')
+              }}
               onClick={MediaStreamService.cycleCamera}
-              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-              icon={<Icon type={'FlipCameraAndroid'} />}
-              type="solid"
-              sizePx={50}
+              icon={MdFlipCameraAndroid}
             />
           )}
-          {motionCaptureEnabled && (
-            <IconButtonWithTooltip
+          {/* {motionCaptureEnabled && (
+            <LocationIconButton
               id="UserPoseTracking"
-              title={t('user:menu.poseTracking')}
+              tooltip={{
+                title: t('user:menu.poseTracking')
+              }}
               onClick={() => {
                 window.open(`/capture/${location.pathname.split('/')[2]}`, '_blank')
-                logger.info({
+                logger.analytics({
                   event_name: 'toggle_motion_capture',
                   event_value: isMotionCaptureEnabled
                 })
               }}
-              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-              icon={<Icon type={'Accessibility'} />}
-              type="solid"
-              sizePx={50}
+              icon={IoAccessibility}
             />
-          )}
+          )} */}
         </>
       ) : null}
-      {!isMobile &&
+      {/* {!isMobile &&
       !(typeof navigator.mediaDevices.getDisplayMedia === 'undefined') &&
       screenshareEnabled &&
       mediaNetworkReady &&
       mediaNetworkState?.ready.value ? (
-        <>
-          <IconButtonWithTooltip
-            id="UserScreenSharing"
-            title={t('user:menu.shareScreen')}
-            onClick={MediaStreamState.toggleScreenshare}
-            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-            icon={<Icon type="ScreenShare" />}
-            type="solid"
-            sizePx={50}
-          />
-        </>
-      ) : null}
-      {supportsVR && xrEnabled && (
-        <IconButtonWithTooltip
+        <LocationIconButton
+          tooltip={{
+            title: t('user:menu.shareScreen')
+          }}
+          icon={Screenshare}
+          id="UserScreenSharing"
+          onClick={MediaStreamState.toggleScreenshare}
+        />
+      ) : null} */}
+      {/* {supportsVR && xrEnabled && (
+        <LocationIconButton
+          tooltip={{
+            title: t('user:menu.enterVR')
+          }}
+          icon={VrIcon}
           id="UserVR"
-          title={t('user:menu.enterVR')}
           onClick={() => {
             xrSessionActive ? endXRSession() : requestXRSession({ mode: 'immersive-vr' })
           }}
-          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-          icon={<VrIcon />}
-          type="solid"
-          sizePx={50}
         />
       )}
       {supportsAR && xrEnabled && (
-        <IconButtonWithTooltip
+        <LocationIconButton
           id="UserAR"
-          title={t('user:menu.enterAR')}
+          tooltip={{
+            title: t('user:menu.enterAR')
+          }}
           onClick={() => {
             xrSessionActive ? endXRSession() : requestXRSession({ mode: 'immersive-ar' })
           }}
-          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-          icon={<Icon type="ViewInAr" />}
-          type="solid"
-          sizePx={50}
+          icon={MdOutlineViewInAr}
         />
-      )}
+      )} */}
       {spectating && (
         <button
           type="button"
           id="ExitSpectator"
           title={t('user:menu.exitSpectate')}
-          className={styles.iconContainer}
           onClick={handleExitSpectatorClick}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -304,6 +285,6 @@ export const MediaIconsBox = () => {
           )}
         </>
       )} */}
-    </section>
+    </div>
   )
 }

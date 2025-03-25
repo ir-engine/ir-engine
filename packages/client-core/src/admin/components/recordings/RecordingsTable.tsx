@@ -25,17 +25,16 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiTrash } from 'react-icons/hi2'
 
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { RecordingType, recordingPath } from '@ir-engine/common/src/schema.type.module'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import { validate as isValidUUID } from 'uuid'
-
-import { PopoverState } from '../../../common/services/PopoverState'
+import { Trash04Lg } from '@ir-engine/ui/src/icons'
+import { ModalState } from '../../../common/services/ModalState'
 import DataTable from '../../common/Table'
 import { recordingColumns } from '../../common/constants/recordings'
+import ActionButton from '../ActionButton'
 
 export default function RecordingsTable({ search }: { search: string }) {
   const { t } = useTranslation()
@@ -52,10 +51,10 @@ export default function RecordingsTable({ search }: { search: string }) {
     {
       $or: [
         {
-          id: isValidUUID(search) ? search : undefined
+          id: isValidId(search) ? search : undefined
         },
         {
-          userId: isValidUUID(search) ? search : undefined
+          userId: isValidId(search) ? search : undefined
         }
       ]
     },
@@ -72,14 +71,14 @@ export default function RecordingsTable({ search }: { search: string }) {
       schema: JSON.stringify(row.schema),
       action: (
         <div className="flex w-full justify-center px-2 py-1">
-          {/* <Button className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0" rounded>
+          {/* <Button className=" h-8 w-8 justify-center border bg-transparent p-0" rounded>
             <HiEye className="place-self-center" />
           </Button> */}
-          <Button
-            className="h-8 w-8 justify-center border border-theme-primary bg-transparent p-0"
-            rounded="full"
+          <ActionButton
+            icon={Trash04Lg}
+            title={t('admin:components.common.delete')}
             onClick={() => {
-              PopoverState.showPopupover(
+              ModalState.openModal(
                 <ConfirmDialog
                   text={`${t('admin:components.recording.confirmRecordingDelete')} (${row.id}) ?`}
                   onSubmit={async () => {
@@ -88,9 +87,8 @@ export default function RecordingsTable({ search }: { search: string }) {
                 />
               )
             }}
-          >
-            <HiTrash className="place-self-center text-[#E11D48] dark:text-[#FB7185]" />
-          </Button>
+            variant="red"
+          />
         </div>
       )
     }))

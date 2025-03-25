@@ -29,10 +29,10 @@ import { HiEye } from 'react-icons/hi2'
 
 import { useFind } from '@ir-engine/common'
 import { buildStatusPath, BuildStatusType } from '@ir-engine/common/src/schema.type.module'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 
+import { Button } from '@ir-engine/ui'
 import TruncatedText from '@ir-engine/ui/src/primitives/tailwind/TruncatedText'
-import { PopoverState } from '../../../../common/services/PopoverState'
+import { ModalState } from '../../../../common/services/ModalState'
 import { buildStatusColumns, BuildStatusRowType } from '../../../common/constants/build-status'
 import DataTable from '../../../common/Table'
 import BuildStatusLogsModal, { BuildStatusBadge, getStartOrEndDate } from './BuildStatusLogsModal'
@@ -66,13 +66,13 @@ export default function BuildStatusTable() {
       dateEnded: getStartOrEndDate(row.dateEnded, true),
       logs: (
         <Button
-          size="small"
+          size="sm"
           disabled={!row.logs || !row.logs.length}
-          startIcon={<HiEye />}
           onClick={() => {
-            PopoverState.showPopupover(<BuildStatusLogsModal buildStatus={row} />)
+            ModalState.openModal(<BuildStatusLogsModal buildStatus={row} />)
           }}
         >
+          <HiEye />
           {t('admin:components.buildStatus.viewLogs')}
         </Button>
       )

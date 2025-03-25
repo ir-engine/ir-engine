@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Not } from 'bitecs'
+import { Not } from '@ir-engine/ecs'
 import { Vector3 } from 'three'
 
 import { defineQuery, defineSystem, getComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
@@ -35,8 +35,8 @@ import {
 } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
+import { getAncestorWithComponents } from '@ir-engine/ecs'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { SpawnPoseState } from '@ir-engine/spatial/src/transform/SpawnPoseState'
 import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
@@ -78,7 +78,7 @@ const execute = () => {
         position: spawnState?.spawnPosition,
         rotation: spawnState?.spawnRotation
       })
-      TransformComponent.dirtyTransforms[entity] = true
+      TransformComponent.dirty[entity] = 1
 
       if (!isCameraAttachedToAvatar) continue
 

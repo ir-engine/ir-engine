@@ -28,14 +28,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { FC } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
-import {
-  getMutableState,
-  getState,
-  HyperFlux,
-  OpaqueType,
-  startReactor,
-  useImmediateEffect
-} from '@ir-engine/hyperflux'
+import { getState, HyperFlux, OpaqueType, startReactor, useImmediateEffect } from '@ir-engine/hyperflux'
 
 import { SystemState } from './SystemState'
 import { nowMilliseconds } from './Timer'
@@ -90,6 +83,8 @@ export const sortSystemsByAvgDuration = (): System[] => {
   return sorted
 }
 
+const nullSystemID = '__null__' as SystemUUID
+
 export const SystemDefinitions = new Map<SystemUUID, System>()
 globalThis.SystemDefinitions = SystemDefinitions
 
@@ -109,6 +104,7 @@ export function executeSystem(systemUUID: SystemUUID) {
 
   /** @todo when we fully remove deprecated system reactors in favour of state reactors, we can just wrap system.execute with flushSync */
   if (system.reactor && !getState(SystemState).activeSystemReactors.has(system.uuid)) {
+    system.reactor['__name'] = system.uuid
     const reactor = startReactor(system.reactor)
     getState(SystemState).activeSystemReactors.set(system.uuid, reactor)
   }
@@ -116,14 +112,14 @@ export function executeSystem(systemUUID: SystemUUID) {
   const startTime = nowMilliseconds()
 
   try {
-    getMutableState(SystemState).currentSystemUUID.set(systemUUID)
+    getState(SystemState).currentSystemUUID = systemUUID
     system.execute()
   } catch (e) {
     const logger = HyperFlux.store.logger('ecs:SystemFunctions')
     logger.error(`Failed to execute system ${system.uuid}`)
     logger.error(e)
   } finally {
-    getMutableState(SystemState).currentSystemUUID.set('__null__' as SystemUUID)
+    getState(SystemState).currentSystemUUID = nullSystemID
   }
 
   const endTime = nowMilliseconds()
@@ -191,21 +187,21 @@ export function defineSystem(systemConfig: SystemArgs) {
     const referenceSystem = SystemDefinitions.get(insert.before)!
     if (!referenceSystem) throw new Error(`System ${insert.before} does not exist.`)
     referenceSystem.preSystems.push(system.uuid)
-    console.log(`Registered system ${systemConfig.uuid} before ${insert.before}`)
+    // console.log(`Registered system ${systemConfig.uuid} before ${insert.before}`)
   }
 
   if (insert?.with) {
     const referenceSystem = SystemDefinitions.get(insert.with)!
     if (!referenceSystem) throw new Error(`System ${insert.with} does not exist.`)
     referenceSystem.subSystems.push(system.uuid)
-    console.log(`Registered system ${systemConfig.uuid} with ${insert.with}`)
+    // console.log(`Registered system ${systemConfig.uuid} with ${insert.with}`)
   }
 
   if (insert?.after) {
     const referenceSystem = SystemDefinitions.get(insert.after)!
     if (!referenceSystem) throw new Error(`System ${insert.after} does not exist.`)
     referenceSystem.postSystems.push(system.uuid)
-    console.log(`Registered system ${systemConfig.uuid} after ${insert.after}`)
+    // console.log(`Registered system ${systemConfig.uuid} after ${insert.after}`)
   }
 
   return systemConfig.uuid as SystemUUID

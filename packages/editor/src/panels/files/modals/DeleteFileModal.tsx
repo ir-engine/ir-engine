@@ -26,8 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useMutation } from '@ir-engine/common'
 import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
@@ -51,7 +51,7 @@ export default function DeleteFileModal({
     try {
       await Promise.all(files.map((file) => fileService.remove(file.key)))
       modalProcessing.set(false)
-      PopoverState.hidePopupover()
+      ModalState.closeModal()
       onComplete?.()
     } catch (err) {
       NotificationService.dispatchNotify(err?.message, { variant: 'error' })
@@ -65,13 +65,16 @@ export default function DeleteFileModal({
       title={t('editor:layout.filebrowser.deleteFile')}
       className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
-      onClose={PopoverState.hidePopupover}
+      onClose={ModalState.closeModal}
       submitLoading={modalProcessing.value}
     >
       <Text className="w-full text-center">
         {files.length === 1
           ? t('editor:dialog.delete.confirm-content', { content: files[0].fullName })
-          : t('editor:dialog.delete.confirm-multiple', { first: files[0].fullName, count: files.length - 1 })}
+          : t('editor:dialog.delete.confirm-multiple', {
+              first: files[0].fullName,
+              count: files.length - 1
+            })}
       </Text>
     </Modal>
   )

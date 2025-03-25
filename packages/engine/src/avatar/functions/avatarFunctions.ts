@@ -23,13 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBone, VRMHumanBoneList } from '@pixiv/three-vrm'
-import { AnimationMixer, Matrix4, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
-import { getComponent, getOptionalComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { iterateEntityNode } from '@ir-engine/ecs'
+import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getState } from '@ir-engine/hyperflux'
-import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
@@ -58,20 +57,19 @@ const hipsPos = new Vector3(),
   eyePos = new Vector3()
 // box = new Box3()
 
-export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
+export const setupAvatarProportions = (entity: Entity) => {
   iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
   const worldHeight = Math.abs(TransformComponent.getWorldPosition(entity, new Vector3()).y)
-  const rawRig = vrm.humanoid.rawHumanBones
-  rawRig.hips.node.updateWorldMatrix(true, true)
-  rawRig.hips.node.getWorldPosition(hipsPos)
-  rawRig.head.node.getWorldPosition(headPos)
-  rawRig.leftFoot.node.getWorldPosition(leftFootPos)
-  rawRig.rightFoot.node.getWorldPosition(rightFootPos)
-  rawRig.leftToes && rawRig.leftToes.node.getWorldPosition(leftToesPos)
-  rawRig.leftLowerLeg.node.getWorldPosition(leftLowerLegPos)
-  rawRig.leftUpperLeg.node.getWorldPosition(leftUpperLegPos)
-  rawRig.leftEye ? rawRig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos).setY(headPos.y + 0.1) // fallback to rough estimation if no eye bone is present
+  const rig = getComponent(entity, AvatarRigComponent).bonesToEntities
+  TransformComponent.getWorldPosition(rig.hips, hipsPos)
+  TransformComponent.getWorldPosition(rig.head, headPos)
+  TransformComponent.getWorldPosition(rig.leftFoot, leftFootPos)
+  TransformComponent.getWorldPosition(rig.rightFoot, rightFootPos)
+  rig.leftToes && TransformComponent.getWorldPosition(rig.leftToes, leftToesPos)
+  TransformComponent.getWorldPosition(rig.leftLowerLeg, leftLowerLegPos)
+  TransformComponent.getWorldPosition(rig.leftUpperLeg, leftUpperLegPos)
+  rig.leftEye ? TransformComponent.getWorldPosition(rig.leftEye, eyePos) : eyePos.copy(headPos).setY(headPos.y + 0.1) // fallback to rough estimation if no eye bone is present
 
   setComponent(entity, AvatarComponent, {
     avatarHeight: Math.abs(headPos.y) - worldHeight + 0.25,
@@ -82,45 +80,11 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
     eyeHeight: eyePos.y - worldHeight,
     footHeight: leftFootPos.y - worldHeight,
     footGap: footGap.subVectors(leftFootPos, rightFootPos).length(),
-    footAngle: rawRig.leftToes ? Math.atan2(leftFootPos.z - leftToesPos.z, leftFootPos.y - leftToesPos.y) : 0
-  })
-  //set ik matrices for blending into normalized rig
-  const rig = vrm.humanoid.normalizedHumanBones
-  rig.hips.node.updateWorldMatrix(false, true)
-  const rigComponent = getComponent(entity, AvatarRigComponent)
-  //get list of bone names for arms and legs
-  const boneNames = VRMHumanBoneList.filter(
-    (bone) => bone.includes('Arm') || bone.includes('Leg') || bone.includes('Foot') || bone.includes('Hand')
-  )
-  for (const bone of boneNames) {
-    rigComponent.ikMatrices[bone] = {
-      world: new Matrix4().copy(rig[bone]!.node.matrixWorld),
-      local: new Matrix4().copy(rig[bone]!.node.matrix)
-    }
-  }
-}
-
-export const setAvatarAnimations = (entity: Entity) => {
-  const vrm = getComponent(entity, AvatarRigComponent).vrm
-  const manager = getState(AnimationState)
-  for (const boneName of VRMHumanBoneList) {
-    const bone = vrm.humanoid.getNormalizedBoneNode(boneName)
-    if (bone) bone.name = boneName
-  }
-  setComponent(entity, AnimationComponent, {
-    animations: Object.values(manager.loadedAnimations)
-      .map((anim) => getComponent(anim, AnimationComponent).animations)
-      .flat(),
-    mixer: new AnimationMixer(vrm.humanoid.normalizedHumanBonesRoot)
+    footAngle: rig.leftToes ? Math.atan2(leftFootPos.z - leftToesPos.z, leftFootPos.y - leftToesPos.y) : 0
   })
 }
 
-export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {
-  const avatarRigComponent = getOptionalComponent(entity, AvatarRigComponent)
-  if (!avatarRigComponent || !avatarRigComponent.normalizedRig) return false
-  const bone = avatarRigComponent.normalizedRig[boneName] as VRMHumanBone
-  if (!bone) return false
-  const el = bone.node.matrixWorld.elements
-  position.set(el[12], el[13], el[14])
-  return true
-}
+export const getAllLoadedAnimations = () =>
+  Object.values(getState(AnimationState).loadedAnimations)
+    .map((anim) => getComponent(anim, AnimationComponent).animations)
+    .flat()

@@ -23,50 +23,76 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEntityContext } from '@ir-engine/ecs'
-import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import { TTypedSchema } from '@ir-engine/ecs'
+import { defineComponent, LayerComponent, LayerID, Layers } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { hookstate, none, useImmediateEffect } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, none, OpaqueType, useHookstate } from '@ir-engine/hyperflux'
+import { NonEmptyString } from '@ir-engine/spatial/src/schema/schemaFunctions'
 
-const entitiesBySource = {} as Record<string, Entity[]>
+/**
+ * A source ID is expeced to in the format of `<nodeid>-<src>` where src is the source of the model and nodeid is the node id of the entity
+ */
+
+export type SourceID = OpaqueType<'SourceID'> & string
+
+export const EntitiesBySourceState = defineState({
+  name: 'ir.world.EntitiesBySourceState',
+  initial: {} as Record<LayerID, Record<SourceID, Entity[]>>
+})
+
+export const SourceIDSchema = () =>
+  S.String('', {
+    validate: NonEmptyString('SourceComponent expects a non-empty string'),
+    id: 'SourceID'
+  }) as unknown as TTypedSchema<SourceID>
 
 export const SourceComponent = defineComponent({
   name: 'SourceComponent',
 
-  schema: S.String(''),
+  schema: S.Required(SourceIDSchema()),
 
-  onSet: (entity, component, src) => {
-    if (typeof src !== 'string') throw new Error('SourceComponent expects a non-empty string')
-    component.set(src)
+  onSet: (entity, component, source: SourceID) => {
+    const layer = LayerComponent.get(entity)
+    const currentSource = component.value
+    if (currentSource) {
+      if (currentSource === source) return
+      if (currentSource && currentSource !== source) {
+        SourceComponent.onRemove(entity, component)
+      }
+    }
+    component.set(source)
+    const state = getMutableState(EntitiesBySourceState)
+    if (!getState(EntitiesBySourceState)[layer]) state[layer].set({})
+    const entitiesBySourceState = state[layer][source]
+    if (!entitiesBySourceState.value) {
+      entitiesBySourceState.set([entity])
+    } else {
+      if (!entitiesBySourceState.value.includes(entity)) entitiesBySourceState.merge([entity])
+    }
   },
 
-  reactor: () => {
-    const entity = useEntityContext()
-    const sourceComponent = useComponent(entity, SourceComponent)
-
-    useImmediateEffect(() => {
-      const source = sourceComponent.value
-      const entitiesBySourceState = SourceComponent.entitiesBySourceState[source]
-      if (!entitiesBySourceState.value) {
-        entitiesBySourceState.set([entity])
-      } else {
-        entitiesBySourceState.merge([entity])
-      }
-
-      return () => {
-        const entities = SourceComponent.entitiesBySource[source].filter((currentEntity) => currentEntity !== entity)
-        if (entities.length === 0) {
-          SourceComponent.entitiesBySourceState[source].set(none)
-        } else {
-          SourceComponent.entitiesBySourceState[source].set(entities)
-        }
-      }
-    }, [sourceComponent])
-
-    return null
+  onRemove: (entity, component) => {
+    const layer = LayerComponent.get(entity)
+    const entities = getState(EntitiesBySourceState)[layer][component.value].filter(
+      (currentEntity) => currentEntity !== entity
+    )
+    const layerState = getMutableState(EntitiesBySourceState)[layer]
+    if (entities.length === 0) {
+      layerState[component.value].set(none)
+    } else {
+      layerState[component.value].set(entities)
+    }
   },
 
-  entitiesBySourceState: hookstate(entitiesBySource),
-  entitiesBySource: entitiesBySource as Readonly<typeof entitiesBySource>
+  useEntitiesBySource: (sourceID: SourceID, layer = Layers.Simulation as LayerID) => {
+    const state = useHookstate(getMutableState(EntitiesBySourceState)[layer]).value
+    return state?.[sourceID] || []
+  },
+
+  getEntitiesBySource: (sourceID: SourceID, layer = Layers.Simulation as LayerID) => {
+    return getState(EntitiesBySourceState)[layer]?.[sourceID] || []
+  },
+
+  getSourceID: (uuid: EntityUUID, src: string) => `${uuid}-${src}` as SourceID
 })

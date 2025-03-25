@@ -27,8 +27,7 @@ import Tabs from '@ir-engine/ui/src/primitives/tailwind/Tabs'
 import { HiOutlineRefresh } from 'react-icons/hi'
 
 import { useHookstate } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
+import { Button, Select } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 import { serverAutoRefreshOptions } from '../../common/constants/server'
@@ -66,14 +65,15 @@ export default function Servers() {
             <Button
               title={t('admin:components.common.refresh')}
               onClick={serverInfoQuery.refetch}
-              startIcon={<HiOutlineRefresh />}
-              variant="outline"
+              variant="tertiary"
               className="justify-self-end border-0"
-            />
+            >
+              <HiOutlineRefresh />
+            </Button>
             <Select
               options={serverAutoRefreshOptions}
-              currentValue={autoRefresh.value}
-              onChange={(value) => autoRefresh.set(value)}
+              value={autoRefresh.value}
+              onChange={(value: string) => autoRefresh.set(value)}
             />
           </div>
         </div>
@@ -87,14 +87,14 @@ export default function Servers() {
         {serverInfoQuery.data.map((info) => (
           <div
             key={info.id}
-            className={`flex h-16 w-44 cursor-pointer items-start justify-between rounded-2xl bg-theme-surface-main p-4 ${
-              serverType.value === info.id && 'border-b-2 border-b-blue-primary'
+            className={`flex h-16 w-44 cursor-pointer items-start justify-between rounded-2xl  p-4 ${
+              serverType.value === info.id && 'border-b-2'
             }`}
             onClick={() => serverType.set(info.id)}
           >
             <Text fontSize="sm">{info.label}</Text>
             <Badge
-              className="h-6 rounded-[90px] bg-blue-primary text-white"
+              className="h-6 rounded-[90px] text-white"
               label={`${info.pods.filter((inf) => inf.status === 'Running').length}/${info.pods.length}`}
             />
           </div>
@@ -129,7 +129,6 @@ export default function Servers() {
             bottomComponent: <ApiJobsTable />
           }
         ]}
-        tabcontainerClassName="bg-theme-primary"
       />
     </>
   )

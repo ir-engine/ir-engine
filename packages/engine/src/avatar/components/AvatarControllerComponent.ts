@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Vector3 } from 'three'
 
+import { entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -33,19 +34,20 @@ import {
   removeComponent,
   setComponent,
   useComponent,
+  useHasComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getState, useImmediateEffect } from '@ir-engine/hyperflux'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@ir-engine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { CameraComponent } from '../../../../spatial/src/camera/components/CameraComponent'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { setAvatarColliderTransform } from '../functions/spawnAvatarReceptor'
@@ -68,9 +70,9 @@ export const AvatarControllerComponent = defineComponent({
     /** Is the gamepad-driven jump active */
     gamepadJumpActive: S.Bool(false),
     /** gamepad-driven input, in the local XZ plane */
-    gamepadLocalInput: S.Vec3(),
+    gamepadLocalInput: T.Vec3(),
     /** gamepad-driven movement, in the world XZ plane */
-    gamepadWorldMovement: S.Vec3()
+    gamepadWorldMovement: T.Vec3()
   }),
 
   captureMovement(capturedEntity: Entity, entity: Entity): void {
@@ -93,9 +95,13 @@ export const AvatarControllerComponent = defineComponent({
     const camera = useComponent(Engine.instance.cameraEntity, CameraComponent)
     const world = Physics.useWorld(entity)
     const gltfComponent = useOptionalComponent(entity, GLTFComponent)
+    const cameraHasTargetRotation = useHasComponent(
+      avatarControllerComponent.cameraEntity.value,
+      TargetCameraRotationComponent
+    )
 
     useImmediateEffect(() => {
-      avatarControllerComponent.cameraEntity.set(getState(EngineState).viewerEntity || UndefinedEntity)
+      avatarControllerComponent.cameraEntity.set(getState(ReferenceSpaceState).viewerEntity || UndefinedEntity)
     }, [])
 
     useEffect(() => {
@@ -135,7 +141,7 @@ export const AvatarControllerComponent = defineComponent({
       if (isCameraAttachedToAvatar) {
         const controller = getComponent(entity, AvatarControllerComponent)
         removeComponent(controller.cameraEntity, FollowCameraComponent)
-      } else {
+      } else if (cameraHasTargetRotation) {
         const controller = getComponent(entity, AvatarControllerComponent)
         const targetCameraRotation = getComponent(controller.cameraEntity, TargetCameraRotationComponent)
         setComponent(controller.cameraEntity, FollowCameraComponent, {
@@ -146,7 +152,7 @@ export const AvatarControllerComponent = defineComponent({
           thirdPersonOffset: new Vector3(0, avatarComponent.eyeHeight.value, 0)
         })
       }
-    }, [isCameraAttachedToAvatar, avatarComponent])
+    }, [isCameraAttachedToAvatar, avatarComponent, cameraHasTargetRotation])
 
     return null
   }

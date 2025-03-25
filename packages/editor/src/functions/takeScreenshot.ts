@@ -26,21 +26,23 @@ Infinite Reality Engine. All Rights Reserved.
 import { PerspectiveCamera, Vector2 } from 'three'
 
 import { getCanvasBlob } from '@ir-engine/client-core/src/common/utils'
-import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
+import { Entity } from '@ir-engine/ecs'
+import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import {
+  getNestedVisibleChildren,
+  getSceneParameters,
+  RendererComponent
+} from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EditorState } from '../services/EditorServices'
 
 function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: number) {
@@ -66,37 +68,18 @@ const ktx2Encoder = new KTX2Encoder()
  */
 
 export async function takeScreenshot(
+  scenePreviewCamera: PerspectiveCamera,
+  scenePreviewCameraEntity: Entity,
   width: number,
   height: number,
   quality: number = 0.9,
   format = 'jpeg' as 'jpeg' | 'png',
-  scenePreviewCamera?: PerspectiveCamera,
   hideHelpers = true
 ): Promise<Blob | null> {
-  // Getting Scene preview camera or creating one if not exists
-  if (!scenePreviewCamera) {
-    for (const entity of scenePreviewCameraQuery()) {
-      scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
-    }
-
-    if (!scenePreviewCamera) {
-      const entity = createEntity()
-      setComponent(entity, ScenePreviewCameraComponent)
-      scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
-      const { position, rotation } = getComponent(getState(EngineState).viewerEntity, TransformComponent)
-      setComponent(entity, TransformComponent, { position, rotation })
-      addObjectToGroup(entity, scenePreviewCamera)
-      setComponent(entity, EntityTreeComponent, {
-        parentEntity: getState(EditorState).rootEntity
-      })
-      scenePreviewCamera.updateMatrixWorld(true)
-    }
-  }
-
   const prevAspect = scenePreviewCamera.aspect
   const prevLayers = scenePreviewCamera.layers
   const prevLayersMask = scenePreviewCamera.layers.mask
-  const camera = getComponent(getState(EngineState).viewerEntity, CameraComponent)
+  const camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent)
 
   // Setting up scene preview camera
   scenePreviewCamera.aspect = width / height
@@ -104,7 +87,7 @@ export async function takeScreenshot(
   scenePreviewCamera.layers.disableAll()
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
-  const rendererComponent = getComponent(getState(EngineState).viewerEntity, RendererComponent)
+  const rendererComponent = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)
   const renderer = rendererComponent.renderer!
   const renderContext = rendererComponent.renderContext!
   const effectComposer = rendererComponent.effectComposer!
@@ -127,7 +110,7 @@ export async function takeScreenshot(
         clearInterval(interval)
         resolve()
       }
-    }, 10)
+    }, 100)
 
     const timeout = setTimeout(() => {
       console.warn('Could not resize viewport in time')
@@ -142,8 +125,19 @@ export async function takeScreenshot(
     effectComposer.setSize(width, height, false)
   })
 
+  const entitiesToRender = rendererComponent.scenes.map(getNestedVisibleChildren).flat()
+  const { background, environment, fog, children } = getSceneParameters(entitiesToRender, scenePreviewCameraEntity)
+  const _scene = rendererComponent.scene
+  _scene.children = children
+  _scene.background = background
+  _scene.environment = environment
+  _scene.fog = fog
+
+  ObjectComponent.activeRender = true
+  effectComposer.setMainScene(_scene)
   effectComposer.setMainCamera(scenePreviewCamera as PerspectiveCamera)
   effectComposer.render()
+  ObjectComponent.activeRender = false
   const canvas = getResizedCanvas(renderer.domElement, width, height)
 
   // Restoring previous state
@@ -168,14 +162,9 @@ export async function takeScreenshot(
 
 /** @todo make size, compression & format configurable */
 export const downloadScreenshot = () => {
-  takeScreenshot(
-    1920 * 4,
-    1080 * 4,
-    1,
-    'png',
-    getComponent(getState(EngineState).viewerEntity, CameraComponent),
-    false
-  ).then((blob) => {
+  const cameraEntity = getState(ReferenceSpaceState).viewerEntity
+  const camera = getComponent(cameraEntity, CameraComponent)
+  takeScreenshot(camera, cameraEntity, 1920 * 4, 1080 * 4, 1, 'png', false).then((blob) => {
     if (!blob) return
 
     const blobUrl = URL.createObjectURL(blob)

@@ -1,0 +1,86 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Infinite Reality Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Infinite Reality Engine team.
+
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
+*/
+
+import React, { useRef, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
+
+export interface OptionType {
+  value: string | number
+  label: string
+  selected?: boolean
+}
+
+export interface SegmentedControlProps<T = string | number> {
+  options: OptionType[]
+  onChange: (value: T) => void
+  value: T
+  layout?: 'single-row' | 'two-row' | 'vertical'
+}
+
+const SegmentedControl = ({ options, onChange, value, layout }: SegmentedControlProps) => {
+  const ref = useRef<HTMLDivElement>(null)
+  const labelRef = useRef<HTMLLabelElement>(null)
+  const [localValue, setLocalValue] = useState(value)
+
+  return (
+    <div className={'flex w-full flex-col gap-y-2'}>
+      <div className={'flex w-full'}>
+        <div ref={ref} className="relative w-full">
+          <div
+            tabIndex={0}
+            className={twMerge(
+              'relative my-0 grid w-full items-center gap-1 rounded-md bg-surface-1 !px-0.5 !py-0.5 focus:outline-none',
+              (layout === undefined || layout === 'single-row') && ' grid-flow-col grid-rows-1 ',
+              layout === 'two-row' && ' grid-flow-col grid-rows-2',
+              layout === 'vertical' && ' grid-cols-1 '
+            )}
+          >
+            {options.length > 0 ? (
+              options.map(({ value: currentValue, ...optionProps }, index) => (
+                <button
+                  key={index}
+                  className={twMerge(
+                    '!mx-0 !my-0 h-full flex-auto rounded-md px-10 py-1 text-sm',
+                    currentValue === localValue ? 'bg-surface-4 text-text-primary' : 'bg-surface-2 text-text-inactive'
+                  )}
+                  onClick={() => {
+                    setLocalValue(currentValue)
+                    onChange(currentValue)
+                  }}
+                >
+                  {optionProps.label}
+                </button>
+              ))
+            ) : (
+              <div className="w-full bg-surface-2 text-center text-text-inactive ">No options available</div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default SegmentedControl

@@ -29,7 +29,6 @@ import {
   UndefinedEntity,
   createEngine,
   createEntity,
-  defineQuery,
   destroyEngine,
   getComponent,
   getOptionalComponent,
@@ -37,22 +36,18 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
+import { getMutableState } from '@ir-engine/hyperflux'
 import assert from 'assert'
-import { isArray } from 'lodash'
 import sinon from 'sinon'
 import { BoxGeometry, Color, Material, Mesh, Texture } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { assertArray } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
-import { NameComponent } from '../../common/NameComponent'
 import { TransformComponent } from '../RendererModule'
 import { MeshComponent } from '../components/MeshComponent'
 import {
   MaterialInstanceComponent,
-  MaterialPrototypeComponent,
-  MaterialPrototypeConstructor,
   MaterialPrototypeDefinitions,
-  MaterialPrototypeObjectConstructor,
   MaterialStateComponent,
   PrototypeArgument,
   PrototypeArgumentValue
@@ -60,19 +55,14 @@ import {
 import {
   MaterialNotFoundError,
   PrototypeNotFoundError,
-  createMaterialPrototype,
   extractDefaults,
   formatMaterialArgs,
-  getMaterial,
   getMaterialIndices,
-  getPrototypeEntityFromName,
   hasPlugin,
   injectMaterialDefaults,
-  materialPrototypeMatches,
   removePlugin,
   setMeshMaterial,
-  setPlugin,
-  updateMaterialPrototype
+  setPlugin
 } from './materialFunctions'
 
 const prototypeDefaultArgs: PrototypeArgumentValue = {
@@ -84,133 +74,6 @@ const prototypeDefaultArgs: PrototypeArgumentValue = {
 }
 
 describe('materialFunctions', () => {
-  describe('getMaterial', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(() => {
-      createEngine()
-      mockSpatialEngine()
-      testEntity = createEntity()
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should return MaterialStateComponent.material when the entity has a MaterialStateComponent', () => {
-      const Expected = new Material()
-      // Set the data as expected
-      setComponent(testEntity, MaterialStateComponent, { material: Expected })
-      const uuid = UUIDComponent.generateUUID()
-      setComponent(testEntity, UUIDComponent, uuid)
-      // Sanity check before running
-      const material = getComponent(testEntity, MaterialStateComponent).material
-      assert.equal(material.uuid, Expected.uuid)
-      // Run and Check the result
-      const result = getMaterial(uuid)
-      assert.equal(result.uuid, Expected.uuid)
-    })
-
-    it('should return MaterialStateComponent.fallbackMaterial.material when the entity does not have a MaterialStateComponent', () => {
-      const Expected = new Material()
-      const uuid = MaterialStateComponent.fallbackMaterial
-      // Set the data as expected
-      const fallbackEntity = createEntity()
-      setComponent(fallbackEntity, UUIDComponent, uuid)
-      setComponent(fallbackEntity, MaterialStateComponent, { instances: [UndefinedEntity], material: Expected })
-      const testEntityUUID = UUIDComponent.generateUUID()
-      setComponent(testEntity, UUIDComponent, testEntityUUID)
-      // Sanity check before running
-      const material = getOptionalComponent(fallbackEntity, MaterialStateComponent)
-      assert.notEqual(fallbackEntity, undefined)
-      assert.notEqual(fallbackEntity, UndefinedEntity)
-      assert.notEqual(material, undefined)
-      assert.equal(hasComponent(testEntity, MaterialStateComponent), false)
-      // Run and Check the result
-      const result = getMaterial(testEntityUUID)
-      assert.equal(result.uuid, Expected.uuid)
-    })
-  }) //:: getMaterial
-
-  describe('createMaterialPrototype', () => {
-    beforeEach(() => {
-      createEngine()
-      mockSpatialEngine()
-    })
-
-    afterEach(() => {
-      return destroyEngine()
-    })
-
-    const testQuery = defineQuery([MaterialPrototypeComponent, NameComponent, UUIDComponent])
-
-    it('should create a new entity with components [MaterialPrototypeComponent, NameComponent, UUIDComponent]', () => {
-      // Sanity check before running
-      const before = testQuery()
-      assert.equal(before.length, 0)
-      // Run and Check the result
-      createMaterialPrototype(MaterialPrototypeDefinitions[0])
-      const result = testQuery()
-      assert.equal(result.length, 1)
-    })
-
-    it('should create a new entity with components [MaterialPrototypeComponent, NameComponent, UUIDComponent] for every entry of the MaterialPrototypeDefinitions array', () => {
-      // Sanity check before running
-      const before = testQuery()
-      assert.equal(before.length, 0)
-      // Run and Check the result
-      for (const prototype of MaterialPrototypeDefinitions) createMaterialPrototype(prototype)
-      const result = testQuery()
-      assert.equal(result.length, MaterialPrototypeDefinitions.length)
-    })
-
-    it('should assign the `@param prototype`.arguments field to the MaterialPrototypeComponent.prototypeArguments for the new entity that it creates', () => {
-      const prototype = MaterialPrototypeDefinitions[0]
-      const Expected = prototype.arguments
-      // Sanity check before running
-      const before = testQuery()
-      assert.equal(before.length, 0)
-      // Run and Check the result
-      createMaterialPrototype(prototype)
-      const entities = testQuery()
-      assert.equal(entities.length, 1)
-      const result = getComponent(entities[0], MaterialPrototypeComponent).prototypeArguments
-      assert.deepEqual(result, Expected)
-    })
-
-    it('should set the `@param prototype`.prototypeConstructor into the MaterialPrototypeComponent.prototypeConstructor object at ID prototype.prototypeId', () => {
-      const spy = sinon.spy()
-      const prototype = MaterialPrototypeDefinitions[0]
-      const ID = prototype.prototypeId
-      prototype.prototypeConstructor = spy as unknown as MaterialPrototypeConstructor
-      const Expected = prototype.prototypeConstructor
-      // Sanity check before running
-      const before = testQuery()
-      assert.equal(before.length, 0)
-      // Run and Check the result
-      createMaterialPrototype(prototype)
-      const entities = testQuery()
-      assert.equal(entities.length, 1)
-      const result = getComponent(entities[0], MaterialPrototypeComponent).prototypeConstructor[ID]
-      assert.deepEqual(result, Expected)
-    })
-
-    it("should set the new entity's NameComponent to `@param prototype`.prototypeId", () => {
-      const prototype = MaterialPrototypeDefinitions[0]
-      const Expected = prototype.prototypeId
-      // Sanity check before running
-      const before = testQuery()
-      assert.equal(before.length, 0)
-      // Run and Check the result
-      createMaterialPrototype(prototype)
-      const entities = testQuery()
-      assert.equal(entities.length, 1)
-      const result = getComponent(entities[0], NameComponent)
-      assert.deepEqual(result, Expected)
-    })
-  }) //:: createMaterialPrototype
-
   describe('setMeshMaterial', () => {
     let testEntity = UndefinedEntity
 
@@ -243,14 +106,14 @@ describe('materialFunctions', () => {
       // Run and Check the result
       setMeshMaterial(testEntity, newMaterialUUIDs)
       const result = getComponent(testEntity, MeshComponent).material
-      assert.equal(isArray(result), false)
+      assert.equal(Array.isArray(result), false)
       assert.equal((result as Material).uuid, Expected)
     })
 
     it('should add all items of `@param newMaterialUUIDs` to MeshComponent.material when MeshComponent.material is an array', () => {
       // Set the fallback material
       const fallbackMaterial = new Material()
-      const fallbackUUID = MaterialStateComponent.fallbackMaterial
+      const fallbackUUID = MaterialStateComponent.fallbackMaterialUUID
       const fallbackEntity = createEntity()
       setComponent(fallbackEntity, UUIDComponent, fallbackUUID)
       setComponent(fallbackEntity, MaterialStateComponent, { instances: [UndefinedEntity], material: fallbackMaterial })
@@ -287,7 +150,7 @@ describe('materialFunctions', () => {
       // Run and Check the result
       setMeshMaterial(testEntity, newMaterialUUIDs)
       const result = getComponent(testEntity, MeshComponent).material as Material[]
-      assert.equal(isArray(result), true)
+      assert.equal(Array.isArray(result), true)
       for (const material of result) {
         assert.notEqual(material.uuid, DummyUUID)
         assert.notEqual(material.uuid, fallbackUUID)
@@ -313,7 +176,7 @@ describe('materialFunctions', () => {
       // Run and Check the result
       setMeshMaterial(UndefinedEntity, newMaterialUUIDs)
       const result = getComponent(testEntity, MeshComponent).material
-      assert.equal(isArray(result), false)
+      assert.equal(Array.isArray(result), false)
       assert.notEqual((result as Material).uuid, Expected)
     })
 
@@ -335,7 +198,7 @@ describe('materialFunctions', () => {
       // Run and Check the result
       setMeshMaterial(testEntity, newMaterialUUIDs)
       const result = getOptionalComponent(testEntity, MeshComponent)?.material
-      assert.equal(isArray(result), false)
+      assert.equal(Array.isArray(result), false)
       assert.equal(result, undefined)
     })
 
@@ -357,7 +220,7 @@ describe('materialFunctions', () => {
       // Run and Check the result
       setMeshMaterial(testEntity, newMaterialUUIDs)
       const result = getComponent(testEntity, MeshComponent).material
-      assert.equal(isArray(result), false)
+      assert.equal(Array.isArray(result), false)
       assert.notEqual((result as Material).uuid, Expected)
     })
   }) //:: setMeshMaterial
@@ -490,148 +353,6 @@ describe('materialFunctions', () => {
     })
   }) //:: removePlugin
 
-  describe('materialPrototypeMatches', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(() => {
-      createEngine()
-      mockSpatialEngine()
-      testEntity = createEntity()
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should return true when the prototypeName is equal to the material.userData.type, even if material.type would match', () => {
-      const Expected = true
-      // Set the data as expected
-      const prototypeEntity = createEntity()
-      const materialEntity = createEntity()
-      const prototypeUUID = UUIDComponent.generateUUID()
-      const materialUUID = UUIDComponent.generateUUID()
-      const material = new Material()
-      material.uuid = materialUUID
-      material.userData = { type: '123456' }
-      const prototypeName = material.userData.type
-      const prototypeConstructor = (() => {}) as unknown as MaterialPrototypeConstructor
-      setComponent(prototypeEntity, UUIDComponent, prototypeUUID)
-      setComponent(materialEntity, UUIDComponent, materialUUID)
-      setComponent(prototypeEntity, MaterialPrototypeComponent, {
-        prototypeConstructor: { [prototypeName as string]: prototypeConstructor }
-      })
-      setComponent(materialEntity, MaterialStateComponent, { material: material, prototypeEntity: prototypeEntity })
-      // Sanity check before running
-      assert.equal(!getComponent(materialEntity, MaterialStateComponent).prototypeEntity, false)
-      // Run and Check the result
-      const result = materialPrototypeMatches(materialEntity)
-      assert.equal(result, Expected)
-    })
-
-    it('should return true when the prototypeName is equal to the material.type if material.userData.type is falsy', () => {
-      const Expected = true
-      // Set the data as expected
-      const prototypeEntity = createEntity()
-      const materialEntity = createEntity()
-      const prototypeUUID = UUIDComponent.generateUUID()
-      const materialUUID = UUIDComponent.generateUUID()
-      const material = new Material()
-      material.uuid = materialUUID
-      material.userData = { type: 0 }
-      const prototypeName = material.type
-      const prototypeConstructor = (() => {}) as unknown as MaterialPrototypeConstructor
-      setComponent(prototypeEntity, UUIDComponent, prototypeUUID)
-      setComponent(materialEntity, UUIDComponent, materialUUID)
-      setComponent(prototypeEntity, MaterialPrototypeComponent, {
-        prototypeConstructor: { [prototypeName as string]: prototypeConstructor }
-      })
-      setComponent(materialEntity, MaterialStateComponent, { material: material, prototypeEntity: prototypeEntity })
-      // Sanity check before running
-      assert.equal(!getComponent(materialEntity, MaterialStateComponent).prototypeEntity, false)
-      assert.equal(Boolean(material.userData.type), false)
-      // Run and Check the result
-      const result = materialPrototypeMatches(materialEntity)
-      assert.equal(result, Expected)
-    })
-
-    it('should return false if `@param materialEntity` does not have a MaterialStateComponent', () => {
-      const Expected = false
-      // Set the data as expected
-      const materialUUID = UUIDComponent.generateUUID()
-      const material = new Material()
-      material.uuid = materialUUID
-      const materialEntity = createEntity()
-      setComponent(materialEntity, UUIDComponent, materialUUID)
-      // setComponent(materialEntity, MaterialStateComponent, { material: material })
-      // Sanity check before running
-      assert.equal(hasComponent(materialEntity, MaterialStateComponent), false)
-      // Run and Check the result
-      const result = materialPrototypeMatches(materialEntity)
-      assert.equal(result, Expected)
-    })
-
-    it('should return false when `@param materialEntity`.MaterialStateComponent.prototypeEntity is falsy', () => {
-      const Expected = false
-      // Set the data as expected
-      const materialUUID = UUIDComponent.generateUUID()
-      const material = new Material()
-      material.uuid = materialUUID
-      const materialEntity = createEntity()
-      setComponent(materialEntity, UUIDComponent, materialUUID)
-      setComponent(materialEntity, MaterialStateComponent, { material: material })
-      // Sanity check before running
-      assert.equal(!getComponent(materialEntity, MaterialStateComponent).prototypeEntity, true)
-      // Run and Check the result
-      const result = materialPrototypeMatches(materialEntity)
-      assert.equal(result, Expected)
-    })
-
-    it('should return false if `@param materialEntity`.MaterialStateComponent.prototypeEntity does not have a MaterialPrototypeComponent', () => {
-      const Expected = false
-      // Set the data as expected
-      const prototypeEntity = createEntity()
-      const materialEntity = createEntity()
-      const prototypeUUID = UUIDComponent.generateUUID()
-      const materialUUID = UUIDComponent.generateUUID()
-      const material = new Material()
-      material.uuid = materialUUID
-      setComponent(prototypeEntity, UUIDComponent, prototypeUUID)
-      setComponent(materialEntity, UUIDComponent, materialUUID)
-      // setComponent(prototypeEntity, MaterialPrototypeComponent, { prototypeConstructor: { [prototypeName as string]: prototypeConstructor } })
-      setComponent(materialEntity, MaterialStateComponent, { material: material, prototypeEntity: prototypeEntity })
-      // Sanity check before running
-      assert.equal(!getComponent(materialEntity, MaterialStateComponent).prototypeEntity, false)
-      assert.equal(hasComponent(prototypeEntity, MaterialPrototypeComponent), false)
-      // Run and Check the result
-      const result = materialPrototypeMatches(materialEntity)
-      assert.equal(result, Expected)
-    })
-
-    it('should return false if `@param materialEntity`.MaterialStateComponent.protypeEntity.MaterialPrototypeComponent.prototypeConstructor is falsy', () => {
-      const Expected = false
-      // Set the data as expected
-      const prototypeEntity = createEntity()
-      const materialEntity = createEntity()
-      const prototypeUUID = UUIDComponent.generateUUID()
-      const materialUUID = UUIDComponent.generateUUID()
-      const material = new Material()
-      material.uuid = materialUUID
-      const DummyConstructor = {} as MaterialPrototypeObjectConstructor
-      setComponent(prototypeEntity, UUIDComponent, prototypeUUID)
-      setComponent(materialEntity, UUIDComponent, materialUUID)
-      setComponent(prototypeEntity, MaterialPrototypeComponent, { prototypeConstructor: {} })
-      setComponent(materialEntity, MaterialStateComponent, { material: material, prototypeEntity: prototypeEntity })
-      // Sanity check before running
-      assert.equal(!getComponent(materialEntity, MaterialStateComponent).prototypeEntity, false)
-      const prototypeConstructor = getComponent(prototypeEntity, MaterialPrototypeComponent).prototypeConstructor
-      assert.deepEqual(prototypeConstructor, DummyConstructor)
-      // Run and Check the result
-      const result = materialPrototypeMatches(materialEntity)
-      assert.equal(result, Expected)
-    })
-  }) //:: materialPrototypeMatches
-
   describe('getMaterialIndices', () => {
     let testEntity = UndefinedEntity
 
@@ -676,98 +397,6 @@ describe('materialFunctions', () => {
     })
   }) //:: getMaterialIndices
 
-  describe('getPrototypeEntityFromName', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(() => {
-      createEngine()
-      mockSpatialEngine()
-      testEntity = createEntity()
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should return the first entity that has a MaterialPrototypeComponent and a NameComponent that matches the `@param name`', () => {
-      const Expected = testEntity
-      const name = 'ExpectedName'
-      // Set the data as expected
-      setComponent(testEntity, NameComponent, name)
-      setComponent(testEntity, MaterialPrototypeComponent)
-      const otherEntity = createEntity()
-      setComponent(otherEntity, NameComponent, 'OtherEntityName')
-      setComponent(otherEntity, MaterialPrototypeComponent)
-      // Sanity check before running
-      assert.equal(hasComponent(testEntity, NameComponent), true)
-      assert.equal(hasComponent(otherEntity, NameComponent), true)
-      assert.equal(hasComponent(testEntity, MaterialPrototypeComponent), true)
-      assert.equal(hasComponent(otherEntity, MaterialPrototypeComponent), true)
-      // Run and Check the result
-      const result = getPrototypeEntityFromName(name)
-      assert.notEqual(result, otherEntity)
-      assert.equal(result, Expected)
-    })
-
-    it('should return undefined when there are no entities that have a MaterialPrototypeComponent', () => {
-      const Expected = undefined
-      const name = 'ExpectedName'
-      // Set the data as expected
-      setComponent(testEntity, NameComponent, name)
-      // setComponent(testEntity, MaterialPrototypeComponent)
-      const otherEntity = createEntity()
-      setComponent(otherEntity, NameComponent, name)
-      // setComponent(otherEntity, MaterialPrototypeComponent)
-      // Sanity check before running
-      assert.equal(hasComponent(testEntity, NameComponent), true)
-      assert.equal(hasComponent(otherEntity, NameComponent), true)
-      assert.equal(hasComponent(testEntity, MaterialPrototypeComponent), false)
-      assert.equal(hasComponent(otherEntity, MaterialPrototypeComponent), false)
-      // Run and Check the result
-      const result = getPrototypeEntityFromName(name)
-      assert.notEqual(result, otherEntity)
-      assert.notEqual(result, testEntity)
-      assert.equal(result, Expected)
-    })
-
-    it('should return undefined when the first entity that has a MaterialPrototypeComponent has a NameComponent that does not match the `@param name`', () => {
-      const Expected = undefined
-      const name = 'ExpectedName'
-      // Set the data as expected
-      setComponent(testEntity, NameComponent, name)
-      setComponent(testEntity, MaterialPrototypeComponent)
-      const otherEntity = createEntity()
-      setComponent(otherEntity, NameComponent, name)
-      setComponent(otherEntity, MaterialPrototypeComponent)
-      // Sanity check before running
-      assert.equal(hasComponent(testEntity, NameComponent), true)
-      assert.equal(hasComponent(otherEntity, NameComponent), true)
-      assert.equal(hasComponent(testEntity, MaterialPrototypeComponent), true)
-      assert.equal(hasComponent(otherEntity, MaterialPrototypeComponent), true)
-      // Run and Check the result
-      const result = getPrototypeEntityFromName('OtherName')
-      assert.notEqual(result, otherEntity)
-      assert.notEqual(result, testEntity)
-      assert.equal(result, Expected)
-    })
-
-    it('should return undefined when the entity that has a MaterialPrototypeComponent does not have a NameComponent', () => {
-      const Expected = undefined
-      const name = 'ExpectedName'
-      // Set the data as expected
-      // setComponent(testEntity, NameComponent, name)
-      setComponent(testEntity, MaterialPrototypeComponent)
-      // Sanity check before running
-      assert.equal(hasComponent(testEntity, NameComponent), false)
-      assert.equal(hasComponent(testEntity, MaterialPrototypeComponent), true)
-      // Run and Check the result
-      const result = getPrototypeEntityFromName(name)
-      assert.notEqual(result, testEntity)
-      assert.equal(result, Expected)
-    })
-  }) //:: getPrototypeEntityFromName
-
   describe('injectMaterialDefaults', () => {
     let testEntity = UndefinedEntity
 
@@ -783,9 +412,10 @@ describe('materialFunctions', () => {
     })
 
     it('should return an object that contains all of the expected keys/values', () => {
-      const key = 'asdfg'
+      const type = 'stereotomy'
+      const key = 'voyager'
       const prototypeArgumentValue = {
-        type: '12345',
+        type,
         default: {},
         min: 42,
         max: 43,
@@ -793,24 +423,22 @@ describe('materialFunctions', () => {
       }
       const prototypeArguments = { [key]: prototypeArgumentValue }
       const materialParameters = { [key]: { thing: 42 } }
+      getMutableState(MaterialPrototypeDefinitions)[type].set({
+        arguments: prototypeArguments,
+        prototypeConstructor: Material
+      })
       const Expected = { ...prototypeArguments }
       Expected[key].default = materialParameters[key]
 
       // Set the data as expected
       const material = new Material()
-      const prototypeEntity = createEntity()
+      material.type = type
       const materialEntity = createEntity()
-      const prototypeUUID = UUIDComponent.generateUUID()
       const materialUUID = UUIDComponent.generateUUID()
-      setComponent(prototypeEntity, UUIDComponent, prototypeUUID)
       material.uuid = materialUUID
-      setComponent(prototypeEntity, MaterialPrototypeComponent, {
-        prototypeArguments: prototypeArguments
-      })
       setComponent(materialEntity, UUIDComponent, materialUUID)
       setComponent(materialEntity, MaterialStateComponent, {
         material: material,
-        prototypeEntity: prototypeEntity,
         parameters: materialParameters
       })
       // Run and Check the result
@@ -958,137 +586,4 @@ describe('materialFunctions', () => {
       assert.deepEqual(result, Expected)
     })
   }) //:: extractDefaults
-
-  describe('updateMaterialPrototype', () => {
-    let materialEntity = UndefinedEntity
-
-    beforeEach(() => {
-      createEngine()
-      mockSpatialEngine()
-      materialEntity = createEntity()
-    })
-
-    afterEach(() => {
-      removeEntity(materialEntity)
-      return destroyEngine()
-    })
-
-    class MockMaterial {
-      constructor() {}
-    }
-
-    it('should return undefined if the `@param materialEntity` does not have a MaterialStateComponent', () => {
-      // Sanity check before running
-      assert.equal(hasComponent(materialEntity, MaterialStateComponent), false)
-      // Run and Check the result
-      const result = updateMaterialPrototype(materialEntity)
-      assert.equal(result, undefined)
-    })
-
-    it('should return undefined if the `@param materialEntity`.MaterialStateComponent.prototypeEntity is falsy', () => {
-      // Set the data as expected
-      setComponent(materialEntity, MaterialStateComponent, { prototypeEntity: UndefinedEntity })
-      // Sanity check before running
-      assert.equal(hasComponent(materialEntity, MaterialStateComponent), true)
-      assert.equal(Boolean(getComponent(materialEntity, MaterialStateComponent).prototypeEntity), false)
-      // Run and Check the result
-      const result = updateMaterialPrototype(materialEntity)
-      assert.equal(result, undefined)
-    })
-
-    it('should return undefined if the `@param materialEntity`.MaterialStateComponent.prototypeEntity does not have a NameComponent', () => {
-      // Set the data as expected
-      const prototypeEntity = createEntity()
-      setComponent(materialEntity, MaterialStateComponent, { prototypeEntity: prototypeEntity })
-      // Sanity check before running
-      assert.equal(hasComponent(materialEntity, MaterialStateComponent), true)
-      assert.equal(Boolean(getComponent(materialEntity, MaterialStateComponent).prototypeEntity), true)
-      assert.equal(hasComponent(prototypeEntity, NameComponent), false)
-      // Run and Check the result
-      const result = updateMaterialPrototype(materialEntity)
-      assert.equal(result, undefined)
-    })
-
-    it('should return undefined if the `@param materialEntity`.MaterialStateComponent.prototypeEntity does not have a MaterialPrototypeComponent', () => {
-      // Set the data as expected
-      const prototypeEntity = createEntity()
-      const prototypeName = 'testPrototypeName'
-      setComponent(prototypeEntity, NameComponent, prototypeName)
-      setComponent(materialEntity, MaterialStateComponent, { prototypeEntity: prototypeEntity })
-      // Sanity check before running
-      assert.equal(hasComponent(materialEntity, MaterialStateComponent), true)
-      assert.equal(Boolean(getComponent(materialEntity, MaterialStateComponent).prototypeEntity), true)
-      assert.equal(hasComponent(prototypeEntity, NameComponent), true)
-      assert.equal(hasComponent(prototypeEntity, MaterialPrototypeComponent), false)
-      // Run and Check the result
-      const result = updateMaterialPrototype(materialEntity)
-      assert.equal(result, undefined)
-    })
-
-    it('should return undefined if the `@param materialEntity`.MaterialStateComponent.prototypeEntity.MaterialPrototypeComponent does not have a prototypeConstructor field with the NameComponent of the prototypeEntity', () => {
-      // Set the data as expected
-      const prototypeEntity = createEntity()
-      const prototypeName = 'testPrototypeName'
-      const prototypeConstructor = {} // { [prototypeName]: MockMaterial }
-      setComponent(prototypeEntity, NameComponent, prototypeName)
-      setComponent(prototypeEntity, MaterialPrototypeComponent, { prototypeConstructor: prototypeConstructor })
-      setComponent(materialEntity, MaterialStateComponent, { prototypeEntity: prototypeEntity })
-      // Sanity check before running
-      assert.equal(hasComponent(materialEntity, MaterialStateComponent), true)
-      assert.equal(Boolean(getComponent(materialEntity, MaterialStateComponent).prototypeEntity), true)
-      assert.equal(hasComponent(prototypeEntity, NameComponent), true)
-      assert.equal(hasComponent(prototypeEntity, MaterialPrototypeComponent), true)
-      const hasConstructorWithPrototypeName = Object.keys(prototypeConstructor).includes(prototypeName)
-      assert.equal(hasConstructorWithPrototypeName, false)
-      // Run and Check the result
-      const result = updateMaterialPrototype(materialEntity)
-      assert.equal(result, undefined)
-    })
-
-    it('should return undefined if `@param materialEntity`.MaterialStateComponent.material.type is equal to the prototypeEntity.NameComponent', () => {
-      // Set the data as expected
-      const prototypeEntity = createEntity()
-      const prototypeName = 'testPrototypeName'
-      const prototypeConstructor = { [prototypeName]: MockMaterial }
-      setComponent(prototypeEntity, NameComponent, prototypeName)
-      setComponent(prototypeEntity, MaterialPrototypeComponent, { prototypeConstructor: prototypeConstructor })
-      const material = new Material()
-      material.type = prototypeName
-      setComponent(materialEntity, MaterialStateComponent, { material: material, prototypeEntity: prototypeEntity })
-      // Sanity check before running
-      assert.equal(hasComponent(materialEntity, MaterialStateComponent), true)
-      assert.equal(Boolean(getComponent(materialEntity, MaterialStateComponent).prototypeEntity), true)
-      assert.equal(hasComponent(prototypeEntity, NameComponent), true)
-      assert.equal(hasComponent(prototypeEntity, MaterialPrototypeComponent), true)
-      const hasConstructorWithPrototypeName = Object.keys(prototypeConstructor).includes(prototypeName)
-      assert.equal(hasConstructorWithPrototypeName, true)
-      /** @todo prototypeArguments check */
-      assert.equal(
-        getComponent(materialEntity, MaterialStateComponent).material.type,
-        getComponent(prototypeEntity, NameComponent)
-      )
-      // Run and Check the result
-      const result = updateMaterialPrototype(materialEntity)
-      assert.equal(result, undefined)
-    })
-
-    /** @todo
-    it("should create a material by calling its prototypeConstructor with its prototypeArguments", () => {})
-    it("should assign a function to result.customProgramCacheKey that will ???", () => {})
-    it("should assign the `@param materialEntity`.MaterialStateComponent.uuid to the result.uuid", () => {})
-    it("should assign the `@param materialEntity`.MaterialStateComponent.defines['USE_COLOR'] to the resulting material if the existing material also had that property", () => {})
-    it("should assign the `@param materialEntity`.MaterialStateComponent.userData to the resulting material, except for its `type` property", () => {})
-    it("should assign the resulting material to the `@param materialEntity`.MaterialStateComponent", () => {})
-    it("should assign the defaults contained in `@param materialEntity`.MaterialStateComponent.prototypeEntity.MaterialPrototypeComponent.prototypeArguments to the `@param materialEntity`.MaterialStateComponent.parameters", () => {})
-    it("should return the resulting material when it completed its process successfully", () => {})
-    */
-  }) //:: updateMaterialPrototype
-
-  /**
-  // @deprecated until the GLTF ECS Loader is merged : https://github.com/ir-engine/ir-engine/pull/11
-  describe('loadMaterialGLTF', () => {}) //:: loadMaterialGLTF
-  describe('assignMaterial', () => {}) //:: assignMaterial
-  describe('createAndAssignMaterial', () => {}) //:: createAndAssignMaterial
-  describe('createMaterialEntity', () => {}) //:: createMaterialEntity
-  */
 }) //:: materialFunctions

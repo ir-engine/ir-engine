@@ -27,20 +27,14 @@ import assert from 'assert'
 import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
-import {
-  getComponent,
-  hasComponent,
-  removeComponent,
-  serializeComponent,
-  setComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { createEntity, removeEntity } from '@ir-engine/ecs'
+import { hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 
 import { UndefinedEntity } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { addObjectToGroup } from './GroupComponent'
-import { Layer, ObjectLayerComponents, ObjectLayerMaskComponent, ObjectLayerMaskDefault } from './ObjectLayerComponent'
+import { ObjectComponent } from './ObjectComponent'
+import { Layer, ObjectLayerComponents, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 
 const maxBitWidth = 32
 
@@ -62,13 +56,13 @@ describe('ObjectLayerComponent : todo.Organize', () => {
     setComponent(entity, ObjectLayerMaskComponent, layerMask)
 
     assert(hasComponent(entity, ObjectLayerMaskComponent))
-    const componentLayerMask = getComponent(entity, ObjectLayerMaskComponent)
+    const componentLayerMask = ObjectLayerMaskComponent.mask[entity]
     assert(componentLayerMask === layerMask)
     assert(componentLayerMask !== layer)
     assert(hasComponent(entity, ObjectLayerComponents[layer]))
   })
 
-  it('Sets objectLayers on group', () => {
+  it('Sets objectLayers on object', () => {
     const entity = createEntity()
     const geometry = new BoxGeometry(1, 1, 1)
     const material = new MeshBasicMaterial({ color: 0xffff00 })
@@ -77,7 +71,7 @@ describe('ObjectLayerComponent : todo.Organize', () => {
     const objectLayer = 2
     const nonEnabledObjectLayer = 5
 
-    addObjectToGroup(entity, mesh)
+    setComponent(entity, ObjectComponent, mesh)
     mesh.layers.enable(objectLayer)
 
     assert(hasComponent(entity, ObjectLayerMaskComponent))
@@ -87,34 +81,7 @@ describe('ObjectLayerComponent : todo.Organize', () => {
     assert(!mesh.layers.isEnabled(nonEnabledObjectLayer))
   })
 
-  it('Sets objectLayers on group multiple', () => {
-    const meshCount = 10
-
-    const entity = createEntity()
-    const meshes = [] as Mesh[]
-
-    for (let i = 0; i < meshCount; i++) {
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
-      const mesh = new Mesh(geometry, material)
-      meshes.push(mesh)
-      addObjectToGroup(entity, mesh)
-    }
-
-    const objectLayers = [5, 6, 7]
-
-    setComponent(entity, ObjectLayerMaskComponent)
-    ObjectLayerMaskComponent.enableLayers(entity, ...objectLayers)
-
-    for (const mesh of meshes) {
-      for (const layer of objectLayers) {
-        assert(mesh.layers.isEnabled(layer))
-        assert(hasComponent(entity, ObjectLayerComponents[layer]))
-      }
-    }
-  })
-
-  it('Updates objectLayers on group', () => {
+  it('Updates objectLayers on object', () => {
     const entity = createEntity()
     const geometry = new BoxGeometry(1, 1, 1)
     const material = new MeshBasicMaterial({ color: 0xffff00 })
@@ -123,7 +90,7 @@ describe('ObjectLayerComponent : todo.Organize', () => {
     const objectLayers = [2, 3, 4]
     const nonEnabledObjectLayer = 5
 
-    addObjectToGroup(entity, mesh)
+    setComponent(entity, ObjectComponent, mesh)
     setComponent(entity, ObjectLayerMaskComponent)
     ObjectLayerMaskComponent.enableLayers(entity, ...objectLayers)
 
@@ -155,8 +122,6 @@ describe('ObjectLayerComponent : todo.Organize', () => {
     const layer = new Layer(entity)
 
     assert(layer.isEnabled(0))
-    const layerMaskComponent = getComponent(entity, ObjectLayerMaskComponent)
-    assert(layerMaskComponent === 1)
     assert(ObjectLayerMaskComponent.mask[entity] === 1)
     assert(hasComponent(entity, ObjectLayerComponents[0]))
 
@@ -223,12 +188,8 @@ describe('ObjectLayerMaskComponent', () => {
 
   describe('ecs schema', () => {
     it('should initialize the ecs schema with the expected values', () => {
-      assert.notEqual(ObjectLayerMaskComponent.schema, undefined)
-      const KeysSchema = Object.keys(ObjectLayerMaskComponent.schema)
-      assert.equal(KeysSchema.length, 1)
-      assert.equal(KeysSchema.includes('mask'), true)
-      assert.notEqual(ObjectLayerMaskComponent.schema.mask, undefined)
-      assert.equal(ObjectLayerMaskComponent.schema.mask, 'i32')
+      assert.equal(ObjectLayerMaskComponent.schema, undefined)
+      assert(ObjectLayerMaskComponent.mask instanceof Int32Array)
     })
   })
 
@@ -245,11 +206,6 @@ describe('ObjectLayerMaskComponent', () => {
       removeEntity(testEntity)
       return destroyEngine()
     })
-
-    it('should initialize the component with the expected default values', () => {
-      const data = getComponent(testEntity, ObjectLayerMaskComponent)
-      assertObjectLayerMaskComponentEq(data, ObjectLayerMaskDefault)
-    })
   }) //:: onInit
 
   describe('onSet', () => {
@@ -263,13 +219,6 @@ describe('ObjectLayerMaskComponent', () => {
     afterEach(() => {
       removeEntity(testEntity)
       return destroyEngine()
-    })
-
-    it('should set the value of the component to `@param mask`', () => {
-      const Expected = 42
-      setComponent(testEntity, ObjectLayerMaskComponent, Expected)
-      const result = getComponent(testEntity, ObjectLayerMaskComponent)
-      assert.equal(result, Expected)
     })
 
     it('should set the mask value for the entity to `@param mask`', () => {
@@ -326,32 +275,10 @@ describe('ObjectLayerMaskComponent', () => {
     })
 
     it("should set component's value to 0", () => {
-      assert.equal(getComponent(testEntity, ObjectLayerMaskComponent), 42)
       removeComponent(testEntity, ObjectLayerMaskComponent)
       assert.equal(hasComponent(testEntity, ObjectLayerMaskComponent), false)
     })
   }) //:: onRemove
-
-  describe('toJSON', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-      setComponent(testEntity, ObjectLayerMaskComponent, 42)
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should return the serialized data correctly', () => {
-      const result = serializeComponent(testEntity, ObjectLayerMaskComponent)
-      assert.equal(typeof result, 'number')
-      assert.equal(result, 42)
-    })
-  }) //:: toJSON
 
   describe('setLayer', () => {
     let testEntity = UndefinedEntity
@@ -371,7 +298,7 @@ describe('ObjectLayerMaskComponent', () => {
       ObjectLayerMaskComponent.setLayer(testEntity, Layer)
       assert.equal(hasComponent(testEntity, ObjectLayerMaskComponent), true)
       assert.equal(hasComponent(testEntity, ObjectLayerComponents[Layer]), true)
-      assert.equal(getComponent(testEntity, ObjectLayerMaskComponent), 1 << Layer)
+      assert.equal(ObjectLayerMaskComponent.mask[testEntity], 1 << Layer)
     })
   }) //:: setLayer
 
@@ -400,13 +327,6 @@ describe('ObjectLayerMaskComponent', () => {
       assert.equal(hasComponent(testEntity, ObjectLayerMaskComponent), false)
       ObjectLayerMaskComponent.enableLayer(testEntity, Layer)
       assert.equal(hasComponent(testEntity, ObjectLayerMaskComponent), true)
-    })
-
-    it('should not do anything if the entity does not exist', () => {
-      const Layer = 10
-      assert.equal(hasComponent(UndefinedEntity, ObjectLayerMaskComponent), false)
-      ObjectLayerMaskComponent.enableLayer(UndefinedEntity, Layer)
-      assert.equal(hasComponent(UndefinedEntity, ObjectLayerMaskComponent), false)
     })
   }) //:: enableLayer
 
@@ -464,13 +384,6 @@ describe('ObjectLayerMaskComponent', () => {
       assert.equal(hasComponent(testEntity, ObjectLayerComponents[Layer]), true)
       ObjectLayerMaskComponent.disableLayer(testEntity, Layer)
       assert.equal(hasComponent(testEntity, ObjectLayerComponents[Layer]), false)
-    })
-
-    it('should not do anything if the entity does not exist', () => {
-      const Layer = 10
-      assert.equal(hasComponent(UndefinedEntity, ObjectLayerComponents[Layer]), false)
-      ObjectLayerMaskComponent.disableLayer(UndefinedEntity, Layer)
-      assert.equal(hasComponent(UndefinedEntity, ObjectLayerComponents[Layer]), false)
     })
   }) //:: disableLayer
 
@@ -553,13 +466,6 @@ describe('ObjectLayerMaskComponent', () => {
       return destroyEngine()
     })
 
-    it('should set the value of the component to `@param mask`', () => {
-      const Expected = 42
-      ObjectLayerMaskComponent.setMask(testEntity, Expected)
-      const result = getComponent(testEntity, ObjectLayerMaskComponent)
-      assert.equal(result, Expected)
-    })
-
     it('should set the mask value for the entity to `@param mask`', () => {
       const Expected = 42
       ObjectLayerMaskComponent.setMask(testEntity, Expected)
@@ -585,51 +491,6 @@ describe('ObjectLayerComponents', () => {
       })
     })
   }) //:: IDs
-
-  describe('onSet', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should activate the bit for the respective layer ID in ObjectLayerMaskComponent.mask[entity]', () => {
-      const Layer = 10
-      setComponent(testEntity, ObjectLayerComponents[Layer])
-      const hasLayer = Boolean(ObjectLayerMaskComponent.mask[testEntity] & (1 << Layer)) // true when mask contains the Layer bit
-      assert.equal(hasLayer, true)
-    })
-  }) //:: onSet
-
-  describe('onRemove', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should deactivate the bit for the respective layer ID in ObjectLayerMaskComponent.mask[entity]', () => {
-      const Layer = 10
-      setComponent(testEntity, ObjectLayerComponents[Layer])
-      const before = Boolean(ObjectLayerMaskComponent.mask[testEntity] & (1 << Layer)) // true when mask contains the Layer bit
-      assert.equal(before, true)
-      removeComponent(testEntity, ObjectLayerComponents[Layer])
-      const hasLayer = Boolean(ObjectLayerMaskComponent.mask[testEntity] & (1 << Layer)) // true when mask contains the Layer bit
-      assert.equal(hasLayer, false)
-    })
-  }) //:: onRemove
 })
 
 describe('Layer', () => {
@@ -714,7 +575,7 @@ describe('Layer', () => {
       layer.set(Expected)
       assert.equal(hasComponent(testEntity, ObjectLayerMaskComponent), true)
       assert.equal(hasComponent(testEntity, ObjectLayerComponents[Expected]), true)
-      assert.equal(getComponent(testEntity, ObjectLayerMaskComponent), 1 << Expected)
+      assert.equal(ObjectLayerMaskComponent.mask[testEntity], 1 << Expected)
     })
   }) //:: set
 

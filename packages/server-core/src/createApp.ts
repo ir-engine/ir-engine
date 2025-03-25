@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -27,7 +27,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { feathers } from '@feathersjs/feathers'
 import { bodyParser, errorHandler, koa, rest } from '@feathersjs/koa'
-import * as k8s from '@kubernetes/client-node'
+import { AppsV1Api, BatchV1Api, CoreV1Api, CustomObjectsApi, KubeConfig } from '@kubernetes/client-node'
 import { EventEmitter } from 'events'
 // Do not delete, this is used even if some IDEs show it as unused
 import swagger from 'feathers-swagger'
@@ -50,11 +50,11 @@ import { Application } from '../declarations'
 import packagejson from '../package.json'
 import { logger } from './ServerLogger'
 import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
-import { default as appConfig, default as config } from './appconfig'
+import { default as appConfig } from './appconfig'
 import authenticate from './hooks/authenticate'
 import { logError } from './hooks/log-error'
 import persistHeaders from './hooks/persist-headers'
-import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
+import { createDefaultStorageProvider } from './media/storageprovider/storageprovider'
 import mysql from './mysql'
 import services from './services'
 import authentication from './user/authentication'
@@ -107,6 +107,8 @@ export const configurePrimus =
           transformer: 'websockets',
           origins: origin,
           methods: ['OPTIONS', 'GET', 'POST'],
+          pingInterval: commonConfig.websocket.pingInterval,
+          pingTimeout: commonConfig.websocket.pingTimeout,
           headers: '*',
           credentials: true
         },
@@ -144,14 +146,14 @@ export const configureRedis = () => (app: Application) => {
 
 export const configureK8s = () => (app: Application) => {
   if (appConfig.kubernetes.enabled) {
-    const kc = new k8s.KubeConfig()
+    const kc = new KubeConfig()
     kc.loadFromDefault()
     const serverState = getMutableState(ServerState)
 
-    const k8AgonesClient = kc.makeApiClient(k8s.CustomObjectsApi)
-    const k8DefaultClient = kc.makeApiClient(k8s.CoreV1Api)
-    const k8AppsClient = kc.makeApiClient(k8s.AppsV1Api)
-    const k8BatchClient = kc.makeApiClient(k8s.BatchV1Api)
+    const k8AgonesClient = kc.makeApiClient(CustomObjectsApi)
+    const k8DefaultClient = kc.makeApiClient(CoreV1Api)
+    const k8AppsClient = kc.makeApiClient(AppsV1Api)
+    const k8BatchClient = kc.makeApiClient(BatchV1Api)
 
     serverState.merge({
       k8AppsClient,
@@ -180,7 +182,7 @@ export const createFeathersKoaApp = async (
   createEngine(createHyperStore())
 
   getMutableState(DomainConfigState).merge({
-    publicDomain: config.client.dist,
+    publicDomain: appConfig.client.dist,
     cloudDomain: commonConfig.client.fileServer,
     proxyDomain: commonConfig.client.cors.proxyUrl
   })
@@ -189,10 +191,6 @@ export const createFeathersKoaApp = async (
   serverState.serverMode.set(serverMode)
 
   createDefaultStorageProvider()
-
-  if (appConfig.ipfs.enabled) {
-    createIPFSStorageProvider()
-  }
 
   const app = koa(feathers()) as Application
   API.instance = app
@@ -203,7 +201,9 @@ export const createFeathersKoaApp = async (
   // hard-code http as the protocol, so manually mashing host + port together if in local.
   app.set(
     'host',
-    appConfig.server.local ? appConfig.server.hostname + ':' + appConfig.server.port : appConfig.server.hostname
+    (appConfig.server.local as any) === '1' || appConfig.server.local === true
+      ? appConfig.server.hostname + ':' + appConfig.server.port
+      : appConfig.server.hostname
   )
   app.set('port', appConfig.server.port)
 

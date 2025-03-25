@@ -23,23 +23,22 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { HiPencil, HiTrash } from 'react-icons/hi2'
-import { validate as isValidUUID } from 'uuid'
-
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { AvatarID, AvatarType, UserName, avatarPath } from '@ir-engine/common/src/schema.type.module'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { ConfirmDialog } from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
+import { Edit01Lg, Trash04Lg } from '@ir-engine/ui/src/icons'
 import { truncateText } from '@ir-engine/ui/src/primitives/tailwind/TruncatedText'
 import DataTable from '../../common/Table'
 import { AvatarRowType, avatarColumns } from '../../common/constants/avatar'
+import ActionButton from '../ActionButton'
 import AddEditAvatarModal from './AddEditAvatarModal'
 
 export default function AvatarTable({ search }: { search: string }) {
@@ -60,7 +59,7 @@ export default function AvatarTable({ search }: { search: string }) {
     {
       $or: [
         {
-          id: isValidUUID(search) ? search : undefined
+          id: isValidId(search) ? search : undefined
         },
         {
           name: {
@@ -106,21 +105,18 @@ export default function AvatarTable({ search }: { search: string }) {
       thumbnail: <AvatarImage src={row.thumbnailResource?.url + '?' + new Date().getTime()} className="mx-auto" />,
       action: (
         <div className="flex items-center justify-start gap-3">
-          <Button
-            rounded="full"
-            variant="outline"
-            className="h-8 w-8"
+          <ActionButton
+            icon={Edit01Lg}
             title={t('admin:components.common.view')}
-            onClick={() => PopoverState.showPopupover(<AddEditAvatarModal avatar={row} />)}
-            startIcon={<HiPencil className="place-self-center text-theme-iconGreen" />}
+            onClick={() => ModalState.openModal(<AddEditAvatarModal avatar={row} />)}
+            variant="green"
           />
-          <Button
-            rounded="full"
-            variant="outline"
-            className="h-8 w-8"
+
+          <ActionButton
+            icon={Trash04Lg}
             title={t('admin:components.common.delete')}
             onClick={() => {
-              PopoverState.showPopupover(
+              ModalState.openModal(
                 <ConfirmDialog
                   text={`${t('admin:components.avatar.confirmAvatarDelete')} '${row.name}'?`}
                   onSubmit={async () => {
@@ -129,7 +125,7 @@ export default function AvatarTable({ search }: { search: string }) {
                 />
               )
             }}
-            startIcon={<HiTrash className="place-self-center text-theme-iconRed" />}
+            variant="red"
           />
         </div>
       )

@@ -25,16 +25,21 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Bone } from 'three'
 
-import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { ObjectComponent } from './ObjectComponent'
 
 export const BoneComponent = defineComponent({
   name: 'BoneComponent',
 
   schema: S.Required(S.Type<Bone>()),
 
-  onSet: (entity, component, mesh: Bone) => {
-    if (!mesh || !mesh.isBone) throw new Error('BoneComponent: Invalid bone')
-    component.set(mesh)
+  onSet: (entity, component, bone: Bone) => {
+    component.set(bone)
+    setComponent(entity, ObjectComponent, bone)
+  },
+
+  onRemove: (entity, component) => {
+    removeComponent(entity, ObjectComponent)
   }
 })

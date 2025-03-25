@@ -23,15 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
-import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
-import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
-import React, { useEffect } from 'react'
+import { EngineState } from '@ir-engine/ecs'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { Tooltip } from '@ir-engine/ui'
+import { PauseSquareLg, PlayLg } from '@ir-engine/ui/src/icons'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiOutlinePause, HiOutlinePlay } from 'react-icons/hi2'
 
 const PlayModeTool: React.FC = () => {
   const { t } = useTranslation()
@@ -41,14 +38,6 @@ const PlayModeTool: React.FC = () => {
   const onTogglePlayMode = () => {
     engineState.isEditing.set(!engineState.isEditing.value)
   }
-
-  useEffect(() => {
-    if (engineState.isEditing.value) return
-    getMutableState(LocationState).currentLocation.location.sceneId.set(getState(EditorState).sceneAssetID!)
-    return () => {
-      getMutableState(LocationState).currentLocation.location.sceneId.set('')
-    }
-  }, [engineState.isEditing])
 
   return (
     <div id="preview" className="flex items-center">
@@ -63,19 +52,15 @@ const PlayModeTool: React.FC = () => {
             ? t('editor:toolbar.command.info-playPreview')
             : t('editor:toolbar.command.info-stopPreview')
         }
+        position="bottom"
       >
-        <Button
-          variant="transparent"
-          startIcon={
-            engineState.isEditing.value ? (
-              <HiOutlinePlay className="text-theme-input" />
-            ) : (
-              <HiOutlinePause className="text-theme-input" />
-            )
-          }
-          className="p-0"
-          onClick={onTogglePlayMode}
-        />
+        <button className="p-0" onClick={onTogglePlayMode}>
+          {engineState.isEditing.value ? (
+            <PlayLg className="text-[#9CA0AA]" />
+          ) : (
+            <PauseSquareLg className="text-[#9CA0AA]" />
+          )}
+        </button>
       </Tooltip>
     </div>
   )

@@ -26,15 +26,15 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Vector3 } from 'three'
 
+import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineState, getState, isClient } from '@ir-engine/hyperflux'
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
+import { EngineState } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 
@@ -53,6 +53,7 @@ const linkLogic = (linkEntity: Entity, xrState) => {
     : (window.location.href = linkComponent.url)
 }
 const linkCallback = (linkEntity: Entity) => {
+  console.log('linkCallback')
   const buttons = InputComponent.getMergedButtons(linkEntity)
   if (buttons.XRStandardGamepadTrigger?.down) {
     const xrState = getState(XRState)

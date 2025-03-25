@@ -23,9 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Not } from 'bitecs'
-import React from 'react'
-import { Quaternion, Ray, Raycaster, Vector3 } from 'three'
+import React, { useEffect } from 'react'
+import { Quaternion } from 'three'
 
 import { getComponent, getMutableComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
@@ -34,67 +33,35 @@ import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { InputSystemGroup, PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, getState, isClient } from '@ir-engine/hyperflux'
 
-import { entityExists, removeEntity } from '@ir-engine/ecs'
+import { Not, entityExists, removeEntity } from '@ir-engine/ecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/MathConstants'
-import { RaycastArgs } from '../../physics/classes/Physics'
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
-import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { XRState } from '../../xr/XRState'
-import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import ClientInputFunctions from '../functions/ClientInputFunctions'
-import ClientInputHeuristics, { HeuristicData, HeuristicFunctions } from '../functions/ClientInputHeuristics'
+import { InputHeuristicState, boundingBoxHeuristic, meshHeuristic } from '../functions/ClientInputHeuristics'
 import ClientInputHooks from '../functions/ClientInputHooks'
 import { InputState } from '../state/InputState'
 
-const pointersQuery = defineQuery([InputPointerComponent, InputSourceComponent, Not(XRSpaceComponent)])
+const pointersQuery = defineQuery([
+  InputPointerComponent,
+  InputSourceComponent,
+  TransformComponent,
+  Not(XRSpaceComponent)
+])
 const xrSpacesQuery = defineQuery([XRSpaceComponent, TransformComponent])
 const inputSourceQuery = defineQuery([InputSourceComponent])
 const inputsQuery = defineQuery([InputComponent])
-const xruiQuery = defineQuery([VisibleComponent, XRUIComponent])
 
 const _rayRotation = new Quaternion()
-
-const _inputRaycast = {
-  type: SceneQueryType.Closest,
-  origin: new Vector3(),
-  direction: new Vector3(),
-  maxDistance: 1000,
-  groups: getInteractionGroups(CollisionGroups.Default, CollisionGroups.Default),
-  excludeRigidBody: undefined //
-} as RaycastArgs
-const _quat = new Quaternion()
-const _inputRay = new Ray()
-const _raycaster = new Raycaster()
-const _bboxHitTarget = new Vector3()
-
-const _heuristicData = {
-  quaternion: _quat,
-  ray: _inputRay,
-  raycast: _inputRaycast,
-  caster: _raycaster,
-  hitTarget: _bboxHitTarget
-} as HeuristicData
-
-const _heuristicFunctions = {
-  editor: ClientInputHeuristics.findEditor,
-  xrui: ClientInputHeuristics.findXRUI,
-  physicsColliders: ClientInputHeuristics.findPhysicsColliders,
-  bboxes: ClientInputHeuristics.findBBoxes,
-  meshes: ClientInputHeuristics.findMeshes,
-  proximity: ClientInputHeuristics.findProximity,
-  raycastedInput: ClientInputHeuristics.findRaycastedInput
-} as HeuristicFunctions
 
 const execute = () => {
   const capturedEntity = getMutableState(InputState).capturingEntity.value
@@ -128,7 +95,8 @@ const execute = () => {
     TransformComponent.rotation.y[eid] = _rayRotation.y
     TransformComponent.rotation.z[eid] = _rayRotation.z
     TransformComponent.rotation.w[eid] = _rayRotation.w
-    TransformComponent.dirtyTransforms[eid] = true
+    computeTransformMatrix(eid)
+    TransformComponent.dirty[eid] = 0
   }
 
   // remove stale pointers
@@ -150,17 +118,12 @@ const execute = () => {
     TransformComponent.rotation.y[eid] = pose.transform.orientation.y
     TransformComponent.rotation.z[eid] = pose.transform.orientation.z
     TransformComponent.rotation.w[eid] = pose.transform.orientation.w
-    TransformComponent.dirtyTransforms[eid] = true
-  }
-
-  const interactionRays = inputSourceQuery().map((eid) => getComponent(eid, InputSourceComponent).raycaster.ray)
-  for (const xrui of xruiQuery()) {
-    getComponent(xrui, XRUIComponent).interactionRays = interactionRays
+    TransformComponent.dirty[eid] = 1
   }
 
   // assign input sources (InputSourceComponent) to input sinks (InputComponent), foreach on InputSourceComponents
   for (const sourceEid of inputSourceQuery()) {
-    ClientInputFunctions.assignInputSources(sourceEid, capturedEntity, _heuristicData, _heuristicFunctions)
+    ClientInputFunctions.assignInputSources(sourceEid, capturedEntity)
   }
 
   for (const sourceEid of inputSourceQuery()) {
@@ -170,6 +133,11 @@ const execute = () => {
 
 const reactor = () => {
   if (!isClient) return null
+
+  useEffect(() => {
+    InputHeuristicState.addHeuristic(-1, meshHeuristic)
+    InputHeuristicState.addHeuristic(0, boundingBoxHeuristic)
+  }, [])
 
   ClientInputHooks.useNonSpatialInputSources()
   ClientInputHooks.useGamepadInputSources()

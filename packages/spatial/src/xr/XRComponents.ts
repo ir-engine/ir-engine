@@ -26,19 +26,18 @@ Infinite Reality Engine. All Rights Reserved.
 import type { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 
-import { Engine, UndefinedEntity } from '@ir-engine/ecs'
+import { UndefinedEntity, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { NO_PROXY, getState, useImmediateEffect } from '@ir-engine/hyperflux'
 
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { Types } from 'bitecs'
-import { EntityTreeComponent } from '../transform/components/EntityTree'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { ReferenceSpace, XRState } from './XRState'
 
@@ -184,11 +183,12 @@ export const XRHandComponent = defineComponent({
   name: 'XRHandComponent'
 })
 
-const rotationsSchema = { rotations: [Types.f32, 4 * 19] as const }
-
 export const XRLeftHandComponent = defineComponent({
   name: 'XRLeftHandComponent',
-  schema: rotationsSchema,
+
+  schema: S.Object({
+    rotations: S.Class(() => new Float32Array(4 * 19))
+  }),
 
   onInit: (initial) => {
     return {
@@ -200,7 +200,10 @@ export const XRLeftHandComponent = defineComponent({
 
 export const XRRightHandComponent = defineComponent({
   name: 'XRRightHandComponent',
-  schema: rotationsSchema,
+
+  schema: S.Object({
+    rotations: S.Class(() => new Float32Array(4 * 19))
+  }),
 
   onInit: (initial) => {
     return {
@@ -211,7 +214,7 @@ export const XRRightHandComponent = defineComponent({
 })
 
 export const XRHitTestComponent = defineComponent({
-  name: 'XRHitTest',
+  name: 'XRHitTestComponent',
   schema: S.Object({
     options: S.Type<XRTransientInputHitTestOptionsInit | XRHitTestOptionsInit>(),
     source: S.Type<XRHitTestSource>(),
@@ -264,7 +267,7 @@ export const XRHitTestComponent = defineComponent({
 })
 
 export const XRAnchorComponent = defineComponent({
-  name: 'XRAnchor',
+  name: 'XRAnchorComponent',
   schema: S.Object({
     anchor: S.Type<XRAnchor>()
   }),
@@ -285,7 +288,7 @@ export const XRAnchorComponent = defineComponent({
 })
 
 export const XRSpaceComponent = defineComponent({
-  name: 'XRSpace',
+  name: 'XRSpaceComponent',
 
   schema: S.Object({
     space: S.Type<XRSpace>(),
@@ -301,10 +304,10 @@ export const XRSpaceComponent = defineComponent({
       let parentEntity = UndefinedEntity
       switch (baseSpace) {
         case ReferenceSpace.localFloor:
-          parentEntity = Engine.instance.localFloorEntity
+          parentEntity = getState(ReferenceSpaceState).localFloorEntity
           break
         case ReferenceSpace.viewer:
-          parentEntity = Engine.instance.cameraEntity
+          parentEntity = getState(ReferenceSpaceState).viewerEntity
           break
       }
 

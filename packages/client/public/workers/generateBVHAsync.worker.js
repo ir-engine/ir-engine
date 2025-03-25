@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-
 // TODO: Current version of web-worker does not support importScripts on server side
 // Related PR: https://github.com/developit/web-worker/pull/9
 
@@ -32,23 +30,38 @@ importScripts('/workers/three.min.js')
 importScripts('/workers/three-mesh-bvh.umd.cjs.js')
 
 onmessage = function ({ data }) {
-  const { index, position, options } = data
+  const { index, position, groups, options } = data
 
   try {
     const geometry = new THREE.BufferGeometry()
-    geometry.setAttribute('position', new THREE.BufferAttribute(position, 3))
+    geometry.setAttribute('position', new THREE.BufferAttribute(position, 3, false))
     if (index) {
-      geometry.setIndex(new THREE.BufferAttribute(index, 1))
+      geometry.index = new THREE.BufferAttribute(index, 1, false)
+    }
+    if (groups) {
+      for (const group of groups) {
+        geometry.addGroup(group.start, group.count, group.materialIndex)
+      }
     }
     options.lazyGeneration = false
-    const bvh = new MeshBVHLib.MeshBVH(geometry, options)
-    const serialized = MeshBVHLib.MeshBVH.serialize(bvh, { copyIndexBuffer: false })
+    const bvh = new MeshBVHLib.MeshBVH(geometry, { setBoundingBox: false, ...options })
+    const serialized = MeshBVHLib.MeshBVH.serialize(bvh, { cloneBuffers: false })
+
+    let transferrables = [position.buffer, ...serialized.roots]
+    if (serialized.index) {
+      transferrables.push(serialized.index.buffer)
+    }
+    if (bvh._indirectBuffer) {
+      transferrables.push(serialized.indirectBuffer.buffer)
+    }
+
     postMessage(
       {
         error: null,
-        serialized
+        serialized,
+        groups: geometry.groups
       },
-      [serialized.index.buffer]
+      transferrables
     )
   } catch (error) {
     postMessage({

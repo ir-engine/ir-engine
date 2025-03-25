@@ -23,13 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createEntity, defineComponent, destroyEngine, getComponent, setComponent } from '@ir-engine/ecs'
+import { createEntity, defineComponent, destroyEngine, Entity, getComponent, S, setComponent } from '@ir-engine/ecs'
+import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { ECSSchema } from '@ir-engine/ecs/src/schemas/ECSSchemas'
 import assert from 'assert'
-import { Matrix4 } from 'three'
+import { Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { Mat4Proxy, Vec3Proxy } from './createThreejsProxy'
+import { T } from '../../schema/schemaFunctions'
+import { proxifyVector3 } from './createThreejsProxy'
 
 describe('createThreejsProxy', () => {
   beforeEach(async () => {
@@ -40,72 +41,43 @@ describe('createThreejsProxy', () => {
     return destroyEngine()
   })
 
-  it('Creates a Vec3 proxy', () => {
-    const TransformComponent = defineComponent({
+  it('proxifyVector3', () => {
+    const assignVector3 = (entity: Entity): Vector3 => proxifyVector3(Vector3Component.position, entity)
+
+    const Vector3Component = defineComponent({
       name: 'Vector3Component',
-      schema: {
-        position: ECSSchema.Vec3,
-        matrix: ECSSchema.Mat4
+      schema: S.Object({
+        position: T.Vec3(assignVector3)
+      }),
+      storage: {
+        position: {
+          x: createResizableTypeArray(Float64Array),
+          y: createResizableTypeArray(Float64Array),
+          z: createResizableTypeArray(Float64Array)
+        }
       }
     })
 
     const entity = createEntity()
-    setComponent(entity, TransformComponent)
-    const transformComponent = getComponent(entity, TransformComponent)
-    const vec3 = Vec3Proxy(transformComponent.position)
+    setComponent(entity, Vector3Component)
+    const component = getComponent(entity, Vector3Component)
+    const vec3 = component.position
+
+    assert(vec3.isVector3)
 
     vec3.x = 12
-    assert(vec3.x === 12)
-    assert(transformComponent.position.x === 12)
-    assert(TransformComponent.position.x[entity] === 12)
+    assert.equal(vec3.x, 12)
+    assert.equal(component.position.x, 12)
+    assert.equal(Vector3Component.position.x[entity], 12)
 
-    transformComponent.position.x = 13
-    assert((vec3.x as number) === 13)
-    assert((transformComponent.position.x as number) === 13)
-    assert((TransformComponent.position.x[entity] as number) === 13)
+    component.position.x = 13
+    assert.equal(vec3.x, 13)
+    assert.equal(component.position.x, 13)
+    assert.equal(Vector3Component.position.x[entity], 13)
 
-    TransformComponent.position.x[entity] = 14
-    assert((vec3.x as number) === 14)
-    assert((transformComponent.position.x as number) === 14)
-    assert((TransformComponent.position.x[entity] as number) === 14)
-  })
-
-  it('Creates a Mat4 proxy', () => {
-    const TransformComponent = defineComponent({
-      name: 'Vector3Component',
-      schema: {
-        position: ECSSchema.Vec3,
-        matrix: ECSSchema.Mat4
-      }
-    })
-
-    const entity = createEntity()
-    setComponent(entity, TransformComponent)
-    const transformComponent = getComponent(entity, TransformComponent)
-    const mat4 = Mat4Proxy(transformComponent.matrix)
-
-    const mat4Elements = new Matrix4().elements
-    transformComponent.matrix.set(mat4Elements)
-
-    for (let i = 0; i < mat4Elements.length; i++) {
-      assert(transformComponent.matrix[i] === mat4Elements[i])
-      assert(TransformComponent.matrix[entity][i] === mat4Elements[i])
-      assert(mat4.elements[i] === mat4Elements[i])
-    }
-
-    mat4.elements[12] = 34
-    assert(transformComponent.matrix[12] === 34)
-    assert(TransformComponent.matrix[entity][12] === 34)
-    assert(mat4.elements[12] === 34)
-
-    transformComponent.matrix[13] = 35
-    assert(transformComponent.matrix[13] === 35)
-    assert(TransformComponent.matrix[entity][13] === 35)
-    assert(mat4.elements[13] === 35)
-
-    TransformComponent.matrix[entity][14] = 36
-    assert(transformComponent.matrix[14] === 36)
-    assert(TransformComponent.matrix[entity][14] === 36)
-    assert(mat4.elements[14] === 36)
+    Vector3Component.position.x[entity] = 14
+    assert.equal(vec3.x, 14)
+    assert.equal(component.position.x, 14)
+    assert.equal(Vector3Component.position.x[entity], 14)
   })
 })

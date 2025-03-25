@@ -23,6 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { Entity } from '../Entity'
+
 export const Kind = Symbol('Kind')
 export const NonSerializable = Symbol('NonSerializable')
 export const Required = Symbol('Required')
@@ -46,6 +48,7 @@ type Kinds =
   | 'Required'
   | 'NonSerialized'
   | 'Class'
+  | 'Proxy'
   | 'Any'
 
 export interface Schema {
@@ -62,8 +65,7 @@ export interface Options<V = unknown> {
   default?: any
   serialize?: (value: V) => unknown
   deserialize?: (curr: V, value: V) => V
-  /** @todo */
-  validate?: (value: V) => boolean
+  validate?: (value: V, prev: V, entity: Entity) => boolean
   [prop: string]: any
 }
 
@@ -106,7 +108,7 @@ export interface TStringSchema extends Schema {
   options?: Options<this['static']>
 }
 
-export interface TEnumSchema<T extends Record<string, string | number>> extends Schema {
+export interface TEnumSchema<T extends object> extends Schema {
   [Kind]: 'Enum'
   static: T[keyof T]
   properties: T
@@ -136,6 +138,7 @@ type ObjectStatic<T extends TProperties> = {
 } & {
   [K in ObjectOptionalKeys<T>]?: Static<T[K]>
 }
+
 export interface TObjectSchema<T extends TProperties> extends Schema {
   [Kind]: 'Object'
   static: ObjectStatic<T>
@@ -249,3 +252,12 @@ export type SerializedType<T> = T extends object
   : T extends TNonSerializable
   ? never
   : T
+
+export interface TProxySchema<T extends Schema> extends Schema {
+  [Kind]: 'Proxy'
+  static: Static<T>
+  properties: T
+  options?: Options<this['static']> & {
+    create: (entity: Entity, property: string, obj: object) => PropertyDescriptor
+  }
+}

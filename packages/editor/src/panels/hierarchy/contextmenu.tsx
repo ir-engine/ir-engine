@@ -23,12 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
+import { hasComponent } from '@ir-engine/ecs'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { DropdownItem } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import CreatePrefabPanel from '../../components/dialogs/CreatePrefabPanelDialog'
+import SavePrefabPanel from '../../components/dialogs/SavePrefabDialog'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { copyNodes, deleteNode, duplicateNode, groupNodes, pasteNodes } from './helpers'
 import { useHierarchyNodes, useHierarchyTreeContextMenu, useNodeCollapseExpand, useRenamingNode } from './hooks'
@@ -76,36 +79,36 @@ export default function HierarchyTreeContextMenu() {
             renamingNode.set(entity)
           }}
           secondaryText={cmdOrCtrlString + ' + r'}
-          title={t('editor:hierarchy.lbl-rename')}
+          label={t('editor:hierarchy.lbl-rename')}
         />
         <DropdownItem
           data-testid="hierarchy-panel-scene-item-context-menu-duplicate-button"
           onClick={onDuplicateNode}
           secondaryText={cmdOrCtrlString + ' + d'}
-          title={t('editor:hierarchy.lbl-duplicate')}
+          label={t('editor:hierarchy.lbl-duplicate')}
         />
         <DropdownItem
           data-testid="hierarchy-panel-scene-item-context-menu-group-button"
           onClick={onGroupNodes}
           secondaryText={cmdOrCtrlString + ' + g'}
-          title={t('editor:hierarchy.lbl-group')}
+          label={t('editor:hierarchy.lbl-group')}
         />
         <DropdownItem
           data-testid="hierarchy-panel-scene-item-context-menu-copy-button"
           onClick={onCopyNode}
           secondaryText={cmdOrCtrlString + ' + c'}
-          title={t('editor:hierarchy.lbl-copy')}
+          label={t('editor:hierarchy.lbl-copy')}
         />
         <DropdownItem
           data-testid="hierarchy-panel-scene-item-context-menu-paste-button"
           onClick={onPasteNode}
           secondaryText={cmdOrCtrlString + ' + v'}
-          title={t('editor:hierarchy.lbl-paste')}
+          label={t('editor:hierarchy.lbl-paste')}
         />
         <DropdownItem
           data-testid="hierarchy-panel-scene-item-context-menu-delete-button"
           onClick={onDeleteNode}
-          title={t('editor:hierarchy.lbl-delete')}
+          label={t('editor:hierarchy.lbl-delete')}
         />
         {!node?.isLeaf && (
           <>
@@ -114,24 +117,33 @@ export default function HierarchyTreeContextMenu() {
                 setMenu()
                 expandChildren(entity)
               }}
-              title={t('editor:hierarchy.lbl-expandAll')}
+              label={t('editor:hierarchy.lbl-expandAll')}
             />
             <DropdownItem
               onClick={() => {
                 setMenu()
                 collapseChildren(entity)
               }}
-              title={t('editor:hierarchy.lbl-collapseAll')}
+              label={t('editor:hierarchy.lbl-collapseAll')}
             />
           </>
         )}
         <DropdownItem
           onClick={() => {
             setMenu()
-            PopoverState.showPopupover(<CreatePrefabPanel entity={entity} isExportLookDev={false} />)
+            ModalState.openModal(<CreatePrefabPanel entity={entity} isExportLookDev={false} />)
           }}
-          title={t('editor:hierarchy.lbl-createPrefab')}
+          label={t('editor:hierarchy.lbl-createPrefab')}
         />
+        {hasComponent(entity, GLTFComponent) && (
+          <DropdownItem
+            onClick={() => {
+              setMenu()
+              ModalState.openModal(<SavePrefabPanel entity={entity} />)
+            }}
+            label={t('editor:hierarchy.lbl-savePrefab')}
+          />
+        )}
       </div>
     </ContextMenu>
   )
