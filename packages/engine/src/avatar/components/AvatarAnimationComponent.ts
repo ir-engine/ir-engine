@@ -44,7 +44,6 @@ import { TransformComponent } from '@ir-engine/spatial'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
-import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { VRMHumanBoneList } from '../maps/VRMHumanBoneList'
 import { VRMHumanBoneName } from '../maps/VRMHumanBoneName'
@@ -128,12 +127,6 @@ export function createVRM(rootEntity: Entity) {
     ? vrmExtensionDefinition.humanoid?.humanBones
     : formatHumanBones(vrmExtensionDefinition.humanoid!.humanBones as any)
 
-  iterateEntityNode(
-    rootEntity,
-    (e) => getComponent(e, TransformComponent).matrixWorld.identity(),
-    (e) => hasComponent(e, TransformComponent)
-  )
-
   for (const bone of humanBonesArray) {
     const nodeID = `${documentID}-${bone.node}` as EntityUUID
     const entity = UUIDComponent.getEntityByUUID(nodeID)
@@ -152,7 +145,16 @@ export function createVRM(rootEntity: Entity) {
     getComponent(rootEntity, AvatarRigComponent).bonesToEntities.hips,
     EntityTreeComponent
   ).parentEntity
-  iterateEntityNode(root, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
+
+  iterateEntityNode(
+    rootEntity,
+    (e) => {
+      const boneTransform = getComponent(e, TransformComponent)
+      boneTransform.matrixWorld.identity()
+      if (e !== root) boneTransform.matrixWorld.makeRotationY(Math.PI)
+    },
+    (e) => hasComponent(e, TransformComponent)
+  )
 
   for (const bone of humanBonesArray) {
     const nodeID = `${documentID}-${bone.node}` as EntityUUID
@@ -163,6 +165,13 @@ export function createVRM(rootEntity: Entity) {
     })
   }
 
+  // iterateEntityNode(rootEntity, (entity) => {
+  //   const bone = getOptionalComponent(entity, BoneComponent)
+  //   bone?.matrixWorld.identity()
+  //   bone?.quaternion.set(0, 0, 0, 1)
+
+  //   if (entity !== bones.hips.node.parent?.entity) bone?.matrixWorld.makeRotationY(Math.PI)
+  // })
   // const humanoid = new VRMHumanoid(bones)
   // ;(humanoid as any)._normalizedHumanBones._parentWorldRotationInverses = Object.fromEntries(
   //   Object.entries((humanoid as any)._normalizedHumanBones._parentWorldRotations).map(([key, value]) => [

@@ -53,7 +53,7 @@ export const updateVRMRetargeting = (avatarEntity: Entity) => {
     const worldRotation =
       getOptionalComponent(boneEntity, BoneInverseComponent)?.inverseWorldRotation ?? emptyQuaternion
 
-    // if(boneName === 'hips') bone.rotation.multiply(new Quaternion().setFromEuler(new Euler(0, Math.PI, 0)))
+    //if(boneName === 'hips') bone.rotation.premultiply(new Quaternion().setFromEuler(new Euler(0, Math.PI, 0)))
 
     bone.rotation.multiply(parentWorldRotation).premultiply(parentInverseWorldRotation)
 
