@@ -824,20 +824,22 @@ export const EEMaterialComponent = defineComponent({
     const pending = [] as Promise<any>[]
 
     const extension = materialDef.extensions![EEMaterialComponent.jsonID] as ComponentType<typeof EEMaterialComponent>
-    const resultProperties = {} as Record<string, any>
 
     for (const [k, v] of Object.entries(extension.args)) {
       if (v.type === 'texture') {
         if (v.contents) {
           pending.push(
-            GLTFLoaderFunctions.assignTexture(options, v.contents).then((texture) => {
-              if (!texture) return
+            new Promise<void>(async (resolve) => {
+              const texture = await GLTFLoaderFunctions.assignTexture(options, v.contents)
+              if (!texture) {
+                resolve()
+                return
+              }
               if (k === 'map') texture.colorSpace = SRGBColorSpace
               materialParams[k] = texture
+              resolve()
             })
           )
-        } else {
-          resultProperties[k] = null
         }
       } else if (v.type === 'color') {
         materialParams[k] = new Color(v.contents)
