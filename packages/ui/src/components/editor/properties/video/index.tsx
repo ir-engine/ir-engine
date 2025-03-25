@@ -73,8 +73,9 @@ const audioModeOptions = [
 const fitOptions = [
   { label: 'Cover', value: 'cover' },
   { label: 'Contain', value: 'contain' },
-  { label: 'Vertical', value: 'vertical' },
-  { label: 'Horizontal', value: 'horizontal' }
+  { label: 'Stretch', value: 'stretch' },
+  { label: 'Horizontal', value: 'horizontal' },
+  { label: 'Vertical', value: 'vertical' }
 ]
 
 const projectionOptions = [
@@ -148,19 +149,6 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
             { label: 'Back', value: BackSide },
             { label: 'Double', value: DoubleSide }
           ]}
-        />
-      </InputGroup>
-
-      <InputGroup
-        name="Video Size"
-        label={t('editor:properties.video.lbl-size')}
-        info={t('editor:properties.video.lbl-size-info')}
-      >
-        <Vector2Input
-          value={video.size.value}
-          onChange={updateProperty(VideoComponent, 'size')}
-          onRelease={commitProperty(VideoComponent, 'size')}
-          axisClassNames={['w-1/2', 'w-1/2']}
         />
       </InputGroup>
 
