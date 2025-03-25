@@ -28,12 +28,12 @@ import '../patchEngineNode'
 import assert from 'assert'
 import fs from 'fs'
 import path from 'path/posix'
-import { afterAll, beforeAll, describe, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { projectsRootFolder } from './file-browser/file-browser.class'
-import { copyRecursiveSync, getIncrementalName } from './FileUtil'
+import { copyRecursiveSync, getIncrementalName, isValidFileType } from './FileUtil'
 import LocalStorage from './storageprovider/local.storage'
 
 const TEST_DIR = 'FileUtil-test-project'
@@ -193,6 +193,49 @@ describe('FileUtil functions', () => {
 
       fs.rmdirSync(path.join(STORAGE_PATH, singularDirName))
       fs.rmdirSync(path.join(STORAGE_PATH, pluralDirName))
+    })
+  })
+
+  describe('isValidFileType', () => {
+    it('returns true for valid image mime types', () => {
+      const fileType: string = 'image/png'
+      const fileName: string = 'file.png'
+      expect(isValidFileType(fileType, fileName)).toBe(true)
+    })
+
+    it('returns true for valid audio mime types', () => {
+      const fileType: string = 'audio/mpeg'
+      const fileName: string = 'song.mp3'
+      expect(isValidFileType(fileType, fileName)).toBe(true)
+    })
+
+    it('returns true for valid video mime types', () => {
+      const fileType: string = 'video/mp4'
+      const fileName: string = 'video.mp4'
+      expect(isValidFileType(fileType, fileName)).toBe(true)
+    })
+
+    it('returns true for application/octet-stream with valid extensions', () => {
+      expect(isValidFileType('application/octet-stream', 'model.gltf')).toBe(true)
+      expect(isValidFileType('application/octet-stream', 'model.glb')).toBe(true)
+      expect(isValidFileType('application/octet-stream', 'model.bin')).toBe(true)
+    })
+
+    it('returns true for application/macbinary with .bin extension', () => {
+      expect(isValidFileType('application/macbinary', 'macupload.bin')).toBe(true)
+    })
+
+    it('returns false for application/octet-stream with invalid extension', () => {
+      expect(isValidFileType('application/octet-stream', 'file.txt')).toBe(false)
+    })
+
+    it('returns false for application/macbinary with invalid extension', () => {
+      expect(isValidFileType('application/macbinary', 'file.doc')).toBe(false)
+    })
+
+    it('returns false for unrelated mime types', () => {
+      expect(isValidFileType('application/pdf', 'doc.pdf')).toBe(false)
+      expect(isValidFileType('text/plain', 'notes.txt')).toBe(false)
     })
   })
 
