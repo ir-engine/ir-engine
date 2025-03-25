@@ -65,6 +65,7 @@ import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformComponent } from '@ir-engine/spatial'
 import { Vector2_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { HighlightComponent } from '@ir-engine/spatial/src/renderer/components/HighlightComponent'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { NodeFunctions } from '../../gltf/NodeFunctions'
 import { NodeID, NodeIDSchema } from '../../gltf/NodeIDComponent'
@@ -152,6 +153,8 @@ function VideoReactor() {
   const localTextureRef = useHookstate<VideoTexturePriorityQueue | null>(null)
   const sourceVideoComponent = useOptionalComponent(mediaEntity, VideoComponent)
   const transformComponent = useComponent(entity, TransformComponent)
+
+  const highlightComponent = useOptionalComponent(entity, HighlightComponent)
 
   const videoMeshEntity = useHookstate(() => {
     const videoMeshEntity = createEntity()
@@ -269,7 +272,7 @@ function VideoReactor() {
     const videoEntity = videoMeshEntity
     video.videoMeshEntity.set(videoEntity)
     setComponent(videoEntity, EntityTreeComponent, { parentEntity: entity })
-    setComponent(videoEntity, NameComponent, mesh?.name?.value)
+    setComponent(videoEntity, NameComponent, `video-group-${entity}`)
     setComponent(videoEntity, MediaComponent)
     video.mediaUUID.set('' as NodeID)
 
@@ -279,8 +282,12 @@ function VideoReactor() {
   }, [])
 
   useEffect(() => {
-    mesh.name.set(`video-group-${entity}`)
-  }, [!!mesh])
+    if (!mesh || !highlightComponent) return
+    setComponent(videoMeshEntity, HighlightComponent)
+    return () => {
+      removeComponent(videoMeshEntity, HighlightComponent)
+    }
+  }, [!!mesh, highlightComponent])
 
   useEffect(() => {
     setVisibleComponent(videoMeshEntity, !!visible)
