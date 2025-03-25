@@ -204,12 +204,12 @@ const getServerPodInfo = (item: V1Pod) => {
     name: item.metadata?.name,
     status: item.status?.phase,
     age: item.status?.startTime?.toString(),
-    containers: getServerContainerInfo(item.status?.containerStatuses!)
+    containers: getServerContainerInfo((item.status?.containerStatuses as V1ContainerStatus[]) || [])
   } as ServerPodInfoType
 }
 
 const getServerContainerInfo = (items: V1ContainerStatus[]) => {
-  return items.map((item) => {
+  return items?.map((item) => {
     return {
       name: item.name,
       status: item.state?.running
