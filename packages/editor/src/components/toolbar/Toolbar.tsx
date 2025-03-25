@@ -83,7 +83,8 @@ const onClickNewScene = async () => {
   const newSceneUIAddons = getState(UIAddonsState).editor.newScene
 
   if (Object.keys(newSceneUIAddons).length > 0) {
-    PopoverState.showPopupover(<AddScene />)
+    const { projectName } = getState(EditorState)
+    PopoverState.showPopupover(<AddScene projectName={projectName!} />)
   } else {
     onNewScene()
   }

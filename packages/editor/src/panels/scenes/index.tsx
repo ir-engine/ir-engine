@@ -66,7 +66,8 @@ function ScenesPanel() {
     isCreatingScene.set(true)
     const newSceneUIAddons = getState(UIAddonsState).editor.newScene
     if (Object.keys(newSceneUIAddons).length > 0) {
-      PopoverState.showPopupover(<AddScene />)
+      const { projectName } = getState(EditorState)
+      PopoverState.showPopupover(<AddScene projectName={projectName!} />)
     } else {
       await onNewScene()
     }

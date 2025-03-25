@@ -23,11 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { createScene } from '@ir-engine/client-core/src/world/SceneAPI'
-import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { UIAddonsState } from '@ir-engine/editor/src/services/UIAddonsState'
-import { NO_PROXY, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, getMutableState, useMutableState } from '@ir-engine/hyperflux'
 import { Button } from '@ir-engine/ui'
 import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -40,46 +38,51 @@ const handleOpenSceneInStudio = async (projectName: string, sceneKey: string) =>
   window.open(studioUrl, '_self')?.focus()
 }
 
-export const SceneOptionButton = ({
-  title,
-  description,
-  sceneOption,
-  icon: Icon = FiCodepen,
-  selectedSceneOption = null,
-  onSelect,
-  onSubmit
-}: {
+export interface SceneOptionData {
   title: string
   description: string
-  sceneOption: SceneOption
   icon?: React.ElementType
-  selectedSceneOption?: SceneOption | null
-  onSelect?: (sceneOption: SceneOption) => void
   onSubmit?: () => void
+}
+
+export const SceneOptionButton = ({
+  sceneOptionData,
+  selectedSceneOption = null,
+  onSelect
+}: {
+  sceneOptionData: SceneOptionData
+  selectedSceneOption?: SceneOptionData | null
+  onSelect?: (sceneOption: SceneOptionData) => void
 }) => {
-  0
+  const Icon = sceneOptionData.icon || FiCodepen
+
+  const areSceneOptionDataEqual = (option1: SceneOptionData | null, option2: SceneOptionData | null) => {
+    return (
+      option1 &&
+      option2 &&
+      option1.title == option2.title &&
+      option1.description == option2.description &&
+      option1.icon == option2.icon
+    )
+  }
+
   return (
     <button
       className={`flex h-[125px] w-[415px] flex-row gap-3 rounded-lg border bg-ui-background p-3 ${
-        selectedSceneOption === sceneOption ? 'border-ui-primary' : 'border-ui-outline'
+        areSceneOptionDataEqual(selectedSceneOption, sceneOptionData) ? 'border-ui-primary' : 'border-ui-outline'
       }`}
       style={{ boxShadow: '0px 2px 4px -2px rgba(0, 0, 0, 0.10), 0px 4px 6px -1px rgba(0, 0, 0, 0.10)' }}
       onClick={() => {
-        onSelect?.(sceneOption)
+        onSelect?.(sceneOptionData)
       }}
     >
       <Icon className="-mt-[2px] aspect-square flex-shrink-0 text-[30px] text-text-primary" />
       <div className="flex flex-col items-start gap-[6px] text-left">
-        <div className="text-xl font-semibold leading-[1.3rem] text-text-primary">{title}</div>
-        <p className="text-sm leading-[1.4rem] text-text-secondary">{description}</p>
+        <div className="text-xl font-semibold leading-[1.3rem] text-text-primary">{sceneOptionData.title}</div>
+        <p className="text-sm leading-[1.4rem] text-text-secondary">{sceneOptionData.description}</p>
       </div>
     </button>
   )
-}
-
-export enum SceneOption {
-  Wizard,
-  DefaultEditor
 }
 
 type CarouselProps = {
@@ -114,16 +117,18 @@ const ImageCarousel = ({ images, className }: CarouselProps) => {
   )
 }
 
-export const AddScene = () => {
-  const { projectName } = getState(EditorState)
+type AddNewSceneProps = {
+  projectName: string
+}
+
+export const AddScene = ({ projectName }: AddNewSceneProps) => {
   if (!projectName) {
-    PopoverState.hidePopupover()
     return null
   }
 
   const { t } = useTranslation()
 
-  const [selectedSceneOption, setSelectedSceneOption] = useState(null as SceneOption | null)
+  const [selectedSceneOption, setSelectedSceneOption] = useState(null as SceneOptionData | null)
 
   const element = useMutableState(UIAddonsState).editor.newScene.get(NO_PROXY)
   getMutableState(UIAddonsState).projectName.set(projectName)
@@ -138,17 +143,14 @@ export const AddScene = () => {
   }
 
   const onContinueClicked = async () => {
-    switch (selectedSceneOption) {
-      case SceneOption.Wizard:
-        // find the SceneOptionButton component sceneOption prop matching Wizard and trigger its onSubmit (to avoid depending on irpro-wizard)
-        Object.values(element)
-          .find((value) => value.props.sceneOption === SceneOption.Wizard)
-          ?.props.onSubmit?.()
-        break
-      case SceneOption.DefaultEditor:
-        await handleCreateDefaultScene()
-        break
-    }
+    selectedSceneOption?.onSubmit?.()
+  }
+
+  const defaultSceneOptionData: SceneOptionData = {
+    title: t('editor:dialog.addScene.optionButtons.defaultEditor.title'),
+    description: t('editor:dialog.addScene.optionButtons.defaultEditor.description'),
+    icon: FiTool,
+    onSubmit: handleCreateDefaultScene
   }
 
   return (
@@ -163,27 +165,20 @@ export const AddScene = () => {
 
         <div className="my-3 flex max-h-[60vh] w-full flex-col gap-4 overflow-y-auto rounded-[10px] border border-surface-outline-3-1 bg-surface-3 px-8 py-6 lg:flex-row">
           <div className="flex flex-col gap-4">
-            {/* maps out other SceneOptionButtons that have been added on (like WizardEditordButton) */}
+            {/* maps out other SceneOptionButtons that have been added on */}
             {Object.values(element).map((value, index) => {
               return (
                 <SceneOptionButton
                   key={index}
-                  title={value.props.title}
-                  description={value.props.description}
-                  icon={value.props.icon}
-                  sceneOption={value.props.sceneOption}
+                  sceneOptionData={value}
                   selectedSceneOption={selectedSceneOption}
                   onSelect={setSelectedSceneOption}
-                  onSubmit={value.props.onSubmit}
                 />
               )
             })}
             <SceneOptionButton
               key={'default'}
-              title={t('editor:dialog.addScene.optionButtons.defaultEditor.title')}
-              description={t('editor:dialog.addScene.optionButtons.defaultEditor.description')}
-              icon={FiTool}
-              sceneOption={SceneOption.DefaultEditor}
+              sceneOptionData={defaultSceneOptionData}
               selectedSceneOption={selectedSceneOption}
               onSelect={setSelectedSceneOption}
             />
