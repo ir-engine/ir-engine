@@ -83,6 +83,13 @@ export const normalizeAnimationClips = (gltfEntity: Entity) => {
         }
       } else if (track instanceof VectorKeyframeTrack) {
         const isPosition = track.name.includes('position')
+        // quick dirty check for hips - we only want to keep hips position for root motion
+        const node = UUIDComponent.getEntityByUUID(track.name.slice(0, track.name.lastIndexOf('.')) as EntityUUID)
+        if (node !== hips) {
+          clip.tracks.splice(i, 1)
+          i--
+          continue
+        }
         track.values.forEach((v, index) => {
           track.values[index] = isPosition ? v * hipsPositionScale : v
         })

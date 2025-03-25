@@ -28,7 +28,7 @@ import type * as V0VRM from '@pixiv/types-vrm-0.0'
 import { AnimationAction, Euler, Group, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { GLTF } from '@gltf-transform/core'
-import { UUIDComponent, iterateEntityNode } from '@ir-engine/ecs'
+import { EntityTreeComponent, UUIDComponent, iterateEntityNode } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -44,6 +44,7 @@ import { TransformComponent } from '@ir-engine/spatial'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
+import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { VRMHumanBoneList } from '../maps/VRMHumanBoneList'
 import { VRMHumanBoneName } from '../maps/VRMHumanBoneName'
@@ -93,6 +94,7 @@ export const AvatarRigComponent = defineComponent({
 
 const _rightHandPos = new Vector3(),
   _rightUpperArmPos = new Vector3()
+const yFlip = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 
 export function createVRM(rootEntity: Entity) {
   const documentID = GLTFComponent.getInstanceID(rootEntity)
@@ -126,24 +128,41 @@ export function createVRM(rootEntity: Entity) {
     ? vrmExtensionDefinition.humanoid?.humanBones
     : formatHumanBones(vrmExtensionDefinition.humanoid!.humanBones as any)
 
+  iterateEntityNode(
+    rootEntity,
+    (e) => getComponent(e, TransformComponent).matrixWorld.identity(),
+    (e) => hasComponent(e, TransformComponent)
+  )
+
   for (const bone of humanBonesArray) {
     const nodeID = `${documentID}-${bone.node}` as EntityUUID
     const entity = UUIDComponent.getEntityByUUID(nodeID)
-    console.log(entity)
     AvatarRigComponent.setBone(rootEntity, entity, bone.bone as VRMHumanBoneName)
+
+    const boneTransform = getComponent(entity, TransformComponent)
+    if (bone.bone === VRMHumanBoneName.Hips) {
+      // boneTransform?.rotation.premultiply(yFlip)
+      // const root = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
+      // const parentTransform = getComponent(root!, TransformComponent)
+      // parentTransform.rotation.multiply(yFlip)
+    }
+  }
+
+  const root = getComponent(
+    getComponent(rootEntity, AvatarRigComponent).bonesToEntities.hips,
+    EntityTreeComponent
+  ).parentEntity
+  iterateEntityNode(root, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
+
+  for (const bone of humanBonesArray) {
+    const nodeID = `${documentID}-${bone.node}` as EntityUUID
+    const entity = UUIDComponent.getEntityByUUID(nodeID)
     setComponent(entity, BoneInverseComponent, {
       worldRotation: TransformComponent.getWorldRotation(entity, new Quaternion()),
       inverseWorldRotation: TransformComponent.getWorldRotation(entity, new Quaternion()).invert()
     })
   }
 
-  // iterateEntityNode(rootEntity, (entity) => {
-  //   const bone = getOptionalComponent(entity, BoneComponent)
-  //   bone?.matrixWorld.identity()
-  //   bone?.quaternion.set(0, 0, 0, 1)
-  //   if (entity !== bones.hips.node.parent?.entity) bone?.matrixWorld.makeRotationY(Math.PI)
-  // })
-  // bones.hips.node.rotateY(Math.PI)
   // const humanoid = new VRMHumanoid(bones)
   // ;(humanoid as any)._normalizedHumanBones._parentWorldRotationInverses = Object.fromEntries(
   //   Object.entries((humanoid as any)._normalizedHumanBones._parentWorldRotations).map(([key, value]) => [

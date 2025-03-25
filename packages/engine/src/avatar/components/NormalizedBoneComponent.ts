@@ -35,7 +35,7 @@ export const NormalizedBoneComponent = defineComponent({
 
 //tracks starting resting quaternions for bones
 export const BoneInverseComponent = defineComponent({
-  name: 'BoneInverseMatrixComponent',
+  name: 'BoneInverseComponent',
 
   schema: S.Object({
     inverseWorldRotation: S.Required(T.Quaternion()),
