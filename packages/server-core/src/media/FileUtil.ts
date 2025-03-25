@@ -49,7 +49,7 @@ export const getIncrementalName = async function (
 ): Promise<string> {
   let filename = name
 
-  if (!(await store.doesExist(filename, directoryPath))) return filename
+  if (!isDirectory && !(await store.doesExist(filename, directoryPath))) return filename
   if (isDirectory && !(await store.isDirectory(filename, directoryPath))) return filename
 
   let count = 1
