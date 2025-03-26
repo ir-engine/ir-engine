@@ -236,11 +236,13 @@ export const handleConnectingPeer = async (
   }
   const instanceAttendance = await app.service(instanceAttendancePath).create(newInstanceAttendance)
 
-  dispatchAction(
+  const joinAction = dispatchAction(
     NetworkActions.peerJoined({
       $cache: true,
       $network: network.id,
       $topic: network.topic,
+      $peer: peerID,
+      $user: userId,
       peerID,
       peerIndex: instanceAttendance.peerIndex,
       userID: userId
@@ -270,9 +272,11 @@ export const handleConnectingPeer = async (
 
   logger.info('Connect to world from ' + userId)
 
-  const cachedActions = getCachedActionsForPeer(peerID).map((action) => {
-    return cloneDeep(action)
-  })
+  const cachedActions = getCachedActionsForPeer(peerID)
+    .map((action) => {
+      return cloneDeep(action)
+    })
+    .concat(joinAction)
 
   if (inviteCode && !instanceServerState.isMediaInstance) getUserSpawnFromInvite(network, user, inviteCode!)
 

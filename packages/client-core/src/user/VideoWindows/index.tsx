@@ -122,7 +122,7 @@ export const useMediaWindows = () => {
   // if window doesnt exist for self, add it
   if (
     mediaNetworkConnected &&
-    mediaNetwork.users &&
+    mediaNetwork.users?.[selfUserID] &&
     !windows.find(({ peerID }) => mediaNetwork.users[selfUserID]?.includes(peerID))
   ) {
     windows.unshift({ peerID: selfPeerID, type: 'cam' })
@@ -130,14 +130,14 @@ export const useMediaWindows = () => {
 
   const filteredUsersState = useMutableState(FilteredUsersState)
 
-  const nearbyPeers = mediaNetwork
+  const nearbyPeers = mediaNetwork?.users
     ? filteredUsersState.nearbyLayerUsers.value.map((userID) => mediaNetwork.users[userID]).flat()
     : []
 
   return windows.filter(
     ({ peerID }) =>
       (peerID === Engine.instance.store.peerID ||
-        mediaNetwork?.peers[peerID].userId === selfUserID ||
+        mediaNetwork?.peers?.[peerID].userId === selfUserID ||
         nearbyPeers.includes(peerID)) &&
       peerMediaChannelState.value[peerID]
   )

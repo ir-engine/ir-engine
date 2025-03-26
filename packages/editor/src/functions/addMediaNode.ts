@@ -36,6 +36,7 @@ import {
 } from '@ir-engine/ecs'
 import {
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   LayerID,
@@ -57,18 +58,21 @@ import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/Volu
 import { serializeEntity } from '@ir-engine/engine/src/scene/functions/serializeWorld'
 import { SceneDeltaState } from '@ir-engine/engine/src/scene/systems/SceneDeltaState'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
-import { getState } from '@ir-engine/hyperflux'
+import { getState, none } from '@ir-engine/hyperflux'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import {
   MaterialInstanceComponent,
+  MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { EditorHistoryFunctions } from '../services/EditorHistoryState'
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
+import { getIncreamentedName } from './utils'
 
 /**
  * Adds media node from passed url. Type of the media will be detected automatically
@@ -86,6 +90,11 @@ export async function addMediaNode(
 ): Promise<EntityUUID | null> {
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
+
+  const urlObj = new URL(url)
+  const path = urlObj.pathname
+  const fileNameWithExtension = path.substring(path.lastIndexOf('/') + 1)
+  let requestedName = decodeURI(fileNameWithExtension.split('.')[0])
 
   if (contentType.startsWith('model/')) {
     if (contentType.startsWith('model/material')) {
@@ -139,7 +148,16 @@ export async function addMediaNode(
               const materialComponent = getComponent(material, MaterialStateComponent)
               const materialToMutate = UUIDComponent.getEntityByUUID(uuids[materialIndex], Layers.Authoring)
               // wipe out any existing deltas for this material
-              SceneDeltaState.registerMaterialDelta(materialToMutate, {})
+              const existingDelta =
+                SceneDeltaState.getSource(materialToMutate)?.[getComponent(materialToMutate, NodeIDComponent)]
+              if (existingDelta.value) {
+                //another hack
+                const mat = getComponent(materialToMutate, MaterialStateComponent).material
+                const constructor =
+                  getState(MaterialPrototypeDefinitions)[mat.userData?.type || mat.type].prototypeConstructor
+                getMutableComponent(materialToMutate, MaterialStateComponent).material.set(new constructor())
+                existingDelta.set(none)
+              }
               EditorControlFunctions.updateMaterialPrototype(
                 materialToMutate,
                 materialComponent.material.userData?.type ?? materialComponent.material.type
@@ -178,6 +196,8 @@ export async function addMediaNode(
           const rootEntity = getState(EditorState).rootEntity
           const newSource = GLTFComponent.getInstanceID(rootEntity)
           for (const entity of entities) {
+            requestedName = getIncreamentedName(requestedName, parent)
+            setComponent(entity, NameComponent, requestedName)
             setComponent(entity, SourceComponent, newSource)
             setComponent(entity, NodeIDComponent, NodeIDComponent.generate())
             setComponent(
@@ -204,7 +224,8 @@ export async function addMediaNode(
           ...extraComponentJson
         ],
         parent!,
-        before
+        before,
+        requestedName
       )
       EditorHistoryFunctions.snapshot()
       return entityUUID
@@ -218,7 +239,8 @@ export async function addMediaNode(
         ...extraComponentJson
       ],
       parent!,
-      before
+      before,
+      requestedName
     )
     EditorHistoryFunctions.snapshot()
     return entityUUID
@@ -226,7 +248,8 @@ export async function addMediaNode(
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [{ name: ImageComponent.jsonID, props: { source: url } }, ...extraComponentJson],
       parent!,
-      before
+      before,
+      requestedName
     )
     EditorHistoryFunctions.snapshot()
     return entityUUID
@@ -234,7 +257,8 @@ export async function addMediaNode(
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [{ name: MediaComponent.jsonID, props: { resources: [url] } }, ...extraComponentJson],
       parent!,
-      before
+      before,
+      requestedName
     )
     EditorHistoryFunctions.snapshot()
     return entityUUID
@@ -247,7 +271,8 @@ export async function addMediaNode(
         ...extraComponentJson
       ],
       parent!,
-      before
+      before,
+      requestedName
     )
     EditorHistoryFunctions.snapshot()
     return entityUUID
