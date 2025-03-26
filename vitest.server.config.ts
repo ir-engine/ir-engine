@@ -29,6 +29,8 @@ process.env.TEST = 'true'
 
 export default defineConfig({
   test: {
+    reporter: ['text', 'lcov'],
+    reportsDirectory: './coverage',
     environment: 'node',
     passWithNoTests: true,
     isolate: true,
