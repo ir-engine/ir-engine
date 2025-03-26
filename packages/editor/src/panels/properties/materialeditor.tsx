@@ -263,6 +263,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           onChange={(key) => async (value) => {
             const property = await shouldLoadTexture(value, key, prototype.arguments)
             const texture = property as Texture
+            console.log(texture)
             if (texture?.isTexture) {
               texture.flipY = false
               texture.needsUpdate = true
@@ -270,7 +271,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
             EditorControlFunctions.modifyMaterial(
               [materialComponent.material.value!.uuid],
               materialComponent.material.value!.uuid as EntityUUID,
-              [{ [key]: property }]
+              [{ [key]: texture?.isTexture ? value : property }]
             )
             EditorHistoryFunctions.snapshot()
             await checkThumbs()
