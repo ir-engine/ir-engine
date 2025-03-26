@@ -413,6 +413,14 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
           rootEntity === entity ? 'p-2' : 'py-1 pl-10 pr-2'
         )}
       >
+        <div
+          className={twMerge(
+            'h-1',
+            isOverAfter && canDropAfter && `${currentTheme === 'dark' ? 'bg-white' : 'bg-black'}`
+          )}
+          style={{ marginLeft: `${node.depth * 0.75}rem` }}
+          ref={afterDropTarget}
+        />
         <div className="flex w-full items-center justify-between gap-x-2 bg-inherit pr-2" ref={onDropTarget}>
           {node.isLeaf ? (
             <div className="w-5 shrink-0" />
@@ -519,14 +527,6 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
             </button>
           </div>
         </div>
-        <div
-          className={twMerge(
-            'h-1',
-            isOverAfter && canDropAfter && `${currentTheme === 'dark' ? 'bg-black' : 'bg-white'}`
-          )}
-          style={{ marginLeft: `${node.depth * 0.75}rem` }}
-          ref={afterDropTarget}
-        />
       </div>
     </li>
   )
