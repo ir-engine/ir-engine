@@ -99,6 +99,7 @@ import {
   SkinnedMesh,
   Sphere,
   Texture,
+  TypedArray,
   Vector2,
   Vector3,
   VectorKeyframeTrack
@@ -203,7 +204,7 @@ const loadPrimitive = async (
   const primitiveDef = mesh.primitives[primitiveIndex]
   const materialIndex = primitiveDef.material
 
-  let materialPromise
+  let materialPromise: Promise<Material | MeshPhysicalMaterial>
 
   if (typeof materialIndex === 'number') {
     materialPromise = getDependency(options, 'material', materialIndex)
@@ -220,14 +221,13 @@ const loadPrimitive = async (
   }
 
   if (hasDracoCompression) {
-    return new Promise((resolve) => {
-      KHR_DRACO_MESH_COMPRESSION.decodePrimitive(options, primitiveDef).then(async (geom) => {
-        GLTFLoaderFunctions.computeBounds(json, geom, primitiveDef)
-        assignExtrasToUserData(geom, primitiveDef as GLTF.IMeshPrimitive)
-        const material = await materialPromise
-        assignFinalMaterial(primitiveDef, material)
-        resolve([geom, material])
-      })
+    return new Promise(async (resolve) => {
+      const geom = await KHR_DRACO_MESH_COMPRESSION.decodePrimitive(options, primitiveDef)
+      GLTFLoaderFunctions.computeBounds(json, geom, primitiveDef)
+      assignExtrasToUserData(geom, primitiveDef as GLTF.IMeshPrimitive)
+      const material = await materialPromise
+      assignFinalMaterial(primitiveDef, material as MeshPhysicalMaterial)
+      resolve([geom, material])
     })
   } else {
     const geometry = new BufferGeometry()
@@ -265,8 +265,8 @@ const loadPrimitive = async (
     }
     GLTFLoaderFunctions.computeBounds(json, geometry, primitiveDef)
     assignExtrasToUserData(geometry, primitiveDef as GLTF.IMeshPrimitive)
-    const [material] = await Promise.all([materialPromise, ...promises])
-    assignFinalMaterial(primitiveDef, material)
+    const [material] = await Promise.all([materialPromise, Promise.all(promises)])
+    assignFinalMaterial(primitiveDef, material as MeshPhysicalMaterial)
     if (primitiveDef.targets) await addMorphTargets(options, geometry, primitiveDef.targets)
     return [geometry, material]
   }
@@ -293,7 +293,7 @@ const addMorphTargets = async (
     if (hasMorphPosition && hasMorphNormal && hasMorphColor) break
   }
 
-  if (!hasMorphPosition && !hasMorphNormal && !hasMorphColor) return Promise.resolve(geometry)
+  if (!hasMorphPosition && !hasMorphNormal && !hasMorphColor) return Promise.resolve()
 
   const pendingPositionAccessors = [] as Promise<BufferAttribute | InterleavedBufferAttribute>[]
   const pendingNormalAccessors = [] as Promise<BufferAttribute | InterleavedBufferAttribute>[]
@@ -380,7 +380,7 @@ const loadAccessor = async (options: GLTFParserOptions, accessorIndex: number) =
     const normalized = accessorDef.normalized === true
 
     const array = new TypedArray(accessorDef.count * itemSize)
-    return new BufferAttribute(array, itemSize, normalized)
+    return Promise.resolve(new BufferAttribute(array, itemSize, normalized))
   }
 
   const pendingBufferViews = [] as Promise<ArrayBuffer | null>[]
@@ -408,7 +408,7 @@ const loadAccessor = async (options: GLTFParserOptions, accessorIndex: number) =
   const byteStride =
     accessorDef.bufferView !== undefined ? json.bufferViews![accessorDef.bufferView].byteStride : undefined
   const normalized = accessorDef.normalized === true
-  let array, bufferAttribute: BufferAttribute | InterleavedBufferAttribute
+  let array: TypedArray, bufferAttribute: BufferAttribute | InterleavedBufferAttribute
 
   // The buffer is not interleaved if the stride is the item size in bytes.
   if (byteStride && byteStride !== itemBytes) {
@@ -503,21 +503,29 @@ const loadBuffer = async (options: GLTFParserOptions, bufferIndex: number) => {
     throw new Error('THREE.GLTFLoader: ' + bufferDef.type + ' buffer type is not supported.')
   }
 
-  const loader = new FileLoader(options.manager)
-  loader.setResponseType('arraybuffer')
+  const cache = DependencyCache.get(options.url)
+  if (bufferDef.uri && cache?.has(bufferDef.uri)) {
+    return cache.get(bufferDef.uri) as Promise<ArrayBuffer>
+  }
 
   if (bufferDef.uri === undefined && bufferIndex === 0) {
     return Promise.resolve(options.body)
   }
 
-  return new Promise<ArrayBuffer>(function (resolve, reject) {
+  const loader = new FileLoader(options.manager)
+  loader.setResponseType('arraybuffer')
+
+  const bufferPromise = new Promise<ArrayBuffer>(function (resolve, reject) {
     const url = LoaderUtils.resolveURL(bufferDef.uri!, options.path)
     loadResource<ArrayBuffer>(
       url,
       ResourceType.ArrayBuffer,
       options.entity, // the GLTF entity
       (response) => {
-        resolve(response)
+        // Something isn't being awaited correctly somewhere during the GLTF loading process
+        setTimeout(() => {
+          resolve(response)
+        }, 500)
       },
       (request) => {
         //
@@ -530,6 +538,9 @@ const loadBuffer = async (options: GLTFParserOptions, bufferIndex: number) => {
       loader
     )
   })
+
+  bufferDef.uri && cache?.set(bufferDef.uri, bufferPromise)
+  return bufferPromise
 }
 
 export function computeBounds(json: GLTF.IGLTF, geometry: BufferGeometry, primitiveDef: GLTF.IMeshPrimitive) {
@@ -780,6 +791,10 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
 
   const extensions = Object.entries(materialDef.extensions || {})
 
+  await Promise.all(promises)
+
+  const extensionPromises = [] as Promise<void>[]
+
   for (const [extensionName, extension] of extensions) {
     const Component = ComponentJSONIDMap.get(extensionName) as any // todo
     if (!Component) continue
@@ -790,11 +805,13 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
       else console.warn('GLTFLoaderFunctions: Material type not found.')
     }
     if (typeof Component.extendMaterialParams === 'function') {
-      promises.push(Component.extendMaterialParams(options, materialConstructorParameters, materialDef, materialIndex))
+      extensionPromises.push(
+        Component.extendMaterialParams(options, materialConstructorParameters, materialDef, materialIndex)
+      )
     }
   }
 
-  await Promise.all(promises)
+  await Promise.all(extensionPromises)
 
   const deltaPromises = [] as Promise<void>[]
   //apply deltas
@@ -1050,7 +1067,7 @@ const loadImageSource = async (
     }
     // Load binary image data from bufferView, if provided.
 
-    sourceURI = await GLTFLoaderFunctions.loadBufferView(options, sourceDef.bufferView).then(function (bufferView) {
+    sourceURI = await getDependency(options, 'bufferView', sourceDef.bufferView).then(function (bufferView) {
       isObjectURL = true
       const blob = new Blob([bufferView!], { type: sourceDef.mimeType })
       sourceURI = URL.createObjectURL(blob)

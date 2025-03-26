@@ -198,7 +198,7 @@ export const EXTMeshGPUInstancingComponent = defineComponent({
     for (const key in attributesDef) {
       pending.push(
         getDependency(options, 'accessor', attributesDef[key]).then((accessor) => {
-          attributes[key] = accessor
+          attributes[key] = accessor as BufferAttribute
           return attributes[key]
         })
       )

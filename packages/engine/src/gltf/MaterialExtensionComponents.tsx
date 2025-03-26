@@ -128,7 +128,7 @@ export const KHRUnlitExtensionComponent = defineComponent({
         pending.push(
           GLTFLoaderFunctions.assignTexture(options, metallicRoughness.baseColorTexture).then((map) => {
             materialParams.map = map
-            map.colorSpace = SRGBColorSpace
+            if (map) map.colorSpace = SRGBColorSpace
           })
         )
       }
@@ -341,7 +341,7 @@ export const KHRSheenExtensionComponent = defineComponent({
       pending.push(
         GLTFLoaderFunctions.assignTexture(options, extension.sheenColorTexture).then((map) => {
           materialParams.sheenColorMap = map
-          map.colorSpace = SRGBColorSpace
+          if (map) map.colorSpace = SRGBColorSpace
         })
       )
     }
@@ -515,7 +515,7 @@ export const KHRSpecularExtensionComponent = defineComponent({
       pending.push(
         GLTFLoaderFunctions.assignTexture(options, extension.specularColorTexture).then((map) => {
           materialParams.specularColorMap = map
-          map.colorSpace = SRGBColorSpace
+          if (map) map.colorSpace = SRGBColorSpace
         })
       )
     }
@@ -685,18 +685,19 @@ export const MozillaHubsLightMapComponent = defineComponent({
     >
 
     pending.push(
-      getDependency(options, 'texture', extensionDef.index).then((result) => {
+      new Promise<void>(async (resolve) => {
+        const result = await getDependency(options, 'texture', extensionDef.index)
         const lightMap: Texture = result!.clone()
         lightMap.channel = 1
         materialParams.lightMap = lightMap
         materialParams.lightMapIntensity = extensionDef.intensity ?? 1.0
 
-        getDependency(options, 'material', materialIndex).then((result) => {
-          // fix for change to MeshBasicMaterial shading WRT lightmaps
-          if (result.type === 'MeshBasicMaterial') {
-            result.lightMapIntensity *= Math.PI
-          }
-        })
+        const material = await getDependency(options, 'material', materialIndex)
+        // fix for change to MeshBasicMaterial shading WRT lightmaps
+        if (material.type === 'MeshBasicMaterial') {
+          material.lightMapIntensity *= Math.PI
+        }
+        resolve()
       })
     )
 
@@ -831,10 +832,8 @@ export const EEMaterialComponent = defineComponent({
           pending.push(
             new Promise<void>(async (resolve) => {
               const texture = await GLTFLoaderFunctions.assignTexture(options, v.contents)
-              if (!texture) {
-                resolve()
-                return
-              }
+              if (!texture) return resolve()
+
               if (k === 'map') texture.colorSpace = SRGBColorSpace
               materialParams[k] = texture
               resolve()
