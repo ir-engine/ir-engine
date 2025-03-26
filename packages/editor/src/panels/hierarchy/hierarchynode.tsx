@@ -79,6 +79,8 @@ import {
   useRenamingNode
 } from './hooks'
 
+import { ThemeState } from '@ir-engine/client-core/src/common/services/ThemeService'
+
 type DragItemType = {
   type: (typeof ItemTypes)[keyof typeof ItemTypes]
   value: Entity | Entity[]
@@ -115,6 +117,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const isRenameOpen = useState(false)
   const canSaveNodeChanges = useState(false)
   const permissionToChangeNodeVerified = useState(false)
+  const theme = useMutableState(ThemeState)
 
   //@todo when this feature flag is added, remove the hardcoded value
   const hideGlbChildrenFeatureFlag = [true] //useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.HideGlbChildren])
@@ -407,15 +410,13 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
         }}
         className={twMerge(
           'flex w-full flex-col justify-between overflow-hidden bg-inherit',
-          rootEntity === entity
-            ? 'p-2'
-            : (isOverBefore && canDropBefore) || (isOverAfter && canDropAfter)
-            ? 'py-0 pl-10 pr-2'
-            : 'py-1 pl-10 pr-2'
+          rootEntity === entity ? 'p-2' : 'py-1 pl-10 pr-2'
         )}
       >
         <div
-          className={twMerge(isOverBefore && canDropBefore && 'h-5')}
+          className={twMerge(
+            isOverBefore && canDropBefore && `${theme.theme.value === 'dark' ? 'bg-black' : 'bg-white'}`
+          )}
           style={{ marginLeft: `${node.depth * 0.75}rem` }}
           ref={beforeDropTarget}
         />
@@ -527,7 +528,10 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
           </div>
         </div>
         <div
-          className={twMerge('h-1', isOverAfter && canDropAfter && 'h-5')}
+          className={twMerge(
+            'h-1',
+            isOverAfter && canDropAfter && `${theme.theme.value === 'dark' ? 'bg-black' : 'bg-white'}`
+          )}
           style={{ marginLeft: `${node.depth * 0.75}rem` }}
           ref={afterDropTarget}
         />
