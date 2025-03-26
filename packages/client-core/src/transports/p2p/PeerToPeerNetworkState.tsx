@@ -179,20 +179,22 @@ const ConnectionReactor = (props: { instanceID: InstanceID; topic: Topic }) => {
 }
 
 const PeersReactor = (props: { instanceID: InstanceID }) => {
+  const lastPoll = useHookstate(new Date(new Date().getTime() - 10000))
+
   const instanceAttendanceQuery = useFind(instanceAttendancePath, {
     query: {
       instanceId: props.instanceID,
       ended: false,
       updatedAt: {
         // Only consider instances that have been updated in the last 10 seconds
-        $gt: toDateTimeSql(new Date(new Date().getTime() - 10000))
+        $gt: toDateTimeSql(lastPoll.value)
       }
     }
   })
 
   useEffect(() => {
     const interval = setInterval(() => {
-      instanceAttendanceQuery.refetch()
+      lastPoll.set(new Date(new Date().getTime() - 10000))
     }, 5000)
     return () => {
       clearInterval(interval)

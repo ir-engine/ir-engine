@@ -26,11 +26,20 @@ Infinite Reality Engine. All Rights Reserved.
 import { useFind, useMutation } from '@ir-engine/common'
 import { InstanceID, MessageType, messagePath } from '@ir-engine/common/src/schema.type.module'
 import { useTouchOutside } from '@ir-engine/common/src/utils/useClickOutside'
-import { State, dispatchAction, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { State, UserID, dispatchAction, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
+import { PeerMediaChannelState } from '@ir-engine/network/src/media/PeerMediaChannelState'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { Button } from '@ir-engine/ui'
-import { MessageTextSquare01Lg, MessageTextSquare01Md, Send01Lg, Send01Sm, XCloseLg } from '@ir-engine/ui/src/icons'
+import {
+  ArrowTopRightOnSquareSm,
+  MessageTextSquare01Lg,
+  MessageTextSquare01Md,
+  Send01Lg,
+  Send01Sm,
+  XCloseLg,
+  XCloseSm
+} from '@ir-engine/ui/src/icons'
 import React, { createContext, useContext, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
@@ -38,6 +47,7 @@ import { useMediaNetwork } from '../common/services/MediaInstanceConnectionServi
 import { PopoverState } from '../common/services/PopoverState'
 import { ChannelState } from '../social/services/ChannelService'
 import { AvatarUIActions, AvatarUIState } from '../systems/state/AvatarUIState'
+import { ReportUserState } from '../util/ReportUserState'
 import LocationIconButton from './components/LocationIconButton'
 import ProfileMenu from './menus/ProfileMenu'
 import { AuthState } from './services/AuthService'
@@ -107,7 +117,7 @@ function NewMessage() {
   const user = useMutableState(AuthState).user
   const usersTyping = useMutableState(AvatarUIState).usersTyping[user?.id.value].value
   const messageMutation = useMutation(messagePath, false)
-  const { messages, setNewMessage, isChatOpen, unreadMessages } = useInstanceChatMessages()
+  const { messages, setNewMessage, isChatOpen } = useInstanceChatMessages()
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleComposedMessage = (event: React.ChangeEvent<HTMLInputElement>): void => {
@@ -168,7 +178,7 @@ function NewMessage() {
     <div className="mt-5 flex w-full items-center justify-end">
       <div
         className={twMerge(
-          'height-[30px] lg:height-[74px] mr-4 flex items-center justify-between rounded-[37px] bg-ui-background transition-[width,transform] duration-500 lg:mr-0 lg:bg-black/50',
+          'height-[30px] lg:height-[74px] mr-4 flex items-center justify-between rounded-[37px] bg-ui-background transition-[width,transform] duration-500 lg:ml-[13px] lg:mr-0 lg:bg-black/50',
           isChatOpen.value ? 'w-full translate-x-0' : 'hidden'
         )}
       >
@@ -190,6 +200,21 @@ function NewMessage() {
         </span>
       </div>
     </div>
+  )
+}
+
+function ReportUserButton({ userId }: { userId: UserID }) {
+  const peerId = NetworkState.mediaNetwork.users[userId]?.[0]
+  const peerMediaChannelState = useMutableState(PeerMediaChannelState)
+  if (!peerId) return null
+
+  const isCameraVisibile = peerMediaChannelState[peerId]?.['cam']?.value
+  if (!isCameraVisibile) return null
+
+  return (
+    <button onClick={() => ReportUserState.setReportedPeerId(peerId)}>
+      <ArrowTopRightOnSquareSm />
+    </button>
   )
 }
 
@@ -215,8 +240,10 @@ function Message({ message, hideUsername }: { message: MessageType; hideUsername
         hideUsername && '-mt-3'
       )}
     >
-      {message.sender.id !== user.id.value && !hideUsername && (
-        <div className="text-xs font-bold text-text-primary lg:text-lg">{message.sender.name}</div>
+      {message.senderId !== user.id.value && !hideUsername && (
+        <div className="flex items-center gap-x-2 text-xs font-bold text-text-primary lg:text-lg">
+          {message.sender.name} <ReportUserButton userId={message.senderId} />
+        </div>
       )}
       <div className="text-sm tracking-[-0.14px] text-text-primary lg:text-base lg:tracking-normal">{message.text}</div>
     </div>
@@ -257,6 +284,7 @@ function MessagesWrapper() {
   const { isChatOpen, unreadMessages } = useInstanceChatMessages()
   const ageVerified = useMutableState(AuthState).user.ageVerified.value
   const isGuest = useMutableState(AuthState).user.isGuest.value
+  const isHidden = useHookstate(false)
   useTouchOutside(ref, () => {
     if (!isChatOpen.value) return
     isChatOpen.set(false)
@@ -264,27 +292,39 @@ function MessagesWrapper() {
 
   return (
     <div className="flex items-end">
-      <div className="relative max-w-16">
-        {!isChatOpen.value && unreadMessages.value && (
-          <div className="absolute right-0 top-0 h-4 w-4 rounded-full bg-blue-500" />
-        )}
-        {isChatOpen.value && (
-          <LocationIconButton
-            icon={isChatOpen.value ? XCloseLg : MessageTextSquare01Lg}
-            onClick={() => isChatOpen.set(!isChatOpen.value)}
-            className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
-          />
-        )}
-        {!isChatOpen.value && (
-          <LocationIconButton
-            icon={MessageTextSquare01Md}
-            onClick={() => isChatOpen.set(!isChatOpen.value)}
-            className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
-          />
-        )}
-      </div>
-      {isChatOpen.value && (!ageVerified as any) ? (
-        <div className="ml-[13px] rounded-lg bg-surface-4 p-4">
+      {ageVerified && (
+        <div className="relative max-w-16">
+          {!isChatOpen.value && unreadMessages.value && (
+            <div className="absolute right-0 top-0 h-4 w-4 rounded-full bg-blue-500" />
+          )}
+          {!isMobile && isChatOpen.value && (
+            <LocationIconButton
+              icon={isChatOpen.value ? XCloseLg : MessageTextSquare01Lg}
+              onClick={() => isChatOpen.set(!isChatOpen.value)}
+              className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
+            />
+          )}
+          {!isChatOpen.value && (
+            <LocationIconButton
+              icon={MessageTextSquare01Md}
+              onClick={() => isChatOpen.set(!isChatOpen.value)}
+              className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
+            />
+          )}
+        </div>
+      )}
+      {!isHidden.value && !ageVerified ? (
+        <div className="static rounded-lg bg-surface-4 p-4">
+          {isMobile && (
+            <button
+              onClick={() => isHidden.set(!isHidden.value)}
+              className={twMerge(
+                'absolute left-[-18px] top-[-13px] flex h-[36px] w-[36px] select-none items-center justify-center rounded-full bg-ui-tertiary'
+              )}
+            >
+              <XCloseSm className={twMerge('h-[15px] w-[15px] text-text-primary')} />
+            </button>
+          )}
           <div className="mx-auto text-center font-semibold text-[#3B3A3A]">{t('user:instanceChat.wantToChat')}</div>
           <Button
             variant="secondary"
