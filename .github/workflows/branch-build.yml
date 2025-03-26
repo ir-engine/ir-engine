@@ -135,7 +135,9 @@ jobs:
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_hyperflux }}
+        with:
+          projectBaseDir: packages/hyperflux/
 
   test_ecs:
     needs: install-modules
@@ -163,7 +165,9 @@ jobs:
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_ecs }}
+        with:
+          projectBaseDir: packages/ecs/
 
   test_network:
     needs: install-modules
@@ -194,7 +198,9 @@ jobs:
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_network }}
+        with:
+          projectBaseDir: packages/network/
 
   test_spatial:
     needs: install-modules
@@ -231,7 +237,9 @@ jobs:
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_spatial }}
+        with:
+          projectBaseDir: packages/spatial/
 
   test_engine:
     needs: install-modules
@@ -274,7 +282,9 @@ jobs:
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_engine }}
+        with:
+          projectBaseDir: packages/engine/
 
   test_client:
     needs: install-modules
@@ -307,7 +317,9 @@ jobs:
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets[format('SONAR_TOKEN', matrix.package)] }}
+        with:
+          projectBaseDir: packages/${{ matrix.package }}/
 
   test_server:
     needs: install-modules
@@ -344,7 +356,9 @@ jobs:
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets[format('SONAR_TOKEN', matrix.package)] }}
+        with:
+          projectBaseDir: packages/${{ matrix.package }}/
 
   npm_builds:
     needs: install-modules
