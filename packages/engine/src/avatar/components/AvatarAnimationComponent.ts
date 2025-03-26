@@ -47,7 +47,6 @@ import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { VRMHumanBoneList } from '../maps/VRMHumanBoneList'
 import { VRMHumanBoneName } from '../maps/VRMHumanBoneName'
-import { BoneInverseComponent } from './NormalizedBoneComponent'
 
 /**@todo refactor into generalized AnimationGraphComponent */
 export const AvatarAnimationComponent = defineComponent({
@@ -75,13 +74,24 @@ export const AvatarRigComponent = defineComponent({
   schema: S.Object({
     /** maps human bones to entities */
     bonesToEntities: S.Record(HumanBonesSchema, S.Entity()),
-    entitiesToBones: S.Record(S.Entity(), HumanBonesSchema)
+    entitiesToBones: S.Record(S.Entity(), HumanBonesSchema),
+    /** keeps track of initial rig pose data for rotation normalization */
+    parentWorldRotations: S.Record(HumanBonesSchema, S.Type<Quaternion>()),
+    parentWorldRotationInverses: S.Record(HumanBonesSchema, S.Type<Quaternion>()),
+    rotations: S.Record(HumanBonesSchema, S.Type<Quaternion>())
   }),
 
   setBone: (toRigEntity: Entity, boneEntity: Entity, boneName: VRMHumanBoneName) => {
     const rigComponent = getMutableComponent(toRigEntity, AvatarRigComponent)
     rigComponent.bonesToEntities[boneName].set(boneEntity)
     rigComponent.entitiesToBones[boneEntity].set(boneName)
+
+    const parent = getComponent(boneEntity, EntityTreeComponent).parentEntity
+    rigComponent.parentWorldRotationInverses[boneName].set(
+      TransformComponent.getWorldRotation(parent, new Quaternion()).invert()
+    )
+    rigComponent.parentWorldRotations[boneName].set(TransformComponent.getWorldRotation(parent, new Quaternion()))
+    rigComponent.rotations[boneName].set(getComponent(boneEntity, TransformComponent).rotation.clone())
   },
 
   useAvatarLoaded: (entity: Entity) => {
@@ -127,43 +137,28 @@ export function createVRM(rootEntity: Entity) {
     ? vrmExtensionDefinition.humanoid?.humanBones
     : formatHumanBones(vrmExtensionDefinition.humanoid!.humanBones as any)
 
+  // this guaruntees world matrices have the correct start orientation
+  // for later use in retargeting via the AvatarRigComponent rotation records
+  let foundRoot = false
+  iterateEntityNode(rootEntity, (entity) => {
+    const bone = getOptionalComponent(entity, BoneComponent)
+    bone?.matrixWorld.identity()
+    bone?.quaternion.set(0, 0, 0, 1)
+    if (hasComponent(entity, BoneComponent) && !foundRoot) foundRoot = true
+    if (foundRoot) bone?.matrixWorld.makeRotationY(Math.PI)
+  })
+
   for (const bone of humanBonesArray) {
     const nodeID = `${documentID}-${bone.node}` as EntityUUID
     const entity = UUIDComponent.getEntityByUUID(nodeID)
     AvatarRigComponent.setBone(rootEntity, entity, bone.bone as VRMHumanBoneName)
-
-    const boneTransform = getComponent(entity, TransformComponent)
-    if (bone.bone === VRMHumanBoneName.Hips) {
-      // boneTransform?.rotation.premultiply(yFlip)
-      // const root = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
-      // const parentTransform = getComponent(root!, TransformComponent)
-      // parentTransform.rotation.multiply(yFlip)
-    }
   }
 
   const root = getComponent(
     getComponent(rootEntity, AvatarRigComponent).bonesToEntities.hips,
     EntityTreeComponent
   ).parentEntity
-
-  iterateEntityNode(
-    rootEntity,
-    (e) => {
-      const boneTransform = getComponent(e, TransformComponent)
-      boneTransform.matrixWorld.identity()
-      if (e !== root) boneTransform.matrixWorld.makeRotationY(Math.PI)
-    },
-    (e) => hasComponent(e, TransformComponent)
-  )
-
-  for (const bone of humanBonesArray) {
-    const nodeID = `${documentID}-${bone.node}` as EntityUUID
-    const entity = UUIDComponent.getEntityByUUID(nodeID)
-    setComponent(entity, BoneInverseComponent, {
-      worldRotation: TransformComponent.getWorldRotation(entity, new Quaternion()),
-      inverseWorldRotation: TransformComponent.getWorldRotation(entity, new Quaternion()).invert()
-    })
-  }
+  getComponent(root, TransformComponent).rotation.multiply(yFlip)
 
   // iterateEntityNode(rootEntity, (entity) => {
   //   const bone = getOptionalComponent(entity, BoneComponent)
@@ -179,7 +174,7 @@ export function createVRM(rootEntity: Entity) {
   //     (value as Quaternion).clone().invert()
   //   ])
   // )
-  //linkNormalizedBones(vrm)
+  // linkNormalizedBones(vrm)
   // const humanoidAfter = vrm.humanoid as any
   // Object.values(humanoidAfter._normalizedHumanBones.humanBones).forEach((o: any) => {
   //   const bone = o.node as Object3D

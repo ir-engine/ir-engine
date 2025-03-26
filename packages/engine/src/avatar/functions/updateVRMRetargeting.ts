@@ -31,7 +31,6 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
-import { BoneInverseComponent } from '../components/NormalizedBoneComponent'
 import { VRMHumanBoneList } from '../maps/VRMHumanBoneList'
 
 const emptyQuaternion = new Quaternion()
@@ -47,21 +46,21 @@ export const updateVRMRetargeting = (avatarEntity: Entity) => {
 
     const parentEntity = getOptionalComponent(boneEntity, EntityTreeComponent)?.parentEntity
 
-    const boneInverseComponent = getOptionalComponent(parentEntity!, BoneInverseComponent)
-    const parentWorldRotation = boneInverseComponent?.worldRotation ?? emptyQuaternion
-    const parentInverseWorldRotation = boneInverseComponent?.inverseWorldRotation ?? emptyQuaternion
-    const worldRotation =
-      getOptionalComponent(boneEntity, BoneInverseComponent)?.inverseWorldRotation ?? emptyQuaternion
+    const parentWorldRotation = rig.parentWorldRotations[boneName] ?? emptyQuaternion
+    const parentInverseWorldRotation = rig.parentWorldRotationInverses[boneName] ?? emptyQuaternion
+    const worldRotation = rig.rotations[boneName] ?? emptyQuaternion
 
-    //if(boneName === 'hips') bone.rotation.premultiply(new Quaternion().setFromEuler(new Euler(0, Math.PI, 0)))
+    _quatA
+      .copy(bone.rotation)
+      .multiply(parentWorldRotation)
+      .premultiply(parentInverseWorldRotation)
+      .multiply(worldRotation)
 
-    bone.rotation.multiply(parentWorldRotation).premultiply(parentInverseWorldRotation)
-
-    // TransformComponent.dirty[boneEntity] = 1
-    // TransformComponent.rotation.x[boneEntity] = _quatA.x
-    // TransformComponent.rotation.y[boneEntity] = _quatA.y
-    // TransformComponent.rotation.z[boneEntity] = _quatA.z
-    // TransformComponent.rotation.w[boneEntity] = _quatA.w
+    TransformComponent.dirty[boneEntity] = 1
+    TransformComponent.rotation.x[boneEntity] = _quatA.x
+    TransformComponent.rotation.y[boneEntity] = _quatA.y
+    TransformComponent.rotation.z[boneEntity] = _quatA.z
+    TransformComponent.rotation.w[boneEntity] = _quatA.w
 
     // if (boneNode != null) {
     //   const rigBoneNode = humanoidRig.getBoneNode(boneName)! as Object3D

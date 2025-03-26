@@ -24,21 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { defineComponent, S } from '@ir-engine/ecs'
-import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { Bone } from 'three'
 
 export const NormalizedBoneComponent = defineComponent({
   name: 'NormalizedBoneComponent',
 
   schema: S.Required(S.Type<Bone>())
-})
-
-//tracks starting resting quaternions for bones
-export const BoneInverseComponent = defineComponent({
-  name: 'BoneInverseComponent',
-
-  schema: S.Object({
-    inverseWorldRotation: S.Required(T.Quaternion()),
-    worldRotation: S.Required(T.Quaternion())
-  })
 })
