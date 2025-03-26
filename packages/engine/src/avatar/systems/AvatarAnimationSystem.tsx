@@ -250,7 +250,7 @@ const AnimationReactor = (props: { entity: Entity }) => {
     if (!avatarRigComponent.bonesToEntities?.hips.value) return
     setComponent(entity, AnimationComponent, {
       animations: getAllLoadedAnimations(),
-      mixer: new AnimationMixer(getComponent(entity, ObjectComponent) as Group as Group)
+      mixer: new AnimationMixer(getComponent(entity, ObjectComponent) as Group)
     })
   }, [avatarRigComponent.bonesToEntities?.hips, avatarObject?.value, loadedAnimations])
   return null
