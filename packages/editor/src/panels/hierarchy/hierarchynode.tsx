@@ -405,10 +405,17 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
           event.preventDefault()
           setMenu(event, entity)
         }}
-        className={twMerge('flex w-full justify-between bg-inherit', rootEntity === entity ? 'p-2' : 'py-1 pl-10 pr-2')}
+        className={twMerge(
+          'flex w-full flex-col justify-between overflow-hidden bg-inherit',
+          rootEntity === entity
+            ? 'p-2'
+            : (isOverBefore && canDropBefore) || (isOverAfter && canDropAfter)
+            ? 'py-0 pl-10 pr-2'
+            : 'py-1 pl-10 pr-2'
+        )}
       >
         <div
-          className={twMerge('h-1', isOverBefore && canDropBefore && 'bg-white')}
+          className={twMerge(isOverBefore && canDropBefore && 'h-5')}
           style={{ marginLeft: `${node.depth * 0.75}rem` }}
           ref={beforeDropTarget}
         />
@@ -519,6 +526,11 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
             </button>
           </div>
         </div>
+        <div
+          className={twMerge('h-1', isOverAfter && canDropAfter && 'h-5')}
+          style={{ marginLeft: `${node.depth * 0.75}rem` }}
+          ref={afterDropTarget}
+        />
       </div>
     </li>
   )
