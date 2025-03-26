@@ -8,7 +8,7 @@
   "description": "Networking abstractions and APIs for the Infinite Reality Engine",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "cross-env TEST=true vitest run --config=../../vitest.client.config.ts",
+    "test": "cross-env TEST=true vitest run --coverage --config --config=../../vitest.client.config.ts",
     "test-coverage": "npm run test-coverage-generate ; npm run test-coverage-launch",
     "test-coverage-generate": "npm run test -- --coverage --silent",
     "test-coverage-launch": "vite preview --open --outDir coverage"
