@@ -263,7 +263,6 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           onChange={(key) => async (value) => {
             const property = await shouldLoadTexture(value, key, prototype.arguments)
             const texture = property as Texture
-            console.log(texture)
             if (texture?.isTexture) {
               texture.flipY = false
               texture.needsUpdate = true
