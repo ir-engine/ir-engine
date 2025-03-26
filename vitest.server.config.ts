@@ -37,8 +37,8 @@ export default defineConfig({
     testTimeout: 10000,
     maxConcurrency: 1,
     coverage: {
-      reporter: ['text', 'lcov'],
-      reportsDirectory: './coverage',
-    },
-  },
+      reporter: ['lcov'],
+      provider: 'istanbul'
+    }
+  }
 })

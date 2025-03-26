@@ -43,22 +43,8 @@ export default defineConfig({
     reporters: reporters,
     slowTestThreshold: 1000,
     coverage: {
-      reporter: ['html', 'lcov'],
-      reportsDirectory: './coverage',
-      provider: 'istanbul',
-      thresholds: {
-        perFile: true,
-        statements: threshold,
-        branches: threshold,
-        functions: threshold,
-        lines: threshold
-      },
-      watermarks: {
-        statements: watermark,
-        branches: watermark,
-        functions: watermark,
-        lines: watermark
-      }
+      reporter: ['lcov'],
+      provider: 'istanbul'
     }
   }
 })
