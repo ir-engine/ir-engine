@@ -62,7 +62,10 @@ import {
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
-import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
+import {
+  BoundingBoxComponent,
+  updateBoundingBox
+} from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 import React, { Suspense, useEffect } from 'react'
 import { Color, Euler, Material, Mesh, Quaternion, SphereGeometry } from 'three'
 
@@ -114,6 +117,42 @@ const drawToCanvas = (source: CanvasImageSource): Promise<HTMLCanvasElement | nu
   }
   ctx.drawImage(source, 0, 0, 90, 90)
   return Promise.resolve(canvas)
+}
+const uploadDimension = async (modelEntity: Entity, src: string, projectName: string) => {
+  try {
+    setComponent(modelEntity, BoundingBoxComponent)
+    updateBoundingBox(modelEntity)
+    const boundingBox = getComponent(modelEntity, BoundingBoxComponent).box
+    const dimensions_x = boundingBox.max.x - boundingBox.min.x
+    const dimensions_y = boundingBox.max.y - boundingBox.min.y
+    const dimensions_z = boundingBox.max.z - boundingBox.min.z
+    const dimensionsData = [dimensions_x, dimensions_y, dimensions_z]
+    const fileURL = new URL(src)
+    fileURL.search = ''
+    fileURL.hash = ''
+    const fileKeyKey = fileURL.href.replace(config.client.fileServer + '/', '')
+    await API.instance
+      .service(staticResourcePath)
+      .find({
+        query: { key: { $in: [fileKeyKey] } }
+      })
+      .then((reponse) => {
+        if (reponse.data.length > 0) {
+          const staticResourceId = reponse.data[0].id
+          const updateDimension = async (staticResourceId) => {
+            await API.instance
+              .service(staticResourcePath)
+              .patch(staticResourceId, { dimensions: JSON.stringify(dimensionsData) as any, project: projectName })
+          }
+          updateDimension(staticResourceId)
+        } else {
+          console.error('static Resource not foudn for key - ', fileKeyKey)
+        }
+      })
+      .catch((e) => console.error(e))
+  } catch (e) {
+    console.error('error in uploadDimension', e)
+  }
 }
 
 const uploadThumbnail = async (src: string, projectName: string, blob: Blob | null) => {
@@ -204,7 +243,7 @@ export const FileThumbnailJobState = defineState({
     const fileList = files
       .map((file) => (file.thumbnailURL || file.type === 'folder' ? undefined : file.key))
       .filter((key) => key !== undefined)
-      .filter((key) => !seenResources.value.includes(key))
+      .filter((key) => !seenResources.value.includes(key as string))
 
     const query = {
       key: {
@@ -455,6 +494,8 @@ const RenderModelThumbnail = (props: RenderThumbnailProps) => {
 
   useEffect(() => {
     if (!loaded) return
+    //in here we caulculate the dimensions of the model and upload it to the static resource
+    uploadDimension(entity, src, props.project)
     renderThumbnail(entity, lightEntity, skyboxEntity, cameraEntity, props)
   }, [loaded])
 

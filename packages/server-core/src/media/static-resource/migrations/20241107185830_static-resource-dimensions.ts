@@ -36,7 +36,7 @@ export async function up(knex: Knex): Promise<void> {
   const dimensionsColumnExists = await knex.schema.hasColumn(staticResourcePath, 'dimensions')
   if (!dimensionsColumnExists) {
     await knex.schema.alterTable(staticResourcePath, async (table) => {
-      table.json('dimensions').defaultTo(null)
+      table.json('dimensions').defaultTo(JSON.stringify([]))
     })
   }
 }

@@ -315,6 +315,10 @@ export default function FilePropertiesModal() {
           </Text>
         </div>
         <div className="grid grid-cols-2 gap-2">
+          <Text className="text-end">{'dimensions'}</Text>
+          {resourceDigest.dimensions.value}
+        </div>
+        <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.size')}</Text>
           <Text className="" data-testid="files-panel-file-item-properties-file-size">
             {files.map((file) => file.size).reduce((total, value) => total + parseInt(value ?? '0'), 0)}
