@@ -43,6 +43,7 @@ export default defineConfig({
     coverage: {
       reporter: ['lcov'],
       provider: 'istanbul',
+      include: ['src/**'],
       exclude: ['src/xr/WebXRManager.*', ...coverageConfigDefaults.exclude] //WebXrManager completely breaks with coverage enabled
     }
   }

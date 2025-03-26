@@ -38,7 +38,8 @@ export default defineConfig({
     maxConcurrency: 1,
     coverage: {
       reporter: ['lcov'],
-      provider: 'istanbul'
+      provider: 'istanbul',
+      include: ['src/**']
     }
   }
 })
