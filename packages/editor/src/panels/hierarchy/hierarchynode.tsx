@@ -117,7 +117,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const isRenameOpen = useState(false)
   const canSaveNodeChanges = useState(false)
   const permissionToChangeNodeVerified = useState(false)
-  const theme = useMutableState(ThemeState)
+  const currentTheme = getState(ThemeState).theme
 
   //@todo when this feature flag is added, remove the hardcoded value
   const hideGlbChildrenFeatureFlag = [true] //useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.HideGlbChildren])
@@ -522,7 +522,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
         <div
           className={twMerge(
             'h-1',
-            isOverAfter && canDropAfter && `${theme.theme.value === 'dark' ? 'bg-black' : 'bg-white'}`
+            isOverAfter && canDropAfter && `${currentTheme === 'dark' ? 'bg-black' : 'bg-white'}`
           )}
           style={{ marginLeft: `${node.depth * 0.75}rem` }}
           ref={afterDropTarget}
