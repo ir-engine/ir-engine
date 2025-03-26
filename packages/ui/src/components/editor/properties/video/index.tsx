@@ -152,8 +152,8 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Aspect Ratio" label={t('editor:properties.video.lbl-aspect-ratio')}>
         <button
           className={twMerge(
-            'w-full flex-auto rounded-md bg-surface-4 px-10 py-1 ',
-            mediaElement ? ' text-text-primary' : 'text-text-inactive'
+            'w-full flex-auto rounded-md  px-10 py-1 ',
+            mediaElement ? ' bg-surface-1 text-text-primary' : 'bg-surface-2 text-text-inactive'
           )}
           onClick={resizeVideoToMatchAspectRatio}
           disabled={!mediaElement}
