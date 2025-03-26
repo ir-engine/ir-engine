@@ -53,10 +53,6 @@ import NumericInput from '../../input/Numeric'
 import Vector3Input from '../../input/Vector3'
 import { TransformUniformScaleState } from './TransformUniformScaleState.ts'
 
-const position = new Vector3()
-const rotation = new Quaternion()
-const scale = new Vector3()
-
 /**
  * TransformPropertyGroup component is used to render editor view to customize properties.
  */
@@ -74,9 +70,27 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   useExecute(
     () => {
-      position.set(transformComponent.position.get(NO_PROXY))
-      rotation.set(transformComponent.rotation.get(NO_PROXY))
-      scale.set(transformComponent.scale.get(NO_PROXY))
+      const updatedPostion = transformComponent.position.get(NO_PROXY)
+      const updatedRotation = transformComponent.rotation.get(NO_PROXY)
+      const updatedScale = transformComponent.scale.get(NO_PROXY)
+      if (
+        position.x.value != updatedPostion.x ||
+        position.y.value != updatedPostion.y ||
+        position.z.value != updatedPostion.z
+      ) {
+        position.set(updatedPostion)
+      }
+      if (
+        rotation.x.value != updatedRotation.x ||
+        rotation.y.value != updatedRotation.y ||
+        rotation.z.value != updatedRotation.z ||
+        rotation.w.value != updatedRotation.w
+      ) {
+        rotation.set(updatedRotation)
+      }
+      if (scale.x.value != updatedScale.x || scale.y.value != updatedScale.y || scale.z.value != updatedScale.z) {
+        scale.set(updatedScale)
+      }
     },
     { after: PresentationSystemGroup }
   )
