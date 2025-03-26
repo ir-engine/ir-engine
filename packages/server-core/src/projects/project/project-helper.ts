@@ -1835,7 +1835,7 @@ export const uploadLocalProjectToProvider = async (
             attribution: resourceInfo?.attribution ?? undefined,
             thumbnailKey,
             thumbnailMode: resourceInfo?.thumbnailMode ?? undefined,
-            dimensions: resourceInfo?.dimensionsc ?? undefined
+            dimensions: resourceInfo?.dimensions ?? undefined
           },
           { ignoreResourcesJson: true }
         )
