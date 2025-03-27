@@ -96,6 +96,15 @@ export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvas
 
     if (hasComponent(cameraEntity, RendererComponent)) return
 
+    canvas.current.addEventListener(
+      'wheel',
+      (event) => {
+        event.preventDefault()
+        event.stopPropagation() // Prevents the event from bubbling up
+      },
+      { passive: false }
+    )
+
     setComponent(cameraEntity, RendererComponent, {
       canvas: canvasRef.value as HTMLCanvasElement,
       scenes: [sceneEntity]
