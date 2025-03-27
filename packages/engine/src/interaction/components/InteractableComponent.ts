@@ -310,9 +310,12 @@ export const InteractableComponent = defineComponent({
     useEffect(() => {
       const simulationEntity = getSimulationCounterpart(entity)
       if (!isEditing.value) {
-        const uiEntity = addInteractableUI(simulationEntity)
+        addInteractableUI(simulationEntity)
         return () => {
+          const interactableComponent = getMutableComponent(getSimulationCounterpart(entity), InteractableComponent)
+          const uiEntity = interactableComponent.uiEntity.value
           if (uiEntity) {
+            interactableComponent.uiEntity.set(UndefinedEntity)
             removeEntity(uiEntity)
           }
         }
