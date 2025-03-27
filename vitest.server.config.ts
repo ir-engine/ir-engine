@@ -37,6 +37,7 @@ export default defineConfig({
     testTimeout: 10000,
     maxConcurrency: 1,
     coverage: {
+      enabled: true,
       reporter: ['lcov'],
       provider: 'istanbul',
       include: ['src/**']

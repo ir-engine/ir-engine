@@ -41,6 +41,7 @@ export default defineConfig({
     reporters: reporters,
     slowTestThreshold: 1000,
     coverage: {
+      enabled: true,
       reporter: ['lcov'],
       provider: 'istanbul',
       include: ['src/**'],
