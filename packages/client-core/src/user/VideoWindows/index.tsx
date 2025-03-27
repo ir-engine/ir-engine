@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useRef } from 'react'
 
 import { UserID, userPath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
@@ -43,11 +43,12 @@ import {
 } from '@ir-engine/ui/src/icons'
 import { IoWarning } from 'react-icons/io5'
 
+import { useClickOutside, useTouchOutside } from '@ir-engine/common/src/utils/useClickOutside'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
-import { PopoverState } from '../../common/services/PopoverState'
+import { ModalState } from '../../common/services/ModalState'
 import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { LocationState } from '../../social/services/LocationService'
 import { ReportUserState } from '../../util/ReportUserState'
@@ -121,7 +122,7 @@ export const useMediaWindows = () => {
   // if window doesnt exist for self, add it
   if (
     mediaNetworkConnected &&
-    mediaNetwork.users &&
+    mediaNetwork.users?.[selfUserID] &&
     !windows.find(({ peerID }) => mediaNetwork.users[selfUserID]?.includes(peerID))
   ) {
     windows.unshift({ peerID: selfPeerID, type: 'cam' })
@@ -129,14 +130,14 @@ export const useMediaWindows = () => {
 
   const filteredUsersState = useMutableState(FilteredUsersState)
 
-  const nearbyPeers = mediaNetwork
+  const nearbyPeers = mediaNetwork?.users
     ? filteredUsersState.nearbyLayerUsers.value.map((userID) => mediaNetwork.users[userID]).flat()
     : []
 
   return windows.filter(
     ({ peerID }) =>
       (peerID === Engine.instance.store.peerID ||
-        mediaNetwork?.peers[peerID].userId === selfUserID ||
+        mediaNetwork?.peers?.[peerID].userId === selfUserID ||
         nearbyPeers.includes(peerID)) &&
       peerMediaChannelState.value[peerID]
   )
@@ -170,16 +171,23 @@ const ReportUserWindow = () => {
   const avatarThumbnail = useUserAvatarThumbnail(reportedUserId)
   const reportedUser = useGet(userPath, reportedUserId).data
   const currentLocation = getState(LocationState).currentLocation.location
-  const { toggleVideo, toggleAudio, audioStreamPaused, videoStreamPaused, audioMediaStream, videoMediaStream } =
+  const { toggleVideo, toggleAudio, audioStreamPaused, videoStreamPaused, videoMediaStream, audioMediaStream } =
     useUserMediaWindowHook({
       peerID: reportedPeerId.value!,
       type: 'cam'
     })
+  const ref = useRef<HTMLDivElement>(null)
+
+  useClickOutside(ref, () => ReportUserState.resetPeerId())
+  useTouchOutside(ref, () => ReportUserState.resetPeerId())
 
   if (!reportedPeerId || !reportedUserId || !reportedUser) return null
 
   return (
-    <div className="fixed right-[10%] top-[5%] grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 rounded-xl bg-surface-4 p-3 lg:right-[5%]">
+    <div
+      className="fixed right-[10%] top-[5%] grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 rounded-xl bg-surface-4 p-3 lg:right-[5%]"
+      ref={ref}
+    >
       <div className="h-[100px] w-[100px]">
         <AvatarImage size="fill" className="rounded-none" src={avatarThumbnail} />
       </div>
@@ -222,9 +230,7 @@ const ReportUserWindow = () => {
             className="rounded-full bg-ui-error p-[15px]"
             title={t('user:videoWindows.reportUser')}
             onClick={() =>
-              PopoverState.showPopupover(
-                <ReportMenu type="user" userId={reportedUserId} locationId={currentLocation.id} />
-              )
+              ModalState.openModal(<ReportMenu type="user" userId={reportedUserId} locationId={currentLocation.id} />)
             }
           >
             <IoWarning className="h-5 w-5 text-text-primary-button" />

@@ -73,27 +73,8 @@ import { SceneComponent } from '../../renderer/components/SceneComponents'
 import '../../transform/TransformModule'
 import '../PhysicsModule'
 import { PhysicsSystem } from '../systems/PhysicsSystem'
-import {
-  BodyTypes,
-  ColliderDescOptions,
-  ColliderHitEvent,
-  CollisionEvents,
-  SceneQueryType,
-  Shapes
-} from '../types/PhysicsTypes'
+import { BodyTypes, ColliderHitEvent, CollisionEvents, SceneQueryType, Shapes } from '../types/PhysicsTypes'
 import { Physics, PhysicsWorld, RapierWorldState } from './Physics'
-
-export const boxDynamicConfig = {
-  shapeType: ShapeType.Cuboid,
-  bodyType: RigidBodyType.Fixed,
-  collisionLayer: CollisionGroups.Default,
-  collisionMask: DefaultCollisionMask | CollisionGroups.Avatars | CollisionGroups.Ground,
-  friction: 1,
-  restitution: 0,
-  isTrigger: false,
-  spawnPosition: new Vector3(0, 0.25, 5),
-  spawnScale: new Vector3(0.5, 0.25, 0.5)
-} as ColliderDescOptions
 
 describe('Physics : External API', () => {
   let physicsWorld: PhysicsWorld
