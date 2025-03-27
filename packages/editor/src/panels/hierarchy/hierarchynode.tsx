@@ -79,8 +79,6 @@ import {
   useRenamingNode
 } from './hooks'
 
-import { ThemeState } from '@ir-engine/client-core/src/common/services/ThemeService'
-
 type DragItemType = {
   type: (typeof ItemTypes)[keyof typeof ItemTypes]
   value: Entity | Entity[]
@@ -117,7 +115,6 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const isRenameOpen = useState(false)
   const canSaveNodeChanges = useState(false)
   const permissionToChangeNodeVerified = useState(false)
-  const currentTheme = getState(ThemeState).theme
 
   //@todo when this feature flag is added, remove the hardcoded value
   const hideGlbChildrenFeatureFlag = [true] //useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.HideGlbChildren])
@@ -408,20 +405,19 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
           event.preventDefault()
           setMenu(event, entity)
         }}
-        className={twMerge(
-          'flex w-full flex-col justify-between overflow-hidden bg-inherit',
-          rootEntity === entity ? 'p-2' : 'py-1 pl-10 pr-2'
-        )}
+        className={twMerge('flex w-full flex-col justify-between overflow-hidden bg-inherit')}
       >
         <div
-          className={twMerge(
-            'h-1',
-            isOverBefore && canDropBefore && `${currentTheme === 'dark' ? 'bg-white' : 'bg-black'}`
-          )}
-          style={{ marginLeft: `${node.depth * 0.75}rem` }}
+          className={twMerge('h-1', isOverBefore && canDropBefore && `bg-ui-hover-primary`)}
           ref={beforeDropTarget}
         />
-        <div className="flex w-full items-center justify-between gap-x-2 bg-inherit pr-2" ref={onDropTarget}>
+        <div
+          className={twMerge(
+            'flex w-full items-center justify-between gap-x-2 bg-inherit pr-2',
+            rootEntity === entity ? 'p-2' : 'py-1 pl-10 pr-2'
+          )}
+          ref={onDropTarget}
+        >
           {node.isLeaf ? (
             <div className="w-5 shrink-0" />
           ) : (
