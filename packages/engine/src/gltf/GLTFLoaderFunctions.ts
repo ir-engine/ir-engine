@@ -221,13 +221,15 @@ const loadPrimitive = async (
   }
 
   if (hasDracoCompression) {
-    return new Promise(async (resolve) => {
-      const geom = await KHR_DRACO_MESH_COMPRESSION.decodePrimitive(options, primitiveDef)
-      GLTFLoaderFunctions.computeBounds(json, geom, primitiveDef)
-      assignExtrasToUserData(geom, primitiveDef as GLTF.IMeshPrimitive)
-      const material = await materialPromise
-      assignFinalMaterial(primitiveDef, material as MeshPhysicalMaterial)
-      resolve([geom, material])
+    return new Promise((resolve) => {
+      KHR_DRACO_MESH_COMPRESSION.decodePrimitive(options, primitiveDef).then((geom) => {
+        GLTFLoaderFunctions.computeBounds(json, geom, primitiveDef)
+        assignExtrasToUserData(geom, primitiveDef as GLTF.IMeshPrimitive)
+        materialPromise.then((material) => {
+          assignFinalMaterial(primitiveDef, material as MeshPhysicalMaterial)
+          resolve([geom, material])
+        })
+      })
     })
   } else {
     const geometry = new BufferGeometry()
@@ -242,24 +244,26 @@ const loadPrimitive = async (
       if (threeAttributeName in geometry.attributes) continue
       const attribute = primitiveDef.attributes[attributeName]
       promises.push(
-        new Promise<void>(async (resolve) => {
-          const accessor = await getDependency(options, 'accessor', attribute)
-          if (accessor) {
-            geometry.setAttribute(threeAttributeName, accessor)
-          }
-          resolve()
+        new Promise<void>((resolve) => {
+          getDependency(options, 'accessor', attribute).then((accessor) => {
+            if (accessor) {
+              geometry.setAttribute(threeAttributeName, accessor)
+            }
+            resolve()
+          })
         })
       )
     }
 
     if (typeof primitiveDef.indices === 'number') {
       promises.push(
-        new Promise<void>(async (resolve) => {
-          const accessor = await getDependency(options, 'accessor', primitiveDef.indices!)
-          if (accessor) {
-            geometry.setIndex(accessor as BufferAttribute)
-          }
-          resolve()
+        new Promise<void>((resolve) => {
+          getDependency(options, 'accessor', primitiveDef.indices!).then((accessor) => {
+            if (accessor) {
+              geometry.setIndex(accessor as BufferAttribute)
+            }
+            resolve()
+          })
         })
       )
     }
@@ -522,10 +526,7 @@ const loadBuffer = async (options: GLTFParserOptions, bufferIndex: number) => {
       ResourceType.ArrayBuffer,
       options.entity, // the GLTF entity
       (response) => {
-        // Something isn't being awaited correctly somewhere during the GLTF loading process
-        setTimeout(() => {
-          resolve(response)
-        }, 500)
+        resolve(response)
       },
       (request) => {
         //
@@ -652,23 +653,18 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   if (!materialExtensions[EXTENSIONS.EE_MATERIAL] && materialExtensions[EXTENSIONS.KHR_MATERIALS_UNLIT]) {
     const kmuExtension = KHRUnlitExtensionComponent
     materialConstructor = kmuExtension.getMaterialType() as any
-    promises.push(kmuExtension.extendMaterialParams(options, materialConstructorParameters, materialDef) as any)
+    promises.push(kmuExtension.extendMaterialParams(options, materialConstructorParameters, materialDef))
   } else {
     materialConstructorParameters.color = new Color(1.0, 1.0, 1.0)
     materialConstructorParameters.opacity = 1.0
 
     if (typeof materialDef.pbrMetallicRoughness?.baseColorTexture !== 'undefined') {
       promises.push(
-        new Promise<void>(async (resolve) => {
-          const map = await GLTFLoaderFunctions.assignTexture(
-            options,
-            materialDef.pbrMetallicRoughness!.baseColorTexture!
-          )
+        GLTFLoaderFunctions.assignTexture(options, materialDef.pbrMetallicRoughness!.baseColorTexture!).then((map) => {
           if (map) {
             map.colorSpace = SRGBColorSpace
             materialConstructorParameters.map = map
           }
-          resolve()
         })
       )
     }
@@ -692,33 +688,25 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
 
     if (typeof materialDef.pbrMetallicRoughness?.metallicRoughnessTexture !== 'undefined') {
       promises.push(
-        new Promise<void>(async (resolve) => {
-          const metalnessMap = await GLTFLoaderFunctions.assignTexture(
-            options,
-            materialDef.pbrMetallicRoughness!.metallicRoughnessTexture!
-          )
-
-          if (metalnessMap) {
-            materialConstructorParameters.metalnessMap = metalnessMap
+        GLTFLoaderFunctions.assignTexture(options, materialDef.pbrMetallicRoughness!.metallicRoughnessTexture!).then(
+          (metalnessMap) => {
+            if (metalnessMap) {
+              materialConstructorParameters.metalnessMap = metalnessMap
+            }
           }
-          resolve()
-        })
+        )
       )
     }
 
     if (typeof materialDef.pbrMetallicRoughness?.metallicRoughnessTexture !== 'undefined') {
       promises.push(
-        new Promise<void>(async (resolve) => {
-          const roughnessMap = await GLTFLoaderFunctions.assignTexture(
-            options,
-            materialDef.pbrMetallicRoughness!.metallicRoughnessTexture!
-          )
-
-          if (roughnessMap) {
-            materialConstructorParameters.roughnessMap = roughnessMap
+        GLTFLoaderFunctions.assignTexture(options, materialDef.pbrMetallicRoughness!.metallicRoughnessTexture!).then(
+          (roughnessMap) => {
+            if (roughnessMap) {
+              materialConstructorParameters.roughnessMap = roughnessMap
+            }
           }
-          resolve()
-        })
+        )
       )
     }
   }
@@ -741,11 +729,13 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   }
 
   if (typeof materialDef.normalTexture !== 'undefined') {
-    const normalMap = await GLTFLoaderFunctions.assignTexture(options, materialDef.normalTexture)
-
-    if (normalMap) {
-      materialConstructorParameters.normalMap = normalMap
-    }
+    promises.push(
+      GLTFLoaderFunctions.assignTexture(options, materialDef.normalTexture!).then((normalMap) => {
+        if (normalMap) {
+          materialConstructorParameters.normalMap = normalMap
+        }
+      })
+    )
   }
 
   if (materialDef.normalTexture?.scale) {
@@ -756,11 +746,13 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   }
 
   if (typeof materialDef.occlusionTexture !== 'undefined') {
-    const aoMap = await GLTFLoaderFunctions.assignTexture(options, materialDef.occlusionTexture)
-
-    if (aoMap) {
-      materialConstructorParameters.aoMap = aoMap
-    }
+    promises.push(
+      GLTFLoaderFunctions.assignTexture(options, materialDef.occlusionTexture!).then((aoMap) => {
+        if (aoMap) {
+          materialConstructorParameters.aoMap = aoMap
+        }
+      })
+    )
   }
 
   materialConstructorParameters.aoMapIntensity = materialDef.occlusionTexture?.strength ?? 1.0
@@ -777,14 +769,11 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
 
   if (typeof materialDef.emissiveTexture !== 'undefined') {
     promises.push(
-      new Promise<void>(async (resolve) => {
-        const emissiveMap = await GLTFLoaderFunctions.assignTexture(options, materialDef.emissiveTexture!)
-
+      GLTFLoaderFunctions.assignTexture(options, materialDef.emissiveTexture!).then((emissiveMap) => {
         if (emissiveMap) {
           emissiveMap.colorSpace = SRGBColorSpace
           materialConstructorParameters.emissiveMap = emissiveMap
         }
-        resolve()
       })
     )
   }
@@ -839,13 +828,11 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
               break
             case 'texture':
               deltaPromises.push(
-                new Promise<void>(async (resolve) => {
-                  const texture = await getTextureAsync(materialDelta[key])
-                  if (texture[0]) {
-                    texture[0].colorSpace = SRGBColorSpace
-                    materialConstructorParameters[key] = texture[0]
+                getTextureAsync(materialDelta[key]).then(([texture]) => {
+                  if (texture) {
+                    texture.colorSpace = SRGBColorSpace
+                    materialConstructorParameters[key] = texture
                   }
-                  resolve()
                 })
               )
             default:
@@ -1528,7 +1515,7 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
   // add all extensions for synchronous mount
   if (nodeDef.extensions) {
     for (const extension in nodeDef.extensions) {
-      const Component = ComponentJSONIDMap.get(extension) as any // todo
+      const Component = ComponentJSONIDMap.get(extension)
       if (!Component) continue
       deserializeComponent(nodeEntity, Component, nodeDef.extensions[extension])
       if (typeof Component.loadNode === 'function') {

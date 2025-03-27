@@ -29,7 +29,7 @@ import { BufferGeometry, NormalBufferAttributes } from 'three'
 import { ATTRIBUTES, WEBGL_COMPONENT_TYPES } from '../assets/loaders/gltf/GLTFConstants'
 import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
-import { GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
+import { getDependency, GLTFParserOptions } from './GLTFLoaderFunctions'
 
 export const KHR_DRACO_MESH_COMPRESSION = {
   decodePrimitive(options: GLTFParserOptions, primitive: GLTF.IMeshPrimitive) {
@@ -60,7 +60,7 @@ export const KHR_DRACO_MESH_COMPRESSION = {
     }
 
     return new Promise<BufferGeometry<NormalBufferAttributes>>(async (resolve) => {
-      const bufferView = (await GLTFLoaderFunctions.loadBufferView(options, bufferViewIndex))!
+      const bufferView = (await getDependency(options, 'bufferView', bufferViewIndex))!
       const dracoLoader = getState(AssetLoaderState).gltfLoader.dracoLoader!
       dracoLoader.preload().decodeDracoFile(
         bufferView,

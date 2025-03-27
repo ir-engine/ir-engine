@@ -183,7 +183,7 @@ export const EXTMeshGPUInstancingComponent = defineComponent({
         primitive.mode !== WEBGL_CONSTANTS.TRIANGLE_FAN &&
         primitive.mode !== undefined
       ) {
-        return null
+        return
       }
     }
 
@@ -205,7 +205,7 @@ export const EXTMeshGPUInstancingComponent = defineComponent({
     }
 
     if (pending.length < 1) {
-      return null
+      return
     }
 
     const results = await Promise.all(pending)
