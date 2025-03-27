@@ -43,7 +43,8 @@ export default defineConfig({
     reporters: reporters,
     slowTestThreshold: 1000,
     coverage: {
-      reporter: ['html'],
+      reporter: ['html', 'lcov'],
+      reportsDirectory: './coverage',
       provider: 'istanbul',
       thresholds: {
         perFile: true,
