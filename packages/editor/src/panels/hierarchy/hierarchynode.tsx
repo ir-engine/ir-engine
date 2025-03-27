@@ -416,10 +416,10 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
         <div
           className={twMerge(
             'h-1',
-            isOverAfter && canDropAfter && `${currentTheme === 'dark' ? 'bg-white' : 'bg-black'}`
+            isOverBefore && canDropBefore && `${currentTheme === 'dark' ? 'bg-white' : 'bg-black'}`
           )}
           style={{ marginLeft: `${node.depth * 0.75}rem` }}
-          ref={afterDropTarget}
+          ref={beforeDropTarget}
         />
         <div className="flex w-full items-center justify-between gap-x-2 bg-inherit pr-2" ref={onDropTarget}>
           {node.isLeaf ? (
