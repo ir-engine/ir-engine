@@ -125,8 +125,7 @@ export const RigidBodyComponent = defineComponent({
       x: createResizableTypeArray(Float64Array),
       y: createResizableTypeArray(Float64Array),
       z: createResizableTypeArray(Float64Array)
-    },
-    initialized: createResizableTypeArray(Uint8Array)
+    }
   },
 
   reactor: () => {
@@ -143,12 +142,10 @@ const RigidBodyReactor = () => {
     if (!physicsWorld) return
     Physics.createRigidBody(physicsWorld, entity)
     component.initialized.set(true)
-    RigidBodyComponent.initialized[entity] = 1
     return () => {
       Physics.removeRigidbody(physicsWorld, entity)
       if (!hasComponent(entity, RigidBodyComponent)) return
       component.initialized.set(false)
-      RigidBodyComponent.initialized[entity] = 0
     }
   }, [physicsWorld])
 
