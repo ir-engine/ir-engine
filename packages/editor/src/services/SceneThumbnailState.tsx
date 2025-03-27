@@ -74,7 +74,6 @@ export const SceneThumbnailState = defineState({
       fileNameArray = fileNameArray.slice(0, -1)
     }
     const fileName = fileNameArray.join('.')
-    CommonKnownContentTypes['jpg']
     const file = new File([thumbnailBlob!], fileName + '.thumbnail.jpg', { type: CommonKnownContentTypes['jpg'] })
     const sceneThumbnail = getMutableState(SceneThumbnailState)
     sceneThumbnail.merge({
