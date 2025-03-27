@@ -35,6 +35,10 @@ export default defineConfig({
     fileParallelism: false,
     hookTimeout: 10000,
     testTimeout: 10000,
-    maxConcurrency: 1
+    maxConcurrency: 1,
+    coverage: {
+      reporter: ['text', 'lcov'],
+      reportsDirectory: './coverage'
+    }
   }
 })

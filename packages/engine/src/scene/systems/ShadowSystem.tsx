@@ -116,10 +116,10 @@ export const ShadowSystemState = defineState({
 })
 
 export const shadowDirection = new Vector3(0, -1, 0)
-const shadowRotation = new Quaternion()
-const raycaster = new Raycaster()
-raycaster.firstHitOnly = true
-const raycasterPosition = new Vector3()
+const _shadowRotation = new Quaternion()
+const _raycaster = new Raycaster()
+_raycaster.firstHitOnly = true
+const _raycasterPosition = new Vector3()
 
 const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; renderSettingsEntity: Entity }) => {
   const { entity, rendererEntity, renderSettingsEntity } = props
@@ -201,7 +201,7 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
   return (
     <QueryReactor
       Components={[ShadowComponent, ObjectComponent]}
-      ChildEntityReactor={EntityChildCSMReactor}
+      ChildEntityReactor={ShadowSystemReactors.EntityChildCSMReactor}
       props={{ rendererEntity: rendererEntity }}
     />
   )
@@ -246,7 +246,7 @@ function RenderSettingsQueryReactor() {
   if (!rendererEntity || rendererEntity !== viewerEntity) return null
   if (renderMode === RenderModes.UNLIT || renderMode === RenderModes.LIT) return null
 
-  return <CSMReactor rendererEntity={rendererEntity} renderSettingsEntity={entity} />
+  return <ShadowSystemReactors.CSMReactor rendererEntity={rendererEntity} renderSettingsEntity={entity} />
 }
 
 function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entity }) {
@@ -280,7 +280,7 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
   // }, [rendererComponent, renderSettingsComponent.csm, rendererState.nodeHelperVisibility])
 
   useEffect(() => {
-    if (rendererEntity === Engine.instance.viewerEntity && xrLightProbeEntity.value) {
+    if (rendererEntity === getState(ReferenceSpaceState).viewerEntity && xrLightProbeEntity.value) {
       activeLightEntityState.set(xrLightProbeEntity.value)
       return
     }
@@ -298,7 +298,7 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
   if (!renderSettingsComponent.csm.value || !activeLightEntityState.value || !directionalLightComponent) return null
 
   return (
-    <EntityCSMReactor
+    <ShadowSystemReactors.EntityCSMReactor
       key={activeLightEntityState.value}
       entity={activeLightEntityState.value}
       rendererEntity={rendererEntity}
@@ -307,8 +307,8 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
   )
 }
 
-const shadowGeometry = new PlaneGeometry(1, 1, 1, 1).rotateX(-Math.PI)
-const shadowMaterial = new MeshBasicMaterial({
+const _shadowGeometry = new PlaneGeometry(1, 1, 1, 1).rotateX(-Math.PI)
+const _shadowMaterial = new MeshBasicMaterial({
   side: DoubleSide,
   transparent: true,
   opacity: 1,
@@ -319,11 +319,11 @@ const shadowMaterial = new MeshBasicMaterial({
 
 const dropShadowComponentQuery = defineQuery([DropShadowComponent])
 
-const minRadius = 0.15
-const maxRadius = 5
-const sphere = new Sphere()
-const box3 = new Box3()
-const vec3 = new Vector3()
+const _minRadius = 0.15
+const _maxRadius = 5
+const _sphere = new Sphere()
+const _box3 = new Box3()
+const _vec3 = new Vector3()
 
 const DropShadowReactor = () => {
   const entity = useEntityContext()
@@ -333,28 +333,28 @@ const DropShadowReactor = () => {
   useEffect(() => {
     if (!shadow.cast.value || !hasMeshOrModel || hasComponent(entity, DropShadowComponent)) return
 
-    box3.makeEmpty()
+    _box3.makeEmpty()
 
     let foundMesh = false
 
     iterateEntityNode(entity, (child) => {
       const mesh = getOptionalComponent(child, MeshComponent)
       if (mesh) {
-        box3.expandByObject(mesh)
+        _box3.expandByObject(mesh)
         foundMesh = true
       }
     })
 
     if (!foundMesh) return
 
-    box3.getBoundingSphere(sphere)
+    _box3.getBoundingSphere(_sphere)
 
-    if (sphere.radius > maxRadius) return
+    if (_sphere.radius > _maxRadius) return
 
-    const radius = Math.max(sphere.radius * 2, minRadius)
-    const center = sphere.center.sub(TransformComponent.getWorldPosition(entity, vec3))
+    const radius = Math.max(_sphere.radius * 2, _minRadius)
+    const center = _sphere.center.sub(TransformComponent.getWorldPosition(entity, _vec3))
     const shadowEntity = createEntity()
-    setComponent(shadowEntity, MeshComponent, new Mesh(shadowGeometry.clone(), shadowMaterial.clone()))
+    setComponent(shadowEntity, MeshComponent, new Mesh(_shadowGeometry.clone(), _shadowMaterial.clone()))
     ObjectLayerMaskComponent.setLayer(shadowEntity, ObjectLayers.Avatar)
     setComponent(shadowEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(
@@ -393,10 +393,10 @@ function updateDropShadowTransforms() {
     const dropShadow = getComponent(entity, DropShadowComponent)
     const dropShadowTransform = getComponent(dropShadow.entity, TransformComponent)
 
-    TransformComponent.getWorldPosition(entity, raycasterPosition)
-    raycaster.set(raycasterPosition, shadowDirection)
+    TransformComponent.getWorldPosition(entity, _raycasterPosition)
+    _raycaster.set(_raycasterPosition, shadowDirection)
 
-    const intersected = raycaster.intersectObjects(sceneObjects, false)[0]
+    const intersected = _raycaster.intersectObjects(sceneObjects, false)[0]
     if (!intersected || !intersected.face) {
       dropShadowTransform.scale.setScalar(0)
       continue
@@ -410,8 +410,8 @@ function updateDropShadowTransforms() {
 
     const shadowMaterial = (getComponent(dropShadow.entity, ObjectComponent) as Mesh).material as Material
     shadowMaterial.opacity = Math.min(1 / (1 + centerCorrectedDist), 1) * 1.2
-    shadowRotation.setFromUnitVectors(intersected.face.normal, Vector3_Back)
-    dropShadowTransform.rotation.copy(shadowRotation)
+    _shadowRotation.setFromUnitVectors(intersected.face.normal, Vector3_Back)
+    dropShadowTransform.rotation.copy(_shadowRotation)
     dropShadowTransform.scale.setScalar(finalRadius * 2)
     dropShadowTransform.position.copy(intersected.point).add(_shadowOffset)
   }
@@ -455,18 +455,24 @@ const reactor = () => {
 
   useEffect(() => {
     if (!shadowTexture) return
-    shadowMaterial.map = shadowTexture
-    shadowMaterial.needsUpdate = true
+    _shadowMaterial.map = shadowTexture
+    _shadowMaterial.needsUpdate = true
   }, [shadowTexture])
 
   return (
     <>
       {useShadows ? (
-        <QueryReactor Components={[RenderSettingsComponent]} ChildEntityReactor={RenderSettingsQueryReactor} />
+        <QueryReactor
+          Components={[RenderSettingsComponent]}
+          ChildEntityReactor={ShadowSystemReactors.RenderSettingsQueryReactor}
+        />
       ) : shadowTexture ? (
-        <QueryReactor Components={[VisibleComponent, ShadowComponent]} ChildEntityReactor={DropShadowReactor} />
+        <QueryReactor
+          Components={[VisibleComponent, ShadowComponent]}
+          ChildEntityReactor={ShadowSystemReactors.DropShadowReactor}
+        />
       ) : null}
-      <QueryReactor Components={[RendererComponent]} ChildEntityReactor={RendererShadowReactor} />
+      <QueryReactor Components={[RendererComponent]} ChildEntityReactor={ShadowSystemReactors.RendererShadowReactor} />
     </>
   )
 }
@@ -487,7 +493,22 @@ export const DropShadowSystem = defineSystem({
   }
 })
 
-const ShadowSystemFunctions = {
+export const ShadowSystemFunctions = {
   updateDropShadowTransforms,
   sortAndApplyPriorityQueue
+}
+
+export const ShadowSystemReactors = {
+  EntityChildCSMReactor,
+  EntityCSMReactor,
+  CSMReactor,
+  RenderSettingsQueryReactor,
+  DropShadowReactor,
+  RendererShadowReactor
+}
+
+export const ShadowSystemData = {
+  shadowDirection,
+  _shadowGeometry,
+  _shadowMaterial
 }
