@@ -168,6 +168,7 @@ const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent, Enti
 const colliderQuery = defineQuery([TransformComponent, ColliderComponent, EntityTreeComponent]) // @todo maybe add Not(RigidBodyComponent) to this query
 
 const filterAwakeCleanRigidbodies = (entity: Entity) => {
+  if (!RigidBodyComponent.initialized[entity]) return false
   // if the entity has a parent that is dirty, we need to update the transform
   const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
   if (TransformComponent.dirty[parentEntity]) return true
