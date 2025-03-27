@@ -149,14 +149,6 @@ export interface ComponentPartial<
   /** @todo Explain ComponentPartial.onRemove(...) */
   onRemove?: (entity: Entity, component: State<ComponentType>) => void | Promise<void>
   /**
-   * If present, this function is called after this component is created by an extension in a GLTF node
-   *
-   * @param options GLTFParserOptions
-   * @param nodeIndex index of the node that has this component as an extension
-   * @returns
-   */
-  loadNode?: (options: any, nodeIndex: number) => Promise<void>
-  /**
    * @summary Defines the {@link React.FC} async logic of the {@link Component} type.
    * @notes Any side-effects that depend on the component's data should be defined here.
    * @description
@@ -197,7 +189,6 @@ export interface Component<
   toJSON: (component: ComponentType) => JSON
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
-  loadNode?: (options: any, nodeIndex: number) => Promise<void>
   reactor?: any
   storage?: StorageType
   reactorMap: Map<Entity, ReactorRoot>

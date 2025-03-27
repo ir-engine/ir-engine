@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { GLTF } from '@gltf-transform/core'
 import {
+  Component,
   ComponentJSONIDMap,
   Entity,
   EntityTreeComponent,
@@ -145,6 +146,10 @@ import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
 import { KHRTextureTransformExtensionComponent, KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
 import { NodeID, NodeIDComponent } from './NodeIDComponent'
 import { SCENE_DELTA_EXTENSION_NAME } from './SceneDeltaExporterExtension'
+
+type ComponentExt = Component & {
+  loadNode?: (options: GLTFParserOptions, nodeIndex: number) => Promise<void>
+}
 
 const assignFinalMaterial = (primitiveDef: GLTF.IMeshPrimitive, material: MeshPhysicalMaterial) => {
   const useDerivativeTangents = primitiveDef.attributes.TANGENT === undefined
@@ -1515,7 +1520,7 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
   // add all extensions for synchronous mount
   if (nodeDef.extensions) {
     for (const extension in nodeDef.extensions) {
-      const Component = ComponentJSONIDMap.get(extension)
+      const Component = ComponentJSONIDMap.get(extension) as ComponentExt | undefined
       if (!Component) continue
       deserializeComponent(nodeEntity, Component, nodeDef.extensions[extension])
       if (typeof Component.loadNode === 'function') {
