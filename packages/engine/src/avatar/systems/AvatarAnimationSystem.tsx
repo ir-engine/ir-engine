@@ -62,7 +62,12 @@ import { preloadedAnimations } from '../animation/Util'
 import { AnimationState } from '../AnimationManager'
 import { mixamoVRMRigMap } from '../AvatarBoneMatching'
 import { AnimationComponent, useLoadAnimationFromBatchGLTF } from '../components/AnimationComponent'
-import { AvatarAnimationComponent, AvatarRigComponent, createVRM } from '../components/AvatarAnimationComponent'
+import {
+  AvatarAnimationComponent,
+  AvatarRigComponent,
+  createVRM,
+  createVRMFromGLTF
+} from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { getAllLoadedAnimations, setupAvatarProportions } from '../functions/avatarFunctions'
 import { normalizeAnimationClips, retargetAnimationClips } from '../functions/retargetingFunctions'
@@ -221,7 +226,8 @@ const RigReactor = (props: { entity: Entity }) => {
   useEffect(() => {
     if (gltfComponent?.progress?.value !== 100 || !avatarAnimationComponent?.value) return
     try {
-      createVRM(entity)
+      if (gltfComponent.extensions?.value?.VRM) createVRM(entity)
+      else createVRMFromGLTF(entity)
       setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Avatar)
       setupAvatarProportions(entity)
     } catch (e) {
