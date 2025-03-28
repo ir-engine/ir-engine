@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { createScene } from '@ir-engine/client-core/src/world/SceneAPI'
+import multiLogger from '@ir-engine/common/src/logger'
 import { UIAddonsState } from '@ir-engine/editor/src/services/UIAddonsState'
 import { NO_PROXY, getMutableState, useMutableState } from '@ir-engine/hyperflux'
 import { Button } from '@ir-engine/ui'
@@ -32,15 +33,22 @@ import { useTranslation } from 'react-i18next'
 import { FiCodepen, FiTool } from 'react-icons/fi'
 import Scene1 from '/static/editor/scene-1.png'
 import Scene2 from '/static/editor/scene-2.png'
+const logger = multiLogger.child({ component: `client-core:Add-scene` })
 
 const handleOpenSceneInStudio = async (projectName: string, sceneKey: string) => {
   const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${sceneKey}`
   window.open(studioUrl, '_self')?.focus()
 }
 
+export enum SceneOption {
+  DefaultEditor,
+  Wizard
+}
+
 export interface SceneOptionData {
   title: string
   description: string
+  sceneType?: SceneOption
   icon?: React.ElementType
   onSubmit?: () => void
 }
@@ -143,11 +151,16 @@ export const AddScene = ({ projectName }: AddNewSceneProps) => {
   }
 
   const onContinueClicked = async () => {
+    logger.analytics({
+      event_name: 'wizard_opt_in',
+      event_value: selectedSceneOption?.sceneType === SceneOption.Wizard
+    })
     selectedSceneOption?.onSubmit?.()
   }
 
   const defaultSceneOptionData: SceneOptionData = {
     title: t('editor:dialog.addScene.optionButtons.defaultEditor.title'),
+    sceneType: SceneOption.DefaultEditor,
     description: t('editor:dialog.addScene.optionButtons.defaultEditor.description'),
     icon: FiTool,
     onSubmit: handleCreateDefaultScene
