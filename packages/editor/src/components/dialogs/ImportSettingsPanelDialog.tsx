@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { KTX2EncodeArguments } from '@ir-engine/engine/src/assets/constants/CompressionParms'
 import { NO_PROXY, State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { Checkbox, Input, Select, Tooltip } from '@ir-engine/ui'
@@ -218,7 +218,7 @@ export default function ImportSettingsPanel() {
   }
 
   const handleCancel = () => {
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
   }
 
   return (
@@ -226,7 +226,7 @@ export default function ImportSettingsPanel() {
       title="Import Settings"
       onSubmit={handleSaveChanges}
       className="w-[50vw] max-w-2xl"
-      onClose={PopoverState.hidePopupover}
+      onClose={ModalState.closeModal}
     >
       <Input
         value={defaultImportFolder}

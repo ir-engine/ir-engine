@@ -29,7 +29,7 @@ import { Select } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PopoverState } from '../../../common/services/PopoverState'
+import { ModalState } from '../../../common/services/ModalState'
 import { UserSearchInput } from './common/UserSearchInput'
 
 export const BanUsersModal = ({ onSubmit }) => {
@@ -61,7 +61,7 @@ export const BanUsersModal = ({ onSubmit }) => {
     <Modal
       title={t('admin:components.moderation.addUser')}
       className="w-[50vw] max-w-2xl"
-      onClose={PopoverState.hidePopupover}
+      onClose={ModalState.closeModal}
       closeButtonText={t('common:components.cancel')}
       submitButtonText={t('admin:components.moderation.banUser')}
       onSubmit={handleSubmit}

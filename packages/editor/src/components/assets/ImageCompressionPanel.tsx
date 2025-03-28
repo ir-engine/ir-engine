@@ -33,7 +33,7 @@ import {
 } from '@ir-engine/engine/src/assets/constants/CompressionParms'
 import { ImmutableArray, useHookstate } from '@ir-engine/hyperflux'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { Button, Checkbox, Input, Select } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
@@ -81,7 +81,7 @@ export default function ImageCompressionPanel({
     await refreshDirectory()
 
     compressionLoading.set(false)
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
   }
 
   const uploadImage = async (props: FileDataType, data: ArrayBuffer) => {
@@ -121,7 +121,7 @@ export default function ImageCompressionPanel({
         <Button
           variant="tertiary"
           className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
-          onClick={() => PopoverState.hidePopupover()}
+          onClick={() => ModalState.closeModal()}
         >
           <MdClose />
         </Button>

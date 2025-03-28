@@ -23,7 +23,7 @@ import { useTranslation } from 'react-i18next'
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { ImageLink } from '@ir-engine/ui/editor'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import { Image01Sm } from '../../../icons'
@@ -32,7 +32,7 @@ import LoadingView from '../../../primitives/tailwind/LoadingView'
 export default function AddEditLocationModalStudioSections() {
   const { t } = useTranslation()
 
-  const sceneThumbnailState = useHookstate(getMutableState(SceneThumbnailState))
+  const sceneThumbnailState = useMutableState(SceneThumbnailState)
 
   const isGenerating = useHookstate(false)
 

@@ -24,13 +24,14 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useMutableState } from '@ir-engine/hyperflux'
-import { EmoteLg, Send01Lg, User01Lg } from '@ir-engine/ui/src/icons'
+import { EmoteLg, EmoteM, Send01Lg, Send01Md, User01Lg, User01Md } from '@ir-engine/ui/src/icons'
 
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaUserFriends } from 'react-icons/fa'
-import { PopoverState } from '../../common/services/PopoverState'
+import { ModalState } from '../../common/services/ModalState'
 import { ViewerMenuState } from '../../util/ViewerMenuState'
 import LocationIconButton from '../components/LocationIconButton'
 import EmoteMenu from './EmoteMenu'
@@ -51,8 +52,8 @@ export default function UserMenus() {
               title: t('user:menu.settings'),
               position: 'top'
             }}
-            icon={User01Lg}
-            onClick={() => PopoverState.showPopupover(<ProfileMenu />)}
+            icon={isMobile ? User01Md : User01Lg}
+            onClick={() => ModalState.openModal(<ProfileMenu />)}
           />
         )}
         {userMenus.share.value && (
@@ -61,8 +62,8 @@ export default function UserMenus() {
               title: t('user:menu.sendLocation'),
               position: 'top'
             }}
-            icon={Send01Lg}
-            onClick={() => PopoverState.showPopupover(<ShareMenu />)}
+            icon={isMobile ? Send01Md : Send01Lg}
+            onClick={() => ModalState.openModal(<ShareMenu />)}
           />
         )}
         {userMenus.emote.value && (
@@ -71,8 +72,8 @@ export default function UserMenus() {
               title: t('user:menu.emote'),
               position: 'top'
             }}
-            icon={EmoteLg}
-            onClick={() => PopoverState.showPopupover(<EmoteMenu />, undefined, 'transparent')}
+            icon={isMobile ? EmoteLg : EmoteM}
+            onClick={() => ModalState.openModal(<EmoteMenu />, undefined, 'transparent')}
           />
         )}
         {userMenus.social.value && (
@@ -81,9 +82,8 @@ export default function UserMenus() {
               title: t('user:menu.friends'),
               position: 'top'
             }}
-            // @ts-ignore
             icon={FaUserFriends}
-            onClick={() => PopoverState.showPopupover(<FriendsMenu />)}
+            onClick={() => ModalState.openModal(<FriendsMenu />)}
           />
         )}
       </div>

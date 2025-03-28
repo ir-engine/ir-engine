@@ -22,7 +22,7 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { t } from 'i18next'
 import React from 'react'
 import ErrorView from '../../../primitives/tailwind/ErrorView'
@@ -38,9 +38,9 @@ const ErrorDialog = ({ title, description, modalProps }: ErrorDialogProps) => {
   return (
     <Modal
       title={t('admin:components.common.confirmation')}
-      onClose={PopoverState.hidePopupover}
+      onClose={ModalState.closeModal}
       showCloseButton={false}
-      onSubmit={() => PopoverState.hidePopupover()}
+      onSubmit={() => ModalState.closeModal()}
       className="w-[50vw] max-w-2xl"
       {...modalProps}
     >

@@ -27,11 +27,24 @@ import { afterEach, assert, beforeAll, beforeEach, describe, expect, it, vi } fr
 import { destroyEmulatedXREngine, mockEmulatedXREngine } from '../../tests/util/mockEmulatedXREngine'
 import { CustomWebXRPolyfill } from '../../tests/webxr/emulator'
 
-import { SystemDefinitions, SystemUUID, createEngine, destroyEngine } from '@ir-engine/ecs'
-import { getMutableState } from '@ir-engine/hyperflux'
-import { IUniform, Material, Matrix4, MeshBasicMaterial, Quaternion, Shader, Vector2, Vector3 } from 'three'
+import { SystemDefinitions, SystemUUID, createEngine, createEntity, destroyEngine, setComponent } from '@ir-engine/ecs'
+import { getMutableState, getState } from '@ir-engine/hyperflux'
+import {
+  BoxGeometry,
+  IUniform,
+  Material,
+  Matrix4,
+  Mesh,
+  MeshBasicMaterial,
+  Quaternion,
+  Shader,
+  Vector2,
+  Vector3
+} from 'three'
 import { Vector3_One } from '../common/constants/MathConstants'
 import { PluginType } from '../common/functions/OnBeforeCompilePlugin'
+import { MeshComponent } from '../renderer/components/MeshComponent'
+import { VisibleComponent } from '../renderer/components/VisibleComponent'
 import { DepthCanvasTexture } from './DepthCanvasTexture'
 import { DepthDataTexture } from './DepthDataTexture'
 import { XRDepthOcclusion, XRDepthOcclusionSystem } from './XRDepthOcclusion'
@@ -815,6 +828,41 @@ describe('XRDepthOcclusionSystem', () => {
   }) //:: Fields
 
   /** @todo */
-  describe('execute,', () => {}) //:: execute
-  describe('reactor,', () => {}) //:: reactor
+  describe('reactor', () => {
+    describe('xrState.sessionActive', () => {
+      describe('when it unmounts ..', () => {
+        it.todo('should not do anything if XRState.depthDataTexture is falsy', () => {})
+        it.todo('should call XRState.depthDataTexture.dispose', () => {})
+
+        // @todo
+        // Why is this setup not triggering the expected behavior ?
+        // The useEffect runs, but there is an error triggered by DepthOcclusionReactor
+        it.todo('should set XRState.depthDataTexture to null', async () => {
+          const Expected = null
+          const Initial = { dispose: () => {} } as DepthDataTexture
+          // Set the data as expected
+          const testEntity = createEntity()
+          setComponent(testEntity, VisibleComponent)
+          setComponent(testEntity, MeshComponent, new Mesh(new BoxGeometry()))
+          // mountSystemReactor(XRDepthOcclusionSystem)
+          getMutableState(XRState).depthDataTexture.set(Initial)
+          // Sanity check before running
+          expect(getState(XRState).sessionActive).toBe(true)
+          const before = getState(XRState).depthDataTexture
+          expect(before).toBe(Initial)
+          expect(before).not.toBe(Expected)
+          // Run and Check the result
+          await vi.waitFor(() => {
+            getMutableState(XRState).sessionActive.set(!getState(XRState).sessionActive)
+            const result = getState(XRState).depthDataTexture
+            expect(result).not.toBe(Initial)
+            expect(result).toBe(Expected)
+          })
+        })
+      })
+    }) //:: xrState.sessionActive
+  }) //:: reactor
+
+  /** @todo */
+  describe('execute', () => {}) //:: execute
 }) //:: XRDepthOcclusionSystem

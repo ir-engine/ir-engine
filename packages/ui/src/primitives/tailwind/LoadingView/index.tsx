@@ -76,20 +76,14 @@ const LoadingView = ({
       role="status"
       className={twMerge(
         'flex flex-col items-center justify-center',
-        fullScreen && 'h-screen w-screen',
+        fullScreen && 'h-dvh w-dvw',
         fullSpace && 'h-full w-full',
         containerClassName
       )}
       data-testid="loading-view-spinner"
     >
-      {animated ? (
-        <div className="h-50% w-50% bg-cover bg-center">
-          <img src={LoadingAnimation} alt="loading spinner"></img>
-        </div>
-      ) : (
-        loader
-      )}
-      {title && <Text className={twMerge(titleClassname, 'text-text-primary')}>{title}</Text>}
+      {animated ? <img src={LoadingAnimation} alt="loading spinner" className="h-1/2 bg-cover bg-center" /> : loader}
+      {title && <Text className={twMerge('text-text-primary', titleClassname)}>{title}</Text>}
       {description && <Text className="opacity-65">{description}</Text>}
     </div>
   )

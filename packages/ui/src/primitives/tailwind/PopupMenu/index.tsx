@@ -25,13 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
 import ClickawayListener from '../ClickawayListener'
 
 const PopupMenu = () => {
-  const popups = useMutableState(PopoverState).popups
+  const popups = useMutableState(ModalState).modals
 
   const currentOnClose = useHookstate<{
     callback: VoidFunction | null

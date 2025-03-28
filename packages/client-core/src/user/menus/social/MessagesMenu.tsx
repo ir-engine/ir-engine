@@ -35,7 +35,7 @@ import { Input } from '@ir-engine/ui'
 import { ArrowLeftLg, Send01Lg } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { MdCall, MdCallEnd } from 'react-icons/md'
-import { PopoverState } from '../../../common/services/PopoverState'
+import { ModalState } from '../../../common/services/ModalState'
 import { useUserAvatarThumbnail } from '../../../hooks/useUserAvatarThumbnail'
 import { ChannelService, ChannelState } from '../../../social/services/ChannelService'
 import XRIconButton from '../../../systems/components/XRIconButton'
@@ -200,7 +200,7 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
         xr-layer="true"
         className="iconBlock"
         variant="iconOnly"
-        onClick={() => PopoverState.showPopupover(<FriendsMenu />)}
+        onClick={() => ModalState.openModal(<FriendsMenu />)}
         content={<ArrowLeftLg fontSize="larger" />}
       />
       <div style={{ height: '600px', maxWidth: '100%', overflowX: 'hidden' }}>

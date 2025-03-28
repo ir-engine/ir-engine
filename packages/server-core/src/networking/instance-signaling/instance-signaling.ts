@@ -48,7 +48,7 @@ import {
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { PeerID, getState } from '@ir-engine/hyperflux'
-import { MessageTypes } from '@ir-engine/network/src/webrtc/WebRTCTransportFunctions'
+import type { MessageTypes } from '@ir-engine/network/src/webrtc/WebRTCTransportFunctions'
 import crypto from 'crypto'
 import { Application } from '../../../declarations'
 import { ServerMode, ServerState } from '../../ServerState'

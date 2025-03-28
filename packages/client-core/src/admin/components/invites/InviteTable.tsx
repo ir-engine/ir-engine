@@ -26,12 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useFind, useSearch } from '@ir-engine/common'
 import { invitePath, InviteType, UserName } from '@ir-engine/common/src/schema.type.module'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import { State } from '@ir-engine/hyperflux'
 import { Checkbox } from '@ir-engine/ui'
-import { validate as isValidUUID } from 'uuid'
 
 import { Edit01Lg, Trash04Lg } from '@ir-engine/ui/src/icons'
 import { inviteColumns, InviteRowType } from '../../common/constants/invite'
@@ -63,13 +63,13 @@ export default function InviteTable({
     {
       $or: [
         {
-          id: isValidUUID(search) ? search : undefined
+          id: isValidId(search) ? search : undefined
         },
         {
-          userId: isValidUUID(search) ? search : undefined
+          userId: isValidId(search) ? search : undefined
         },
         {
-          inviteeId: isValidUUID(search) ? search : undefined
+          inviteeId: isValidId(search) ? search : undefined
         },
         {
           inviteType: {
@@ -106,15 +106,12 @@ export default function InviteTable({
       spawnDetails: row.spawnDetails ? JSON.stringify(row.spawnDetails) : '',
       action: (
         <div className="flex items-center gap-3">
-          <ActionButton
-            icon={Edit01Lg}
-            onClick={() => PopoverState.showPopupover(<AddEditInviteModal invite={row} />)}
-          />
+          <ActionButton icon={Edit01Lg} onClick={() => ModalState.openModal(<AddEditInviteModal invite={row} />)} />
 
           <ActionButton
             icon={Trash04Lg}
             title={t('admin:components.common.delete')}
-            onClick={() => PopoverState.showPopupover(<RemoveInviteModal invites={[row]} />)}
+            onClick={() => ModalState.openModal(<RemoveInviteModal invites={[row]} />)}
             variant="red"
           />
         </div>

@@ -27,13 +27,13 @@ import DataTable, { ITableHeadCell } from '@ir-engine/client-core/src/admin/comm
 import { useFind, useSearch } from '@ir-engine/common'
 import { moderationPath, ModerationType } from '@ir-engine/common/src/schema.type.module'
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import { Select } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { t } from 'i18next'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoArrowForward } from 'react-icons/io5'
-import { validate as isValidUUID } from 'uuid'
 import { UserDisplayName } from './common/UserDisplayName'
 import { ModerationDetail } from './ModerationDetail'
 
@@ -47,9 +47,20 @@ const moderationTableColumns: ITableHeadCell[] = [
   { id: 'action', label: t('admin:components.moderation.columns.action') }
 ]
 
+enum ModerationFilterStatus {
+  All = 'all',
+  Open = 'open',
+  Resolved = 'resolved'
+}
+const getStatusFilterOptions = (t: (key: string) => string) =>
+  Object.values(ModerationFilterStatus).map((option) => ({
+    label: t(`admin:components.moderation.${option}`),
+    value: option
+  }))
+
 export default function ModerationTable({ search }) {
   const { t } = useTranslation()
-  const [statusFilter, setStatusFilter] = useState('All')
+  const [statusFilter, setStatusFilter] = useState(ModerationFilterStatus.All)
   const [selectedReport, setSelectedReport] = useState<ModerationType>()
 
   const handleViewDetails = (report) => {
@@ -62,7 +73,7 @@ export default function ModerationTable({ search }) {
     setSelectedReport(userReportsQuery.data[userReportsQuery.data.findIndex((r) => r.id === report.id) + 1])
   }
   const userReportsQuery =
-    statusFilter == 'All'
+    statusFilter == ModerationFilterStatus.All
       ? useFind(moderationPath, {
           query: {
             $limit: 12
@@ -80,15 +91,15 @@ export default function ModerationTable({ search }) {
     {
       $or: [
         {
-          id: isValidUUID(search) ? search : undefined
-        },
-        {
-          type: search == 'Space' ? 'location' : search == 'user' ? 'user' : undefined
-        },
-        {
-          abuseReason: {
+          id: {
             $like: `%${search}%`
           }
+        },
+        {
+          reportedLocationId: isValidId(search) ? search : undefined
+        },
+        {
+          reportedUserId: isValidId(search) ? search : undefined
         }
       ]
     },
@@ -132,6 +143,7 @@ export default function ModerationTable({ search }) {
         )
       }
     })
+  const statusFilterOptions = useMemo(() => getStatusFilterOptions(t), [t])
 
   return (
     <div className="h-full w-full">
@@ -142,11 +154,9 @@ export default function ModerationTable({ search }) {
           <div className="w-50 mb-4 mt-5 flex items-center space-x-2">
             <Select
               labelProps={{ text: t('admin:components.moderation.statusFilter'), position: 'left' }}
-              options={['All', 'Open', 'Resolved'].map((option) => {
-                return { label: option, value: option }
-              })}
+              options={statusFilterOptions}
               value={statusFilter}
-              onChange={(selected) => setStatusFilter(selected as string)}
+              onChange={(selected) => setStatusFilter(selected as ModerationFilterStatus)}
             />
           </div>
           <DataTable

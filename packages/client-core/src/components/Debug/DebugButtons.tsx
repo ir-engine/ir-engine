@@ -74,7 +74,7 @@ export default function DebugButtons() {
 
   return (
     <div className="m-1 rounded bg-neutral-600 p-1">
-      <Text>{t('common:debug.debugOptions')}</Text>
+      <Text className="text-text-primary-button">{t('common:debug.debugOptions')}</Text>
       <div className="flex items-center gap-1">
         <Button
           size="sm"
@@ -82,7 +82,7 @@ export default function DebugButtons() {
           title={t('common:debug.physicsDebug')}
           onClick={toggleDebug}
         >
-          <MdSquareFoot />
+          <MdSquareFoot className="text-text-primary-button" />
         </Button>
         <Button
           size="sm"
@@ -90,7 +90,7 @@ export default function DebugButtons() {
           title={t('common:debug.bvhDebug')}
           onClick={() => rendererState.bvhDebug.set(!rendererState.bvhDebug.value)}
         >
-          <MdAllOut />
+          <MdAllOut className="text-text-primary-button" />
         </Button>
         <Button
           size="sm"
@@ -98,7 +98,7 @@ export default function DebugButtons() {
           title={t('common:debug.avatarDebug')}
           onClick={toggleAvatarDebug}
         >
-          <MdPerson />
+          <MdPerson className="text-text-primary-button" />
         </Button>
         <Button
           size="sm"
@@ -106,7 +106,7 @@ export default function DebugButtons() {
           title={t('common:debug.nodeHelperDebug')}
           onClick={toggleNodeHelpers}
         >
-          <MdSelectAll />
+          <MdSelectAll className="text-text-primary-button" />
         </Button>
         <Button
           size="sm"
@@ -114,7 +114,7 @@ export default function DebugButtons() {
           title={t('common:debug.gridDebug')}
           onClick={toggleGridHelper}
         >
-          <MdGridOn />
+          <MdGridOn className="text-text-primary-button" />
         </Button>
         <Button
           size="sm"
@@ -122,13 +122,13 @@ export default function DebugButtons() {
           title={t('common:debug.forceBasicMaterials')}
           onClick={() => rendererState.forceBasicMaterials.set(!rendererState.forceBasicMaterials.value)}
         >
-          <MdFormatColorReset />
+          <MdFormatColorReset className="text-text-primary-button" />
         </Button>
         <Button size="sm" variant="tertiary" title={t('common:debug.respawn')} onClick={onClickRespawn}>
-          <MdRefresh />
+          <MdRefresh className="text-text-primary-button" />
         </Button>
         <Button size="sm" variant="tertiary" title={t('common:debug.close')} onClick={onClickCloseDebug}>
-          <MdClose />
+          <MdClose className="text-text-primary-button" />
         </Button>
       </div>
     </div>

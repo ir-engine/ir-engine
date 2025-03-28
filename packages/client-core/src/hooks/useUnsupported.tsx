@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { defineState, getState, isDev, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import React, { useEffect } from 'react'
@@ -49,11 +49,11 @@ export const useUnsupported = ({ device = false, browser = false }: Props) => {
   useEffect(() => {
     const { acknowledgedUnsupportedBrowser, acknowledgedUnsupportedDevice } = getState(BrowserSupportState)
     if (!acknowledgedUnsupportedDevice && isMobile && device) {
-      PopoverState.showPopupover(<UnsupportedDevice />)
+      ModalState.openModal(<UnsupportedDevice />)
       return
     }
     if (!acknowledgedUnsupportedBrowser && !isSupportedBrowser() && browser) {
-      PopoverState.showPopupover(<UnsupportedBrowser />)
+      ModalState.openModal(<UnsupportedBrowser />)
       return
     }
   }, [isMobile, device, browser])
@@ -77,13 +77,13 @@ export const useBrowserCheck = () => {
       )
     }
 
-    if (isMobile && !acknowledgedUnsupportedDevice) {
-      NotificationService.dispatchNotify(
-        'Not optimized for mobile, experience might have issues. For best experience use desktop Chrome.',
-        {
-          variant: 'warning'
-        }
-      )
-    }
+    // if (isMobile && !acknowledgedUnsupportedDevice) {
+    //   NotificationService.dispatchNotify(
+    //     'Not optimized for mobile, experience might have issues. For best experience use desktop Chrome.',
+    //     {
+    //       variant: 'warning'
+    //     }
+    //   )
+    // }
   }, [])
 }

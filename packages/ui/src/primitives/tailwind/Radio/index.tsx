@@ -71,9 +71,9 @@ export const Radio = ({ disabled, label, onClick, value, description, checked, v
         className={twMerge(
           outerCircleVariant[variant],
           'grid cursor-pointer place-items-center rounded-full border',
-          !disabled && 'border-[#212226] group-hover:border-[#9CA0AA] group-focus:border-[#375DAF]',
-          !disabled && 'bg-[#141619] group-hover:bg-[#191B1F] group-focus:bg-[#212226]',
-          disabled && 'cursor-not-allowed border-[#42454D] bg-[#191B1F]'
+          disabled
+            ? 'cursor-not-allowed border-ui-inactive-outline bg-ui-inactive-background'
+            : 'border-ui-outline bg-ui-background group-hover:border-ui-primary group-hover:bg-ui-hover-background group-focus:border-ui-select-primary group-focus:bg-ui-select-background'
         )}
       >
         <div
@@ -81,26 +81,37 @@ export const Radio = ({ disabled, label, onClick, value, description, checked, v
             innerCircleSizeVariant[variant],
             'block rounded-full',
             !checked && 'hidden',
-            !disabled && 'bg-[#5F7DBF] group-hover:bg-[#5F7DBF] group-focus:bg-[#5F7DBF]',
-            disabled && 'bg-[#42454D]'
+            disabled
+              ? 'bg-ui-inactive-primary'
+              : 'bg-ui-primary group-hover:bg-ui-hover-primary group-focus:bg-ui-select-primary'
           )}
         />
       </div>
-      <div
-        className={twMerge(
-          'flex flex-col',
-          !disabled && 'text-start text-[#D3D5D9] group-hover:cursor-pointer',
-          disabled && 'text-[#6B6F78]'
-        )}
-      >
-        <span className={twMerge(!disabled && 'group-hover:text-[#F5F5F5] group-focus:text-[#F5F5F5]')}>{label}</span>
-        <span>{description}</span>
+      <div className="flex flex-col">
+        <span
+          className={twMerge(
+            disabled
+              ? 'text-text-inactive'
+              : 'text-start text-text-secondary group-hover:cursor-pointer group-hover:text-text-primary group-focus:text-text-primary'
+          )}
+        >
+          {label}
+        </span>
+        <span
+          className={twMerge(
+            disabled
+              ? 'text-text-inactive'
+              : 'text-text-tertiary group-hover:text-text-tertiary group-focus:text-text-tertiary'
+          )}
+        >
+          {description}
+        </span>
       </div>
     </div>
   )
 }
 
-type OptionType = {
+export type OptionType = {
   value: string
   label?: string
   description?: string

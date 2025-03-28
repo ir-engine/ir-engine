@@ -34,6 +34,7 @@ import { InviteCode, InviteData, authenticationSettingPath } from '@ir-engine/co
 import { useMutableState } from '@ir-engine/hyperflux'
 
 import { useFind } from '@ir-engine/common'
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { Button, Input } from '@ir-engine/ui'
 import { Copy03Lg, Send01Lg, Share06Sm } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -195,29 +196,29 @@ const ShareMenu = (): JSX.Element => {
   }
 
   return (
-    <div className="relative z-50 h-fit max-h-[90dvh] min-w-[720px] rounded-2xl bg-surface-4 pb-4 pt-[16.5px] mdh:max-h-[60dvh] mdh:w-[50vw] mdh:max-w-2xl mdh:pb-0">
-      <div className="mx-8 grid grid-cols-3 gap-x-3 gap-y-3">
-        <div className="col-span-3 flex w-full items-center justify-center mdh:hidden">
+    <div className="relative z-50 h-fit max-h-[90dvh] min-w-[720px] rounded-2xl bg-surface-4 pb-4 pt-[16.5px] smh:max-h-[60dvh] smh:w-[50vw] smh:max-w-2xl smh:pb-0">
+      <div className="mx-[32px] grid grid-cols-3 gap-y-3">
+        <div className="col-span-3 flex w-full items-center justify-center smh:hidden">
           <Text fontWeight="medium" className="text-text-primary">
             {t('user:usermenu.share.description-share')}
           </Text>
         </div>
 
-        <div className="col-span-1 mdh:col-span-full">
-          <div className="mb-[16.5px] hidden w-full items-center justify-center mdh:flex">
+        <div className="col-span-1 smh:col-span-full">
+          <div className="mb-[16.5px] hidden w-full items-center justify-center smh:flex">
             <Text fontWeight="medium" className="text-text-primary">
               {t('user:usermenu.share.description-share')}
             </Text>
           </div>
 
-          <div className="flex w-full items-center justify-center ">
-            <div className="rounded-md bg-white p-4">
-              <QRCodeSVG className="h-[114px] w-[131px] mdh:h-[161px] mdh:w-[184px]" value={shareLink} />
+          <div className="flex w-fit items-center justify-center smh:w-full">
+            <div className="rounded-lg bg-white p-4">
+              <QRCodeSVG className="h-[130px] w-[147px] smh:h-[161px] smh:w-[184px]" value={shareLink} />
             </div>
           </div>
         </div>
 
-        <div className="col-span-2 grid grid-cols-1 mdh:col-span-full mdh:gap-y-3">
+        <div className="col-span-2 grid grid-cols-1 smh:col-span-full smh:gap-y-3">
           <Input
             readOnly
             value={shareLink}
@@ -234,7 +235,7 @@ const ShareMenu = (): JSX.Element => {
             ref={refLink}
           />
 
-          <div className="hidden mdh:block">
+          <div className="hidden smh:block">
             <Input
               readOnly
               value={iframeString}
@@ -256,7 +257,7 @@ const ShareMenu = (): JSX.Element => {
             />
           </div>
 
-          <div className="-mt-4 mdh:mt-0">
+          <div className="-mt-4 smh:mt-0">
             <Input
               value={token}
               labelProps={{
@@ -278,14 +279,20 @@ const ShareMenu = (): JSX.Element => {
           </div>
         </div>
       </div>
-      {
-        <div className="mt-4 hidden w-full items-center justify-center border-t-[0.5px] border-[#212226] py-[11px] mdh:flex">
-          <Button variant="secondary" size="l" onClick={() => navigator.share({ url: shareLink })}>
-            <Share06Sm />
-            {t('user:usermenu.share.lbl-share')}
-          </Button>
-        </div>
-      }
+      <div className="mt-4 hidden w-full items-center justify-center border-t-[0.5px] border-[#212226] py-[11px] smh:flex">
+        <Button
+          variant="secondary"
+          size="l"
+          onClick={() =>
+            isMobile && 'navigator' in window
+              ? window.navigator.share({ url: shareLink })
+              : window.open(shareLink, '_blank')?.focus()
+          }
+        >
+          <Share06Sm />
+          {t('user:usermenu.share.lbl-share')}
+        </Button>
+      </div>
     </div>
   )
 }

@@ -23,17 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
-import {
-  getAllComponents,
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  serializeComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { getAllComponents, serializeComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
+import { ComponentJsonType } from '../types/SceneTypes'
 
 export const serializeEntity = (entity: Entity) => {
   const jsonComponents = [] as ComponentJsonType[]
@@ -53,18 +45,3 @@ export const serializeEntity = (entity: Entity) => {
   }
   return jsonComponents
 }
-
-export const toEntityJson = (entity: Entity) => {
-  const components = serializeEntity(entity)
-  const result: EntityJsonType = {
-    components,
-    name: getOptionalComponent(entity, NameComponent) ?? ''
-  }
-  const parent = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
-  if (parent && hasComponent(parent, UUIDComponent)) {
-    result.parent = getComponent(parent, UUIDComponent)
-  }
-  return result
-}
-
-globalThis.serializeEntity = serializeEntity
