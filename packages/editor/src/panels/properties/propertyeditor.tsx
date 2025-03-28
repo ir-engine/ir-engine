@@ -110,7 +110,7 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
           open={isAddComponentMenuOpen}
           onClose={() => setIsAddComponentMenuOpen(false)}
           trigger={
-            <Button size="sm" onClick={() => setIsAddComponentMenuOpen(true)}>
+            <Button variant="tertiary" size="sm" onClick={() => setIsAddComponentMenuOpen(true)}>
               <PlusCircleSm />
               {t('editor:properties.lbl-addComponent')}
             </Button>
