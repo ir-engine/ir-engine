@@ -23,43 +23,26 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { BufferGeometry, Material, Mesh, Scene } from 'three'
+import { createEntity, Entity, EntityTreeComponent, getComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
 
-import { Entity, getComponent } from '@ir-engine/ecs'
-import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { TransformComponent } from '@ir-engine/spatial'
+import { exportGLTFScene } from '../../gltf/exportGLTFScene'
 
-import { GLTFExporterOptions } from '../exporters/gltf/GLTFExporter'
-import createGLTFExporter from './createGLTFExporter'
-
-/**@todo stop using three's exporter when we start serializing ecs material data */
 export default async function exportMaterialsGLTF(
   materialEntities: Entity[],
-  options: GLTFExporterOptions
+  exporterArgs: {
+    binary: boolean
+    relativePath: string
+    projectName: string
+  }
 ): Promise<ArrayBuffer | { [key: string]: any } | undefined> {
   if (materialEntities.length === 0) return
-  const scene = new Scene()
-  scene.name = 'Root'
-  const dudGeo = new BufferGeometry()
-  dudGeo.groups = materialEntities.map((_, i) => ({ count: 0, start: 0, materialIndex: i }))
-  const materials = materialEntities.map((entity) => getComponent(entity, MaterialStateComponent).material as Material)
-  const lib = new Mesh(dudGeo, materials)
-  lib.name = 'Materials'
-  scene.add(lib)
-  const exporter = createGLTFExporter()
-  const gltf = await new Promise<ArrayBuffer | { [key: string]: any }>((resolve) => {
-    exporter.parse(
-      scene,
-      resolve,
-      (e) => {
-        throw e
-      },
-      {
-        ...options,
-        embedImages: options.binary,
-        includeCustomExtensions: true
-      }
-    )
-  })
-
+  const rootEntity = createEntity()
+  setComponent(rootEntity, UUIDComponent, UUIDComponent.generateUUID())
+  setComponent(rootEntity, TransformComponent)
+  setComponent(rootEntity, EntityTreeComponent)
+  // hacky way to set the root entity as the parent of all material entities
+  getComponent(rootEntity, EntityTreeComponent).children = [...materialEntities]
+  const gltf = await exportGLTFScene(rootEntity, exporterArgs.projectName, exporterArgs.relativePath, false)
   return gltf
 }

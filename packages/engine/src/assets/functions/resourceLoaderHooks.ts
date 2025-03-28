@@ -47,8 +47,8 @@ import {
 import { EntityTreeComponent } from '@ir-engine/ecs'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { ResourcePendingComponent } from '../../gltf/ResourcePendingComponent'
-import { AssetLoader } from '../classes/AssetLoader'
 import { FileLoader } from '../loaders/base/FileLoader'
+import { Loader } from '../loaders/base/Loader'
 import { parseStorageProviderURLs } from './parseSceneJSON'
 import { loadResource } from './resourceLoaderFunctions'
 
@@ -62,7 +62,7 @@ function useLoader<T extends ResourceAssetType>(
   resourceType: ResourceType,
   entity: Entity = UndefinedEntity,
   //Called when the asset url is changed, mostly useful for editor functions when changing an asset
-  loader?: AssetLoader,
+  loader?: Loader,
   onUnload: (url: string) => void = (url: string) => {}
 ): [T | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
   const value = useHookstate<T | null>(null)
@@ -148,7 +148,7 @@ async function getLoader<T extends ResourceAssetType>(
   url: string,
   resourceType: ResourceType,
   entity: Entity = UndefinedEntity,
-  loader?: AssetLoader
+  loader?: Loader
 ): Promise<[T | null, () => void, ErrorEvent | Error | null]> {
   return new Promise((resolve) => {
     const controller = new AbortController()
@@ -222,7 +222,7 @@ export function useTexture(
   url: string,
   entity?: Entity,
   onUnload?: (url: string) => void,
-  loader?: AssetLoader
+  loader?: Loader
 ): [Texture | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
   return useLoader<Texture>(url, ResourceType.Texture, entity, loader, onUnload)
 }
@@ -231,7 +231,7 @@ export function useFile(
   url: string,
   entity?: Entity,
   onUnload?: (url: string) => void,
-  loader: AssetLoader = defaultLoaders.fileLoader
+  loader: Loader = defaultLoaders.fileLoader
 ): [ArrayBuffer | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
   return useLoader<ArrayBuffer>(url, ResourceType.File, entity, loader, onUnload)
 }
@@ -250,15 +250,14 @@ export function useFile(
 export async function getTextureAsync(
   url: string,
   entity?: Entity,
-  loader?: AssetLoader
+  loader?: Loader
 ): Promise<[Texture | null, () => void, ErrorEvent | Error | null]> {
   return getLoader<Texture>(url, ResourceType.Texture, entity, loader)
 }
 
 export async function getAudioAsync(
   url: string,
-  entity?: Entity,
-  loader: AssetLoader = defaultLoaders.audioLoader
+  entity?: Entity
 ): Promise<[AudioBuffer | null, () => void, ErrorEvent | Error | null]> {
   return getLoader<AudioBuffer>(url, ResourceType.Audio, entity)
 }

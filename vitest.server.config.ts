@@ -38,7 +38,7 @@ export default defineConfig({
     maxConcurrency: 1,
     coverage: {
       reporter: ['text', 'lcov'],
-      reportsDirectory: './coverage',
-    },
-  },
+      reportsDirectory: './coverage'
+    }
+  }
 })
