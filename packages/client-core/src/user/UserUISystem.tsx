@@ -27,7 +27,7 @@ import React, { useEffect } from 'react'
 
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, NO_PROXY } from '@ir-engine/hyperflux'
 
 import { useHookstate } from '@hookstate/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
@@ -57,7 +57,7 @@ const OverlayReactor = () => {
       const popoverType = overlayComponent?.type.value
       if (!popoverType) return
       const Component = getState(OverlayComponentState)[popoverType]
-      ModalState.openModal(<Component component={overlayComponent.value} onClose={onClose} />, () => {
+      ModalState.openModal(<Component component={overlayComponent.get(NO_PROXY)!} onClose={onClose} />, () => {
         onClose()
       })
       setIsPopoverOpen(true)

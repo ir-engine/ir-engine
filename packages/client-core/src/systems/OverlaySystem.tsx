@@ -23,20 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { ComponentType, PresentationSystemGroup } from '@ir-engine/ecs'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
+import { OverlayComponent } from '@ir-engine/engine/src/scene/components/OverlayComponent'
 import { defineState, getMutableState } from '@ir-engine/hyperflux'
 import EmbedFrame from '../user/menus/avatar/EmbedFrame'
 
 export const OverlayComponentState = defineState({
   name: 'ir.engine.interaction.PopupState',
-  initial: () => ({
-    iframe: EmbedFrame
-  })
+  initial: () =>
+    ({
+      iframe: EmbedFrame
+    }) as Record<string, React.FC<{ component: ComponentType<typeof OverlayComponent>; onClose: () => void }>>
 })
 
 export const OverlaySystem = defineSystem({
   uuid: 'ir.client.OverlaySystem',
-  insert: {},
+  insert: { after: PresentationSystemGroup },
   reactor: () => {
     getMutableState(OverlayComponentState)
     return null
