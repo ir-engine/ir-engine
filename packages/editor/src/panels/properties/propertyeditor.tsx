@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { calculateAndApplyYOffset } from '@ir-engine/common/src/utils/offsets'
-import { Entity, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
+import { Entity, EntityUUID, PresentationSystemGroup, UUIDComponent, useExecute } from '@ir-engine/ecs'
 import { Component, Layers, getAllComponents, useHasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ComponentEditorsState } from '@ir-engine/editor/src/services/ComponentEditors'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
@@ -67,12 +67,19 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
 
   const entity = UUIDComponent.getEntityByUUID(entityUUID, Layers.Authoring)
   const componentEditors = useHookstate(getMutableState(ComponentEditorsState)).get(NO_PROXY)
-  const components: Component[] = []
-  const entityComponents = getAllComponents(entity)
-  for (const component of entityComponents) {
-    if (!componentEditors[component.name ?? '']) continue
-    components.push(component)
-  }
+  const components = useHookstate([] as Component[])
+
+  useExecute(
+    () => {
+      const entityComponents = getAllComponents(entity).filter(
+        (component) => component.name && componentEditors[component.name] && component.name !== TransformComponent.name
+      )
+      if (JSON.stringify(entityComponents) !== JSON.stringify(components.get(NO_PROXY))) {
+        components.set(entityComponents)
+      }
+    },
+    { after: PresentationSystemGroup }
+  )
 
   const popupRef = useRef<HTMLDivElement>(null)
 
@@ -129,13 +136,13 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
           </Suspense>
         </ErrorBoundary>
       )}
-      {components.map((c) => (
+      {components.get(NO_PROXY).map((c) => (
         <ErrorBoundary
           key={`${entityUUID + entity}-${c.name}`}
           fallback={<div>Error occured displaying properties for {c.name}</div>}
         >
           <Suspense>
-            <EntityComponentEditor multiEdit={multiEdit} entity={entity} component={c} />
+            <EntityComponentEditor multiEdit={multiEdit} entity={entity} component={c as Component} />
           </Suspense>
         </ErrorBoundary>
       ))}
