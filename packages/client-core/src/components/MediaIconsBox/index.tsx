@@ -47,6 +47,7 @@ import {
   Microphone01Lg,
   Microphone01Md,
   MicrophoneOff,
+  Screenshare,
   VideoRecorderLg,
   VideoRecorderMd,
   VideoRecorderOffLg,
@@ -207,7 +208,7 @@ export const MediaIconsBox = () => {
           )} */}
         </>
       ) : null}
-      {/* {!isMobile &&
+      {!isMobile &&
       !(typeof navigator.mediaDevices.getDisplayMedia === 'undefined') &&
       screenshareEnabled &&
       mediaNetworkReady &&
@@ -220,7 +221,7 @@ export const MediaIconsBox = () => {
           id="UserScreenSharing"
           onClick={MediaStreamState.toggleScreenshare}
         />
-      ) : null} */}
+      ) : null}
       {/* {supportsVR && xrEnabled && (
         <LocationIconButton
           tooltip={{
