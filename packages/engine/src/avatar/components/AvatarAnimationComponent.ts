@@ -167,13 +167,6 @@ export function createVRM(rootEntity: Entity) {
   getComponent(root, TransformComponent).rotation.multiply(yFlip)
 }
 
-declare module '@pixiv/three-vrm-core' {
-  export interface VRMHumanoid {
-    _parentWorldRotations: { [key: string]: Quaternion }
-    _parentWorldRotationInverses: { [key: string]: Quaternion }
-  }
-}
-
 export const createVRMFromGLTF = (rootEntity: Entity) => {
   const documentID = GLTFComponent.getInstanceID(rootEntity)
   const gltf = getComponent(rootEntity, GLTFComponent).document!

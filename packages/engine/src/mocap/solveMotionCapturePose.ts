@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { NormalizedLandmark, PoseLandmarker } from '@mediapipe/tasks-vision'
-import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import {
   BufferAttribute,
   BufferGeometry,
@@ -59,6 +58,8 @@ import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneCo
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
+import { VRMHumanBoneList } from '../avatar/maps/VRMHumanBoneList'
+import { VRMHumanBoneName } from '../avatar/maps/VRMHumanBoneName'
 import { LandmarkIndices } from './MocapConstants'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 

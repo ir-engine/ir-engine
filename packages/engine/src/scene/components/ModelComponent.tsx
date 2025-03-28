@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { VRM } from '@pixiv/three-vrm'
 import { Group } from 'three'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 
@@ -41,7 +40,7 @@ export const ModelComponent = defineComponent({
     /** optional, only for bone matchable avatars */
     convertToVRM: S.Bool(false),
     scene: S.NonSerialized(S.Nullable(S.Type<Group>())),
-    asset: S.NonSerialized(S.Nullable(S.Type<VRM | GLTF>())),
+    asset: S.NonSerialized(S.Nullable(S.Type<GLTF>())),
     dereference: S.NonSerialized(S.Bool(false))
   })
 })

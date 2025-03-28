@@ -49,7 +49,6 @@ import {
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { compareDistanceToCamera } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { XRLeftHandComponent, XRRightHandComponent } from '@ir-engine/spatial/src/xr/XRComponents'
-import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import React, { useEffect } from 'react'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { applyHandRotationFK } from '../animation/applyHandRotationFK'
@@ -60,6 +59,7 @@ import { AvatarRigComponent, shoulderAngle } from '../components/AvatarAnimation
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKComponent, AvatarIKTargetComponent, IKMatrixComponent } from '../components/AvatarIKComponents'
 import { IKSerialization } from '../IKSerialization'
+import { VRMHumanBoneList } from '../maps/VRMHumanBoneList'
 import { AvatarAnimationSystem } from './AvatarAnimationSystem'
 
 const _quat = new Quaternion()
