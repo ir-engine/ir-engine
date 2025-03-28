@@ -33,7 +33,14 @@ export const metabaseUrlPath = 'metabase-url'
 export const metabaseUrlMethods = ['create'] as const
 
 // Main data model schema
-export const metabaseUrlDataSchema = Type.Object({}, { $id: 'MetabaseUrl', additionalProperties: true })
+export const metabaseUrlDataSchema = Type.Object(
+  {
+    accountId: Type.Optional(Type.String()),
+    projectId: Type.Optional(Type.String()),
+    theme: Type.Optional(Type.String())
+  },
+  { $id: 'MetabaseUrl', additionalProperties: true }
+)
 export interface MetabaseUrlData extends Static<typeof metabaseUrlDataSchema> {}
 
 export const metabaseUrlQuerySchema = Type.Object(

@@ -312,12 +312,61 @@ export const ThemeState = defineState({
   extension: syncStateWithLocalStorage(['theme'])
 })
 
+/**
+ * Updates the theme parameter in all relevant iframes' URLs
+ * (Currently just the analytics iframe uses this, but can be extended to other iframes)
+ * This keeps iframe themes in sync with the main dashboard theme
+ */
+const updateIframeThemes = (): void => {
+  try {
+    // Find all relevant iframes
+    const iframes = document.querySelectorAll('iframe')
+    const relevantIframes = Array.from(iframes).filter((iframe: HTMLIFrameElement) => {
+      // Skip system iframes that don't need theme updates
+      if (iframe.id === 'root-cookie-accessor') return false
+      if (iframe.name?.startsWith('__privateStripeMetricsController')) return false
+      if (iframe.src?.includes('stripe.com')) return false
+      return true
+    })
+
+    const currentTheme = getMutableState(ThemeState).theme.value
+
+    // Update theme for each iframe by modifying its URL
+    relevantIframes.forEach((iframe: HTMLIFrameElement) => {
+      try {
+        if (!iframe.src) {
+          console.debug(`[ThemeService] Skipping iframe without src: ${iframe.id || 'unnamed'}`)
+          return
+        }
+
+        const url = new URL(iframe.src)
+
+        // Update theme in query parameters
+        url.searchParams.set('theme', currentTheme)
+
+        // Update the iframe src
+        iframe.src = url.toString()
+      } catch (error) {
+        console.error(
+          `[ThemeService] Failed to update iframe URL: ${error instanceof Error ? error.message : String(error)}`
+        )
+      }
+    })
+  } catch (error) {
+    console.error(
+      `[ThemeService] Failed to update iframe themes: ${error instanceof Error ? error.message : String(error)}`
+    )
+  }
+}
+
 export const updateTheme = (themeClasses: Partial<CSSClasses>) => {
   if (themeClasses) {
     const root = document.querySelector(':root') as any
     for (const variable of Object.keys(themeClasses)) {
       root.style.setProperty(variable, themeClasses[variable])
     }
+
+    updateIframeThemes()
   }
 }
 
