@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { configDefaults, coverageConfigDefaults, defineConfig } from 'vitest/config'
+import { configDefaults, defineConfig } from 'vitest/config'
 
 const reporters = !process.env.CI ? ['basic'] : configDefaults.reporters // Use default report config on CI.
 
@@ -32,7 +32,10 @@ import path from 'path'
 
 export default defineConfig({
   test: {
-    setupFiles: [path.resolve(appRootPath.path, 'packages/hyperflux/tests/utils/patchNode.ts')],
+    setupFiles: [
+      path.resolve(appRootPath.path, 'packages/hyperflux/tests/utils/patchNode.ts'),
+      path.resolve(appRootPath.path, 'packages/ui/vitest.setup.ts')
+    ],
     environment: 'jsdom',
     maxConcurrency: 1,
     passWithNoTests: true,
@@ -44,8 +47,7 @@ export default defineConfig({
       enabled: true,
       reporter: ['lcov'],
       provider: 'istanbul',
-      include: ['src/**'],
-      exclude: ['src/xr/WebXRManager.*', ...coverageConfigDefaults.exclude] //WebXrManager completely breaks with coverage enabled
+      include: ['src/**']
     }
   }
 })
