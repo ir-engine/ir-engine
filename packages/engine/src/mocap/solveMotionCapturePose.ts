@@ -55,10 +55,10 @@ import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
-import { NormalizedBoneComponent } from '../avatar/components/NormalizedBoneComponent'
 import { LandmarkIndices } from './MocapConstants'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 
@@ -479,7 +479,7 @@ export const solveSpine = (
       if (feetGrounded[i]) {
         const footLandmark =
           landmarks[i == feetIndices.rightFoot ? LandmarkIndices.RIGHT_ANKLE : LandmarkIndices.LEFT_ANKLE].y
-        const footY = footLandmark * -1 + getComponent(rig.hips, NormalizedBoneComponent).position.y
+        const footY = footLandmark * -1 + getComponent(rig.hips, BoneComponent).position.y
         MotionCaptureRigComponent.footOffset[entity] = footY
       }
     }
@@ -623,9 +623,7 @@ export const solveHand = (
 
   const rig = getComponent(entity, AvatarRigComponent)
 
-  const parentQuaternion = getComponent(rig[parentTargetBoneName], NormalizedBoneComponent).getWorldQuaternion(
-    new Quaternion()
-  )
+  const parentQuaternion = getComponent(rig[parentTargetBoneName], BoneComponent).getWorldQuaternion(new Quaternion())
 
   startPoint.set(extent.x, lowestWorldY - extent.y, extent.z)
   ref1Point.set(ref1.x, lowestWorldY - ref1.y, ref1.z)
@@ -666,9 +664,7 @@ export const solveFoot = (
 
   const rig = getComponent(entity, AvatarRigComponent)
 
-  const parentQuaternion = getComponent(rig[parentTargetBoneName], NormalizedBoneComponent).getWorldQuaternion(
-    new Quaternion()
-  )
+  const parentQuaternion = getComponent(rig[parentTargetBoneName], BoneComponent).getWorldQuaternion(new Quaternion())
 
   const targetQuat = new Quaternion()
   if (grounded) {

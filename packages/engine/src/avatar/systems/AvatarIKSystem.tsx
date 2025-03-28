@@ -59,7 +59,6 @@ import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent, shoulderAngle } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKComponent, AvatarIKTargetComponent, IKMatrixComponent } from '../components/AvatarIKComponents'
-import { NormalizedBoneComponent } from '../components/NormalizedBoneComponent'
 import { IKSerialization } from '../IKSerialization'
 import { AvatarAnimationSystem } from './AvatarAnimationSystem'
 
@@ -140,7 +139,7 @@ const execute = () => {
     if (headTargetBlendWeight) {
       const headTransform = getComponent(head, TransformComponent)
       const worldTransform = TransformComponent.getWorldPosition(entity, _vector3)
-      const normalizedHips = getComponent(rig.hips, NormalizedBoneComponent)
+      const normalizedHips = getComponent(rig.hips, BoneComponent)
 
       normalizedHips.position.set(
         headTransform.position.x,
@@ -161,8 +160,8 @@ const execute = () => {
 
       //calculate head look direction and apply to head bone
       //look direction should be set outside of the xr switch
-      getComponent(rig.head, NormalizedBoneComponent).quaternion.multiplyQuaternions(
-        getComponent(rig.spine, NormalizedBoneComponent).getWorldQuaternion(_quat).invert(),
+      getComponent(rig.head, BoneComponent).quaternion.multiplyQuaternions(
+        getComponent(rig.spine, BoneComponent).getWorldQuaternion(_quat).invert(),
         _quat2
       )
 
@@ -176,7 +175,7 @@ const execute = () => {
       normalizedHips.matrixWorld.elements[14] = hips.position.z + worldTransform.z
 
       for (const boneName of VRMHumanBoneList) {
-        const bone = getOptionalComponent(rigComponent.bonesToEntities[boneName], NormalizedBoneComponent)
+        const bone = getOptionalComponent(rigComponent.bonesToEntities[boneName], BoneComponent)
         if (!bone) continue
         bone.scale.setScalar(1)
 
@@ -200,11 +199,11 @@ const execute = () => {
         _hint
       )
 
-      getComponent(rig.rightUpperArm, NormalizedBoneComponent).quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
+      getComponent(rig.rightUpperArm, BoneComponent).quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
 
       const upperArmEntity = getComponent(rig.rightUpperArm, EntityTreeComponent).parentEntity
       solveTwoBoneIK(
-        getComponent(upperArmEntity, NormalizedBoneComponent).matrixWorld,
+        getComponent(upperArmEntity, BoneComponent).matrixWorld,
         getComponent(rig.rightUpperArm, IKMatrixComponent),
         getComponent(rig.rightLowerArm, IKMatrixComponent),
         getComponent(rig.rightHand, IKMatrixComponent),
@@ -228,7 +227,7 @@ const execute = () => {
 
       const upperArmEntity = getComponent(rig.leftUpperArm, EntityTreeComponent).parentEntity
       solveTwoBoneIK(
-        getComponent(upperArmEntity, NormalizedBoneComponent).matrixWorld,
+        getComponent(upperArmEntity, BoneComponent).matrixWorld,
         getComponent(rig.leftUpperArm, IKMatrixComponent),
         getComponent(rig.leftLowerArm, IKMatrixComponent),
         getComponent(rig.leftHand, IKMatrixComponent),
@@ -247,7 +246,7 @@ const execute = () => {
         .add(TransformComponent.getWorldPosition(entity, _vector3).sub(hipsForward))
 
       solveTwoBoneIK(
-        getComponent(rig.hips, NormalizedBoneComponent).matrixWorld,
+        getComponent(rig.hips, BoneComponent).matrixWorld,
         getComponent(rig.rightUpperLeg, IKMatrixComponent),
         getComponent(rig.rightLowerLeg, IKMatrixComponent),
         getComponent(rig.rightFoot, IKMatrixComponent),
@@ -266,7 +265,7 @@ const execute = () => {
         .add(TransformComponent.getWorldPosition(entity, _vector3).sub(hipsForward))
 
       solveTwoBoneIK(
-        getComponent(rig.hips, NormalizedBoneComponent).matrixWorld,
+        getComponent(rig.hips, BoneComponent).matrixWorld,
         getComponent(rig.leftUpperLeg, IKMatrixComponent),
         getComponent(rig.leftLowerLeg, IKMatrixComponent),
         getComponent(rig.leftFoot, IKMatrixComponent),
@@ -301,7 +300,7 @@ const SetupIkMatrices = () => {
   const entity = useEntityContext()
   const rigComponent = useComponent(entity, AvatarRigComponent)
   useEffect(() => {
-    if (!rigComponent.vrm.value) return
+    if (!rigComponent.bonesToEntities.hips.value) return
 
     const rig = rigComponent.bonesToEntities.value
 
@@ -362,7 +361,7 @@ const SetupIkMatrices = () => {
         local
       })
     }
-  }, [rigComponent.vrm])
+  }, [rigComponent.bonesToEntities.hips])
 
   return null
 }

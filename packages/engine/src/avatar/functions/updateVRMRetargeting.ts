@@ -58,44 +58,6 @@ export const updateVRMRetargeting = (avatarEntity: Entity) => {
     TransformComponent.rotation.y[boneEntity] = _quatA.y
     TransformComponent.rotation.z[boneEntity] = _quatA.z
     TransformComponent.rotation.w[boneEntity] = _quatA.w
-
-    // if (boneNode != null) {
-    //   const rigBoneNode = humanoidRig.getBoneNode(boneName)! as Object3D
-
-    //   const entity = boneNode.entity
-
-    //   const parentWorldRotation = parentWorldRotations[boneName] as Quaternion
-    //   const invParentWorldRotation = parentWorldRotationInverses[boneName] as Quaternion
-    //   const boneRotation = boneRotations[boneName] as Quaternion
-
-    //   _quatA
-    //     .copy(rigBoneNode.quaternion)
-    //     .multiply(parentWorldRotation)
-    //     .premultiply(invParentWorldRotation)
-    //     .multiply(boneRotation)
-
-    //   TransformComponent.rotation.x[entity] = _quatA.x
-    //   TransformComponent.rotation.y[entity] = _quatA.y
-    //   TransformComponent.rotation.z[entity] = _quatA.z
-    //   TransformComponent.rotation.w[entity] = _quatA.w
-    //   TransformComponent.dirty[entity] = 0
-
-    //   if (boneName === 'hips') {
-    //     const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
-    //     if (!parentEntity) continue
-    //     const parentBone =
-    //       getOptionalComponent(parentEntity, BoneComponent) ?? getOptionalComponent(parentEntity, TransformComponent)
-    //     if (!parentBone) continue
-    //     _boneWorldPos.copy(rigBoneNode.position).applyMatrix4(parentBone?.matrixWorld)
-    //     _parentWorldMatrixInverse.copy(parentBone.matrixWorld).invert()
-
-    //     _boneWorldPos.applyMatrix4(_parentWorldMatrixInverse)
-    //     if (hasComponent(avatarEntity, AvatarComponent)) {
-    //       _boneWorldPos.multiplyScalar(getComponent(avatarEntity, AvatarComponent).hipsHeight)
-    //     }
-    //     boneNode.position.copy(_boneWorldPos)
-    //   }
-    // }
   }
 }
 
