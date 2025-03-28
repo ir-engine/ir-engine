@@ -25,13 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router-dom'
 
 import { useMediaNetwork } from '@ir-engine/client-core/src/common/services/MediaInstanceConnectionService'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { ECSRecordingActions, PlaybackState, RecordingState } from '@ir-engine/common/src/recording/ECSRecordingSystem'
 import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
-import { dispatchAction, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { SpectateEntityState } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
@@ -55,7 +55,6 @@ import {
 } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import { MdFlipCameraAndroid } from 'react-icons/md'
-import { SearchParamState } from '../../common/services/RouterService'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import LocationIconButton from '../../user/components/LocationIconButton'
 import { clientContextParams } from '../../util/ClientContextState'
@@ -132,13 +131,15 @@ export const MediaIconsBox = () => {
   }
 
   const xrSessionActive = xrState.sessionActive.value
+  const [params, setSearch] = useSearchParams()
 
   const handleExitSpectatorClick = () => {
     if (spectating) {
-      SearchParamState.set('spectate', none)
+      params.delete('spectate')
     } else {
-      SearchParamState.set('spectate', '')
+      params.set('spectate', '')
     }
+    setSearch(params)
   }
 
   return (
