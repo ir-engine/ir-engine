@@ -35,7 +35,7 @@ import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { useUserAvatarThumbnail } from '../../../hooks/useUserAvatarThumbnail'
 import AvatarSelectMenu from '../../../user/menus/avatar/AvatarSelectMenu'
 import { AuthState } from '../../../user/services/AuthService'
-import { PopoverState } from '../../services/PopoverState'
+import { ModalState } from '../../services/ModalState'
 import { ThemeState } from '../../services/ThemeService'
 
 const ProfilePill = () => {
@@ -53,7 +53,7 @@ const ProfilePill = () => {
     if (avatarSelectMenuRef.current) {
       avatarSelectMenuRef.current?.handleClose()
     } else {
-      PopoverState.hidePopupover()
+      ModalState.closeModal()
     }
   }
 
@@ -87,7 +87,7 @@ const ProfilePill = () => {
               className="absolute bottom-0 left-10 rounded-full p-1 text-[#F5F5F5]"
               onClick={() => {
                 popUpOpened.set(false)
-                PopoverState.showPopupover(
+                ModalState.openModal(
                   <AvatarSelectMenu ref={avatarSelectMenuRef} showBackButton={false} />,
                   onAvatarSelectClose
                 )

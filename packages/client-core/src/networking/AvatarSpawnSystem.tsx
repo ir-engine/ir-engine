@@ -52,11 +52,13 @@ import { NetworkState, WorldNetworkAction } from '@ir-engine/network'
 import { SpectateActions } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
 
 import { useFind, useMutation } from '@ir-engine/common'
+import { config } from '@ir-engine/common/src/config'
 import { avatarPath, userAvatarPath } from '@ir-engine/common/src/schema.type.module'
 import { EngineState, useChildrenWithComponents } from '@ir-engine/ecs'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
+import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { SearchParamState } from '../common/services/RouterService'
 import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
 import { LocationState } from '../social/services/LocationService'
@@ -106,11 +108,14 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
     const rootUUID = getComponent(sceneEntity, UUIDComponent)
     const avatarSpawnPose = getRandomSpawnPoint(userID)
     const user = getState(AuthState).user
-
+    /**@todo force default avatars. Temporary solution for memory related crashing on iOS. */
+    const avatarURL = iOS
+      ? config.client.fileServer + '/projects/ir-engine/default-project/assets/avatars/irRobot.vrm'
+      : userAvatar.avatar.modelResource!.url
     spawnLocalAvatarInWorld({
       parentUUID: rootUUID,
       avatarSpawnPose,
-      avatarURL: userAvatar.avatar.modelResource!.url!,
+      avatarURL,
       name: user.name
     })
 
@@ -146,9 +151,13 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
 
   useEffect(() => {
     if (isSpectating || !userAvatar) return
+    /**@todo force default avatars. Temporary solution for memory related crashing on iOS. */
+    const avatarURL = iOS
+      ? config.client.fileServer + '/projects/ir-engine/default-project/assets/avatars/irRobot.vrm'
+      : userAvatar.avatar.modelResource!.url
     dispatchAction(
       AvatarNetworkAction.setAvatarURL({
-        avatarURL: userAvatar.avatar.modelResource!.url,
+        avatarURL,
         entityUUID: (userID + '_avatar') as any as EntityUUID
       })
     )

@@ -34,9 +34,9 @@ import { Slider } from '@ir-engine/ui/editor'
 import { ArrowNarrowLeftLg } from '@ir-engine/ui/src/icons'
 import { OptionType } from '@ir-engine/ui/src/primitives/tailwind/Select'
 import SidebarNavigation from '@ir-engine/ui/src/primitives/tailwind/SidebarNavigation'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { PopoverState } from '../../common/services/PopoverState'
+import { ModalState } from '../../common/services/ModalState'
 import { XruiNameplateState } from '../../social/XruiNameplateState'
 import BlockSlider from '../components/BlockSlider'
 import ControllerMappingMobileImage from './images/controller-mapping-mobile.svg'
@@ -290,12 +290,10 @@ export default function SettingsMenu() {
     2: <GraphicsTab />
   }
 
-  useEffect(() => {}, [])
-
   return (
     <div className="absolute z-50 h-fit max-h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 text-text-secondary smh:max-h-[60dvh] smh:p-10">
       <div className="mb-[17px]">
-        <button onClick={() => PopoverState.hidePopupover()}>
+        <button onClick={() => ModalState.closeModal()}>
           <ArrowNarrowLeftLg />
         </button>
       </div>

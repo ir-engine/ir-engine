@@ -49,7 +49,13 @@ import {
   removeEntityNodeRecursively,
   useEntityContext
 } from '@ir-engine/ecs'
-import { getComponent, setComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  Layers,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { getMutableState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
@@ -134,7 +140,10 @@ function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection
         }
       }
     }
-  } else if (ValidMeshForBVH(mesh)) origMeshRaycastFunc.call(mesh, raycaster, intersects)
+  } else if (ValidMeshForBVH(mesh)) {
+    // only use fallback for meshes that don't have an entity assigned - should only be XRUI
+    if (!mesh.entity) origMeshRaycastFunc.call(mesh, raycaster, intersects)
+  }
 }
 
 // https://github.com/mrdoob/three.js/blob/dev/src/math/Matrix4.js#L732
@@ -173,7 +182,7 @@ const MeshBVHReactor = () => {
   useEffect(() => {
     const abortController = new AbortController()
     if (ValidMeshForBVH(mesh)) {
-      generateMeshBVH(mesh!, abortController.signal, { indirect: true }).then(() => {
+      generateMeshBVH(mesh!, abortController.signal).then(() => {
         if (abortController.signal.aborted) return
         hasMeshBVH.set(true)
       })
@@ -218,8 +227,9 @@ const MeshBVHReactor = () => {
 export const MeshBVHSystem = defineSystem({
   uuid: 'ee.engine.MeshBVHSystem',
   insert: { after: PresentationSystemGroup },
-  /** @todo this breaks the studio currently */
-  reactor: () => <QueryReactor Components={[MeshComponent]} ChildEntityReactor={MeshBVHReactor} />
+  reactor: () => (
+    <QueryReactor Components={[MeshComponent]} ChildEntityReactor={MeshBVHReactor} layer={Layers.Simulation} />
+  )
 })
 
 /**

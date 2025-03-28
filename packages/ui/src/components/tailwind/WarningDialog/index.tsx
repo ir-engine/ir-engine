@@ -22,7 +22,7 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import React from 'react'
 import Modal, { ModalProps } from '../../../primitives/tailwind/Modal'
 import WarningView from '../../../primitives/tailwind/WarningView'
@@ -36,10 +36,10 @@ interface WarningDialogProps {
 const WarningDialog = ({ title, description, modalProps }: WarningDialogProps) => {
   return (
     <Modal
-      onClose={PopoverState.hidePopupover}
+      onClose={ModalState.closeModal}
       showCloseButton={false}
       submitButtonDisabled={true}
-      onSubmit={() => PopoverState.hidePopupover()}
+      onSubmit={() => ModalState.closeModal()}
       className="w-[50vw] max-w-2xl bg-yellow-600"
       hideFooter={true}
       {...modalProps}

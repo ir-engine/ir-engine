@@ -34,7 +34,7 @@ import { Button, Input } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
-import { PopoverState } from '../../../common/services/PopoverState'
+import { ModalState } from '../../../common/services/ModalState'
 import UserTable, { removeUsers } from './UserTable'
 
 export default function Users() {
@@ -78,7 +78,7 @@ export default function Users() {
               variant="red"
               size="sm"
               onClick={() => {
-                PopoverState.showPopupover(
+                ModalState.openModal(
                   <ConfirmDialog
                     text={t('admin:components.user.confirmMultiUserDelete')}
                     onSubmit={async () => {

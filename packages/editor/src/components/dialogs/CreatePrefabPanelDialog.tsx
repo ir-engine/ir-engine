@@ -23,10 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import { isValidFileName } from '@ir-engine/common/src/utils/validateFileName'
 import {
   Component,
   Entity,
@@ -62,19 +63,20 @@ import { SelectionState } from '../../services/SelectionServices'
 export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?: Entity; isExportLookDev?: boolean }) {
   const defaultPrefabFolder = useHookstate<string>('assets/custom-prefabs')
   const prefabName = useHookstate<string>('prefab')
+  const resultFileName = useHookstate(isValidFileName(prefabName.value))
   const prefabTag = useHookstate<string[]>(['prefab'])
   const { t } = useTranslation()
   const isOverwriteModalVisible = useHookstate(false)
   const isOverwriteConfirmed = useHookstate(false)
 
   const finishSavePrefab = () => {
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
     defaultPrefabFolder.set('assets/custom-prefabs')
     prefabName.set('prefab')
     prefabTag.set([])
     isOverwriteModalVisible.set(false)
     isOverwriteConfirmed.set(false)
-    PopoverState.showPopupover(<PrefabConfirmationPanelDialog />)
+    ModalState.openModal(<PrefabConfirmationPanelDialog />)
   }
 
   const exportLookDevPrefab = async (srcProject: string, fileName: string) => {
@@ -209,7 +211,8 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
           title={isExportLookDev ? 'Create Lookdev Prefab' : 'Create Prefab'}
           onSubmit={onExportPrefab}
           className="w-[50vw] max-w-2xl"
-          onClose={PopoverState.hidePopupover}
+          onClose={ModalState.closeModal}
+          submitButtonDisabled={!resultFileName.value.isValid}
         >
           <Input
             value={defaultPrefabFolder.value}
@@ -221,12 +224,18 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
           />
           <Input
             value={prefabName.value}
-            onChange={(event) => prefabName.set(event.target.value)}
+            onChange={(event) => {
+              resultFileName.set(isValidFileName(event.target.value))
+              prefabName.set(event.target.value)
+            }}
             labelProps={{
               text: 'Name',
               position: 'top'
             }}
+            minLength={4}
             maxLength={64}
+            state={!resultFileName.value.isValid ? 'error' : undefined}
+            helperText={!resultFileName.value.isValid ? resultFileName.value.error : undefined}
           />
           {!isExportLookDev && (
             <div>

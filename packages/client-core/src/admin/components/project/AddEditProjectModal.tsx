@@ -28,7 +28,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CiCircleCheck, CiCircleRemove, CiWarning } from 'react-icons/ci'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { ProjectService } from '@ir-engine/client-core/src/common/services/ProjectService'
 import { DefaultUpdateSchedule } from '@ir-engine/common/src/interfaces/ProjectPackageJsonType'
 import {
@@ -395,7 +395,7 @@ export default function AddEditProjectModal({
       title={update ? t('admin:components.project.updateProject') : t('admin:components.project.addProject')}
       onClose={() => {
         ProjectUpdateService.clearProjectUpdate(project.name)
-        PopoverState.hidePopupover()
+        ModalState.closeModal()
       }}
       onSubmit={handleSubmit}
       submitButtonDisabled={projectUpdateStatus.value?.submitDisabled}

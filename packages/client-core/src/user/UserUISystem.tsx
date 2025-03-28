@@ -35,7 +35,7 @@ import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { EngineState, QueryReactor, setComponent, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
 import { OverlayComponent } from '@ir-engine/engine/src/scene/components/OverlayComponent'
 import { NetworkState } from '@ir-engine/network'
-import { PopoverState } from '../common/services/PopoverState'
+import { ModalState } from '../common/services/ModalState'
 import { InviteService } from '../social/services/InviteService'
 import { LoadingUISystemState } from '../systems/LoadingUISystem'
 import { OverlayComponentState } from '../systems/OverlaySystem'
@@ -48,7 +48,7 @@ const OverlayReactor = () => {
 
   const onClose = () => {
     setComponent(entity, OverlayComponent, { isOpen: false })
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
     setIsPopoverOpen(false)
   }
 
@@ -57,7 +57,7 @@ const OverlayReactor = () => {
       const popoverType = overlayComponent?.type.value
       if (!popoverType) return
       const Component = getState(OverlayComponentState)[popoverType]
-      PopoverState.showPopupover(<Component component={overlayComponent.value} onClose={onClose} />, () => {
+      ModalState.openModal(<Component component={overlayComponent.value} onClose={onClose} />, () => {
         onClose()
       })
       setIsPopoverOpen(true)

@@ -25,7 +25,15 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Color, Material, Mesh, Texture } from 'three'
 
-import { Entity, EntityUUID, getComponent, getOptionalComponent, hasComponent, UUIDComponent } from '@ir-engine/ecs'
+import {
+  Entity,
+  EntityUUID,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  setComponent,
+  UUIDComponent
+} from '@ir-engine/ecs'
 
 import { getState } from '@ir-engine/hyperflux'
 import { MeshComponent } from '../components/MeshComponent'
@@ -129,4 +137,27 @@ export const injectMaterialDefaults = (materialUUID: EntityUUID) => {
   return Object.fromEntries(
     Object.entries(prototype).map(([k, v]: [string, any]) => [k, { ...v, default: material.parameters![k] }])
   )
+}
+
+/**sets up parameters for editing and serialization into a scene delta */
+export const setupMaterialParameters = (entity: Entity, properties: { [_: string]: any }) => {
+  const params = {} as any
+  Object.entries(properties).map(([k, v]) => {
+    if (!properties[k]) return
+    if (typeof v === 'function') return
+    if (v.isTexture) {
+      const url = v.userData?.url
+      if (url) params[k] = url
+    } else if (v.isColor) {
+      params[k] = (v as Color).getHex()
+    } else {
+      params[k] = v
+    }
+  })
+
+  setComponent(entity, MaterialStateComponent, {
+    parameters: params,
+    prototype: properties.userData?.type || properties.type
+  })
+  return params
 }

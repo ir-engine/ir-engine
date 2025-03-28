@@ -41,6 +41,7 @@ import { ServiceTypes } from '../../declarations'
 
 import {
   defineState,
+  getMutableState,
   getState,
   isDev,
   NO_PROXY,
@@ -86,6 +87,7 @@ export const FeathersState = defineState({
         {
           fetch: () => void
           query: any
+          refs: number
           response: unknown
           status: 'pending' | 'success' | 'error'
           error: string
@@ -110,7 +112,7 @@ const FeathersChildReactor = (props: { serviceName: keyof ServiceTypes }) => {
   const fetch = () => {
     const feathersState = getState(FeathersState)
     for (const queryId in feathersState[props.serviceName]) {
-      feathersState[props.serviceName][queryId].fetch()
+      if (feathersState[props.serviceName][queryId].refs > 0) feathersState[props.serviceName][queryId].fetch()
     }
   }
 
@@ -126,25 +128,17 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
   method: M,
   ...args: Args
 ) => {
-  const state = useMutableState(FeathersState)
-
-  const queryParams = {
-    serviceName,
-    method,
-    args
-  }
-
-  const queryId = `${method.substring(0, 1)}:${hashObject(queryParams)}` as QueryHash
   const fetchRef = useRef<() => void>()
   fetchRef.current = () => {
+    const state = getMutableState(FeathersState)[serviceName][queryId]
     if (method === 'get' && (!args || args[0] == null || args[0] === '')) {
-      state[serviceName][queryId].merge({
+      state.merge({
         status: 'error',
         error: 'Get method requires an id or query object'
       })
       return
     }
-    state[serviceName][queryId]?.merge({
+    state.merge({
       status: 'pending',
       error: ''
     })
@@ -153,13 +147,13 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       Error.captureStackTrace?.(trace, fetch)
       const stack = trace.stack.split('\n')
       stack.shift()
-      state[serviceName][queryId]?.merge({ $stack: stack })
+      state.merge({ $stack: stack })
     }
     // prettier-ignore
     return API.instance.service(serviceName)[method](...args)
       .then((res) => {
         //console.log(`API: ${serviceName}.${method}`, ...args, res)
-        state[serviceName][queryId]?.merge({
+        state.merge({
           response: res,
           status: 'success',
           error: ''
@@ -167,7 +161,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       })
       .catch((error) => {
         console.error(`Error in service: ${serviceName}, method: ${method}, args: ${JSON.stringify(args)}`, error)
-        state[serviceName][queryId]?.merge({
+        state.merge({
           status: 'error',
           error: error.message
         })
@@ -178,28 +172,53 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
     fetchRef.current?.()
   }, [fetchRef])
 
+  const queryParams = {
+    serviceName,
+    method,
+    args
+  }
+
+  const queryId = `${method.substring(0, 1)}:${hashObject(queryParams)}` as QueryHash
+
+  const feathersState = getMutableState(FeathersState)
+  if (!feathersState.get(NO_PROXY)[serviceName]) feathersState[serviceName].set({})
+  if (!feathersState.get(NO_PROXY)[serviceName][queryId]) {
+    feathersState[serviceName].merge({
+      [queryId]: {
+        fetch,
+        query: queryParams,
+        refs: 0,
+        response: null,
+        status: 'pending',
+        error: ''
+      }
+    })
+    fetch()
+  }
+
   // use immediate effect to get the stack trace of the react context, then add it to the state
   useImmediateEffect(() => {
-    if (!state.get(NO_PROXY)[serviceName]) state[serviceName].set({})
-    if (!state.get(NO_PROXY)[serviceName][queryId] || state.get(NO_PROXY)[serviceName][queryId].error) {
-      state[serviceName].merge({
-        [queryId]: {
-          fetch,
-          query: queryParams,
-          response: null,
-          status: 'pending',
-          error: ''
-        }
+    const state = getMutableState(FeathersState)[serviceName][queryId]
+    if (state.get(NO_PROXY).error) {
+      state.merge({
+        fetch,
+        query: queryParams,
+        response: null,
+        status: 'pending',
+        error: ''
       })
       fetch()
     }
-  }, [serviceName, method, queryId])
+    state.refs.set(state.refs.value + 1)
+    return () => {
+      state.refs.set(state.refs.value - 1)
+    }
+  }, [queryId])
 
-  const query = state[serviceName]?.[queryId]
-  const queryObj = state.get(NO_PROXY)[serviceName]?.[queryId]
-  const data = queryObj?.response as Awaited<ReturnType<ServiceTypes[S][M]>> | undefined
-  const error = queryObj?.error
-  const status = queryObj?.status
+  const state = useHookstate(getMutableState(FeathersState)[serviceName][queryId]).get(NO_PROXY)
+  const data = state.response as Awaited<ReturnType<ServiceTypes[S][M]>> | undefined
+  const error = state.error
+  const status = state.status
 
   return useMemo(
     () => ({
@@ -208,7 +227,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       error,
       refetch: fetch
     }),
-    [data, query?.response, query?.status, query?.error, fetch]
+    [data, status, error, fetch]
   )
 }
 

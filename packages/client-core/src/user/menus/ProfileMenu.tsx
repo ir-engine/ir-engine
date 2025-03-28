@@ -53,7 +53,7 @@ import {
 import { API } from '@ir-engine/common'
 import { USERNAME_MAX_LENGTH } from '@ir-engine/common/src/constants/UserConstants'
 import { INVALID_USER_NAME_REGEX } from '@ir-engine/common/src/regex'
-import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { iOS, isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import {
@@ -78,8 +78,8 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { FaApple } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
 import { initialAuthState, initialOAuthConnectedState } from '../../common/initialAuthState'
+import { ModalState } from '../../common/services/ModalState'
 import { NotificationService } from '../../common/services/NotificationService'
-import { PopoverState } from '../../common/services/PopoverState'
 import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { useZendesk } from '../../hooks/useZendesk'
 import { LocationState } from '../../social/services/LocationService'
@@ -234,7 +234,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     }
   }, [identityProvidersQuery.data])
 
-  const updateUserName = (e: React.MouseEvent | React.KeyboardEvent) => {
+  const updateUserName = (e: React.MouseEvent | React.KeyboardEvent | MouseEvent | TouchEvent) => {
     e.preventDefault()
     handleUpdateUsername()
   }
@@ -369,7 +369,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     if (avatarSelectMenuRef.current) {
       avatarSelectMenuRef.current?.handleClose()
     } else {
-      PopoverState.hidePopupover()
+      ModalState.closeModal()
     }
   }
 
@@ -390,17 +390,22 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
         <div className="col-span-3 grid grid-cols-[auto,1fr] gap-x-6">
           <div className="relative h-20 w-20">
             <AvatarImage size="large" src={avatarThumbnail} className="object-cover" />
-            <button
-              onClick={() => {
-                PopoverState.showPopupover(
-                  <AvatarSelectMenu ref={avatarSelectMenuRef} showBackButton={true} previewEnabled={true} />,
-                  onAvatarSelectClose
-                )
-              }}
-              className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#DDE1E5] p-2"
-            >
-              <Edit01Lg className="place-items-center text-text-secondary" />
-            </button>
+            {
+              /**@todo disable avatar editing on iOS. Temporary solution for memory related crashing on iOS. */
+              !iOS && (
+                <button
+                  onClick={() => {
+                    ModalState.openModal(
+                      <AvatarSelectMenu ref={avatarSelectMenuRef} showBackButton={true} previewEnabled={true} />,
+                      onAvatarSelectClose
+                    )
+                  }}
+                  className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#DDE1E5] p-2"
+                >
+                  <Edit01Lg className="place-items-center text-text-secondary" />
+                </button>
+              )
+            }
           </div>
 
           <div className="flex flex-col">
@@ -418,7 +423,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             )}
 
             {acceptedTOS && apiKey?.id && (
-              <button onClick={() => showApiKey.set(!showApiKey.value)} className="w-fit text-text-secondary">
+              <button onClick={() => showApiKey.set(!showApiKey.value)} className="w-fit text-text-primary">
                 <Text fontSize="sm">
                   {showApiKey.value ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
                 </Text>
@@ -434,7 +439,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               initialized ? 'justify-self-end' : 'col-start-3'
             )}
             onClick={() => {
-              PopoverState.showPopupover(<SettingsMenu />)
+              ModalState.openModal(<SettingsMenu />)
             }}
           >
             <CogLg className="h-[1.875rem] w-[1.875rem]" />
@@ -451,9 +456,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
                 variant="red"
                 fullWidth={!isMobile}
                 className="w-[136px] rounded-[10px] lg:w-full"
-                onClick={() =>
-                  PopoverState.showPopupover(<ReportMenu type="location" locationId={currentLocation.id} />)
-                }
+                onClick={() => ModalState.openModal(<ReportMenu type="location" locationId={currentLocation.id} />)}
               >
                 <ReportWebsiteDefaullg />
                 {t('user:usermenu.profile.reportWorld')}
@@ -469,6 +472,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             initialized && 'top-[4.5rem]'
           )}
         >
+          {apiKey?.id && <div className="h-2"></div>}
           {isGuest && !originallyAcceptedTOS && (
             <>
               <div className="flex w-full items-center justify-start gap-x-1">
@@ -615,17 +619,21 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
           <button
             className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
             onClick={() => {
-              PopoverState.hidePopupover() // Close the ProfileMenu popover
-              PopoverState.showPopupover(
+              ModalState.closeModal() // Close the ProfileMenu popover
+              ModalState.openModal(
                 <ConfirmDialog
                   text={t('user:usermenu.profile.logout.title')}
                   onSubmit={async () => {
                     handleLogout()
                   }}
                   onClose={() => {
-                    PopoverState.showPopupover(<ProfileMenu />)
+                    ModalState.openModal(<ProfileMenu />)
                   }}
-                />
+                />,
+                () => {
+                  ModalState.closeModal()
+                  ModalState.openModal(<ProfileMenu />)
+                }
               )
             }}
           >
@@ -636,8 +644,8 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
           <button
             className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
             onClick={() => {
-              PopoverState.hidePopupover() // Close the ProfileMenu popover
-              PopoverState.showPopupover(
+              ModalState.closeModal() // Close the ProfileMenu popover
+              ModalState.openModal(
                 <ConfirmDialog
                   title={t('user:usermenu.profile.delete.finalDeleteConfirm')}
                   text={t('user:usermenu.profile.delete.finalDeleteText')}
@@ -646,9 +654,13 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
                     AuthService.logoutUser()
                   }}
                   onClose={() => {
-                    PopoverState.showPopupover(<ProfileMenu />)
+                    ModalState.openModal(<ProfileMenu />)
                   }}
-                />
+                />,
+                () => {
+                  ModalState.closeModal()
+                  ModalState.openModal(<ProfileMenu />)
+                }
               )
             }}
           >

@@ -27,8 +27,8 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineRemoveCircleOutline } from 'react-icons/md'
 
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@ir-engine/client-core/src/common/services/ProjectService'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useFind } from '@ir-engine/common'
@@ -114,7 +114,7 @@ export default function ManageUserPermissionModal({ project }: { project: Immuta
         handleCreatePermission()
       }}
       hideFooter={selfUserPermission !== 'owner'}
-      onClose={() => PopoverState.hidePopupover()}
+      onClose={() => ModalState.closeModal()}
     >
       {selfUserPermission === 'owner' && (
         <Input

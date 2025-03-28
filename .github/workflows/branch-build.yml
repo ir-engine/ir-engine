@@ -1,9 +1,9 @@
 name: branch-build
 on:
   pull_request:
-    branches: [dev, release*]
+    branches: [dev, int, stg, release*]
   push:
-    branches: [dev, release*]
+    branches: [dev, int, stg, release*]
   merge_group:
     types: [checks_requested]
 jobs:

@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useMutation } from '@ir-engine/common'
 import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
@@ -120,7 +120,7 @@ export function FileContextMenu({
       condition: selectedFiles.length === 1,
       label: t('editor:layout.filebrowser.renameAsset'),
       action: () => {
-        PopoverState.showPopupover(
+        ModalState.openModal(
           <RenameFileModal projectName={filesState.projectName.value} file={selectedFiles.value[0]} />
         )
         setAnchorEvent(undefined)
@@ -132,7 +132,7 @@ export function FileContextMenu({
       condition: hasSelection,
       label: t('editor:layout.assetGrid.deleteAsset'),
       action: () => {
-        PopoverState.showPopupover(
+        ModalState.openModal(
           <DeleteFileModal
             files={selectedFiles.get(NO_PROXY)}
             onComplete={(err) => {
@@ -150,7 +150,7 @@ export function FileContextMenu({
       condition: hasFiles && fileConsistsOfContentType(selectedFiles.value, 'model'),
       label: t('editor:layout.filebrowser.compress'),
       action: () => {
-        PopoverState.showPopupover(
+        ModalState.openModal(
           <ModelCompressionPanel selectedFiles={selectedFiles.value} refreshDirectory={refreshDirectory} />
         )
         setAnchorEvent(undefined)
@@ -162,7 +162,7 @@ export function FileContextMenu({
       condition: hasFiles && fileConsistsOfContentType(selectedFiles.value, 'image'),
       label: t('editor:layout.filebrowser.compress') + ' Image',
       action: () => {
-        PopoverState.showPopupover(
+        ModalState.openModal(
           <ImageCompressionPanel selectedFiles={selectedFiles.value} refreshDirectory={refreshDirectory} />
         )
         setAnchorEvent(undefined)
@@ -219,7 +219,9 @@ export function FileContextMenu({
         selectedFiles
           .filter((file) => !file.isFolder.value)
           .map((file) => {
-            addMediaNode(file.url.value)
+            addMediaNode(file.url.value, undefined, undefined, [
+              { name: TransformComponent.jsonID, props: { position: new Vector3() } }
+            ])
           })
         setAnchorEvent(undefined)
       },
@@ -241,7 +243,7 @@ export function FileContextMenu({
       condition: hasSelection,
       label: t('editor:layout.filebrowser.viewAssetProperties'),
       action: () => {
-        PopoverState.showPopupover(<FilePropertiesModal />)
+        ModalState.openModal(<FilePropertiesModal />)
         setAnchorEvent(undefined)
       },
       testId: 'files-panel-file-item-context-menu-view-asset-properties-button'
@@ -250,20 +252,28 @@ export function FileContextMenu({
 
   return (
     <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)}>
-      <div className="flex w-fit flex-col rounded border border-surface-4 bg-surface-4" tabIndex={0}>
+      <div className="w-40 overflow-hidden rounded bg-surface-0">
         {fileActions
           .filter((action) => action.condition || Object.keys(action).length === 0)
-          .map((action, index) => {
+          .map((action, index, arr) => {
+            if (Object.keys(action).length === 0 && index > 0 && Object.keys(arr[index - 1]).length === 0) {
+              return null
+            }
+
             return (
-              <Fragment key={action.label}>
-                {Object.keys(action).length === 0 && <hr className="w-[80%] border-surface-outline-3-1" />}
+              <Fragment key={action.label || `separator-${index}`}>
+                {Object.keys(action).length === 0 && (
+                  <hr className="mx-auto w-[90%] border border-[0.5px] border-surface-outline-3-1" />
+                )}
                 {Object.keys(action).length > 0 && (
                   <span
                     key={index}
                     onClick={action.action}
                     className={twMerge(
-                      'w-full cursor-pointer px-6 py-1 text-xs',
-                      action.condition ? 'text-text-primary hover:bg-surface-3' : 'text-text-inactive'
+                      'block w-full px-4 py-2 text-left text-sm text-text-secondary transition-colors',
+                      action.condition
+                        ? 'cursor-pointer text-text-secondary hover:bg-surface-3'
+                        : 'cursor-not-allowed text-text-inactive'
                     )}
                     data-testid={action.testId}
                   >

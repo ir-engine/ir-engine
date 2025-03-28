@@ -31,7 +31,7 @@ import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNe
 import { dispatchAction, useHookstate } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import React, { HTMLProps, useLayoutEffect, useRef } from 'react'
-import { PopoverState } from '../../common/services/PopoverState'
+import { ModalState } from '../../common/services/ModalState'
 
 const iconItems = [
   {
@@ -241,7 +241,7 @@ const EmoteMenu = (): JSX.Element => {
         entityUUID: getComponent(selfAvatarEntity, UUIDComponent)
       })
     )
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
   }
 
   const dimensions = useHookstate({ width: 474, height: 440 })

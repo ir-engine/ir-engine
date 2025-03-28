@@ -39,7 +39,6 @@ import {
 } from 'three'
 
 import { ATTRIBUTES, WEBGL_COMPONENT_TYPES } from './GLTFConstants'
-import { EXTENSIONS } from './GLTFExtensions'
 
 /**
  * @param {BufferGeometry} geometry
@@ -241,7 +240,7 @@ export function updateMorphTargets(mesh, meshDef) {
 export function createPrimitiveKey(primitiveDef) {
   let geometryKey
 
-  const dracoExtension = primitiveDef.extensions && primitiveDef.extensions[EXTENSIONS.KHR_DRACO_MESH_COMPRESSION]
+  const dracoExtension = primitiveDef.extensions && primitiveDef.extensions['KHR_draco_mesh_compression']
 
   if (dracoExtension) {
     geometryKey =

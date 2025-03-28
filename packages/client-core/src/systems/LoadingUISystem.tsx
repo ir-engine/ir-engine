@@ -311,11 +311,19 @@ const execute = () => {
 
   mainThemeColor.set(colors.alternate)
 
-  transition.update(ecsState.deltaSeconds, (opacity) => {
-    getMutableState(LoadingSystemState).loadingScreenOpacity.set(opacity)
+  let opacity = 0
+
+  transition.update(ecsState.deltaSeconds, (val) => {
+    opacity = val
+    const current = getState(LoadingSystemState).loadingScreenVisible
+    if ((current && opacity === 0) || (!current && opacity > 0)) {
+      getMutableState(LoadingSystemState).loadingScreenVisible.set(opacity > 0)
+    }
+    const container = document.getElementById('location-container')
+    if (!container) return
+    container.style.opacity = (1 - val).toString()
   })
 
-  const opacity = getState(LoadingSystemState).loadingScreenOpacity
   const isReady = opacity > 0 && ready
 
   setVisibleComponent(meshEntity, isReady)
