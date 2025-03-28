@@ -31,6 +31,7 @@ import { afterEach, beforeEach, describe, it } from 'vitest'
 import {
   createEntity,
   defineComponent,
+  EntityTreeComponent,
   EntityUUID,
   S,
   SerializedComponentType,
@@ -41,7 +42,10 @@ import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import {
+  MaterialInstanceComponent,
+  MaterialStateComponent
+} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { SourceComponent, SourceID } from '../scene/components/SourceComponent'
@@ -66,6 +70,19 @@ describe('exportGLTFScene', () => {
     assert(gltf.nodes!.length === 0)
   })
 
+  it('can export a gltf file with a single entity and export root set to false', async () => {
+    const baseEntity = createSceneEntity('base')
+    setComponent(baseEntity, SourceComponent, 'test-source' as SourceID)
+
+    const childEntity = createSceneEntity('child', baseEntity)
+    setComponent(childEntity, SourceComponent, 'test-source' as SourceID)
+
+    const [gltf] = (await exportGLTFScene(baseEntity, 'dud', 'test/path', false)) as [GLTF.IGLTF]
+    assert(Array.isArray(gltf.nodes))
+    assert.strictEqual(gltf.nodes!.length, 1)
+    assert.strictEqual(gltf.nodes![0].name, 'child')
+  })
+
   it('export singleton gltf file', async () => {
     const baseEntity = createSceneEntity('base')
     setComponent(baseEntity, SourceComponent, 'test-source' as SourceID)
@@ -74,7 +91,9 @@ describe('exportGLTFScene', () => {
     const position = new Vector3(Math.random(), Math.random(), Math.random())
     setComponent(childEntity, TransformComponent, { position })
     computeTransformMatrix(childEntity)
+
     const [gltf] = (await exportGLTFScene(baseEntity, 'dud', 'test/path')) as [GLTF.IGLTF]
+
     assert(Array.isArray(gltf.nodes))
     assert.strictEqual(gltf.nodes!.length, 2)
     const serializedBase = gltf.nodes.findIndex((node) => node.name === 'base')
@@ -88,23 +107,38 @@ describe('exportGLTFScene', () => {
   })
 
   it('export simple mesh', async () => {
-    const baseEntity = createSceneEntity('mesh')
+    const baseEntity = createSceneEntity('root')
     setComponent(baseEntity, SourceComponent, 'test' as SourceID)
+
     const color = new Color(Math.random(), Math.random(), Math.random())
     const originalMaterial = new MeshStandardMaterial({ color, name: 'test material' })
+
     const materialEntity = createEntity()
+    setComponent(materialEntity, SourceComponent, 'test' as SourceID)
     setComponent(materialEntity, UUIDComponent, originalMaterial.uuid as EntityUUID)
     setComponent(materialEntity, MaterialStateComponent, {
       material: originalMaterial
     })
     setComponent(materialEntity, NameComponent, originalMaterial.name)
-    setComponent(baseEntity, MeshComponent, new Mesh(new SphereGeometry(), originalMaterial))
+    setComponent(materialEntity, EntityTreeComponent, { parentEntity: baseEntity })
+
+    const meshEntity = createEntity()
+    setComponent(meshEntity, UUIDComponent, 'mesh' as EntityUUID)
+    setComponent(meshEntity, SourceComponent, 'test' as SourceID)
+    setComponent(meshEntity, MaterialInstanceComponent, {
+      uuid: [originalMaterial.uuid as EntityUUID]
+    })
+    setComponent(meshEntity, NameComponent, 'mesh')
+    setComponent(meshEntity, EntityTreeComponent, { parentEntity: baseEntity })
+    setComponent(meshEntity, MeshComponent, new Mesh(new SphereGeometry(), originalMaterial))
+
     const [gltf] = (await exportGLTFScene(baseEntity, 'dud', 'test')) as [GLTF.IGLTF]
+
     assert(Array.isArray(gltf.nodes))
-    assert.strictEqual(gltf.nodes.length, 1)
+    assert.strictEqual(gltf.nodes.length, 2)
     assert(Array.isArray(gltf.meshes))
     assert.strictEqual(gltf.meshes.length, 1)
-    const node = gltf.nodes[0]
+    const node = gltf.nodes[1]
     assert.strictEqual(node.mesh, 0)
     const mesh = gltf.meshes[0]
     assert.strictEqual(mesh.primitives.length, 1)
@@ -126,8 +160,8 @@ describe('exportGLTFScene', () => {
   })
 
   it('export multi-material mesh', async () => {
-    const meshEntity = createSceneEntity('mesh')
-    setComponent(meshEntity, SourceComponent, 'test' as SourceID)
+    const baseEntity = createSceneEntity('base')
+    setComponent(baseEntity, SourceComponent, 'test' as SourceID)
 
     // Create a geometry and define two groups (one for each material).
     // Clearing the default groups lets us control exactly which indices
@@ -147,7 +181,9 @@ describe('exportGLTFScene', () => {
     setComponent(materialEntity1, MaterialStateComponent, {
       material: material1
     })
+    setComponent(materialEntity1, EntityTreeComponent, { parentEntity: baseEntity })
     setComponent(materialEntity1, NameComponent, material1.name)
+    setComponent(materialEntity1, SourceComponent, 'test' as SourceID)
 
     // Create the second material instance with its own material entity.
     const color2 = new Color(Math.random(), Math.random(), Math.random())
@@ -158,18 +194,27 @@ describe('exportGLTFScene', () => {
       material: material2
     })
     setComponent(materialEntity2, NameComponent, material2.name)
+    setComponent(materialEntity2, EntityTreeComponent, { parentEntity: baseEntity })
+    setComponent(materialEntity2, SourceComponent, 'test' as SourceID)
 
+    const meshEntity = createEntity()
+    setComponent(meshEntity, UUIDComponent, 'mesh' as EntityUUID)
+    setComponent(meshEntity, SourceComponent, 'test' as SourceID)
+    setComponent(meshEntity, NameComponent, 'mesh')
+    setComponent(meshEntity, EntityTreeComponent, { parentEntity: baseEntity })
+    setComponent(meshEntity, MeshComponent, new Mesh(geometry, [material1, material2]))
     // Create a mesh with the multi-materials by passing an array.
-    const mesh = new Mesh(geometry, [material1, material2])
-    setComponent(meshEntity, MeshComponent, mesh)
+    setComponent(meshEntity, MaterialInstanceComponent, {
+      uuid: [material1.uuid as EntityUUID, material2.uuid as EntityUUID]
+    })
 
     // Export the scene as a GLTF document.
-    const [gltf] = (await exportGLTFScene(meshEntity, 'dud', 'test')) as [GLTF.IGLTF]
+    const [gltf] = (await exportGLTFScene(baseEntity, 'dud', 'test')) as [GLTF.IGLTF]
 
     // Validate that a single node exists that references mesh index 0.
     assert(Array.isArray(gltf.nodes))
-    assert.strictEqual(gltf.nodes.length, 1)
-    const node = gltf.nodes[0]
+    assert.strictEqual(gltf.nodes.length, 2)
+    const node = gltf.nodes[1]
     assert.strictEqual(node.mesh, 0)
 
     // Validate that one mesh was exported.
@@ -219,7 +264,9 @@ describe('exportGLTFScene', () => {
   })
 
   const createDudMesh = () => {
-    const meshEntity = createSceneEntity('mesh')
+    const baseEntity = createSceneEntity('base')
+    setComponent(baseEntity, SourceComponent, 'test' as SourceID)
+    const meshEntity = createSceneEntity('mesh', baseEntity)
     setComponent(meshEntity, SourceComponent, 'test' as SourceID)
 
     // Create a sphere geometry.
@@ -246,26 +293,31 @@ describe('exportGLTFScene', () => {
       material
     })
     setComponent(materialEntity, NameComponent, material.name)
+    setComponent(materialEntity, SourceComponent, 'test' as SourceID)
+    setComponent(materialEntity, EntityTreeComponent, { parentEntity: baseEntity })
 
     // Create a mesh using the geometry and material.
     const mesh = new Mesh(geometry, material)
+    setComponent(meshEntity, MaterialInstanceComponent, {
+      uuid: [material.uuid as EntityUUID]
+    })
     setComponent(meshEntity, MeshComponent, mesh)
-    return { meshEntity, materialEntity }
+    return { baseEntity, meshEntity, materialEntity }
   }
 
   it('export mesh with material texture map', async () => {
-    const { meshEntity } = createDudMesh()
+    const { baseEntity } = createDudMesh()
     // Export the scene. The first element is the GLTF JSON.
     const [gltf, ...files] = (await exportGLTFScene(
-      meshEntity,
+      baseEntity,
       'ir-engine/dud-project',
       'assets/base/folder1/test.gltf'
     )) as [GLTF.IGLTF]
 
     // Validate that the GLTF contains a single node referencing mesh index 0.
     assert(Array.isArray(gltf.nodes))
-    assert.strictEqual(gltf.nodes.length, 1)
-    const node = gltf.nodes[0]
+    assert.strictEqual(gltf.nodes.length, 2)
+    const node = gltf.nodes[1]
     assert.strictEqual(node.mesh, 0)
 
     // Validate that one mesh was exported with one primitive.
@@ -297,8 +349,8 @@ describe('exportGLTFScene', () => {
   })
 
   it('export mesh with material texture map into new folder', async () => {
-    const { meshEntity } = createDudMesh()
-    const [gltf, ...files] = (await exportGLTFScene(meshEntity, 'ir-engine/dud-project', 'base/folder2/test.gltf')) as [
+    const { baseEntity } = createDudMesh()
+    const [gltf, ...files] = (await exportGLTFScene(baseEntity, 'ir-engine/dud-project', 'base/folder2/test.gltf')) as [
       GLTF.IGLTF
     ]
     assert.strictEqual(gltf.images?.[0]?.uri, '../../public/images/image.png')
@@ -328,5 +380,37 @@ describe('exportGLTFScene', () => {
     assert.strictEqual(typeof ecsExtension, 'object')
     assert.strictEqual(ecsExtension.number, num)
     assert.strictEqual(ecsExtension.string, 'value')
+  })
+
+  it('should export materials without meshes', async () => {
+    const baseEntity = createSceneEntity('base')
+    setComponent(baseEntity, SourceComponent, 'test' as SourceID)
+
+    const materialEntity = createEntity()
+    const color = new Color(Math.random(), Math.random(), Math.random())
+    const originalMaterial = new MeshStandardMaterial({ color, name: 'test material' })
+    setComponent(materialEntity, UUIDComponent, originalMaterial.uuid as EntityUUID)
+    setComponent(materialEntity, MaterialStateComponent, {
+      material: originalMaterial
+    })
+    setComponent(materialEntity, EntityTreeComponent, { parentEntity: baseEntity })
+    setComponent(materialEntity, NameComponent, originalMaterial.name)
+    setComponent(materialEntity, SourceComponent, 'test' as SourceID)
+
+    const [gltf] = (await exportGLTFScene(baseEntity, 'dud', 'test/path')) as [GLTF.IGLTF]
+
+    assert(Array.isArray(gltf.materials))
+    assert.strictEqual(gltf.materials.length, 1)
+    const material = gltf.materials[0]
+    assert.strictEqual(typeof material.extensions![EEMaterialComponent.jsonID], 'object')
+    const eeMaterial = material.extensions![EEMaterialComponent.jsonID] as SerializedComponentType<
+      typeof EEMaterialComponent
+    >
+    assert.equal(eeMaterial.name, originalMaterial.name)
+    const serializedColor = eeMaterial.args['color'].contents as Color
+    for (const key of Object.keys(serializedColor)) {
+      assert.strictEqual(serializedColor[key], color[key])
+    }
+    assert.strictEqual(eeMaterial.prototype, 'MeshStandardMaterial')
   })
 })

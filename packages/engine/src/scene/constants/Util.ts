@@ -23,9 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Color, CompressedTexture, CubeTexture, CubeTextureLoader } from 'three'
-
-import { DDSLoader } from '../../assets/loaders/dds/DDSLoader'
+import { Color, CubeTexture, CubeTextureLoader } from 'three'
 
 export const getRGBArray = (color: Color): Uint8Array => {
   const resolution = 64 // Min value required
@@ -61,28 +59,6 @@ export const loadCubeMapTexture = (
     [posx, negx, posy, negy, posz, negz],
     (texture) => {
       onLoad(texture)
-    },
-    (res) => {
-      if (onProgress) onProgress(res)
-    },
-    (error: any) => {
-      if (onError) onError(error)
-    }
-  )
-}
-
-export const loadDDSTexture = (
-  path: string,
-  onLoad: (texture: CompressedTexture) => void,
-  onProgress?: (event: ProgressEvent<EventTarget>) => void,
-  onError?: (event: ErrorEvent) => void
-): void => {
-  const ddsTextureLoader = new DDSLoader()
-  ddsTextureLoader.load(
-    path,
-    (texture) => {
-      onLoad(texture)
-      texture.dispose()
     },
     (res) => {
       if (onProgress) onProgress(res)

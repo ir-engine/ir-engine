@@ -63,11 +63,6 @@ import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/Scene
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { LoaderUtils } from 'three'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
-import {
-  BINARY_EXTENSION_CHUNK_TYPES,
-  BINARY_EXTENSION_HEADER_LENGTH,
-  BINARY_EXTENSION_HEADER_MAGIC
-} from '../assets/loaders/gltf/GLTFExtensions'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { ErrorComponent } from '../scene/components/ErrorComponent'
@@ -437,6 +432,11 @@ const onProgress: (event: ProgressEvent) => void = (event) => {
   // console.log(event)
 }
 
+/* BINARY EXTENSION */
+export const BINARY_EXTENSION_HEADER_MAGIC = 'glTF'
+export const BINARY_EXTENSION_HEADER_LENGTH = 12
+export const BINARY_EXTENSION_CHUNK_TYPES = { JSON: 0x4e4f534a, BIN: 0x004e4942 }
+
 export const loadGLTFFile = (
   url: string,
   onLoad: (gltf: GLTF.IGLTF, body: ArrayBuffer | null) => void,
@@ -599,7 +599,7 @@ export const getGLTFOptions = (entity: Entity): GLTFParserOptions => {
   const gltfComponent = getComponent(entity, GLTFComponent)
   const documentID = GLTFComponent.getInstanceID(entity)
   const document = gltfComponent.document!
-  const gltfLoader = getState(AssetLoaderState).gltfLoader
+  const manager = getState(AssetLoaderState).manager
 
   return {
     entity,
@@ -609,6 +609,6 @@ export const getGLTFOptions = (entity: Entity): GLTFParserOptions => {
     path: LoaderUtils.extractUrlBase(gltfComponent.src),
     body: gltfComponent.body,
     requestHeader: {},
-    manager: gltfLoader.manager
+    manager
   }
 }
