@@ -155,8 +155,8 @@ type ComponentExt = Component & {
 }
 
 export function getImageURIMimeType(uri) {
-  if (uri.search(/\.jpe?g($|\?)/i) > 0 || uri.search(/^data\:image\/jpeg/) === 0) return 'image/jpeg'
-  if (uri.search(/\.webp($|\?)/i) > 0 || uri.search(/^data\:image\/webp/) === 0) return 'image/webp'
+  if (uri.search(/\.jpe?g($|\?)/i) > 0 || uri.search(/^data:image\/jpeg/) === 0) return 'image/jpeg'
+  if (uri.search(/\.webp($|\?)/i) > 0 || uri.search(/^data:image\/webp/) === 0) return 'image/webp'
 
   return 'image/png'
 }
@@ -472,8 +472,8 @@ const loadAccessor = async (options: GLTFParserOptions, accessorIndex: number) =
     const itemSizeIndices = WEBGL_TYPE_SIZES.SCALAR
     const TypedArrayIndices = WEBGL_COMPONENT_TYPES[accessorDef.sparse.indices.componentType]
 
-    const byteOffsetIndices = accessorDef.sparse.indices.byteOffset || 0
-    const byteOffsetValues = accessorDef.sparse.values.byteOffset || 0
+    const byteOffsetIndices = accessorDef.sparse.indices.byteOffset ?? 0
+    const byteOffsetValues = accessorDef.sparse.values.byteOffset ?? 0
 
     const sparseIndices = new TypedArrayIndices(
       sparseBufferViewIndices!,
@@ -657,8 +657,6 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   setComponent(materialEntity, EntityTreeComponent, { parentEntity: entity, childIndex: materialIndex })
   setComponent(materialEntity, NameComponent, materialDef.name ?? 'Material-' + materialIndex)
 
-  // if (materialDef.extensions) addUnknownExtensionsToUserData(GLTFExtensions, material, materialDef)
-
   let materialConstructorParameters = {} as any
   const promises = [] as Promise<void>[]
   const materialExtensions = materialDef.extensions || {}
@@ -686,8 +684,8 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
     if (typeof materialDef.pbrMetallicRoughness?.baseColorFactor !== 'undefined') {
       if (Array.isArray(materialDef.pbrMetallicRoughness?.baseColorFactor)) {
         const array = materialDef.pbrMetallicRoughness.baseColorFactor
-        ;(materialConstructorParameters.color = new Color().setRGB(array[0], array[1], array[2], LinearSRGBColorSpace)),
-          (materialConstructorParameters.opacity = array[3])
+        materialConstructorParameters.color = new Color().setRGB(array[0], array[1], array[2], LinearSRGBColorSpace)
+        materialConstructorParameters.opacity = array[3]
       }
     }
     materialConstructorParameters.metalness =
