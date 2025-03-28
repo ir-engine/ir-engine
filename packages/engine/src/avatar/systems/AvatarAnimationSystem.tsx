@@ -226,7 +226,7 @@ const RigReactor = (props: { entity: Entity }) => {
   useEffect(() => {
     if (gltfComponent?.progress?.value !== 100 || !avatarAnimationComponent?.value) return
     try {
-      if (gltfComponent.extensions?.value?.VRM) createVRM(entity)
+      if (gltfComponent.document?.value?.extensions?.VRM) createVRM(entity)
       else createVRMFromGLTF(entity)
       setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Avatar)
       setupAvatarProportions(entity)

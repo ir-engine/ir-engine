@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
-import { EntityTreeComponent } from '@ir-engine/ecs'
 import { getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
@@ -43,8 +42,6 @@ export const updateVRMRetargeting = (avatarEntity: Entity) => {
     const boneEntity = rig.bonesToEntities[boneName]
     const bone = getOptionalComponent(boneEntity, TransformComponent)
     if (!bone) continue
-
-    const parentEntity = getOptionalComponent(boneEntity, EntityTreeComponent)?.parentEntity
 
     const parentWorldRotation = rig.parentWorldRotations[boneName] ?? emptyQuaternion
     const parentInverseWorldRotation = rig.parentWorldRotationInverses[boneName] ?? emptyQuaternion
