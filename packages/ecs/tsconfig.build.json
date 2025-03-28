@@ -1,15 +1,13 @@
 {
   "compilerOptions": {
+    "outDir": "dist",
     "target": "ESNext",
     "useDefineForClassFields": true,
-    "module": "CommonJS",
+    "module": "es2020",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
     "moduleResolution": "node",
-    "allowImportingTsExtensions": true,
-    "isolatedModules": true,
     "moduleDetection": "force",
-    "noEmit": true,
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "strict": false,
@@ -23,9 +21,9 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
-    "declaration": false,
+    "declaration": true,
     "types": ["@types/node"]
   },
-  "exclude": ["**/node_modules/**"],
-  "include": ["../../__global.d.ts", "./src", "./index.ts", "./build.ts"]
+  "exclude": ["./src/*.test.ts", "./src/*.test.tsx"],
+  "include": ["../../__global.d.ts", "./src", "./index.ts"]
 }

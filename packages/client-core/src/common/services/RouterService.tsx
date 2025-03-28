@@ -30,7 +30,7 @@ import { BrowserRouterProps as NativeBrowserRouterProps, Router, useSearchParams
 
 import { API } from '@ir-engine/common'
 import { routePath, RouteType } from '@ir-engine/common/src/schema.type.module'
-import { defineState, getMutableState, NO_PROXY, startReactor, useHookstate } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { loadRoute } from '@ir-engine/projects/loadRoute'
 
 type SearchParamsType = { [key: string]: string }
@@ -67,62 +67,22 @@ export const RouterState = defineState({
   }
 })
 
+/**
+ * Read-only state that exposes search params to reactors & non-reactive contexts
+ */
 export const SearchParamState = defineState({
   name: 'SearchParamState',
-  initial: {} as SearchParamsType,
-  set: (key: string, value: string) => {
-    getMutableState(SearchParamState)[key].set(value)
-  }
+  initial: {} as SearchParamsType
 })
 
 /** This hook wraps useSearchParams in a hyperflux state such that we can reactively change params in reactors */
 export const useSearchParamState = () => {
-  const [search, setSearchParams] = useSearchParams()
+  const [search] = useSearchParams()
 
   useEffect(() => {
     const searchParams = Object.fromEntries(search)
     getMutableState(SearchParamState).set(searchParams)
   }, [search])
-
-  /** Create a nested reactor to react to state changes */
-  useEffect(() => {
-    const SubReactor = (props: { keyID: string }) => {
-      const value = useHookstate(getMutableState(SearchParamState)[props.keyID]).value
-
-      useEffect(() => {
-        const location = new URL(window.location as any)
-        const params = new URLSearchParams(location.search)
-        const current = Object.fromEntries([...params.entries()])
-
-        if (current[props.keyID] === value) return
-
-        setSearchParams({ ...current, [props.keyID]: value })
-
-        return () => {
-          const current = Object.fromEntries([...params.entries()])
-          delete current[props.keyID]
-          setSearchParams(current)
-        }
-      }, [value])
-
-      return null
-    }
-
-    const reactor = startReactor(() => {
-      const keys = useHookstate(getMutableState(SearchParamState)).keys
-      return (
-        <>
-          {keys.map((key) => (
-            <SubReactor keyID={key} key={key} />
-          ))}
-        </>
-      )
-    })
-
-    return () => {
-      reactor.stop()
-    }
-  }, [])
 }
 
 export type CustomRoute = {
