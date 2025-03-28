@@ -1151,7 +1151,6 @@ describe('EditorControlFunctions', () => {
       await waitForScene(rootEntity)
 
       const simulationNode1Entity = NodeFunctions.getEntityFromNodeID(rootEntity, node1ID)!
-      const authoringNode1Entity = LayerFunctions.getAuthoringCounterpart(simulationNode1Entity)
 
       const simulationNode2Entity = NodeFunctions.getEntityFromNodeID(rootEntity, node2ID)!
       const authoringNode2Entity = LayerFunctions.getAuthoringCounterpart(simulationNode2Entity)
@@ -1169,7 +1168,7 @@ describe('EditorControlFunctions', () => {
 
       await vi.waitUntil(() => getState(NodesBySourceState)[subAssetSourceID][node3ID])
 
-      const reparentedSimulationNode2Entity = NodeFunctions.getEntityFromNodeID(authoringNode1Entity, node2ID)!
+      const reparentedSimulationNode2Entity = NodeFunctions.getEntityFromNodeID(authoringNode3Entity, node2ID)!
       const reparentedAuthoringNode2Entity = LayerFunctions.getAuthoringCounterpart(reparentedSimulationNode2Entity)
 
       assert.equal(reparentedAuthoringNode2Entity, authoringNode2Entity)
