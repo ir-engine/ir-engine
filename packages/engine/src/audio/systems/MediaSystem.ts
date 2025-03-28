@@ -86,8 +86,8 @@ export class AudioEffectPlayer {
   #queue = new Set<string>()
 
   play = (sound: string, volumeMultiplier = getState(AudioState).notificationVolume) => {
-    if (!this.#els.length) return
-
+    const masterVolume = getState(AudioState).masterVolume
+    if (!this.#els.length || volumeMultiplier === 0 || masterVolume === 0) return
     const audioContext = getState(AudioState).audioContext
     if (this.#queue.has(sound) || audioContext.state === 'suspended') return
     this.#queue.add(sound)
@@ -107,13 +107,11 @@ export class AudioEffectPlayer {
     const source = audioContext.createBufferSource()
     source.buffer = this.bufferMap[sound]
     const el = this.#els.find((el) => el.paused) ?? this.#els[Math.floor(Math.random() * this.#els.length)]
-    el.volume = getState(AudioState).masterVolume * volumeMultiplier
+    el.volume = masterVolume * volumeMultiplier
     if (el.src !== sound) el.src = sound
     el.currentTime = 0
-    if (volumeMultiplier === 0) return
     source.start()
     source.connect(audioContext.destination)
-
     this.#queue.delete(sound)
   }
 }
