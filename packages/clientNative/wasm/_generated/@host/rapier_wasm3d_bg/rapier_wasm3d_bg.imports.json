@@ -1,0 +1,560 @@
+[
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbindgen_object_drop_ref",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32"
+      ],
+      "resultTypes": []
+    },
+    "parameterTypeNames": [
+      "u32"
+    ],
+    "returnTypeName": "void",
+    "mangledName": "0x5F_wbindgen_object_drop_ref",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbindgen_object_drop_ref"
+  },
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbindgen_number_new",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "f64"
+      ],
+      "resultTypes": [
+        "i32"
+      ]
+    },
+    "parameterTypeNames": [
+      "f64"
+    ],
+    "returnTypeName": "u32",
+    "mangledName": "0x5F_wbindgen_number_new",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbindgen_number_new"
+  },
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbindgen_number_get",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32",
+        "i32"
+      ],
+      "resultTypes": []
+    },
+    "parameterTypeNames": [
+      "u32",
+      "u32"
+    ],
+    "returnTypeName": "void",
+    "mangledName": "0x5F_wbindgen_number_get",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbindgen_number_get"
+  },
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbindgen_boolean_get",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32"
+      ],
+      "resultTypes": [
+        "i32"
+      ]
+    },
+    "parameterTypeNames": [
+      "u32"
+    ],
+    "returnTypeName": "u32",
+    "mangledName": "0x5F_wbindgen_boolean_get",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbindgen_boolean_get"
+  },
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbindgen_is_function",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32"
+      ],
+      "resultTypes": [
+        "i32"
+      ]
+    },
+    "parameterTypeNames": [
+      "u32"
+    ],
+    "returnTypeName": "u32",
+    "mangledName": "0x5F_wbindgen_is_function",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbindgen_is_function"
+  },
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbg_rawraycolliderintersection_new",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32"
+      ],
+      "resultTypes": [
+        "i32"
+      ]
+    },
+    "parameterTypeNames": [
+      "u32"
+    ],
+    "returnTypeName": "u32",
+    "mangledName": "0x5F_wbg_rawraycolliderintersection_new",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbg_rawraycolliderintersection_new"
+  },
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbg_rawcontactforceevent_new",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32"
+      ],
+      "resultTypes": [
+        "i32"
+      ]
+    },
+    "parameterTypeNames": [
+      "u32"
+    ],
+    "returnTypeName": "u32",
+    "mangledName": "0x5F_wbg_rawcontactforceevent_new",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbg_rawcontactforceevent_new"
+  },
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbg_call_168da88779e35f61",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32",
+        "i32",
+        "i32"
+      ],
+      "resultTypes": [
+        "i32"
+      ]
+    },
+    "parameterTypeNames": [
+      "u32",
+      "u32",
+      "u32"
+    ],
+    "returnTypeName": "u32",
+    "mangledName": "0x5F_wbg_call_168da88779e35f61",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbg_call_168da88779e35f61"
+  },
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbg_call_3999bee59e9f7719",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32",
+        "i32",
+        "i32",
+        "i32"
+      ],
+      "resultTypes": [
+        "i32"
+      ]
+    },
+    "parameterTypeNames": [
+      "u32",
+      "u32",
+      "u32",
+      "u32"
+    ],
+    "returnTypeName": "u32",
+    "mangledName": "0x5F_wbg_call_3999bee59e9f7719",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbg_call_3999bee59e9f7719"
+  },
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbg_call_e1f72c051cdab859",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32",
+        "i32",
+        "i32",
+        "i32",
+        "i32"
+      ],
+      "resultTypes": [
+        "i32"
+      ]
+    },
+    "parameterTypeNames": [
+      "u32",
+      "u32",
+      "u32",
+      "u32",
+      "u32"
+    ],
+    "returnTypeName": "u32",
+    "mangledName": "0x5F_wbg_call_e1f72c051cdab859",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbg_call_e1f72c051cdab859"
+  },
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbg_bind_10dfe70e95d2a480",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32",
+        "i32",
+        "i32",
+        "i32"
+      ],
+      "resultTypes": [
+        "i32"
+      ]
+    },
+    "parameterTypeNames": [
+      "u32",
+      "u32",
+      "u32",
+      "u32"
+    ],
+    "returnTypeName": "u32",
+    "mangledName": "0x5F_wbg_bind_10dfe70e95d2a480",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbg_bind_10dfe70e95d2a480"
+  },
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbg_buffer_3f3d764d4747d564",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32"
+      ],
+      "resultTypes": [
+        "i32"
+      ]
+    },
+    "parameterTypeNames": [
+      "u32"
+    ],
+    "returnTypeName": "u32",
+    "mangledName": "0x5F_wbg_buffer_3f3d764d4747d564",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbg_buffer_3f3d764d4747d564"
+  },
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbg_newwithbyteoffsetandlength_d9aa266703cb98be",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32",
+        "i32",
+        "i32"
+      ],
+      "resultTypes": [
+        "i32"
+      ]
+    },
+    "parameterTypeNames": [
+      "u32",
+      "u32",
+      "u32"
+    ],
+    "returnTypeName": "u32",
+    "mangledName": "0x5F_wbg_newwithbyteoffsetandlength_d9aa266703cb98be",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbg_newwithbyteoffsetandlength_d9aa266703cb98be"
+  },
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbg_new_8c3f0052272a457a",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32"
+      ],
+      "resultTypes": [
+        "i32"
+      ]
+    },
+    "parameterTypeNames": [
+      "u32"
+    ],
+    "returnTypeName": "u32",
+    "mangledName": "0x5F_wbg_new_8c3f0052272a457a",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbg_new_8c3f0052272a457a"
+  },
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbg_set_83db9690f9353e79",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32",
+        "i32",
+        "i32"
+      ],
+      "resultTypes": []
+    },
+    "parameterTypeNames": [
+      "u32",
+      "u32",
+      "u32"
+    ],
+    "returnTypeName": "void",
+    "mangledName": "0x5F_wbg_set_83db9690f9353e79",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbg_set_83db9690f9353e79"
+  },
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbg_length_9e1ae1900cb0fbd5",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32"
+      ],
+      "resultTypes": [
+        "i32"
+      ]
+    },
+    "parameterTypeNames": [
+      "u32"
+    ],
+    "returnTypeName": "u32",
+    "mangledName": "0x5F_wbg_length_9e1ae1900cb0fbd5",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbg_length_9e1ae1900cb0fbd5"
+  },
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbg_newwithbyteoffsetandlength_be22e5fcf4f69ab4",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32",
+        "i32",
+        "i32"
+      ],
+      "resultTypes": [
+        "i32"
+      ]
+    },
+    "parameterTypeNames": [
+      "u32",
+      "u32",
+      "u32"
+    ],
+    "returnTypeName": "u32",
+    "mangledName": "0x5F_wbg_newwithbyteoffsetandlength_be22e5fcf4f69ab4",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbg_newwithbyteoffsetandlength_be22e5fcf4f69ab4"
+  },
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbg_set_0e0314cf6675c1b9",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32",
+        "i32",
+        "i32"
+      ],
+      "resultTypes": []
+    },
+    "parameterTypeNames": [
+      "u32",
+      "u32",
+      "u32"
+    ],
+    "returnTypeName": "void",
+    "mangledName": "0x5F_wbg_set_0e0314cf6675c1b9",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbg_set_0e0314cf6675c1b9"
+  },
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbg_length_9a2deed95d22668d",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32"
+      ],
+      "resultTypes": [
+        "i32"
+      ]
+    },
+    "parameterTypeNames": [
+      "u32"
+    ],
+    "returnTypeName": "u32",
+    "mangledName": "0x5F_wbg_length_9a2deed95d22668d",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbg_length_9a2deed95d22668d"
+  },
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbg_newwithlength_a7168e4a1e8f5e12",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32"
+      ],
+      "resultTypes": [
+        "i32"
+      ]
+    },
+    "parameterTypeNames": [
+      "u32"
+    ],
+    "returnTypeName": "u32",
+    "mangledName": "0x5F_wbg_newwithlength_a7168e4a1e8f5e12",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbg_newwithlength_a7168e4a1e8f5e12"
+  },
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbindgen_throw",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32",
+        "i32"
+      ],
+      "resultTypes": []
+    },
+    "parameterTypeNames": [
+      "u32",
+      "u32"
+    ],
+    "returnTypeName": "void",
+    "mangledName": "0x5F_wbindgen_throw",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbindgen_throw"
+  },
+  {
+    "kind": "import",
+    "module": "wbg",
+    "name": "__wbindgen_memory",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [],
+      "resultTypes": [
+        "i32"
+      ]
+    },
+    "parameterTypeNames": [],
+    "returnTypeName": "u32",
+    "mangledName": "0x5F_wbindgen_memory",
+    "moduleInfo": {
+      "name": "wbg",
+      "mangledName": "wbg"
+    },
+    "generatedFunctionName": "w2c_wbg_0x5F_wbindgen_memory"
+  }
+]
