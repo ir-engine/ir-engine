@@ -145,7 +145,7 @@ export const TransformGizmoControlComponent = defineComponent({
       )
 
       setComponent(gizmoPlaneEntity, MeshComponent, gizmoPlane)
-      setComponent(gizmoPlaneEntity, TransformGizmoTagComponent)
+      //setComponent(gizmoPlaneEntity, TransformGizmoTagComponent)
       ObjectLayerMaskComponent.setLayer(gizmoPlaneEntity, ObjectLayers.TransformGizmo)
 
       const gizmoControlEntity = createEntity()
