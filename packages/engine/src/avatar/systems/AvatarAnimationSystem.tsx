@@ -57,6 +57,7 @@ import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/Obje
 import React from 'react'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
+import { addError, removeError } from '../../scene/functions/ErrorFunctions'
 import { getRootSpeed, updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { preloadedAnimations } from '../animation/Util'
 import { AnimationState } from '../AnimationManager'
@@ -231,11 +232,11 @@ const RigReactor = (props: { entity: Entity }) => {
       setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Avatar)
       setupAvatarProportions(entity)
     } catch (e) {
-      // console.error('Failed to load avatar', e)
-      // addError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
-      // return () => {
-      //   removeError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
-      // }
+      console.error('Failed to load avatar', e)
+      addError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
+      return () => {
+        removeError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
+      }
     }
   }, [gltfComponent?.progress?.value, gltfComponent?.src.value, avatarAnimationComponent])
 
