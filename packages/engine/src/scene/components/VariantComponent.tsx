@@ -31,6 +31,7 @@ import {
   EntityUUID,
   Static,
   UUIDComponent,
+  UndefinedEntity,
   createEntity,
   removeEntity,
   useChildrenWithComponents,
@@ -78,12 +79,12 @@ export enum Devices {
   XR = 'XR'
 }
 
-const distanceMetadataSchema = S.Object({
+export const distanceMetadataSchema = S.Object({
   minDistance: S.Optional(S.Number()),
   maxDistance: S.Optional(S.Number())
 })
 
-const deviceMetadataSchema = S.Object({
+export const deviceMetadataSchema = S.Object({
   device: S.Optional(S.Enum(Devices))
 })
 
@@ -123,8 +124,25 @@ export const VariantComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const variantComponent = useComponent(entity, VariantComponent)
-
     const instancingComponent = useOptionalComponent(entity, InstancingComponent)
+    const childEntity = useHookstate(UndefinedEntity)
+
+    useEffect(() => {
+      if (instancingComponent) return
+      const _childEntity = createEntity()
+      setComponent(_childEntity, UUIDComponent)
+      setComponent(_childEntity, NameComponent, 'Variant Child w/ GLTFComponent')
+      setComponent(_childEntity, TransformComponent)
+      setComponent(_childEntity, EntityTreeComponent, { parentEntity: entity })
+      setComponent(_childEntity, VisibleComponent)
+      setComponent(_childEntity, GLTFComponent, { src: '' })
+      childEntity.set(_childEntity)
+
+      return () => {
+        childEntity.set(UndefinedEntity)
+        removeEntity(_childEntity)
+      }
+    }, [instancingComponent])
 
     useEffect(() => {
       if (!variantComponent.levels.length) return
@@ -145,14 +163,13 @@ export const VariantComponent = defineComponent({
     }, [variantComponent.heuristic.value, variantComponent.levels])
 
     useEffect(() => {
-      if (!variantComponent.levels.length || instancingComponent) return
+      if (!variantComponent.levels.length || !childEntity.value) return
 
       const currentLevel = variantComponent.currentLevel.value
       const src = variantComponent.levels[currentLevel].src.value
       if (!src) return
-
-      setComponent(entity, GLTFComponent, { src: src })
-    }, [instancingComponent, variantComponent.currentLevel, variantComponent.levels])
+      setComponent(childEntity.value, GLTFComponent, { src: src })
+    }, [childEntity, variantComponent.currentLevel, variantComponent.levels])
 
     useEffect(() => {
       const levels = variantComponent.levels.length
