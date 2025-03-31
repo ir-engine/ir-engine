@@ -818,15 +818,19 @@ export const EEMaterialComponent = defineComponent({
   },
 
   async extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
+    const pending = [] as Promise<any>[]
     const extension = materialDef.extensions![EEMaterialComponent.jsonID] as ComponentType<typeof EEMaterialComponent>
 
     for (const [k, v] of Object.entries(extension.args)) {
       if (v.type === 'texture') {
         if (v.contents) {
-          const texture = await GLTFLoaderFunctions.assignTexture(options, v.contents)
-          if (!texture) continue
-          if (k === 'map') texture.colorSpace = SRGBColorSpace
-          materialParams[k] = texture
+          pending.push(
+            GLTFLoaderFunctions.assignTexture(options, v.contents).then((texture) => {
+              if (!texture) return
+              if (k === 'map') texture.colorSpace = SRGBColorSpace
+              materialParams[k] = texture
+            })
+          )
         }
       } else if (v.type === 'color') {
         materialParams[k] = new Color(v.contents)
@@ -834,5 +838,7 @@ export const EEMaterialComponent = defineComponent({
         materialParams[k] = v.contents
       }
     }
+
+    return Promise.all(pending)
   }
 })
