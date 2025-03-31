@@ -201,7 +201,6 @@ export const createVRMFromGLTF = (rootEntity: Entity) => {
 
     const boneComponent = getOptionalComponent(entity, BoneComponent)
     boneComponent?.matrixWorld.identity()
-    boneComponent?.quaternion.set(0, 0, 0, 1)
     if (boneComponent && !foundRoot) foundRoot = true
     if (foundRoot) boneComponent?.matrixWorld.makeRotationY(Math.PI)
 
