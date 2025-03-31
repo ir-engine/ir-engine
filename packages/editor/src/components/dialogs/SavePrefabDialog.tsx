@@ -45,11 +45,12 @@ export default function SavePrefabPanel({ entity }) {
   const srcPath = useHookstate(STATIC_ASSET_REGEX.exec(gltfComponent.src)?.[3].replace(/\.[^.]*$/, ''))
   const fileName = (srcPath.value ?? '').split('/').pop() ?? ''
   const resultFileName = useHookstate(isValidFileName(fileName))
-  useAssetsQuery()
+  const { refetchResources } = useAssetsQuery()
 
   const onSavePrefab = async () => {
     const saveName = srcPath.value + '.gltf'
     await exportRelativeGLTF(entity, getState(EditorState).projectName!, saveName, false)
+    refetchResources(true)
     ModalState.closeModal()
   }
 
