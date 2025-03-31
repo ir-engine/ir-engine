@@ -41,7 +41,7 @@ function ViewportButton(
       className={twMerge(
         'flex h-8 w-8 items-center justify-center',
         'text-text-secondary hover:text-text-primary',
-        selected && 'text-ui-primary',
+        selected && 'text-ui-primary hover:text-ui-primary',
         className
       )}
       {...props}
