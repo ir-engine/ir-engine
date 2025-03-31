@@ -69,7 +69,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   const { sceneEntity } = props
   const searchParams = useMutableState(SearchParamState)
 
-  const spectateEntity = useHookstate(null as null | EntityUUID)
+  const spectateEntity = useHookstate(getSearchParamFromURL('spectate') as EntityUUID)
 
   const settingsQuery = useChildrenWithComponents(sceneEntity, [SceneSettingsComponent])
 

@@ -36,8 +36,7 @@ import { AssetLoader } from '../../../classes/AssetLoader'
 import { modelResourcesPath } from '../../../functions/pathResolver'
 import { DomainConfigState } from '../../../state/DomainConfigState'
 import { UploadRequestState } from '../../../state/UploadRequestState'
-import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
-import { ExporterExtension } from './ExporterExtension'
+import { ExporterExtension, GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 
 type BufferJson = {
   name: string
