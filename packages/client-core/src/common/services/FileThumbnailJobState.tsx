@@ -187,8 +187,7 @@ export const FileThumbnailJobState = defineState({
   name: 'FileThumbnailJobState',
   initial: {
     seenResources: [] as string[],
-    jobs: [] as ThumbnailJob[],
-    refreshIndex: 0
+    jobs: [] as ThumbnailJob[]
   },
   reactor: () => <ThumbnailJobReactor />,
   removeCurrentJob: () => {
