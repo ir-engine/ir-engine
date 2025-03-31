@@ -168,9 +168,6 @@ export function createVRM(rootEntity: Entity) {
 }
 
 export const createVRMFromGLTF = (rootEntity: Entity) => {
-  const documentID = GLTFComponent.getInstanceID(rootEntity)
-  const gltf = getComponent(rootEntity, GLTFComponent).document!
-  console.log('creating from gltf')
   const hipsEntity = iterateEntityNode(
     rootEntity,
     (entity) => entity,
@@ -222,37 +219,6 @@ export const createVRMFromGLTF = (rootEntity: Entity) => {
   for (const bone in bones) {
     AvatarRigComponent.setPose(rootEntity, bones[bone], bone as VRMHumanBoneName)
   }
-  // const hips = getComponent(rootEntity, AvatarRigComponent).bonesToEntities.hips
-  // const root = getComponent(hips, EntityTreeComponent).parentEntity
-  // const transform = getOptionalComponent(root, TransformComponent)
-  // transform?.matrixWorld.identity()
-  // const humanoid = new VRMHumanoid(bones)
-  // ;(humanoid as any)._normalizedHumanBones._parentWorldRotationInverses = Object.fromEntries(
-  //   Object.entries((humanoid as any)._normalizedHumanBones._parentWorldRotations).map(([key, value]) => [
-  //     key,
-  //     (value as Quaternion).clone().invert()
-  //   ])
-  // )
-  // const scene = getComponent(rootEntity, ObjectComponent)
-  // const children = getComponent(rootEntity, EntityTreeComponent).children
-  // const childName = getComponent(children[0], NameComponent)
-  // const vrm = new VRM({
-  //   humanoid,
-  //   scene,
-  //   meta: { name: childName } as VRM1Meta
-  //   // expressionManager: gltf.userData.vrmExpressionManager,
-  //   // firstPerson: gltf.userData.vrmFirstPerson,
-  //   // lookAt: gltf.userData.vrmLookAt,
-  //   // materials: gltf.userData.vrmMToonMaterials,
-  //   // springBoneManager: gltf.userData.vrmSpringBoneManager,
-  //   // nodeConstraintManager: gltf.userData.vrmNodeConstraintManager,
-  // } as VRMParameters)
-  // setComponent(rootEntity, AvatarRigComponent, { vrm })
-  // linkNormalizedBones(vrm)
-  // if (!vrm.userData) vrm.userData = {}
-  // humanoid.humanBones.rightHand.node.getWorldPosition(_rightHandPos)
-  // humanoid.humanBones.rightUpperArm.node.getWorldPosition(_rightUpperArmPos)
-  // return vrm
 }
 
 export const shoulderAngle = {

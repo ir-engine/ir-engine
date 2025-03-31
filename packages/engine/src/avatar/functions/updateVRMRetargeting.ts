@@ -58,6 +58,22 @@ export const updateVRMRetargeting = (avatarEntity: Entity) => {
     TransformComponent.rotation.y[boneEntity] = _quatA.y
     TransformComponent.rotation.z[boneEntity] = _quatA.z
     TransformComponent.rotation.w[boneEntity] = _quatA.w
+
+    // if (boneName === VRMHumanBoneName.Hips) {
+    //   const parentEntity = getOptionalComponent(boneEntity, EntityTreeComponent)?.parentEntity
+    //   if (!parentEntity) continue
+    //   const parentBone =
+    //     getOptionalComponent(parentEntity, TransformComponent)
+    //   if (!parentBone) continue
+    //   _boneWorldPos.copy(bone.position).applyMatrix4(parentBone?.matrixWorld)
+    //   _parentWorldMatrixInverse.copy(parentBone.matrixWorld).invert()
+
+    //   _boneWorldPos.applyMatrix4(_parentWorldMatrixInverse)
+    //   if (hasComponent(avatarEntity, AvatarComponent)) {
+    //     _boneWorldPos.multiplyScalar(getComponent(avatarEntity, AvatarComponent).hipsHeight)
+    //   }
+    //   bone.position.copy(_boneWorldPos)
+    // }
   }
 }
 

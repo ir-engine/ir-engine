@@ -32,6 +32,7 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
+  iterateEntityNode,
   QueryReactor,
   setComponent,
   useComponent,
@@ -48,6 +49,7 @@ import {
 } from '@ir-engine/spatial/src/common/functions/PriorityQueue'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { compareDistanceToCamera } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
+import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { XRLeftHandComponent, XRRightHandComponent } from '@ir-engine/spatial/src/xr/XRComponents'
 import React, { useEffect } from 'react'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
@@ -153,9 +155,6 @@ const execute = () => {
       hipsForward.multiplyScalar(0.125)
       normalizedHips.position.sub(hipsForward)
 
-      // convert to local space
-      normalizedHips.position.applyMatrix4(mat4.copy(transform.matrixWorld).invert())
-
       _quat2.copy(headTransform.rotation)
 
       //calculate head look direction and apply to head bone
@@ -166,27 +165,17 @@ const execute = () => {
       )
 
       const hips = getComponent(rig.hips, TransformComponent)
-      /** Place normalized rig in world space for ik calculations */
-      const newWorldMatrix = transform.matrixWorld.clone()
-      normalizedHips.matrix.setPosition(new Vector3())
-      normalizedHips.matrixWorld.multiplyMatrices(newWorldMatrix, normalizedHips.matrix)
-      normalizedHips.matrixWorld.elements[13] = hips.position.y + worldTransform.y
-      normalizedHips.matrixWorld.elements[12] = hips.position.x + worldTransform.x
-      normalizedHips.matrixWorld.elements[14] = hips.position.z + worldTransform.z
 
-      for (const boneName of VRMHumanBoneList) {
-        const bone = getOptionalComponent(rigComponent.bonesToEntities[boneName], BoneComponent)
-        if (!bone) continue
-        bone.scale.setScalar(1)
+      ///** Place normalized rig in world space for ik calculations */
 
-        bone.updateMatrix()
-        if (boneName === 'hips') continue
-        bone.updateMatrixWorld()
-        const worldMatrix = getComponent(rig[boneName], BoneComponent).matrixWorld.elements
-        bone.matrixWorld.elements[13] = worldMatrix[13]
-        bone.matrixWorld.elements[12] = worldMatrix[12]
-        bone.matrixWorld.elements[14] = worldMatrix[14]
-      }
+      iterateEntityNode(
+        rig.hips,
+        (e) => {
+          computeTransformMatrix(e)
+          getComponent(e, BoneComponent).matrixWorld.multiply(new Matrix4().makeRotationY(Math.PI))
+        },
+        (e) => hasComponent(e, BoneComponent)
+      )
     }
 
     if (rightHandTargetBlendWeight && rightHandTransform) {
@@ -246,7 +235,7 @@ const execute = () => {
         .add(TransformComponent.getWorldPosition(entity, _vector3).sub(hipsForward))
 
       solveTwoBoneIK(
-        getComponent(rig.hips, BoneComponent).matrixWorld,
+        getComponent(rig.hips, TransformComponent).matrixWorld,
         getComponent(rig.rightUpperLeg, IKMatrixComponent),
         getComponent(rig.rightLowerLeg, IKMatrixComponent),
         getComponent(rig.rightFoot, IKMatrixComponent),
@@ -265,7 +254,7 @@ const execute = () => {
         .add(TransformComponent.getWorldPosition(entity, _vector3).sub(hipsForward))
 
       solveTwoBoneIK(
-        getComponent(rig.hips, BoneComponent).matrixWorld,
+        getComponent(rig.hips, TransformComponent).matrixWorld,
         getComponent(rig.leftUpperLeg, IKMatrixComponent),
         getComponent(rig.leftLowerLeg, IKMatrixComponent),
         getComponent(rig.leftFoot, IKMatrixComponent),
@@ -301,6 +290,7 @@ const SetupIkMatrices = () => {
   const rigComponent = useComponent(entity, AvatarRigComponent)
   useEffect(() => {
     if (!rigComponent.bonesToEntities.hips.value) return
+    iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
     const rig = rigComponent.bonesToEntities.value
 
