@@ -49,7 +49,6 @@ import {
 } from '@ir-engine/spatial/src/common/functions/PriorityQueue'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { compareDistanceToCamera } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
-import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { XRLeftHandComponent, XRRightHandComponent } from '@ir-engine/spatial/src/xr/XRComponents'
 import React, { useEffect } from 'react'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
@@ -93,6 +92,7 @@ export const AvatarIkPriorityQueueState = defineState({
 
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(avatarIkQuery, compareDistanceToCamera)
 
+const _mat4 = new Matrix4()
 const execute = () => {
   const { priorityQueue, sortedTransformEntities, visualizers } = getState(AvatarIkPriorityQueueState)
   const { deltaSeconds } = getState(ECSState)
@@ -134,16 +134,13 @@ const execute = () => {
     const head = AvatarIKTargetComponent.getTargetEntity(ownerID, ikTargets.head)
     const headTargetBlendWeight = AvatarIKTargetComponent.blendWeight[head]
 
-    const transform = getComponent(entity, TransformComponent)
-
     const worldRotation = TransformComponent.getWorldRotation(entity, _worldRot)
 
     if (headTargetBlendWeight) {
       const headTransform = getComponent(head, TransformComponent)
-      const worldTransform = TransformComponent.getWorldPosition(entity, _vector3)
-      const normalizedHips = getComponent(rig.hips, BoneComponent)
+      const hips = getComponent(rig.hips, TransformComponent)
 
-      normalizedHips.position.set(
+      hips.position.set(
         headTransform.position.x,
         headTransform.position.y - avatarComponent.torsoLength - 0.125,
         headTransform.position.z
@@ -153,7 +150,7 @@ const execute = () => {
       hipsForward.set(0, 0, 1)
       hipsForward.applyQuaternion(worldRotation)
       hipsForward.multiplyScalar(0.125)
-      normalizedHips.position.sub(hipsForward)
+      hips.position.sub(hipsForward)
 
       _quat2.copy(headTransform.rotation)
 
@@ -164,15 +161,12 @@ const execute = () => {
         _quat2
       )
 
-      const hips = getComponent(rig.hips, TransformComponent)
-
-      ///** Place normalized rig in world space for ik calculations */
-
       iterateEntityNode(
         rig.hips,
         (e) => {
-          computeTransformMatrix(e)
-          getComponent(e, BoneComponent).matrixWorld.multiply(new Matrix4().makeRotationY(Math.PI))
+          getComponent(e, BoneComponent).matrixWorld.multiply(
+            _mat4.makeRotationFromQuaternion(rigComponent.parentWorldRotationInverses.hips)
+          )
         },
         (e) => hasComponent(e, BoneComponent)
       )
@@ -290,7 +284,6 @@ const SetupIkMatrices = () => {
   const rigComponent = useComponent(entity, AvatarRigComponent)
   useEffect(() => {
     if (!rigComponent.bonesToEntities.hips.value) return
-    iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
     const rig = rigComponent.bonesToEntities.value
 

@@ -25,12 +25,15 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
-import { getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, getOptionalComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
+import { AvatarComponent } from '../components/AvatarComponent'
 import { VRMHumanBoneList } from '../maps/VRMHumanBoneList'
+import { VRMHumanBoneName } from '../maps/VRMHumanBoneName'
 
 const emptyQuaternion = new Quaternion()
 
@@ -53,27 +56,27 @@ export const updateVRMRetargeting = (avatarEntity: Entity) => {
       .premultiply(parentInverseWorldRotation)
       .multiply(worldRotation)
 
-    TransformComponent.dirty[boneEntity] = 1
     TransformComponent.rotation.x[boneEntity] = _quatA.x
     TransformComponent.rotation.y[boneEntity] = _quatA.y
     TransformComponent.rotation.z[boneEntity] = _quatA.z
     TransformComponent.rotation.w[boneEntity] = _quatA.w
 
-    // if (boneName === VRMHumanBoneName.Hips) {
-    //   const parentEntity = getOptionalComponent(boneEntity, EntityTreeComponent)?.parentEntity
-    //   if (!parentEntity) continue
-    //   const parentBone =
-    //     getOptionalComponent(parentEntity, TransformComponent)
-    //   if (!parentBone) continue
-    //   _boneWorldPos.copy(bone.position).applyMatrix4(parentBone?.matrixWorld)
-    //   _parentWorldMatrixInverse.copy(parentBone.matrixWorld).invert()
+    if (boneName === VRMHumanBoneName.Hips) {
+      const parentEntity = getOptionalComponent(boneEntity, EntityTreeComponent)?.parentEntity
+      if (!parentEntity) continue
+      const parentBone = getOptionalComponent(parentEntity, TransformComponent)
+      if (!parentBone) continue
+      _boneWorldPos.copy(bone.position).applyMatrix4(parentBone?.matrixWorld)
+      _parentWorldMatrixInverse.copy(parentBone.matrixWorld).invert()
 
-    //   _boneWorldPos.applyMatrix4(_parentWorldMatrixInverse)
-    //   if (hasComponent(avatarEntity, AvatarComponent)) {
-    //     _boneWorldPos.multiplyScalar(getComponent(avatarEntity, AvatarComponent).hipsHeight)
-    //   }
-    //   bone.position.copy(_boneWorldPos)
-    // }
+      _boneWorldPos.applyMatrix4(_parentWorldMatrixInverse)
+      _boneWorldPos.applyQuaternion(parentInverseWorldRotation)
+
+      if (hasComponent(avatarEntity, AvatarComponent)) {
+        //_boneWorldPos.multiplyScalar(getComponent(avatarEntity, AvatarComponent).hipsHeight)
+      }
+      bone.position.copy(_boneWorldPos)
+    }
   }
 }
 
