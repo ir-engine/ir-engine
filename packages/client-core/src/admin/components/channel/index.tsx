@@ -27,7 +27,7 @@ import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMagnifyingGlass, HiPlus, HiTrash } from 'react-icons/hi2'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useMutation } from '@ir-engine/common'
 import { channelPath, ChannelType } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
@@ -79,7 +79,7 @@ export default function Channels() {
                   size="sm"
                   fullWidth
                   onClick={() => {
-                    PopoverState.showPopupover(
+                    ModalState.openModal(
                       <ConfirmDialog
                         text={t('admin:components.channel.confirmMultiChannelDelete')}
                         onSubmit={async () => {
@@ -103,7 +103,7 @@ export default function Channels() {
                 size="sm"
                 fullWidth
                 onClick={() => {
-                  PopoverState.showPopupover(<AddEditChannelModal />)
+                  ModalState.openModal(<AddEditChannelModal />)
                 }}
               >
                 <HiPlus />

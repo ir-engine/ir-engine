@@ -77,6 +77,7 @@ import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxCo
 import { setCameraFocusOnBox } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { BackgroundComponent, SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import mime from 'mime-types'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
@@ -119,7 +120,8 @@ const uploadThumbnail = async (src: string, projectName: string, blob: Blob | nu
   if (!blob) return
   const thumbnailMode = 'automatic'
   const thumbnailKey = generateThumbnailKey(src, projectName)
-  const file = new File([blob], thumbnailKey)
+  const mimetype = mime.lookup(thumbnailKey) || 'application/octet-stream'
+  const file = new File([blob], thumbnailKey, { type: mimetype })
   try {
     const thumbnailURL = new URL(
       await uploadToFeathersService(fileBrowserUploadPath, [file], {

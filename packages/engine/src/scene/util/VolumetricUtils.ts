@@ -23,9 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Engine, getComponent } from '@ir-engine/ecs'
+import { Engine, getChildrenWithComponents, getComponent } from '@ir-engine/ecs'
 import { ImmutableArray, State, getState } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import {
@@ -40,8 +41,8 @@ import {
   UniformsUtils,
   Vector2
 } from 'three'
-import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
+import { AssetState } from '../../gltf/GLTFState'
 import {
   ASTCTextureTarget,
   AudioFileFormat,
@@ -56,7 +57,6 @@ import {
   TextureType,
   UniformSolveTarget
 } from '../constants/UVOLTypes'
-import getFirstMesh from './meshUtils'
 
 export const getBufferGeometrySize = (geometry: BufferGeometry) => {
   const attributes = geometry.attributes
@@ -163,11 +163,7 @@ export const loadCorto = (url: string, byteStart: number, byteEnd: number) => {
 }
 
 export const loadDraco = (url: string) => {
-  const gltfLoader = getState(AssetLoaderState).gltfLoader
-  if (!gltfLoader) {
-    throw new Error('loadDraco:GLTFLoader is not available')
-  }
-  const dracoLoader = gltfLoader.dracoLoader
+  const dracoLoader = getState(AssetLoaderState).dracoLoader
   if (!dracoLoader) {
     throw new Error('loadDraco:DracoLoader is not available')
   }
@@ -192,40 +188,29 @@ export const loadDraco = (url: string) => {
 }
 
 export const loadGLTF = (url: string) => {
-  const gltfLoader = getState(AssetLoaderState).gltfLoader
-  if (!gltfLoader) {
-    throw new Error('loadDraco:GLTFLoader is not available')
-  }
-
   return new Promise<{ mesh: Mesh<BufferGeometry, Material>; fetchTime: number; memoryOccupied: number }>(
     (resolve, reject) => {
       const startTime = performance.now()
-      gltfLoader.load(
-        url,
-        ({ scene }: GLTF) => {
-          const mesh = getFirstMesh(scene)!
+      AssetState.loadAsync(url, true)
+        .then((rootEntity) => {
+          const [meshEntity] = getChildrenWithComponents(rootEntity, [MeshComponent])
+          const mesh = getComponent(meshEntity, MeshComponent)
           resolve({
             mesh: mesh as Mesh<BufferGeometry, Material>,
             fetchTime: performance.now() - startTime,
             memoryOccupied: getGLTFGeometrySize(mesh)
           })
-        },
-        undefined,
-        (err) => {
+        })
+        .catch((err) => {
           console.error('Error loading geometry: ', url, err)
           reject(`loadGLTF:Error loading geometry from ${url}: ${err.message}`)
-        }
-      )
+        })
     }
   )
 }
 
 export const loadKTX2 = (url: string, _repeat?: Vector2, _offset?: Vector2) => {
-  const gltfLoader = getState(AssetLoaderState).gltfLoader
-  if (!gltfLoader) {
-    throw new Error('loadKTX2:GLTFLoader is not available')
-  }
-  const ktx2Loader = gltfLoader.ktx2Loader
+  const ktx2Loader = getState(AssetLoaderState).ktx2Loader
   if (!ktx2Loader) {
     throw new Error('loadKTX2:KTX2Loader is not available')
   }

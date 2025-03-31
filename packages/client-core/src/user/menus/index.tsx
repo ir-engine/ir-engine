@@ -31,7 +31,7 @@ import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaUserFriends } from 'react-icons/fa'
-import { PopoverState } from '../../common/services/PopoverState'
+import { ModalState } from '../../common/services/ModalState'
 import { ViewerMenuState } from '../../util/ViewerMenuState'
 import LocationIconButton from '../components/LocationIconButton'
 import EmoteMenu from './EmoteMenu'
@@ -53,7 +53,7 @@ export default function UserMenus() {
               position: 'top'
             }}
             icon={isMobile ? User01Md : User01Lg}
-            onClick={() => PopoverState.showPopupover(<ProfileMenu />)}
+            onClick={() => ModalState.openModal(<ProfileMenu />)}
           />
         )}
         {userMenus.share.value && (
@@ -63,7 +63,7 @@ export default function UserMenus() {
               position: 'top'
             }}
             icon={isMobile ? Send01Md : Send01Lg}
-            onClick={() => PopoverState.showPopupover(<ShareMenu />)}
+            onClick={() => ModalState.openModal(<ShareMenu />)}
           />
         )}
         {userMenus.emote.value && (
@@ -73,7 +73,7 @@ export default function UserMenus() {
               position: 'top'
             }}
             icon={isMobile ? EmoteLg : EmoteM}
-            onClick={() => PopoverState.showPopupover(<EmoteMenu />, undefined, 'transparent')}
+            onClick={() => ModalState.openModal(<EmoteMenu />, undefined, 'transparent')}
           />
         )}
         {userMenus.social.value && (
@@ -83,7 +83,7 @@ export default function UserMenus() {
               position: 'top'
             }}
             icon={FaUserFriends}
-            onClick={() => PopoverState.showPopupover(<FriendsMenu />)}
+            onClick={() => ModalState.openModal(<FriendsMenu />)}
           />
         )}
       </div>

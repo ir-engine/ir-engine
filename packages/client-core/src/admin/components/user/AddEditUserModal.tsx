@@ -21,7 +21,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useFind, useMutation } from '@ir-engine/common'
 import {
   ScopeType,
@@ -150,7 +150,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
           }
         })
       }
-      PopoverState.hidePopupover()
+      ModalState.closeModal()
     } catch (error) {
       errors.serviceError.set(error.message)
     }
@@ -167,7 +167,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       title={user?.id ? t('admin:components.user.updateUser') : t('admin:components.user.addUser')}
       className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
-      onClose={PopoverState.hidePopupover}
+      onClose={ModalState.closeModal}
       submitLoading={submitLoading.value}
     >
       <div className="relative grid w-full gap-6">

@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
 import { API, useFind } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
@@ -96,7 +96,7 @@ export default function FilePropertiesModal() {
   }
 
   const handleSubmit = async () => {
-    PopoverState.showPopupover(<FilePropertiesSaveConfirmationModal />)
+    ModalState.openModal(<FilePropertiesSaveConfirmationModal />)
     if (modifiedFields.value.length > 0) {
       const addedTags: string[] = resourceDigest.tags.value!.filter((tag) => !sharedTags.value.includes(tag))
       const removedTags: string[] = sharedTags.value!.filter((tag) => !resourceDigest.tags.value!.includes(tag))
@@ -138,16 +138,16 @@ export default function FilePropertiesModal() {
           ) {
             console.log('All properties successfully updated')
             modifiedFields.set([])
-            PopoverState.hidePopupover()
-            PopoverState.hidePopupover()
+            ModalState.closeModal()
+            ModalState.closeModal()
             reactor.stop()
           }
         }
         return null
       })
     } else {
-      PopoverState.hidePopupover()
-      PopoverState.hidePopupover()
+      ModalState.closeModal()
+      ModalState.closeModal()
     }
   }
 
@@ -233,7 +233,7 @@ export default function FilePropertiesModal() {
       title={title}
       className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
-      onClose={PopoverState.hidePopupover}
+      onClose={ModalState.closeModal}
       submitButtonText={t('editor:layout.filebrowser.fileProperties.save-changes')}
       closeButtonText={t('editor:layout.filebrowser.fileProperties.discard')}
     >

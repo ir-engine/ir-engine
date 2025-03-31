@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-
-export type MeshoptDecoder = {
+class MeshoptDecoderConstructor {
   supported: boolean;
   ready: Promise<void>;
   useWorkers: (numWorkers: number) => void;
@@ -34,3 +33,5 @@ export type MeshoptDecoder = {
   decodeGltfBuffer: (buffer: Uint8Array, count: number, stride: number, source: Uint8Array, mode: number, filter: number) => void;
   decodeGltfBufferAsync?: (count: number, stride: number, source: Uint8Array, mode: number, filter: number) => Promise<{ buffer: ArrayBuffer }>;
 }
+
+export const MeshoptDecoder: MeshoptDecoderConstructor;
