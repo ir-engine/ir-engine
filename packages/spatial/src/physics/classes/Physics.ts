@@ -610,7 +610,7 @@ function createColliderDesc(
       if (!mesh?.geometry)
         return console.warn('[Physics]: Tried to load tri mesh but did not find a geometry', mesh) as any
       try {
-        const _buff = mesh.geometry.clone().scale(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
+        const _buff = mesh.geometry.clone().scale(scale.x, scale.y, scale.z)
         const vertices = new Float32Array((_buff.attributes.position as BufferAttribute).array)
         const indices = new Uint32Array(_buff.index!.array)
         colliderDesc = ColliderDesc.trimesh(vertices, indices)
