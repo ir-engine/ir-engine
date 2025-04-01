@@ -153,7 +153,8 @@ export default function Topbar() {
       dataTestIdJson={{
         topbarId: 'assets-panel-top-bar',
         backButtonId: 'assets-panel-back-button',
-        refreshButtonId: 'assets-panel-refresh-button'
+        refreshButtonId: 'assets-panel-refresh-button',
+        createNewFolderButtonId: 'assets-panel-create-new-folder-button'
       }}
     />
   )

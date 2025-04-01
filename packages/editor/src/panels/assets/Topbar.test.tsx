@@ -23,29 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { cleanup, fireEvent, render, screen, type RenderResult } from '@testing-library/react'
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi, type TestContext } from 'vitest'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { EditorState } from '../../services/EditorServices'
 
 import React from 'react'
 import { FilesState, FilesViewModeSettings, FilesViewModeState } from '../../services/FilesState'
-import FilesToolbar from './toolbar'
+import Topbar from './topbar'
 
-interface FilesToolbarContext extends TestContext {
-  rerender: RenderResult['rerender']
-}
-
-const dynamicViewMode = {
-  _value: 'icons',
-  get value() {
-    return this._value
-  },
-  set: vi.fn((newVal) => {
-    dynamicViewMode._value = newVal
-  })
-}
-
-describe('FilesToolbar component', () => {
+describe('toolbar components', () => {
   beforeAll(() => {
     vi.mock('react-i18next', () => ({
       useTranslation: () => ({
@@ -86,13 +72,17 @@ describe('FilesToolbar component', () => {
             }
           } else if (stateDef === FilesViewModeSettings) {
             return {
-              icons: FilesViewModeSettings.initial.icons,
-              list: FilesViewModeSettings.initial.list
+              icons: {
+                iconSize: {
+                  value: 48,
+                  set: vi.fn()
+                }
+              }
             }
           } else if (stateDef === FilesViewModeState) {
             return {
               viewMode: {
-                value: dynamicViewMode.value
+                value: 'icons'
               }
             }
           }
@@ -101,6 +91,58 @@ describe('FilesToolbar component', () => {
       }
     })
 
+    vi.mock('./hooks', () => ({
+      assetCategories: [
+        {
+          name: 'Category 1',
+          path: '/mock-category-1',
+          depth: 0,
+          children: [
+            {
+              name: 'Subcategory A',
+              path: '/sub-cat-a',
+              depth: 1,
+              children: []
+            },
+            {
+              name: 'Subcategory B',
+              path: '/sub-cat-b',
+              depth: 1,
+              children: []
+            }
+          ]
+        },
+        {
+          name: 'Category 2',
+          path: '/mock-category-2',
+          depth: 0,
+          children: [
+            {
+              name: 'Subcategory C',
+              path: '/sub-cat-c',
+              depth: 1,
+              children: []
+            }
+          ]
+        }
+      ],
+      useAssetsCategory: vi.fn().mockReturnValue({
+        currentCategoryPath: { set: vi.fn(), get: vi.fn().mockReturnValue('') },
+        sidebarWidth: {
+          value: 300,
+          set: vi.fn()
+        }
+      }),
+      useAssetsQuery: vi.fn().mockReturnValue({
+        search: {
+          value: ''
+        },
+        refetchResources: vi.fn(),
+        staticResourcesPagination: {
+          skip: { set: vi.fn() }
+        }
+      })
+    }))
     vi.mock('../files/helpers', async (importOriginal) => {
       const actual = await importOriginal()
       return {
@@ -117,61 +159,36 @@ describe('FilesToolbar component', () => {
       }
     })
   })
-  beforeEach<FilesToolbarContext>((context) => {
-    const { rerender } = render(<FilesToolbar />)
-    context.rerender = rerender
+  beforeEach(() => {
+    render(<Topbar />)
   })
 
   afterEach(() => {
     cleanup()
   })
 
-  it('should render an `Files` toolbar with various elements that have relevant data-testid attributes', () => {
-    const filesPanelTopBar = screen.getByTestId('files-panel-top-bar')
+  it('should render an `Assets` toolbar with various elements that have relevant data-testid attributes', () => {
+    const panelToolBar = screen.getByTestId('assets-panel-top-bar')
     // @ts-ignore
-    expect(filesPanelTopBar).toBeInTheDocument()
+    expect(panelToolBar).toBeInTheDocument()
 
-    const refreshButton = screen.getByTestId('files-panel-refresh-directory-button')
+    const refreshButton = screen.getByTestId('assets-panel-refresh-button')
     // @ts-ignore
     expect(refreshButton).toBeInTheDocument()
 
-    const createNewFolderButton = screen.getByTestId('files-panel-create-new-folder-button')
+    const createNewFolderButton = screen.getByTestId('assets-panel-create-new-folder-button')
     // @ts-ignore
     expect(createNewFolderButton).toBeInTheDocument()
 
-    const viewOptionsButton = screen.getByTestId('view-options-button')
+    const breadCrumbs = screen.getByTestId('assets-panel-breadcrumbs')
     // @ts-ignore
-    expect(viewOptionsButton).toBeInTheDocument()
-
-    const downloadProjectButton = screen.getByTestId('files-panel-download-project-button')
-    // @ts-ignore
-    expect(downloadProjectButton).toBeInTheDocument()
-
-    const viewModeListButton = screen.getByTestId('files-panel-view-mode-list-button')
-    // @ts-ignore
-    expect(viewModeListButton).toBeInTheDocument()
-
-    const viewModeIconsButton = screen.getByTestId('files-panel-view-mode-icons-button')
-    // @ts-ignore
-    expect(viewModeIconsButton).toBeInTheDocument()
-
-    const uploadFilesButton = screen.getByTestId('files-panel-upload-files-button')
-    // @ts-ignore
-    expect(uploadFilesButton).toBeInTheDocument()
-
-    const uploadFolderButton = screen.getByTestId('files-panel-upload-folder-button')
-    // @ts-ignore
-    expect(uploadFolderButton).toBeInTheDocument()
-
-    const searchBar = screen.getByTestId('files-panel-search-input')
-    // @ts-ignore
-    expect(searchBar).toBeInTheDocument()
+    expect(breadCrumbs).toBeInTheDocument()
   })
 
-  it('should render a pop up menu with view options for `Files` that have data-testid attributes when the view options button is clicked', (context: FilesToolbarContext) => {
-    const filesPanelTopBar = screen.getByTestId('files-panel-top-bar')
+  it('should render a pop up menu with view options for `Assets` that have data-testid attributes when the view options button is clicked', () => {
+    const panelToolBar = screen.getByTestId('assets-panel-top-bar')
     // @ts-ignore
-    expect(filesPanelTopBar).toBeInTheDocument()
+    expect(panelToolBar).toBeInTheDocument()
 
     const viewOptionsButton = screen.getByTestId('view-options-button')
     fireEvent.click(viewOptionsButton)
@@ -189,35 +206,5 @@ describe('FilesToolbar component', () => {
     const sliderDraggableValueInput = screen.getByTestId('slider-draggable-value-input')
     // @ts-ignore
     expect(sliderDraggableValueInput).toBeInTheDocument()
-
-    const viewModeListButton = screen.getByTestId('files-panel-view-mode-list-button')
-    fireEvent.click(viewModeListButton)
-
-    dynamicViewMode.set('list')
-    context.rerender(<FilesToolbar />)
-
-    const listOptionsColumnName = screen.getByTestId('files-panel-view-mode-list-options-column-name')
-    // @ts-ignore
-    expect(listOptionsColumnName).toBeInTheDocument()
-
-    const listOptionsColumnType = screen.getByTestId('files-panel-view-mode-list-options-column-type')
-    // @ts-ignore
-    expect(listOptionsColumnType).toBeInTheDocument()
-
-    const listOptionsColumnAuthor = screen.getByTestId('files-panel-view-mode-list-options-column-author')
-    // @ts-ignore
-    expect(listOptionsColumnAuthor).toBeInTheDocument()
-
-    const listOptionsColumnCreatedAt = screen.getByTestId('files-panel-view-mode-list-options-column-createdAt')
-    // @ts-ignore
-    expect(listOptionsColumnCreatedAt).toBeInTheDocument()
-
-    const listOptionsColumnStatistics = screen.getByTestId('files-panel-view-mode-list-options-column-statistics')
-    // @ts-ignore
-    expect(listOptionsColumnStatistics).toBeInTheDocument()
-
-    const listOptionsColumnSize = screen.getByTestId('files-panel-view-mode-list-options-column-size')
-    // @ts-ignore
-    expect(listOptionsColumnSize).toBeInTheDocument()
   })
 })
