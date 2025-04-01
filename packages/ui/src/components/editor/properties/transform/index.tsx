@@ -29,11 +29,11 @@ import { Quaternion, Vector3 } from 'three'
 
 import { useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { SceneDynamicLoadComponent } from '@ir-engine/engine/src/scene/components/SceneDynamicLoadComponent'
-import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 
 import { LuMove3D } from 'react-icons/lu'
 
-import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import { commitProperty, EditorComponentType, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { ObjectGridSnapState } from '@ir-engine/editor/src/systems/ObjectGridSnapSystem'
 
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
@@ -43,6 +43,7 @@ import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices
 import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { TransformComponent } from '@ir-engine/spatial'
 
+import { PresentationSystemGroup, useExecute } from '@ir-engine/ecs'
 import { EditorHistoryFunctions } from '@ir-engine/editor/src/services/EditorHistoryState'
 import { Checkbox } from '@ir-engine/ui'
 import ComponentDropdown from '../../ComponentDropdown'
@@ -51,10 +52,6 @@ import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import Vector3Input from '../../input/Vector3'
 import { TransformUniformScaleState } from './TransformUniformScaleState.ts'
-
-const position = new Vector3()
-const rotation = new Quaternion()
-const scale = new Vector3()
 
 /**
  * TransformPropertyGroup component is used to render editor view to customize properties.
@@ -67,12 +64,39 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const transformComponent = useComponent(props.entity, TransformComponent)
   const transformSpace = useHookstate(getMutableState(EditorHelperState).transformSpace)
 
-  position.copy(transformComponent.position.value)
-  rotation.copy(transformComponent.rotation.value)
-  scale.copy(transformComponent.scale.value)
+  const position = useHookstate(transformComponent.position.get(NO_PROXY))
+  const rotation = useHookstate(transformComponent.rotation.get(NO_PROXY))
+  const scale = useHookstate(transformComponent.scale.get(NO_PROXY))
+
+  useExecute(
+    () => {
+      const updatedPostion = transformComponent.position.get(NO_PROXY)
+      const updatedRotation = transformComponent.rotation.get(NO_PROXY)
+      const updatedScale = transformComponent.scale.get(NO_PROXY)
+      if (
+        position.x.value != updatedPostion.x ||
+        position.y.value != updatedPostion.y ||
+        position.z.value != updatedPostion.z
+      ) {
+        position.set(updatedPostion)
+      }
+      if (
+        rotation.x.value != updatedRotation.x ||
+        rotation.y.value != updatedRotation.y ||
+        rotation.z.value != updatedRotation.z ||
+        rotation.w.value != updatedRotation.w
+      ) {
+        rotation.set(updatedRotation)
+      }
+      if (scale.x.value != updatedScale.x || scale.y.value != updatedScale.y || scale.z.value != updatedScale.z) {
+        scale.set(updatedScale)
+      }
+    },
+    { after: PresentationSystemGroup }
+  )
 
   if (transformSpace.value === TransformSpace.world)
-    transformComponent.matrixWorld.value.decompose(position, rotation, scale)
+    transformComponent.matrixWorld.value.decompose(position.value, rotation.value, scale.value)
 
   const onRelease = () => {
     const bboxSnapState = getState(ObjectGridSnapState)
@@ -146,7 +170,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
-          value={position}
+          value={position.value}
           onChange={onChangePosition}
           onRelease={onRelease}
         />
@@ -154,7 +178,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
       <InputGroup name="Rotation" label={t('editor:properties.transform.lbl-rotation')} className="w-auto">
         <EulerInput
           disabled={locked}
-          quaternion={rotation}
+          quaternion={rotation.value}
           onChange={onChangeRotation}
           unit="°"
           onRelease={onRelease}
@@ -167,7 +191,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
-          value={scale}
+          value={scale.value}
           onToggleUniformScale={onToggleUniformScale}
           onChange={onChangeScale}
           onRelease={onRelease}

@@ -45,9 +45,9 @@ const _mat4 = new Matrix4()
 const _vec3 = new Vector3()
 const SCREEN_SIZE = new Vector2()
 
-export type ContentFitType = 'cover' | 'contain' | 'vertical' | 'horizontal'
+export type ContentFitType = 'cover' | 'contain' | 'stretch' | 'vertical' | 'horizontal'
 export const ContentFitTypeSchema = (init?: ContentFitType) =>
-  S.LiteralUnion(['cover', 'contain', 'vertical', 'horizontal'], init ?? 'contain')
+  S.LiteralUnion(['stretch', 'cover', 'contain', 'vertical', 'horizontal'], init ?? 'contain')
 
 // yes, multiple by the same direction twice, as the local coordinate changes with each rotation
 const _handRotation = new Quaternion()
@@ -63,6 +63,10 @@ export const ObjectFitFunctions = {
     containerHeight: number,
     fit: ContentFitType = 'contain'
   ) => {
+    if (fit === 'stretch') {
+      return 1
+    }
+
     const ratioContent = contentWidth / contentHeight
     const ratioContainer = containerWidth / containerHeight
 
