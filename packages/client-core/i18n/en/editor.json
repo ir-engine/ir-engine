@@ -1,4 +1,4 @@
-{
+{ 
   "loading": "Loading Project",
   "loadingNode": "Loading {{name}} Editor...",
   "loadingError": "Error loading project",
@@ -1555,6 +1555,16 @@
     "createScene": {
       "title": "New Scene",
       "create": "New Empty Scene"
+    },
+    "addScene": {
+      "continue": "Continue",
+      "title": "Select a way to get started",
+      "optionButtons": {
+        "defaultEditor": {
+          "title": "Don't Assist Me",
+          "description": "You will be taken straight to the iR Spaces Editor to create your own iR Space from the ground up"
+        }
+      }
     },
     "file": "file",
     "folder": "folder"
