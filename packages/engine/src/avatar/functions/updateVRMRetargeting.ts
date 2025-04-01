@@ -32,7 +32,6 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { EntityTreeComponent } from '@ir-engine/ecs'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { VRMHumanBoneList } from '../maps/VRMHumanBoneList'
 import { VRMHumanBoneName } from '../maps/VRMHumanBoneName'
 
 const emptyQuaternion = new Quaternion()
@@ -41,8 +40,9 @@ export const updateVRMRetargeting = (avatarEntity: Entity) => {
   const rig = getComponent(avatarEntity, AvatarRigComponent)
   if (!rig?.bonesToEntities.hips) return
 
-  for (const boneName of VRMHumanBoneList) {
+  for (const boneName in rig.bonesToEntities) {
     const boneEntity = rig.bonesToEntities[boneName]
+    if (!TransformComponent.dirty[boneEntity]) continue
     const bone = getOptionalComponent(boneEntity, TransformComponent)
     if (!bone) continue
 
@@ -73,7 +73,7 @@ export const updateVRMRetargeting = (avatarEntity: Entity) => {
       _boneWorldPos.applyQuaternion(parentInverseWorldRotation)
 
       if (hasComponent(avatarEntity, AvatarComponent)) {
-        //_boneWorldPos.multiplyScalar(getComponent(avatarEntity, AvatarComponent).hipsHeight)
+        _boneWorldPos.multiplyScalar(getComponent(avatarEntity, AvatarComponent).hipsHeight)
       }
       bone.position.copy(_boneWorldPos)
     }
