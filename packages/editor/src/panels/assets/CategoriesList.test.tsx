@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import React from 'react'
 import { EditorState } from '../../services/EditorServices'
@@ -48,11 +48,6 @@ describe('CategoriesList component', () => {
       return {
         // @ts-ignore
         ...actual,
-        useHookstate: vi.fn().mockReturnValue({
-          value: false,
-          set: vi.fn()
-        }),
-
         useMutableState: vi.fn().mockImplementation((stateDef) => {
           if (stateDef === EditorState) {
             return {
@@ -119,17 +114,6 @@ describe('CategoriesList component', () => {
         }
       })
     }))
-
-    vi.mock('../files/helpers', () => ({
-      useCurrentFiles: vi.fn().mockReturnValue({
-        files: [],
-        categories: {
-          value: [],
-          get: vi.fn().mockReturnValue([])
-        },
-        changeDirectoryByPath: vi.fn()
-      })
-    }))
   })
 
   beforeEach(() => {
@@ -138,10 +122,6 @@ describe('CategoriesList component', () => {
 
   afterEach(() => {
     cleanup()
-  })
-
-  afterAll(() => {
-    vi.resetAllMocks()
   })
 
   it('should render a button with data-testid "assets-tab-assets-section-button"', () => {

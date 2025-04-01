@@ -31,24 +31,13 @@ import React from 'react'
 import { FilesState, FilesViewModeSettings, FilesViewModeState } from '../../services/FilesState'
 import Topbar from './topbar'
 
-describe('toolbar components', () => {
+describe('Topbar component', () => {
   beforeAll(() => {
-    vi.mock('react-i18next', () => ({
-      useTranslation: () => ({
-        t: (key: string) => key
-      })
-    }))
-
     vi.mock('@ir-engine/hyperflux', async (importOriginal) => {
       const actual = await importOriginal()
       return {
         // @ts-ignore
         ...actual,
-        useHookstate: vi.fn().mockReturnValue({
-          value: false,
-          set: vi.fn()
-        }),
-
         useMutableState: vi.fn().mockImplementation((stateDef) => {
           if (stateDef === EditorState) {
             return {
@@ -86,52 +75,13 @@ describe('toolbar components', () => {
               }
             }
           }
-          return {}
         })
       }
     })
 
     vi.mock('./hooks', () => ({
-      assetCategories: [
-        {
-          name: 'Category 1',
-          path: '/mock-category-1',
-          depth: 0,
-          children: [
-            {
-              name: 'Subcategory A',
-              path: '/sub-cat-a',
-              depth: 1,
-              children: []
-            },
-            {
-              name: 'Subcategory B',
-              path: '/sub-cat-b',
-              depth: 1,
-              children: []
-            }
-          ]
-        },
-        {
-          name: 'Category 2',
-          path: '/mock-category-2',
-          depth: 0,
-          children: [
-            {
-              name: 'Subcategory C',
-              path: '/sub-cat-c',
-              depth: 1,
-              children: []
-            }
-          ]
-        }
-      ],
       useAssetsCategory: vi.fn().mockReturnValue({
-        currentCategoryPath: { set: vi.fn(), get: vi.fn().mockReturnValue('') },
-        sidebarWidth: {
-          value: 300,
-          set: vi.fn()
-        }
+        currentCategoryPath: { set: vi.fn(), get: vi.fn().mockReturnValue('') }
       }),
       useAssetsQuery: vi.fn().mockReturnValue({
         search: {
@@ -143,21 +93,6 @@ describe('toolbar components', () => {
         }
       })
     }))
-    vi.mock('../files/helpers', async (importOriginal) => {
-      const actual = await importOriginal()
-      return {
-        // @ts-ignore
-        ...actual,
-        useCurrentFiles: vi.fn().mockReturnValue({
-          files: [],
-          categories: {
-            value: [],
-            get: vi.fn().mockReturnValue([])
-          },
-          changeDirectoryByPath: vi.fn()
-        })
-      }
-    })
   })
   beforeEach(() => {
     render(<Topbar />)
