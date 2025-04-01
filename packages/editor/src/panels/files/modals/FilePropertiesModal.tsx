@@ -89,7 +89,8 @@ export default function FilePropertiesModal() {
       getMutableState(FileThumbnailJobState).jobs.merge([
         {
           key: resource.url,
-          project: resource.project!
+          project: resource.project!,
+          jobType: 'thumbnail'
         }
       ])
     }
