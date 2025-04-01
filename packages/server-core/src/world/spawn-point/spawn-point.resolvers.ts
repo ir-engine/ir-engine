@@ -30,7 +30,7 @@ import { v4 } from 'uuid'
 
 import { SpawnPointQuery, SpawnPointType } from '@ir-engine/common/src/schema.type.module'
 import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
-import { EntityUUID } from '@ir-engine/ecs'
+import type { EntityUUID } from '@ir-engine/ecs'
 import type { HookContext } from '@ir-engine/server-core/declarations'
 
 export const spawnPointResolver = resolve<SpawnPointType, HookContext>({

@@ -25,16 +25,15 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router-dom'
 
 import { useMediaNetwork } from '@ir-engine/client-core/src/common/services/MediaInstanceConnectionService'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { ECSRecordingActions, PlaybackState, RecordingState } from '@ir-engine/common/src/recording/ECSRecordingSystem'
 import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
-import { dispatchAction, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { SpectateEntityState } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
-import { endXRSession, requestXRSession } from '@ir-engine/spatial/src/xr/XRSessionFunctions'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 import { RegisteredWidgets, WidgetAppActions } from '../../systems/WidgetAppService'
 
@@ -44,18 +43,20 @@ import multiLogger from '@ir-engine/common/src/logger'
 import { EngineState } from '@ir-engine/ecs'
 import { MediaStreamService, MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { endXRSession, requestXRSession } from '@ir-engine/spatial/src/xr/XRSessionFunctions'
 import {
   Microphone01Lg,
+  Microphone01Md,
   MicrophoneOff,
   Screenshare,
   VideoRecorderLg,
-  VideoRecorderOffLg
+  VideoRecorderMd,
+  VideoRecorderOffLg,
+  VideoRecorderOffMd
 } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
-import { IoAccessibility } from 'react-icons/io5'
-import { MdFlipCameraAndroid, MdOutlineViewInAr } from 'react-icons/md'
+import { MdFlipCameraAndroid } from 'react-icons/md'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
-import { SearchParamState } from '../../common/services/RouterService'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import LocationIconButton from '../../user/components/LocationIconButton'
 import { clientContextParams } from '../../util/ClientContextState'
@@ -102,8 +103,11 @@ export const MediaIconsBox = () => {
   const xrMode = xrState.sessionMode.value
   const supportsVR = xrState.supportedSessionModes['immersive-vr'].value
 
-  const [motionCaptureEnabled, xrEnabled] = useFeatureFlags([
-    FeatureFlags.Client.Menu.MotionCapture,
+  const [
+    // motionCaptureEnabled,
+    xrEnabled
+  ] = useFeatureFlags([
+    // FeatureFlags.Client.Menu.MotionCapture,
     FeatureFlags.Client.Menu.XR
   ])
 
@@ -132,13 +136,15 @@ export const MediaIconsBox = () => {
   }
 
   const xrSessionActive = xrState.sessionActive.value
+  const [params, setSearch] = useSearchParams()
 
   const handleExitSpectatorClick = () => {
     if (spectating) {
-      SearchParamState.set('spectate', none)
+      params.delete('spectate')
     } else {
-      SearchParamState.set('spectate', '')
+      params.set('spectate', '')
     }
+    setSearch(params)
   }
 
   return (
@@ -152,7 +158,7 @@ export const MediaIconsBox = () => {
           tooltip={{
             title: t('user:menu.toggleMute')
           }}
-          icon={isCamAudioEnabled ? Microphone01Lg : MicrophoneOff}
+          icon={isCamAudioEnabled ? (isMobile ? Microphone01Md : Microphone01Lg) : MicrophoneOff}
           id="UserAudio"
           onClick={MediaStreamState.toggleMicrophonePaused}
         />
@@ -163,7 +169,15 @@ export const MediaIconsBox = () => {
             tooltip={{
               title: t('user:menu.toggleVideo')
             }}
-            icon={isCamVideoEnabled ? VideoRecorderLg : VideoRecorderOffLg}
+            icon={
+              isCamVideoEnabled
+                ? isMobile
+                  ? VideoRecorderMd
+                  : VideoRecorderLg
+                : isMobile
+                ? VideoRecorderOffMd
+                : VideoRecorderOffLg
+            }
             id="UserVideo"
             onClick={() => {
               MediaStreamState.toggleWebcamPaused()
@@ -182,7 +196,7 @@ export const MediaIconsBox = () => {
               icon={MdFlipCameraAndroid}
             />
           )}
-          {motionCaptureEnabled && (
+          {/* {motionCaptureEnabled && (
             <LocationIconButton
               id="UserPoseTracking"
               tooltip={{
@@ -197,7 +211,7 @@ export const MediaIconsBox = () => {
               }}
               icon={IoAccessibility}
             />
-          )}
+          )} */}
         </>
       ) : null}
       {!isMobile &&
@@ -226,7 +240,7 @@ export const MediaIconsBox = () => {
           }}
         />
       )}
-      {supportsAR && xrEnabled && (
+      {/* {supportsAR && xrEnabled && (
         <LocationIconButton
           id="UserAR"
           tooltip={{
@@ -237,7 +251,7 @@ export const MediaIconsBox = () => {
           }}
           icon={MdOutlineViewInAr}
         />
-      )}
+      )} */}
       {spectating && (
         <button
           type="button"

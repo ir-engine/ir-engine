@@ -75,7 +75,7 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
     mediaTag === screenshareAudioDataChannelType || mediaTag === screenshareVideoDataChannelType ? 'screen' : 'cam'
   const isAudio = mediaTag === webcamAudioDataChannelType || mediaTag === screenshareAudioDataChannelType
 
-  const peerMediaChannelState = useMutableState(PeerMediaChannelState)[peerID]?.[type]
+  const peerMediaChannelState = useMutableState(PeerMediaChannelState)[peerID][type]
 
   const consumer = useHookstate(
     getMutableState(MediasoupMediaProducersConsumersObjectsState).consumers[props.consumerID]
@@ -188,11 +188,14 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
 const NetworkConsumers = (props: { networkID: InstanceID }) => {
   const { networkID } = props
   const consumers = useHookstate(getMutableState(MediasoupMediaProducerConsumerState)[networkID].consumers)
+  const peerMediaChannelState = useMutableState(PeerMediaChannelState)
   return (
     <>
-      {consumers.keys.map((consumerID: string) => (
-        <PeerMedia key={consumerID} consumerID={consumerID} networkID={networkID} />
-      ))}
+      {consumers.keys
+        .filter((c) => !!peerMediaChannelState[consumers.value[c].peerID])
+        .map((consumerID: string) => (
+          <PeerMedia key={consumerID} consumerID={consumerID} networkID={networkID} />
+        ))}
     </>
   )
 }

@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useEffect } from 'react'
 
 import { useTranslation } from 'react-i18next'
 import { MdClose } from 'react-icons/md'
@@ -47,6 +47,8 @@ export interface ModalProps {
   submitButtonText?: string
   onClose?: (isHeader: boolean) => void
   onSubmit?: () => void
+  cancelKey?: string
+  submitKey?: string
 }
 
 export const ModalHeader = ({
@@ -152,9 +154,22 @@ const Modal = ({
   closeButtonDisabled,
   submitButtonDisabled,
   headerIconSrc,
-  showCloseButton = true
+  showCloseButton = true,
+  cancelKey = 'Escape',
+  submitKey = 'Enter'
 }: ModalProps) => {
   const twClassName = twMerge('absolute z-50 w-full rounded-xl border border-surface-1 bg-surface-1', className)
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === cancelKey) onClose?.(false)
+      if (event.key === submitKey && !submitButtonDisabled && !submitLoading) onSubmit?.()
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [onClose, onSubmit, submitButtonDisabled, submitLoading])
+
   return (
     <div data-test-id={id} className={twClassName}>
       {onClose && <ModalHeader title={title} onClose={onClose} headerIconSrc={headerIconSrc} />}

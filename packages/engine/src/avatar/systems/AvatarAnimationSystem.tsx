@@ -50,6 +50,7 @@ import { traverseEntityNode } from '@ir-engine/ecs'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
+import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import React from 'react'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
@@ -230,6 +231,11 @@ const RigReactor = (props: { entity: Entity }) => {
       }
     }
   }, [gltfComponent?.progress?.value, gltfComponent?.src.value, avatarAnimationComponent])
+
+  const rig = useOptionalComponent(entity, AvatarRigComponent)
+  useEffect(() => {
+    setVisibleComponent(entity, !!rig?.bonesToEntities?.hips?.value && gltfComponent?.progress.value === 100)
+  }, [rig?.bonesToEntities.hips, gltfComponent?.progress])
 
   return null
 }

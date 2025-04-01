@@ -116,7 +116,7 @@ class KTX2Loader extends Loader {
 		this.transcoderBinary = null;
 		this.transcoderPending = null;
 
-		this.workerPool = new WorkerPool();
+		this.workerPool = new WorkerPool(1);
 		this.workerSourceURL = '';
 		this.workerConfig = null;
 

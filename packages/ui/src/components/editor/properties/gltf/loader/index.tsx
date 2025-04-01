@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
+import { ProjectService, ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
 import config from '@ir-engine/common/src/config'
 import { camelCaseToSpacedString } from '@ir-engine/common/src/utils/camelCaseToSpacedString'
 import { hasComponent, useAncestorWithComponents, useChildrenWithComponents, useComponent } from '@ir-engine/ecs'
@@ -36,12 +36,12 @@ import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
-import { getState, useHookstate } from '@ir-engine/hyperflux'
+import { getState, useHookstate, useMutableState, useState } from '@ir-engine/hyperflux'
 import { supportedColliderShapes } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { Checkbox, Input } from '@ir-engine/ui'
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineViewInAr } from 'react-icons/md'
 import Accordion from '../../../../../primitives/tailwind/Accordion'
@@ -57,6 +57,7 @@ import { EditorHistoryFunctions } from '@ir-engine/editor/src/services/EditorHis
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { HiPlus } from 'react-icons/hi2'
+import { OptionType } from '../../../../../primitives/tailwind/Select'
 
 const shapeTypeOptions = Object.entries(Shapes)
   .filter(([_, value]) => supportedColliderShapes.includes(value as any))
@@ -70,8 +71,8 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
   const gltfComponent = useComponent(props.entity, GLTFComponent)
   const exporting = useHookstate(false)
   const editorState = getState(EditorState)
-  const projectState = getState(ProjectState)
-  const loadedProjects = useHookstate(() => projectState.projects.map((project) => project.name))
+  const projectState = useMutableState(ProjectState)
+  const loadedProjects = useState([] as OptionType[])
   const hasRigidBody = useAncestorWithComponents(props.entity, [RigidBodyComponent])
 
   const childMeshEntities = useChildrenWithComponents(props.entity, [MeshComponent])
@@ -121,6 +122,23 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
       exporting.set(false)
     })
   }
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      await ProjectService.fetchProjects()
+    }
+    fetchProjects()
+  }, [])
+
+  useEffect(() => {
+    const projects = projectState.projects.value.map((project) => project.name)
+    const options =
+      projects.map((project) => ({
+        label: project,
+        value: project
+      })) ?? []
+    loadedProjects.set(options as unknown as OptionType[])
+  }, [projectState.projects])
 
   return (
     <NodeEditor
@@ -186,12 +204,7 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
             <InputGroup name="Export Project" label="Project">
               <SelectInput
                 value={srcProject.value}
-                options={
-                  loadedProjects.value.map((project) => ({
-                    label: project,
-                    value: project
-                  })) ?? []
-                }
+                options={loadedProjects.value as OptionType[]}
                 onChange={(val) => srcProject.set(val as string)}
               />
             </InputGroup>

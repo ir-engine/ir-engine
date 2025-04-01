@@ -96,7 +96,7 @@ const Tabs = ({
             key={index}
             className={twMerge(
               'p-3 text-sm text-text-secondary hover:border-b hover:border-b-ui-primary disabled:cursor-not-allowed disabled:opacity-50',
-              currentTab.value === index ? 'border-b font-semibold ' : '',
+              currentTab.value === index ? 'border-b border-b-ui-select-primary font-semibold ' : '',
               tab.disabled ? 'border-none' : '',
               tabClassName
             )}

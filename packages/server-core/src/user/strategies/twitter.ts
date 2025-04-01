@@ -25,13 +25,12 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AuthenticationRequest, AuthenticationResult } from '@feathersjs/authentication'
 import { Paginated, Params } from '@feathersjs/feathers'
-
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { loginTokenPath } from '@ir-engine/common/src/schemas/user/login-token.schema'
 import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { InviteCode, UserName, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
-
-import { loginTokenPath } from '@ir-engine/common/src/schemas/user/login-token.schema'
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import moment from 'moment/moment'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -107,8 +106,8 @@ export class TwitterStrategy extends CustomOAuthStrategy {
         userId: entity.userId
       })
     if (entity.type !== 'guest' && identityProvider.type === 'guest') {
-      await this.app.service(identityProviderPath).remove(identityProvider.id)
-      await this.app.service(userPath).remove(identityProvider.userId)
+      if (isValidId(identityProvider.id)) await this.app.service(identityProviderPath).remove(identityProvider.id)
+      if (isValidId(identityProvider.userId)) await this.app.service(userPath).remove(identityProvider.userId)
       await this.app.service(identityProviderPath).remove(null, {
         query: {
           type: 'guest',
@@ -155,12 +154,12 @@ export class TwitterStrategy extends CustomOAuthStrategy {
             }
           }
         }
-        await this.app.service(identityProviderPath).remove(entity.id)
+        if (isValidId(entity.id)) await this.app.service(identityProviderPath).remove(entity.id)
       }
       await this.app.service(identityProviderPath).remove(null, {
         query: {
           type: 'guest',
-          userId: existingEntity.userId
+          userId: entity.userId
         }
       })
       await this.userLoginEntry(newIP, params)

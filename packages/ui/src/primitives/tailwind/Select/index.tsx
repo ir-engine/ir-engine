@@ -23,9 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useHookstate } from '@ir-engine/hyperflux'
 import { ChevronDownSm, HelpIconSm, XCloseSm } from '@ir-engine/ui/src/icons'
 import Fuse from 'fuse.js'
-import React, { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import Popup from 'reactjs-popup'
 import { PopupActions } from 'reactjs-popup/dist/types'
 import { twMerge } from 'tailwind-merge'
@@ -49,6 +50,8 @@ export interface SelectProps<T = string | number> {
   width?: 'sm' | 'md' | 'lg' | 'full'
   inputHeight?: InputProps['height']
   onChange: (value: T) => void
+  /** Callback fired when user is typing text */
+  onInputChange?: (value: string) => void
   onOpen?: (isOpen: boolean) => void
   value: T
   labelProps?: InputProps['labelProps']
@@ -75,6 +78,7 @@ const Select = ({
   width = 'md',
   inputHeight = 'l',
   onChange,
+  onInputChange,
   onOpen,
   value,
   labelProps,
@@ -96,13 +100,50 @@ const Select = ({
   const [activeIndex, setActiveIndex] = useState<number>(-1)
   const labelRef = useRef<HTMLLabelElement>(null)
   const [helperOffset, setHelperOffset] = useState('')
-  const [filteredOptions, setFilteredOptions] = useState(options)
   const [searchString, setSearchString] = useState('')
   const fuseRef = useRef<Fuse<OptionType> | null>(null)
-  const [localValue, setLocalValue] = useState(value)
+  const [touchMoved, setTouchedMoved] = useState(false)
+  const localValue = useHookstate(value)
   const id = useId()
   const [triggerWidth, setTriggerWidth] = useState(0)
   const popupRef = useRef<PopupActions>(null)
+
+  const filteredOptions = useMemo(() => {
+    if (searchString === '') {
+      return options
+    }
+
+    const searchStringLowerCase = searchString.toLowerCase()
+
+    switch (searchMode) {
+      case 'prefix':
+        return options.filter(
+          (option) =>
+            option?.label?.toLowerCase().startsWith(searchStringLowerCase) ||
+            option?.secondaryText?.toLowerCase().startsWith(searchStringLowerCase)
+        )
+
+      case 'substring':
+        return options.filter(
+          (option) =>
+            option?.label?.toLowerCase().includes(searchStringLowerCase) ||
+            option?.secondaryText?.toLowerCase().includes(searchStringLowerCase)
+        )
+
+      case 'fuzzy': {
+        if (!fuseRef.current) {
+          fuseRef.current = new Fuse(options, {
+            keys: ['label', 'secondaryText']
+          })
+        }
+        const searchResult = fuseRef.current.search(searchString)
+        return searchResult.map(({ item }) => item)
+      }
+
+      default:
+        return options
+    }
+  }, [options, searchString, searchMode])
 
   useEffect(() => {
     if (searchMode === 'fuzzy' && fuseRef.current !== null) {
@@ -111,6 +152,10 @@ const Select = ({
       })
     }
   }, [searchMode])
+
+  useEffect(() => {
+    localValue.set(value)
+  }, [value])
 
   useLayoutEffect(() => {
     const updateDirection = () => {
@@ -160,67 +205,27 @@ const Select = ({
   }, [selectedOptionIndex])
 
   useEffect(() => {
-    if (localValue === '') {
-      setDisplayText('')
-      return
-    }
+    if (filteredOptions.length > 0) {
+      const index = filteredOptions.findIndex((option) => option.value === localValue.value)
 
-    if (
-      0 <= selectedOptionIndex &&
-      selectedOptionIndex < filteredOptions.length &&
-      filteredOptions[selectedOptionIndex].value === localValue
-    ) {
-      setDisplayText(filteredOptions[selectedOptionIndex].label)
-      return
-    }
-
-    const index = filteredOptions.findIndex((option) => option.value === localValue)
-
-    if (index === -1) {
-      if (searchMode === undefined) {
-        console.warn('No corresponding option found. Defaulting to null.')
-        setDisplayText('')
-        return
+      if (index === -1) {
+        if (searchMode === undefined) {
+          console.warn('No corresponding option found. Defaulting to null.')
+          setDisplayText('')
+          return
+        }
       }
-    } else {
-      setDisplayText(filteredOptions[index].label)
     }
-  }, [localValue, selectedOptionIndex, filteredOptions])
+  }, [value, localValue, selectedOptionIndex, filteredOptions])
 
   useEffect(() => {
-    if (searchString === '') {
-      setFilteredOptions(options)
-      return
-    }
-    const searchStringLowerCase = searchString.toLowerCase()
-    if (searchMode === 'prefix') {
-      setFilteredOptions(
-        options.filter(
-          (option) =>
-            option.label.toLowerCase().startsWith(searchStringLowerCase) ||
-            option.secondaryText?.toLowerCase().startsWith(searchStringLowerCase)
-        )
-      )
-    } else if (searchMode === 'substring') {
-      setFilteredOptions(
-        options.filter(
-          (option) =>
-            option.label.toLowerCase().includes(searchStringLowerCase) ||
-            option.secondaryText?.toLowerCase().includes(searchStringLowerCase)
-        )
-      )
-    } else if (searchMode === 'fuzzy') {
-      if (!fuseRef.current) {
-        fuseRef.current = new Fuse(options, {
-          keys: ['label', 'secondaryText']
-        })
+    if (filteredOptions.length) {
+      const index = filteredOptions.findIndex((option) => option.value === localValue.value)
+      if (index !== -1) {
+        setDisplayText(filteredOptions[index].label)
       }
-      const searchResult = fuseRef.current.search(searchString)
-      setFilteredOptions(searchResult.map(({ item }) => item))
-    } else {
-      setFilteredOptions(options)
     }
-  }, [options, searchString])
+  }, [localValue, filteredOptions])
 
   useEffect(() => {
     const element = document.getElementById(id)
@@ -241,6 +246,8 @@ const Select = ({
     }
   }, [])
 
+  const inputRef = useRef<HTMLInputElement>(null)
+
   const togglePopup = () => {
     if (popupRef.current) {
       popupRef.current.toggle()
@@ -252,6 +259,21 @@ const Select = ({
       popupRef.current.close()
     }
   }
+
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [positionStyle, setPositionStyle] = useState({})
+
+  useEffect(() => {
+    if (ref.current && contentRef.current) {
+      const refTop = ref.current.getBoundingClientRect().top
+      const contentHeight = contentRef.current.getBoundingClientRect().height
+      const gap = 10
+
+      setPositionStyle({
+        top: `${refTop - contentHeight - gap}px`
+      })
+    }
+  }, [filteredOptions])
 
   return (
     <Popup
@@ -302,22 +324,26 @@ const Select = ({
                 )}
               >
                 <input
+                  ref={inputRef}
                   onClick={() => {
                     if (!disabled) {
                       togglePopup()
+                      setTimeout(() => inputRef.current?.focus(), 0)
                     }
                   }}
                   type="text"
                   className={twMerge(
-                    'focus:outline-non w-full bg-inherit text-text-secondary',
+                    'w-full bg-inherit text-text-secondary focus:border-transparent focus:outline-none focus:ring-0',
                     searchMode === undefined ? 'cursor-pointer' : 'cursor-text',
                     disabled ? 'cursor-not-allowed' : ''
                   )}
                   value={displayText}
                   readOnly={searchMode === undefined}
                   onChange={(e) => {
-                    setSearchString(e.target.value)
+                    popupRef.current && popupRef.current.open()
                     setDisplayText(e.target.value)
+                    setSearchString(e.target.value)
+                    onInputChange && onInputChange(e.target.value)
                   }}
                 />
 
@@ -358,11 +384,18 @@ const Select = ({
       closeOnDocumentClick
       arrow={false}
       ref={popupRef}
-      position={['bottom left', 'top left']}
+      position={['bottom center', 'top center']}
       repositionOnResize={true}
-      contentStyle={{ padding: '0px', border: 'none' }}
+      contentStyle={{
+        padding: '0px',
+        border: 'none',
+        ...positionStyle
+      }}
+      onOpen={() => onOpen?.(true)}
+      onClose={() => onOpen?.(false)}
     >
       <div
+        ref={contentRef}
         className={`z-50 flex flex-col overflow-y-auto overflow-x-hidden rounded-lg`}
         style={{
           width: triggerWidth,
@@ -389,7 +422,7 @@ const Select = ({
 
           if (['Enter', ' '].includes(e.code)) {
             closePopup()
-            setLocalValue(filteredOptions[newIndex].value)
+            localValue.set(filteredOptions[newIndex].value)
             setSelectedOptionIndex(newIndex)
             setDisplayText(filteredOptions[newIndex].label)
             onChange(filteredOptions[newIndex].value)
@@ -402,13 +435,13 @@ const Select = ({
             <DropdownItem
               key={index}
               {...optionProps}
-              selected={localValue === currentValue}
+              selected={localValue.value === currentValue}
               active={index === activeIndex}
               onMouseDown={(e) => {
                 e.stopPropagation()
                 e.preventDefault()
                 closePopup()
-                setLocalValue(currentValue)
+                localValue.set(currentValue)
                 setSelectedOptionIndex(index)
                 setDisplayText(optionProps.label)
                 onChange(currentValue)
@@ -419,10 +452,25 @@ const Select = ({
               onMouseLeave={() => {
                 setActiveIndex(-1)
               }}
+              onTouchStart={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+              }}
+              onTouchMove={() => setTouchedMoved(true)}
+              onTouchEnd={() => {
+                if (!touchMoved) {
+                  closePopup()
+                  localValue.set(currentValue)
+                  setSelectedOptionIndex(index)
+                  setDisplayText(optionProps.label)
+                  onChange(currentValue)
+                }
+                setTouchedMoved(false)
+              }}
               onKeyUp={(e) => {
                 if (e.code === 'Enter') {
                   closePopup()
-                  setLocalValue(currentValue)
+                  localValue.set(currentValue)
                   setSelectedOptionIndex(index)
                   setDisplayText(optionProps.label)
                   onChange(currentValue)

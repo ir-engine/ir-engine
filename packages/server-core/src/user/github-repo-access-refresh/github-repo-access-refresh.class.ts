@@ -25,15 +25,14 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Paginated, ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
-
 import {
   githubRepoAccessPath,
   GithubRepoAccessType
 } from '@ir-engine/common/src/schemas/user/github-repo-access.schema'
 import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
-import * as k8s from '@kubernetes/client-node'
-
 import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
+import { V1Job } from '@kubernetes/client-node'
 import { Application } from '../../../declarations'
 import { getJobBody } from '../../k8s-job-helper'
 import { getUserRepos } from '../../projects/project/github-helper'
@@ -45,7 +44,7 @@ export async function getGithubRepoAccessRefreshJobBody(
   app: Application,
   jobId: string,
   userId: UserID
-): Promise<k8s.V1Job> {
+): Promise<V1Job> {
   const command = ['npx', 'ts-node', '--swc', 'scripts/refresh-gh-repo-access.ts', '--userId', userId, '--jobId', jobId]
 
   const labels = {
@@ -108,7 +107,7 @@ export class GithubRepoAccessRefreshService implements ServiceInterface<void, Gi
         const urlsOnly = githubRepos.map((repo) => repo.html_url)
         await Promise.all(
           existingGithubRepoAccesses.map(async (repoAccess) => {
-            if (urlsOnly.indexOf(repoAccess.repo) < 0)
+            if (urlsOnly.indexOf(repoAccess.repo) < 0 && isValidId(repoAccess.id))
               await this.app.service(githubRepoAccessPath).remove(repoAccess.id)
           })
         )

@@ -939,7 +939,6 @@ export function onGizmoCommit(gizmoEntity) {
   }
   gizmoControlComponent.dragging.set(false)
   gizmoControlComponent.axis.set(null)
-  console.log('gizmo commit')
   EditorHistoryFunctions.setComponent(gizmoControlComponent.controlledEntities.value as Entity[], TransformComponent)
 }
 

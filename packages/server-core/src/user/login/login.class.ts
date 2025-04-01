@@ -25,14 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Id, Paginated, ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
-
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { loginTokenPath } from '@ir-engine/common/src/schemas/user/login-token.schema'
 import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
-import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
-
 import { userLoginPath } from '@ir-engine/common/src/schemas/user/user-login.schema'
+import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import moment from 'moment'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -89,7 +88,7 @@ export class LoginService implements ServiceInterface {
       }
       if (new Date() > new Date(loginToken.expiresAt)) {
         logger.info('Login Token has expired')
-        await this.app.service(loginTokenPath).remove(loginToken.id)
+        if (isValidId(loginToken.id)) await this.app.service(loginTokenPath).remove(loginToken.id)
         return { error: 'Login link has expired' }
       }
       const identityProvider = await this.app.service(identityProviderPath).get(loginToken.identityProviderId)
@@ -167,7 +166,9 @@ export class LoginService implements ServiceInterface {
         }
       })
 
-      await this.app.service(loginTokenPath).remove(loginToken.id)
+      // Disabling auto-delete of login-tokens due to some devices and email services auto-following links
+      // Uncomment to re-enable
+      // if (isValidId(loginToken.id)) await this.app.service(loginTokenPath).remove(loginToken.id)
       await this.app.service(userPath).patch(identityProvider.userId, {
         isGuest: false
       })

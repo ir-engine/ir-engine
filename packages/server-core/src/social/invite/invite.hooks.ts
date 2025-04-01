@@ -25,8 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
-
 import {
   inviteDataValidator,
   invitePatchValidator,
@@ -34,10 +32,11 @@ import {
 } from '@ir-engine/common/src/schemas/social/invite.schema'
 import { IdentityProviderType, identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { userRelationshipPath } from '@ir-engine/common/src/schemas/user/user-relationship.schema'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import inviteRemoveAuthenticate from '@ir-engine/server-core/src/hooks/invite-remove-authenticate'
 import attachOwnerIdInBody from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-body'
 import attachOwnerIdInQuery from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-query'
-
+import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 import { HookContext } from '../../../declarations'
 import isAction from '../../hooks/is-action'
 import { sendInvite } from '../../hooks/send-invite'
@@ -83,7 +82,8 @@ async function removeFriend(context: HookContext<InviteService>) {
   const invite = await context.service.get(context.id)
   if (invite.inviteType === 'friend' && invite.inviteeId && !context.params?.preventUserRelationshipRemoval) {
     const relatedUserId = invite.userId === context.params.user!.id ? invite.inviteeId : invite.userId
-    await context.app.service(userRelationshipPath).remove(relatedUserId, context.params as any)
+    if (isValidId(relatedUserId))
+      await context.app.service(userRelationshipPath).remove(relatedUserId, context.params as any)
   }
 }
 

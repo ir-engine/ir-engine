@@ -42,9 +42,6 @@ import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getState } from '@ir-engine/hyperflux'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
-import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
-import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
-import { ThreeToPhysics } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
@@ -150,7 +147,6 @@ const useIsUnlit = (entity: Entity) => {
 
 const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
   const isMesh = useHasComponent(props.entity, MeshComponent)
-  const isModelColliders = useHasComponent(props.parentEntity, RigidBodyComponent)
   const isVisible = useHasComponent(props.entity, VisibleComponent)
   const isUnlit = useIsUnlit(props.entity)
 
@@ -162,22 +158,6 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
       else removeComponent(props.entity, ShadowComponent)
     }
   }, [isVisible, isMesh, isUnlit, shadowComponent?.cast, shadowComponent?.receive])
-
-  useEffect(() => {
-    if (!isModelColliders || !isMesh) return
-
-    const geometry = getComponent(props.entity, MeshComponent).geometry
-
-    const shape = ThreeToPhysics[geometry.type]
-
-    if (!shape) return
-
-    setComponent(props.entity, ColliderComponent, { shape })
-
-    return () => {
-      removeComponent(props.entity, ColliderComponent)
-    }
-  }, [isModelColliders, isMesh])
 
   return null
 }

@@ -22,7 +22,11 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import {
+  FileThumbnailJobState,
+  removeFromFileThumbnailsSeen
+} from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import ProgressBar from '@ir-engine/client-core/src/systems/ui/LoadingDetailView/SimpleProgressBar'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
@@ -40,9 +44,11 @@ import { twMerge } from 'tailwind-merge'
 import { FilesViewModeSettings } from '../../services/FilesState'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileIcon } from '../files/fileicon'
+import { FileUploadProgress } from '../files/loaders'
 import DeleteFileModal from '../files/modals/DeleteFileModal'
+import { AssetCategoryNode } from './categories'
 import { ASSETS_PAGE_LIMIT, calculateItemsToFetch } from './helpers'
-import { useAssetsQuery } from './hooks'
+import { useAssetsCategory, useAssetsQuery } from './hooks'
 
 interface MetadataTableRowProps {
   label: string
@@ -82,7 +88,7 @@ function ResourceFileContextMenu({
 }) {
   const { t } = useTranslation()
   const userID = useMutableState(AuthState).user.id.value
-  const { refetchResources } = useAssetsQuery()
+  const { refetchResources, staticResourcesPagination } = useAssetsQuery()
 
   const splitResourceKey = resource.key.split('/')
   const name = resource.name || splitResourceKey.at(-1)!
@@ -110,7 +116,7 @@ function ResourceFileContextMenu({
             size="sm"
             fullWidth
             onClick={() => {
-              PopoverState.showPopupover(
+              ModalState.openModal(
                 <DeleteFileModal
                   files={[
                     {
@@ -126,7 +132,8 @@ function ResourceFileContextMenu({
                   ]}
                   onComplete={(err?: unknown) => {
                     if (!err) {
-                      refetchResources()
+                      removeFromFileThumbnailsSeen([resource.key])
+                      refetchResources(true)
                     }
                   }}
                 />
@@ -166,15 +173,15 @@ export function FileCard({
         onDoubleClick={onDoubleClick}
         onContextMenu={onContextMenu}
         className={twMerge(
-          'max-h-38 w-30 flex h-auto cursor-pointer flex-col items-center p-1.5 text-center',
+          'max-h-38 w-30 group flex h-auto cursor-pointer flex-col items-center p-1.5 text-center ',
           className
         )}
         data-testid={dataTestIdJson?.fileItemId}
       >
         <div
           className={twMerge(
-            `box-border rounded border border-0 font-figtree`,
-            isSelected ? 'rounded border border-[#375DAF] bg-[#2C2E30]' : 'group-hover:bg-[#202225]'
+            'box-border rounded border-0 p-2 font-figtree',
+            isSelected ? 'rounded border-2 border-text-link bg-[#2C2E30]' : 'group-hover:bg-ui-hover-background'
           )}
           style={{
             height: iconSize,
@@ -197,8 +204,8 @@ export function FileCard({
             theme="secondary"
             fontSize="sm"
             className={twMerge(
-              'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2',
-              isSelected ? 'rounded bg-[#375DAF]' : 'rounded group-hover:bg-[#2F3137]'
+              'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2 text-text-secondary',
+              isSelected ? 'rounded bg-ui-primary' : 'rounded group-hover:bg-ui-hover-background'
             )}
             data-testid={dataTestIdJson?.fileNameId}
           >
@@ -378,7 +385,9 @@ function BottomPaginationNavBar({ handleScrollToPage }) {
 
 function ResourceItems() {
   const { t } = useTranslation()
-  const { resourcesLoading, resources, staticResourcesPagination } = useAssetsQuery()
+  const { resourcesLoading, resources, staticResourcesPagination, refetchResources } = useAssetsQuery()
+  const { currentCategoryPath } = useAssetsCategory()
+  const currentCategory = currentCategoryPath.get({ noproxy: true }) as AssetCategoryNode
   const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]) // Create a ref array
   const fileIconsLoaded = useHookstate(0)
@@ -400,10 +409,20 @@ function ResourceItems() {
     fileIconsLoaded.set(fileIconsLoaded.get() + 1)
   }
 
+  const thumbnailJobState = useMutableState(FileThumbnailJobState)
+  useEffect(() => {
+    refetchResources(true)
+  }, [thumbnailJobState.jobs.length])
+
+  useEffect(() => {
+    fileIconsToLoad.set(0)
+    fileIconsLoaded.set(0)
+  }, [currentCategory?.path])
+
   return (
     <div className="relative flex w-full ">
       <div className="relative flex w-[95%] flex-col">
-        {' '}
+        <FileUploadProgress />{' '}
         {resources.length === 0 && !resourcesLoading && (
           <div className="col-start-2 flex h-full w-full items-center justify-center text-text-secondary">
             {t('editor:layout.scene-assets.no-search-results')}

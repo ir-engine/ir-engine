@@ -35,7 +35,7 @@ import { Button, Select } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
-import { PopoverState } from '../../../common/services/PopoverState'
+import { ModalState } from '../../../common/services/ModalState'
 import { serverAutoRefreshOptions } from '../../common/constants/server'
 import { useServerInfoFind } from '../../services/ServerInfoQuery'
 
@@ -83,7 +83,7 @@ export default function ServerLogsModal({ podName, containerName }: { podName: s
     <Modal
       className="w-[50vw] max-w-[50vw]"
       title={t('admin:components.server.serverLogs')}
-      onClose={() => PopoverState.hidePopupover()}
+      onClose={() => ModalState.closeModal()}
     >
       <div className="space-y-4">
         <div className="space-between mb-2 flex w-full items-center">

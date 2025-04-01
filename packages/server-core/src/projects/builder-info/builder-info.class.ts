@@ -46,30 +46,23 @@ export class BuilderInfoService implements ServiceInterface<BuilderInfoType> {
     if (k8AppsClient) {
       const builderLabelSelector = `app.kubernetes.io/instance=${config.server.releaseName}-builder`
 
-      const builderJob = await k8BatchClient.listNamespacedJob(
-        'default',
-        undefined,
-        false,
-        undefined,
-        undefined,
-        builderLabelSelector
-      )
+      const builderJob = await k8BatchClient.listNamespacedJob({
+        namespace: config.server.namespace,
+        labelSelector: builderLabelSelector
+      })
 
       let builderContainer
-      if (builderJob && builderJob.body.items.length > 0) {
-        builderContainer = builderJob?.body?.items[0]?.spec?.template?.spec?.containers?.find(
+      if (builderJob && builderJob.items.length > 0) {
+        builderContainer = builderJob?.items[0]?.spec?.template?.spec?.containers?.find(
           (container) => container.name === 'ir-engine-builder'
         )
       } else {
-        const builderDeployment = await k8AppsClient.listNamespacedDeployment(
-          'default',
-          'false',
-          false,
-          undefined,
-          undefined,
-          builderLabelSelector
-        )
-        builderContainer = builderDeployment?.body?.items[0]?.spec?.template?.spec?.containers?.find(
+        const builderDeployment = await k8AppsClient.listNamespacedDeployment({
+          namespace: config.server.namespace,
+          pretty: 'false',
+          labelSelector: builderLabelSelector
+        })
+        builderContainer = builderDeployment?.items[0]?.spec?.template?.spec?.containers?.find(
           (container) => container.name === 'ir-engine-builder'
         )
       }

@@ -36,7 +36,7 @@ export const UserSearchInput = ({ onSelect }) => {
   const [searchTerm, setSearchTerm] = useState('')
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
 
-  const debouncedSetSearchTerm = debounce(setDebouncedSearchTerm, 300)
+  const debouncedSetSearchTerm = debounce(setDebouncedSearchTerm, 500)
 
   useEffect(() => {
     debouncedSetSearchTerm(searchTerm)
@@ -66,6 +66,7 @@ export const UserSearchInput = ({ onSelect }) => {
       <Select
         options={options}
         value={searchTerm}
+        onInputChange={(value) => setSearchTerm(value)}
         onChange={handleSelect}
         searchMode="substring"
         width="full"
