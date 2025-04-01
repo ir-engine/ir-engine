@@ -140,14 +140,12 @@ const uploadDimension = async (modelEntity: Entity, src: string, projectName: st
         if (reponse.data.length > 0) {
           const staticResourceId = reponse.data[0].id
           const updateDimension = async (staticResourceId) => {
-            await API.instance
-              .service(staticResourcePath)
-              .patch(staticResourceId, {
-                width: dimensions_x,
-                height: dimensions_y,
-                depth: dimensions_z,
-                project: projectName
-              })
+            await API.instance.service(staticResourcePath).patch(staticResourceId, {
+              width: dimensions_x,
+              height: dimensions_y,
+              depth: dimensions_z,
+              project: projectName
+            })
           }
           updateDimension(staticResourceId)
         } else {
