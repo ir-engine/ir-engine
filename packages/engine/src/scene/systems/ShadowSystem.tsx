@@ -160,7 +160,8 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
       if (!getOptionalComponent(entity, DirectionalLightComponent)?.castShadow) return
       directionalLight.visible = false
     },
-    { after: SceneObjectSystem }
+    { after: SceneObjectSystem },
+    [directionalLight]
   )
 
   useEffect(() => {
