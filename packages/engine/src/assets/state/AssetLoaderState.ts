@@ -23,17 +23,45 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineState } from '@ir-engine/hyperflux'
+import { defineState, getState, isClient } from '@ir-engine/hyperflux'
 
-import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
+import { DefaultLoadingManager, WebGLRenderer } from 'three'
 import { CORTOLoader } from '../loaders/corto/CORTOLoader'
+import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
+import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
+import { loadDRACODecoderNode, NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
+import { DomainConfigState } from './DomainConfigState'
 
 export const AssetLoaderState = defineState({
   name: 'AssetLoaderState',
   initial: () => {
-    const gltfLoader = createGLTFLoader()
+    let dracoLoader: DRACOLoader
+    if (isClient) {
+      dracoLoader = new DRACOLoader()
+      // todo we probably want to react to changes in the domain config state
+      dracoLoader.setDecoderPath(getState(DomainConfigState).publicDomain + '/loader_decoders/')
+      dracoLoader.setWorkerLimit(1)
+    } else {
+      loadDRACODecoderNode()
+      dracoLoader = new NodeDRACOLoader() as any as DRACOLoader
+      /* @ts-ignore */
+      dracoLoader.preload = () => {
+        return dracoLoader
+      }
+    }
+
+    const ktx2Loader = new KTX2Loader()
+    ktx2Loader.setTranscoderPath(getState(DomainConfigState).publicDomain + '/loader_decoders/basis/')
+    if (isClient) {
+      const renderer = new WebGLRenderer()
+      ktx2Loader.detectSupport(renderer)
+      renderer.dispose()
+    }
+
     return {
-      gltfLoader,
+      manager: DefaultLoadingManager,
+      ktx2Loader,
+      dracoLoader,
       cortoLoader: null! as CORTOLoader
     }
   }

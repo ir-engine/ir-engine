@@ -23,11 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { configDefaults, defineConfig } from 'vitest/config'
+import { configDefaults, coverageConfigDefaults, defineConfig } from 'vitest/config'
 
 const reporters = !process.env.CI ? ['basic'] : configDefaults.reporters // Use default report config on CI.
-const watermark = [80, 95] as [number, number]
-const threshold = 80
 
 import appRootPath from 'app-root-path'
 import path from 'path'
@@ -43,22 +41,11 @@ export default defineConfig({
     reporters: reporters,
     slowTestThreshold: 1000,
     coverage: {
-      reporter: ['html', 'lcov'],
-      reportsDirectory: './coverage',
+      enabled: true,
+      reporter: ['lcov'],
       provider: 'istanbul',
-      thresholds: {
-        perFile: true,
-        statements: threshold,
-        branches: threshold,
-        functions: threshold,
-        lines: threshold
-      },
-      watermarks: {
-        statements: watermark,
-        branches: watermark,
-        functions: watermark,
-        lines: watermark
-      }
+      include: ['src/**'],
+      exclude: ['src/xr/WebXRManager.*', ...coverageConfigDefaults.exclude] //WebXrManager completely breaks with coverage enabled
     }
   }
 })

@@ -1,5 +1,5 @@
 {
-"name": "@ir-engine/ui",
+  "name": "@ir-engine/ui",
   "version": "1.6.0",
   "description": "A declarative way to build 3D/VR/AR/XR apps that scale. Built with tooling web developers will love, using conventions that game developers and creative coders will find straightforward familiar.",
   "homepage": "https://github.com/ir-engine/ir-engine#readme",
@@ -24,7 +24,7 @@
   "main": "src/index.ts",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "exit 0",
+    "test": "cross-env TEST=true vitest run --config=./vitest.ui.config.ts",
     "test:generate-output": "jest --json --outputFile=./tests/jest-test-results.json || true",
     "test:watch": "jest -u --json --watchAll --outputFile=./tests/jest-test-results.json || true",
     "prebuild:storybook": "npm run test:generate-output",
@@ -72,7 +72,7 @@
     "@svgr/core": "^8.1.0",
     "@svgr/plugin-jsx": "^8.1.0",
     "@svgr/plugin-svgo": "^8.1.0",
-    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/jest-dom": "^6.6.3",
     "@types/enzyme": "^3.10.12",
     "@types/enzyme-adapter-react-16": "^1.0.6",
     "@types/jest": "^29.5.1",
