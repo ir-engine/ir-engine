@@ -38,7 +38,6 @@ import {
   Texture,
   Vector2
 } from 'three'
-import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
 import { getDependency, GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
 import { NodeIDSchema } from './NodeIDComponent'
 
@@ -101,7 +100,7 @@ const MaterialDefinitionSchema = S.Object({
  */
 export const KHRUnlitExtensionComponent = defineComponent({
   name: 'KHRUnlitExtensionComponent',
-  jsonID: EXTENSIONS.KHR_MATERIALS_UNLIT,
+  jsonID: 'KHR_materials_unlit',
   schema: S.Record(S.Any(), S.Any(), {}),
 
   getMaterialType() {
@@ -145,7 +144,7 @@ export const KHRUnlitExtensionComponent = defineComponent({
  */
 export const KHREmissiveStrengthExtensionComponent = defineComponent({
   name: 'KHREmissiveStrengthExtensionComponent',
-  jsonID: EXTENSIONS.KHR_MATERIALS_EMISSIVE_STRENGTH,
+  jsonID: 'KHR_materials_emissive_strength',
   schema: S.Object({ emissiveStrength: S.Optional(S.Number()) }),
 
   extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
@@ -169,7 +168,7 @@ export const KHREmissiveStrengthExtensionComponent = defineComponent({
  */
 export const KHRClearcoatExtensionComponent = defineComponent({
   name: 'KHRClearcoatExtensionComponent',
-  jsonID: EXTENSIONS.KHR_MATERIALS_CLEARCOAT,
+  jsonID: 'KHR_materials_clearcoat',
   schema: S.Object({
     clearcoatFactor: S.Optional(S.Number()),
     clearcoatTexture: S.Optional(TextureInfoSchema),
@@ -238,7 +237,7 @@ export const KHRClearcoatExtensionComponent = defineComponent({
  */
 export const KHRIridescenceExtensionComponent = defineComponent({
   name: 'KHRIridescenceExtensionComponent',
-  jsonID: EXTENSIONS.KHR_MATERIALS_IRIDESCENCE,
+  jsonID: 'KHR_materials_iridescence',
   schema: S.Object({
     iridescenceFactor: S.Optional(S.Number()),
     iridescenceTexture: S.Optional(TextureInfoSchema),
@@ -305,7 +304,7 @@ export const KHRIridescenceExtensionComponent = defineComponent({
  */
 export const KHRSheenExtensionComponent = defineComponent({
   name: 'KHRSheenExtensionComponent',
-  jsonID: EXTENSIONS.KHR_MATERIALS_SHEEN,
+  jsonID: 'KHR_materials_sheen',
   schema: S.Object({
     sheenColorFactor: S.Optional(S.Tuple([S.Number(), S.Number(), S.Number()])),
     sheenRoughnessFactor: S.Optional(S.Number()),
@@ -366,7 +365,7 @@ export const KHRSheenExtensionComponent = defineComponent({
  */
 export const KHRTransmissionExtensionComponent = defineComponent({
   name: 'KHRTransmissionExtensionComponent',
-  jsonID: EXTENSIONS.KHR_MATERIALS_TRANSMISSION,
+  jsonID: 'KHR_materials_transmission',
   schema: S.Object({
     transmissionFactor: S.Optional(S.Number()),
     transmissionTexture: S.Optional(TextureInfoSchema)
@@ -405,7 +404,7 @@ export const KHRTransmissionExtensionComponent = defineComponent({
  */
 export const KHRVolumeExtensionComponent = defineComponent({
   name: 'KHRVolumeExtensionComponent',
-  jsonID: EXTENSIONS.KHR_MATERIALS_VOLUME,
+  jsonID: 'KHR_materials_volume',
   schema: S.Object({
     thicknessFactor: S.Optional(S.Number()),
     thicknessTexture: S.Optional(TextureInfoSchema),
@@ -454,7 +453,7 @@ export const KHRVolumeExtensionComponent = defineComponent({
  */
 export const KHRIorExtensionComponent = defineComponent({
   name: 'KHRIorExtensionComponent',
-  jsonID: EXTENSIONS.KHR_MATERIALS_IOR,
+  jsonID: 'KHR_materials_ior',
   schema: S.Object({
     ior: S.Optional(S.Number())
   }),
@@ -480,7 +479,7 @@ export const KHRIorExtensionComponent = defineComponent({
  */
 export const KHRSpecularExtensionComponent = defineComponent({
   name: 'KHRSpecularExtensionComponent',
-  jsonID: EXTENSIONS.KHR_MATERIALS_SPECULAR,
+  jsonID: 'KHR_materials_specular',
   schema: S.Object({
     specularFactor: S.Optional(S.Number()),
     specularTexture: S.Optional(TextureInfoSchema),
@@ -531,7 +530,7 @@ export const KHRSpecularExtensionComponent = defineComponent({
  */
 export const EXTBumpExtensionComponent = defineComponent({
   name: 'EXTBumpExtensionComponent',
-  jsonID: EXTENSIONS.EXT_MATERIALS_BUMP,
+  jsonID: 'EXT_materials_bump',
   schema: S.Object({
     bumpFactor: S.Optional(S.Number()),
     bumpTexture: S.Optional(TextureInfoSchema)
@@ -568,7 +567,7 @@ export const EXTBumpExtensionComponent = defineComponent({
  */
 export const KHRAnisotropyExtensionComponent = defineComponent({
   name: 'KHRAnisotropyExtensionComponent',
-  jsonID: EXTENSIONS.KHR_MATERIALS_ANISOTROPY,
+  jsonID: 'KHR_materials_anisotropy',
   schema: S.Object({
     anisotropyStrength: S.Optional(S.Number()),
     anisotropyRotation: S.Optional(S.Number()),
@@ -619,7 +618,7 @@ type GLTFTextureTransformExtensionType = {
  */
 export const KHRTextureTransformExtensionComponent = defineComponent({
   name: 'KHRTextureTransformExtensionComponent',
-  jsonID: EXTENSIONS.KHR_TEXTURE_TRANSFORM,
+  jsonID: 'KHR_texture_transform',
 
   schema: S.Object({
     offset: S.Optional(S.Tuple([S.Number(), S.Number()])),

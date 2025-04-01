@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { hasComponent } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { DropdownItem } from '@ir-engine/ui'
@@ -131,7 +131,7 @@ export default function HierarchyTreeContextMenu() {
         <DropdownItem
           onClick={() => {
             setMenu()
-            PopoverState.showPopupover(<CreatePrefabPanel entity={entity} isExportLookDev={false} />)
+            ModalState.openModal(<CreatePrefabPanel entity={entity} isExportLookDev={false} />)
           }}
           label={t('editor:hierarchy.lbl-createPrefab')}
         />
@@ -139,7 +139,7 @@ export default function HierarchyTreeContextMenu() {
           <DropdownItem
             onClick={() => {
               setMenu()
-              PopoverState.showPopupover(<SavePrefabPanel entity={entity} />)
+              ModalState.openModal(<SavePrefabPanel entity={entity} />)
             }}
             label={t('editor:hierarchy.lbl-savePrefab')}
           />

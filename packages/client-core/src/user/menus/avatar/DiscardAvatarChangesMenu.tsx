@@ -29,7 +29,7 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { GoAlert } from 'react-icons/go'
-import { PopoverState } from '../../../common/services/PopoverState'
+import { ModalState } from '../../../common/services/ModalState'
 
 interface Props {
   handleConfirm: () => void
@@ -40,7 +40,7 @@ export const DiscardAvatarChangesMenu = ({ handleConfirm, handleCancel }: Props)
   const { t } = useTranslation()
 
   const handleClose = () => {
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
     if (handleCancel) handleCancel()
   }
 

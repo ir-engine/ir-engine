@@ -48,7 +48,7 @@ import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
-import { PopoverState } from '../../common/services/PopoverState'
+import { ModalState } from '../../common/services/ModalState'
 import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { LocationState } from '../../social/services/LocationService'
 import { ReportUserState } from '../../util/ReportUserState'
@@ -122,7 +122,7 @@ export const useMediaWindows = () => {
   // if window doesnt exist for self, add it
   if (
     mediaNetworkConnected &&
-    mediaNetwork.users &&
+    mediaNetwork.users?.[selfUserID] &&
     !windows.find(({ peerID }) => mediaNetwork.users[selfUserID]?.includes(peerID))
   ) {
     windows.unshift({ peerID: selfPeerID, type: 'cam' })
@@ -130,14 +130,14 @@ export const useMediaWindows = () => {
 
   const filteredUsersState = useMutableState(FilteredUsersState)
 
-  const nearbyPeers = mediaNetwork
+  const nearbyPeers = mediaNetwork?.users
     ? filteredUsersState.nearbyLayerUsers.value.map((userID) => mediaNetwork.users[userID]).flat()
     : []
 
   return windows.filter(
     ({ peerID }) =>
       (peerID === Engine.instance.store.peerID ||
-        mediaNetwork?.peers[peerID].userId === selfUserID ||
+        mediaNetwork?.peers?.[peerID].userId === selfUserID ||
         nearbyPeers.includes(peerID)) &&
       peerMediaChannelState.value[peerID]
   )
@@ -230,9 +230,7 @@ const ReportUserWindow = () => {
             className="rounded-full bg-ui-error p-[15px]"
             title={t('user:videoWindows.reportUser')}
             onClick={() =>
-              PopoverState.showPopupover(
-                <ReportMenu type="user" userId={reportedUserId} locationId={currentLocation.id} />
-              )
+              ModalState.openModal(<ReportMenu type="user" userId={reportedUserId} locationId={currentLocation.id} />)
             }
           >
             <IoWarning className="h-5 w-5 text-text-primary-button" />

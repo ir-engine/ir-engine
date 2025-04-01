@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import AddEditLocationModal from '@ir-engine/client-core/src/admin/components/locations/AddEditLocationModal'
 import ProfilePill from '@ir-engine/client-core/src/common/components/ProfilePill'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { RouterState } from '@ir-engine/client-core/src/common/services/RouterService'
 import { useProjectPermissions } from '@ir-engine/client-core/src/hooks/useUserProjectPermission'
 import { useFind } from '@ir-engine/common'
@@ -36,9 +36,9 @@ import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { Button, DropdownItem } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
-import { ChevronDownSm, SquaresLg } from '@ir-engine/ui/src/icons'
+import { ChevronDownSm, File04Sm, SquaresLg, UploadCloud02Sm } from '@ir-engine/ui/src/icons'
 import { t } from 'i18next'
-import React from 'react'
+import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { confirmSceneExists, onNewScene, onSaveScene, saveSceneGLTF } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
@@ -71,7 +71,7 @@ export const confirmSceneSaveIfModified = async () => {
 
   if (isModified && isSceneExists) {
     return new Promise((resolve) => {
-      PopoverState.showPopupover(<QuitToDashboardConfirmationDialog resolve={resolve} />)
+      ModalState.openModal(<QuitToDashboardConfirmationDialog resolve={resolve} />)
     })
   }
   return true
@@ -83,7 +83,7 @@ const onClickNewScene = async () => {
   const newSceneUIAddons = getState(UIAddonsState).editor.newScene
 
   if (Object.keys(newSceneUIAddons).length > 0) {
-    PopoverState.showPopupover(<CreateSceneDialog />)
+    ModalState.openModal(<CreateSceneDialog />)
   } else {
     onNewScene()
   }
@@ -124,11 +124,11 @@ const generateToolbarMenu = () => {
     },
     {
       name: t('editor:menubar.saveAs'),
-      action: () => PopoverState.showPopupover(<SaveNewSceneDialog />)
+      action: () => ModalState.openModal(<SaveNewSceneDialog />)
     },
     {
       name: t('editor:menubar.importSettings'),
-      action: () => PopoverState.showPopupover(<ImportSettingsPanel />)
+      action: () => ModalState.openModal(<ImportSettingsPanel />)
     },
     {
       name: t('editor:menubar.importAsset'),
@@ -136,7 +136,7 @@ const generateToolbarMenu = () => {
     },
     {
       name: t('editor:menubar.exportLookdev'),
-      action: () => PopoverState.showPopupover(<CreatePrefabPanel isExportLookDev={true} />)
+      action: () => ModalState.openModal(<CreatePrefabPanel isExportLookDev={true} />)
     },
     {
       name: t('editor:menubar.quit'),
@@ -204,8 +204,13 @@ export default function Toolbar() {
           <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
         </div> */}
         <div className="flex items-center gap-2.5">
-          <span className="text-text-secondary">{projectName.value}</span>
-          <span className="text-text-secondary">{' / '}</span>
+          <File04Sm />
+          {projectName.value!.split('/').map((part, index) => (
+            <Fragment key={index}>
+              <span className="text-text-secondary">{part}</span>
+              <span className="text-text-secondary">{' / '}</span>
+            </Fragment>
+          ))}
           <span className="text-text-primary">{sceneName.value}</span>
         </div>
 
@@ -218,7 +223,7 @@ export default function Toolbar() {
                 data-testid="publish-button"
                 disabled={!hasPublishAccess}
                 onClick={() =>
-                  PopoverState.showPopupover(
+                  ModalState.openModal(
                     <AddEditLocationModal
                       action="studio"
                       sceneID={sceneAssetID.value}
@@ -229,8 +234,9 @@ export default function Toolbar() {
                     />
                   )
                 }
-                className="rounded-[32px] py-1 text-base"
+                className="rounded-[8px] py-1 text-base"
               >
+                <UploadCloud02Sm />
                 {t('editor:toolbar.lbl-publish')}
               </Button>
             </div>

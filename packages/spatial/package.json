@@ -36,6 +36,7 @@
   "devDependencies": {
     "@types/node": "18.15.5",
     "fake-indexeddb": "6.0.0",
+    "gl-matrix": "3.4.3",
     "rimraf": "4.4.0",
     "localforage": "^1.10.0",
     "webxr-polyfill": "github:felixtrz/webxr-polyfill#81d2db4f01b518f2c42b74a90973dac095515e9f"

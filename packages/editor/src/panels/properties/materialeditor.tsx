@@ -269,8 +269,8 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
             }
             EditorControlFunctions.modifyMaterial(
               [materialComponent.material.value!.uuid],
-              materialComponent.material.value!.uuid as EntityUUID,
-              [{ [key]: property }]
+              currentSelectedMaterial.value!,
+              [{ [key]: texture?.isTexture ? value : property }]
             )
             EditorHistoryFunctions.snapshot()
             await checkThumbs()

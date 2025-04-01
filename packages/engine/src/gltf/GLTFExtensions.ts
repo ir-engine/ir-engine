@@ -26,15 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import { GLTF } from '@gltf-transform/core'
 import { getState } from '@ir-engine/hyperflux'
 import { BufferGeometry, NormalBufferAttributes } from 'three'
-import { ATTRIBUTES, WEBGL_COMPONENT_TYPES } from '../assets/loaders/gltf/GLTFConstants'
-import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
+import { MeshoptDecoder } from '../assets/loaders/gltf/meshopt_decoder'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
+import { ATTRIBUTES, WEBGL_COMPONENT_TYPES } from './GLTFConstants'
 import { GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
 
 export const KHR_DRACO_MESH_COMPRESSION = {
   decodePrimitive(options: GLTFParserOptions, primitive: GLTF.IMeshPrimitive) {
     const json = options.document
-    const dracoMeshCompressionExtension = primitive.extensions![EXTENSIONS.KHR_DRACO_MESH_COMPRESSION] as any
+    const dracoMeshCompressionExtension = primitive.extensions!['KHR_draco_mesh_compression'] as any
     const bufferViewIndex = dracoMeshCompressionExtension.bufferView
     const gltfAttributeMap = dracoMeshCompressionExtension.attributes
     const threeAttributeMap = {} as { [key: string]: string }
@@ -61,7 +61,7 @@ export const KHR_DRACO_MESH_COMPRESSION = {
 
     return new Promise<BufferGeometry<NormalBufferAttributes>>(async (resolve) => {
       const bufferView = (await GLTFLoaderFunctions.loadBufferView(options, bufferViewIndex))!
-      const dracoLoader = getState(AssetLoaderState).gltfLoader.dracoLoader!
+      const dracoLoader = getState(AssetLoaderState).dracoLoader!
       dracoLoader.preload().decodeDracoFile(
         bufferView,
         function (geometry) {
@@ -98,7 +98,7 @@ export const EXT_MESHOPT_COMPRESSION = {
   loadBuffer: (options: GLTFParserOptions, bufferViewIndex: number) => {
     const json = options.document
     const bufferViewDef = json.bufferViews![bufferViewIndex]
-    const extensionDef = bufferViewDef.extensions![EXTENSIONS.EXT_MESHOPT_COMPRESSION] as KHRMeshOptExtensionType
+    const extensionDef = bufferViewDef.extensions!['EXT_meshopt_compression'] as KHRMeshOptExtensionType
     return [
       extensionDef.buffer,
       (bufferView: ArrayBuffer) =>
@@ -113,9 +113,9 @@ export const EXT_MESHOPT_COMPRESSION = {
 
           const source = new Uint8Array(bufferView, byteOffset, byteLength)
 
-          const decoder = getState(AssetLoaderState).gltfLoader.meshoptDecoder
+          const decoder = MeshoptDecoder
           if (!decoder || !decoder.supported) {
-            if (json.extensionsRequired && json.extensionsRequired.indexOf(EXTENSIONS.EXT_MESHOPT_COMPRESSION) >= 0) {
+            if (json.extensionsRequired && json.extensionsRequired.indexOf('EXT_meshopt_compression') >= 0) {
               return reject('THREE.GLTFLoader: setMeshoptDecoder must be called before loading compressed files')
             } else {
               // Assumes that the extension is optional and that fallback buffer data is present
@@ -180,6 +180,6 @@ export const getBufferIndex = (options: GLTFParserOptions, bufferViewIndex: numb
 }
 
 export const GLTFExtensions = {
-  [EXTENSIONS.KHR_DRACO_MESH_COMPRESSION]: KHR_DRACO_MESH_COMPRESSION,
-  [EXTENSIONS.EXT_MESHOPT_COMPRESSION]: EXT_MESHOPT_COMPRESSION
+  KHR_draco_mesh_compression: KHR_DRACO_MESH_COMPRESSION,
+  EXT_meshopt_compression: EXT_MESHOPT_COMPRESSION
 } as Record<string, GLTFExtensionType>

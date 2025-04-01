@@ -45,7 +45,7 @@ import React, { createContext, useContext, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import { useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
-import { PopoverState } from '../common/services/PopoverState'
+import { ModalState } from '../common/services/ModalState'
 import { ChannelState } from '../social/services/ChannelService'
 import { AvatarUIActions, AvatarUIState } from '../systems/state/AvatarUIState'
 import { ReportUserState } from '../util/ReportUserState'
@@ -260,7 +260,7 @@ function Messages() {
   useEffect(() => {
     if (!scrollRef.current || !isChatOpen.value) return
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-  }, [isChatOpen])
+  }, [isChatOpen, messages])
 
   if (!isChatOpen.value) return null
   return (
@@ -333,7 +333,7 @@ function MessagesWrapper() {
           <Button
             variant="secondary"
             className="mx-auto mt-4 rounded-[20px]"
-            onClick={() => PopoverState.showPopupover(<ProfileMenu />)}
+            onClick={() => ModalState.openModal(<ProfileMenu />)}
           >
             {isGuest ? t('user:instanceChat.register') : t('user:instanceChat.verifyAge')}
           </Button>

@@ -43,7 +43,6 @@ import { LinkComponent } from './components/LinkComponent'
 import { LookAtComponent } from './components/LookAtComponent'
 import { MediaComponent } from './components/MediaComponent'
 import { MountPointComponent } from './components/MountPointComponent'
-import { OldColliderComponent } from './components/OldColliderComponent'
 import { ParticleSystemComponent } from './components/ParticleSystemComponent'
 import { PrimitiveGeometryComponent } from './components/PrimitiveGeometryComponent'
 import { RenderSettingsComponent } from './components/RenderSettingsComponent'
@@ -111,8 +110,7 @@ export const SceneComponents = [
   VolumetricComponent,
   // WaterComponent,
   LinkComponent,
-  TextComponent,
-  OldColliderComponent
+  TextComponent
 ]
 
 export {
