@@ -33,10 +33,22 @@ const assetPath = 'asset'
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const dimensionsColumnExists = await knex.schema.hasColumn(staticResourcePath, 'dimensions')
-  if (!dimensionsColumnExists) {
+  const widthColumnExists = await knex.schema.hasColumn(staticResourcePath, 'width')
+  if (!widthColumnExists) {
     await knex.schema.alterTable(staticResourcePath, async (table) => {
-      table.json('dimensions').defaultTo(JSON.stringify([]))
+      table.float('width').defaultTo(0)
+    })
+  }
+  const heightColumnExists = await knex.schema.hasColumn(staticResourcePath, 'height')
+  if (!heightColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.float('height').defaultTo(0)
+    })
+  }
+  const depthColumnExists = await knex.schema.hasColumn(staticResourcePath, 'depth')
+  if (!depthColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.float('depth').defaultTo(0)
     })
   }
 }
@@ -46,10 +58,22 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const dimensionsColumnExists = await knex.schema.hasColumn(staticResourcePath, 'dimensions')
-  if (dimensionsColumnExists) {
+  const widthColumnExists = await knex.schema.hasColumn(staticResourcePath, 'width')
+  if (widthColumnExists) {
     await knex.schema.alterTable(staticResourcePath, async (table) => {
-      table.dropColumn('dimensions')
+      table.dropColumn('width')
+    })
+  }
+  const heightColumnExists = await knex.schema.hasColumn(staticResourcePath, 'height')
+  if (heightColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.dropColumn('height')
+    })
+  }
+  const depthColumnExists = await knex.schema.hasColumn(staticResourcePath, 'depth')
+  if (depthColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.dropColumn('depth')
     })
   }
 }

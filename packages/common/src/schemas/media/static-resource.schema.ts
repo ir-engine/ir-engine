@@ -66,7 +66,9 @@ export const staticResourceSchema = Type.Object(
     }),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' }),
-    dimensions: Type.Optional(Type.Array(Type.Number()))
+    width: Type.Optional(Type.Number()),
+    height: Type.Optional(Type.Number()),
+    depth: Type.Optional(Type.Number())
   },
   { $id: 'StaticResource', additionalProperties: false }
 )
@@ -98,7 +100,9 @@ export const staticResourceDataSchema = Type.Partial(
     'thumbnailKey',
     'thumbnailMode',
     'name',
-    'dimensions'
+    'width',
+    'height',
+    'depth'
   ]),
   { $id: 'StaticResourceData' }
 )
@@ -123,7 +127,9 @@ export const staticResourcePatchSchema = Type.Partial(
     'thumbnailKey',
     'thumbnailMode',
     'name',
-    'dimensions'
+    'width',
+    'height',
+    'depth'
   ]),
   {
     $id: 'StaticResourcePatch'
@@ -151,7 +157,9 @@ export const staticResourceQueryProperties = Type.Pick(staticResourceSchema, [
   'createdAt',
   'updatedAt',
   'name',
-  'dimensions'
+  'width',
+  'height',
+  'depth'
 ])
 export const staticResourceQuerySchema = Type.Intersect(
   [

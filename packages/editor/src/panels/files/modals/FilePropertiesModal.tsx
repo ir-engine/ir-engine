@@ -315,8 +315,8 @@ export default function FilePropertiesModal() {
           </Text>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <Text className="text-end">{'dimensions'}</Text>
-          {resourceDigest.dimensions.value}
+          <Text className="text-end">{'dimensions'}</Text>({resourceDigest.width.value}, {resourceDigest.height.value},{' '}
+          {resourceDigest.depth.value})
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.size')}</Text>

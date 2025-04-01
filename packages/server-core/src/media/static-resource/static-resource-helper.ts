@@ -222,7 +222,9 @@ export const regenerateProjectResourcesJson = async (app: Application, projectNa
         attribution: resource.attribution ?? undefined,
         thumbnailKey: resource.thumbnailKey ?? undefined,
         thumbnailMode: resource.thumbnailMode ?? undefined,
-        dimensions: resource.dimensions ?? undefined
+        width: resource.width ?? undefined,
+        height: resource.height ?? undefined,
+        depth: resource.depth ?? undefined
       }
     ])
   )
@@ -279,7 +281,9 @@ export const patchSingleProjectResourcesJson = async (app: Application, id: stri
         attribution: resource.attribution ?? undefined,
         thumbnailKey: resource.thumbnailKey ?? undefined,
         thumbnailMode: resource.thumbnailMode ?? undefined,
-        dimensions: resource.dimensions ?? undefined
+        width: resource.width ?? undefined,
+        height: resource.height ?? undefined,
+        depth: resource.depth ?? undefined
       }
     }
 
@@ -325,7 +329,9 @@ export const patchSingleProjectResourcesJson = async (app: Application, id: stri
     attribution: resource.attribution ?? undefined,
     thumbnailKey: resource.thumbnailKey ?? undefined,
     thumbnailMode: resource.thumbnailMode ?? undefined,
-    dimensions: resource.dimensions ?? undefined
+    width: resource.width ?? undefined,
+    height: resource.height ?? undefined,
+    depth: resource.depth ?? undefined
   }
 
   const sortedResourcesJson = Object.fromEntries(
