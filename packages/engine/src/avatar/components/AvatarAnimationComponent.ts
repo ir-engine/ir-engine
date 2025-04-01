@@ -180,10 +180,6 @@ export const createVRMFromGLTF = (rootEntity: Entity) => {
   const hipsParent = getOptionalComponent(hipsEntity, EntityTreeComponent)?.parentEntity
   if (!hasComponent(hipsParent!, ObjectComponent)) setComponent(hipsParent!, ObjectComponent, new Object3D())
   const bones = {} as VRMHumanBones
-  // /**
-  //  * some mixamo rigs do not use the mixamo prefix, if they don't, we add
-  //  * a prefix to the rig names for matching to keys in the mixamoVRMRigMap
-  //  */
   const mixamoPrefix = hipsName.includes('mixamorig') ? '' : 'mixamorig'
   // /**
   //  * some mixamo rigs have an identifier or suffix after the mixamo prefix
