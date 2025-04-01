@@ -773,7 +773,7 @@ const isBase64Encoded = (filePath: string) => {
   )
 }
 
-export const generateInstallationOctokit = (appId, privateKey, installationId) => {
+export const generateInstallationOctokit = (appId: string, privateKey: string, installationId: string) => {
   return new Octokit({
     authStrategy: createAppAuth,
     auth: {
