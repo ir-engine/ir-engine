@@ -48,6 +48,12 @@ describe('Resources component', () => {
 
     global.IntersectionObserver = mockIntersectionObserver
 
+    vi.mock('react-i18next', () => ({
+      useTranslation: () => ({
+        t: (key: string) => key
+      })
+    }))
+
     vi.mock('@ir-engine/hyperflux', async (importOriginal) => {
       const actual = await importOriginal()
       return {
