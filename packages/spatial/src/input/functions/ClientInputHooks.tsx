@@ -344,6 +344,8 @@ export const CanvasInputReactor = () => {
       const axes = inputSourceComponent.source.gamepad!.axes as number[]
       axes[0] = normalizedValues.spinX
       axes[1] = normalizedValues.spinY
+      event.preventDefault()
+      event.stopPropogation()
     }
 
     canvas.addEventListener('dragstart', ClientInputFunctions.preventDefault, false)
@@ -358,7 +360,7 @@ export const CanvasInputReactor = () => {
     canvas.addEventListener('blur', onVisibilityChange)
     canvas.addEventListener('visibilitychange', onVisibilityChange)
     canvas.addEventListener('click', onClick)
-    canvas.addEventListener('wheel', onWheelEvent, { passive: true, capture: true })
+    canvas.addEventListener('wheel', onWheelEvent, { passive: false, capture: true })
 
     return () => {
       canvas.removeEventListener('dragstart', ClientInputFunctions.preventDefault, false)
