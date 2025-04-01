@@ -172,7 +172,6 @@ describe('Resources component', () => {
   })
 
   it('should render a group of resource components with relevant data-testid attributes', async () => {
-    screen.debug(document.body, Infinity)
     const itemsContainer = screen.getByTestId('assets-panel-resource-items-container')
     // @ts-ignore
     expect(itemsContainer).toBeInTheDocument()
