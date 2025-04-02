@@ -61,6 +61,7 @@ describe('MoreOptionsMenu component', () => {
 
   it('should render a button with data-testid "more-options-button"', () => {
     const moreOptionsButton = screen.getByTestId('more-options-button')
+    // @ts-ignore
     expect(moreOptionsButton).toBeInTheDocument()
   })
 
@@ -69,18 +70,23 @@ describe('MoreOptionsMenu component', () => {
     fireEvent.click(moreOptionsButton)
 
     const moreOptionsList = screen.getByTestId('more-options-list')
+    // @ts-ignore
     expect(moreOptionsList).toBeInTheDocument()
 
     const shareProjectOption = screen.getByTestId('share-project-button')
+    // @ts-ignore
     expect(shareProjectOption).toBeInTheDocument()
 
     const deleteProjectOption = screen.getByTestId('delete-project-button')
+    // @ts-ignore
     expect(deleteProjectOption).toBeInTheDocument()
 
     const renameOption = screen.getByTestId('rename-button')
+    // @ts-ignore
     expect(renameOption).toBeInTheDocument()
 
     const deleteOption = screen.getByTestId('delete-button')
+    // @ts-ignore
     expect(deleteOption).toBeInTheDocument()
   })
 })

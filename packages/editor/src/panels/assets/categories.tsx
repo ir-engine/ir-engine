@@ -58,6 +58,7 @@ function NodeHierarchyItem({ node, onClick }: { node: AssetCategoryNode; onClick
         onClick={handleClick}
         style={{ paddingLeft: `${32 * node.depth}px` }}
         className="bg-surface-1"
+        data-testid="assets-panel-category"
       />
 
       {isOpen &&
@@ -127,7 +128,11 @@ function SidebarSection({ Icon, label, items, onClick, isActive }) {
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
       >
-        <button className="flex h-full w-full items-center justify-between" onClick={toggleDropdown}>
+        <button
+          className="flex h-full w-full items-center justify-between"
+          onClick={toggleDropdown}
+          data-testid={`assets-tab-${label}-section-button`}
+        >
           <div className="flex items-center gap-2">
             <Icon />
             <span>{capitalizeFirstLetter(label)}</span>
@@ -136,7 +141,10 @@ function SidebarSection({ Icon, label, items, onClick, isActive }) {
       </div>
 
       {isActive && items.length > 0 && (
-        <div className="h-full overflow-y-auto rounded bg-surface-1 p-2 text-text-secondary">
+        <div
+          className="h-full overflow-y-auto rounded bg-surface-1 p-2 text-text-secondary"
+          data-testid="assets-category-list"
+        >
           {renderListByType[label] || <></>}
         </div>
       )}
@@ -230,7 +238,7 @@ export function VerticalDivider({
 
   return (
     <div className="flex h-full w-full overflow-hidden" onMouseUp={handleMouseUp} onMouseMove={handleMouseMove}>
-      <div style={{ width: `${sidebarWidth.value}px` }} className="h-full">
+      <div style={{ width: `${sidebarWidth.value}px` }} className="h-full" data-testid="assets-panel-left-side-content">
         {leftChildren}
       </div>
 
@@ -242,7 +250,9 @@ export function VerticalDivider({
         />
       </div>
 
-      <div className="h-full flex-1">{rightChildren}</div>
+      <div className="h-full flex-1" data-testid="assets-panel-right-side-content">
+        {rightChildren}
+      </div>
     </div>
   )
 }

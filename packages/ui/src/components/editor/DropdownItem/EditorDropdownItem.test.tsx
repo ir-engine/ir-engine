@@ -23,16 +23,35 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineState, UserID } from '@ir-engine/hyperflux'
+import { cleanup, render, screen } from '@testing-library/react'
+import { afterEach, describe, expect, it } from 'vitest'
 
-export const EngineState = defineState({
-  name: 'EngineState',
-  initial: () => ({
-    /**
-     * The uuid of the logged-in user
-     */
-    userID: '' as UserID,
+import React from 'react'
+import EditorDropdownItem from './index'
 
-    isEditing: false
+describe('EditorDropdownItem component', () => {
+  afterEach(() => {
+    cleanup()
+  })
+
+  it('should render an element container with relevant data-testid attributes', () => {
+    const { rerender } = render(<EditorDropdownItem label="assets-panel-category" collapsed={true} />)
+    const container = screen.getByTestId('assets-panel-category')
+    // @ts-ignore
+    expect(container).toBeInTheDocument()
+
+    const expandItemIcon = screen.getByTestId('expand-item')
+    // @ts-ignore
+    expect(expandItemIcon).toBeInTheDocument()
+
+    const itemName = screen.getByTestId('item-name')
+    // @ts-ignore
+    expect(itemName).toBeInTheDocument()
+
+    rerender(<EditorDropdownItem label="assets-panel-category" collapsed={false} />)
+
+    const collapseItemIcon = screen.getByTestId('collapse-item')
+    // @ts-ignore
+    expect(collapseItemIcon).toBeInTheDocument()
   })
 })

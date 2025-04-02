@@ -500,7 +500,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
             <button
               type="button"
               className="m-0 h-5 w-5 flex-shrink-0 border-none p-0 hover:opacity-80"
-              data-testid={`hierarchy-panel-scene-item-${visible ? 'hide' : 'unhide'}-button`}
+              data-testid={`hierarchy-panel-scene-item-${locked ? 'unlock' : 'lock'}-button`}
               onClick={onLockUnlockNode}
             >
               {locked ? (
