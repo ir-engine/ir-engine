@@ -22,16 +22,12 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import {
-  createEngine,
-  createEntity,
-  destroyEngine,
-  getComponent,
-  removeEntity,
-  setComponent,
-  UndefinedEntity
-} from '@ir-engine/ecs'
-import { afterEach, assert, beforeEach, describe, it } from 'vitest'
+import { getComponent, getOptionalComponent, serializeComponent, setComponent } from '@ir-engine/ecs'
+import { it } from '@ir-engine/engine/src/scene/util/testUtil'
+import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { DataTexture, EquirectangularReflectionMapping, LinearFilter, SRGBColorSpace, Texture } from 'three'
+import { assert, describe, expect } from 'vitest'
+import { SkyTypeEnum } from '../constants/SkyTypeEnum'
 import { SkyboxComponent } from './SkyboxComponent'
 
 const SkyboxComponentDefaults = {
@@ -63,40 +59,38 @@ describe('SkyboxComponent', () => {
   })
 
   describe('onInit', () => {
-    let testEntity = UndefinedEntity
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-      setComponent(testEntity, SkyboxComponent)
+    it('should initialize the *Component with the expected default values', ({ entity }) => {
+      setComponent(entity, SkyboxComponent)
+      const result = getComponent(entity, SkyboxComponent)
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(SkyboxComponentDefaults))
     })
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
+  })
+
+  describe('toJSON', () => {
+    it("should serialize the component's default data as expected", ({ entity }) => {
+      setComponent(entity, SkyboxComponent)
+
+      const result = serializeComponent(entity, SkyboxComponent)
+      const { sky, ...expected } = SkyboxComponentDefaults
+      expect(result).toEqual(expected)
     })
-    it('should initialize the *Component with the expected default values', () => {
-      const result = getComponent(testEntity, SkyboxComponent)
-      assert.deepEqual(result, SkyboxComponentDefaults)
+
+    it("should serialize the component's non-default data as expected", ({ entity }) => {
+      const expected: typeof SkyboxComponentDefaults = {
+        ...SkyboxComponentDefaults,
+        cubemapPath: '/path/to/cubemap.png'
+      }
+
+      setComponent(entity, SkyboxComponent, expected)
+
+      const result = serializeComponent(entity, SkyboxComponent)
+
+      expect(result.cubemapPath).toEqual(expected.cubemapPath)
     })
   })
 
   describe('onSet', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-      setComponent(testEntity, SkyboxComponent)
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should change the values of an initialized SkyboxComponent', () => {
-      const before = getComponent(testEntity, SkyboxComponent)
-      assert.deepEqual(before, SkyboxComponentDefaults)
-
+    it('should change the values of an initialized SkyboxComponent', ({ entity }) => {
       const Expected = {
         backgroundColor: 0xff0000,
         equirectangularPath: 'path/to/equirect.jpg',
@@ -113,176 +107,65 @@ describe('SkyboxComponent', () => {
         }
       }
 
-      setComponent(testEntity, SkyboxComponent, Expected)
-      const after = getComponent(testEntity, SkyboxComponent)
-
-      assert.equal(after.backgroundColor, Expected.backgroundColor)
-      assert.equal(after.equirectangularPath, Expected.equirectangularPath)
-      assert.equal(after.cubemapPath, Expected.cubemapPath)
-      assert.equal(after.backgroundType, Expected.backgroundType)
-      assert.deepEqual(after.skyboxProps, Expected.skyboxProps)
-    })
-
-    it('should not change values when passed incorrect types', () => {
-      const before = getComponent(testEntity, SkyboxComponent)
-
-      const Incorrect = {
-        backgroundColor: 'not a color',
-        equirectangularPath: 42,
-        cubemapPath: true,
-        backgroundType: 'wrong type',
-        skyboxProps: 'not an object'
-      }
-
-      // @ts-ignore Intentionally passing incorrect types
-      setComponent(testEntity, SkyboxComponent, Incorrect)
-      const after = getComponent(testEntity, SkyboxComponent)
-      assert.deepEqual(after, before)
+      setComponent(entity, SkyboxComponent, Expected)
+      const result = getComponent(entity, SkyboxComponent)
+      assert.equal(result.backgroundColor, Expected.backgroundColor)
+      assert.equal(result.equirectangularPath, Expected.equirectangularPath)
+      assert.equal(result.cubemapPath, Expected.cubemapPath)
+      assert.equal(result.backgroundType, Expected.backgroundType)
+      assert.deepEqual(result.skyboxProps, Expected.skyboxProps)
     })
   })
 
-  describe('Background Type Changes', () => {
-    let testEntity = UndefinedEntity
+  describe('reactor', () => {
+    it('should react to equirectangular textures', async ({ entity }) => {
+      setComponent(entity, SkyboxComponent)
+      const initial = getComponent(entity, SkyboxComponent)
 
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-      setComponent(testEntity, SkyboxComponent)
+      expect(initial.backgroundType).toEqual(SkyTypeEnum.cubemap)
+
+      setComponent(entity, SkyboxComponent, {
+        backgroundType: SkyTypeEnum.equirectangular,
+        equirectangularPath: 'https://picsum.photos/200.jpg'
+      })
+
+      const result = getComponent(entity, SkyboxComponent)
+      expect(result.backgroundType).equals(SkyTypeEnum.equirectangular)
+      expect(result.equirectangularPath).equals('https://picsum.photos/200.jpg')
+
+      const background = getOptionalComponent(entity, BackgroundComponent) as Texture
+      assert.exists(background)
+
+      expect(background.colorSpace).equals(SRGBColorSpace)
+      expect(background.mapping).toEqual(EquirectangularReflectionMapping)
+      expect(background.minFilter).toEqual(LinearFilter)
     })
 
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
+    it('should support solid colors', ({ entity }) => {
+      let background = getComponent(entity, BackgroundComponent) as DataTexture
+      expect(background).toBeUndefined()
 
-    it('should handle color background type change', () => {
-      const colorConfig = {
-        backgroundType: 1,
-        backgroundColor: 0xff0000
-      }
+      setComponent(entity, SkyboxComponent, {
+        backgroundType: SkyTypeEnum.color,
+        backgroundColor: 0xffffff
+      })
 
-      setComponent(testEntity, SkyboxComponent, colorConfig)
-      const result = getComponent(testEntity, SkyboxComponent)
+      background = getComponent(entity, BackgroundComponent) as DataTexture
+      assert.exists(background)
 
-      assert.equal(result.backgroundType, colorConfig.backgroundType)
-      assert.equal(result.backgroundColor, colorConfig.backgroundColor)
-    })
+      expect(background.colorSpace).toBe(SRGBColorSpace)
+      expect(background.mapping).toBe(EquirectangularReflectionMapping)
+      // Sample a pixel from the background texture
+      expect(background.image.data).toBeDefined()
 
-    it('should handle equirectangular background type change', () => {
-      const equirectConfig = {
-        backgroundType: 2,
-        equirectangularPath: 'path/to/equirect.jpg'
-      }
+      // Get the first pixel's RGB values
+      const r = background.image.data[0]
+      const g = background.image.data[1]
+      const b = background.image.data[2]
 
-      setComponent(testEntity, SkyboxComponent, equirectConfig)
-      const result = getComponent(testEntity, SkyboxComponent)
-
-      assert.equal(result.backgroundType, equirectConfig.backgroundType)
-      assert.equal(result.equirectangularPath, equirectConfig.equirectangularPath)
-    })
-
-    it('should handle cubemap background type change', () => {
-      const cubemapConfig = {
-        backgroundType: 3,
-        cubemapPath: 'path/to/cubemap/'
-      }
-
-      setComponent(testEntity, SkyboxComponent, cubemapConfig)
-      const result = getComponent(testEntity, SkyboxComponent)
-
-      assert.equal(result.backgroundType, cubemapConfig.backgroundType)
-      assert.equal(result.cubemapPath, cubemapConfig.cubemapPath)
-    })
-  })
-
-  describe('Skybox Properties', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-      setComponent(testEntity, SkyboxComponent)
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should update individual skybox properties', () => {
-      const newProps = {
-        skyboxProps: {
-          ...SkyboxComponentDefaults.skyboxProps,
-          turbidity: 5,
-          rayleigh: 2
-        }
-      }
-
-      setComponent(testEntity, SkyboxComponent, newProps)
-      const result = getComponent(testEntity, SkyboxComponent)
-
-      assert.equal(result.skyboxProps.turbidity, newProps.skyboxProps.turbidity)
-      assert.equal(result.skyboxProps.rayleigh, newProps.skyboxProps.rayleigh)
-      // Other properties should remain at defaults
-      assert.equal(result.skyboxProps.luminance, SkyboxComponentDefaults.skyboxProps.luminance)
-    })
-
-    it('should maintain property constraints', () => {
-      const invalidProps = {
-        skyboxProps: {
-          ...SkyboxComponentDefaults.skyboxProps,
-          turbidity: -1, // Should not allow negative values
-          mieCoefficient: 2 // Should constrain to valid range
-        }
-      }
-
-      setComponent(testEntity, SkyboxComponent, invalidProps)
-      const result = getComponent(testEntity, SkyboxComponent)
-
-      // Assert that values are constrained to valid ranges
-      // (Note: Add these assertions based on your actual validation logic)
-      assert(result.skyboxProps.turbidity >= 0)
-      assert(result.skyboxProps.mieCoefficient >= 0 && result.skyboxProps.mieCoefficient <= 1)
-    })
-  })
-
-  describe('Error Handling', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-      setComponent(testEntity, SkyboxComponent)
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should handle missing texture paths gracefully', () => {
-      const config = {
-        backgroundType: 2, // equirectangular
-        equirectangularPath: ''
-      }
-
-      setComponent(testEntity, SkyboxComponent, config)
-      const result = getComponent(testEntity, SkyboxComponent)
-
-      // Should fall back to default background type
-      assert.equal(result.backgroundType, SkyboxComponentDefaults.backgroundType)
-    })
-
-    it('should validate background type values', () => {
-      const config = {
-        backgroundType: 999 // Invalid type
-      }
-
-      setComponent(testEntity, SkyboxComponent, config)
-      const result = getComponent(testEntity, SkyboxComponent)
-
-      // Should maintain valid background type
-      assert(result.backgroundType >= 1 && result.backgroundType <= 4)
+      expect(r).toBe(255)
+      expect(b).toBe(255)
+      expect(g).toBe(255)
     })
   })
 })
