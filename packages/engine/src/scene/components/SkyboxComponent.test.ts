@@ -167,5 +167,15 @@ describe('SkyboxComponent', () => {
       expect(b).toBe(255)
       expect(g).toBe(255)
     })
+
+    it.skip('should support cubemaps', async ({ entity }) => {
+      setComponent(entity, SkyboxComponent, {
+        backgroundType: SkyTypeEnum.cubemap,
+        cubemapPath: 'https://picsum.photos/200.jpg'
+      })
+
+      // TODO: Mock cubemap responses
+      // see loadCubeMapTexture() - @ir-engine/src/scenes/constants
+    })
   })
 })
