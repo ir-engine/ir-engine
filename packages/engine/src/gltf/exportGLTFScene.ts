@@ -237,7 +237,7 @@ export function splitMeshByMaterials(originalMesh: Mesh): Mesh[] {
 
   // For each group, slice out the sub-geometry
   for (const group of geometry.groups) {
-    const subGeom = createSubGeometry(geometry as BufferGeometry, group.start, group.count)
+    const subGeom = createSubGeometry(geometry, group.start, group.count)
     const subMaterial = group.materialIndex
       ? materialsArray[group.materialIndex] || materialsArray[0]
       : materialsArray[0]
@@ -271,11 +271,12 @@ function createSubGeometry(originalGeometry: BufferGeometry, start: number, coun
 
   // 2) Determine if we need 32-bit indices by checking the largest index
   let maxIndex = 0
-  for (let i = 0; i < groupIndices.length; i++) {
-    if (groupIndices[i] > maxIndex) {
-      maxIndex = groupIndices[i]
+  for (const index of groupIndices) {
+    if (index > maxIndex) {
+      maxIndex = index
     }
   }
+
   const needs32Bits = maxIndex > 65535
 
   // 3) Build a map from oldIndex -> newIndex in encounter order
@@ -367,10 +368,11 @@ export async function exportGLTFScene(
   } else {
     const children = getComponent(entity, EntityTreeComponent).children
     for (const child of children) {
-      const promise = new Promise<void>(async (resolve) => {
-        const index = await exportEntity(child, gltf, context)
-        if (typeof index === 'number') gltf.scenes![0].nodes.push(index)
-        resolve()
+      const promise = new Promise<void>((resolve) => {
+        exportEntity(child, gltf, context).then((index) => {
+          if (typeof index === 'number') gltf.scenes![0].nodes.push(index)
+          resolve()
+        })
       })
       context.entityPromises.set(child, promise)
     }
@@ -470,7 +472,7 @@ const exportMesh = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFSceneEx
     const attributes: Record<string, number> = {}
     const geometry = subMesh.geometry
     for (const attributeName in geometry.attributes) {
-      if (attributeName.slice(0, 5) === 'morph') continue
+      if (attributeName.startsWith('morph')) continue
 
       const attribute = geometry.attributes[attributeName]
 
@@ -522,7 +524,7 @@ const exportMesh = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFSceneEx
       const materialInstance = materialInstances.uuid[i]
       const materialEntity = UUIDComponent.getEntityByUUID(materialInstance, layer)
       materialPromises.push(
-        new Promise<void>(async (resolve) => {
+        new Promise<void>((resolve) => {
           awaitMaterial(materialEntity, context).then((materialIndex) => {
             if (materialIndex > -1) meshDef.primitives[i].material = materialIndex
             resolve()
@@ -544,7 +546,7 @@ const exportMesh = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFSceneEx
 }
 
 const toDeInterleaved = (attribute: InterleavedBufferAttribute): BufferAttribute => {
-  return attribute.clone(undefined)
+  return attribute.clone()
 }
 
 const exportAccessor = (
@@ -593,7 +595,7 @@ const exportAccessor = (
 
   if (count === 0) throw new Error('trying to create empty accessor')
 
-  const minMax = getMinMax(attribute as BufferAttribute, start, count)
+  const minMax = getMinMax(attribute, start, count)
 
   let bufferViewTarget: number | null = null
 
@@ -716,10 +718,29 @@ const exportBuffer = (buffer: ArrayBuffer, gltf: GLTF.IGLTF, context: GLTFSceneE
   const bufferDef: GLTF.IBuffer = {
     byteLength: buffer.byteLength
   }
-  const bufferIndex = gltf.buffers!.length
+  const bufferIndex = gltf.buffers.length
   gltf.buffers.push(bufferDef)
   context.buffers.push(buffer)
   return bufferIndex
+}
+
+const _builtinMaterialDefs = {
+  color: (materialDef: GLTF.IMaterial, value: { contents: Color }) => {
+    if (!materialDef.pbrMetallicRoughness) materialDef.pbrMetallicRoughness = {}
+    // Set RGB array
+    materialDef.pbrMetallicRoughness.baseColorFactor = value.contents.toArray()
+    // Set A channel to GLTF default because color is just RGB
+    materialDef.pbrMetallicRoughness.baseColorFactor[3] = 1
+  },
+  map: (materialDef: GLTF.IMaterial, value: { contents: { index: number; texCoord: number } }) => {
+    if (!materialDef.pbrMetallicRoughness) materialDef.pbrMetallicRoughness = {}
+    materialDef.pbrMetallicRoughness.baseColorTexture = value.contents
+  },
+  normalMap: (materialDef: GLTF.IMaterial, value) => {},
+  metalness: (materialDef: GLTF.IMaterial, value) => {},
+  metalnessMap: (materialDef: GLTF.IMaterial, value) => {},
+  roughness: (materialDef: GLTF.IMaterial, value) => {},
+  roughnessMap: (materialDef: GLTF.IMaterial, value) => {}
 }
 
 const exportMaterial = async (
@@ -743,13 +764,11 @@ const exportMaterial = async (
 
   if (material.transparent) {
     materialDef.alphaMode = 'BLEND'
+  } else if (material.alphaTest > 0) {
+    materialDef.alphaMode = 'MASK'
+    materialDef.alphaCutoff = material.alphaTest
   } else {
-    if (material.alphaTest > 0) {
-      materialDef.alphaMode = 'MASK'
-      materialDef.alphaCutoff = material.alphaTest
-    } else {
-      materialDef.alphaMode = 'OPAQUE'
-    }
+    materialDef.alphaMode = 'OPAQUE'
   }
 
   if (material.side === DoubleSide) materialDef.doubleSided = true
@@ -777,6 +796,15 @@ const exportMaterial = async (
     }
     result[field] = argEntry
   }
+
+  for (const key in _builtinMaterialDefs) {
+    const resultValue = result[key]
+    if (resultValue) {
+      _builtinMaterialDefs[key](materialDef, resultValue)
+      delete result[key]
+    }
+  }
+
   const materialComponent = getComponent(entity, MaterialStateComponent)
   const prototype = getState(MaterialPrototypeDefinitions)[materialComponent.material.type]
   //@todo: plugins
@@ -963,10 +991,11 @@ const exportEntity = async (
   if (children && children.length > 0) {
     for (const child of children) {
       if (getComponent(child, SourceComponent) !== context.sourceID) continue
-      const childPromise = new Promise<void>(async (resolve) => {
-        const childIndex = await exportEntity(child, gltf, context)
-        if (typeof childIndex === 'number') childrenIndicies.push(childIndex)
-        resolve()
+      const childPromise = new Promise<void>((resolve) => {
+        exportEntity(child, gltf, context).then((childIndex) => {
+          if (typeof childIndex === 'number') childrenIndicies.push(childIndex)
+          resolve()
+        })
       })
       entityExportPromises.push(childPromise)
       context.entityPromises.set(child, childPromise)
@@ -975,9 +1004,11 @@ const exportEntity = async (
 
   const meshComponent = getOptionalComponent(entity, MeshComponent)
   if (meshComponent && !meshComponent.userData['ignoreOnExport']) {
-    const meshPromise = new Promise<void>(async (resolve) => {
-      node.mesh = await exportMesh(entity, gltf, context)
-      resolve()
+    const meshPromise = new Promise<void>((resolve) => {
+      exportMesh(entity, gltf, context).then((meshIndex) => {
+        node.mesh = meshIndex
+        resolve()
+      })
     })
     entityExportPromises.push(meshPromise)
   }
@@ -1002,7 +1033,6 @@ const exportEntity = async (
         _diffMatrix.copy(parentTransform.matrix).invert().multiply(transform.matrix)
         node.matrix = _transformMatrix.copy(parentTransform.matrix).multiply(_diffMatrix).toArray()
       } else {
-        /** @todo this is unreachable... */
         // If no parent, position at identity, but keep scale
         node.matrix = _diffMatrix.identity().scale(transform.scale).toArray()
       }
