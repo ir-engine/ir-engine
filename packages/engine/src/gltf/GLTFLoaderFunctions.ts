@@ -624,7 +624,7 @@ export function computeBounds(json: GLTF.IGLTF, geometry: BufferGeometry, primit
  * @return {Promise<Material>}
  */
 const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) => {
-  const json = options.document
+  const json = Array.isArray(options.document) ? options.document[0] : options.document
   const entity = options.entity
 
   const layer = LayerComponent.get(entity)
@@ -970,7 +970,7 @@ type KHRTextureBasisu = {
  * @return {Promise<THREE.Texture|null>}
  */
 const loadTexture = (options: GLTFParserOptions, textureIndex: number) => {
-  const json = options.document
+  const json = Array.isArray(options.document) ? options.document[0] : options.document
 
   const textureDef = json.textures![textureIndex]
 
@@ -1005,7 +1005,7 @@ const loadTextureImage = async (
   sourceIndex: number,
   loader: Loader
 ) => {
-  const json = options.document
+  const json = Array.isArray(options.document) ? options.document[0] : options.document
 
   const textureDef = json.textures![textureIndex]
   const sourceDef = json.images![sourceIndex]
@@ -1036,7 +1036,7 @@ const loadTextureImage = async (
 const URL = self.URL || self.webkitURL
 
 const loadImageSource = async (options: GLTFParserOptions, sourceIndex: number, loader: Loader) => {
-  const json = options.document
+  const json = Array.isArray(options.document) ? options.document[0] : options.document
   const sourceDef = json.images![sourceIndex]
 
   let sourceURI = sourceDef.uri || ''
@@ -1545,7 +1545,21 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
 
   return nodeEntity
 }
+const loadMaterialGLTF = async (options: GLTFParserOptions, sceneIndex: number) => {
+  const json = Array.isArray(options.document) ? options.document[0] : options.document
 
+  // load deltas into state before anything else
+  const deltas = json.extensions?.[SCENE_DELTA_EXTENSION_NAME] as SceneDeltaRegistry | null
+  if (deltas) {
+    const parsedDeltas = parseStorageProviderURLs(deltas)
+    getMutableState(SceneDeltaState).merge(parsedDeltas)
+  }
+  DependencyCache.set(options.url, new Map())
+  const pending = [] as Promise<Entity>[]
+  pending.push(getDependency(options, 'material', 0) as Promise<Entity>)
+  await Promise.all(pending)
+  getComponent(options.entity, GLTFComponent).body = null
+}
 const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const json = options.document
 
@@ -1644,7 +1658,8 @@ export const GLTFLoaderFunctions = {
   loadMesh,
   loadNode,
   loadScene,
-  unloadScene
+  unloadScene,
+  loadMaterialGLTF
 }
 
 export const DependencyCache = new Map<string, Map<string, Promise<any>>>()
