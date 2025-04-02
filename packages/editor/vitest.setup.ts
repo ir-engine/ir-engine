@@ -23,16 +23,4 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineState, UserID } from '@ir-engine/hyperflux'
-
-export const EngineState = defineState({
-  name: 'EngineState',
-  initial: () => ({
-    /**
-     * The uuid of the logged-in user
-     */
-    userID: '' as UserID,
-
-    isEditing: false
-  })
-})
+import '@testing-library/jest-dom/vitest'
