@@ -176,7 +176,7 @@ export function FileCard({
       >
         <div
           className={twMerge(
-            `box-border h-4 w-4 rounded border border-0 font-figtree text-sm`,
+            `box-border h-20 w-16 rounded border border-0 font-figtree text-sm`,
             isSelected ? 'rounded border border-[#375DAF] bg-[#2C2E30]' : 'group-hover:bg-[#202225]'
           )}
           data-testid={dataTestIdJson?.fileIconId}
