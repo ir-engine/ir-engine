@@ -29,7 +29,7 @@
   "envMapError": "Error loading cubemap images {{files}}",
   "lbl-return": "Return",
   "loadingAssets": "Loading Assets",
-  "loadingScenes": "Loading Scenes",
+  "loadingScenes": "Loading Spaces",
   "loadingScenesWithProgress": "Scene Loading... {{progress}}% ({{assetsLeft}} assets left)",
   "help": "Customer Service Live Chat",
   "menubar": {
@@ -1220,7 +1220,7 @@
       "featured": "Featured",
       "all": "All",
       "newProject": "New Empty Project",
-      "ph-search": "Search scenes..."
+      "ph-search": "Search Spaces..."
     },
     "grid": {
       "loading": "Loading..."
@@ -1562,7 +1562,7 @@
       "optionButtons": {
         "defaultEditor": {
           "title": "Don't Assist Me",
-          "description": "You will be taken straight to the iR Spaces Editor to create your own iR Space from the ground up"
+          "description": "You will be taken straight to the iR Studio Editor to create your own iR Space from the ground up"
         }
       }
     },
