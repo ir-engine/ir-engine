@@ -22,9 +22,10 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { Opaque } from '@ir-engine/common/src/interfaces/OpaqueType.ts'
 
-type ObjectLayer = Opaque<'ObjectLayer', number>
+import { Opaque } from '@ir-engine/hyperflux'
+
+export type ObjectLayer = Opaque<'ObjectLayer', number>
 
 export const ObjectLayers = {
   // anything loaded as a scene entity
@@ -61,7 +62,7 @@ export const ObjectLayers = {
 
   UVOL: 30 as ObjectLayer
 }
-type ObjectLayerMask = Opaque<'ObjectLayerMask', number>
+export type ObjectLayerMask = Opaque<'ObjectLayerMask', number>
 
 export const ObjectLayerMasks = {
   Scene: (1 << ObjectLayers.Scene) as ObjectLayerMask,
