@@ -1013,6 +1013,7 @@ export const ParticleSystemComponent = defineComponent({
 
     const sceneEntity = useAncestorWithComponents(entity, [SceneComponent])
     const visible = useHasComponent(entity, VisibleComponent)
+    const empty3dObj = new Object3D()
 
     useEffect(() => {
       if (!dependenciesLoaded || !sceneEntity || !visible) return
@@ -1066,6 +1067,8 @@ export const ParticleSystemComponent = defineComponent({
           }
         }
         removeComponent(entity, ObjectComponent)
+        setComponent(entity, ObjectComponent, empty3dObj)
+
         nuSystem.dispose()
         emitterAsObj3D.dispose()
         removeBatchedRenderer(sceneID!)
