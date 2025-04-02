@@ -176,6 +176,11 @@ export const createVRMFromGLTF = (rootEntity: Entity) => {
     true
   )?.[0]
 
+  setComponent(rootEntity, AvatarRigComponent, {
+    bonesToEntities: {} as Record<VRMHumanBoneName, Entity>,
+    entitiesToBones: {} as Record<Entity, VRMHumanBoneName>
+  })
+
   const hipsName = getComponent(hipsEntity, NameComponent)
   const hipsParent = getOptionalComponent(hipsEntity, EntityTreeComponent)?.parentEntity
   if (!hasComponent(hipsParent!, ObjectComponent)) setComponent(hipsParent!, ObjectComponent, new Object3D())
