@@ -136,7 +136,7 @@ const onUpdate = (entity: Entity) => {
 }
 
 const execute = () => {
-  if (getState(EngineState).isEditor || !isClient) return
+  if (getState(EngineState).isEditing || !isClient) return
 
   for (const entity of mediaQuery.enter()) {
     const mediaComponent = getComponent(entity, MediaComponent)
