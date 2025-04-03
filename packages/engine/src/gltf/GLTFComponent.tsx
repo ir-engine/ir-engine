@@ -63,11 +63,6 @@ import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/Scene
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { LoaderUtils } from 'three'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
-import {
-  BINARY_EXTENSION_CHUNK_TYPES,
-  BINARY_EXTENSION_HEADER_LENGTH,
-  BINARY_EXTENSION_HEADER_MAGIC
-} from '../assets/loaders/gltf/GLTFExtensions'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { ErrorComponent } from '../scene/components/ErrorComponent'
@@ -207,12 +202,26 @@ export const GLTFComponentReactor = () => {
   const entity = useEntityContext()
   const gltfComponent = useComponent(entity, GLTFComponent)
   const documentLoaded = useHookstate(false)
+  const sceneLoaded = GLTFComponent.useSceneLoaded(entity)
 
   useEffect(() => {
+    if (!sceneLoaded) return
+
     const occlusion = gltfComponent.cameraOcclusion.value
-    if (!occlusion) ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
-    else ObjectLayerMaskComponent.enableLayer(entity, ObjectLayers.Camera)
-  }, [gltfComponent.cameraOcclusion])
+    const entities = SourceComponent.getEntitiesBySource(GLTFComponent.getInstanceID(entity))
+
+    if (!occlusion) {
+      ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
+      for (const curr of entities) {
+        ObjectLayerMaskComponent.disableLayer(curr, ObjectLayers.Camera)
+      }
+    } else {
+      ObjectLayerMaskComponent.enableLayer(entity, ObjectLayers.Camera)
+      for (const curr of entities) {
+        ObjectLayerMaskComponent.enableLayer(curr, ObjectLayers.Camera)
+      }
+    }
+  }, [gltfComponent.cameraOcclusion.value, sceneLoaded])
 
   useGLTFDocument(entity)
 
@@ -263,8 +272,6 @@ export const GLTFComponentReactor = () => {
       }
     }
   }, [gltfComponent.document])
-
-  const sceneLoaded = GLTFComponent.useSceneLoaded(entity)
 
   const scene = useOptionalComponent(entity, SceneComponent)
 
@@ -424,6 +431,11 @@ const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: C
 const onProgress: (event: ProgressEvent) => void = (event) => {
   // console.log(event)
 }
+
+/* BINARY EXTENSION */
+export const BINARY_EXTENSION_HEADER_MAGIC = 'glTF'
+export const BINARY_EXTENSION_HEADER_LENGTH = 12
+export const BINARY_EXTENSION_CHUNK_TYPES = { JSON: 0x4e4f534a, BIN: 0x004e4942 }
 
 export const loadGLTFFile = (
   url: string,
@@ -587,7 +599,7 @@ export const getGLTFOptions = (entity: Entity): GLTFParserOptions => {
   const gltfComponent = getComponent(entity, GLTFComponent)
   const documentID = GLTFComponent.getInstanceID(entity)
   const document = gltfComponent.document!
-  const gltfLoader = getState(AssetLoaderState).gltfLoader
+  const manager = getState(AssetLoaderState).manager
 
   return {
     entity,
@@ -597,6 +609,6 @@ export const getGLTFOptions = (entity: Entity): GLTFParserOptions => {
     path: LoaderUtils.extractUrlBase(gltfComponent.src),
     body: gltfComponent.body,
     requestHeader: {},
-    manager: gltfLoader.manager
+    manager
   }
 }

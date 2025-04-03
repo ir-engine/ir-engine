@@ -67,7 +67,7 @@ export class LogsApiService implements ServiceInterface<void, any, LogsApiParams
     delete logItem.action
 
     if (action === 'analytics' && process.env.BQ_PROJECT_ID && process.env.BQ_DATASET_ID && process.env.BQ_TABLE_ID) {
-      await logToBigQuery({ ...logItem })
+      await logToBigQuery({ ...logItem, user_id: userId })
       return
     }
 
