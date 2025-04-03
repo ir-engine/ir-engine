@@ -960,9 +960,9 @@ const exportImage = async (
 
   gltf.images ??= []
 
-  let imageDef = undefined as undefined | GLTF.IImage
+  let imageDef: undefined | GLTF.IImage
 
-  if (/^blob:/.test(image.src)) {
+  if (image.src.startsWith('blob:')) {
     const canvas = new OffscreenCanvas(image.width, image.height)
     const ctx = canvas.getContext('2d')!
     ctx.drawImage(image, 0, 0)
