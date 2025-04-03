@@ -32,7 +32,7 @@ import { NO_PROXY, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
 import { T } from '../../schema/schemaFunctions'
-import { ObjectLayers } from '../constants/ObjectLayers'
+import { ObjectLayerMask, ObjectLayers } from '../constants/ObjectLayers'
 import { ObjectComponent } from './ObjectComponent'
 import { ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { setVisibleComponent } from './VisibleComponent'
@@ -72,7 +72,7 @@ export const LineSegmentComponent = defineComponent({
     }, [component.name])
 
     useEffect(() => {
-      ObjectLayerMaskComponent.setMask(entity, component.layerMask.value)
+      ObjectLayerMaskComponent.setMask(entity, component.layerMask.value as ObjectLayerMask)
     }, [component.layerMask.value])
 
     useEffect(() => {
