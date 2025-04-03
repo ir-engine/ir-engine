@@ -23,19 +23,35 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, getComponent } from '@ir-engine/ecs'
-import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
-import { XRJointAvatarBoneMap } from '@ir-engine/spatial/src/xr/XRComponents'
-import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
-import { VRMHumanBoneName } from '../maps/VRMHumanBoneName'
+import { cleanup, render, screen } from '@testing-library/react'
+import { afterEach, describe, expect, it } from 'vitest'
 
-export const applyHandRotationFK = (avatarEntity: Entity, handedness: 'left' | 'right', rotations: Float32Array) => {
-  const bones = Object.values(XRJointAvatarBoneMap)
-  for (let i = 0; i < bones.length; i++) {
-    const label = bones[i]
-    const boneName = `${handedness}${label}` as VRMHumanBoneName
-    const bone = getComponent(avatarEntity, AvatarRigComponent).bonesToEntities[boneName]
-    if (!bone) continue
-    getComponent(bone, BoneComponent).quaternion.fromArray(rotations, i * 4)
-  }
-}
+import React from 'react'
+import EditorDropdownItem from './index'
+
+describe('EditorDropdownItem component', () => {
+  afterEach(() => {
+    cleanup()
+  })
+
+  it('should render an element container with relevant data-testid attributes', () => {
+    const { rerender } = render(<EditorDropdownItem label="assets-panel-category" collapsed={true} />)
+    const container = screen.getByTestId('assets-panel-category')
+    // @ts-ignore
+    expect(container).toBeInTheDocument()
+
+    const expandItemIcon = screen.getByTestId('expand-item')
+    // @ts-ignore
+    expect(expandItemIcon).toBeInTheDocument()
+
+    const itemName = screen.getByTestId('item-name')
+    // @ts-ignore
+    expect(itemName).toBeInTheDocument()
+
+    rerender(<EditorDropdownItem label="assets-panel-category" collapsed={false} />)
+
+    const collapseItemIcon = screen.getByTestId('collapse-item')
+    // @ts-ignore
+    expect(collapseItemIcon).toBeInTheDocument()
+  })
+})

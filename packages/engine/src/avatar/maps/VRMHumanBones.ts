@@ -23,11 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent, S } from '@ir-engine/ecs'
-import { Bone } from 'three'
+import { Entity } from '@ir-engine/ecs'
+import { VRMHumanBoneName } from './VRMHumanBoneName'
+import { VRMRequiredHumanBoneName } from './VRMRequiredHumanBoneNames'
 
-export const NormalizedBoneComponent = defineComponent({
-  name: 'NormalizedBoneComponent',
-
-  schema: S.Required(S.Type<Bone>())
-})
+export type VRMHumanBones = {
+  [bone in VRMHumanBoneName]?: Entity
+} & { [bone in VRMRequiredHumanBoneName]: Entity }

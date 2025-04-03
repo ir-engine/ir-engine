@@ -76,20 +76,20 @@ export const setIkFootTarget = (delta: number) => {
   ).position
   hipsOffset.set(hipsPos.x, 0, hipsPos.z * 2)
   const leftFootTransform = getComponent(leftFootEntity, TransformComponent)
-  leftFootTransform.position
-    .set(avatar.footGap, avatar.footHeight, 0)
-    .applyQuaternion(avatarTransform.rotation)
-    .add(avatarTransform.position)
-    .add(hipsOffset)
-  leftFootTransform.rotation.copy(avatarTransform.rotation)
+  // leftFootTransform.position
+  //   .set(avatar.footGap, avatar.footHeight, 0)
+  //   .applyQuaternion(avatarTransform.rotation)
+  //   .add(avatarTransform.position)
+  //   .add(hipsOffset)
+  // leftFootTransform.rotation.copy(avatarTransform.rotation)
 
-  const rightFootTransform = getComponent(rightFootEntity, TransformComponent)
-  rightFootTransform.position
-    .set(-avatar.footGap, avatar.footHeight, 0)
-    .applyQuaternion(avatarTransform.rotation)
-    .add(avatarTransform.position)
-    .add(hipsOffset)
-  rightFootTransform.rotation.copy(avatarTransform.rotation)
+  // const rightFootTransform = getComponent(rightFootEntity, TransformComponent)
+  // rightFootTransform.position
+  //   .set(-avatar.footGap, avatar.footHeight, 0)
+  //   .applyQuaternion(avatarTransform.rotation)
+  //   .add(avatarTransform.position)
+  //   .add(hipsOffset)
+  // rightFootTransform.rotation.copy(avatarTransform.rotation)
 
   /** @todo new implementation */
   return
