@@ -447,10 +447,6 @@ const Select = ({
               onMouseLeave={() => {
                 setActiveIndex(-1)
               }}
-              onTouchStart={(e) => {
-                e.stopPropagation()
-                e.preventDefault()
-              }}
               onTouchMove={() => setTouchedMoved(true)}
               onTouchEnd={() => {
                 if (!touchMoved) {
@@ -461,6 +457,10 @@ const Select = ({
                   onChange(currentValue)
                 }
                 setTouchedMoved(false)
+              }}
+              onPointerUp={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
               }}
               onKeyUp={(e) => {
                 if (e.code === 'Enter') {
