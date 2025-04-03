@@ -25,6 +25,7 @@ RUN apt-get -y install git
 RUN apt-get -y install git-lfs
 WORKDIR /app
 
+COPY --from=builder /scripts/setup_helm.sh .
 RUN bash ./scripts/setup_helm.sh
 
 ARG STORAGE_PROVIDER
