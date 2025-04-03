@@ -100,23 +100,29 @@ export const MaterialPreviewer = () => {
   const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
   if (!selectedMaterial.value) return null
   const panel = document.getElementById(MATERIALS_PANEL_ID)!
-  const disableScroll = (event: Event) => {
-    event.stopPropagation()
-    event.preventDefault()
-  }
+  const inPanel = useHookstate(false)
 
-  const captureMouse = () => {
+  useEffect(() => {
+    const disableScroll = (event: Event) => {
+      event.stopPropagation()
+      event.preventDefault()
+    }
+
     panel.addEventListener('wheel', disableScroll, { passive: false })
     panel.addEventListener('touchmove', disableScroll, { passive: false })
-  }
 
-  const releaseMouse = () => {
-    panel.removeEventListener('wheel', disableScroll)
-    panel.removeEventListener('touchmove', disableScroll)
-  }
+    return () => {
+      panel.removeEventListener('wheel', disableScroll)
+      panel.removeEventListener('touchmove', disableScroll)
+    }
+  }, [inPanel])
 
   return (
-    <div className="rounded-lg bg-zinc-800 p-2" onMouseEnter={captureMouse} onMouseLeave={releaseMouse}>
+    <div
+      className="rounded-lg bg-zinc-800 p-2"
+      onMouseEnter={() => inPanel.set(true)}
+      onMouseLeave={() => inPanel.set(false)}
+    >
       <MaterialPreviewCanvas />
     </div>
   )
