@@ -66,7 +66,19 @@ describe('XRCameraInputSystem', () => {
   }) //:: Fields
 
   /** @todo */
-  describe('execute', () => {}) //:: execute
+  describe('execute', () => {
+    describe('for every action in the XRAction.sessionChanged list ..', () => {
+      // .. @todo How to check that these internal variables changed?
+      it.todo('_currentDepthNear')
+      it.todo('_currentDepthFar')
+    })
+    it.todo('should not do anything else if XRState.xrFrame is falsy', () => {})
+    it.todo(
+      'should set XRState.viewerPose to the result of XRState.xrFrame.getViewerPose(ReferenceSpace.localFloor) when ReferenceSpace.localFloor is truthy',
+      () => {}
+    )
+    it.todo('should set XRState.viewerPose to undefined when ReferenceSpace.localFloor is falsy', () => {})
+  }) //:: execute
 }) //:: XRCameraInputSystem
 
 describe('XRCameraUpdateSystem', () => {
@@ -100,5 +112,42 @@ describe('XRCameraUpdateSystem', () => {
 
   /** @todo */
   /* @note Same as updateXRCamera */
-  describe('execute', () => {}) //:: execute
+  describe('execute', () => {
+    it.todo('should not do anything if EngineState.viewerEntity.RendererComponent.renderer is falsy', () => {})
+    describe('for every action in the XRAction.sessionChanged list', () => {
+      it.todo(
+        '.. should call EngineState.viewerEntity.CameraComponent.updateProjectionMatrix() if action.active is falsy',
+        () => {}
+      )
+    })
+    describe('when XRState.session is null ..', () => {
+      it.todo(
+        '.. should set EngineState.viewerEntity.CameraComponent.cameras to an array containing the module-scope variable _cameraL',
+        () => {}
+      )
+      it.todo('.. should call _cameraL.copy with (EngineState.viewerEntity.CameraComponent, false)', () => {})
+      it.todo('.. should set _cameraL.viewport.x to 0', () => {})
+      it.todo('.. should set _cameraL.viewport.y to 0', () => {})
+      it.todo(
+        '.. should set _cameraL.viewport.z to the result.width of calling EngineState.viewerEntity.RendererComponent.renderer.getDrawingBufferSize with (_vec)',
+        () => {}
+      )
+      it.todo(
+        '.. should set _cameraL.viewport.w to the result.height of calling EngineState.viewerEntity.RendererComponent.renderer.getDrawingBufferSize with (_vec)',
+        () => {}
+      )
+      it.todo('.. should return early and not do anything else after this block', () => {})
+    })
+    it.todo('should call updateCameraFromXRViewerPose', () => {})
+    it.todo('should set _cameraL.near and _cameraR.near to EngineState.viewerEntity.CameraComponent.near ', () => {})
+    it.todo('should set _cameraL.far and _cameraR.far to EngineState.viewerEntity.CameraComponent.far ', () => {})
+    describe('when either of _currentDepthNear/Far is not equal to its respective EngineState.viewerEntity.CameraComponent.near/far ..', () => {
+      it.todo(
+        '.. should call XRState.session.updateRenderState with EngineState.viewerEntity.CameraComponent.(near,far) ',
+        () => {}
+      )
+      it.todo('..should set _currentDepthNear/Far to EngineState.viewerEntity.CameraComponent.near/far', () => {})
+    })
+    it.todo('should call updateProjectionFromCameraArrayUnion with EngineState.viewerEntity.CameraComponent', () => {})
+  }) //:: execute
 }) //:: XRCameraUpdateSystem

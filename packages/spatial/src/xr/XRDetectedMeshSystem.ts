@@ -24,11 +24,13 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { getState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 
-import { XRDetectedMeshComponent } from './XRDetectedMeshComponent'
-import { XRDetectedPlaneComponent } from './XRDetectedPlaneComponent'
-import { XRState } from './XRState'
+import { removeEntity } from '@ir-engine/ecs'
+import { useEffect } from 'react'
+import { XRDetectedMeshComponentState } from './XRDetectedMeshComponent'
+import { XRDetectedPlaneComponentState } from './XRDetectedPlaneComponent'
+import { ReferenceSpace, XRState } from './XRState'
 import { XRSystem } from './XRSystem'
 
 /** https://github.com/immersive-web/webxr-samples/blob/main/proposals/plane-detection.html */
@@ -52,14 +54,36 @@ const emptyMeshSet = Object.freeze(new Set()) as XRMeshSet
 
 const execute = () => {
   const frame = getState(XRState).xrFrame
-  const detectedPlanes = frame?.worldInformation?.detectedPlanes ?? frame?.detectedPlanes ?? emptyPlaneSet
-  const detectedMeshes = frame?.detectedMeshes ?? emptyMeshSet
-  XRDetectedPlaneComponent.updateDetectedPlanes(detectedPlanes)
-  XRDetectedMeshComponent.updateDetectedMeshes(detectedMeshes)
+
+  if (!frame?.session || frame.session.environmentBlendMode === 'opaque' || !ReferenceSpace.localFloor) return
+
+  XRDetectedMeshSystemFunctions.handleDetectedPlanes(frame)
+  XRDetectedMeshSystemFunctions.handleDetectedMeshes(frame)
+}
+
+const reactor = () => {
+  const session = useHookstate(getMutableState(XRState).session)
+  useEffect(() => {
+    return () => {
+      if (session.value) return
+      for (const [, entity] of getState(XRDetectedPlaneComponentState).detectedPlanesMap) {
+        removeEntity(entity)
+      }
+      getState(XRDetectedPlaneComponentState).detectedPlanesMap.clear()
+      getState(XRDetectedPlaneComponentState).planesLastChangedTimes.clear()
+      for (const [, entity] of getState(XRDetectedMeshComponentState).detectedMeshesMap) {
+        removeEntity(entity)
+      }
+      getState(XRDetectedMeshComponentState).detectedMeshesMap.clear()
+      getState(XRDetectedMeshComponentState).meshesLastChangedTimes.clear()
+    }
+  }, [session])
+  return null
 }
 
 export const XRDetectedMeshSystem = defineSystem({
   uuid: 'ee.engine.XRDetectedMeshSystem',
   insert: { with: XRSystem },
-  execute
+  execute,
+  reactor
 })

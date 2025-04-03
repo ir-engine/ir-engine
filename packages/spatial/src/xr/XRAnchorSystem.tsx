@@ -204,11 +204,11 @@ const execute = () => {
 
   if (!getState(XRState).xrFrame) return
 
-  for (const entity of xrAnchorQuery()) updateAnchor(entity)
-  for (const entity of xrHitTestQuery()) updateHitTest(entity)
+  for (const entity of xrAnchorQuery()) XRAnchorSystemFunctions.updateAnchor(entity)
+  for (const entity of xrHitTestQuery()) XRAnchorSystemFunctions.updateHitTest(entity)
 
   if (xrState.scenePlacementMode === 'placing') {
-    updateScenePlacement(scenePlacementEntity)
+    XRAnchorSystemFunctions.updateScenePlacement(scenePlacementEntity)
     updateWorldOriginFromScenePlacement()
 
     getComponent(originAnchorEntity, TransformComponent).scale.copy(Vector3_One)
@@ -380,3 +380,9 @@ export const XRAnchorSystem = defineSystem({
     return <Reactor />
   }
 })
+
+export const XRAnchorSystemFunctions = {
+  updateAnchor,
+  updateHitTest,
+  updateScenePlacement
+}

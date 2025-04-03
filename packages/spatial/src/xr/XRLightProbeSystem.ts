@@ -110,43 +110,40 @@ const execute = () => {
   if (!('getLightEstimate' in xrFrame)) return
 
   const lightEstimate = xrFrame.getLightEstimate?.(xrLightProbeState.probe)
-  if (lightEstimate) {
-    if (!xrLightProbeState.isEstimatingLight) getMutableState(XRLightProbeState).isEstimatingLight.set(true)
-    if (!xrLightProbeState.directionalLightEntity) return
+  if (!lightEstimate) return
 
-    // We can copy the estimate's spherical harmonics array directly into the light probe.
-    xrLightProbeState.lightProbe.sh.fromArray(lightEstimate.sphericalHarmonicsCoefficients)
-    xrLightProbeState.lightProbe.intensity = 1.0
+  if (!xrLightProbeState.isEstimatingLight) getMutableState(XRLightProbeState).isEstimatingLight.set(true)
+  if (!xrLightProbeState.directionalLightEntity) return
 
-    // For the directional light we have to normalize the color and set the scalar as the
-    // intensity, since WebXR can return color values that exceed 1.0.
-    const intensityScalar = Math.max(
-      1.0,
-      Math.max(
-        lightEstimate.primaryLightIntensity.x,
-        Math.max(lightEstimate.primaryLightIntensity.y, lightEstimate.primaryLightIntensity.z)
-      )
+  // We can copy the estimate's spherical harmonics array directly into the light probe.
+  xrLightProbeState.lightProbe.sh.fromArray(lightEstimate.sphericalHarmonicsCoefficients)
+  xrLightProbeState.lightProbe.intensity = 1.0
+
+  // For the directional light we have to normalize the color and set the scalar as the
+  // intensity, since WebXR can return color values that exceed 1.0.
+  const intensityScalar = Math.max(
+    1.0,
+    Math.max(
+      lightEstimate.primaryLightIntensity.x,
+      Math.max(lightEstimate.primaryLightIntensity.y, lightEstimate.primaryLightIntensity.z)
     )
+  )
 
-    const directionalLightState = getMutableComponent(
-      xrLightProbeState.directionalLightEntity,
-      DirectionalLightComponent
-    )
+  const directionalLightState = getMutableComponent(xrLightProbeState.directionalLightEntity, DirectionalLightComponent)
 
-    directionalLightState.color.set(
-      new Color(
-        lightEstimate.primaryLightIntensity.x / intensityScalar,
-        lightEstimate.primaryLightIntensity.y / intensityScalar,
-        lightEstimate.primaryLightIntensity.z / intensityScalar
-      )
+  directionalLightState.color.set(
+    new Color(
+      lightEstimate.primaryLightIntensity.x / intensityScalar,
+      lightEstimate.primaryLightIntensity.y / intensityScalar,
+      lightEstimate.primaryLightIntensity.z / intensityScalar
     )
-    directionalLightState.intensity.set(intensityScalar)
+  )
+  directionalLightState.intensity.set(intensityScalar)
 
-    getComponent(xrLightProbeState.directionalLightEntity, TransformComponent).rotation.setFromUnitVectors(
-      Vector3_Zero,
-      lightEstimate.primaryLightDirection as any as Vector3
-    )
-  }
+  getComponent(xrLightProbeState.directionalLightEntity, TransformComponent).rotation.setFromUnitVectors(
+    Vector3_Zero,
+    lightEstimate.primaryLightDirection as any as Vector3
+  )
 }
 
 const reactor = () => {

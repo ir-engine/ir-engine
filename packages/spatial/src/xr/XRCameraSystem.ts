@@ -40,26 +40,26 @@ import { XRRendererState } from './WebXRManager'
 import { ReferenceSpace, XRState } from './XRState'
 import { XRSystem } from './XRSystem'
 
-const cameraLPos = new Vector3()
-const cameraRPos = new Vector3()
+const _cameraLPos = new Vector3()
+const _cameraRPos = new Vector3()
 
-const cameraL = new PerspectiveCamera()
-cameraL.layers.enable(1)
-cameraL.viewport = new Vector4()
-cameraL.matrixAutoUpdate = false
-cameraL.matrixWorldAutoUpdate = false
-cameraL.rotation._onChangeCallback = () => {}
-cameraL.quaternion._onChangeCallback = () => {}
+const _cameraL = new PerspectiveCamera()
+_cameraL.layers.enable(1)
+_cameraL.viewport = new Vector4()
+_cameraL.matrixAutoUpdate = false
+_cameraL.matrixWorldAutoUpdate = false
+_cameraL.rotation._onChangeCallback = () => {}
+_cameraL.quaternion._onChangeCallback = () => {}
 
-const cameraR = new PerspectiveCamera()
-cameraR.layers.enable(2)
-cameraR.viewport = new Vector4()
-cameraR.matrixAutoUpdate = false
-cameraR.matrixWorldAutoUpdate = false
-cameraR.rotation._onChangeCallback = () => {}
-cameraR.quaternion._onChangeCallback = () => {}
+const _cameraR = new PerspectiveCamera()
+_cameraR.layers.enable(2)
+_cameraR.viewport = new Vector4()
+_cameraR.matrixAutoUpdate = false
+_cameraR.matrixWorldAutoUpdate = false
+_cameraR.rotation._onChangeCallback = () => {}
+_cameraR.quaternion._onChangeCallback = () => {}
 
-const cameraPool = [cameraL, cameraR]
+const _cameraPool = [_cameraL, _cameraR]
 
 /**
  * Assumes 2 cameras that are parallel and share an X-axis, and that
@@ -70,20 +70,20 @@ const cameraPool = [cameraL, cameraR]
 function updateProjectionFromCameraArrayUnion(camera: ArrayCamera) {
   if (camera.cameras.length !== 2) {
     // assume single camera setup
-    camera.projectionMatrix.copy(cameraL.projectionMatrix)
+    camera.projectionMatrix.copy(_cameraL.projectionMatrix)
     return
   }
 
   // TODO: verify this is actually an HMD setup, not projection mapping or something
   // update projection matrix for proper view frustum culling
 
-  cameraLPos.setFromMatrixPosition(cameraL.matrixWorld)
-  cameraRPos.setFromMatrixPosition(cameraR.matrixWorld)
+  _cameraLPos.setFromMatrixPosition(_cameraL.matrixWorld)
+  _cameraRPos.setFromMatrixPosition(_cameraR.matrixWorld)
 
-  const ipd = cameraLPos.distanceTo(cameraRPos)
+  const ipd = _cameraLPos.distanceTo(_cameraRPos)
 
-  const projL = cameraL.projectionMatrix.elements
-  const projR = cameraR.projectionMatrix.elements
+  const projL = _cameraL.projectionMatrix.elements
+  const projR = _cameraR.projectionMatrix.elements
 
   // VR systems will have identical far and near planes, and
   // most likely identical top and bottom frustum extents.
@@ -184,13 +184,13 @@ function updateCameraFromXRViewerPose() {
       }
     }
 
-    let viewCamera = cameraPool[i]
+    let viewCamera = _cameraPool[i]
 
     if (viewCamera === undefined) {
       viewCamera = new PerspectiveCamera()
       viewCamera.layers.enable(i)
       viewCamera.viewport = new Vector4()
-      cameraPool[i] = viewCamera
+      _cameraPool[i] = viewCamera
       viewCamera.matrixAutoUpdate = false
       viewCamera.matrixWorldAutoUpdate = false
     }
@@ -227,23 +227,23 @@ export function updateXRCamera() {
   const session = xrState.session
 
   if (session === null) {
-    camera.cameras = [cameraL]
-    cameraL.copy(camera, false)
+    camera.cameras = [_cameraL]
+    _cameraL.copy(camera, false)
     const size = renderer.getDrawingBufferSize(_vec)
-    cameraL.viewport.x = 0
-    cameraL.viewport.y = 0
-    cameraL.viewport.z = size.width
-    cameraL.viewport.w = size.height
+    _cameraL.viewport.x = 0
+    _cameraL.viewport.y = 0
+    _cameraL.viewport.z = size.width
+    _cameraL.viewport.w = size.height
     return
   }
 
   updateCameraFromXRViewerPose()
 
-  cameraR.near = cameraL.near = camera.near
-  cameraR.far = cameraL.far = camera.far
+  _cameraR.near = _cameraL.near = camera.near
+  _cameraR.far = _cameraL.far = camera.far
 
   if (_currentDepthNear !== camera.near || _currentDepthFar !== camera.far) {
-    // Note that the new renderState won't apply until the next frame. See #18320
+    // @note The new renderState won't apply until the next frame. See #18320
 
     session.updateRenderState({
       depthNear: camera.near,

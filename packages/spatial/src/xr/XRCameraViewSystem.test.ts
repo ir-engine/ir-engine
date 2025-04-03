@@ -59,6 +59,6 @@ describe('XRCameraViewSystem', () => {
     })
   }) //:: Fields
 
-  /** @todo Not yet implemented */
-  describe('execute', () => {}) //:: execute
+  /** @todo Not yet implemented The API doesn't exist in any headsets yet. */
+  describe.skip('execute', () => {}) //:: execute
 }) //:: XRCameraViewSystem

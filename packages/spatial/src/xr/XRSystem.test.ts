@@ -64,7 +64,7 @@ describe('XRSystem', () => {
     })
   }) //:: Fields
 
-  /** @todo */
+  // @note This system's execute is currently a noop, hence why this suite is empty.
   describe('reactor', () => {
     // @todo When system mounting/unmounting is exposed
     describe('mount/unmount', () => {
@@ -83,7 +83,4 @@ describe('XRSystem', () => {
       }) //:: unmount
     })
   }) //:: reactor
-
-  /** @todo */
-  describe('execute,', () => {}) //:: execute
 }) //:: XRSystem

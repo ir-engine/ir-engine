@@ -28,7 +28,9 @@ import { MockXRFrame } from './MockXR'
 import { mockSpatialEngine } from './mockSpatialEngine'
 
 import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { ReferenceSpaceState } from '../../src/ReferenceSpaceState'
 import { destroySpatialEngine, destroySpatialViewer } from '../../src/initializeEngine'
+import { XRAnchorSystemState } from '../../src/xr/XRAnchorSystem'
 import { endXRSession } from '../../src/xr/XRSessionFunctions'
 import { XRState } from '../../src/xr/XRState'
 
@@ -38,6 +40,7 @@ export async function mockEmulatedXREngine() {
   // @ts-expect-error Allow coercing the MockXRFrame type into the xrFrame property
   getMutableState(XRState).xrFrame.set(new MockXRFrame())
   getMutableState(XRState).xrFrame.merge({ session: getState(XRState).session! })
+  getMutableState(XRAnchorSystemState).originAnchorEntity.set(getState(ReferenceSpaceState).originEntity)
 }
 
 export async function destroyEmulatedXREngine() {

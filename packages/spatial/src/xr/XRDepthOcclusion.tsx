@@ -248,16 +248,16 @@ const _createDepthDebugCanvas = (enabled: boolean) => {
   return depthTexture
 }
 
-const useDepthTextureDebug = false
-const depthTexture = _createDepthDebugCanvas(useDepthTextureDebug)
-let depthSupported = false
+const _useDepthTextureDebug = false
+const _depthTexture = _createDepthDebugCanvas(_useDepthTextureDebug)
+let _depthSupported = false
 
 function DepthOcclusionReactor({ obj }) {
   const depthDataTexture = useHookstate(getMutableState(XRState).depthDataTexture)
 
   useEffect(() => {
     const mesh = obj as any as Mesh<any, Material>
-    if (!mesh.isMesh || !depthDataTexture || !depthSupported) return
+    if (!mesh.isMesh || !depthDataTexture || !_depthSupported) return
 
     XRDepthOcclusion.addDepthOBCPlugin(mesh.material, depthDataTexture.value! as DepthDataTexture)
     return () => {
@@ -271,9 +271,9 @@ function DepthOcclusionReactor({ obj }) {
 const execute = () => {
   const xrFrame = getState(XRState).xrFrame
   const xrFrameD = xrFrame as XRFrame & getDepthInformationType
-  depthSupported = typeof xrFrameD?.getDepthInformation === 'function'
-  if (!depthSupported) return
-  XRDepthOcclusion.updateDepthMaterials(xrFrame as any, ReferenceSpace.origin!, depthTexture)
+  _depthSupported = typeof xrFrameD?.getDepthInformation === 'function'
+  if (!_depthSupported) return
+  XRDepthOcclusion.updateDepthMaterials(xrFrame as any, ReferenceSpace.origin!, _depthTexture)
 }
 
 const reactor = () => {
