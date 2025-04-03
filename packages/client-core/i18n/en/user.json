@@ -65,19 +65,19 @@
   },
   "usermenu": {
     "locationTable": {
-      "title": "Locations",
+      "title": "Spaces",
       "loading": "Loading",
       "col-name": "Name",
       "col-scene": "Scene",
       "col-maxuser": "Max Users",
-      "lbl-search": "Search for locations",
+      "lbl-search": "Search for Spaces",
       "lbl-new": "New"
     },
     "newLocation": {
-      "title": "Location",
+      "title": "Space",
       "success": "Saved Successfully.",
       "failure": "Something went wrong.",
-      "removeSuccess": "Location removed Successfully.",
+      "removeSuccess": "Space removed Successfully.",
       "nameInUse": "Name is in use.",
       "nameRequire": "Name is required.",
       "validNumber": "Only numbers(0-9) are allowed.",
@@ -102,7 +102,7 @@
       "btn-share-invite": "Share Link / Invite Code"
     },
     "location": {
-      "containerHeading": "Current Location",
+      "containerHeading": "Current Space",
       "btn-immersive": "Immersive Mode",
       "btn-respawn": "Respawn",
       "btn-emote": "Emote",
@@ -128,7 +128,7 @@
     },
     "share": {
       "lbl-share": "Share",
-      "description-share": "Share this location",
+      "description-share": "Share this Space",
       "ph-phoneEmail": "Invite by email or phone number",
       "ph-email": "Invite by email",
       "ph-phone": "Invite by phone number",
@@ -138,7 +138,7 @@
       "lbl-copy": "Copy",
       "lbl-send-invite": "Send Invite",
       "lbl-spectator-mode": "Spectator Mode",
-      "title": "Share this Location",
+      "title": "Share this Space",
       "mobileTitle": "View this Item in AR on your Mobile Device",
       "linkCopied": "Link copied to clipboard.",
       "friends": "Friends",
@@ -328,7 +328,7 @@
     "users": "Users",
     "feeds": "Feeds",
     "instances": "Instances",
-    "locations": "Locations",
+    "locations": "Spaces",
     "routes": "Routes",
     "projects": "Projects",
     "invites": "Invites",
