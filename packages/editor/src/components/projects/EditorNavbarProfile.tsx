@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import ProfileMenu from '@ir-engine/client-core/src/user/menus/ProfileMenu'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
@@ -35,7 +35,7 @@ export const EditorNavbarProfile = () => {
   const name = useHookstate(getMutableState(AuthState).user.name)
 
   const handleClick = () => {
-    PopoverState.showPopupover(<ProfileMenu />)
+    ModalState.openModal(<ProfileMenu />)
   }
 
   return (

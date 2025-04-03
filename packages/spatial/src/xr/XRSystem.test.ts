@@ -23,12 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { destroyEmulatedXREngine, mockEmulatedXREngine } from '../../tests/util/mockEmulatedXREngine'
 import { CustomWebXRPolyfill } from '../../tests/webxr/emulator'
 
 import { InputSystemGroup, SystemDefinitions, SystemUUID, createEngine, destroyEngine } from '@ir-engine/ecs'
-import { XRSystem } from './XRSystem'
+import { XRSystem, XRSystemFunctions } from './XRSystem'
 
 /** @note Runs once on the `describe` implied by vitest for this file */
 beforeAll(() => {
@@ -65,6 +65,25 @@ describe('XRSystem', () => {
   }) //:: Fields
 
   /** @todo */
+  describe('reactor', () => {
+    // @todo When system mounting/unmounting is exposed
+    describe('mount/unmount', () => {
+      it.skip("should call navigator.xr.addEventListener with 'devicechange'  and updateSessionSupport", () => {})
+      it.skip('should call XRSystemFunctions.updateSessionSupport', () => {
+        // Set the data as expected
+        const resultSpy = vi.spyOn(XRSystemFunctions, 'updateSessionSupport')
+        // Sanity check before running
+        expect(resultSpy).not.toHaveBeenCalled()
+        // Run and Check the result
+        expect(resultSpy).toHaveBeenCalledOnce()
+      })
+
+      describe('when it unmounts ..', () => {
+        it.skip(".. should call navigator.xr.removeEventListener with 'devicechange'  and XRSystemFunctions.updateSessionSupport", () => {})
+      }) //:: unmount
+    })
+  }) //:: reactor
+
+  /** @todo */
   describe('execute,', () => {}) //:: execute
-  describe('reactor', () => {}) //:: reactor
 }) //:: XRSystem

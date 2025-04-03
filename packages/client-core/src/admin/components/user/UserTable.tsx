@@ -40,7 +40,7 @@ import { truncateText } from '@ir-engine/ui/src/primitives/tailwind/TruncatedTex
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegCircleCheck, FaRegCircleXmark } from 'react-icons/fa6'
-import { PopoverState } from '../../../common/services/PopoverState'
+import { ModalState } from '../../../common/services/ModalState'
 import { AuthState } from '../../../user/services/AuthService'
 import DataTable from '../../common/Table'
 import { UserRowType, userColumns } from '../../common/constants/user'
@@ -63,7 +63,7 @@ export const removeUsers = async (
       adminUserRemove(user.id)
     })
   )
-  PopoverState.hidePopupover()
+  ModalState.closeModal()
   modalProcessing.set(false)
 }
 
@@ -187,7 +187,7 @@ export default function UserTable({
             <ActionButton
               icon={Edit01Lg}
               title={t('admin:components.common.view')}
-              onClick={() => PopoverState.showPopupover(<AddEditUserModal user={row} />)}
+              onClick={() => ModalState.openModal(<AddEditUserModal user={row} />)}
               variant="green"
             />
 
@@ -195,7 +195,7 @@ export default function UserTable({
               icon={Trash04Lg}
               title={t('admin:components.common.delete')}
               onClick={() => {
-                PopoverState.showPopupover(
+                ModalState.openModal(
                   <ConfirmDialog
                     text={`${t('admin:components.user.confirmUserDelete')} '${row.name}'?`}
                     onSubmit={async () => {

@@ -25,14 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import assert from 'assert'
 import { Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 
 import { createEntity, removeEntity, setComponent, UndefinedEntity } from '@ir-engine/ecs'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { getState } from '@ir-engine/hyperflux'
-import { act, render } from '@testing-library/react'
 import sinon from 'sinon'
 import { MeshComponent } from '../renderer/components/MeshComponent'
 import { ResourceState } from './ResourceState'
@@ -59,7 +58,11 @@ describe('ResourceState', () => {
 
         setComponent(testEntity, MeshComponent, mesh)
 
-        await act(() => render(null))
+        await vi.waitUntil(() => {
+          // @ts-expect-error
+          const meshResourceID = mesh.resourceID
+          return getState(ResourceState).resources[meshResourceID]
+        })
 
         // @ts-expect-error
         const meshResourceID = mesh.resourceID
@@ -123,13 +126,22 @@ describe('ResourceState', () => {
 
         setComponent(testEntity, MeshComponent, mesh)
 
-        await act(() => render(null))
+        await vi.waitUntil(() => {
+          // @ts-expect-error
+          const meshResourceID = mesh.resourceID
+          return getState(ResourceState).resources[meshResourceID]
+        })
+
+        // @ts-expect-error
+        const meshResourceID = mesh.resourceID
 
         const resources = getState(ResourceState).resources
 
         removeEntity(testEntity)
 
-        await act(() => render(null))
+        await vi.waitUntil(() => {
+          return !getState(ResourceState).resources[meshResourceID]
+        })
 
         sinon.assert.calledTwice(spy)
 

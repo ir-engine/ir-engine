@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { channelPath, ChannelType } from '@ir-engine/common/src/schema.type.module'
 import { isValidId } from '@ir-engine/common/src/utils/isValidId'
@@ -94,7 +94,7 @@ export default function ChannelTable({
           <ActionButton
             icon={Edit01Lg}
             title={t('admin:components.common.view')}
-            onClick={() => PopoverState.showPopupover(<AddEditChannelModal channel={row} />)}
+            onClick={() => ModalState.openModal(<AddEditChannelModal channel={row} />)}
             variant="green"
           />
 
@@ -102,7 +102,7 @@ export default function ChannelTable({
             icon={Trash04Lg}
             title={t('admin:components.common.delete')}
             onClick={() =>
-              PopoverState.showPopupover(
+              ModalState.openModal(
                 <ConfirmDialog
                   text={`${t('admin:components.channel.confirmChannelDelete')} '${row.name}'?`}
                   onSubmit={async () => {

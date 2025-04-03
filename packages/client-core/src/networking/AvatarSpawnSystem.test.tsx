@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import sinon from 'sinon'
-import { afterEach, assert, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import '@ir-engine/engine'
 
@@ -260,17 +260,17 @@ describe('AvatarSpawnSystem', async () => {
 
     startReactor(system.reactor!)
 
-    await act(async () => render(null))
+    await vi.waitFor(() => {
+      applyIncomingActions()
 
-    applyIncomingActions()
-
-    // should have spectate action
-    const spectateAction = Engine.instance.store.actions.history.findLast((action) =>
-      SpectateActions.spectateEntity.matches.test(action)
-    ) as typeof SpectateActions.spectateEntity.matches._TYPE
-    assert.ok(spectateAction)
-    assert.equal(spectateAction.spectatorUserID, Engine.instance.userID)
-    assert.equal(spectateAction.spectatingEntity, otherUserID)
+      // should have spectate action
+      const spectateAction = Engine.instance.store.actions.history.findLast((action) =>
+        SpectateActions.spectateEntity.matches.test(action)
+      ) as typeof SpectateActions.spectateEntity.matches._TYPE
+      assert.ok(spectateAction)
+      assert.equal(spectateAction.spectatorUserID, Engine.instance.userID)
+      assert.equal(spectateAction.spectatingEntity, otherUserID)
+    })
   })
 
   it('should spectate entity specified in scene settings', async () => {
@@ -281,17 +281,17 @@ describe('AvatarSpawnSystem', async () => {
 
     startReactor(system.reactor!)
 
-    await act(async () => render(null))
+    await vi.waitFor(() => {
+      applyIncomingActions()
 
-    applyIncomingActions()
-
-    // should have spectate action
-    const spectateAction = Engine.instance.store.actions.history.findLast((action) =>
-      SpectateActions.spectateEntity.matches.test(action)
-    ) as typeof SpectateActions.spectateEntity.matches._TYPE
-    assert.ok(spectateAction)
-    assert.equal(spectateAction.spectatorUserID, Engine.instance.userID)
-    assert.equal(spectateAction.spectatingEntity, spectateUUID)
+      // should have spectate action
+      const spectateAction = Engine.instance.store.actions.history.findLast((action) =>
+        SpectateActions.spectateEntity.matches.test(action)
+      ) as typeof SpectateActions.spectateEntity.matches._TYPE
+      assert.ok(spectateAction)
+      assert.equal(spectateAction.spectatorUserID, Engine.instance.userID)
+      assert.equal(spectateAction.spectatingEntity, spectateUUID)
+    })
   })
 
   it('should select a new avatar if none is found', async () => {
@@ -310,8 +310,8 @@ describe('AvatarSpawnSystem', async () => {
 
     startReactor(system.reactor!)
 
-    await act(async () => render(null))
-
-    expect(patchCallSpy.calledOnce).toBe(true)
+    await vi.waitFor(() => {
+      expect(patchCallSpy.calledOnce).toBe(true)
+    })
   })
 })

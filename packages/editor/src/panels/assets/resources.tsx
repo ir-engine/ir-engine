@@ -26,7 +26,7 @@ import {
   FileThumbnailJobState,
   removeFromFileThumbnailsSeen
 } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import ProgressBar from '@ir-engine/client-core/src/systems/ui/LoadingDetailView/SimpleProgressBar'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
@@ -46,8 +46,9 @@ import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileIcon } from '../files/fileicon'
 import { FileUploadProgress } from '../files/loaders'
 import DeleteFileModal from '../files/modals/DeleteFileModal'
+import { AssetCategoryNode } from './categories'
 import { ASSETS_PAGE_LIMIT, calculateItemsToFetch } from './helpers'
-import { useAssetsQuery } from './hooks'
+import { useAssetsCategory, useAssetsQuery } from './hooks'
 
 interface MetadataTableRowProps {
   label: string
@@ -115,7 +116,7 @@ function ResourceFileContextMenu({
             size="sm"
             fullWidth
             onClick={() => {
-              PopoverState.showPopupover(
+              ModalState.openModal(
                 <DeleteFileModal
                   files={[
                     {
@@ -132,7 +133,7 @@ function ResourceFileContextMenu({
                   onComplete={(err?: unknown) => {
                     if (!err) {
                       removeFromFileThumbnailsSeen([resource.key])
-                      refetchResources()
+                      refetchResources(true)
                     }
                   }}
                 />
@@ -172,15 +173,15 @@ export function FileCard({
         onDoubleClick={onDoubleClick}
         onContextMenu={onContextMenu}
         className={twMerge(
-          'max-h-38 w-30 flex h-auto cursor-pointer flex-col items-center p-1.5 text-center',
+          'max-h-38 w-30 group flex h-auto cursor-pointer flex-col items-center p-1.5 text-center ',
           className
         )}
         data-testid={dataTestIdJson?.fileItemId}
       >
         <div
           className={twMerge(
-            `box-border rounded border border-0 font-figtree`,
-            isSelected ? 'rounded border border-[#375DAF] bg-[#2C2E30]' : 'group-hover:bg-[#202225]'
+            'box-border rounded border-0 p-2 font-figtree',
+            isSelected ? 'rounded border-2 border-text-link bg-[#2C2E30]' : 'group-hover:bg-ui-hover-background'
           )}
           style={{
             height: iconSize,
@@ -203,10 +204,8 @@ export function FileCard({
             theme="secondary"
             fontSize="sm"
             className={twMerge(
-              'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2',
-              isSelected
-                ? 'rounded bg-ui-select-background text-ui-select-primary'
-                : 'rounded text-ui-hover-primary group-hover:bg-ui-hover-background'
+              'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2 text-text-secondary',
+              isSelected ? 'rounded bg-ui-primary' : 'rounded group-hover:bg-ui-hover-background'
             )}
             data-testid={dataTestIdJson?.fileNameId}
           >
@@ -387,6 +386,8 @@ function BottomPaginationNavBar({ handleScrollToPage }) {
 function ResourceItems() {
   const { t } = useTranslation()
   const { resourcesLoading, resources, staticResourcesPagination, refetchResources } = useAssetsQuery()
+  const { currentCategoryPath } = useAssetsCategory()
+  const currentCategory = currentCategoryPath.get({ noproxy: true }) as AssetCategoryNode
   const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]) // Create a ref array
   const fileIconsLoaded = useHookstate(0)
@@ -410,8 +411,13 @@ function ResourceItems() {
 
   const thumbnailJobState = useMutableState(FileThumbnailJobState)
   useEffect(() => {
-    refetchResources()
+    refetchResources(true)
   }, [thumbnailJobState.jobs.length])
+
+  useEffect(() => {
+    fileIconsToLoad.set(0)
+    fileIconsLoaded.set(0)
+  }, [currentCategory?.path])
 
   return (
     <div className="relative flex w-full ">

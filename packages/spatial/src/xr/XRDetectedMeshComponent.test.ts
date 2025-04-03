@@ -22,29 +22,38 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { afterEach, assert, beforeEach, describe, expect, it } from 'vitest'
-import { MockXRFrame, MockXRMesh, MockXRSpace } from '../../tests/util/MockXR'
+import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
+import { MockXRFrame, MockXRMesh, MockXRPose, MockXRSpace } from '../../tests/util/MockXR'
 import { assertVec } from '../../tests/util/assert'
 import { destroyEmulatedXREngine, mockEmulatedXREngine } from '../../tests/util/mockEmulatedXREngine'
-import { mockSpatialEngine } from '../../tests/util/mockSpatialEngine'
-import { requestEmulatedXRSession } from '../../tests/webxr/emulator'
 
 import {
   EntityTreeComponent,
   UndefinedEntity,
   createEngine,
+  createEntity,
   destroyEngine,
   getComponent,
-  hasComponent
+  getMutableComponent,
+  hasComponent,
+  removeComponent,
+  removeEntity,
+  setComponent
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
-import { Matrix4, Quaternion, Vector3 } from 'three'
+import { BoxGeometry, BufferGeometry, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { TransformComponent } from '../SpatialModule'
 import { NameComponent } from '../common/NameComponent'
+import { ObjectComponent } from '../renderer/components/ObjectComponent'
 import { VisibleComponent } from '../renderer/components/VisibleComponent'
 import { XRDetectedMeshComponent, XRDetectedMeshComponentState } from './XRDetectedMeshComponent'
 import { ReferenceSpace, XRState } from './XRState'
+
+// /** @note Runs once on the `describe` implied by vitest for this file */
+// beforeAll(() => {
+//   new CustomWebXRPolyfill()
+// })
 
 describe('XRDetectedMeshComponent', () => {
   describe('Fields', () => {
@@ -112,11 +121,11 @@ describe('XRDetectedMeshComponent', () => {
   describe('updateMeshGeometry', () => {
     beforeEach(async () => {
       createEngine()
-      mockEmulatedXREngine()
+      // mockEmulatedXREngine()
     })
 
     afterEach(() => {
-      destroyEmulatedXREngine()
+      // destroyEmulatedXREngine()
       destroyEngine()
     })
 
@@ -141,12 +150,12 @@ describe('XRDetectedMeshComponent', () => {
   describe('updateMeshPose', () => {
     beforeEach(async () => {
       createEngine()
-      mockSpatialEngine()
-      await requestEmulatedXRSession()
+      // mockSpatialEngine()
+      // await requestEmulatedXRSession()
     })
 
     afterEach(() => {
-      destroyEmulatedXREngine()
+      // destroyEmulatedXREngine()
       destroyEngine()
     })
 
@@ -155,6 +164,12 @@ describe('XRDetectedMeshComponent', () => {
       const position = new Vector3(1, 2, 3)
       const quaternion = new Quaternion(1, 2, 3, 4).normalize()
       const pose = new Matrix4().compose(position, quaternion, new Vector3(1, 1, 1))
+      // @ts-expect-error
+      const xrFrame = new MockXRFrame() as XRFrame
+      // @ts-expect-error
+      xrFrame.getPose = () => new MockXRPose(position, quaternion)
+      getMutableState(XRState).xrFrame.set(xrFrame)
+      mesh.meshSpace = new MockXRSpace(pose)
       mesh.meshSpace = new MockXRSpace(pose)
       const meshEntity = XRDetectedMeshComponent.getMeshEntity(mesh)
       XRDetectedMeshComponent.updateMeshPose(meshEntity)
@@ -167,6 +182,11 @@ describe('XRDetectedMeshComponent', () => {
       const position = new Vector3(1, 2, 3)
       const quaternion = new Quaternion(1, 2, 3, 4).normalize()
       const pose = new Matrix4().compose(position, quaternion, new Vector3(1, 1, 1))
+      // @ts-expect-error
+      const xrFrame = new MockXRFrame() as XRFrame
+      // @ts-expect-error
+      xrFrame.getPose = () => new MockXRPose(position, quaternion)
+      getMutableState(XRState).xrFrame.set(xrFrame)
       mesh.meshSpace = new MockXRSpace(pose)
       const meshEntity = XRDetectedMeshComponent.getMeshEntity(mesh)
       XRDetectedMeshComponent.updateMeshPose(meshEntity)
@@ -322,6 +342,129 @@ describe('XRDetectedMeshComponent', () => {
     })
   }) //:: foundMesh
 
-  /** @todo */
-  describe('reactor', () => {}) //:: reactor
+  describe('reactor', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      destroyEngine()
+    })
+
+    describe('XRDetectedMeshComponent.mesh', () => {
+      it('should not do anything if XRDetectedMeshComponent.mesh.value is falsy', () => {
+        const Expected = {} as XRMesh
+        const Initial = undefined as XRMesh | undefined // @note Will have typeerrors due to geometry missing, but they are expected for this test case
+        // Set the data as expected
+        const resultSpy = vi.spyOn(XRDetectedMeshComponent, 'createGeometryFromMesh')
+        // Sanity check before running
+        expect(resultSpy).toHaveBeenCalledTimes(0)
+        setComponent(testEntity, XRDetectedMeshComponent, { mesh: Initial })
+        expect(resultSpy).toHaveBeenCalledTimes(0)
+        expect(getComponent(testEntity, XRDetectedMeshComponent).mesh).toBeFalsy()
+        // Run and Check the result
+        setComponent(testEntity, XRDetectedMeshComponent, { mesh: Expected })
+        expect(resultSpy).toHaveBeenCalledTimes(0)
+      })
+
+      it('should call XRDetectedMeshComponent.createGeometryFromMesh with XRDetectedMeshComponent.mesh.value as its argument', () => {
+        const Expected = {} as XRMesh
+        const Initial = { semanticLabel: 'testLabel' } as XRMesh
+        // Set the data as expected
+        const resultSpy = vi.spyOn(XRDetectedMeshComponent, 'createGeometryFromMesh')
+        // Sanity check before running
+        expect(resultSpy).toHaveBeenCalledTimes(0)
+        setComponent(testEntity, XRDetectedMeshComponent, { mesh: Initial })
+        expect(resultSpy).toHaveBeenCalledTimes(1)
+        expect(getComponent(testEntity, XRDetectedMeshComponent).mesh).toBeTruthy()
+        // Run and Check the result
+        setComponent(testEntity, XRDetectedMeshComponent, { mesh: Expected })
+        expect(resultSpy).toHaveBeenCalledTimes(2)
+        expect(resultSpy).toHaveBeenCalledWith(Expected)
+      })
+
+      it('should set XRDetectedMeshComponent.geometry to the newly created geometry', async () => {
+        const Initial = { id: 42 } as BufferGeometry
+        // Set the data as expected
+        setComponent(testEntity, XRDetectedMeshComponent, { mesh: { semanticLabel: 'testLabelInitial' } as XRMesh })
+        setComponent(testEntity, XRDetectedMeshComponent, { geometry: Initial })
+        // Sanity check before running
+        const before = getComponent(testEntity, XRDetectedMeshComponent).geometry
+        expect(before).toBe(Initial)
+        // Run and Check the result
+        setComponent(testEntity, XRDetectedMeshComponent, { mesh: { semanticLabel: 'testLabelAfter' } as XRMesh })
+        const result = getComponent(testEntity, XRDetectedMeshComponent).geometry
+        expect(result).not.toBe(Initial) // A change in .mesh should trigger a change in .geometry
+      })
+
+      it(`should create a new Mesh object with XRDetectedMeshComponent.shadowMesh
+          and set an ObjectComponent to the entityContext with the new mesh`, () => {
+        // Set the data as expected
+        setComponent(testEntity, XRDetectedMeshComponent, { mesh: { semanticLabel: 'testLabel' } as XRMesh })
+        // Sanity check before running
+        const Initial = getComponent(testEntity, ObjectComponent).clone()
+        // Run and Check the result
+        setComponent(testEntity, XRDetectedMeshComponent, { mesh: { semanticLabel: 'testLabelAfter' } as XRMesh })
+        expect(getComponent(testEntity, ObjectComponent)).not.toEqual(Initial)
+        expect(getComponent(testEntity, ObjectComponent)).toBe(
+          getComponent(testEntity, XRDetectedMeshComponent).shadowMesh
+        )
+      })
+
+      describe('when it unmounts ..', () => {
+        it('.. should call removeComponent with the entityContext', () => {
+          const Expected = false
+          const Initial = !Expected
+          // Set the data as expected
+          setComponent(testEntity, XRDetectedMeshComponent, { mesh: { semanticLabel: 'testLabel' } as XRMesh })
+          // Sanity check before running
+          const before = hasComponent(testEntity, ObjectComponent)
+          expect(before).toBe(Initial)
+          // Run and Check the result
+          removeComponent(testEntity, XRDetectedMeshComponent)
+          const result = hasComponent(testEntity, ObjectComponent)
+          expect(result).toBe(Expected)
+        })
+      })
+    }) //:: XRDetectedMeshComponent.mesh
+
+    describe('XRDetectedMeshComponent.geometry', () => {
+      it('should set entityContext.XRDetectedMeshComponent.shadowMesh.geometry to entityContext.XRDetectedMeshComponent.geometry', () => {
+        const Initial = { id: 42, dispose: () => {} } as BufferGeometry
+        // Set the data as expected
+        setComponent(testEntity, XRDetectedMeshComponent, {
+          mesh: { semanticLabel: 'testLabel' } as XRMesh,
+          geometry: new BoxGeometry(),
+          shadowMesh: new Mesh()
+        })
+        // Run and Check the result
+        setComponent(testEntity, XRDetectedMeshComponent, { geometry: new BoxGeometry() })
+        const result = getComponent(testEntity, XRDetectedMeshComponent).shadowMesh.geometry
+        expect(result).not.toBe(Initial)
+      })
+
+      describe('when it unmounts ..', () => {
+        /** @todo How to get the cleanup code to run ?? */
+        it.todo('.. should call entityContext.XRDetectedMeshComponent.geometry.dispose', () => {
+          const resultSpy = vi.fn()
+          setComponent(testEntity, XRDetectedMeshComponent, { geometry: new BoxGeometry() })
+          getMutableComponent(testEntity, XRDetectedMeshComponent).geometry.merge({ dispose: resultSpy })
+          expect(resultSpy).not.toHaveBeenCalled()
+          setComponent(testEntity, XRDetectedMeshComponent, { geometry: new BoxGeometry() })
+          expect(resultSpy).toHaveBeenCalledTimes(1)
+        })
+      })
+    }) //:: XRDetectedMeshComponent.geometry
+
+    /** @todo Write when this useEffect is not broken. It currently crashes the context, which makes the other hooks misbehave.
+    describe('XRState.scenePlacementMode', () => {
+      it.todo("should set XRDetectedMeshComponent.placementHelper.visible to true if XRState.scenePlacementMode is 'placing'", () => {})
+      it.todo("should set XRDetectedMeshComponent.placementHelper.visible to false if XRState.scenePlacementMode is not 'placing'", () => {})
+    }) //:: XRState.scenePlacementMode
+    */
+  }) //:: reactor
 }) //:: XRDetectedMeshComponent

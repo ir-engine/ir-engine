@@ -356,6 +356,8 @@ export const dispatchAction = <A extends Action>(_action: A) => {
   HyperFlux.store.actions.incoming.push(action as Required<ResolvedActionType>)
 
   addOutgoingTopicIfNecessary(topic)
+
+  return Object.freeze(action) as ResolvedActionType<A>
 }
 
 export function addOutgoingTopicIfNecessary(topic: Topic) {
