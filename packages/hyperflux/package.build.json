@@ -1,9 +1,12 @@
 {
   "name": "@ir-engine/hyperflux",
   "version": "1.6.0",
-  "files": ["index.umd.js", "index.mjs", "index.d.ts"],
-  "main": "./index.umd.js",
-  "module": "./index.mjs",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./src/*": "./src/*"
+  },
+  "files": ["./index.js", "./src"],
   "types": "./index.d.ts",
   "description": "Agent Centric Reactive Data Management for Infinite Reality Engine",
   "publishConfig": {
