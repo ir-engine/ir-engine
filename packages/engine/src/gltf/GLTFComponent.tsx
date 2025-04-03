@@ -254,13 +254,8 @@ export const GLTFComponentReactor = () => {
     hashUrl.search = ''
     const unhashUrl = hashUrl.href
     if (unhashUrl.endsWith('.material.gltf')) {
-      GLTFLoaderFunctions.loadMaterialGLTF(options, sceneIndex).then(() => {
+      GLTFLoaderFunctions.loadMaterialGLTF(options).then(() => {
         documentLoaded.set(true)
-
-        // force transform update for all entities in the model.
-        // required to propagate dirty update auth to sim layers
-        TransformComponent.dirty[entity] = 1
-
         if (aborted) {
           unloadEntities()
         }

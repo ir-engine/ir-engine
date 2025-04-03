@@ -1545,7 +1545,7 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
 
   return nodeEntity
 }
-const loadMaterialGLTF = async (options: GLTFParserOptions, sceneIndex: number) => {
+const loadMaterialGLTF = async (options: GLTFParserOptions) => {
   if (Array.isArray(options.document)) {
     options.document = options.document[0]
   }
