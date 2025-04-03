@@ -176,8 +176,6 @@ export const locationAdminPath = 'location-admin'
 
 export const channelPath = 'channel'
 
-export const locationBanPath = 'location-ban'
-
 export const locationSettingPath = 'location-setting'
 
 export const assetLibraryPath = 'asset-library'
