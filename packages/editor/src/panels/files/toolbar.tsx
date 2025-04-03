@@ -160,7 +160,7 @@ const ViewModeSettings = () => {
       position={'bottom left'}
       trigger={
         <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-          <ViewportButton data-testid="files-panel-view-options-button" icon={CogSm} />
+          <ViewportButton data-testid="view-options-button" icon={CogSm} />
         </Tooltip>
       }
     >
@@ -245,7 +245,12 @@ export default function FilesToolbar() {
           data-testid="files-panel-search-input"
         />
       }
-      dataTestIdJson={{}}
+      dataTestIdJson={{
+        topbarId: 'files-panel-top-bar',
+        backButtonId: 'files-panel-back-directory-button',
+        refreshButtonId: 'files-panel-refresh-directory-button',
+        createNewFolderButtonId: 'files-panel-create-new-folder-button'
+      }}
       utilsComponent={
         <>
           <Tooltip
@@ -263,13 +268,19 @@ export default function FilesToolbar() {
             />
           </Tooltip>
           <div className="flex h-7 items-center gap-2 rounded p-2">
-            <button className="p-1 text-text-secondary hover:text-text-primary">
+            <button
+              className="p-1 text-text-secondary hover:text-text-primary"
+              data-testid="files-panel-view-mode-list-button"
+            >
               <FaList
                 className={twMerge('h-5 w-5', filesViewMode.value === 'list' ? 'cursor-auto text-ui-primary' : '')}
                 onClick={() => filesViewMode.set('list')}
               />
             </button>
-            <button className="p-1 text-text-secondary hover:text-text-primary">
+            <button
+              className="p-1 text-text-secondary hover:text-text-primary"
+              data-testid="files-panel-view-mode-icons-button"
+            >
               <Grid01Sm
                 className={twMerge('h-5 w-5', filesViewMode.value === 'icons' ? 'cursor-auto text-ui-primary' : '')}
                 onClick={() => filesViewMode.set('icons')}
@@ -379,7 +390,11 @@ export function PanelToolbar({
             </Tooltip>
           </div>
           <Tooltip content={t('editor:layout.filebrowser.addNewFolder')}>
-            <ViewportButton onClick={createNewFolder} icon={FolderPlusSm} />
+            <ViewportButton
+              data-testid={dataTestIdJson?.createNewFolderButtonId}
+              onClick={createNewFolder}
+              icon={FolderPlusSm}
+            />
           </Tooltip>
           <ViewModeSettings />
         </div>
