@@ -724,23 +724,58 @@ const exportBuffer = (buffer: ArrayBuffer, gltf: GLTF.IGLTF, context: GLTFSceneE
   return bufferIndex
 }
 
+type MaterialTextureValue = {
+  contents: { index: number; texCoord: number }
+}
+
+type MaterialColorValue = {
+  contents: Color
+}
+
+type MaterialNumberValue = {
+  contents: number
+}
+
 const _builtinMaterialDefs = {
-  color: (materialDef: GLTF.IMaterial, value: { contents: Color }) => {
+  color: (materialDef: GLTF.IMaterial, value: MaterialColorValue) => {
     if (!materialDef.pbrMetallicRoughness) materialDef.pbrMetallicRoughness = {}
     // Set RGB array
     materialDef.pbrMetallicRoughness.baseColorFactor = value.contents.toArray()
     // Set A channel to GLTF default because color is just RGB
     materialDef.pbrMetallicRoughness.baseColorFactor[3] = 1
   },
-  map: (materialDef: GLTF.IMaterial, value: { contents: { index: number; texCoord: number } }) => {
+  map: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
     if (!materialDef.pbrMetallicRoughness) materialDef.pbrMetallicRoughness = {}
     materialDef.pbrMetallicRoughness.baseColorTexture = value.contents
   },
-  normalMap: (materialDef: GLTF.IMaterial, value) => {},
-  metalness: (materialDef: GLTF.IMaterial, value) => {},
-  metalnessMap: (materialDef: GLTF.IMaterial, value) => {},
-  roughness: (materialDef: GLTF.IMaterial, value) => {},
-  roughnessMap: (materialDef: GLTF.IMaterial, value) => {}
+  normalMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
+    materialDef.normalTexture = value.contents
+  },
+  metalness: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
+    if (!materialDef.pbrMetallicRoughness) materialDef.pbrMetallicRoughness = {}
+    materialDef.pbrMetallicRoughness.metallicFactor = value.contents
+  },
+  metalnessMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
+    if (!materialDef.pbrMetallicRoughness) materialDef.pbrMetallicRoughness = {}
+    materialDef.pbrMetallicRoughness.metallicRoughnessTexture = value.contents
+  },
+  roughness: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
+    if (!materialDef.pbrMetallicRoughness) materialDef.pbrMetallicRoughness = {}
+    materialDef.pbrMetallicRoughness.roughnessFactor = value.contents
+  },
+  roughnessMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
+    if (!materialDef.pbrMetallicRoughness) materialDef.pbrMetallicRoughness = {}
+    materialDef.pbrMetallicRoughness.metallicRoughnessTexture = value.contents
+  },
+  emissive: (materialDef: GLTF.IMaterial, value: MaterialColorValue) => {
+    materialDef.emissiveFactor = value.contents.toArray()
+  },
+  emissiveMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
+    materialDef.emissiveTexture = value.contents
+  },
+  aoMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
+    materialDef.occlusionTexture = value.contents
+  }
 }
 
 const exportMaterial = async (
@@ -779,6 +814,11 @@ const exportMaterial = async (
   }
   const result: any = {}
   for (const [field, value] of Object.entries(argData)) {
+    if (material[field] === null) {
+      delete argData[field]
+      continue
+    }
+
     const argEntry = {
       type: value.type,
       contents: material[field]
@@ -799,7 +839,7 @@ const exportMaterial = async (
 
   for (const key in _builtinMaterialDefs) {
     const resultValue = result[key]
-    if (resultValue) {
+    if (resultValue?.contents != null) {
       _builtinMaterialDefs[key](materialDef, resultValue)
       delete result[key]
     }
