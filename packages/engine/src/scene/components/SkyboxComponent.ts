@@ -139,7 +139,6 @@ export const SkyboxComponent = defineComponent({
       const onLoad = (texture: CubeTexture) => {
         texture.colorSpace = SRGBColorSpace
         texture.mapping = CubeReflectionMapping
-        console.log('loaded')
         cubemapTexture.set(texture)
         setComponent(entity, BackgroundComponent, texture)
         removeError(entity, SkyboxComponent, 'FILE_ERROR')
@@ -191,7 +190,6 @@ export const SkyboxComponent = defineComponent({
       sky.luminance = skyboxState.skyboxProps.value.luminance
 
       const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
-
       const texture = sky.generateSkyboxTextureCube(renderer.renderer!)
       texture.mapping = CubeReflectionMapping
 

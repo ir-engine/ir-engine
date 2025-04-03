@@ -22,11 +22,22 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { getComponent, getOptionalComponent, serializeComponent, setComponent } from '@ir-engine/ecs'
+import { Engine, getComponent, getOptionalComponent, serializeComponent, setComponent } from '@ir-engine/ecs'
 import { it } from '@ir-engine/engine/src/scene/util/testUtil'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { DataTexture, EquirectangularReflectionMapping, LinearFilter, SRGBColorSpace, Texture } from 'three'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
+import {
+  CubeReflectionMapping,
+  CubeTexture,
+  DataTexture,
+  EquirectangularReflectionMapping,
+  LinearFilter,
+  SRGBColorSpace,
+  Texture
+} from 'three'
 import { assert, describe, expect } from 'vitest'
+import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
 import { SkyboxComponent } from './SkyboxComponent'
 
@@ -175,7 +186,35 @@ describe('SkyboxComponent', () => {
       })
 
       // TODO: Mock cubemap responses
-      // see loadCubeMapTexture() - @ir-engine/src/scenes/constants
+      // see loadCubeMapTexture() - @ir-engine/src/scenes/constants/Util.ts
+    })
+
+    it('should set Sky properties correctly when skyboxProps change', ({ entity }) => {
+      mockSpatialEngine()
+      // Create a Sky instance
+      const sky = new Sky()
+
+      setComponent(Engine.instance.viewerEntity, RendererComponent)
+
+      // Set initial component with default skyboxProps
+      setComponent(entity, SkyboxComponent, {
+        backgroundType: SkyTypeEnum.skybox,
+        sky,
+        skyboxProps: {
+          turbidity: 10,
+          rayleigh: 1,
+          luminance: 1,
+          mieCoefficient: 0.004999999999999893,
+          mieDirectionalG: 0.99,
+          inclination: 0.10471975511965978,
+          azimuth: 0.16666666666666666
+        }
+      })
+
+      const background = getComponent(entity, BackgroundComponent) as CubeTexture
+      // console.log({ background })
+      assert.exists(background)
+      expect(background.mapping).toEqual(CubeReflectionMapping)
     })
   })
 })
