@@ -23,12 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export class SimulationFrame {
-  public position: number
-  public velocity: number
+import { defineState, getMutableState, PeerID } from '@ir-engine/hyperflux'
 
-  constructor(position: number, velocity: number) {
-    this.position = position
-    this.velocity = velocity
+export const ReportUserState = defineState({
+  name: 'ReportUserState',
+  initial: () => ({
+    reportedPeerId: undefined as PeerID | undefined
+  }),
+  setReportedPeerId: (peerId: PeerID) => {
+    getMutableState(ReportUserState).reportedPeerId.set(peerId)
+  },
+  resetPeerId: () => {
+    getMutableState(ReportUserState).reportedPeerId.set(undefined)
   }
-}
+})

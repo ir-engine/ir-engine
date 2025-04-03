@@ -47,6 +47,7 @@ export type NotificationOptions = {
   persist?: boolean
   style?: CSSProperties
   hideIconVariant?: boolean
+  autoHideDuration?: number
 }
 
 export const defaultAction = (key: SnackbarKey, content?: React.ReactNode) => {
@@ -85,7 +86,8 @@ export const NotificationService = {
       action: NotificationActions[options.actionType ?? 'default'],
       persist: options.persist,
       style: options.style,
-      hideIconVariant: options.hideIconVariant
+      hideIconVariant: options.hideIconVariant,
+      autoHideDuration: options.autoHideDuration ?? 5000
     })
   },
   closeNotification(key: SnackbarKey) {

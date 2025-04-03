@@ -26,8 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import i18n from 'i18next'
 
 import { GLTF } from '@gltf-transform/core'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { createScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
@@ -204,7 +204,7 @@ export const onSaveScene = async () => {
   }
 
   if (!sceneModified) {
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
     NotificationService.dispatchNotify(`${i18n.t('editor:dialog.saveScene.info-save-success')}`, { variant: 'success' })
     return
   }
@@ -217,10 +217,10 @@ export const onSaveScene = async () => {
     const sourceID = GLTFComponent.getInstanceID(rootEntity)
     getMutableState(AssetModifiedState)[sourceID].set(none)
 
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
   } catch (error) {
     console.error(error)
-    PopoverState.showPopupover(
+    ModalState.openModal(
       <ErrorDialog
         title={i18n.t('editor:savingError')}
         description={error.message || i18n.t('editor:savingErrorMsg')}

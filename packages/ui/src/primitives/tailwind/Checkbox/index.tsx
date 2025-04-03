@@ -82,7 +82,8 @@ const Checkbox = (
   }: CheckboxProps,
   ref: React.ForwardedRef<HTMLDivElement>
 ) => {
-  const handleChange = () => {
+  const handleChange = (event: React.MouseEvent | React.KeyboardEvent) => {
+    event.stopPropagation()
     if (!disabled && onChange) {
       onChange(!checked)
     }
@@ -98,7 +99,7 @@ const Checkbox = (
         description && 'items-start'
       )}
       onKeyDown={(e) => {
-        if (['Enter', ' '].includes(e.key)) handleChange()
+        if (['Enter', ' '].includes(e.key)) handleChange(e)
       }}
       tabIndex={0}
       {...props}

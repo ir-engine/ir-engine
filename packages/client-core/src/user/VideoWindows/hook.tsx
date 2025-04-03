@@ -21,7 +21,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { DrawingUtils } from '@mediapipe/tasks-vision'
 import hark from 'hark'
 import { t } from 'i18next'
-import React, { createContext, RefObject, useContext, useEffect, useRef } from 'react'
+import React, { RefObject, useEffect, useRef } from 'react'
 
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useGet } from '@ir-engine/common'
@@ -44,26 +44,6 @@ import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 export interface Props {
   peerID: PeerID
   type: 'screen' | 'cam'
-}
-
-const ReportUserContext = createContext({ reportedPeerId: undefined! as State<PeerID | undefined> })
-
-export const ReportUserProvider = ({ children }: { children: React.ReactNode }) => {
-  const reportedPeerId = useHookstate(undefined as PeerID | undefined)
-  return <ReportUserContext.Provider value={{ reportedPeerId: reportedPeerId }}>{children}</ReportUserContext.Provider>
-}
-
-export const useReportUser = () => {
-  const { reportedPeerId } = useContext(ReportUserContext)
-  return {
-    reportedPeerId: reportedPeerId.value,
-    setReportedPeerId: (peerId: PeerID) => {
-      reportedPeerId.set(peerId)
-    },
-    resetPeerId: () => {
-      reportedPeerId.set(undefined)
-    }
-  }
 }
 
 export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
@@ -150,7 +130,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   useEffect(() => {
     audioElement.muted = audioStreamPaused || isSelf
-    audioElement.volume = audioStreamPaused || isSelf ? 0 : volume
+    audioElement.volume = volume
   }, [audioStreamPaused])
 
   useEffect(() => {
@@ -240,18 +220,26 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const handleVisibilityChange = () => {
     if (document.hidden) {
-      if (!videoStreamPaused) {
+      if (!videoStreamPaused && mediaStreamState.webcamMediaStream.value) {
         resumeVideoOnUnhide.current = true
+        peerMediaChannelState.videoStreamPaused.set(true)
         toggleVideo()
       }
-      if (!audioStreamPaused) {
+      if (!audioStreamPaused && mediaStreamState.microphoneMediaStream.value) {
         resumeAudioOnUnhide.current = true
+        peerMediaChannelState.audioStreamPaused.set(true)
         toggleAudio()
       }
     }
     if (!document.hidden) {
-      if (resumeVideoOnUnhide.current) toggleVideo()
-      if (resumeAudioOnUnhide.current) toggleAudio()
+      if (resumeVideoOnUnhide.current) {
+        peerMediaChannelState.videoStreamPaused.set(false)
+        toggleVideo()
+      }
+      if (resumeAudioOnUnhide.current) {
+        peerMediaChannelState.audioStreamPaused.set(false)
+        toggleAudio()
+      }
       resumeVideoOnUnhide.current = false
       resumeAudioOnUnhide.current = false
     }

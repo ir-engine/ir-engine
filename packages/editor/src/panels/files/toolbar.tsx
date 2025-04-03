@@ -23,10 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { REMOVE_EDGE_SLASH_REGEX } from '@ir-engine/common/src/regex'
-import { getDecodedFileName } from '@ir-engine/common/src/utils/cleanFileName'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
 import { Slider, ViewportButton } from '@ir-engine/ui/editor'
@@ -73,12 +72,12 @@ export const showMultipleFileModal = (projectName: string, directoryPath: string
 
   const onSubmit = async () => {
     await handleUploadFiles(projectName, directoryPath, files)
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
   }
 
-  PopoverState.showPopupover(
+  ModalState.openModal(
     <>
-      <Modal title={'test'} className="w-[50vw] max-w-2xl" onSubmit={onSubmit} onClose={PopoverState.hidePopupover}>
+      <Modal title={'test'} className="w-[50vw] max-w-2xl" onSubmit={onSubmit} onClose={ModalState.closeModal}>
         <div className="flex flex-col rounded-lg bg-[#0e0f11] px-5 py-10 text-center">
           Warning: You will overwrite existing files by uploading these. Do you wish to continue? <br />
           {fileNames.length > 0 && `Files: ${fileNames.join(', ')}`}
@@ -125,7 +124,7 @@ function BreadcrumbItems() {
               className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-base text-text-secondary hover:underline"
               data-testid={'files-panel-breadcrumb-current-directory'}
             >
-              {getDecodedFileName(file)}
+              {file}
             </span>
           ) : (
             <a
@@ -134,7 +133,7 @@ function BreadcrumbItems() {
               data-testid={`files-panel-breadcrumb-nested-level-${index}`}
             >
               <span className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-base text-text-secondary hover:underline">
-                {getDecodedFileName(file)}
+                {file}
               </span>
             </a>
           )}

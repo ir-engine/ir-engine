@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 
 import {
   EntityTreeComponent,
@@ -49,7 +49,6 @@ import { CollisionComponent } from '@ir-engine/spatial/src/physics/components/Co
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { ColliderHitEvent, CollisionEvents } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { act, render } from '@testing-library/react'
 import { NodeID, NodeIDComponent } from '../../gltf/NodeIDComponent'
 import { SourceID } from '../components/SourceComponent'
 import { TriggerCallbackComponent } from '../components/TriggerCallbackComponent'
@@ -115,7 +114,7 @@ describe('TriggerCallbackSystem', () => {
     targetEntityNodeID = getComponent(targetEntity, NodeIDComponent)
 
     triggerEntity = NodeIDComponent.create(sourceID, testNodeID)
-    setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
+    setComponent(triggerEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
     setComponent(triggerEntity, TransformComponent)
     setComponent(triggerEntity, RigidBodyComponent)
     setComponent(triggerEntity, ColliderComponent)
@@ -123,7 +122,9 @@ describe('TriggerCallbackSystem', () => {
       triggers: [{ onEnter: TestOnEnterName, onExit: TestOnExitName, target: targetEntityNodeID }]
     })
 
-    await act(() => render(null))
+    await vi.waitUntil(() => {
+      return physicsWorld.Colliders.get(triggerEntity)?.isSensor()
+    })
   })
 
   afterEach(() => {

@@ -30,7 +30,7 @@ Infinite Reality Engine. All Rights Reserved.
  */
 
 export class WorkerPool {
-  constructor(pool = 4) {
+  constructor(pool = 1) {
     this.pool = pool
     this.queue = []
     this.workers = []
