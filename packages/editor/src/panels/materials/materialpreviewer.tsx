@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { BufferAttribute, Mesh, SphereGeometry } from 'three'
 
 import { useRender3DPanelSystem } from '@ir-engine/client-core/src/hooks/useRender3DPanelSystem'
@@ -98,31 +98,30 @@ function MaterialPreviewCanvas() {
 
 export const MaterialPreviewer = () => {
   const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
-  if (!selectedMaterial.value) return null
   const panel = document.getElementById(MATERIALS_PANEL_ID)!
-  const inPanel = useHookstate(false)
+  const disableScroll = (event: Event) => {
+    event.stopPropagation()
+    event.preventDefault()
+  }
 
-  useEffect(() => {
-    const disableScroll = (event: Event) => {
-      event.stopPropagation()
-      event.preventDefault()
+  const captureMouse = useCallback(() => {
+    if (panel) {
+      panel.addEventListener('wheel', disableScroll, { passive: false })
+      panel.addEventListener('touchmove', disableScroll, { passive: false })
     }
+  }, [panel, disableScroll])
 
-    panel.addEventListener('wheel', disableScroll, { passive: false })
-    panel.addEventListener('touchmove', disableScroll, { passive: false })
-
-    return () => {
+  const releaseMouse = useCallback(() => {
+    if (panel) {
       panel.removeEventListener('wheel', disableScroll)
       panel.removeEventListener('touchmove', disableScroll)
     }
-  }, [inPanel])
+  }, [panel, disableScroll])
+
+  if (!selectedMaterial.value) return null
 
   return (
-    <div
-      className="rounded-lg bg-zinc-800 p-2"
-      onMouseEnter={() => inPanel.set(true)}
-      onMouseLeave={() => inPanel.set(false)}
-    >
+    <div className="rounded-lg bg-zinc-800 p-2" onMouseEnter={captureMouse} onMouseLeave={releaseMouse}>
       <MaterialPreviewCanvas />
     </div>
   )
