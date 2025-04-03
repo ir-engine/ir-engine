@@ -3,53 +3,53 @@
   "loadingNode": "Loading {{name}} Editor...",
   "loadingError": "Error loading project",
   "loadingErrorMsg": "There was an error when loading the project.",
-  "selectSceneMsg": "Select a Scene in the Project to Start",
+  "selectSceneMsg": "Select a Space in the Project to Start",
   "error": "Error",
   "errorMsg": "There was an unknown error.",
   "warning": "Warning",
   "warningMsg": "I dont think you should do that.",
   "generateScreenshot": "Generating Project Screenshot",
-  "newScene": "Add Scene",
+  "newScene": "Add Space",
   "saving": "Saving Project",
   "savingError": "Error Saving Project",
   "savingErrorMsg": "There was an error when saving the project.",
-  "savingSceneErrorMsg": "Scene is not loaded properly. Try reloading the scene.",
+  "savingSceneErrorMsg": "Space is not loaded properly. Try reloading the Space.",
   "duplicating": "Duplicating Project",
   "exporting": "Exporting Project",
   "exportingError": "Error Exporting Project",
   "exportingErrorMsg": "There was an error when exporting the project.",
   "importLegacy": "Import Legacy World",
-  "importLegacyMsg": "Warning! This will overwrite your existing scene! Are you sure you wish to continue?",
+  "importLegacyMsg": "Warning! This will overwrite your existing Space! Are you sure you wish to continue?",
   "publishingError": "Error Publishing Project",
   "publishingErrorMsg": "There was an unknown error.",
-  "publishingScene": "Publishing Scene",
-  "publishingSceneMsg": "Publishing scene...",
+  "publishingScene": "Publishing Space",
+  "publishingSceneMsg": "Publishing Space...",
   "uploadingThumbnailMsg": "Uploading thumbnail...",
-  "uploadingSceneMsg": "Uploading scene: {{percentage}}%",
+  "uploadingSceneMsg": "Uploading Space: {{percentage}}%",
   "envMapError": "Error loading cubemap images {{files}}",
   "lbl-return": "Return",
   "loadingAssets": "Loading Assets",
   "loadingScenes": "Loading Spaces",
-  "loadingScenesWithProgress": "Scene Loading... {{progress}}% ({{assetsLeft}} assets left)",
+  "loadingScenesWithProgress": "Space Loading... {{progress}}% ({{assetsLeft}} assets left)",
   "help": "Customer Service Live Chat",
   "menubar": {
-    "newScene": "New Scene",
-    "newEmptyScene": "New Empty Scene",
-    "saveScene": "Save Scene",
+    "newScene": "New Space",
+    "newEmptyScene": "New Empty Space",
+    "saveScene": "Save Space",
     "saveAs": "Save As",
     "importAsset": "Import Asset",
     "importSettings": "Import Settings",
     "exportGLB": "Export as binary glTF (.glb) ...",
     "exportLookdev": "Export Lookdev Prefab",
-    "importScene": "Import scene",
-    "exportScene": "Export scene",
+    "importScene": "Import Space",
+    "exportScene": "Export Space",
     "quit": "Quit to Dashboard"
   },
   "errors": {
     "fileNotSupported": "File \"{{file}}\" is unsupported. Reason: {{errorMessage}}",
     "addObject": "addObject: before object not found",
-    "removeObject": "removeObject: node not found. This is due to removing a node that is no longer in the scene.",
-    "noParent": "{{node}} \"{{name}}\" has no parent. Reparent only works on objects that are currently in the scene.",
+    "removeObject": "removeObject: node not found. This is due to removing a node that is no longer in the Space.",
+    "noParent": "{{node}} \"{{name}}\" has no parent. Reparent only works on objects that are currently in the Space.",
     "undefinedParent": "editor.reparent: newParent is undefined",
     "notAuthenticated": "Not authenticated",
     "fetchingProjectError": "Error fetching projects: {{error}}",
@@ -58,15 +58,15 @@
     "resolveURL": "Error resolving url \"{{url}}\":\n",
     "mediaSearchAborted": "Media search aborted",
     "methodNotImplemented": "Method not implemented.",
-    "saveProjectAborted": "Save scene aborted",
-    "sceneAlreadyExists": "Scene already exists with this name.",
+    "saveProjectAborted": "Save Space aborted",
+    "sceneAlreadyExists": "Space already exists with this name.",
     "unsavedChanges": "Unsaved Changes",
-    "unsavedChangesMsg": "The scene has been modified. Please save your changes.",
+    "unsavedChangesMsg": "The Space has been modified. Please save your changes.",
     "projectCreationFail": "Project creation failed. {{reason}}",
     "projectDeletionFail": "Project deletion failed. {{reason}}",
     "savingProjectFail": "Saving Project failed. {{reason}}",
-    "sceneTooLarge": "Scene is too large ({{size}} MB) to publish. Maximum size is {{maxSize}} MB.",
-    "sceneCreationFail": "Scene creation failed. {{reason}}",
+    "sceneTooLarge": "Space is too large ({{size}} MB) to publish. Maximum size is {{maxSize}} MB.",
+    "sceneCreationFail": "Space creation failed. {{reason}}",
     "uploadAborted": "Upload aborted",
     "uploadFailed": "Upload failed {{reason}}",
     "fileUploadFailed": "File upload failed; {{reason}}",
@@ -76,11 +76,11 @@
     "unknownStatus": "Unknown Status",
     "CORS": "Possibly a CORS error",
     "urlFetchError": "Failed to fetch \"{{url}}\"",
-    "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters, underscores, hyphens, and periods, and begin and end with an alphanumeric.",
+    "invalidSceneName": "Space name must be 4-64 characters long, using only alphanumeric characters, underscores, hyphens, and periods, and begin and end with an alphanumeric.",
     "maxUploadFileSizeExceed": "That file size is too large. Please upload a file under {{maxFileSizeToUploadMB}}MB. The following files are too large: {{filesNames}}"
   },
   "warnings": {
-    "sceneComplexity": "Scene complexity is {{sceneComplexity}}. Consider optimizing your scene for better performance."
+    "sceneComplexity": "Space complexity is {{sceneComplexity}}. Consider optimizing your Space for better performance."
   },
   "viewport": {
     "title": "Viewport",
@@ -111,7 +111,7 @@
       "points": "Points",
       "lines": "Lines",
       "shaderComplexity": "Shader Complexity",
-      "sceneComplexity": "Scene Complexity",
+      "sceneComplexity": "Space Complexity",
       "lights": "Lights"
     }
   },
@@ -132,7 +132,7 @@
     "transformSpace": {
       "description": "Sets your transform control to be oriented to the object(selection) or world",
       "lbl-world": "World",
-      "info-world": "World space relates to the entire scene’s orientation",
+      "info-world": "World space relates to the entire Space’s orientation",
       "lbl-selection": "Object",
       "info-selection": "Object Space (your selection) relates to transforms made to a specific object in relationship to the world space",
       "lbl-toggleTransformSpace": "[Z] Toggle Transform Space"
@@ -170,10 +170,10 @@
       "toggleGrid": "Toggle Grid Visibility",
       "increaseGridSize": "Increase Grid Size",
       "descreaseGridSize": "Decrease Grid Size",
-      "lbl-stopPreview": "Stop Previewing Scene",
-      "info-stopPreview": "Remove your avatar from scene",
-      "lbl-playPreview": "Preview Scene",
-      "info-playPreview": "Spawns you into the scene"
+      "lbl-stopPreview": "Stop Previewing Space",
+      "info-stopPreview": "Remove your avatar from Space",
+      "lbl-playPreview": "Preview Space",
+      "info-playPreview": "Spawns you into the Space"
     },
     "instance": {
       "none": "None",
@@ -199,17 +199,17 @@
     },
     "stats": {
       "lbl": "Toggle Stats",
-      "info": "Show stats about the scene and gives you a clue as to how optimized your scene is."
+      "info": "Show stats about the Space and gives you a clue as to how optimized your Space is."
     },
     "helpersToggle": {
       "lbl-helpers": "Toggle Helpers",
-      "info-helpers": "View hidden information about your scene, ie: colliders",
+      "info-helpers": "View hidden information about your Space, ie: colliders",
       "lbl-nodeHelpers": "Toggle Node Helpers",
-      "info-nodeHelpers": "Helper geometry that helps components have visibility in the scene when inactive."
+      "info-nodeHelpers": "Helper geometry that helps components have visibility in the Space when inactive."
     },
     "sceneScreenshot": {
       "lbl": "Screenshot",
-      "info": "Takes a screenshot of your scene at the current view."
+      "info": "Takes a screenshot of your Space at the current view."
     },
     "publishLocation": {
       "title": "Publish",
@@ -226,14 +226,14 @@
       "copyPublicUrl": "Copy Public URL",
       "publicUrl": "Public URL",
       "publishSuccess": "Location Published Successfully",
-      "noThumbnailPlaceholder": "Publish Scene to Generate a Preview Image",
+      "noThumbnailPlaceholder": "Publish Space to Generate a Preview Image",
       "createCompressedScenePublish": "Compress and Publish",
       "createCompressedScenePublishInfo": "This is a Beta feature that makes your space more optimized for mobile devices. If you encounter errors, please refresh your browser and try again, or use the regular “Publish” function for now."
     }
   },
   "properties": {
     "title": "Properties",
-    "info": "Properties let you access and edit detailed information about objects in the scene.",
+    "info": "Properties let you access and edit detailed information about objects in the Space.",
     "lbl-visible": "Visible",
     "lbl-preventBake": "Prevent Bake",
     "lbl-dynamicLoad": "Load Children Dynamically",
@@ -243,7 +243,7 @@
     "noNodeSelected": "No node selected",
     "ambientLight": {
       "name": "Ambient Light",
-      "description": "A light which illuminates all objects in your scene.",
+      "description": "A light which illuminates all objects in your Space.",
       "lbl-intensity": "Intensity",
       "lbl-color": "Color"
     },
@@ -274,13 +274,13 @@
     },
     "prefab": {
       "name": "Prefab",
-      "description": "A grouping of scene components which can be dynamically loaded and unloaded",
+      "description": "A grouping of Space components which can be dynamically loaded and unloaded",
       "lbl-options": "Options",
       "lbl-prefabPath": "Prefab Path",
       "lbl-prefabName": "Export Name",
       "lbl-exportOptions": "Export Options",
       "lbl-export": "Export Prefab",
-      "lbl-load": "Load Into Scene",
+      "lbl-load": "Load Into Space",
       "lbl-loadOptions": "Load Options",
       "lbl-unload": "Unload",
       "lbl-reload": "Reload",
@@ -360,7 +360,7 @@
     },
     "media-preview": {
       "lbl-mediaPreview": "Media Preview",
-      "info-mediaPreview": "Preview the selected media (audio or video) source here in properties panel without spatial audio or a video texture in scene",
+      "info-mediaPreview": "Preview the selected media (audio or video) source here in properties panel without spatial audio or a video texture in the Space",
       "lbl-selected-source": "Source to Preview"
     },
     "mesh": {
@@ -386,7 +386,7 @@
       },
       "materialProperties": {
         "title": "Material",
-        "info": "Access and edit detailed information about materials in the scene."
+        "info": "Access and edit detailed information about materials in the Space."
       }
     },
     "audio": {
@@ -452,7 +452,7 @@
     },
     "directionalLight": {
       "name": "Directional Light",
-      "description": "A light which illuminates the entire scene, but emits along a single direction.",
+      "description": "A light which illuminates the entire Space, but emits along a single direction.",
       "lbl-color": "Color",
       "lbl-intensity": "Intensity",
       "lbl-cameraFar": "Camera Far",
@@ -519,7 +519,7 @@
     },
     "model": {
       "title": "Model",
-      "description": "A 3D model in your scene, loaded from a GLTF URL or file.",
+      "description": "A 3D model in your Space, loaded from a GLTF URL or file.",
       "lbl-usingGPUInstancingFlag": "Use GPU Instancing",
       "lbl-modelurl": "Model Url",
       "lbl-envmapUrl": "Environment Map Url",
@@ -563,7 +563,7 @@
         "maxTextureSize": "Max Texture Size",
         "simplifyRatio": "Simplify Ratio",
         "simplifyErrorThreshold": "Simplify Error Threshold",
-        "flatten": "Flatten Scene Graph",
+        "flatten": "Flatten Space Graph",
         "join": "Join Meshes",
         "palette": "Generate Palette Textures",
         "flipY": "Flip Y",
@@ -623,7 +623,7 @@
     },
     "object3d": {
       "name": "Object3D",
-      "description": "Scene Object Properties"
+      "description": "Space Object Properties"
     },
     "interaction": {
       "type": "Interaction Type",
@@ -643,7 +643,7 @@
     },
     "hemisphere": {
       "name": "Hemisphere Light",
-      "description": "A light which illuminates the scene with a sky color from above and a ground color from below.",
+      "description": "A light which illuminates the Space with a sky color from above and a ground color from below.",
       "lbl-skyColor": "Sky Color",
       "lbl-groundColor": "Ground Color",
       "lbl-intensity": "Intensity"
@@ -830,7 +830,7 @@
     },
     "cameraSettings": {
       "name": "Camera Settings",
-      "description": "Adjust camera settings to optimize scene visualization, including projection type, field of view, and distance parameters.",
+      "description": "Adjust camera settings to optimize Space visualization, including projection type, field of view, and distance parameters.",
       "lbl-projectionType": "Projection Type",
       "lbl-fov": "Field of View",
       "lbl-calcClippingPlanes": "Calculate Clipping Planes",
@@ -845,7 +845,7 @@
     },
     "cameraComponent": {
       "name": "Camera",
-      "description": "Configure camera parameters for optimal scene rendering.",
+      "description": "Configure camera parameters for optimal Space rendering.",
       "lbl-fov": "FOV",
       "lbl-aspect": "Aspect",
       "lbl-near": "Near",
@@ -854,7 +854,7 @@
     "postprocessing": {
       "name": "Post Processing Effect",
       "enabled": "Enabled",
-      "description": "For applying Post Processing effects to you scene."
+      "description": "For applying Post Processing effects to you Space."
     },
     "mediaSettings": {
       "name": "Media Settings",
@@ -905,7 +905,7 @@
     },
     "renderSettings": {
       "name": "Render Settings",
-      "description": "Configure various rendering settings for the scene, including lighting, shadows, post-processing effects, tone mapping, and level of detail adjustments.",
+      "description": "Configure various rendering settings for the Space, including lighting, shadows, post-processing effects, tone mapping, and level of detail adjustments.",
       "lbl-bgcolor": "Background Color",
       "lbl-lods": "LODs",
       "info-lods": "Sets the distances at which levels of detail change.",
@@ -915,20 +915,20 @@
       "lbl-useShadows": "Use Shadows",
       "info-useShadows": "Enables shadows",
       "lbl-primaryLight": "Primary Light",
-      "info-primaryLight": "Set the primary light for the scene",
+      "info-primaryLight": "Set the primary light for the Space",
       "lbl-csm": "Cascading Shadow Maps",
       "info-csm": "Enables cascading shadow maps.",
       "lbl-csm-cascades": "Cascades",
-      "info-csm-cascades": "Smaller the size of the scene. More efficient to have less cascades.",
+      "info-csm-cascades": "Smaller the size of the Space. More efficient to have less cascades.",
       "lbl-toneMapping": "Tone Mapping",
-      "info-toneMapping": "Enables tone mapping on the scene renderer. Has no effect when a post processing is enabled.",
+      "info-toneMapping": "Enables tone mapping on the Space renderer. Has no effect when a post processing is enabled.",
       "lbl-toneMappingExposure": "Tone Mapping Exposure",
-      "info-toneMappingExposure": "Specifies the tone mapping exposure on the scene renderer. Has no effect when a post processing is enabled.",
+      "info-toneMappingExposure": "Specifies the tone mapping exposure on the Space renderer. Has no effect when a post processing is enabled.",
       "lbl-shadowMapType": "Shadow Map Type",
       "info-shadowMapType": "Type of shadow map"
     },
     "sceneSettings": {
-      "name": "Scene Settings",
+      "name": "Space Settings",
       "description": "Enhance user experience by customizing thumbnails, loading screens, colors, and spectating options.",
       "lbl-thumbnail": "Thumbnail",
       "info-thumbnail": "Change the thumbnail",
@@ -939,18 +939,18 @@
       "lbl-colors": "Colors",
       "lbl-killHeight": "Kill Height",
       "lbl-spectate": "Force Spectator",
-      "info-spectate": "Disable avatars and force the user to spectate the scene",
+      "info-spectate": "Disable avatars and force the user to spectate the Space",
       "lbl-uuid": "Spectate Entity",
       "info-uuid": "Optional entity to spectate"
     },
     "scene": {
-      "name": "Scene",
-      "description": "The root object of the scene.",
+      "name": "Space",
+      "description": "The root object of the Space.",
       "error-url": "Error Loading From URL"
     },
     "sceneCamera": {
-      "name": "Scene Preview Camera",
-      "description": "The camera used to generate the thumbnail for your scene and the starting position for the preview camera.",
+      "name": "Space Preview Camera",
+      "description": "The camera used to generate the thumbnail for your Space and the starting position for the preview camera.",
       "lbl-setFromViewPort": "Set From Viewport",
       "lbl-updateThumbnail": "Update Thumbnail"
     },
@@ -971,19 +971,19 @@
     },
     "spawnPoint": {
       "name": "Spawn Point",
-      "description": "A point where people will appear when they enter your scene.\nThe icon in the Viewport represents the actual size of an avatar."
+      "description": "A point where people will appear when they enter your Space.\nThe icon in the Viewport represents the actual size of an avatar."
     },
     "linkComp": {
       "title": "Link Component",
       "lbl-url": "Link URL",
-      "lbl-navigateScene": "Scene navigation",
-      "lbl-locaiton": "Location Name",
+      "lbl-navigateScene": "Space navigation",
+      "lbl-locaiton": "Published Space Name",
       "lbl-newTab": "Open in new tab",
-      "description": "Adds an interactable that opens links or navigates scene"
+      "description": "Adds an interactable that opens links or navigates Space"
     },
     "overlay": {
       "title": "Overlay",
-      "description": "Places content over the scene view as overlay.",
+      "description": "Places content over the Space view as overlay.",
       "contentSource": "Content Source",
       "overlayPosition": "Overlay Position",
       "optionalUrl": "URL (Optional)",
@@ -1305,28 +1305,28 @@
         "video": "Imports a 2D plane that accepts .mp4, .mkv, .avi",
         "variant": "Add model variant for level of detail",
         "generalAudio": "Import audio clips, .mp3, .flac, .ogg, .wav, .m4a",
-        "image": "Imports an image into the scene",
+        "image": "Imports an image into the Space",
         "ground-plane": "Create collision ground plane.",
         "group": "Collection of models or assets.",
         "collider": "Creates a collision ball, cuboid, capsule, or cylinder to be manually placement.",
-        "spawn-point": "A point where people will appear when they enter your scene.",
+        "spawn-point": "A point where people will appear when they enter your Space.",
         "portal": "A portal to teleport a player to a port in a different location.",
         "ambient-light": "A combination of direct and indirect light, provides general lighting to all assets.",
         "point-light": "A light which emits in all directions from a single point.",
         "spot-light": "Creates a light that shines in a specific direction.",
         "directional-light": "Creates a light that emits evenly in a single direction.",
-        "hemisphere-light": "A light which illuminates the scene with a sky color from above and a ground color from below.",
+        "hemisphere-light": "A light which illuminates the Space with a sky color from above and a ground color from below.",
         "particle-system": "Creates a particle emitter.",
-        "system": "Inserts code into the scene by creating a new Entity Component System based on the provided .ts file",
+        "system": "Inserts code into the Space by creating a new Entity Component System based on the provided .ts file",
         "visual-script": "Customizes state and behavior of entities through a visual node connections.",
-        "envmapbake": "Add Env Mapbake to your scene.",
-        "scene-preview-camera": "A preview camera which generates a scene thumbnail and the starting position.",
+        "envmapbake": "Add Env Mapbake to your Space.",
+        "scene-preview-camera": "A preview camera which generates a Space thumbnail and the starting position.",
         "skybox": "Sets the area outside your map (skybox) with a specific sky type.",
         "spline-track": "Creates a spline track.",
         "spline": "Create and customize curves.",
-        "envmap": "Add environment map to your scene",
-        "postprocessing": "Add postprocessing effects to your scene",
-        "primitive-geometry": "Add basic Geometry to the scene",
+        "envmap": "Add environment map to your Space",
+        "postprocessing": "Add postprocessing effects to your Space",
+        "primitive-geometry": "Add basic Geometry to the Space",
         "link": "Add clickable Link to entity to route to different webpage",
         "dynamic-load": "Load entities dynamically",
         "overlay": "Create overlay based on iframe"
@@ -1417,7 +1417,7 @@
       "no-category": "No category selected",
       "search-placeholder": "Search",
       "preview": "Preview",
-      "info-drag-drop": "Drag and Drop these items into the scene",
+      "info-drag-drop": "Drag and Drop these items into the Space",
       "settings": "Settings",
       "no-search-results": "No results found",
       "total-assets": "Showing {{total}} assets",
@@ -1426,17 +1426,17 @@
   },
   "hierarchy": {
     "lbl": "Hierarchy",
-    "info": "The scene Hierarchy contains all element currently in your scene (assets, lighting, items from the tool menu, etc).",
+    "info": "The Space Hierarchy contains all element currently in your Space (assets, lighting, items from the tool menu, etc).",
     "lbl-rename": "Rename",
-    "lbl-renameScene": "Rename Scene",
+    "lbl-renameScene": "Rename Space",
     "lbl-edited": "Edited",
     "lbl-duplicate": "Duplicate",
     "lbl-group": "Group",
     "lbl-copy": "Copy",
     "lbl-paste": "Paste",
     "lbl-delete": "Delete",
-    "lbl-deleteScene": "Delete Scene",
-    "lbl-deleteSceneDescription": "Are you sure you want to delete '{{sceneName}}' scene?",
+    "lbl-deleteScene": "Delete Space",
+    "lbl-deleteSceneDescription": "Are you sure you want to delete '{{sceneName}}' Space?",
     "lbl-expandAll": "Expand All",
     "lbl-collapseAll": "Collapse All",
     "lbl-explode": "Explode Objects",
@@ -1473,18 +1473,18 @@
     },
     "performance": {
       "title": "Performance Check",
-      "lbl-confirm": "Publish Scene",
+      "lbl-confirm": "Publish Space",
       "learnMore": "Learn More",
       "lbl-polycount": "Polygon Count",
       "lbl-material": "Materials",
       "lbl-texture": "Textures",
       "lbl-lights": "Lights",
       "lbl-fileSize": "File Size",
-      "info-polycount": "We recommend your scene use no more than 50,000 triangles for mobile devices.",
-      "info-material": "We recommend using no more than 25 unique materials in your scene to reduce draw calls on mobile devices.",
+      "info-polycount": "We recommend your Space use no more than 50,000 triangles for mobile devices.",
+      "info-material": "We recommend using no more than 25 unique materials in your Space to reduce draw calls on mobile devices.",
       "info-texture": "We recommend your textures use no more than 256MB of video RAM for mobile devices. We also recommend against using textures larger than 2048 x 2048.",
-      "info-lights": "While dynamic lights are not enabled on mobile devices, we recommend using no more than 3 lights in your scene (excluding ambient and hemisphere lights) for your scene to run on low end PCs.",
-      "info-fileSize": "We recommend a final file size of no more than 16MB for low bandwidth connections. Reducing the file size will reduce the time it takes to download your scene.",
+      "info-lights": "While dynamic lights are not enabled on mobile devices, we recommend using no more than 3 lights in your Space (excluding ambient and hemisphere lights) for your Space to run on low end PCs.",
+      "info-fileSize": "We recommend a final file size of no more than 16MB for low bandwidth connections. Reducing the file size will reduce the time it takes to download your Space.",
       "txt-polycount": "{{count}} Triangles",
       "txt-material": "{{count}} Materials",
       "txt-ram": "~{{count}} Video RAM",
@@ -1497,35 +1497,35 @@
       "lbl-cancel": "Cancel"
     },
     "publish": {
-      "title": "Publish Scene",
+      "title": "Publish Space",
       "lbl-confirm": "Save and Publish",
-      "lbl-name": "Scene Name",
+      "lbl-name": "Space Name",
       "info-name": "Name must be between 4 and 64 characters and cannot contain underscores"
     },
     "published": {
-      "title": "Scene Published",
-      "header": "Your scene has been published.",
-      "lbl-view": "View Your Scene"
+      "title": "Space Published",
+      "header": "Your Space has been published.",
+      "lbl-view": "View Your Space"
     },
     "saveScene": {
       "title": "Save",
       "lbl-thumbnail": "Generate thumbnail & envmap",
-      "lbl-confirm": "Save Scene",
+      "lbl-confirm": "Save Space",
       "discard-quit": "Discard Changes and Quit",
       "lbl-save-quit": "Save and Quit",
-      "info-confirm": "Are you sure you want to save the scene?",
-      "info-question": "Save changes to the current scene?",
+      "info-confirm": "Are you sure you want to save the Space?",
+      "info-question": "Save changes to the current Space?",
       "info-warning": "Discarded changes can not be recovered",
-      "info-save-success": "Scene Saved",
+      "info-save-success": "Space Saved",
       "unsavedChanges": {
         "title": "Quit to Dashboard"
       }
     },
     "saveNewScene": {
       "title": "Save As",
-      "lbl-name": "Scene Name",
+      "lbl-name": "Space Name",
       "info-name": "Name must be between 4 and 64 characters (with only letters, numbers, underscores, dashes and periods allowed)",
-      "lbl-confirm": "Save Scene"
+      "lbl-confirm": "Save Space"
     },
     "saveModel": {
       "title": "Save Changes",
@@ -1553,8 +1553,8 @@
       "not-allowed-local-dev": "To prevent accidental loss of data, projects cannot be deleted from this menu in a local dev environment. Use the file system instead."
     },
     "createScene": {
-      "title": "New Scene",
-      "create": "New Empty Scene"
+      "title": "New Space",
+      "create": "New Empty Space"
     },
     "addScene": {
       "continue": "Continue",
