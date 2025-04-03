@@ -25,13 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router-dom'
 
 import { useMediaNetwork } from '@ir-engine/client-core/src/common/services/MediaInstanceConnectionService'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { ECSRecordingActions, PlaybackState, RecordingState } from '@ir-engine/common/src/recording/ECSRecordingSystem'
 import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
-import { dispatchAction, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { SpectateEntityState } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
@@ -43,10 +43,12 @@ import multiLogger from '@ir-engine/common/src/logger'
 import { EngineState } from '@ir-engine/ecs'
 import { MediaStreamService, MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { endXRSession, requestXRSession } from '@ir-engine/spatial/src/xr/XRSessionFunctions'
 import {
   Microphone01Lg,
   Microphone01Md,
   MicrophoneOff,
+  Screenshare,
   VideoRecorderLg,
   VideoRecorderMd,
   VideoRecorderOffLg,
@@ -54,7 +56,7 @@ import {
 } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import { MdFlipCameraAndroid } from 'react-icons/md'
-import { SearchParamState } from '../../common/services/RouterService'
+import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import LocationIconButton from '../../user/components/LocationIconButton'
 import { clientContextParams } from '../../util/ClientContextState'
@@ -101,8 +103,11 @@ export const MediaIconsBox = () => {
   const xrMode = xrState.sessionMode.value
   const supportsVR = xrState.supportedSessionModes['immersive-vr'].value
 
-  const [motionCaptureEnabled, xrEnabled] = useFeatureFlags([
-    FeatureFlags.Client.Menu.MotionCapture,
+  const [
+    // motionCaptureEnabled,
+    xrEnabled
+  ] = useFeatureFlags([
+    // FeatureFlags.Client.Menu.MotionCapture,
     FeatureFlags.Client.Menu.XR
   ])
 
@@ -131,13 +136,15 @@ export const MediaIconsBox = () => {
   }
 
   const xrSessionActive = xrState.sessionActive.value
+  const [params, setSearch] = useSearchParams()
 
   const handleExitSpectatorClick = () => {
     if (spectating) {
-      SearchParamState.set('spectate', none)
+      params.delete('spectate')
     } else {
-      SearchParamState.set('spectate', '')
+      params.set('spectate', '')
     }
+    setSearch(params)
   }
 
   return (
@@ -207,7 +214,7 @@ export const MediaIconsBox = () => {
           )} */}
         </>
       ) : null}
-      {/* {!isMobile &&
+      {!isMobile &&
       !(typeof navigator.mediaDevices.getDisplayMedia === 'undefined') &&
       screenshareEnabled &&
       mediaNetworkReady &&
@@ -220,8 +227,8 @@ export const MediaIconsBox = () => {
           id="UserScreenSharing"
           onClick={MediaStreamState.toggleScreenshare}
         />
-      ) : null} */}
-      {/* {supportsVR && xrEnabled && (
+      ) : null}
+      {supportsVR && xrEnabled && (
         <LocationIconButton
           tooltip={{
             title: t('user:menu.enterVR')
@@ -233,7 +240,7 @@ export const MediaIconsBox = () => {
           }}
         />
       )}
-      {supportsAR && xrEnabled && (
+      {/* {supportsAR && xrEnabled && (
         <LocationIconButton
           id="UserAR"
           tooltip={{

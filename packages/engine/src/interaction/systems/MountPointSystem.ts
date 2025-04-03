@@ -33,10 +33,10 @@ import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import { NormalizedBoneComponent } from '../../avatar/components/NormalizedBoneComponent'
 import { MotionCapturePoseComponent } from '../../mocap/MotionCapturePoseComponent'
 import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
 import { MountPointComponent } from '../../scene/components/MountPointComponent'
@@ -69,7 +69,7 @@ const execute = () => {
 
     mountTransform.matrixWorld.decompose(vec3_0, quat, vec3_1)
     const rig = getComponent(entity, AvatarRigComponent).bonesToEntities
-    vec3_0.y -= getComponent(rig.hips, NormalizedBoneComponent).position.y - 0.25
+    vec3_0.y -= getComponent(rig.hips, BoneComponent).position.y - 0.25
     setComponent(entity, TransformComponent, { rotation: mountTransform.rotation, position: vec3_0 })
 
     if (!hasComponent(entity, MotionCaptureRigComponent)) continue

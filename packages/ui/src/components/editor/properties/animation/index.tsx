@@ -72,7 +72,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
       { label: 'None', value: -1 },
       ...animationComponent.animations.map((clip, index) => ({ label: clip.name, value: index }))
     ])
-  }, [gltfComponent?.progress, avatarRigComponent?.vrm, animationComponent?.animations])
+  }, [gltfComponent?.progress, avatarRigComponent?.bonesToEntities.hips, animationComponent?.animations])
 
   const onChangePlayingAnimation = (index) => {
     commitProperties(LoopAnimationComponent, {
