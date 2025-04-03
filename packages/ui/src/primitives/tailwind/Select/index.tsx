@@ -337,6 +337,7 @@ const Select = ({
                     searchMode === undefined ? 'cursor-pointer' : 'cursor-text',
                     disabled ? 'cursor-not-allowed' : ''
                   )}
+                  data-testid="select-input"
                   value={displayText}
                   readOnly={searchMode === undefined}
                   onChange={(e) => {

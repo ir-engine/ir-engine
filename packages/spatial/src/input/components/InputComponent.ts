@@ -95,19 +95,24 @@ export const InputComponent = defineComponent({
   useExecuteWithInput(
     executeOnInput: () => void,
     executeWhenEditing = false,
-    order: InputExecutionOrder = InputExecutionOrder.With
+    order: InputExecutionOrder = InputExecutionOrder.With,
+    dependencies: any[] = []
   ) {
     const entity = useEntityContext()
 
-    return useExecute(() => {
-      const capturingEntity = getState(InputState).capturingEntity
-      if (
-        (!executeWhenEditing && getState(EngineState).isEditing) ||
-        (capturingEntity && !isAncestor(capturingEntity, entity, true))
-      )
-        return
-      executeOnInput()
-    }, getInputExecutionInsert(order))
+    return useExecute(
+      () => {
+        const capturingEntity = getState(InputState).capturingEntity
+        if (
+          (!executeWhenEditing && getState(EngineState).isEditing) ||
+          (capturingEntity && !isAncestor(capturingEntity, entity, true))
+        )
+          return
+        executeOnInput()
+      },
+      getInputExecutionInsert(order),
+      dependencies
+    )
   },
 
   getInputEntities(entityContext: Entity): Entity[] {
