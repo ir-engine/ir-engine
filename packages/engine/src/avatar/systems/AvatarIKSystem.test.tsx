@@ -211,12 +211,6 @@ describe('AvatarIKSystem', () => {
         new Vector3()
       )
 
-      console.log(
-        rightHandIkPos.distanceTo(rightHandPosition),
-        leftHandIkPos.distanceTo(leftHandPosition),
-        leftFootIkPos.distanceTo(leftFootPosition),
-        rightFootIkPos.distanceTo(rightFootPosition)
-      )
       return (
         rightHandIkPos.distanceTo(rightHandPosition) < 0.1 &&
         leftHandIkPos.distanceTo(leftHandPosition) < 0.1 &&
