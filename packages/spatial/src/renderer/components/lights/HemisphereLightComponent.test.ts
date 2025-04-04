@@ -36,6 +36,7 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { BoxGeometry, Color, ColorRepresentation, MeshBasicMaterial } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
@@ -182,20 +183,22 @@ describe('HemisphereLightComponent', () => {
       return destroyEngine()
     })
 
-    it('should set a LightTagComponent on the entityContext when it is mounted', () => {
+    it('should set a LightTagComponent on the entityContext when it is mounted', async () => {
       // Sanity check before running
       assert.equal(hasComponent(testEntity, LightTagComponent), false)
 
       // Run and Check the result
       setComponent(testEntity, HemisphereLightComponent)
+      await act(() => render(null))
       assert.equal(hasComponent(testEntity, LightTagComponent), true)
     })
 
-    it('should react when directionalLightComponent.groundColor changes', () => {
+    it('should react when directionalLightComponent.groundColor changes', async () => {
       const Expected = new Color(0x123456)
 
       // Set the data as expected
       setComponent(testEntity, HemisphereLightComponent)
+      await act(() => render(null))
 
       // Sanity check before running
       const before = getComponent(testEntity, HemisphereLightComponent).groundColor
@@ -203,15 +206,17 @@ describe('HemisphereLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, HemisphereLightComponent, { groundColor: Expected })
+      await act(() => render(null))
       const result = getComponent(testEntity, HemisphereLightComponent).groundColor
       assertColor.eq(result, Expected)
     })
 
-    it('should react when directionalLightComponent.skyColor changes', () => {
+    it('should react when directionalLightComponent.skyColor changes', async () => {
       const Expected = new Color(0x123456)
 
       // Set the data as expected
       setComponent(testEntity, HemisphereLightComponent)
+      await act(() => render(null))
 
       // Sanity check before running
       const before = getComponent(testEntity, HemisphereLightComponent).skyColor
@@ -219,11 +224,12 @@ describe('HemisphereLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, HemisphereLightComponent, { skyColor: Expected })
+      await act(() => render(null))
       const result = getComponent(testEntity, HemisphereLightComponent).skyColor
       assertColor.eq(result, Expected)
     })
 
-    it('should react when hemisphereLightComponent.intensity changes', () => {
+    it('should react when hemisphereLightComponent.intensity changes', async () => {
       const Expected = 42
 
       // Set the data as expected
@@ -231,6 +237,7 @@ describe('HemisphereLightComponent', () => {
       const material = new MeshBasicMaterial({ color: 0xffff00 })
       setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       setComponent(testEntity, HemisphereLightComponent)
+      await act(() => render(null))
 
       // Sanity check before running
       const before = getComponent(testEntity, HemisphereLightComponent).intensity
@@ -239,11 +246,12 @@ describe('HemisphereLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, HemisphereLightComponent, { intensity: Expected })
+      await act(() => render(null))
       const result = getComponent(testEntity, HemisphereLightComponent).intensity
       assert.equal(result, Expected)
     })
 
-    it('should react when debugEnabled changes', () => {
+    it('should react when debugEnabled changes', async () => {
       const Initial = false
       const Expected = !Initial
 
@@ -257,7 +265,7 @@ describe('HemisphereLightComponent', () => {
 
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
-      HemisphereLightComponent.reactorMap.get(testEntity)!.run()
+      await act(() => render(null))
 
       const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
       assert.equal(hasComponent(childEntity1, ObjectComponent), Expected)
@@ -265,7 +273,7 @@ describe('HemisphereLightComponent', () => {
 
       // Re-run and Check the unmount case
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
-      HemisphereLightComponent.reactorMap.get(testEntity)!.run()
+      await act(() => render(null))
       assert.equal(hasComponent(childEntity1, ObjectComponent), Initial)
     })
   }) //:: reactor
