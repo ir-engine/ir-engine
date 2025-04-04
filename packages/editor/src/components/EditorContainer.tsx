@@ -105,7 +105,7 @@ const onEditorError = (error) => {
 }
 
 const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData => {
-  const tabs = [ScenePanelTab, AssetsPanelTab]
+  const tabs = [AssetsPanelTab]
   flags.visualScriptPanelEnabled && tabs.push(VisualScriptPanelTab)
 
   return {
@@ -129,7 +129,7 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
           size: 3,
           children: [
             {
-              tabs: [HierarchyPanelTab, MaterialsPanelTab]
+              tabs: [HierarchyPanelTab, ScenePanelTab, MaterialsPanelTab]
             },
             {
               tabs: [PropertiesPanelTab]
