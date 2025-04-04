@@ -1,19 +1,24 @@
 {
-"name": "@ir-engine/ecs",
+  "name": "@ir-engine/ecs",
   "version": "1.6.0",
   "main": "index.ts",
+  "description": "Fast and reactive ECS for the Infinite Reality Engine",
   "publishConfig": {
     "access": "public"
   },
-  "description": "Core execution context for the Infinite Reality Engine",
   "scripts": {
     "check-errors": "tsc --noemit",
     "test": "cross-env TEST=true vitest run --config=../../vitest.client.config.ts",
     "test-coverage": "npm run test-coverage-generate ; npm run test-coverage-launch",
     "test-coverage-generate": "npm run test -- --coverage --silent",
-    "test-coverage-launch": "vite preview --open --outDir coverage"
+    "test-coverage-launch": "vite preview --open --outDir coverage",
+    "build": "ts-node --swc build.ts",
+    "build-publish": "npm run build && cd dist && npm publish --access public --dry-run"
   },
-  "repository": "http://github.com/ir-engine/ir-engine",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ir-engine/ir-engine.git"
+  },
   "author": "Infinite Reality Engine",
   "license": "CPAL",
   "dependencies": {

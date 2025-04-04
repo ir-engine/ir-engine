@@ -134,7 +134,7 @@ export const playAvatarAnimationFromMixamo = (
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getMutableComponent(entity, AvatarAnimationComponent)
   const rigComponent = getComponent(entity, AvatarRigComponent)
-  if (!rigComponent || !rigComponent.vrm) return
+  if (!rigComponent || !rigComponent.bonesToEntities.hips) return
   //if animation is already present on animation component, use it instead of retargeting again
   const animationsScene = getComponent(animationsEntity, AnimationComponent)
   let retargetedAnimation = animationComponent.animations.find(

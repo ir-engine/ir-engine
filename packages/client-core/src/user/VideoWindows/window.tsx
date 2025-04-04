@@ -59,10 +59,13 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
 
   useEffect(() => {
     videoElement.draggable = false
-    if (isSelf) videoElement.style.transform = 'scaleX(-1)'
     document.getElementById(peerID + '-' + type + '-video-container')?.append(videoElement)
     document.getElementById(peerID + '-' + type + '-audio-container')?.append(audioElement)
   }, [])
+
+  useEffect(() => {
+    videoElement.style.transform = isSelf ? 'scaleX(-1)' : 'scaleX(1)'
+  }, [isSelf])
 
   useEffect(() => {
     if (canvasRef.current && canvasRef.current.width !== videoElement.clientWidth) {

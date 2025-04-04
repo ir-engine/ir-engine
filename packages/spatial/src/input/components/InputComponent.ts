@@ -73,11 +73,7 @@ export const DefaultButtonAlias = {
 } satisfies Record<string, Array<AnyButton>>
 
 export const DefaultAxisAlias = {
-  FollowCameraZoomScroll: [
-    MouseScroll.VerticalScroll,
-    XRStandardGamepadAxes.XRStandardGamepadThumbstickY,
-    XRStandardGamepadAxes.XRStandardGamepadTouchpadY
-  ],
+  FollowCameraZoomScroll: [MouseScroll.VerticalScroll, XRStandardGamepadAxes.XRStandardGamepadTouchpadY],
   FollowCameraShoulderCamScroll: [MouseScroll.HorizontalScroll]
 } satisfies Record<string, Array<AnyAxis>>
 
@@ -99,19 +95,24 @@ export const InputComponent = defineComponent({
   useExecuteWithInput(
     executeOnInput: () => void,
     executeWhenEditing = false,
-    order: InputExecutionOrder = InputExecutionOrder.With
+    order: InputExecutionOrder = InputExecutionOrder.With,
+    dependencies: any[] = []
   ) {
     const entity = useEntityContext()
 
-    return useExecute(() => {
-      const capturingEntity = getState(InputState).capturingEntity
-      if (
-        (!executeWhenEditing && getState(EngineState).isEditing) ||
-        (capturingEntity && !isAncestor(capturingEntity, entity, true))
-      )
-        return
-      executeOnInput()
-    }, getInputExecutionInsert(order))
+    return useExecute(
+      () => {
+        const capturingEntity = getState(InputState).capturingEntity
+        if (
+          (!executeWhenEditing && getState(EngineState).isEditing) ||
+          (capturingEntity && !isAncestor(capturingEntity, entity, true))
+        )
+          return
+        executeOnInput()
+      },
+      getInputExecutionInsert(order),
+      dependencies
+    )
   },
 
   getInputEntities(entityContext: Entity): Entity[] {

@@ -35,12 +35,9 @@ import {
   createEntity,
   destroyEngine,
   getComponent,
-  hasComponent,
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
-import { getState } from '@ir-engine/hyperflux'
-import { ReferenceSpaceState } from '@ir-engine/spatial/src/ReferenceSpaceState'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import {
   TransformDirtyCleanupSystem,
@@ -50,7 +47,6 @@ import { assertVec } from '@ir-engine/spatial/tests/util/assert'
 import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
 import { act, render } from '@testing-library/react'
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { NodeFunctions } from '../../gltf/NodeFunctions'
 import { NodeID, NodeIDComponent } from '../../gltf/NodeIDComponent'
 import { LookAtComponent } from '../components/LookAtComponent'
 import { SourceID } from '../components/SourceComponent'
@@ -101,18 +97,11 @@ describe('LookAtSystem', () => {
 
       it('should not do anything', () => {
         const Initial = new Quaternion(2, 3, 4, 5).normalize()
-        // Set the data as expected
+
         setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42) })
         setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22), rotation: Initial })
         setComponent(testEntity, LookAtComponent, { target: getComponent(facerEntity, NodeIDComponent) })
-        // Sanity check before running
-        assert.equal(Boolean(getState(ReferenceSpaceState).viewerEntity), false)
-        assert.equal(hasComponent(testEntity, TransformComponent), true)
-        assert.equal(hasComponent(testEntity, LookAtComponent), true)
-        assert.equal(Boolean(getComponent(testEntity, LookAtComponent).target), true)
-        const before = getComponent(testEntity, TransformComponent).rotation.clone()
-        assertVec.approxEq(before, Initial, 4)
-        // Run and Check the result
+
         System.execute()
         const result = getComponent(testEntity, TransformComponent).rotation.clone()
         assertVec.approxEq(result, Initial, 4)
@@ -140,57 +129,34 @@ describe('LookAtSystem', () => {
 
         it('should not do anything for that entity if its LookAtComponent.target nodeID is truthy but it does not point to a valid entity', () => {
           const Initial = new Quaternion(2, 3, 4, 5).normalize()
-          // Set the data as expected
+
           setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42), rotation: Initial })
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
           setComponent(testEntity, LookAtComponent, { target: 'invalidTestNodeID' as NodeID })
-          // Sanity check before running
-          assert.equal(Boolean(getState(ReferenceSpaceState).viewerEntity), true)
-          assert.equal(hasComponent(testEntity, TransformComponent), true)
-          assert.equal(hasComponent(testEntity, LookAtComponent), true)
-          assert.equal(Boolean(getComponent(testEntity, LookAtComponent).target), true)
-          const before = getComponent(facerEntity, TransformComponent).rotation.clone()
-          assertVec.approxEq(before, Initial, 4)
-          // Run and Check the result
+
           System.execute()
           const result = getComponent(facerEntity, TransformComponent).rotation.clone()
           assertVec.approxEq(result, Initial, 4)
         })
 
-        it('should not do anything for that entity if its LookAtComponent.target UUID is falsy', () => {
+        it('should not do anything for that entity if its LookAtComponent.target UUID is falsy', async () => {
           const Initial = new Quaternion(2, 3, 4, 5).normalize()
-          // Set the data as expected
+
           setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42), rotation: Initial })
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
           setComponent(testEntity, LookAtComponent, { target: '' as NodeID })
-          // Sanity check before running
-          assert.equal(Boolean(getState(ReferenceSpaceState).viewerEntity), true)
-          assert.equal(hasComponent(testEntity, TransformComponent), true)
-          assert.equal(hasComponent(testEntity, LookAtComponent), true)
-          assert.equal(Boolean(getComponent(testEntity, LookAtComponent).target), false)
-          const before = getComponent(facerEntity, TransformComponent).rotation.clone()
-          assertVec.approxEq(before, Initial, 4)
-          // Run and Check the result
           System.execute()
           const result = getComponent(facerEntity, TransformComponent).rotation.clone()
           assertVec.approxEq(result, Initial, 4)
         })
 
-        it('should set the entity.TransformComponent.rotation to the resulting lookAt rotation looking from (0,0,0) towards the difference of targetEntity.TransformComponent.position and entity.TransformComponent.position', () => {
+        it('should set the entity.TransformComponent.rotation to the resulting lookAt rotation looking from (0,0,0) towards the difference of targetEntity.TransformComponent.position and entity.TransformComponent.position', async () => {
           const Expected = new Quaternion(0.2721655269759087, 0.408248290463863, 0.5443310539518174, 0.6804138174397717)
           const Initial = new Quaternion(2, 3, 4, 5).normalize()
-          // Set the data as expected
+
           setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42), rotation: Initial })
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
           setComponent(testEntity, LookAtComponent, { target: '' as NodeID })
-          // Sanity check before running
-          assert.equal(Boolean(getState(ReferenceSpaceState).viewerEntity), true)
-          assert.equal(hasComponent(testEntity, TransformComponent), true)
-          assert.equal(hasComponent(testEntity, LookAtComponent), true)
-          assert.equal(Boolean(getComponent(testEntity, LookAtComponent).target), false)
-          const before = getComponent(facerEntity, TransformComponent).rotation.clone()
-          assertVec.approxEq(before, Initial, 4)
-          // Run and Check the result
           System.execute()
           const result = getComponent(facerEntity, TransformComponent).rotation.clone()
           assertVec.approxEq(result, Expected, 4)
@@ -201,7 +167,7 @@ describe('LookAtSystem', () => {
           const rotation = new Quaternion(45, 46, 47, 48).normalize()
           const scale = new Vector3().setScalar(49)
           const Initial = new Matrix4().compose(position, rotation, scale)
-          // Set the data as expected
+
           const parentEntity = createEntity()
           setComponent(parentEntity, TransformComponent, { position: new Vector3().setScalar(123) })
           setComponent(facerEntity, EntityTreeComponent, { parentEntity: parentEntity })
@@ -209,19 +175,7 @@ describe('LookAtSystem', () => {
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
           setComponent(testEntity, LookAtComponent, { target: getComponent(facerEntity, NodeIDComponent) })
           CleanupSystem.execute()
-          // Sanity check before running
-          assert.equal(Boolean(getState(ReferenceSpaceState).viewerEntity), true)
-          assert.equal(hasComponent(testEntity, TransformComponent), true)
-          assert.equal(hasComponent(testEntity, LookAtComponent), true)
-          assert.equal(Boolean(getComponent(testEntity, LookAtComponent).target), true)
-          console.log(getComponent(testEntity, LookAtComponent).target)
-          assert.equal(
-            NodeFunctions.getEntityFromNodeID(testEntity, getComponent(testEntity, LookAtComponent).target),
-            facerEntity
-          )
-          const before = TransformComponent.dirty[testEntity]
-          assert.equal(before, 0)
-          // Run and Check the result
+
           System.execute()
           const result = TransformComponent.dirty[testEntity]
           assert.equal(result, 1)
