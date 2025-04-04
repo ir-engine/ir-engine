@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import React from 'react'
@@ -90,8 +90,6 @@ function CategoriesListTestWrapper() {
 }
 
 describe('CategoriesList component', () => {
-  beforeAll(() => {})
-
   beforeEach(() => {
     createEngine()
     render(<CategoriesListTestWrapper />)
