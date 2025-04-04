@@ -44,10 +44,10 @@ import { TransformComponent } from '@ir-engine/spatial'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
-import { act, cleanup, fireEvent, render, type RenderResult, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
 import { Cache } from 'three'
-import { afterEach, beforeEach, describe, expect, it, type TestContext, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DndWrapper } from '../../../../editor/src/components/dnd/DndWrapper'
 import { HierarchyPanelTab } from './index'
 
@@ -75,17 +75,13 @@ global.ResizeObserver = class ResizeObserver {
   disconnect() {}
 }
 
-interface HirearchyPanelTabContext extends TestContext {
-  rerender: RenderResult['rerender']
-}
-
 const waitForScene = (entity: Entity) => vi.waitUntil(() => GLTFComponent.isSceneLoaded(entity), { timeout: 5000 })
 
 describe('HierarchyPanel component', () => {
   let physicsWorldEntity: Entity
   let rootEntity: Entity
 
-  beforeEach<HirearchyPanelTabContext>(async (context) => {
+  beforeEach(async (context) => {
     Cache.enabled = true
     createEngine()
     getMutableState(EngineState).isEditing.set(true)
@@ -129,7 +125,7 @@ describe('HierarchyPanel component', () => {
     await waitForScene(rootEntity)
 
     await act(() => {
-      const { rerender } = render(
+      render(
         <div id="test-dnd-context">
           <DndWrapper id="test-dnd-context">
             {/* @ts-expect-error */}
@@ -137,7 +133,6 @@ describe('HierarchyPanel component', () => {
           </DndWrapper>
         </div>
       )
-      context.rerender = rerender
     })
   })
 
@@ -187,36 +182,16 @@ describe('HierarchyPanel component', () => {
     expect(sceneItemNames.length).toBeGreaterThan(0)
   })
 
-  it('should render a top bar element with the data-testid attribute "hierarchy-panel-scene-item-lock-button" by default', async (context: HirearchyPanelTabContext) => {
+  it('should render a top bar element with the data-testid attribute "hierarchy-panel-scene-item-lock-button" by default', async () => {
     const sceneItemLockButtons = await screen.findAllByTestId('hierarchy-panel-scene-item-lock-button')
     expect(sceneItemLockButtons.length).toBeGreaterThan(0)
-
-    fireEvent.click(sceneItemLockButtons[0])
-
-    context.rerender(
-      <div id="test-dnd-context">
-        <DndWrapper id="test-dnd-context">
-          {/* @ts-expect-error */}
-          {HierarchyPanelTab.content}
-        </DndWrapper>
-      </div>
-    )
   })
 
-  it('should render a top bar element with the data-testid attribute "hierarchy-panel-scene-item-unlock-button" when lock icon is clicked', async (context: HirearchyPanelTabContext) => {
+  it('should render a top bar element with the data-testid attribute "hierarchy-panel-scene-item-unlock-button" when lock icon is clicked', async () => {
     const sceneItemLockButtons = await screen.findAllByTestId('hierarchy-panel-scene-item-lock-button')
     expect(sceneItemLockButtons.length).toBeGreaterThan(0)
 
     fireEvent.click(sceneItemLockButtons[0])
-
-    context.rerender(
-      <div id="test-dnd-context">
-        <DndWrapper id="test-dnd-context">
-          {/* @ts-expect-error */}
-          {HierarchyPanelTab.content}
-        </DndWrapper>
-      </div>
-    )
 
     const sceneItemUnlockButtons = await screen.findAllByTestId('hierarchy-panel-scene-item-unlock-button')
     expect(sceneItemUnlockButtons.length).toBeGreaterThan(0)
