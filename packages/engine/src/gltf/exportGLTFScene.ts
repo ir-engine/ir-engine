@@ -530,10 +530,7 @@ const exportMesh = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFSceneEx
           const attribute = geometry.morphAttributes[attributeName][i]
           const gltfAttributeName = attributeName.toUpperCase()
 
-          // Clones attribute not to override
-          const relativeAttribute = attribute.clone()
-
-          const accessor = exportAccessor(relativeAttribute, gltf, context, geometry)
+          const accessor = exportAccessor(attribute.clone(), gltf, context, geometry)
           if (!targets[i]) targets[i] = {}
           targets[i][gltfAttributeName] = accessor
         }
