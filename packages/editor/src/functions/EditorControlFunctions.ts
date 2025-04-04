@@ -538,7 +538,30 @@ const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = fals
     EditorState.markModifiedScene(entity)
   }
 }
+const reparentObjectSub = (entity: Entity, parent: Entity, index: number | undefined) => {
+  const parentTree = getComponent(parent, EntityTreeComponent)
+  const worldPosition = TransformComponent.getWorldPosition(entity, new Vector3())
+  const worldRotation = TransformComponent.getWorldRotation(entity, new Quaternion())
+  const worldScale = TransformComponent.getWorldScale(entity, new Vector3())
 
+  setComponent(entity, EntityTreeComponent, { parentEntity: parent, childIndex: index })
+
+  EditorControlFunctions.positionObject([entity], [worldPosition], TransformSpace.world)
+  EditorControlFunctions.rotateObject([entity], [worldRotation], TransformSpace.world)
+  worldScaleObject([entity], [worldScale])
+
+  const newSourceID = hasComponent(parent, GLTFComponent)
+    ? GLTFComponent.getInstanceID(parent)
+    : getComponent(parent, SourceComponent)
+  setComponent(entity, SourceComponent, newSourceID)
+  setComponent(
+    entity,
+    UUIDComponent,
+    NodeIDComponent.getUUIDBySourceAndNodeID(newSourceID, getComponent(entity, NodeIDComponent))
+  )
+
+  EditorState.markModifiedScene(entity)
+}
 const reparentObject = (
   entities: Entity[],
   beforeEntity?: Entity | null,
@@ -546,37 +569,25 @@ const reparentObject = (
   parent = getState(EditorState).rootEntity
 ) => {
   // todo - use index of beforeEntity and afterEntity to insert at correct position
+
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
     if (entity === parent) continue
-
-    const worldPosition = TransformComponent.getWorldPosition(entity, new Vector3())
-    const worldRotation = TransformComponent.getWorldRotation(entity, new Quaternion())
-    const worldScale = TransformComponent.getWorldScale(entity, new Vector3())
-
     const parentTree = getComponent(parent, EntityTreeComponent)
+    let oldIndex = beforeEntity ? parentTree.children.indexOf(entity) : undefined
     const index = afterEntity
       ? parentTree.children.indexOf(afterEntity) + 1
       : beforeEntity
       ? parentTree.children.indexOf(beforeEntity)
       : undefined
-    setComponent(entity, EntityTreeComponent, { parentEntity: parent, childIndex: index })
 
-    EditorControlFunctions.positionObject([entity], [worldPosition], TransformSpace.world)
-    EditorControlFunctions.rotateObject([entity], [worldRotation], TransformSpace.world)
-    worldScaleObject([entity], [worldScale])
+    reparentObjectSub(entity, parent, index)
 
-    const newSourceID = hasComponent(parent, GLTFComponent)
-      ? GLTFComponent.getInstanceID(parent)
-      : getComponent(parent, SourceComponent)
-    setComponent(entity, SourceComponent, newSourceID)
-    setComponent(
-      entity,
-      UUIDComponent,
-      NodeIDComponent.getUUIDBySourceAndNodeID(newSourceID, getComponent(entity, NodeIDComponent))
-    )
-
-    EditorState.markModifiedScene(entity)
+    if (oldIndex !== undefined && index !== undefined) {
+      for (let i = index + 1; i < oldIndex; i++) {
+        reparentObjectSub(parentTree.children[i], parent, i)
+      }
+    }
   }
 }
 
