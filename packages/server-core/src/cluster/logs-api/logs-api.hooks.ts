@@ -23,12 +23,39 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { Application, HookContext } from '@feathersjs/feathers'
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { iff } from 'feathers-hooks-common'
+import hasAction from '../../hooks/has-action'
+import isAction from '../../hooks/is-action'
+import { AnalyticsLogResolver, AnalyticsLogValidator, BQLogValidator } from './analytics-logger'
+
+const copyDataToParam = (property: string) => {
+  return async (context: HookContext<Application>) => {
+    if (!context.data || !context.data[property]) return
+    context.params[property] = context.data[property]
+    return context
+  }
+}
+
 export default {
   before: {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [
+      iff(
+        hasAction,
+        copyDataToParam('action'),
+        iff(
+          isAction('analytics'),
+          schemaHooks.validateData(AnalyticsLogValidator),
+          schemaHooks.resolveData(AnalyticsLogResolver),
+          // Final check before creating new BigQuery record
+          schemaHooks.validateData(BQLogValidator)
+        )
+      )
+    ],
     update: [],
     patch: [],
     remove: []
