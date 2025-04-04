@@ -32,7 +32,10 @@ import path from 'path'
 
 export default defineConfig({
   test: {
-    setupFiles: [path.resolve(appRootPath.path, 'packages/hyperflux/tests/utils/patchNode.ts')],
+    setupFiles: [
+      path.resolve(appRootPath.path, 'packages/hyperflux/tests/utils/patchNode.ts'),
+      path.resolve(appRootPath.path, './vitest.setup.ts')
+    ],
     environment: 'jsdom',
     maxConcurrency: 1,
     passWithNoTests: true,
