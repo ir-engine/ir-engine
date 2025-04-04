@@ -41,7 +41,6 @@
     "@gltf-transform/extensions": "4.0.10",
     "@gltf-transform/functions": "4.0.10",
     "@mediapipe/tasks-vision": "0.10.12",
-    "@pixiv/three-vrm": "^2.0.6",
     "@tweenjs/tween.js": "^23.1.2",
     "draco3dgltf": "^1.5.6",
     "fflate": "0.7.4",

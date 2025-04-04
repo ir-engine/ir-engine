@@ -40,12 +40,11 @@ import {
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
-import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { defineState, getState } from '@ir-engine/hyperflux'
 
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { NameComponent } from '../common/NameComponent'
 import { MeshComponent } from '../renderer/components/MeshComponent'
-import { ObjectComponent } from '../renderer/components/ObjectComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { shadowMaterial } from './XRDetectedPlaneComponent'
@@ -73,7 +72,7 @@ export const XRDetectedMeshComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, XRDetectedMeshComponent)
-    const scenePlacementMode = useHookstate(getMutableState(XRState).scenePlacementMode)
+    // const scenePlacementMode = useHookstate(getMutableState(XRState).scenePlacementMode)
 
     useEffect(() => {
       if (!component.mesh.value) return
@@ -84,14 +83,14 @@ export const XRDetectedMeshComponent = defineComponent({
       const shadowMesh = new Mesh(geometry, shadowMaterial)
       // const placementHelper = new Mesh(geometry, placementHelperMaterial)
 
-      setComponent(entity, ObjectComponent, shadowMesh)
+      setComponent(entity, MeshComponent, shadowMesh)
       // addObjectToGroup(entity, placementHelper)
 
       component.shadowMesh.set(shadowMesh)
       // component.placementHelper.set(placementHelper)
 
       return () => {
-        removeComponent(entity, ObjectComponent)
+        removeComponent(entity, MeshComponent)
         // removeObjectFromGroup(entity, placementHelper)
       }
     }, [component.mesh])

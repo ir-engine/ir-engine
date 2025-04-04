@@ -188,7 +188,7 @@ const execute = () => {
     viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
   }
 
-  if (!viewerEntity) return
+  if (!viewerEntity || !hasComponent(viewerEntity, TransformComponent)) return
 
   const cameraPosition = getComponent(viewerEntity, TransformComponent).position
   const camera = getComponent(viewerEntity, CameraComponent)
