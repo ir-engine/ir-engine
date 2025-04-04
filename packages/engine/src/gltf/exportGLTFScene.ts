@@ -529,21 +529,9 @@ const exportMesh = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFSceneEx
         for (const attributeName in geometry.morphAttributes) {
           const attribute = geometry.morphAttributes[attributeName][i]
           const gltfAttributeName = attributeName.toUpperCase()
-          const baseAttribute = geometry.attributes[attributeName]
 
           // Clones attribute not to override
           const relativeAttribute = attribute.clone()
-
-          if (!geometry.morphTargetsRelative) {
-            for (let j = 0, jl = attribute.count; j < jl; j++) {
-              for (let a = 0; a < attribute.itemSize; a++) {
-                if (a === 0) relativeAttribute.setX(j, attribute.getX(j) - baseAttribute.getX(j))
-                if (a === 1) relativeAttribute.setY(j, attribute.getY(j) - baseAttribute.getY(j))
-                if (a === 2) relativeAttribute.setZ(j, attribute.getZ(j) - baseAttribute.getZ(j))
-                if (a === 3) relativeAttribute.setW(j, attribute.getW(j) - baseAttribute.getW(j))
-              }
-            }
-          }
 
           const accessor = exportAccessor(relativeAttribute, gltf, context, geometry)
           if (!targets[i]) targets[i] = {}
