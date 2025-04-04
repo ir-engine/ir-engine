@@ -212,7 +212,6 @@ describe('SkyboxComponent', () => {
       })
 
       const background = getComponent(entity, BackgroundComponent) as CubeTexture
-      // console.log({ background })
       assert.exists(background)
       expect(background.mapping).toEqual(CubeReflectionMapping)
     })
