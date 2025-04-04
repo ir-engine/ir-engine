@@ -298,9 +298,7 @@ function createSubGeometry(originalGeometry: BufferGeometry, start: number, coun
 
   subGeometry.setIndex(new BufferAttribute(newIndices, 1))
 
-  // 4) For each attribute (position, normal, uv, etc.), build the new array
-  for (const attrName in originalGeometry.attributes) {
-    const oldAttr = originalGeometry.attributes[attrName] as BufferAttribute
+  const createAttribute = (oldAttr) => {
     const { itemSize } = oldAttr
     const oldArray = oldAttr.array
 
@@ -316,8 +314,28 @@ function createSubGeometry(originalGeometry: BufferGeometry, start: number, coun
     }
 
     const newAttr = new BufferAttribute(newArray, itemSize)
+    return newAttr
+  }
+
+  // 4) For each attribute (position, normal, uv, etc.), build the new array
+  for (const attrName in originalGeometry.attributes) {
+    const oldAttr = originalGeometry.attributes[attrName] as BufferAttribute
+    const newAttr = createAttribute(oldAttr)
     subGeometry.setAttribute(attrName, newAttr)
   }
+
+  for (const morphAttr in originalGeometry.morphAttributes) {
+    const oldAttrArr = originalGeometry.morphAttributes[morphAttr]
+    if (!oldAttrArr.length) continue
+
+    const attrArr = [] as (BufferAttribute | InterleavedBufferAttribute)[]
+    for (const oldAttr of oldAttrArr) {
+      attrArr.push(createAttribute(oldAttr))
+    }
+
+    subGeometry.morphAttributes[morphAttr] = attrArr
+  }
+  subGeometry.morphTargetsRelative = originalGeometry.morphTargetsRelative
 
   return subGeometry
 }
@@ -467,40 +485,11 @@ const exportMesh = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFSceneEx
     skinIndex: 'JOINTS_0'
   }
 
-  const targets = [] as NonNullable<GLTF.IMeshPrimitive['targets']>
-
   if (mesh.morphTargetInfluences?.length) {
     meshDef.weights = [...mesh.morphTargetInfluences]
     if (mesh.morphTargetDictionary) {
       if (!meshDef.extras) meshDef.extras = {}
       meshDef.extras.targetNames = Object.keys(mesh.morphTargetDictionary)
-    }
-
-    const geometry = mesh.geometry
-    for (let i = 0; i < mesh.morphTargetInfluences.length; ++i) {
-      for (const attributeName in geometry.morphAttributes) {
-        const attribute = geometry.morphAttributes[attributeName][i]
-        const gltfAttributeName = attributeName.toUpperCase()
-        const baseAttribute = geometry.attributes[attributeName]
-
-        // Clones attribute not to override
-        const relativeAttribute = attribute.clone()
-
-        if (!geometry.morphTargetsRelative) {
-          for (let j = 0, jl = attribute.count; j < jl; j++) {
-            for (let a = 0; a < attribute.itemSize; a++) {
-              if (a === 0) relativeAttribute.setX(j, attribute.getX(j) - baseAttribute.getX(j))
-              if (a === 1) relativeAttribute.setY(j, attribute.getY(j) - baseAttribute.getY(j))
-              if (a === 2) relativeAttribute.setZ(j, attribute.getZ(j) - baseAttribute.getZ(j))
-              if (a === 3) relativeAttribute.setW(j, attribute.getW(j) - baseAttribute.getW(j))
-            }
-          }
-        }
-
-        const accessor = exportAccessor(relativeAttribute, gltf, context, geometry)
-        if (!targets[i]) targets[i] = {}
-        targets[i][gltfAttributeName] = accessor
-      }
     }
   }
 
@@ -532,6 +521,35 @@ const exportMesh = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFSceneEx
 
     if (geometry.index !== null) {
       primitiveDef.indices = exportAccessor(geometry.index, gltf, context, geometry) //, group.start, group.count)
+    }
+
+    const targets = [] as NonNullable<GLTF.IMeshPrimitive['targets']>
+    if (mesh.morphTargetInfluences) {
+      for (let i = 0; i < mesh.morphTargetInfluences.length; ++i) {
+        for (const attributeName in geometry.morphAttributes) {
+          const attribute = geometry.morphAttributes[attributeName][i]
+          const gltfAttributeName = attributeName.toUpperCase()
+          const baseAttribute = geometry.attributes[attributeName]
+
+          // Clones attribute not to override
+          const relativeAttribute = attribute.clone()
+
+          if (!geometry.morphTargetsRelative) {
+            for (let j = 0, jl = attribute.count; j < jl; j++) {
+              for (let a = 0; a < attribute.itemSize; a++) {
+                if (a === 0) relativeAttribute.setX(j, attribute.getX(j) - baseAttribute.getX(j))
+                if (a === 1) relativeAttribute.setY(j, attribute.getY(j) - baseAttribute.getY(j))
+                if (a === 2) relativeAttribute.setZ(j, attribute.getZ(j) - baseAttribute.getZ(j))
+                if (a === 3) relativeAttribute.setW(j, attribute.getW(j) - baseAttribute.getW(j))
+              }
+            }
+          }
+
+          const accessor = exportAccessor(relativeAttribute, gltf, context, geometry)
+          if (!targets[i]) targets[i] = {}
+          targets[i][gltfAttributeName] = accessor
+        }
+      }
     }
 
     if (targets.length) {
