@@ -37,7 +37,7 @@ import { EditorState } from '../../services/EditorServices'
 
 export default function SaveNewSceneDialog(props: { onConfirm?: () => void; onCancel?: () => void }) {
   const { t } = useTranslation()
-  const inputSceneName = useHookstate('New-Space')
+  const inputSceneName = useHookstate('New-Scene')
   const modalProcessing = useHookstate(false)
   const inputError = useHookstate('')
 

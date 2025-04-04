@@ -77,7 +77,7 @@ export const createScene = async (
     project: projectName,
     type: 'scene',
     body: templateURL,
-    path: 'public/scenes/New-Space.gltf',
+    path: 'public/scenes/New-Scene.gltf',
     unique: true
   })
   return sceneData
