@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { NormalizedLandmark } from '@mediapipe/tasks-vision'
-import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { decode, encode } from 'msgpackr'
 import { useEffect } from 'react'
 import { Quaternion } from 'three'
@@ -43,9 +42,10 @@ import {
 } from '@ir-engine/network'
 import { RingBuffer } from '@ir-engine/network/src/functions/RingBuffer'
 
+import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
-import { NormalizedBoneComponent } from '../avatar/components/NormalizedBoneComponent'
+import { VRMHumanBoneList } from '../avatar/maps/VRMHumanBoneList'
 import { AvatarAnimationSystem } from '../avatar/systems/AvatarAnimationSystem'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 import { solveMotionCapturePose } from './solveMotionCapturePose'
@@ -132,14 +132,14 @@ const execute = () => {
     const peers = Object.keys(network.peers).find((peerID: PeerID) => timeSeriesMocapData.has(peerID))
     const rigComponent = getComponent(entity, AvatarRigComponent)
     if (!rigComponent.bonesToEntities.hips) continue
-    const worldHipsParent = getComponent(rigComponent.bonesToEntities.hips, NormalizedBoneComponent).parent
+    const worldHipsParent = getComponent(rigComponent.bonesToEntities.hips, BoneComponent).parent
     if (!peers) {
       removeComponent(entity, MotionCaptureRigComponent)
       worldHipsParent?.position.setY(0)
       continue
     }
     for (const boneName of VRMHumanBoneList) {
-      const normalizedBone = rigComponent.vrm.humanoid.normalizedHumanBones[boneName]?.node
+      const normalizedBone = getComponent(rigComponent.bonesToEntities[boneName], BoneComponent)
       if (!normalizedBone) continue
       if (
         MotionCaptureRigComponent.rig[boneName].x[entity] === 0 &&
@@ -178,7 +178,7 @@ const execute = () => {
       MotionCaptureRigComponent.slerpedRig[boneName].w[entity] = slerpedQuat.w
     }
 
-    const hipBone = getComponent(rigComponent.bonesToEntities.hips, NormalizedBoneComponent)
+    const hipBone = getComponent(rigComponent.bonesToEntities.hips, BoneComponent)
     hipBone.position.set(
       MotionCaptureRigComponent.hipPosition.x[entity],
       MotionCaptureRigComponent.hipPosition.y[entity],

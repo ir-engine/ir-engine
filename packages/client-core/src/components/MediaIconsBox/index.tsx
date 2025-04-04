@@ -43,6 +43,7 @@ import multiLogger from '@ir-engine/common/src/logger'
 import { EngineState } from '@ir-engine/ecs'
 import { MediaStreamService, MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { endXRSession, requestXRSession } from '@ir-engine/spatial/src/xr/XRSessionFunctions'
 import {
   Microphone01Lg,
   Microphone01Md,
@@ -55,6 +56,7 @@ import {
 } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import { MdFlipCameraAndroid } from 'react-icons/md'
+import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import LocationIconButton from '../../user/components/LocationIconButton'
 import { clientContextParams } from '../../util/ClientContextState'
@@ -101,8 +103,11 @@ export const MediaIconsBox = () => {
   const xrMode = xrState.sessionMode.value
   const supportsVR = xrState.supportedSessionModes['immersive-vr'].value
 
-  const [motionCaptureEnabled, xrEnabled] = useFeatureFlags([
-    FeatureFlags.Client.Menu.MotionCapture,
+  const [
+    // motionCaptureEnabled,
+    xrEnabled
+  ] = useFeatureFlags([
+    // FeatureFlags.Client.Menu.MotionCapture,
     FeatureFlags.Client.Menu.XR
   ])
 
@@ -223,7 +228,7 @@ export const MediaIconsBox = () => {
           onClick={MediaStreamState.toggleScreenshare}
         />
       ) : null}
-      {/* {supportsVR && xrEnabled && (
+      {supportsVR && xrEnabled && (
         <LocationIconButton
           tooltip={{
             title: t('user:menu.enterVR')
@@ -235,7 +240,7 @@ export const MediaIconsBox = () => {
           }}
         />
       )}
-      {supportsAR && xrEnabled && (
+      {/* {supportsAR && xrEnabled && (
         <LocationIconButton
           id="UserAR"
           tooltip={{

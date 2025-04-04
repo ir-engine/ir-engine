@@ -23,19 +23,31 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, getComponent } from '@ir-engine/ecs'
-import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
-import { XRJointAvatarBoneMap } from '@ir-engine/spatial/src/xr/XRComponents'
-import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
-import { VRMHumanBoneName } from '../maps/VRMHumanBoneName'
+import { configDefaults, defineConfig } from 'vitest/config'
 
-export const applyHandRotationFK = (avatarEntity: Entity, handedness: 'left' | 'right', rotations: Float32Array) => {
-  const bones = Object.values(XRJointAvatarBoneMap)
-  for (let i = 0; i < bones.length; i++) {
-    const label = bones[i]
-    const boneName = `${handedness}${label}` as VRMHumanBoneName
-    const bone = getComponent(avatarEntity, AvatarRigComponent).bonesToEntities[boneName]
-    if (!bone) continue
-    getComponent(bone, BoneComponent).quaternion.fromArray(rotations, i * 4)
+const reporters = !process.env.CI ? ['basic'] : configDefaults.reporters // Use default report config on CI.
+
+import appRootPath from 'app-root-path'
+import path from 'path'
+
+export default defineConfig({
+  test: {
+    setupFiles: [
+      path.resolve(appRootPath.path, 'packages/hyperflux/tests/utils/patchNode.ts'),
+      path.resolve(appRootPath.path, 'packages/ui/vitest.setup.ts')
+    ],
+    environment: 'jsdom',
+    maxConcurrency: 1,
+    passWithNoTests: true,
+    testTimeout: 10000,
+    hookTimeout: 10000,
+    reporters: reporters,
+    slowTestThreshold: 1000,
+    coverage: {
+      enabled: true,
+      reporter: ['lcov'],
+      provider: 'istanbul',
+      include: ['src/**']
+    }
   }
-}
+})
