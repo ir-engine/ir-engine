@@ -405,7 +405,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
           event.preventDefault()
           setMenu(event, entity)
         }}
-        className={twMerge('flex w-full flex-col justify-between overflow-hidden bg-inherit')}
+        className="flex w-full flex-col justify-between overflow-hidden bg-inherit"
       >
         <div
           className={twMerge('h-1', isOverBefore && canDropBefore && `bg-ui-hover-primary`)}
