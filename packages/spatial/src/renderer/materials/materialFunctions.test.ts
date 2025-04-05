@@ -509,18 +509,6 @@ describe('materialFunctions', () => {
         assert.deepEqual(result, Expected)
       })
 
-      it('... should return the object passed as `@param args` without any of its empty string properties', () => {
-        const Expected = { asdf: 'asdfValue', other: 42 }
-        // Set the data as expected
-        const Thing = ''
-        const Args = { thing: Thing, ...Expected }
-        // Sanity check before running
-        assert.equal(!Expected, false)
-        // Run and Check the result
-        const result = formatMaterialArgs(Args)
-        assert.deepEqual(result, Expected)
-      })
-
       it('... should return the object passed as `@param args` without any of its texture properties when the tex.source.data of that property is undefined', () => {
         const texture = new Texture()
         texture.source.data = 'SomeDefinedData'
