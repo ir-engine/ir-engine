@@ -219,7 +219,7 @@ const useGenerateHelper = (
   jobType: 'thumbnail' | 'dimension' = 'thumbnail'
 ) => {
   const jobState = useMutableState(FileThumbnailJobState)
-  const seenResources = jobState.seenResources
+  const seenResources = jobState.seenResources[jobType]
 
   const fileList = files
     .map(filterKey)
@@ -235,10 +235,9 @@ const useGenerateHelper = (
 
   useEffect(() => {
     for (const resource of resourceQuery.data) {
-      if (seenResources.value.includes(resource.key)) continue
-      seenResources.merge([resource.key])
-
       if (jobType === 'thumbnail') {
+        if (seenResources.value.includes(resource.key)) continue
+        seenResources.merge([resource.key])
         if (resource.type === 'thumbnail') {
           API.instance.service(staticResourcePath).patch(resource.id, {
             thumbnailKey: resource.key,
@@ -268,35 +267,40 @@ const useGenerateHelper = (
         ])
       }
     }
-
     // If there are more files left to be processed in the list we have specified, refetch the query
     if (resourceQuery.total > resourceQuery.data.length) resourceQuery.refetch()
   }, [resourceQuery.data])
 }
 export const removeFromFileThumbnailsSeen = (files: readonly string[]) => {
   const jobState = getMutableState(FileThumbnailJobState)
-  const seenResources = jobState.seenResources.get(NO_PROXY) as string[]
+  const seenResources = jobState.seenResources.thumbnail.get(NO_PROXY) as string[]
   files.forEach((file) => {
     const index = seenResources.indexOf(file)
     if (index >= 0) {
       seenResources.splice(index, 1)
     }
   })
-  jobState.seenResources.set(seenResources)
+  jobState.seenResources['thumbnail'].set(seenResources)
 }
 
 export const FileThumbnailJobState = defineState({
   name: 'FileThumbnailJobState',
   initial: {
-    seenResources: [] as string[],
+    seenResources: {
+      thumbnail: [] as string[],
+      dimension: [] as string[]
+    },
     jobs: [] as ThumbnailJob[]
   },
   reactor: () => <ThumbnailJobReactor />,
-  removeCurrentJob: () => {
+  removeCurrentJob: (jobType: 'thumbnail' | 'dimension' = 'thumbnail') => {
     const jobState = getMutableState(FileThumbnailJobState)
     jobState.jobs.set((prev) => {
-      prev.splice(0, 1)
-      return prev
+      const index = prev.findIndex((job) => job.jobType === jobType)
+      if (index !== -1) {
+        prev.splice(index, 1)
+      }
+      return [...prev]
     })
   },
 
@@ -452,7 +456,7 @@ const renderThumbnail = (
       tryCatch(
         () =>
           uploadThumbnail(src, project, blob).then(() => {
-            FileThumbnailJobState.removeCurrentJob()
+            FileThumbnailJobState.removeCurrentJob('thumbnail')
           }),
         (err) => {
           onError(err)
@@ -498,7 +502,7 @@ const RenderImageThumbnail = (props: RenderThumbnailProps) => {
         .then(() => drawToCanvas(image))
         .then(getCanvasBlob)
         .then((blob) => tryCatch(() => uploadThumbnail(src, project, blob), onError))
-        .then(() => FileThumbnailJobState.removeCurrentJob())
+        .then(() => FileThumbnailJobState.removeCurrentJob('thumbnail'))
     }, onError)
   }, [src])
   return null
@@ -518,7 +522,14 @@ const RenderModelThumbnail = (props: RenderThumbnailProps) => {
   useEffect(() => {
     if (!loaded) return
     if (jobType === 'dimension') {
-      uploadDimension(entity, src, props.project)
+      tryCatch(
+        () => {
+          uploadDimension(entity, src, props.project).then(() => {
+            FileThumbnailJobState.removeCurrentJob('dimension')
+          })
+        },
+        (err) => onError(err)
+      )
     } else if (jobType === 'thumbnail') {
       renderThumbnail(entity, lightEntity, skyboxEntity, cameraEntity, props)
     }
@@ -552,7 +563,7 @@ const RenderTextureThumbnail = (props: RenderThumbnailProps) => {
         .then(getCanvasBlob)
         .then((blob) => tryCatch(() => uploadThumbnail(src, project, blob), onError))
         .then(() => image.remove())
-        .then(() => FileThumbnailJobState.removeCurrentJob())
+        .then(() => FileThumbnailJobState.removeCurrentJob('thumbnail'))
     }, onError)
   }, [texture])
 
@@ -643,10 +654,10 @@ const ThumbnailJobReactor = () => {
   }
   const fileType = extensionThumbnailTypeMap.get(extension)
 
-  const onError = (err) => {
+  const onError = (err: any, jobType: 'thumbnail' | 'dimension' = 'thumbnail') => {
     console.error('failed to generate thumbnail for', src)
     console.error(err)
-    FileThumbnailJobState.removeCurrentJob()
+    FileThumbnailJobState.removeCurrentJob(jobType)
   }
 
   useEffect(() => {
@@ -665,7 +676,14 @@ const ThumbnailJobReactor = () => {
       case 'image':
         return <RenderImageThumbnail src={src} project={project} onError={onError} />
       case 'model':
-        return <RenderModelThumbnail src={src} project={project} onError={onError} jobType={jobType} />
+        return (
+          <RenderModelThumbnail
+            src={src}
+            project={project}
+            onError={(err) => onError(err, 'thumbnail')}
+            jobType={jobType}
+          />
+        )
       case 'texture':
         return <RenderTextureThumbnail src={src} project={project} onError={onError} />
       case 'material':
