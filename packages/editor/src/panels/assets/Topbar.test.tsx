@@ -24,122 +24,86 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { EditorState } from '../../services/EditorServices'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import React from 'react'
-import { FilesState, FilesViewModeSettings, FilesViewModeState } from '../../services/FilesState'
 import Topbar from './topbar'
 
-describe('Topbar component', () => {
-  beforeAll(() => {
-    vi.mock('@ir-engine/hyperflux', async (importOriginal) => {
-      const actual = await importOriginal()
-      return {
-        // @ts-ignore
-        ...actual,
-        useMutableState: vi.fn().mockImplementation((stateDef) => {
-          if (stateDef === EditorState) {
-            return {
-              projectName: {
-                value: 'mock-project'
-              }
-            }
-          } else if (stateDef === FilesState) {
-            return {
-              selectedDirectory: {
-                value: '/mock-directory'
-              },
-              projectName: {
-                value: 'mock-project'
-              },
-              searchText: {
-                value: '',
-                set: vi.fn()
-              },
-              merge: vi.fn()
-            }
-          } else if (stateDef === FilesViewModeSettings) {
-            return {
-              icons: {
-                iconSize: {
-                  value: 48,
-                  set: vi.fn()
-                }
-              }
-            }
-          } else if (stateDef === FilesViewModeState) {
-            return {
-              viewMode: {
-                value: 'icons'
-              }
-            }
-          }
-        })
-      }
-    })
-
-    vi.mock('./hooks', () => ({
-      useAssetsCategory: vi.fn().mockReturnValue({
-        currentCategoryPath: { set: vi.fn(), get: vi.fn().mockReturnValue('') }
-      }),
-      useAssetsQuery: vi.fn().mockReturnValue({
-        search: {
-          value: ''
-        },
-        refetchResources: vi.fn(),
-        staticResourcesPagination: {
-          skip: { set: vi.fn() }
-        }
-      })
-    }))
+vi.mock('./hooks', () => ({
+  useAssetsCategory: vi.fn().mockReturnValue({
+    currentCategoryPath: { set: vi.fn(), get: vi.fn().mockReturnValue('') }
+  }),
+  useAssetsQuery: vi.fn().mockReturnValue({
+    search: {
+      value: ''
+    },
+    refetchResources: vi.fn(),
+    staticResourcesPagination: {
+      skip: { set: vi.fn() }
+    }
   })
+}))
+
+describe('Topbar component', () => {
   beforeEach(() => {
+    createEngine()
     render(<Topbar />)
   })
 
   afterEach(() => {
+    destroyEngine()
     cleanup()
   })
 
-  it('should render an `Assets` toolbar with various elements that have relevant data-testid attributes', () => {
+  it('should render an `Assets` toolbar element with the data-testid attribute "assets-panel-top-bar"', () => {
     const panelToolBar = screen.getByTestId('assets-panel-top-bar')
-    // @ts-ignore
     expect(panelToolBar).toBeInTheDocument()
+  })
 
+  it('should render an element with the data-testid attribute "assets-panel-refresh-button"', () => {
     const refreshButton = screen.getByTestId('assets-panel-refresh-button')
-    // @ts-ignore
     expect(refreshButton).toBeInTheDocument()
+  })
 
+  it('should render an element with the data-testid attribute "assets-panel-create-new-folder-button"', () => {
     const createNewFolderButton = screen.getByTestId('assets-panel-create-new-folder-button')
-    // @ts-ignore
     expect(createNewFolderButton).toBeInTheDocument()
+  })
 
+  it('should render an element with the data-testid attribute "assets-panel-breadcrumbs"', () => {
     const breadCrumbs = screen.getByTestId('assets-panel-breadcrumbs')
-    // @ts-ignore
     expect(breadCrumbs).toBeInTheDocument()
   })
 
-  it('should render a pop up menu with view options for `Assets` that have data-testid attributes when the view options button is clicked', () => {
-    const panelToolBar = screen.getByTestId('assets-panel-top-bar')
-    // @ts-ignore
-    expect(panelToolBar).toBeInTheDocument()
+  it('should render an element with the data-testid attribute "view-options-button"', () => {
+    const viewOptionsButton = screen.getByTestId('view-options-button')
+    expect(viewOptionsButton).toBeInTheDocument()
+  })
 
+  it('should render a pop up menu with icon view options for `Assets` that had an element with the data-testid attribute "files-panel-view-options-icon-size-value-input-group"', () => {
     const viewOptionsButton = screen.getByTestId('view-options-button')
     fireEvent.click(viewOptionsButton)
 
     const filesPanelViewOptionsIconSizeValueInputGroup = screen.getByTestId(
       'files-panel-view-options-icon-size-value-input-group'
     )
-    // @ts-ignore
     expect(filesPanelViewOptionsIconSizeValueInputGroup).toBeInTheDocument()
+  })
+
+  it('should render a pop up menu with icon view options for `Assets` that had an element with the data-testid attribute "slider-text-value-input"', () => {
+    const viewOptionsButton = screen.getByTestId('view-options-button')
+    fireEvent.click(viewOptionsButton)
 
     const sliderTextValueInput = screen.getByTestId('slider-text-value-input')
-    // @ts-ignore
     expect(sliderTextValueInput).toBeInTheDocument()
+  })
+
+  it('should render a pop up menu with icon view options for `Assets` that had an element with the data-testid attribute "slider-draggable-value-input"', () => {
+    const viewOptionsButton = screen.getByTestId('view-options-button')
+    fireEvent.click(viewOptionsButton)
 
     const sliderDraggableValueInput = screen.getByTestId('slider-draggable-value-input')
-    // @ts-ignore
     expect(sliderDraggableValueInput).toBeInTheDocument()
   })
 })

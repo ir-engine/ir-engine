@@ -28,6 +28,7 @@ import i18n from 'i18next'
 import { GLTF } from '@gltf-transform/core'
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import { clientContextParams } from '@ir-engine/client-core/src/util/ClientContextState'
 import { createScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
@@ -47,7 +48,7 @@ import { EditorState } from '../services/EditorServices'
 import { SceneThumbnailState } from '../services/SceneThumbnailState'
 import { uploadProjectFiles } from './assetFunctions'
 
-const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
+const logger = multiLogger.child({ component: 'editor:sceneFunctions', modifier: clientContextParams })
 
 const fileServer = config.client.fileServer
 
