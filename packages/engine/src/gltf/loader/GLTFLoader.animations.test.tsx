@@ -140,25 +140,27 @@ describe('glTF: AnimationSampler Type', () => {
   describe('interpolation', () => {
     it.todo('MAY be undefined', () => {})
     it.todo('SHOULD assign a default value of "LINEAR"', () => {})
-
-    //......................................................................................................................
-    /** TODO: Everything in this file below this mark must be double checked */
-    // @note The Animation.Sampler.interpolation field is missing a lot of case-specific checks
-    //......................................................................................................................
     it.todo('MUST be one of the `string` allowed values: "LINEAR" | "STEP" | "CUBICSPLINE"', () => {})
+    // LINEAR
+    it.todo('SHOULD use slerp to interpolate quaternions when "LINEAR"', () => {})
+    it.todo('MUST have the same number of input and output elements "LINEAR"', () => {})
+    // STEP
+    it.todo('MUST have the same number of input and output elements "STEP"', () => {})
+    // CUBICSPLINE
+    it.todo('MUST have three times the number of input elements than output elements when "CUBICSPLINE"', () => {})
+    it.todo(
+      'MUST store three elements for each input in the output (in-tangent, spline vertex, out-tangent) when "CUBICSPLINE"',
+      () => {}
+    )
+    it.todo('MUST check that there are at least two keyframes when "CUBICSPLINE"', () => {})
     // Note: Specific interpolations might be required for certain types via extensions
-    it.todo('MUST use "STEP" interpolation if animating integer or boolean types via extensions', () => {})
+    // it.todo('MUST use "STEP" interpolation if animating integer or boolean types via extensions', () => {})
   }) //:: interpolation
 
   describe('output', () => {
     it.todo('MUST be defined', () => {})
     it.todo('MUST be an `integer` index into the root `accessors` array', () => {})
-    it.todo(
-      'MUST reference an accessor whose type matches the animated property (VEC3 for translation/scale, VEC4 for rotation, SCALAR for weights)',
-      () => {}
-    )
-    it.todo('MUST have a value in range [0..glTF.accessors.length - 1]', () => {})
-    it.todo('MUST ensure accessor componentType and normalization are handled correctly for data conversion', () => {})
+    it.todo('MUST have a value in range [0 .. glTF.accessors.length-1]', () => {})
   }) //:: output
 
   describe('extensions', () => {
