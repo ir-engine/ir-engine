@@ -66,9 +66,9 @@ export const staticResourceSchema = Type.Object(
     }),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' }),
-    width: Type.Optional(Type.Number()),
-    height: Type.Optional(Type.Number()),
-    depth: Type.Optional(Type.Number())
+    width: Type.Optional(Type.Union([Type.Number(), Type.Null()])),
+    height: Type.Optional(Type.Union([Type.Number(), Type.Null()])),
+    depth: Type.Optional(Type.Union([Type.Number(), Type.Null()]))
   },
   { $id: 'StaticResource', additionalProperties: false }
 )

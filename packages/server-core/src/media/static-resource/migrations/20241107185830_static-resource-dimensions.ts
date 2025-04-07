@@ -36,19 +36,19 @@ export async function up(knex: Knex): Promise<void> {
   const widthColumnExists = await knex.schema.hasColumn(staticResourcePath, 'width')
   if (!widthColumnExists) {
     await knex.schema.alterTable(staticResourcePath, async (table) => {
-      table.float('width').defaultTo(0)
+      table.float('width').nullable()
     })
   }
   const heightColumnExists = await knex.schema.hasColumn(staticResourcePath, 'height')
   if (!heightColumnExists) {
     await knex.schema.alterTable(staticResourcePath, async (table) => {
-      table.float('height').defaultTo(0)
+      table.float('height').nullable()
     })
   }
   const depthColumnExists = await knex.schema.hasColumn(staticResourcePath, 'depth')
   if (!depthColumnExists) {
     await knex.schema.alterTable(staticResourcePath, async (table) => {
-      table.float('depth').defaultTo(0)
+      table.float('depth').nullable()
     })
   }
 }

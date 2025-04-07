@@ -340,9 +340,9 @@ export const createStaticResourceDigest = (staticResources: ImmutableArray<Stati
 
     url: '',
     userId: '' as UserID,
-    width: 0,
-    height: 0,
-    depth: 0
+    width: null,
+    height: null,
+    depth: null
   }
   for (const key in digest) {
     const allValues = new Set(staticResources.map((resource) => resource[key]))
