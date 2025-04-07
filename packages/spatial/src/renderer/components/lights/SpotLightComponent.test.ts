@@ -37,6 +37,7 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { ColorRepresentation, SpotLight, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
@@ -116,6 +117,7 @@ describe('SpotLightComponent', () => {
       createEngine()
       testEntity = createEntity()
       setComponent(testEntity, SpotLightComponent)
+      await act(() => render(null))
     })
 
     afterEach(() => {
@@ -138,6 +140,7 @@ describe('SpotLightComponent', () => {
       testEntity = createEntity()
       setComponent(testEntity, TransformComponent)
       setComponent(testEntity, SpotLightComponent)
+      await act(() => render(null))
     })
 
     afterEach(() => {
@@ -146,7 +149,7 @@ describe('SpotLightComponent', () => {
       return destroyEngine()
     })
 
-    it('should change the values of an initialized SpotLightComponent', () => {
+    it('should change the values of an initialized SpotLightComponent', async () => {
       const before = getComponent(testEntity, SpotLightComponent)
       assertSpotLightComponentEq(before, SpotLightComponentDefaults)
       const Expected = {
@@ -163,6 +166,8 @@ describe('SpotLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, Expected)
+      await act(() => render(null))
+
       const result = getComponent(testEntity, SpotLightComponent)
       assertSpotLightComponentNotEq(result, SpotLightComponentDefaults)
       assertSpotLightComponentEq(result, Expected)
@@ -178,6 +183,7 @@ describe('SpotLightComponent', () => {
       testEntity = createEntity()
       setComponent(testEntity, TransformComponent)
       setComponent(testEntity, SpotLightComponent)
+      await act(() => render(null))
     })
 
     afterEach(() => {
@@ -219,67 +225,80 @@ describe('SpotLightComponent', () => {
       return destroyEngine()
     })
 
-    it('should set a LightTagComponent on the entityContext when it is mounted', () => {
+    it('should set a LightTagComponent on the entityContext when it is mounted', async () => {
       // Sanity check before running
       assert.equal(hasComponent(testEntity, LightTagComponent), false)
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent)
+
+      // Wait for the reactor to run
+      await act(() => render(null))
+
       assert.equal(hasComponent(testEntity, LightTagComponent), true)
     })
 
-    it('should set the light.target.position to (1,0,0) when it is mounted', () => {
+    it('should set the light.target.position to (1,0,0) when it is mounted', async () => {
       const Expected = new Vector3(1, 0, 0)
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent)
+
+      await act(() => render(null))
+
       // Check side-effect
       const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assertVec.approxEq(light.target.position, Expected, 3)
     })
 
-    it("should set the light.target.name to 'light-target' when it is mounted", () => {
+    it("should set the light.target.name to 'light-target' when it is mounted", async () => {
       const Expected = 'light-target'
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent)
+      await act(() => render(null))
       // Check side-effect
       const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(light.target.name, Expected)
     })
 
-    it('should create a new SpotLight object and add it to the ObjectComponent of the entity when it is mounted', () => {
+    it('should create a new SpotLight object and add it to the ObjectComponent of the entity when it is mounted', async () => {
       // Sanity check before running
       const before = getComponent(testEntity, ObjectComponent)
       assert.equal(!!before, false)
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent)
+      await act(() => render(null))
       const after = getComponent(testEntity, ObjectComponent)
       assert.equal(!!after, true)
       const result = after.type === 'SpotLight'
       assert.equal(result, true)
     })
 
-    it('should remove the SpotLight object from the ObjectComponent of the entityContext when it is unmounted', () => {
+    it('should remove the SpotLight object from the ObjectComponent of the entityContext when it is unmounted', async () => {
       // Sanity check before running
       const before1 = getComponent(testEntity, ObjectComponent)
       assert.equal(!!before1, false)
       setComponent(testEntity, SpotLightComponent)
+      await act(() => render(null))
 
       // Run and Check the result
       removeComponent(testEntity, SpotLightComponent)
+      await act(() => render(null))
+
       const after = getComponent(testEntity, ObjectComponent)
       console.log({ after })
       assert.equal(!!after, false)
       assert.notEqual(after?.type, 'SpotLight')
     })
 
-    it('should react when directionalLightComponent.color changes', () => {
+    it('should react when directionalLightComponent.color changes', async () => {
       const Expected = 0x123456
 
       // Set the data as expected
       setComponent(testEntity, SpotLightComponent)
+      await act(() => render(null))
 
       // Sanity check before running
       const before = getComponent(testEntity, SpotLightComponent).color
@@ -287,6 +306,7 @@ describe('SpotLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, { color: Expected })
+      await act(() => render(null))
       const result = getComponent(testEntity, SpotLightComponent).color
       assertColor.eq(result, Expected)
       // Check side-effect
@@ -294,9 +314,10 @@ describe('SpotLightComponent', () => {
       assert.equal(light.color.getHex(), Expected)
     })
 
-    it('should react when hemisphereLightComponent.intensity changes', () => {
+    it('should react when hemisphereLightComponent.intensity changes', async () => {
       const Expected = 42
       setComponent(testEntity, SpotLightComponent)
+      await act(() => render(null))
 
       // Sanity check before running
       const before = getComponent(testEntity, SpotLightComponent).intensity
@@ -305,6 +326,7 @@ describe('SpotLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, { intensity: Expected })
+      await act(() => render(null))
       const result = getComponent(testEntity, SpotLightComponent).intensity
       assert.equal(result, Expected)
       // Check side-effect
@@ -312,9 +334,10 @@ describe('SpotLightComponent', () => {
       assert.equal(light.intensity, Expected)
     })
 
-    it('should react when pointLightComponent.range changes', () => {
+    it('should react when pointLightComponent.range changes', async () => {
       const Expected = 42
       setComponent(testEntity, SpotLightComponent)
+      await act(() => render(null))
 
       // Sanity check before running
       const before = getComponent(testEntity, SpotLightComponent).range
@@ -323,6 +346,7 @@ describe('SpotLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, { range: Expected })
+      await act(() => render(null))
       const result = getComponent(testEntity, SpotLightComponent).range
       assert.equal(result, Expected)
       // Check side-effect
@@ -330,9 +354,10 @@ describe('SpotLightComponent', () => {
       assert.equal(light.distance, Expected)
     })
 
-    it('should react when pointLightComponent.decay changes', () => {
+    it('should react when pointLightComponent.decay changes', async () => {
       const Expected = 42
       setComponent(testEntity, SpotLightComponent)
+      await act(() => render(null))
 
       // Sanity check before running
       const before = getComponent(testEntity, SpotLightComponent).decay
@@ -341,6 +366,7 @@ describe('SpotLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, { decay: Expected })
+      await act(() => render(null))
       const result = getComponent(testEntity, SpotLightComponent).decay
       assert.equal(result, Expected)
       // Check side-effect
@@ -348,9 +374,10 @@ describe('SpotLightComponent', () => {
       assert.equal(light.decay, Expected)
     })
 
-    it('should react when pointLightComponent.angle changes', () => {
+    it('should react when pointLightComponent.angle changes', async () => {
       const Expected = 42
       setComponent(testEntity, SpotLightComponent)
+      await act(() => render(null))
 
       // Sanity check before running
       const before = getComponent(testEntity, SpotLightComponent).angle
@@ -359,6 +386,7 @@ describe('SpotLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, { angle: Expected })
+      await act(() => render(null))
       const result = getComponent(testEntity, SpotLightComponent).angle
       assert.equal(result, Expected)
       // Check side-effect
@@ -366,9 +394,10 @@ describe('SpotLightComponent', () => {
       assert.equal(light.angle, Expected)
     })
 
-    it('should react when pointLightComponent.penumbra changes', () => {
+    it('should react when pointLightComponent.penumbra changes', async () => {
       const Expected = 42
       setComponent(testEntity, SpotLightComponent)
+      await act(() => render(null))
 
       // Sanity check before running
       const before = getComponent(testEntity, SpotLightComponent).penumbra
@@ -377,6 +406,7 @@ describe('SpotLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, { penumbra: Expected })
+      await act(() => render(null))
       const result = getComponent(testEntity, SpotLightComponent).penumbra
       assert.equal(result, Expected)
       // Check side-effect
@@ -384,9 +414,10 @@ describe('SpotLightComponent', () => {
       assert.equal(light.penumbra, Expected)
     })
 
-    it('should react when pointLightComponent.castShadow changes', () => {
+    it('should react when pointLightComponent.castShadow changes', async () => {
       const Expected = !SpotLightComponentDefaults.castShadow
       setComponent(testEntity, SpotLightComponent)
+      await act(() => render(null))
 
       // Sanity check before running
       const before = getComponent(testEntity, SpotLightComponent).castShadow
@@ -395,6 +426,7 @@ describe('SpotLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, { castShadow: Expected })
+      await act(() => render(null))
       const result = getComponent(testEntity, SpotLightComponent).castShadow
       assert.equal(result, Expected)
       // Check side-effect
@@ -402,9 +434,10 @@ describe('SpotLightComponent', () => {
       assert.equal(light.castShadow, Expected)
     })
 
-    it('should react when pointLightComponent.shadowBias changes', () => {
+    it('should react when pointLightComponent.shadowBias changes', async () => {
       const Expected = 42
       setComponent(testEntity, SpotLightComponent)
+      await act(() => render(null))
 
       // Sanity check before running
       const before = getComponent(testEntity, SpotLightComponent).shadowBias
@@ -413,6 +446,7 @@ describe('SpotLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, { shadowBias: Expected })
+      await act(() => render(null))
       const result = getComponent(testEntity, SpotLightComponent).shadowBias
       assert.equal(result, Expected)
       // Check side-effect
@@ -420,9 +454,10 @@ describe('SpotLightComponent', () => {
       assert.equal(light.shadow.bias, Expected)
     })
 
-    it('should react when pointLightComponent.shadowRadius changes', () => {
+    it('should react when pointLightComponent.shadowRadius changes', async () => {
       const Expected = 42
       setComponent(testEntity, SpotLightComponent)
+      await act(() => render(null))
 
       // Sanity check before running
       const before = getComponent(testEntity, SpotLightComponent).shadowRadius
@@ -431,6 +466,7 @@ describe('SpotLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, { shadowRadius: Expected })
+      await act(() => render(null))
       const result = getComponent(testEntity, SpotLightComponent).shadowRadius
       assert.equal(result, Expected)
       // Check side-effect
@@ -438,24 +474,27 @@ describe('SpotLightComponent', () => {
       assert.equal(light.shadow.radius, Expected)
     })
 
-    it('should react when renderState.shadowMapResolution changes', () => {
+    it('should react when renderState.shadowMapResolution changes', async () => {
       const Initial = 21
       const Expected = 42
       getMutableState(RendererState).shadowMapResolution.set(Initial)
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent)
+      await act(() => render(null))
+
       const before = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(before.shadow.mapSize.x, Initial)
 
       // Re-run and Check the result again
       getMutableState(RendererState).shadowMapResolution.set(Expected)
-      SpotLightComponent.reactorMap.get(testEntity)!.run()
+
+      await act(() => render(null))
       const result = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(result.shadow.mapSize.x, Expected)
     })
 
-    it('should react when debugEnabled changes', () => {
+    it('should react when debugEnabled changes', async () => {
       const Initial = false
       const Expected = !Initial
 
@@ -465,11 +504,13 @@ describe('SpotLightComponent', () => {
 
       // Run and Check the Initial result
       setComponent(testEntity, SpotLightComponent)
+      await act(() => render(null))
       setComponent(testEntity, NameComponent, 'spot-light')
 
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
-      SpotLightComponent.reactorMap.get(testEntity)!.run()
+
+      await act(() => render(null))
 
       const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
       assert.equal(hasComponent(childEntity1, ObjectComponent), Expected)
@@ -477,7 +518,8 @@ describe('SpotLightComponent', () => {
 
       // Re-run and Check the unmount case
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
-      SpotLightComponent.reactorMap.get(testEntity)!.run()
+
+      await act(() => render(null))
       assert.equal(hasComponent(childEntity1, ObjectComponent), Initial)
     })
   }) //:: reactor
