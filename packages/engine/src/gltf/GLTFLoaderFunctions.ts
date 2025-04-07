@@ -42,11 +42,12 @@ import {
   setComponent,
   traverseEntityNode
 } from '@ir-engine/ecs'
+import { Engine } from '@ir-engine/ecs/src/Engine'
 import { getMutableState, getState, isClient } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -59,6 +60,7 @@ import {
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { setupMaterialParameters } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import {
@@ -1002,6 +1004,7 @@ const loadTextureImage = async (
   loader: ImageLoader | ImageBitmapLoader | TextureLoader | KTX2Loader | Loader
 ) => {
   const json = options.document
+  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!
 
   const textureDef = json.textures![textureIndex]
   const sourceDef = json.images![sourceIndex]
@@ -1026,7 +1029,7 @@ const loadTextureImage = async (
   texture.wrapS = WEBGL_WRAPPINGS[sampler.wrapS] || RepeatWrapping
   texture.wrapT = WEBGL_WRAPPINGS[sampler.wrapT] || RepeatWrapping
   texture.generateMipmaps = true
-
+  texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
   return texture
 }
 
