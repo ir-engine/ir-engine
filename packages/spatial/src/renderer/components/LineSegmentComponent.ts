@@ -72,7 +72,7 @@ export const LineSegmentComponent = defineComponent({
     }, [component.name])
 
     useEffect(() => {
-      ObjectLayerMaskComponent.setMask(entity, component.layerMask.value as ObjectLayerMask)
+      ObjectLayerMaskComponent.setMask(entity, component.layerMask.value)
     }, [component.layerMask.value])
 
     useEffect(() => {
