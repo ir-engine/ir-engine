@@ -71,7 +71,8 @@ import {
   ReportWebsiteDefaullg,
   Send01Lg,
   Trash04Lg,
-  TwitterOriginalFalse
+  TwitterOriginalFalse,
+  XCloseMd
 } from '@ir-engine/ui/src/icons'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -433,17 +434,30 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
         </div>
 
         <div className="col-span-2 grid grid-cols-[auto_136px] gap-x-6 lg:grid-cols-[auto_auto]">
-          <button
-            className={twMerge(
-              'flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-ui-secondary p-2 text-text-primary-button hover:bg-ui-hover-secondary focus:bg-ui-select-secondary',
-              initialized ? 'justify-self-end' : 'col-start-3'
-            )}
-            onClick={() => {
-              PopoverState.showPopupover(<SettingsMenu />)
-            }}
-          >
-            <CogLg className="h-[1.875rem] w-[1.875rem]" />
-          </button>
+          <div className="col-start-2 flex items-end gap-x-2 justify-self-end">
+            <button
+              className={twMerge(
+                'flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-ui-secondary p-2 text-text-primary-button hover:bg-ui-hover-secondary focus:bg-ui-select-secondary',
+                initialized ? 'justify-self-end' : 'col-start-3'
+              )}
+              onClick={() => {
+                PopoverState.showPopupover(<SettingsMenu />)
+              }}
+            >
+              <CogLg className="h-[1.875rem] w-[1.875rem]" />
+            </button>
+            <button
+              className={twMerge(
+                'flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-ui-secondary p-2 text-text-primary-button hover:bg-ui-hover-secondary focus:bg-ui-select-secondary',
+                initialized ? 'justify-self-end' : 'col-start-3'
+              )}
+              onClick={() => {
+                PopoverState.hidePopupover()
+              }}
+            >
+              <XCloseMd className="h-[1.2rem] w-[1.2rem]" />
+            </button>
+          </div>
 
           {initialized && (
             <div className="flex w-full flex-col items-end gap-y-4">
