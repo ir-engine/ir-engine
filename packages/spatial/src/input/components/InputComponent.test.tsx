@@ -54,6 +54,7 @@ import {
   removeEntity
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
+import { act, render } from '@testing-library/react'
 import { Raycaster } from 'three'
 import { assertArray } from '../../../tests/util/assert'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
@@ -826,7 +827,7 @@ describe('InputComponent', () => {
       return destroyEngine()
     })
 
-    it('should update its state to true whenever the ammount of entities returned by InputComponent.getInputSourceEntities is bigger than 0', () => {
+    it('should update its state to true whenever the ammount of entities returned by InputComponent.getInputSourceEntities is bigger than 0', async () => {
       const effectSpy = sinon.spy()
       const reactorSpy = sinon.spy()
       const Reactor = () => {
@@ -850,7 +851,8 @@ describe('InputComponent', () => {
       }) as ReactorRoot
 
       // Run reactor before the entity has any sources attached
-      root.run()
+
+      await act(() => render(null))
       assert.ok(reactorSpy.called)
       assert.ok(effectSpy.called) // Called when we start the reactor
 
@@ -864,7 +866,8 @@ describe('InputComponent', () => {
       const list = Array.from(SystemDefinitions.entries())
       const [uuid, syst] = list[list.length - 1]
       syst.execute()
-      root.run()
+
+      await act(() => render(null))
       // Check that we have run the correct number of times, after having reacted to the inputSources change
       assert.equal(reactorSpy.callCount, 4)
       assert.equal(effectSpy.callCount, 2)
@@ -877,20 +880,22 @@ describe('InputComponent', () => {
       )
 
       // Run again, and clear the list of inputSources for the testEntity
-      root.run()
+
+      await act(() => render(null))
       getMutableComponent(testEntity, InputComponent).inputSources.set([])
       assert.equal(effectSpy.callCount, 2)
       syst.execute()
 
       // Check the spies and the list of sources after running the system and the reactor
-      assert.equal(reactorSpy.callCount, 5)
+      assert.equal(reactorSpy.callCount, 4)
       assert.equal(effectSpy.callCount, 2)
       const afterTwo = InputComponent.getInputSourceEntities(testEntity).length == 0
       assert.ok(afterTwo, 'getInputSourceEntities for testEntity should return an empty array after we clear it')
 
       // Check that everything is updated as expected after running the reactor root
-      root.run()
-      assert.equal(reactorSpy.callCount, 6)
+
+      await act(() => render(null))
+      assert.equal(reactorSpy.callCount, 5)
       assert.equal(effectSpy.callCount, 3)
     })
   })
@@ -967,7 +972,7 @@ describe('InputComponent', () => {
         const ancestor = data.notAncestor ? 'not an ancestor' : 'an ancestor'
         const orderIs = `order is set to InputExecutionOrder.${OrderName}`
 
-        it(`should ${run} the executeOnInput function when (we ${want} to executeWhenEditing and we are ${editing}) or (the entity is ${ancestor} of the entityContext) and ${orderIs}`, () => {
+        it(`should ${run} the executeOnInput function when (we ${want} to executeWhenEditing and we are ${editing}) or (the entity is ${ancestor} of the entityContext) and ${orderIs}`, async () => {
           // Create the function spies
           const executeSpy = sinon.spy()
           const reactorSpy = sinon.spy()
@@ -987,9 +992,9 @@ describe('InputComponent', () => {
           const root = startReactor(() => {
             return React.createElement(EntityContext.Provider, { value: testEntity }, React.createElement(Reactor, {}))
           }) as ReactorRoot
-          assert.equal(reactorSpy.callCount, 2)
+          await act(() => render(null))
+          assert.equal(reactorSpy.callCount, 3)
           assert.ok(!executeSpy.called)
-          root.run()
           // Extract the useExecute system out of the global list of SystemDefinitions array
           const list = Array.from(SystemDefinitions.entries())
           const [_, syst] = list[list.length - 1]

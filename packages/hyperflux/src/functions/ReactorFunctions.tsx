@@ -233,12 +233,12 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
   const run = () => {
     reactorRoot.isRunning.set(true)
     HyperFlux.store.activeReactors.add(reactorRoot)
-    ReactorReconciler.flushSync(() => ReactorReconciler.updateContainer(<ReactorContainer />, fiberRoot))
+    ReactorReconciler.updateContainer(<ReactorContainer />, fiberRoot)
   }
 
   const stop = () => {
     if (!reactorRoot.isRunning.value) return Promise.resolve()
-    ReactorReconciler.flushSync(() => ReactorReconciler.updateContainer(null, fiberRoot))
+    ReactorReconciler.updateContainer(null, fiberRoot)
     reactorRoot.isRunning.set(false)
     HyperFlux.store.activeReactors.delete(reactorRoot)
     reactorRoot.cleanupFunctions.forEach((fn) => fn())
