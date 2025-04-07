@@ -23,19 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, getComponent } from '@ir-engine/ecs'
-import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
-import { XRJointAvatarBoneMap } from '@ir-engine/spatial/src/xr/XRComponents'
-import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
-import { VRMHumanBoneName } from '../maps/VRMHumanBoneName'
+import * as Scheduler from 'scheduler'
 
-export const applyHandRotationFK = (avatarEntity: Entity, handedness: 'left' | 'right', rotations: Float32Array) => {
-  const bones = Object.values(XRJointAvatarBoneMap)
-  for (let i = 0; i < bones.length; i++) {
-    const label = bones[i]
-    const boneName = `${handedness}${label}` as VRMHumanBoneName
-    const bone = getComponent(avatarEntity, AvatarRigComponent).bonesToEntities[boneName]
-    if (!bone) continue
-    getComponent(bone, BoneComponent).quaternion.fromArray(rotations, i * 4)
-  }
+const _moreWork = () => {
+  return Scheduler.unstable_getFirstCallbackNode() !== null
+}
+
+export const flushAll = async () => {
+  return new Promise<void>((resolve) => {
+    const check = () => {
+      if (!_moreWork()) {
+        resolve()
+      } else {
+        setTimeout(check, 1)
+      }
+    }
+    check()
+  })
 }

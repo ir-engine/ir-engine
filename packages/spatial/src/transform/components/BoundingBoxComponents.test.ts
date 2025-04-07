@@ -37,7 +37,8 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
-import { ReactorRoot, getMutableState, getState } from '@ir-engine/hyperflux'
+import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { Box3, BoxGeometry, Mesh, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
@@ -148,27 +149,27 @@ describe('BoundingBoxComponent', () => {
 
     describe('when BoundingBoxComponent is mounted or RendererState.nodeHelperVisibility changes', () => {
       describe('should set BoundingBoxComponent.helper to a new helperEntity that ...', () => {
-        let BoundingBoxComponentReactor: ReactorRoot
         beforeEach(() => {
           setComponent(testEntity, BoundingBoxComponent)
           getMutableState(RendererState).nodeHelperVisibility.set(true)
-          BoundingBoxComponentReactor = BoundingBoxComponent.reactorMap.get(testEntity)!
         })
 
-        it('... has a VisibleComponent', () => {
+        it('... has a VisibleComponent', async () => {
           const Expected = true
           // Run and Check the result
-          BoundingBoxComponentReactor.run()
+
+          await act(() => render(null))
           const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
           assert.notEqual(helperEntity, UndefinedEntity)
           const result = hasComponent(helperEntity, VisibleComponent)
           assert.equal(result, Expected)
         })
 
-        it('... has a NameComponent with the value `bounding-box-helper-${entity}`', () => {
+        it('... has a NameComponent with the value `bounding-box-helper-${entity}`', async () => {
           const Expected = `bounding-box-helper-${testEntity}`
           // Run and Check the result
-          BoundingBoxComponentReactor.run()
+
+          await act(() => render(null))
           const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
           assert.notEqual(helperEntity, UndefinedEntity)
           assert.equal(hasComponent(helperEntity, NameComponent), true)
@@ -176,10 +177,11 @@ describe('BoundingBoxComponent', () => {
           assert.equal(result, Expected)
         })
 
-        it('... has an EntityTreeComponent with the entityContext as its parentEntity', () => {
+        it('... has an EntityTreeComponent with the entityContext as its parentEntity', async () => {
           const Expected = testEntity
           // Run and Check the result
-          BoundingBoxComponentReactor.run()
+
+          await act(() => render(null))
           const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
           assert.notEqual(helperEntity, UndefinedEntity)
           assert.equal(hasComponent(helperEntity, EntityTreeComponent), true)
@@ -187,10 +189,11 @@ describe('BoundingBoxComponent', () => {
           assert.equal(result, Expected)
         })
 
-        it("... has a Box3Helper which's name is the same as the helperEntity.NameComponent", () => {
+        it("... has a Box3Helper which's name is the same as the helperEntity.NameComponent", async () => {
           const Expected = `bounding-box-helper-${testEntity}`
           // Run and Check the result
-          BoundingBoxComponentReactor.run()
+
+          await act(() => render(null))
           const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
           assert.notEqual(helperEntity, UndefinedEntity)
           assert.equal(hasComponent(helperEntity, NameComponent), true)
@@ -200,10 +203,11 @@ describe('BoundingBoxComponent', () => {
           assert.equal(result, Expected)
         })
 
-        it('... has a Box3Helper with the ObjectLayers.NodeHelper layer enabled', () => {
+        it('... has a Box3Helper with the ObjectLayers.NodeHelper layer enabled', async () => {
           const Expected = true
           // Run and Check the result
-          BoundingBoxComponentReactor.run()
+
+          await act(() => render(null))
           const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
           assert.notEqual(helperEntity, UndefinedEntity)
           assert.equal(hasComponent(helperEntity, NameComponent), true)
@@ -219,19 +223,20 @@ describe('BoundingBoxComponent', () => {
         })
       })
 
-      it('should not set the BoundingBoxComponent.helper entity when RendererState.nodeHelperVisibility is false', () => {
+      it('should not set the BoundingBoxComponent.helper entity when RendererState.nodeHelperVisibility is false', async () => {
         const Expected = UndefinedEntity
         // Set the data as expected
         setComponent(testEntity, BoundingBoxComponent)
         // Sanity check before running
         assert.equal(getState(RendererState).nodeHelperVisibility, false)
         // Run and Check the result
-        BoundingBoxComponent.reactorMap.get(testEntity)!.run()
+
+        await act(() => render(null))
         const result = getComponent(testEntity, BoundingBoxComponent).helper
         assert.equal(result, Expected)
       })
 
-      it('should call updateBoundingBox on the entityContext whenever the value of RendererState.nodeHelperVisibility changes', () => {
+      it('should call updateBoundingBox on the entityContext whenever the value of RendererState.nodeHelperVisibility changes', async () => {
         // Set the data as expected
         const box = new Box3(new Vector3(1, 2, 3), new Vector3(4, 5, 6))
         setComponent(testEntity, BoundingBoxComponent, { box: box })
@@ -245,7 +250,8 @@ describe('BoundingBoxComponent', () => {
         // Run and Check the result
         getMutableState(RendererState).nodeHelperVisibility.set(true)
         assert.equal(getState(RendererState).nodeHelperVisibility, true)
-        BoundingBoxComponent.reactorMap.get(testEntity)!.run()
+
+        await act(() => render(null))
         for (const entity of entityList) assert.notEqual(getComponent(entity, MeshComponent).geometry.boundingBox, null)
       })
     })
@@ -255,13 +261,14 @@ describe('BoundingBoxComponent', () => {
         getMutableState(RendererState).nodeHelperVisibility.set(true)
       })
 
-      it('... should set the entityContext.BoundingBoxComponent.helper entity to UndefinedEntity', () => {
+      it('... should set the entityContext.BoundingBoxComponent.helper entity to UndefinedEntity', async () => {
         const Expected = undefined
         // Set the data as expected
         setComponent(testEntity, BoundingBoxComponent)
         // Sanity check before running
         assert.equal(getState(RendererState).nodeHelperVisibility, true)
-        BoundingBoxComponent.reactorMap.get(testEntity)!.run()
+
+        await act(() => render(null))
         const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
         assert.notEqual(helperEntity, UndefinedEntity)
         // Run and Check the result
@@ -270,12 +277,13 @@ describe('BoundingBoxComponent', () => {
         assert.equal(result, Expected)
       })
 
-      it('... should remove the helperEntity', () => {
+      it('... should remove the helperEntity', async () => {
         // Set the data as expected
         setComponent(testEntity, BoundingBoxComponent)
         // Sanity check before running
         assert.equal(getState(RendererState).nodeHelperVisibility, true)
-        BoundingBoxComponent.reactorMap.get(testEntity)!.run()
+
+        await act(() => render(null))
         const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
         assert.notEqual(helperEntity, UndefinedEntity)
         assert.equal(hasComponent(helperEntity, NameComponent), true)
@@ -283,6 +291,7 @@ describe('BoundingBoxComponent', () => {
         assert.equal(hasComponent(helperEntity, ObjectComponent), true)
         // Run and Check the result
         removeComponent(testEntity, BoundingBoxComponent)
+        await act(() => render(null))
         assert.equal(hasComponent(helperEntity, VisibleComponent), false)
         assert.equal(hasComponent(helperEntity, NameComponent), false)
         assert.equal(hasComponent(helperEntity, TransformComponent), false)

@@ -23,19 +23,47 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, getComponent } from '@ir-engine/ecs'
-import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
-import { XRJointAvatarBoneMap } from '@ir-engine/spatial/src/xr/XRComponents'
-import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
-import { VRMHumanBoneName } from '../maps/VRMHumanBoneName'
+import { useEffect } from 'react'
+import { describe, expect, it } from 'vitest'
+import { startReactor } from '../../src/functions/ReactorFunctions'
+import { createHyperStore } from '../../src/functions/StoreFunctions'
+import { flushAll } from './flushAll'
 
-export const applyHandRotationFK = (avatarEntity: Entity, handedness: 'left' | 'right', rotations: Float32Array) => {
-  const bones = Object.values(XRJointAvatarBoneMap)
-  for (let i = 0; i < bones.length; i++) {
-    const label = bones[i]
-    const boneName = `${handedness}${label}` as VRMHumanBoneName
-    const bone = getComponent(avatarEntity, AvatarRigComponent).bonesToEntities[boneName]
-    if (!bone) continue
-    getComponent(bone, BoneComponent).quaternion.fromArray(rotations, i * 4)
-  }
-}
+describe('flushAll', () => {
+  it('should flush all tasks', async () => {
+    createHyperStore({
+      getDispatchTime: () => 0
+    })
+
+    const start = Date.now()
+
+    let flushed = 0
+
+    for (let i = 0; i < 1000; i++) {
+      const reactor = startReactor(() => {
+        const x = [] as number[]
+        // mock an expensive operation
+        for (let j = 0; j < 10000; j++) {
+          x.push(Math.random() / x.length)
+        }
+
+        useEffect(() => {
+          const x = [] as number[]
+          // mock an expensive operation
+          for (let j = 0; j < 10000; j++) {
+            x.push(Math.random() / x.length)
+          }
+
+          flushed++
+        }, [])
+        return null
+      })
+    }
+
+    await flushAll()
+
+    console.info(`Time taken: ${Date.now() - start}ms`)
+
+    expect(flushed).toBe(1000)
+  })
+})

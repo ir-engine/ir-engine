@@ -37,15 +37,6 @@ import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 
-declare module '@pixiv/three-vrm/types/VRM' {
-  export interface VRM {
-    userData: {
-      /** @deprecated see https://github.com/ir-engine/ir-engine/issues/7519 */
-      retargeted?: boolean
-    }
-  }
-}
-
 const hipsPos = new Vector3(),
   headPos = new Vector3(),
   leftFootPos = new Vector3(),
