@@ -23,27 +23,47 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { requestEmulatedXRSession } from '../webxr/emulator'
-import { MockXRFrame } from './MockXR'
-import { mockSpatialEngine } from './mockSpatialEngine'
+import { useEffect } from 'react'
+import { describe, expect, it } from 'vitest'
+import { startReactor } from '../../src/functions/ReactorFunctions'
+import { createHyperStore } from '../../src/functions/StoreFunctions'
+import { flushAll } from './flushAll'
 
-import { getMutableState, getState } from '@ir-engine/hyperflux'
-import { act, render } from '@testing-library/react'
-import { destroySpatialEngine, destroySpatialViewer } from '../../src/initializeEngine'
-import { endXRSession } from '../../src/xr/XRSessionFunctions'
-import { XRState } from '../../src/xr/XRState'
+describe('flushAll', () => {
+  it('should flush all tasks', async () => {
+    createHyperStore({
+      getDispatchTime: () => 0
+    })
 
-export async function mockEmulatedXREngine() {
-  mockSpatialEngine()
-  await requestEmulatedXRSession()
-  // @ts-expect-error Allow coercing the MockXRFrame type into the xrFrame property
-  getMutableState(XRState).xrFrame.set(new MockXRFrame())
-  getMutableState(XRState).xrFrame.merge({ session: getState(XRState).session! })
-  await act(() => render(null)) // ensure reactors run
-}
+    const start = Date.now()
 
-export async function destroyEmulatedXREngine() {
-  destroySpatialViewer()
-  destroySpatialEngine()
-  await endXRSession()
-}
+    let flushed = 0
+
+    for (let i = 0; i < 1000; i++) {
+      const reactor = startReactor(() => {
+        const x = [] as number[]
+        // mock an expensive operation
+        for (let j = 0; j < 10000; j++) {
+          x.push(Math.random() / x.length)
+        }
+
+        useEffect(() => {
+          const x = [] as number[]
+          // mock an expensive operation
+          for (let j = 0; j < 10000; j++) {
+            x.push(Math.random() / x.length)
+          }
+
+          flushed++
+        }, [])
+        return null
+      })
+    }
+
+    await flushAll()
+
+    console.info(`Time taken: ${Date.now() - start}ms`)
+
+    expect(flushed).toBe(1000)
+  })
+})

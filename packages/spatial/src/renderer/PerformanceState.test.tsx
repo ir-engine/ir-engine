@@ -41,6 +41,11 @@ import { RenderSettingsState, RendererComponent } from './WebGLRendererSystem'
 
 describe('PerformanceState', () => {
   const mockRenderer = {
+    canvas: {
+      getContext: (context: string) => {
+        return mockRenderer.renderContext as WebGLRenderingContext
+      }
+    },
     renderContext: {
       getParameter: (param: number): number => {
         return param
