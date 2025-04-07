@@ -1030,7 +1030,7 @@ const loadTextureImage = async (
   texture.wrapT = WEBGL_WRAPPINGS[sampler.wrapT] || RepeatWrapping
   texture.generateMipmaps = true
   if (renderer && renderer.capabilities && renderer.capabilities.getMaxAnisotropy)
-    texture.anisotropy = renderer.capabilities?.getMaxAnisotropy()
+    texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
   return texture
 }
 
