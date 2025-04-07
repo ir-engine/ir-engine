@@ -42,9 +42,8 @@ import {
   setComponent,
   traverseEntityNode
 } from '@ir-engine/ecs'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import { getMutableState, getState, isClient } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
+import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -1004,7 +1003,8 @@ const loadTextureImage = async (
   loader: ImageLoader | ImageBitmapLoader | TextureLoader | KTX2Loader | Loader
 ) => {
   const json = options.document
-  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!
+  const rendererComponent = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)
+  const renderer = rendererComponent?.renderer!
 
   const textureDef = json.textures![textureIndex]
   const sourceDef = json.images![sourceIndex]
@@ -1029,7 +1029,8 @@ const loadTextureImage = async (
   texture.wrapS = WEBGL_WRAPPINGS[sampler.wrapS] || RepeatWrapping
   texture.wrapT = WEBGL_WRAPPINGS[sampler.wrapT] || RepeatWrapping
   texture.generateMipmaps = true
-  texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
+  if (renderer && renderer.capabilities && renderer.capabilities.getMaxAnisotropy)
+    texture.anisotropy = renderer.capabilities?.getMaxAnisotropy()
   return texture
 }
 
