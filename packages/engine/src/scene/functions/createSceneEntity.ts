@@ -23,7 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, EntityTreeComponent, UUIDComponent, UndefinedEntity, createEntity, setComponent } from '@ir-engine/ecs'
+import {
+  Entity,
+  EntityTreeComponent,
+  LayerComponent,
+  Layers,
+  UUIDComponent,
+  UndefinedEntity,
+  createEntity,
+  setComponent
+} from '@ir-engine/ecs'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
@@ -34,8 +43,8 @@ import { NodeIDComponent } from '../../gltf/NodeIDComponent'
 
 export const createSceneEntity = (name: string, parentEntity: Entity = UndefinedEntity): Entity => {
   const sourceID = GLTFComponent.getInstanceID(parentEntity)
-
-  const entity = sourceID ? NodeIDComponent.create(sourceID, NodeIDComponent.generate()) : createEntity()
+  const layer = parentEntity ? LayerComponent.get(parentEntity) : Layers.Simulation
+  const entity = sourceID ? NodeIDComponent.create(sourceID, NodeIDComponent.generate(), layer) : createEntity(layer)
   setComponent(entity, NameComponent, name)
   setComponent(entity, VisibleComponent)
   setComponent(entity, TransformComponent)

@@ -39,6 +39,7 @@ import { AnimationComponent } from '../../src/avatar/components/AnimationCompone
 import { AvatarAnimationComponent, AvatarRigComponent } from '../../src/avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../src/avatar/components/AvatarComponent'
 
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setupMixamoAnimation } from '../../src/avatar/systems/AvatarAnimationSystem'
 import { GLTFComponent } from '../../src/gltf/GLTFComponent'
 
@@ -77,7 +78,7 @@ export const mockAnimatedAvatar = async () => {
     () => {
       return (
         getOptionalComponent(animationPackEntity, AnimationComponent) &&
-        getOptionalComponent(vrmEntity, AvatarRigComponent)?.vrm?.scene
+        getOptionalComponent(vrmEntity, AvatarRigComponent)?.bonesToEntities.hips
       )
     },
     { timeout: 20000 }
@@ -87,7 +88,7 @@ export const mockAnimatedAvatar = async () => {
 
   setComponent(vrmEntity, AnimationComponent, {
     animations: getComponent(animationPackEntity, AnimationComponent).animations,
-    mixer: new AnimationMixer(getComponent(vrmEntity, AvatarRigComponent).vrm.scene)
+    mixer: new AnimationMixer(getComponent(vrmEntity, ObjectComponent))
   })
 
   return vrmEntity

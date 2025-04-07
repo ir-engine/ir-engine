@@ -33,8 +33,6 @@ export const EngineState = defineState({
      */
     userID: '' as UserID,
 
-    /** @deprecated use isEditing instead */
-    isEditor: false,
     isEditing: false
   })
 })

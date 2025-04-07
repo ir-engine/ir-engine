@@ -54,7 +54,7 @@ import {
   removeComponent,
   setComponent,
   useComponent,
-  useOptionalComponent
+  useHasComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
@@ -127,6 +127,7 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
   const renderSettingsComponent = useComponent(renderSettingsEntity, RenderSettingsComponent)
 
   const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
+
   const shadowMapResolution = useHookstate(getMutableState(RendererState).shadowMapResolution)
 
   const directionalLight = directionalLightComponent.light.get(NO_PROXY) as DirectionalLight
@@ -160,7 +161,8 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
       if (!getOptionalComponent(entity, DirectionalLightComponent)?.castShadow) return
       directionalLight.visible = false
     },
-    { after: SceneObjectSystem }
+    { after: SceneObjectSystem },
+    [directionalLight]
   )
 
   useEffect(() => {
@@ -211,13 +213,11 @@ const EntityChildCSMReactor = (props: { rendererEntity: Entity }) => {
   const { rendererEntity } = props
 
   const shadowComponent = useComponent(entity, ShadowComponent)
-  const obj = useComponent(entity, ObjectComponent).get(NO_PROXY) as Mesh | null
+  const obj = useComponent(entity, ObjectComponent).get(NO_PROXY) as Mesh
   const csm = useComponent(rendererEntity, RendererComponent).csm.value
 
   useEffect(() => {
     if (!csm || !shadowComponent.receive.value) return
-
-    if (!obj) return
 
     if (obj.material) {
       csm.setupMaterial(obj)
@@ -254,12 +254,15 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
 
   const renderSettingsComponent = useComponent(renderSettingsEntity, RenderSettingsComponent)
   const xrLightProbeEntity = useHookstate(getMutableState(XRLightProbeState).directionalLightEntity)
-  const activeLightEntity = useHookstate(
-    NodeFunctions.getEntityFromNodeID(renderSettingsEntity, renderSettingsComponent.primaryLight.value)
+  const activeLightEntity = NodeFunctions.getEntityFromNodeID(
+    renderSettingsEntity,
+    renderSettingsComponent.primaryLight.value
   )
-  const directionalLight = useOptionalComponent(activeLightEntity.value, DirectionalLightComponent)
 
-  const primaryLightVisibleComponent = useOptionalComponent(activeLightEntity.value, VisibleComponent)
+  const activeLightEntityState = useHookstate(activeLightEntity)
+  const directionalLightComponent = useHasComponent(activeLightEntityState.value, DirectionalLightComponent)
+
+  const primaryLightVisibleComponent = useHasComponent(activeLightEntity, VisibleComponent)
 
   //const rendererState = useMutableState(RendererState)
 
@@ -277,26 +280,26 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
 
   useEffect(() => {
     if (rendererEntity === getState(ReferenceSpaceState).viewerEntity && xrLightProbeEntity.value) {
-      activeLightEntity.set(xrLightProbeEntity.value)
+      activeLightEntityState.set(xrLightProbeEntity.value)
       return
     }
 
     if (renderSettingsComponent.primaryLight.value && primaryLightVisibleComponent) {
-      activeLightEntity.set(
+      activeLightEntityState.set(
         NodeFunctions.getEntityFromNodeID(renderSettingsEntity, renderSettingsComponent.primaryLight.value)
       )
       return
     }
 
-    activeLightEntity.set(UndefinedEntity)
+    activeLightEntityState.set(UndefinedEntity)
   }, [xrLightProbeEntity.value, renderSettingsComponent.primaryLight, primaryLightVisibleComponent])
 
-  if (!renderSettingsComponent.csm.value || !activeLightEntity.value || !directionalLight?.value) return null
+  if (!renderSettingsComponent.csm.value || !activeLightEntityState.value || !directionalLightComponent) return null
 
   return (
     <ShadowSystemReactors.EntityCSMReactor
-      key={activeLightEntity.value}
-      entity={activeLightEntity.value}
+      key={activeLightEntityState.value}
+      entity={activeLightEntityState.value}
       rendererEntity={rendererEntity}
       renderSettingsEntity={renderSettingsEntity}
     />
