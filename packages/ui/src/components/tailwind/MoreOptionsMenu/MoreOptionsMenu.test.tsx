@@ -61,32 +61,45 @@ describe('MoreOptionsMenu component', () => {
 
   it('should render a button with data-testid "more-options-button"', () => {
     const moreOptionsButton = screen.getByTestId('more-options-button')
-    // @ts-ignore
     expect(moreOptionsButton).toBeInTheDocument()
   })
 
-  it('should render a list with options that have data-testid attributes that match the labels', () => {
+  it('should render a list container element with the data-testid attribute "more-options-list" after the "more options button" is clicked', () => {
     const moreOptionsButton = screen.getByTestId('more-options-button')
     fireEvent.click(moreOptionsButton)
 
     const moreOptionsList = screen.getByTestId('more-options-list')
-    // @ts-ignore
     expect(moreOptionsList).toBeInTheDocument()
+  })
+  it('should render a "share project" button with the data-testid attribute "share-project-button" after the "more options button" is clicked', () => {
+    const moreOptionsButton = screen.getByTestId('more-options-button')
+    fireEvent.click(moreOptionsButton)
 
     const shareProjectOption = screen.getByTestId('share-project-button')
-    // @ts-ignore
     expect(shareProjectOption).toBeInTheDocument()
+  })
+
+  it('should render a "delete project" button with the data-testid attribute "delete-project-button" after the "more options button" is clicked', () => {
+    const moreOptionsButton = screen.getByTestId('more-options-button')
+    fireEvent.click(moreOptionsButton)
 
     const deleteProjectOption = screen.getByTestId('delete-project-button')
-    // @ts-ignore
     expect(deleteProjectOption).toBeInTheDocument()
+  })
+
+  it('should render a "rename project" button with the data-testid attribute "rename-button" after the "more options button" is clicked', () => {
+    const moreOptionsButton = screen.getByTestId('more-options-button')
+    fireEvent.click(moreOptionsButton)
 
     const renameOption = screen.getByTestId('rename-button')
-    // @ts-ignore
     expect(renameOption).toBeInTheDocument()
+  })
+
+  it('should render a "delete" button with the data-testid attribute "delete-button" after the "more options button" is clicked', () => {
+    const moreOptionsButton = screen.getByTestId('more-options-button')
+    fireEvent.click(moreOptionsButton)
 
     const deleteOption = screen.getByTestId('delete-button')
-    // @ts-ignore
     expect(deleteOption).toBeInTheDocument()
   })
 })

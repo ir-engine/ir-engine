@@ -39,9 +39,10 @@ import { Button, Input } from '@ir-engine/ui'
 import { Copy03Lg, Send01Lg, Share06Sm } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { InviteService } from '../../social/services/InviteService'
+import { clientContextParams } from '../../util/ClientContextState'
 import { AuthState } from '../services/AuthService'
 
-const logger = multiLogger.child({ component: 'client-core:ShareMenu' })
+const logger = multiLogger.child({ component: 'client-core:ShareMenu', modifier: clientContextParams })
 
 const useShareMenuHooks = ({ refLink }) => {
   const { t } = useTranslation()
