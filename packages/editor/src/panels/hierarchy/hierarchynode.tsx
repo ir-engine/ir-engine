@@ -359,6 +359,8 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   useEffect(() => {
     if (isModified) {
       checkIfUserCanSaveNodeChanges()
+    } else {
+      canSaveNodeChanges.set(false)
     }
   }, [isModified])
 
