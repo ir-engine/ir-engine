@@ -28,9 +28,9 @@ import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { Entity, getComponent } from '@ir-engine/ecs'
 import { Vector3_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
 
+import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { Matrices } from '../components/AvatarAnimationComponent'
 import { IKMatrixComponent } from '../components/AvatarIKComponents'
-import { NormalizedBoneComponent } from '../components/NormalizedBoneComponent'
 
 /**
  * Returns angle 'a' in radians given lengths of sides of a triangle
@@ -228,7 +228,7 @@ const targetPos = new Vector3(),
 const nodeQuaternion = new Quaternion()
 export const blendIKChain = (bones: Entity[], weight) => {
   for (const bone of bones) {
-    const node = getComponent(bone, NormalizedBoneComponent)
+    const node = getComponent(bone, BoneComponent)
     const ikMatrix = getComponent(bone, IKMatrixComponent).local
     nodeQuaternion.setFromRotationMatrix(ikMatrix)
     node.quaternion.fastSlerp(nodeQuaternion, weight)

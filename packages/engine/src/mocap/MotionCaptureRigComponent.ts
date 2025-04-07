@@ -23,11 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VRMHumanBoneList } from '@pixiv/three-vrm'
-
 import { S } from '@ir-engine/ecs'
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
+import { VRMHumanBoneList } from '../avatar/maps/VRMHumanBoneList'
 
 export const MotionCaptureRigComponent = defineComponent({
   name: 'MotionCaptureRigComponent',

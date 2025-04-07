@@ -38,6 +38,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModalState } from '../../common/services/ModalState'
 import { XruiNameplateState } from '../../social/XruiNameplateState'
+import { clientContextParams } from '../../util/ClientContextState'
 import BlockSlider from '../components/BlockSlider'
 import ControllerMappingMobileImage from './images/controller-mapping-mobile.svg'
 import ControllerMappingImage from './images/controller-mapping.png'
@@ -45,7 +46,9 @@ import KeyboardMappingImage from './images/keyboard-mapping.png'
 import MouseMappingImage from './images/mouse-mapping.png'
 
 const isChromeDesktop = !isMobile && /chrome/i.test(navigator.userAgent)
-const logger = multiLogger.child({ component: 'system:settings-menu' })
+
+const logger = multiLogger.child({ component: 'system:settings-menu', modifier: clientContextParams })
+
 export const ShadowMapResolutionOptions: OptionType[] = [
   {
     label: '256px',

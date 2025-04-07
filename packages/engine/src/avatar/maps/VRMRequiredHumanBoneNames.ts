@@ -23,11 +23,22 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent, S } from '@ir-engine/ecs'
-import { Bone } from 'three'
+export const VRMRequiredHumanBoneName = {
+  Hips: 'hips',
+  Spine: 'spine',
+  Head: 'head',
+  LeftUpperLeg: 'leftUpperLeg',
+  LeftLowerLeg: 'leftLowerLeg',
+  LeftFoot: 'leftFoot',
+  RightUpperLeg: 'rightUpperLeg',
+  RightLowerLeg: 'rightLowerLeg',
+  RightFoot: 'rightFoot',
+  LeftUpperArm: 'leftUpperArm',
+  LeftLowerArm: 'leftLowerArm',
+  LeftHand: 'leftHand',
+  RightUpperArm: 'rightUpperArm',
+  RightLowerArm: 'rightLowerArm',
+  RightHand: 'rightHand'
+} as const
 
-export const NormalizedBoneComponent = defineComponent({
-  name: 'NormalizedBoneComponent',
-
-  schema: S.Required(S.Type<Bone>())
-})
+export type VRMRequiredHumanBoneName = (typeof VRMRequiredHumanBoneName)[keyof typeof VRMRequiredHumanBoneName]
