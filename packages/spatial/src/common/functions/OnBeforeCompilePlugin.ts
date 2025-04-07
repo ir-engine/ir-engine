@@ -133,7 +133,8 @@ const onBeforeCompile = {
 
       this.customProgramCacheKey = () => {
         let result = this.shader ? this.shader.fragmentShader + this.shader.vertexShader : ''
-        for (let i = 0; i < this.plugins!.length; i++) {
+        if (!this.plugins) return result
+        for (let i = 0; i < this.plugins.length; i++) {
           const plugin = this.plugins![i]
           const pluginObj = plugin as PluginObjectType
           if (typeof pluginObj.compile === 'function') result += pluginObj.compile.toString()
