@@ -310,7 +310,7 @@ export const FileThumbnailJobState = defineState({
       files,
       (file) => (file.type === 'glf' || file.type === 'glb' ? file.key : undefined),
       {
-        $and: [{ width: '0' }, { height: '0' }, { depth: '0' }]
+        $and: [{ width: null }, { height: null }, { depth: null }]
       },
       'dimension'
     )
