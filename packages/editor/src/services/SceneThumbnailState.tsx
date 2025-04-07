@@ -28,6 +28,7 @@ import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { fileBrowserUploadPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import { CommonKnownContentTypes } from '@ir-engine/common/src/utils/CommonKnownContentTypes'
 import { getComponent } from '@ir-engine/ecs'
 import {
   blurAndScaleImageData,
@@ -73,7 +74,7 @@ export const SceneThumbnailState = defineState({
       fileNameArray = fileNameArray.slice(0, -1)
     }
     const fileName = fileNameArray.join('.')
-    const file = new File([thumbnailBlob!], fileName + '.thumbnail.jpg')
+    const file = new File([thumbnailBlob!], fileName + '.thumbnail.jpg', { type: CommonKnownContentTypes['jpg'] })
     const sceneThumbnail = getMutableState(SceneThumbnailState)
     sceneThumbnail.merge({
       oldThumbnailURL: sceneThumbnail.thumbnailURL.value,
