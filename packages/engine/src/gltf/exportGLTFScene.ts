@@ -47,6 +47,7 @@ import { injectMaterialDefaults } from '@ir-engine/spatial/src/renderer/material
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { useEffect } from 'react'
 import {
+  AnimationClip,
   BufferAttribute,
   BufferGeometry,
   ClampToEdgeWrapping,
@@ -66,11 +67,15 @@ import {
   NearestFilter,
   NearestMipmapLinearFilter,
   NearestMipmapNearestFilter,
+  NumberKeyframeTrack,
+  QuaternionKeyframeTrack,
   RepeatWrapping,
-  Texture
+  Texture,
+  VectorKeyframeTrack
 } from 'three'
 import { baseName, pathJoin, relativePathTo } from '../assets/functions/miscUtils'
 import { STATIC_ASSET_REGEX } from '../assets/functions/pathResolver'
+import { AnimationComponent, getEntityUUIDFromTrack } from '../avatar/components/AnimationComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { handleScenePaths } from '../scene/functions/GLTFConversion'
 import { GLTFComponent } from './GLTFComponent'
@@ -397,6 +402,7 @@ export async function exportGLTFScene(
   }
 
   await Promise.all(context.entityPromises.values())
+  await exportAnimations(entity, gltf, context)
 
   if (context.extensionsUsed.size) gltf.extensionsUsed = [...context.extensionsUsed]
   handleScenePaths(gltf, 'encode')
@@ -1126,6 +1132,77 @@ const exportEntity = async (
   for (const extension of context.exportExtensions) extension.afterNode?.(entity, node, index)
 
   return index
+}
+
+const exportAnimations = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFSceneExportContext) => {
+  if (!hasComponent(entity, AnimationComponent)) return
+
+  const animationsDef = [] as GLTF.IAnimation[]
+  const animations = getComponent(entity, AnimationComponent).animations as AnimationClip[]
+
+  for (const animation of animations) {
+    const animationDef = { channels: [], samplers: [] } as GLTF.IAnimation
+    animationDef.name = animation.name
+
+    const tracks = animation.tracks
+    for (let i = 0, len = tracks.length; i < len; i++) {
+      const track = tracks[i]
+
+      // Create channel
+      const channelDef = { target: {} } as GLTF.IAnimationChannel
+      if (track instanceof NumberKeyframeTrack) {
+        channelDef.target.path = 'weights'
+      } else if (track instanceof QuaternionKeyframeTrack) {
+        channelDef.target.path = 'rotation'
+      } else if (track instanceof VectorKeyframeTrack) {
+        const isPosition = track.name.endsWith('position')
+        if (isPosition) {
+          channelDef.target.path = 'translation'
+        } else {
+          channelDef.target.path = 'scale'
+        }
+      }
+
+      const targetEntity = UUIDComponent.getEntityByUUID(getEntityUUIDFromTrack(track))
+      const targetNode = await exportEntity(targetEntity, gltf, context)
+      if (typeof targetNode === 'number') {
+        channelDef.target.node = targetNode
+      }
+      channelDef.sampler = i
+      animationDef.channels.push(channelDef)
+
+      // Create sampler
+      const samplerDef = {} as GLTF.IAnimationSampler
+      const inputAttr = new BufferAttribute(track.times, 1)
+      const outputAttr = new BufferAttribute(track.values, 1)
+
+      const [input, output] = await Promise.all([
+        exportAccessor(inputAttr, gltf, context),
+        exportAccessor(outputAttr, gltf, context)
+      ])
+      samplerDef.input = input
+      samplerDef.output = output
+
+      const interpolantFunc = track.createInterpolant as (any) => any
+      if (interpolantFunc === track.InterpolantFactoryMethodDiscrete) {
+        samplerDef.interpolation = 'STEP'
+      } else if (interpolantFunc === track.InterpolantFactoryMethodLinear) {
+        samplerDef.interpolation = 'LINEAR'
+      } else if (interpolantFunc === track.InterpolantFactoryMethodSmooth) {
+        samplerDef.interpolation = 'LINEAR'
+      } else if ((interpolantFunc as any).isInterpolantFactoryMethodGLTFCubicSpline) {
+        samplerDef.interpolation = 'CUBICSPLINE'
+      } else {
+        samplerDef.interpolation = 'LINEAR'
+      }
+
+      animationDef.samplers.push(samplerDef)
+    }
+
+    animationsDef.push(animationDef)
+  }
+
+  if (animations.length) gltf.animations = animationsDef
 }
 
 const matrixEqualsIdentity = (matrix: number[]) => {
