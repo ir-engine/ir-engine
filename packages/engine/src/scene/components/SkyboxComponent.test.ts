@@ -36,7 +36,7 @@ import {
   SRGBColorSpace,
   Texture
 } from 'three'
-import { assert, describe, expect } from 'vitest'
+import { assert, describe, expect, vi } from 'vitest'
 import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
 import { SkyboxComponent } from './SkyboxComponent'
@@ -144,16 +144,19 @@ describe('SkyboxComponent', () => {
       expect(result.backgroundType).equals(SkyTypeEnum.equirectangular)
       expect(result.equirectangularPath).equals('https://picsum.photos/200.jpg')
 
-      const background = getOptionalComponent(entity, BackgroundComponent) as Texture
-      assert.exists(background)
+      let background
+      await vi.waitFor(() => {
+        background = getOptionalComponent(entity, BackgroundComponent) as Texture
+        assert.exists(background)
+      })
 
       expect(background.colorSpace).equals(SRGBColorSpace)
       expect(background.mapping).toEqual(EquirectangularReflectionMapping)
       expect(background.minFilter).toEqual(LinearFilter)
     })
 
-    it('should support solid colors', ({ entity }) => {
-      let background = getComponent(entity, BackgroundComponent) as DataTexture
+    it('should support solid colors', async ({ entity }) => {
+      let background = getComponent(entity, BackgroundComponent) as DataTexture | undefined
       expect(background).toBeUndefined()
 
       setComponent(entity, SkyboxComponent, {
@@ -161,8 +164,13 @@ describe('SkyboxComponent', () => {
         backgroundColor: 0xffffff
       })
 
-      background = getComponent(entity, BackgroundComponent) as DataTexture
-      assert.exists(background)
+      background = undefined
+      await vi.waitFor(() => {
+        background = getOptionalComponent(entity, BackgroundComponent) as DataTexture
+        assert.exists(background)
+      })
+
+      background = background!
 
       expect(background.colorSpace).toBe(SRGBColorSpace)
       expect(background.mapping).toBe(EquirectangularReflectionMapping)
@@ -189,7 +197,7 @@ describe('SkyboxComponent', () => {
       // see loadCubeMapTexture() - @ir-engine/src/scenes/constants/Util.ts
     })
 
-    it('should set Sky properties correctly when skyboxProps change', ({ entity }) => {
+    it('should set Sky properties correctly when skyboxProps change', async ({ entity }) => {
       mockSpatialEngine()
       // Create a Sky instance
       const sky = new Sky()
@@ -211,8 +219,14 @@ describe('SkyboxComponent', () => {
         }
       })
 
-      const background = getComponent(entity, BackgroundComponent) as CubeTexture
-      assert.exists(background)
+      let background = undefined as CubeTexture | undefined
+
+      await vi.waitFor(() => {
+        background = getComponent(entity, BackgroundComponent) as CubeTexture
+        assert.exists(background)
+      })
+
+      background = background!
       expect(background.mapping).toEqual(CubeReflectionMapping)
     })
   })
