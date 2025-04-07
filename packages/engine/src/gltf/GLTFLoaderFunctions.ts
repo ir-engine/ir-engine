@@ -1025,6 +1025,7 @@ const loadTextureImage = async (
   texture.minFilter = WEBGL_FILTERS[sampler.minFilter] || LinearMipmapLinearFilter
   texture.wrapS = WEBGL_WRAPPINGS[sampler.wrapS] || RepeatWrapping
   texture.wrapT = WEBGL_WRAPPINGS[sampler.wrapT] || RepeatWrapping
+  texture.generateMipmaps = true
 
   return texture
 }
