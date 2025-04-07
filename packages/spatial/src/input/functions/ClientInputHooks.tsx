@@ -345,7 +345,6 @@ export const CanvasInputReactor = () => {
       axes[0] = normalizedValues.spinX
       axes[1] = normalizedValues.spinY
       event.preventDefault()
-      event.stopPropogation()
     }
 
     canvas.addEventListener('dragstart', ClientInputFunctions.preventDefault, false)
