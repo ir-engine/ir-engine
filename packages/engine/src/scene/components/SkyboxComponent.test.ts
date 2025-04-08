@@ -144,11 +144,7 @@ describe('SkyboxComponent', () => {
       expect(result.backgroundType).equals(SkyTypeEnum.equirectangular)
       expect(result.equirectangularPath).equals('https://picsum.photos/200.jpg')
 
-      let background
-      await vi.waitFor(() => {
-        background = getOptionalComponent(entity, BackgroundComponent) as Texture
-        assert.exists(background)
-      })
+      const background = await vi.waitUntil(() => getOptionalComponent(entity, BackgroundComponent) as Texture)
 
       expect(background.colorSpace).equals(SRGBColorSpace)
       expect(background.mapping).toEqual(EquirectangularReflectionMapping)
@@ -165,10 +161,7 @@ describe('SkyboxComponent', () => {
       })
 
       background = undefined
-      await vi.waitFor(() => {
-        background = getOptionalComponent(entity, BackgroundComponent) as DataTexture
-        assert.exists(background)
-      })
+      background = await vi.waitUntil(() => getOptionalComponent(entity, BackgroundComponent) as DataTexture)
 
       background = background!
 
@@ -219,14 +212,8 @@ describe('SkyboxComponent', () => {
         }
       })
 
-      let background = undefined as CubeTexture | undefined
+      const background = await vi.waitUntil(() => getComponent(entity, BackgroundComponent) as CubeTexture)
 
-      await vi.waitFor(() => {
-        background = getComponent(entity, BackgroundComponent) as CubeTexture
-        assert.exists(background)
-      })
-
-      background = background!
       expect(background.mapping).toEqual(CubeReflectionMapping)
     })
   })
