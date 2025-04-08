@@ -28,14 +28,13 @@ import {
   defineComponent,
   Entity,
   EntityUUID,
-  getComponent,
   LayerID,
   Layers,
   S,
   setComponent,
   TTypedSchema,
+  useComponent,
   useEntityContext,
-  useOptionalComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, none, OpaqueType } from '@ir-engine/hyperflux'
@@ -67,12 +66,10 @@ export const NodeIDComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const sourceID = useOptionalComponent(entity, SourceComponent)?.value
+    const nodeID = useComponent(entity, NodeIDComponent).value
+    const sourceID = useComponent(entity, SourceComponent).value
 
     useEffect(() => {
-      if (!sourceID) return
-
-      const nodeID = getComponent(entity, NodeIDComponent)
       const state = getMutableState(NodesBySourceState)
 
       if (!state.value[sourceID]) state[sourceID].set({})
@@ -86,7 +83,7 @@ export const NodeIDComponent = defineComponent({
 
         if (!state[sourceID].keys.length) state[sourceID].set(none)
       }
-    }, [sourceID])
+    }, [nodeID, sourceID])
 
     return null
   },

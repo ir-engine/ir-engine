@@ -23,31 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { configDefaults, defineConfig } from 'vitest/config'
+import * as Scheduler from 'scheduler'
 
-const reporters = !process.env.CI ? ['basic'] : configDefaults.reporters // Use default report config on CI.
+const _moreWork = () => {
+  return Scheduler.unstable_getFirstCallbackNode() !== null
+}
 
-import appRootPath from 'app-root-path'
-import path from 'path'
-
-export default defineConfig({
-  test: {
-    setupFiles: [
-      path.resolve(appRootPath.path, 'packages/hyperflux/tests/utils/patchNode.ts'),
-      path.resolve(appRootPath.path, 'packages/ui/vitest.setup.ts')
-    ],
-    environment: 'jsdom',
-    maxConcurrency: 1,
-    passWithNoTests: true,
-    testTimeout: 10000,
-    hookTimeout: 10000,
-    reporters: reporters,
-    slowTestThreshold: 1000,
-    coverage: {
-      enabled: true,
-      reporter: ['lcov'],
-      provider: 'istanbul',
-      include: ['src/**']
+export const flushAll = async () => {
+  return new Promise<void>((resolve) => {
+    const check = () => {
+      if (!_moreWork()) {
+        resolve()
+      } else {
+        setTimeout(check, 1)
+      }
     }
-  }
-})
+    check()
+  })
+}

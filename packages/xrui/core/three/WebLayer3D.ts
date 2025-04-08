@@ -466,7 +466,7 @@ export class WebLayer3D extends Object3D {
     if (this.needsRefresh && this.container.options.autoRefresh !== false) this.refresh()
 
     if (this._previousTexture !== this.texture) {
-      if (this.texture) this.container.manager.renderer.initTexture(this.texture)
+      if (this.texture && this.container.manager.renderer) this.container.manager.renderer.initTexture(this.texture)
       this._previousTexture = this.texture
       this.container.options.onLayerPaint?.(this)
     }

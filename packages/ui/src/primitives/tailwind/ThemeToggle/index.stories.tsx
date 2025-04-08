@@ -23,4 +23,34 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '@testing-library/jest-dom/vitest'
+import Component from './index'
+
+export default {
+  title: 'Primitives/Tailwind/ThemeToggle',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'ThemeToggle',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  }
+}
+
+export const LightMode = {
+  args: {
+    label: 'Light Mode',
+    value: false,
+    onChange: () => {},
+    disabled: false
+  }
+}
+
+export const DarkMode = {
+  args: {
+    label: 'Dark Mode',
+    value: true,
+    onChange: () => {},
+    disabled: false
+  }
+}

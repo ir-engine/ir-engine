@@ -213,13 +213,11 @@ const EntityChildCSMReactor = (props: { rendererEntity: Entity }) => {
   const { rendererEntity } = props
 
   const shadowComponent = useComponent(entity, ShadowComponent)
-  const obj = useComponent(entity, ObjectComponent).get(NO_PROXY) as Mesh | null
+  const obj = useComponent(entity, ObjectComponent).get(NO_PROXY) as Mesh
   const csm = useComponent(rendererEntity, RendererComponent).csm.value
 
   useEffect(() => {
     if (!csm || !shadowComponent.receive.value) return
-
-    if (!obj) return
 
     if (obj.material) {
       csm.setupMaterial(obj)

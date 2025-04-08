@@ -38,6 +38,7 @@ import {
   deserializeComponent,
   getComponent,
   getMutableComponent,
+  getOptionalComponent,
   hasComponent,
   iterateEntityNode,
   removeComponent,
@@ -1546,8 +1547,10 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
 
   await Promise.all(extensionPending)
 
+  const rootNodeID = getOptionalComponent(options.entity, NodeIDComponent)
+
   //apply deltas if they exist in state
-  const deltas = getState(SceneDeltaState)?.[getComponent(options.entity, NodeIDComponent)]?.[nodeID]
+  const deltas = rootNodeID ? getState(SceneDeltaState)?.[rootNodeID]?.[nodeID] : null
   if (deltas) {
     for (const [componentName, delta] of Object.entries(deltas)) {
       const Component = ComponentJSONIDMap.get(componentName)

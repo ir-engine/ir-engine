@@ -31,6 +31,7 @@ import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { UserID, applyIncomingActions, dispatchAction, getMutableState, getState } from '@ir-engine/hyperflux'
 import { Network, NetworkState, NetworkTopics } from '@ir-engine/network'
 import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
+import { act, render } from '@testing-library/react'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { initializeSpatialViewer } from '../../initializeEngine'
 import { CameraActions } from '../CameraState'
@@ -49,7 +50,7 @@ describe('CameraSystem', () => {
       return destroyEngine()
     })
 
-    it('should create a camera entity and apply a CameraComponent to that entity', () => {
+    it('should create a camera entity and apply a CameraComponent to that entity', async () => {
       const hostUserID = 'host user' as UserID
       const hostPeerID = Engine.instance.store.peerID
 
@@ -70,6 +71,7 @@ describe('CameraSystem', () => {
         })
       )
       applyIncomingActions()
+      await act(() => render(null))
 
       const cameraEntity = UUIDComponent.getEntityByUUID(cameraUUID)
       assert.ok(cameraEntity, "The spawnCamera Action didn't create an entity.")
