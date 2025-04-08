@@ -43,7 +43,7 @@ import {
   traverseEntityNode
 } from '@ir-engine/ecs'
 import { getMutableState, getState, isClient } from '@ir-engine/hyperflux'
-import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
+import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -59,7 +59,6 @@ import {
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { setupMaterialParameters } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import {
@@ -142,6 +141,7 @@ import {
 } from '../scene/systems/SceneDeltaState'
 import { GLTFComponent } from './GLTFComponent'
 import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
+import { getMaxAnisotropyWithoutRenderer } from './gltfUtils'
 import { KHRTextureTransformExtensionComponent, KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
 import { NodeID, NodeIDComponent } from './NodeIDComponent'
 import { SCENE_DELTA_EXTENSION_NAME } from './SceneDeltaExporterExtension'
@@ -1003,8 +1003,6 @@ const loadTextureImage = async (
   loader: ImageLoader | ImageBitmapLoader | TextureLoader | KTX2Loader | Loader
 ) => {
   const json = options.document
-  const rendererComponent = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)
-  const renderer = rendererComponent?.renderer!
 
   const textureDef = json.textures![textureIndex]
   const sourceDef = json.images![sourceIndex]
@@ -1029,8 +1027,7 @@ const loadTextureImage = async (
   texture.wrapS = WEBGL_WRAPPINGS[sampler.wrapS] || RepeatWrapping
   texture.wrapT = WEBGL_WRAPPINGS[sampler.wrapT] || RepeatWrapping
   texture.generateMipmaps = true
-  if (renderer && renderer.capabilities && renderer.capabilities.getMaxAnisotropy)
-    texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
+  texture.anisotropy = getMaxAnisotropyWithoutRenderer()
   return texture
 }
 

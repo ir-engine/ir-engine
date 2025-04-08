@@ -355,3 +355,22 @@ export function gltfReplaceUUIDsReferences(gltf: GLTF.IGLTF, UUIDs: [EntityUUID,
     }
   }
 }
+export function getMaxAnisotropyWithoutRenderer(): number {
+  const canvas = document.createElement('canvas')
+  const gl = canvas.getContext('webgl')
+
+  if (!gl) {
+    return 0
+  }
+
+  const ext =
+    gl.getExtension('EXT_texture_filter_anisotropic') ||
+    gl.getExtension('MOZ_EXT_texture_filter_anisotropic') ||
+    gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic')
+
+  if (ext) {
+    return gl.getParameter(ext.MAX_TEXTURE_MAX_ANISOTROPY_EXT)
+  } else {
+    return 0
+  }
+}
