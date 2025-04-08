@@ -1,6 +1,10 @@
-import { getChildrenWithComponents, getComponent, setComponent } from '@ir-engine/ecs'
+import { EntityTreeComponent, getNestedChildren, getOptionalComponent, setComponent } from '@ir-engine/ecs'
+import { getMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
-import { assert, describe, expect } from 'vitest'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { Object3D } from 'three'
+import { assert, describe } from 'vitest'
 import { it } from '../util/testUtil'
 import { SpawnPointComponent } from './SpawnPointComponent'
 
@@ -14,12 +18,31 @@ describe('SpawnPointComponent', () => {
       assert.equal(SpawnPointComponent.jsonID, 'EE_spawn_point')
     })
   })
+
   describe('reactor', () => {
-    it('should initialize a child helper entity', ({ entity }) => {
+    // This test requires intercepting an HTTP request for the GLTF src
+    it.skip('should initialize a child helper entity', async ({ entity }) => {
+      getMutableState(RendererState).nodeHelperVisibility.set(true)
       setComponent(entity, SpawnPointComponent)
-      getComponent(entity, SpawnPointComponent)
-      const helper = getChildrenWithComponents(entity, [TransformComponent])
-      expect(helper).toBeTruthy()
+
+      let child = getNestedChildren(entity).at(0)
+      assert.exists(child)
+      child = child!
+
+      let transform = getOptionalComponent(child, TransformComponent)
+
+      assert.exists(transform)
+      transform = transform!
+
+      let tree = getOptionalComponent(child, EntityTreeComponent)
+      assert.exists(tree)
+      tree = tree!
+
+      let object3d = getOptionalComponent(child, ObjectComponent) as Object3D
+      assert.exists(object3d)
+      object3d = object3d!
+
+      assert(object3d.type === 'mesh')
     })
   })
 })
