@@ -32,6 +32,7 @@ import {
   getOptionalComponent,
   hasComponent,
   LayerComponent,
+  Layers,
   serializeComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
@@ -68,9 +69,11 @@ import {
   NearestMipmapLinearFilter,
   NearestMipmapNearestFilter,
   NumberKeyframeTrack,
+  Quaternion,
   QuaternionKeyframeTrack,
   RepeatWrapping,
   Texture,
+  Vector3,
   VectorKeyframeTrack
 } from 'three'
 import { baseName, pathJoin, relativePathTo } from '../assets/functions/miscUtils'
@@ -202,6 +205,7 @@ type GLTFSceneExportContext = {
   entityPromises: Map<Entity, Promise<any>>
   materialPromises: State<Record<Entity, number>>
   cache: {
+    entities: Map<Entity, number>
     meshes: Map<Mesh, number>
     materials: Map<Material, number>
     textures: Map<Texture, number>
@@ -364,6 +368,7 @@ export async function exportGLTFScene(
   for (const extension of exportExtensions) extension.before?.(entity, gltf)
 
   const cache = {
+    entities: new Map<Entity, number>(),
     meshes: new Map<Mesh, number>(),
     materials: new Map<Material, number>(),
     textures: new Map<Texture, number>(),
@@ -382,7 +387,7 @@ export async function exportGLTFScene(
     projectName,
     relativePath,
     materialPromises: hookstate({} as Record<Entity, number>),
-    entityPromises: new Map<Entity, Promise<any>>(),
+    entityPromises: new Map<Entity, Promise<number | undefined>>(),
     cache
   }
 
@@ -391,11 +396,9 @@ export async function exportGLTFScene(
   } else {
     const children = getComponent(entity, EntityTreeComponent).children
     for (const child of children) {
-      const promise = new Promise<void>((resolve) => {
-        exportEntity(child, gltf, context).then((index) => {
-          if (typeof index === 'number') gltf.scenes![0].nodes.push(index)
-          resolve()
-        })
+      const promise = exportEntity(child, gltf, context)
+      promise.then((index) => {
+        if (typeof index === 'number') gltf.scenes![0].nodes.push(index)
       })
       context.entityPromises.set(child, promise)
     }
@@ -1041,6 +1044,8 @@ const exportEntity = async (
   gltf: GLTF.IGLTF,
   context: GLTFSceneExportContext
 ): Promise<number | void> => {
+  if (context.cache.entities.has(entity)) return context.cache.entities.get(entity)
+
   for (const extension of context.exportExtensions) extension.beforeNode?.(entity)
 
   //ignore entities with no source
@@ -1056,6 +1061,7 @@ const exportEntity = async (
   gltf.nodes!.push(node)
 
   const index = gltf.nodes!.length - 1
+  context.cache.entities.set(entity, index)
 
   if (entity === context.rootEntity) {
     gltf.scenes![0].nodes.push(index)
@@ -1134,6 +1140,11 @@ const exportEntity = async (
   return index
 }
 
+const _trsConversionMatrix = new Matrix4()
+const _trsTranslation = new Vector3()
+const _trsRotation = new Quaternion()
+const _trsScale = new Vector3()
+
 const exportAnimations = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFSceneExportContext) => {
   if (!hasComponent(entity, AnimationComponent)) return
 
@@ -1163,10 +1174,22 @@ const exportAnimations = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFS
         }
       }
 
-      const targetEntity = UUIDComponent.getEntityByUUID(getEntityUUIDFromTrack(track))
+      const targetEntity = UUIDComponent.getEntityByUUID(getEntityUUIDFromTrack(track), Layers.Authoring)
       const targetNode = await exportEntity(targetEntity, gltf, context)
       if (typeof targetNode === 'number') {
         channelDef.target.node = targetNode
+
+        // https://github.com/KhronosGroup/glTF/issues/892
+        // Animated nodes can not have a matrix property, only TRS
+        const node = gltf.nodes?.[targetNode]
+        if (node?.matrix) {
+          const mat = _trsConversionMatrix.fromArray(node.matrix)
+          mat.decompose(_trsTranslation, _trsRotation, _trsScale)
+          node.translation = _trsTranslation.toArray()
+          node.rotation = _trsRotation.toArray()
+          node.scale = _trsScale.toArray()
+          delete node.matrix
+        }
       }
       channelDef.sampler = i
       animationDef.channels.push(channelDef)
@@ -1174,8 +1197,14 @@ const exportAnimations = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFS
       // Create sampler
       const samplerDef = {} as GLTF.IAnimationSampler
       const inputAttr = new BufferAttribute(track.times, 1)
-      const outputAttr = new BufferAttribute(track.values, 1)
-
+      let outputSize = track.values.length / track.times.length
+      if (channelDef.target.path === 'weights') {
+        const mesh = getOptionalComponent(targetEntity, MeshComponent)
+        if (mesh?.morphTargetInfluences) {
+          outputSize /= mesh.morphTargetInfluences.length
+        }
+      }
+      const outputAttr = new BufferAttribute(track.values, outputSize)
       const [input, output] = await Promise.all([
         exportAccessor(inputAttr, gltf, context),
         exportAccessor(outputAttr, gltf, context)
