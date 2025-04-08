@@ -33,6 +33,7 @@ import {
   Entity,
   EntityTreeComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   removeEntity,
@@ -193,9 +194,14 @@ export const TransformGizmoControlComponent = defineComponent({
 
     InputComponent.useExecuteWithInput(
       () => {
-        const gizmoControlComponent = getComponent(gizmoControlEntity, TransformGizmoControlComponent)
+        const gizmoControlComponent = getOptionalComponent(gizmoControlEntity, TransformGizmoControlComponent)
 
-        if (!gizmoControlComponent.enabled || !gizmoControlComponent.visualEntity || !gizmoControlComponent.planeEntity)
+        if (
+          !gizmoControlComponent ||
+          !gizmoControlComponent.enabled ||
+          !gizmoControlComponent.visualEntity ||
+          !gizmoControlComponent.planeEntity
+        )
           return
 
         const visualComponent = getComponent(gizmoControlComponent.visualEntity, TransformGizmoVisualComponent)

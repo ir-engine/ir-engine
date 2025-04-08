@@ -34,10 +34,11 @@ import { Slider } from '@ir-engine/ui/editor'
 import { ArrowNarrowLeftLg } from '@ir-engine/ui/src/icons'
 import { OptionType } from '@ir-engine/ui/src/primitives/tailwind/Select'
 import SidebarNavigation from '@ir-engine/ui/src/primitives/tailwind/SidebarNavigation'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModalState } from '../../common/services/ModalState'
 import { XruiNameplateState } from '../../social/XruiNameplateState'
+import { clientContextParams } from '../../util/ClientContextState'
 import BlockSlider from '../components/BlockSlider'
 import ControllerMappingMobileImage from './images/controller-mapping-mobile.svg'
 import ControllerMappingImage from './images/controller-mapping.png'
@@ -45,7 +46,9 @@ import KeyboardMappingImage from './images/keyboard-mapping.png'
 import MouseMappingImage from './images/mouse-mapping.png'
 
 const isChromeDesktop = !isMobile && /chrome/i.test(navigator.userAgent)
-const logger = multiLogger.child({ component: 'system:settings-menu' })
+
+const logger = multiLogger.child({ component: 'system:settings-menu', modifier: clientContextParams })
+
 export const ShadowMapResolutionOptions: OptionType[] = [
   {
     label: '256px',
@@ -170,6 +173,11 @@ function GraphicsTab() {
   const { t } = useTranslation()
   const rendererState = useMutableState(RendererState)
   const xruiNameplateState = useMutableState(XruiNameplateState)
+  const renderQualityLocal = useHookstate(rendererState.qualityLevel.value)
+
+  useEffect(() => {
+    renderQualityLocal.set(rendererState.qualityLevel.value)
+  }, [rendererState.qualityLevel])
 
   const handleQualityLevelChange = (value: number) => {
     rendererState.qualityLevel.set(value)
@@ -185,9 +193,9 @@ function GraphicsTab() {
           max={5}
           min={0}
           step={1}
-          value={rendererState.qualityLevel.value}
-          onChange={handleQualityLevelChange}
-          onRelease={() => {}}
+          value={renderQualityLocal.value}
+          onChange={(value) => renderQualityLocal.set(value)}
+          onRelease={handleQualityLevelChange}
           label=""
         />
       </div>
@@ -244,6 +252,8 @@ function GraphicsTab() {
               event_name: `change_shadow_map_resolution`,
               event_value: `${event}px`
             })
+            rendererState.automatic.set(false)
+            logger.analytics({ event_name: `automatic_qp`, event_value: false })
           }}
         />
       </div>

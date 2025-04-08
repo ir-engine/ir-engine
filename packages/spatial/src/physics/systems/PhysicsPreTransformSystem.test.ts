@@ -39,6 +39,7 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
@@ -182,14 +183,16 @@ describe('PhysicsPreTransformFunctions', () => {
         return destroyEngine()
       })
 
-      it('should not set the `@param entity` transform to dirty', () => {
+      it('should not set the `@param entity` transform to dirty', async () => {
+        await act(() => render(null))
         TransformComponent.dirty[testEntity] = 0
         // Run and Check the result
         PhysicsPreTransformFunctions.lerpTransformFromRigidbody(testEntity, Alpha)
         assertNotDirty(testEntity)
       })
 
-      it('should deeply set all children transforms to dirty', () => {
+      it('should deeply set all children transforms to dirty', async () => {
+        await act(() => render(null))
         TransformComponent.dirty[testEntity] = 0
         // Run and Check the result
         PhysicsPreTransformFunctions.lerpTransformFromRigidbody(testEntity, Alpha)
@@ -222,6 +225,7 @@ describe('PhysicsPreTransformFunctions', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent)
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -230,9 +234,10 @@ describe('PhysicsPreTransformFunctions', () => {
         return destroyEngine()
       })
 
-      it("should update the position of the entity's RigidBody inside the physicsWorld data and the RigidBodyComponent of the entity, based on its TransformComponent data", () => {
+      it("should update the position of the entity's RigidBody inside the physicsWorld data and the RigidBodyComponent of the entity, based on its TransformComponent data", async () => {
         // Set the data as expected
         setComponent(testEntity, TransformComponent, { position: new Vector3(40, 41, 42) })
+        await act(() => render(null))
         // Sanity check before running
         const before = {
           body: physicsWorld.Rigidbodies.get(testEntity)!,
@@ -252,9 +257,10 @@ describe('PhysicsPreTransformFunctions', () => {
         assertVec.approxEq(after.body.translation(), after.position, 3)
       })
 
-      it("should update the rotation of the entity's RigidBody inside the physicsWorld data and the RigidBodyComponent of the entity, based on its TransformComponent data", () => {
+      it("should update the rotation of the entity's RigidBody inside the physicsWorld data and the RigidBodyComponent of the entity, based on its TransformComponent data", async () => {
         // Set the data as expected
         setComponent(testEntity, TransformComponent, { rotation: new Quaternion(40, 41, 42).normalize() })
+        await act(() => render(null))
         // Sanity check before running
         const before = {
           body: physicsWorld.Rigidbodies.get(testEntity)!,
@@ -274,7 +280,8 @@ describe('PhysicsPreTransformFunctions', () => {
         assertVec.approxEq(after.body.rotation(), after.rotation, 4)
       })
 
-      it('should deeply set all children transforms to dirty', () => {
+      it('should deeply set all children transforms to dirty', async () => {
+        await act(() => render(null))
         TransformComponent.dirty[testEntity] = 0
         // Run and Check the result
         PhysicsPreTransformFunctions.copyTransformToRigidBody(testEntity)
@@ -344,7 +351,8 @@ describe('PhysicsPreTransformFunctions', () => {
         return destroyEngine()
       })
 
-      it("should remove the previous collider from the world, create a new one from the rigidbodyEntity's data, and attach it to the world", () => {
+      it("should remove the previous collider from the world, create a new one from the rigidbodyEntity's data, and attach it to the world", async () => {
+        await act(() => render(null))
         const Initial = { x: 40, y: 41, z: 42 }
         // Set the data as expected
         const colliderDesc = Physics.createColliderDesc(physicsWorld, testEntity, rigidbodyEntity)
@@ -448,6 +456,7 @@ describe('PhysicsPreTransformFunctions', () => {
         setComponent(rigidbodyEntity, TransformComponent)
         setComponent(rigidbodyEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(rigidbodyEntity, ColliderComponent)
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -492,7 +501,7 @@ describe('PhysicsPreTransformFunctions', () => {
         assert.equal(result, Expected)
       })
 
-      it('should return true if the entity is not sleeping', () => {
+      it('should return true if the entity is not sleeping', async () => {
         const Expected = true
         // Set the data as expected
         TransformComponent.dirty[physicsWorldEntity] = 0

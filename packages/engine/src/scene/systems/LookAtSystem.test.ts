@@ -139,26 +139,24 @@ describe('LookAtSystem', () => {
           assertVec.approxEq(result, Initial, 4)
         })
 
-        it('should not do anything for that entity if its LookAtComponent.target UUID is falsy', () => {
+        it('should not do anything for that entity if its LookAtComponent.target UUID is falsy', async () => {
           const Initial = new Quaternion(2, 3, 4, 5).normalize()
 
           setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42), rotation: Initial })
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
           setComponent(testEntity, LookAtComponent, { target: '' as NodeID })
-
           System.execute()
           const result = getComponent(facerEntity, TransformComponent).rotation.clone()
           assertVec.approxEq(result, Initial, 4)
         })
 
-        it('should set the entity.TransformComponent.rotation to the resulting lookAt rotation looking from (0,0,0) towards the difference of targetEntity.TransformComponent.position and entity.TransformComponent.position', () => {
+        it('should set the entity.TransformComponent.rotation to the resulting lookAt rotation looking from (0,0,0) towards the difference of targetEntity.TransformComponent.position and entity.TransformComponent.position', async () => {
           const Expected = new Quaternion(0.2721655269759087, 0.408248290463863, 0.5443310539518174, 0.6804138174397717)
           const Initial = new Quaternion(2, 3, 4, 5).normalize()
 
           setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42), rotation: Initial })
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
           setComponent(testEntity, LookAtComponent, { target: '' as NodeID })
-
           System.execute()
           const result = getComponent(facerEntity, TransformComponent).rotation.clone()
           assertVec.approxEq(result, Expected, 4)

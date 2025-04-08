@@ -45,7 +45,7 @@ import { removeCallback, setCallback } from '../../common/CallbackComponent'
 import { NameComponent } from '../../common/NameComponent'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { Layer } from './ObjectLayerComponent'
+import { Layer, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { VisibleComponent } from './VisibleComponent'
 
 export const ObjectComponent = defineComponent({
@@ -70,6 +70,10 @@ export const ObjectComponent = defineComponent({
     obj.matrixWorldAutoUpdate = false
     obj.matrix = transform.matrix
     obj.matrixWorld = transform.matrixWorld
+    const currentMask = hasComponent(entity, ObjectLayerMaskComponent)
+      ? ObjectLayerMaskComponent.mask[entity]
+      : obj.layers.mask
+    setComponent(entity, ObjectLayerMaskComponent, currentMask)
     obj.layers = new Layer(entity)
 
     obj.frustumCulled = false
