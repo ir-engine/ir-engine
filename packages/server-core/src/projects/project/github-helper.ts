@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
+import { createAppAuth } from '@octokit/auth-app'
 import { createOAuthAppAuth } from '@octokit/auth-oauth-app'
 import { Octokit } from '@octokit/rest'
 import appRootPath from 'app-root-path'
@@ -770,4 +771,15 @@ const isBase64Encoded = (filePath: string) => {
     ModelFileTypes.indexOf(extension) > -1 ||
     BinaryFileTypes.indexOf(extension) > -1
   )
+}
+
+export const generateInstallationOctokit = (appId: string, privateKey: string, installationId: string) => {
+  return new Octokit({
+    authStrategy: createAppAuth,
+    auth: {
+      appId,
+      privateKey,
+      installationId
+    }
+  })
 }
