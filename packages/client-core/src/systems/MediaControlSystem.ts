@@ -92,7 +92,7 @@ const onUpdate = (entity: Entity) => {
   if (inputSourceEntity) {
     const inputSource = getOptionalComponent(inputSourceEntity, InputSourceComponent)
 
-    if (capturingEntity !== UndefinedEntity) {
+    if (capturingEntity === entity) {
       const buttons = inputSource?.buttons
       clicking = !!buttons //clicking on our boundingbox this frame
 
