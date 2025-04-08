@@ -74,7 +74,6 @@ export const LocationState = defineState({
     locationName: null! as string,
     currentLocation: {
       location: LocationSeed as LocationType,
-      bannedUsers: [] as string[],
       selfUserBanned: false,
       selfNotAuthorized: false
     },
@@ -89,7 +88,6 @@ export const LocationState = defineState({
     getMutableState(LocationState).merge({
       currentLocation: {
         location: LocationSeed as LocationType,
-        bannedUsers: [] as string[],
         selfUserBanned: false,
         selfNotAuthorized: false
       }
@@ -97,14 +95,11 @@ export const LocationState = defineState({
   },
 
   socialLocationRetrieved: (location: LocationType) => {
-    let bannedUsers = [] as string[]
-    bannedUsers = [...new Set(bannedUsers)]
     getMutableState(LocationState).merge({
       currentLocation: {
         location: {
           ...location
         },
-        bannedUsers,
         selfUserBanned: false,
         selfNotAuthorized: false
       }
@@ -115,7 +110,6 @@ export const LocationState = defineState({
     getMutableState(LocationState).merge({
       currentLocation: {
         location: LocationSeed,
-        bannedUsers: [],
         selfUserBanned: false,
         selfNotAuthorized: false
       },
