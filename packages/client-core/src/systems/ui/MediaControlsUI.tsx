@@ -39,8 +39,8 @@ export function createMediaControlsView(entity: Entity) {
   const MediaControls = () => <MediaControlsView entity={entity} />
   const videoTransform = getOptionalComponent(entity, TransformComponent)
   const videoComponent = getOptionalComponent(entity, VideoComponent)
-  const scaleX = (videoComponent?.size.x ?? 1) * (videoTransform?.scale.x ?? 1)
-  const scaleY = (videoComponent?.size.y ?? 1) * (videoTransform?.scale.y ?? 1)
+  const scaleX = videoTransform?.scale.x ?? 1
+  const scaleY = videoTransform?.scale.y ?? 1
 
   const controlsUIScale = Math.min(scaleX, scaleY)
 

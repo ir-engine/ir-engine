@@ -5,9 +5,7 @@
   },
   "scenes": [
     {
-      "nodes": [
-        0
-      ]
+      "nodes": [0]
     }
   ],
   "scene": 0,
@@ -20,10 +18,6 @@
         "EE_video": {
           "mediaUUID": "",
           "side": 2,
-          "size": {
-            "x": 1,
-            "y": 1
-          },
           "uvOffset": {
             "x": 0,
             "y": 0
@@ -45,7 +39,7 @@
           "useAlpha": false,
           "useAlphaUVTransform": false,
           "alphaThreshold": 0.5,
-          "fit": "contain",
+          "fit": "stretch",
           "projection": "Flat"
         },
         "EE_media": {
@@ -64,20 +58,11 @@
           "seekTime": 0
         },
         "EE_input": {
-          "inputSinks": [
-            "Self"
-          ],
+          "inputSinks": ["Self"],
           "activationDistance": 2
         }
       }
     }
   ],
-  "extensionsUsed": [
-    "EE_uuid",
-    "EE_visible",
-    "EE_video",
-    "EE_media",
-    "EE_input",
-    "EE_ecs"
-  ]
+  "extensionsUsed": ["EE_uuid", "EE_visible", "EE_video", "EE_media", "EE_input", "EE_ecs"]
 }

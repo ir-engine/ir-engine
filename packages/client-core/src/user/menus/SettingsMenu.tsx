@@ -115,6 +115,7 @@ function AudioTab() {
       <div className="mx-auto mt-6 grid grid-cols-1 items-center gap-x-4 gap-y-2 lg:w-3/4 lg:gap-y-4">
         <BlockSlider
           label={t('user:usermenu.setting.lbl-microphone')}
+          info={t('user:usermenu.setting.info-microphone')}
           value={audioState.microphoneGain.value}
           onChange={(value) => {
             audioState.microphoneGain.set(value)
@@ -122,44 +123,49 @@ function AudioTab() {
           }}
         />
         <BlockSlider
+          label={t('user:usermenu.setting.lbl-master-volume')}
+          info={t('user:usermenu.setting.info-master-volume')}
           value={audioState.masterVolume.value}
           onChange={(value: number) => {
             audioState.masterVolume.set(value)
             logger.analytics({ event_name: `set_total_volume`, event_value: value })
           }}
-          label={t('user:usermenu.setting.lbl-volume')}
         />
         <BlockSlider
+          label={t('user:usermenu.setting.lbl-user-volume')}
+          info={t('user:usermenu.setting.info-user-volume')}
           value={audioState.mediaStreamVolume.value}
           onChange={(value: number) => {
             audioState.mediaStreamVolume.set(value)
             logger.analytics({ event_name: `set_user_volume`, event_value: value })
           }}
-          label={t('user:usermenu.setting.lbl-media-instance')}
         />
         <BlockSlider
+          label={t('user:usermenu.setting.lbl-notification')}
+          info={t('user:usermenu.setting.info-notification')}
           value={audioState.notificationVolume.value}
           onChange={(value: number) => {
             audioState.notificationVolume.set(value)
             logger.analytics({ event_name: `set_notification_volume`, event_value: value })
           }}
-          label={t('user:usermenu.setting.lbl-notification')}
         />
         <BlockSlider
+          label={t('user:usermenu.setting.lbl-sound-effect')}
+          info={t('user:usermenu.setting.info-sound-effect')}
           value={audioState.soundEffectsVolume.value}
           onChange={(value: number) => {
             audioState.soundEffectsVolume.set(value)
             logger.analytics({ event_name: `set_scene_volume`, event_value: value })
           }}
-          label={t('user:usermenu.setting.lbl-sound-effect')}
         />
         <BlockSlider
+          label={t('user:usermenu.setting.lbl-background-music-volume')}
+          info={t('user:usermenu.setting.info-background-music-volume')}
           value={audioState.backgroundMusicVolume.value}
           onChange={(value: number) => {
             audioState.backgroundMusicVolume.set(value)
             logger.analytics({ event_name: `set_music_volume`, event_value: value })
           }}
-          label={t('user:usermenu.setting.lbl-background-music-volume')}
         />
       </div>
     </div>
