@@ -45,7 +45,7 @@ export const LineSegmentComponent = defineComponent({
     geometry: S.Required(S.Type<BufferGeometry>()),
     material: S.Class(() => new LineBasicMaterial() as Material),
     color: S.Optional(T.Color()),
-    layerMask: S.Required(S.Type<ObjectLayerMask>(ObjectLayerMasks.NodeHelper))
+    layerMask: S.Type<ObjectLayerMask>(ObjectLayerMasks.NodeHelper)
   }),
 
   reactor: function () {

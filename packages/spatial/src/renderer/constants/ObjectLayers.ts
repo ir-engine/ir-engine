@@ -79,3 +79,13 @@ export const ObjectLayerMasks = {
   HighlightEffect: (1 << ObjectLayers.HighlightEffect) as ObjectLayerMask,
   UVOL: (1 << ObjectLayers.UVOL) as ObjectLayerMask
 }
+
+/*
+ * Get the layer mask for a given layer.
+ * @param layer - The layer to get the mask for.
+ * @returns The layer mask for the given layer, or if the layermask is not found for a given layer, returns null.
+ */
+export const getLayerMaskFromLayer = (layer: ObjectLayer): ObjectLayerMask | null => {
+  const bitShiftedValue = 1 << layer
+  return ObjectLayerMasks[ObjectLayers[bitShiftedValue]] ?? null
+}

@@ -68,7 +68,7 @@ type LineSegmentComponentData = {
   geometry: BufferGeometry
   material: Material
   color?: ColorRepresentation
-  layerMask: number
+  layerMask: ObjectLayerMask
   entity?: Entity
 }
 
@@ -77,7 +77,7 @@ const LineSegmentComponentDefaults = {
   geometry: null!,
   material: new LineBasicMaterial(),
   color: undefined,
-  layerMask: ObjectLayers.NodeHelper,
+  layerMask: ObjectLayerMasks.NodeHelper,
   entity: undefined
 } as LineSegmentComponentData
 
