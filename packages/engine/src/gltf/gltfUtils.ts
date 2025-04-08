@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { GLTF } from '@gltf-transform/core'
 import { EntityUUID } from '@ir-engine/ecs'
+import { isClient } from '@ir-engine/hyperflux'
 import { NodeIDComponent } from './NodeIDComponent'
 
 export function nodeIsChild(index: number, nodes: GLTF.INode[]) {
@@ -355,12 +356,25 @@ export function gltfReplaceUUIDsReferences(gltf: GLTF.IGLTF, UUIDs: [EntityUUID,
     }
   }
 }
+
+let cachedMaxAnisotropy: number | null = null
+
 export function getMaxAnisotropyWithoutRenderer(): number {
+  // Early return if not in client environment
+  if (!isClient) {
+    return 0
+  }
+
+  if (cachedMaxAnisotropy !== null) {
+    return cachedMaxAnisotropy
+  }
+
   const canvas = document.createElement('canvas')
   const gl = canvas.getContext('webgl')
 
   if (!gl) {
-    return 0
+    cachedMaxAnisotropy = 0
+    return cachedMaxAnisotropy
   }
 
   const ext =
@@ -369,8 +383,9 @@ export function getMaxAnisotropyWithoutRenderer(): number {
     gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic')
 
   if (ext) {
-    return gl.getParameter(ext.MAX_TEXTURE_MAX_ANISOTROPY_EXT)
+    cachedMaxAnisotropy = gl.getParameter(ext.MAX_TEXTURE_MAX_ANISOTROPY_EXT)
   } else {
-    return 0
+    cachedMaxAnisotropy = 0
   }
+  return cachedMaxAnisotropy || 0
 }
