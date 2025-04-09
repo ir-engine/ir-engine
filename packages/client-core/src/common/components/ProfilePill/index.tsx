@@ -28,7 +28,7 @@ import { identityProviderPath } from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { Button } from '@ir-engine/ui'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
-import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
+import ThemeToggle from '@ir-engine/ui/src/primitives/tailwind/ThemeToggle'
 import React, { useRef } from 'react'
 import { HiPencil } from 'react-icons/hi2'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
@@ -97,12 +97,12 @@ const ProfilePill = () => {
             </Button>
           </div>
 
-          <Toggle
+          <ThemeToggle
             value={themeState.theme.value === 'dark'}
-            onChange={() => {
-              ThemeState.setTheme(themeState.theme.value === 'light' ? 'dark' : 'light')
+            onChange={(value) => {
+              ThemeState.setTheme(value ? 'dark' : 'light')
             }}
-            label="Dark Mode"
+            label={themeState.theme.value === 'dark' ? 'Dark Mode' : 'Light Mode'}
           />
 
           <div className="flex flex-col gap-1">

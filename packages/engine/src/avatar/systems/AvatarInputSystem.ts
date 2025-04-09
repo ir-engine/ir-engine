@@ -200,7 +200,8 @@ const execute = () => {
   const inputState = getState(InputState)
   const avatarInputSettings = getState(AvatarInputSettingsState)
 
-  const controller = getComponent(selfAvatarEntity, AvatarControllerComponent)
+  const controller = getOptionalComponent(selfAvatarEntity, AvatarControllerComponent)
+  if (!controller) return
 
   const xrState = getState(XRState)
   const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar

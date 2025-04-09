@@ -23,11 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent, S } from '@ir-engine/ecs'
-import { Bone } from 'three'
+import type { Knex } from 'knex'
 
-export const NormalizedBoneComponent = defineComponent({
-  name: 'NormalizedBoneComponent',
-
-  schema: S.Required(S.Type<Bone>())
-})
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const tableExists = await knex.schema.hasTable('location-ban')
+  if (tableExists) {
+    await knex.schema.dropTable('location-ban')
+  }
+}
+export async function down(knex: Knex): Promise<void> {}

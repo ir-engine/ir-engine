@@ -64,9 +64,9 @@ describe('ReactorFunctions', () => {
       return null
     })
 
-    assert.equal(renderCount, 1) // rendered
-    assert.equal(layoutEffectCount, 1) // layout effect run
-    assert.equal(effectCount, 1) // async effect did not run
+    assert.equal(renderCount, 0) // rendered
+    assert.equal(layoutEffectCount, 0) // layout effect run
+    assert.equal(effectCount, 0) // async effect did not run
 
     // empty tag to allow scheduler to render
     const tag = <></>
@@ -112,13 +112,13 @@ describe('ReactorFunctions', () => {
       return null
     })
 
-    assert.equal(renderCount, 1)
-    assert.equal(layoutEffectCount, 1)
-    assert.equal(effectCount, 1)
+    assert.equal(renderCount, 0)
+    assert.equal(layoutEffectCount, 0)
+    assert.equal(effectCount, 0)
 
     ReactorReconciler.flushSync(() => reactorRoot.run())
 
-    assert.equal(renderCount, 2)
+    assert.equal(renderCount, 1)
     assert.equal(layoutEffectCount, 1)
     assert.equal(effectCount, 1)
 
@@ -126,7 +126,7 @@ describe('ReactorFunctions', () => {
 
     ReactorReconciler.flushSync(() => reactorRoot.run())
 
-    assert.equal(renderCount, 3)
+    assert.equal(renderCount, 2)
     assert.equal(layoutEffectCount, 2)
     assert.equal(effectCount, 2)
   })
@@ -175,32 +175,32 @@ describe('ReactorFunctions', () => {
       return null
     })
 
-    assert.equal(renderCount, 1)
-    assert.equal(layoutEffectCount, 1)
-    assert.equal(effectCount, 1)
-    assert.equal(render2Count, 1)
-    assert.equal(layoutEffect2Count, 1)
-    assert.equal(effect2Count, 1)
+    assert.equal(renderCount, 0)
+    assert.equal(layoutEffectCount, 0)
+    assert.equal(effectCount, 0)
+    assert.equal(render2Count, 0)
+    assert.equal(layoutEffect2Count, 0)
+    assert.equal(effect2Count, 0)
 
     ReactorReconciler.flushSync(() => reactorRoot.run())
 
-    assert.equal(renderCount, 2)
+    assert.equal(renderCount, 1)
     assert.equal(layoutEffectCount, 1)
     assert.equal(effectCount, 1)
-    assert.equal(render2Count, 1)
-    assert.equal(layoutEffect2Count, 1)
-    assert.equal(effect2Count, 1)
+    assert.equal(render2Count, 0)
+    assert.equal(layoutEffect2Count, 0)
+    assert.equal(effect2Count, 0)
 
     effectTrigger.set(1)
 
     ReactorReconciler.flushSync(() => reactorRoot.run())
 
-    assert.equal(renderCount, 3)
+    assert.equal(renderCount, 2)
     assert.equal(layoutEffectCount, 2)
     assert.equal(effectCount, 2)
-    assert.equal(render2Count, 1)
-    assert.equal(layoutEffect2Count, 1)
-    assert.equal(effect2Count, 1)
+    assert.equal(render2Count, 0)
+    assert.equal(layoutEffect2Count, 0)
+    assert.equal(effect2Count, 0)
 
     reactorRoot.stop()
     reactorRoot2.stop()
@@ -242,7 +242,7 @@ describe('ReactorFunctions', () => {
       )
     })
 
-    assert.equal(renderCount, 1)
+    assert.equal(renderCount, 0)
     assert.equal(layoutEffectCount, 0)
     assert.equal(nestedRenderCount, 0)
     assert.equal(effectCount, 0)
@@ -251,7 +251,7 @@ describe('ReactorFunctions', () => {
 
     ReactorReconciler.flushSync(() => reactorRoot.run())
 
-    assert.equal(renderCount, 2)
+    assert.equal(renderCount, 1)
     assert.equal(layoutEffectCount, 1)
     assert.equal(nestedRenderCount, 1)
     assert.equal(effectCount, 1)
@@ -260,7 +260,7 @@ describe('ReactorFunctions', () => {
 
     ReactorReconciler.flushSync(() => reactorRoot.run())
 
-    assert.equal(renderCount, 3)
+    assert.equal(renderCount, 2)
     assert.equal(layoutEffectCount, 2)
     assert.equal(nestedRenderCount, 2)
     assert.equal(effectCount, 2)
@@ -269,32 +269,9 @@ describe('ReactorFunctions', () => {
 
     ReactorReconciler.flushSync(() => reactorRoot.run())
 
-    assert.equal(renderCount, 4)
+    assert.equal(renderCount, 3)
     assert.equal(layoutEffectCount, 3)
     assert.equal(nestedRenderCount, 4)
     assert.equal(effectCount, 3)
-  })
-
-  it('should be able to run nested reactor mount effects synchronously inside effects of another reactor', () => {
-    let renderCount = 0
-
-    const effectTrigger = hookstate({} as Record<string, number>)
-
-    const reactorRoot = startReactor(() => {
-      useLayoutEffect(() => {
-        startReactor(() => {
-          const trigger = useHookstate(effectTrigger)
-
-          useLayoutEffect(() => {
-            renderCount++
-          }, [trigger])
-          return null
-        })
-      }, [])
-
-      return null
-    })
-
-    assert.equal(renderCount, 1)
   })
 })

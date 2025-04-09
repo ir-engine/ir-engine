@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushAll } from '../../../../hyperflux/tests/utils/flushAll'
 import { assertVec } from '../../../../spatial/tests/util/assert'
 import { destroyEmulatedXREngine, mockEmulatedXREngine } from '../../../../spatial/tests/util/mockEmulatedXREngine'
 import { CustomWebXRPolyfill } from '../../../../spatial/tests/webxr/emulator'
@@ -45,7 +46,7 @@ import {
   SystemUUID,
   UndefinedEntity
 } from '@ir-engine/ecs'
-import { getMutableState, getState, none, ReactorRoot, startReactor } from '@ir-engine/hyperflux'
+import { getMutableState, getState, ReactorRoot, startReactor } from '@ir-engine/hyperflux'
 import {
   DirectionalLightComponent,
   MeshBVHSystem,
@@ -65,8 +66,9 @@ import { CSM } from '@ir-engine/spatial/src/renderer/csm/CSM'
 import { getShadowsEnabled } from '@ir-engine/spatial/src/renderer/functions/RenderSettingsFunction'
 import { XRLightProbeState } from '@ir-engine/spatial/src/xr/XRLightProbeSystem'
 import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
+import { act, render } from '@testing-library/react'
 import React from 'react'
-import { BoxGeometry, Color, Material, Mesh, Quaternion, Raycaster, Vector2, Vector3 } from 'three'
+import { BoxGeometry, Color, Material, Mesh, MeshBasicMaterial, Quaternion, Raycaster, Vector2, Vector3 } from 'three'
 import { getTextureAsync } from '../../assets/functions/resourceLoaderHooks'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { NodeFunctions } from '../../gltf/NodeFunctions'
@@ -89,16 +91,16 @@ beforeAll(() => {
   new CustomWebXRPolyfill()
 })
 
-describe('ShadowSystemState', () => {
-  describe('name', () => {
-    it('should have the expected name', () => {
+describe('ShadowSystemState', async () => {
+  describe('name', async () => {
+    it('should have the expected name', async () => {
       const Expected = 'ee.engine.scene.ShadowSystemState'
       const result = ShadowSystemState.name
       expect(result).toBe(Expected)
     })
   }) //:: name
 
-  describe('initial', () => {
+  describe('initial', async () => {
     beforeEach(async () => {
       createEngine()
       await mockEmulatedXREngine()
@@ -138,7 +140,7 @@ describe('ShadowSystemState', () => {
   }) //:: initial
 }) //:: ShadowSystemState
 
-describe('EntityChildCSMReactor', () => {
+describe('EntityChildCSMReactor', async () => {
   let testEntity = UndefinedEntity
 
   beforeEach(async () => {
@@ -153,8 +155,8 @@ describe('EntityChildCSMReactor', () => {
     destroyEngine()
   })
 
-  describe('on change [shadowComponent.receive, csm]', () => {
-    it('should not do anything (return early) if `@param props.rendererEntity`.RendererComponent.csm is falsy', () => {
+  describe('on change [shadowComponent.receive, csm]', async () => {
+    it('should not do anything (return early) if `@param props.rendererEntity`.RendererComponent.csm is falsy', async () => {
       const resultSpy = vi.fn()
       const csm = new CSM({})
       csm.setupMaterial = resultSpy
@@ -172,11 +174,12 @@ describe('EntityChildCSMReactor', () => {
       }
 
       const root = startReactor(Reactor) as ReactorRoot
+
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
       expect(resultSpy).not.toHaveBeenCalled()
     })
 
-    it('should not do anything (return early) if entityContext.ShadowComponent.receive is falsy', () => {
+    it('should not do anything (return early) if entityContext.ShadowComponent.receive is falsy', async () => {
       const resultSpy = vi.fn()
       const csm = new CSM({})
       csm.setupMaterial = resultSpy
@@ -193,40 +196,19 @@ describe('EntityChildCSMReactor', () => {
       }
 
       const root = startReactor(Reactor) as ReactorRoot
+
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
       expect(resultSpy).not.toHaveBeenCalled()
     })
 
-    it('should not do anything (return early) if entityContext.ObjectComponent is falsy', () => {
-      const resultSpy = vi.fn()
-      const csm = new CSM({})
-      csm.setupMaterial = resultSpy
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: csm })
-      setComponent(testEntity, ShadowComponent, { receive: false })
-      setComponent(testEntity, ObjectComponent, new Mesh(new BoxGeometry()))
-      getMutableComponent(testEntity, ObjectComponent).set(null as unknown as Mesh)
-      const Reactor = () => {
-        return React.createElement(
-          EntityContext.Provider,
-          { value: testEntity },
-          React.createElement(ShadowSystemReactors.EntityChildCSMReactor, { rendererEntity: rendererEntity })
-        )
-      }
-
-      const root = startReactor(Reactor)
-      expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      expect(resultSpy).not.toHaveBeenCalled()
-    })
-
-    it('should call `@param props.rendererEntity`.RendererComponent.csm.setupMaterial if entityContext.ObjectComponent.material is truthy', () => {
+    it('should call `@param props.rendererEntity`.RendererComponent.csm.setupMaterial if entityContext.ObjectComponent.material is truthy', async () => {
       const resultSpy = vi.fn()
       const csm = new CSM({})
       csm.setupMaterial = resultSpy
       const rendererEntity = createEntity()
       setComponent(rendererEntity, RendererComponent, { csm: csm })
       setComponent(testEntity, ShadowComponent)
-      setComponent(testEntity, ObjectComponent, new Mesh(new BoxGeometry()))
+      setComponent(testEntity, ObjectComponent, new Mesh(new BoxGeometry(), new MeshBasicMaterial()))
       const Reactor = () => {
         return React.createElement(
           EntityContext.Provider,
@@ -236,12 +218,15 @@ describe('EntityChildCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
-      expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      expect(resultSpy).toHaveBeenCalledTimes(1)
+      await act(() => render(null))
+      await vi.waitFor(() => {
+        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+        expect(resultSpy).toHaveBeenCalledTimes(1)
+      })
     })
 
-    describe('on cleanup ..', () => {
-      it('.. should call `@param props.rendererEntity`.RendererComponent.csm.teardownMaterial if entityContext.ObjectComponent.material is truthy', () => {
+    describe('on cleanup ..', async () => {
+      it('.. should call `@param props.rendererEntity`.RendererComponent.csm.teardownMaterial if entityContext.ObjectComponent.material is truthy', async () => {
         const resultSpy = vi.fn()
         const csm = new CSM({})
         csm.teardownMaterial = resultSpy
@@ -258,15 +243,18 @@ describe('EntityChildCSMReactor', () => {
         }
 
         const root = startReactor(Reactor)
-        root.stop()
-        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-        expect(resultSpy).toHaveBeenCalledTimes(1)
+        await act(() => render(null))
+        await vi.waitFor(() => {
+          root.stop()
+          expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+          expect(resultSpy).toHaveBeenCalledTimes(1)
+        })
       })
     })
   })
 }) //:: EntityChildCSMReactor
 
-describe('EntityCSMReactor', () => {
+describe('EntityCSMReactor', async () => {
   let testEntity = UndefinedEntity
 
   beforeEach(async () => {
@@ -281,8 +269,8 @@ describe('EntityCSMReactor', () => {
     destroyEngine()
   })
 
-  describe('on change [directionalLight, directionalLightComponent?.castShadow.value]', () => {
-    it('should not do anything (return early) if `@param props.entity`.DirectionalLightComponent.light is falsy', () => {
+  describe('on change [directionalLight, directionalLightComponent?.castShadow.value]', async () => {
+    it('should not do anything (return early) if `@param props.entity`.DirectionalLightComponent.light is falsy', async () => {
       const Initial = new CSM({})
 
       const rendererEntity = createEntity()
@@ -300,12 +288,13 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
+
       const result = getComponent(rendererEntity, RendererComponent).csm
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
       expect(result).toBe(Initial)
     })
 
-    it('should not do anything (return early) if `@param props.entity`.DirectionalLightComponent.castShadow is falsy', () => {
+    it('should not do anything (return early) if `@param props.entity`.DirectionalLightComponent.castShadow is falsy', async () => {
       const Initial = new CSM({})
 
       const rendererEntity = createEntity()
@@ -322,12 +311,13 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
+
       const result = getComponent(rendererEntity, RendererComponent).csm
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
       expect(result).toBe(Initial)
     })
 
-    it('should call `@param props.rendererEntity`.RendererComponent.csm.set with a newly created CSM instance', () => {
+    it('should call `@param props.rendererEntity`.RendererComponent.csm.set with a newly created CSM instance', async () => {
       const Initial = new CSM({})
 
       const rendererEntity = createEntity()
@@ -344,12 +334,15 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
-      const result = getComponent(rendererEntity, RendererComponent).csm
-      expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      expect(result).not.toBe(Initial)
+      await act(() => render(null))
+      await vi.waitFor(() => {
+        const result = getComponent(rendererEntity, RendererComponent).csm
+        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+        expect(result).not.toBe(Initial)
+      })
     })
 
-    it('should set `@param props.rendererEntity`.RendererComponent.csm.light to `@param props.entity`.DirectionalLightComponent.light', () => {
+    it('should set `@param props.rendererEntity`.RendererComponent.csm.light to `@param props.entity`.DirectionalLightComponent.light', async () => {
       const Initial = undefined
 
       const csm = new CSM({})
@@ -367,12 +360,15 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
-      const result = getComponent(rendererEntity, RendererComponent).csm?.sourceLight
-      expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      expect(result).not.toBe(Initial)
+      await act(() => render(null))
+      await vi.waitFor(() => {
+        const result = getComponent(rendererEntity, RendererComponent).csm?.sourceLight
+        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+        expect(result).not.toBe(Initial)
+      })
     })
 
-    it('should set `@param props.rendererEntity`.RendererComponent.csm.shadowMapSize to RendererState.shadowMapResolution', () => {
+    it('should set `@param props.rendererEntity`.RendererComponent.csm.shadowMapSize to RendererState.shadowMapResolution', async () => {
       const Expected = getState(RendererState).shadowMapResolution
       const Initial = 42_000
 
@@ -391,13 +387,16 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
-      const result = getComponent(rendererEntity, RendererComponent).csm?.shadowMapSize
-      expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      expect(result).not.toBe(Initial)
-      expect(result).toBe(Expected)
+      await act(() => render(null))
+      await vi.waitFor(() => {
+        const result = getComponent(rendererEntity, RendererComponent).csm?.shadowMapSize
+        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+        expect(result).not.toBe(Initial)
+        expect(result).toBe(Expected)
+      })
     })
 
-    it('should set `@param props.rendererEntity`.RendererComponent.csm.shadowBias to `@param props.entity`.DirectionalLightComponent.shadowBias', () => {
+    it('should set `@param props.rendererEntity`.RendererComponent.csm.shadowBias to `@param props.entity`.DirectionalLightComponent.shadowBias', async () => {
       const Expected = 42_000
       const Initial = 21_000
 
@@ -416,13 +415,16 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
-      const result = getComponent(rendererEntity, RendererComponent).csm?.shadowBias
-      expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      expect(result).not.toBe(Initial)
-      expect(result).toBe(Expected)
+      await act(() => render(null))
+      await vi.waitFor(() => {
+        const result = getComponent(rendererEntity, RendererComponent).csm?.shadowBias
+        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+        expect(result).not.toBe(Initial)
+        expect(result).toBe(Expected)
+      })
     })
 
-    it('should set `@param props.rendererEntity`.RendererComponent.csm.maxFar to `@param props.entity`.DirectionalLightComponent.cameraFar', () => {
+    it('should set `@param props.rendererEntity`.RendererComponent.csm.maxFar to `@param props.entity`.DirectionalLightComponent.cameraFar', async () => {
       const Expected = 42_000
       const Initial = 21_000
 
@@ -441,13 +443,16 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
-      const result = getComponent(rendererEntity, RendererComponent).csm?.maxFar
-      expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      expect(result).not.toBe(Initial)
-      expect(result).toBe(Expected)
+      await act(() => render(null))
+      await vi.waitFor(() => {
+        const result = getComponent(rendererEntity, RendererComponent).csm?.maxFar
+        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+        expect(result).not.toBe(Initial)
+        expect(result).toBe(Expected)
+      })
     })
 
-    it('should set `@param props.rendererEntity`.RendererComponent.csm.lightIntensity to `@param props.entity`.DirectionalLightComponent.intensity', () => {
+    it('should set `@param props.rendererEntity`.RendererComponent.csm.lightIntensity to `@param props.entity`.DirectionalLightComponent.intensity', async () => {
       const Expected = 42_000
       const Initial = 21_000
 
@@ -466,13 +471,16 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
-      const result = getComponent(rendererEntity, RendererComponent).csm?.lightIntensity
-      expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      expect(result).not.toBe(Initial)
-      expect(result).toBe(Expected)
+      await act(() => render(null))
+      await vi.waitFor(() => {
+        const result = getComponent(rendererEntity, RendererComponent).csm?.lightIntensity
+        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+        expect(result).not.toBe(Initial)
+        expect(result).toBe(Expected)
+      })
     })
 
-    it('should set `@param props.rendererEntity`.RendererComponent.csm.lightColor to `@param props.entity`.DirectionalLightComponent.color', () => {
+    it('should set `@param props.rendererEntity`.RendererComponent.csm.lightColor to `@param props.entity`.DirectionalLightComponent.color', async () => {
       const Expected = new Color(42_000)
       const Initial = 21_000
 
@@ -491,13 +499,16 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
-      const result = getComponent(rendererEntity, RendererComponent).csm?.lightColor
-      expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      expect(result).not.toBe(Initial)
-      expect(result).toEqual(Expected)
+      await act(() => render(null))
+      await vi.waitFor(() => {
+        const result = getComponent(rendererEntity, RendererComponent).csm?.lightColor
+        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+        expect(result).not.toBe(Initial)
+        expect(result).toEqual(Expected)
+      })
     })
 
-    it('should set `@param props.rendererEntity`.RendererComponent.csm.cascades to `@param props.renderSettingsEntity`.RenderSettingsComponent.cascades', () => {
+    it('should set `@param props.rendererEntity`.RendererComponent.csm.cascades to `@param props.renderSettingsEntity`.RenderSettingsComponent.cascades', async () => {
       const Expected = 4.2
       const Initial = 2.1
 
@@ -516,14 +527,17 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
-      const result = getComponent(rendererEntity, RendererComponent).csm?.cascades
-      expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      expect(result).not.toBe(Initial)
-      expect(result).toEqual(Expected)
+      await act(() => render(null))
+      await vi.waitFor(() => {
+        const result = getComponent(rendererEntity, RendererComponent).csm?.cascades
+        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+        expect(result).not.toBe(Initial)
+        expect(result).toEqual(Expected)
+      })
     })
 
-    describe('on cleanup ..', () => {
-      it('.. should dispose of `@param props.rendererEntity`.RendererComponent.csm and set it to `null`', () => {
+    describe('on cleanup ..', async () => {
+      it('.. should dispose of `@param props.rendererEntity`.RendererComponent.csm and set it to `null`', async () => {
         const Expected = null
         const Initial = new CSM({})
 
@@ -541,17 +555,20 @@ describe('EntityCSMReactor', () => {
         }
 
         const root = startReactor(Reactor)
-        root.stop()
-        const result = getComponent(rendererEntity, RendererComponent).csm
-        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-        expect(result).not.toBe(Initial)
-        expect(result).toEqual(Expected)
+        await act(() => render(null))
+        await vi.waitFor(() => {
+          root.stop()
+          const result = getComponent(rendererEntity, RendererComponent).csm
+          expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+          expect(result).not.toBe(Initial)
+          expect(result).toEqual(Expected)
+        })
       })
     })
   })
 
-  describe('after SceneObjectSystem ..', () => {
-    it('should not do anything (return early) if `@param props.entity`.DirectionalLightComponent.light is falsy', () => {
+  describe('after SceneObjectSystem ..', async () => {
+    it('should not do anything (return early) if `@param props.entity`.DirectionalLightComponent.light is falsy', async () => {
       const Initial = undefined
 
       const rendererEntity = defineQuery([RendererComponent])()[0]
@@ -559,7 +576,15 @@ describe('EntityCSMReactor', () => {
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
-      getMutableComponent(testEntity, DirectionalLightComponent).light.set(none)
+
+      // wait for light to be created, then non-reactively override it
+      await act(() => render(null))
+      await vi.waitUntil(() => {
+        return getComponent(testEntity, DirectionalLightComponent).light
+      })
+      // @ts-expect-error
+      getComponent(testEntity, DirectionalLightComponent).light = null
+
       const Reactor = () => {
         return React.createElement(ShadowSystemReactors.EntityCSMReactor, {
           entity: testEntity,
@@ -569,6 +594,9 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
+
+      await act(() => render(null))
+
       const systems = SystemDefinitions.values().toArray()
       const system = systems[systems.length - 1]
       system.execute()
@@ -577,7 +605,7 @@ describe('EntityCSMReactor', () => {
       expect(result).toBe(Initial)
     })
 
-    it('should not do anything (return early) if `@param props.entity`.DirectionalLightComponent.castShadow is falsy', () => {
+    it('should not do anything (return early) if `@param props.entity`.DirectionalLightComponent.castShadow is falsy', async () => {
       const Initial = true
 
       const rendererEntity = defineQuery([RendererComponent])()[0]
@@ -594,6 +622,11 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
+      await act(() => render(null))
+      await vi.waitUntil(() => {
+        return getComponent(testEntity, DirectionalLightComponent).light
+      })
+
       const systems = SystemDefinitions.values().toArray()
       const system = systems[systems.length - 1]
       system.execute()
@@ -602,7 +635,7 @@ describe('EntityCSMReactor', () => {
       expect(result).toBe(Initial)
     })
 
-    it('should set `@param props.entity`.DirectionalLightComponent.light.visible to false', () => {
+    it('should set `@param props.entity`.DirectionalLightComponent.light.visible to false', async () => {
       const Expected = false
 
       const rendererEntity = defineQuery([RendererComponent])()[0]
@@ -620,6 +653,11 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
+      await act(() => render(null))
+      await vi.waitUntil(() => {
+        return getComponent(testEntity, DirectionalLightComponent).light?.visible
+      })
+
       const systems = SystemDefinitions.values().toArray()
       const system = systems[systems.length - 1]
       system.execute()
@@ -629,8 +667,8 @@ describe('EntityCSMReactor', () => {
     })
   })
 
-  describe('on change [ rendererComponent.csm, shadowMapResolution, directionalLight, directionalLightComponent.shadowBias, directionalLightComponent.intensity, directionalLightComponent.color, directionalLightComponent.castShadow, directionalLightComponent.shadowRadius, directionalLightComponent.cameraFar ]', () => {
-    it('should not do anything (return early) and not crash if `@param props.rendererEntity`.RendererComponent.csm is falsy', () => {
+  describe('on change [ rendererComponent.csm, shadowMapResolution, directionalLight, directionalLightComponent.shadowBias, directionalLightComponent.intensity, directionalLightComponent.color, directionalLightComponent.castShadow, directionalLightComponent.shadowRadius, directionalLightComponent.cameraFar ]', async () => {
+    it('should not do anything (return early) and not crash if `@param props.rendererEntity`.RendererComponent.csm is falsy', async () => {
       const Initial = undefined
 
       const rendererEntity = createEntity()
@@ -647,14 +685,20 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
+      await act(() => render(null))
+      await vi.waitUntil(() => {
+        return getComponent(testEntity, DirectionalLightComponent).light
+      })
       setComponent(rendererEntity, RendererComponent, { csm: undefined })
-      root.run()
+
+      await act(() => render(null))
+
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
       const result = getComponent(rendererEntity, RendererComponent).csm?.needsUpdate
       expect(result).toBe(Initial)
     })
 
-    it('should not do anything (return early) if `@param props.entity`.DirectionalLightComponent.light is falsy', () => {
+    it('should not do anything (return early) if `@param props.entity`.DirectionalLightComponent.light is falsy', async () => {
       const Initial = false
 
       const rendererEntity = createEntity()
@@ -664,7 +708,15 @@ describe('EntityCSMReactor', () => {
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
-      getMutableComponent(testEntity, DirectionalLightComponent).light.set(null as any) // Coerce the light to be falsy
+
+      // wait for light to be created, then non-reactively override it
+      await act(() => render(null))
+      await vi.waitUntil(() => {
+        return getComponent(testEntity, DirectionalLightComponent).light
+      })
+      // @ts-expect-error
+      getComponent(testEntity, DirectionalLightComponent).light = null
+
       const Reactor = () => {
         return React.createElement(ShadowSystemReactors.EntityCSMReactor, {
           entity: testEntity,
@@ -674,14 +726,19 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
+
+      await act(() => render(null))
+
       getMutableComponent(rendererEntity, RendererComponent).csm.merge({ needsUpdate: Initial })
-      root.run()
+
+      await act(() => render(null))
+
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
       const result = getComponent(rendererEntity, RendererComponent).csm?.needsUpdate
       expect(result).toBe(Initial)
     })
 
-    it('should not do anything (return early) if `@param props.entity`.DirectionalLightComponent.castShadow is falsy', () => {
+    it('should not do anything (return early) if `@param props.entity`.DirectionalLightComponent.castShadow is falsy', async () => {
       const Initial = false
 
       const rendererEntity = createEntity()
@@ -700,14 +757,22 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
+
+      await act(() => render(null))
+      await vi.waitUntil(() => {
+        return getComponent(testEntity, DirectionalLightComponent).light
+      })
+
       getMutableComponent(rendererEntity, RendererComponent).csm.merge({ needsUpdate: Initial })
-      root.run()
+
+      await act(() => render(null))
+
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
       const result = getComponent(rendererEntity, RendererComponent).csm?.needsUpdate
       expect(result).toBe(Initial)
     })
 
-    it('should set `@param props.rendererEntity`.RendererComponent.csm.shadowBias to `@param props.entity`.DirectionalLightComponent.light.shadow.bias', () => {
+    it('should set `@param props.rendererEntity`.RendererComponent.csm.shadowBias to `@param props.entity`.DirectionalLightComponent.light.shadow.bias', async () => {
       const Expected = 42_000
       const Initial = 21_000
 
@@ -726,15 +791,23 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
+      await act(() => render(null))
+      await vi.waitUntil(() => {
+        return getComponent(testEntity, DirectionalLightComponent).light?.visible
+      })
+
       setComponent(testEntity, DirectionalLightComponent, { shadowBias: Expected })
-      root.run()
-      const result = getComponent(rendererEntity, RendererComponent).csm?.shadowBias
-      expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      expect(result).not.toBe(Initial)
-      expect(result).toBe(Expected)
+
+      await act(() => render(null))
+      await vi.waitFor(() => {
+        const result = getComponent(rendererEntity, RendererComponent).csm?.shadowBias
+        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+        expect(result).not.toBe(Initial)
+        expect(result).toBe(Expected)
+      })
     })
 
-    it('should set `@param props.rendererEntity`.RendererComponent.csm.maxFar to `@param props.entity`.DirectionalLightComponent.cameraFar', () => {
+    it('should set `@param props.rendererEntity`.RendererComponent.csm.maxFar to `@param props.entity`.DirectionalLightComponent.cameraFar', async () => {
       const Expected = 42_000
       const Initial = 21_000
 
@@ -753,15 +826,23 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
+      await act(() => render(null))
+      await vi.waitUntil(() => {
+        return getComponent(testEntity, DirectionalLightComponent).light?.visible
+      })
+
       setComponent(testEntity, DirectionalLightComponent, { cameraFar: Expected })
-      root.run()
-      const result = getComponent(rendererEntity, RendererComponent).csm?.maxFar
-      expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      expect(result).not.toBe(Initial)
-      expect(result).toBe(Expected)
+
+      await act(() => render(null))
+      await vi.waitFor(() => {
+        const result = getComponent(rendererEntity, RendererComponent).csm?.maxFar
+        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+        expect(result).not.toBe(Initial)
+        expect(result).toBe(Expected)
+      })
     })
 
-    it('should set `@param props.rendererEntity`.RendererComponent.csm.shadowMapSize to RendererState.shadowMapResolution', () => {
+    it('should set `@param props.rendererEntity`.RendererComponent.csm.shadowMapSize to RendererState.shadowMapResolution', async () => {
       const Expected = 42
       const Initial = 21_000
 
@@ -781,16 +862,25 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
+
+      await act(() => render(null))
+      await vi.waitUntil(() => {
+        return getComponent(testEntity, DirectionalLightComponent).light
+      })
+
       getMutableState(RendererState).shadowMapResolution.set(Expected)
-      root.run()
-      const result = getComponent(rendererEntity, RendererComponent).csm?.shadowMapSize
-      expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      expect(result).not.toBe(Initial)
-      expect(result).toBe(Expected)
+
+      await act(() => render(null))
+      await vi.waitFor(() => {
+        const result = getComponent(rendererEntity, RendererComponent).csm?.shadowMapSize
+        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+        expect(result).not.toBe(Initial)
+        expect(result).toBe(Expected)
+      })
     })
 
-    describe('for every light in the `@param props.rendererEntity`.RendererComponent.csm.lights list ..', () => {
-      it('.. should set light.color to a new color from `@param props.entity`.DirectionalLightComponent.color', () => {
+    describe('for every light in the `@param props.rendererEntity`.RendererComponent.csm.lights list ..', async () => {
+      it('.. should set light.color to a new color from `@param props.entity`.DirectionalLightComponent.color', async () => {
         const Expected = 42
         const Initial = 21_000
 
@@ -811,16 +901,19 @@ describe('EntityCSMReactor', () => {
 
         const root = startReactor(Reactor)
         setComponent(testEntity, DirectionalLightComponent, { color: Expected })
-        root.run()
-        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-        for (const light of getComponent(rendererEntity, RendererComponent).csm!.lights!) {
-          const result = light.color.getHex()
-          expect(result).not.toBe(Initial)
-          expect(result).toBe(Expected)
-        }
+
+        await act(() => render(null))
+        await vi.waitFor(() => {
+          expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+          for (const light of getComponent(rendererEntity, RendererComponent).csm!.lights!) {
+            const result = light.color.getHex()
+            expect(result).not.toBe(Initial)
+            expect(result).toBe(Expected)
+          }
+        })
       })
 
-      it('.. should set light.intensity to `@param props.entity`.DirectionalLightComponent.intensity', () => {
+      it('.. should set light.intensity to `@param props.entity`.DirectionalLightComponent.intensity', async () => {
         const Expected = 42
         const Initial = 21_000
 
@@ -841,16 +934,19 @@ describe('EntityCSMReactor', () => {
 
         const root = startReactor(Reactor)
         setComponent(testEntity, DirectionalLightComponent, { intensity: Expected })
-        root.run()
-        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-        for (const light of getComponent(rendererEntity, RendererComponent).csm!.lights!) {
-          const result = light.intensity
-          expect(result).not.toBe(Initial)
-          expect(result).toBe(Expected)
-        }
+
+        await act(() => render(null))
+        await vi.waitFor(() => {
+          expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+          for (const light of getComponent(rendererEntity, RendererComponent).csm!.lights!) {
+            const result = light.intensity
+            expect(result).not.toBe(Initial)
+            expect(result).toBe(Expected)
+          }
+        })
       })
 
-      it('.. should set all components of light.shadow.mapSize to RendererState.shadowMapResolution', () => {
+      it('.. should set all components of light.shadow.mapSize to RendererState.shadowMapResolution', async () => {
         const Expected = 42
         const Initial = 21_000
 
@@ -872,16 +968,19 @@ describe('EntityCSMReactor', () => {
 
         const root = startReactor(Reactor)
         getMutableState(RendererState).shadowMapResolution.set(Expected)
-        root.run()
-        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-        for (const light of getComponent(rendererEntity, RendererComponent).csm!.lights!) {
-          const result = light.shadow.mapSize
-          expect(result).not.toEqual(new Vector2(Initial, Initial))
-          expect(result).toEqual(new Vector2(Expected, Expected))
-        }
+
+        await act(() => render(null))
+        await vi.waitFor(() => {
+          expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+          for (const light of getComponent(rendererEntity, RendererComponent).csm!.lights!) {
+            const result = light.shadow.mapSize
+            expect(result).not.toEqual(new Vector2(Initial, Initial))
+            expect(result).toEqual(new Vector2(Expected, Expected))
+          }
+        })
       })
 
-      it('.. should set light.shadow.radius to `@param props.entity`.DirectionalLightComponent.shadowRadius', () => {
+      it('.. should set light.shadow.radius to `@param props.entity`.DirectionalLightComponent.shadowRadius', async () => {
         const Expected = 42
         const Initial = 21_000
 
@@ -902,17 +1001,20 @@ describe('EntityCSMReactor', () => {
 
         const root = startReactor(Reactor)
         setComponent(testEntity, DirectionalLightComponent, { shadowRadius: Expected })
-        root.run()
-        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-        for (const light of getComponent(rendererEntity, RendererComponent).csm!.lights!) {
-          const result = light.shadow.radius
-          expect(result).not.toBe(Initial)
-          expect(result).toBe(Expected)
-        }
+
+        await act(() => render(null))
+        await vi.waitFor(() => {
+          expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+          for (const light of getComponent(rendererEntity, RendererComponent).csm!.lights!) {
+            const result = light.shadow.radius
+            expect(result).not.toBe(Initial)
+            expect(result).toBe(Expected)
+          }
+        })
       })
     })
 
-    it('should set `@param props.rendererEntity`.RendererComponent.csm.needsUpdate to true', () => {
+    it('should set `@param props.rendererEntity`.RendererComponent.csm.needsUpdate to true', async () => {
       const Expected = true
       const Initial = !Expected
 
@@ -932,15 +1034,19 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
-      expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      const result = getComponent(rendererEntity, RendererComponent).csm?.needsUpdate
-      expect(result).not.toBe(Initial)
-      expect(result).toBe(Expected)
+
+      await act(() => render(null))
+      await vi.waitFor(() => {
+        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+        const result = getComponent(rendererEntity, RendererComponent).csm?.needsUpdate
+        expect(result).not.toBe(Initial)
+        expect(result).toBe(Expected)
+      })
     })
   })
 
-  describe('on change [csm, renderSettingsComponent.cascades]', () => {
-    it('should not do anything (return early) and not crash if `@param props.rendererEntity`.RendererComponent.csm is falsy', () => {
+  describe('on change [csm, renderSettingsComponent.cascades]', async () => {
+    it('should not do anything (return early) and not crash if `@param props.rendererEntity`.RendererComponent.csm is falsy', async () => {
       const rendererEntity = createEntity()
       setComponent(rendererEntity, RendererComponent, { csm: undefined })
       const renderSettingsEntity = createEntity()
@@ -955,10 +1061,13 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
+
+      await act(() => render(null))
+
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
     })
 
-    it('should set `@param props.rendererEntity`.RendererComponent.csm.cascades to `@param props.renderSettingsEntity`.RenderSettingsComponent.cascades', () => {
+    it('should set `@param props.rendererEntity`.RendererComponent.csm.cascades to `@param props.renderSettingsEntity`.RenderSettingsComponent.cascades', async () => {
       const Expected = 42
       const Initial = 21
 
@@ -978,14 +1087,17 @@ describe('EntityCSMReactor', () => {
 
       const root = startReactor(Reactor)
       setComponent(renderSettingsEntity, RenderSettingsComponent, { cascades: Expected })
-      root.run()
-      expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      const result = getComponent(rendererEntity, RendererComponent).csm?.cascades
-      expect(result).not.toBe(Initial)
-      expect(result).toBe(Expected)
+
+      await act(() => render(null))
+      await vi.waitFor(() => {
+        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+        const result = getComponent(rendererEntity, RendererComponent).csm?.cascades
+        expect(result).not.toBe(Initial)
+        expect(result).toBe(Expected)
+      })
     })
 
-    it('should set `@param props.rendererEntity`.RendererComponent.csm.needsUpdate to true', () => {
+    it('should set `@param props.rendererEntity`.RendererComponent.csm.needsUpdate to true', async () => {
       const Expected = true
       const Initial = !Expected
 
@@ -1005,16 +1117,22 @@ describe('EntityCSMReactor', () => {
       }
 
       const root = startReactor(Reactor)
-      expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      const result = getComponent(rendererEntity, RendererComponent).csm?.needsUpdate
-      expect(result).not.toBe(Initial)
-      expect(result).toBe(Expected)
+
+      await act(() => render(null))
+      await vi.waitFor(() => {
+        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+        const result = getComponent(rendererEntity, RendererComponent).csm?.needsUpdate
+        expect(result).not.toBe(Initial)
+        expect(result).toBe(Expected)
+      })
     })
   })
 
-  describe('on cleanup ..', () => {
-    it('should call EntityChildCSMReactor for every entity with components [ShadowComponent, ObjectComponent] and `@param props.rendererEntity` as a props argument', () => {
+  describe('on cleanup ..', async () => {
+    it('should call EntityChildCSMReactor for every entity with components [ShadowComponent, ObjectComponent] and `@param props.rendererEntity` as a props argument', async () => {
+      const resultSpy = vi.fn()
       const csm = new CSM({})
+      csm.setupMaterial = resultSpy
       const rendererEntity = createEntity()
       setComponent(rendererEntity, RendererComponent, { csm: csm })
       const renderSettingsEntity = createEntity()
@@ -1030,19 +1148,19 @@ describe('EntityCSMReactor', () => {
       const entities = [createEntity(), createEntity()]
       for (const entity of entities) {
         setComponent(entity, ShadowComponent)
-        setComponent(entity, ObjectComponent, new Mesh(new BoxGeometry()))
+        setComponent(entity, ObjectComponent, new Mesh(new BoxGeometry(), new MeshBasicMaterial()))
       }
-      const resultSpy = vi.spyOn(ShadowSystemReactors, 'EntityChildCSMReactor')
-
       const root = startReactor(Reactor)
-      root.stop()
+
+      await flushAll()
+
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
       expect(resultSpy).toHaveBeenCalledTimes(entities.length)
     })
   })
 }) //:: EntityCSMReactor
 
-describe('CSMReactor', () => {
+describe('CSMReactor', async () => {
   let testEntity = UndefinedEntity
 
   beforeEach(async () => {
@@ -1057,12 +1175,12 @@ describe('CSMReactor', () => {
     destroyEngine()
   })
 
-  describe('on change [xrLightProbeEntity.value, renderSettingsComponent.primaryLight, primaryLightVisibleComponent]', () => {
+  describe('on change [xrLightProbeEntity.value, renderSettingsComponent.primaryLight, primaryLightVisibleComponent]', async () => {
     it(
       'should set `@param props.renderSettingsEntity`.RenderSettingsComponent.primaryLight to XRLightProbeState.directionalLightEntity' +
         'if `@param props.renderEntity` is ReferenceSpaceState.viewerEntity' +
         'and XRLightProbeState.directionalLightEntity is truthy',
-      () => {
+      async () => {
         const Expected = createEntity()
 
         const rendererEntity = defineQuery([RendererComponent])()[0]
@@ -1092,6 +1210,9 @@ describe('CSMReactor', () => {
         }
 
         const root = startReactor(Reactor)
+
+        await flushAll()
+
         const result = NodeFunctions.getEntityFromNodeID(
           renderSettingsEntity,
           getComponent(renderSettingsEntity, RenderSettingsComponent).primaryLight
@@ -1102,8 +1223,8 @@ describe('CSMReactor', () => {
     )
   })
 
-  describe('on cleanup', () => {
-    it('should not call EntityCSMReactor if renderSettingsComponent.csm is falsy', () => {
+  describe('on cleanup', async () => {
+    it('should not call EntityCSMReactor if renderSettingsComponent.csm is falsy', async () => {
       const rendererEntity = defineQuery([RendererComponent])()[0]
       getMutableComponent(rendererEntity, RendererComponent).csm.set(new CSM({}))
 
@@ -1118,7 +1239,7 @@ describe('CSMReactor', () => {
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, SourceComponent, sourceID)
       setComponent(renderSettingsEntity, RenderSettingsComponent, { primaryLight: directionalLightNodeID })
-      getMutableComponent(renderSettingsEntity, RenderSettingsComponent).csm.set(none)
+      getMutableComponent(renderSettingsEntity, RenderSettingsComponent).csm.set(false)
       const nodes = { [directionalLightNodeID]: directionalLightEntity }
       getMutableState(NodesBySourceState)[sourceID].set(nodes)
 
@@ -1131,17 +1252,19 @@ describe('CSMReactor', () => {
       const resultSpy = vi.spyOn(ShadowSystemReactors, 'EntityCSMReactor')
 
       const root = startReactor(Reactor)
+
+      await flushAll()
+
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
       expect(resultSpy).not.toHaveBeenCalled()
     })
 
-    it('should not call EntityCSMReactor if activeLightEntity is falsy', () => {
+    it('should not call EntityCSMReactor if activeLightEntity is falsy', async () => {
       const rendererEntity = defineQuery([RendererComponent])()[0]
       getMutableComponent(rendererEntity, RendererComponent).csm.set(new CSM({}))
 
       const directionalLightEntity = createEntity()
       setComponent(directionalLightEntity, DirectionalLightComponent)
-      getMutableState(XRLightProbeState).directionalLightEntity.set(directionalLightEntity)
 
       const directionalLightNodeID = 'SomeNodeID' as NodeID
       setComponent(directionalLightEntity, NodeIDComponent, directionalLightNodeID)
@@ -1162,11 +1285,14 @@ describe('CSMReactor', () => {
       const resultSpy = vi.spyOn(ShadowSystemReactors, 'EntityCSMReactor')
 
       const root = startReactor(Reactor)
+
+      await flushAll()
+
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
       expect(resultSpy).not.toHaveBeenCalled()
     })
 
-    it('should not call EntityCSMReactor if directionalLight is falsy', () => {
+    it('should not call EntityCSMReactor if directionalLight is falsy', async () => {
       const rendererEntity = defineQuery([RendererComponent])()[0]
       getMutableComponent(rendererEntity, RendererComponent).csm.set(new CSM({}))
 
@@ -1192,11 +1318,14 @@ describe('CSMReactor', () => {
       const resultSpy = vi.spyOn(ShadowSystemReactors, 'EntityCSMReactor')
 
       const root = startReactor(Reactor)
+
+      await flushAll()
+
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
       expect(resultSpy).not.toHaveBeenCalled()
     })
 
-    it('should call EntityCSMReactor with (key,entity,rendererEntity,renderSettingsEntity) if renderSettingsComponent.csm, activeLightEntity and directionalLight are all truthy', () => {
+    it('should call EntityCSMReactor with (key,entity,rendererEntity,renderSettingsEntity) if renderSettingsComponent.csm, activeLightEntity and directionalLight are all truthy', async () => {
       const rendererEntity = defineQuery([RendererComponent])()[0]
       getMutableComponent(rendererEntity, RendererComponent).csm.set(new CSM({}))
 
@@ -1223,13 +1352,16 @@ describe('CSMReactor', () => {
       const resultSpy = vi.spyOn(ShadowSystemReactors, 'EntityCSMReactor')
 
       const root = startReactor(Reactor)
+
+      await flushAll()
+
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
       expect(resultSpy).toHaveBeenCalled()
     })
   })
 }) //:: CSMReactor
 
-describe('RenderSettingsQueryReactor', () => {
+describe('RenderSettingsQueryReactor', async () => {
   let testEntity = UndefinedEntity
 
   beforeEach(async () => {
@@ -1244,7 +1376,7 @@ describe('RenderSettingsQueryReactor', () => {
     destroyEngine()
   })
 
-  it('should not call CSMReactor (return null) if RendererEntity is falsy', () => {
+  it('should not call CSMReactor (return null) if RendererEntity is falsy', async () => {
     const rendererEntity = UndefinedEntity
     const renderSettingsEntity = createEntity()
     setComponent(renderSettingsEntity, RenderSettingsComponent)
@@ -1261,7 +1393,7 @@ describe('RenderSettingsQueryReactor', () => {
     expect(resultSpy).not.toHaveBeenCalled()
   })
 
-  it('should not call CSMReactor (return null) if RendererEntity is not ReferenceSpaceState.viewerEntity', () => {
+  it('should not call CSMReactor (return null) if RendererEntity is not ReferenceSpaceState.viewerEntity', async () => {
     const rendererEntity = createEntity()
     const csm = new CSM({})
     setComponent(rendererEntity, RendererComponent, { csm: csm })
@@ -1278,11 +1410,14 @@ describe('RenderSettingsQueryReactor', () => {
     const resultSpy = vi.spyOn(ShadowSystemReactors, 'CSMReactor')
 
     const root = startReactor(Reactor)
+
+    await flushAll()
+
     expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
     expect(resultSpy).not.toHaveBeenCalled()
   })
 
-  it('should not call CSMReactor (return null) if RendererState.renderMode is RenderModes.UNLIT', () => {
+  it('should not call CSMReactor (return null) if RendererState.renderMode is RenderModes.UNLIT', async () => {
     const rendererEntity = createEntity()
     const csm = new CSM({})
     setComponent(rendererEntity, RendererComponent, { csm: csm })
@@ -1301,11 +1436,14 @@ describe('RenderSettingsQueryReactor', () => {
     const resultSpy = vi.spyOn(ShadowSystemReactors, 'CSMReactor')
 
     const root = startReactor(Reactor)
+
+    await flushAll()
+
     expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
     expect(resultSpy).not.toHaveBeenCalled()
   })
 
-  it('should not call CSMReactor (return null) if RendererState.renderMode is RenderModes.LIT', () => {
+  it('should not call CSMReactor (return null) if RendererState.renderMode is RenderModes.LIT', async () => {
     const rendererEntity = createEntity()
     const csm = new CSM({})
     setComponent(rendererEntity, RendererComponent, { csm: csm })
@@ -1324,11 +1462,14 @@ describe('RenderSettingsQueryReactor', () => {
     const resultSpy = vi.spyOn(ShadowSystemReactors, 'CSMReactor')
 
     const root = startReactor(Reactor)
+
+    await flushAll()
+
     expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
     expect(resultSpy).not.toHaveBeenCalled()
   })
 
-  it('should call CSMReactor with rendererEntity and renderSettingsEntity otherwise', () => {
+  it('should call CSMReactor with rendererEntity and renderSettingsEntity otherwise', async () => {
     const rendererEntity = defineQuery([RendererComponent])()[0]
     getMutableComponent(rendererEntity, RendererComponent).csm.set(new CSM({}))
 
@@ -1346,15 +1487,18 @@ describe('RenderSettingsQueryReactor', () => {
     const resultSpy = vi.spyOn(ShadowSystemReactors, 'CSMReactor')
 
     const root = startReactor(Reactor)
+
+    await flushAll()
+
     expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
     expect(resultSpy).toHaveBeenCalled()
   })
 }) //:: RenderSettingsQueryReactor
 
 /** @todo Drop Shadows do not currently work */
-describe('DropShadowReactor', () => {}) //:: DropShadowReactor
+describe('DropShadowReactor', async () => {}) //:: DropShadowReactor
 
-describe('RendererShadowReactor', () => {
+describe('RendererShadowReactor', async () => {
   let testEntity = UndefinedEntity
 
   beforeEach(async () => {
@@ -1369,8 +1513,8 @@ describe('RendererShadowReactor', () => {
     destroyEngine()
   })
 
-  describe('on change [useShadows, rendererComponent.renderer]', () => {
-    it('should not do anything (return early) and not crash if RendererComponent.renderer is falsy', () => {
+  describe('on change [useShadows, rendererComponent.renderer]', async () => {
+    it('should not do anything (return early) and not crash if RendererComponent.renderer is falsy', async () => {
       const Initial = undefined
 
       setComponent(testEntity, RendererComponent)
@@ -1384,12 +1528,15 @@ describe('RendererShadowReactor', () => {
       }
 
       const root = startReactor(Reactor)
+
+      await flushAll()
+
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
       const result = getComponent(testEntity, RendererComponent).renderer?.shadowMap.enabled
       expect(result).toBe(Initial)
     })
 
-    it('should set entityContext.RendererComponent.shadowMap.enabled to the value of (use/get)ShadowsEnabled', () => {
+    it('should set entityContext.RendererComponent.shadowMap.enabled to the value of (use/get)ShadowsEnabled', async () => {
       const Expected = getShadowsEnabled()
       const Initial = !Expected
 
@@ -1404,13 +1551,16 @@ describe('RendererShadowReactor', () => {
       }
 
       const root = startReactor(Reactor)
+
+      await flushAll()
+
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
       const result = getComponent(testEntity, RendererComponent).renderer?.shadowMap.enabled
       expect(result).not.toBe(Initial)
       expect(result).toBe(Expected)
     })
 
-    it('should set entityContext.RendererComponent.shadowMap.autoUpdate to the value of (use/get)ShadowsEnabled', () => {
+    it('should set entityContext.RendererComponent.shadowMap.autoUpdate to the value of (use/get)ShadowsEnabled', async () => {
       const Expected = getShadowsEnabled()
       const Initial = !Expected
 
@@ -1425,6 +1575,9 @@ describe('RendererShadowReactor', () => {
       }
 
       const root = startReactor(Reactor)
+
+      await flushAll()
+
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
       const result = getComponent(testEntity, RendererComponent).renderer?.shadowMap.autoUpdate
       expect(result).not.toBe(Initial)
@@ -1433,26 +1586,26 @@ describe('RendererShadowReactor', () => {
   })
 }) //:: RendererShadowReactor
 
-describe('ShadowSystem', () => {
+describe('ShadowSystem', async () => {
   const System = SystemDefinitions.get(ShadowSystem)!
 
-  describe('Fields', () => {
-    it('should initialize the *System.uuid field with the expected value', () => {
+  describe('Fields', async () => {
+    it('should initialize the *System.uuid field with the expected value', async () => {
       expect(System.uuid).toBe('ee.engine.ShadowSystem')
     })
 
-    it('should initialize the *System with the expected SystemUUID value', () => {
+    it('should initialize the *System with the expected SystemUUID value', async () => {
       expect(ShadowSystem).toBe('ee.engine.ShadowSystem' as SystemUUID)
     })
 
-    it('should initialize the *System.insert field with the expected value', () => {
+    it('should initialize the *System.insert field with the expected value', async () => {
       expect(System.insert).not.toBe(undefined)
       expect(System.insert!.with).not.toBe(undefined)
       expect(System.insert!.with!).toBe(AnimationSystemGroup)
     })
   }) //:: Fields
 
-  describe('execute', () => {
+  describe('execute', async () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
@@ -1465,7 +1618,7 @@ describe('ShadowSystem', () => {
       destroyEngine()
     })
 
-    it('should not do anything if the result of getShadowsEnabled is falsy', () => {
+    it('should not do anything if the result of getShadowsEnabled is falsy', async () => {
       const resultSpy = vi.fn()
       setComponent(testEntity, RendererComponent)
       const csm = { update: resultSpy as any } as CSM
@@ -1476,8 +1629,8 @@ describe('ShadowSystem', () => {
       expect(resultSpy).not.toHaveBeenCalled()
     })
 
-    describe('for every entity that has a RendererComponent', () => {
-      it('should call entity.RendererComponent.csm.update if entity.RendererComponent.csm is truthy', () => {
+    describe('for every entity that has a RendererComponent', async () => {
+      it('should call entity.RendererComponent.csm.update if entity.RendererComponent.csm is truthy', async () => {
         const resultSpy = vi.fn()
         setComponent(testEntity, RendererComponent)
         const csm = { update: resultSpy as any } as CSM
@@ -1488,7 +1641,7 @@ describe('ShadowSystem', () => {
         expect(resultSpy).toHaveBeenCalledTimes(1)
       })
 
-      it('should not call entity.RendererComponent.csm.update if entity.RendererComponent.csm is falsy', () => {
+      it('should not call entity.RendererComponent.csm.update if entity.RendererComponent.csm is falsy', async () => {
         /* @note Just for test coverage %
          * Can't test that the function wasn't called if csm is falsy,
          * because assigning the function makes csm truthy.
@@ -1503,7 +1656,7 @@ describe('ShadowSystem', () => {
     })
   }) //:: execute
 
-  describe('reactor', () => {
+  describe('reactor', async () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
@@ -1518,7 +1671,7 @@ describe('ShadowSystem', () => {
       destroyEngine()
     })
 
-    describe('when shadowTexture changes ..', () => {
+    describe('when shadowTexture changes ..', async () => {
       /** @note Can't change the shadowTexture path to be falsy without modifying the file itself. */
       it.skip('.. should not do anything (return) if shadowTexture is falsy', async () => {
         const Initial = 42
@@ -1539,6 +1692,9 @@ describe('ShadowSystem', () => {
         }
 
         const root = startReactor(Reactor)
+
+        await flushAll()
+
         const result = ShadowSystemData._shadowMaterial.version
         expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
         expect(result).toBe(Initial)
@@ -1564,6 +1720,9 @@ describe('ShadowSystem', () => {
         }
 
         const root = startReactor(Reactor)
+
+        await flushAll()
+
         const result = ShadowSystemData._shadowMaterial.map
 
         expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
@@ -1573,7 +1732,7 @@ describe('ShadowSystem', () => {
         ShadowSystemData._shadowMaterial.map = previous
       })
 
-      it('.. should call the _shadowMaterial.needsUpdate setter with true to update its .version field', () => {
+      it('.. should call the _shadowMaterial.needsUpdate setter with true to update its .version field', async () => {
         const Expected = 42
         const Initial = Expected - 1
 
@@ -1589,6 +1748,9 @@ describe('ShadowSystem', () => {
         }
 
         const root = startReactor(Reactor)
+
+        await flushAll()
+
         const result = ShadowSystemData._shadowMaterial.version
         expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
         expect(result).not.toBe(Initial)
@@ -1613,6 +1775,9 @@ describe('ShadowSystem', () => {
       const resultSpy = vi.spyOn(ShadowSystemReactors, 'RenderSettingsQueryReactor')
 
       const root = startReactor(Reactor)
+
+      await flushAll()
+
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
       expect(resultSpy).toHaveBeenCalledTimes(entities.length * 2)
     })
@@ -1635,6 +1800,9 @@ describe('ShadowSystem', () => {
       const resultSpy = vi.spyOn(ShadowSystemReactors, 'DropShadowReactor')
 
       const root = startReactor(Reactor)
+
+      await flushAll()
+
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
       expect(resultSpy).toHaveBeenCalledTimes(entities.length * 3)
     })
@@ -1654,32 +1822,35 @@ describe('ShadowSystem', () => {
       const resultSpy = vi.spyOn(ShadowSystemReactors, 'RendererShadowReactor')
 
       const root = startReactor(Reactor)
+
+      await flushAll()
+
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
       expect(resultSpy).toHaveBeenCalledTimes(entities.length)
     })
   }) //:: reactor
 }) //:: ShadowSystem
 
-describe('DropShadowSystem', () => {
+describe('DropShadowSystem', async () => {
   const System = SystemDefinitions.get(DropShadowSystem)!
 
-  describe('Fields', () => {
-    it('should initialize the *System.uuid field with the expected value', () => {
+  describe('Fields', async () => {
+    it('should initialize the *System.uuid field with the expected value', async () => {
       expect(System.uuid).toBe('ee.engine.DropShadowSystem')
     })
 
-    it('should initialize the *System with the expected SystemUUID value', () => {
+    it('should initialize the *System with the expected SystemUUID value', async () => {
       expect(DropShadowSystem).toBe('ee.engine.DropShadowSystem' as SystemUUID)
     })
 
-    it('should initialize the *System.insert field with the expected value', () => {
+    it('should initialize the *System.insert field with the expected value', async () => {
       expect(System.insert).not.toBe(undefined)
       expect(System.insert!.after).not.toBe(undefined)
       expect(System.insert!.after!).toBe(TransformSystem)
     })
   }) //:: Fields
 
-  describe('execute', () => {
+  describe('execute', async () => {
     beforeEach(async () => {
       createEngine()
     })
@@ -1688,7 +1859,7 @@ describe('DropShadowSystem', () => {
       destroyEngine()
     })
 
-    it('should call ShadowSystemFunctions.updateDropShadowTransforms when the result of getShadowsEnabled is falsy', () => {
+    it('should call ShadowSystemFunctions.updateDropShadowTransforms when the result of getShadowsEnabled is falsy', async () => {
       const resultSpy = vi.spyOn(ShadowSystemFunctions, 'updateDropShadowTransforms')
       getMutableState(RendererState).useShadows.set(false)
       System.execute()
@@ -1696,7 +1867,7 @@ describe('DropShadowSystem', () => {
       expect(resultSpy).toHaveBeenCalledTimes(1)
     })
 
-    it('should not call ShadowSystemFunctions.updateDropShadowTransforms when the result of getShadowsEnabled is truthy', () => {
+    it('should not call ShadowSystemFunctions.updateDropShadowTransforms when the result of getShadowsEnabled is truthy', async () => {
       const resultSpy = vi.spyOn(ShadowSystemFunctions, 'updateDropShadowTransforms')
       System.execute()
       expect(resultSpy).not.toHaveBeenCalled()
@@ -1704,8 +1875,8 @@ describe('DropShadowSystem', () => {
   }) //:: execute
 }) //:: DropShadowSystem
 
-describe('ShadowSystemFunctions', () => {
-  describe('updateDropShadowTransforms', () => {
+describe('ShadowSystemFunctions', async () => {
+  describe('updateDropShadowTransforms', async () => {
     let testEntity = UndefinedEntity
     beforeEach(() => {
       createEngine()
@@ -1717,7 +1888,7 @@ describe('ShadowSystemFunctions', () => {
       destroyEngine()
     })
 
-    describe('for every entity in the ShadowSystemState.priorityEntities list ..', () => {
+    describe('for every entity in the ShadowSystemState.priorityEntities list ..', async () => {
       let material = undefined as Material | undefined
       let sceneEntity = UndefinedEntity
       let priorityEntity = UndefinedEntity
@@ -1754,8 +1925,8 @@ describe('ShadowSystemFunctions', () => {
         dropShadowEntity = UndefinedEntity
       })
 
-      describe('.. when there is no intersection or intersection.face between the scene objects and a ray casted from entity.DropShadowComponent.entity.TransformComponent.position.world ...', () => {
-        it('... should set entity.DropShadowComponent.entity.TransformComponent.scale to (0,0,0)', () => {
+      describe('.. when there is no intersection or intersection.face between the scene objects and a ray casted from entity.DropShadowComponent.entity.TransformComponent.position.world ...', async () => {
+        it('... should set entity.DropShadowComponent.entity.TransformComponent.scale to (0,0,0)', async () => {
           const Expected = new Vector3(0, 0, 0)
           const Initial = new Vector3(5, 6, 7)
 
@@ -1774,7 +1945,7 @@ describe('ShadowSystemFunctions', () => {
         })
       })
 
-      describe('.. when there is an intersection and intersection.face between the scene objects and a ray casted from entity.DropShadowComponent.entity.TransformComponent.position.world ...', () => {
+      describe('.. when there is an intersection and intersection.face between the scene objects and a ray casted from entity.DropShadowComponent.entity.TransformComponent.position.world ...', async () => {
         let material = undefined as Material | undefined
         let sceneEntity = UndefinedEntity
         let priorityEntity = UndefinedEntity

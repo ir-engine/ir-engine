@@ -34,6 +34,7 @@ import {
   CloneSerializable,
   CreateSchemaValue,
   DeserializeSchemaValue,
+  GenerateJSONSchema,
   HasRequiredSchema,
   HasRequiredSchemaValues,
   HasSchemaDeserializers,
@@ -44,6 +45,7 @@ import {
   requiresDeserialization,
   SerializeSchema
 } from './JSONSchemaUtils'
+import { S } from './JSONSchemas'
 
 /**
  * @description Returns an object nested to `@param depth` levels of depth.
@@ -2557,3 +2559,229 @@ describe('SerializeSchema', () => {
     expect(result).toEqual(Expected)
   })
 }) //:: SerializeSchema
+
+describe('GenerateJSONSchema', () => {
+  it('should generate schema for Null type', () => {
+    const schema = S.Null()
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({ type: 'null' })
+  })
+
+  it('should generate schema for Undefined type', () => {
+    const schema = S.Undefined()
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({ type: 'null' })
+  })
+
+  it('should generate schema for Void type', () => {
+    const schema = S.Void()
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({ type: 'null' })
+  })
+
+  it('should generate schema for Number type', () => {
+    const schema = S.Number(0, { maximum: 100, minimum: 0 })
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({
+      type: 'number',
+      maximum: 100,
+      minimum: 0
+    })
+  })
+
+  it('should generate schema for Bool type', () => {
+    const schema = S.Bool(false)
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({ type: 'boolean' })
+  })
+
+  it('should generate schema for String type', () => {
+    const schema = S.String('test')
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({ type: 'string' })
+  })
+
+  it('should generate schema for Enum type', () => {
+    const schema = S.Enum({ A: 'a', B: 'b' }, 'a')
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({
+      enum: ['a', 'b']
+    })
+  })
+
+  it('should generate schema for Literal type', () => {
+    const schema = S.Literal('test')
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({
+      const: 'test'
+    })
+  })
+
+  it('should generate schema for Object type', () => {
+    const schema = S.Object({
+      name: S.String(),
+      age: S.Number(),
+      active: S.Bool()
+    })
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        age: { type: 'number' },
+        active: { type: 'boolean' }
+      },
+      required: []
+    })
+  })
+
+  it('should generate schema for Object type with required fields', () => {
+    const schema = S.Object({
+      name: S.Required(S.String()),
+      age: S.Number(),
+      active: S.Bool()
+    })
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        age: { type: 'number' },
+        active: { type: 'boolean' }
+      },
+      required: ['name']
+    })
+  })
+
+  it('should generate schema for Record type', () => {
+    const schema = S.Record(S.String(), S.Number())
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({
+      type: 'object',
+      additionalProperties: { type: 'number' }
+    })
+  })
+
+  it('should generate schema for Partial type', () => {
+    const schema = S.Partial(
+      S.Object({
+        name: S.String(),
+        age: S.Number()
+      })
+    )
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        age: { type: 'number' }
+      }
+    })
+  })
+
+  it('should generate schema for Array type', () => {
+    const schema = S.Array(S.Number(), [], { minItem: 1, maxItem: 10 })
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({
+      type: 'array',
+      items: { type: 'number' },
+      minItems: 1,
+      maxItems: 10
+    })
+  })
+
+  it('should generate schema for Tuple type', () => {
+    const schema = S.Tuple([S.String(), S.Number(), S.Bool()])
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({
+      type: 'array',
+      items: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
+      minItems: 3,
+      maxItems: 3
+    })
+  })
+
+  it('should generate schema for Union type', () => {
+    const schema = S.Union([S.String(), S.Number()])
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({
+      oneOf: [{ type: 'string' }, { type: 'number' }]
+    })
+  })
+
+  it('should generate schema for Func type', () => {
+    const schema = S.Func([S.String()], S.Number())
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({ type: 'null' })
+  })
+
+  it('should generate schema for NonSerialized type', () => {
+    const schema = S.NonSerialized(S.String())
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({ type: 'null' })
+  })
+
+  it('should generate schema for Class type', () => {
+    const MyClass = class {
+      name: string
+      age: number
+    }
+    const schema = S.Class(() => new MyClass())
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({
+      type: 'null'
+    })
+  })
+
+  it('should generate schema for Proxy type', () => {
+    const schema = S.Proxy(S.String(), () => ({}))
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({ type: 'string' })
+  })
+
+  it('should generate schema for Any type', () => {
+    const schema = S.Any()
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({})
+  })
+
+  it('should include $id when provided in options', () => {
+    const schema = S.String('test', { id: 'test-id' })
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({
+      type: 'string',
+      $id: 'test-id'
+    })
+  })
+
+  it('should handle nested schemas correctly', () => {
+    const schema = S.Object({
+      user: S.Object({
+        name: S.String(),
+        age: S.Number(),
+        tags: S.Array(S.String())
+      }),
+      active: S.Bool()
+    })
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({
+      type: 'object',
+      properties: {
+        user: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            age: { type: 'number' },
+            tags: {
+              type: 'array',
+              items: { type: 'string' }
+            }
+          },
+          required: []
+        },
+        active: { type: 'boolean' }
+      },
+      required: []
+    })
+  })
+}) //:: GenerateJSONSchema

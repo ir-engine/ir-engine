@@ -53,7 +53,8 @@ export const EditorState = defineState({
     panelLayout: {} as LayoutData,
     rootEntity: UndefinedEntity,
     uiEnabled: true,
-    uiMode: UIMode.ADVANCED
+    uiMode: UIMode.ADVANCED,
+    canvasRef: null as React.RefObject<HTMLElement> | null
   }),
   useIsModified: () => {
     const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
