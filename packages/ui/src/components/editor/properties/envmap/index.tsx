@@ -119,6 +119,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
               <DroppableImageInput
                 src={envmapComponent.envMapSourceURL.value}
                 onBlur={commitProperty(EnvMapComponent, 'envMapSourceURL')}
+                onChange={updateProperty(EnvMapComponent, 'envMapSourceURL')}
               />
             )}
             {errors?.MISSING_FILE && (

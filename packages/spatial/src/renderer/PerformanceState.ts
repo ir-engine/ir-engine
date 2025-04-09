@@ -198,8 +198,10 @@ export const PerformanceState = defineState({
     }
 
     useEffect(() => {
-      performanceState.enabled.set(!engineState.isEditing.value && engineSettings.automatic.value)
-    }, [engineState.isEditing, engineSettings.automatic])
+      performanceState.enabled.set(
+        !engineState.isEditing.value && engineSettings.automatic.value && performanceState.initialized.value
+      )
+    }, [engineState.isEditing, engineSettings.automatic, performanceState.initialized])
 
     useEffect(() => {
       recreateEMA()
@@ -212,6 +214,7 @@ export const PerformanceState = defineState({
       const settings = tieredSettings[performanceTier]
       engineSettings.merge(settings.engine)
       renderSettings.merge(settings.render)
+      if (performanceTier !== engineSettings.qualityLevel.value) engineSettings.qualityLevel.set(performanceTier)
     }, [performanceState.gpuTier, performanceState.initialized])
 
     useEffect(() => {

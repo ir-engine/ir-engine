@@ -34,7 +34,6 @@ import {
   LocationAuthorizedUserType,
   locationAuthorizedUserPath
 } from '@ir-engine/common/src/schemas/social/location-authorized-user.schema'
-import { LocationBanType, locationBanPath } from '@ir-engine/common/src/schemas/social/location-ban.schema'
 import { locationSettingPath } from '@ir-engine/common/src/schemas/social/location-setting.schema'
 import { LocationID, LocationQuery, LocationType } from '@ir-engine/common/src/schemas/social/location.schema'
 import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
@@ -63,14 +62,6 @@ export const locationResolver = resolve<LocationType, HookContext>({
       },
       paginate: false
     })) as LocationAuthorizedUserType[]
-  }),
-  locationBans: virtual(async (location, context) => {
-    return (await context.app.service(locationBanPath).find({
-      query: {
-        locationId: location.id as LocationID
-      },
-      paginate: false
-    })) as LocationBanType[]
   }),
   sceneURL: virtual(async (location, context) => {
     return (await context.app.service(staticResourcePath).get(location.sceneId)).url
