@@ -1516,7 +1516,6 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
     const bone = new Bone()
     // bone.name = node.name ?? 'Node-' + i
     setComponent(nodeEntity, BoneComponent, bone)
-    removeComponent(nodeEntity, VisibleComponent) // remove visible so it isn't rendered
   } else {
     const obj3d = new Object3D()
     // obj3d.name = node.name ?? 'Node-' + i
