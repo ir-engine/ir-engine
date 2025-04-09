@@ -95,8 +95,8 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
   if (!entity) return null
 
   return (
-    <>
-      <div className="flex w-full justify-between gap-2 bg-surface-3 p-1 px-3" id="add-component-popover">
+    <div className="flex h-full flex-col">
+      <div className="flex w-full justify-between gap-2 bg-surface-3 p-2 px-3" id="add-component-popover">
         {hasName && (
           <div className="flex h-full w-1/2 flex-row items-center text-sm text-text-secondary group-hover/component-dropdown:text-text-primary group-focus/component-dropdown:text-text-primary">
             <IconComponent entity={entity} />
@@ -122,24 +122,26 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
           </div>
         </Popup>
       </div>
-      {hasTransform && (
-        <ErrorBoundary fallback={<div>Error occured displaying transform properties</div>}>
-          <Suspense>
-            <TransformPropertyGroup entity={entity} />
-          </Suspense>
-        </ErrorBoundary>
-      )}
-      {components.map((c) => (
-        <ErrorBoundary
-          key={`${entityUUID + entity}-${c.name}`}
-          fallback={<div>Error occured displaying properties for {c.name}</div>}
-        >
-          <Suspense>
-            <EntityComponentEditor multiEdit={multiEdit} entity={entity} component={c} />
-          </Suspense>
-        </ErrorBoundary>
-      ))}
-    </>
+      <div className="overflow-y-auto">
+        {hasTransform && (
+          <ErrorBoundary fallback={<div>Error occured displaying transform properties</div>}>
+            <Suspense>
+              <TransformPropertyGroup entity={entity} />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+        {components.map((c) => (
+          <ErrorBoundary
+            key={`${entityUUID + entity}-${c.name}`}
+            fallback={<div>Error occured displaying properties for {c.name}</div>}
+          >
+            <Suspense>
+              <EntityComponentEditor multiEdit={multiEdit} entity={entity} component={c as Component} />
+            </Suspense>
+          </ErrorBoundary>
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -153,7 +155,7 @@ const PropertiesEditor = () => {
   const uuid = lockedNode.value ? lockedNode.value : selectedEntities[selectedEntities.length - 1]
 
   return (
-    <div className="flex h-full flex-col gap-0.5 overflow-y-auto bg-surface-1">
+    <div className="flex h-full flex-col gap-0.5 bg-surface-1">
       {materialUUID && materialEntity ? (
         <ErrorBoundary fallback={<div>Error occured displaying material properties</div>}>
           <Suspense>

@@ -109,7 +109,7 @@ export default function ComponentDropdown({
         </div>
 
         {!isMinimized.value && (
-          <div className="col-span-1 ml-6 mt-2 w-full text-start text-xs text-text-secondary">{description}</div>
+          <div className="col-span-1 w-full pl-6 pt-2 text-start text-xs text-text-secondary">{description}</div>
         )}
       </div>
 
