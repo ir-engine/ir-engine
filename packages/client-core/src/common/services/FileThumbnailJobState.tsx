@@ -162,7 +162,7 @@ const uploadThumbnail = async (src: string, projectName: string, blob: Blob | nu
           }
           updateThumbnailKey(staticResourceId)
         } else {
-          console.error('static Resource not foudn for key - ', fileKeyKey)
+          console.error('static Resource not found for key - ', fileKeyKey)
         }
       })
       .catch((e) => console.error(e))

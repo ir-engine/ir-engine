@@ -1060,7 +1060,9 @@
       "lbl-alpha-uv-scale": "Alpha UV Scale",
       "lbl-alpha-uv-scale-info": "The scale of the alpha channel in UV space",
       "lbl-synchronized-media-source": "Synchronized Media Source",
-      "lbl-synchronized-media-source-info": "Synchronized Media Source"
+      "lbl-synchronized-media-source-info": "Synchronized Media Source",
+      "lbl-aspect-ratio": "Aspect Ratio",
+      "lbl-match-aspect-ratio": "Match Aspect Ratio"
     },
     "volumetric": {
       "name": "Volumetric",
@@ -1558,11 +1560,13 @@
     },
     "addScene": {
       "continue": "Continue",
+      "cancel": "Back To Editor",
       "title": "Select a way to get started",
       "optionButtons": {
         "defaultEditor": {
-          "title": "Don't Assist Me",
-          "description": "You will be taken straight to the iR Spaces Editor to create your own iR Space from the ground up"
+          "title": "Blank Scene",
+          "description": "Use the advanced iR Spaces Editor to create your Space from the ground up. Recommended for experienced 3D creators.",
+          "submitButtonText": "Continue in Editor"
         }
       }
     },
