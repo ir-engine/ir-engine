@@ -61,9 +61,9 @@ type MediaControlsProps = {
 }
 
 const MediaControlsView = (props: MediaControlsProps) => {
-  const transfrom = getComponent(props.entity, TransformComponent)
-  const widthFactor = transfrom.scale.x
-  const heightFactor = transfrom.scale.y
+  const transform = getComponent(props.entity, TransformComponent)
+  const widthFactor = transform.scale.x
+  const heightFactor = transform.scale.y
 
   const mediaComponent = useHookstate(getMutableComponent(props.entity, MediaComponent))
   const mediaStyles = { fill: 'white', width: `100%`, height: `100%` }
