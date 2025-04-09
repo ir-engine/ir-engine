@@ -357,7 +357,7 @@ export function gltfReplaceUUIDsReferences(gltf: GLTF.IGLTF, UUIDs: [EntityUUID,
   }
 }
 
-let cachedMaxAnisotropy: number | null = null
+let maxAnisotropySupported: number | null = null
 
 export function getMaxAnisotropyWithoutRenderer(): number {
   // Early return if not in client environment
@@ -365,16 +365,16 @@ export function getMaxAnisotropyWithoutRenderer(): number {
     return 0
   }
 
-  if (cachedMaxAnisotropy !== null) {
-    return cachedMaxAnisotropy
+  if (maxAnisotropySupported !== null) {
+    return maxAnisotropySupported
   }
 
   const canvas = document.createElement('canvas')
   const gl = canvas.getContext('webgl')
 
   if (!gl) {
-    cachedMaxAnisotropy = 0
-    return cachedMaxAnisotropy
+    maxAnisotropySupported = 0
+    return maxAnisotropySupported
   }
 
   const ext =
@@ -383,9 +383,9 @@ export function getMaxAnisotropyWithoutRenderer(): number {
     gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic')
 
   if (ext) {
-    cachedMaxAnisotropy = gl.getParameter(ext.MAX_TEXTURE_MAX_ANISOTROPY_EXT)
+    maxAnisotropySupported = gl.getParameter(ext.MAX_TEXTURE_MAX_ANISOTROPY_EXT)
   } else {
-    cachedMaxAnisotropy = 0
+    maxAnisotropySupported = 0
   }
-  return cachedMaxAnisotropy || 0
+  return maxAnisotropySupported || 0
 }
