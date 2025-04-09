@@ -234,9 +234,9 @@ const useGenerateHelper = (
 
   useEffect(() => {
     for (const resource of resourceQuery.data) {
+      if (seenResources.value.includes(resource.key)) continue
+      seenResources.merge([resource.key])
       if (jobType === 'thumbnail') {
-        if (seenResources.value.includes(resource.key)) continue
-        seenResources.merge([resource.key])
         if (resource.type === 'thumbnail') {
           API.instance.service(staticResourcePath).patch(resource.id, {
             thumbnailKey: resource.key,
@@ -265,16 +265,19 @@ const useGenerateHelper = (
     if (resourceQuery.total > resourceQuery.data.length) resourceQuery.refetch()
   }, [resourceQuery.data])
 }
-export const removeFromFileThumbnailsSeen = (files: readonly string[]) => {
+export const removeFromFileThumbnailsSeen = (
+  files: readonly string[],
+  jobType: 'thumbnail' | 'dimension' = 'thumbnail'
+) => {
   const jobState = getMutableState(FileThumbnailJobState)
-  const seenResources = jobState.seenResources.thumbnail.get(NO_PROXY) as string[]
+  const seenResources = jobState.seenResources[jobType].get(NO_PROXY) as string[]
   files.forEach((file) => {
     const index = seenResources.indexOf(file)
     if (index >= 0) {
       seenResources.splice(index, 1)
     }
   })
-  jobState.seenResources['thumbnail'].set(seenResources)
+  jobState.seenResources[jobType].set(seenResources)
 }
 
 export const FileThumbnailJobState = defineState({
