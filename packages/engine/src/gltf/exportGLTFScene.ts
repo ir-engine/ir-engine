@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
-import { EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
+import { EntityTreeComponent, getAncestorWithComponents, UUIDComponent } from '@ir-engine/ecs'
 import {
   ComponentType,
   getAllComponents,
@@ -38,7 +38,9 @@ import {
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { destroy, getState, hookstate, startReactor, State, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import {
   MaterialInstanceComponent,
   MaterialPrototypeDefinitions,
@@ -72,6 +74,7 @@ import {
   Quaternion,
   QuaternionKeyframeTrack,
   RepeatWrapping,
+  SkinnedMesh,
   Texture,
   Vector3,
   VectorKeyframeTrack
@@ -207,6 +210,7 @@ type GLTFSceneExportContext = {
   cache: {
     entities: Map<Entity, number>
     meshes: Map<Mesh, number>
+    skins: Map<SkinnedMesh, number>
     materials: Map<Material, number>
     textures: Map<Texture, number>
     images: Map<ImageBitmap | string, number>
@@ -370,6 +374,7 @@ export async function exportGLTFScene(
   const cache = {
     entities: new Map<Entity, number>(),
     meshes: new Map<Mesh, number>(),
+    skins: new Map<SkinnedMesh, number>(),
     materials: new Map<Material, number>(),
     textures: new Map<Texture, number>(),
     images: new Map<ImageBitmap | string, number>(),
@@ -582,6 +587,51 @@ const exportMesh = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFSceneEx
   context.cache.meshes.set(mesh, meshIndex)
 
   return meshIndex
+}
+
+const exportSkin = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFSceneExportContext): Promise<number> => {
+  const skinnedMesh = getComponent(entity, SkinnedMeshComponent)
+  if (context.cache.skins.has(skinnedMesh)) return context.cache.skins.get(skinnedMesh)!
+
+  if (!gltf.skins) gltf.skins = []
+  const skinIndex = gltf.skins.length
+
+  const skinDef = {} as GLTF.ISkin
+
+  const skeleton = skinnedMesh.skeleton
+  const bones = skeleton.bones
+  const boneInverses = skeleton.boneInverses
+
+  if (boneInverses.length) {
+    // Build inverseBindMatrices accessor
+    const boneInverseArray = new Float32Array(boneInverses.length * 16)
+    for (let i = 0, len = boneInverses.length; i < len; i++) {
+      const boneInverseMatrixArray = boneInverses[i].toArray()
+      for (let j = 0, matLen = boneInverseMatrixArray.length; j < matLen; j++) {
+        boneInverseArray[i * matLen + j] = boneInverseMatrixArray[j]
+      }
+    }
+    const boneInverseAttr = new BufferAttribute(boneInverseArray, 16)
+    skinDef.inverseBindMatrices = exportAccessor(boneInverseAttr, gltf, context)
+  }
+
+  if (bones.length) {
+    // Build joint nodes
+    skinDef.joints = []
+    for (const bone of bones) {
+      const jointNode = await exportEntity(bone.entity, gltf, context)
+      if (typeof jointNode === 'number') skinDef.joints.push(jointNode)
+    }
+
+    const skeletonRootEntity = getAncestorWithComponents(bones[0].entity, [BoneComponent], false)
+    const skeletonNode = await exportEntity(skeletonRootEntity, gltf, context)
+    if (typeof skeletonNode === 'number') {
+      skinDef.skeleton = skeletonNode
+    }
+  }
+
+  gltf.skins.push(skinDef)
+  return skinIndex
 }
 
 const toDeInterleaved = (attribute: InterleavedBufferAttribute): BufferAttribute => {
@@ -1091,6 +1141,16 @@ const exportEntity = async (
       })
     })
     entityExportPromises.push(meshPromise)
+  }
+  const skinnedMeshComponent = getOptionalComponent(entity, SkinnedMeshComponent)
+  if (skinnedMeshComponent && !skinnedMeshComponent.userData['ignoreOnExport']) {
+    const skinnedMeshPromise = new Promise<void>((resolve) => {
+      exportSkin(entity, gltf, context).then((skinIndex) => {
+        node.skin = skinIndex
+        resolve()
+      })
+    })
+    entityExportPromises.push(skinnedMeshPromise)
   }
 
   if (hasComponent(entity, NameComponent)) {
