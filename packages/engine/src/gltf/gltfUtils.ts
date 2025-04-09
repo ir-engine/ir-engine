@@ -359,7 +359,7 @@ export function gltfReplaceUUIDsReferences(gltf: GLTF.IGLTF, UUIDs: [EntityUUID,
 
 let maxAnisotropySupported: number | null = null
 
-export function getMaxAnisotropyWithoutRenderer(): number {
+export function getMaxAnisotropy(): number {
   // Early return if not in client environment
   if (!isClient) {
     return 0

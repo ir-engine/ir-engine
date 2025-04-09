@@ -141,7 +141,7 @@ import {
 } from '../scene/systems/SceneDeltaState'
 import { GLTFComponent } from './GLTFComponent'
 import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
-import { getMaxAnisotropyWithoutRenderer } from './gltfUtils'
+import { getMaxAnisotropy } from './gltfUtils'
 import { KHRTextureTransformExtensionComponent, KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
 import { NodeID, NodeIDComponent } from './NodeIDComponent'
 import { SCENE_DELTA_EXTENSION_NAME } from './SceneDeltaExporterExtension'
@@ -1027,7 +1027,7 @@ const loadTextureImage = async (
   texture.wrapS = WEBGL_WRAPPINGS[sampler.wrapS] || RepeatWrapping
   texture.wrapT = WEBGL_WRAPPINGS[sampler.wrapT] || RepeatWrapping
   texture.generateMipmaps = true
-  texture.anisotropy = getMaxAnisotropyWithoutRenderer()
+  texture.anisotropy = getMaxAnisotropy()
   return texture
 }
 
