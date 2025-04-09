@@ -34,7 +34,6 @@ import { TypedString } from '../../types/TypeboxUtils'
 import { dataValidator, queryValidator } from '../validators'
 import { locationAdminDataSchema, locationAdminSchema } from './location-admin.schema'
 import { locationAuthorizedUserSchema } from './location-authorized-user.schema'
-import { locationBanSchema } from './location-ban.schema'
 import { locationSettingDataSchema, locationSettingPatchSchema, locationSettingSchema } from './location-setting.schema'
 
 export const locationPath = 'location'
@@ -66,7 +65,6 @@ export const locationSchema = Type.Object(
     locationSetting: Type.Ref(locationSettingSchema),
     locationAdmin: Type.Optional(Type.Ref(locationAdminSchema)),
     locationAuthorizedUsers: Type.Array(Type.Ref(locationAuthorizedUserSchema)),
-    locationBans: Type.Array(Type.Ref(locationBanSchema)),
     updatedBy: TypedString<UserID>({
       format: 'uuid'
     }),
@@ -78,10 +76,7 @@ export const locationSchema = Type.Object(
 export interface LocationType extends Static<typeof locationSchema> {}
 
 export interface LocationDatabaseType
-  extends Omit<
-    LocationType,
-    'locationSetting' | 'locationAuthorizedUsers' | 'locationBans' | 'locationAdmin' | 'sceneURL' | 'url'
-  > {}
+  extends Omit<LocationType, 'locationSetting' | 'locationAuthorizedUsers' | 'locationAdmin' | 'sceneURL' | 'url'> {}
 
 // Schema for creating new entries
 export const locationDataProperties = Type.Pick(locationSchema, [
