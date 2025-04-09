@@ -1398,12 +1398,11 @@ const loadSkin = async (options: GLTFParserOptions, nodeEntity: Entity, nodeInde
   const nodeDef = json.nodes![nodeIndex]
   const skinDef = json.skins![nodeDef.skin!]
 
-  const [skinnedMesh, skeletonEntity, inverseBindMatrices, ...jointNodes] = (await Promise.all([
+  const [skinnedMesh, inverseBindMatrices, ...jointNodes] = (await Promise.all([
     getDependency(options, 'mesh', nodeEntity, nodeIndex, nodeDef.mesh!),
-    skinDef.skeleton ? getDependency(options, 'node', skinDef.skeleton) : Promise.resolve(null),
     getDependency(options, 'accessor', skinDef.inverseBindMatrices!),
     ...skinDef.joints.map((joint) => getDependency(options, 'node', joint))
-  ])) as [SkinnedMesh, Entity, BufferAttribute, ...Entity[]]
+  ])) as [SkinnedMesh, BufferAttribute, ...Entity[]]
   if (!inverseBindMatrices) throw new Error('GLTFLoader: Inverse bind matrices not found')
   const jointBones = jointNodes.map((entity) => getComponent(entity, BoneComponent))
 
@@ -1431,13 +1430,6 @@ const loadSkin = async (options: GLTFParserOptions, nodeEntity: Entity, nodeInde
   skinnedMesh.skeleton = skeleton
   // Make sure skeleton is propagated to simulation layer
   setComponent(skinnedMesh.entity, SkinnedMeshComponent, skinnedMesh)
-
-  // if (skeletonEntity) {
-  //   for (const jointEntity of jointNodes) {
-  //     if (skeletonEntity !== jointEntity)
-  //       setComponent(jointEntity, EntityTreeComponent, { parentEntity: skeletonEntity })
-  //   }
-  // }
 }
 
 const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
