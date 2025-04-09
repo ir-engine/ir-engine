@@ -51,7 +51,7 @@ const hipsPos = new Vector3(),
 export const setupAvatarProportions = (entity: Entity) => {
   iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
-  const worldHeight = Math.abs(TransformComponent.getWorldPosition(entity, new Vector3()).y)
+  const worldHeight = TransformComponent.getWorldPosition(entity, new Vector3()).y
   const rig = getComponent(entity, AvatarRigComponent).bonesToEntities
   TransformComponent.getWorldPosition(rig.hips, hipsPos)
   TransformComponent.getWorldPosition(rig.head, headPos)
@@ -63,11 +63,11 @@ export const setupAvatarProportions = (entity: Entity) => {
   rig.leftEye ? TransformComponent.getWorldPosition(rig.leftEye, eyePos) : eyePos.copy(headPos).setY(headPos.y + 0.1) // fallback to rough estimation if no eye bone is present
 
   setComponent(entity, AvatarComponent, {
-    avatarHeight: Math.abs(headPos.y) - worldHeight + 0.25,
+    avatarHeight: Math.abs(headPos.y - worldHeight + 0.25),
     torsoLength: Math.abs(headPos.y - hipsPos.y),
     upperLegLength: Math.abs(hipsPos.y - leftLowerLegPos.y),
     lowerLegLength: Math.abs(leftLowerLegPos.y - leftFootPos.y),
-    hipsHeight: Math.abs(hipsPos.y) - worldHeight,
+    hipsHeight: Math.abs(hipsPos.y - worldHeight),
     eyeHeight: eyePos.y - worldHeight,
     footHeight: leftFootPos.y - worldHeight,
     footGap: footGap.subVectors(leftFootPos, rightFootPos).length(),
