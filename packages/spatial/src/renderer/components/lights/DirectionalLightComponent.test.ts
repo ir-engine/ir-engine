@@ -37,6 +37,7 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { Color, ColorRepresentation, DirectionalLight } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
@@ -211,45 +212,50 @@ describe('DirectionalLightComponent', () => {
       return destroyEngine()
     })
 
-    it('should set a LightTagComponent on the entityContext when it is mounted', () => {
+    it('should set a LightTagComponent on the entityContext when it is mounted', async () => {
       // Sanity check before running
       assert.equal(hasComponent(testEntity, LightTagComponent), false)
 
       // Run and Check the result
       setComponent(testEntity, DirectionalLightComponent)
+      await act(() => render(null))
       assert.equal(hasComponent(testEntity, LightTagComponent), true)
     })
 
-    it('should create a new DirectionalLight object and add it to the ObjectComponent of the entity when it is mounted', () => {
+    it('should create a new DirectionalLight object and add it to the ObjectComponent of the entity when it is mounted', async () => {
       // Sanity check before running
       const before = getComponent(testEntity, ObjectComponent)
       assert.equal(!!before, false)
 
       // Run and Check the result
       setComponent(testEntity, DirectionalLightComponent)
+      await act(() => render(null))
       const after = getComponent(testEntity, ObjectComponent)
       assert.equal(!!after, true)
       const result = after.type === 'DirectionalLight'
       assert.equal(result, true)
     })
 
-    it('should remove the DirectionalLight object from the ObjectComponent of the entityContext when it is unmounted', () => {
+    it('should remove the DirectionalLight object from the ObjectComponent of the entityContext when it is unmounted', async () => {
       // Sanity check before running
       const before1 = getComponent(testEntity, ObjectComponent)
       assert.equal(!!before1, false)
       setComponent(testEntity, DirectionalLightComponent)
+      await act(() => render(null))
 
       // Run and Check the result
       removeComponent(testEntity, DirectionalLightComponent)
+      await act(() => render(null))
       const after = getComponent(testEntity, ObjectComponent)
       assert.equal(!!after, false)
     })
 
-    it('should react when directionalLightComponent.color changes', () => {
+    it('should react when directionalLightComponent.color changes', async () => {
       const Expected = new Color(0x123456)
 
       // Set the data as expected
       setComponent(testEntity, DirectionalLightComponent)
+      await act(() => render(null))
 
       // Sanity check before running
       const before = getComponent(testEntity, DirectionalLightComponent).color
@@ -257,16 +263,18 @@ describe('DirectionalLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, DirectionalLightComponent, { color: Expected })
+      await act(() => render(null))
       const result = getComponent(testEntity, DirectionalLightComponent).color
       assert.equal(new Color(result).getHex(), Expected.getHex())
     })
 
-    it("should react and assign the light's color to LineSegmentComponent.color for the entity when directionalLightComponent.color changes", () => {
+    it("should react and assign the light's color to LineSegmentComponent.color for the entity when directionalLightComponent.color changes", async () => {
       const Expected = new Color(0x123456)
 
       // Set the data as expected
       getMutableState(RendererState).nodeHelperVisibility.set(true)
       setComponent(testEntity, DirectionalLightComponent)
+      await act(() => render(null))
 
       // Sanity check before running
       const before = getComponent(testEntity, DirectionalLightComponent).color
@@ -275,17 +283,19 @@ describe('DirectionalLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, DirectionalLightComponent, { color: Expected })
+      await act(() => render(null))
 
       const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
       const result = getComponent(childEntity1, LineSegmentComponent).color
       assert.equal(new Color(result).getHex(), Expected.getHex())
     })
 
-    it('should react when directionalLightComponent.intensity changes', () => {
+    it('should react when directionalLightComponent.intensity changes', async () => {
       const Expected = 42
 
       // Set the data as expected
       setComponent(testEntity, DirectionalLightComponent)
+      await act(() => render(null))
 
       // Sanity check before running
       const before = getComponent(testEntity, DirectionalLightComponent).intensity
@@ -294,15 +304,17 @@ describe('DirectionalLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, DirectionalLightComponent, { intensity: Expected })
+      await act(() => render(null))
       const result = getComponent(testEntity, DirectionalLightComponent).intensity
       assert.equal(result, Expected)
     })
 
-    it('should react when directionalLightComponent.cameraFar changes', () => {
+    it('should react when directionalLightComponent.cameraFar changes', async () => {
       const Expected = 42
 
       // Set the data as expected
       setComponent(testEntity, DirectionalLightComponent)
+      await act(() => render(null))
 
       // Sanity check before running
       const before = getComponent(testEntity, DirectionalLightComponent).cameraFar
@@ -311,15 +323,17 @@ describe('DirectionalLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, DirectionalLightComponent, { cameraFar: Expected })
+      await act(() => render(null))
       const result = getComponent(testEntity, DirectionalLightComponent).cameraFar
       assert.equal(result, Expected)
     })
 
-    it('should react when directionalLightComponent.shadowBias changes', () => {
+    it('should react when directionalLightComponent.shadowBias changes', async () => {
       const Expected = 42
 
       // Set the data as expected
       setComponent(testEntity, DirectionalLightComponent)
+      await act(() => render(null))
 
       // Sanity check before running
       const before = getComponent(testEntity, DirectionalLightComponent).shadowBias
@@ -328,15 +342,17 @@ describe('DirectionalLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, DirectionalLightComponent, { shadowBias: Expected })
+      await act(() => render(null))
       const result = getComponent(testEntity, DirectionalLightComponent).shadowBias
       assert.equal(result, Expected)
     })
 
-    it('should react when directionalLightComponent.shadowRadius changes', () => {
+    it('should react when directionalLightComponent.shadowRadius changes', async () => {
       const Expected = 42
 
       // Set the data as expected
       setComponent(testEntity, DirectionalLightComponent)
+      await act(() => render(null))
 
       // Sanity check before running
       const before = getComponent(testEntity, DirectionalLightComponent).shadowRadius
@@ -345,11 +361,12 @@ describe('DirectionalLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, DirectionalLightComponent, { shadowRadius: Expected })
+      await act(() => render(null))
       const result = getComponent(testEntity, DirectionalLightComponent).shadowRadius
       assert.equal(result, Expected)
     })
 
-    it('should react when renderState.shadowMapResolution changes', () => {
+    it('should react when renderState.shadowMapResolution changes', async () => {
       const Initial = 21
       const Expected = 42
 
@@ -357,17 +374,18 @@ describe('DirectionalLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, DirectionalLightComponent)
+      await act(() => render(null))
       const before = getComponent(testEntity, ObjectComponent) as DirectionalLight
       assert.equal(before.shadow.mapSize.x, Initial)
 
       // Re-run and Check the result again
       getMutableState(RendererState).shadowMapResolution.set(Expected)
-      DirectionalLightComponent.reactorMap.get(testEntity)!.run()
+      await act(() => render(null))
       const result = getComponent(testEntity, ObjectComponent) as DirectionalLight
       assert.equal(result.shadow.mapSize.x, Expected)
     })
 
-    it('should react when debugEnabled changes', () => {
+    it('should react when debugEnabled changes', async () => {
       const Initial = false
       const Expected = !Initial
 
@@ -380,7 +398,7 @@ describe('DirectionalLightComponent', () => {
 
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
-      DirectionalLightComponent.reactorMap.get(testEntity)!.run()
+      await act(() => render(null))
 
       const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
       assert.equal(hasComponent(childEntity1, LineSegmentComponent), Expected)
@@ -388,7 +406,7 @@ describe('DirectionalLightComponent', () => {
 
       // Re-run and Check the unmount case
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
-      DirectionalLightComponent.reactorMap.get(testEntity)!.run()
+      await act(() => render(null))
       assert.equal(hasComponent(childEntity1, LineSegmentComponent), Initial)
     })
   }) //:: reactor

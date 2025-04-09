@@ -30,7 +30,6 @@ import InviteType from './invite-type/invite-type'
 import Invite from './invite/invite'
 import LocationAdmin from './location-admin/location-admin'
 import LocationAuthorizedUser from './location-authorized-user/location-authorized-user'
-import LocationBan from './location-ban/location-ban'
 import LocationSetting from './location-setting/location-setting'
 import LocationType from './location-type/location-type'
 import Location from './location/location'
@@ -46,7 +45,6 @@ export default [
   Message,
   LocationType,
   LocationSetting,
-  LocationBan,
   LocationAdmin,
   LocationAuthorizedUser
 ]

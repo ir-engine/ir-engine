@@ -23,24 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import * as Scheduler from 'scheduler'
 
-import {
-  locationBanDataSchema,
-  locationBanPatchSchema,
-  locationBanQuerySchema,
-  locationBanSchema
-} from '@ir-engine/common/src/schemas/social/location-ban.schema'
+const _moreWork = () => {
+  return Scheduler.unstable_getFirstCallbackNode() !== null
+}
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    locationBanDataSchema,
-    locationBanPatchSchema,
-    locationBanQuerySchema,
-    locationBanSchema
-  },
-  docs: {
-    description: 'Location ban service description',
-    securities: ['all']
-  }
-})
+export const flushAll = async () => {
+  return new Promise<void>((resolve) => {
+    const check = () => {
+      if (!_moreWork()) {
+        resolve()
+      } else {
+        setTimeout(check, 1)
+      }
+    }
+    check()
+  })
+}

@@ -36,6 +36,7 @@ import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent, NetworkObjectOwnedTag, NetworkState } from '@ir-engine/network'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { hasComponent } from '@ir-engine/ecs'
 import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
 import {
   addPannerNode,
@@ -192,6 +193,8 @@ const execute = () => {
 
   const viewerEntity = getState(ReferenceSpaceState).viewerEntity
   if (!viewerEntity) return
+
+  if (!hasComponent(viewerEntity, TransformComponent)) return
 
   /**
    * Update camera listener position

@@ -27,6 +27,7 @@ import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import React, { ReactNode, useEffect, useImperativeHandle, useRef, useState } from 'react'
 
 import ReactDOM from 'react-dom'
+import { twMerge } from 'tailwind-merge'
 import './tooltip.css'
 
 export interface BaseTooltipProps {
@@ -34,6 +35,7 @@ export interface BaseTooltipProps {
   content: ReactNode
   children: ReactNode
   position?: 'auto' | 'top' | 'bottom' | 'left' | 'right'
+  fullWidth?: boolean
 }
 
 export interface ControlledProps {
@@ -57,7 +59,7 @@ export interface TooltipRef {
  * Provides an imperative handle to show and hide the tooltip
  */
 function Tooltip(
-  { title, content, children, position = 'auto', isControlled = false, ...props }: TooltipProps,
+  { title, content, children, fullWidth = false, position = 'auto', isControlled = false, ...props }: TooltipProps,
   ref: React.ForwardedRef<TooltipRef>
 ) {
   const [tooltipPosition, setTooltipPosition] = useState('bottom')
@@ -182,7 +184,10 @@ function Tooltip(
   return (
     <div
       ref={triggerRef}
-      className="group relative flex max-w-max flex-col items-center justify-center"
+      className={twMerge(
+        fullWidth ? 'w-full' : 'max-w-max',
+        'group relative flex flex-col items-center justify-center'
+      )}
       onMouseEnter={showTooltip}
       onMouseLeave={hideTooltip}
     >
