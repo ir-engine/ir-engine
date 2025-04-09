@@ -25,12 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-import cli from 'cli'
-
 import {
   createDefaultStorageProvider,
   getStorageProvider
 } from '@ir-engine/server-core/src/media/storageprovider/storageprovider'
+import cli from 'cli'
 
 cli.enable('status')
 
@@ -38,16 +37,21 @@ cli.main(async () => {
   try {
     await createDefaultStorageProvider()
     const storageProvider = getStorageProvider()
-    let filesToPruneResponse = await storageProvider.getObject('client/S3FilesToRemoveFinal.json')
-    let filesToPrune = JSON.parse(filesToPruneResponse.Body.toString('utf-8'))
-    while (filesToPrune.length > 0) {
-      const toDelete = filesToPrune.splice(0, 1000)
-      await storageProvider.deleteResources(toDelete)
-    }
-    console.log('Deleted old S3 files')
+    storageProvider.bucket = process.env.KANIKO_CONTEXT_REPO
+
+    const filesResponse = await storageProvider.provider.bucket(storageProvider.bucket).getFiles({
+      delimiter: '/'
+    })
+    const files = filesResponse[2].items
+
+    const sorted = files.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    const toDelete = sorted.slice(5).map((item) => item.name)
+    await storageProvider.deleteResources(toDelete)
+
+    console.log('Pruned old Kaniko build contexts')
     process.exit(0)
   } catch (err) {
-    console.log('Error in deleting old S3 client files:')
+    console.log('Error in pruning Kaniko build contexts:')
     console.log(err)
     cli.fatal(err)
   }
