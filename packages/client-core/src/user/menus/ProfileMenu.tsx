@@ -390,7 +390,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
       <div className="items-end">
         <button
           className={twMerge(
-            'text-text-secondary-button flex h-[2rem] w-[2rem] items-center justify-center justify-self-end rounded-full hover:bg-ui-hover-primary hover:text-text-primary-button focus:bg-ui-select-primary'
+            'flex h-[2rem] w-[2rem] items-center justify-center justify-self-end rounded-full text-ui-secondary hover:text-ui-hover-secondary focus:bg-ui-select-primary'
           )}
           onClick={() => {
             PopoverState.hidePopupover()
