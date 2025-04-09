@@ -182,15 +182,17 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   useEffect(() => {
     prototypeName.set(material.type)
     setupMaterialParameters(entity, material)
+  }, [currentSelectedMaterial, material.type])
 
+  useEffect(() => {
     materialParameters.set(
       Object.fromEntries(
         Object.keys(extractValues(definitions.value[prototypeName.value].arguments as PrototypeArgument, material)).map(
-          (k) => [k, material[k]]
+          (k) => [k, material[k] ?? '']
         )
       )
     )
-  }, [currentSelectedMaterial, material.type])
+  }, [materialComponent.parameters])
 
   //for each parameter type, default values
   const pluginParameters = useHookstate({})

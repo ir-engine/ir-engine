@@ -23,31 +23,47 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { configDefaults, defineConfig } from 'vitest/config'
+import { useEffect } from 'react'
+import { describe, expect, it } from 'vitest'
+import { startReactor } from '../../src/functions/ReactorFunctions'
+import { createHyperStore } from '../../src/functions/StoreFunctions'
+import { flushAll } from './flushAll'
 
-const reporters = !process.env.CI ? ['basic'] : configDefaults.reporters // Use default report config on CI.
+describe('flushAll', () => {
+  it('should flush all tasks', async () => {
+    createHyperStore({
+      getDispatchTime: () => 0
+    })
 
-import appRootPath from 'app-root-path'
-import path from 'path'
+    const start = Date.now()
 
-export default defineConfig({
-  test: {
-    setupFiles: [
-      path.resolve(appRootPath.path, 'packages/hyperflux/tests/utils/patchNode.ts'),
-      path.resolve(appRootPath.path, 'packages/ui/vitest.setup.ts')
-    ],
-    environment: 'jsdom',
-    maxConcurrency: 1,
-    passWithNoTests: true,
-    testTimeout: 10000,
-    hookTimeout: 10000,
-    reporters: reporters,
-    slowTestThreshold: 1000,
-    coverage: {
-      enabled: true,
-      reporter: ['lcov'],
-      provider: 'istanbul',
-      include: ['src/**']
+    let flushed = 0
+
+    for (let i = 0; i < 1000; i++) {
+      const reactor = startReactor(() => {
+        const x = [] as number[]
+        // mock an expensive operation
+        for (let j = 0; j < 10000; j++) {
+          x.push(Math.random() / x.length)
+        }
+
+        useEffect(() => {
+          const x = [] as number[]
+          // mock an expensive operation
+          for (let j = 0; j < 10000; j++) {
+            x.push(Math.random() / x.length)
+          }
+
+          flushed++
+        }, [])
+        return null
+      })
     }
-  }
+
+    await flushAll()
+
+    console.info(`Time taken: ${Date.now() - start}ms`)
+
+    expect(flushed).toBe(1000)
+  })
 })

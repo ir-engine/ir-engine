@@ -97,6 +97,9 @@ export const moderationBanQuerySchema = Type.Intersect(
       banUserId: {
         $like: Type.String()
       },
+      reportedLocationId: TypedString<LocationID>({
+        format: 'uuid'
+      }),
       banReason: {
         $like: Type.String()
       }

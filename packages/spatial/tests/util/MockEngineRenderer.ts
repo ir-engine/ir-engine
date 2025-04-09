@@ -108,6 +108,7 @@ export const mockEngineRenderer = (entity: Entity) => {
   const renderComponent = getComponent(entity, RendererComponent)
   renderComponent.renderer = renderer
   renderComponent.effectComposer = effectComposer
+  renderComponent.renderContext = mockContext as any
   renderComponent.renderPass = renderPass
   renderComponent.xrManager = xrManager
 }

@@ -33,7 +33,8 @@ import {
   getComponent,
   setComponent
 } from '@ir-engine/ecs'
-import { getMutableState, startReactor } from '@ir-engine/hyperflux'
+import { getMutableState } from '@ir-engine/hyperflux'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
@@ -68,7 +69,7 @@ describe('SpawnPoseState', () => {
         return destroyEngine()
       })
 
-      it('... should update the entity with that UUID: TransformComponent.position should become SpawnPoseState.spawnPosition', () => {
+      it('... should update the entity with that UUID: TransformComponent.position should become SpawnPoseState.spawnPosition', async () => {
         const Expected = new Vector3().setScalar(42)
         const Initial = new Vector3().setScalar(21)
         // Set the data as expected
@@ -95,12 +96,13 @@ describe('SpawnPoseState', () => {
         // Sanity check before running
         for (const entity of entities) assertVec.approxEq(getComponent(entity, TransformComponent).position, Initial, 3)
         // Run and Check the result
-        const root = startReactor(SpawnPoseState.reactor)
+
+        await act(() => render(null))
         for (const entity of entities)
           assertVec.approxEq(getComponent(entity, TransformComponent).position, Expected, 3)
       })
 
-      it('... should update the entity with that UUID: TransformComponent.rotation should become SpawnPoseState.spawnRotation', () => {
+      it('... should update the entity with that UUID: TransformComponent.rotation should become SpawnPoseState.spawnRotation', async () => {
         const Expected = new Quaternion(1, 2, 3, 4).normalize()
         const Initial = new Quaternion(5, 6, 7, 8).normalize()
         // Set the data as expected
@@ -127,12 +129,13 @@ describe('SpawnPoseState', () => {
         // Sanity check before running
         for (const entity of entities) assertVec.approxEq(getComponent(entity, TransformComponent).rotation, Initial, 4)
         // Run and Check the result
-        const root = startReactor(SpawnPoseState.reactor)
+
+        await act(() => render(null))
         for (const entity of entities)
           assertVec.approxEq(getComponent(entity, TransformComponent).rotation, Expected, 4)
       })
 
-      it('... should not do anything if entity is falsy', () => {
+      it('... should not do anything if entity is falsy', async () => {
         const Initial = new Vector3().setScalar(21)
         // Set the data as expected
         const keys: EntityUUID[] = [
@@ -158,7 +161,8 @@ describe('SpawnPoseState', () => {
         // Sanity check before running
         for (const entity of entities) assertVec.approxEq(getComponent(entity, TransformComponent).position, Initial, 3)
         // Run and Check the result
-        const root = startReactor(SpawnPoseState.reactor)
+
+        await act(() => render(null))
         for (const entity of entities) assertVec.approxEq(getComponent(entity, TransformComponent).position, Initial, 3)
       })
     })
