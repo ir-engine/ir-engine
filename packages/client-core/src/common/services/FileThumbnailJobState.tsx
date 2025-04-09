@@ -660,7 +660,6 @@ const ThumbnailJobReactor = () => {
         project: newJob.project,
         jobType: newJob.jobType
       })
-      console.log('currentJob', currentJob.value?.jobType, currentJob.value?.key)
     } else {
       currentJob.set(null)
     }
