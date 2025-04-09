@@ -1163,7 +1163,7 @@ const exportEntity = async (
     for (const extension of context.exportExtensions) extension.beforeComponent?.(entity, component, node, index)
 
     //skip components that don't have a jsonID
-    if (!component.jsonID || component === GLTFComponent) continue
+    if (!component.jsonID) continue
 
     if (component === TransformComponent) {
       const transform = getComponent(entity, TransformComponent)
