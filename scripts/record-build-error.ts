@@ -29,6 +29,8 @@ import dotenv from 'dotenv-flow'
 import fs from 'fs'
 import knex from 'knex'
 
+import { generateInstallationOctokit } from '@ir-engine/server-core/src/projects/project/github-helper'
+
 import { buildStatusPath, BuildStatusType } from '@ir-engine/common/src/schema.type.module'
 
 dotenv.config({
@@ -42,6 +44,32 @@ const options = cli.parse({
   service: [false, 'Name of failing service', 'string'],
   isDocker: [false, 'Whether or not this is checking logs files for a Docker process.', 'boolean']
 })
+
+interface Payload {
+  release: string
+  service: string
+  logs: string
+}
+
+async function callGithubDispatch(payload: Payload) {
+  const installationOctokit = generateInstallationOctokit(
+    process.env.GITHUB_RECORD_ERROR_APP_ID,
+    process.env.GITHUB_RECORD_ERROR_APP_PRIVATE_KEY,
+    process.env.GITHUB_RECORD_ERROR_INSTALLATION_ID
+  )
+
+  await installationOctokit.request({
+    method: 'POST',
+    headers: {
+      Accept: 'application/vnd.github+json'
+    },
+    url: `/repos/{owner}/{repo}/dispatches`,
+    owner: process.env.GITHUB_RECORD_ERROR_OWNER,
+    repo: process.env.GITHUB_RECORD_ERROR_REPO,
+    event_type: process.env.GITHUB_RECORD_ERROR_DISPATCH_NAME,
+    client_payload: payload
+  })
+}
 
 cli.main(async () => {
   try {
@@ -61,7 +89,7 @@ cli.main(async () => {
 
     const buildLogs = fs.readFileSync(`${options.service}-build-logs.txt`).toString()
     const buildErrors = fs.readFileSync(`${options.service}-build-error.txt`).toString()
-    const builderRun = fs.readFileSync('builder-run.txt').toString()
+    const builderRun = fs.existsSync('builder-run.txt') ? fs.readFileSync('builder-run.txt').toString() : '0'
     if (options.isDocker) {
       console.log('isDocker is true')
       const cacheMissRegex = new RegExp(`${options.service}:latest_${process.env.RELEASE_NAME}_cache: not found`)
@@ -80,6 +108,18 @@ cli.main(async () => {
             logs: combinedLogs,
             dateEnded: dateNow
           })
+
+        if (
+          process.env.GITHUB_RECORD_ERROR_OWNER &&
+          process.env.GITHUB_RECORD_ERROR_REPO &&
+          process.env.GITHUB_RECORD_ERROR_WORKFLOW
+        )
+          await callGithubDispatch({
+            release: process.env.RELEASE_NAME,
+            service: options.service,
+            logs: combinedLogs.replaceAll('"', "'").replaceAll('`', "'")
+          })
+
         console.log('exiting with code 1')
         cli.exit(1)
       } else cli.exit(0)
@@ -96,11 +136,35 @@ cli.main(async () => {
             logs: combinedLogs,
             dateEnded: dateNow
           })
+
+        if (
+          process.env.GITHUB_RECORD_ERROR_OWNER &&
+          process.env.GITHUB_RECORD_ERROR_REPO &&
+          process.env.GITHUB_RECORD_ERROR_WORKFLOW
+        )
+          await callGithubDispatch({
+            release: process.env.RELEASE_NAME,
+            service: options.service,
+            logs: combinedLogs.replaceAll('"', "'").replaceAll('`', "'")
+          })
+
         cli.exit(1)
       } else cli.exit(0)
     }
   } catch (err) {
     console.log(err)
+
+    if (
+      process.env.GITHUB_RECORD_ERROR_OWNER &&
+      process.env.GITHUB_RECORD_ERROR_REPO &&
+      process.env.GITHUB_RECORD_ERROR_WORKFLOW
+    )
+      await callGithubDispatch({
+        release: process.env.RELEASE_NAME,
+        service: options.service,
+        logs: err.toString().replaceAll('"', "'").replaceAll('`', "'")
+      })
+
     cli.fatal(err)
   }
 })

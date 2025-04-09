@@ -108,7 +108,7 @@ export const KHRUnlitExtensionComponent = defineComponent({
   },
 
   extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
-    const pending = [] as Promise<void>[]
+    let pending = undefined as undefined | Promise<void>
 
     materialParams.color = new Color(1.0, 1.0, 1.0)
     materialParams.opacity = 1.0
@@ -124,16 +124,14 @@ export const KHRUnlitExtensionComponent = defineComponent({
       }
 
       if (metallicRoughness.baseColorTexture !== undefined) {
-        pending.push(
-          GLTFLoaderFunctions.assignTexture(options, metallicRoughness.baseColorTexture).then((map) => {
-            materialParams.map = map
-            map.colorSpace = SRGBColorSpace
-          })
-        )
+        pending = GLTFLoaderFunctions.assignTexture(options, metallicRoughness.baseColorTexture).then((map) => {
+          materialParams.map = map
+          if (map) map.colorSpace = SRGBColorSpace
+        })
       }
     }
 
-    return Promise.all(pending)
+    return pending ?? Promise.resolve(undefined)
   }
 })
 
@@ -340,7 +338,7 @@ export const KHRSheenExtensionComponent = defineComponent({
       pending.push(
         GLTFLoaderFunctions.assignTexture(options, extension.sheenColorTexture).then((map) => {
           materialParams.sheenColorMap = map
-          map.colorSpace = SRGBColorSpace
+          if (map) map.colorSpace = SRGBColorSpace
         })
       )
     }
@@ -514,7 +512,7 @@ export const KHRSpecularExtensionComponent = defineComponent({
       pending.push(
         GLTFLoaderFunctions.assignTexture(options, extension.specularColorTexture).then((map) => {
           materialParams.specularColorMap = map
-          map.colorSpace = SRGBColorSpace
+          if (map) map.colorSpace = SRGBColorSpace
         })
       )
     }
@@ -690,10 +688,10 @@ export const MozillaHubsLightMapComponent = defineComponent({
         materialParams.lightMap = lightMap
         materialParams.lightMapIntensity = extensionDef.intensity ?? 1.0
 
-        getDependency(options, 'material', materialIndex).then((result) => {
+        getDependency(options, 'material', materialIndex).then((material) => {
           // fix for change to MeshBasicMaterial shading WRT lightmaps
-          if (result.type === 'MeshBasicMaterial') {
-            result.lightMapIntensity *= Math.PI
+          if (material.type === 'MeshBasicMaterial') {
+            material.lightMapIntensity *= Math.PI
           }
         })
       })
@@ -819,11 +817,9 @@ export const EEMaterialComponent = defineComponent({
     return getState(MaterialPrototypeDefinitions)[extension.prototype]?.prototypeConstructor
   },
 
-  extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
+  async extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
     const pending = [] as Promise<any>[]
-
     const extension = materialDef.extensions![EEMaterialComponent.jsonID] as ComponentType<typeof EEMaterialComponent>
-    const resultProperties = {} as Record<string, any>
 
     for (const [k, v] of Object.entries(extension.args)) {
       if (v.type === 'texture') {
@@ -835,8 +831,6 @@ export const EEMaterialComponent = defineComponent({
               materialParams[k] = texture
             })
           )
-        } else {
-          resultProperties[k] = null
         }
       } else if (v.type === 'color') {
         materialParams[k] = new Color(v.contents)

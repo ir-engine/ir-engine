@@ -148,13 +148,15 @@ export const setupMaterialParameters = (entity: Entity, properties: { [_: string
     if (v.isTexture) {
       const url = v.userData?.url
       if (url) params[k] = url
-    } else if (v.isColor) {
-      params[k] = (v as Color).getHex()
-    } else {
-      params[k] = v
+      return
     }
+    if (v.isColor) {
+      params[k] = (v as Color).getHex()
+      return
+    }
+    if (typeof v === 'object') return
+    params[k] = v
   })
-
   setComponent(entity, MaterialStateComponent, {
     parameters: params,
     prototype: properties.userData?.type || properties.type

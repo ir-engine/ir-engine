@@ -23,24 +23,22 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+export const VRMRequiredHumanBoneName = {
+  Hips: 'hips',
+  Spine: 'spine',
+  Head: 'head',
+  LeftUpperLeg: 'leftUpperLeg',
+  LeftLowerLeg: 'leftLowerLeg',
+  LeftFoot: 'leftFoot',
+  RightUpperLeg: 'rightUpperLeg',
+  RightLowerLeg: 'rightLowerLeg',
+  RightFoot: 'rightFoot',
+  LeftUpperArm: 'leftUpperArm',
+  LeftLowerArm: 'leftLowerArm',
+  LeftHand: 'leftHand',
+  RightUpperArm: 'rightUpperArm',
+  RightLowerArm: 'rightLowerArm',
+  RightHand: 'rightHand'
+} as const
 
-import {
-  locationBanDataSchema,
-  locationBanPatchSchema,
-  locationBanQuerySchema,
-  locationBanSchema
-} from '@ir-engine/common/src/schemas/social/location-ban.schema'
-
-export default createSwaggerServiceOptions({
-  schemas: {
-    locationBanDataSchema,
-    locationBanPatchSchema,
-    locationBanQuerySchema,
-    locationBanSchema
-  },
-  docs: {
-    description: 'Location ban service description',
-    securities: ['all']
-  }
-})
+export type VRMRequiredHumanBoneName = (typeof VRMRequiredHumanBoneName)[keyof typeof VRMRequiredHumanBoneName]

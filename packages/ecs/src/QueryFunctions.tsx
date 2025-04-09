@@ -76,7 +76,7 @@ export function removeQuery(queryOrTerms: ReturnType<typeof defineQuery> | bitEC
     if ('_enterQuery' in queryOrTerms) queryOrTerms._enterQuery.unsubscribe()
     if ('_exitQuery' in queryOrTerms) queryOrTerms._exitQuery.unsubscribe()
   } catch (e) {
-    console.log('Caught error', e, 'likely due to cleaning up a query that doesnt exist')
+    // console.log('Caught error', e, 'likely due to cleaning up a query that doesnt exist')
   }
 }
 

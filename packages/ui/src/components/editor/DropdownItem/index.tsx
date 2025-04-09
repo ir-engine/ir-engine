@@ -72,6 +72,7 @@ export default function EditorDropdownItem({
         selected ? 'bg-ui-select-background' : '',
         className
       )}
+      data-testid={label}
       onClick={() => !disabled && onClick?.()}
       tabIndex={0}
       onKeyUp={(event) => {
@@ -79,9 +80,15 @@ export default function EditorDropdownItem({
       }}
       {...props}
     >
-      {collapsed ? <ChevronRightSm className={iconClassname} /> : <ChevronDownSm className={iconClassname} />}
+      {collapsed ? (
+        <ChevronRightSm className={iconClassname} data-testid="expand-item" />
+      ) : (
+        <ChevronDownSm className={iconClassname} data-testid="collapse-item" />
+      )}
       {ItemIcon ? <ItemIcon className={iconClassname} /> : <Maximize02Sm className={iconClassname} />}
-      <span className="flex-1 text-sm">{label}</span>
+      <span className="flex-1 text-sm" data-testid="item-name">
+        {label}
+      </span>
       {RightIcon1 && <RightIcon1 className={iconClassname} onClick={onRightIcon1Click} />}
       {RightIcon2 && <RightIcon2 className={iconClassname} onClick={onRightIcon2Click} />}
     </div>

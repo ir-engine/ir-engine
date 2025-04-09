@@ -23,19 +23,47 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+import { useEffect } from 'react'
+import { describe, expect, it } from 'vitest'
+import { startReactor } from '../../src/functions/ReactorFunctions'
+import { createHyperStore } from '../../src/functions/StoreFunctions'
+import { flushAll } from './flushAll'
 
-import {
-  LocationBanData,
-  LocationBanPatch,
-  LocationBanQuery,
-  LocationBanType
-} from '@ir-engine/common/src/schemas/social/location-ban.schema'
+describe('flushAll', () => {
+  it('should flush all tasks', async () => {
+    createHyperStore({
+      getDispatchTime: () => 0
+    })
 
-export interface LocationBanParams extends KnexAdapterParams<LocationBanQuery> {}
+    const start = Date.now()
 
-export class LocationBanService<
-  T = LocationBanType,
-  ServiceParams extends Params = LocationBanParams
-> extends KnexService<LocationBanType, LocationBanData, LocationBanParams, LocationBanPatch> {}
+    let flushed = 0
+
+    for (let i = 0; i < 1000; i++) {
+      const reactor = startReactor(() => {
+        const x = [] as number[]
+        // mock an expensive operation
+        for (let j = 0; j < 10000; j++) {
+          x.push(Math.random() / x.length)
+        }
+
+        useEffect(() => {
+          const x = [] as number[]
+          // mock an expensive operation
+          for (let j = 0; j < 10000; j++) {
+            x.push(Math.random() / x.length)
+          }
+
+          flushed++
+        }, [])
+        return null
+      })
+    }
+
+    await flushAll()
+
+    console.info(`Time taken: ${Date.now() - start}ms`)
+
+    expect(flushed).toBe(1000)
+  })
+})
