@@ -657,7 +657,7 @@ const exportAccessor = (
   if (attribute.normalized) accessorDef.normalized = true
 
   gltf.accessors ??= []
-  const accessorIndex = gltf.accessors!.length
+  const accessorIndex = gltf.accessors.length
   gltf.accessors.push(accessorDef)
 
   return accessorIndex
@@ -745,11 +745,10 @@ const exportBufferView = (
     bufferViewDef.byteStride = attribute.itemSize * componentSize
   }
 
-  const bufferViewIndex = gltf.bufferViews!.length
+  const bufferViewIndex = gltf.bufferViews.length
   gltf.bufferViews.push(bufferViewDef)
 
   return bufferViewIndex
-  // this.byteOffset += byteLength;
 }
 
 const exportBuffer = (buffer: ArrayBuffer, gltf: GLTF.IGLTF, context: GLTFSceneExportContext): number => {
@@ -849,7 +848,7 @@ const exportMaterial = async (
 
   const argData = injectMaterialDefaults(materialEntityUUID)
   if (!argData) {
-    throw new Error('Unsupported material ' + material)
+    throw new Error('Unsupported material ' + JSON.stringify(material))
   }
   const result: any = {}
   for (const [field, value] of Object.entries(argData)) {
@@ -935,8 +934,8 @@ const exportTexture = async (
   textureDef.source = imageIndex
   gltf.textures ??= []
 
-  const textureIndex = gltf.textures!.length
-  gltf.textures!.push(textureDef)
+  const textureIndex = gltf.textures.length
+  gltf.textures.push(textureDef)
   cache.set(texture, textureIndex)
   return textureIndex
 }
@@ -1018,7 +1017,6 @@ const exportImage = async (
     const dstRelativePath = pathJoin(dstOrgName, dstProjectName, dstInternalPath)
     const srcRelativePath = pathJoin(srcProjectName, context.relativePath)
     const dstName = baseName(dstRelativePath)
-    const srcName = baseName(srcRelativePath)
     const dstDir = LoaderUtils.extractUrlBase(dstRelativePath)
     const srcDir = LoaderUtils.extractUrlBase(srcRelativePath)
 
@@ -1215,12 +1213,12 @@ const exportAnimations = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFS
       const interpolantFunc = track.createInterpolant as (any) => any
       if (interpolantFunc === track.InterpolantFactoryMethodDiscrete) {
         samplerDef.interpolation = 'STEP'
+      } else if ((interpolantFunc as any).isInterpolantFactoryMethodGLTFCubicSpline) {
+        samplerDef.interpolation = 'CUBICSPLINE'
       } else if (interpolantFunc === track.InterpolantFactoryMethodLinear) {
         samplerDef.interpolation = 'LINEAR'
       } else if (interpolantFunc === track.InterpolantFactoryMethodSmooth) {
         samplerDef.interpolation = 'LINEAR'
-      } else if ((interpolantFunc as any).isInterpolantFactoryMethodGLTFCubicSpline) {
-        samplerDef.interpolation = 'CUBICSPLINE'
       } else {
         samplerDef.interpolation = 'LINEAR'
       }
