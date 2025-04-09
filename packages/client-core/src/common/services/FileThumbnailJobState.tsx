@@ -303,7 +303,7 @@ export const FileThumbnailJobState = defineState({
   useGenerateDimensions: async (files: readonly FileBrowserContentType[]) => {
     useGenerateHelper(
       files,
-      (file) => (file.type === 'glf' || file.type === 'glb' ? file.key : undefined),
+      (file) => (file.type === 'gltf' || file.type === 'glb' ? file.key : undefined),
       {
         $and: [{ width: null }, { height: null }, { depth: null }]
       },
