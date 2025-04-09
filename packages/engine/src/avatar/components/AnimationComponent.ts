@@ -49,7 +49,6 @@ import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { AssetState } from '../../gltf/GLTFState'
 import { SourceComponent } from '../../scene/components/SourceComponent'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
-import { NormalizedBoneComponent } from './NormalizedBoneComponent'
 
 export const AnimationComponent = defineComponent({
   name: 'AnimationComponent',
@@ -154,7 +153,6 @@ PropertyBinding.findNode = (root: Object3D, nodeName: string) => {
   }
 
   return (
-    getOptionalComponent(entity, NormalizedBoneComponent) ||
     getOptionalComponent(entity, BoneComponent) ||
     getOptionalComponent(entity, MeshComponent) ||
     getOptionalComponent(entity, ObjectComponent)!

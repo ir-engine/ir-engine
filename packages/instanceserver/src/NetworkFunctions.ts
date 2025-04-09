@@ -38,6 +38,7 @@ import {
   inviteCodeLookupPath,
   locationPath,
   messagePath,
+  moderationBanPath,
   UserID,
   userKickPath,
   userPath,
@@ -152,6 +153,17 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
   const userId = user.id
   // disallow users from joining media servers if they are not age verified
   if (instance.channelId && !user.ageVerified) return false
+  const thisUserBanned = (await app.service(moderationBanPath).find({
+    query: {
+      banUserId: userId,
+      banned: true,
+      $limit: 0
+    }
+  })) as any
+  if (thisUserBanned.total > 0) {
+    logger.info(`User "${userId}" is banned.`)
+    return false
+  }
 
   const authorizedUsers = (await app.service(instanceAuthorizedUserPath).find({
     query: {
@@ -236,11 +248,13 @@ export const handleConnectingPeer = async (
   }
   const instanceAttendance = await app.service(instanceAttendancePath).create(newInstanceAttendance)
 
-  dispatchAction(
+  const joinAction = dispatchAction(
     NetworkActions.peerJoined({
       $cache: true,
       $network: network.id,
       $topic: network.topic,
+      $peer: peerID,
+      $user: userId,
       peerID,
       peerIndex: instanceAttendance.peerIndex,
       userID: userId
@@ -270,9 +284,11 @@ export const handleConnectingPeer = async (
 
   logger.info('Connect to world from ' + userId)
 
-  const cachedActions = getCachedActionsForPeer(peerID).map((action) => {
-    return cloneDeep(action)
-  })
+  const cachedActions = getCachedActionsForPeer(peerID)
+    .map((action) => {
+      return cloneDeep(action)
+    })
+    .concat(joinAction)
 
   if (inviteCode && !instanceServerState.isMediaInstance) getUserSpawnFromInvite(network, user, inviteCode!)
 

@@ -50,6 +50,7 @@ import { EngineState, EntityUUID, getComponent } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { useSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
+import { useEngineCanvas } from '@ir-engine/spatial/src/renderer/functions/useEngineCanvas'
 import { Button, Tooltip } from '@ir-engine/ui'
 import 'rc-dock/dist/rc-dock.css'
 import { useTranslation } from 'react-i18next'
@@ -141,9 +142,12 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
 }
 
 const EditorContainer = () => {
-  const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, rootEntity } = useMutableState(EditorState)
+  const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, rootEntity, canvasRef } =
+    useMutableState(EditorState)
   const editorUIAddon = useMutableState(UIAddonsState).editor
   const currentLoadedSceneURL = useHookstate(null as string | null)
+
+  useEngineCanvas(canvasRef.value as React.RefObject<HTMLElement> | null)
 
   /**
    * what is our source of truth for which scene is loaded?

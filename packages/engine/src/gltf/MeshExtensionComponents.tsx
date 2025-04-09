@@ -41,9 +41,9 @@ import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } fr
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { useEffect } from 'react'
 import { BufferAttribute, Color, InstancedBufferAttribute, InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
-import { WEBGL_CONSTANTS } from '../assets/loaders/gltf/GLTFConstants'
 import { InstancingComponent } from '../scene/components/InstancingComponent'
 import { getGLTFOptions, GLTFComponent } from './GLTFComponent'
+import { WEBGL_CONSTANTS } from './GLTFConstants'
 import { getDependency, getNodeID, GLTFParserOptions } from './GLTFLoaderFunctions'
 import { NodeIDComponent } from './NodeIDComponent'
 
@@ -183,7 +183,7 @@ export const EXTMeshGPUInstancingComponent = defineComponent({
         primitive.mode !== WEBGL_CONSTANTS.TRIANGLE_FAN &&
         primitive.mode !== undefined
       ) {
-        return null
+        return
       }
     }
 
@@ -198,14 +198,14 @@ export const EXTMeshGPUInstancingComponent = defineComponent({
     for (const key in attributesDef) {
       pending.push(
         getDependency(options, 'accessor', attributesDef[key]).then((accessor) => {
-          attributes[key] = accessor
+          attributes[key] = accessor as BufferAttribute
           return attributes[key]
         })
       )
     }
 
     if (pending.length < 1) {
-      return null
+      return
     }
 
     const results = await Promise.all(pending)

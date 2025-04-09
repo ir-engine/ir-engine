@@ -182,15 +182,17 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   useEffect(() => {
     prototypeName.set(material.type)
     setupMaterialParameters(entity, material)
+  }, [currentSelectedMaterial, material.type])
 
+  useEffect(() => {
     materialParameters.set(
       Object.fromEntries(
         Object.keys(extractValues(definitions.value[prototypeName.value].arguments as PrototypeArgument, material)).map(
-          (k) => [k, material[k]]
+          (k) => [k, material[k] ?? '']
         )
       )
     )
-  }, [currentSelectedMaterial, material.type])
+  }, [materialComponent.parameters])
 
   //for each parameter type, default values
   const pluginParameters = useHookstate({})
@@ -269,8 +271,8 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
             }
             EditorControlFunctions.modifyMaterial(
               [materialComponent.material.value!.uuid],
-              materialComponent.material.value!.uuid as EntityUUID,
-              [{ [key]: property }]
+              currentSelectedMaterial.value!,
+              [{ [key]: texture?.isTexture ? value : property }]
             )
             EditorHistoryFunctions.snapshot()
             await checkThumbs()

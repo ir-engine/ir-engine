@@ -35,6 +35,7 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { Material, Uniform } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
@@ -161,22 +162,25 @@ describe('TransparencyDitheringPluginComponent', () => {
       return destroyEngine()
     })
 
-    it('should set call `setPlugin` on the MaterialStateComponent.material of the entityContext', () => {
+    it('should set call `setPlugin` on the MaterialStateComponent.material of the entityContext', async () => {
       const material = new Material()
       // Set the data as expected
       setComponent(testEntity, MaterialStateComponent, { material: material })
+      await act(() => render(null))
       // Sanity check before running
       assert.equal(getComponent(testEntity, MaterialStateComponent).material.plugins, undefined)
       // Run and Check the result
       setComponent(testEntity, TransparencyDitheringPluginComponent)
+      await act(() => render(null))
       assert.notEqual(getComponent(testEntity, MaterialStateComponent).material.plugins, undefined)
     })
 
-    it('should not do anything if the entityContext does not have a MaterialStateComponent', () => {
+    it('should not do anything if the entityContext does not have a MaterialStateComponent', async () => {
       // Sanity check before running
       assert.equal(hasComponent(testEntity, MaterialStateComponent), false)
       // Run and Check the result
       setComponent(testEntity, TransparencyDitheringPluginComponent)
+      await act(() => render(null))
       assert.equal(hasComponent(testEntity, MaterialStateComponent), false)
     })
   }) //:: reactor

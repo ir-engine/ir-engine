@@ -35,6 +35,7 @@ import {
   setComponent,
   UndefinedEntity
 } from '@ir-engine/ecs'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { Color, ColorRepresentation } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
@@ -195,44 +196,49 @@ describe('AmbientLightComponent', () => {
       return destroyEngine()
     })
 
-    it('should set a LightTagComponent on the entityContext when it is mounted', () => {
+    it('should set a LightTagComponent on the entityContext when it is mounted', async () => {
       // Sanity check before running
       assert.equal(hasComponent(testEntity, LightTagComponent), false)
 
       // Run and Check the result
       setComponent(testEntity, AmbientLightComponent)
+      await act(() => render(null))
       assert.equal(hasComponent(testEntity, LightTagComponent), true)
     })
 
-    it('should add an AmbientLight object to the ObjectComponent of the entityContext when it is mounted', () => {
+    it('should add an AmbientLight object to the ObjectComponent of the entityContext when it is mounted', async () => {
       // Sanity check before running
       const before = getComponent(testEntity, ObjectComponent)
       assert.equal(!!before, false)
 
       // Run and Check the result
       setComponent(testEntity, AmbientLightComponent)
+      await act(() => render(null))
       const after = getComponent(testEntity, ObjectComponent)
       assert.equal(!!after, true)
       const result = after.type === 'AmbientLight'
       assert.equal(result, true)
     })
 
-    it('should remove the AmbientLight object from the ObjectComponent of the entityContext when it is unmounted', () => {
+    it('should remove the AmbientLight object from the ObjectComponent of the entityContext when it is unmounted', async () => {
       // Sanity check before running
       const before1 = getComponent(testEntity, ObjectComponent)
       assert.equal(!!before1, false)
       setComponent(testEntity, AmbientLightComponent)
+      await act(() => render(null))
 
       // Run and Check the result
       removeComponent(testEntity, AmbientLightComponent)
+      await act(() => render(null))
       const after = getComponent(testEntity, ObjectComponent)
       assert.equal(!!after, false)
     })
 
-    it('should react when component.intensity changes', () => {
+    it('should react when component.intensity changes', async () => {
       const Initial = 21
       const Expected = 42
       setComponent(testEntity, AmbientLightComponent, { intensity: Initial })
+      await act(() => render(null))
 
       // Sanity check before running
       const before = getComponent(testEntity, AmbientLightComponent).intensity
@@ -240,14 +246,16 @@ describe('AmbientLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, AmbientLightComponent, { intensity: Expected })
+      await act(() => render(null))
       const result = getComponent(testEntity, AmbientLightComponent).intensity
       assert.equal(result, Expected)
     })
 
-    it('should react when component.color changes', () => {
+    it('should react when component.color changes', async () => {
       const Initial = new Color(0x123456)
       const Expected = new Color(0x424242)
       setComponent(testEntity, AmbientLightComponent, { color: Initial })
+      await act(() => render(null))
 
       // Sanity check before running
       const before = getComponent(testEntity, AmbientLightComponent).color
@@ -255,6 +263,7 @@ describe('AmbientLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, AmbientLightComponent, { color: Expected })
+      await act(() => render(null))
       const result = getComponent(testEntity, AmbientLightComponent).color
       assert.equal(new Color(result).getHex(), Expected.getHex())
     })

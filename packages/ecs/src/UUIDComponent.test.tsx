@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createEntity, defineQuery, entityExists } from '@ir-engine/ecs'
-import { hookstate, NO_PROXY_STEALTH, startReactor } from '@ir-engine/hyperflux'
+import { hookstate, NO_PROXY_STEALTH, ReactorReconciler, startReactor } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import {
   getComponent,
@@ -151,6 +151,7 @@ describe('UUIDComponent', () => {
       expect(resultSpy).not.toHaveBeenCalled()
       // Run and Check the result
       const root = startReactor(Reactor)
+      ReactorReconciler.flushSync(() => root.run())
       expect(resultSpy).toHaveBeenCalled()
       expect(resultSpy).toHaveBeenCalledTimes(1)
       expect(result).not.toBe(Initial)
@@ -181,6 +182,7 @@ describe('UUIDComponent', () => {
       expect(resultSpy).not.toHaveBeenCalled()
       // Run and Check the result
       const root = startReactor(Reactor)
+      ReactorReconciler.flushSync(() => root.run())
       expect(resultSpy).toHaveBeenCalled()
       expect(resultSpy).toHaveBeenCalledTimes(1)
       expect(result).not.toBe(Initial)
