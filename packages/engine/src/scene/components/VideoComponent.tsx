@@ -31,6 +31,7 @@ import {
   LinearFilter,
   Mesh,
   MirroredRepeatWrapping,
+  Object3D,
   PlaneGeometry,
   RepeatWrapping,
   ShaderMaterial,
@@ -44,6 +45,7 @@ import {
 import { createEntity, EntityTreeComponent, removeEntity, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
+  getAuthoringCounterpart,
   getComponent,
   getOptionalComponent,
   removeComponent,
@@ -52,7 +54,7 @@ import {
   useHasComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { defineState, NO_PROXY, State, useHookstate, useState } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { createPriorityQueue } from '@ir-engine/spatial/src/common/functions/PriorityQueue'
@@ -66,6 +68,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformComponent } from '@ir-engine/spatial'
 import { Vector2_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { HighlightComponent } from '@ir-engine/spatial/src/renderer/components/HighlightComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { NodeFunctions } from '../../gltf/NodeFunctions'
 import { NodeID, NodeIDSchema } from '../../gltf/NodeIDComponent'
@@ -252,6 +255,10 @@ function VideoReactor() {
         })
       )
     )
+    const authEntity = getAuthoringCounterpart(entity)
+    if (authEntity !== UndefinedEntity) {
+      setComponent(authEntity, ObjectComponent, new Object3D())
+    }
     return videoMeshEntity
   }).value
 
