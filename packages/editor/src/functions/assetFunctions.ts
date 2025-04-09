@@ -59,16 +59,16 @@ enum FileType {
 }
 
 const unsupportedFileMessage = {
-  [FileType.THREE_D]: 'Please upload either a .gltf or a .glb.',
-  [FileType.IMAGE]: 'Please upload a .png, .tiff, .jpg, .jpeg, .gif, or .ktx2.',
-  [FileType.AUDIO]: 'Please upload a .mp3, .mpeg, .m4a, or .wav.',
-  [FileType.VIDEO]: 'Please upload a .mp4, .mkv, or .avi.',
-  [FileType.UNKNOWN]: 'Please upload a valid 3D, Image, Audio, or Video file.'
+  [FileType.THREE_D]: 'editor:errors.unsupported-3D-file',
+  [FileType.IMAGE]: 'editor:errors.unsupported-image-file',
+  [FileType.AUDIO]: 'editor:errors.unsupported-audio-file',
+  [FileType.VIDEO]: 'editor:errors.unsupported-video-file',
+  [FileType.UNKNOWN]: 'editor:errors.unsupported-unknown-file'
 }
 
 const supportedFiles = {
   [FileType.THREE_D]: new Set(['.gltf', '.glb', '.bin']),
-  [FileType.IMAGE]: new Set(['.png', '.tiff', '.jpg', '.jpeg', '.gif', '.ktx2']),
+  [FileType.IMAGE]: new Set(['.png', '.jpg', '.jpeg', '.ktx2']),
   [FileType.AUDIO]: new Set(['.mp3', '.mpeg', '.m4a', '.wav']),
   [FileType.VIDEO]: new Set(['.mp4', '.mkv', '.avi'])
 }
@@ -103,7 +103,7 @@ function isValidFileType(file): { isValid: boolean; errorMessage?: string } {
 
   return {
     isValid: false,
-    errorMessage: unsupportedFileMessage[mimeType]
+    errorMessage: i18n.t(unsupportedFileMessage[mimeType])
   }
 }
 

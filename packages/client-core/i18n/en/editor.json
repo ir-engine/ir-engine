@@ -77,7 +77,12 @@
     "CORS": "Possibly a CORS error",
     "urlFetchError": "Failed to fetch \"{{url}}\"",
     "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters, underscores, hyphens, and periods, and begin and end with an alphanumeric.",
-    "maxUploadFileSizeExceed": "That file size is too large. Please upload a file under {{maxFileSizeToUploadMB}}MB. The following files are too large: {{filesNames}}"
+    "maxUploadFileSizeExceed": "That file size is too large. Please upload a file under {{maxFileSizeToUploadMB}}MB. The following files are too large: {{filesNames}}",
+    "unsupported-3D-file": "Please upload either a .gltf or a .glb.",
+    "unsupported-image-file": "Please upload a .png, .jpg, .jpeg, or .ktx2.",
+    "unsupported-audio-file": "Please upload a .mp3, .mpeg, .m4a, or .wav.",
+    "unsupported-video-file": "Please upload a .mp4, .mkv, or .avi.",
+    "unsupported-unknown-file": "Please upload a valid 3D, Image, Audio, or Video file."
   },
   "warnings": {
     "sceneComplexity": "Scene complexity is {{sceneComplexity}}. Consider optimizing your scene for better performance."
