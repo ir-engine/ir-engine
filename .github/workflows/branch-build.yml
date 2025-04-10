@@ -18,7 +18,26 @@ jobs:
           if [ ${{ secrets.BRANCH_BUILD_ENABLED }} == 'true' ]; then
             echo "ok=enabled" >> $GITHUB_OUTPUT
           fi
+  install-modules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - run: npm i
+      - name: Cache node-modules
+        id: cache node-modules
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            **/node-modules
+          key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
   check-lint:
+    needs: install-modules
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -26,17 +45,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
-      - run: npm i
+      - name: Restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            **/node-modules
+          key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
       - run: npm run lint
       - run: npm run check-eslint
         timeout-minutes: 20
 
   check-errors:
+    needs: install-modules
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -44,18 +72,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
-      - run: npm i
+      - name: Restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            **/node-modules
+          key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
       - run: npm run dev-docker
       - run: npm run dev-reinit
       - run: npx lerna run --scope '@ir-engine/*' check-errors
         timeout-minutes: 20
 
   build-client:
+    needs: install-modules
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -63,12 +100,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
-      - run: npm i
+      - name: Restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            **/node-modules
+          key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: npm run dev-docker
@@ -80,6 +125,7 @@ jobs:
       - run: npm run build-client
 
   test_hyperflux:
+    needs: install-modules
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -87,12 +133,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
-      - run: npm i
+      - name: Restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            **/node-modules
+          key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
@@ -108,6 +162,7 @@ jobs:
           projectBaseDir: packages/hyperflux/
 
   test_ecs:
+    needs: install-modules
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -115,12 +170,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
-      - run: npm i
+      - name: Restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            **/node-modules
+          key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
@@ -139,6 +202,7 @@ jobs:
           projectBaseDir: packages/ecs/
 
   test_network:
+    needs: install-modules
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -146,12 +210,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
-      - run: npm i
+      - name: Restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            **/node-modules
+          key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
@@ -173,6 +245,7 @@ jobs:
           projectBaseDir: packages/network/
 
   test_spatial:
+    needs: install-modules
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -180,12 +253,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
-      - run: npm i
+      - name: Restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            **/node-modules
+          key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
@@ -213,6 +294,7 @@ jobs:
           projectBaseDir: packages/spatial/
 
   test_engine:
+    needs: install-modules
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -220,12 +302,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
-      - run: npm i
+      - name: Restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            **/node-modules
+          key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
@@ -259,6 +349,7 @@ jobs:
           projectBaseDir: packages/engine/
 
   test_client:
+    needs: install-modules
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -274,12 +365,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
-      - run: npm i
+      - name: Restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            **/node-modules
+          key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: rm -rf packages/instanceserver
@@ -295,6 +394,7 @@ jobs:
           projectBaseDir: packages/${{ matrix.package }}/
 
   test_server:
+    needs: install-modules
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -310,12 +410,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
-      - run: npm i
+      - name: Restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            **/node-modules
+          key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: rm -rf packages/client
@@ -335,18 +443,27 @@ jobs:
           projectBaseDir: packages/${{ matrix.package }}/
 
   npm_builds:
+    needs: install-modules
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
     steps:
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
-      - run: npm i
+      - name: Restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            **/node-modules
+          key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
       - name: Checkout Engine
         uses: actions/checkout@v4
         with:
