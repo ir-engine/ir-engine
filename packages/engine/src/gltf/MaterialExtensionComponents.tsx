@@ -210,7 +210,7 @@ export const KHRClearcoatExtensionComponent = defineComponent({
       )
     }
 
-    if (extension.clearcoatNormalTexture !== undefined) {
+    if (extension.clearcoatNormalTexture?.index !== undefined) {
       pending.push(
         GLTFLoaderFunctions.assignTexture(options, extension.clearcoatNormalTexture).then((map) => {
           materialParams.clearcoatNormalMap = map

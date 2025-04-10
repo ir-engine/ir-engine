@@ -31,11 +31,15 @@ import { MeshStandardArguments as StandardDefaults } from './MeshStandardMateria
 
 export const MeshPhysicalArguments = {
   ...StandardDefaults,
+  anisotropy: FloatArg,
+  anisotropyMap: TextureArg,
+  anisotropyRotation: FloatArg,
   attenuationColor: ColorArg,
   attenuationDistance: FloatArg,
   clearcoat: { ...NormalizedFloatArg, default: 0.5 },
   clearcoatMap: TextureArg,
   clearcoatNormalMap: TextureArg,
+  clearcoatNormalScale: FloatArg,
   clearcoatRoughness: { ...NormalizedFloatArg, default: 0.5 },
   ior: { ...FloatArg, default: 1.5, min: 1.0, max: 2.333 },
   iridescence: NormalizedFloatArg,
