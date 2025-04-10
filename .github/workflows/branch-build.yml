@@ -28,10 +28,19 @@ jobs:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
-      - run: npm i
+      - name: Restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            **/node-modules
+          key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
       - name: Cache node-modules
-        id: cache-node-modules
-        uses: actions/cache@v4
+        if: steps.cache.outputs.cache-hit != 'true'
+        id: cache node-modules
+        uses: actions/cache/save@v4
         with:
           path: |
             **/node-modules
