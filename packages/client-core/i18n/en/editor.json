@@ -41,6 +41,7 @@
     "importSettings": "Import Settings",
     "exportGLB": "Export as binary glTF (.glb) ...",
     "exportLookdev": "Export Lookdev Prefab",
+    "documentation": "Documentation",
     "importScene": "Import Scene",
     "exportScene": "Export Scene",
     "quit": "Quit to Dashboard"

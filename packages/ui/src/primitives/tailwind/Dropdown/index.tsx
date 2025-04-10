@@ -27,7 +27,7 @@ import React from 'react'
 import { HiCheck } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
 
-export interface DropdownItemProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'className'> {
+export interface DropdownItemProps extends Omit<React.HTMLAttributes<HTMLDivElement | HTMLAnchorElement>, 'className'> {
   /**text shown on the left end */
   label: string
   Icon?: ({ className }: { className?: string }) => JSX.Element
@@ -36,6 +36,7 @@ export interface DropdownItemProps extends Omit<React.HTMLAttributes<HTMLDivElem
   disabled?: boolean
   selected?: boolean
   className?: string
+  href?: string
 
   /**
    * Whether the item is hovered (or navigated through arrow keys)
@@ -54,29 +55,36 @@ export function DropdownItem({
   secondaryText,
   className,
   truncate = true,
-  ...props
+  href,
+  ...rest
 }: DropdownItemProps) {
-  return (
-    <div
-      tabIndex={0}
-      className={twMerge(
-        'h-[38px] w-full cursor-pointer bg-ui-background px-4 py-2.5 text-sm text-text-tertiary outline-none',
-        'flex items-center',
-        active ? 'bg-ui-hover-background' : '',
-        selected ? 'bg-ui-select-background text-text-primary' : '',
-        disabled
-          ? 'text-ui-inactive-primary-outline cursor-not-allowed bg-ui-inactive-background'
-          : 'hover:bg-ui-hover-background',
-        className
-      )}
-      {...props}
-    >
+  const children = (
+    <>
       <span className="flex min-w-0 flex-1 items-center gap-2">
         {Icon && <Icon className="h-3 w-3" />}
         <span className={truncate ? 'truncate' : ''}>{label}</span>
       </span>
       {secondaryText && <span className="ml-auto">{secondaryText}</span>}
       {selected && <HiCheck className="ml-auto h-3 w-3 stroke-2" />}
-    </div>
+    </>
   )
+
+  const props = {
+    className: twMerge(
+      'h-[38px] w-full cursor-pointer bg-ui-background px-4 py-2.5 text-sm text-text-tertiary outline-none',
+      'flex items-center',
+      active ? 'bg-ui-hover-background' : '',
+      selected ? 'bg-ui-select-background text-text-primary' : '',
+      disabled
+        ? 'text-ui-inactive-primary-outline cursor-not-allowed bg-ui-inactive-background'
+        : 'hover:bg-ui-hover-background',
+      className
+    ),
+    tabIndex: 0,
+    children,
+    href,
+    ...rest
+  }
+
+  return !href ? <div {...props} /> : <a target="_blank" rel="noopener noreferrer" {...props} />
 }
