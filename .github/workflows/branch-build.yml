@@ -31,7 +31,8 @@ jobs:
       - name: Restore
         uses: actions/cache/restore@v4
         with:
-          path: '**/node-modules'
+          path: |
+            */*/node-modules
           key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -41,7 +42,7 @@ jobs:
         id: cache-node-modules
         uses: actions/cache/save@v4
         with:
-          path: '**/node-modules'
+          path: '*/*/node-modules'
           key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
   check-lint:
     needs: install-modules
@@ -60,7 +61,8 @@ jobs:
       - name: Restore
         uses: actions/cache/restore@v4
         with:
-          path: '**/node-modules'
+          path: |
+            */*/node-modules
           key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -86,7 +88,8 @@ jobs:
       - name: Restore
         uses: actions/cache/restore@v4
         with:
-          path: '**/node-modules'
+          path: |
+            */*/node-modules
           key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -113,7 +116,8 @@ jobs:
       - name: Restore
         uses: actions/cache/restore@v4
         with:
-          path: '**/node-modules'
+          path: |
+            */*/node-modules
           key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -145,7 +149,8 @@ jobs:
       - name: Restore
         uses: actions/cache/restore@v4
         with:
-          path: '**/node-modules'
+          path: |
+            */*/node-modules
           key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -181,7 +186,8 @@ jobs:
       - name: Restore
         uses: actions/cache/restore@v4
         with:
-          path: '**/node-modules'
+          path: |
+            */*/node-modules
           key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -220,7 +226,8 @@ jobs:
       - name: Restore
         uses: actions/cache/restore@v4
         with:
-          path: '**/node-modules'
+          path: |
+            */*/node-modules
           key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -262,7 +269,8 @@ jobs:
       - name: Restore
         uses: actions/cache/restore@v4
         with:
-          path: '**/node-modules'
+          path: |
+            */*/node-modules
           key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -310,7 +318,8 @@ jobs:
       - name: Restore
         uses: actions/cache/restore@v4
         with:
-          path: '**/node-modules'
+          path: |
+            */*/node-modules
           key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -372,7 +381,8 @@ jobs:
       - name: Restore
         uses: actions/cache/restore@v4
         with:
-          path: '**/node-modules'
+          path: |
+            */*/node-modules
           key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -416,7 +426,8 @@ jobs:
       - name: Restore
         uses: actions/cache/restore@v4
         with:
-          path: '**/node-modules'
+          path: |
+            */*/node-modules
           key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -455,7 +466,8 @@ jobs:
       - name: Restore
         uses: actions/cache/restore@v4
         with:
-          path: '**/node-modules'
+          path: |
+            */*/node-modules
           key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
