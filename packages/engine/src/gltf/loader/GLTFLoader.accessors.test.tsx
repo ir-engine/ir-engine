@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -27,25 +27,118 @@ Infinite Reality Engine. All Rights Reserved.
  * @fileoverview
  * Unit Test suite for loading the `glTF.accessors` root property and all its children.
  * */
-import { describe, it } from 'vitest'
+import { InterleavedBufferAttribute } from 'three'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { mockGLTF, mockGLTFOptions } from '../../../tests/util/mockGLTF'
+import { DependencyCache, GLTFLoaderFunctions } from '../GLTFLoaderFunctions'
 
+beforeEach(() => {
+  // Clear the dependency cache before each test
+  DependencyCache.clear()
+})
+
+/**
+ * @todo
+ * Cannot possibly tested in our current GLTFLoader implementation
+ * It requires a GLTFLoader gltf root properties validation function that does not exist.
+ * */
 describe('glTF.accessors Property', () => {
   it.todo('MAY be undefined', () => {})
   it.todo('MUST be an array of `accessor`s when defined', () => {})
   it.todo('MUST have a length in range [1..] when defined', () => {})
 }) //:: glTF.accessors
 
+/**
+ * @todo
+ * Should be accessing the loader from the root GLTFLoader function (currently does not exist)
+ * */
 describe('glTF: Accessor Type', () => {
+  /**
+   * @description Creates the most minimal gltf with one accessor possible, as required by spec
+   * */
+  function mockGLTFMinimal() {
+    const result = mockGLTF()
+    result.accessors = [
+      {
+        componentType: 5126, // FLOAT
+        count: 1,
+        type: 'SCALAR',
+        bufferView: undefined,
+        byteOffset: undefined,
+        normalized: undefined,
+        sparse: undefined,
+        min: undefined,
+        max: undefined,
+        extensions: undefined,
+        extras: undefined
+      }
+    ]
+    return result
+  }
+
+  it('MUST throw an error when trying to access an accessor that does not exist and the accessors property is not defined', async () => {
+    const options = mockGLTFOptions(mockGLTF())
+    await expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrow()
+  })
+
   describe('bufferView', () => {
-    it.todo('MAY be undefined', () => {})
-    it.todo('MUST be initialized with zeros when undefined', () => {})
-    it.todo('MUST be an `integer` in range [0..]', () => {})
+    it('MAY be undefined', async () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      await expect(GLTFLoaderFunctions.loadAccessor(options, 0)).resolves.not.toThrow()
+    })
+
+    it('MUST be initialized with zeros when undefined', async () => {
+      const Expected = 0
+      const gltf = mockGLTFMinimal()
+      gltf.accessors = []
+      gltf.accessors!.push({
+        componentType: 5126, // FLOAT
+        count: 3,
+        type: 'VEC3',
+        bufferView: undefined // Explicitly set bufferView to undefined
+      })
+      const options = mockGLTFOptions(gltf)
+
+      const result = await GLTFLoaderFunctions.loadAccessor(options, 0)
+      expect(result.array.length).toBe(9)
+      result.array.forEach((value: number) => expect(value).toBe(Expected))
+    })
+
+    /**
+     * @todo
+     * Cannot be tested in our current GLTFLoader implementation
+     * The implementation respects the spec, but the output does not.
+     * */
+    it.fails('MUST be an integer in range [0..]', async () => {
+      const gltf = mockGLTFMinimal()
+      const options = mockGLTFOptions(gltf)
+      const result = (await GLTFLoaderFunctions.loadAccessor(options, 0)) as any
+
+      // The bufferView index should be a non-negative integer
+      expect(Number.isInteger(result.bufferView)).toBe(true)
+      expect(result.bufferView).toBeGreaterThanOrEqual(0)
+    })
     it.todo('MAY override zeros with actual values from `glTF.accessors.sparse` or extensions', () => {})
   }) //:: bufferView
 
   describe('byteOffset', () => {
-    it.todo('MAY be undefined', () => {})
-    it.todo('SHOULD assign a default value of 0', () => {})
+    it('MAY be undefined', async () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      await expect(GLTFLoaderFunctions.loadAccessor(options, 0)).resolves.not.toThrow()
+    })
+
+    /**
+     * @todo
+     * Cannot be tested in our current GLTFLoader implementation
+     * The implementation respects the spec, but the output does not.
+     * */
+    it.fails('SHOULD assign a default value of 0', async () => {
+      const Expected = 0
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      const result = ((await GLTFLoaderFunctions.loadAccessor(options, 0)) as InterleavedBufferAttribute).offset
+      expect(result).toBe(Expected)
+    })
+
     it.todo('MUST be a multiple of the size of the component datatype.', () => {})
     it.todo('MUST NOT be defined when bufferView is undefined.', () => {})
     it.todo('MUST be an `integer` in range [0..]', () => {})
@@ -79,7 +172,11 @@ describe('glTF: Accessor Type', () => {
   }) //:: componentType
 
   describe('normalized', () => {
-    it.todo('MAY be undefined', () => {})
+    it('MAY be undefined', async () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      await expect(GLTFLoaderFunctions.loadAccessor(options, 0)).resolves.not.toThrow()
+    })
+
     it.todo('MUST NOT be set to true for accessors with `FLOAT` or `UNSIGNED_INT` component type.', () => {})
     it.todo('MUST be a boolean type when defined', () => {})
     it.todo('SHOULD assign a default value of false', () => {})
@@ -100,7 +197,11 @@ describe('glTF: Accessor Type', () => {
   }) //:: type
 
   describe('max', () => {
-    it.todo('MAY be undefined', () => {})
+    it('MAY be undefined', async () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      await expect(GLTFLoaderFunctions.loadAccessor(options, 0)).resolves.not.toThrow()
+    })
+
     it.todo('MUST be an array of `number`s', () => {})
     it.todo('MUST have a length in the range [1-16]', () => {})
     it.todo('MUST have a length corresponding to the type property:', () => {
@@ -126,7 +227,11 @@ describe('glTF: Accessor Type', () => {
   }) //:: max
 
   describe('min', () => {
-    it.todo('MAY be undefined', () => {})
+    it('MAY be undefined', async () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      await expect(GLTFLoaderFunctions.loadAccessor(options, 0)).resolves.not.toThrow()
+    })
+
     it.todo('MUST be an array of `number`s', () => {})
     it.todo('MUST have a length in the range [1-16]', () => {})
     it.todo('MUST have a length corresponding to the type property:', () => {
@@ -153,22 +258,37 @@ describe('glTF: Accessor Type', () => {
 
   // @note Accessor.sparse has its own describe for its properties, separate from this one
   describe('sparse', () => {
-    it.todo('MAY be undefined', () => {})
+    it('MAY be undefined', async () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      await expect(GLTFLoaderFunctions.loadAccessor(options, 0)).resolves.not.toThrow()
+    })
+
     it.todo('MUST be an `accessor.sparse` type when defined', () => {})
   }) //:: sparse
 
   describe('name', () => {
-    it.todo('MAY be undefined', () => {})
+    it('MAY be undefined', async () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      await expect(GLTFLoaderFunctions.loadAccessor(options, 0)).resolves.not.toThrow()
+    })
+
     it.todo('MUST be a `string` type when defined', () => {})
   }) //:: name
 
   describe('extensions', () => {
-    it.todo('MAY be undefined', () => {})
+    it('MAY be undefined', async () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      await expect(GLTFLoaderFunctions.loadAccessor(options, 0)).resolves.not.toThrow()
+    })
+
     it.todo('MUST be a JSON object when defined', () => {})
   }) //:: extensions
 
   describe('extras', () => {
-    it.todo('MAY be undefined', () => {})
+    it('MAY be undefined', async () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      await expect(GLTFLoaderFunctions.loadAccessor(options, 0)).resolves.not.toThrow()
+    })
   }) //:: extras
 }) //:: glTF: Accessor
 
