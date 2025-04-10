@@ -18,92 +18,56 @@ jobs:
           if [ ${{ secrets.BRANCH_BUILD_ENABLED }} == 'true' ]; then
             echo "ok=enabled" >> $GITHUB_OUTPUT
           fi
-  install-modules:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 22.x
-      - name: restore lerna
-        uses: actions/cache@v3
-        with:
-          path: |
-            node_modules
-            */*/node_modules
-            package-lock.json
-          key: ${{ runner.os }}-branch-build-${{ hashFiles('**/package.json') }}
-      - run: cp .env.local.default .env.local
-      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
-      - name: Config npm registry token
-        run: npm config set '//npm.pkg.github.com/:_authToken' "${NPM_TOKEN}"
-        env:
-          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: npm install --production=false --loglevel notice --legacy-peer-deps
-      - name: cache for next steps
-        uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
-
   check-lint:
-    needs: install-modules
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
+      - uses: actions/checkout@v4
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
       - run: npm run lint
       - run: npm run check-eslint
         timeout-minutes: 20
 
   check-errors:
-    needs: install-modules
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
+      - uses: actions/checkout@v4
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
       - run: npm run dev-docker
       - run: npm run dev-reinit
       - run: npx lerna run --scope '@ir-engine/*' check-errors
         timeout-minutes: 20
 
   build-client:
-    needs: install-modules
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
+      - uses: actions/checkout@v4
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - run: cp .env.local.default .env.local
+      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: npm run dev-docker
       - run: npm run dev-reinit
       - run: rm -rf packages/instanceserver
@@ -113,20 +77,20 @@ jobs:
       - run: npm run build-client
 
   test_hyperflux:
-    needs: install-modules
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
+      - uses: actions/checkout@v4
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - run: cp .env.local.default .env.local
+      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
       - run: mv packages/hyperflux packages_moved/
       - run: rm -rf packages/*
@@ -140,20 +104,20 @@ jobs:
           projectBaseDir: packages/hyperflux/
 
   test_ecs:
-    needs: install-modules
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
+      - uses: actions/checkout@v4
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - run: cp .env.local.default .env.local
+      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
       - run: mv packages/hyperflux packages_moved/
@@ -170,20 +134,20 @@ jobs:
           projectBaseDir: packages/ecs/
 
   test_network:
-    needs: install-modules
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
+      - uses: actions/checkout@v4
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - run: cp .env.local.default .env.local
+      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
       - run: mkdir -p packages_moved/network/
@@ -203,20 +167,20 @@ jobs:
           projectBaseDir: packages/network/
 
   test_spatial:
-    needs: install-modules
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
+      - uses: actions/checkout@v4
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - run: cp .env.local.default .env.local
+      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
       - run: mkdir -p packages_moved/network/
@@ -242,20 +206,20 @@ jobs:
           projectBaseDir: packages/spatial/
 
   test_engine:
-    needs: install-modules
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
+      - uses: actions/checkout@v4
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - run: cp .env.local.default .env.local
+      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
       - run: mkdir -p packages_moved/network/
@@ -287,7 +251,6 @@ jobs:
           projectBaseDir: packages/engine/
 
   test_client:
-    needs: install-modules
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -301,14 +264,15 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
+      - uses: actions/checkout@v4
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - run: cp .env.local.default .env.local
+      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: rm -rf packages/instanceserver
       - run: rm -rf packages/server
       - run: rm -rf packages/server-core
@@ -322,7 +286,6 @@ jobs:
           projectBaseDir: packages/${{ matrix.package }}/
 
   test_server:
-    needs: install-modules
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -336,14 +299,15 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
+      - uses: actions/checkout@v4
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - run: cp .env.local.default .env.local
+      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: rm -rf packages/client
       - run: rm -rf packages/client-core
       - run: rm -rf packages/editor
@@ -361,20 +325,17 @@ jobs:
           projectBaseDir: packages/${{ matrix.package }}/
 
   npm_builds:
-    needs: install-modules
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
       - name: Checkout Engine
         uses: actions/checkout@v4
         with:
