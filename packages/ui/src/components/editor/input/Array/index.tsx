@@ -270,7 +270,7 @@ export default function ArrayInputGroup({
         {inputElements.length > 0 && (
           <DndProvider backend={HTML5Backend} key="InputElementDropArea">
             <div ref={drop} className="grid w-full grid-cols-1 space-y-1 py-1.5 ">
-              {inputElements.value.map((inputElement, idx) => (
+              {inputElements.get(NO_PROXY).map((inputElement, idx) => (
                 <DiscardableInput
                   key={inputElement.value + idx}
                   value={inputElement.value}
