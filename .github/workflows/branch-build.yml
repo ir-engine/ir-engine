@@ -31,6 +31,7 @@ jobs:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
+      - run: npm i
       - run: npm run lint
       - run: npm run check-eslint
         timeout-minutes: 20
@@ -48,6 +49,7 @@ jobs:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
+      - run: npm i
       - run: npm run dev-docker
       - run: npm run dev-reinit
       - run: npx lerna run --scope '@ir-engine/*' check-errors
@@ -66,6 +68,7 @@ jobs:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
+      - run: npm i
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: npm run dev-docker
@@ -89,6 +92,7 @@ jobs:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
+      - run: npm i
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
@@ -116,6 +120,7 @@ jobs:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
+      - run: npm i
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
@@ -146,6 +151,7 @@ jobs:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
+      - run: npm i
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
@@ -179,6 +185,7 @@ jobs:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
+      - run: npm i
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
@@ -218,6 +225,7 @@ jobs:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
+      - run: npm i
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
@@ -271,6 +279,7 @@ jobs:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
+      - run: npm i
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: rm -rf packages/instanceserver
@@ -306,6 +315,7 @@ jobs:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
+      - run: npm i
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: rm -rf packages/client
@@ -336,6 +346,7 @@ jobs:
           node-version: 22.x
           cache: 'npm'
           cache-dependency-path: '**/package.json'
+      - run: npm i
       - name: Checkout Engine
         uses: actions/checkout@v4
         with:
