@@ -31,6 +31,8 @@ import { MeshStandardArguments as StandardDefaults } from './MeshStandardMateria
 
 export const MeshPhysicalArguments = {
   ...StandardDefaults,
+  attenuationColor: ColorArg,
+  attenuationDistance: FloatArg,
   clearcoat: { ...NormalizedFloatArg, default: 0.5 },
   clearcoatMap: TextureArg,
   clearcoatNormalMap: TextureArg,

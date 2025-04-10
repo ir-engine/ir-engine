@@ -86,7 +86,7 @@ import { AnimationComponent, getEntityUUIDFromTrack } from '../avatar/components
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { handleScenePaths } from '../scene/functions/GLTFConversion'
 import { GLTFComponent } from './GLTFComponent'
-import { KHRTransmissionExtensionComponent } from './MaterialExtensionComponents'
+import { KHRTransmissionExtensionComponent, KHRVolumeExtensionComponent } from './MaterialExtensionComponents'
 import { NodeIDComponent } from './NodeIDComponent'
 import { SceneDeltaExporterExtension } from './SceneDeltaExporterExtension'
 
@@ -826,19 +826,17 @@ type MaterialNumberValue = {
   contents: number
 }
 
-type MaterialValue = MaterialTextureValue | MaterialColorValue | MaterialNumberValue
-
-const _applyMaterialExtension = <ExtComponent extends Component>(
+const _applyMaterialExtension = <ExtComponent extends Component, Key extends keyof ComponentType<ExtComponent>>(
   materialDef: GLTF.IMaterial,
-  value: MaterialValue,
+  value: { contents: ComponentType<ExtComponent>[Key] },
   extComponent: ExtComponent,
-  key: keyof ComponentType<ExtComponent>
+  key: Key
 ) => {
   const extName = extComponent.jsonID!
   if (!materialDef.extensions) materialDef.extensions = {}
   if (!materialDef.extensions[extName]) materialDef.extensions[extName] = {}
 
-  const ext = materialDef.extensions[extName] as any
+  const ext = materialDef.extensions[extName] as ComponentType<ExtComponent>
   ext[key] = value.contents
 }
 
@@ -887,6 +885,23 @@ const _builtinMaterialDefs = {
   },
   transmissionMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
     _applyMaterialExtension(materialDef, value, KHRTransmissionExtensionComponent, 'transmissionTexture')
+  },
+  thickness: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
+    _applyMaterialExtension(materialDef, value, KHRVolumeExtensionComponent, 'thicknessFactor')
+  },
+  thicknessMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
+    _applyMaterialExtension(materialDef, value, KHRVolumeExtensionComponent, 'thicknessTexture')
+  },
+  attenuationDistance: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
+    _applyMaterialExtension(materialDef, value, KHRVolumeExtensionComponent, 'attenuationDistance')
+  },
+  attenuationColor: (materialDef: GLTF.IMaterial, value: MaterialColorValue) => {
+    _applyMaterialExtension(
+      materialDef,
+      { contents: value.contents.toArray() as [number, number, number] },
+      KHRVolumeExtensionComponent,
+      'attenuationColor'
+    )
   }
 }
 
