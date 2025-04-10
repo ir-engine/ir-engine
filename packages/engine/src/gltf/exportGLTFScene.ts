@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { GLTF } from '@gltf-transform/core'
 import { EntityTreeComponent, getAncestorWithComponents, UUIDComponent } from '@ir-engine/ecs'
 import {
+  Component,
   ComponentType,
   getAllComponents,
   getComponent,
@@ -85,6 +86,7 @@ import { AnimationComponent, getEntityUUIDFromTrack } from '../avatar/components
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { handleScenePaths } from '../scene/functions/GLTFConversion'
 import { GLTFComponent } from './GLTFComponent'
+import { KHRTransmissionExtensionComponent } from './MaterialExtensionComponents'
 import { NodeIDComponent } from './NodeIDComponent'
 import { SceneDeltaExporterExtension } from './SceneDeltaExporterExtension'
 
@@ -824,6 +826,22 @@ type MaterialNumberValue = {
   contents: number
 }
 
+type MaterialValue = MaterialTextureValue | MaterialColorValue | MaterialNumberValue
+
+const _applyMaterialExtension = <ExtComponent extends Component>(
+  materialDef: GLTF.IMaterial,
+  value: MaterialValue,
+  extComponent: ExtComponent,
+  key: keyof ComponentType<ExtComponent>
+) => {
+  const extName = extComponent.jsonID!
+  if (!materialDef.extensions) materialDef.extensions = {}
+  if (!materialDef.extensions[extName]) materialDef.extensions[extName] = {}
+
+  const ext = materialDef.extensions[extName] as any
+  ext[key] = value.contents
+}
+
 const _builtinMaterialDefs = {
   color: (materialDef: GLTF.IMaterial, value: MaterialColorValue) => {
     if (!materialDef.pbrMetallicRoughness) materialDef.pbrMetallicRoughness = {}
@@ -863,6 +881,12 @@ const _builtinMaterialDefs = {
   },
   aoMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
     materialDef.occlusionTexture = value.contents
+  },
+  transmission: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
+    _applyMaterialExtension(materialDef, value, KHRTransmissionExtensionComponent, 'transmissionFactor')
+  },
+  transmissionMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
+    _applyMaterialExtension(materialDef, value, KHRTransmissionExtensionComponent, 'transmissionTexture')
   }
 }
 
@@ -945,7 +969,10 @@ const exportMaterial = async (
     plugins: []
   }
 
-  context.extensionsUsed.add('EE_material')
+  for (const ext in materialDef.extensions) {
+    context.extensionsUsed.add(ext)
+  }
+
   gltf.materials ??= []
   const materialIndex = gltf.materials.length
   gltf.materials.push(materialDef)
@@ -1164,6 +1191,8 @@ const exportEntity = async (
 
     //skip components that don't have a jsonID
     if (!component.jsonID) continue
+
+    if (entity === context.rootEntity && component === GLTFComponent) continue
 
     if (component === TransformComponent) {
       const transform = getComponent(entity, TransformComponent)
