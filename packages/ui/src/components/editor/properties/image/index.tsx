@@ -60,7 +60,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
 
     const transformComponent = getComponent(props.entity, TransformComponent)
     const scale = transformComponent.scale
-    const newX = scale.y * imageRatio
+    const newX = scale.y * imageRatio!
     const newY = scale.y
     const newZ = 1
     const newScale = new Vector3(newX, newY, newZ)
@@ -90,9 +90,9 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
       {/*<ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />*/}
 
       <InputGroup
-        name="Video Fit"
-        label={t('editor:properties.video.lbl-fit')}
-        info={t('editor:properties.video.lbl-fit-info')}
+        name="Image Fit"
+        label={t('editor:properties.image.lbl-fit')}
+        info={t('editor:properties.image.lbl-fit-info')}
       >
         <SelectInput
           value={imageComponent.fit.value}
@@ -101,7 +101,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
 
-      <InputGroup name="Aspect Ratio" label={t('editor:properties.video.lbl-aspect-ratio')}>
+      <InputGroup name="Aspect Ratio" label={t('editor:properties.image.lbl-aspect-ratio')}>
         <button
           className={twMerge(
             'w-full flex-auto rounded-md  px-10 py-1 ',
@@ -110,7 +110,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
           onClick={resizeImageToMatchAspectRatio}
           disabled={!imageComponent.source.value}
         >
-          {t('editor:properties.video.lbl-match-aspect-ratio')}
+          {t('editor:properties.image.lbl-match-aspect-ratio')}
         </button>
       </InputGroup>
     </NodeEditor>

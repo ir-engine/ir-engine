@@ -667,7 +667,11 @@
       "info-blend": "'blend' = use the images alpha channel",
       "info-mask": "'mask' = Use a specified cutoff value for on/off transparency (more performant)",
       "info-alphaCutoff": "Pixels with alpha values lower than this will be transparent",
-      "error-url": "Invalid URL"
+      "error-url": "Invalid URL",
+      "lbl-aspect-ratio": "Aspect Ratio",
+      "lbl-match-aspect-ratio": "Match Aspect Ratio",
+      "lbl-fit": "Image Fit",
+      "lbl-fit-info": "How the image should be stretched within the given canvas size"
     },
     "screenshare": {
       "name": "Screenshare Target",

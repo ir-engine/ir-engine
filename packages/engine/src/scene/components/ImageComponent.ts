@@ -47,6 +47,7 @@ import {
 import { Entity, UndefinedEntity, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
+  getAuthoringCounterpart,
   getComponent,
   getMutableComponent,
   getSimulationCounterpart,
@@ -118,14 +119,17 @@ export function getImageAspectRatio(entity: Entity) {
 
   if (!width || !height) return
 
-  const ratio = (height || 1) / (width || 1)
+  const ratio = (width || 1) / (height || 1)
   return ratio
 }
 
-function resizeImage(entity: Entity) {
+export function resizeImage(entity: Entity) {
   const imageRatio = getImageAspectRatio(entity) || 1
 
-  const transformComponent = getMutableComponent(entity, TransformComponent)
+  const authEntity = getAuthoringCounterpart(entity)
+  if (authEntity === UndefinedEntity) return
+
+  const transformComponent = getMutableComponent(authEntity, TransformComponent)
   const scale = transformComponent.scale.value
   const newX = scale.y * imageRatio
   const newY = scale.y
@@ -276,8 +280,6 @@ export function ImageReactor() {
       case ImageProjection.Flat:
       default:
         mesh.geometry.set(flippedTexture ? PLANE_GEO() : PLANE_GEO_FLIPPED())
-        mesh.scale.value.set(1, 1, 1)
-        resizeImage(entity)
     }
   }, [!!mesh?.value, image.projection, !!texture])
 
