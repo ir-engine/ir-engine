@@ -31,7 +31,6 @@ import {
   LinearFilter,
   Mesh,
   MirroredRepeatWrapping,
-  Object3D,
   PlaneGeometry,
   RepeatWrapping,
   ShaderMaterial,
@@ -257,7 +256,8 @@ function VideoReactor() {
     )
     const authEntity = getAuthoringCounterpart(entity)
     if (authEntity !== UndefinedEntity) {
-      setComponent(authEntity, ObjectComponent, new Object3D())
+      const mesh = getComponent(videoMeshEntity, MeshComponent)
+      setComponent(authEntity, ObjectComponent, mesh)
     }
     return videoMeshEntity
   }).value
