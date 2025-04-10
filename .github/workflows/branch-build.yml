@@ -38,7 +38,7 @@ jobs:
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: npm i
+        run: npm install --production=false --loglevel notice --legacy-peer-deps
       - name: Cache node-modules
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
@@ -71,7 +71,7 @@ jobs:
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: npm i
+        run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: npm run lint
       - run: npm run check-eslint
         timeout-minutes: 20
@@ -100,7 +100,7 @@ jobs:
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: npm i
+        run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: npm run dev-docker
       - run: npm run dev-reinit
       - run: npx lerna run --scope '@ir-engine/*' check-errors
@@ -130,7 +130,7 @@ jobs:
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: npm i
+        run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: npm run dev-docker
@@ -165,7 +165,7 @@ jobs:
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: npm i
+        run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
@@ -204,7 +204,7 @@ jobs:
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: npm i
+        run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
@@ -246,7 +246,7 @@ jobs:
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: npm i
+        run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
@@ -291,7 +291,7 @@ jobs:
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: npm i
+        run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
@@ -342,7 +342,7 @@ jobs:
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: npm i
+        run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
@@ -407,7 +407,7 @@ jobs:
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: npm i
+        run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: rm -rf packages/instanceserver
@@ -454,7 +454,7 @@ jobs:
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: npm i
+        run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: cp .env.local.default .env.local
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: rm -rf packages/client
@@ -497,7 +497,7 @@ jobs:
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: npm i
+        run: npm install --production=false --loglevel notice --legacy-peer-deps
       - name: Checkout NPM Build Test
         uses: actions/checkout@v4
         with:
@@ -506,6 +506,6 @@ jobs:
       - name: Run npm build test
         run: |
           cd ./ir-engine-npm-tests
-          npm i
+          npm install --production=false --loglevel notice --legacy-peer-deps
           npm run setup
           npm run test
