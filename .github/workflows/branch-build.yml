@@ -470,6 +470,7 @@ jobs:
       run:
         shell: bash
     steps:
+      - uses: actions/checkout@v4
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
@@ -486,11 +487,6 @@ jobs:
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm i
-      - name: Checkout Engine
-        uses: actions/checkout@v4
-        with:
-          path: ir-engine
-          ref: ${{ env.checkout_branch }}
       - name: Checkout NPM Build Test
         uses: actions/checkout@v4
         with:
