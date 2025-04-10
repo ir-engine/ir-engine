@@ -10,7 +10,8 @@
     "changesLostAlert": "If you proceed all your changes will be lost.",
     "discard": "Discard",
     "userBannedMessage": "You have been banned from joining this space.",
-    "userBannedMessageDescription": "If you feel like this is an error, please contact customer support."
+    "userBannedMessageDescription": "If you feel like this is an error, please contact customer support.",
+    "windowBlocked": "Your browser may have blocked the new tab. Check settings."
   },
   "auth": {
     "confirmEmail": {

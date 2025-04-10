@@ -135,8 +135,12 @@ const reactor = () => {
   if (!isClient) return null
 
   useEffect(() => {
+    document.addEventListener('visibilitychange', cleanupInputs)
     InputHeuristicState.addHeuristic(-1, meshHeuristic)
     InputHeuristicState.addHeuristic(0, boundingBoxHeuristic)
+    return () => {
+      document.removeEventListener('visibilitychange', cleanupInputs)
+    }
   }, [])
 
   ClientInputHooks.useNonSpatialInputSources()

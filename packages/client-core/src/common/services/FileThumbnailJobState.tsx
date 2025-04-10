@@ -77,15 +77,23 @@ import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxCo
 import { setCameraFocusOnBox } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { BackgroundComponent, SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { createHash } from 'crypto'
 import mime from 'mime-types'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
+const getFilename = (url) => {
+  const path = new URL(url).pathname // Get the path part of the URL
+  return path.substring(path.lastIndexOf('/') + 1) // Get the filename after the last "/"
+}
+
 export function generateThumbnailKey(src: string, projectName: string) {
-  return `${decodeURI(stripSearchFromURL(src).replace(/^.*?\/projects\//, ''))
-    .replace(projectName + '/', '')
-    .replaceAll(/[^a-zA-Z0-9\.\-_\s]/g, '_')
-    .replaceAll(/\s/g, '-')}-thumbnail.png`
+  const uniqueFileName = `${projectName}-${getFilename(src)}-${Date.now()}`
+  const encoder = new TextEncoder()
+  const buffer = encoder.encode(uniqueFileName)
+  let hash = createHash('sha256').update(buffer).digest('hex')
+  hash = hash.slice(0, 46) // Ensuring max length constraint with VALID_FILENAME_REGEX
+  return `${hash}.png`
 }
 
 type ThumbnailJob = {
