@@ -28,20 +28,20 @@ import Multer from '@koa/multer'
 import { ffmpegMethod, ffmpegPath } from '@ir-engine/common/src/schemas/media/ffmpeg.schema'
 
 import { Application } from '../../../declarations'
-import { FileBrowserUploadService } from './ffmpeg.class'
+import { FfmpegService } from './ffmpeg.class'
 import ffmpegDocs from './ffmpeg.docs'
 import hooks from './ffmpeg.hooks'
 
 declare module '@ir-engine/common/declarations' {
   interface ServiceTypes {
-    [ffmpegPath]: FileBrowserUploadService
+    [ffmpegPath]: FfmpegService
   }
 }
 
 const multipartMiddleware = Multer({ limits: { fieldSize: Infinity, files: 1 } })
 
 export default (app: Application): void => {
-  app.use(ffmpegPath, new FileBrowserUploadService(app), {
+  app.use(ffmpegPath, new FfmpegService(app), {
     // A list of all methods this service exposes externally
     methods: ffmpegMethod,
     // You can add additional custom events to be sent to clients here

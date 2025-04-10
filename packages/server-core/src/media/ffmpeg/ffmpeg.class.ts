@@ -30,24 +30,24 @@ import { UploadFile } from '@ir-engine/common/src/interfaces/UploadAssetInterfac
 
 import { Application } from '../../../declarations'
 
-export interface FileBrowserUploadParams extends KnexAdapterParams {
+export interface FfmpegParams extends KnexAdapterParams {
   files: UploadFile[]
 }
 
 /**
  * A class for File Browser Upload service
  */
-export class FileBrowserUploadService implements ServiceInterface<string[], any, FileBrowserUploadParams> {
+export class FfmpegService implements ServiceInterface<string[], any, FfmpegParams> {
   app: Application
 
   constructor(app: Application) {
     this.app = app
   }
-  async get(id: string, params?: FileBrowserUploadParams): Promise<string[]> {
+  async get(id: string, params?: FfmpegParams): Promise<string[]> {
     return [`test`]
   }
 
-  async create(rawData: { args: string }, params: FileBrowserUploadParams) {
+  async create(rawData: { args: string }, params: FfmpegParams) {
     const data = typeof rawData.args === 'string' ? JSON.parse(rawData.args) : rawData.args
     const result = ['yesy']
 
