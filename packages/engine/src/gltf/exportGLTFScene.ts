@@ -169,19 +169,6 @@ const getMinMax = (attribute: BufferAttribute, start: number, count: number) => 
 
 const KHR_MESH_QUANTIZATION = 'KHR_mesh_quantization'
 
-const THREE_TO_WEBGL = {}
-
-THREE_TO_WEBGL[NearestFilter] = WEBGL_CONSTANTS.NEAREST
-THREE_TO_WEBGL[NearestMipmapNearestFilter] = WEBGL_CONSTANTS.NEAREST_MIPMAP_NEAREST
-THREE_TO_WEBGL[NearestMipmapLinearFilter] = WEBGL_CONSTANTS.NEAREST_MIPMAP_LINEAR
-THREE_TO_WEBGL[LinearFilter] = WEBGL_CONSTANTS.LINEAR
-THREE_TO_WEBGL[LinearMipmapNearestFilter] = WEBGL_CONSTANTS.LINEAR_MIPMAP_NEAREST
-THREE_TO_WEBGL[LinearMipmapLinearFilter] = WEBGL_CONSTANTS.LINEAR_MIPMAP_LINEAR
-
-THREE_TO_WEBGL[ClampToEdgeWrapping] = WEBGL_CONSTANTS.CLAMP_TO_EDGE
-THREE_TO_WEBGL[RepeatWrapping] = WEBGL_CONSTANTS.REPEAT
-THREE_TO_WEBGL[MirroredRepeatWrapping] = WEBGL_CONSTANTS.MIRRORED_REPEAT
-
 const PATH_PROPERTIES = {
   scale: 'scale',
   position: 'translation',
@@ -838,7 +825,11 @@ type MaterialNumberValue = {
   contents: number
 }
 
-type MaterialValue = MaterialTextureValue | MaterialColorValue | MaterialNumberValue
+type MaterialVec2Value = {
+  contents: [number, number]
+}
+
+type MaterialValue = MaterialTextureValue | MaterialColorValue | MaterialNumberValue | MaterialVec2Value
 
 const colorValueToTupleValue = (colorValue: MaterialColorValue) => ({
   contents: colorValue.contents.toArray() as [number, number, number]
@@ -981,6 +972,20 @@ const _builtinMaterialDefs = {
   iridescenceThicknessMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
     _applyMaterialExtension(materialDef, value, KHRIridescenceExtensionComponent, 'iridescenceThicknessTexture')
   },
+  iridescenceThicknessRange: (materialDef: GLTF.IMaterial, value: MaterialVec2Value) => {
+    _applyMaterialExtension(
+      materialDef,
+      { contents: value.contents[0] },
+      KHRIridescenceExtensionComponent,
+      'iridescenceThicknessMinimum'
+    )
+    _applyMaterialExtension(
+      materialDef,
+      { contents: value.contents[1] },
+      KHRIridescenceExtensionComponent,
+      'iridescenceThicknessMaximum'
+    )
+  },
   sheenColor: (materialDef: GLTF.IMaterial, value: MaterialColorValue) => {
     _applyMaterialExtension(materialDef, colorValueToTupleValue(value), KHRSheenExtensionComponent, 'sheenColorFactor')
   },
@@ -1101,6 +1106,35 @@ const exportMaterial = async (
   return materialIndex
 }
 
+const GLTF_FILTERS = {
+  [NearestFilter]: 9728,
+  [LinearFilter]: 9729,
+  [NearestMipmapNearestFilter]: 9984,
+  [LinearMipmapNearestFilter]: 9985,
+  [NearestMipmapLinearFilter]: 9986,
+  [LinearMipmapLinearFilter]: 9987
+}
+
+const GLTF_WRAPPINGS = {
+  [ClampToEdgeWrapping]: 33071,
+  [MirroredRepeatWrapping]: 33648,
+  [RepeatWrapping]: 10497
+}
+
+const exportSampler = (texture: Texture, gltf: GLTF.IGLTF, context: GLTFSceneExportContext): number => {
+  const sampler: GLTF.ISampler = {
+    magFilter: GLTF_FILTERS[texture.magFilter] as GLTF.TextureMagFilter,
+    minFilter: GLTF_FILTERS[texture.minFilter] as GLTF.TextureMinFilter,
+    wrapS: GLTF_WRAPPINGS[texture.wrapS] as GLTF.TextureWrapMode,
+    wrapT: GLTF_WRAPPINGS[texture.wrapT] as GLTF.TextureWrapMode
+  }
+
+  if (!gltf.samplers) gltf.samplers = []
+  const index = gltf.samplers.length
+  gltf.samplers.push(sampler)
+  return index
+}
+
 const exportTexture = async (
   texture: Texture,
   gltf: GLTF.IGLTF,
@@ -1127,8 +1161,8 @@ const exportTexture = async (
   const imageIndex = await exportImage(texture.image, gltf, context)
   if (typeof imageIndex !== 'number') return
 
-  const textureDef: GLTF.ITexture = {}
-  textureDef.source = imageIndex
+  const textureDef: GLTF.ITexture = { name: src, source: imageIndex }
+  textureDef.sampler = exportSampler(texture, gltf, context)
   gltf.textures ??= []
 
   const textureIndex = gltf.textures.length

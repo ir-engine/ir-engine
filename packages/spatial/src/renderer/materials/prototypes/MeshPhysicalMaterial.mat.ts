@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { MeshPhysicalMaterial as Physical } from 'three'
 
-import { ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from '../constants/DefaultArgs'
+import { ColorArg, FloatArg, NormalizedFloatArg, TextureArg, Vec2Arg } from '../constants/DefaultArgs'
 import { MaterialPrototypeDefinition } from '../MaterialComponent'
 import { MeshStandardArguments as StandardDefaults } from './MeshStandardMaterial.mat'
 
@@ -46,6 +46,7 @@ export const MeshPhysicalArguments = {
   iridescenceMap: TextureArg,
   iridescenceIOR: { ...FloatArg, default: 1.3, min: 1.0, max: 2.333 },
   iridescenceThicknessMap: TextureArg,
+  iridescenceThicknessRange: Vec2Arg,
   sheen: { ...NormalizedFloatArg, default: 0.5 },
   sheenMap: TextureArg,
   sheenColor: ColorArg,
