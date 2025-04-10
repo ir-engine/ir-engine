@@ -58,7 +58,7 @@ const MediaFadeTransitions = new Map<Entity, ReturnType<typeof createTransitionS
 const mediaQuery = defineQuery([MediaComponent])
 
 export const createMediaControlsUI = (entity: Entity, aspectRatio: number = 1) => {
-  const ui = createMediaControlsView(entity, aspectRatio)
+  const ui = createMediaControlsView(entity)
 
   const mediaTransform = getComponent(entity, TransformComponent)
   setComponent(ui.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
