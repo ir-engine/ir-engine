@@ -27,7 +27,6 @@ import { ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 import { KnexAdapterParams } from '@feathersjs/knex'
 
 import { UploadFile } from '@ir-engine/common/src/interfaces/UploadAssetInterface'
-import { fileBrowserPath } from '@ir-engine/common/src/schemas/media/file-browser.schema'
 
 import { Application } from '../../../declarations'
 
@@ -44,27 +43,13 @@ export class FileBrowserUploadService implements ServiceInterface<string[], any,
   constructor(app: Application) {
     this.app = app
   }
+  async get(id: string, params?: FileBrowserUploadParams): Promise<string[]> {
+    return [`test`]
+  }
 
   async create(rawData: { args: string }, params: FileBrowserUploadParams) {
     const data = typeof rawData.args === 'string' ? JSON.parse(rawData.args) : rawData.args
-    console.log('file-browser-upload', data)
-    const result = (
-      await Promise.all(
-        params.files.map((file, i) => {
-          const args = data[i]
-          return this.app.service(fileBrowserPath).patch(null, {
-            ...args,
-            project: args.project,
-            path: args.path,
-            body: file.buffer as Buffer,
-            contentType: args.contentType || file.mimetype
-          })
-        })
-      )
-    ).map((result) => result.url)
-
-    // Clear params otherwise all the files and auth details send back to client as  response
-    for (const prop of Object.getOwnPropertyNames(params)) delete params[prop]
+    const result = ['yesy']
 
     return result
   }

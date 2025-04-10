@@ -113,7 +113,7 @@ export type * from './schemas/moderation/moderation-ban.schema'
 export type * from './schemas/moderation/moderation-file-upload.schema'
 export type * from './schemas/moderation/moderation.schema'
 export type * from './schemas/projects/project-history.schema'
-
+//
 export const locationPath = 'location'
 
 export const userRelationshipPath = 'user-relationship'
@@ -294,3 +294,5 @@ export const moderationPath = 'moderation'
 export const moderationBanPath = 'moderation-ban'
 export const moderationAttachmentPath = 'moderation-attachment'
 export const moderationFileUploadPath = 'moderation-file-upload'
+
+export const ffmpegPath = 'ffmpeg'
