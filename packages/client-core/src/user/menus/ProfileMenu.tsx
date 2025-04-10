@@ -71,7 +71,8 @@ import {
   ReportWebsiteDefaullg,
   Send01Lg,
   Trash04Lg,
-  TwitterOriginalFalse
+  TwitterOriginalFalse,
+  XCloseMd
 } from '@ir-engine/ui/src/icons'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -386,6 +387,18 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
 
   return (
     <div className="absolute z-50 h-fit max-h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 smh:max-h-[60dvh] smh:px-8 smh:py-6">
+      <div className="items-end">
+        <button
+          className={twMerge(
+            'flex h-[2rem] w-[2rem] items-center justify-center justify-self-end rounded-full text-ui-secondary hover:text-ui-hover-secondary focus:bg-ui-select-primary'
+          )}
+          onClick={() => {
+            PopoverState.hidePopupover()
+          }}
+        >
+          <XCloseMd className="h-[1.5rem] w-[1.5rem]" />
+        </button>
+      </div>
       <div className="relative grid w-full grid-cols-5 gap-x-2">
         <div className="col-span-3 grid grid-cols-[auto,1fr] gap-x-6">
           <div className="relative h-20 w-20">
@@ -444,7 +457,6 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
           >
             <CogLg className="h-[1.875rem] w-[1.875rem]" />
           </button>
-
           {initialized && (
             <div className="flex w-full flex-col items-end gap-y-4">
               <Button variant="secondary" className="w-[136px] rounded-[10px] lg:w-full" onClick={openChat}>

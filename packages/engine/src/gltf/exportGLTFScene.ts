@@ -720,6 +720,7 @@ const exportMaterial = async (
       if ((material[field] as CubeTexture).isCubeTexture) continue //for skipping environment maps which cause errors
       const texture = material[field] as Texture
       const textureIndex = await exportTexture(texture, gltf, context)
+      if (typeof textureIndex !== 'number') continue
       argEntry.contents = {
         index: textureIndex,
         texCoord: texture.channel
@@ -747,11 +748,13 @@ const exportMaterial = async (
   return materialIndex
 }
 
-const exportTexture = async (texture: Texture, gltf: GLTF.IGLTF, context: GLTFSceneExportContext): Promise<number> => {
+const exportTexture = async (
+  texture: Texture,
+  gltf: GLTF.IGLTF,
+  context: GLTFSceneExportContext
+): Promise<number | void> => {
   const cache = context.cache.textures
   if (cache.has(texture)) return cache.get(texture)!
-
-  gltf.textures ??= []
 
   let mimeType = texture.userData.mimeType
   if (mimeType === 'image/webp') mimeType = 'image/png'
@@ -767,9 +770,14 @@ const exportTexture = async (texture: Texture, gltf: GLTF.IGLTF, context: GLTFSc
     texture.image.mimeType = mimeType
   }
 
-  const textureDef: GLTF.ITexture = {}
+  if (!texture.image.src) return
 
-  textureDef.source = await exportImage(texture.image, gltf, context)
+  const imageIndex = await exportImage(texture.image, gltf, context)
+  if (typeof imageIndex !== 'number') return
+
+  const textureDef: GLTF.ITexture = {}
+  textureDef.source = imageIndex
+  gltf.textures ??= []
 
   const textureIndex = gltf.textures!.length
   gltf.textures!.push(textureDef)
@@ -821,7 +829,13 @@ const exportBufferViewImage = async (
   })
 }
 
-const exportImage = async (image: any, gltf: GLTF.IGLTF, context: GLTFSceneExportContext): Promise<number> => {
+const exportImage = async (
+  image: any,
+  gltf: GLTF.IGLTF,
+  context: GLTFSceneExportContext
+): Promise<number | undefined> => {
+  if (!image.src) return
+
   const cache = context.cache.images
   if (typeof image.src === 'string') {
     if (cache.has(image.src)) return cache.get(image.src)!

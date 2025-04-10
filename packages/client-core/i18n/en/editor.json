@@ -77,7 +77,12 @@
     "CORS": "Possibly a CORS error",
     "urlFetchError": "Failed to fetch \"{{url}}\"",
     "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters, underscores, hyphens, and periods, and begin and end with an alphanumeric.",
-    "maxUploadFileSizeExceed": "The file size is too large. Please upload a file under {{maxFileSizeToUploadMB}} MB. The following files are too large: {{filesNames}}"
+    "maxUploadFileSizeExceed": "That file size is too large. Please upload a file under {{maxFileSizeToUploadMB}}MB. The following files are too large: {{filesNames}}",
+    "unsupported-3D-file": "Please upload either a .gltf or a .glb.",
+    "unsupported-image-file": "Please upload a .png, .jpg, .jpeg, or .ktx2.",
+    "unsupported-audio-file": "Please upload a .mp3, .mpeg, .m4a, or .wav.",
+    "unsupported-video-file": "Please upload a .mp4, .mkv, or .avi.",
+    "unsupported-unknown-file": "Please upload a valid 3D, Image, Audio, or Video file."
   },
   "warnings": {
     "sceneComplexity": "Scene complexity is {{sceneComplexity}}. Consider optimizing your Scene for better performance. Refer to our docs for optimization guidelines."
@@ -1060,7 +1065,9 @@
       "lbl-alpha-uv-scale": "Alpha UV Scale",
       "lbl-alpha-uv-scale-info": "The scale of the alpha channel in UV space",
       "lbl-synchronized-media-source": "Synchronized Media Source",
-      "lbl-synchronized-media-source-info": "Synchronized Media Source"
+      "lbl-synchronized-media-source-info": "Synchronized Media Source",
+      "lbl-aspect-ratio": "Aspect Ratio",
+      "lbl-match-aspect-ratio": "Match Aspect Ratio"
     },
     "volumetric": {
       "name": "Volumetric",
@@ -1558,11 +1565,13 @@
     },
     "addScene": {
       "continue": "Continue",
+      "cancel": "Back To Editor",
       "title": "Select a way to get started",
       "optionButtons": {
         "defaultEditor": {
-          "title": "Don't Assist Me",
-          "description": "You will be taken straight to the iR Studio Editor to create your own iR Space from the ground up"
+          "title": "Blank Scene",
+          "description": "Use the advanced iR Spaces Editor to create your Space from the ground up. Recommended for experienced 3D creators.",
+          "submitButtonText": "Continue in Editor"
         }
       }
     },
