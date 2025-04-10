@@ -25,14 +25,19 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { getMutableComponent, getOptionalComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  hasComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { MediaComponent, MediaElementComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { createXRUI, XRUI } from '@ir-engine/engine/src/xrui/createXRUI'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
-import { PauseCircleLg, PlayLg } from '@ir-engine/ui/src/icons'
+import { PauseCircleLg, PlayLg, VolumeMaxLg, VolumeXLg } from '@ir-engine/ui/src/icons'
 
 export function createMediaControlsView(entity: Entity): XRUI<null> {
   const MediaControls = () => <MediaControlsView entity={entity} />
@@ -54,9 +59,14 @@ type MediaControlsProps = {
 }
 
 const MediaControlsView = (props: MediaControlsProps) => {
+  const transform = getComponent(props.entity, TransformComponent)
+  const widthFactor = transform.scale.x
+  const heightFactor = transform.scale.y
+
   const mediaComponent = useHookstate(getMutableComponent(props.entity, MediaComponent))
   const mediaStyles = { fill: 'white', width: `100%`, height: `100%` }
-  const buttonClick = () => {
+
+  const buttonClickPausedToggle = () => {
     //early out if the mediaElement is null
     if (!hasComponent(props.entity, MediaElementComponent)) return
 
@@ -64,49 +74,108 @@ const MediaControlsView = (props: MediaControlsProps) => {
     mediaComponent.paused.set(!isPaused)
   }
 
+  const buttonClickMuteToggle = () => {
+    //early out if the mediaElement is null
+    if (!hasComponent(props.entity, MediaElementComponent)) return
+    const isMuted = mediaComponent.muted.value
+    mediaComponent.muted.set(!isMuted)
+  }
+
+  const width = 1000
+  const height = 1000
+
   /** @todo does not currently support tailwind css */
   return (
     <div
       xr-layer="true"
-      id="container"
+      id="controls_container"
       style={{
-        width: `1000px`,
-        height: `1000px`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyItems: 'center',
-        justifyContent: 'center',
-        flex: 'auto'
+        width: `${width * widthFactor}px`,
+        height: `${height * heightFactor}px`
       }}
     >
-      <button
-        xr-layer="true"
-        id="button"
-        style={{
-          fontFamily: "'Roboto', sans-serif",
-          border: '10px solid grey',
-          boxShadow: '#fff2 0 0 30px',
-          color: 'lightgrey',
-          fontSize: '25px',
-          width: '10%',
-          height: '10%',
-          transform: 'translateZ(0.01px)'
-        }}
-        onClick={buttonClick}
-      >
-        <style>
-          {`
+      <style>
+        {`
         button {
           background-color: #000000dd;
         }
         button:hover {
             background-color: grey;
         }`}
-        </style>
+      </style>
 
-        {mediaComponent.paused.value && <PlayLg style={mediaStyles} />}
-        {!mediaComponent.paused.value && <PauseCircleLg style={mediaStyles} />}
-      </button>
+      <div
+        xr-layer="true"
+        id="pauseContainer"
+        style={{
+          position: `absolute`,
+          top: `0px`,
+          left: `0px`,
+          width: `100%`,
+          height: `100%`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyItems: 'center',
+          justifyContent: 'center',
+          flex: 'auto'
+        }}
+      >
+        <button
+          xr-layer="true"
+          id="pauseToggleButton"
+          style={{
+            fontFamily: "'Roboto', sans-serif",
+            border: '10px solid grey',
+            boxShadow: '#fff2 0 0 30px',
+            color: 'lightgrey',
+            fontSize: '25px',
+            width: '10%',
+            height: '10%',
+            transform: 'translateZ(0.01px)'
+          }}
+          onClick={buttonClickPausedToggle}
+        >
+          {mediaComponent.paused.value && <PlayLg style={mediaStyles} />}
+          {!mediaComponent.paused.value && <PauseCircleLg style={mediaStyles} />}
+        </button>
+      </div>
+
+      <div
+        xr-layer="true"
+        id="muteContainer"
+        style={{
+          position: `absolute`,
+          top: `0px`,
+          left: `0px`,
+          width: `100%`,
+          height: `100%`,
+          display: 'flex',
+          alignItems: 'end',
+          justifyItems: 'end',
+          justifyContent: 'end',
+          flex: 'auto'
+        }}
+      >
+        <button
+          xr-layer="true"
+          id="muteToggleButton"
+          style={{
+            fontFamily: "'Roboto', sans-serif",
+            border: '10px solid grey',
+            boxShadow: '#fff2 0 0 30px',
+            color: 'lightgrey',
+            fontSize: '25px',
+            width: '10%',
+            height: '10%',
+            margin: `10%`,
+            transform: 'translateZ(0.01px)'
+          }}
+          onClick={buttonClickMuteToggle}
+        >
+          {mediaComponent.muted.value && <VolumeXLg style={mediaStyles} />}
+          {!mediaComponent.muted.value && <VolumeMaxLg style={mediaStyles} />}
+        </button>
+      </div>
     </div>
   )
 }
