@@ -39,7 +39,7 @@ jobs:
         run: npm i
       - name: Cache node-modules
         if: steps.cache.outputs.cache-hit != 'true'
-        id: cache node-modules
+        id: cache-node-modules
         uses: actions/cache/save@v4
         with:
           path: |
