@@ -47,7 +47,6 @@ import {
 import { Entity, UndefinedEntity, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
-  getAuthoringCounterpart,
   getComponent,
   getMutableComponent,
   getSimulationCounterpart,
@@ -125,11 +124,7 @@ export function getImageAspectRatio(entity: Entity) {
 
 export function resizeImage(entity: Entity) {
   const imageRatio = getImageAspectRatio(entity) || 1
-
-  const authEntity = getAuthoringCounterpart(entity)
-  if (authEntity === UndefinedEntity) return
-
-  const transformComponent = getMutableComponent(authEntity, TransformComponent)
+  const transformComponent = getMutableComponent(entity, TransformComponent)
   const scale = transformComponent.scale.value
   const newX = scale.y * imageRatio
   const newY = scale.y
