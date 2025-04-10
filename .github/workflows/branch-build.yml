@@ -43,7 +43,9 @@ jobs:
         id: cache-node-modules
         uses: actions/cache/save@v4
         with:
-          path: '**/node-modules'
+          path: |
+            node_modules
+            **/node-modules
           key: ${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
   check-lint:
     needs: install-modules
