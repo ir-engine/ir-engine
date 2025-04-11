@@ -36,9 +36,6 @@ jobs:
             node_modules
             packages/*/node-modules
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
-      - name: Module Resolution
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm i
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm i
@@ -47,7 +44,6 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: |
-            node_modules
             packages/*/node-modules
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
   check-lint:
