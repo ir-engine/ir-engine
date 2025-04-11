@@ -663,6 +663,123 @@ const ConvertToSchema = <T extends Schema, Val>(schema: T, value: Val) => {
   }
 }
 
+// Generate a JSON Schema from the Typebox Schema
+export const GenerateJSONSchema = <T extends Schema>(schema: T) => {
+  const jsonSchema: any = {}
+
+  // Add type based on schema kind
+  switch (schema[Kind]) {
+    case 'Null':
+      jsonSchema.type = 'null'
+      break
+    case 'Undefined':
+      jsonSchema.type = 'null' // JSON Schema doesn't have undefined type
+      break
+    case 'Void':
+      jsonSchema.type = 'null' // JSON Schema doesn't have void type
+      break
+    case 'Number':
+      jsonSchema.type = 'number'
+      if (schema.options?.maximum !== undefined) jsonSchema.maximum = schema.options.maximum
+      if (schema.options?.minimum !== undefined) jsonSchema.minimum = schema.options.minimum
+      break
+    case 'Bool':
+      jsonSchema.type = 'boolean'
+      break
+    case 'String':
+      jsonSchema.type = 'string'
+      break
+    case 'Enum': {
+      const enumValues = Object.values(schema.properties as TEnumSchema<Record<string, string | number>>['properties'])
+      jsonSchema.enum = enumValues
+      break
+    }
+    case 'Literal':
+      jsonSchema.const = schema.properties
+      break
+    case 'Object': {
+      jsonSchema.type = 'object'
+      const props = schema.properties as TProperties
+      jsonSchema.properties = {}
+      jsonSchema.required = []
+
+      for (const [key, propSchema] of Object.entries(props)) {
+        jsonSchema.properties[key] = GenerateJSONSchema(propSchema)
+        if (propSchema[Kind] === 'Required') {
+          jsonSchema.required.push(key)
+        }
+      }
+      break
+    }
+    case 'Record': {
+      const props = schema.properties as TRecordSchema<TPropertyKeySchema, Schema>['properties']
+      jsonSchema.type = 'object'
+      jsonSchema.additionalProperties = GenerateJSONSchema(props.value)
+      break
+    }
+    case 'Partial': {
+      const props = schema.properties as TPartialSchema<Schema>['properties']
+      jsonSchema.type = 'object'
+      jsonSchema.properties = GenerateJSONSchema(props).properties
+      break
+    }
+    case 'Array': {
+      const props = schema.properties as TArraySchema<Schema>['properties']
+      jsonSchema.type = 'array'
+      jsonSchema.items = GenerateJSONSchema(props)
+      if (schema.options?.minItem !== undefined) jsonSchema.minItems = schema.options.minItem
+      if (schema.options?.maxItem !== undefined) jsonSchema.maxItems = schema.options.maxItem
+      break
+    }
+    case 'Tuple': {
+      const props = schema.properties as TTupleSchema<Schema[]>['properties']
+      jsonSchema.type = 'array'
+      jsonSchema.items = props.map((prop) => GenerateJSONSchema(prop))
+      jsonSchema.minItems = props.length
+      jsonSchema.maxItems = props.length
+      break
+    }
+    case 'Union': {
+      const props = schema.properties as TUnionSchema<Schema[]>['properties']
+      jsonSchema.oneOf = props.map((prop) => GenerateJSONSchema(prop))
+      break
+    }
+    case 'Func':
+      // Functions are not serializable in JSON Schema
+      jsonSchema.type = 'null'
+      break
+    case 'Required': {
+      const props = schema.properties as TRequiredSchema<Schema>['properties']
+      return GenerateJSONSchema(props)
+    }
+    case 'NonSerialized':
+      // Non-serialized fields are not included in JSON Schema
+      jsonSchema.type = 'null'
+      break
+    case 'Class': {
+      // Classes are not serializable in JSON Schema
+      jsonSchema.type = 'null'
+      break
+    }
+    case 'Proxy': {
+      const props = schema.properties as TProxySchema<Schema>['properties']
+      return GenerateJSONSchema(props)
+    }
+    case 'Any':
+      // Any type in JSON Schema is an empty object
+      break
+    default:
+      jsonSchema.type = 'null'
+  }
+
+  // Add any additional options that might be relevant for JSON Schema
+  if (schema.options?.id) {
+    jsonSchema.$id = schema.options.id
+  }
+
+  return jsonSchema
+}
+
 export const SerializeSchema = <T extends Schema, Val>(schema: T, value: Val): Val => {
   const converted = ConvertToSchema(schema, value)
   return CloneSerializable(converted)
