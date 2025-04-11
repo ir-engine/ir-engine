@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { GLTF } from '@gltf-transform/core'
 import { EntityTreeComponent, getAncestorWithComponents, UUIDComponent } from '@ir-engine/ecs'
 import {
-  Component,
   ComponentType,
   getAllComponents,
   getComponent,
@@ -97,7 +96,11 @@ import {
   KHRSheenExtensionComponent,
   KHRSpecularExtensionComponent,
   KHRTransmissionExtensionComponent,
-  KHRVolumeExtensionComponent
+  KHRVolumeExtensionComponent,
+  MaterialColorValue,
+  MaterialNumberValue,
+  MaterialTextureValue,
+  MaterialValue
 } from './MaterialExtensionComponents'
 import { NodeIDComponent } from './NodeIDComponent'
 import { SceneDeltaExporterExtension } from './SceneDeltaExporterExtension'
@@ -815,42 +818,6 @@ const exportBuffer = (buffer: ArrayBuffer, gltf: GLTF.IGLTF, context: GLTFSceneE
   return bufferIndex
 }
 
-type MaterialTextureValue = {
-  contents: { index: number; texCoord: number }
-}
-
-type MaterialColorValue = {
-  contents: Color
-}
-
-type MaterialNumberValue = {
-  contents: number
-}
-
-type MaterialVec2Value = {
-  contents: [number, number]
-}
-
-type MaterialValue = MaterialTextureValue | MaterialColorValue | MaterialNumberValue | MaterialVec2Value
-
-const colorValueToTupleValue = (colorValue: MaterialColorValue) => ({
-  contents: colorValue.contents.toArray() as [number, number, number]
-})
-
-const _applyMaterialExtension = <ExtComponent extends Component, Key extends keyof ComponentType<ExtComponent>>(
-  materialDef: GLTF.IMaterial,
-  value: { contents: ComponentType<ExtComponent>[Key] },
-  extComponent: ExtComponent,
-  key: Key
-) => {
-  const extName = extComponent.jsonID!
-  if (!materialDef.extensions) materialDef.extensions = {}
-  if (!materialDef.extensions[extName]) materialDef.extensions[extName] = {}
-
-  const ext = materialDef.extensions[extName] as ComponentType<ExtComponent>
-  ext[key] = value.contents
-}
-
 const _builtinMaterialDefs = {
   color: (materialDef: GLTF.IMaterial, value: MaterialColorValue) => {
     if (!materialDef.pbrMetallicRoughness) materialDef.pbrMetallicRoughness = {}
@@ -890,132 +857,21 @@ const _builtinMaterialDefs = {
   },
   aoMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
     materialDef.occlusionTexture = value.contents
-  },
-  transmission: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
-    _applyMaterialExtension(materialDef, value, KHRTransmissionExtensionComponent, 'transmissionFactor')
-  },
-  transmissionMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
-    _applyMaterialExtension(materialDef, value, KHRTransmissionExtensionComponent, 'transmissionTexture')
-  },
-  thickness: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
-    _applyMaterialExtension(materialDef, value, KHRVolumeExtensionComponent, 'thicknessFactor')
-  },
-  thicknessMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
-    _applyMaterialExtension(materialDef, value, KHRVolumeExtensionComponent, 'thicknessTexture')
-  },
-  attenuationDistance: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
-    _applyMaterialExtension(materialDef, value, KHRVolumeExtensionComponent, 'attenuationDistance')
-  },
-  attenuationColor: (materialDef: GLTF.IMaterial, value: MaterialColorValue) => {
-    _applyMaterialExtension(materialDef, colorValueToTupleValue(value), KHRVolumeExtensionComponent, 'attenuationColor')
-  },
-  ior: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
-    _applyMaterialExtension(materialDef, value, KHRIorExtensionComponent, 'ior')
-  },
-  specularIntensity: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
-    _applyMaterialExtension(materialDef, value, KHRSpecularExtensionComponent, 'specularFactor')
-  },
-  specularIntensityMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
-    _applyMaterialExtension(materialDef, value, KHRSpecularExtensionComponent, 'specularTexture')
-  },
-  specularColor: (materialDef: GLTF.IMaterial, value: MaterialColorValue) => {
-    _applyMaterialExtension(
-      materialDef,
-      colorValueToTupleValue(value),
-      KHRSpecularExtensionComponent,
-      'specularColorFactor'
-    )
-  },
-  specularColorMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
-    _applyMaterialExtension(materialDef, value, KHRSpecularExtensionComponent, 'specularTexture')
-  },
-  emissiveIntensity: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
-    _applyMaterialExtension(materialDef, value, KHREmissiveStrengthExtensionComponent, 'emissiveStrength')
-  },
-  clearcoat: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
-    _applyMaterialExtension(materialDef, value, KHRClearcoatExtensionComponent, 'clearcoatFactor')
-  },
-  clearcoatMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
-    _applyMaterialExtension(materialDef, value, KHRClearcoatExtensionComponent, 'clearcoatTexture')
-  },
-  clearcoatRoughness: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
-    _applyMaterialExtension(materialDef, value, KHRClearcoatExtensionComponent, 'clearcoatRoughnessFactor')
-  },
-  clearcoatRoughnessMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
-    _applyMaterialExtension(materialDef, value, KHRClearcoatExtensionComponent, 'clearcoatRoughnessTexture')
-  },
-  clearcoatNormalMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
-    const extName = KHRClearcoatExtensionComponent.jsonID
-    if (!materialDef.extensions) materialDef.extensions = {}
-    if (!materialDef.extensions[extName]) materialDef.extensions[extName] = {}
-
-    const ext = materialDef.extensions[extName] as ComponentType<typeof KHRClearcoatExtensionComponent>
-    // Don't set the object directly since clearcoatNormalScale could have been set first
-    ext.clearcoatNormalTexture = { ...ext.clearcoatNormalTexture, ...value.contents }
-  },
-  clearcoatNormalScale: (materialDef: GLTF.IMaterial, value: MaterialVec2Value) => {
-    const extName = KHRClearcoatExtensionComponent.jsonID
-    if (!materialDef.extensions) materialDef.extensions = {}
-    if (!materialDef.extensions[extName]) materialDef.extensions[extName] = {}
-
-    const ext = materialDef.extensions[extName] as ComponentType<typeof KHRClearcoatExtensionComponent>
-    if (!ext.clearcoatNormalTexture) ext.clearcoatNormalTexture = {} as any
-    ext.clearcoatNormalTexture!.scale = value.contents[0]
-  },
-  iridescence: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
-    _applyMaterialExtension(materialDef, value, KHRIridescenceExtensionComponent, 'iridescenceFactor')
-  },
-  iridescenceMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
-    _applyMaterialExtension(materialDef, value, KHRIridescenceExtensionComponent, 'iridescenceTexture')
-  },
-  iridescenceIOR: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
-    _applyMaterialExtension(materialDef, value, KHRIridescenceExtensionComponent, 'iridescenceIor')
-  },
-  iridescenceThicknessMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
-    _applyMaterialExtension(materialDef, value, KHRIridescenceExtensionComponent, 'iridescenceThicknessTexture')
-  },
-  iridescenceThicknessRange: (materialDef: GLTF.IMaterial, value: MaterialVec2Value) => {
-    _applyMaterialExtension(
-      materialDef,
-      { contents: value.contents[0] },
-      KHRIridescenceExtensionComponent,
-      'iridescenceThicknessMinimum'
-    )
-    _applyMaterialExtension(
-      materialDef,
-      { contents: value.contents[1] },
-      KHRIridescenceExtensionComponent,
-      'iridescenceThicknessMaximum'
-    )
-  },
-  sheenColor: (materialDef: GLTF.IMaterial, value: MaterialColorValue) => {
-    _applyMaterialExtension(materialDef, colorValueToTupleValue(value), KHRSheenExtensionComponent, 'sheenColorFactor')
-  },
-  sheenColorMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
-    _applyMaterialExtension(materialDef, value, KHRSheenExtensionComponent, 'sheenColorTexture')
-  },
-  sheenRoughness: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
-    _applyMaterialExtension(materialDef, value, KHRSheenExtensionComponent, 'sheenRoughnessFactor')
-  },
-  sheenRoughnessMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
-    _applyMaterialExtension(materialDef, value, KHRSheenExtensionComponent, 'sheenRoughnessTexture')
-  },
-  bumpScale: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
-    _applyMaterialExtension(materialDef, value, EXTBumpExtensionComponent, 'bumpFactor')
-  },
-  bumpMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
-    _applyMaterialExtension(materialDef, value, EXTBumpExtensionComponent, 'bumpTexture')
-  },
-  anisotropy: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
-    _applyMaterialExtension(materialDef, value, KHRAnisotropyExtensionComponent, 'anisotropyStrength')
-  },
-  anisotropyRotation: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
-    _applyMaterialExtension(materialDef, value, KHRAnisotropyExtensionComponent, 'anisotropyRotation')
-  },
-  anisotropyMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
-    _applyMaterialExtension(materialDef, value, KHRAnisotropyExtensionComponent, 'anisotropyTexture')
   }
 } as Record<keyof MeshPhysicalMaterial, (materialDef: GLTF.IMaterial, value: MaterialValue) => void>
+
+const materialExtensions = [
+  KHREmissiveStrengthExtensionComponent,
+  KHRClearcoatExtensionComponent,
+  KHRIridescenceExtensionComponent,
+  KHRSheenExtensionComponent,
+  KHRTransmissionExtensionComponent,
+  KHRVolumeExtensionComponent,
+  KHRIorExtensionComponent,
+  KHRSpecularExtensionComponent,
+  EXTBumpExtensionComponent,
+  KHRAnisotropyExtensionComponent
+]
 
 const exportMaterial = async (
   entity: Entity,
@@ -1084,18 +940,19 @@ const exportMaterial = async (
     }
   }
 
-  // Materials assign a default clear coat scale, if no clear coat texture, delete the extension
-  if (
-    materialDef.extensions?.[KHRClearcoatExtensionComponent.jsonID] &&
-    (materialDef.extensions?.[KHRClearcoatExtensionComponent.jsonID] as any).index === undefined
-  ) {
-    delete materialDef.extensions[KHRClearcoatExtensionComponent.jsonID]
+  materialDef.extensions ??= {}
+  for (const ext of materialExtensions) {
+    if (typeof ext.exportMaterialExtension === 'function') {
+      const extension = ext.exportMaterialExtension(result)
+      if (extension && Object.keys(extension).length > 0) {
+        materialDef.extensions[ext.jsonID] = extension
+      }
+    }
   }
 
   const materialComponent = getComponent(entity, MaterialStateComponent)
   const prototype = getState(MaterialPrototypeDefinitions)[materialComponent.material.type]
   //@todo: plugins
-  materialDef.extensions = materialDef.extensions ?? {}
   materialDef.extensions['EE_material'] = {
     uuid: getComponent(entity, NodeIDComponent),
     name: getComponent(entity, NameComponent),
