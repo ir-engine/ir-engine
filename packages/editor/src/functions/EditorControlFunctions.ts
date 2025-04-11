@@ -587,10 +587,12 @@ const reparentObject = (
     if (oldIndex !== undefined && index !== undefined) {
       if (oldIndex < index) {
         for (let i = max - 1; i >= min; i--) {
+          if (!parentTree.children[i]) continue
           reparentObjectSub(parentTree.children[i], parent, i)
         }
-      } else {
+      } else if (oldIndex > index) {
         for (let i = min + 1; i <= max; i++) {
+          if (!parentTree.children[i]) continue
           reparentObjectSub(parentTree.children[i], parent, i)
         }
       }
