@@ -313,10 +313,7 @@ export const InteractableComponent = defineComponent({
       if (!isEditing.value) {
         addInteractableUI(simulationEntity)
         return () => {
-          const interactableComponent = getOptionalMutableComponent(
-            getSimulationCounterpart(entity),
-            InteractableComponent
-          )
+          const interactableComponent = getOptionalMutableComponent(entity, InteractableComponent)
           if (!interactableComponent) return
           const uiEntity = interactableComponent.uiEntity.value
           if (uiEntity) {
