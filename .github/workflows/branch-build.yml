@@ -33,8 +33,8 @@ jobs:
         id: cache
         with:
           path: |
-            node_modules
-            packages/*/node-modules
+            ./node_modules
+            ./packages/*/node_modules
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -44,6 +44,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: |
+            ./node_modules
             ./packages/*/node_modules
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
   check-lint:
@@ -65,8 +66,8 @@ jobs:
         id: cache
         with:
           path: |
-            node_modules
-            packages/*/node-modules
+            ./node_modules
+            ./packages/*/node_modules
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -94,8 +95,8 @@ jobs:
         id: cache
         with:
           path: |
-            node_modules
-            packages/*/node-modules
+            ./node_modules
+            ./packages/*/node_modules
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -126,8 +127,8 @@ jobs:
         id: cache
         with:
           path: |
-            node_modules
-            packages/*/node-modules
+            ./node_modules
+            ./packages/*/node_modules
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -161,8 +162,8 @@ jobs:
         id: cache
         with:
           path: |
-            node_modules
-            packages/*/node-modules
+            ./node_modules
+            ./packages/*/node_modules
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -200,8 +201,8 @@ jobs:
         id: cache
         with:
           path: |
-            node_modules
-            packages/*/node-modules
+            ./node_modules
+            ./packages/*/node_modules
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -242,8 +243,8 @@ jobs:
         id: cache
         with:
           path: |
-            node_modules
-            packages/*/node-modules
+            ./node_modules
+            ./packages/*/node_modules
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -287,8 +288,8 @@ jobs:
         id: cache
         with:
           path: |
-            node_modules
-            packages/*/node-modules
+            ./node_modules
+            ./packages/*/node_modules
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -338,8 +339,8 @@ jobs:
         id: cache
         with:
           path: |
-            node_modules
-            packages/*/node-modules
+            ./node_modules
+            ./packages/*/node_modules
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -403,8 +404,8 @@ jobs:
         id: cache
         with:
           path: |
-            node_modules
-            packages/*/node-modules
+            ./node_modules
+            ./packages/*/node_modules
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -450,8 +451,8 @@ jobs:
         id: cache
         with:
           path: |
-            node_modules
-            packages/*/node-modules
+            ./node_modules
+            ./packages/*/node_modules
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -493,8 +494,8 @@ jobs:
         id: cache
         with:
           path: |
-            node_modules
-            packages/*/node-modules
+            ./node_modules
+            ./packages/*/node_modules
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
