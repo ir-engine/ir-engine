@@ -34,7 +34,7 @@
     "description": "Please use a desktop running the latest version of Google Chrome for the best experience with the iR Studio."
   },
   "unsupportedBrowser": {
-    "title": "Browser Not Supported!",
+    "title": "Browser Not Supported",
     "description": "Please use Google Chrome for the best experience with the iR Studio.",
     "downloadChrome": "Download Chrome",
     "continue": "Continue Anyway"
@@ -45,40 +45,40 @@
     "authenticating": "Authenticating...",
     "starting": "Starting...",
     "loadingApp": "Loading app...",
-    "loadingLocation": "Loading locations...",
-    "loadingProjects": "Loading projects...",
-    "loadingEngine": "Loading engine...",
-    "loadingEditor": "Loading editor...",
-    "loadingStudio": "Loading studio...",
-    "loadingRoutes": "Loading routes...",
-    "loadingRoute": "Loading route...",
-    "loadingAuth": "Loading auth routes...",
-    "loadingAdmin": "Loading admin routes...",
-    "loadingCustom": "Loading custom routes...",
-    "loadingAllowed": "Loading allowed routes...",
-    "loadingXRSystems": "Loading immersive session...",
-    "connectingToWorld": "Connecting to world...",
-    "needToVerifyAge": "You need to verify your age to access chat.",
-    "needToLogIn": "You need to log in to access chat.",
-    "connectingToMedia": "Connecting to media...",
-    "entering": "Entering world...",
+    "loadingLocation": "Loading Spaces...",
+    "loadingProjects": "Loading Projects...",
+    "loadingEngine": "Loading Engine...",
+    "loadingEditor": "Loading Editor...",
+    "loadingStudio": "Loading Studio...",
+    "loadingRoutes": "Loading Routes...",
+    "loadingRoute": "Loading Route...",
+    "loadingAuth": "Loading Auth Routes...",
+    "loadingAdmin": "Loading Admin Routes...",
+    "loadingCustom": "Loading Custom Routes...",
+    "loadingAllowed": "Loading Allowed Routes...",
+    "loadingXRSystems": "Loading Immersive Session...",
+    "connectingToWorld": "Connecting to Space...",
+    "needToVerifyAge": "You must verify your age to access the chat.",
+    "needToLogIn": "You must log in to access the chat.",
+    "connectingToMedia": "Connecting to Media...",
+    "entering": "Entering Space...",
     "loading": "Loading...",
     "loadingDynamic": "Loading {{name}}",
     "objectRemaining": "{{count}} object remaining",
     "objectRemainingPlural": "{{count}} objects remaining",
     "loadingObjects": "Loading Objects",
     "loadingComplete": "Loading Complete",
-    "joiningWorld": "Joining World",
+    "joiningWorld": "Joining Space",
     "editor": "Loading Editor",
     "offline": "Loading Offline",
     "auth": "Loading Auth"
   },
   "alert": {
-    "eventWasSuccess": "Event was successful",
-    "errorWasEncountered": "An error was encountered",
-    "eventInProgress": "Event in progress",
+    "eventWasSuccess": "The event was successful",
+    "errorWasEncountered": "An error ocurred",
+    "eventInProgress": "The event is in progress",
     "seconds": "seconds",
-    "cancelCountdown": "Closing this modal will cancel the countdown"
+    "cancelCountdown": "Closing this window will cancel the countdown."
   },
   "debug": {
     "refresh": "Refresh",
@@ -127,12 +127,12 @@
     "browserError": "Browser Error",
     "browserErrorMessage": "Your browser does not support storage in private browsing mode. Either try another browser, or exit private browsing mode.",
     "noAvailableServers": "No Available Servers",
-    "noAvailableServersMessage": "There aren't any servers available for you to connect to. Attempting to re-connect in",
+    "noAvailableServersMessage": "There are not any servers available for you to connect to. Attempting to re-connect in",
     "worldDisconnected": "World disconnected",
-    "worldDisconnectedMessage": "You've lost your connection with the world. We'll try to reconnect before the following time runs out, otherwise you'll be forwarded to a different instance.",
+    "worldDisconnectedMessage": "You have lost your connection to the world. We will attempt to reconnect before the timer runs out; otherwise, you will be redirected to a different instance.",
     "webGLNotEnabled": "WebGL not enabled",
     "webGLNotEnabledMessage": "Your browser does not support WebGL, or it is disabled. Please enable WebGL or consider upgrading to the latest version of your browser.",
-    "youKickedFromWorld": "You've been kicked from the world",
+    "youKickedFromWorld": "You have been kicked from the world",
     "youKickedFromWorldMessage": "You were kicked from this world for the following reason",
     "invalidLocation": "Invalid location",
     "cantFindLocation": "We can't find the location",
@@ -140,8 +140,8 @@
     "notAuthorizedAtLocation": "You are not authorized to be at this location",
     "misspelledOrNotExist": "It may be misspelled, or it may not exist.",
     "loading": "loading",
-    "low-frame-error": "Detected a poor perfomance consider enabling Use Hardware acceleration in your browser and relauch your browser",
-    "low-frame-title": "Enable hardware acceleration for better experience!"
+    "low-frame-error": "Poor performance detected. Consider enabling hardware acceleration in your browser and relaunching it",
+    "low-frame-title": "Enable hardware acceleration for a better experience!"
   },
   "ar": {
     "placeScene": "Place Scene",
@@ -150,9 +150,9 @@
     "done": "Done"
   },
   "error": {
-    "loading-error": "Failed to load user data",
-    "validation-error": "Please input valid {{type}}",
-    "login-error": "Failed to login",
+    "loading-error": "Unable to load user data",
+    "validation-error": "Enter a valid {{type}}",
+    "login-error": "Login attempt failed",
     "expiredToken": "The token has expired."
   },
   "table": {
@@ -164,7 +164,7 @@
     }
   },
   "multiEmailInput": {
-    "placeholder": "Type or paste email addresses and press `Enter`...",
+    "placeholder": "Type or paste email addresses, then press 'Enter'.",
     "alreadyAdded": "{{email}} has already been added!",
     "invalidEmail": "{{email}} is not a valid email address!"
   },

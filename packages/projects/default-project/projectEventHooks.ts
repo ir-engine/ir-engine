@@ -57,7 +57,7 @@ const handleOEmbedRequest = async (app: Application, project: ProjectType, url: 
       },
       pagination: false
     } as any)) as any as LocationType[]
-    if (locationResult.length === 0) throw new BadRequest('Invalid location name')
+    if (locationResult.length === 0) throw new BadRequest('Invalid Published Space Name')
     const scene = (await app.service(staticResourcePath).get(locationResult[0].sceneId)) as StaticResourceType
     currentOEmbed.title = `${locationResult[0].name} - ${currentOEmbed.title}`
     currentOEmbed.description = `Join others in VR at ${locationResult[0].name}, directly from the web browser`
