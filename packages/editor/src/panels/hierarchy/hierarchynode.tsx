@@ -24,8 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { userHasProjectPermission } from '@ir-engine/client-core/src/hooks/useUserProjectPermission'
 import { API } from '@ir-engine/common'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { projectPermissionPath } from '@ir-engine/common/src/schema.type.module'
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
 import { EngineState, EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
@@ -116,8 +118,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const canSaveNodeChanges = useState(false)
   const permissionToChangeNodeVerified = useState(false)
 
-  //@todo when this feature flag is added, remove the hardcoded value
-  const hideGlbChildrenFeatureFlag = [true] //useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.HideGlbChildren])
+  const showGlbChildrenFeatureFlag = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowGlbChildren])
 
   const handleRenameOpen = () => {
     if (!isRenameOpen.value) {
@@ -391,7 +392,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
         !visible ? 'text-text-inactive' : '',
         selected ? 'rounded-sm border border-ui-select-outline bg-ui-select-background text-text-primary' : '',
         isOverOn && canDropOn ? 'border border-dotted' : '',
-        hideGlbChildrenFeatureFlag[0] && isOverOn && !canDropOn ? 'border border-dotted bg-ui-hover-error' : ''
+        !showGlbChildrenFeatureFlag && isOverOn && !canDropOn ? 'border border-dotted bg-ui-hover-error' : ''
       )}
       data-testid="hierarchy-panel-scene-item"
     >

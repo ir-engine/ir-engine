@@ -72,6 +72,8 @@ import { EditorErrorState } from '../services/EditorErrorServices'
 
 import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags.tsx'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags.ts'
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
@@ -281,7 +283,7 @@ const findNextSelectionEntity = (topLevelParent: Entity, child: Entity): Entity 
 const inputQuery = defineQuery([InputSourceComponent])
 let clickStartEntity = UndefinedEntity
 
-let hierarchyFeatureFlagEnabled = false
+let showGlbChildrenFeatureFlagEnabled = false
 
 const execute = () => {
   const entity = AvatarComponent.getSelfAvatarEntity()
@@ -353,7 +355,7 @@ const execute = () => {
         selectedParentEntity === clickStartEntity ? closestIntersection.entity : selectedParentEntity
 
       // If hiding children of GLB, don't allow those children to be selected (clicking in scene view)
-      if (hierarchyFeatureFlagEnabled && selectedParentEntity) {
+      if (!showGlbChildrenFeatureFlagEnabled && selectedParentEntity) {
         const forceSelectGlbParent = isEntityGlb(selectedParentEntity) // && hasComponent(selectedParentEntity, SceneComponent)
         clickStartEntity = forceSelectGlbParent ? selectedParentEntity : selectedEntity //selectedEntity vs clickStartEntity so that we allow closest intersection drill down above to work
       } else {
@@ -449,6 +451,7 @@ const reactor = () => {
 
   //@todo remove hardcoded value once feature flag is added to MT
   const hideGlbChildrenFeatureFlag = [true] // useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.HideGlbChildren])
+  const [showGlbChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowGlbChildren])
 
   useEffect(() => {
     // todo figure out how to do these with our input system
@@ -483,8 +486,8 @@ const reactor = () => {
   }, [viewerEntity])
 
   useEffect(() => {
-    hierarchyFeatureFlagEnabled = hideGlbChildrenFeatureFlag[0]
-  }, [hideGlbChildrenFeatureFlag])
+    showGlbChildrenFeatureFlagEnabled = showGlbChildren
+  }, [showGlbChildren])
 
   return null
 }
