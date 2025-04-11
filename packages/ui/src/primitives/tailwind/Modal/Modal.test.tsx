@@ -45,7 +45,6 @@ describe('Modal component', () => {
   })
 
   it('should render a button with the data-testid attribute "modal-cancel-button"', () => {
-    screen.debug(document.body, Infinity)
     const modalCancelButton = screen.getByTestId('modal-cancel-button')
     // @ts-expect-error
     expect(modalCancelButton).toBeInTheDocument()

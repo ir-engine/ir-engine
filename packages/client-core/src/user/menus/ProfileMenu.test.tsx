@@ -176,13 +176,6 @@ describe('ProfileMenu component', () => {
     cleanup()
   })
 
-  it('should render a button with the data-testid attribute "open-profile-menu"', async () => {
-    screen.debug(document.body, Infinity)
-    const openProfileMenuButton = screen.getByTestId('open-profile-menu')
-    // @ts-expect-error
-    expect(openProfileMenuButton).toBeInTheDocument()
-  })
-
   it('should render an avatar image element with the data-testid attribute "avatar-image"', () => {
     const openProfileMenuButton = screen.getByTestId('open-profile-menu')
     // @ts-expect-error

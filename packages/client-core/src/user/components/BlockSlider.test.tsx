@@ -39,20 +39,17 @@ describe('BlockSlider component', () => {
   })
 
   it('should render an element with data-testid "slider-label"', () => {
-    screen.debug(document.body, Infinity)
     const sliderLabel = screen.getByTestId('slider-label')
     // @ts-expect-error
     expect(sliderLabel).toBeInTheDocument()
   })
 
   it('should render an input element with data-testid "slider-text-value-input"', async () => {
-    screen.debug(document.body, Infinity)
     const sliderTextValueInputs = await screen.findAllByTestId('slider-text-value-input')
     expect(sliderTextValueInputs.length).toBeGreaterThan(0)
   })
 
   it('should render an input element with data-testid "slider-draggable-value-input"', async () => {
-    screen.debug(document.body, Infinity)
     const sliderDraggableValueInputs = await screen.findAllByTestId('slider-draggable-value-input')
     expect(sliderDraggableValueInputs.length).toBeGreaterThan(0)
   })

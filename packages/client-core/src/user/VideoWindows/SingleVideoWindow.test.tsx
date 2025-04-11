@@ -174,7 +174,11 @@ describe('SingleVideoWindow component', () => {
     }
     eventDispatcher = new EventDispatcher()
     ;(API.instance as any) = {
-      service: (path: string) => apis[path]
+      service: (path: string) => {
+        const existing = apis[path]
+        if (!existing) throw new Error(`Missing mock service for path: ${path}`)
+        return existing
+      }
     }
 
     getMutableState(LocationState).currentLocation.location.sceneURL.set(sceneURL)
