@@ -380,7 +380,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     }
     canSaveNodeChanges.set(userHasProjectPermission(permission, ['owner', 'editor']))
   }
-
+  console.log(currentRenameNode.value, rootEntity === entity)
   return (
     <li
       key={node.depth + ' ' + props.index + ' ' + entity}
@@ -416,6 +416,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
             'flex w-full items-center justify-between gap-x-2 bg-inherit pr-2',
             rootEntity === entity ? 'p-2' : 'py-1 pl-10 pr-2'
           )}
+          style={{ marginLeft: `${node.depth * 0.75}rem` }}
           ref={onDropTarget}
         >
           {node.isLeaf ? (
