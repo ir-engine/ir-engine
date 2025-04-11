@@ -140,6 +140,10 @@ const generateToolbarMenu = () => {
       action: () => ModalState.openModal(<CreatePrefabPanel isExportLookDev={true} />)
     },
     {
+      name: t('editor:menubar.documentation'),
+      href: 'https://docs.ir.world'
+    },
+    {
       name: t('editor:menubar.quit'),
       action: onCloseProject
     }
@@ -251,10 +255,11 @@ export default function Toolbar() {
         onClose={() => anchorEvent.set(null)}
       >
         <div className="w-[180px]" tabIndex={0}>
-          {toolbarMenu.map(({ name, action, hotkey }, index) => (
+          {toolbarMenu.map(({ name, href, action = () => {}, hotkey }, index) => (
             <DropdownItem
               key={name + '' + index}
               label={name}
+              href={href}
               secondaryText={hotkey}
               onClick={() => {
                 action()
