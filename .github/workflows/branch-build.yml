@@ -36,9 +36,11 @@ jobs:
             node_modules
             packages/*/node-modules
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
-      - name: Install Dependencies
+      - name: Module Resolution
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm i --package-lock-only
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
         run: npm i
       - name: Cache node-modules
         if: steps.cache.outputs.cache-hit != 'true'
