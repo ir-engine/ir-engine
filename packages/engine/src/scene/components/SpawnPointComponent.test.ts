@@ -23,15 +23,37 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityTreeComponent, getNestedChildren, getOptionalComponent, setComponent } from '@ir-engine/ecs'
+import {
+  createEngine,
+  createEntity,
+  destroyEngine,
+  Entity,
+  EntityTreeComponent,
+  getNestedChildren,
+  getOptionalComponent,
+  removeEntity,
+  setComponent
+} from '@ir-engine/ecs'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
 import { Object3D } from 'three'
-import { assert, describe } from 'vitest'
-import { it } from '../util/testUtil'
+import { assert, it as base, describe } from 'vitest'
 import { SpawnPointComponent } from './SpawnPointComponent'
+
+const it = base.extend<{ entity: Entity }>({
+  // eslint-disable-next-line no-empty-pattern
+  entity: async ({}, use) => {
+    createEngine()
+    mockSpatialEngine()
+    const entity = createEntity()
+    await use(entity)
+    removeEntity(entity)
+    destroyEngine()
+  }
+})
 
 describe('SpawnPointComponent', () => {
   describe('Fields', () => {
