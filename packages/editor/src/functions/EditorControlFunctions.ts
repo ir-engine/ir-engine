@@ -582,10 +582,17 @@ const reparentObject = (
       : undefined
 
     reparentObjectSub(entity, parent, index)
-
+    const min = Math.min(oldIndex ?? 0, index ?? 0)
+    const max = Math.max(oldIndex ?? 0, index ?? 0)
     if (oldIndex !== undefined && index !== undefined) {
-      for (let i = index + 1; i < oldIndex; i++) {
-        reparentObjectSub(parentTree.children[i], parent, i)
+      if (oldIndex < index) {
+        for (let i = max - 1; i >= min; i--) {
+          reparentObjectSub(parentTree.children[i], parent, i)
+        }
+      } else {
+        for (let i = min + 1; i <= max; i++) {
+          reparentObjectSub(parentTree.children[i], parent, i)
+        }
       }
     }
   }
