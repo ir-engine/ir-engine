@@ -20,36 +20,33 @@ jobs:
           fi
   install-modules:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
-      - name: restore lerna
-        uses: actions/cache@v3
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - name: Restore
+        uses: actions/cache/restore@v4
+        id: cache
         with:
           path: |
-            node_modules
-            */*/node_modules
-            package-lock.json
-          key: ${{ runner.os }}-branch-build-${{ hashFiles('**/package.json') }}
-      - run: cp .env.local.default .env.local
-      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
-      - name: Config npm registry token
-        run: npm config set '//npm.pkg.github.com/:_authToken' "${NPM_TOKEN}"
-        env:
-          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: npm install --production=false --loglevel notice --legacy-peer-deps
-      - name: cache for next steps
-        uses: actions/cache@v3
+            ./node_modules
+            ./packages/*/node_modules
+          key: ${{ runner.os }}-build-${{ hashFiles('./package.json', './packages/*/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
+      - name: Cache node-modules
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
         with:
-          path: .
-          key: dir-${{github.sha}}
-
+          path: |
+            ./node_modules
+            ./packages/*/node_modules
+          key: ${{ runner.os }}-build-${{ hashFiles('./package.json', './packages/*/package.json') }}
   check-lint:
     needs: install-modules
     runs-on: ubuntu-latest
@@ -57,14 +54,24 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - name: Restore
+        uses: actions/cache/restore@v4
+        id: cache
+        with:
+          path: |
+            ./node_modules
+            ./packages/*/node_modules
+          key: ${{ runner.os }}-build-${{ hashFiles('./package.json', './packages/*/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
       - run: npm run lint
       - run: npm run check-eslint
         timeout-minutes: 20
@@ -76,14 +83,26 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - name: Restore
+        uses: actions/cache/restore@v4
+        id: cache
+        with:
+          path: |
+            ./node_modules
+            ./packages/*/node_modules
+          key: ${{ runner.os }}-build-${{ hashFiles('./package.json', './packages/*/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
+      - run: cp .env.local.default .env.local
+      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: npm run dev-docker
       - run: npm run dev-reinit
       - run: npx lerna run --scope '@ir-engine/*' check-errors
@@ -96,14 +115,26 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - name: Restore
+        uses: actions/cache/restore@v4
+        id: cache
+        with:
+          path: |
+            ./node_modules
+            ./packages/*/node_modules
+          key: ${{ runner.os }}-build-${{ hashFiles('./package.json', './packages/*/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
+      - run: cp .env.local.default .env.local
+      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: npm run dev-docker
       - run: npm run dev-reinit
       - run: rm -rf packages/instanceserver
@@ -119,14 +150,26 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - name: Restore
+        uses: actions/cache/restore@v4
+        id: cache
+        with:
+          path: |
+            ./node_modules
+            ./packages/*/node_modules
+          key: ${{ runner.os }}-build-${{ hashFiles('./package.json', './packages/*/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
+      - run: cp .env.local.default .env.local
+      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
       - run: mv packages/hyperflux packages_moved/
       - run: rm -rf packages/*
@@ -146,14 +189,26 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - name: Restore
+        uses: actions/cache/restore@v4
+        id: cache
+        with:
+          path: |
+            ./node_modules
+            ./packages/*/node_modules
+          key: ${{ runner.os }}-build-${{ hashFiles('./package.json', './packages/*/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
+      - run: cp .env.local.default .env.local
+      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
       - run: mv packages/hyperflux packages_moved/
@@ -176,14 +231,26 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - name: Restore
+        uses: actions/cache/restore@v4
+        id: cache
+        with:
+          path: |
+            ./node_modules
+            ./packages/*/node_modules
+          key: ${{ runner.os }}-build-${{ hashFiles('./package.json', './packages/*/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
+      - run: cp .env.local.default .env.local
+      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
       - run: mkdir -p packages_moved/network/
@@ -209,14 +276,26 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - name: Restore
+        uses: actions/cache/restore@v4
+        id: cache
+        with:
+          path: |
+            ./node_modules
+            ./packages/*/node_modules
+          key: ${{ runner.os }}-build-${{ hashFiles('./package.json', './packages/*/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
+      - run: cp .env.local.default .env.local
+      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
       - run: mkdir -p packages_moved/network/
@@ -248,14 +327,26 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - name: Restore
+        uses: actions/cache/restore@v4
+        id: cache
+        with:
+          path: |
+            ./node_modules
+            ./packages/*/node_modules
+          key: ${{ runner.os }}-build-${{ hashFiles('./package.json', './packages/*/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
+      - run: cp .env.local.default .env.local
+      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
       - run: mkdir -p packages_moved/network/
@@ -301,14 +392,26 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - name: Restore
+        uses: actions/cache/restore@v4
+        id: cache
+        with:
+          path: |
+            ./node_modules
+            ./packages/*/node_modules
+          key: ${{ runner.os }}-build-${{ hashFiles('./package.json', './packages/*/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
+      - run: cp .env.local.default .env.local
+      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: rm -rf packages/instanceserver
       - run: rm -rf packages/server
       - run: rm -rf packages/server-core
@@ -336,14 +439,26 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - name: Restore
+        uses: actions/cache/restore@v4
+        id: cache
+        with:
+          path: |
+            ./node_modules
+            ./packages/*/node_modules
+          key: ${{ runner.os }}-build-${{ hashFiles('./package.json', './packages/*/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
+      - run: cp .env.local.default .env.local
+      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: rm -rf packages/client
       - run: rm -rf packages/client-core
       - run: rm -rf packages/editor
@@ -367,19 +482,24 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: .
-          key: dir-${{github.sha}}
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
-      - name: Checkout Engine
-        uses: actions/checkout@v4
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - name: Restore
+        uses: actions/cache/restore@v4
+        id: cache
         with:
-          path: ir-engine
-          ref: ${{ env.checkout_branch }}
+          path: |
+            ./node_modules
+            ./packages/*/node_modules
+          key: ${{ runner.os }}-build-${{ hashFiles('./package.json', './packages/*/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
       - name: Checkout NPM Build Test
         uses: actions/checkout@v4
         with:
