@@ -23,19 +23,34 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+import Component from './index'
 
-import {
-  LocationBanData,
-  LocationBanPatch,
-  LocationBanQuery,
-  LocationBanType
-} from '@ir-engine/common/src/schemas/social/location-ban.schema'
+export default {
+  title: 'Primitives/Tailwind/ThemeToggle',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'ThemeToggle',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  }
+}
 
-export interface LocationBanParams extends KnexAdapterParams<LocationBanQuery> {}
+export const LightMode = {
+  args: {
+    label: 'Light Mode',
+    value: false,
+    onChange: () => {},
+    disabled: false
+  }
+}
 
-export class LocationBanService<
-  T = LocationBanType,
-  ServiceParams extends Params = LocationBanParams
-> extends KnexService<LocationBanType, LocationBanData, LocationBanParams, LocationBanPatch> {}
+export const DarkMode = {
+  args: {
+    label: 'Dark Mode',
+    value: true,
+    onChange: () => {},
+    disabled: false
+  }
+}

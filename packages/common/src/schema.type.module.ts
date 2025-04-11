@@ -80,7 +80,6 @@ export type * from './schemas/social/invite-type.schema'
 export type * from './schemas/social/invite.schema'
 export type * from './schemas/social/location-admin.schema'
 export type * from './schemas/social/location-authorized-user.schema'
-export type * from './schemas/social/location-ban.schema'
 export type * from './schemas/social/location-setting.schema'
 export type * from './schemas/social/location-type.schema'
 export type * from './schemas/social/location.schema'
@@ -175,8 +174,6 @@ export const locationTypePath = 'location-type'
 export const locationAdminPath = 'location-admin'
 
 export const channelPath = 'channel'
-
-export const locationBanPath = 'location-ban'
 
 export const locationSettingPath = 'location-setting'
 

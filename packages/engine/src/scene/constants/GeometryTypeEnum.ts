@@ -60,10 +60,7 @@ export const GeometryTypeParamsEnum = {
   [GeometryTypeEnum.BoxGeometry]: {
     width: { default: 1, min: 0 },
     height: { default: 1, min: 0 },
-    depth: { default: 1, min: 0 },
-    widthSegments: { default: 1, min: 1 },
-    heightSegments: { default: 1, min: 1 },
-    depthSegments: { default: 1, min: 1 }
+    depth: { default: 1, min: 0 }
   },
 
   [GeometryTypeEnum.SphereGeometry]: {
@@ -96,9 +93,7 @@ export const GeometryTypeParamsEnum = {
 
   [GeometryTypeEnum.PlaneGeometry]: {
     width: { default: 1, min: 0 },
-    height: { default: 1, min: 0 },
-    widthSegments: { default: 1, min: 1 },
-    heightSegments: { default: 1, min: 1 }
+    height: { default: 1, min: 0 }
   },
 
   [GeometryTypeEnum.CircleGeometry]: {
