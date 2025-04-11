@@ -44,7 +44,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: |
-            packages/*/node-modules
+            ./packages/*/node_modules
           key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'packages/*/package.json') }}
   check-lint:
     needs: install-modules
