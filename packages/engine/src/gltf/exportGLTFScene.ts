@@ -95,6 +95,7 @@ import {
   KHRIridescenceExtensionComponent,
   KHRSheenExtensionComponent,
   KHRSpecularExtensionComponent,
+  KHRTextureTransformExtensionComponent,
   KHRTransmissionExtensionComponent,
   KHRVolumeExtensionComponent,
   MaterialColorValue,
@@ -1005,6 +1006,8 @@ const exportSampler = (texture: Texture, gltf: GLTF.IGLTF, context: GLTFSceneExp
   return index
 }
 
+const textureExtensions = [KHRTextureTransformExtensionComponent]
+
 const exportTexture = async (
   texture: Texture,
   gltf: GLTF.IGLTF,
@@ -1034,6 +1037,17 @@ const exportTexture = async (
   const textureDef: GLTF.ITexture = { name: src, source: imageIndex }
   textureDef.sampler = exportSampler(texture, gltf, context)
   gltf.textures ??= []
+
+  textureDef.extensions ??= {}
+  for (const ext of textureExtensions) {
+    if (typeof ext.exportTextureExtension === 'function') {
+      const extension = ext.exportTextureExtension(texture)
+      if (extension && Object.keys(extension).length > 0) {
+        textureDef.extensions[ext.jsonID] = extension
+      }
+    }
+  }
+  if (Object.keys(textureDef.extensions).length === 0) delete textureDef.extensions
 
   const textureIndex = gltf.textures.length
   gltf.textures.push(textureDef)

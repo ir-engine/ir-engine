@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { GLTF } from '@gltf-transform/core'
 import { Component, ComponentType, defineComponent, S } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
+import { Vector2_One, Vector2_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
 import { MaterialPrototypeDefinitions } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import {
@@ -881,6 +882,25 @@ export const KHRTextureTransformExtensionComponent = defineComponent({
     texture.needsUpdate = true
 
     return texture
+  },
+
+  exportTextureExtension(texture: Texture) {
+    const extension = {} as GLTFTextureTransformExtensionType
+
+    if (texture.channel) {
+      extension.texCoord = texture.channel
+    }
+    if (!texture.offset.equals(Vector2_Zero)) {
+      extension.offset = [texture.offset.x, texture.offset.y]
+    }
+    if (texture.rotation) {
+      extension.rotation = texture.rotation
+    }
+    if (!texture.repeat.equals(Vector2_One)) {
+      extension.scale = [texture.repeat.x, texture.repeat.y]
+    }
+
+    return extension
   }
 })
 
