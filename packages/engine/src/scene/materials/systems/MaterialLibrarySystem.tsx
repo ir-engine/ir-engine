@@ -89,7 +89,20 @@ const ChildMaterialReactor = () => {
   const forceBasicMaterials = useMutableState(RendererState).forceBasicMaterials
   const materialComponent = useComponent(entity, MaterialStateComponent)
   useEffect(() => {
-    if (!materialComponent.material.value || !materialComponent.instances.length) return
+    try {
+      if (
+        !materialComponent ||
+        !materialComponent.material ||
+        !materialComponent.material.value ||
+        !materialComponent.instances.length
+      ) {
+        console.warn('Material Component properties are invalid')
+        return
+      }
+    } catch (error) {
+      console.warn('Error accessing Material Component properties:', error)
+      return
+    }
     convertMaterials(entity, forceBasicMaterials.value)
   }, [
     materialComponent.material,
