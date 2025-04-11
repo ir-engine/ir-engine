@@ -42,10 +42,10 @@
   },
   "types": "lib/",
   "dependencies": {
+    "@ir-engine/server-core": "^1.6.0",
     "@feathersjs/koa": "5.0.5",
     "@feathersjs/transport-commons": "5.0.5",
-    "@ir-engine/server-core": "^1.6.0",
-    "app-root-path": "3.1.0",
+    "app-root-path": "^3.1.0",
     "cli": "1.0.1",
     "cross-env": "7.0.3",
     "koa-favicon": "^2.1.0",

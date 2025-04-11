@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@types/node": "18.15.5",
-    "cross-env": "7.0.3",
+    "cross-env": "^7.0.3",
     "esbuild": "0.17.12"
   },
   "license": "CPAL"

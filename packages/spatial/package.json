@@ -17,12 +17,12 @@
   "author": "Infinite Reality Engine",
   "license": "CPAL",
   "dependencies": {
+    "detect-gpu": "^5.0.38",
     "@dimforge/rapier3d-compat": "0.11.2",
     "@ir-engine/ecs": "^1.6.0",
     "@ir-engine/hyperflux": "^1.6.0",
     "@ir-engine/network": "^1.6.0",
     "@tweenjs/tween.js": "^23.1.2",
-    "detect-gpu": "^5.0.38",
     "lodash": "4.17.21",
     "noisejs": "2.1.0",
     "postprocessing": "6.34.1",
@@ -37,8 +37,8 @@
     "@types/node": "18.15.5",
     "fake-indexeddb": "6.0.0",
     "gl-matrix": "3.4.3",
-    "localforage": "^1.10.0",
     "rimraf": "4.4.0",
+    "localforage": "^1.10.0",
     "webxr-polyfill": "github:felixtrz/webxr-polyfill#81d2db4f01b518f2c42b74a90973dac095515e9f"
   },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
