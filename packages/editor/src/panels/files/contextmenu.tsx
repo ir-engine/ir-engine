@@ -216,6 +216,7 @@ export function FileContextMenu({
       condition: hasFiles,
       label: t('editor:layout.assetGrid.placeObjectAtOrigin'),
       action: () => {
+        const position = getSpawnPositionAtCenter(new Vector3())
         selectedFiles
           .filter((file) => !file.isFolder.value)
           .map((file) => {
