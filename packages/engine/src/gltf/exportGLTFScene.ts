@@ -215,6 +215,7 @@ type GLTFSceneExportContext = {
     materials: Map<Material, number>
     textures: Map<Texture, number>
     images: Map<ImageBitmap | string, number>
+    samplers: Map<string, number>
     attributes: Map<BufferAttribute | InterleavedBufferAttribute, number>
   }
 }
@@ -379,6 +380,7 @@ export async function exportGLTFScene(
     materials: new Map<Material, number>(),
     textures: new Map<Texture, number>(),
     images: new Map<ImageBitmap | string, number>(),
+    samplers: new Map<string, number>(),
     attributes: new Map<BufferAttribute | InterleavedBufferAttribute, number>()
   }
 
@@ -951,14 +953,14 @@ const _builtinMaterialDefs = {
     // Don't set the object directly since clearcoatNormalScale could have been set first
     ext.clearcoatNormalTexture = { ...ext.clearcoatNormalTexture, ...value.contents }
   },
-  clearcoatNormalScale: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
+  clearcoatNormalScale: (materialDef: GLTF.IMaterial, value: MaterialVec2Value) => {
     const extName = KHRClearcoatExtensionComponent.jsonID
     if (!materialDef.extensions) materialDef.extensions = {}
     if (!materialDef.extensions[extName]) materialDef.extensions[extName] = {}
 
     const ext = materialDef.extensions[extName] as ComponentType<typeof KHRClearcoatExtensionComponent>
     if (!ext.clearcoatNormalTexture) ext.clearcoatNormalTexture = {} as any
-    ext.clearcoatNormalTexture!.scale = value.contents
+    ext.clearcoatNormalTexture!.scale = value.contents[0]
   },
   iridescence: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
     _applyMaterialExtension(materialDef, value, KHRIridescenceExtensionComponent, 'iridescenceFactor')
@@ -1082,6 +1084,14 @@ const exportMaterial = async (
     }
   }
 
+  // Materials assign a default clear coat scale, if no clear coat texture, delete the extension
+  if (
+    materialDef.extensions?.[KHRClearcoatExtensionComponent.jsonID] &&
+    (materialDef.extensions?.[KHRClearcoatExtensionComponent.jsonID] as any).index === undefined
+  ) {
+    delete materialDef.extensions[KHRClearcoatExtensionComponent.jsonID]
+  }
+
   const materialComponent = getComponent(entity, MaterialStateComponent)
   const prototype = getState(MaterialPrototypeDefinitions)[materialComponent.material.type]
   //@todo: plugins
@@ -1128,10 +1138,13 @@ const exportSampler = (texture: Texture, gltf: GLTF.IGLTF, context: GLTFSceneExp
     wrapS: GLTF_WRAPPINGS[texture.wrapS] as GLTF.TextureWrapMode,
     wrapT: GLTF_WRAPPINGS[texture.wrapT] as GLTF.TextureWrapMode
   }
+  const samplerStr = JSON.stringify(sampler)
+  if (context.cache.samplers.has(samplerStr)) return context.cache.samplers.get(samplerStr)!
 
   if (!gltf.samplers) gltf.samplers = []
   const index = gltf.samplers.length
   gltf.samplers.push(sampler)
+  context.cache.samplers.set(samplerStr, index)
   return index
 }
 
