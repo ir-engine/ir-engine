@@ -51,7 +51,7 @@ export function Topbar() {
         onClose={() => isAddEntityMenuOpen.set(false)}
         trigger={
           <Button
-            // variant="secondary"
+            variant="tertiary"
             size="xs"
             data-testid="hierarchy-panel-add-entity-button"
             onClick={() => isAddEntityMenuOpen.set(true)}
