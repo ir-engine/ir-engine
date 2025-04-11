@@ -27,7 +27,6 @@ import { ProjectService, ProjectState } from '@ir-engine/client-core/src/common/
 import config from '@ir-engine/common/src/config'
 import { camelCaseToSpacedString } from '@ir-engine/common/src/utils/camelCaseToSpacedString'
 import { hasComponent, useAncestorWithComponents, useChildrenWithComponents, useComponent } from '@ir-engine/ecs'
-import ErrorPopUp from '@ir-engine/editor/src/components/popup/ErrorPopUp'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
@@ -55,6 +54,7 @@ import SelectInput from '../../../input/Select'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { EditorHistoryFunctions } from '@ir-engine/editor/src/services/EditorHistoryState'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { removeError } from '@ir-engine/engine/src/scene/functions/ErrorFunctions'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { HiPlus } from 'react-icons/hi2'
 import { OptionType } from '../../../../../primitives/tailwind/Select'
@@ -81,6 +81,7 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
   const validRootMesh = hasComponent(props.entity, MeshComponent)
   const validChildMeshes = childMeshEntities.length !== 0
   const showMeshError = isMeshOrConvexHull && !(validChildMeshes || validRootMesh)
+  const urlInputTouched = useHookstate(false)
 
   const errors = ErrorComponent.useComponentErrors(props.entity, GLTFComponent)?.value
   const srcProject = useHookstate(() => {
@@ -147,15 +148,28 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
       Icon={GLTFNodeEditor.iconComponent}
       {...props}
     >
-      <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
+      <InputGroup name="Model Url" className="flex flex-col gap-y-2" label={t('editor:properties.model.lbl-modelurl')}>
         <ModelInput
           value={gltfComponent.src.value}
           onRelease={(src) => {
+            urlInputTouched.set(true)
+            if (src != gltfComponent.src.value) {
+              removeError(props.entity, GLTFComponent, 'LOADING_ERROR')
+              removeError(props.entity, GLTFComponent, 'INVALID_SOURCE')
+            }
             commitProperty(GLTFComponent, 'src')(src)
           }}
         />
-        {errors?.LOADING_ERROR ||
-          (errors?.INVALID_SOURCE && ErrorPopUp({ message: t('editor:properties.model.error-url') }))}
+        {urlInputTouched.value && errors?.INVALID_SOURCE && (
+          <Text fontSize="xs" className="text-ui-error">
+            {t('editor:properties.model.error-url')}
+          </Text>
+        )}
+        {!errors?.INVALID_SOURCE && !!errors?.LOADING_ERROR && (
+          <Text fontSize="xs" className="text-ui-error">
+            {errors?.LOADING_ERROR}
+          </Text>
+        )}
       </InputGroup>
 
       <InputGroup name="Camera Occlusion" label={t('editor:properties.model.lbl-cameraOcclusion')}>
