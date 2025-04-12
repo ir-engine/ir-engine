@@ -36,13 +36,7 @@ import { FilesState, FilesViewModeState, SelectedFilesState } from '../../servic
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileContextMenu } from './contextmenu'
 import FileItem, { TableWrapper } from './fileitem'
-import {
-  CurrentFilesQueryProvider,
-  FILES_PAGE_LIMIT,
-  canDropOnFileBrowser,
-  useCurrentFiles,
-  useFileBrowserDrop
-} from './helpers'
+import { FILES_PAGE_LIMIT, canDropOnFileBrowser, useCurrentFiles, useFileBrowserDrop } from './helpers'
 import FilesLoaders from './loaders'
 export function Browser() {
   const [anchorEvent, setAnchorEvent] = useState<undefined | React.MouseEvent>(undefined)
@@ -199,9 +193,9 @@ export default function FileBrowser() {
   }, [projectName])
 
   return (
-    <CurrentFilesQueryProvider>
+    <>
       <FilesLoaders />
       <Browser />
-    </CurrentFilesQueryProvider>
+    </>
   )
 }

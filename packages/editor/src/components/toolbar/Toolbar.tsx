@@ -140,6 +140,10 @@ const generateToolbarMenu = () => {
       action: () => PopoverState.showPopupover(<CreatePrefabPanel isExportLookDev={true} />)
     },
     {
+      name: t('editor:menubar.documentation'),
+      href: 'https://docs.ir.world'
+    },
+    {
       name: t('editor:menubar.quit'),
       action: onCloseProject
     }
@@ -166,6 +170,8 @@ export default function Toolbar() {
   const anchorPosition = useHookstate({ left: 0, top: 0 })
 
   const { projectName, sceneName, sceneAssetID } = useMutableState(EditorState)
+  const sceneNameSimplified = sceneName.value?.split('.').slice(0, -1).join('.')
+
   const isModified = EditorState.useIsModified()
 
   const locationScopeQuery = useFind(scopePath, {
@@ -207,7 +213,7 @@ export default function Toolbar() {
         <div className="flex items-center gap-2.5">
           <span className="text-text-secondary">{projectName.value}</span>
           <span className="text-text-secondary">{' / '}</span>
-          <span className="text-text-primary">{sceneName.value}</span>
+          <span className="text-text-primary">{sceneNameSimplified}</span>
         </div>
 
         <div className="flex items-center justify-center gap-2">
@@ -243,10 +249,11 @@ export default function Toolbar() {
         onClose={() => anchorEvent.set(null)}
       >
         <div className="w-[180px]" tabIndex={0}>
-          {toolbarMenu.map(({ name, action, hotkey }, index) => (
+          {toolbarMenu.map(({ name, href, action = () => {}, hotkey }, index) => (
             <DropdownItem
               key={name + '' + index}
               label={name}
+              href={href}
               secondaryText={hotkey}
               onClick={() => {
                 action()

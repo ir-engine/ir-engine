@@ -63,12 +63,14 @@ import { ContentFitTypeSchema } from '@ir-engine/spatial/src/transform/functions
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { TransformComponent } from '@ir-engine/spatial'
 import { Vector2_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { HighlightComponent } from '@ir-engine/spatial/src/renderer/components/HighlightComponent'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { NodeFunctions } from '../../gltf/NodeFunctions'
 import { NodeID, NodeIDSchema } from '../../gltf/NodeIDComponent'
 import { clearErrors } from '../functions/ErrorFunctions'
-import { getTextureSize, PLANE_GEO, resizeVideoMesh, SideSchema, SPHERE_GEO } from './ImageComponent'
+import { getTextureSize, PLANE_GEO, SideSchema, SPHERE_GEO } from './ImageComponent'
 import { MediaComponent, MediaElementComponent } from './MediaComponent'
 
 export const VideoTexturePriorityQueueState = defineState({
@@ -106,7 +108,6 @@ export const VideoComponent = defineComponent({
 
   schema: S.Object({
     side: SideSchema(DoubleSide),
-    size: T.Vec2(Vector2_One),
     uvOffset: T.Vec2(),
     uvScale: T.Vec2(Vector2_One),
     alphaUVOffset: T.Vec2(),
@@ -115,7 +116,7 @@ export const VideoComponent = defineComponent({
     useAlpha: S.Bool(false),
     useAlphaInvert: S.Bool(false),
     alphaThreshold: S.Number(0.5),
-    fit: ContentFitTypeSchema('contain'),
+    fit: ContentFitTypeSchema('stretch'),
     projection: ProjectionSchema,
     mediaUUID: NodeIDSchema(),
 
@@ -151,6 +152,9 @@ function VideoReactor() {
   const hasMediaElementComponent = useHasComponent(mediaEntity, MediaElementComponent)
   const localTextureRef = useHookstate<VideoTexturePriorityQueue | null>(null)
   const sourceVideoComponent = useOptionalComponent(mediaEntity, VideoComponent)
+  const transformComponent = useComponent(entity, TransformComponent)
+
+  const highlightComponent = useOptionalComponent(entity, HighlightComponent)
 
   const videoMeshEntity = useHookstate(() => {
     const videoMeshEntity = createEntity()
@@ -268,7 +272,7 @@ function VideoReactor() {
     const videoEntity = videoMeshEntity
     video.videoMeshEntity.set(videoEntity)
     setComponent(videoEntity, EntityTreeComponent, { parentEntity: entity })
-    setComponent(videoEntity, NameComponent, mesh?.name?.value)
+    setComponent(videoEntity, NameComponent, `video-group-${entity}`)
     setComponent(videoEntity, MediaComponent)
     video.mediaUUID.set('' as NodeID)
 
@@ -278,8 +282,12 @@ function VideoReactor() {
   }, [])
 
   useEffect(() => {
-    mesh.name.set(`video-group-${entity}`)
-  }, [!!mesh])
+    if (!mesh || !highlightComponent) return
+    setComponent(videoMeshEntity, HighlightComponent)
+    return () => {
+      removeComponent(videoMeshEntity, HighlightComponent)
+    }
+  }, [!!mesh, highlightComponent])
 
   useEffect(() => {
     setVisibleComponent(videoMeshEntity, !!visible)
@@ -292,61 +300,59 @@ function VideoReactor() {
 
   // update mesh
   useEffect(() => {
-    if (!media || !media.isCurrentTrackLoaded.value) return
-
     const videoMesh = mesh.value as Mesh<PlaneGeometry | SphereGeometry, ShaderMaterial>
-    resizeVideoMesh(videoMesh)
 
     const uvOffset = new Vector2(0, 0)
     const uvScale = new Vector2(1, 1)
+    let imageSize = new Vector2(1, 1)
 
-    const imageSize = getTextureSize(videoMesh.material.uniforms.map.value as Texture | CompressedTexture)
-    video.currentVideoSize.set(imageSize)
-    const imageRatio = imageSize.x / imageSize.y || 1
-
-    const size = video.size.value
-    const [containerWidth, containerHeight] = [size.x, size.y]
+    const [containerWidth, containerHeight] = [transformComponent.value.scale.x, transformComponent.value.scale.y]
     const containerRatio = containerWidth / containerHeight
 
-    let isPlacementHorz = true
-    if (video.fit.value == 'horizontal') {
-      isPlacementHorz = true
-    }
-    if (video.fit.value == 'vertical') {
-      isPlacementHorz = false
-    }
-    if (video.fit.value == 'contain') {
-      if (imageRatio > containerRatio) {
-        isPlacementHorz = true
-      } else {
-        isPlacementHorz = false
+    if (media && media.isCurrentTrackLoaded.value) {
+      imageSize = getTextureSize(videoMesh.material.uniforms.map.value as Texture | CompressedTexture)
+      if (video.fit.value !== 'stretch') {
+        const imageRatio = imageSize.x / imageSize.y || 1
+
+        let isPlacementHorz = true
+        if (video.fit.value == 'horizontal') {
+          isPlacementHorz = true
+        }
+        if (video.fit.value == 'vertical') {
+          isPlacementHorz = false
+        }
+
+        if (video.fit.value == 'contain') {
+          if (imageRatio > containerRatio) {
+            isPlacementHorz = true
+          } else {
+            isPlacementHorz = false
+          }
+        }
+        if (video.fit.value == 'cover') {
+          if (imageRatio > containerRatio) {
+            isPlacementHorz = false
+          } else {
+            isPlacementHorz = true
+          }
+        }
+
+        if (isPlacementHorz) {
+          uvScale.y = imageRatio / containerRatio
+          uvScale.x = 1
+          uvOffset.y = (1 - uvScale.y) / 2
+        } else {
+          uvScale.x = 1 / imageRatio / (1 / containerRatio)
+          uvScale.y = 1
+          uvOffset.x = (1 - uvScale.x) / 2
+        }
       }
     }
-    if (video.fit.value == 'cover') {
-      if (imageRatio > containerRatio) {
-        isPlacementHorz = false
-      } else {
-        isPlacementHorz = true
-      }
-    }
 
-    if (isPlacementHorz) {
-      uvScale.y = imageRatio / containerRatio
-      uvScale.x = 1
-      uvOffset.y = (1 - uvScale.y) / 2
-    } else {
-      uvScale.x = 1 / imageRatio / (1 / containerRatio)
-      uvScale.y = 1
-      uvOffset.x = (1 - uvScale.x) / 2
-    }
-
-    videoMesh.scale.x = containerWidth
-    videoMesh.scale.y = containerHeight
-
+    video.currentVideoSize.set(imageSize)
     fitPlacementUvOffset.set(uvOffset)
     fitPlacementUvScale.set(uvScale)
-    //}, [!!mesh, video.size, video.fit, video.texture, mesh?.material])
-  }, [!!mesh, video.size, video.fit, video.texture, mesh?.material, media?.isCurrentTrackLoaded])
+  }, [!!mesh, transformComponent.scale, video.fit, video.texture, mesh?.material, media?.isCurrentTrackLoaded])
 
   useEffect(() => {
     mesh.geometry.set(video.projection.value === 'Flat' ? PLANE_GEO() : SPHERE_GEO())

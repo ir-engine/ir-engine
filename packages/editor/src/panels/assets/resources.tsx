@@ -176,7 +176,7 @@ export function FileCard({
       >
         <div
           className={twMerge(
-            `box-border h-20 w-16 rounded border border-0 font-figtree text-sm`,
+            `box-border h-20 w-16 rounded font-figtree text-sm`,
             isSelected ? 'rounded border border-[#375DAF] bg-[#2C2E30]' : 'group-hover:bg-[#202225]'
           )}
           data-testid={dataTestIdJson?.fileIconId}
@@ -401,8 +401,19 @@ function ResourceItems() {
   }
 
   const thumbnailJobState = useMutableState(FileThumbnailJobState)
+  const debouncedRefetchResourcesRef = useRef<ReturnType<typeof setTimeout>>()
+
   useEffect(() => {
-    refetchResources(true)
+    clearTimeout(debouncedRefetchResourcesRef.current)
+  }, [])
+
+  useEffect(() => {
+    if (debouncedRefetchResourcesRef) {
+      clearTimeout(debouncedRefetchResourcesRef.current)
+    }
+    debouncedRefetchResourcesRef.current = setTimeout(() => {
+      refetchResources()
+    }, 500)
   }, [thumbnailJobState.jobs.length])
 
   useEffect(() => {

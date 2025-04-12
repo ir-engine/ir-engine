@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { createScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { UIAddonsState } from '@ir-engine/editor/src/services/UIAddonsState'
 import { NO_PROXY, getMutableState, useMutableState } from '@ir-engine/hyperflux'
@@ -42,7 +43,9 @@ export interface SceneOptionData {
   title: string
   description: string
   icon?: React.ElementType
+  onOptionSelectedAnalytics?: (selectedSceneOption: SceneOptionData) => void
   onSubmit?: () => void
+  submitButtonText?: string
 }
 
 export const SceneOptionButton = ({
@@ -69,7 +72,9 @@ export const SceneOptionButton = ({
   return (
     <button
       className={`flex h-[125px] w-[415px] flex-row gap-3 rounded-lg border bg-ui-background p-3 ${
-        areSceneOptionDataEqual(selectedSceneOption, sceneOptionData) ? 'border-ui-primary' : 'border-ui-outline'
+        areSceneOptionDataEqual(selectedSceneOption, sceneOptionData)
+          ? 'border-ui-primary bg-ui-quadrary'
+          : 'border-ui-outline'
       }`}
       style={{ boxShadow: '0px 2px 4px -2px rgba(0, 0, 0, 0.10), 0px 4px 6px -1px rgba(0, 0, 0, 0.10)' }}
       onClick={() => {
@@ -131,6 +136,7 @@ export const AddScene = ({ projectName }: AddNewSceneProps) => {
   const [selectedSceneOption, setSelectedSceneOption] = useState(null as SceneOptionData | null)
 
   const element = useMutableState(UIAddonsState).editor.newScene.get(NO_PROXY)
+  const cancelText = useMutableState(UIAddonsState).editor.cancelText.get(NO_PROXY)
   getMutableState(UIAddonsState).projectName.set(projectName)
 
   useLayoutEffect(() => {
@@ -143,6 +149,11 @@ export const AddScene = ({ projectName }: AddNewSceneProps) => {
   }
 
   const onContinueClicked = async () => {
+    Object.values(element).map((value, _index) => {
+      if (value.onOptionSelectedAnalytics && selectedSceneOption) {
+        value.onOptionSelectedAnalytics(selectedSceneOption)
+      }
+    })
     selectedSceneOption?.onSubmit?.()
   }
 
@@ -150,7 +161,8 @@ export const AddScene = ({ projectName }: AddNewSceneProps) => {
     title: t('editor:dialog.addScene.optionButtons.defaultEditor.title'),
     description: t('editor:dialog.addScene.optionButtons.defaultEditor.description'),
     icon: FiTool,
-    onSubmit: handleCreateDefaultScene
+    onSubmit: handleCreateDefaultScene,
+    submitButtonText: t('editor:dialog.addScene.optionButtons.defaultEditor.submitButtonText')
   }
 
   return (
@@ -189,16 +201,21 @@ export const AddScene = ({ projectName }: AddNewSceneProps) => {
           </div>
         </div>
 
-        <div className="flex w-full justify-center border-t-[0.5px] border-surface-outline-4-1 py-6">
-          <Button
-            size="sm"
-            variant="primary"
-            className="w-[228px]"
-            onClick={onContinueClicked}
-            disabled={selectedSceneOption === null}
-          >
-            {t('editor:dialog.addScene.continue')}
+        <div className="grid w-full grid-cols-[228px,1fr,228px] border-t-[0.5px] border-surface-outline-4-1 py-6">
+          <Button size="sm" variant="secondary" className="w-[228px]" onClick={() => PopoverState.hidePopupover()}>
+            {t(cancelText ?? 'editor:dialog.addScene.cancel')}
           </Button>
+          {!!selectedSceneOption && (
+            <Button
+              size="sm"
+              variant="primary"
+              className="col-start-3 w-[228px]"
+              onClick={onContinueClicked}
+              hidden={selectedSceneOption === null}
+            >
+              {t(selectedSceneOption?.submitButtonText ?? 'editor:dialog.addScene.continue')}
+            </Button>
+          )}
         </div>
       </div>
     </div>

@@ -43,6 +43,9 @@ interface BigQueryRow {
   ip_address: string
   device_type: string
   device_info: string
+  account_id: string
+  location_id: string
+  project_id: string
 }
 
 // Ensure the environment variables exist (or add runtime checks as needed)
@@ -77,7 +80,10 @@ export const logToBigQuery = async (event: LogParamsObject) => {
     app_name: event.app_name,
     ip_address: event.ip_address,
     device_type: event.device_type,
-    device_info: event.device_info
+    device_info: event.device_info,
+    account_id: event.account_id,
+    location_id: event.location_id,
+    project_id: event.project_id
   }
 
   try {
