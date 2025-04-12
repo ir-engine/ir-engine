@@ -5,6 +5,7 @@ This file provides guidelines for AI assistants when working with the IR Engine 
 ## Core Packages Overview
 
 ### hyperflux
+
 - **Purpose**: Reactive state management library for both local and agent-centric networked applications
 - **Key Components**:
   - `HyperStore`: Central state container
@@ -13,6 +14,7 @@ This file provides guidelines for AI assistants when working with the IR Engine 
   - Reactors for reactive logic operations
 
 ### ecs
+
 - **Purpose**: Entity Component System implementation
 - **Key Components**:
   - `Engine`: Core ECS engine
@@ -22,6 +24,7 @@ This file provides guidelines for AI assistants when working with the IR Engine 
   - JSON schema utilities
 
 ### network
+
 - **Purpose**: Networking abstractions and APIs
 - **Key Components**:
   - Network creation and management
@@ -30,6 +33,7 @@ This file provides guidelines for AI assistants when working with the IR Engine 
   - Action systems (incoming/outgoing)
 
 ### spatial
+
 - **Purpose**: Core spatial system
 - **Key Components**:
   - Transform systems
@@ -40,6 +44,7 @@ This file provides guidelines for AI assistants when working with the IR Engine 
   - Spatialized Input
 
 ### engine
+
 - **Purpose**: Main engine module that integrates all other modules
 - **Key Components**:
   - Asset management
@@ -51,55 +56,191 @@ This file provides guidelines for AI assistants when working with the IR Engine 
 ## Code Style and Conventions
 
 ### General
+
 - Use TypeScript for type safety
 - Follow functional programming patterns where possible
 - Prefer immutable data structures
 - Use descriptive variable and function names
 
 ### Components and Systems
+
 - Component names should be PascalCase
 - System names should end with "System" (e.g., `XRSystem`)
 - System groups should end with "SystemGroup" (e.g., `InputSystemGroup`)
 
 ### State Management
+
 - Use hyperflux for state management
 - Define state slices with proper typing
 - Use actions for state modifications
 - Avoid direct state mutations outside of defined actions
 
 ### Reactivity
+
 - Use reactors for reactive logic
 - Keep reactors focused on specific functionality
 - Avoid side effects in reactors when possible
 
-## Common Patterns
+## Running Tests
 
-### Entity Creation
-- Use entity factory functions for creating entities
-- Initialize all required components
-- Set up proper hierarchies with parent-child relationships
+- Use `npm run check-errors` to check for TypeScript errors
+- Use `npm run lint` to check for code style violations
+- Use `npm run test` to run all tests in a package
+- Use `npm run test` at the root of the monorepo to run all tests across all packages
+- Use `npm run test -- <filename.ext>` to run specific tests
+- Use `npm run test-coverage` to generate test coverage reports
+- Ensure tests pass before merging any changes
 
-### Networking
-- Use the network module for all networked operations
-- Properly serialize and deserialize data
-- Handle network events appropriately
+## Core API Patterns
 
-### Performance Considerations
-- Minimize garbage collection by reusing objects
-- Use efficient data structures (e.g., typed arrays)
-- Batch operations where possible
-- Be mindful of performance in update loops
+### State Definition (hyperflux)
 
-## Documentation Standards
+```typescript
+const MyState = defineState({
+  name: 'my.state.name', // Namespaced state name
+  initial: {
+    // Initial state values
+    count: 0,
+    items: [] as string[]
+  }
+})
 
-- Document public APIs with JSDoc comments
-- Include parameter and return type descriptions
-- Provide examples for complex functions
-- Keep documentation up-to-date with code changes
+// Get readonly state
+const state = getState(MyState) // { count: 0, items: [] }
+// Get mutable hookstatejs proxy
+const mutableState = getMutableState(MyState) // State<{ count: number, items: string[] }>
+```
 
-## Testing Guidelines
+### Component Definition (ecs)
 
-- Write unit tests for core functionality
-- Test edge cases and error conditions
-- Mock dependencies appropriately
-- Ensure tests are deterministic
+```typescript
+const MyComponent = defineComponent({
+  name: 'MyComponent',
+  jsonID: 'IR_my_component', // Optional, for deserialization/serialization
+
+  schema: S.Object({
+    value: S.Number(0),
+    label: S.String('default'),
+    position: S.SerializedClass(
+      () => new Vector3(),
+      {
+        x: S.Number(),
+        y: S.Number(),
+        z: S.Number()
+      }
+    )
+  }),
+
+  reactor?: (props: { entity: Entity }) => {
+    // Optional React reconciler context for reactive logic
+  }
+})
+
+// Usage
+setComponent(entity, MyComponent, { value: 42 })
+
+// Get non-reactive component
+const component = getComponent(entity, MyComponent) // =>  { value: 42, label: 'default', position: Vector3 }
+
+// Get mutable hookstatejs proxy of component
+const mutableComponent = getMutableComponent(entity, MyComponent) // => State<{ value: number, label: string, position: Vector3 }>
+
+// Get reactive mutable hookstatejs proxy of component
+const component = useComponent(entity, MyComponent) // => State<{ value: number, label: string, position: Vector3 }>
+```
+
+### System Definition (ecs)
+
+```typescript
+const MySystem = defineSystem({
+  uuid: 'my.system.name', // Unique system identifier
+
+  // System ordering (one of before, with, after)
+  insert: {
+    before: OtherSystemUUID,
+    with: ParallelSystemUUID,
+    after: DependentSystemUUID
+  },
+
+  // Direct execution function
+  execute: () => {
+    // System logic
+  },
+
+  // Or reactive component using React
+  reactor: () => {
+    const entities = useQuery([RequiredComponent])
+    return (
+      <>
+        {entities.map((entity) => (
+          <EntityProcessor key={entity} entity={entity} />
+        ))}
+      </>
+    )
+  }
+})
+```
+
+### Query Definition (ecs)
+
+```typescript
+// Define query for entities with specific components
+const myQuery = defineQuery([RequiredComponentA, RequiredComponentB])
+
+// Usage in systems
+const entities = myQuery()
+
+// Usage in reactors
+const entities = useQuery([RequiredComponentA])
+```
+
+### Action Definition (hyperflux)
+
+```typescript
+const MyAction = defineAction({
+  type: 'MY_ACTION_TYPE',
+
+  // Action payload schema
+  username: matches.string,
+  count: matches.number.optional(),
+  data: matchesWithDefault(matches.object, () => ({}))
+})
+
+// Dispatch action
+dispatchAction(
+  MyAction({
+    username: 'user',
+    count: 42
+  })
+)
+```
+
+### Action Receptors and Event Sourced State
+
+State definitions can include receptors that handle specific actions and update state accordingly. This pattern is particularly useful for event-sourced state where actions need to be replayable and produce consistent state.
+
+1. Actions are immutable events that describe state changes
+2. Receptors process these events to update state
+3. Actions can be replayed in any order to reach the same final state
+4. Validation ensures action integrity before processing
+5. If a state is event sourced, it should not be mutated outside of receptors
+
+```typescript
+const NetworkedState = defineState({
+  name: 'networked.state',
+  initial: {} as Record<EntityUUID, NetworkData>,
+
+  receptors: {
+    onSpawn: SpawnAction.receive((action) => {
+      getMutableState(NetworkedState)[action.entityUUID].merge({
+        ownerId: action.ownerID,
+        authorityPeerId: action.authorityPeerId ?? action.$peer,
+        ownerPeer: action.$peer
+      })
+    }).validate((action) => {
+      // Ensure only owner can spawn
+      return action.ownerID === action.$user
+    })
+  }
+})
+```
