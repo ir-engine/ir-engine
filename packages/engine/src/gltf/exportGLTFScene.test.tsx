@@ -152,7 +152,7 @@ describe('exportGLTFScene', () => {
       typeof EEMaterialComponent
     >
     assert.equal(eeMaterial.name, originalMaterial.name)
-    const serializedColor = eeMaterial.args['color'].contents as Color
+    const serializedColor = new Color().fromArray(material.pbrMetallicRoughness!.baseColorFactor!)
     for (const key of Object.keys(serializedColor)) {
       assert.strictEqual(serializedColor[key], color[key])
     }
@@ -243,7 +243,7 @@ describe('exportGLTFScene', () => {
       typeof EEMaterialComponent
     >
     assert.equal(eeMaterial1.name, material1.name)
-    const serializedColor1 = eeMaterial1.args['color'].contents as Color
+    const serializedColor1 = new Color().fromArray(exportedMaterial1.pbrMetallicRoughness!.baseColorFactor!)
     for (const key of Object.keys(serializedColor1)) {
       assert.strictEqual(serializedColor1[key], color1[key])
     }
@@ -256,7 +256,8 @@ describe('exportGLTFScene', () => {
       typeof EEMaterialComponent
     >
     assert.equal(eeMaterial2.name, material2.name)
-    const serializedColor2 = eeMaterial2.args['color'].contents as Color
+    const serializedColor2 = new Color().fromArray(exportedMaterial2.pbrMetallicRoughness!.baseColorFactor!)
+
     for (const key of Object.keys(serializedColor2)) {
       assert.strictEqual(serializedColor2[key], color2[key])
     }
@@ -336,12 +337,9 @@ describe('exportGLTFScene', () => {
 
     // Check that the exported material contains the EE_material extension.
     assert.strictEqual(typeof exportedMaterial.extensions![EEMaterialComponent.jsonID], 'object')
-    const eeMaterial = exportedMaterial.extensions![EEMaterialComponent.jsonID] as SerializedComponentType<
-      typeof EEMaterialComponent
-    >
 
-    // Verify that the texture URL was correctly serialized into the material's "map" field.
-    assert.strictEqual(eeMaterial.args['map']?.contents?.index, 0)
+    // Verify that the texture URL was correctly serialized into the material's baseColorTexture field.
+    assert.strictEqual(exportedMaterial.pbrMetallicRoughness?.baseColorTexture?.index, 0)
 
     assert.strictEqual(gltf.images?.length, 1)
     const image = gltf.images[0]
@@ -407,9 +405,11 @@ describe('exportGLTFScene', () => {
       typeof EEMaterialComponent
     >
     assert.equal(eeMaterial.name, originalMaterial.name)
-    const serializedColor = eeMaterial.args['color'].contents as Color
-    for (const key of Object.keys(serializedColor)) {
-      assert.strictEqual(serializedColor[key], color[key])
+    const serializedColor = material.pbrMetallicRoughness!.baseColorFactor!
+    // Skip alpha channel
+    for (let i = 0; i < 3; i++) {
+      const channel = serializedColor[i]
+      assert.strictEqual(channel, color.toArray()[i])
     }
     assert.strictEqual(eeMaterial.prototype, 'MeshStandardMaterial')
   })
