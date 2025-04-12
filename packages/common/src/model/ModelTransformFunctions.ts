@@ -672,7 +672,7 @@ const transformTexture = async (resultCache: Map<string, Texture>, operation: Te
     texture.setURI(validTextureFileName(texture.getURI().replace(/\.[^.]+$/, '.ktx2')))
   }
 
-  if (shouldResize || shouldConvertToKTX) {
+  if ((shouldResize || shouldConvertToKTX) && texture.getURI() !== '') {
     //wipe relative path from URI
     const uri = texture.getURI()
     let newURI = uri.split('/').at(-1)!
@@ -749,6 +749,7 @@ const writeFiles = async (
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
     const folderURL = resourcePath.replace(config.client.fileServer, '')
 
+    //@todo this might be part of the issue, as it's attempting to upload to a folder that doesn't yet exist in my testing
     // const fileBrowserService = API.instance.service(fileBrowserPath)
     // const folderExists = await fileBrowserService.get(folderURL)
     // if (!folderExists) {
@@ -803,7 +804,8 @@ const writeFiles = async (
   }
 
   finalPath = pathJoin(srcBaseURL, finalPath)
-  console.log(`Wrote ${modelFormat} file: ${finalPath}`)
+  console.log(`Wrote ${modelFormat} file: ${finalPath}`) //figure out why these files are not writing, maybe not uploading?
+  //https://tsu.atlassian.net/browse/IR-2979
   return finalPath
 }
 
