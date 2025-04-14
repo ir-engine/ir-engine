@@ -26,8 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import { Entity, UUIDComponent, getComponent } from '@ir-engine/ecs'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import React, { useEffect } from 'react'
-import { HiCube, HiMiniXMark, HiOutlineChevronDown, HiOutlineChevronRight } from 'react-icons/hi2'
+import { HiCube, HiMiniXMark, HiOutlineChevronRight } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
+import { Tooltip } from '../../..'
 import { ComponentDropdownState } from './ComponentDropdownState'
 
 export interface ComponentDropdownProps {
@@ -78,42 +79,41 @@ export default function ComponentDropdown({
   }
 
   return (
-    <div
-      className={twMerge(
-        'group/component-dropdown w-full rounded bg-[#212226] p-2 transition-all duration-300 ease-out focus:border focus:border-[#375DAF] focus:outline-0',
-        isMinimized.value && 'h-10'
-      )}
-      tabIndex={0}
-    >
-      <div className="flex items-center">
-        <button
-          className="my-1 text-[#9CA0AA] group-hover/component-dropdown:text-[#F5F5F5] group-focus/component-dropdown:text-[#F5F5F5]"
-          title={isMinimized.value ? 'maximize' : 'minimize'}
-          onClick={() => toggleMinimized()}
-        >
-          {isMinimized.value ? (
-            <HiOutlineChevronRight className="h-4 w-4" />
-          ) : (
-            <HiOutlineChevronDown className="h-4 w-4" />
-          )}
-        </button>
-        <button className="ml-2 text-[#9CA0AA] group-hover/component-dropdown:text-[#F5F5F5] group-focus/component-dropdown:text-[#F5F5F5]">
-          <Icon className="h-5 w-5" />
-        </button>
-        <span className="ml-1 text-sm leading-6 text-[#B2B5BD] group-hover/component-dropdown:text-[#D3D5D9] group-focus/component-dropdown:text-[#F5F5F5]">
-          {name}
-        </span>
-        {onClose && (
-          <button
-            className="ml-auto text-[#1A1B1E] group-hover/component-dropdown:text-[#6B6F78] group-focus/component-dropdown:text-[#6B6F78]"
-            onClick={onClose}
-          >
-            <HiMiniXMark className="h-2 w-2 group-hover/component-dropdown:h-4 group-hover/component-dropdown:w-4 group-focus/component-dropdown:h-4 group-focus/component-dropdown:w-4" />
+    <div className={twMerge('group/component-dropdown w-full bg-surface-3 ', isMinimized.value && 'h-10')} tabIndex={0}>
+      <div className="grid w-full cursor-pointer grid-cols-1 items-center p-2" onClick={toggleMinimized}>
+        <div className="col-span-1 flex w-full items-center">
+          <Tooltip content={isMinimized.value ? 'maximize' : 'minimize'}>
+            <button
+              className="my-1 text-text-secondary"
+              //title={isMinimized.value ? 'maximize' : 'minimize'}
+              onClick={toggleMinimized}
+            >
+              <HiOutlineChevronRight
+                className={twMerge('h-4 w-4 transition-transform duration-300', !isMinimized.value ? 'rotate-90' : '')}
+                onClick={toggleMinimized}
+              />
+            </button>
+          </Tooltip>
+
+          <button className="ml-2 text-text-secondary group-hover/component-dropdown:text-text-primary group-focus/component-dropdown:text-text-primary">
+            <Icon className="h-5 w-5" />
           </button>
+          <span className="ml-1 text-sm leading-6 text-text-secondary group-hover/component-dropdown:text-text-primary group-focus/component-dropdown:text-text-primary">
+            {name}
+          </span>
+          {onClose && (
+            <button className="ml-auto text-text-inactive" onClick={onClose}>
+              <HiMiniXMark className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        {!isMinimized.value && (
+          <div className="col-span-1 ml-6 mt-2 w-full text-start text-xs text-text-secondary">{description}</div>
         )}
       </div>
-      {!isMinimized.value && <div className="text-center text-xs leading-[18px] text-[#D3D5D9]">{description}</div>}
-      <div className={twMerge('mt-4', isMinimized.value && 'hidden')}>{children}</div>
+
+      <div className={isMinimized.value ? 'hidden' : ''}>{children}</div>
     </div>
   )
 }

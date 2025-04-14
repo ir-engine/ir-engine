@@ -24,6 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { ImmutableArray } from '@hookstate/core'
+import { useHookstate } from '@ir-engine/hyperflux'
+
 import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { useFind, useMutation, useRealtime, useSearch } from '@ir-engine/common'
@@ -38,10 +40,12 @@ import { bytesToSize } from '@ir-engine/common/src/utils/btyesToSize'
 import { cleanFileNameFile } from '@ir-engine/common/src/utils/cleanFileName'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
-import React, { ReactNode, createContext, useContext } from 'react'
+import React, { ReactNode, createContext, useContext, useEffect } from 'react'
 import { DnDFileType, FileDataType } from '../../constants/AssetTypes'
-import { filterExistingFiles, handleUploadFiles } from '../../functions/assetFunctions'
+import { filterExistingFiles, handleUploadFiles, validatedFiles } from '../../functions/assetFunctions'
+import { EditorState } from '../../services/EditorServices'
 import { FilesState } from '../../services/FilesState'
+import { AssetCategoryNode } from '../assets/categories'
 
 /* CONSTANTS */
 
@@ -54,6 +58,7 @@ export const availableTableColumns = ['name', 'type', 'author', 'createdAt', 'st
 const FilesQueryContext = createContext({
   filesQuery: null as null | ReturnType<typeof useFind<'file-browser'>>,
   files: [] as FileDataType[],
+  categories: [] as any,
   changeDirectoryByPath: (_path: string) => {},
   backDirectory: () => {},
   refreshDirectory: async () => {},
@@ -62,14 +67,18 @@ const FilesQueryContext = createContext({
 
 export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }) => {
   const filesState = useMutableState(FilesState)
+  const categories = useHookstate<any>([])
+  const directory = (
+    filesState.selectedDirectory.value !== ''
+      ? filesState.selectedDirectory.value
+      : '/projects/' + filesState.projectName.value
+  ).replace(/^\/+/, '')
 
   const filesQuery = useFind(fileBrowserPath, {
     query: {
       $limit: FILES_PAGE_LIMIT,
-      directory:
-        filesState.selectedDirectory.value != ''
-          ? filesState.selectedDirectory.value
-          : '/projects/' + filesState.projectName.value
+      directory,
+      recursive: !!filesState.searchText.value
     }
   })
 
@@ -106,7 +115,6 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
   }
 
   const createNewFolder = () => fileService.create(`${filesState.selectedDirectory.value}New-Folder`)
-
   const files = filesQuery.data.map((file) => {
     const isFolder = file.type === 'folder'
     const fullName = isFolder ? file.name : file.name + '.' + file.type
@@ -119,13 +127,75 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
       isFolder
     }
   })
-
   useRealtime(staticResourcePath, filesQuery.refetch)
   FileThumbnailJobState.useGenerateThumbnails(filesQuery.data)
 
+  const projectName = useMutableState(EditorState).projectName.value
+
+  function buildHierarchy(paths: { key: string; name: string }[]): AssetCategoryNode[] {
+    const map = new Map<string, AssetCategoryNode>()
+    const roots: AssetCategoryNode[] = []
+
+    for (const { key: path } of paths) {
+      const parts = path
+        .split('/')
+        .slice(`/projects/${projectName}/public/**`.split('/').length - 2)
+        .filter(Boolean)
+      let currentPath = ''
+      let parentNode: AssetCategoryNode | null = null
+
+      for (let i = 0; i < parts.length; i++) {
+        currentPath = currentPath ? `${currentPath}/${parts[i]}` : parts[i]
+
+        if (!map.has(currentPath)) {
+          const newNode: AssetCategoryNode = {
+            name: parts[i],
+            path: `/${path}`,
+            depth: currentPath.split('/').length - 1,
+            children: []
+          }
+          map.set(currentPath, newNode)
+
+          if (parentNode) {
+            parentNode.children.push(newNode)
+          } else {
+            roots.push(newNode)
+          }
+        }
+
+        parentNode = map.get(currentPath)!
+      }
+    }
+
+    return roots
+  }
+
+  const foldersQuery = useFind(fileBrowserPath, {
+    query: {
+      $limit: FILES_PAGE_LIMIT,
+      directory: `/projects/${projectName}/public/**`
+    }
+  })
+
+  const folders = React.useMemo(() => foldersQuery.data.filter((file) => file.type === 'folder'), [foldersQuery.data])
+
+  useEffect(() => {
+    if (foldersQuery.status === 'success') {
+      categories.set(buildHierarchy(folders))
+    }
+  }, [foldersQuery.status])
+
   return (
     <FilesQueryContext.Provider
-      value={{ filesQuery, files, changeDirectoryByPath, backDirectory, refreshDirectory, createNewFolder }}
+      value={{
+        categories,
+        filesQuery,
+        files,
+        changeDirectoryByPath,
+        backDirectory,
+        refreshDirectory,
+        createNewFolder
+      }}
     >
       {children}
     </FilesQueryContext.Provider>
@@ -152,7 +222,7 @@ export function useFileBrowserDrop() {
     isCopy = false
   ): Promise<void> => {
     if (isLoading) return
-    if (!isCopy && newPath.startsWith(oldPath)) return // make sure we are not moving a folder into itself
+    if (!isCopy && newPath.startsWith(`${oldPath}/`)) return
     try {
       await fileService.update(null, {
         oldProject: filesState.projectName.value,
@@ -212,7 +282,8 @@ export function useFileBrowserDrop() {
       if (filesToUpload.length) {
         try {
           const uniqueFiles = await filterExistingFiles(filesState.projectName.value, path, filesToUpload)
-          await handleUploadFiles(filesState.projectName.value, path, uniqueFiles)
+          const sanitizedFiles = validatedFiles(uniqueFiles)
+          await handleUploadFiles(filesState.projectName.value, path, sanitizedFiles)
         } catch (err) {
           NotificationService.dispatchNotify(err.message, { variant: 'error' })
         }

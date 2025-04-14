@@ -31,15 +31,16 @@ import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { UserID, applyIncomingActions, dispatchAction, getMutableState, getState } from '@ir-engine/hyperflux'
 import { Network, NetworkState, NetworkTopics } from '@ir-engine/network'
 import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
+import { act, render } from '@testing-library/react'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { initializeSpatialViewer } from '../../initializeEngine'
 import { CameraActions } from '../CameraState'
 import { CameraComponent } from '../components/CameraComponent'
 import './CameraSystem'
 
-describe('CameraSystem', async () => {
-  describe('CameraEntityState', async () => {
-    beforeEach(async () => {
+describe('CameraSystem', () => {
+  describe('CameraEntityState', () => {
+    beforeEach(() => {
       createEngine()
       Engine.instance.store.defaultDispatchDelay = () => 0
       initializeSpatialViewer()
@@ -70,6 +71,7 @@ describe('CameraSystem', async () => {
         })
       )
       applyIncomingActions()
+      await act(() => render(null))
 
       const cameraEntity = UUIDComponent.getEntityByUUID(cameraUUID)
       assert.ok(cameraEntity, "The spawnCamera Action didn't create an entity.")

@@ -40,7 +40,6 @@ import { ObjectLayerMaskComponent } from './renderer/components/ObjectLayerCompo
 import { SceneComponent } from './renderer/components/SceneComponents'
 import { VisibleComponent } from './renderer/components/VisibleComponent'
 import { ObjectLayers } from './renderer/constants/ObjectLayers'
-import { PerformanceManager } from './renderer/PerformanceState'
 import { RendererComponent } from './renderer/WebGLRendererSystem'
 import { TransformComponent } from './transform/components/TransformComponent'
 
@@ -60,11 +59,11 @@ export const initializeSpatialViewer = (canvas?: HTMLCanvasElement) => {
   camera.layers.enable(ObjectLayers.Avatar)
   camera.layers.enable(ObjectLayers.UI)
   camera.layers.enable(ObjectLayers.TransformGizmo)
+  camera.layers.enable(ObjectLayers.Gizmos)
   camera.layers.enable(ObjectLayers.UVOL)
 
   if (canvas) {
     setComponent(viewerEntity, RendererComponent, { canvas, scenes: [viewerEntity] })
-    PerformanceManager.buildPerformanceState(getComponent(viewerEntity, RendererComponent))
   }
 
   getMutableState(ReferenceSpaceState).merge({

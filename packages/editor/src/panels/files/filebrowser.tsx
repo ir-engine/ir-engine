@@ -44,9 +44,7 @@ import {
   useFileBrowserDrop
 } from './helpers'
 import FilesLoaders from './loaders'
-import FilesToolbar from './toolbar'
-
-function Browser() {
+export function Browser() {
   const [anchorEvent, setAnchorEvent] = useState<undefined | React.MouseEvent>(undefined)
   const dropOnFileBrowser = useFileBrowserDrop()
   const filesState = useMutableState(FilesState)
@@ -74,7 +72,7 @@ function Browser() {
 
   useEffect(() => {
     refreshDirectory()
-  }, [thumbnailJobState.length])
+  }, [thumbnailJobState.jobs.length])
 
   const staticResourceDataQuery = useFind(staticResourcePath, {
     query: {
@@ -82,7 +80,7 @@ function Browser() {
         $in: files.map((file) => file.key)
       },
       project: projectName.value,
-      $select: ['key', 'userId', 'stats', 'createdAt'],
+      $select: ['key', 'userId', 'user', 'stats', 'createdAt'],
       $limit: FILES_PAGE_LIMIT
     }
   })
@@ -93,7 +91,7 @@ function Browser() {
     staticResourceDataQuery.data.forEach((data: StaticResourceType) => {
       additionalData[data.key] = {
         createdAt: new Date(data.createdAt).toLocaleString(),
-        author: data.userId || 'iR Starter Content',
+        author: data.user ? data.user.name : 'iR Starter Content',
         statistics: Object.keys({ ...data.stats }).length ? JSON.stringify(data.stats) : ''
       }
     })
@@ -135,7 +133,7 @@ function Browser() {
   const FileItems = () => (
     <>
       {sortedFiles.map((file, idx) => {
-        const backgroundColor = idx % 2 === 0 ? '#111113' : '#191B1F'
+        const backgroundColor = idx % 2 === 0 ? 'bg-surface-1' : 'bg-surface-0'
         return (
           <FileItem
             file={{ ...file, ...staticResourceData.value[file?.key] }}
@@ -149,7 +147,7 @@ function Browser() {
             }}
             key={file.key}
             data-testid="files-panel-file-item"
-            className={`${isListView ? `bg-[${backgroundColor}]` : ''}`}
+            className={`${isListView ? `${backgroundColor}` : ''}`}
           />
         )
       })}
@@ -158,7 +156,7 @@ function Browser() {
 
   return (
     <div
-      className={twMerge('h-full overflow-y-scroll', isFileDropOver ? 'border-2 border-gray-300' : '')}
+      className={twMerge('h-full overflow-y-scroll bg-surface-1', isFileDropOver ? 'border-2 border-gray-300' : '')}
       ref={fileDropRef}
       onContextMenu={(event) => {
         event.preventDefault()
@@ -202,7 +200,6 @@ export default function FileBrowser() {
 
   return (
     <CurrentFilesQueryProvider>
-      <FilesToolbar />
       <FilesLoaders />
       <Browser />
     </CurrentFilesQueryProvider>

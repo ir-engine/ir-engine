@@ -27,7 +27,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuInfo } from 'react-icons/lu'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { ProjectService, ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
 import { useFind } from '@ir-engine/common'
 import { DefaultUpdateSchedule } from '@ir-engine/common/src/interfaces/ProjectPackageJsonType'
@@ -115,7 +115,7 @@ export default function UpdateEngineModal() {
         project.updateType,
         project.updateSchedule
       )
-      PopoverState.showPopupover(
+      ModalState.openModal(
         <AddEditProjectModal
           inputProject={project}
           update={true}
@@ -124,7 +124,7 @@ export default function UpdateEngineModal() {
               set.add(project.name)
               return set
             })
-            PopoverState.hidePopupover()
+            ModalState.closeModal()
           }}
         />
       )
@@ -157,12 +157,12 @@ export default function UpdateEngineModal() {
           }
         })
       )
-      PopoverState.hidePopupover()
+      ModalState.closeModal()
     } catch (err) {
       errors.set(err.message)
     }
     modalProcessing.set(false)
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
   }
 
   useEffect(() => {
@@ -174,7 +174,7 @@ export default function UpdateEngineModal() {
       title={t('admin:components.project.updateEngine')}
       onSubmit={handleSubmit}
       className="w-[50vw]"
-      onClose={PopoverState.hidePopupover}
+      onClose={ModalState.closeModal}
       submitLoading={modalProcessing.value}
     >
       <div className="grid gap-6">
@@ -193,8 +193,7 @@ export default function UpdateEngineModal() {
             position: 'top'
           }}
           positioning={{
-            maxHeight: '200px',
-            direction: 'down'
+            maxHeight: '200px'
           }}
           options={selectCommitTagOptions}
           value={selectedCommitTag.value}
@@ -214,7 +213,7 @@ export default function UpdateEngineModal() {
 
         {updateProjects.value && (
           <>
-            <div className="flex items-center justify-center gap-3 rounded-lg bg-theme-bannerInformative p-4">
+            <div className="flex items-center justify-center gap-3 rounded-lg  p-4">
               <div>
                 <LuInfo className="h-5 w-5 bg-transparent" />
               </div>
@@ -224,7 +223,7 @@ export default function UpdateEngineModal() {
               {projectState.projects.value
                 .filter((project) => project.name !== 'ir-engine/default-project' && project.repositoryPath)
                 .map((project) => (
-                  <div key={project.id} className="border border-theme-primary bg-theme-surfaceInput px-3.5 py-5">
+                  <div key={project.id} className="border   px-3.5 py-5">
                     <Checkbox
                       label={project.name}
                       checked={projectsToUpdate.value.has(project.name)}

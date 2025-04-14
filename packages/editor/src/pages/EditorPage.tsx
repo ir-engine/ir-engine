@@ -39,7 +39,6 @@ export const useStudioEditor = () => {
   const engineReady = useEngineInjection()
 
   useEffect(() => {
-    getMutableState(EngineState).isEditor.set(true)
     getMutableState(EngineState).isEditing.set(true)
   }, [])
 

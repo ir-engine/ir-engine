@@ -29,15 +29,12 @@ import { Navigate } from 'react-router-dom'
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 
-import { PopupMenuState } from '@ir-engine/client-core/src/user/components/UserMenu/PopupMenuService'
 import config from '@ir-engine/common/src/config'
-import { getState, none, useMutableState } from '@ir-engine/hyperflux'
+import { useMutableState } from '@ir-engine/hyperflux'
 
-import { Box, Button } from '@mui/material'
-
-import ProfileMenu from '@ir-engine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import { UserMenus } from '@ir-engine/client-core/src/user/UserUISystem'
-
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
+import ProfileMenu from '@ir-engine/client-core/src/user/menus/ProfileMenu'
+import { ViewerMenuState } from '@ir-engine/client-core/src/util/ViewerMenuState'
 import { useFind } from '@ir-engine/common'
 import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import './index.scss'
@@ -48,24 +45,16 @@ export const HomePage = (): any => {
   const { t } = useTranslation()
   const clientSettingQuery = useFind(clientSettingPath)
   const clientSetting = clientSettingQuery.data[0]
-  const popupMenuState = useMutableState(PopupMenuState)
-  const popupMenu = getState(PopupMenuState)
-  const Panel = popupMenuState.openMenu.value ? popupMenu.menus[popupMenuState.openMenu.value] : null
+  const viewerMenuState = useMutableState(ViewerMenuState)
 
   useEffect(() => {
     const error = new URL(window.location.href).searchParams.get('error')
     if (error) NotificationService.dispatchNotify(error, { variant: 'error' })
-    popupMenuState.openMenu.set(UserMenus.Profile)
-
-    popupMenuState.menus.merge({
-      [UserMenus.Profile]: ProfileMenu
-    })
+    ModalState.openModal(<ProfileMenu />)
+    viewerMenuState.userMenus.profile.set(true)
 
     return () => {
-      popupMenuState.menus.merge({
-        [UserMenus.Profile]: none
-      })
-      popupMenuState.openMenu.set(null)
+      viewerMenuState.userMenus.profile.set(false)
     }
   }, [])
 
@@ -114,16 +103,16 @@ export const HomePage = (): any => {
               </Trans>
             )}
             {Boolean(clientSetting?.homepageLinkButtonEnabled) && (
-              <Button
+              <button
                 className="gradientButton"
                 autoFocus
                 onClick={() => (window.location.href = clientSetting?.homepageLinkButtonRedirect)}
               >
                 {clientSetting?.homepageLinkButtonText}
-              </Button>
+              </button>
             )}
           </div>
-          <Box sx={{ flex: 1 }}>
+          <div style={{ flexGrow: 1 }}>
             <style>
               {`
                 [class*=menu] {
@@ -137,9 +126,7 @@ export const HomePage = (): any => {
                 }
               `}
             </style>
-            {Panel && <Panel {...popupMenu.params} isPopover />}
-            {popupMenuState.openMenu.value !== UserMenus.Profile && <ProfileMenu isPopover />}
-          </Box>
+          </div>
         </div>
         <div className="link-container">
           <div className="link-block">

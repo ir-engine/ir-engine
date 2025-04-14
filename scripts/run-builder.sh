@@ -11,9 +11,19 @@ START_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 mkdir -pv ~/.docker
 cp -v /var/lib/docker/certs/client/* ~/.docker
 touch ./builder-started.txt
-bash ./scripts/setup_aws.sh $EKS_AWS_ACCESS_KEY_ID $EKS_AWS_ACCESS_KEY_SECRET $AWS_REGION $CLUSTER_NAME $EKS_AWS_ROLE_ARN
-npx ts-node --swc scripts/check-db-exists.ts
-npm run prepare-database
+if [ "$DESTINATION_REPO_PROVIDER" = "aws" ]
+then
+  bash ./scripts/setup_aws.sh $EKS_AWS_ACCESS_KEY_ID $EKS_AWS_ACCESS_KEY_SECRET $STORAGE_REGION $CLUSTER_NAME $EKS_AWS_ROLE_ARN
+elif [ "$DESTINATION_REPO_PROVIDER" = "gcp" ]
+then
+  echo "Need to set up GCP"
+  # Insert script for setting up GCP credentials
+  #bash ./scripts/setup_gcp.sh
+fi
+npx ts-node --swc scripts/check-db-exists.ts >check-db-exists-build-logs.txt 2>check-db-exists-build-error.txt || npm run record-build-error -- --service=check-db-exists
+test -s check-db-exists-build-error.txt && npm run record-build-error -- --service=check-db-exists
+npm run prepare-database >prepare-database-core-build-logs.txt 2>prepare-database-core-build-error.txt || npm run record-build-error -- --service=prepare-database-core
+test -s prepare-database-core-build-error.txt && npm run record-build-error -- --service=prepare-database-core
 npm run create-build-status
 BUILDER_RUN=$(tail -1 builder-run.txt)
 npx ts-node --swc scripts/install-projects.js >project-install-build-logs.txt 2>project-install-build-error.txt || npm run record-build-error -- --service=project-install
@@ -24,8 +34,8 @@ mv package-root-build.json package.json
 npm install
 rm package.json
 mv package.jsonmoved package.json
-npm run prepare-database >prepare-database-build-logs.txt 2>prepare-database-build-error.txt || npm run record-build-error -- --service=prepare-database
-test -s prepare-database-build-error.txt && npm run record-build-error -- --service=prepare-database
+npm run prepare-database >prepare-database-projects-build-logs.txt 2>prepare-database-projects-build-error.txt || npm run record-build-error -- --service=prepare-database-projects
+test -s prepare-database-projects-build-error.txt && npm run record-build-error -- --service=prepare-database-projects
 npx ts-node --swc packages/client/scripts/create-env-production.ts >buildenv-build-logs.txt 2>buildenv-build-error.txt || npm run record-build-error -- --service=buildenv
 test -s buildenv-build-error.txt && npm run record-build-error -- --service=buildenv
 if [ -n "$TWA_LINK" ]
@@ -36,11 +46,18 @@ fi
 bash ./scripts/cleanup_builder.sh
 
 
-if [ $PRIVATE_REPO == "true" ]
+if [ "$DESTINATION_REPO_PROVIDER" = "aws" ]
 then
-  aws ecr get-login-password --region $AWS_REGION | docker login -u AWS --password-stdin $DESTINATION_REPO_URL
-else
-  aws ecr-public get-login-password --region us-east-1 | docker login -u AWS --password-stdin $DESTINATION_REPO_URL
+  if [ "$PRIVATE_REPO" = "true" ]
+  then
+    aws ecr get-login-password --region $STORAGE_REGION | docker login -u AWS --password-stdin $DESTINATION_REPO_URL
+  else
+    aws ecr-public get-login-password --region us-east-1 | docker login -u AWS --password-stdin $DESTINATION_REPO_URL
+  fi
+elif [ "$DESTINATION_REPO_PROVIDER" = "gcp" ]
+then
+  echo "Log into Docker with GCP credentials"
+  gcloud auth configure-docker us-central1-docker.pkg.dev --quiet 
 fi
 
 mkdir -p ./project-package-jsons/projects/default-project
@@ -48,101 +65,139 @@ cp packages/projects/default-project/package.json ./project-package-jsons/projec
 find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./project-package-jsons/$(dirname $1) && cp $1 ./project-package-jsons/$(dirname $1)' - '{}' \;
 
 
-if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "s3" ]
+if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ]
 then
   npx ts-node --swc scripts/get-deletable-client-files.ts
 
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME api api $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >api-build-logs.txt 2>api-build-error.txt &
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME client client-serve-static $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >client-build-logs.txt 2>client-build-error.txt &
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME instanceserver instanceserver $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >instanceserver-build-logs.txt 2>instanceserver-build-error.txt &
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME taskserver taskserver $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >taskserver-build-logs.txt 2>taskserver-build-error.txt &
-  #bash ./scripts/build_and_publish_package.sh $RELEASE_NAME testbot testbot $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >testbot-build-logs.txt 2>testbot-build-error.txt && &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME api api $START_TIME $STORAGE_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >api-build-logs.txt 2>api-build-error.txt &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME client client-serve-static $START_TIME $STORAGE_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >client-build-logs.txt 2>client-build-error.txt &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME instanceserver instanceserver $START_TIME $STORAGE_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >instanceserver-build-logs.txt 2>instanceserver-build-error.txt &
+#  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME taskserver taskserver $START_TIME $STORAGE_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >taskserver-build-logs.txt 2>taskserver-build-error.txt &
+  #bash ./scripts/build_and_publish_package.sh $RELEASE_NAME testbot testbot $START_TIME $STORAGE_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >testbot-build-logs.txt 2>testbot-build-error.txt && &
 
-  wait < <(jobs -p)
+  wait $(jobs -p)
 
   npm run record-build-error -- --service=api --isDocker=true
   npm run record-build-error -- --service=client --isDocker=true
   npm run record-build-error -- --service=instanceserver --isDocker=true
-  npm run record-build-error -- --service=taskserver --isDocker=true
+#  npm run record-build-error -- --service=taskserver --isDocker=true
   #npm run record-build-error -- --service=testbot --isDocker=true
 
-  if [ $DESTINATION_REPO_PROVIDER == "aws" ]
+  if [ "$DESTINATION_REPO_PROVIDER" = "aws" ]
   then
     echo "SHOULD PRUNE ECR IMAGES"
-    if [ $PRIVATE_REPO == "true" ]
+    if [ "$PRIVATE_REPO" = "true" ]
     then
       echo "PRUNING PRIVATE REPOS"
-      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-api --region $AWS_REGION --service api --releaseName $RELEASE_NAME
-      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-client --region $AWS_REGION --service client --releaseName $RELEASE_NAME
-      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region $AWS_REGION --service instanceserver --releaseName $RELEASE_NAME
-      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region $AWS_REGION --service taskserver --releaseName $RELEASE_NAME
+      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-api --region $STORAGE_REGION --service api --releaseName $RELEASE_NAME
+      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-client --region $STORAGE_REGION --service client --releaseName $RELEASE_NAME
+      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region $STORAGE_REGION --service instanceserver --releaseName $RELEASE_NAME
+#      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region $STORAGE_REGION --service taskserver --releaseName $RELEASE_NAME
     else
       echo "PRUNING PUBLIC REPOS"
       npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-api --region us-east-1 --service api --releaseName $RELEASE_NAME --public
       npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-client --region us-east-1 --service client --releaseName $RELEASE_NAME --public
-      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region us-east-1 --service instancserver --releaseName $RELEASE_NAME --public
-      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region us-east-1 --service taskserver --releaseName $RELEASE_NAME --public
+      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region us-east-1 --service instanceserver --releaseName $RELEASE_NAME --public
+#      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region us-east-1 --service taskserver --releaseName $RELEASE_NAME --public
     fi
+  elif [ "$DESTINATION_REPO_PROVIDER" = "gcp" ]
+  then
+    echo "PRUNING GCP ARTIFACT REGISTRY REPOS"
+    npx ts-node --swc ./scripts/prune_gcp_ar_images.ts --repoUrl $DESTINATION_REPO_URL --repoName $DESTINATION_REPO_NAME_STEM-api --service api --releaseName $RELEASE_NAME
+    npx ts-node --swc ./scripts/prune_gcp_ar_images.ts --repoUrl $DESTINATION_REPO_URL --repoName $DESTINATION_REPO_NAME_STEM-client --service client --releaseName $RELEASE_NAME
+    npx ts-node --swc ./scripts/prune_gcp_ar_images.ts --repoUrl $DESTINATION_REPO_URL --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --service instanceserver --releaseName $RELEASE_NAME
+#    npx ts-node --swc ./scripts/prune_gcp_ar_images.ts --repoUrl $DESTINATION_REPO_URL --repoName $DESTINATION_REPO_NAME_STEM-taskserver --service taskserver --releaseName $RELEASE_NAME
   fi
 elif [ "$SERVE_CLIENT_FROM_API" = "true" ]
 then
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME api api-client $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >api-build-logs.txt 2>api-build-error.txt &
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME instanceserver instanceserver $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >instanceserver-build-logs.txt 2>instanceserver-build-error.txt &
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME taskserver taskserver $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >taskserver-build-logs.txt 2>taskserver-build-error.txt &
-  #bash ./scripts/build_and_publish_package.sh $RELEASE_NAME testbot testbot $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >testbot-build-logs.txt 2>testbot-build-error.txt && &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME api api-client $START_TIME $STORAGE_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >api-build-logs.txt 2>api-build-error.txt &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME instanceserver instanceserver $START_TIME $STORAGE_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >instanceserver-build-logs.txt 2>instanceserver-build-error.txt &
+#  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME taskserver taskserver $START_TIME $STORAGE_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >taskserver-build-logs.txt 2>taskserver-build-error.txt &
+  #bash ./scripts/build_and_publish_package.sh $RELEASE_NAME testbot testbot $START_TIME $STORAGE_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >testbot-build-logs.txt 2>testbot-build-error.txt && &
 
-  wait < <(jobs -p)
+  wait $(jobs -p)
 
   npm run record-build-error -- --service=api --isDocker=true
   npm run record-build-error -- --service=instanceserver --isDocker=true
-  npm run record-build-error -- --service=taskserver --isDocker=true
+#  npm run record-build-error -- --service=taskserver --isDocker=true
   #npm run record-build-error -- --service=testbot --isDocker=true
 
-  if [ $DESTINATION_REPO_PROVIDER == "aws" ]
+  if [ "$DESTINATION_REPO_PROVIDER" = "aws" ]
   then
     echo "SHOULD PRUNE ECR IMAGES"
-    if [ $PRIVATE_REPO == "true" ]
+    if [ "$PRIVATE_REPO" = "true" ]
     then
       echo "PRUNING PRIVATE REPOS"
-      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-api --region $AWS_REGION --service api --releaseName $RELEASE_NAME
-      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region $AWS_REGION --service instanceserver --releaseName $RELEASE_NAME
-      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region $AWS_REGION --service taskserver --releaseName $RELEASE_NAME
+      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-api --region $STORAGE_REGION --service api --releaseName $RELEASE_NAME
+      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region $STORAGE_REGION --service instanceserver --releaseName $RELEASE_NAME
+#      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region $STORAGE_REGION --service taskserver --releaseName $RELEASE_NAME
     else
       echo "PRUNING PUBLIC REPOS"
       npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-api --region us-east-1 --service api --releaseName $RELEASE_NAME --public
-      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region us-east-1 --service instancserver --releaseName $RELEASE_NAME --public
-      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region us-east-1 --service taskserver --releaseName $RELEASE_NAME --public
+      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region us-east-1 --service instanceserver --releaseName $RELEASE_NAME --public
+#      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region us-east-1 --service taskserver --releaseName $RELEASE_NAME --public
     fi
+  elif [ "$DESTINATION_REPO_PROVIDER" = "gcp" ]
+  then
+    echo "PRUNING GCP ARTIFACT REGISTRY REPOS"
+    npx ts-node --swc ./scripts/prune_gcp_ar_images.ts --repoUrl $DESTINATION_REPO_URL --repoName $DESTINATION_REPO_NAME_STEM-api --service api --releaseName $RELEASE_NAME
+    npx ts-node --swc ./scripts/prune_gcp_ar_images.ts --repoUrl $DESTINATION_REPO_URL --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --service instanceserver --releaseName $RELEASE_NAME
+#    npx ts-node --swc ./scripts/prune_gcp_ar_images.ts --repoUrl $DESTINATION_REPO_URL --repoName $DESTINATION_REPO_NAME_STEM-taskserver --service taskserver --releaseName $RELEASE_NAME
   fi
 else
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME api api $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >api-build-logs.txt 2>api-build-error.txt &
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME client client $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >client-build-logs.txt 2>client-build-error.txt &
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME instanceserver instanceserver $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >instanceserver-build-logs.txt 2>instanceserver-build-error.txt &
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME taskserver taskserver $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >taskserver-build-logs.txt 2>taskserver-build-error.txt &
-  #bash ./scripts/build_and_publish_package.sh $RELEASE_NAME testbot testbot $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >testbot-build-logs.txt 2>testbot-build-error.txt && &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME api api $START_TIME $STORAGE_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >api-build-logs.txt 2>api-build-error.txt &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME client client $START_TIME $STORAGE_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >client-build-logs.txt 2>client-build-error.txt &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME instanceserver instanceserver $START_TIME $STORAGE_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >instanceserver-build-logs.txt 2>instanceserver-build-error.txt &
+#  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME taskserver taskserver $START_TIME $STORAGE_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >taskserver-build-logs.txt 2>taskserver-build-error.txt &
+  #bash ./scripts/build_and_publish_package.sh $RELEASE_NAME testbot testbot $START_TIME $STORAGE_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >testbot-build-logs.txt 2>testbot-build-error.txt && &
 
-  wait < <(jobs -p)
+  wait $(jobs -p)
 
   npm run record-build-error -- --service=api --isDocker=true
   npm run record-build-error -- --service=client --isDocker=true
   npm run record-build-error -- --service=instanceserver --isDocker=true
-  npm run record-build-error -- --service=taskserver --isDocker=true
+#  npm run record-build-error -- --service=taskserver --isDocker=true
   #npm run record-build-error -- --service=testbot --isDocker=true
 
-  if [ $DESTINATION_REPO_PROVIDER == "aws" ]
+  if [ "$DESTINATION_REPO_PROVIDER" = "aws" ]
   then
-    if [ $PRIVATE_REPO == "true" ]
+    if [ $PRIVATE_REPO = "true" ]
     then
-      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-api --region $AWS_REGION --service api --releaseName $RELEASE_NAME
-      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-client --region $AWS_REGION --service client --releaseName $RELEASE_NAME
-      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region $AWS_REGION --service instanceserver --releaseName $RELEASE_NAME
-      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region $AWS_REGION --service taskserver --releaseName $RELEASE_NAME
+      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-api --region $STORAGE_REGION --service api --releaseName $RELEASE_NAME
+      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-client --region $STORAGE_REGION --service client --releaseName $RELEASE_NAME
+      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region $STORAGE_REGION --service instanceserver --releaseName $RELEASE_NAME
+#      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region $STORAGE_REGION --service taskserver --releaseName $RELEASE_NAME
     else
       npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-api --region us-east-1 --service api --releaseName $RELEASE_NAME --public
       npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-client --region us-east-1 --service client --releaseName $RELEASE_NAME --public
-      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region us-east-1 --service instancserver --releaseName $RELEASE_NAME --public
-      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region us-east-1 --service taskserver --releaseName $RELEASE_NAME --public
+      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region us-east-1 --service instanceserver --releaseName $RELEASE_NAME --public
+#      npx ts-node --swc ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region us-east-1 --service taskserver --releaseName $RELEASE_NAME --public
     fi
+  elif [ "$DESTINATION_REPO_PROVIDER" = "gcp" ]
+  then
+    echo "PRUNING GCP ARTIFACT REGISTRY REPOS"
+
+    # Determine suffix based on APP_HOST
+    if [[ "$APP_HOST" =~ "preview" ]] || [[ "$APP_HOST" =~ "mt-stg" ]]; then
+      SUFFIX="mt"
+    elif [[ "$APP_HOST" =~ "mt-rc" ]]; then
+      SUFFIX="-mt-rc"
+    elif [[ "$APP_HOST" =~ "mt-int" ]]; then
+      SUFFIX="-mt-int"
+    elif [[ "$APP_HOST" =~ "mt-qat" ]]; then
+      SUFFIX="-mt-qat"
+    elif [[ "$APP_HOST" =~ "mt" ]]; then
+      SUFFIX="-mt"
+    elif [[ "$APP_HOST" =~ "qat" ]]; then
+      SUFFIX="-qat"
+    else
+      SUFFIX=""
+    fi
+
+    npx ts-node --swc ./scripts/prune_gcp_ar_images.ts --repoUrl $DESTINATION_REPO_URL --repoName $DESTINATION_REPO_NAME_STEM-api-$SUFFIX --packageName $DESTINATION_PACKAGE_NAME_STEM-api --service api --releaseName $RELEASE_NAME
+    npx ts-node --swc ./scripts/prune_gcp_ar_images.ts --repoUrl $DESTINATION_REPO_URL --repoName $DESTINATION_REPO_NAME_STEM-client-$SUFFIX --packageName $DESTINATION_PACKAGE_NAME_STEM-client --service client --releaseName $RELEASE_NAME
+    npx ts-node --swc ./scripts/prune_gcp_ar_images.ts --repoUrl $DESTINATION_REPO_URL --repoName $DESTINATION_REPO_NAME_STEM-instanceserver-$SUFFIX --packageName $DESTINATION_PACKAGE_NAME_STEM-instanceserver --service instanceserver --releaseName $RELEASE_NAME
+#    npx ts-node --swc ./scripts/prune_gcp_ar_images.ts --repoUrl $DESTINATION_REPO_URL --repoName $DESTINATION_REPO_NAME_STEM-taskserver --service taskserver --releaseName $RELEASE_NAME
   fi
 fi
 

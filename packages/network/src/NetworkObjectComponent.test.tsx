@@ -46,7 +46,7 @@ describe('NetworkObjectComponent', () => {
     setComponent(entity, NetworkObjectComponent)
     const networkObjectComponent = getComponent(entity, NetworkObjectComponent)
     networkObjectComponent.networkId = 12 as NetworkId
-    assert(NetworkObjectComponent.networkId[entity] === 12)
+    assert.equal(NetworkObjectComponent.networkId[entity], 12)
   })
 
   it('Sets a NetworkObjectComponent', () => {
@@ -59,17 +59,17 @@ describe('NetworkObjectComponent', () => {
       networkId: 32 as NetworkId
     })
     const networkObjectComponent = getComponent(entity, NetworkObjectComponent)
-    assert(networkObjectComponent.ownerId === 'ownerID')
-    assert(networkObjectComponent.ownerPeer === 'ownerPeer')
-    assert(networkObjectComponent.authorityPeerID === 'authPeerID')
-    assert(networkObjectComponent.networkId === 32)
-    assert(NetworkObjectComponent.networkId[entity] === 32)
+    assert.equal(networkObjectComponent.ownerId, 'ownerID')
+    assert.equal(networkObjectComponent.ownerPeer, 'ownerPeer')
+    assert.equal(networkObjectComponent.authorityPeerID, 'authPeerID')
+    assert.equal(networkObjectComponent.networkId, 32)
+    assert.equal(NetworkObjectComponent.networkId[entity], 32)
 
     const json = NetworkObjectComponent.toJSON(networkObjectComponent)
 
-    assert(json.ownerId === 'ownerID')
-    assert(json.ownerPeer === 'ownerPeer')
-    assert(json.authorityPeerID === 'authPeerID')
-    assert(json.networkId === 32)
+    assert.equal(json.ownerId, 'ownerID')
+    assert.equal(json.ownerPeer, 'ownerPeer')
+    assert.equal(json.authorityPeerID, 'authPeerID')
+    assert.equal(json.networkId, 32)
   })
 })

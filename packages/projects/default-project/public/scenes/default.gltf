@@ -5,15 +5,7 @@
   },
   "scenes": [
     {
-      "nodes": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      ]
+      "nodes": [0, 1, 2, 3, 4, 5, 6]
     }
   ],
   "scene": 0,
@@ -45,7 +37,7 @@
           "boxProjection": true
         },
         "EE_fog": {
-          "type": "linear",
+          "type": "disabled",
           "color": "#FFFFFF",
           "density": 0.005,
           "near": 1,
@@ -68,21 +60,6 @@
         },
         "EE_postprocessing": {
           "effects": {
-            "SSAOEffect": {
-              "isActive": false,
-              "blendFunction": 21,
-              "distanceScaling": true,
-              "depthAwareUpsampling": true,
-              "samples": 16,
-              "rings": 7,
-              "distanceThreshold": 0.125,
-              "distanceFalloff": 0.02,
-              "minRadiusScale": 1,
-              "bias": 0.25,
-              "radius": 0.01,
-              "intensity": 2,
-              "fade": 0.05
-            },
             "SSREffect": {
               "isActive": false,
               "distance": 10,
@@ -311,6 +288,37 @@
               "eskil": false,
               "offset": 0.5,
               "darkness": 0.5
+            },
+            "SMAAEffect": {
+              "isActive": false,
+              "preset": 1,
+              "edgeDetectionMode": 2,
+              "predicationMode": 0
+            },
+            "SSAOEffect": {
+              "isActive": true,
+              "blendFunction": 21,
+              "distanceScaling": true,
+              "depthAwareUpsampling": true,
+              "samples": 9,
+              "rings": 7,
+              "distanceThreshold": 0.97,
+              "distanceFalloff": 0.03,
+              "rangeThreshold": 0.0005,
+              "rangeFalloff": 0.001,
+              "minRadiusScale": 0.1,
+              "luminanceInfluence": 0.7,
+              "bias": 0.025,
+              "radius": 0.1825,
+              "intensity": 1,
+              "fade": 0.01,
+              "resolutionScale": 1,
+              "resolutionX": -1,
+              "resolutionY": -1,
+              "width": -1,
+              "height": -1,
+              "blur": false,
+              "kernelSize": 1
             }
           },
           "enabled": false
@@ -318,7 +326,7 @@
         "EE_render_settings": {
           "primaryLight": "cb045cfd-8daf-4a2b-b764-35625be54a11",
           "csm": true,
-          "cascades": 5,
+          "cascades": 3,
           "toneMapping": 1,
           "toneMappingExposure": 0.8,
           "shadowMapType": 2
@@ -335,24 +343,7 @@
       }
     },
     {
-      "matrix": [
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        2.5,
-        5,
-        1
-      ],
+      "matrix": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 2.5, 5, 1],
       "name": "scene preview camera",
       "extensions": {
         "EE_uuid": "bb362197-f14d-4da7-9c3c-1ed834386423",
@@ -383,22 +374,8 @@
     },
     {
       "matrix": [
-        -1,
-        1.0106430996148606e-15,
-        -1.224646852585167e-16,
-        0,
-        1.0106430996148606e-15,
-        1,
-        1.2246467991473547e-16,
-        0,
-        1.2246468525851686e-16,
-        1.2246467991473532e-16,
-        -1,
-        0,
-        0,
-        0,
-        0,
-        1
+        -1, 1.0106430996148606e-15, -1.224646852585167e-16, 0, 1.0106430996148606e-15, 1, 1.2246467991473547e-16, 0,
+        1.2246468525851686e-16, 1.2246467991473532e-16, -1, 0, 0, 0, 0, 1
       ],
       "name": "spawn point",
       "extensions": {
@@ -423,22 +400,8 @@
     },
     {
       "matrix": [
-        0.8201518642540717,
-        0.2860729507918132,
-        -0.49549287218469207,
-        0,
-        -2.135677357184562e-9,
-        0.866025399522099,
-        0.5000000073825887,
-        0,
-        0.5721458901019657,
-        -0.41007593712366663,
-        0.7102723465203862,
-        0,
-        0,
-        0,
-        0,
-        1
+        0.8201518642540717, 0.2860729507918132, -0.49549287218469207, 0, -2.135677357184562e-9, 0.866025399522099,
+        0.5000000073825887, 0, 0.5721458901019657, -0.41007593712366663, 0.7102723465203862, 0, 0, 0, 0, 1
       ],
       "name": "directional light",
       "extensions": {
@@ -446,7 +409,7 @@
         "EE_directional_light": {
           "color": 16777215,
           "intensity": 1,
-          "cameraFar": 200,
+          "cameraFar": 50,
           "castShadow": true,
           "shadowBias": -0.00001,
           "shadowRadius": 1

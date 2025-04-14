@@ -30,18 +30,20 @@ import { Route, Routes } from 'react-router-dom'
 import '../../engine'
 
 import Debug from '@ir-engine/client-core/src/components/Debug'
-import { useEngineInjection } from '@ir-engine/client-core/src/components/World/EngineHooks'
 import { useBrowserCheck } from '@ir-engine/client-core/src/hooks/useUnsupported'
 import LocationPage from '@ir-engine/client-core/src/world/Location'
 import { useSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { useEngineCanvas } from '@ir-engine/spatial/src/renderer/functions/useEngineCanvas'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 
-import '../mui.styles.scss' /** @todo Remove when MUI is removed */
+import { useEngineInjection } from '@ir-engine/client-core/src/components/World/EngineHooks'
+import { LoadingUISystemState } from '@ir-engine/client-core/src/systems/LoadingUISystem'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import '../styles.scss'
 
 const LocationRoutes = () => {
   const ref = useRef<HTMLElement>(document.body)
+  const ready = useHookstate(getMutableState(LoadingUISystemState).ready).value
 
   useSpatialEngine()
   useEngineCanvas(ref)
@@ -49,16 +51,18 @@ const LocationRoutes = () => {
 
   const projectsLoaded = useEngineInjection()
 
-  if (!projectsLoaded)
-    return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingProjects')} />
-
   return (
-    <Suspense
-      fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingLocation')} />}
-    >
-      <Routes>
-        <Route path=":locationName" element={<LocationPage online />} />
-      </Routes>
+    <Suspense>
+      {projectsLoaded && (
+        <Routes>
+          <Route path=":locationName" element={<LocationPage online />} />
+        </Routes>
+      )}
+      {!ready && (
+        <div className="flex h-dvh w-dvw items-center justify-center bg-white" style={{ zIndex: 1000000 }}>
+          <LoadingView fullScreen animated title={t('common:loader.loadingApp')} titleClassname="text-black" />
+        </div>
+      )}
       <Debug />
     </Suspense>
   )

@@ -24,28 +24,49 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
+import { KHRDracoMeshCompression } from '@gltf-transform/extensions'
 import {
-  ComponentType,
+  Component,
+  ComponentJSONIDMap,
   Entity,
+  EntityTreeComponent,
   EntityUUID,
+  LayerComponent,
+  LayerFunctions,
+  Layers,
   UUIDComponent,
-  UndefinedEntity,
+  deserializeComponent,
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
-  traverseEntityNode,
-  useOptionalComponent
+  hasComponent,
+  iterateEntityNode,
+  removeComponent,
+  setComponent,
+  traverseEntityNode
 } from '@ir-engine/ecs'
-import { NO_PROXY, getState, isClient, startReactor, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, getState, isClient } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { MaterialPrototypeComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { ResourceManager, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
-import { useReferencedResource } from '@ir-engine/spatial/src/resources/resourceHooks'
-import { useEffect } from 'react'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import {
+  MaterialInstanceComponent,
+  MaterialPrototypeDefinitions,
+  MaterialStateComponent
+} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { setupMaterialParameters } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
+import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import {
   AnimationClip,
+  AnimationMixer,
   Bone,
   Box3,
   BufferAttribute,
@@ -54,8 +75,6 @@ import {
   ColorManagement,
   DoubleSide,
   FrontSide,
-  ImageBitmapLoader,
-  ImageLoader,
   InterleavedBuffer,
   InterleavedBufferAttribute,
   InterpolateLinear,
@@ -64,23 +83,46 @@ import {
   LinearMipmapLinearFilter,
   LinearSRGBColorSpace,
   LoaderUtils,
+  LoadingManager,
+  Material,
+  MathUtils,
+  Matrix4,
   Mesh,
-  MeshBasicMaterial,
+  MeshPhysicalMaterial,
   MeshStandardMaterial,
   NumberKeyframeTrack,
+  Object3D,
+  Quaternion,
   QuaternionKeyframeTrack,
   RepeatWrapping,
   SRGBColorSpace,
+  Skeleton,
   SkinnedMesh,
   Sphere,
   Texture,
+  TypedArray,
   Vector2,
   Vector3,
   VectorKeyframeTrack
 } from 'three'
-import { useFile, useTexture } from '../assets/functions/resourceLoaderHooks'
+import { parseStorageProviderURLs } from '../assets/functions/parseSceneJSON'
+import { loadResource, unloadResourcesForEntity } from '../assets/functions/resourceLoaderFunctions'
+import { getTextureAsync } from '../assets/functions/resourceLoaderHooks'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { Loader } from '../assets/loaders/base/Loader'
+import { TextureLoader } from '../assets/loaders/texture/TextureLoader'
+import { AssetCacheState } from '../assets/state/AssetCacheState'
+import { AssetLoaderState } from '../assets/state/AssetLoaderState'
+import { AnimationComponent } from '../avatar/components/AnimationComponent'
+import { SourceID } from '../scene/components/SourceComponent'
+import {
+  MATERIAL_JSON_ID,
+  MATERIAL_PROTOTYPE_JSON_ID,
+  SceneDeltaEntry,
+  SceneDeltaRegistry,
+  SceneDeltaState
+} from '../scene/systems/SceneDeltaState'
+import { GLTFComponent } from './GLTFComponent'
 import {
   ALPHA_MODES,
   ATTRIBUTES,
@@ -90,306 +132,431 @@ import {
   WEBGL_FILTERS,
   WEBGL_TYPE_SIZES,
   WEBGL_WRAPPINGS
-} from '../assets/loaders/gltf/GLTFConstants'
-import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
+} from './GLTFConstants'
+import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
 import {
   GLTFCubicSplineInterpolant,
   GLTFCubicSplineQuaternionInterpolant,
   assignExtrasToUserData,
   getNormalizedComponentScale
-} from '../assets/loaders/gltf/GLTFLoaderFunctions'
-import { GLTFParserOptions, GLTFRegistry, getImageURIMimeType } from '../assets/loaders/gltf/GLTFParser'
-import { KTX2Loader } from '../assets/loaders/gltf/KTX2Loader'
-import { TextureLoader } from '../assets/loaders/texture/TextureLoader'
-import { AssetLoaderState } from '../assets/state/AssetLoaderState'
-import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
-import { KHRTextureTransformExtensionComponent, MaterialDefinitionComponent } from './MaterialDefinitionComponent'
+} from './GLTFLoaderUtils'
+import { KHRTextureTransformExtensionComponent, KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
+import { NodeID, NodeIDComponent } from './NodeIDComponent'
+import { SCENE_DELTA_EXTENSION_NAME } from './SceneDeltaExporterExtension'
 
-// todo make this a state
-const cache = new GLTFRegistry()
-
-const useLoadPrimitives = (options: GLTFParserOptions, nodeIndex: number) => {
-  const finalGeometry = useHookstate(null as BufferGeometry | null)
-  const json = options.document
-  const node = json.nodes![nodeIndex]
-  const mesh = json.meshes![node.mesh!]
-
-  const geometries = mesh.primitives.map(
-    (primitive, index) => GLTFLoaderFunctions.useLoadPrimitive(options, nodeIndex, index)!
-  )
-
-  useEffect(() => {
-    if (geometries.some((geometry) => !geometry) || finalGeometry.value) return
-    if (geometries.length > 1) {
-      let needsTangentRecalculation = false
-      for (let i = 0; i < geometries.length; i++) {
-        geometries[i].deleteAttribute('tangent')
-        if (geometries[i].attributes.tangent) needsTangentRecalculation = true
-      }
-
-      const newGeometry = mergeBufferGeometries(geometries, true)
-      if (needsTangentRecalculation) newGeometry?.computeTangents()
-
-      for (let i = 0; i < mesh.primitives.length; i++)
-        newGeometry!.groups[i].materialIndex = mesh.primitives[i].material!
-
-      finalGeometry.set(newGeometry)
-    } else {
-      finalGeometry.set(geometries[0])
-    }
-  }, [geometries])
-
-  return finalGeometry.get(NO_PROXY) as BufferGeometry | null
+type ComponentExt = Component & {
+  loadNode?: (options: GLTFParserOptions, nodeIndex: number) => Promise<void>
+  getMaterialType?: (materialDef: GLTF.IMaterial) => any
+  extendMaterialParams?: (
+    options: GLTFParserOptions,
+    materialParams: any,
+    materialDef: GLTF.IMaterial,
+    materialIndex: number
+  ) => Promise<void>
 }
 
-const useLoadPrimitive = (options: GLTFParserOptions, nodeIndex: number, primitiveIndex: number) => {
-  const [result] = useReferencedResource(() => null as null | BufferGeometry, options.url)
+export function getImageURIMimeType(uri) {
+  if (uri.search(/\.jpe?g($|\?)/i) > 0 || uri.search(/^data:image\/jpeg/) === 0) return 'image/jpeg'
+  if (uri.search(/\.webp($|\?)/i) > 0 || uri.search(/^data:image\/webp/) === 0) return 'image/webp'
 
+  return 'image/png'
+}
+
+const assignFinalMaterial = (primitiveDef: GLTF.IMeshPrimitive, material: MeshPhysicalMaterial) => {
+  const useDerivativeTangents = primitiveDef.attributes.TANGENT === undefined
+  const useVertexColors = primitiveDef.attributes.COLOR_0 !== undefined
+  const useFlatShading = primitiveDef.attributes.NORMAL === undefined
+
+  if (useVertexColors) material.vertexColors = true
+  if (useFlatShading) material.flatShading = true
+
+  if (useDerivativeTangents) {
+    if (material.normalScale) material.normalScale.y *= -1
+    if (material.clearcoatNormalScale) material.clearcoatNormalScale.y *= -1
+  }
+
+  material.needsUpdate = true
+}
+
+const loadPrimitives = async (
+  options: GLTFParserOptions,
+  meshIndex: number
+): Promise<[BufferGeometry, Material | Material[]]> => {
   const json = options.document
-  const node = json.nodes![nodeIndex]!
-  const mesh = json.meshes![node.mesh!]
+  const mesh = json.meshes![meshIndex]
 
-  const primitive = mesh.primitives[primitiveIndex]
+  const primitives = await Promise.all(
+    mesh.primitives.map((primitive, index) => GLTFLoaderFunctions.loadPrimitive(options, meshIndex, index))
+  )
 
-  const hasDracoCompression = primitive.extensions && primitive.extensions[EXTENSIONS.KHR_DRACO_MESH_COMPRESSION]
+  if (primitives.length > 1) {
+    let needsTangentRecalculation = false
+    for (const [geometry] of primitives) {
+      if (geometry.attributes.tangent) needsTangentRecalculation = true
+      geometry.deleteAttribute('tangent')
+    }
 
-  useEffect(() => {
-    if (ColorManagement.workingColorSpace !== LinearSRGBColorSpace && 'COLOR_0' in primitive.attributes) {
-      console.warn(
-        `THREE.GLTFLoader: Converting vertex colors from "srgb-linear" to "${ColorManagement.workingColorSpace}" not supported.`
+    const newGeometry = mergeBufferGeometries(
+      primitives.map(([geometry]) => geometry),
+      true
+    )!
+    if (needsTangentRecalculation) newGeometry?.computeTangents()
+
+    return [newGeometry, primitives.map(([, material]) => material)]
+  } else {
+    return primitives[0]
+  }
+}
+
+const loadPrimitive = async (
+  options: GLTFParserOptions,
+  meshIndex: number,
+  primitiveIndex: number
+): Promise<[BufferGeometry, Material]> => {
+  const json = options.document
+  const mesh = json.meshes![meshIndex]
+
+  const primitiveDef = mesh.primitives[primitiveIndex]
+  const materialIndex = primitiveDef.material
+
+  let materialPromise: Promise<Material | MeshPhysicalMaterial>
+
+  if (typeof materialIndex === 'number') {
+    materialPromise = getDependency(options, 'material', materialIndex)
+  } else {
+    materialPromise = Promise.resolve(MaterialStateComponent.fallbackMaterial())
+  }
+
+  const hasDracoCompression =
+    primitiveDef.extensions && (primitiveDef.extensions['KHR_draco_mesh_compression'] as KHRDracoMeshCompression)
+
+  if (ColorManagement.workingColorSpace !== LinearSRGBColorSpace && 'COLOR_0' in primitiveDef.attributes) {
+    console.warn(
+      `THREE.GLTFLoader: Converting vertex colors from "srgb-linear" to "${ColorManagement.workingColorSpace}" not supported.`
+    )
+  }
+
+  if (hasDracoCompression) {
+    return new Promise((resolve) => {
+      KHR_DRACO_MESH_COMPRESSION.decodePrimitive(options, primitiveDef).then((geom) => {
+        GLTFLoaderFunctions.computeBounds(json, geom, primitiveDef)
+        assignExtrasToUserData(geom, primitiveDef)
+        materialPromise.then((material) => {
+          assignFinalMaterial(primitiveDef, material as MeshPhysicalMaterial)
+          resolve([geom, material])
+        })
+      })
+    })
+  } else {
+    const geometry = new BufferGeometry()
+
+    const attributes = primitiveDef.attributes
+
+    const promises = [] as Promise<void>[]
+
+    for (const attributeName in attributes) {
+      const threeAttributeName = ATTRIBUTES[attributeName] || attributeName.toLowerCase()
+      // Skip attributes already provided by e.g. Draco extension.
+      if (threeAttributeName in geometry.attributes) continue
+      const attribute = primitiveDef.attributes[attributeName]
+      promises.push(
+        new Promise<void>((resolve) => {
+          getDependency(options, 'accessor', attribute).then((accessor) => {
+            if (accessor) {
+              geometry.setAttribute(threeAttributeName, accessor)
+            }
+            resolve()
+          })
+        })
       )
     }
 
-    if (hasDracoCompression) {
-      KHR_DRACO_MESH_COMPRESSION.decodePrimitive(options, primitive).then((geom) => {
-        GLTFLoaderFunctions.computeBounds(json, geom, primitive)
-        assignExtrasToUserData(geom, primitive as GLTF.IMeshPrimitive)
-        result.set(geom)
-      })
-    } else {
-      const geometry = new BufferGeometry()
-
-      /** @todo we need to figure out a better way of handling reactivity for both draco and regular buffers */
-      const reactor = startReactor(() => {
-        const attributes = primitive.attributes
-        const resourcesState = useHookstate(
-          () =>
-            ({
-              ...Object.fromEntries(Object.keys(attributes).map((key) => [key, false])),
-              index: false
-            }) as Record<string, boolean>
-        )
-
-        for (const attributeName of Object.keys(attributes)) {
-          const threeAttributeName = ATTRIBUTES[attributeName] || attributeName.toLowerCase()
-          const attribute = primitive.attributes[attributeName]
-          const accessor = GLTFLoaderFunctions.useLoadAccessor(options, attribute)
-          useEffect(() => {
-            if (!accessor) return
-            geometry.setAttribute(threeAttributeName, accessor)
-            resourcesState[attributeName].set(true)
-          }, [accessor])
-        }
-
-        const accessor = GLTFLoaderFunctions.useLoadAccessor(options, primitive.indices!)
-
-        useEffect(() => {
-          if (!accessor) return
-          geometry.setIndex(accessor)
-          resourcesState.index.set(true)
-        }, [accessor])
-
-        useEffect(() => {
-          const attributeCount = Object.keys(attributes).length
-          const resourcesLoaded = Object.values(resourcesState.get(NO_PROXY)).filter(Boolean).length
-          if (resourcesLoaded !== attributeCount + (typeof primitive.indices === 'number' ? 1 : 0)) return
-
-          GLTFLoaderFunctions.computeBounds(json, geometry, primitive)
-          assignExtrasToUserData(geometry, primitive as GLTF.IMeshPrimitive)
-          result.set(geometry)
-          reactor.stop()
-        }, [resourcesState])
-
-        return null
-      })
-      return () => {
-        reactor.stop()
-      }
+    if (typeof primitiveDef.indices === 'number') {
+      promises.push(
+        new Promise<void>((resolve) => {
+          getDependency(options, 'accessor', primitiveDef.indices!).then((accessor) => {
+            if (accessor) {
+              geometry.setIndex(accessor as BufferAttribute)
+            }
+            resolve()
+          })
+        })
+      )
     }
-  }, [primitive.extensions])
-
-  return result.get(NO_PROXY) as BufferGeometry | null
+    GLTFLoaderFunctions.computeBounds(json, geometry, primitiveDef)
+    assignExtrasToUserData(geometry, primitiveDef)
+    const [material] = await Promise.all([materialPromise, Promise.all(promises)])
+    assignFinalMaterial(primitiveDef, material as MeshPhysicalMaterial)
+    if (primitiveDef.targets) await addMorphTargets(options, geometry, primitiveDef.targets)
+    return [geometry, material]
+  }
 }
 
-const useLoadAccessor = (options: GLTFParserOptions, accessorIndex?: number) => {
-  const json = options.document
+const addMorphTargets = async (
+  options: GLTFParserOptions,
+  geometry: BufferGeometry,
+  targets: GLTF.IMeshPrimitive['targets']
+) => {
+  let hasMorphPosition = false
+  let hasMorphNormal = false
+  let hasMorphColor = false
 
-  const result = useHookstate<BufferAttribute | null>(null)
+  if (!targets) return Promise.resolve()
 
-  const accessorDef = typeof accessorIndex === 'number' ? json.accessors![accessorIndex] : null
+  for (let i = 0, il = targets.length; i < il; i++) {
+    const target = targets[i]
 
-  const bufferView = GLTFLoaderFunctions.useLoadBufferView(options, accessorDef?.bufferView)
+    if (target.POSITION !== undefined) hasMorphPosition = true
+    if (target.NORMAL !== undefined) hasMorphNormal = true
+    if (target.COLOR_0 !== undefined) hasMorphColor = true
 
-  const sparseBufferViewIndices = GLTFLoaderFunctions.useLoadBufferView(
-    options,
-    accessorDef?.sparse?.indices?.bufferView
-  )
-  const sparseBufferViewValues = GLTFLoaderFunctions.useLoadBufferView(options, accessorDef?.sparse?.values?.bufferView)
+    if (hasMorphPosition && hasMorphNormal && hasMorphColor) break
+  }
 
-  useEffect(() => {
-    if (!accessorDef || !bufferView) return
+  if (!hasMorphPosition && !hasMorphNormal && !hasMorphColor) return Promise.resolve()
 
-    if (accessorDef.bufferView === undefined && accessorDef.sparse === undefined) {
-      const itemSize = WEBGL_TYPE_SIZES[accessorDef.type]
-      const TypedArray = WEBGL_COMPONENT_TYPES[accessorDef.componentType]
-      const normalized = accessorDef.normalized === true
+  const pendingPositionAccessors = [] as Promise<BufferAttribute | InterleavedBufferAttribute>[]
+  const pendingNormalAccessors = [] as Promise<BufferAttribute | InterleavedBufferAttribute>[]
+  const pendingColorAccessors = [] as Promise<BufferAttribute | InterleavedBufferAttribute>[]
 
-      const array = new TypedArray(accessorDef.count * itemSize)
-      result.set(new BufferAttribute(array, itemSize, normalized))
-      return
+  for (let i = 0, il = targets.length; i < il; i++) {
+    const target = targets[i]
+
+    if (hasMorphPosition) {
+      const pendingAccessor =
+        target.POSITION !== undefined
+          ? getDependency(options, 'accessor', target.POSITION)
+          : Promise.resolve(geometry.attributes.position)
+
+      pendingPositionAccessors.push(pendingAccessor)
     }
 
-    if (typeof accessorDef.bufferView === 'number' && !bufferView) return
-    if (accessorDef.sparse && !sparseBufferViewIndices && !sparseBufferViewValues) return
+    if (hasMorphNormal) {
+      const pendingAccessor =
+        target.NORMAL !== undefined
+          ? getDependency(options, 'accessor', target.NORMAL)
+          : Promise.resolve(geometry.attributes.normal)
 
+      pendingNormalAccessors.push(pendingAccessor)
+    }
+
+    if (hasMorphColor) {
+      const pendingAccessor =
+        target.COLOR_0 !== undefined
+          ? getDependency(options, 'accessor', target.COLOR_0)
+          : Promise.resolve(geometry.attributes.color)
+
+      pendingColorAccessors.push(pendingAccessor)
+    }
+  }
+
+  const [morphPositions, morphNormals, morphColors] = await Promise.all([
+    Promise.all(pendingPositionAccessors),
+    Promise.all(pendingNormalAccessors),
+    Promise.all(pendingColorAccessors)
+  ])
+
+  if (hasMorphPosition) geometry.morphAttributes.position = morphPositions
+  if (hasMorphNormal) geometry.morphAttributes.normal = morphNormals
+  if (hasMorphColor) geometry.morphAttributes.color = morphColors
+  geometry.morphTargetsRelative = true
+}
+
+function updateMorphTargets(mesh: Mesh, meshDef: GLTF.IMesh) {
+  mesh.updateMorphTargets()
+
+  if (meshDef.weights !== undefined) {
+    for (let i = 0, il = meshDef.weights.length; i < il; i++) {
+      mesh.morphTargetInfluences![i] = meshDef.weights[i]
+    }
+  }
+
+  // .extras has user-defined data, so check that .extras.targetNames is an array.
+  if (meshDef.extras && Array.isArray(meshDef.extras.targetNames)) {
+    const targetNames = meshDef.extras.targetNames
+
+    if (mesh.morphTargetInfluences!.length === targetNames.length) {
+      mesh.morphTargetDictionary = {}
+
+      for (let i = 0, il = targetNames.length; i < il; i++) {
+        mesh.morphTargetDictionary[targetNames[i]] = i
+      }
+    } else {
+      console.warn('THREE.GLTFLoader: Invalid extras.targetNames length. Ignoring names.')
+    }
+  }
+}
+
+const interleavedBufferCache = {} as Record<string, Record<string, InterleavedBuffer>>
+
+const loadAccessor = async (options: GLTFParserOptions, accessorIndex: number) => {
+  const json = options.document
+
+  const accessorDef = json.accessors![accessorIndex]
+
+  if (accessorDef.bufferView === undefined && accessorDef.sparse === undefined) {
     const itemSize = WEBGL_TYPE_SIZES[accessorDef.type]
     const TypedArray = WEBGL_COMPONENT_TYPES[accessorDef.componentType]
-
-    // For VEC3: itemSize is 3, elementBytes is 4, itemBytes is 12.
-    const elementBytes = TypedArray.BYTES_PER_ELEMENT
-    const itemBytes = elementBytes * itemSize
-    const byteOffset = accessorDef.byteOffset || 0
-    const byteStride =
-      accessorDef.bufferView !== undefined ? json.bufferViews![accessorDef.bufferView].byteStride : undefined
     const normalized = accessorDef.normalized === true
-    let array, bufferAttribute
 
-    // The buffer is not interleaved if the stride is the item size in bytes.
-    if (byteStride && byteStride !== itemBytes) {
-      // Each "slice" of the buffer, as defined by 'count' elements of 'byteStride' bytes, gets its own InterleavedBuffer
-      // This makes sure that IBA.count reflects accessor.count properly
-      const ibSlice = Math.floor(byteOffset / byteStride)
-      const ibCacheKey =
-        'InterleavedBuffer:' +
-        accessorDef.bufferView +
-        ':' +
-        accessorDef.componentType +
-        ':' +
-        ibSlice +
-        ':' +
-        accessorDef.count
-      let ib = cache.get(ibCacheKey)
+    const array = new TypedArray(accessorDef.count * itemSize)
+    return Promise.resolve(new BufferAttribute(array, itemSize, normalized))
+  }
 
-      if (!ib) {
-        array = new TypedArray(bufferView!, ibSlice * byteStride, (accessorDef.count * byteStride) / elementBytes)
+  const pendingBufferViews = [] as Promise<ArrayBuffer | null>[]
 
-        // Integer parameters to IB/IBA are in array elements, not bytes.
-        ib = new InterleavedBuffer(array, byteStride / elementBytes)
+  if (typeof accessorDef.bufferView === 'number') {
+    pendingBufferViews.push(getDependency(options, 'bufferView', accessorDef.bufferView))
+  } else {
+    pendingBufferViews.push(Promise.resolve(null))
+  }
 
-        cache.add(ibCacheKey, ib)
-      }
+  if (typeof accessorDef.sparse === 'object') {
+    pendingBufferViews.push(getDependency(options, 'bufferView', accessorDef.sparse.indices.bufferView))
+    pendingBufferViews.push(getDependency(options, 'bufferView', accessorDef.sparse.values.bufferView))
+  }
 
-      bufferAttribute = new InterleavedBufferAttribute(
-        ib,
-        itemSize,
-        (byteOffset % byteStride) / elementBytes,
-        normalized
-      )
+  const [bufferView, sparseBufferViewIndices, sparseBufferViewValues] = await Promise.all(pendingBufferViews)
+
+  const itemSize = WEBGL_TYPE_SIZES[accessorDef.type]
+  const TypedArray = WEBGL_COMPONENT_TYPES[accessorDef.componentType]
+
+  // For VEC3: itemSize is 3, elementBytes is 4, itemBytes is 12.
+  const elementBytes = TypedArray.BYTES_PER_ELEMENT
+  const itemBytes = elementBytes * itemSize
+  const byteOffset = accessorDef.byteOffset ?? 0
+  const byteStride =
+    accessorDef.bufferView !== undefined ? json.bufferViews![accessorDef.bufferView].byteStride : undefined
+  const normalized = accessorDef.normalized === true
+  let array: TypedArray, bufferAttribute: BufferAttribute | InterleavedBufferAttribute
+
+  // The buffer is not interleaved if the stride is the item size in bytes.
+  if (byteStride && byteStride !== itemBytes) {
+    // Each "slice" of the buffer, as defined by 'count' elements of 'byteStride' bytes, gets its own InterleavedBuffer
+    // This makes sure that IBA.count reflects accessor.count properly
+    const ibSlice = Math.floor(byteOffset / byteStride)
+    const ibCacheKey =
+      'InterleavedBuffer:' +
+      accessorDef.bufferView +
+      ':' +
+      accessorDef.componentType +
+      ':' +
+      ibSlice +
+      ':' +
+      accessorDef.count
+    if (!interleavedBufferCache[options.url]) interleavedBufferCache[options.url] = {}
+    const cache = interleavedBufferCache[options.url]
+    let ib = cache[ibCacheKey]
+
+    if (!ib) {
+      array = new TypedArray(bufferView!, ibSlice * byteStride, (accessorDef.count * byteStride) / elementBytes)
+
+      // Integer parameters to IB/IBA are in array elements, not bytes.
+      ib = new InterleavedBuffer(array, byteStride / elementBytes)
+
+      cache[ibCacheKey] = ib
+    }
+
+    bufferAttribute = new InterleavedBufferAttribute(ib, itemSize, (byteOffset % byteStride) / elementBytes, normalized)
+  } else {
+    if (bufferView === null) {
+      array = new TypedArray(accessorDef.count * itemSize)
     } else {
-      if (bufferView === null) {
-        array = new TypedArray(accessorDef.count * itemSize)
-      } else {
-        array = new TypedArray(bufferView, byteOffset, accessorDef.count * itemSize)
-      }
-
-      bufferAttribute = new BufferAttribute(array, itemSize, normalized)
+      array = new TypedArray(bufferView, byteOffset, accessorDef.count * itemSize)
     }
 
-    // https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#sparse-accessors
-    if (accessorDef.sparse !== undefined) {
-      const itemSizeIndices = WEBGL_TYPE_SIZES.SCALAR
-      const TypedArrayIndices = WEBGL_COMPONENT_TYPES[accessorDef.sparse.indices.componentType]
+    bufferAttribute = new BufferAttribute(array, itemSize, normalized)
+  }
 
-      const byteOffsetIndices = accessorDef.sparse.indices.byteOffset || 0
-      const byteOffsetValues = accessorDef.sparse.values.byteOffset || 0
+  // https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#sparse-accessors
+  if (accessorDef.sparse !== undefined) {
+    const itemSizeIndices = WEBGL_TYPE_SIZES.SCALAR
+    const TypedArrayIndices = WEBGL_COMPONENT_TYPES[accessorDef.sparse.indices.componentType]
 
-      const sparseIndices = new TypedArrayIndices(
-        sparseBufferViewIndices!,
-        byteOffsetIndices,
-        accessorDef.sparse.count * itemSizeIndices
+    const byteOffsetIndices = accessorDef.sparse.indices.byteOffset ?? 0
+    const byteOffsetValues = accessorDef.sparse.values.byteOffset ?? 0
+
+    const sparseIndices = new TypedArrayIndices(
+      sparseBufferViewIndices!,
+      byteOffsetIndices,
+      accessorDef.sparse.count * itemSizeIndices
+    )
+    const sparseValues = new TypedArray(sparseBufferViewValues!, byteOffsetValues, accessorDef.sparse.count * itemSize)
+
+    if (bufferView !== null) {
+      // Avoid modifying the original ArrayBuffer, if the bufferView wasn't initialized with zeroes.
+      bufferAttribute = new BufferAttribute(
+        bufferAttribute.array.slice(),
+        bufferAttribute.itemSize,
+        bufferAttribute.normalized
       )
-      const sparseValues = new TypedArray(
-        sparseBufferViewValues!,
-        byteOffsetValues,
-        accessorDef.sparse.count * itemSize
-      )
-
-      if (bufferView !== null) {
-        // Avoid modifying the original ArrayBuffer, if the bufferView wasn't initialized with zeroes.
-        bufferAttribute = new BufferAttribute(
-          bufferAttribute.array.slice(),
-          bufferAttribute.itemSize,
-          bufferAttribute.normalized
-        )
-      }
-
-      for (let i = 0, il = sparseIndices.length; i < il; i++) {
-        const index = sparseIndices[i]
-
-        bufferAttribute.setX(index, sparseValues[i * itemSize])
-        if (itemSize >= 2) bufferAttribute.setY(index, sparseValues[i * itemSize + 1])
-        if (itemSize >= 3) bufferAttribute.setZ(index, sparseValues[i * itemSize + 2])
-        if (itemSize >= 4) bufferAttribute.setW(index, sparseValues[i * itemSize + 3])
-        if (itemSize >= 5) throw new Error('THREE.GLTFLoader: Unsupported itemSize in sparse BufferAttribute.')
-      }
     }
 
-    result.set(bufferAttribute)
-  }, [bufferView, sparseBufferViewIndices, sparseBufferViewValues])
+    for (let i = 0, il = sparseIndices.length; i < il; i++) {
+      const index = sparseIndices[i]
 
-  return result.get(NO_PROXY)
+      bufferAttribute.setX(index, sparseValues[i * itemSize])
+      if (itemSize >= 2) bufferAttribute.setY(index, sparseValues[i * itemSize + 1])
+      if (itemSize >= 3) bufferAttribute.setZ(index, sparseValues[i * itemSize + 2])
+      if (itemSize >= 4) bufferAttribute.setW(index, sparseValues[i * itemSize + 3])
+      if (itemSize >= 5) throw new Error('THREE.GLTFLoader: Unsupported itemSize in sparse BufferAttribute.')
+    }
+  }
+
+  return bufferAttribute
 }
 
-const useLoadBufferView = (options: GLTFParserOptions, bufferViewIndex?: number) => {
-  const result = useHookstate<ArrayBuffer | null>(null)
-
+const loadBufferView = async (options: GLTFParserOptions, bufferViewIndex: number) => {
   const [bufferIndex, callback] = getBufferIndex(options, bufferViewIndex)
 
-  const buffer = GLTFLoaderFunctions.useLoadBuffer(options, bufferIndex)
+  const buffer = await GLTFLoaderFunctions.loadBuffer(options, bufferIndex)
+  if (!buffer) return null
 
-  useEffect(() => {
-    if (!buffer) return result.set(null)
-    callback(buffer).then((buffer) => result.set(buffer))
-  }, [buffer])
-
-  return result.get(NO_PROXY) as ArrayBuffer | null
+  return callback(buffer)
 }
 
-const useLoadBuffer = (options: GLTFParserOptions, bufferIndex) => {
+const loadBuffer = async (options: GLTFParserOptions, bufferIndex: number) => {
   const json = options.document
-  const loader = useHookstate(() => {
-    const fileLoader = new FileLoader(options.manager)
-    fileLoader.setResponseType('arraybuffer')
-    return fileLoader
+  const bufferDef = json.buffers![bufferIndex]
+
+  if (bufferDef.type && bufferDef.type !== 'arraybuffer') {
+    throw new Error('THREE.GLTFLoader: ' + bufferDef.type + ' buffer type is not supported.')
+  }
+
+  const cache = DependencyCache.get(options.url)
+  if (bufferDef.uri && cache?.has(bufferDef.uri)) {
+    return cache.get(bufferDef.uri) as Promise<ArrayBuffer>
+  }
+
+  if (bufferDef.uri === undefined && bufferIndex === 0) {
+    return Promise.resolve(options.body)
+  }
+
+  const loader = new FileLoader(options.manager)
+  loader.setResponseType('arraybuffer')
+
+  const bufferPromise = new Promise<ArrayBuffer>(function (resolve, reject) {
+    const url = LoaderUtils.resolveURL(bufferDef.uri!, options.path)
+    loadResource<ArrayBuffer>(
+      url,
+      ResourceType.ArrayBuffer,
+      options.entity, // the GLTF entity
+      (response) => {
+        resolve(response)
+      },
+      (request) => {
+        //
+      },
+      (err) => {
+        reject(new Error('GLTFLoaderFunctions: Failed to load buffer "' + bufferDef.uri + '".'))
+      },
+      null!, // controller.signal,
+      loader
+    )
   })
 
-  const bufferDef = typeof bufferIndex === 'number' ? json.buffers![bufferIndex] : null
-  const [result] = useFile(
-    bufferDef?.uri ? LoaderUtils.resolveURL(bufferDef.uri, options.path) : '',
-    UndefinedEntity,
-    () => {},
-    loader.value
-  )
-
-  useEffect(() => {
-    if (!bufferDef) return
-
-    if (bufferDef.type && bufferDef.type !== 'arraybuffer') {
-      console.warn('THREE.GLTFLoader: ' + bufferDef.type + ' buffer type is not supported.')
-    }
-  }, [bufferDef?.type])
-
-  return !bufferDef || (bufferDef.uri === undefined && bufferIndex === 0) ? options.body : result
+  bufferDef.uri && cache?.set(bufferDef.uri, bufferPromise)
+  return bufferPromise
 }
 
 export function computeBounds(json: GLTF.IGLTF, geometry: BufferGeometry, primitiveDef: GLTF.IMeshPrimitive) {
@@ -479,278 +646,304 @@ export function computeBounds(json: GLTF.IGLTF, geometry: BufferGeometry, primit
  * @param {number} materialIndex
  * @return {Promise<Material>}
  */
-const useLoadMaterial = (
-  options: GLTFParserOptions,
-  materialDef: ComponentType<typeof MaterialDefinitionComponent>
-) => {
-  const [result] = useReferencedResource(() => null as null | MeshStandardMaterial | MeshBasicMaterial, options.url)
-
-  useEffect(() => {
-    /** @todo refactor this into a proper registry, rather than prototype definition entities */
-    const materialPrototypeEntity = NameComponent.entitiesByName[materialDef.type]?.[0]
-    const materialPrototype = materialPrototypeEntity
-      ? (getComponent(materialPrototypeEntity, MaterialPrototypeComponent).prototypeConstructor as any)[
-          materialDef.type
-        ]
-      : null
-    const materialConstructor = materialPrototype ?? MeshStandardMaterial
-    const material = new materialConstructor()
-    assignExtrasToUserData(material, materialDef)
-
-    /** @todo */
-    // parser.associations.set(material, { materials: materialIndex })
-
-    // if (materialDef.extensions) addUnknownExtensionsToUserData(GLTFExtensions, material, materialDef)
-
-    result.set(material)
-  }, [materialDef.type])
-
-  const material = result.get(NO_PROXY) as null | MeshStandardMaterial | MeshBasicMaterial
-  const map = GLTFLoaderFunctions.useAssignTexture(options, materialDef.pbrMetallicRoughness?.baseColorTexture)
-
-  useEffect(() => {
-    if (!map) return
-    map.colorSpace = SRGBColorSpace
-    material?.setValues({ map })
-    if (material) material.needsUpdate = true
-  }, [material, map])
-
-  useEffect(() => {
-    if (Array.isArray(materialDef.pbrMetallicRoughness?.baseColorFactor)) {
-      const array = materialDef.pbrMetallicRoughness.baseColorFactor
-      material?.setValues({
-        color: new Color().setRGB(array[0], array[1], array[2], LinearSRGBColorSpace),
-        opacity: array[3]
-      })
-      if (material) material.needsUpdate = true
-    }
-  }, [material, materialDef.pbrMetallicRoughness?.baseColorFactor])
-
-  useEffect(() => {
-    material?.setValues({
-      metalness:
-        materialDef.pbrMetallicRoughness?.metallicFactor !== undefined
-          ? materialDef.pbrMetallicRoughness.metallicFactor
-          : 1.0
-    })
-    if (material) material.needsUpdate = true
-  }, [material, materialDef.pbrMetallicRoughness?.metallicFactor])
-
-  useEffect(() => {
-    material?.setValues({
-      roughness:
-        materialDef.pbrMetallicRoughness?.roughnessFactor !== undefined
-          ? materialDef.pbrMetallicRoughness.roughnessFactor
-          : 1.0
-    })
-    if (material) material.needsUpdate = true
-  }, [material, materialDef.pbrMetallicRoughness?.roughnessFactor])
-
-  const metalnessMap = GLTFLoaderFunctions.useAssignTexture(
-    options,
-    materialDef.type === 'MeshBasicMaterial' ? undefined : materialDef.pbrMetallicRoughness?.metallicRoughnessTexture
-  )
-
-  useEffect(() => {
-    if (!metalnessMap) return
-    material?.setValues({ metalnessMap })
-    if (material) material.needsUpdate = true
-  }, [material, metalnessMap])
-
-  const roughnessMap = GLTFLoaderFunctions.useAssignTexture(
-    options,
-    materialDef.type === 'MeshBasicMaterial' ? undefined : materialDef.pbrMetallicRoughness?.metallicRoughnessTexture
-  )
-
-  useEffect(() => {
-    if (!roughnessMap) return
-    material?.setValues({ roughnessMap })
-    if (material) material.needsUpdate = true
-  }, [material, roughnessMap])
-
-  useEffect(() => {
-    material?.setValues({ side: materialDef.doubleSided === true ? DoubleSide : FrontSide })
-    if (material) material.needsUpdate = true
-  }, [material, materialDef.doubleSided])
-
-  useEffect(() => {
-    const alphaMode = materialDef.alphaMode || ALPHA_MODES.OPAQUE
-    material?.setValues({ transparent: alphaMode === ALPHA_MODES.BLEND })
-
-    // See: https://github.com/mrdoob/three.js/issues/17706
-    if (alphaMode === ALPHA_MODES.BLEND) {
-      material?.setValues({ depthWrite: false })
-    }
-    if (material) material.needsUpdate = true
-  }, [material, materialDef.alphaMode])
-
-  useEffect(() => {
-    if (materialDef.alphaMode === ALPHA_MODES.MASK) {
-      material?.setValues({ alphaTest: typeof materialDef.alphaCutoff === 'number' ? materialDef.alphaCutoff : 0.5 })
-    } else {
-      material?.setValues({ alphaTest: 0 })
-    }
-    if (material) material.needsUpdate = true
-  }, [material, materialDef.alphaMode, materialDef.alphaCutoff])
-
-  const normalMap = GLTFLoaderFunctions.useAssignTexture(
-    options,
-    materialDef.type === 'MeshBasicMaterial' ? undefined : materialDef.normalTexture
-  )
-
-  useEffect(() => {
-    if (!normalMap) return
-    material?.setValues({ normalMap })
-    if (material) material.needsUpdate = true
-  }, [material, normalMap])
-
-  useEffect(() => {
-    if (materialDef.normalTexture?.scale) {
-      const scale = materialDef.normalTexture.scale
-      material?.setValues({ normalScale: new Vector2(scale, scale) })
-    } else {
-      material?.setValues({ normalScale: new Vector2(1, 1) })
-    }
-    if (material) material.needsUpdate = true
-  }, [material, materialDef.normalTexture?.scale])
-
-  const aoMap = GLTFLoaderFunctions.useAssignTexture(
-    options,
-    materialDef.type === 'MeshBasicMaterial' ? undefined : materialDef.occlusionTexture
-  )
-
-  useEffect(() => {
-    if (!aoMap) return
-    material?.setValues({ aoMap })
-    if (material) material.needsUpdate = true
-  }, [material, aoMap])
-
-  useEffect(() => {
-    material?.setValues({ aoMapIntensity: materialDef.occlusionTexture?.strength ?? 1.0 })
-    if (material) material.needsUpdate = true
-  }, [material, materialDef.occlusionTexture?.strength])
-
-  useEffect(() => {
-    const emissiveFactor = materialDef.emissiveFactor
-    if (!emissiveFactor) return
-
-    material?.setValues({
-      emissive: new Color().setRGB(emissiveFactor[0], emissiveFactor[1], emissiveFactor[2], LinearSRGBColorSpace)
-    })
-    if (material) material.needsUpdate = true
-  }, [material, materialDef.emissiveFactor])
-
-  const emissiveMap = GLTFLoaderFunctions.useAssignTexture(
-    options,
-    materialDef.type === 'MeshBasicMaterial' ? undefined : materialDef.emissiveTexture
-  )
-
-  useEffect(() => {
-    if (!emissiveMap) return
-    emissiveMap.colorSpace = SRGBColorSpace
-    result.value?.setValues({ emissiveMap })
-    if (material) material.needsUpdate = true
-  }, [material, emissiveMap])
-
-  return result.get(NO_PROXY) as MeshStandardMaterial | null
-}
-
-const useMergeMorphTargets = (options: GLTFParserOptions, nodeIndex: number) => {
+const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) => {
   const json = options.document
-  const node = json.nodes![nodeIndex]!
-  const mesh = json.meshes![node.mesh!]
+  const entity = options.entity
 
-  const morphTargets = [] as (Record<string, BufferAttribute[]> | null)[]
-  const loadedMorphTargets = useHookstate(null! as Record<string, BufferAttribute[]> | null)
+  const layer = LayerComponent.get(entity)
+  const materialDef = json.materials![materialIndex]
 
-  mesh.primitives.map((primitive) => {
-    if (primitive.targets) morphTargets.push(GLTFLoaderFunctions.useLoadMorphTargets(options, primitive.targets as any))
+  const nodeID = ('material-' + materialIndex) as NodeID
+  const materialEntity = NodeIDComponent.create(options.documentID, nodeID, layer)
+  setComponent(materialEntity, EntityTreeComponent, { parentEntity: entity, childIndex: materialIndex })
+  setComponent(materialEntity, NameComponent, materialDef.name ?? 'Material-' + materialIndex)
+
+  let materialConstructorParameters = {} as any
+  const promises = [] as Promise<void>[]
+  const materialExtensions = materialDef.extensions || {}
+
+  let materialConstructor = MeshStandardMaterial
+  if (!materialExtensions['EE_material'] && materialExtensions['KHR_materials_unlit']) {
+    const kmuExtension = KHRUnlitExtensionComponent
+    materialConstructor = kmuExtension.getMaterialType() as any
+    promises.push(kmuExtension.extendMaterialParams(options, materialConstructorParameters, materialDef))
+  } else {
+    materialConstructorParameters.color = new Color(1.0, 1.0, 1.0)
+    materialConstructorParameters.opacity = 1.0
+
+    if (typeof materialDef.pbrMetallicRoughness?.baseColorTexture !== 'undefined') {
+      promises.push(
+        GLTFLoaderFunctions.assignTexture(options, materialDef.pbrMetallicRoughness.baseColorTexture).then((map) => {
+          if (map) {
+            map.colorSpace = SRGBColorSpace
+            materialConstructorParameters.map = map
+          }
+        })
+      )
+    }
+
+    if (typeof materialDef.pbrMetallicRoughness?.baseColorFactor !== 'undefined') {
+      if (Array.isArray(materialDef.pbrMetallicRoughness?.baseColorFactor)) {
+        const array = materialDef.pbrMetallicRoughness.baseColorFactor
+        materialConstructorParameters.color = new Color().setRGB(array[0], array[1], array[2], LinearSRGBColorSpace)
+        materialConstructorParameters.opacity = array[3]
+      }
+    }
+    materialConstructorParameters.metalness =
+      materialDef.pbrMetallicRoughness?.metallicFactor !== undefined
+        ? materialDef.pbrMetallicRoughness.metallicFactor
+        : 1.0
+
+    materialConstructorParameters.roughness =
+      materialDef.pbrMetallicRoughness?.roughnessFactor !== undefined
+        ? materialDef.pbrMetallicRoughness.roughnessFactor
+        : 1.0
+
+    if (typeof materialDef.pbrMetallicRoughness?.metallicRoughnessTexture !== 'undefined') {
+      promises.push(
+        GLTFLoaderFunctions.assignTexture(options, materialDef.pbrMetallicRoughness.metallicRoughnessTexture).then(
+          (metalnessMap) => {
+            if (metalnessMap) {
+              materialConstructorParameters.metalnessMap = metalnessMap
+            }
+          }
+        )
+      )
+    }
+
+    if (typeof materialDef.pbrMetallicRoughness?.metallicRoughnessTexture !== 'undefined') {
+      promises.push(
+        GLTFLoaderFunctions.assignTexture(options, materialDef.pbrMetallicRoughness.metallicRoughnessTexture).then(
+          (roughnessMap) => {
+            if (roughnessMap) {
+              materialConstructorParameters.roughnessMap = roughnessMap
+            }
+          }
+        )
+      )
+    }
+  }
+
+  materialConstructorParameters.side = materialDef.doubleSided === true ? DoubleSide : FrontSide
+
+  const alphaMode = materialDef.alphaMode ?? ALPHA_MODES.OPAQUE
+  materialConstructorParameters.transparent = alphaMode === ALPHA_MODES.BLEND
+
+  // See: https://github.com/mrdoob/three.js/issues/17706
+  if (alphaMode === ALPHA_MODES.BLEND) {
+    materialConstructorParameters.depthWrite = false
+  }
+
+  if (materialDef.alphaMode === ALPHA_MODES.MASK) {
+    materialConstructorParameters.alphaTest =
+      typeof materialDef.alphaCutoff === 'number' ? materialDef.alphaCutoff : 0.5
+  } else {
+    materialConstructorParameters.alphaTest = 0
+  }
+
+  if (typeof materialDef.normalTexture !== 'undefined') {
+    promises.push(
+      GLTFLoaderFunctions.assignTexture(options, materialDef.normalTexture).then((normalMap) => {
+        if (normalMap) {
+          materialConstructorParameters.normalMap = normalMap
+        }
+      })
+    )
+  }
+
+  if (materialDef.normalTexture?.scale) {
+    const scale = materialDef.normalTexture.scale
+    materialConstructorParameters.normalScale = new Vector2(scale, scale)
+  } else {
+    materialConstructorParameters.normalScale = new Vector2(1, 1)
+  }
+
+  if (typeof materialDef.occlusionTexture !== 'undefined') {
+    promises.push(
+      GLTFLoaderFunctions.assignTexture(options, materialDef.occlusionTexture).then((aoMap) => {
+        if (aoMap) {
+          materialConstructorParameters.aoMap = aoMap
+        }
+      })
+    )
+  }
+
+  materialConstructorParameters.aoMapIntensity = materialDef.occlusionTexture?.strength ?? 1.0
+
+  const emissiveFactor = materialDef.emissiveFactor
+  if (emissiveFactor) {
+    materialConstructorParameters.emissive = new Color().setRGB(
+      emissiveFactor[0],
+      emissiveFactor[1],
+      emissiveFactor[2],
+      LinearSRGBColorSpace
+    )
+  }
+
+  if (typeof materialDef.emissiveTexture !== 'undefined') {
+    promises.push(
+      GLTFLoaderFunctions.assignTexture(options, materialDef.emissiveTexture).then((emissiveMap) => {
+        if (emissiveMap) {
+          emissiveMap.colorSpace = SRGBColorSpace
+          materialConstructorParameters.emissiveMap = emissiveMap
+        }
+      })
+    )
+  }
+
+  const extensions = Object.entries(materialDef.extensions || {})
+
+  await Promise.all(promises)
+
+  const extensionPromises = [] as Promise<void>[]
+
+  for (const [extensionName, extension] of extensions) {
+    const Component = ComponentJSONIDMap.get(extensionName) as ComponentExt
+    if (!Component) continue
+    deserializeComponent(materialEntity, Component, extension)
+    if (typeof Component.getMaterialType === 'function') {
+      const ext = Component.getMaterialType(materialDef)
+      if (ext) materialConstructor = ext
+      else console.warn('GLTFLoaderFunctions: Material type not found.')
+    }
+    if (typeof Component.extendMaterialParams === 'function') {
+      extensionPromises.push(
+        Component.extendMaterialParams(options, materialConstructorParameters, materialDef, materialIndex)
+      )
+    }
+  }
+
+  await Promise.all(extensionPromises)
+
+  const deltaPromises = [] as Promise<void>[]
+  //apply deltas
+  const deltaState = getState(SceneDeltaState)
+  const sourceDelta = deltaState[getComponent(options.entity, NodeIDComponent)]
+
+  if (sourceDelta) {
+    const nodeID = getComponent(materialEntity, NodeIDComponent)
+    const nodeDelta = sourceDelta[nodeID]
+    if (nodeDelta) {
+      const materialDelta = nodeDelta[MATERIAL_JSON_ID]
+      const materialPrototype = nodeDelta[MATERIAL_PROTOTYPE_JSON_ID]
+      if (materialDelta && materialPrototype) {
+        const prototype = getState(MaterialPrototypeDefinitions)[materialPrototype]
+        materialConstructor = prototype.prototypeConstructor
+        // optionally serializing the uuid to determine if we need to replace the material -
+        // this is insanely brittle but will do for now
+        if (materialDelta.uuid || materialPrototype) materialConstructorParameters = {}
+
+        for (const key in materialDelta) {
+          if (materialDelta[key] === null) continue
+          switch (prototype.arguments[key]?.type) {
+            case 'color':
+              materialConstructorParameters[key] = new Color(materialDelta[key])
+              break
+            case 'texture':
+              deltaPromises.push(
+                getTextureAsync(materialDelta[key]).then(([texture]) => {
+                  if (texture) {
+                    texture.colorSpace = SRGBColorSpace
+                    materialConstructorParameters[key] = texture
+                  }
+                })
+              )
+              break
+            default:
+              materialConstructorParameters[key] = materialDelta[key]
+              break
+          }
+        }
+      }
+    }
+  }
+
+  await Promise.all(deltaPromises)
+
+  const material = new materialConstructor(materialConstructorParameters)
+  const uuid = getComponent(materialEntity, UUIDComponent)
+  material.uuid = uuid
+  material.name = materialDef.name ?? 'Material-' + materialIndex
+
+  setComponent(materialEntity, MaterialStateComponent, { material })
+  setupMaterialParameters(materialEntity, {
+    ...materialConstructorParameters,
+    uuid: material.uuid,
+    name: material.name
   })
 
-  useEffect(() => {
-    if (morphTargets.some((geometry) => !geometry) || loadedMorphTargets.value) return
-    const morphAttributes = {} as Record<string, BufferAttribute[]>
-    for (const morphTarget of morphTargets) {
-      for (const name in morphTarget) {
-        if (!morphAttributes[name]) morphAttributes[name] = []
-        morphTarget[name].forEach((target) => morphAttributes[name].push(target))
-      }
-    }
-    loadedMorphTargets.set(morphTargets[0])
-    for (const name in morphAttributes) {
-      const newAttributesLength = morphAttributes[name].length / morphTargets.length
-      for (let j = newAttributesLength; j < morphAttributes[name].length; j++) {
-        const mergeIntoIndex = j % newAttributesLength
-        // console.log(j + ' goes into ' + mergeIntoIndex)
-        const newArray = new Float32Array(
-          morphAttributes[name][j].array.length + morphAttributes[name][mergeIntoIndex].array.length
-        )
-        newArray.set([...morphAttributes[name][mergeIntoIndex].array, ...morphAttributes[name][j].array])
-        morphAttributes[name][mergeIntoIndex].array = newArray
-        const newAttribute = new BufferAttribute(
-          morphAttributes[name][mergeIntoIndex].array,
-          morphAttributes[name][mergeIntoIndex].itemSize
-        )
-        loadedMorphTargets[name][mergeIntoIndex].set(newAttribute)
-      }
-    }
-  }, [morphTargets])
+  assignExtrasToUserData(material, materialDef)
 
-  return loadedMorphTargets.get(NO_PROXY) as Record<string, BufferAttribute[]> | null
+  return material
 }
 
-const useLoadMorphTargets = (options: GLTFParserOptions, targetsList: Record<string, number>[]) => {
-  const result = useHookstate(null as null | Record<string, BufferAttribute[]>)
+const mergeMorphTargets = async (options: GLTFParserOptions, nodeIndex: number) => {
+  const json = options.document
+  const node = json.nodes![nodeIndex]
+  const mesh = json.meshes![node.mesh!]
 
-  useEffect(() => {
-    /** @todo make individual targets individually reactive */
-    const reactor = startReactor(() => {
-      const targetState = useHookstate(
-        () =>
-          targetsList.map((target) => Object.fromEntries(Object.entries(target).map(([key]) => [key, null]))) as Record<
-            string,
-            BufferAttribute | null
-          >[]
-      )
+  const morphTargetsPromise = [] as Promise<Record<string, BufferAttribute[]> | null>[]
 
-      for (let i = 0, il = targetsList.length; i < il; i++) {
-        const target = targetsList[i]
-        for (const [key, accessorIndex] of Object.entries(target)) {
-          const accessor = GLTFLoaderFunctions.useLoadAccessor(options, accessorIndex)
-          useEffect(() => {
-            if (!accessor) return
-            targetState[i][key].set(accessor)
-          }, [accessor])
-        }
-      }
+  mesh.primitives.forEach((primitive) => {
+    if (primitive.targets) morphTargetsPromise.push(GLTFLoaderFunctions.loadMorphTargets(options, primitive.targets))
+  })
 
-      useEffect(() => {
-        for (const target of targetState.value) {
-          if (Object.values(target).includes(null)) return
-        }
-        result.set(
-          targetState.get(NO_PROXY).reduce(
-            (acc, target: Record<string, BufferAttribute>) => {
-              for (const [key, value] of Object.entries(target)) {
-                if (!acc[key]) acc[key] = []
-                acc[key].push(value)
-              }
-              return acc
-            },
-            {} as Record<string, BufferAttribute[]>
-          )
-        )
-        reactor.stop()
-      }, [targetState])
+  const morphTargets = await Promise.all(morphTargetsPromise)
 
-      return null
-    })
-    return () => {
-      reactor.stop()
+  const morphAttributes = {} as Record<string, BufferAttribute[]>
+  for (const morphTarget of morphTargets) {
+    for (const name in morphTarget) {
+      if (!morphAttributes[name]) morphAttributes[name] = []
+      morphTarget[name].forEach((target) => morphAttributes[name].push(target))
     }
-  }, [targetsList])
+  }
 
-  return result.get(NO_PROXY) as Record<string, BufferAttribute[]> | null
+  const loadedMorphTargets = morphTargets[0]
+  for (const name in morphAttributes) {
+    const newAttributesLength = morphAttributes[name].length / morphTargets.length
+    for (let j = newAttributesLength; j < morphAttributes[name].length; j++) {
+      const mergeIntoIndex = j % newAttributesLength
+      // console.log(j + ' goes into ' + mergeIntoIndex)
+      const newArray = new Float32Array(
+        morphAttributes[name][j].array.length + morphAttributes[name][mergeIntoIndex].array.length
+      )
+      newArray.set([...morphAttributes[name][mergeIntoIndex].array, ...morphAttributes[name][j].array])
+      morphAttributes[name][mergeIntoIndex].array = newArray
+      const newAttribute = new BufferAttribute(
+        morphAttributes[name][mergeIntoIndex].array,
+        morphAttributes[name][mergeIntoIndex].itemSize
+      )
+      loadedMorphTargets![name][mergeIntoIndex] = newAttribute
+    }
+  }
+
+  return loadedMorphTargets
+}
+
+const loadMorphTargets = async (options: GLTFParserOptions, targetsList: Record<string, number>[]) => {
+  const targetState = targetsList.map((target) =>
+    Object.fromEntries(Object.entries(target).map(([key]) => [key, null]))
+  ) as Record<string, BufferAttribute | null>[]
+
+  for (let i = 0, il = targetsList.length; i < il; i++) {
+    const target = targetsList[i]
+    for (const [key, accessorIndex] of Object.entries(target)) {
+      const accessor = await getDependency(options, 'accessor', accessorIndex)
+      if (!accessor) continue
+      targetState[i][key] = accessor as BufferAttribute
+    }
+  }
+
+  return targetState.reduce(
+    (acc, target: Record<string, BufferAttribute>) => {
+      for (const [key, value] of Object.entries(target)) {
+        if (!acc[key]) acc[key] = []
+        acc[key].push(value)
+      }
+      return acc
+    },
+    {} as Record<string, BufferAttribute[]>
+  )
 }
 
 /**
@@ -760,41 +953,26 @@ const useLoadMorphTargets = (options: GLTFParserOptions, targetsList: Record<str
  * @param {Object} mapDef
  * @return {Promise<Texture>}
  */
-const useAssignTexture = (options: GLTFParserOptions, mapDef?: GLTF.ITextureInfo) => {
-  const result = useHookstate<Texture | null>(null)
+const assignTexture = async (options: GLTFParserOptions, mapDef: GLTF.ITextureInfo) => {
+  let texture = await getDependency(options, 'texture', mapDef.index)
+  if (!texture) return null
 
-  const texture = GLTFLoaderFunctions.useLoadTexture(options, mapDef?.index)
+  if (mapDef?.texCoord !== undefined && mapDef.texCoord > 0) {
+    texture = texture.clone()
+    texture.channel = mapDef.texCoord
+  }
 
-  useEffect(() => {
-    if (!texture) {
-      result.set(null)
-      return
-    }
+  /** @todo properly support extensions */
+  const transform =
+    mapDef?.extensions !== undefined ? mapDef.extensions[KHRTextureTransformExtensionComponent.jsonID] : undefined
 
-    if (!mapDef) return
-
-    if (mapDef.texCoord !== undefined && mapDef.texCoord > 0) {
-      texture.channel = mapDef.texCoord
-    }
-
-    /** @todo properly support extensions */
-    const transform =
-      mapDef.extensions !== undefined ? mapDef.extensions[KHRTextureTransformExtensionComponent.jsonID] : undefined
-
-    if (transform) {
-      // const gltfReference = parser.associations.get(texture)
-      const extendedTexture = KHRTextureTransformExtensionComponent.extendTexture(texture, transform)
-      // parser.associations.set(texture, gltfReference)
-      result.set(extendedTexture)
-    } else {
-      result.set(texture)
-    }
-  }, [texture, mapDef])
-
-  return result.get(NO_PROXY) as Texture | null
+  if (transform) {
+    const extendedTexture = KHRTextureTransformExtensionComponent.extendTexture(texture, transform)
+    return extendedTexture
+  } else {
+    return texture
+  }
 }
-
-const textureLoader = new TextureLoader(undefined, true)
 
 type KHRTextureBasisu = {
   source: number
@@ -805,334 +983,221 @@ type KHRTextureBasisu = {
  * @param {number} textureIndex
  * @return {Promise<THREE.Texture|null>}
  */
-const useLoadTexture = (options: GLTFParserOptions, textureIndex?: number) => {
+const loadTexture = (options: GLTFParserOptions, textureIndex: number) => {
   const json = options.document
 
-  const textureDef = typeof textureIndex === 'number' ? json.textures![textureIndex] : null
+  const textureDef = json.textures![textureIndex]
 
   const extensions = textureDef?.extensions as Record<string, Record<string, number>> | null
-  const basisu = extensions && (extensions[EXTENSIONS.KHR_TEXTURE_BASISU] as KHRTextureBasisu)
+  const basisu = extensions && (extensions['KHR_texture_basisu'] as KHRTextureBasisu)
 
   /** @todo properly support texture extensions, this is a hack */
   const sourceIndex =
     (extensions && Object.values(extensions).find((ext) => typeof ext.source === 'number')?.source) ??
-    textureDef?.source
+    textureDef.source!
   const sourceDef = typeof sourceIndex === 'number' ? json.images![sourceIndex] : null
 
   const handler = typeof sourceDef?.uri === 'string' && options.manager.getHandler(sourceDef.uri)
-  let loader: ImageLoader | ImageBitmapLoader | TextureLoader | KTX2Loader | Loader<unknown, string>
+  let loader: Loader<unknown, string>
 
-  if (handler) loader = handler as Loader<unknown, string>
-  if (basisu) loader = getState(AssetLoaderState).gltfLoader.ktx2Loader!
+  if (basisu) loader = getState(AssetLoaderState).ktx2Loader as unknown as Loader
+  else if (handler) loader = handler as Loader<unknown, string>
   else {
+    const textureLoader = new TextureLoader(undefined, undefined, false)
     loader = textureLoader
     loader.setRequestHeader(options.requestHeader)
   }
 
-  const texture = GLTFLoaderFunctions.useLoadTextureImage(options, textureIndex, sourceIndex, loader)
+  const texture = GLTFLoaderFunctions.loadTextureImage(options, textureIndex, sourceIndex, loader)
 
   return texture
 }
 
-const useLoadTextureImage = (
+const loadTextureImage = async (
   options: GLTFParserOptions,
-  textureIndex?: number,
-  sourceIndex?: number,
-  loader?: ImageLoader | ImageBitmapLoader | TextureLoader | KTX2Loader | Loader
+  textureIndex: number,
+  sourceIndex: number,
+  loader: Loader
 ) => {
   const json = options.document
-  const result = useHookstate<Texture | null>(null)
 
-  const textureDef = typeof textureIndex === 'number' ? json.textures![textureIndex] : null
-  const sourceDef = typeof sourceIndex === 'number' ? json.images![sourceIndex] : null
+  const textureDef = json.textures![textureIndex]
+  const sourceDef = json.images![sourceIndex]
 
-  /** @todo cache */
-  // const cacheKey = (sourceDef.uri || sourceDef.bufferView) + ':' + textureDef.sampler
+  const texture = await GLTFLoaderFunctions.loadImageSource(options, sourceIndex, loader)
 
-  // if (textureCache[cacheKey]) {
-  //   // See https://github.com/mrdoob/three.js/issues/21559.
-  //   return textureCache[cacheKey]
-  // }
+  if (!texture || !sourceDef || !textureDef) return
 
-  const texture = GLTFLoaderFunctions.useLoadImageSource(options, sourceIndex, loader)
+  texture.flipY = false
 
-  useEffect(() => {
-    if (!texture || !sourceDef || !textureDef) return
+  texture.name = textureDef.name ?? sourceDef.name ?? ''
 
-    texture.flipY = false
+  if (texture.name === '' && typeof sourceDef.uri === 'string' && sourceDef.uri.startsWith('data:image/') === false) {
+    texture.name = sourceDef.uri
+  }
 
-    texture.name = textureDef.name || sourceDef.name || ''
+  const samplers = json.samplers || {}
+  const sampler = samplers[textureDef.sampler!] || {}
 
-    if (texture.name === '' && typeof sourceDef.uri === 'string' && sourceDef.uri.startsWith('data:image/') === false) {
-      texture.name = sourceDef.uri
-    }
+  texture.magFilter = WEBGL_FILTERS[sampler.magFilter] || LinearFilter
+  texture.minFilter = WEBGL_FILTERS[sampler.minFilter] || LinearMipmapLinearFilter
+  texture.wrapS = WEBGL_WRAPPINGS[sampler.wrapS] || RepeatWrapping
+  texture.wrapT = WEBGL_WRAPPINGS[sampler.wrapT] || RepeatWrapping
 
-    const samplers = json.samplers || {}
-    const sampler = samplers[textureDef.sampler!] || {}
-
-    texture.magFilter = WEBGL_FILTERS[sampler.magFilter] || LinearFilter
-    texture.minFilter = WEBGL_FILTERS[sampler.minFilter] || LinearMipmapLinearFilter
-    texture.wrapS = WEBGL_WRAPPINGS[sampler.wrapS] || RepeatWrapping
-    texture.wrapT = WEBGL_WRAPPINGS[sampler.wrapT] || RepeatWrapping
-
-    /** @todo */
-    // parser.associations.set(texture, { textures: textureIndex })
-
-    result.set(texture)
-  }, [textureDef, sourceDef, texture])
-
-  // textureCache[cacheKey] = promise
-
-  return result.get(NO_PROXY) as Texture | null
+  return texture
 }
-
-// const sourceCache = {} as any // todo
 
 const URL = self.URL || self.webkitURL
 
-const useLoadImageSource = (
-  options: GLTFParserOptions,
-  sourceIndex?: number,
-  loader?: ImageLoader | ImageBitmapLoader | TextureLoader | KTX2Loader | Loader
-) => {
+const loadImageSource = async (options: GLTFParserOptions, sourceIndex: number, loader: Loader) => {
   const json = options.document
-  const sourceDef = typeof sourceIndex === 'number' ? json.images![sourceIndex] : null
+  const sourceDef = json.images![sourceIndex]
 
-  const sourceURI = useHookstate('')
-  const result = useHookstate<Texture | null>(null)
-  const [loadedTexture, error] = useTexture(sourceURI.value, UndefinedEntity, () => {}, loader)
+  let sourceURI = sourceDef.uri ?? ''
   let isObjectURL = false
 
-  const bufferViewSourceURI = GLTFLoaderFunctions.useLoadBufferView(options, sourceDef?.bufferView)
-
-  useEffect(() => {
-    if (!error) return
-    console.error(`GLTFLoaderFunctions:useLoadImageSource Error loading texture for uri ${sourceURI.value}`, error)
-  }, [error])
-
-  useEffect(() => {
-    if (!sourceDef) return
-
-    if (sourceDef.uri === undefined && sourceDef.bufferView === undefined) {
-      console.error('THREE.GLTFLoader: Image ' + sourceIndex + ' is missing URI and bufferView')
-      return
+  if (sourceDef.bufferView !== undefined) {
+    if (!isClient) {
+      const texture = new Texture()
+      texture.userData.mimeType = sourceDef.mimeType ?? getImageURIMimeType(sourceDef.uri)
+      return texture
     }
+    // Load binary image data from bufferView, if provided.
 
-    if (sourceDef.uri) {
-      const url = LoaderUtils.resolveURL(sourceDef.uri, options.path)
-      sourceURI.set(url)
-      return () => {
-        sourceURI.set('')
-      }
-    }
-
-    if (bufferViewSourceURI) {
+    sourceURI = await getDependency(options, 'bufferView', sourceDef.bufferView).then(function (bufferView) {
       isObjectURL = true
-      const blob = new Blob([bufferViewSourceURI], { type: sourceDef.mimeType })
-      const url = URL.createObjectURL(blob)
-      sourceURI.set(url)
-      return () => {
-        URL.revokeObjectURL(url)
-        sourceURI.set('')
-      }
-    }
-  }, [sourceDef?.uri, bufferViewSourceURI])
+      const blob = new Blob([bufferView!], { type: sourceDef.mimeType })
+      sourceURI = URL.createObjectURL(blob)
+      return sourceURI
+    })
+  } else if (sourceDef.uri === undefined) {
+    throw new Error('THREE.GLTFLoader: Image ' + sourceIndex + ' is missing URI and bufferView')
+  }
 
-  useEffect(() => {
-    if (!loadedTexture) return
+  const texture = await new Promise<Texture>(function (resolve, reject) {
+    const url = LoaderUtils.resolveURL(sourceURI, options.path)
+    loadResource<Texture>(
+      url,
+      ResourceType.Texture,
+      options.entity, // the GLTF entity
+      (response) => {
+        resolve(response)
+      },
+      (request) => {
+        //
+      },
+      (err) => {
+        reject(err as Error)
+      },
+      null!, // controller.signal,
+      loader
+    )
+  })
 
-    let resultTexture: Texture
-    if (isClient) {
-      if (loadedTexture instanceof ImageBitmap) {
-        resultTexture = new Texture(loadedTexture as ImageBitmap)
-        resultTexture.needsUpdate = true
-      } else {
-        resultTexture = loadedTexture
-      }
-    } else {
-      resultTexture = loadedTexture
-    }
+  if (isObjectURL) {
+    URL.revokeObjectURL(sourceURI)
+  } else {
+    texture.userData.src = sourceURI
+  }
 
-    result.set(resultTexture)
-    const url = options.url
-    ResourceManager.addReferencedAsset(url, resultTexture, ResourceType.Texture)
-    return () => {
-      ResourceManager.removeReferencedAsset(url, resultTexture, ResourceType.Texture)
-    }
-  }, [loadedTexture])
+  texture.userData.mimeType = sourceDef.mimeType ?? getImageURIMimeType(sourceDef.uri)
 
-  useEffect(() => {
-    if (!result.value || !sourceURI.value || !sourceDef) return
-
-    const texture = result.value
-
-    // Clean up resources and configure Texture.
-
-    if (isObjectURL === true) {
-      URL.revokeObjectURL(sourceURI.value!)
-    } else {
-      texture.userData.src = sourceURI.value
-    }
-
-    texture.userData.mimeType = sourceDef.mimeType || getImageURIMimeType(sourceDef.uri)
-
-    // sourceCache[sourceIndex] = promise
-  }, [result])
-
-  return result.value as Texture | null
+  return texture
 }
 
-const getNodeUUID = (node: GLTF.INode, documentID: string, nodeIndex: number) =>
-  (node.extensions?.[UUIDComponent.jsonID] as EntityUUID) ?? (`${documentID}-${nodeIndex}` as EntityUUID)
+declare module '@gltf-transform/core' {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace GLTF {
+    interface IBuffer {
+      type?: string
+    }
+    interface IAnimation {
+      parameters?: any
+    }
+  }
+}
 
-const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) => {
-  const result = useHookstate(null as null | AnimationClip)
-
+const loadAnimation = async (options: GLTFParserOptions, animationIndex: number) => {
   const json = options.document
 
-  const animationDef = typeof animationIndex === 'number' ? json.animations![animationIndex] : null
-  const animationName = animationDef ? (animationDef.name ? animationDef.name : 'animation_' + animationIndex) : null
+  const animationDef = json.animations![animationIndex]
+  const animationName = animationDef.name ? animationDef.name : 'animation_' + animationIndex
 
-  useEffect(() => {
-    if (!animationDef || !animationName) return
+  const pendingNodes = [] as Promise<Entity>[]
+  const pendingInputAccessors = [] as Promise<BufferAttribute | InterleavedBufferAttribute>[]
+  const pendingOutputAccessors = [] as Promise<BufferAttribute | InterleavedBufferAttribute>[]
+  const samplers = [] as GLTF.IAnimationSampler[]
+  const targets = [] as GLTF.IAnimationChannelTarget[]
 
-    const channels = animationDef.channels.filter((channel) => channel.target.node !== undefined)
+  for (let i = 0, il = animationDef.channels.length; i < il; i++) {
+    const channel = animationDef.channels[i]
+    const sampler = animationDef.samplers[channel.sampler]
+    const target = channel.target
+    const name = target.node
+    const input = animationDef.parameters !== undefined ? animationDef.parameters[sampler.input] : sampler.input
+    const output = animationDef.parameters !== undefined ? animationDef.parameters[sampler.output] : sampler.output
 
-    const reactor = startReactor(() => {
-      const channelData = useHookstate(() =>
-        Object.fromEntries(
-          channels.map((channel, i) => [
-            i,
-            {
-              nodes: null as null | Mesh | Bone,
-              entity: null as null | Entity,
-              inputAccessors: null as null | BufferAttribute,
-              outputAccessors: null as null | BufferAttribute,
-              samplers: animationDef.samplers[channel.sampler],
-              targets: channel.target
-            }
-          ])
-        )
-      )
+    if (name === undefined) continue
 
-      for (let i = 0, il = channels.length; i < il; i++) {
-        const channel = channels[i]
-        const sampler = animationDef.samplers[channel.sampler]
-        const target = channel.target
-        const nodeIndex = target.node!
-        const input = animationDef.parameters !== undefined ? animationDef.parameters[sampler.input] : sampler.input
-        const output = animationDef.parameters !== undefined ? animationDef.parameters[sampler.output] : sampler.output
-        const node = json.nodes![nodeIndex]
-        const mesh = typeof node.mesh === 'number' ? json.meshes?.[node.mesh!] : null
-        const meshHasWeights = mesh?.weights !== undefined && mesh.weights.length > 0
+    pendingNodes.push(getDependency(options, 'node', name))
+    pendingInputAccessors.push(getDependency(options, 'accessor', input))
+    pendingOutputAccessors.push(getDependency(options, 'accessor', output))
+    samplers.push(sampler)
+    targets.push(target)
+  }
 
-        const targetNodeUUID = getNodeUUID(json.nodes![nodeIndex], options.documentID, nodeIndex)
-        const targetNodeEntity = UUIDComponent.useEntityByUUID(targetNodeUUID)
-        const meshComponent = useOptionalComponent(targetNodeEntity, MeshComponent)
-        const boneComponent = useOptionalComponent(targetNodeEntity, BoneComponent)
-        useEffect(() => {
-          if (channelData[i].nodes.value) return
-          const meshWeightsLoaded = meshHasWeights
-            ? meshComponent?.get(NO_PROXY)?.morphTargetInfluences !== undefined
-            : true
-          if (!meshWeightsLoaded && !boneComponent) return
-          channelData[i].nodes.set(
-            getOptionalComponent(targetNodeEntity, MeshComponent) ??
-              getOptionalComponent(targetNodeEntity, BoneComponent)!
-          )
-        }, [meshComponent, boneComponent])
+  const [nodes, inputAccessors, outputAccessors] = await Promise.all([
+    Promise.all(pendingNodes),
+    Promise.all(pendingInputAccessors),
+    Promise.all(pendingOutputAccessors)
+  ])
 
-        const inputAccessor = GLTFLoaderFunctions.useLoadAccessor(options, input)
+  const tracks = [] as KeyframeTrack[]
+  for (let i = 0, il = nodes.length; i < il; i++) {
+    const entity = nodes[i]
+    const node = getComponent(entity, ObjectComponent) as Bone | SkinnedMesh | Mesh
+    const inputAccessor = inputAccessors[i]
+    const outputAccessor = outputAccessors[i]
+    const sampler = samplers[i]
+    const target = targets[i]
 
-        useEffect(() => {
-          if (!inputAccessor) return
-          channelData[i].inputAccessors.set(inputAccessor)
-        }, [inputAccessor])
+    if (!node || !outputAccessor || !inputAccessor) continue
 
-        const outputAccessor = GLTFLoaderFunctions.useLoadAccessor(options, output)
-
-        useEffect(() => {
-          if (!outputAccessor) return
-          channelData[i].outputAccessors.set(outputAccessor)
-        }, [outputAccessor])
-
-        useEffect(() => {
-          if (!targetNodeEntity) return
-          channelData[i].entity.set(targetNodeEntity)
-        }, [targetNodeEntity])
-      }
-
-      useEffect(() => {
-        const channelDataArray = Object.values(channelData.get(NO_PROXY))
-        if (!channelDataArray.some((data) => data.nodes)) return
-        if (
-          (channelDataArray.length === 1 && channelDataArray[0].nodes === null) /**@todo reevaluate this check */ ||
-          channelDataArray.some((data) => !data.outputAccessors || !data.inputAccessors)
-        )
-          return
-        const values = Object.values(channelData.get(NO_PROXY))
-        const nodes = values.map((data) => data.nodes)
-        const inputAccessors = values.map((data) => data.inputAccessors) as BufferAttribute[]
-        const outputAccessors = values.map((data) => data.outputAccessors) as BufferAttribute[]
-        const samplers = values.map((data) => data.samplers) as GLTF.IAnimationSampler[]
-        const targets = values.map((data) => data.targets) as GLTF.IAnimationChannelTarget[]
-        const entities = values.map((data) => data.entity) as Entity[]
-
-        const tracks = [] as any[] // todo
-        for (let i = 0, il = nodes.length; i < il; i++) {
-          const node = nodes[i] as Mesh | SkinnedMesh
-          const inputAccessor = inputAccessors[i]
-          const outputAccessor = outputAccessors[i]
-          const sampler = samplers[i]
-          const target = targets[i]
-          const entity = entities[i]
-
-          if (!(node || entity) || !outputAccessor || !inputAccessor) continue
-
-          if ((node as Mesh)?.updateMatrix) {
-            ;(node as Mesh)?.updateMatrix()
-          }
-
-          const createdTracks = _createAnimationTracks(entity, inputAccessor, outputAccessor, sampler, target)
-
-          if (createdTracks) {
-            for (let k = 0; k < createdTracks.length; k++) {
-              tracks.push(createdTracks[k])
-            }
-          }
-        }
-
-        result.set(new AnimationClip(animationName, undefined, tracks))
-        reactor.stop()
-      }, [channelData])
-
-      return null
-    })
-    return () => {
-      reactor.stop()
+    if (node.updateMatrix) {
+      node.updateMatrix()
     }
-  }, [animationDef])
 
-  return result.get(NO_PROXY) as AnimationClip | null
+    const createdTracks = _createAnimationTracks(entity, inputAccessor, outputAccessor, sampler, target)
+
+    if (createdTracks) {
+      for (const createdTrack of createdTracks) {
+        tracks.push(createdTrack)
+      }
+    }
+  }
+
+  return new AnimationClip(animationName, undefined, tracks)
 }
 
 const _createAnimationTracks = (
   node: Entity,
-  inputAccessor: BufferAttribute,
-  outputAccessor: BufferAttribute,
+  inputAccessor: BufferAttribute | InterleavedBufferAttribute,
+  outputAccessor: BufferAttribute | InterleavedBufferAttribute,
   sampler: GLTF.IAnimationSampler,
   target: GLTF.IAnimationChannelTarget
 ) => {
-  const tracks = [] as any[] // todo
+  const tracks = [] as KeyframeTrack[]
+
   const targetName = getComponent(node, UUIDComponent)
   if (!targetName) throw new Error('THREE.GLTFLoader: Node has no name.')
   const targetNames = [] as string[]
+
   if (PATH_PROPERTIES[target.path] === PATH_PROPERTIES.weights) {
     traverseEntityNode(node, (entity) => {
       const object = getComponent(entity, MeshComponent)
       if (object.morphTargetInfluences) {
         if (!object.name) throw new Error('THREE.GLTFLoader: Node has no name.')
-        targetNames.push(getComponent(node, UUIDComponent))
+        targetNames.push(getComponent(entity, UUIDComponent))
       }
     })
   } else {
@@ -1193,7 +1258,7 @@ const _createAnimationTracks = (
   return tracks
 }
 
-const _getArrayFromAccessor = (accessor: BufferAttribute) => {
+const _getArrayFromAccessor = (accessor: BufferAttribute | InterleavedBufferAttribute) => {
   let outputArray = accessor.array
 
   if (accessor.normalized) {
@@ -1227,19 +1292,451 @@ const _createCubicSplineTrackInterpolant = (track: KeyframeTrack) => {
   track.createInterpolant.isInterpolantFactoryMethodGLTFCubicSpline = true
 }
 
+const isBoneNode = (json: GLTF.IGLTF, nodeIndex: number) => {
+  const skinDefs = json.skins || []
+  for (let skinIndex = 0, skinLength = skinDefs.length; skinIndex < skinLength; skinIndex++) {
+    const joints = skinDefs[skinIndex].joints
+    for (let i = 0, il = joints.length; i < il; i++) {
+      if (joints[i] === nodeIndex) return true
+    }
+  }
+  return false
+}
+
+const loadMesh = async (options: GLTFParserOptions, entity: Entity, nodeIndex: number, meshIndex: number) => {
+  const json = options.document
+
+  const meshDef = json.meshes![meshIndex]
+
+  const node = json.nodes![nodeIndex]
+
+  const [geometry, materials] = await GLTFLoaderFunctions.loadPrimitives(options, node.mesh!)
+
+  const isSkinnedMesh = typeof node.skin !== 'undefined'
+
+  /** @todo add support for primitive modes */
+  // let mesh: Mesh | SkinnedMesh | LineSegments | Line | LineLoop | LineSegments | Points
+
+  // if (
+  //   primitive.mode === WEBGL_CONSTANTS.TRIANGLES ||
+  //   primitive.mode === WEBGL_CONSTANTS.TRIANGLE_STRIP ||
+  //   primitive.mode === WEBGL_CONSTANTS.TRIANGLE_FAN ||
+  //   primitive.mode === undefined
+  // ) {
+  const mesh = isSkinnedMesh === true ? new SkinnedMesh(geometry, materials) : new Mesh(geometry, materials)
+
+  //   if (primitive.mode === WEBGL_CONSTANTS.TRIANGLE_STRIP) {
+  //     mesh.geometry = toTrianglesDrawMode(mesh.geometry, TriangleStripDrawMode)
+  //   } else if (primitive.mode === WEBGL_CONSTANTS.TRIANGLE_FAN) {
+  //     mesh.geometry = toTrianglesDrawMode(mesh.geometry, TriangleFanDrawMode)
+  //   }
+  // } else if (primitive.mode === WEBGL_CONSTANTS.LINES) {
+  //   mesh = new LineSegments(geometry, material)
+  // } else if (primitive.mode === WEBGL_CONSTANTS.LINE_STRIP) {
+  //   mesh = new Line(geometry, material)
+  // } else if (primitive.mode === WEBGL_CONSTANTS.LINE_LOOP) {
+  //   mesh = new LineLoop(geometry, material)
+  // } else if (primitive.mode === WEBGL_CONSTANTS.POINTS) {
+  //   mesh = new Points(geometry, material)
+  // } else {
+  //   throw new Error('THREE.GLTFLoader: Primitive mode unsupported: ' + primitive.mode)
+  // }
+
+  if (isSkinnedMesh) {
+    const skinnedMesh = mesh as SkinnedMesh
+    skinnedMesh.skeleton = new Skeleton()
+    skinnedMesh.normalizeSkinWeights()
+    setComponent(entity, SkinnedMeshComponent, skinnedMesh)
+  }
+
+  //handle primitive extensions
+  // const extensions = primitiveDef.extensions || {}
+  // for (const extensionName in extensions) {
+  //   const Component = ComponentJSONIDMap.get(extensionName)
+  //   if (!Component) continue
+  //   deserializeComponent(entity, Component, extensions[extensionName])
+  // }
+
+  setComponent(entity, MeshComponent, mesh)
+  setComponent(entity, NameComponent, meshDef.name ?? 'Mesh-' + meshIndex)
+
+  setComponent(entity, MaterialInstanceComponent, {
+    uuid: (Array.isArray(materials) ? materials : [materials]).map((material) => material.uuid as EntityUUID)
+  })
+
+  if (Object.keys(mesh.geometry.morphAttributes).length > 0) {
+    updateMorphTargets(mesh, meshDef)
+  }
+
+  return mesh
+}
+
+const loadCamera = async (options: GLTFParserOptions, entity: Entity, nodeIndex: number) => {
+  const json = options.document
+  const nodes = json.nodes!
+  const node = nodes[nodeIndex]
+
+  const cameraDef = json.cameras![node.camera!]
+
+  if (cameraDef.type === 'orthographic' || !cameraDef.perspective) {
+    // const camera = new OrthographicCamera(-params.xmag, params.xmag, params.ymag, -params.ymag, params.znear, params.zfar)
+    return console.warn('Orthographic cameras not supported yet')
+  }
+
+  const perspectiveCamera = cameraDef.perspective
+
+  setComponent(entity, CameraComponent, {
+    fov: MathUtils.radToDeg(perspectiveCamera.yfov),
+    aspect: perspectiveCamera.aspectRatio ?? 1,
+    near: perspectiveCamera.znear ?? 1,
+    far: perspectiveCamera.zfar ?? 2e6
+  })
+}
+
+const loadSkin = async (options: GLTFParserOptions, nodeEntity: Entity, nodeIndex: number) => {
+  const json = options.document
+  const nodeDef = json.nodes![nodeIndex]
+  const skinDef = json.skins![nodeDef.skin!]
+
+  const [skinnedMesh, inverseBindMatrices, ...jointNodes] = (await Promise.all([
+    getDependency(options, 'mesh', nodeEntity, nodeIndex, nodeDef.mesh!),
+    getDependency(options, 'accessor', skinDef.inverseBindMatrices!),
+    ...skinDef.joints.map((joint) => getDependency(options, 'node', joint))
+  ])) as [SkinnedMesh, BufferAttribute, ...Entity[]]
+  if (!inverseBindMatrices) throw new Error('GLTFLoader: Inverse bind matrices not found')
+  const jointBones = jointNodes.map((entity) => getComponent(entity, BoneComponent))
+
+  const bones: Bone[] = []
+  const boneInverses: Matrix4[] = []
+  for (let i = 0, il = jointBones.length; i < il; i++) {
+    const jointNode = jointBones[i]
+
+    if (jointNode) {
+      bones.push(jointNode)
+
+      const mat = new Matrix4()
+
+      if (inverseBindMatrices !== null) {
+        mat.fromArray(inverseBindMatrices.array, i * 16)
+      }
+
+      boneInverses.push(mat)
+    } else {
+      console.warn('Joint "%s" could not be found.', skinDef.joints[i])
+    }
+  }
+
+  const skeleton = new Skeleton(bones, boneInverses)
+  skinnedMesh.skeleton = skeleton
+}
+
+const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
+  const json = options.document
+
+  const nodeDef = json.nodes![nodeIndex]
+
+  const layerID = LayerComponent.get(options.entity)
+
+  const nodeID = getNodeID(nodeDef, options.documentID, nodeIndex)
+  const nodeEntity = NodeIDComponent.create(options.documentID, nodeID, layerID)
+
+  setComponent(nodeEntity, NameComponent, nodeDef.name ?? 'Node-' + nodeIndex)
+
+  if (nodeDef.matrix) {
+    const mat4 = new Matrix4().fromArray(nodeDef.matrix)
+    const position = new Vector3()
+    const rotation = new Quaternion()
+    const scale = new Vector3()
+    mat4.decompose(position, rotation, scale)
+    setComponent(nodeEntity, TransformComponent, { position, rotation, scale })
+  } else if (nodeDef.translation || nodeDef.rotation || nodeDef.scale) {
+    const position = new Vector3().fromArray(nodeDef.translation || [0, 0, 0])
+    const rotation = new Quaternion().fromArray(nodeDef.rotation || [0, 0, 0, 1])
+    const scale = new Vector3().fromArray(nodeDef.scale || [1, 1, 1])
+    setComponent(nodeEntity, TransformComponent, { position, rotation, scale })
+  } else {
+    setComponent(nodeEntity, TransformComponent)
+  }
+
+  /** Always set visible extension if this is not an ECS node */
+  if (!nodeDef.extensions?.[NodeIDComponent.jsonID]) setComponent(nodeEntity, VisibleComponent)
+
+  //handle legacy ECS embedding
+  const extras = nodeDef.extras
+  if (extras) {
+    const data = [...Object.entries(extras)]
+    for (const [key, value] of data) {
+      const parts = key.split('.')
+      if (parts.length > 1) {
+        if (parts[0] === 'xrengine') {
+          if (ComponentJSONIDMap.has(parts[1])) {
+            const Component = ComponentJSONIDMap.get(parts[1])
+            if (!Component) {
+              console.warn('no component found for extension', parts[1])
+              continue
+            }
+            let deserializedValue = typeof parts[2] === 'string' ? { [parts[2]]: value } : value
+            if (typeof value === 'string') {
+              try {
+                deserializedValue = JSON.parse(value)
+              } catch (e) {
+                // expected
+              }
+            }
+            deserializeComponent(nodeEntity, Component, deserializedValue)
+            if (Component === ColliderComponent) removeComponent(nodeEntity, VisibleComponent)
+          }
+        }
+      }
+    }
+  }
+
+  const dependencies = [] as Promise<any>[]
+
+  if (nodeDef.children) {
+    for (let i = 0; i < nodeDef.children.length; i++) {
+      const childIndex = nodeDef.children[i]
+      const nodePromise = getDependency(options, 'node', childIndex)
+      dependencies.push(nodePromise)
+      nodePromise.then((childEntity) => {
+        setComponent(childEntity, EntityTreeComponent, {
+          parentEntity: nodeEntity,
+          childIndex: i
+        })
+      })
+    }
+  }
+
+  if (typeof nodeDef.mesh !== 'undefined') {
+    const meshPromise = getDependency(options, 'mesh', nodeEntity, nodeIndex, nodeDef.mesh)
+    dependencies.push(meshPromise)
+  } else if (isBoneNode(json, nodeIndex)) {
+    const bone = new Bone()
+    // bone.name = node.name ?? 'Node-' + i
+    setComponent(nodeEntity, BoneComponent, bone)
+    removeComponent(nodeEntity, VisibleComponent) // remove visible so it isn't rendered
+  } else {
+    const obj3d = new Object3D()
+    // obj3d.name = node.name ?? 'Node-' + i
+    setComponent(nodeEntity, ObjectComponent, obj3d)
+  }
+
+  if (typeof nodeDef.skin === 'number') {
+    dependencies.push(getDependency(options, 'skin', nodeEntity, nodeIndex))
+  }
+
+  if (nodeDef.camera !== undefined) {
+    getDependency(options, 'camera', nodeEntity, nodeIndex)
+  }
+
+  await Promise.all(dependencies)
+
+  const extensionPending = [] as Promise<void>[]
+
+  // add all extensions for synchronous mount
+  if (nodeDef.extensions) {
+    for (const extension in nodeDef.extensions) {
+      const Component = ComponentJSONIDMap.get(extension) as ComponentExt | undefined
+      if (!Component) continue
+      deserializeComponent(nodeEntity, Component, nodeDef.extensions[extension])
+      if (typeof Component.loadNode === 'function') {
+        extensionPending.push(Component.loadNode(options, nodeIndex))
+      }
+    }
+  }
+
+  await Promise.all(extensionPending)
+
+  const rootNodeID = getOptionalComponent(options.entity, NodeIDComponent)
+
+  //apply deltas if they exist in state
+  const deltas = rootNodeID ? getState(SceneDeltaState)?.[rootNodeID]?.[nodeID] : null
+  if (deltas) {
+    for (const [componentName, delta] of Object.entries(deltas)) {
+      const Component = ComponentJSONIDMap.get(componentName)
+      if (!Component) continue
+      deserializeComponent(nodeEntity, Component, delta as SceneDeltaEntry<typeof Component>)
+    }
+  }
+
+  return nodeEntity
+}
+
+const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
+  const json = options.document
+  const rootEntity = options.entity
+
+  // load deltas into state before anything else
+  const deltas = json.extensions?.[SCENE_DELTA_EXTENSION_NAME] as SceneDeltaRegistry | null
+  if (deltas) {
+    const parsedDeltas = parseStorageProviderURLs(deltas)
+    getMutableState(SceneDeltaState).merge(parsedDeltas)
+  }
+
+  DependencyCache.set(options.url, new Map())
+
+  const sceneDef = json.scenes![sceneIndex]
+
+  const nodeIds = sceneDef.nodes || []
+
+  const pending = [] as Promise<Entity>[]
+
+  for (let i = 0, il = nodeIds.length; i < il; i++) {
+    pending.push(getDependency(options, 'node', nodeIds[i]))
+  }
+
+  const animationPromises = [] as Promise<AnimationClip>[]
+
+  const animations = json.animations || []
+  for (let i = 0, il = animations.length; i < il; i++) {
+    const animation = getDependency(options, 'animation', i)
+    animationPromises.push(animation)
+  }
+
+  const loadedNodeEntities = await Promise.all(pending)
+
+  for (const entity of loadedNodeEntities) {
+    setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity })
+    iterateEntityNode(
+      entity,
+      (e) => {
+        computeTransformMatrix(e)
+        TransformComponent.dirty[e] = 1
+      },
+      (e) => hasComponent(e, TransformComponent)
+    )
+  }
+
+  /** @todo this is a temporary hack */
+  if (!hasComponent(rootEntity, ObjectComponent)) {
+    const obj3d = new Object3D()
+    setComponent(rootEntity, ObjectComponent, obj3d)
+  }
+
+  const animationClips = await Promise.all(animationPromises)
+
+  if (animationClips.length > 0) {
+    // obj3d should always come from the simulation layer
+    const obj3d = getComponent(
+      LayerFunctions.getLayerRelationsEntities(rootEntity)?.[Layers.Simulation]?.[1] ?? rootEntity,
+      ObjectComponent
+    )
+    obj3d.animations = animationClips
+    if (!hasComponent(rootEntity, AnimationComponent)) {
+      setComponent(rootEntity, AnimationComponent, {
+        mixer: new AnimationMixer(obj3d),
+        animations: obj3d.animations
+      })
+    } else {
+      getMutableComponent(rootEntity, AnimationComponent).animations.merge(obj3d.animations)
+    }
+  }
+
+  // dereference body non-reactively if it exists
+  getComponent(options.entity, GLTFComponent).body = null
+}
+
+const unloadScene = async (url: string, entity: Entity) => {
+  // handle reference counting
+  unloadResourcesForEntity(entity)
+
+  // if no more references to this url, remove from cache
+  const assetCacheState = getState(AssetCacheState)
+  if (!assetCacheState[url]) {
+    delete interleavedBufferCache[url]
+    DependencyCache.delete(url)
+  }
+}
+
 export const GLTFLoaderFunctions = {
   computeBounds,
-  useLoadPrimitive,
-  useLoadPrimitives,
-  useLoadAccessor,
-  useLoadBufferView,
-  useLoadBuffer,
-  useLoadMaterial,
-  useLoadMorphTargets,
-  useMergeMorphTargets,
-  useAssignTexture,
-  useLoadTexture,
-  useLoadImageSource,
-  useLoadTextureImage,
-  useLoadAnimation
+  loadPrimitive,
+  loadPrimitives,
+  loadAccessor,
+  loadBufferView,
+  loadBuffer,
+  loadMaterial,
+  loadMorphTargets,
+  mergeMorphTargets,
+  assignTexture,
+  loadTexture,
+  loadImageSource,
+  loadTextureImage,
+  loadAnimation,
+  loadCamera,
+  loadMesh,
+  loadNode,
+  loadScene,
+  unloadScene
+}
+
+export const DependencyCache = new Map<string, Map<string, Promise<any>>>()
+
+type DependencyType =
+  | 'scene'
+  | 'node'
+  | 'mesh'
+  | 'accessor'
+  | 'bufferView'
+  | 'buffer'
+  | 'material'
+  | 'texture'
+  | 'skin'
+  | 'animation'
+  | 'camera'
+
+const DependencyMap = {
+  scene: loadScene,
+  node: loadNode,
+  mesh: loadMesh,
+  accessor: loadAccessor,
+  bufferView: loadBufferView,
+  buffer: loadBuffer,
+  material: loadMaterial,
+  texture: loadTexture,
+  skin: loadSkin,
+  animation: loadAnimation,
+  camera: loadCamera
+}
+
+type ExcludeFirst<T extends any[]> = T extends [infer First, ...infer Rest extends any[]] ? Rest : never
+
+/** @todo integrate this with resource tracking or something */
+export const getDependency = <
+  Type extends keyof typeof DependencyMap,
+  Func extends (typeof DependencyMap)[Type],
+  Args extends ExcludeFirst<[...Parameters<Func>]>
+>(
+  options: GLTFParserOptions,
+  type: Type,
+  ...args: Args
+) => {
+  const url = options.url
+  const cache = DependencyCache.get(url)
+  if (!cache) throw new Error('GLTFLoader: No cache found for url ' + url)
+
+  const cacheKey = type + ':' + JSON.stringify(args)
+  const dependency = cache.get(cacheKey) as ReturnType<Func> | undefined
+
+  if (!dependency) {
+    const dep = (DependencyMap[type] as (...args: any[]) => ReturnType<Func>)(options, ...args)
+    cache.set(cacheKey, dep)
+    return dep
+  }
+
+  return dependency
+}
+
+export const getNodeID = (node: GLTF.INode, documentID: SourceID, nodeIndex: number) =>
+  (node.extensions?.[NodeIDComponent.jsonID] as NodeID) ?? (`${nodeIndex}` as NodeID)
+
+export type GLTFParserOptions = {
+  url: string
+  documentID: SourceID
+  document: GLTF.IGLTF
+  entity: Entity
+  body: null | ArrayBuffer
+  manager: LoadingManager
+  path: string
+  requestHeader: Record<string, string>
 }

@@ -22,7 +22,6 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
 
-import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import {
   defineState,
@@ -36,6 +35,7 @@ import {
 import { NetworkState } from '@ir-engine/network'
 import { Input } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { useFrameUpdate } from './useFrameUpdate'
 
 const labelRenderer = (data: Record<string | number, any>) => {
   return (keyPath: (string | number)[], ...args) => {
@@ -62,8 +62,9 @@ const StateSearchState = defineState({
 })
 
 export function StateDebug() {
-  useHookstate(getMutableState(ECSState).frameTime).value
   const { t } = useTranslation()
+
+  useFrameUpdate()
 
   const stateSearch = useHookstate(getMutableState(StateSearchState).search)
 
@@ -89,7 +90,7 @@ export function StateDebug() {
   return (
     <div className="m-1 bg-neutral-600 p-1">
       <div className="my-0.5">
-        <Text>{t('common:debug.state')}</Text>
+        <Text className="text-text-primary-button">{t('common:debug.state')}</Text>
         <Input
           type="text"
           placeholder="Search..."

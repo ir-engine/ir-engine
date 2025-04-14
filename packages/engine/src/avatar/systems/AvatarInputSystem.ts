@@ -58,6 +58,7 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { applyInputSourcePoseToIKTargets } from '../functions/applyInputSourcePoseToIKTargets'
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 
+import { Entity } from '@ir-engine/ecs'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import { FollowCameraMode } from '@ir-engine/spatial/src/camera/types/FollowCameraMode'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
@@ -183,6 +184,8 @@ const walkableQuery = defineQuery([RigidBodyFixedTagComponent, InputComponent])
 
 let mouseMovedDuringPrimaryClick = false
 
+const findWalkableWithInput = (entity: Entity) => getComponent(entity, InputComponent)?.inputSources.length
+
 const execute = () => {
   if (!Engine.instance.userID) return
 
@@ -197,7 +200,8 @@ const execute = () => {
   const inputState = getState(InputState)
   const avatarInputSettings = getState(AvatarInputSettingsState)
 
-  const controller = getComponent(selfAvatarEntity, AvatarControllerComponent)
+  const controller = getOptionalComponent(selfAvatarEntity, AvatarControllerComponent)
+  if (!controller) return
 
   const xrState = getState(XRState)
   const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
@@ -206,9 +210,7 @@ const execute = () => {
   if (!isMovementControlsEnabled) return
 
   if (!isCameraAttachedToAvatar && !getState(XRState).session) {
-    const firstWalkableEntityWithInput = walkableQuery().find(
-      (entity) => getComponent(entity, InputComponent)?.inputSources.length
-    )
+    const firstWalkableEntityWithInput = walkableQuery().find(findWalkableWithInput)
 
     if (firstWalkableEntityWithInput) {
       const inputComponent = getComponent(firstWalkableEntityWithInput, InputComponent)

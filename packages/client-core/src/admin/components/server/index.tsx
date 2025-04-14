@@ -87,14 +87,14 @@ export default function Servers() {
         {serverInfoQuery.data.map((info) => (
           <div
             key={info.id}
-            className={`flex h-16 w-44 cursor-pointer items-start justify-between rounded-2xl bg-theme-surface-main p-4 ${
-              serverType.value === info.id && 'border-b-2 border-b-blue-primary'
+            className={`flex h-16 w-44 cursor-pointer items-start justify-between rounded-2xl  p-4 ${
+              serverType.value === info.id && 'border-b-2'
             }`}
             onClick={() => serverType.set(info.id)}
           >
             <Text fontSize="sm">{info.label}</Text>
             <Badge
-              className="h-6 rounded-[90px] bg-blue-primary text-white"
+              className="h-6 rounded-[90px] text-white"
               label={`${info.pods.filter((inf) => inf.status === 'Running').length}/${info.pods.length}`}
             />
           </div>
@@ -129,7 +129,6 @@ export default function Servers() {
             bottomComponent: <ApiJobsTable />
           }
         ]}
-        tabcontainerClassName="bg-theme-primary"
       />
     </>
   )

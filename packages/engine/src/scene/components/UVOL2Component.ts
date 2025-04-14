@@ -45,8 +45,10 @@ import {
   Vector2
 } from 'three'
 
+import { getChildrenWithComponents, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
+  getComponent,
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
@@ -57,7 +59,6 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState, ECSState as EngineState } from '@ir-engine/ecs/src/ECSState'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getState, isClient, NO_PROXY_STEALTH, none, State, usePrevious } from '@ir-engine/hyperflux'
@@ -67,10 +68,11 @@ import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { AssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { getLoader } from '../../assets/classes/AssetLoader'
-import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
+import { AssetState } from '../../gltf/GLTFState'
 import {
   ASTCTextureTarget,
   AudioFileFormat,
@@ -85,7 +87,6 @@ import {
   UVOL_TYPE
 } from '../constants/LegacyUVOLTypes'
 import { PlayMode } from '../constants/PlayMode'
-import getFirstMesh from '../util/meshUtils'
 import { handleAutoplay, LegacyVolumetricComponent } from './LegacyVolumetricComponent'
 import { MediaElementComponent } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
@@ -320,16 +321,6 @@ export const UVOL2Component = defineComponent({
     loadingEffectEnded: S.Bool(false)
   }),
 
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (json.manifestPath) {
-      component.manifestPath.set(json.manifestPath)
-    }
-    if (json.data) {
-      component.data.set(json.data)
-    }
-  },
-
   setStartAndPlaybackTime: (entity: Entity, newMediaStartTime: number, newPlaybackStartDate: number) => {
     const volumetric = getMutableComponent(entity, LegacyVolumetricComponent)
 
@@ -361,7 +352,7 @@ export const UVOL2Component = defineComponent({
 const loadDraco = (url: string) => {
   return new Promise<{ geometry: BufferGeometry; fetchTime: number }>((resolve, reject) => {
     const startTime = performance.now()
-    getState(AssetLoaderState).gltfLoader.dracoLoader?.load(url, (geometry: BufferGeometry) => {
+    getState(AssetLoaderState).dracoLoader?.load(url, (geometry: BufferGeometry) => {
       resolve({ geometry, fetchTime: performance.now() - startTime })
     })
   })
@@ -370,18 +361,16 @@ const loadDraco = (url: string) => {
 const loadGLB = (url: string) => {
   return new Promise<{ mesh: Mesh; fetchTime: number }>((resolve, reject) => {
     const startTime = performance.now()
-    getState(AssetLoaderState).gltfLoader.load(
-      url,
-      ({ scene }: GLTF) => {
-        const mesh = getFirstMesh(scene)!
+    AssetState.loadAsync(url, true)
+      .then((rootEntity) => {
+        const [meshEntity] = getChildrenWithComponents(rootEntity, [MeshComponent])
+        const mesh = getComponent(meshEntity, MeshComponent)
         resolve({ mesh, fetchTime: performance.now() - startTime })
-      },
-      undefined,
-      (err) => {
+      })
+      .catch((err) => {
         console.error('Error loading geometry: ', url, err)
         reject(err)
-      }
-    )
+      })
   })
 }
 

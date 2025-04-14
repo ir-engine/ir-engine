@@ -83,6 +83,9 @@ const Input = (
     required,
     id,
     fullWidth,
+    disabled,
+    readOnly,
+    autoComplete = 'off',
     ...props
   }: InputProps,
   ref: React.ForwardedRef<HTMLInputElement>
@@ -121,13 +124,13 @@ const Input = (
           <label htmlFor={inputId} className="block text-xs font-medium" ref={labelRef}>
             <div className="flex flex-row items-center gap-x-1.5">
               <div className="flex flex-row items-center gap-x-0.5">
-                {required && <span className="text-sm text-[#E11D48]">*</span>}
-                <span className="text-xs text-[#D3D5D9]">{labelProps.text}</span>
+                {required && <span className="text-sm text-ui-error">*</span>}
+                <span className="whitespace-nowrap text-xs text-text-secondary">{labelProps.text}</span>
               </div>
 
               {labelProps?.infoText && (
                 <Tooltip content={labelProps.infoText}>
-                  <HelpIconSm className="text-[#9CA0AA]" />
+                  <HelpIconSm className="text-text-tertiary" />
                 </Tooltip>
               )}
             </div>
@@ -136,38 +139,37 @@ const Input = (
 
         <div
           className={twMerge(
-            'flex w-full items-center gap-x-2 rounded-md border-[0.5px] border-[#42454D] bg-[#141619] transition-colors duration-300',
+            'flex w-full items-center gap-x-2 rounded-md border-[0.5px] border-ui-outline bg-ui-background text-xs placeholder-text-tertiary transition-colors duration-300',
             heights[height],
-            'hover:border-[#9CA0AA] hover:bg-[#191B1F]',
-            'has-[:focus]:border-[#375DAF] has-[:focus]:outline-none',
-            'has-[:disabled]:border-[#42454D] has-[:disabled]:bg-[#191B1F]',
-            state === 'success' && 'border-[#10B981]',
-            state === 'error' && 'border-[#C3324B]'
+            disabled
+              ? 'border-ui-inactive-outline bg-ui-inactive-background text-text-inactive'
+              : 'border-ui-outline bg-ui-background text-text-tertiary hover:border-ui-hover-outline hover:bg-ui-hover-background has-[:focus]:border-ui-primary has-[:focus]:bg-ui-select-background has-[:focus]:text-text-primary',
+            state === 'success' ? 'border-ui-success' : '',
+            state === 'error' ? 'border-ui-error' : ''
           )}
         >
           <input
             spellCheck={false}
-            className="peer order-2 h-full w-full bg-[#141619] text-[#9CA0AA] outline-none autofill:bg-red-500 focus:bg-[#141619] focus:text-[#F5F5F5] focus-visible:bg-[#141619] disabled:text-[#6B6F78]"
+            className="peer order-2 h-full w-full bg-inherit outline-none autofill:bg-inherit"
             ref={ref}
             id={inputId}
+            disabled={disabled}
+            readOnly={readOnly}
+            autoComplete={autoComplete}
             {...props}
           />
           {startComponent && (
-            <div className="order-1 flex items-center justify-center text-[#9CA0AA] peer-disabled:text-[#42454D]">
-              {startComponent}
-            </div>
+            <div className="order-1 flex items-center justify-center text-text-tertiary">{startComponent}</div>
           )}
           {endComponent && (
-            <div className="order-3 flex items-center justify-center text-[#9CA0AA] peer-disabled:text-[#42454D]">
-              {endComponent}
-            </div>
+            <div className="order-3 flex items-center justify-center text-text-tertiary">{endComponent}</div>
           )}
         </div>
       </div>
 
       {helperText && (
         <span
-          className={`text-xs ${state === 'success' && 'text-[#0D9467]'} ${state === 'error' && 'text-[#C3324B]'}`}
+          className={`text-xs ${state === 'success' && 'text-ui-success'} ${state === 'error' && 'text-text-error'}`}
           style={{
             translate: helperOffset
           }}

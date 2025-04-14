@@ -35,6 +35,7 @@ export type EffectReactorProps = {
   effects: any
   composer: EffectComposer
   scene: Scene
+  passes: any //Record<string, Pass>
 }
 
 /** Interface for dynamic effect Registry

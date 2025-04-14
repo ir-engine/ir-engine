@@ -23,25 +23,24 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useLayoutEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { LocationIcons } from '@ir-engine/client-core/src/components/LocationIcons'
 import { useLoadLocation, useLoadScene } from '@ir-engine/client-core/src/components/World/LoadLocationScene'
-import { AuthService } from '@ir-engine/client-core/src/user/services/AuthService'
-import { ThemeContextProvider } from '@ir-engine/client/src/pages/themeContext'
-import { useMutableState } from '@ir-engine/hyperflux'
+import { AuthService, AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
+import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { ViewerInteractions } from '../components/ViewerInteractions'
 
 import '@ir-engine/client-core/src/util/GlobalStyle.css'
 
 import './LocationModule'
 
 import multiLogger from '@ir-engine/common/src/logger'
-import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
-import { StyledEngineProvider } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 import { NotificationService } from '../common/services/NotificationService'
+import { ThemeState } from '../common/services/ThemeService'
 import { useNetwork } from '../components/World/EngineHooks'
+import { useUserBannedCheck } from '../hooks/useUserBanned'
 import { LocationService } from '../social/services/LocationService'
 import { LoadingUISystemState } from '../systems/LoadingUISystem'
 import { clientContextParams } from '../util/ClientContextState'
@@ -70,8 +69,8 @@ const LocationPage = ({ online }: Props) => {
 
   useEffect(() => {
     if (!ready.value) return
-    logger.info({ event_name: 'enter_location' })
-    return () => logger.info({ event_name: 'exit_location' })
+    logger.analytics({ event_name: 'enter_location' })
+    return () => logger.analytics({ event_name: 'exit_location' })
   }, [ready.value])
 
   // To show invalid token error
@@ -84,18 +83,25 @@ const LocationPage = ({ online }: Props) => {
     }
   }, [location.search])
 
+  useLayoutEffect(() => {
+    const previousTheme = getMutableState(ThemeState).theme.value
+    ThemeState.setTheme('light')
+    window.addEventListener('beforeunload', () => ThemeState.setTheme(previousTheme))
+  }, [])
+
+  const isAuthenticated = useHookstate(getMutableState(AuthState).isAuthenticated).value
+
   return (
     <>
-      <ThemeContextProvider>
-        <StyledEngineProvider injectFirst>
-          {!ready.value && (
-            <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingEngine')} />
-          )}
-          <LocationIcons />
-        </StyledEngineProvider>
-      </ThemeContextProvider>
+      <ViewerInteractions />
+      {isAuthenticated && <CheckBanned />}
     </>
   )
+}
+
+const CheckBanned = () => {
+  useUserBannedCheck()
+  return null
 }
 
 export default LocationPage

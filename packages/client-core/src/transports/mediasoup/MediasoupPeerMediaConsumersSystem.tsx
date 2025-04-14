@@ -43,12 +43,12 @@ import {
 import { useFind } from '@ir-engine/common'
 import { defineSystem, PresentationSystemGroup } from '@ir-engine/ecs'
 import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
-import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import {
   createPeerMediaChannels,
   PeerMediaChannelState,
   removePeerMediaChannels
-} from '../../media/PeerMediaChannelState'
+} from '@ir-engine/network/src/media/PeerMediaChannelState'
+import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import { ConsumerExtension, ProducerExtension } from './MediasoupClientFunctions'
 
 const MAX_RES_TO_USE_TOP_LAYER = 540 // If under 540p, use the topmost video layer, otherwise use layer n-1
@@ -75,7 +75,7 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
     mediaTag === screenshareAudioDataChannelType || mediaTag === screenshareVideoDataChannelType ? 'screen' : 'cam'
   const isAudio = mediaTag === webcamAudioDataChannelType || mediaTag === screenshareAudioDataChannelType
 
-  const peerMediaChannelState = useMutableState(PeerMediaChannelState)[peerID]?.[type]
+  const peerMediaChannelState = useMutableState(PeerMediaChannelState)[peerID][type]
 
   const consumer = useHookstate(
     getMutableState(MediasoupMediaProducersConsumersObjectsState).consumers[props.consumerID]
@@ -188,11 +188,14 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
 const NetworkConsumers = (props: { networkID: InstanceID }) => {
   const { networkID } = props
   const consumers = useHookstate(getMutableState(MediasoupMediaProducerConsumerState)[networkID].consumers)
+  const peerMediaChannelState = useMutableState(PeerMediaChannelState)
   return (
     <>
-      {consumers.keys.map((consumerID: string) => (
-        <PeerMedia key={consumerID} consumerID={consumerID} networkID={networkID} />
-      ))}
+      {consumers.keys
+        .filter((c) => !!peerMediaChannelState[consumers.value[c].peerID])
+        .map((consumerID: string) => (
+          <PeerMedia key={consumerID} consumerID={consumerID} networkID={networkID} />
+        ))}
     </>
   )
 }

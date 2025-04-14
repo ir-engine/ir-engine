@@ -34,6 +34,12 @@ jobs:
             -H 'Accept: application/vnd.github.everest-preview+json' \
             ${{ secrets.IR_ENGINE_OPS_API_URL }} \
             -d '{"event_type": "deploy-ir-engine", "client_payload": {"environment": "${{ env.TARGET_BRANCH_NAME }}"}}'
+      - name: Send Remote Dispatch to Deploy GCP IR-Engine
+        run: |
+          curl -H "Authorization: token ${{ secrets.IR_ORG_ACCESS_TOKEN }}" \
+            -H 'Accept: application/vnd.github.everest-preview+json' \
+            ${{ secrets.IR_ENGINE_OPS_GCP_API_URL }} \
+            -d '{"event_type": "deploy-ir-engine", "client_payload": {"environment": "${{ env.TARGET_BRANCH_NAME }}"}}'
       - name: Detect changes in packages/ui
         id: check_changes
         run: |

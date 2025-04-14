@@ -35,7 +35,6 @@ import { AuthUserSeed, resolveAuthUser } from '@ir-engine/common/src/interfaces/
 import multiLogger from '@ir-engine/common/src/logger'
 import {
   AuthStrategiesType,
-  HasAccessType,
   IdentityProviderType,
   InstanceID,
   UserApiKeyType,
@@ -129,7 +128,9 @@ const getToken = async (): Promise<string> => {
   }
 
   const clientUrl = config.client.clientUrl
-  const hasAccess = (await communicator
+  return waitForToken(win, clientUrl)
+  /** @todo renable once UI is redone. No Shared login for now */
+  /* const hasAccess = (await communicator
     .sendMessage('checkAccess')
     .then((message) => {
       return message.data
@@ -177,12 +178,13 @@ const getToken = async (): Promise<string> => {
     }
   } else {
     return waitForToken(win, clientUrl)
-  }
+  } */
 }
 
 export const AuthState = defineState({
   name: 'AuthState',
   initial: () => ({
+    isAuthenticated: false,
     isProcessing: false,
     error: '',
     authUser: AuthUserSeed,
@@ -247,7 +249,7 @@ async function _resetToGuestToken(options = { reset: true }) {
   })
   const accessToken = newProvider.accessToken!
   await API.instance.authentication.setAccessToken(accessToken as string)
-  writeAuthUserToIframe()
+  await writeAuthUserToIframe()
   return accessToken
 }
 
@@ -301,15 +303,16 @@ export const AuthService = {
         const authUser = resolveAuthUser(res)
         // authUser is now { accessToken, authentication, identityProvider }
         authState.merge({ authUser })
-        writeAuthUserToIframe()
+        await writeAuthUserToIframe()
         await AuthService.loadUserData(authUser.identityProvider.userId)
       } else {
         logger.warn('No response received from reAuthenticate()!')
       }
+      getMutableState(AuthState).isAuthenticated.set(true)
     } catch (err) {
       logger.error(err, 'Error on resolving auth user in doLoginAuto, logging out')
       authState.merge({ user: UserSeed, authUser: AuthUserSeed })
-      writeAuthUserToIframe()
+      await writeAuthUserToIframe()
 
       // if (window.location.pathname !== '/') {
       //   window.location.href = '/';
@@ -486,7 +489,7 @@ export const AuthService = {
 
       const authUser = resolveAuthUser(res)
       authState.merge({ authUser })
-      writeAuthUserToIframe()
+      await writeAuthUserToIframe()
       await AuthService.loadUserData(authUser.identityProvider?.userId)
       authState.merge({ isProcessing: false, error: '' })
       let timeoutTimer = 0
@@ -502,7 +505,10 @@ export const AuthService = {
         }
         // After 3 seconds without the token getting updated, send the user back anyway - something seems to have
         // gone wrong, and we don't want them stuck on the page they were on indefinitely.
-        if (timeoutTimer > 3000) window.location.href = redirectSuccess
+        if (timeoutTimer > 3000) {
+          clearInterval(waitForTokenStored)
+          window.location.href = redirectSuccess
+        }
       }, TIMEOUT_INTERVAL)
     } catch (err) {
       authState.merge({ error: i18n.t('common:error.login-error') })
@@ -857,7 +863,9 @@ function parseLoginDisplayCredential(credentials) {
 }
 
 export const useAuthenticated = () => {
-  const userID = useHookstate(getMutableState(AuthState).user.id).value
+  const authState = getMutableState(AuthState)
+  const userID = useHookstate(authState.user.id).value
+  const isAuthenticated = useHookstate(authState.isAuthenticated).value
 
   useEffect(() => {
     AuthService.doLoginAuto()
@@ -870,5 +878,5 @@ export const useAuthenticated = () => {
     getMutableState(EngineState).userID.set(userID)
   }, [userID])
 
-  return userID !== ''
+  return isAuthenticated
 }

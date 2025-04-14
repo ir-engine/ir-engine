@@ -41,6 +41,7 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState, getState, startReactor } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import sinon from 'sinon'
 import { Box3, BoxGeometry, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
@@ -97,7 +98,7 @@ describe('TransformSystem', () => {
       return destroyEngine()
     })
 
-    it('should call computeTransformMatrix for all sorted entities that are true in the TransformComponent.dirtyTransforms list', () => {
+    it('should call computeTransformMatrix for all sorted entities that are true in the TransformComponent.dirty list', () => {
       const spy = sinon.spy()
       // Set the data as expected
       const entities: Entity[] = [createEntity(), createEntity(), createEntity(), createEntity()]
@@ -113,7 +114,7 @@ describe('TransformSystem', () => {
       assert.equal(spy.callCount, entities.length)
     })
 
-    it('should call updateBoundingBox for all entities that have a BoundingBoxComponent and are true in the TransformComponent.dirtyTransforms list', () => {
+    it('should call updateBoundingBox for all entities that have a BoundingBoxComponent and are true in the TransformComponent.dirty list', () => {
       const Initial = new Box3()
       const Expected = new Box3(new Vector3(-0.5, -0.5, -0.5), new Vector3(0.5, 0.5, 0.5))
       // Set the data as expected
@@ -285,7 +286,8 @@ describe('TransformSystem', () => {
         }
       })
 
-      it('.. should not do anything for the EngineState.viewerEntity when both itself and XSState.xrFrame are truthy', () => {
+      it('.. should not do anything for the EngineState.viewerEntity when both itself and XSState.xrFrame are truthy', async () => {
+        await act(() => render(null))
         const position = new Vector3(1, 2, 3)
         const rotation = new Quaternion(4, 5, 6, 7).normalize()
         const scale = new Vector3(8, 9, 10)
@@ -294,7 +296,7 @@ describe('TransformSystem', () => {
         // Set the data as expected
         // @ts-ignore Coerce the mocked XRFrame into XRState
         getMutableState(XRState).xrFrame.set(new MockXRFrame())
-        getMutableComponent(viewerEntity, CameraComponent).matrixWorld.set(Initial)
+        getComponent(viewerEntity, CameraComponent).matrixWorld.copy(Initial)
         // Sanity check before running
         assert.equal(Boolean(viewerEntity), true)
         assert.equal(Boolean(getState(XRState).xrFrame), true)
@@ -321,19 +323,19 @@ describe('TransformSystem', () => {
           for (const entity of entities) {
             setComponent(entity, TransformComponent)
             setComponent(entity, DistanceFromCameraComponent)
-            getMutableComponent(entity, DistanceFromCameraComponent).squaredDistance.set(Initial)
+            DistanceFromCameraComponent.squaredDistance[entity] = Initial
           }
           // Sanity check before running
           for (const entity of entities) {
             assert.equal(Boolean(viewerEntity), true)
-            const before = setComponent(entity, DistanceFromCameraComponent).squaredDistance
+            const before = DistanceFromCameraComponent.squaredDistance[entity]
             assert.equal(before, Initial)
             assert.notEqual(before, Expected)
           }
           // Run and Check the results
           System.execute()
           for (const entity of entities) {
-            const result = setComponent(entity, DistanceFromCameraComponent).squaredDistance
+            const result = DistanceFromCameraComponent.squaredDistance[entity]
             assert.notEqual(result, Initial)
             assert.equal(result, Expected)
           }
@@ -341,7 +343,7 @@ describe('TransformSystem', () => {
       })
 
       describe('... for every entity that has the components [TransformComponent, FrustumCullCameraComponent]', () => {
-        it(".. should set FrustumCullCameraComponent.isCulled for the entity if it does not have a BoundingBoxComponent and the worldPosition of the entity is contained in the frustrum of the viewerEntity's camera", () => {
+        it(".. should set FrustumCullCameraComponent.isCulled for the entity if it does not have a BoundingBoxComponent and the worldPosition of the entity is contained in the frustrum of the viewerEntity's camera", async () => {
           const Initial = 0
           const Expected = 1
           const viewerEntity = getState(ReferenceSpaceState).viewerEntity
@@ -352,6 +354,7 @@ describe('TransformSystem', () => {
             setComponent(entity, FrustumCullCameraComponent)
             // setComponent(entity, BoundingBoxComponent)  // Do not set a bounding box, so we hit the `:` branch when frustum culling
           }
+          await act(() => render(null))
           // Sanity check before running
           for (const entity of entities) {
             assert.equal(Boolean(viewerEntity), true)
@@ -369,7 +372,7 @@ describe('TransformSystem', () => {
           }
         })
 
-        it(".. should set FrustumCullCameraComponent.isCulled for the entity if it has a BoundingBoxComponent and its .box intersect with the frustrum of the viewerEntity's camera", () => {
+        it(".. should set FrustumCullCameraComponent.isCulled for the entity if it has a BoundingBoxComponent and its .box intersect with the frustrum of the viewerEntity's camera", async () => {
           const Initial = 0
           const Expected = 1
           const viewerEntity = getState(ReferenceSpaceState).viewerEntity
@@ -381,6 +384,7 @@ describe('TransformSystem', () => {
             setComponent(entity, MeshComponent, new Mesh(new BoxGeometry(1, 1, 1)))
             setComponent(entity, BoundingBoxComponent) // Set a bounding box, so we hit the `?` branch when frustum culling
           }
+          await act(() => render(null))
           // Sanity check before running
           for (const entity of entities) {
             assert.equal(Boolean(viewerEntity), true)
@@ -411,18 +415,18 @@ describe('TransformSystem', () => {
           for (const entity of entities) {
             setComponent(entity, TransformComponent)
             setComponent(entity, DistanceFromCameraComponent)
-            getMutableComponent(entity, DistanceFromCameraComponent).squaredDistance.set(Initial)
+            DistanceFromCameraComponent.squaredDistance[entity] = Initial
           }
           // Sanity check before running
           for (const entity of entities) {
             assert.equal(Boolean(viewerEntity), false)
-            const before = setComponent(entity, DistanceFromCameraComponent).squaredDistance
+            const before = DistanceFromCameraComponent.squaredDistance[entity]
             assert.equal(before, Initial)
           }
           // Run and Check the results
           System.execute()
           for (const entity of entities) {
-            const result = setComponent(entity, DistanceFromCameraComponent).squaredDistance
+            const result = DistanceFromCameraComponent.squaredDistance[entity]
             assert.equal(result, Initial)
           }
         })
@@ -502,23 +506,26 @@ describe('TransformSystem', () => {
 
       const systemReactor = System.reactor!
 
-      it('should set NetworkState.networkSchema[TransformSerialization.ID] when it mounts', () => {
+      it('should set NetworkState.networkSchema[TransformSerialization.ID] when it mounts', async () => {
         const before = getState(NetworkState).networkSchema[TransformSerialization.ID]
         assert.equal(before, undefined)
         // Run and Check the result
         const root = startReactor(systemReactor)
+        await act(() => render(null))
         const after = getState(NetworkState).networkSchema[TransformSerialization.ID]
         assert.notEqual(after, undefined)
       })
 
-      it('should set NetworkState.networkSchema[TransformSerialization.ID] to none when it unmounts', () => {
+      it('should set NetworkState.networkSchema[TransformSerialization.ID] to none when it unmounts', async () => {
         const before = getState(NetworkState).networkSchema[TransformSerialization.ID]
         assert.equal(before, undefined)
         // Run and Check the result
         const root = startReactor(systemReactor)
+        await act(() => render(null))
         const after = getState(NetworkState).networkSchema[TransformSerialization.ID]
         assert.notEqual(after, undefined)
         root.stop()
+        await act(() => render(null))
         const result = getState(NetworkState).networkSchema[TransformSerialization.ID]
         assert.equal(result, undefined)
       })
@@ -567,8 +574,8 @@ describe('TransformDirtyUpdateSystem', () => {
       assert.equal(result, Expected)
     })
 
-    it('should not change the dirtyTransforms value for each entity if its already true', () => {
-      const Expected = true
+    it('should not change the TransformComponent.dirty value for each entity if its already true', () => {
+      const Expected = 1
       // Set the data as expected
       const entities: Entity[] = [
         createEntity(),
@@ -583,15 +590,15 @@ describe('TransformDirtyUpdateSystem', () => {
       for (const entity of entities) assert.equal(hasComponent(entity, TransformComponent), true)
       for (const entity of entities) assert.equal(hasComponent(entity, ComputedTransformComponent), false)
       for (const entity of entities) assert.equal(hasComponent(entity, EntityTreeComponent), false)
-      for (const entity of entities) assert.equal(TransformComponent.dirtyTransforms[entity], Expected)
+      for (const entity of entities) assert.equal(TransformComponent.dirty[entity], Expected)
       // Run and Check the result
       System.execute()
-      for (const entity of entities) assert.equal(TransformComponent.dirtyTransforms[entity], Expected)
+      for (const entity of entities) assert.equal(TransformComponent.dirty[entity], Expected)
     })
 
-    it('should set the dirtyTransforms value for each entity to true if the entity has a ComputedTransformComponent', () => {
-      const Expected = true
-      const Initial = !Expected
+    it('should set the TransformComponent.dirty value for each entity to true if the entity has a ComputedTransformComponent', () => {
+      const Expected = 1
+      const Initial = 0
       // Set the data as expected
       const entities: Entity[] = [
         createEntity(),
@@ -603,21 +610,21 @@ describe('TransformDirtyUpdateSystem', () => {
       ]
       for (const entity of entities) setComponent(entity, TransformComponent)
       for (const entity of entities) setComponent(entity, ComputedTransformComponent)
-      for (const entity of entities) TransformComponent.dirtyTransforms[entity] = Initial
+      for (const entity of entities) TransformComponent.dirty[entity] = Initial
       // Sanity check before running
       for (const entity of entities) assert.equal(hasComponent(entity, TransformComponent), true)
       for (const entity of entities) assert.equal(hasComponent(entity, ComputedTransformComponent), true)
       for (const entity of entities) assert.equal(hasComponent(entity, EntityTreeComponent), false)
-      for (const entity of entities) assert.equal(TransformComponent.dirtyTransforms[entity], Initial)
-      for (const entity of entities) assert.notEqual(TransformComponent.dirtyTransforms[entity], Expected)
+      for (const entity of entities) assert.equal(TransformComponent.dirty[entity], Initial)
+      for (const entity of entities) assert.notEqual(TransformComponent.dirty[entity], Expected)
       // Run and Check the result
       System.execute()
-      for (const entity of entities) assert.equal(TransformComponent.dirtyTransforms[entity], Expected)
+      for (const entity of entities) assert.equal(TransformComponent.dirty[entity], Expected)
     })
 
-    it('should set the dirtyTransforms value for each entity to true if the dirtyTransforms for its EntityTreeComponent.parentEntity is true', () => {
-      const Expected = true
-      const Initial = !Expected
+    it('should set the TransformComponent.dirty value for each entity to true if the TransformComponent.dirty for its EntityTreeComponent.parentEntity is true', () => {
+      const Expected = 1
+      const Initial = 0
       const entities: Entity[] = [
         createEntity(),
         createEntity(),
@@ -631,24 +638,24 @@ describe('TransformDirtyUpdateSystem', () => {
       for (const id in entities) parents[id] = createEntity()
       for (const id in entities) setComponent(entities[id], EntityTreeComponent, { parentEntity: parents[id] })
       for (const entity of parents) setComponent(entity, TransformComponent)
-      for (const entity of parents) TransformComponent.dirtyTransforms[entity] = Expected
+      for (const entity of parents) TransformComponent.dirty[entity] = Expected
       for (const entity of entities) setComponent(entity, TransformComponent)
       for (const entity of entities) setComponent(entity, ComputedTransformComponent)
-      for (const entity of entities) TransformComponent.dirtyTransforms[entity] = Initial
+      for (const entity of entities) TransformComponent.dirty[entity] = Initial
       // Sanity check before running
       for (const entity of entities) assert.equal(hasComponent(entity, TransformComponent), true)
       for (const entity of entities) assert.equal(hasComponent(entity, ComputedTransformComponent), true)
       for (const entity of entities) assert.equal(hasComponent(entity, EntityTreeComponent), true)
-      for (const entity of entities) assert.equal(TransformComponent.dirtyTransforms[entity], Initial)
-      for (const entity of entities) assert.notEqual(TransformComponent.dirtyTransforms[entity], Expected)
+      for (const entity of entities) assert.equal(TransformComponent.dirty[entity], Initial)
+      for (const entity of entities) assert.notEqual(TransformComponent.dirty[entity], Expected)
       // Run and Check the result
       System.execute()
-      for (const entity of entities) assert.equal(TransformComponent.dirtyTransforms[entity], Expected)
+      for (const entity of entities) assert.equal(TransformComponent.dirty[entity], Expected)
     })
 
-    it('should set the dirtyTransforms value to false when none of the other conditions are true and the parent does not exist in the TransformComponent.dirtyTransforms list', () => {
+    it('should set the TransformComponent.dirty value to false when none of the other conditions are true and the parent does not exist in the TransformComponent.dirty list', () => {
       const Expected = false
-      const Initial = undefined
+      const Initial = 0
       const entities: Entity[] = [
         createEntity(),
         createEntity(),
@@ -663,17 +670,17 @@ describe('TransformDirtyUpdateSystem', () => {
       for (const id in entities) setComponent(entities[id], EntityTreeComponent, { parentEntity: parents[id] })
       for (const entity of parents) setComponent(entity, TransformComponent)
       for (const entity of entities) setComponent(entity, TransformComponent)
-      for (const entity of parents) delete TransformComponent.dirtyTransforms[entity]
-      for (const entity of entities) delete TransformComponent.dirtyTransforms[entity]
+      for (const entity of parents) TransformComponent.dirty[entity] = 0
+      for (const entity of entities) TransformComponent.dirty[entity] = 0
       // Sanity check before running
       for (const entity of entities) assert.equal(hasComponent(entity, TransformComponent), true)
       for (const entity of entities) assert.equal(hasComponent(entity, ComputedTransformComponent), false)
       for (const entity of entities) assert.equal(hasComponent(entity, EntityTreeComponent), true)
-      for (const entity of entities) assert.equal(TransformComponent.dirtyTransforms[entity], Initial)
-      for (const entity of parents) assert.equal(TransformComponent.dirtyTransforms[entity], Initial)
+      for (const entity of entities) assert.equal(TransformComponent.dirty[entity], Initial)
+      for (const entity of parents) assert.equal(TransformComponent.dirty[entity], Initial)
       // Run and Check the result
       System.execute()
-      for (const entity of entities) assert.equal(TransformComponent.dirtyTransforms[entity], Expected)
+      for (const entity of entities) assert.equal(TransformComponent.dirty[entity], Expected)
     })
   }) //:: execute
 }) //:: TransformDirtyUpdateSystem
@@ -706,22 +713,21 @@ describe('TransformDirtyCleanupSystem', () => {
       return destroyEngine()
     })
 
-    it('should remove every entity from the TransformComponent.dirtyTransforms list', () => {
+    it('should remove every entity from the TransformComponent.dirty list', () => {
       const count = 2
-      const Initial = count + Object.entries(TransformComponent.dirtyTransforms).length
-      const Expected = 0
+      const entities = [] as Entity[]
       // Set the data as expected
       for (let id = 0; id < count; ++id) {
         const entity = createEntity()
+        entities.push(entity)
         setComponent(entity, TransformComponent)
-        TransformComponent.dirtyTransforms[entity] = true
+        TransformComponent.dirty[entity] = 1
       }
-      // Sanity check before running
-      assert.notEqual(Object.entries(TransformComponent.dirtyTransforms).length, Expected)
-      assert.equal(Object.entries(TransformComponent.dirtyTransforms).length, Initial)
       // Run and Check the result
       System.execute()
-      assert.equal(Object.entries(TransformComponent.dirtyTransforms).length, Expected)
+      for (const entity of entities) {
+        assert.equal(TransformComponent.dirty[entity], 0)
+      }
     })
   }) //:: execute
 }) //:: TransformDirtyCleanupSystem

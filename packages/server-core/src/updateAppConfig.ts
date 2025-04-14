@@ -33,13 +33,13 @@ import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { EngineSettingType, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import {
   ClientSettingDatabaseType,
+  clientDbToSchema,
   clientSettingPath
 } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
 import { parseValue } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { FlattenedEntry, unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { createHash } from 'crypto'
 import appConfig, { updateNestedConfig } from './appconfig'
-import { clientDbToSchema } from './setting/client-setting/client-setting.resolvers'
 
 const db = {
   user: process.env.MYSQL_USER ?? 'server',
@@ -54,7 +54,7 @@ export const updateAppConfig = async (): Promise<void> => {
   if (appConfig.db.forceRefresh || !appConfig.kubernetes.enabled) return
 
   const knexClient = knex({
-    client: 'mysql',
+    client: 'mysql2',
     connection: {
       ...db,
       port: parseInt(db.port.toString()),

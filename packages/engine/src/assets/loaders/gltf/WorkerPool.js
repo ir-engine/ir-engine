@@ -30,7 +30,7 @@ Infinite Reality Engine. All Rights Reserved.
  */
 
 export class WorkerPool {
-  constructor(pool = 4) {
+  constructor(pool = 1) {
     this.pool = pool
     this.queue = []
     this.workers = []
@@ -55,6 +55,7 @@ export class WorkerPool {
   _onMessage(workerId, msg) {
     const resolve = this.workersResolve[workerId]
     resolve && resolve(msg)
+    this.workersResolve[workerId] = null
 
     if (this.queue.length) {
       const { resolve, msg, transfer } = this.queue.shift()

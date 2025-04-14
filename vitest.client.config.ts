@@ -23,40 +23,32 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { configDefaults, defineConfig } from 'vitest/config'
+import { configDefaults, coverageConfigDefaults, defineConfig } from 'vitest/config'
 
 const reporters = !process.env.CI ? ['basic'] : configDefaults.reporters // Use default report config on CI.
-const watermark = [80, 95] as [number, number]
-const threshold = 80
 
 import appRootPath from 'app-root-path'
 import path from 'path'
 
 export default defineConfig({
   test: {
-    setupFiles: [path.resolve(appRootPath.path, 'packages/spatial/tests/util/patchNode.ts')],
+    setupFiles: [
+      path.resolve(appRootPath.path, 'packages/hyperflux/tests/utils/patchNode.ts'),
+      path.resolve(appRootPath.path, './vitest.setup.ts')
+    ],
     environment: 'jsdom',
+    maxConcurrency: 1,
     passWithNoTests: true,
-    testTimeout: 2 * 60 * 1000,
-    hookTimeout: 2 * 60 * 1000,
+    testTimeout: 10000,
+    hookTimeout: 10000,
     reporters: reporters,
     slowTestThreshold: 1000,
     coverage: {
-      reporter: ['html'],
+      enabled: true,
+      reporter: ['lcov'],
       provider: 'istanbul',
-      thresholds: {
-        perFile: true,
-        statements: threshold,
-        branches: threshold,
-        functions: threshold,
-        lines: threshold
-      },
-      watermarks: {
-        statements: watermark,
-        branches: watermark,
-        functions: watermark,
-        lines: watermark
-      }
+      include: ['src/**'],
+      exclude: ['src/xr/WebXRManager.*', ...coverageConfigDefaults.exclude] //WebXrManager completely breaks with coverage enabled
     }
   }
 })

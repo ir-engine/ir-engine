@@ -25,12 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 /**
  * Captures org name, project name and asset path from a URL.
- * For eg: `/path/to/projects/project123/assets/images/logo.png` will capture following groups
- * - `@org123` => Group 1
- * - `project123` => Group 2
- * - `assets/images/logo.png` => Group 3
+ * For eg: `https://example.com/projects/ir-engine/default-project/assets/animations/locomotion.glb` will capture following groups
+ * - `ir-engine` => Group 1
+ * - `default-project` => Group 2
+ * - `assets/animations/locomotion.glb` => Group 3
  */
-export const STATIC_ASSET_REGEX = /^(?:.*\/(?:projects|static-resources)\/([^\/]*)\/([^\/]*)\/((?:assets\/|).*)$)/
+export const STATIC_ASSET_REGEX =
+  /^(?:.*\/(?:projects|static-resources)\/([^\/]*)\/([^\/]*)\/((?:assets\/|public\/).*)$)/
 
 export function getBasePath(path: string) {
   const regex = new RegExp(`(.*/(?:projects|static-resources)/[^/]*)`)

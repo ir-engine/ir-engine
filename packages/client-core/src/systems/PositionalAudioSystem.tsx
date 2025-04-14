@@ -26,9 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { Vector3 } from 'three'
 
-import { ECSState, Not } from '@ir-engine/ecs'
+import { ECSState, Not, useEntityContext } from '@ir-engine/ecs'
 import { ComponentType, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { QueryReactor, defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
@@ -37,6 +36,7 @@ import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent, NetworkObjectOwnedTag, NetworkState } from '@ir-engine/network'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { hasComponent } from '@ir-engine/ecs'
 import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
 import {
   addPannerNode,
@@ -51,8 +51,8 @@ import {
   MediaElementComponent,
   createAudioNodeGroup
 } from '@ir-engine/engine/src/scene/components/MediaComponent'
+import { PeerMediaChannelState } from '@ir-engine/network/src/media/PeerMediaChannelState'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
-import { PeerMediaChannelState } from '../media/PeerMediaChannelState'
 
 const _vec3 = new Vector3()
 const _rot = new Vector3()
@@ -96,7 +96,7 @@ const execute = () => {
    */
   const networkedAvatarAudioEntities = networkedAvatarAudioQuery()
   for (const entity of networkedAvatarAudioEntities) {
-    if (!network) continue
+    if (!network?.peers) continue
 
     const networkObject = getComponent(entity, NetworkObjectComponent)
     const ownerID = networkObject.ownerId
@@ -193,6 +193,8 @@ const execute = () => {
 
   const viewerEntity = getState(ReferenceSpaceState).viewerEntity
   if (!viewerEntity) return
+
+  if (!hasComponent(viewerEntity, TransformComponent)) return
 
   /**
    * Update camera listener position

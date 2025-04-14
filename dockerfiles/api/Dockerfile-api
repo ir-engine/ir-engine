@@ -2,7 +2,7 @@ ARG REPO_URL
 ARG REPO_NAME
 ARG STAGE
 ARG TAG
-FROM ${REPO_URL}/${REPO_NAME}-root:${TAG} as builder
+FROM ${REPO_URL}/${REPO_NAME}:${TAG} AS builder
 
 # Create app directory
 WORKDIR /app
@@ -11,7 +11,7 @@ COPY project-package-jsons ./
 COPY packages/server/package.json ./packages/server/
 
 ARG NODE_ENV
-RUN npm install --loglevel notice --legacy-peer-deps --production
+RUN --mount=type=cache,target=/root/.npm npm install --loglevel notice --legacy-peer-deps --production
 
 COPY . .
 
@@ -19,14 +19,31 @@ COPY . .
 
 ENV APP_ENV=production
 
-FROM node:22-slim as runner
+FROM node:22-slim AS runner
 RUN apt update
 RUN apt-get -y install git
 RUN apt-get -y install git-lfs
 WORKDIR /app
 
-COPY --from=builder /app ./
-
+COPY --from=builder /app/scripts/setup_helm.sh ./scripts/setup_helm.sh
 RUN bash ./scripts/setup_helm.sh
+
+ARG STORAGE_PROVIDER
+
+# Install debugging tools (vim and default-mysql-client) and gcloud prerequisites
+RUN if [ "$STORAGE_PROVIDER" = "gcs" ]; then apt-get update && \
+  apt-get install -y vim default-mysql-client apt-transport-https ca-certificates gnupg curl && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*; fi
+
+# Install gcloud for Debian: https://cloud.google.com/sdk/docs/install
+RUN if [ "$STORAGE_PROVIDER" = "gcs" ]; then echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
+  | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
+  && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+  | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
+  && apt-get update -y \
+  && apt-get install google-cloud-cli -y; fi
+
+COPY --from=builder /app ./
 
 CMD ["scripts/start-server.sh"]

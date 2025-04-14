@@ -55,7 +55,8 @@ import { Physics, PhysicsWorld, RapierWorldState } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
-import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
+import { TriggerComponent } from '../components/TriggerComponent'
+import { AllCollisionMask, CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { BodyTypes, Shapes } from '../types/PhysicsTypes'
 import { PhysicsSystem, spatialInputRaycastHeuristic } from './PhysicsSystem'
 
@@ -80,7 +81,6 @@ describe('PhysicsSystem', () => {
   }) //:: Fields
 
   describe('execute', () => {
-    let testEntity = UndefinedEntity
     let physicsWorld: PhysicsWorld
     let physicsWorldEntity = UndefinedEntity
 
@@ -92,25 +92,24 @@ describe('PhysicsSystem', () => {
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
       setComponent(physicsWorldEntity, EntityTreeComponent)
-      physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+      physicsWorld = Physics.createWorld(physicsWorldEntity)
       physicsWorld.timestep = 1 / steps
-
-      testEntity = createEntity()
     })
 
     afterEach(() => {
-      removeEntity(testEntity)
       return destroyEngine()
     })
 
     const physicsSystemExecute = SystemDefinitions.get(PhysicsSystem)!.execute
 
-    it('should step the physics', () => {
+    it('should step the physics', async () => {
+      const testEntity = createEntity()
       // Setup the data as expected
       setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       setComponent(testEntity, TransformComponent)
       setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
       setComponent(testEntity, ColliderComponent)
+      await act(() => render(null))
       const testImpulse = new Vector3(1, 2, 3)
       // Sanity check before running
       const beforeBody = physicsWorld.Rigidbodies.get(testEntity)
@@ -140,12 +139,14 @@ describe('PhysicsSystem', () => {
       }
     }
 
-    it('should update poses on the ECS', () => {
+    it('should update poses on the ECS', async () => {
+      const testEntity = createEntity()
       // Setup the data as expected
       setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       setComponent(testEntity, TransformComponent)
       setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
       setComponent(testEntity, ColliderComponent)
+      await act(() => render(null))
       const testImpulse = new Vector3(1, 2, 3)
       // Sanity check before running
       const before = cloneRigidBodyPoseData(testEntity)
@@ -173,7 +174,7 @@ describe('PhysicsSystem', () => {
       assertVec.anyApproxNotEq(after.angularVelocity, before.angularVelocity, 3)
     })
 
-    it('should call Physics.simulate to update collisions on the ECS', () => {
+    it('should call Physics.simulate to update collisions on the ECS', async () => {
       const entity1 = createEntity()
       setComponent(entity1, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       setComponent(entity1, TransformComponent)
@@ -184,6 +185,7 @@ describe('PhysicsSystem', () => {
       setComponent(entity2, TransformComponent) // Will check for overlapping collision
       setComponent(entity2, RigidBodyComponent, { type: BodyTypes.Fixed })
       setComponent(entity2, ColliderComponent)
+      await act(() => render(null))
       // Sanity check before
       assert.equal(hasComponent(entity1, CollisionComponent), false)
       assert.equal(hasComponent(entity2, CollisionComponent), false)
@@ -194,17 +196,19 @@ describe('PhysicsSystem', () => {
       assert.equal(hasComponent(entity2, CollisionComponent), true)
     })
 
-    it('should remove the CollisionComponents when there are no longer any entities colliding', () => {
+    it('should remove the CollisionComponents when there are no longer any entities colliding', async () => {
       const entity1 = createEntity()
       setComponent(entity1, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       setComponent(entity1, TransformComponent)
       setComponent(entity1, RigidBodyComponent, { type: BodyTypes.Dynamic })
-      setComponent(entity1, ColliderComponent, { mass: 1 })
+      setComponent(entity1, ColliderComponent, { mass: 1, collisionMask: AllCollisionMask })
       const entity2 = createEntity()
       setComponent(entity2, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       setComponent(entity2, TransformComponent) // Will check for overlapping collision
       setComponent(entity2, RigidBodyComponent, { type: BodyTypes.Fixed })
+      setComponent(entity2, TriggerComponent)
       setComponent(entity2, ColliderComponent)
+      await act(() => render(null))
       // Sanity check before
       assert.equal(hasComponent(entity1, CollisionComponent), false)
       assert.equal(hasComponent(entity2, CollisionComponent), false)
@@ -213,10 +217,10 @@ describe('PhysicsSystem', () => {
       assert.equal(hasComponent(entity2, CollisionComponent), true)
 
       // Run and Check after
-      const NoCollisionStepID = 10 // @note entity1's body will move out of range from entity2 in 10 steps (due to gravity)
-      for (let id = 0; id < steps; ++id) {
+      const NoCollisionStepID = 26 // @note entity1's body will move out of range from entity2 in 25 steps (due to gravity)
+      for (let step = 0; step < steps; ++step) {
         physicsSystemExecute()
-        if (id < NoCollisionStepID) {
+        if (step < NoCollisionStepID) {
           assert.equal(hasComponent(entity1, CollisionComponent), true)
           assert.equal(hasComponent(entity2, CollisionComponent), true)
         } else {
@@ -241,10 +245,11 @@ describe('PhysicsSystem', () => {
         setComponent(physicsWorldEntity, SceneComponent)
         setComponent(physicsWorldEntity, TransformComponent)
         setComponent(physicsWorldEntity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+        physicsWorld = Physics.createWorld(physicsWorldEntity)
         physicsWorld.timestep = 1 / steps
 
         testEntity = createEntity()
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -254,23 +259,26 @@ describe('PhysicsSystem', () => {
 
       const physicsSystemReactor = SystemDefinitions.get(PhysicsSystem)!.reactor!
 
-      it('should set NetworkState.networkSchema[PhysicsSerialization.ID] when it mounts', () => {
+      it('should set NetworkState.networkSchema[PhysicsSerialization.ID] when it mounts', async () => {
         const before = getState(NetworkState).networkSchema[PhysicsSerialization.ID]
         assert.equal(before, undefined)
         // Run and Check the result
         const root = startReactor(physicsSystemReactor)
+        await act(() => render(null))
         const after = getState(NetworkState).networkSchema[PhysicsSerialization.ID]
         assert.notEqual(after, undefined)
       })
 
-      it('should set NetworkState.networkSchema[PhysicsSerialization.ID] to none when it unmounts', () => {
+      it('should set NetworkState.networkSchema[PhysicsSerialization.ID] to none when it unmounts', async () => {
         const before = getState(NetworkState).networkSchema[PhysicsSerialization.ID]
         assert.equal(before, undefined)
         // Run and Check the result
         const root = startReactor(physicsSystemReactor)
+        await act(() => render(null))
         const after = getState(NetworkState).networkSchema[PhysicsSerialization.ID]
         assert.notEqual(after, undefined)
         root.stop()
+        await act(() => render(null))
         const result = getState(NetworkState).networkSchema[PhysicsSerialization.ID]
         assert.equal(result, undefined)
       })
@@ -279,14 +287,18 @@ describe('PhysicsSystem', () => {
     describe('PhysicsSceneReactor', () => {
       let testEntity = UndefinedEntity
       let physicsWorldEntity = UndefinedEntity
+      const physicsSystemReactor = SystemDefinitions.get(PhysicsSystem)?.reactor
 
       beforeEach(async () => {
         createEngine()
+        startReactor(physicsSystemReactor!)
+
         physicsWorldEntity = createEntity()
         setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
         setComponent(physicsWorldEntity, EntityTreeComponent)
         setComponent(physicsWorldEntity, TransformComponent)
 
+        await act(() => render(null))
         testEntity = createEntity()
       })
 
@@ -296,31 +308,21 @@ describe('PhysicsSystem', () => {
         return destroyEngine()
       })
 
-      const physicsSystemReactor = SystemDefinitions.get(PhysicsSystem)?.reactor
-
       /** @todo Why is the world not recreated as expected ?? */
       it("should create a new physics world whenever the UUIDComponent of a SceneComponent's entityContext changes", async () => {
-        const uuid = getComponent(physicsWorldEntity, UUIDComponent)
-
         // Sanity check before running
         assert.equal(hasComponent(physicsWorldEntity, SceneComponent), false)
-        assert.throws(() => Physics.destroyWorld(uuid))
+        assert.throws(() => Physics.destroyWorld(physicsWorldEntity))
         // Run and Check the result
-        const root = startReactor(physicsSystemReactor!)
         setComponent(physicsWorldEntity, SceneComponent, { active: true })
-        root.run()
-
-        const { rerender, unmount } = render(null)
-        await act(async () => rerender(null))
+        await act(() => render(null))
 
         await vi.waitFor(
           () => {
-            assert.ok(getState(RapierWorldState)[uuid])
+            assert.ok(getState(RapierWorldState)[physicsWorldEntity])
           },
           { timeout: 20000 }
         )
-
-        unmount()
       })
     }) //:: PhysicsSceneReactor
 
@@ -337,7 +339,7 @@ describe('PhysicsSystem', () => {
         setComponent(physicsWorldEntity, EntityTreeComponent)
         setComponent(physicsWorldEntity, TransformComponent)
         setComponent(physicsWorldEntity, SceneComponent)
-        physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+        physicsWorld = Physics.createWorld(physicsWorldEntity)
         physicsWorld!.timestep = 1 / 60
 
         testEntity = createEntity()
@@ -352,6 +354,7 @@ describe('PhysicsSystem', () => {
           collisionLayer: CollisionGroups.Default,
           collisionMask: DefaultCollisionMask
         })
+        await act(() => render(null))
       })
 
       afterEach(() => {

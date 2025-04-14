@@ -26,12 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BufferGeometry, Color, Mesh, MeshBasicMaterial, Ray, Vector3 } from 'three'
 
+import { removeEntity } from '@ir-engine/ecs'
 import { getComponent, getMutableComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { getMutableState, getState, isClient } from '@ir-engine/hyperflux'
+import { getState, isClient } from '@ir-engine/hyperflux'
 import { WebContainer3D } from '@ir-engine/xrui'
 
 import { EngineState } from '@ir-engine/ecs'
@@ -258,12 +258,7 @@ export const XRUIInputSystem = defineSystem({
   },
   reactor: () => {
     useEffect(() => {
-      getMutableState(InputHeuristicState).merge([
-        {
-          order: 0,
-          heuristic: xruiInputHeuristic
-        }
-      ])
+      InputHeuristicState.addHeuristic(0, xruiInputHeuristic)
     }, [])
     return null
   }

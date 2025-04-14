@@ -27,8 +27,8 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineRemoveCircleOutline } from 'react-icons/md'
 
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@ir-engine/client-core/src/common/services/ProjectService'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useFind } from '@ir-engine/common'
@@ -81,7 +81,7 @@ export default function ManageUserPermissionModal({ project }: { project: Immuta
       return
     }
     try {
-      await ProjectService.createPermission(userInviteCode.value, project.id, 'reviewer')
+      await ProjectService.createPermission(userInviteCode.value, project.id, 'editor')
       projectPermissionsFindQuery.refetch()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -90,7 +90,7 @@ export default function ManageUserPermissionModal({ project }: { project: Immuta
 
   const handlePatchPermission = async (permission: ProjectPermissionType) => {
     try {
-      await ProjectService.patchPermission(permission.id, permission.type === 'owner' ? 'user' : 'owner')
+      await ProjectService.patchPermission(permission.id, permission.type === 'owner' ? 'editor' : 'owner')
       projectPermissionsFindQuery.refetch()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -114,7 +114,7 @@ export default function ManageUserPermissionModal({ project }: { project: Immuta
         handleCreatePermission()
       }}
       hideFooter={selfUserPermission !== 'owner'}
-      onClose={() => PopoverState.hidePopupover()}
+      onClose={() => ModalState.closeModal()}
     >
       {selfUserPermission === 'owner' && (
         <Input

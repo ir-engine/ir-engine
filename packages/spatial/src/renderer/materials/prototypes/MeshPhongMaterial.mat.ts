@@ -49,7 +49,6 @@ export const MeshPhongArguments = {
 }
 
 export const MeshPhongMaterial: MaterialPrototypeDefinition = {
-  prototypeId: 'MeshPhongMaterial',
   prototypeConstructor: Phong,
   arguments: MeshPhongArguments
 }

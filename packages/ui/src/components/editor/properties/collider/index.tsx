@@ -24,10 +24,19 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { camelCaseToSpacedString } from '@ir-engine/common/src/utils/camelCaseToSpacedString'
-import { hasComponent, SerializedComponentType, useAncestorWithComponents, useComponent } from '@ir-engine/ecs'
+import {
+  getComponent,
+  LayerComponents,
+  Layers,
+  SerializedComponentType,
+  useAncestorWithComponents,
+  useComponent,
+  useOptionalComponent,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import { commitProperty, EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
-import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { EditorHistoryFunctions } from '@ir-engine/editor/src/services/EditorHistoryState'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { ColliderComponent, supportedColliderShapes } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
@@ -38,8 +47,8 @@ import { useTranslation } from 'react-i18next'
 import { FiMinimize2 } from 'react-icons/fi'
 import { HiPlus } from 'react-icons/hi2'
 import { Vector3 } from 'three'
+import { Checkbox } from '../../../../index'
 import Button from '../../../../primitives/tailwind/Button'
-import Checkbox from '../../../../primitives/tailwind/Checkbox'
 import Text from '../../../../primitives/tailwind/Text'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
@@ -57,11 +66,14 @@ const shapeTypeOptions = Object.entries(Shapes)
 export const ColliderComponentEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const colliderComponent = useComponent(props.entity, ColliderComponent)
+  const authoringComponent = getComponent(props.entity, LayerComponents[Layers.Authoring])
+  const linkedEntity = authoringComponent.relations[Layers.Simulation]
+  const meshComponent = useOptionalComponent(linkedEntity, MeshComponent)
 
   const isMeshOrConvexHull =
     colliderComponent.shape.value === Shapes.Mesh || colliderComponent.shape.value === Shapes.ConvexHull
 
-  const showMatchMesh = !isMeshOrConvexHull && hasComponent(props.entity, MeshComponent)
+  const showMatchMesh = !isMeshOrConvexHull && !!meshComponent
   const hasRigidBody = useAncestorWithComponents(props.entity, [RigidBodyComponent])
 
   const shape = colliderComponent.shape.value
@@ -98,7 +110,8 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
             className="text-sm text-[#FFFFFF]"
             onClick={() => {
               const nodes = SelectionState.getSelectedEntities()
-              EditorControlFunctions.addOrRemoveComponent(nodes, RigidBodyComponent, true, { type: 'fixed' })
+              EditorHistoryFunctions.setComponent(nodes, RigidBodyComponent, { type: 'fixed' })
+              SelectionState.updateSelection(nodes.flatMap((node) => getComponent(node, UUIDComponent))) // to trigger the rerender for the editor panel
             }}
           >
             <HiPlus />

@@ -28,8 +28,8 @@ import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getState, none } from '@ir-engine/hyperflux'
 
+import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
-import { NormalizedBoneComponent } from '../avatar/components/NormalizedBoneComponent'
 import { MotionCapturePoseComponent } from './MotionCapturePoseComponent'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 
@@ -53,9 +53,9 @@ export const evaluatePose = (entity: Entity) => {
 
   if (!MotionCaptureRigComponent.solvingLowerBody[entity]) return 'none'
 
-  const rightUpperLeg = getComponent(rig.rightUpperLeg, NormalizedBoneComponent).quaternion
-  const leftUpperLeg = getComponent(rig.leftUpperLeg, NormalizedBoneComponent).quaternion
-  const spine = getComponent(rig.spine, NormalizedBoneComponent).quaternion
+  const rightUpperLeg = getComponent(rig.rightUpperLeg, BoneComponent).quaternion
+  const leftUpperLeg = getComponent(rig.leftUpperLeg, BoneComponent).quaternion
+  const spine = getComponent(rig.spine, BoneComponent).quaternion
   /**Detect if our legs pose has changed by their angle */
   const getLegsSeatedChange = (toPose: MotionCapturePoses): boolean => {
     let metTargetStateAngle =

@@ -22,11 +22,10 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import isValidSceneName from '@ir-engine/common/src/utils/validateSceneName'
-import { getComponent } from '@ir-engine/ecs'
-import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { Input } from '@ir-engine/ui'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
@@ -57,17 +56,17 @@ export default function SaveNewSceneDialog(props: { onConfirm?: () => void; onCa
         if (inputSceneName.value && projectName) {
           await saveSceneGLTF(sceneAssetID!, projectName, inputSceneName.value, abortController.signal, true)
 
-          const sourceID = getComponent(rootEntity, SourceComponent)
-          getMutableState(GLTFModifiedState)[sourceID].set(none)
+          const sourceID = GLTFComponent.getInstanceID(rootEntity)
+          getMutableState(AssetModifiedState)[sourceID].set(none)
         }
       }
-      PopoverState.hidePopupover()
+      ModalState.closeModal()
       if (props.onConfirm) props.onConfirm()
     } catch (error) {
-      PopoverState.hidePopupover()
+      ModalState.closeModal()
       if (props.onCancel) props.onCancel()
       console.error(error)
-      PopoverState.showPopupover(
+      ModalState.openModal(
         <ErrorDialog title={t('editor:savingError')} description={error?.message || t('editor:savingErrorMsg')} />
       )
     }
@@ -78,7 +77,7 @@ export default function SaveNewSceneDialog(props: { onConfirm?: () => void; onCa
     <Modal
       title={t('editor:dialog.saveNewScene.title')}
       onClose={() => {
-        PopoverState.hidePopupover()
+        ModalState.closeModal()
         if (props.onCancel) props.onCancel()
       }}
       onSubmit={handleSubmit}

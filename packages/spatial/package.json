@@ -22,7 +22,6 @@
     "@ir-engine/ecs": "^1.6.0",
     "@ir-engine/hyperflux": "^1.6.0",
     "@ir-engine/network": "^1.6.0",
-    "@ir-engine/visual-script": "^1.6.0",
     "@tweenjs/tween.js": "^23.1.2",
     "lodash": "4.17.21",
     "noisejs": "2.1.0",
@@ -37,6 +36,7 @@
   "devDependencies": {
     "@types/node": "18.15.5",
     "fake-indexeddb": "6.0.0",
+    "gl-matrix": "3.4.3",
     "rimraf": "4.4.0",
     "localforage": "^1.10.0",
     "webxr-polyfill": "github:felixtrz/webxr-polyfill#81d2db4f01b518f2c42b74a90973dac095515e9f"

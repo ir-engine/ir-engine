@@ -29,6 +29,7 @@ import {
   BUILDER_CHART_REGEX,
   EMAIL_REGEX,
   GITHUB_URL_REGEX,
+  GUID_ID_REGEX,
   INSTALLATION_SIGNED_REGEX,
   INVITE_CODE_REGEX,
   MAIN_CHART_REGEX,
@@ -37,8 +38,9 @@ import {
   PROJECT_REGEX,
   PROJECT_THUMBNAIL_REGEX,
   PUBLIC_SIGNED_REGEX,
+  REMOVE_EDGE_SLASH_REGEX,
+  TRAILING_SLASH_REGEX,
   UNIQUEIFIED_VITE_KEY_REGEX,
-  USER_ID_REGEX,
   VALID_FILENAME_REGEX,
   VALID_HEIRARCHY_SEARCH_REGEX,
   VALID_PROJECT_NAME,
@@ -59,8 +61,6 @@ describe('regex.test', () => {
         'question?mark',
         'asterisk*char',
         'control\0char',
-        'another\ncontrol',
-        'file name',
         '< tag >',
         'key : value',
         'quote " example',
@@ -166,7 +166,7 @@ describe('regex.test', () => {
         'A1',
         '-test',
         'invalid!',
-        'very-long-string-that-is-definitely-not-going-to-match-the-regex-because-it-is-way-too-long-for-the-pattern',
+        'very-long-string-that-is-definitely-not-going-to-match-the-regex-because-it-is-way-too-long-for-the-pattern-very-long-string-that-is-definitely-not-going-to-match-the-regex-because-it-is-way-too-long-for-the-pattern',
         '--double-hyphen',
         '...'
       ]
@@ -176,8 +176,8 @@ describe('regex.test', () => {
     })
   })
 
-  describe('USER_ID_REGEX', () => {
-    it('should match valid user Ids', () => {
+  describe('GUID_ID_REGEX', () => {
+    it('should match valid guid Ids', () => {
       const positiveCases = [
         '123e4567-e89b-12d3-a456-426614174000',
         'abcdef01-2345-6789-abcd-ef0123456789',
@@ -185,12 +185,12 @@ describe('regex.test', () => {
         'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
         'ffffffff-ffff-ffff-ffff-ffffffffffff'
       ]
-      positiveCases.forEach((userId) => {
-        assert.match(userId, USER_ID_REGEX, `Expected '${userId}' to match USER_ID_REGEX`)
+      positiveCases.forEach((id) => {
+        assert.match(id, GUID_ID_REGEX, `Expected '${id}' to match GUID_ID_REGEX`)
       })
     })
 
-    it('should not match invalid user Ids', () => {
+    it('should not match invalid guid Ids', () => {
       const negativeCases = [
         '123e4567-e89b-12d3-a456-42661417400',
         '123e4567e89b12d3a456426614174000',
@@ -199,8 +199,8 @@ describe('regex.test', () => {
         '123e4567-e89b-12d3-a456-4266141740000',
         '123e4567-e89b-12d3-g456-426614174000'
       ]
-      negativeCases.forEach((userId) => {
-        assert.doesNotMatch(userId, USER_ID_REGEX, `Expected '${userId}' to not match USER_ID_REGEX`)
+      negativeCases.forEach((id) => {
+        assert.doesNotMatch(id, GUID_ID_REGEX, `Expected '${id}' to not match GUID_ID_REGEX`)
       })
     })
   })
@@ -738,6 +738,71 @@ describe('regex.test', () => {
           UNIQUEIFIED_VITE_KEY_REGEX,
           `Expected '${item}' to not match UNIQUEIFIED_VITE_KEY_REGEX`
         )
+      })
+    })
+  })
+
+  describe('REMOVE_EDGE_SLASH_REGEX', () => {
+    it('should remove leading and trailing slashes', () => {
+      const positiveCases = [
+        { input: '/path/to/folder/', expected: 'path/to/folder' },
+        { input: '/leading/slash', expected: 'leading/slash' },
+        { input: 'trailing/slash/', expected: 'trailing/slash' },
+        { input: '/both/slashes/', expected: 'both/slashes' },
+        { input: '////multiple/slashes///', expected: 'multiple/slashes' }
+      ]
+
+      positiveCases.forEach(({ input, expected }) => {
+        const result = input.replace(REMOVE_EDGE_SLASH_REGEX, '')
+        assert.strictEqual(result, expected, `Expected '${input}' to become '${expected}'`)
+      })
+    })
+
+    it('should not modify strings without edge slashes', () => {
+      const negativeCases = ['path/to/folder', 'file.txt', 'nested/path', 'no/slashes/at/edges']
+
+      negativeCases.forEach((input) => {
+        const result = input.replace(REMOVE_EDGE_SLASH_REGEX, '')
+        assert.strictEqual(result, input, `Expected '${input}' to remain unchanged`)
+      })
+    })
+
+    it('should handle strings with only slashes', () => {
+      const singleSlashCases = [
+        { input: '/', expected: '' },
+        { input: '///', expected: '' },
+        { input: '//////', expected: '' }
+      ]
+
+      singleSlashCases.forEach(({ input, expected }) => {
+        const result = input.replace(REMOVE_EDGE_SLASH_REGEX, '')
+        assert.strictEqual(result, expected, `Expected '${input}' to become '${expected}'`)
+      })
+    })
+  })
+
+  describe('TRAILING_SLASH_REGEX', () => {
+    it('should remove trailing slashes from paths', () => {
+      const positiveCases = [
+        { input: 'path/to/folder/', expected: 'path/to/folder' },
+        { input: 'path/', expected: 'path' },
+        { input: 'path//', expected: 'path' },
+        { input: '/leading-and-trailing/', expected: '/leading-and-trailing' },
+        { input: 'multiple/slashes////', expected: 'multiple/slashes' }
+      ]
+
+      positiveCases.forEach(({ input, expected }) => {
+        const result = input.replace(TRAILING_SLASH_REGEX, '')
+        assert.strictEqual(result, expected, `Expected '${input}' to become '${expected}'`)
+      })
+    })
+
+    it('should not modify paths without trailing slashes', () => {
+      const negativeCases = ['path/to/folder', 'file.txt', '/root/path', 'another/path.with.dots', '']
+
+      negativeCases.forEach((input) => {
+        const result = input.replace(TRAILING_SLASH_REGEX, '')
+        assert.strictEqual(result, input, `Expected '${input}' to remain unchanged`)
       })
     })
   })

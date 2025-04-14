@@ -36,6 +36,7 @@ import SelectInput from '../../input/Select'
 import StringInput from '../../input/String'
 import TexturePreviewInput from '../../input/Texture'
 
+/**@TODO this should be looking up values from material prototype definitions to avoid incorrectly typed fields */
 export default function ParameterInput({
   entity,
   values,

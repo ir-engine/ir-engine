@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useFind, useRealtime } from '@ir-engine/common'
 import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import CreateSceneDialog from '@ir-engine/editor/src/components/dialogs/CreateScenePanelDialog'
@@ -66,7 +66,7 @@ function ScenesPanel() {
     isCreatingScene.set(true)
     const newSceneUIAddons = getState(UIAddonsState).editor.newScene
     if (Object.keys(newSceneUIAddons).length > 0) {
-      PopoverState.showPopupover(<CreateSceneDialog />)
+      ModalState.openModal(<CreateSceneDialog />)
     } else {
       await onNewScene()
     }
@@ -74,11 +74,11 @@ function ScenesPanel() {
   }
 
   return (
-    <div className="h-full bg-[#0E0F11]">
-      <div className="mb-4 h-8 w-full overflow-hidden bg-[#212226]">
+    <div className="h-full bg-surface-1">
+      <div className="mb-4 w-full overflow-hidden bg-surface-4 p-1">
         <Button
           disabled={isCreatingScene.value}
-          className="ml-auto h-8 bg-theme-highlight px-2"
+          className="ml-auto h-8  px-2"
           size="sm"
           data-testid="scene-panel-add-scene-button"
           onClick={handleCreateScene}
@@ -88,7 +88,7 @@ function ScenesPanel() {
           {isCreatingScene.value && <LoadingView spinnerOnly className="h-4 w-4" />}
         </Button>
       </div>
-      <div className="h-full bg-[#0E0F11]">
+      <div className="h-full bg-surface-1">
         {scenesLoading ? (
           <LoadingView title={t('editor:loadingScenes')} fullSpace className="block h-12 w-12" />
         ) : (
@@ -104,6 +104,7 @@ function ScenesPanel() {
                       editorState.sceneAssetID.set(null)
                     }
                   }}
+                  disableDeleteScene={editorState.sceneAssetID.value === scene.id}
                   onRenameScene={(newName) => {
                     editorState.scenePath.set(newName)
                   }}

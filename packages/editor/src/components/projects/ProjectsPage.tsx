@@ -26,8 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import AddEditProjectModal from '@ir-engine/client-core/src/admin/components/project/AddEditProjectModal'
 import ManageUserPermissionModal from '@ir-engine/client-core/src/admin/components/project/ManageUserPermissionModal'
 import { ProjectUpdateState } from '@ir-engine/client-core/src/admin/services/ProjectUpdateService'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@ir-engine/client-core/src/common/services/ProjectService'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useFind } from '@ir-engine/common'
@@ -51,8 +51,6 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React, { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-  MdArrowDropDown,
-  MdArrowRight,
   MdDownload,
   MdDownloadDone,
   MdFilterList,
@@ -278,7 +276,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
     }).catch((err) => {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     })
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
   }
 
   const renderProjectList = (projects: ProjectType[], areInstalledProjects?: boolean) => {
@@ -389,7 +387,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
 
           <Button
             onClick={() => {
-              PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={false} />)
+              ModalState.openModal(<AddEditProjectModal onSubmit={handleProjectUpdate} update={false} />)
             }}
             variant="tertiary"
           >
@@ -424,37 +422,19 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
       </ContextMenu>
 
       {installedProjects.length > 0 && (
-        <Accordion
-          title={`${t('editor.projects.installed')} (${installedProjects.length})`}
-          expandIcon={<MdArrowRight className="text-2xl" />}
-          shrinkIcon={<MdArrowDropDown className="text-2xl" />}
-          className="mb-3 mt-5 w-3/4"
-          open={true}
-        >
+        <Accordion title={`${t('editor.projects.installed')} (${installedProjects.length})`} open={true}>
           {renderProjectList(installedProjects, true)}
         </Accordion>
       )}
 
       {officialProjects.length > 0 && (
-        <Accordion
-          title={`${t('editor.projects.official')} (${officialProjects.length})`}
-          expandIcon={<MdArrowRight className="text-2xl" />}
-          shrinkIcon={<MdArrowDropDown className="text-2xl" />}
-          className="mb-3 w-3/4"
-          open={true}
-        >
+        <Accordion title={`${t('editor.projects.official')} (${officialProjects.length})`} open={true}>
           {renderProjectList(officialProjects)}
         </Accordion>
       )}
 
       {communityProjects.length > 0 && (
-        <Accordion
-          title={`${t('editor.projects.community')} (${communityProjects.length})`}
-          expandIcon={<MdArrowRight className="text-2xl" />}
-          shrinkIcon={<MdArrowDropDown className="text-2xl" />}
-          className="w-3/4"
-          open={true}
-        >
+        <Accordion title={`${t('editor.projects.community')} (${communityProjects.length})`} open={true}>
           {renderProjectList(communityProjects)}
         </Accordion>
       )}
@@ -471,7 +451,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
               onClick={() => {
                 if (projectContextState.project) {
                   setProjectContextState({ event: undefined, project: null })
-                  PopoverState.showPopupover(<ManageUserPermissionModal project={projectContextState.project} />)
+                  ModalState.openModal(<ManageUserPermissionModal project={projectContextState.project} />)
                 }
               }}
               variant="tertiary"
@@ -490,7 +470,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
                 onClick={() => {
                   if (projectContextState.project) {
                     setProjectContextState({ event: undefined, project: null })
-                    PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={true} />)
+                    ModalState.openModal(<AddEditProjectModal onSubmit={handleProjectUpdate} update={true} />)
                   }
                 }}
                 variant="tertiary"
@@ -509,7 +489,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
                 onClick={() => {
                   if (projectContextState.project) {
                     setProjectContextState({ event: undefined, project: null })
-                    PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={true} />)
+                    ModalState.openModal(<AddEditProjectModal onSubmit={handleProjectUpdate} update={true} />)
                   }
                 }}
                 variant="tertiary"
@@ -528,7 +508,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
                 onClick={() => {
                   if (projectContextState.project) {
                     setProjectContextState({ event: undefined, project: null })
-                    PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={true} />)
+                    ModalState.openModal(<AddEditProjectModal onSubmit={handleProjectUpdate} update={true} />)
                   }
                 }}
                 variant="tertiary"
@@ -554,7 +534,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
             <Button
               onClick={() => {
                 setProjectContextState({ event: undefined, project: null })
-                PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={false} />)
+                ModalState.openModal(<AddEditProjectModal onSubmit={handleProjectUpdate} update={false} />)
               }}
               variant="tertiary"
               fullWidth

@@ -28,7 +28,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CiCircleCheck, CiCircleRemove, CiWarning } from 'react-icons/ci'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { ProjectService } from '@ir-engine/client-core/src/common/services/ProjectService'
 import { DefaultUpdateSchedule } from '@ir-engine/common/src/interfaces/ProjectPackageJsonType'
 import {
@@ -395,7 +395,7 @@ export default function AddEditProjectModal({
       title={update ? t('admin:components.project.updateProject') : t('admin:components.project.addProject')}
       onClose={() => {
         ProjectUpdateService.clearProjectUpdate(project.name)
-        PopoverState.hidePopupover()
+        ModalState.closeModal()
       }}
       onSubmit={handleSubmit}
       submitButtonDisabled={projectUpdateStatus.value?.submitDisabled}
@@ -480,8 +480,7 @@ export default function AddEditProjectModal({
                 position: 'top'
               }}
               positioning={{
-                maxHeight: '200px',
-                direction: 'down'
+                maxHeight: '200px'
               }}
               value={projectUpdateStatus.value?.selectedBranch}
               options={branchSelectOptions}
@@ -512,8 +511,7 @@ export default function AddEditProjectModal({
                 position: 'top'
               }}
               positioning={{
-                maxHeight: '200px',
-                direction: 'down'
+                maxHeight: '200px'
               }}
               value={projectUpdateStatus.value?.selectedSHA}
               onChange={handleCommitChange}
@@ -549,7 +547,7 @@ export default function AddEditProjectModal({
           projectUpdateStatus.value?.selectedSHA.length > 0 &&
           projectUpdateStatus.value?.commitData.length > 0 &&
           !matchesEngineVersion && (
-            <div className="flex items-center justify-center gap-3 rounded-lg bg-theme-bannerInformative p-4">
+            <div className="flex items-center justify-center gap-3 rounded-lg  p-4">
               <div>
                 <CiWarning className="h-5 w-5 bg-transparent" />
               </div>

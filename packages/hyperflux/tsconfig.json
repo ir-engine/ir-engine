@@ -27,5 +27,5 @@
     "types": ["@types/node"]
   },
   "exclude": ["**/node_modules/**"],
-  "include": ["../../__global.d.ts", "./src", "./index.ts"]
+  "include": ["../../__global.d.ts", "./src", "./index.ts", "./build.ts"]
 }

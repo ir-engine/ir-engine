@@ -23,11 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import appRootPath from 'app-root-path'
-import { ChildProcess } from 'child_process'
+import { default as appRootPath } from 'app-root-path'
 import fs from 'fs'
 import fsStore from 'fs-blob-store'
 import glob from 'glob'
+import kill from 'kill-port'
 import path from 'path/posix'
 import { PassThrough, Readable } from 'stream'
 
@@ -35,6 +35,7 @@ import { MULTIPART_CUTOFF_SIZE } from '@ir-engine/common/src/constants/FileSizeC
 import { FileBrowserContentType } from '@ir-engine/common/src/schemas/media/file-browser.schema'
 import { getState } from '@ir-engine/hyperflux'
 
+import { ChildProcess } from 'child_process'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
@@ -48,7 +49,7 @@ import {
   StorageProviderInterface
 } from './storageprovider.interface'
 
-import kill from 'kill-port'
+const port = config.server.localStorageProviderPort
 
 /**
  * Storage provide class to communicate with Local http file server.
@@ -87,7 +88,7 @@ export class LocalStorage implements StorageProviderInterface {
     this._store = fsStore(this.PATH_PREFIX)
 
     if (getState(ServerState).serverMode === ServerMode.API) {
-      kill(8642, 'tcp')
+      kill(port, 'tcp')
         .catch(() => {})
         .finally(() => {
           const child: ChildProcess = require('child_process').spawn(
@@ -101,7 +102,7 @@ export class LocalStorage implements StorageProviderInterface {
               '--key',
               `${config.server.keyPath}`,
               '--port',
-              '8642',
+              `${port}`,
               '--cors=*',
               '--brotli',
               '--gzip',
@@ -143,6 +144,10 @@ export class LocalStorage implements StorageProviderInterface {
   getCachedURL(key: string): string {
     const cacheDomain = this.getCacheDomain()
     return new URL(key, 'https://' + cacheDomain).href
+  }
+
+  async getObjectContentType(key: string): Promise<any> {
+    return Promise.resolve('')
   }
 
   /**
@@ -387,8 +392,9 @@ export class LocalStorage implements StorageProviderInterface {
    * List all the files/folders in the directory.
    * @param relativeDirPath Name of folder in the storage.
    */
-  listFolderContent = async (relativeDirPath: string): Promise<FileBrowserContentType[]> => {
-    const absoluteDirPath = path.join(this.PATH_PREFIX, relativeDirPath)
+  listFolderContent = async (relativeDirPath: string, recursive = false): Promise<FileBrowserContentType[]> => {
+    let absoluteDirPath = path.join(this.PATH_PREFIX, relativeDirPath)
+    if (recursive) absoluteDirPath = path.join(absoluteDirPath, '**')
 
     const folder = glob
       .sync(path.join(absoluteDirPath, '*/'))

@@ -41,7 +41,6 @@ export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
     disabled?: boolean
   }[]
   backgroundTheme?: string
-  tabcontainerClassName?: string
   tabClassName?: string
   scrollable?: boolean
   currentTabIndex?: number
@@ -50,7 +49,6 @@ export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const Tabs = ({
   tabsData,
-  tabcontainerClassName,
   tabClassName,
   scrollable,
   currentTabIndex,
@@ -85,44 +83,34 @@ const Tabs = ({
   }, [currentTab])
 
   return (
-    <div className="relative overflow-y-auto">
+    <div className="relative">
       {tabsData[currentTab.value]?.title && (
-        <Text fontSize="xl" className="mb-6">
+        <Text fontSize="xl" className="mb-6 text-text-primary">
           {tabsData[currentTab.value]?.title}
         </Text>
       )}
       {tabsData[currentTab.value]?.topComponent}
-      <div className={'sticky top-0 flex justify-between'}>
-        <div className={twMerge('flex gap-4', tabcontainerClassName)} {...props}>
-          {tabsData.map((tab, index) => (
-            <button
-              key={index}
-              className={twMerge(
-                'p-3 text-sm text-theme-secondary disabled:cursor-not-allowed disabled:opacity-50 dark:hover:border-b dark:hover:border-b-blue-400',
-                currentTab.value === index ? 'border-b border-b-blue-primary font-semibold text-theme-primary' : '',
-                tab.disabled ? 'border-none' : '',
-                tabClassName
-              )}
-              disabled={tab.disabled}
-              onClick={() => {
-                currentTab.set(index)
-              }}
-            >
-              {tab.tabLabel}
-            </button>
-          ))}
-        </div>
+      <div className={'sticky top-0 z-50 mb-2 flex justify-between rounded-md bg-ui-background px-3 py-2'}>
+        {tabsData.map((tab, index) => (
+          <button
+            key={index}
+            className={twMerge(
+              'p-3 text-sm text-text-secondary hover:border-b hover:border-b-ui-primary disabled:cursor-not-allowed disabled:opacity-50',
+              currentTab.value === index ? 'border-b border-b-ui-select-primary font-semibold ' : '',
+              tab.disabled ? 'border-none' : '',
+              tabClassName
+            )}
+            disabled={tab.disabled}
+            onClick={() => {
+              currentTab.set(index)
+            }}
+          >
+            {tab.tabLabel}
+          </button>
+        ))}
         {tabsData[currentTab.value]?.rightComponent}
       </div>
-      {scrollable ? (
-        tabsData.map((tab, index) => (
-          <div className="mt-4" key={index}>
-            {tab.bottomComponent}
-          </div>
-        ))
-      ) : (
-        <div className="mt-4">{tabsData[currentTab.value]?.bottomComponent}</div>
-      )}
+      {scrollable ? tabsData.map((tab, index) => tab.bottomComponent) : tabsData[currentTab.value]?.bottomComponent}
     </div>
   )
 }

@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import {
   defineState,
   getMutableState,
@@ -37,6 +36,8 @@ import { useDraggable } from '../../hooks/useDraggable'
 import { APIDebug } from './APIDebug'
 import DebugButtons from './DebugButtons'
 import { EntityDebug } from './EntityDebug'
+import { ReactorDebug } from './ReactorDebug'
+import { ResourceDebug } from './ResourceDebug'
 import { StateDebug } from './StateDebug'
 import { StatsPanel } from './StatsPanel'
 import { SystemDebug } from './SystemDebug'
@@ -64,15 +65,18 @@ const DebugTabs = {
   All: (
     <>
       <EntityDebug />
+      <APIDebug />
       <SystemDebug />
       <StateDebug />
-      <APIDebug />
+      <ResourceDebug />
     </>
   ),
   Entities: <EntityDebug />,
   API: <APIDebug />,
   Systems: <SystemDebug />,
-  State: <StateDebug />
+  State: <StateDebug />,
+  Reactor: <ReactorDebug />,
+  Resources: <ResourceDebug />
 }
 
 const tabsData: TabProps['tabsData'] = Object.keys(DebugTabs).map((tabLabel) => ({
@@ -81,7 +85,6 @@ const tabsData: TabProps['tabsData'] = Object.keys(DebugTabs).map((tabLabel) => 
 }))
 
 const Debug = () => {
-  useHookstate(getMutableState(ECSState).frameTime).value
   const activeTabIndex = useMutableState(DebugState).activeTabIndex
 
   useDraggable({
@@ -90,7 +93,7 @@ const Debug = () => {
   })
 
   return (
-    <div id="debug" className="pointer-events-auto fixed z-[1000] rounded bg-neutral-700 p-0.5">
+    <div id="debug" className="pointer-events-auto fixed z-[1000] max-w-[600px] rounded bg-neutral-700 p-0.5">
       <Placer id="debug-placer" />
       <div className="m-1 max-h-[95vh] overflow-y-auto">
         <DebugButtons />

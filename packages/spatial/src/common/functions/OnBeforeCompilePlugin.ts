@@ -118,16 +118,12 @@ const onBeforeCompile = {
     return this._onBeforeCompile
   },
   set: function (this: Material, plugins: PluginType | PluginType[]) {
-    if (plugins === null) {
-      if (this.plugins) {
-        while (this.plugins.length) removeOBCPlugin(this, this.plugins[0])
-      }
-    } else if (plugins instanceof Array) {
+    if (plugins === null) return
+    if (plugins instanceof Array) {
       for (let i = 0, l = plugins.length; i < l; i++) (this as any).onBeforeCompile = plugins[i]
     } else if (plugins instanceof Function || plugins instanceof Object) {
       const plugin = plugins
 
-      if (hasOBCPlugin(this, plugin)) return
       if (!this.plugins) this.plugins = []
       ;(plugin as PluginObjectType).priority =
         typeof (plugin as PluginObjectType).priority === 'undefined' ? 1 : (plugin as PluginObjectType).priority
@@ -137,14 +133,13 @@ const onBeforeCompile = {
 
       this.customProgramCacheKey = () => {
         let result = this.shader ? this.shader.fragmentShader + this.shader.vertexShader : ''
-        for (let i = 0; i < this.plugins!.length; i++) {
+        if (!this.plugins) return result
+        for (let i = 0; i < this.plugins.length; i++) {
           const plugin = this.plugins![i]
           const pluginObj = plugin as PluginObjectType
           if (typeof pluginObj.compile === 'function') result += pluginObj.compile.toString()
           else result += plugin.toString()
         }
-        // if (typeof this._onBeforeCompile.toString === 'function') return this._onBeforeCompile.toString()
-        // else return this.onBeforeCompile.toString()
         return result
       }
     } else {

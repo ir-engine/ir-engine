@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { NormalizedLandmark, PoseLandmarker } from '@mediapipe/tasks-vision'
-import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import {
   BufferAttribute,
   BufferGeometry,
@@ -42,22 +41,25 @@ import {
   Vector3
 } from 'three'
 
+import { createEntity, removeEntity } from '@ir-engine/ecs'
 import { getComponent, getOptionalComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { getState } from '@ir-engine/hyperflux'
-import { Vector3_Right, Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { addObjectToGroup, ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { Vector3_Right, Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
-import { NormalizedBoneComponent } from '../avatar/components/NormalizedBoneComponent'
+import { VRMHumanBoneList } from '../avatar/maps/VRMHumanBoneList'
+import { VRMHumanBoneName } from '../avatar/maps/VRMHumanBoneName'
 import { LandmarkIndices } from './MocapConstants'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 
@@ -160,7 +162,7 @@ const drawMocapDebug = (label: string) => {
         const mesh = new Mesh(new SphereGeometry(0.01), new MeshBasicMaterial({ color }))
         const entity = createEntity()
         debugEntities[key] = entity
-        addObjectToGroup(entity, mesh)
+        setComponent(entity, MeshComponent, mesh)
         setVisibleComponent(entity, true)
         setComponent(entity, NameComponent, `Mocap Debug ${label} ${LandmarkNames[key]}`)
         setObjectLayers(mesh, ObjectLayers.AvatarHelper)
@@ -184,7 +186,7 @@ const drawMocapDebug = (label: string) => {
 
     if (!lineSegmentEntity) {
       lineSegmentEntity = createEntity()
-      addObjectToGroup(lineSegmentEntity, positionLineSegment)
+      setComponent(lineSegmentEntity, ObjectComponent, positionLineSegment)
       setVisibleComponent(lineSegmentEntity, true)
       setComponent(lineSegmentEntity, NameComponent, 'Mocap Debug Line Segment ' + label)
       setObjectLayers(positionLineSegment, ObjectLayers.AvatarHelper)
@@ -478,7 +480,7 @@ export const solveSpine = (
       if (feetGrounded[i]) {
         const footLandmark =
           landmarks[i == feetIndices.rightFoot ? LandmarkIndices.RIGHT_ANKLE : LandmarkIndices.LEFT_ANKLE].y
-        const footY = footLandmark * -1 + getComponent(rig.hips, NormalizedBoneComponent).position.y
+        const footY = footLandmark * -1 + getComponent(rig.hips, BoneComponent).position.y
         MotionCaptureRigComponent.footOffset[entity] = footY
       }
     }
@@ -622,9 +624,7 @@ export const solveHand = (
 
   const rig = getComponent(entity, AvatarRigComponent)
 
-  const parentQuaternion = getComponent(rig[parentTargetBoneName], NormalizedBoneComponent).getWorldQuaternion(
-    new Quaternion()
-  )
+  const parentQuaternion = getComponent(rig[parentTargetBoneName], BoneComponent).getWorldQuaternion(new Quaternion())
 
   startPoint.set(extent.x, lowestWorldY - extent.y, extent.z)
   ref1Point.set(ref1.x, lowestWorldY - ref1.y, ref1.z)
@@ -665,9 +665,7 @@ export const solveFoot = (
 
   const rig = getComponent(entity, AvatarRigComponent)
 
-  const parentQuaternion = getComponent(rig[parentTargetBoneName], NormalizedBoneComponent).getWorldQuaternion(
-    new Quaternion()
-  )
+  const parentQuaternion = getComponent(rig[parentTargetBoneName], BoneComponent).getWorldQuaternion(new Quaternion())
 
   const targetQuat = new Quaternion()
   if (grounded) {

@@ -23,52 +23,54 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { NormalizedLandmark } from '@mediapipe/tasks-vision'
-import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
-import { useEffect } from 'react'
-
+import { S } from '@ir-engine/ecs'
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { ECSSchema } from '@ir-engine/ecs/src/schemas/ECSSchemas'
+import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
+import { VRMHumanBoneList } from '../avatar/maps/VRMHumanBoneList'
 
 export const MotionCaptureRigComponent = defineComponent({
   name: 'MotionCaptureRigComponent',
 
-  schema: {
-    rig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, ECSSchema.Quaternion])) as Record<
-      VRMHumanBoneName,
-      typeof ECSSchema.Quaternion
-    >,
-    slerpedRig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, ECSSchema.Quaternion])) as Record<
-      VRMHumanBoneName,
-      typeof ECSSchema.Quaternion
-    >,
-    hipPosition: ECSSchema.Vec3,
-    hipRotation: ECSSchema.Quaternion,
-    footOffset: 'f64',
-    solvingLowerBody: 'ui8'
-  },
+  schema: S.Object({
+    prevWorldLandmarks: S.Array(S.Object({ x: S.Number(), y: S.Number(), z: S.Number(), visibility: S.Number() })),
+    prevScreenLandmarks: S.Array(S.Object({ x: S.Number(), y: S.Number(), z: S.Number(), visibility: S.Number() }))
+  }),
 
-  onInit: (initial) => {
-    return {
-      /** @todo if these have a fixed max length we can move them into the ecs schema */
-      prevWorldLandmarks: null as NormalizedLandmark[] | null,
-      prevScreenLandmarks: null as NormalizedLandmark[] | null
-    }
-  },
-
-  reactor: function () {
-    const entity = useEntityContext()
-
-    useEffect(() => {
-      for (const boneName of VRMHumanBoneList) {
-        //causes issues with ik solves, commenting out for now
-        //proxifyVector3(AvatarRigComponent.rig[boneName].position, entity)
-        //proxifyQuaternion(AvatarRigComponent.rig[boneName].rotation, entity)
-      }
-      MotionCaptureRigComponent.solvingLowerBody[entity] = 1
-    }, [])
-
-    return null
+  storage: {
+    rig: Object.fromEntries(
+      VRMHumanBoneList.map((b) => [
+        b,
+        {
+          x: createResizableTypeArray(Float64Array),
+          y: createResizableTypeArray(Float64Array),
+          z: createResizableTypeArray(Float64Array),
+          w: createResizableTypeArray(Float64Array)
+        }
+      ])
+    ),
+    slerpedRig: Object.fromEntries(
+      VRMHumanBoneList.map((b) => [
+        b,
+        {
+          x: createResizableTypeArray(Float64Array),
+          y: createResizableTypeArray(Float64Array),
+          z: createResizableTypeArray(Float64Array),
+          w: createResizableTypeArray(Float64Array)
+        }
+      ])
+    ),
+    hipPosition: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array)
+    },
+    hipRotation: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array),
+      w: createResizableTypeArray(Float64Array)
+    },
+    footOffset: createResizableTypeArray(Float64Array),
+    solvingLowerBody: createResizableTypeArray(Uint8Array)
   }
 })

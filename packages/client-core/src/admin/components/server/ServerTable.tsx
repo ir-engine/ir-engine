@@ -20,7 +20,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiTrash } from 'react-icons/hi2'
 
 import { useMutation } from '@ir-engine/common'
 import { podsPath, ServerPodInfoType } from '@ir-engine/common/src/schema.type.module'
@@ -30,17 +29,19 @@ import { Button, Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Badge from '@ir-engine/ui/src/primitives/tailwind/Badge'
 
-import { PopoverState } from '../../../common/services/PopoverState'
+import { Trash04Lg } from '@ir-engine/ui/src/icons'
+import { ModalState } from '../../../common/services/ModalState'
 import { serverColumns, ServerRowType } from '../../common/constants/server'
 import DataTable from '../../common/Table'
 import { useServerInfoFind } from '../../services/ServerInfoQuery'
+import ActionButton from '../ActionButton'
 import ServerLogsModal from './ServerLogsModal'
 
 const containerColor = {
-  Running: 'bg-theme-tagLime',
-  Terminated: 'bg-theme-tagGreen',
-  Undefined: 'bg-theme-tagRed',
-  Waiting: 'bg-theme-tagYellow'
+  Running: '',
+  Terminated: '',
+  Undefined: '',
+  Waiting: ''
 }
 
 function ServerStatus({ serverPodInfo }: { serverPodInfo: ServerPodInfoType }) {
@@ -100,18 +101,17 @@ export default function ServerTable({
             size="sm"
             variant="primary"
             onClick={() => {
-              PopoverState.showPopupover(
-                <ServerLogsModal podName={row.name} containerName={row.containers?.at(-1)?.name} />
-              )
+              ModalState.openModal(<ServerLogsModal podName={row.name} containerName={row.containers?.at(-1)?.name} />)
             }}
           >
             {t('admin:components.server.viewLogs')}
           </Button>
-          <Button
-            variant="tertiary"
-            className="h-8 w-8"
+
+          <ActionButton
+            icon={Trash04Lg}
+            title={t('admin:components.common.delete')}
             onClick={() => {
-              PopoverState.showPopupover(
+              ModalState.openModal(
                 <ConfirmDialog
                   text={`${t('admin:components.server.confirmPodDelete')} ${row.name}?`}
                   onSubmit={async () => {
@@ -120,9 +120,8 @@ export default function ServerTable({
                 />
               )
             }}
-          >
-            <HiTrash className="place-self-center text-theme-iconRed" />
-          </Button>
+            variant="red"
+          />
         </div>
       )
     }))

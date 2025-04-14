@@ -30,12 +30,12 @@ import { BackSide, DoubleSide, FrontSide } from 'three'
 import { ImageAlphaMode, ImageProjection } from '@ir-engine/engine/src/scene/classes/ImageUtils'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 
-import InputSlider from '@ir-engine/client-core/src/common/components/InputSlider'
 import { useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { AssetExt, FileToAssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import InputGroup from '../../../input/Group'
 import SelectInput from '../../../input/Select'
+import Slider from '../../../Slider'
 
 const mapValue = (v) => ({ label: v, value: v })
 const imageProjectionOptions = Object.values(ImageProjection).map(mapValue)
@@ -72,22 +72,17 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
           </InputGroup>
 
           {imageComponent.alphaMode.value === ImageAlphaMode.Mask && (
-            <InputGroup
-              name="Alpha Cutoff"
+            <Slider
               label={t('editor:properties.image.lbl-alphaCutoff')}
-              info={t('editor:properties.image.info-alphaCutoff')}
-            >
-              <InputSlider
-                //icon={<Icon type={audioState.masterVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
-                //label={t('user:usermenu.setting.lbl-volume')}
-                max={1}
-                min={0}
-                step={0.01}
-                value={imageComponent.alphaCutoff.value}
-                onChange={updateProperty(ImageComponent, 'alphaCutoff')}
-                onRelease={commitProperty(ImageComponent, 'alphaCutoff')}
-              />
-            </InputGroup>
+              //icon={<Icon type={audioState.masterVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
+              //label={t('user:usermenu.setting.lbl-volume')}
+              max={1}
+              min={0}
+              step={0.01}
+              value={imageComponent.alphaCutoff.value}
+              onChange={updateProperty(ImageComponent, 'alphaCutoff')}
+              onRelease={commitProperty(ImageComponent, 'alphaCutoff')}
+            />
           )}
         </>
       )}

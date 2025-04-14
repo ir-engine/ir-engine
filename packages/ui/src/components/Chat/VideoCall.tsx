@@ -28,15 +28,15 @@ import { Resizable } from 're-resizable'
 import React, { useEffect, useRef } from 'react'
 import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa'
 
-import { useMediaWindows } from '@ir-engine/client-core/src/components/UserMediaWindows'
-import { MediaStreamState } from '@ir-engine/client-core/src/media/MediaStreamState'
-import { PeerMediaChannelState, PeerMediaStreamInterface } from '@ir-engine/client-core/src/media/PeerMediaChannelState'
-import { useUserAvatarThumbnail } from '@ir-engine/client-core/src/user/functions/useUserAvatarThumbnail'
+import { useUserAvatarThumbnail } from '@ir-engine/client-core/src/hooks/useUserAvatarThumbnail'
+import { useMediaWindows } from '@ir-engine/client-core/src/user/VideoWindows'
 import { useGet } from '@ir-engine/common'
 import { UserName, userPath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { PeerID, State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
+import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
+import { PeerMediaChannelState, PeerMediaStreamInterface } from '@ir-engine/network/src/media/PeerMediaChannelState'
 
 export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => {
   const { peerID, type } = props

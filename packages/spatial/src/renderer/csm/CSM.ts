@@ -38,10 +38,10 @@ import {
   Vector3
 } from 'three'
 
+import { createEntity, removeEntity } from '@ir-engine/ecs'
 import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 
 import { EntityTreeComponent } from '@ir-engine/ecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
@@ -183,6 +183,7 @@ export class CSM {
     const entity = createEntity()
     setComponent(entity, NameComponent, 'CSM light ' + i)
     setComponent(entity, VisibleComponent)
+    setComponent(entity, TransformComponent)
     setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(entity, ObjectComponent, light)
 

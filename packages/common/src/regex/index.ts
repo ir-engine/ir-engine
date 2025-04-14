@@ -25,17 +25,31 @@ Infinite Reality Engine. All Rights Reserved.
 
 // Add unit tests for new patterns in packages/common/tests/regex.test.ts
 
-/*
-A filename is valid if:
-  - it has 4 to 64 characters
-  - its first and last character are alphanumeric
-  - any other characters are either alphanumeric, '_', '-', or '.'
-*/
-
-// eslint-disable-next-line no-control-regex
-export const VALID_FILENAME_REGEX = /^([^_\W])([\w\-_.]{2,62})([^_\W])$/
+/**
+ * Regular expression for validating filenames with the following rules:
+ * - Must start with an alphanumeric character [a-zA-Z0-9]
+ * - Must end with an alphanumeric character [a-zA-Z0-9]
+ * - Middle characters (2-62 chars) can contain:
+ *   - Alphanumeric characters [a-zA-Z0-9]
+ *   - Underscores (_)
+ *   - Hyphens (-)
+ *   - Spaces
+ *   - Dots (.)
+ * - Total length must be between 4-64 characters (2 for ends + 2-62 for middle)
+ *
+ * @example
+ * // Valid filenames:
+ * "hello-world.txt"     // true
+ * "Screenshot 2023 1"    // true
+ * "my_file_v1.0"        // true
+ *
+ * // Invalid filenames:
+ * "_hello.txt"          // false (starts with underscore)
+ * "file."               // false (ends with dot)
+ * "a.b"                 // false (too short)
+ */
+export const VALID_FILENAME_REGEX = /^[a-zA-Z0-9][\w\-\s.]{2,62}[a-zA-Z0-9]$/
 export const VALID_EXTENSION_REGEX = /^(\w{2,4})$/
-// eslint-disable-next-line no-control-regex
 export const WINDOWS_RESERVED_NAME_REGEX = /^(con|prn|aux|nul|com\d|lpt\d)$/i
 export const VALID_SCENE_NAME_REGEX = VALID_FILENAME_REGEX
 export const VALID_HEIRARCHY_SEARCH_REGEX = /[.*+?^${}()|[\]\\]/g
@@ -47,7 +61,7 @@ export const VALID_HEIRARCHY_SEARCH_REGEX = /[.*+?^${}()|[\]\\]/g
 /**
  * This regex is used to validate a string that conforms to the UUID version 4 format. It ensures that the string consists of exactly 32 hexadecimal digits arranged in the 8-4-4-4-12 pattern, separated by hyphens.
  */
-export const USER_ID_REGEX = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
+export const GUID_ID_REGEX = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
 
 /**
  * Email regex. Source: https://fightingforalostcause.net/content/misc/2006/compare-email-regex.php
@@ -60,7 +74,10 @@ export const EMAIL_REGEX =
  */
 export const PHONE_REGEX = /^[0-9]{10}$/
 
-export const INVALID_USER_NAME_REGEX = /[^a-zA-Z\s]/g
+/**
+ * Regular expression pattern for username validation.
+ */
+export const INVALID_USER_NAME_REGEX = /(?!.)/g
 
 /**
  * This regex is used to validate strings that should consist of exactly 8 hexadecimal digits.
@@ -113,7 +130,7 @@ export const PROJECT_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]/
  */
 export const PROJECT_CAPTURE_REGEX = /projects\/([a-zA-Z0-9-_@]+)\/([a-zA-Z0-9-_]+)/
 
-export const PATH_REGEX = /^[a-zA-Z0-9-_@.\/]+$/
+export const PATH_REGEX = /^(?:[a-zA-Z0-9][-_@.a-zA-Z0-9]*\/)*[a-zA-Z0-9][-_@.()\sa-zA-Z0-9]*(?:\/)?$/
 
 /**
  * This regex matches strings that start with `projects/`, followed by one or more characters that can be letters, digits, hyphens, underscores, or forward slashes, and then `/public/`.
@@ -126,6 +143,11 @@ export const PROJECT_PUBLIC_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\
 export const PROJECT_THUMBNAIL_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\/thumbnails\//
 
 export const VALID_PROJECT_NAME = /^(?!\s)[\w\-\s]+$/
+/**
+ * This regex matches strings that start with project/ followd by assets publish for compression.
+ */
+export const MATCH_ASSET_PROJECT_FILENAME_REGEX =
+  /projects\/([^/]+\/[^/]+)\/(?:assets|public(?:\/publish(?:\/[^/]+))?)\/([\w\d\s\-|_./]*)$/
 
 // =======================================================================
 // ========================= Helm Regex Patterns =========================
@@ -135,3 +157,7 @@ export const MAIN_CHART_REGEX = /ir-engine-([0-9]+\.[0-9]+\.[0-9]+)/g
 export const BUILDER_CHART_REGEX = /ir-engine-builder-([0-9]+\.[0-9]+\.[0-9]+)/g
 
 export const UNIQUEIFIED_VITE_KEY_REGEX = /[.-]{1}[a-zA-Z0-9-_]{8}.(js|css)(.map)?$/
+
+export const REMOVE_EDGE_SLASH_REGEX = /^\/+|\/+$/g
+
+export const TRAILING_SLASH_REGEX = /\/+$/

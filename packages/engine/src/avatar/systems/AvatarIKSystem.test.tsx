@@ -39,24 +39,24 @@ import {
 } from '@ir-engine/ecs'
 import { applyIncomingActions, dispatchAction, startReactor } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
+import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import {
   computeTransformMatrix,
   TransformDirtyCleanupSystem,
   TransformDirtyUpdateSystem,
   TransformSystem
 } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
-import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
 import { Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { mockAnimatedAvatar } from '../../../tests/avatar/mockAnimatedAvatar'
+import { startEngineReactor } from '../../../tests/startEngineReactor'
 import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
-import { mockAnimatedAvatar } from '../components/AnimationComponent.test'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarIKComponent, AvatarIKTargetComponent, IKMatrixComponent } from '../components/AvatarIKComponents'
-import { NormalizedBoneComponent } from '../components/NormalizedBoneComponent'
 import '../state/AvatarIKTargetState'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { AnimationSystem } from './AnimationSystem'
-import { AvatarAnimationSystem, AvatarAnimationSystemReactor } from './AvatarAnimationSystem'
+import { AvatarAnimationSystem } from './AvatarAnimationSystem'
 import { AvatarIkReactor, AvatarIKSystem } from './AvatarIKSystem'
 
 const default_url = 'packages/projects/default-project/assets'
@@ -65,7 +65,7 @@ describe('AvatarIKSystem', () => {
 
   beforeEach(async () => {
     createEngine()
-    mockSpatialEngine()
+    startEngineReactor()
   })
 
   afterEach(() => {
@@ -79,12 +79,11 @@ describe('AvatarIKSystem', () => {
     setComponent(avatarEntity, UUIDComponent, avatarUuid)
     setComponent(avatarEntity, AvatarIKComponent)
     startReactor(AvatarIkReactor)
-    startReactor(AvatarAnimationSystemReactor)
     const rig = getComponent(avatarEntity, AvatarRigComponent)
 
     // no idea why this is necessary
     for (const entity in rig.entitiesToBones) {
-      const bone = getOptionalComponent(entity as unknown as Entity, NormalizedBoneComponent)
+      const bone = getOptionalComponent(entity as unknown as Entity, BoneComponent)
       if (bone) bone.quaternion.fastSlerp = Quaternion.prototype.fastSlerp
     }
 

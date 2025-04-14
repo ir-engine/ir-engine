@@ -29,7 +29,7 @@ import { engineSettingPath, EngineSettingType } from '../../common/src/schema.ty
 
 export const getEngineSetting = async (category: EngineSettingType['category'], keys: string[]) => {
   const knexClient = knex({
-    client: 'mysql',
+    client: 'mysql2',
     connection: {
       user: process.env.MYSQL_USER ?? 'server',
       password: process.env.MYSQL_PASSWORD ?? 'password',

@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 /**
  * This method takes a filename (with or without included path) and returns a cleaned version of it.
- * ensures toLower file extension, truncates a file name if too long
+ * Ensures toLower file extension, truncates a file name if too long, and sanitizes special characters
  * @param fullFileName
  * @param useStorageProviderLengthRestrictions
  */
@@ -42,10 +42,10 @@ export const cleanFileNameString = (fullFileName: string, useStorageProviderLeng
     const lastDotIndex = hasExtension ? _lastDotIndex : fileName.length
 
     // Split the name into the part before and after the dot
-    let nameWithoutExtension = fileName.substring(0, lastDotIndex).replace(' ', '_')
+    let nameWithoutExtension = fileName.substring(0, lastDotIndex)
     const extension = fileName.substring(lastDotIndex + 1).toLowerCase()
 
-    //Used by backend uploads to storage provider, which has different length restrictions than other uses
+    //Used by backend uploads to storage provider...
     if (useStorageProviderLengthRestrictions) {
       if (nameWithoutExtension.length > 1024) nameWithoutExtension = nameWithoutExtension.slice(0, 1024)
     } else {
@@ -53,8 +53,7 @@ export const cleanFileNameString = (fullFileName: string, useStorageProviderLeng
       if (nameWithoutExtension.length > 64) {
         nameWithoutExtension = nameWithoutExtension.slice(0, 64)
       } else if (nameWithoutExtension.length < 4) {
-        //file names need to be longer than 3 characters to be valid for s3 - https://docs.weka.io/additional-protocols/s3/s3-limitations
-        nameWithoutExtension = nameWithoutExtension + '0000'
+        nameWithoutExtension = nameWithoutExtension.padEnd(4, '0')
       }
     }
 

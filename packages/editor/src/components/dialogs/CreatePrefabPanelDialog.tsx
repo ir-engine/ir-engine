@@ -23,18 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import { isValidFileName } from '@ir-engine/common/src/utils/validateFileName'
 import {
   Component,
   Entity,
   EntityTreeComponent,
-  EntityUUID,
   UUIDComponent,
   createEntity,
-  entityExists,
   getComponent,
   hasComponent,
   iterateEntityNode,
@@ -45,10 +44,8 @@ import {
 import PrefabConfirmationPanelDialog from '@ir-engine/editor/src/components/dialogs/PrefabConfirmationPanelDialog'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { getMutableState, getState, startReactor, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { getMutableState, getState, startReactor, useHookstate } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
@@ -57,7 +54,7 @@ import { Button, Input } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Scene } from 'three'
+import { Quaternion, Scene, Vector3 } from 'three'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
@@ -66,19 +63,20 @@ import { SelectionState } from '../../services/SelectionServices'
 export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?: Entity; isExportLookDev?: boolean }) {
   const defaultPrefabFolder = useHookstate<string>('assets/custom-prefabs')
   const prefabName = useHookstate<string>('prefab')
+  const resultFileName = useHookstate(isValidFileName(prefabName.value))
   const prefabTag = useHookstate<string[]>(['prefab'])
   const { t } = useTranslation()
   const isOverwriteModalVisible = useHookstate(false)
   const isOverwriteConfirmed = useHookstate(false)
 
   const finishSavePrefab = () => {
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
     defaultPrefabFolder.set('assets/custom-prefabs')
     prefabName.set('prefab')
     prefabTag.set([])
     isOverwriteModalVisible.set(false)
     isOverwriteConfirmed.set(false)
-    PopoverState.showPopupover(<PrefabConfirmationPanelDialog />)
+    ModalState.openModal(<PrefabConfirmationPanelDialog />)
   }
 
   const exportLookDevPrefab = async (srcProject: string, fileName: string) => {
@@ -131,6 +129,16 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
     const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
     setComponent(entity, NameComponent, prefabName.value)
     getMutableState(SelectionState).selectedEntities.set([])
+
+    const transform = getComponent(entity, TransformComponent)
+    const position = transform.position.clone()
+    const rotation = transform.rotation.clone()
+
+    setComponent(entity, TransformComponent, {
+      position: new Vector3(0, 0, 0),
+      rotation: new Quaternion().identity(),
+      scale: new Vector3(1, 1, 1)
+    })
     await exportRelativeGLTF(entity, srcProject, fileName)
 
     const resources = await API.instance.service(staticResourcePath).find({
@@ -143,49 +151,28 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
     const tags = [...prefabTag.value]
     await API.instance.service(staticResourcePath).patch(resource.id, { tags: tags, project: srcProject })
 
-    const transform = getComponent(entity, TransformComponent)
-    const position = transform.position.clone()
-    const rotation = transform.rotation.clone()
-
     EditorControlFunctions.removeObject([entity])
-    const sceneID = getComponent(parentEntity, SourceComponent)
+    const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
+      [
+        { name: GLTFComponent.jsonID, props: { src: fileURL } },
+        { name: TransformComponent.jsonID, props: { position, rotation } }
+      ],
+      parentEntity
+    )
+    getMutableState(SelectionState).selectedEntities.set([entityUUID])
     const reactor = startReactor(() => {
-      const documentState = useHookstate(getMutableState(GLTFDocumentState))
-      const nodes = documentState[sceneID].nodes
-      const entityUUIDState = useHookstate<EntityUUID | undefined>(undefined)
+      const entity = UUIDComponent.useEntityByUUID(entityUUID)
+      const gltfComponent = useOptionalComponent(entity, GLTFComponent)
+
       useEffect(() => {
-        if (!entityExists(entity) && !entityUUIDState.value) {
-          const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
-            [
-              { name: GLTFComponent.jsonID, props: { src: fileURL } },
-              { name: TransformComponent.jsonID, props: { position, rotation } }
-            ],
-            parentEntity
-          )
-          getMutableState(SelectionState).selectedEntities.set([entityUUID])
-          entityUUIDState.set(entityUUID)
-        } else {
-          console.log('Entity not removed')
-        }
-      }, [nodes])
+        if (!gltfComponent) return
+        const name = prefabName.value
+        setComponent(entity, NameComponent, name)
+        finishSavePrefab()
+        reactor.stop()
+      }, [gltfComponent])
 
-      const ModelLoadedReactor = (props: { entityUUID: EntityUUID }) => {
-        const { entityUUID } = props
-        const entity = UUIDComponent.useEntityByUUID(entityUUID)
-        const gltfComponent = useOptionalComponent(entity, GLTFComponent)
-
-        useImmediateEffect(() => {
-          if (!gltfComponent) return
-          const name = prefabName.value
-          setComponent(entity, NameComponent, name)
-          finishSavePrefab()
-          reactor.stop()
-        }, [gltfComponent])
-
-        return null
-      }
-
-      return entityUUIDState.value ? <ModelLoadedReactor entityUUID={entityUUIDState.value} /> : null
+      return null
     })
   }
 
@@ -224,7 +211,8 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
           title={isExportLookDev ? 'Create Lookdev Prefab' : 'Create Prefab'}
           onSubmit={onExportPrefab}
           className="w-[50vw] max-w-2xl"
-          onClose={PopoverState.hidePopupover}
+          onClose={ModalState.closeModal}
+          submitButtonDisabled={!resultFileName.value.isValid}
         >
           <Input
             value={defaultPrefabFolder.value}
@@ -236,12 +224,18 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
           />
           <Input
             value={prefabName.value}
-            onChange={(event) => prefabName.set(event.target.value)}
+            onChange={(event) => {
+              resultFileName.set(isValidFileName(event.target.value))
+              prefabName.set(event.target.value)
+            }}
             labelProps={{
               text: 'Name',
               position: 'top'
             }}
+            minLength={4}
             maxLength={64}
+            state={!resultFileName.value.isValid ? 'error' : undefined}
+            helperText={!resultFileName.value.isValid ? resultFileName.value.error : undefined}
           />
           {!isExportLookDev && (
             <div>

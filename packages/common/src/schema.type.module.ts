@@ -80,7 +80,6 @@ export type * from './schemas/social/invite-type.schema'
 export type * from './schemas/social/invite.schema'
 export type * from './schemas/social/location-admin.schema'
 export type * from './schemas/social/location-authorized-user.schema'
-export type * from './schemas/social/location-ban.schema'
 export type * from './schemas/social/location-setting.schema'
 export type * from './schemas/social/location-type.schema'
 export type * from './schemas/social/location.schema'
@@ -108,6 +107,10 @@ export type * from './schemas/user/user-setting.schema'
 export type * from './schemas/user/user.schema'
 export type * from './schemas/world/spawn-point.schema'
 
+export type * from './schemas/moderation/moderation-attachment.schema'
+export type * from './schemas/moderation/moderation-ban.schema'
+export type * from './schemas/moderation/moderation-file-upload.schema'
+export type * from './schemas/moderation/moderation.schema'
 export type * from './schemas/projects/project-history.schema'
 
 export const locationPath = 'location'
@@ -171,8 +174,6 @@ export const locationTypePath = 'location-type'
 export const locationAdminPath = 'location-admin'
 
 export const channelPath = 'channel'
-
-export const locationBanPath = 'location-ban'
 
 export const locationSettingPath = 'location-setting'
 
@@ -285,3 +286,8 @@ export const projectHistoryPath = 'project-history'
 export const metabaseUrlPath = 'metabase-url'
 
 export const engineSettingPath = 'engine-setting'
+
+export const moderationPath = 'moderation'
+export const moderationBanPath = 'moderation-ban'
+export const moderationAttachmentPath = 'moderation-attachment'
+export const moderationFileUploadPath = 'moderation-file-upload'

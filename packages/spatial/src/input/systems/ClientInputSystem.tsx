@@ -40,6 +40,7 @@ import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { XRState } from '../../xr/XRState'
 import { InputComponent } from '../components/InputComponent'
@@ -50,7 +51,12 @@ import { InputHeuristicState, boundingBoxHeuristic, meshHeuristic } from '../fun
 import ClientInputHooks from '../functions/ClientInputHooks'
 import { InputState } from '../state/InputState'
 
-const pointersQuery = defineQuery([InputPointerComponent, InputSourceComponent, Not(XRSpaceComponent)])
+const pointersQuery = defineQuery([
+  InputPointerComponent,
+  InputSourceComponent,
+  TransformComponent,
+  Not(XRSpaceComponent)
+])
 const xrSpacesQuery = defineQuery([XRSpaceComponent, TransformComponent])
 const inputSourceQuery = defineQuery([InputSourceComponent])
 const inputsQuery = defineQuery([InputComponent])
@@ -89,7 +95,8 @@ const execute = () => {
     TransformComponent.rotation.y[eid] = _rayRotation.y
     TransformComponent.rotation.z[eid] = _rayRotation.z
     TransformComponent.rotation.w[eid] = _rayRotation.w
-    TransformComponent.dirtyTransforms[eid] = true
+    computeTransformMatrix(eid)
+    TransformComponent.dirty[eid] = 0
   }
 
   // remove stale pointers
@@ -111,7 +118,7 @@ const execute = () => {
     TransformComponent.rotation.y[eid] = pose.transform.orientation.y
     TransformComponent.rotation.z[eid] = pose.transform.orientation.z
     TransformComponent.rotation.w[eid] = pose.transform.orientation.w
-    TransformComponent.dirtyTransforms[eid] = true
+    TransformComponent.dirty[eid] = 1
   }
 
   // assign input sources (InputSourceComponent) to input sinks (InputComponent), foreach on InputSourceComponents
@@ -128,16 +135,8 @@ const reactor = () => {
   if (!isClient) return null
 
   useEffect(() => {
-    getMutableState(InputHeuristicState).merge([
-      {
-        order: -1,
-        heuristic: meshHeuristic
-      },
-      {
-        order: 0,
-        heuristic: boundingBoxHeuristic
-      }
-    ])
+    InputHeuristicState.addHeuristic(-1, meshHeuristic)
+    InputHeuristicState.addHeuristic(0, boundingBoxHeuristic)
   }, [])
 
   ClientInputHooks.useNonSpatialInputSources()

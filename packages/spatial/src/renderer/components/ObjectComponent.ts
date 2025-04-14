@@ -29,6 +29,7 @@ import { Object3D } from 'three'
 
 import {
   EntityTreeComponent,
+  UUIDComponent,
   defineComponent,
   getComponent,
   getOptionalComponent,
@@ -44,18 +45,22 @@ import { removeCallback, setCallback } from '../../common/CallbackComponent'
 import { NameComponent } from '../../common/NameComponent'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { Layer } from './ObjectLayerComponent'
+import { Layer, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { VisibleComponent } from './VisibleComponent'
 
 export const ObjectComponent = defineComponent({
   name: 'ObjectComponent',
-  jsonID: 'EE_object3d',
+
   schema: S.Required(S.Type<Object3D>()),
 
-  onSet: (entity: Entity, component, obj: Object3D) => {
+  onSet(entity, component, obj: Object3D) {
+    if (!obj?.isObject3D) throw new Error('ObjectComponent requires an Object3D')
+
     setComponent(entity, TransformComponent)
 
     obj.entity = entity
+    if (obj.rotation) obj.rotation._onChangeCallback = () => {}
+    obj.quaternion._onChangeCallback = () => {}
 
     const transform = getComponent(entity, TransformComponent)
     obj.position.copy(transform.position)
@@ -65,6 +70,10 @@ export const ObjectComponent = defineComponent({
     obj.matrixWorldAutoUpdate = false
     obj.matrix = transform.matrix
     obj.matrixWorld = transform.matrixWorld
+    const currentMask = hasComponent(entity, ObjectLayerMaskComponent)
+      ? ObjectLayerMaskComponent.mask[entity]
+      : obj.layers.mask
+    setComponent(entity, ObjectLayerMaskComponent, currentMask)
     obj.layers = new Layer(entity)
 
     obj.frustumCulled = false
@@ -72,6 +81,15 @@ export const ObjectComponent = defineComponent({
     /** until all three hierarchies are replaced with ECS, we need to preserve this in a few cases  */
     if (!obj.preserveChildren) {
       Object.defineProperties(obj, {
+        uuid: {
+          get() {
+            return getComponent(entity, UUIDComponent)
+          }
+        },
+        rotation: {
+          get() {},
+          set(value) {}
+        },
         parent: {
           get() {
             if (ObjectComponent.activeRender) return null // hack to check if renderer is rendering
@@ -124,11 +142,12 @@ export const ObjectComponent = defineComponent({
         updateWorldMatrix: () => {}
       })
     }
+
     // sometimes it's convenient to update the entity transform via the Object3D,
     // so allow people to do that via proxies
-    proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirtyTransforms, obj.position)
-    proxifyQuaternionWithDirty(TransformComponent.rotation, entity, TransformComponent.dirtyTransforms, obj.quaternion)
-    proxifyVector3WithDirty(TransformComponent.scale, entity, TransformComponent.dirtyTransforms, obj.scale)
+    proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirty, obj.position)
+    proxifyQuaternionWithDirty(TransformComponent.rotation, entity, TransformComponent.dirty, obj.quaternion)
+    proxifyVector3WithDirty(TransformComponent.scale, entity, TransformComponent.dirty, obj.scale)
 
     setCallback(entity, 'setVisible', () => {
       setComponent(entity, VisibleComponent, true)

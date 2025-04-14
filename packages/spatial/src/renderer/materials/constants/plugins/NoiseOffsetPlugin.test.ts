@@ -41,6 +41,7 @@ import assert from 'assert'
 import { Material, Uniform, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
+import { act, render } from '@testing-library/react'
 import { assertVec } from '../../../../../tests/util/assert'
 import { generateNoiseTexture } from '../../../functions/generateNoiseTexture'
 import { MaterialStateComponent } from '../../MaterialComponent'
@@ -116,7 +117,7 @@ describe('NoiseOffsetPluginComponent', () => {
       return destroyEngine()
     })
 
-    it('should set call `setPlugin` on the MaterialStateComponent.material of the entityContext', () => {
+    it('should set call `setPlugin` on the MaterialStateComponent.material of the entityContext', async () => {
       const material = new Material()
       // Set the data as expected
       setComponent(testEntity, MaterialStateComponent, { material: material })
@@ -124,6 +125,7 @@ describe('NoiseOffsetPluginComponent', () => {
       assert.equal(getComponent(testEntity, MaterialStateComponent).material.plugins, undefined)
       // Run and Check the result
       setComponent(testEntity, NoiseOffsetPluginComponent)
+      await act(() => render(null))
       assert.notEqual(getComponent(testEntity, MaterialStateComponent).material.plugins, undefined)
     })
 

@@ -51,11 +51,7 @@ export default {
 type Story = StoryObj<typeof ViewportButton>
 
 const ViewportButtonRenderer = (args: ViewportButtonProps) => {
-  return (
-    <ViewportButton {...args}>
-      <RulerUnitsMd />
-    </ViewportButton>
-  )
+  return <ViewportButton {...args} icon={RulerUnitsMd} />
 }
 
 export const Default: Story = {

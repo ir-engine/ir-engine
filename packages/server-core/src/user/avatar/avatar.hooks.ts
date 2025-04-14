@@ -25,8 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
-
 import { staticResourcePath } from '@ir-engine/common/src/schemas/media/static-resource.schema'
 import {
   avatarDataValidator,
@@ -40,8 +38,9 @@ import {
 import { userAvatarPath } from '@ir-engine/common/src/schemas/user/user-avatar.schema'
 import { userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { checkScope } from '@ir-engine/common/src/utils/checkScope'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import setLoggedInUser from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-body'
-
+import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
 import isAction from '../../hooks/is-action'
@@ -169,13 +168,14 @@ const removeAvatarResources = async (context: HookContext<AvatarService>) => {
   const avatar = await context.app.service(avatarPath).get(context.id!, context.params)
 
   try {
-    await context.app.service(staticResourcePath).remove(avatar.modelResourceId)
+    if (isValidId(avatar.modelResourceId)) await context.app.service(staticResourcePath).remove(avatar.modelResourceId)
   } catch (err) {
     logger.error(err)
   }
 
   try {
-    await context.app.service(staticResourcePath).remove(avatar.thumbnailResourceId)
+    if (isValidId(avatar.thumbnailResourceId))
+      await context.app.service(staticResourcePath).remove(avatar.thumbnailResourceId)
   } catch (err) {
     logger.error(err)
   }
@@ -199,8 +199,9 @@ const updateUserAvatars = async (context: HookContext<AvatarService>) => {
   })
 
   if (avatars.data.length > 0) {
+    avatars.data = avatars.data.filter((avatar) => avatar.modelResource && avatar.thumbnailResource)
     const randomReplacementAvatar = avatars.data[Math.floor(Math.random() * avatars.data.length)]
-    await context.app.service(userAvatarPath).patch(
+    await context.app.service(userAvatarPath)._patch(
       null,
       {
         avatarId: randomReplacementAvatar.id as AvatarID
@@ -208,8 +209,7 @@ const updateUserAvatars = async (context: HookContext<AvatarService>) => {
       {
         query: {
           avatarId: context.id?.toString() as AvatarID
-        },
-        user: context.params.user
+        }
       }
     )
   }
