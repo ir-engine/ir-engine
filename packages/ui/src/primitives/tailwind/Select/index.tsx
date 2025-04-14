@@ -334,8 +334,7 @@ const Select = ({
                   type="text"
                   className={twMerge(
                     'w-full bg-inherit text-text-secondary focus:border-transparent focus:outline-none focus:ring-0',
-                    searchMode === undefined ? 'cursor-pointer' : 'cursor-text',
-                    disabled ? 'cursor-not-allowed' : ''
+                    disabled ? 'cursor-not-allowed' : searchMode === undefined ? 'cursor-pointer' : 'cursor-text'
                   )}
                   data-testid="select-input"
                   value={displayText}
@@ -353,7 +352,7 @@ const Select = ({
                     onClick={() => {
                       onChange('')
                     }}
-                    className="cursor-pointer text-text-secondary"
+                    className={twMerge(disabled ? 'cursor-not-allowed' : 'cursor-pointer', 'text-text-secondary')}
                   />
                 )}
 
@@ -363,7 +362,10 @@ const Select = ({
                       togglePopup()
                     }
                   }}
-                  className={`cursor-pointer ${isOpen && !disabled && 'rotate-180'} text-text-secondary duration-300`}
+                  className={twMerge(
+                    disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+                    `${isOpen && !disabled && 'rotate-180'} text-text-secondary duration-300`
+                  )}
                 />
               </div>
             </div>

@@ -2,7 +2,7 @@ ARG REPO_URL
 ARG REPO_NAME
 ARG STAGE
 ARG TAG
-FROM ${REPO_URL}/${REPO_NAME}:${TAG} as builder
+FROM ${REPO_URL}/${REPO_NAME}:${TAG} AS builder
 
 # Create app directory
 WORKDIR /app
@@ -11,7 +11,7 @@ COPY project-package-jsons ./
 COPY packages/taskserver/package.json ./packages/taskserver/
 
 ARG NODE_ENV
-RUN npm install --loglevel notice --legacy-peer-deps --production
+RUN --mount=type=cache,target=/root/.npm npm install --loglevel notice --legacy-peer-deps --production
 
 COPY . .
 
@@ -19,7 +19,7 @@ COPY . .
 
 ENV APP_ENV=production
 
-FROM node:22-slim as runner
+FROM node:22-slim AS runner
 WORKDIR /app
 
 COPY --from=builder /app ./
