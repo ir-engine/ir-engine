@@ -450,7 +450,6 @@ const reactor = () => {
   const rendererState = useMutableState(RendererState)
 
   //@todo remove hardcoded value once feature flag is added to MT
-  const hideGlbChildrenFeatureFlag = [true] // useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.HideGlbChildren])
   const [showGlbChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowGlbChildren])
 
   useEffect(() => {
