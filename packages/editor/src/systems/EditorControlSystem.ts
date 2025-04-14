@@ -283,7 +283,7 @@ const findNextSelectionEntity = (topLevelParent: Entity, child: Entity): Entity 
 const inputQuery = defineQuery([InputSourceComponent])
 let clickStartEntity = UndefinedEntity
 
-let showGlbChildrenFeatureFlagEnabled = false
+let showGlbChildrenFeatureFlagEnabled = true
 
 const execute = () => {
   const entity = AvatarComponent.getSelfAvatarEntity()
