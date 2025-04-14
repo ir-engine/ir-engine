@@ -27,7 +27,7 @@ import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useFind, useMutation } from '@ir-engine/common'
-import { authenticationSettingPath, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schema.type.module'
 import { State, useHookstate } from '@ir-engine/hyperflux'
 import { Button, Input } from '@ir-engine/ui'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
@@ -36,7 +36,8 @@ import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 
-import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
+import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
+import { flattenObjectToArray, unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { AuthenticationConfig } from '@ir-engine/server-core/src/appconfig'
 import { initialAuthState } from '../../../../common/initialAuthState'
 
@@ -53,8 +54,6 @@ const OAUTH_TYPES = {
 const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
 
-  // const authSetting = useFind(authenticationSettingPath).data.at(0) as AuthenticationSettingType
-  // const id = authenticationSetting?.id
   const loadingState = useHookstate({
     loading: false,
     errorMessage: ''
@@ -79,7 +78,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     linkedin: authSetting?.oauth?.linkedin,
     facebook: authSetting?.oauth?.facebook
   })
-  const patchAuthSettings = useMutation(authenticationSettingPath).patch
+  const patchAuthSettings = useMutation(engineSettingPath)
 
   useEffect(() => {
     if (engineSettingData.status === 'success') {
@@ -116,20 +115,42 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
 
     const oauth = { ...authSetting.oauth, ...(keySecret.value as any) }
 
-    for (const key of Object.keys(oauth)) {
-      oauth[key] = JSON.parse(JSON.stringify(oauth[key]))
-    }
+    const updatedSettings = flattenObjectToArray({ oauth: oauth })
 
-    // patchAuthSettings(id, { authStrategies: auth, oauth: oauth })
-    //   .then(() => {
-    //     loadingState.set({ loading: false, errorMessage: '' })
-    //     NotificationService.dispatchNotify(t('admin:components.setting.authSettingsRefreshNotification'), {
-    //       variant: 'warning'
-    //     })
-    //   })
-    //   .catch((e) => {
-    //     loadingState.set({ loading: false, errorMessage: e.message })
-    //   })
+    const authOperationPromises: Promise<EngineSettingType | EngineSettingType[]>[] = []
+
+    updatedSettings.forEach((setting) => {
+      const settingInDb = engineSettingData.data.find((el) => el.key === setting.key)
+      if (!settingInDb) {
+        authOperationPromises.push(
+          patchAuthSettings.create({
+            key: setting.key,
+            category: 'authentication',
+            dataType: getDataType(setting.value),
+            value: `${setting.value}`,
+            type: 'private'
+          })
+        )
+      } else if (settingInDb.value != setting.value) {
+        authOperationPromises.push(
+          patchAuthSettings.patch(settingInDb.id, {
+            key: setting.key,
+            category: 'authentication',
+            dataType: getDataType(setting.value),
+            value: setting.value,
+            type: 'private'
+          })
+        )
+      }
+    })
+
+    Promise.all(authOperationPromises)
+      .then(() => {
+        loadingState.set({ loading: false, errorMessage: '' })
+      })
+      .catch((e) => {
+        loadingState.set({ loading: false, errorMessage: e.message })
+      })
   }
 
   const handleCancel = () => {
