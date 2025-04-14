@@ -27,14 +27,20 @@ import { GLTF } from '@gltf-transform/core'
 import assert from 'assert'
 import {
   AnimationClip,
+  Bone,
+  BoxGeometry,
   Color,
   InterpolateDiscrete,
   InterpolateLinear,
   InterpolateSmooth,
   KeyframeTrack,
+  Matrix4,
   Mesh,
+  MeshBasicMaterial,
   MeshStandardMaterial,
   NormalAnimationBlendMode,
+  Skeleton,
+  SkinnedMesh,
   SphereGeometry,
   Texture,
   Vector3
@@ -46,6 +52,7 @@ import {
   defineComponent,
   EntityTreeComponent,
   EntityUUID,
+  getComponent,
   S,
   SerializedComponentType,
   setComponent,
@@ -55,6 +62,7 @@ import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import {
   MaterialInstanceComponent,
   MaterialStateComponent
@@ -491,5 +499,44 @@ describe('exportGLTFScene', () => {
       inputOutputAccessors.add(sampler.input)
       inputOutputAccessors.add(sampler.output)
     }
+  })
+
+  it('should export skins', async () => {
+    const baseEntity = createSceneEntity('base')
+    setComponent(baseEntity, SourceComponent, 'test' as SourceID)
+
+    const skinnedMesh = new SkinnedMesh(new BoxGeometry(1, 1, 1), new MeshBasicMaterial({ color: 0x00ff00 }))
+    const bones = [new Bone()] as Bone[]
+    bones[0].entity = baseEntity
+    const boneInverses = [new Matrix4(), new Matrix4(), new Matrix4()]
+    const skeleton = new Skeleton(bones, boneInverses)
+    skinnedMesh.skeleton = skeleton
+
+    const skinnedMeshEntity = createEntity()
+    setComponent(skinnedMeshEntity, SourceComponent, getComponent(baseEntity, SourceComponent))
+    setComponent(skinnedMeshEntity, MeshComponent, skinnedMesh)
+    setComponent(skinnedMeshEntity, SkinnedMeshComponent, skinnedMesh)
+    setComponent(skinnedMeshEntity, EntityTreeComponent, { parentEntity: baseEntity })
+
+    const [gltf] = (await exportGLTFScene(baseEntity, 'dud', 'test/path')) as [GLTF.IGLTF]
+
+    const nodes = gltf.nodes
+    const meshes = gltf.meshes
+    const skins = gltf.skins
+
+    assert.equal(nodes?.length, 2)
+    assert.equal(meshes?.length, 1)
+    assert.equal(skins?.length, 1)
+    const skin = skins![0]
+
+    const skinNode = nodes![1]
+
+    assert(typeof skinNode.mesh === 'number')
+    assert(typeof skinNode.skin === 'number')
+
+    assert(typeof skin.inverseBindMatrices === 'number')
+    assert.equal(skin.joints.length, 1)
+    // The joint is referencing the root node
+    assert.equal(skin.joints[0], 0)
   })
 })
