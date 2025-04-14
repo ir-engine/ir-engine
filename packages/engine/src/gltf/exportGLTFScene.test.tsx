@@ -38,12 +38,14 @@ import {
   Matrix4,
   Mesh,
   MeshBasicMaterial,
+  MeshPhysicalMaterial,
   MeshStandardMaterial,
   NormalAnimationBlendMode,
   Skeleton,
   SkinnedMesh,
   SphereGeometry,
   Texture,
+  Vector2,
   Vector3
 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
@@ -73,7 +75,7 @@ import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { SourceComponent, SourceID } from '../scene/components/SourceComponent'
 import { createSceneEntity } from '../scene/functions/createSceneEntity'
-import { exportGLTFScene } from './exportGLTFScene'
+import { exportGLTFScene, materialExtensions } from './exportGLTFScene'
 import { EEMaterialComponent } from './MaterialExtensionComponents'
 
 describe('exportGLTFScene', () => {
@@ -576,6 +578,80 @@ describe('exportGLTFScene', () => {
       for (const target of primitive.targets!) {
         assert(typeof target[morphName] === 'number')
       }
+    }
+  })
+
+  it('should export material extensions', async () => {
+    const baseEntity = createSceneEntity('base')
+    setComponent(baseEntity, SourceComponent, 'test' as SourceID)
+
+    const textureUrl = 'https://example.com/projects/ir-engine/dud-project/public/images/image.png'
+    const texture = new Texture()
+    texture.userData = { src: textureUrl }
+    texture.image = {}
+
+    const material = new MeshPhysicalMaterial({
+      // KHR_materials_emissive_strength
+      emissiveIntensity: 1,
+      // KHR_materials_clearcoat
+      clearcoat: 1,
+      clearcoatMap: texture,
+      clearcoatRoughness: 1,
+      clearcoatRoughnessMap: texture,
+      clearcoatNormalMap: texture,
+      clearcoatNormalScale: new Vector2(1, 1),
+      // KHR_materials_iridescence
+      iridescence: 1,
+      iridescenceMap: texture,
+      iridescenceIOR: 1,
+      iridescenceThicknessMap: texture,
+      iridescenceThicknessRange: [100, 200],
+      // KHR_materials_sheen
+      sheenColor: new Color(0x111111),
+      sheenColorMap: texture,
+      sheenRoughness: 1,
+      sheenRoughnessMap: texture,
+      // KHR_materials_transmission
+      transmission: 1,
+      transmissionMap: texture,
+      // KHR_materials_volume
+      thickness: 1,
+      thicknessMap: texture,
+      attenuationDistance: 1,
+      attenuationColor: new Color(0x111111),
+      // KHR_materials_ior
+      ior: 1,
+      // KHR_materials_specular
+      specularIntensity: 1,
+      specularIntensityMap: texture,
+      specularColor: new Color(0x111111),
+      specularColorMap: texture,
+      // EXT_materials_bump
+      bumpScale: 1,
+      bumpMap: texture,
+      // KHR_materials_anisotropy
+      anisotropy: 1,
+      anisotropyRotation: 1,
+      anisotropyMap: texture
+    })
+
+    const materialEntity = createEntity()
+    setComponent(materialEntity, SourceComponent, getComponent(baseEntity, SourceComponent))
+    setComponent(materialEntity, EntityTreeComponent, { parentEntity: baseEntity })
+    setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
+    setComponent(materialEntity, MaterialStateComponent, {
+      material: material
+    })
+
+    const [gltf] = (await exportGLTFScene(baseEntity, 'dud', 'test/path')) as [GLTF.IGLTF]
+
+    const materials = gltf.materials
+    assert.equal(materials?.length, 1)
+
+    const mat = materials![0]
+
+    for (const ext of materialExtensions) {
+      assert(mat.extensions![ext.jsonID])
     }
   })
 })

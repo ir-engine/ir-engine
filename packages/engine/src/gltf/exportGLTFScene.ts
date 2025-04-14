@@ -872,7 +872,7 @@ const _builtinMaterialDefs = {
   }
 } as Record<keyof MeshPhysicalMaterial, (materialDef: GLTF.IMaterial, value: MaterialValue) => void>
 
-const materialExtensions = [
+export const materialExtensions = [
   KHREmissiveStrengthExtensionComponent,
   KHRClearcoatExtensionComponent,
   KHRIridescenceExtensionComponent,
