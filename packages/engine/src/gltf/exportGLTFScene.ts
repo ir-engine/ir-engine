@@ -24,7 +24,12 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
-import { EntityTreeComponent, getAncestorWithComponents, UUIDComponent } from '@ir-engine/ecs'
+import {
+  EntityTreeComponent,
+  getAncestorWithComponents,
+  getChildrenWithComponents,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import {
   ComponentType,
   getAllComponents,
@@ -417,7 +422,13 @@ export async function exportGLTFScene(
   }
 
   await Promise.all(context.entityPromises.values())
-  await exportAnimations(entity, gltf, context)
+
+  const animationEntities = getChildrenWithComponents(entity, [AnimationComponent])
+  const animationPromises = [exportAnimations(entity, gltf, context)] as Promise<void>[]
+  for (const animEntity of animationEntities) {
+    animationPromises.push(exportAnimations(animEntity, gltf, context))
+  }
+  await Promise.all(animationPromises)
 
   if (context.extensionsUsed.size) gltf.extensionsUsed = [...context.extensionsUsed]
   handleScenePaths(gltf, 'encode')
