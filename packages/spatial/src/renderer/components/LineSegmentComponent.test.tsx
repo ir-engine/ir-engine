@@ -57,7 +57,7 @@ import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { act, render } from '@testing-library/react'
 import { assertColor } from '../../../tests/util/assert'
 import { NameComponent } from '../../common/NameComponent'
-import { ObjectLayerMasks, ObjectLayers } from '../constants/ObjectLayers'
+import { ObjectLayerMask, ObjectLayerMasks, ObjectLayers } from '../constants/ObjectLayers'
 import { LineSegmentComponent } from './LineSegmentComponent'
 import { ObjectComponent } from './ObjectComponent'
 import { ObjectLayerComponents, ObjectLayerMaskComponent } from './ObjectLayerComponent'
@@ -68,7 +68,7 @@ type LineSegmentComponentData = {
   geometry: BufferGeometry
   material: Material
   color?: ColorRepresentation
-  layerMask: number
+  layerMask: ObjectLayerMask
   entity?: Entity
 }
 
@@ -77,7 +77,7 @@ const LineSegmentComponentDefaults = {
   geometry: null!,
   material: new LineBasicMaterial(),
   color: undefined,
-  layerMask: ObjectLayers.NodeHelper,
+  layerMask: ObjectLayerMasks.NodeHelper,
   entity: undefined
 } as LineSegmentComponentData
 
@@ -232,7 +232,7 @@ describe('LineSegmentComponent', () => {
 
     it('should trigger when component.layerMask changes', async () => {
       const testEntity = createEntity()
-      const Expected = 42
+      const Expected = (ObjectLayerMasks.Avatar | ObjectLayerMasks.Gizmos) as ObjectLayerMask
       assert.equal(hasComponent(testEntity, ObjectLayerMaskComponent), false)
       const geometry = new BoxGeometry(1, 1, 1)
       setComponent(testEntity, LineSegmentComponent, {

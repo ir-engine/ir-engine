@@ -171,7 +171,7 @@ const Modal = ({
   }, [onClose, onSubmit, submitButtonDisabled, submitLoading])
 
   return (
-    <div data-test-id={id} className={twClassName}>
+    <div data-test-id={id} className={twClassName} data-testid="modal">
       {onClose && <ModalHeader title={title} onClose={onClose} headerIconSrc={headerIconSrc} />}
       {rawChildren}
       {children && <div className="h-fit max-h-[60dvh] w-full overflow-y-auto px-10 py-6">{children}</div>}

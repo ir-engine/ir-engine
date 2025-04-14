@@ -6,7 +6,7 @@
 
 We ([Infinite Reality Engine](https://github.com/ir-engine)) believe that creating, hosting and experiencing 3D websites should be easy.
 
-We want a Star Trek future where participating in immersive communication technology and shared simulations should be as easy and natural as making a website.
+We want a fair and human future where designing and participating in immersive experiences and shared digital spaces should be as easy and natural as making and opening a website.
 
 - Includes a self-deployable platform, UI, worlds, avatars, and games
 - Fully customizable for any kind of game, social experience, event or spatial web site

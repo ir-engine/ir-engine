@@ -38,7 +38,9 @@ export default function BlockSlider({
   return (
     <>
       <div className="flex items-center gap-x-4 lg:hidden">
-        <span className="w-52 text-right text-sm text-text-tertiary">{label}</span>
+        <span className="w-52 text-right text-sm text-text-tertiary" data-testid="slider-label">
+          {label}
+        </span>
         <div className="w-80">
           <Slider max={1} min={0} step={0.01} value={value} onChange={onChange} onRelease={() => {}} label={''} />
         </div>

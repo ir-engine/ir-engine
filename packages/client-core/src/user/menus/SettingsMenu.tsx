@@ -80,10 +80,25 @@ function GeneralTab() {
     <div>
       {!isMobile && !xrSupported && (
         <>
-          <img src={KeyboardMappingImage} alt="Desktop Controls" className="mx-auto" />
+          <img
+            src={KeyboardMappingImage}
+            alt="Desktop Controls"
+            className="mx-auto"
+            data-testid="keyboard-controls-image"
+          />
           <div className="mx-auto grid grid-cols-2">
-            <img src={ControllerMappingImage} alt="Controller Controls" className="col-span-1" />
-            <img src={MouseMappingImage} alt="Controller Controls" className="col-span-1" />
+            <img
+              src={ControllerMappingImage}
+              alt="Controller Controls"
+              className="col-span-1"
+              data-testid="controller-controls-image"
+            />
+            <img
+              src={MouseMappingImage}
+              alt="Controller Controls"
+              className="col-span-1"
+              data-testid="mouse-controls-image"
+            />
           </div>
         </>
       )}
@@ -115,7 +130,10 @@ function AudioTab() {
           }}
         />
       </div> */}
-      <div className="mx-auto mt-6 grid grid-cols-1 items-center gap-x-4 gap-y-2 lg:w-3/4 lg:gap-y-4">
+      <div
+        className="mx-auto mt-6 grid grid-cols-1 items-center gap-x-4 gap-y-2 lg:w-3/4 lg:gap-y-4"
+        data-testid="audio-settings"
+      >
         <BlockSlider
           label={t('user:usermenu.setting.lbl-microphone')}
           value={audioState.microphoneGain.value}
@@ -186,8 +204,8 @@ function GraphicsTab() {
     logger.analytics({ event_name: `automatic_qp`, event_value: false })
   }
   return (
-    <div className="h-full w-full">
-      <div className="ml-auto mt-6 flex w-3/4 items-center gap-x-2">
+    <div className="h-full w-full" data-testid="graphics-settings">
+      <div className="ml-auto mt-6 flex w-3/4 items-center gap-x-2" data-testid="quality-preset-setting">
         <div className="w-28 text-left text-sm text-text-primary">{t('user:usermenu.setting.lbl-quality')}</div>
         <Slider
           max={5}
@@ -199,7 +217,7 @@ function GraphicsTab() {
           label=""
         />
       </div>
-      <div className="mb-2.5 ml-auto mt-4 w-3/4">
+      <div className="mb-2.5 ml-auto mt-4 w-3/4" data-testid="post-processing-setting">
         <Checkbox
           onChange={() => {
             rendererState.usePostProcessing.set(!rendererState.usePostProcessing.value)
@@ -211,7 +229,7 @@ function GraphicsTab() {
           label={t('user:usermenu.setting.lbl-pp')}
         />
       </div>
-      <div className="mb-2.5 ml-auto w-3/4">
+      <div className="mb-2.5 ml-auto w-3/4" data-testid="shadows-setting">
         <Checkbox
           onChange={() => {
             rendererState.useShadows.set(!rendererState.useShadows.value)
@@ -223,7 +241,7 @@ function GraphicsTab() {
           label={t('user:usermenu.setting.lbl-shadow')}
         />
       </div>
-      <div className="mb-3 ml-auto w-3/4">
+      <div className="mb-3 ml-auto w-3/4" data-testid="automatic-setting">
         <Checkbox
           onChange={() => {
             rendererState.automatic.set(!rendererState.automatic.value)
@@ -233,7 +251,7 @@ function GraphicsTab() {
           label={t('user:usermenu.setting.lbl-automatic')}
         />
       </div>
-      <div className="mx-auto my-1">
+      <div className="mx-auto my-1" data-testid="shadowmap-resolution-setting">
         <Select
           width="full"
           labelProps={{
@@ -257,7 +275,7 @@ function GraphicsTab() {
           }}
         />
       </div>
-      <div className="my-1 ml-auto w-3/4">
+      <div className="my-1 ml-auto w-3/4" data-testid="show-user-nameplate-setting">
         <Checkbox
           onChange={() => xruiNameplateState.isVisible.set(!xruiNameplateState.isVisible.value)}
           checked={xruiNameplateState.isVisible.value}
@@ -265,7 +283,7 @@ function GraphicsTab() {
         />
       </div>
       {xruiNameplateState.isVisible.value && (
-        <div className="ml-auto flex w-3/4 items-center gap-x-2">
+        <div className="ml-auto flex w-3/4 items-center gap-x-2" data-testid="nameplate-trigger-distance-setting">
           <div className="w-72 text-left text-sm text-text-primary">
             {t('user:usermenu.setting.lbl-triggerDistance')}
           </div>
@@ -303,7 +321,7 @@ export default function SettingsMenu() {
   return (
     <div className="absolute z-50 h-fit max-h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 text-text-secondary smh:max-h-[60dvh] smh:p-10">
       <div className="mb-[17px]">
-        <button onClick={() => ModalState.closeModal()}>
+        <button data-testid="close-menu-button" onClick={() => ModalState.closeModal()}>
           <ArrowNarrowLeftLg />
         </button>
       </div>
