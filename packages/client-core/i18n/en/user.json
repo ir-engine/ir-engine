@@ -9,7 +9,7 @@
     "confirmDiscardChange": "Changes you made may not be saved.",
     "changesLostAlert": "If you proceed all your changes will be lost.",
     "discard": "Discard",
-    "userBannedMessage": "You have been banned from joining this space for spamming.",
+    "userBannedMessage": "You have been banned from joining this space.",
     "userBannedMessageDescription": "If you feel like this is an error, please contact customer support."
   },
   "auth": {
@@ -214,7 +214,11 @@
       "showApiKey": "Show API key",
       "hideApiKey": "Hide API key",
       "apiKey": "API key",
-      "logout": "Log out",
+      "logout": {
+        "title": "Are you sure you want to log out?",
+        "submit": "Log out",
+        "cancel": "Cancel"
+      },
       "connectPhone": "Connect your Phone Number",
       "connectEmail": "Connect your Email",
       "connectPhoneEmail": "Connect your Email or Phone Number",
@@ -281,7 +285,8 @@
       "userIdCopied": "User ID copied",
       "apiKeyCopied": "API Key copied",
       "refreshApiKey": "Refresh API Key",
-      "privacyPolicy": "Privacy Policy",
+      "privacyPolicy": "iR Studio Privacy Policy",
+      "creatorPrivacyPolicy": "Creator Privacy Policy",
       "helpChat": "Help Chat",
       "reportWorld": "Report Space",
       "report": "Report a {{type}}",
@@ -489,7 +494,7 @@
   },
   "instanceChat": {
     "wantToChat": "Want to chat with others?",
-    "register": "Become a registered user",
+    "register": "Create an account",
     "verifyAge": "Verify your age"
   },
   "videoWindows": {

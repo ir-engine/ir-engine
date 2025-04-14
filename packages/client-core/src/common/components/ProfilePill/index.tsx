@@ -28,14 +28,14 @@ import { identityProviderPath } from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { Button } from '@ir-engine/ui'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
-import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
-import React from 'react'
+import ThemeToggle from '@ir-engine/ui/src/primitives/tailwind/ThemeToggle'
+import React, { useRef } from 'react'
 import { HiPencil } from 'react-icons/hi2'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { useUserAvatarThumbnail } from '../../../hooks/useUserAvatarThumbnail'
 import AvatarSelectMenu from '../../../user/menus/avatar/AvatarSelectMenu'
 import { AuthState } from '../../../user/services/AuthService'
-import { PopoverState } from '../../services/PopoverState'
+import { ModalState } from '../../services/ModalState'
 import { ThemeState } from '../../services/ThemeService'
 
 const ProfilePill = () => {
@@ -45,6 +45,17 @@ const ProfilePill = () => {
   const email = identityProvidersQuery.data.find((ip) => ip.type === 'email')?.accountIdentifier
   const popUpOpened = useHookstate(false)
   const themeState = useMutableState(ThemeState)
+  const avatarSelectMenuRef = useRef<{
+    handleClose: () => Promise<void>
+  } | null>(null)
+
+  const onAvatarSelectClose = () => {
+    if (avatarSelectMenuRef.current) {
+      avatarSelectMenuRef.current?.handleClose()
+    } else {
+      ModalState.closeModal()
+    }
+  }
 
   return (
     <Popup
@@ -76,19 +87,22 @@ const ProfilePill = () => {
               className="absolute bottom-0 left-10 rounded-full p-1 text-[#F5F5F5]"
               onClick={() => {
                 popUpOpened.set(false)
-                PopoverState.showPopupover(<AvatarSelectMenu showBackButton={false} />)
+                ModalState.openModal(
+                  <AvatarSelectMenu ref={avatarSelectMenuRef} showBackButton={false} />,
+                  onAvatarSelectClose
+                )
               }}
             >
               <HiPencil />
             </Button>
           </div>
 
-          <Toggle
+          <ThemeToggle
             value={themeState.theme.value === 'dark'}
-            onChange={() => {
-              ThemeState.setTheme(themeState.theme.value === 'light' ? 'dark' : 'light')
+            onChange={(value) => {
+              ThemeState.setTheme(value ? 'dark' : 'light')
             }}
-            label="Dark Mode"
+            label={themeState.theme.value === 'dark' ? 'Dark Mode' : 'Light Mode'}
           />
 
           <div className="flex flex-col gap-1">

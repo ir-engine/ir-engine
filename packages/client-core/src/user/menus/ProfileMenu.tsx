@@ -36,6 +36,7 @@ import {
   authenticationSettingPath,
   clientSettingPath,
   identityProviderPath,
+  projectSettingPath,
   scopePath,
   userApiKeyPath,
   userPath
@@ -52,6 +53,7 @@ import {
 import { API } from '@ir-engine/common'
 import { USERNAME_MAX_LENGTH } from '@ir-engine/common/src/constants/UserConstants'
 import { INVALID_USER_NAME_REGEX } from '@ir-engine/common/src/regex'
+import { iOS, isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import {
@@ -76,8 +78,8 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { FaApple } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
 import { initialAuthState, initialOAuthConnectedState } from '../../common/initialAuthState'
+import { ModalState } from '../../common/services/ModalState'
 import { NotificationService } from '../../common/services/NotificationService'
-import { PopoverState } from '../../common/services/PopoverState'
 import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { useZendesk } from '../../hooks/useZendesk'
 import { LocationState } from '../../social/services/LocationService'
@@ -114,17 +116,19 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const errorUsername = useHookstate('')
   const showUserId = useHookstate(false)
   const showApiKey = useHookstate(false)
-  const showDeleteAccount = useHookstate(false)
   const oauthConnectedState = useHookstate(Object.assign({}, initialOAuthConnectedState))
   const authState = useHookstate(initialAuthState)
   /** Login Link feature that was needed for multi cam mocap that is not currently necessary. Keeping code around for now if we return to it*/
   //const loginLink = useHookstate('')
 
   const authSetting = useFind(authenticationSettingPath).data.at(0)
+  console.log('authSetting test', useFind(authenticationSettingPath))
   const clientSetting = useFind(clientSettingPath).data.at(0)
+  console.log('clientSetting test', useFind(clientSettingPath))
   const loading = useHookstate(getMutableState(AuthState).isProcessing)
   const userId = selfUser.id.value
   const apiKey = useFind(userApiKeyPath).data[0]
+  console.log('apiKey test', useFind(userApiKeyPath))
   const isGuest = selfUser.isGuest.value
   const acceptedTOS = useMutableState(TermsOfServiceState).accepted.value
 
@@ -135,6 +139,13 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const originallyAgeVerified = useHookstate(checked18OrOver)
   const originallyAcceptedTOS = useHookstate(acceptedTOS).value
   const currentLocation = getState(LocationState).currentLocation.location
+
+  const projectSettings = useFind(projectSettingPath, {
+    query: {
+      projectId: currentLocation.projectId
+    }
+  })
+  const creatorPrivacyPolicyUrl = projectSettings.data.find((setting) => setting.key === 'PrivacyPolicyUrl')
 
   const avatarSelectMenuRef = useRef<{
     handleClose: () => Promise<void>
@@ -226,7 +237,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     }
   }, [identityProvidersQuery.data])
 
-  const updateUserName = (e: React.MouseEvent | React.KeyboardEvent) => {
+  const updateUserName = (e: React.MouseEvent | React.KeyboardEvent | MouseEvent | TouchEvent) => {
     e.preventDefault()
     handleUpdateUsername()
   }
@@ -361,7 +372,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     if (avatarSelectMenuRef.current) {
       avatarSelectMenuRef.current?.handleClose()
     } else {
-      PopoverState.hidePopupover()
+      ModalState.closeModal()
     }
   }
 
@@ -376,33 +387,50 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
 
   const enableConnect = authState?.value?.emailMagicLink || authState?.value?.smsMagicLink
 
+  console.log('hideLogin (within ProfileMenu)', hideLogin)
+  console.log('acceptedTOS (within ProfileMenu)', acceptedTOS)
+  console.log('enableSocial (within ProfileMenu)', enableSocial)
+  console.log('checked13OrOver (within ProfileMenu)', checked13OrOver.value)
+  console.log('checked18OrOver (within ProfileMenu)', checked18OrOver)
+  console.log('authSetting (within ProfileMenu)', authSetting)
+
   return (
-    <div className="absolute z-50 h-fit max-h-[90vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 mdh:max-h-[60vh] mdh:px-8 mdh:py-6">
+    <div className="absolute z-50 h-fit max-h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 smh:max-h-[60dvh] smh:px-8 smh:py-6">
       <div className="relative grid w-full grid-cols-5 gap-x-2">
         <div className="col-span-3 grid grid-cols-[auto,1fr] gap-x-6">
           <div className="relative h-20 w-20">
             <AvatarImage size="large" src={avatarThumbnail} className="object-cover" />
-            <button
-              onClick={() => {
-                PopoverState.showPopupover(
-                  <AvatarSelectMenu ref={avatarSelectMenuRef} showBackButton={true} previewEnabled={true} />,
-                  onAvatarSelectClose
-                )
-              }}
-              className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#DDE1E5] p-2"
-            >
-              <Edit01Lg className="place-items-center text-text-secondary" />
-            </button>
+            {
+              /**@todo disable avatar editing on iOS. Temporary solution for memory related crashing on iOS. */
+              !iOS && (
+                <button
+                  onClick={() => {
+                    ModalState.openModal(
+                      <AvatarSelectMenu ref={avatarSelectMenuRef} showBackButton={true} previewEnabled={true} />,
+                      onAvatarSelectClose
+                    )
+                  }}
+                  className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#DDE1E5] p-2"
+                  data-testid="profile-menu-avatar-edit-button"
+                >
+                  <Edit01Lg className="place-items-center text-text-secondary" />
+                </button>
+              )
+            }
           </div>
 
           <div className="flex flex-col">
-            <Text fontSize="xl" fontWeight="semibold" className="text-text-primary">
+            <Text fontSize="xl" fontWeight="semibold" className="text-text-primary" data-testid="profile-menu-username">
               {hasAdminAccess ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
               <span>{hasAdminAccess ? ' Admin' : isGuest ? ' Guest' : ' User'}</span>
             </Text>
 
             {acceptedTOS && (
-              <button className="w-fit" onClick={() => showUserId.set(!showUserId.value)}>
+              <button
+                className="w-fit"
+                data-testid={`profile-menu-${showUserId.value ? 'hide' : 'show'}-user-id-button`}
+                onClick={() => showUserId.set(!showUserId.value)}
+              >
                 <Text fontSize="sm" className="text-text-primary">
                   {showUserId.value ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
                 </Text>
@@ -410,7 +438,11 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             )}
 
             {acceptedTOS && apiKey?.id && (
-              <button onClick={() => showApiKey.set(!showApiKey.value)} className="w-fit text-text-secondary">
+              <button
+                data-testid={`profile-menu-${showApiKey.value ? 'hide' : 'show'}-api-key-button`}
+                onClick={() => showApiKey.set(!showApiKey.value)}
+                className="w-fit text-text-primary"
+              >
                 <Text fontSize="sm">
                   {showApiKey.value ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
                 </Text>
@@ -419,32 +451,38 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
           </div>
         </div>
 
-        <div className="col-span-2 grid grid-cols-3 gap-x-3">
+        <div className="col-span-2 grid grid-cols-[auto_136px] gap-x-6 lg:grid-cols-[auto_auto]">
           <button
             className={twMerge(
-              'col-span-1 flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-ui-secondary p-2 text-text-primary-button hover:bg-ui-hover-secondary focus:bg-ui-select-secondary',
+              'flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-ui-secondary p-2 text-text-primary-button hover:bg-ui-hover-secondary focus:bg-ui-select-secondary',
               initialized ? 'justify-self-end' : 'col-start-3'
             )}
+            data-testid="profile-menu-settings-button"
             onClick={() => {
-              PopoverState.showPopupover(<SettingsMenu />)
+              ModalState.openModal(<SettingsMenu />)
             }}
           >
             <CogLg className="h-[1.875rem] w-[1.875rem]" />
           </button>
 
           {initialized && (
-            <div className="col-span-2 flex w-full flex-col gap-y-1 mdh:gap-y-2">
-              <Button variant="secondary" fullWidth onClick={openChat}>
+            <div className="flex w-full flex-col items-end gap-y-4">
+              <Button
+                variant="secondary"
+                className="w-[136px] rounded-[10px] lg:w-full"
+                data-testid="profile-menu-help-chat-button"
+                onClick={openChat}
+              >
                 <HelpIconLg />
                 {t('user:usermenu.profile.helpChat')}
               </Button>
 
               <Button
                 variant="red"
-                fullWidth
-                onClick={() =>
-                  PopoverState.showPopupover(<ReportMenu type="location" locationId={currentLocation.id} />)
-                }
+                fullWidth={!isMobile}
+                className="w-[136px] rounded-[10px] lg:w-full"
+                data-testid="profile-menu-report-space-button"
+                onClick={() => ModalState.openModal(<ReportMenu type="location" locationId={currentLocation.id} />)}
               >
                 <ReportWebsiteDefaullg />
                 {t('user:usermenu.profile.reportWorld')}
@@ -460,6 +498,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             initialized && 'top-[4.5rem]'
           )}
         >
+          {apiKey?.id && <div className="h-2"></div>}
           {isGuest && !originallyAcceptedTOS && (
             <>
               <div className="flex w-full items-center justify-start gap-x-1">
@@ -500,7 +539,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
       <div
         className={twMerge(
           'mt-1 grid w-full grid-cols-1 gap-y-1',
-          isGuest && !originallyAcceptedTOS ? 'mt-7 mdh:mt-16' : 'mt-1 mdh:mt-5'
+          isGuest && !originallyAcceptedTOS ? 'mt-7 smh:mt-16' : 'mt-2.5 smh:mt-5'
         )}
       >
         <Input
@@ -521,6 +560,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             </button>
           }
           fullWidth
+          data-testid="profile-menu-username-input"
         />
 
         {showUserId.value && (
@@ -533,6 +573,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             endComponent={
               <button
                 className="h-4 w-4 text-text-primary"
+                data-testid="profile-menu-user-id-copy-button"
                 onMouseDown={() => {
                   navigator.clipboard.writeText(userId)
                   NotificationService.dispatchNotify(t('user:usermenu.profile.userIdCopied'), {
@@ -544,6 +585,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               </button>
             }
             fullWidth
+            data-testid="profile-menu-user-id-input"
           />
         )}
 
@@ -562,6 +604,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             endComponent={
               <button
                 className="h-4 w-4 text-text-primary"
+                data-testid="profile-menu-api-key-copy-button"
                 onMouseDown={() => {
                   navigator.clipboard.writeText(apiKey?.token)
                   NotificationService.dispatchNotify(t('user:usermenu.profile.apiKeyCopied'), {
@@ -573,6 +616,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               </button>
             }
             fullWidth
+            data-testid="profile-menu-api-key-input"
           />
         )}
 
@@ -587,11 +631,16 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               state={error.value ? 'error' : undefined}
               helperText={error.value ? getErrorText() : ''}
               endComponent={
-                <button className="h-4 w-4 text-text-primary" onMouseDown={handleGuestSubmit}>
+                <button
+                  className="h-4 w-4 text-text-primary"
+                  data-testid="profile-menu-submit-email-phone-number-button"
+                  onMouseDown={handleGuestSubmit}
+                >
                   <Send01Lg />
                 </button>
               }
               fullWidth
+              data-testid="profile-menu-email-phone-number-input"
               value={emailPhone.value}
               onChange={(e) => {
                 emailPhone.set(e.target.value)
@@ -602,28 +651,54 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
       </div>
 
       {!isGuest && (
-        <div className="grid w-1/2 grid-cols-1 gap-y-1 px-5 mdh:mt-5 mdh:gap-y-2">
+        <div className="grid w-1/2 grid-cols-1 gap-y-1 px-5 smh:mt-5 smh:gap-y-2">
           <button
             className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
-            onClick={handleLogout}
+            data-testid="profile-menu-logout-button"
+            onClick={() => {
+              ModalState.closeModal() // Close the ProfileMenu popover
+              ModalState.openModal(
+                <ConfirmDialog
+                  text={t('user:usermenu.profile.logout.title')}
+                  onSubmit={async () => {
+                    handleLogout()
+                  }}
+                  onClose={() => {
+                    ModalState.openModal(<ProfileMenu />)
+                  }}
+                />,
+                () => {
+                  ModalState.closeModal()
+                  ModalState.openModal(<ProfileMenu />)
+                }
+              )
+            }}
           >
             <LogIn01Lg />
-            {t('user:usermenu.profile.logout')}
+            {t('user:usermenu.profile.logout.submit')}
           </button>
 
           <button
             className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
+            data-testid="profile-menu-delete-account-button"
             onClick={() => {
-              PopoverState.showPopupover(
+              ModalState.closeModal() // Close the ProfileMenu popover
+              ModalState.openModal(
                 <ConfirmDialog
                   title={t('user:usermenu.profile.delete.finalDeleteConfirm')}
                   text={t('user:usermenu.profile.delete.finalDeleteText')}
                   onSubmit={async () => {
                     AuthService.removeUser(userId)
                     AuthService.logoutUser()
-                    showDeleteAccount.set(false)
                   }}
-                />
+                  onClose={() => {
+                    ModalState.openModal(<ProfileMenu />)
+                  }}
+                />,
+                () => {
+                  ModalState.closeModal()
+                  ModalState.openModal(<ProfileMenu />)
+                }
               )
             }}
           >
@@ -633,11 +708,11 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
         </div>
       )}
 
-      <hr className="mb-1 mt-1 border-ui-outline mdh:mb-1 mdh:mt-4" />
+      <hr className="mb-1 mt-4 border-ui-outline" />
 
       {!hideLogin && acceptedTOS && enableSocial && (
         <div className="flex w-full items-center justify-between gap-x-4">
-          <div className="flex items-center gap-x-4">
+          <div className="flex items-center gap-x-4" data-testid="profile-menu-social-login-buttons">
             {authState?.value?.facebook && (
               <Tooltip
                 position="top"
@@ -645,6 +720,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               >
                 <button
                   className="relative h-8 w-8"
+                  data-testid="profile-menu-facebook-sso-login-button"
                   onClick={() => {
                     if (oauthConnectedState.facebook.value) {
                       handleRemoveOAuthServiceClick('facebook')
@@ -667,6 +743,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               >
                 <button
                   className="relative h-8 w-8"
+                  data-testid="profile-menu-twitter-sso-login-button"
                   onClick={() => {
                     if (oauthConnectedState.twitter.value) {
                       handleRemoveOAuthServiceClick('twitter')
@@ -689,6 +766,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               >
                 <button
                   className="relative h-8 w-8"
+                  data-testid="profile-menu-google-sso-login-button"
                   onClick={() => {
                     if (oauthConnectedState.google.value) {
                       handleRemoveOAuthServiceClick('google')
@@ -711,6 +789,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               >
                 <button
                   className="relative h-8 w-8"
+                  data-testid="profile-menu-apple-sso-login-button"
                   onClick={() => {
                     if (oauthConnectedState.apple.value) {
                       handleRemoveOAuthServiceClick('apple')
@@ -733,6 +812,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               >
                 <button
                   className="relative h-8 w-8"
+                  data-testid="profile-menu-github-sso-login-button"
                   onClick={() => {
                     if (oauthConnectedState.github.value) {
                       handleRemoveOAuthServiceClick('github')
@@ -755,6 +835,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               >
                 <button
                   className="relative h-8 w-8"
+                  data-testid="profile-menu-discord-sso-login-button"
                   onClick={() => {
                     if (oauthConnectedState.discord.value) {
                       handleRemoveOAuthServiceClick('discord')
@@ -775,11 +856,25 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
         </div>
       )}
 
-      <a href={clientSetting?.privacyPolicy} target="_blank">
-        <Text className="mt-1 w-full text-center text-text-primary mdh:mt-5" fontSize="sm">
-          {t('user:usermenu.profile.privacyPolicy')}
-        </Text>
-      </a>
+      <div className="mt-1 flex w-full items-center justify-center gap-x-2 smh:mt-5">
+        <a href={clientSetting?.privacyPolicy} data-testid="profile-menu-privacy-policy-link" target="_blank">
+          <Text className="text-center text-text-primary" fontSize="sm">
+            {t('user:usermenu.profile.privacyPolicy')}
+          </Text>
+        </a>
+        {creatorPrivacyPolicyUrl?.value && (
+          <>
+            <Text className="text-center text-text-primary" fontSize="sm">
+              |
+            </Text>
+            <a href={creatorPrivacyPolicyUrl.value} target="_blank">
+              <Text className="text-center text-text-primary" fontSize="sm">
+                {t('user:usermenu.profile.creatorPrivacyPolicy')}
+              </Text>
+            </a>
+          </>
+        )}
+      </div>
     </div>
   )
 }

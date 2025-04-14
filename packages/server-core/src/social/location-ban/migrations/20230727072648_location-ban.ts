@@ -25,12 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { locationBanPath } from '@ir-engine/common/src/schemas/social/location-ban.schema'
-
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
+const locationBanPath = 'location-ban'
 export async function up(knex: Knex): Promise<void> {
   const oldTableName = 'location_ban'
 

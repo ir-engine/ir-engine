@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useMutation } from '@ir-engine/common'
 import { invitePath, InviteType, UserName } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
@@ -48,7 +48,7 @@ export default function RemoveInviteModal({ invites }: { invites: InviteType[] }
           adminInviteRemove(invite.id)
         })
       )
-      PopoverState.hidePopupover()
+      ModalState.closeModal()
     } catch (err) {
       error.set(err.message)
     }
@@ -59,7 +59,7 @@ export default function RemoveInviteModal({ invites }: { invites: InviteType[] }
     <Modal
       title={invites.length === 1 ? t('admin:components.invite.remove') : t('admin:components.invite.removeInvites')}
       onSubmit={handleSubmit}
-      onClose={PopoverState.hidePopupover}
+      onClose={ModalState.closeModal}
       submitLoading={modalProcessing.value}
     >
       {error.value && <p className="mb-3 text-red-700">{error.value}</p>}

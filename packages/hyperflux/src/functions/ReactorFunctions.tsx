@@ -25,8 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { hookstate, none, State } from '@hookstate/core'
 import React, { Profiler, Suspense, useTransition } from 'react'
-import Reconciler from 'react-reconciler'
+import Reconciler, { Fiber, FiberRoot } from 'react-reconciler'
 import { ConcurrentRoot, DefaultEventPriority } from 'react-reconciler/constants'
+import { isFiberSuspenseAndTimedOut } from 'react-reconciler/reflection'
 import { v4 as uuidv4 } from 'uuid'
 
 import { isDev } from './EnvironmentConstants'
@@ -75,8 +76,12 @@ ReactorReconciler.injectIntoDevTools({
   version: '18.2.0'
 })
 
+export type ReflectionData = {
+  hasSuspendedOrTimeoutInTree: boolean
+}
+
 export type ReactorRoot = {
-  fiber: any
+  fiber: FiberRoot
   Reactor: React.FC
   ReactorContainer: React.FC
   isRunning: State<boolean>
@@ -86,6 +91,7 @@ export type ReactorRoot = {
   uuid: string
   run: () => void
   stop: () => void
+  reflection: () => ReflectionData
 }
 
 type ErrorHandler = (error: Error, info: React.ErrorInfo) => void
@@ -131,6 +137,14 @@ export const ReactorErrorBoundary = createErrorBoundary<{ children: React.ReactN
     }
   }
 )
+
+export const hasSuspendedOrTimeoutInTree = (fiber: Fiber, check = false) => {
+  check = check || isFiberSuspenseAndTimedOut(fiber)
+  if (check || fiber?.child == undefined) {
+    return check
+  }
+  return hasSuspendedOrTimeoutInTree(fiber.child, check)
+}
 
 export const ErrorBoundary = createErrorBoundary<{ children: React.ReactNode; fallback?: React.ReactNode }>(
   function error(props, error?: Error) {
@@ -219,17 +233,23 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
   const run = () => {
     reactorRoot.isRunning.set(true)
     HyperFlux.store.activeReactors.add(reactorRoot)
-    ReactorReconciler.flushSync(() => ReactorReconciler.updateContainer(<ReactorContainer />, fiberRoot))
+    ReactorReconciler.updateContainer(<ReactorContainer />, fiberRoot)
   }
 
   const stop = () => {
     if (!reactorRoot.isRunning.value) return Promise.resolve()
-    ReactorReconciler.flushSync(() => ReactorReconciler.updateContainer(null, fiberRoot))
+    ReactorReconciler.updateContainer(null, fiberRoot)
     reactorRoot.isRunning.set(false)
     HyperFlux.store.activeReactors.delete(reactorRoot)
     reactorRoot.cleanupFunctions.forEach((fn) => fn())
     reactorRoot.cleanupFunctions.clear()
     ReactorRenderCounterState[reactorRoot.uuid].set(none)
+  }
+
+  const reflection = () => {
+    return {
+      hasSuspendedOrTimeoutInTree: hasSuspendedOrTimeoutInTree(fiberRoot.current)
+    }
   }
 
   const reactorRoot = {
@@ -243,7 +263,8 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
     promise: undefined!,
     uuid: uuidv4(),
     run,
-    stop
+    stop,
+    reflection
   } as ReactorRoot
 
   reactorRoot.run()

@@ -35,10 +35,10 @@ import {
 } from '@ir-engine/ecs'
 import { TransformComponent } from '@ir-engine/spatial'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { getHips } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
+import { VRMHumanBoneName } from '../maps/VRMHumanBoneName'
 
 const restRotationInverse = new Quaternion()
 const parentRestWorldRotation = new Quaternion()
@@ -83,6 +83,13 @@ export const normalizeAnimationClips = (gltfEntity: Entity) => {
         }
       } else if (track instanceof VectorKeyframeTrack) {
         const isPosition = track.name.includes('position')
+        // quick dirty check for hips - we only want to keep hips position for root motion
+        const node = UUIDComponent.getEntityByUUID(track.name.slice(0, track.name.lastIndexOf('.')) as EntityUUID)
+        if (node !== hips || !isPosition) {
+          clip.tracks.splice(i, 1)
+          i--
+          continue
+        }
         track.values.forEach((v, index) => {
           track.values[index] = isPosition ? v * hipsPositionScale : v
         })

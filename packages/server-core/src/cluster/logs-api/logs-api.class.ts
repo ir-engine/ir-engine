@@ -67,13 +67,14 @@ export class LogsApiService implements ServiceInterface<void, any, LogsApiParams
     delete logItem.action
 
     if (action === 'analytics' && process.env.BQ_PROJECT_ID && process.env.BQ_DATASET_ID && process.env.BQ_TABLE_ID) {
-      await logToBigQuery({ ...logItem })
+      await logToBigQuery({ ...logItem, user_id: userId })
       return
     }
 
     delete logItem.level
     delete logItem.msg
 
-    logger[level]({ ...logItem, userId }, msg)
+    const safeLevel = ['trace', 'debug', 'info', 'warn', 'error', 'fatal', 'analytics'].includes(level) ? level : 'info'
+    logger[safeLevel]({ ...logItem, userId }, msg)
   }
 }

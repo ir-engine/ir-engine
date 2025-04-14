@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { Button } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
@@ -40,7 +40,7 @@ export const UnsupportedBrowser = () => {
 
   const handleClose = () => {
     getMutableState(BrowserSupportState).acknowledgedUnsupportedBrowser.set(true)
-    PopoverState.hidePopupover()
+    ModalState.closeModal()
   }
 
   return (

@@ -23,9 +23,10 @@ import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
 
 import { defineSystem, ECSState, PresentationSystemGroup } from '@ir-engine/ecs'
-import { getMutableState, getState, NO_PROXY, ReactorRenderCounterState, useHookstate } from '@ir-engine/hyperflux'
+import { getState, NO_PROXY, ReactorRenderCounterState, useHookstate } from '@ir-engine/hyperflux'
 import { Checkbox } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { useFrameUpdate } from './useFrameUpdate'
 
 let open = false
 let accumulator = 0
@@ -79,7 +80,8 @@ const shouldExpandNodeInitially = (keyPath: any, data: any, level: number) => le
 
 export function ReactorDebug() {
   const { t } = useTranslation()
-  useHookstate(getMutableState(ECSState).frameTime).value
+
+  useFrameUpdate()
 
   const averageEnabled = useHookstate(true)
 
@@ -118,8 +120,16 @@ export function ReactorDebug() {
 
   return (
     <div className="mx-1 my-0.5 bg-neutral-600 p-1">
-      <Text>{t('common:debug.state')}</Text>
-      <Checkbox checked={averageEnabled.value} onChange={() => averageEnabled.set((val) => !val)} label="Average" />
+      <Text className="text-text-primary-button">{t('common:debug.state')}</Text>
+      <div className="flex w-full justify-start gap-x-2">
+        <Checkbox checked={averageEnabled.value} onChange={() => averageEnabled.set((val) => !val)} />
+        <Text
+          className="cursor-pointer text-gray-400 hover:text-white"
+          onClick={() => averageEnabled.set((val) => !val)}
+        >
+          Average
+        </Text>
+      </div>
       <JSONTree data={state} shouldExpandNodeInitially={shouldExpandNodeInitially} />
     </div>
   )

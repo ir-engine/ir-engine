@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { twMerge } from 'tailwind-merge'
 
 export interface SidebarNavigationProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
@@ -40,10 +40,6 @@ const SidebarNavigation = ({
   onChange,
   ...props
 }: SidebarNavigationProps): JSX.Element => {
-  useEffect(() => {
-    console.log('currentTabIndex: ', currentTabIndex)
-  }, [])
-
   return (
     <div
       className={twMerge(
@@ -59,6 +55,7 @@ const SidebarNavigation = ({
             'flex items-center justify-start gap-x-1 border-text-secondary pb-4 font-medium text-text-secondary hover:border-b-2',
             index === currentTabIndex ? 'border-b-2 border-ui-select-primary text-ui-select-primary' : ''
           )}
+          data-testid="sidebar-navigation-button"
           onClick={() => onChange(index)}
         >
           {label}

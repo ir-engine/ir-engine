@@ -50,7 +50,11 @@ import {
   PrototypeArgument
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { getDefaultType } from '@ir-engine/spatial/src/renderer/materials/constants/DefaultArgs'
-import { extractValues, formatMaterialArgs } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import {
+  extractValues,
+  formatMaterialArgs,
+  setupMaterialParameters
+} from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { Button, Tooltip } from '@ir-engine/ui'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
@@ -173,20 +177,22 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
     }
     return prop
   }
-
   const materialParameters = useHookstate({})
 
   useEffect(() => {
     prototypeName.set(material.type)
+    setupMaterialParameters(entity, material)
+  }, [currentSelectedMaterial, material.type])
 
+  useEffect(() => {
     materialParameters.set(
       Object.fromEntries(
         Object.keys(extractValues(definitions.value[prototypeName.value].arguments as PrototypeArgument, material)).map(
-          (k) => [k, material[k]]
+          (k) => [k, material[k] ?? '']
         )
       )
     )
-  }, [currentSelectedMaterial, material.type])
+  }, [materialComponent.parameters])
 
   //for each parameter type, default values
   const pluginParameters = useHookstate({})
@@ -265,8 +271,8 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
             }
             EditorControlFunctions.modifyMaterial(
               [materialComponent.material.value!.uuid],
-              materialComponent.material.value!.uuid as EntityUUID,
-              [{ [key]: property }]
+              currentSelectedMaterial.value!,
+              [{ [key]: texture?.isTexture ? value : property }]
             )
             EditorHistoryFunctions.snapshot()
             await checkThumbs()

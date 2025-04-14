@@ -42,7 +42,10 @@ import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/dat
 import type { HookContext } from '@ir-engine/server-core/declarations'
 
 export const inviteDbToSchema = (rawData: InviteDatabaseType): InviteType => {
-  let spawnDetails = JSON.parse(rawData.spawnDetails) as SpawnDetailsType
+  let spawnDetails =
+    typeof rawData.spawnDetails === 'string'
+      ? (JSON.parse(rawData.spawnDetails) as SpawnDetailsType)
+      : (rawData.spawnDetails as SpawnDetailsType)
 
   // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
   // was serialized multiple times, therefore we need to parse it twice.

@@ -31,12 +31,14 @@ import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 import { UserID } from '@ir-engine/common/src/schema.type.module'
 import {
   createEntity,
+  defineComponent,
   EngineState,
   getComponent,
   hasComponent,
   LayerFunctions,
   Layers,
   removeEntity,
+  S,
   setComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
@@ -44,14 +46,17 @@ import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { AssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SplineComponent } from '@ir-engine/engine/src/scene/components/SplineComponent'
-import { getMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { flushAll } from '@ir-engine/hyperflux/tests/utils/flushAll'
 import { HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
 import { EntityTreeComponent } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { NodeFunctions } from '@ir-engine/engine/src/gltf/NodeFunctions'
-import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
+import { NodeID, NodeIDComponent, NodesBySourceState } from '@ir-engine/engine/src/gltf/NodeIDComponent'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { SceneDeltaState } from '@ir-engine/engine/src/scene/systems/SceneDeltaState'
 import { startEngineReactor } from '@ir-engine/engine/tests/startEngineReactor'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
@@ -70,7 +75,6 @@ describe('EditorControlFunctions', () => {
     Cache.enabled = true
     createEngine()
     getMutableState(EngineState).isEditing.set(true)
-    getMutableState(EngineState).isEditor.set(true)
     getMutableState(EngineState).userID.set('user' as UserID)
     mockSpatialEngine()
     await Physics.load()
@@ -124,9 +128,13 @@ describe('EditorControlFunctions', () => {
 
       EditorControlFunctions.addOrRemoveComponent([authoringNodeEntity], VisibleComponent, true)
 
+      await flushAll()
+
       assert(hasComponent(authoringNodeEntity, VisibleComponent))
 
       EditorControlFunctions.addOrRemoveComponent([authoringNodeEntity], VisibleComponent, false)
+
+      await flushAll()
 
       assert(!hasComponent(authoringNodeEntity, VisibleComponent))
     })
@@ -171,11 +179,84 @@ describe('EditorControlFunctions', () => {
 
       EditorControlFunctions.addOrRemoveComponent([authoringChildEntity], VisibleComponent, true)
 
+      await flushAll()
+
       assert(hasComponent(authoringChildEntity, VisibleComponent))
 
       EditorControlFunctions.addOrRemoveComponent([authoringChildEntity], VisibleComponent, false)
 
+      await flushAll()
+
       assert(!hasComponent(authoringChildEntity, VisibleComponent))
+    })
+
+    it('registers a delta for adding a component', async () => {
+      const node1ID = NodeIDComponent.generate()
+      const node2ID = NodeIDComponent.generate()
+
+      const gltf: GLTF.IGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'node1',
+            extensions: {
+              [NodeIDComponent.jsonID]: node1ID,
+              [GLTFComponent.jsonID]: {
+                src: '/sub-asset.gltf'
+              }
+            }
+          }
+        ]
+      }
+
+      const subAssetGLTF: GLTF.IGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'node2',
+            extensions: {
+              [NodeIDComponent.jsonID]: node2ID
+            }
+          }
+        ]
+      }
+
+      Cache.add('/test.gltf', gltf)
+      Cache.add('/sub-asset.gltf', subAssetGLTF)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
+      getMutableState(EditorState).rootEntity.set(rootEntity)
+      await waitForScene(rootEntity)
+
+      const simulationNode1Entity = NodeFunctions.getEntityFromNodeID(rootEntity, node1ID)!
+      const subAssetSourceID = GLTFComponent.getInstanceID(simulationNode1Entity)
+      const simulationNode3Entity = UUIDComponent.getEntityByUUID(
+        NodeIDComponent.getUUIDBySourceAndNodeID(subAssetSourceID, node2ID)!
+      )
+      const authoringNode2Entity = LayerFunctions.getAuthoringCounterpart(simulationNode3Entity)
+
+      const testComponent = defineComponent({
+        name: 'TestComponent',
+        jsonID: 'EE_test',
+        schema: S.Object({
+          value: S.Number(0)
+        })
+      })
+
+      const testValue = Math.random()
+      EditorControlFunctions.addOrRemoveComponent([authoringNode2Entity], testComponent, true, { value: testValue })
+
+      await flushAll()
+
+      const deltaState = getState(SceneDeltaState)
+      assert.equal(deltaState[node1ID][node2ID][testComponent.jsonID].value, testValue)
     })
   })
 
@@ -269,6 +350,8 @@ describe('EditorControlFunctions', () => {
 
       EditorControlFunctions.modifyName([authoringChildEntity], 'newName')
 
+      await flushAll()
+
       assert.equal(getComponent(authoringChildEntity, NameComponent), 'newName')
     })
   })
@@ -311,6 +394,8 @@ describe('EditorControlFunctions', () => {
         groundColor: new Color('red'),
         intensity: 0.7
       })
+
+      await flushAll()
 
       const hemisphereLightComponent = getComponent(authoringNodeEntity, HemisphereLightComponent)
       assert.deepEqual(hemisphereLightComponent.skyColor, new Color('blue'))
@@ -380,6 +465,8 @@ describe('EditorControlFunctions', () => {
         }
       })
 
+      await flushAll()
+
       const splineComponent = getComponent(authoringNodeEntity, SplineComponent)
       assert.equal(splineComponent.elements[1].position.x, 10)
       assert.equal(splineComponent.elements[1].position.y, 10)
@@ -423,6 +510,8 @@ describe('EditorControlFunctions', () => {
         }
       ])
 
+      await flushAll()
+
       const newEntity = UUIDComponent.getEntityByUUID(entityUUID, Layers.Authoring)
       assert(newEntity)
       assert.equal(getComponent(newEntity, NameComponent), 'New Object')
@@ -432,6 +521,99 @@ describe('EditorControlFunctions', () => {
       assert.deepEqual(hemisphereLightComponent.skyColor, new Color('blue'))
       assert.deepEqual(hemisphereLightComponent.groundColor, new Color('red'))
       assert.equal(hemisphereLightComponent.intensity, 0.7)
+    })
+
+    it('should create enities in hierarchy using the requested name, adding an increment if a sibling entity with the name already exists', async () => {
+      const nodeID = NodeIDComponent.generate()
+
+      const gltf: GLTF.IGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'node',
+            extensions: {
+              [NodeIDComponent.jsonID]: nodeID
+            }
+          }
+        ]
+      }
+
+      Cache.add('/test.gltf', gltf)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
+      getMutableState(EditorState).rootEntity.set(rootEntity)
+      await waitForScene(rootEntity)
+
+      const simulationNodeEntity = NodeFunctions.getEntityFromNodeID(rootEntity, nodeID)!
+      const authoringNodeEntity = LayerFunctions.getAuthoringCounterpart(simulationNodeEntity)
+
+      const requestedName = 'Test'
+
+      const { entityUUID: entity1UUID } = EditorControlFunctions.createObjectFromSceneElement(
+        [
+          {
+            name: HemisphereLightComponent.jsonID,
+            props: {
+              skyColor: new Color('blue').getHex(),
+              groundColor: new Color('red').getHex(),
+              intensity: 0.7
+            }
+          }
+        ],
+        authoringNodeEntity,
+        UndefinedEntity,
+        requestedName
+      )
+
+      await flushAll()
+
+      const entity1 = UUIDComponent.getEntityByUUID(entity1UUID, Layers.Authoring)
+      assert(entity1)
+      assert.equal(getComponent(entity1, NameComponent), 'Test')
+
+      const { entityUUID: entity2UUID } = EditorControlFunctions.createObjectFromSceneElement(
+        [
+          {
+            name: HemisphereLightComponent.jsonID,
+            props: {
+              skyColor: new Color('blue').getHex(),
+              groundColor: new Color('red').getHex(),
+              intensity: 0.7
+            }
+          }
+        ],
+        authoringNodeEntity,
+        UndefinedEntity,
+        requestedName
+      )
+      const entity2 = UUIDComponent.getEntityByUUID(entity2UUID, Layers.Authoring)
+      assert(entity2)
+      assert.equal(getComponent(entity2, NameComponent), 'Test 1')
+
+      const { entityUUID: entity3UUID } = EditorControlFunctions.createObjectFromSceneElement(
+        [
+          {
+            name: HemisphereLightComponent.jsonID,
+            props: {
+              skyColor: new Color('blue').getHex(),
+              groundColor: new Color('red').getHex(),
+              intensity: 0.7
+            }
+          }
+        ],
+        authoringNodeEntity,
+        UndefinedEntity,
+        requestedName
+      )
+
+      await flushAll()
+
+      const entity3 = UUIDComponent.getEntityByUUID(entity3UUID, Layers.Authoring)
+      assert(entity3)
+      assert.equal(getComponent(entity3, NameComponent), 'Test 2')
     })
 
     it('should create a new object from a scene element as child of node', async () => {
@@ -474,6 +656,8 @@ describe('EditorControlFunctions', () => {
         ],
         authoringNodeEntity
       )
+
+      await flushAll()
 
       const newEntity = UUIDComponent.getEntityByUUID(entityUUID, Layers.Authoring)
       assert(newEntity)
@@ -527,6 +711,8 @@ describe('EditorControlFunctions', () => {
         rootEntity,
         authoringNodeEntity
       )
+
+      await flushAll()
 
       const newEntity = UUIDComponent.getEntityByUUID(entityUUID, Layers.Authoring)
       assert(newEntity)
@@ -592,6 +778,8 @@ describe('EditorControlFunctions', () => {
         authoringChildEntity
       )
 
+      await flushAll()
+
       const newEntity = UUIDComponent.getEntityByUUID(entityUUID, Layers.Authoring)
       assert(newEntity)
       assert.equal(getComponent(newEntity, NameComponent), 'New Object')
@@ -638,6 +826,8 @@ describe('EditorControlFunctions', () => {
       const authoringNodeEntity = LayerFunctions.getAuthoringCounterpart(simulationNodeEntity)
 
       EditorControlFunctions.duplicateObject([authoringNodeEntity])
+
+      await flushAll()
 
       const newEntity = getComponent(rootEntity, EntityTreeComponent).children[1]
 
@@ -690,6 +880,8 @@ describe('EditorControlFunctions', () => {
 
       EditorControlFunctions.reparentObject([authoringChildEntity], null, null, rootEntity)
 
+      await flushAll()
+
       const newEntity = getComponent(rootEntity, EntityTreeComponent).children[1]
       assert(newEntity)
       assert.equal(getComponent(newEntity, NodeIDComponent), childID)
@@ -733,6 +925,8 @@ describe('EditorControlFunctions', () => {
       const authoringNode2Entity = LayerFunctions.getAuthoringCounterpart(simulationNode2Entity)
 
       EditorControlFunctions.reparentObject([authoringNode2Entity], null, null, authoringNodeEntity)
+
+      await flushAll()
 
       const newEntity = getComponent(authoringNodeEntity, EntityTreeComponent).children[0]
       assert.equal(newEntity, authoringNode2Entity)
@@ -778,6 +972,8 @@ describe('EditorControlFunctions', () => {
       const authoringChildEntity = LayerFunctions.getAuthoringCounterpart(simulationChildEntity)
 
       EditorControlFunctions.reparentObject([authoringChildEntity], authoringNodeEntity, null, rootEntity)
+
+      await flushAll()
 
       const newEntity = getComponent(rootEntity, EntityTreeComponent).children[0]
       assert.equal(newEntity, authoringChildEntity)
@@ -833,6 +1029,8 @@ describe('EditorControlFunctions', () => {
       const authoringChildEntity = LayerFunctions.getAuthoringCounterpart(simulationChildEntity)
 
       EditorControlFunctions.reparentObject([authoringNode2Entity], authoringChildEntity, null, authoringNodeEntity)
+
+      await flushAll()
 
       const newEntity = getComponent(authoringNodeEntity, EntityTreeComponent).children[0]
       assert.equal(newEntity, authoringNode2Entity)
@@ -892,9 +1090,95 @@ describe('EditorControlFunctions', () => {
 
       EditorControlFunctions.reparentObject([authoringNode4Entity], undefined, authoringNode2Entity, rootEntity)
 
+      await flushAll()
+
       const newEntity = getComponent(rootEntity, EntityTreeComponent).children[2]
       assert.equal(newEntity, authoringNode4Entity)
       assert.equal(getComponent(newEntity, NodeIDComponent), node4ID)
+    })
+
+    it('should reparent to another source', async () => {
+      const node1ID = NodeIDComponent.generate()
+      const node2ID = NodeIDComponent.generate()
+      const node3ID = NodeIDComponent.generate()
+
+      const gltf: GLTF.IGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0, 1] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'node1',
+            extensions: {
+              [NodeIDComponent.jsonID]: node1ID,
+              [GLTFComponent.jsonID]: {
+                src: '/sub-asset.gltf'
+              }
+            }
+          },
+          {
+            name: 'node2',
+            extensions: {
+              [NodeIDComponent.jsonID]: node2ID
+            }
+          }
+        ]
+      }
+
+      const subAssetGLTF: GLTF.IGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'node3',
+            extensions: {
+              [NodeIDComponent.jsonID]: node3ID
+            }
+          }
+        ]
+      }
+
+      Cache.add('/test.gltf', gltf)
+      Cache.add('/sub-asset.gltf', subAssetGLTF)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
+      getMutableState(EditorState).rootEntity.set(rootEntity)
+      await waitForScene(rootEntity)
+
+      const simulationNode1Entity = NodeFunctions.getEntityFromNodeID(rootEntity, node1ID)!
+
+      const simulationNode2Entity = NodeFunctions.getEntityFromNodeID(rootEntity, node2ID)!
+      const authoringNode2Entity = LayerFunctions.getAuthoringCounterpart(simulationNode2Entity)
+
+      const subAssetSourceID = GLTFComponent.getInstanceID(simulationNode1Entity)
+
+      const simulationNode3Entity = UUIDComponent.getEntityByUUID(
+        NodeIDComponent.getUUIDBySourceAndNodeID(subAssetSourceID, node3ID)!
+      )
+      const authoringNode3Entity = LayerFunctions.getAuthoringCounterpart(simulationNode3Entity)
+
+      EditorControlFunctions.reparentObject([authoringNode2Entity], null, null, authoringNode3Entity)
+
+      await flushAll()
+
+      await vi.waitUntil(() => getState(NodesBySourceState)[subAssetSourceID][node3ID])
+
+      const reparentedSimulationNode2Entity = NodeFunctions.getEntityFromNodeID(authoringNode3Entity, node2ID)!
+      const reparentedAuthoringNode2Entity = LayerFunctions.getAuthoringCounterpart(reparentedSimulationNode2Entity)
+
+      assert.equal(reparentedAuthoringNode2Entity, authoringNode2Entity)
+      assert.equal(getComponent(reparentedAuthoringNode2Entity, NodeIDComponent), node2ID)
+      assert.equal(
+        getComponent(reparentedAuthoringNode2Entity, SourceComponent),
+        getComponent(authoringNode3Entity, SourceComponent)
+      )
+      assert.equal(getComponent(reparentedAuthoringNode2Entity, EntityTreeComponent).parentEntity, authoringNode3Entity)
+      const expectedUUID = NodeIDComponent.getUUIDBySourceAndNodeID(subAssetSourceID, node2ID)
+      assert.equal(getComponent(reparentedAuthoringNode2Entity, UUIDComponent), expectedUUID)
     })
   })
 
@@ -945,6 +1229,8 @@ describe('EditorControlFunctions', () => {
       const authoringNode2Entity = LayerFunctions.getAuthoringCounterpart(simulationNode2Entity)
 
       EditorControlFunctions.groupObjects([authoringNodeEntity, authoringNode2Entity])
+
+      await flushAll()
 
       const newEntity = getComponent(rootEntity, EntityTreeComponent).children[0]
       assert.equal(getComponent(newEntity, EntityTreeComponent).children[0], authoringNodeEntity)
@@ -1014,6 +1300,8 @@ describe('EditorControlFunctions', () => {
 
       EditorControlFunctions.removeObject([authoringNodeEntity])
 
+      await flushAll()
+
       assert.equal(getComponent(rootEntity, EntityTreeComponent).children[0], authoringNode2Entity)
       assert.equal(getComponent(rootEntity, EntityTreeComponent).children[1], authoringNode3Entity)
 
@@ -1076,6 +1364,8 @@ describe('EditorControlFunctions', () => {
         ],
         rootEntity
       )
+
+      await flushAll()
 
       const childEntity = getComponent(authoringNodeEntity, EntityTreeComponent).children[0]
 

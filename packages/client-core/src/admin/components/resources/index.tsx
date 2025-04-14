@@ -31,7 +31,7 @@ import { useHookstate } from '@ir-engine/hyperflux'
 import { Button, Input } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
-import { PopoverState } from '../../../common/services/PopoverState'
+import { ModalState } from '../../../common/services/ModalState'
 import AddEditResourceModal from './AddEditResourceModal'
 import ResourceTable from './ResourceTable'
 
@@ -70,7 +70,7 @@ export default function Resources() {
               size="sm"
               fullWidth
               onClick={() => {
-                PopoverState.showPopupover(<AddEditResourceModal />)
+                ModalState.openModal(<AddEditResourceModal />)
               }}
             >
               <HiPlus />

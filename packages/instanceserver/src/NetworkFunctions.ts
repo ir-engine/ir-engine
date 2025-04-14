@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -38,6 +38,7 @@ import {
   inviteCodeLookupPath,
   locationPath,
   messagePath,
+  moderationBanPath,
   UserID,
   userKickPath,
   userPath,
@@ -115,18 +116,18 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
     },
     paginate: false
   })) as any as InstanceType[]
-  const instanceservers = await serverState.k8AgonesClient.listNamespacedCustomObject(
-    'agones.dev',
-    'v1',
-    'default',
-    'gameservers'
-  )
+  const instanceservers = await serverState.k8AgonesClient.listNamespacedCustomObject({
+    group: 'agones.dev',
+    version: 'v1',
+    namespace: config.server.namespace,
+    plural: 'gameservers'
+  })
 
   await Promise.all(
     instances.map((instance) => {
       if (!instance.ipAddress) return false
       const [ip, port] = instance.ipAddress.split(':')
-      const match = (instanceservers?.body! as any).items.find((is) => {
+      const match = instanceservers.items.find((is) => {
         if (is.status.ports == null || is.status.address === '') return false
         const inputPort = is.status.ports.find((port) => port.name === 'default')
         return is.status.address === ip && inputPort.port.toString() === port
@@ -137,10 +138,6 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
           })
         : Promise.resolve()
     })
-  )
-
-  const isIds = (instanceservers?.body! as any).items.map((is) =>
-    isNameRegex.exec(is.metadata.name) != null ? isNameRegex.exec(is.metadata.name)![1] : null
   )
   return
 }
@@ -156,6 +153,17 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
   const userId = user.id
   // disallow users from joining media servers if they are not age verified
   if (instance.channelId && !user.ageVerified) return false
+  const thisUserBanned = (await app.service(moderationBanPath).find({
+    query: {
+      banUserId: userId,
+      banned: true,
+      $limit: 0
+    }
+  })) as any
+  if (thisUserBanned.total > 0) {
+    logger.info(`User "${userId}" is banned.`)
+    return false
+  }
 
   const authorizedUsers = (await app.service(instanceAuthorizedUserPath).find({
     query: {
@@ -240,11 +248,13 @@ export const handleConnectingPeer = async (
   }
   const instanceAttendance = await app.service(instanceAttendancePath).create(newInstanceAttendance)
 
-  dispatchAction(
+  const joinAction = dispatchAction(
     NetworkActions.peerJoined({
       $cache: true,
       $network: network.id,
       $topic: network.topic,
+      $peer: peerID,
+      $user: userId,
       peerID,
       peerIndex: instanceAttendance.peerIndex,
       userID: userId
@@ -274,9 +284,11 @@ export const handleConnectingPeer = async (
 
   logger.info('Connect to world from ' + userId)
 
-  const cachedActions = getCachedActionsForPeer(peerID).map((action) => {
-    return cloneDeep(action)
-  })
+  const cachedActions = getCachedActionsForPeer(peerID)
+    .map((action) => {
+      return cloneDeep(action)
+    })
+    .concat(joinAction)
 
   if (inviteCode && !instanceServerState.isMediaInstance) getUserSpawnFromInvite(network, user, inviteCode!)
 

@@ -116,6 +116,8 @@ export const WebRTCPeerConnection = (props: {
     dataChannel.addEventListener('message', onMessage)
 
     const message = (data) => {
+      // we can ignore messages if the data channel is not open, and once it is open we will send all our cached actions so none are lost
+      if (!dataChannel || dataChannel.readyState !== 'open') return
       dataChannel.send(encode(data))
     }
 
@@ -142,11 +144,11 @@ export const WebRTCPeerConnection = (props: {
         dataChannel.send('')
         if (receivedPoll) {
           clearInterval(interval)
-          // once connected, send all our cached actions to the peer
+          // once connected, send all our own cached actions to the peer
           const selfCachedActions = Engine.instance.store.actions.cached.filter(
-            (action) => action.$topic === network.topic
+            (action) => action.$topic === network.topic && action.$peer === Engine.instance.store.peerID
           )
-          network.messageToPeer(peerID, selfCachedActions)
+          message(selfCachedActions)
         }
       }
     }, 10)

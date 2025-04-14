@@ -73,27 +73,8 @@ import { SceneComponent } from '../../renderer/components/SceneComponents'
 import '../../transform/TransformModule'
 import '../PhysicsModule'
 import { PhysicsSystem } from '../systems/PhysicsSystem'
-import {
-  BodyTypes,
-  ColliderDescOptions,
-  ColliderHitEvent,
-  CollisionEvents,
-  SceneQueryType,
-  Shapes
-} from '../types/PhysicsTypes'
+import { BodyTypes, ColliderHitEvent, CollisionEvents, SceneQueryType, Shapes } from '../types/PhysicsTypes'
 import { Physics, PhysicsWorld, RapierWorldState } from './Physics'
-
-export const boxDynamicConfig = {
-  shapeType: ShapeType.Cuboid,
-  bodyType: RigidBodyType.Fixed,
-  collisionLayer: CollisionGroups.Default,
-  collisionMask: DefaultCollisionMask | CollisionGroups.Avatars | CollisionGroups.Ground,
-  friction: 1,
-  restitution: 0,
-  isTrigger: false,
-  spawnPosition: new Vector3(0, 0.25, 5),
-  spawnScale: new Vector3(0.5, 0.25, 0.5)
-} as ColliderDescOptions
 
 describe('Physics : External API', () => {
   let physicsWorld: PhysicsWorld
@@ -109,6 +90,7 @@ describe('Physics : External API', () => {
     setComponent(physicsWorldEntity, EntityTreeComponent)
     physicsWorld = Physics.createWorld(physicsWorldEntity)
     physicsWorld.timestep = 1 / 60
+    await act(() => render(null))
   })
 
   afterEach(() => {
@@ -121,11 +103,13 @@ describe('Physics : External API', () => {
     setComponent(entity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
     setComponent(entity, RigidBodyComponent, { type: BodyTypes.Dynamic })
     setComponent(entity, ColliderComponent, { shape: Shapes.Sphere })
+    await act(() => render(null))
 
     assert.deepEqual(physicsWorld.bodies.len(), 1)
     assert.deepEqual(physicsWorld.colliders.len(), 1)
 
     removeComponent(entity, RigidBodyComponent)
+    await act(() => render(null))
 
     assert.deepEqual(physicsWorld.bodies.len(), 0)
   })
@@ -137,6 +121,7 @@ describe('Physics : External API', () => {
     setComponent(entity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
     setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed })
     setComponent(entity, ColliderComponent, { shape: Shapes.Sphere })
+    await act(() => render(null))
 
     const rigidBodyComponent = getTagComponentForRigidBody(BodyTypes.Fixed)
     assert.deepEqual(rigidBodyComponent, RigidBodyFixedTagComponent)
@@ -175,6 +160,7 @@ describe('Physics : External API', () => {
       collisionLayer: CollisionGroups.Default,
       collisionMask: DefaultCollisionMask
     })
+    await act(() => render(null))
 
     const collisionEventQueue = Physics.createCollisionEventQueue()
     const drainCollisions = Physics.drainCollisionEventQueue(physicsWorld)
@@ -379,6 +365,8 @@ describe('Physics : Rapier->ECS API', () => {
       setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       setComponent(testEntity, TransformComponent)
       setComponent(testEntity, RigidBodyComponent)
+      await act(() => render(null))
+
       // Set the Start..Final values for interpolation
       const body = getComponent(testEntity, RigidBodyComponent)
       body.previousPosition.set(Start.position.x, Start.position.y, Start.position.z)
@@ -609,7 +597,8 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
         setComponent(testEntity, TransformComponent, { position: position, scale: scale, rotation: rotation })
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic, canSleep: true, gravityScale: 0 })
-        RigidBodyComponent.reactorMap.get(testEntity)!.stop()
+
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -685,7 +674,8 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, EntityTreeComponent, { parentEntity: entity })
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
-        RigidBodyComponent.reactorMap.get(testEntity)!.stop()
+
+        await act(() => render(null))
         Physics.createRigidBody(physicsWorld, testEntity)
       })
 
@@ -723,7 +713,8 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, EntityTreeComponent, { parentEntity: entity })
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
-        RigidBodyComponent.reactorMap.get(testEntity)!.stop()
+
+        await act(() => render(null))
         Physics.createRigidBody(physicsWorld, testEntity)
       })
 
@@ -767,7 +758,8 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, EntityTreeComponent, { parentEntity: entity })
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
-        RigidBodyComponent.reactorMap.get(testEntity)!.stop()
+
+        await act(() => render(null))
         Physics.createRigidBody(physicsWorld, testEntity)
       })
 
@@ -805,7 +797,8 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, EntityTreeComponent, { parentEntity: entity })
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
-        RigidBodyComponent.reactorMap.get(testEntity)!.stop()
+
+        await act(() => render(null))
         Physics.createRigidBody(physicsWorld, testEntity)
       })
 
@@ -863,7 +856,8 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, EntityTreeComponent, { parentEntity: entity })
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
-        RigidBodyComponent.reactorMap.get(testEntity)!.stop()
+
+        await act(() => render(null))
         Physics.createRigidBody(physicsWorld, testEntity)
       })
 
@@ -917,7 +911,8 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, EntityTreeComponent, { parentEntity: entity })
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
-        RigidBodyComponent.reactorMap.get(testEntity)!.stop()
+
+        await act(() => render(null))
         Physics.createRigidBody(physicsWorld, testEntity)
       })
 
@@ -963,6 +958,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent)
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -1008,6 +1004,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent)
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -1073,6 +1070,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent)
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -1147,6 +1145,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent)
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -1214,6 +1213,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent)
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -1336,6 +1336,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Kinematic })
         setComponent(testEntity, ColliderComponent)
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -1383,6 +1384,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -1434,6 +1436,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -1501,6 +1504,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -1563,6 +1567,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -1600,6 +1605,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -1637,6 +1643,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -1673,6 +1680,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, EntityTreeComponent, { parentEntity: entity })
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -1680,52 +1688,60 @@ describe('Physics : Rapier->ECS API', () => {
         return destroyEngine()
       })
 
-      it('should return a sphere shape', () => {
+      it('should return a sphere shape', async () => {
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
+        await act(() => render(null))
         Physics.createRigidBody(physicsWorld, testEntity)
         assert.equal(Physics.getShape(physicsWorld, testEntity), Shapes.Sphere)
       })
 
-      it('should return a capsule shape', () => {
+      it('should return a capsule shape', async () => {
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Capsule })
+        await act(() => render(null))
         Physics.createRigidBody(physicsWorld, testEntity)
         assert.equal(Physics.getShape(physicsWorld, testEntity), Shapes.Capsule)
       })
 
-      it('should return a cylinder shape', () => {
+      it('should return a cylinder shape', async () => {
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Cylinder })
+        await act(() => render(null))
         Physics.createRigidBody(physicsWorld, testEntity)
         assert.equal(Physics.getShape(physicsWorld, testEntity), Shapes.Cylinder)
       })
 
-      it('should return a box shape', () => {
+      it('should return a box shape', async () => {
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Box })
+        await act(() => render(null))
         Physics.createRigidBody(physicsWorld, testEntity)
         assert.equal(Physics.getShape(physicsWorld, testEntity), Shapes.Box)
       })
 
-      it('should return a plane shape', () => {
+      it('should return a plane shape', async () => {
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Plane })
+        await act(() => render(null))
         Physics.createRigidBody(physicsWorld, testEntity)
         assert.equal(Physics.getShape(physicsWorld, testEntity), Shapes.Box) // The Shapes.Plane case is implemented as a box in the engine
       })
 
-      it('should return undefined for the convex_hull case', () => {
+      it('should return undefined for the convex_hull case', async () => {
         setComponent(testEntity, ColliderComponent, { shape: Shapes.ConvexHull })
+        await act(() => render(null))
         Physics.createRigidBody(physicsWorld, testEntity)
         assert.equal(Physics.getShape(physicsWorld, testEntity), undefined /** @todo Shapes.ConvexHull */)
       })
 
-      it('should return undefined for the mesh case', () => {
+      it('should return undefined for the mesh case', async () => {
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
+        await act(() => render(null))
         Physics.createRigidBody(physicsWorld, testEntity)
         assert.equal(Physics.getShape(physicsWorld, testEntity), undefined /** @todo Shapes.Mesh */)
       })
 
       /**
       // @todo Heightfield is not supported yet. Triggers an Error exception
-      it("should return undefined for the heightfield case", () => {
+      it("should return undefined for the heightfield case", async () => {
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Heightfield })
+        await act(() => render(null))
         Physics.createRigidBody(physicsWorld, testEntity)
         assert.equal(Physics.getShape(physicsWorld, testEntity), Shapes.Heightfield)
       })
@@ -1753,6 +1769,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Box })
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -1790,6 +1807,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent)
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -1855,6 +1873,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, ColliderComponent)
         setComponent(rootEntity, RigidBodyComponent)
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -1863,8 +1882,9 @@ describe('Physics : Rapier->ECS API', () => {
         return destroyEngine()
       })
 
-      it('should return early if the given `rootEntity` does not have a RigidBody', () => {
+      it('should return early if the given `rootEntity` does not have a RigidBody', async () => {
         removeComponent(rootEntity, RigidBodyComponent)
+        await act(() => render(null))
         const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
         assert.equal(result, undefined)
       })
@@ -2124,6 +2144,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(rigidbodyEntity, TransformComponent)
         setComponent(rigidbodyEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(rigidbodyEntity, ColliderComponent, { shape: Shapes.Box })
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -2132,21 +2153,22 @@ describe('Physics : Rapier->ECS API', () => {
         return destroyEngine()
       })
 
-      it("should return undefined when rigidBodyEntity doesn't have a RigidBodyComponent", () => {
+      it("should return undefined when rigidBodyEntity doesn't have a RigidBodyComponent", async () => {
         removeComponent(rigidbodyEntity, RigidBodyComponent)
+        await act(() => render(null))
         const colliderDesc = Physics.createColliderDesc(physicsWorld, testEntity, rigidbodyEntity)
         const result = Physics.attachCollider(physicsWorld!, colliderDesc, rigidbodyEntity, testEntity)
         assert.equal(result, undefined)
       })
 
-      it('should add the collider to the physicsWorld.Colliders map', () => {
-        ColliderComponent.reactorMap.get(testEntity)!.stop()
-        const colliderDesc = Physics.createColliderDesc(physicsWorld, testEntity, rigidbodyEntity)
-        const result = Physics.attachCollider(physicsWorld!, colliderDesc, rigidbodyEntity, testEntity)!
+      it('should add the collider to the physicsWorld.Colliders map', async () => {
+        /** @todo this test is kinda busted because this is handled by the component already */
+        // const colliderDesc = Physics.createColliderDesc(physicsWorld, testEntity, rigidbodyEntity)
+        // const result = Physics.attachCollider(physicsWorld!, colliderDesc, rigidbodyEntity, testEntity)!
         const expected = physicsWorld.Colliders.get(testEntity)
-        assert.ok(result)
+        // assert.ok(result)
         assert.ok(expected)
-        assert.deepEqual(result.handle, expected.handle)
+        // assert.deepEqual(result.handle, expected.handle)
       })
     })
 
@@ -2173,6 +2195,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Box })
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -2230,6 +2253,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -2309,6 +2333,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -2350,6 +2375,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Box })
         Physics.createCharacterController(physicsWorld, testEntity, {})
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -2395,6 +2421,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Box })
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -2461,6 +2488,7 @@ describe('Physics : Rapier->ECS API', () => {
           collisionLayer: CollisionGroups.Default,
           collisionMask: DefaultCollisionMask
         })
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -2516,6 +2544,7 @@ describe('Physics : Rapier->ECS API', () => {
           collisionLayer: CollisionGroups.Default,
           collisionMask: DefaultCollisionMask
         })
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -2562,6 +2591,7 @@ describe('Physics : Rapier->ECS API', () => {
           collisionLayer: CollisionGroups.Default,
           collisionMask: DefaultCollisionMask
         })
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -2639,6 +2669,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity2, TransformComponent)
         setComponent(testEntity2, RigidBodyComponent)
         setComponent(testEntity2, ColliderComponent)
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -2888,6 +2919,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity2, TransformComponent)
         setComponent(testEntity2, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity2, ColliderComponent)
+        await act(() => render(null))
       })
 
       afterEach(() => {

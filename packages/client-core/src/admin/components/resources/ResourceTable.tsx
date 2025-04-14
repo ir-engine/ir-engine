@@ -32,7 +32,7 @@ import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 
 import { API } from '@ir-engine/common'
 import { Edit01Lg, Trash04Lg } from '@ir-engine/ui/src/icons'
-import { PopoverState } from '../../../common/services/PopoverState'
+import { ModalState } from '../../../common/services/ModalState'
 import DataTable from '../../common/Table'
 import { resourceColumns } from '../../common/constants/resources'
 import ActionButton from '../ActionButton'
@@ -73,7 +73,7 @@ export default function ResourceTable({ search }: { search: string }) {
           <ActionButton
             icon={Edit01Lg}
             onClick={() => {
-              PopoverState.showPopupover(<AddEditResourceModal selectedResource={el} />)
+              ModalState.openModal(<AddEditResourceModal selectedResource={el} />)
             }}
             variant="green"
           />
@@ -82,7 +82,7 @@ export default function ResourceTable({ search }: { search: string }) {
             icon={Trash04Lg}
             title={t('admin:components.common.delete')}
             onClick={() => {
-              PopoverState.showPopupover(
+              ModalState.openModal(
                 <ConfirmDialog
                   text={`${t('admin:components.resources.confirmResourceDelete')} '${el.key}'?`}
                   onSubmit={async () => {

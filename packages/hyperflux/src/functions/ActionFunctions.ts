@@ -31,7 +31,7 @@ import { createHookableFunction } from './createHookableFunction'
 import { OpaqueType } from '../types/OpaqueType'
 import { NetworkID, PeerID, UserID } from '../types/Types'
 import { isDev } from './EnvironmentConstants'
-import { ReactorRoot } from './ReactorFunctions'
+import { ReactorReconciler, ReactorRoot } from './ReactorFunctions'
 import { setInitialState, StateDefinitions } from './StateFunctions'
 import { HyperFlux } from './StoreFunctions'
 
@@ -356,6 +356,8 @@ export const dispatchAction = <A extends Action>(_action: A) => {
   HyperFlux.store.actions.incoming.push(action as Required<ResolvedActionType>)
 
   addOutgoingTopicIfNecessary(topic)
+
+  return Object.freeze(action) as ResolvedActionType<A>
 }
 
 export function addOutgoingTopicIfNecessary(topic: Topic) {
@@ -466,7 +468,7 @@ const createEventSourceQueues = (action: Required<ResolvedActionType>) => {
 
       // if new actions were applied, synchronously run the reactor
       if (hasNewActions && HyperFlux.store.stateReactors[definition.name]) {
-        HyperFlux.store.stateReactors[definition.name].run()
+        ReactorReconciler.flushSync(() => HyperFlux.store.stateReactors[definition.name].run())
       }
     }
 

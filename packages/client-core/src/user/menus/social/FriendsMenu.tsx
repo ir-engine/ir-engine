@@ -46,7 +46,7 @@ import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Tabs from '@ir-engine/ui/src/primitives/tailwind/Tabs'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { IoIosCall } from 'react-icons/io'
-import { PopoverState } from '../../../common/services/PopoverState'
+import { ModalState } from '../../../common/services/ModalState'
 import { useUserAvatarThumbnail } from '../../../hooks/useUserAvatarThumbnail'
 import { ChannelService, ChannelState } from '../../../social/services/ChannelService'
 import { FriendService, FriendState } from '../../../social/services/FriendService'
@@ -112,23 +112,23 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
   }
 
   const handleProfile = (user: DisplayedUserInterface) => {
-    PopoverState.showPopupover(<AvatarContextMenu userId={user.id} />)
+    ModalState.openModal(<AvatarContextMenu userId={user.id} />)
   }
 
   const handleOpenChat = (id: string) => {
     if (TabNames[selectedTabIndex.value] === 'messages') {
-      PopoverState.showPopupover(<MessagesMenu channelID={id as ChannelID} name="" />)
+      ModalState.openModal(<MessagesMenu channelID={id as ChannelID} name="" />)
     } else {
       const channelWithFriend = privateChannels.find(
         (channel) =>
           channel.channelUsers.length === 2 && channel.channelUsers.find((channelUser) => channelUser.userId === id)
       )
       if (channelWithFriend) {
-        PopoverState.showPopupover(<MessagesMenu channelID={channelWithFriend.id} name="" />)
+        ModalState.openModal(<MessagesMenu channelID={channelWithFriend.id} name="" />)
       } else {
         ChannelService.createChannel([id as UserID]).then((channel) => {
           if (channel) {
-            PopoverState.showPopupover(<MessagesMenu channelID={channel.id} name="" />)
+            ModalState.openModal(<MessagesMenu channelID={channel.id} name="" />)
           }
         })
       }
@@ -202,7 +202,6 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
     return (
       <div key={user.id} className="m-2 flex items-center gap-2 text-text-secondary hover:text-text-primary">
         <AvatarImage src={thumbnail} size="medium" />
-
         <Text className="w-full">{userName}</Text>
 
         {user.relationType === 'friend' && (

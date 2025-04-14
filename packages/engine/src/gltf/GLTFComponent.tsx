@@ -63,11 +63,6 @@ import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/Scene
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { LoaderUtils } from 'three'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
-import {
-  BINARY_EXTENSION_CHUNK_TYPES,
-  BINARY_EXTENSION_HEADER_LENGTH,
-  BINARY_EXTENSION_HEADER_MAGIC
-} from '../assets/loaders/gltf/GLTFExtensions'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { ErrorComponent } from '../scene/components/ErrorComponent'
@@ -75,7 +70,6 @@ import { SceneDynamicLoadComponent } from '../scene/components/SceneDynamicLoadC
 import { SourceComponent, SourceID } from '../scene/components/SourceComponent'
 import { addError, removeError } from '../scene/functions/ErrorFunctions'
 import { SceneJsonType } from '../scene/types/SceneTypes'
-import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
 import { GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
 import { AssetState } from './GLTFState'
 import { NodeID, NodeIDComponent } from './NodeIDComponent'
@@ -140,6 +134,9 @@ export const GLTFComponent = defineComponent({
     const source = useOptionalComponent(entity, SourceComponent)?.value
     if (!uuid || !src) return source ?? ('' as SourceID)
     return SourceComponent.getSourceID(uuid, src)
+  },
+  removeHashes: <T extends EntityUUID | SourceID | NodeID>(url: T) => {
+    return url.replaceAll(/\?hash=[^-]+/g, '') as T
   }
 })
 
@@ -205,12 +202,26 @@ export const GLTFComponentReactor = () => {
   const entity = useEntityContext()
   const gltfComponent = useComponent(entity, GLTFComponent)
   const documentLoaded = useHookstate(false)
+  const sceneLoaded = GLTFComponent.useSceneLoaded(entity)
 
   useEffect(() => {
+    if (!sceneLoaded) return
+
     const occlusion = gltfComponent.cameraOcclusion.value
-    if (!occlusion) ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
-    else ObjectLayerMaskComponent.enableLayer(entity, ObjectLayers.Camera)
-  }, [gltfComponent.cameraOcclusion])
+    const entities = SourceComponent.getEntitiesBySource(GLTFComponent.getInstanceID(entity))
+
+    if (!occlusion) {
+      ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
+      for (const curr of entities) {
+        ObjectLayerMaskComponent.disableLayer(curr, ObjectLayers.Camera)
+      }
+    } else {
+      ObjectLayerMaskComponent.enableLayer(entity, ObjectLayers.Camera)
+      for (const curr of entities) {
+        ObjectLayerMaskComponent.enableLayer(curr, ObjectLayers.Camera)
+      }
+    }
+  }, [gltfComponent.cameraOcclusion.value, sceneLoaded])
 
   useGLTFDocument(entity)
 
@@ -261,8 +272,6 @@ export const GLTFComponentReactor = () => {
       }
     }
   }, [gltfComponent.document])
-
-  const sceneLoaded = GLTFComponent.useSceneLoaded(entity)
 
   const scene = useOptionalComponent(entity, SceneComponent)
 
@@ -423,6 +432,11 @@ const onProgress: (event: ProgressEvent) => void = (event) => {
   // console.log(event)
 }
 
+/* BINARY EXTENSION */
+export const BINARY_EXTENSION_HEADER_MAGIC = 'glTF'
+export const BINARY_EXTENSION_HEADER_LENGTH = 12
+export const BINARY_EXTENSION_CHUNK_TYPES = { JSON: 0x4e4f534a, BIN: 0x004e4942 }
+
 export const loadGLTFFile = (
   url: string,
   onLoad: (gltf: GLTF.IGLTF, body: ArrayBuffer | null) => void,
@@ -437,33 +451,28 @@ export const loadGLTFFile = (
     let json: GLTF.IGLTF | SceneJsonType
     let body: ArrayBuffer | null = null
 
-    if (typeof data === 'string') {
-      json = JSON.parse(data)
-    } else if ('byteLength' in data) {
-      const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
+    try {
+      if (typeof data === 'string') {
+        json = JSON.parse(data)
+      } else if ('byteLength' in data) {
+        const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
 
-      if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
-        try {
+        if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
           const { json: jsonContent, body: bodyContent } = parseBinaryData(data)
           body = bodyContent
           json = jsonContent
-        } catch (error) {
-          if (onError) onError(error)
-          return
+        } else {
+          json = JSON.parse(textDecoder.decode(data))
         }
       } else {
-        json = JSON.parse(textDecoder.decode(data))
+        json = data
       }
-    } else {
-      json = data
-    }
 
-    /** Migrate old scene json format */
-    if ('entities' in json && 'root' in json) {
-      json = migrateSceneJSONToGLTF(json)
+      onLoad(parseStorageProviderURLs(JSON.parse(JSON.stringify(json))), body)
+    } catch (error) {
+      if (onError) onError(error)
+      return
     }
-
-    onLoad(parseStorageProviderURLs(JSON.parse(JSON.stringify(json))), body)
   }
 
   const loader = new FileLoader()
@@ -590,7 +599,7 @@ export const getGLTFOptions = (entity: Entity): GLTFParserOptions => {
   const gltfComponent = getComponent(entity, GLTFComponent)
   const documentID = GLTFComponent.getInstanceID(entity)
   const document = gltfComponent.document!
-  const gltfLoader = getState(AssetLoaderState).gltfLoader
+  const manager = getState(AssetLoaderState).manager
 
   return {
     entity,
@@ -600,6 +609,6 @@ export const getGLTFOptions = (entity: Entity): GLTFParserOptions => {
     path: LoaderUtils.extractUrlBase(gltfComponent.src),
     body: gltfComponent.body,
     requestHeader: {},
-    manager: gltfLoader.manager
+    manager
   }
 }

@@ -23,21 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import {
   Entity,
   Layers,
   PresentationSystemGroup,
-  UndefinedEntity,
+  QueryReactor,
   defineSystem,
   removeEntityNodeRecursively,
   useComponent,
-  useHasComponent,
-  useOptionalComponent,
-  useQuery
+  useHasComponent
 } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { createLoadingSpinner } from '@ir-engine/engine/src/scene/functions/spatialLoadingSpinner'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import React, { useEffect } from 'react'
@@ -45,58 +41,26 @@ import React, { useEffect } from 'react'
 const LoadingSpinnerReactor = (props: { entity: Entity }) => {
   const { entity } = props
   const gltfComponent = useComponent(entity, GLTFComponent)
-  const errors = !!useOptionalComponent(entity, ErrorComponent)?.value?.[GLTFComponent.name]
   const loaded = GLTFComponent.useSceneLoaded(entity)
   const isScene = useHasComponent(entity, SceneComponent)
 
-  const loadingEntity = useHookstate<Entity>(UndefinedEntity)
+  const shouldHaveSpinned = !isScene && !!gltfComponent.src.value && !loaded
 
-  const createLoadingGeo = () => {
+  useEffect(() => {
+    if (!shouldHaveSpinned) return
     const spinnerEntity = createLoadingSpinner(`loading ${gltfComponent.src.value}`, entity)
-    loadingEntity.set(spinnerEntity)
-  }
-
-  const removeLoadingGeo = () => {
-    if (!loadingEntity.value) return
-    removeEntityNodeRecursively(loadingEntity.value)
-    loadingEntity.set(UndefinedEntity)
-  }
-
-  useEffect(() => {
-    if (isScene) return
-    if (loadingEntity.value) return
-    if (!gltfComponent.src.value) return
-    createLoadingGeo()
-  }, [gltfComponent.src.value])
-
-  useEffect(() => {
-    if (isScene) return
-    if (!errors) return
-    removeLoadingGeo()
-  }, [errors])
-
-  useEffect(() => {
-    if (isScene) return
-    if (!loaded) return
-    removeLoadingGeo()
-  }, [loaded])
+    return () => {
+      removeEntityNodeRecursively(spinnerEntity)
+    }
+  }, [shouldHaveSpinned])
 
   return null
-}
-
-const reactor = () => {
-  const entities = useQuery([GLTFComponent], Layers.Authoring)
-  return (
-    <>
-      {entities.map((entity) => (
-        <LoadingSpinnerReactor key={entity} entity={entity} />
-      ))}
-    </>
-  )
 }
 
 export const ModelLoadingSpinnerSystem = defineSystem({
   uuid: 'ee.editor.ModelLoadingSpinnerSystem',
   insert: { before: PresentationSystemGroup },
-  reactor
+  reactor: () => (
+    <QueryReactor ChildEntityReactor={LoadingSpinnerReactor} Components={[GLTFComponent]} layer={Layers.Authoring} />
+  )
 })

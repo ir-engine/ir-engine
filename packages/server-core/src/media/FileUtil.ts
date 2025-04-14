@@ -49,7 +49,7 @@ export const getIncrementalName = async function (
 ): Promise<string> {
   let filename = name
 
-  if (!(await store.doesExist(filename, directoryPath))) return filename
+  if (!isDirectory && !(await store.doesExist(filename, directoryPath))) return filename
   if (isDirectory && !(await store.isDirectory(filename, directoryPath))) return filename
 
   let count = 1
@@ -70,4 +70,16 @@ export const getIncrementalName = async function (
   }
 
   return filename
+}
+
+export const isValidFileType = function (fileType: string, fileName: string): boolean {
+  return (
+    fileType.startsWith('image/') ||
+    fileType.startsWith('audio/') ||
+    fileType.startsWith('video/') ||
+    fileType.startsWith('model/') ||
+    (fileType === 'application/octet-stream' &&
+      (fileName.endsWith('.gltf') || fileName.endsWith('.glb') || fileName.endsWith('.bin'))) ||
+    (fileType === 'application/macbinary' && fileName.endsWith('.bin')) // Mac changes the mimetype to this when using browser document upload.
+  )
 }

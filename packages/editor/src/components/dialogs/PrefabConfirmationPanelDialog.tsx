@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -34,7 +34,7 @@ export default function PrefabConfirmationPanelDialog() {
     <Modal
       title={t('editor:properties.prefab.lbl-confimation')}
       className="w-[50vw] max-w-2xl"
-      onClose={PopoverState.hidePopupover}
+      onClose={ModalState.closeModal}
       closeButtonText="OK"
     ></Modal>
   )

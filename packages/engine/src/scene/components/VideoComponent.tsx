@@ -439,7 +439,9 @@ function VideoReactor() {
 
     if (!hasMediaElementComponent) {
       if (video.texture.value !== null) {
+        localTextureRef.set(null)
         video.texture.set(null)
+        media?.paused.set(true)
       }
       return
     }

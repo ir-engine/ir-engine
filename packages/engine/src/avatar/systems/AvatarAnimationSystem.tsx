@@ -33,6 +33,7 @@ import {
   Entity,
   getComponent,
   setComponent,
+  useComponent,
   useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
@@ -48,8 +49,10 @@ import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
 import { traverseEntityNode } from '@ir-engine/ecs'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
+import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import React from 'react'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
@@ -60,7 +63,12 @@ import { preloadedAnimations } from '../animation/Util'
 import { AnimationState } from '../AnimationManager'
 import { mixamoVRMRigMap } from '../AvatarBoneMatching'
 import { AnimationComponent, useLoadAnimationFromBatchGLTF } from '../components/AnimationComponent'
-import { AvatarAnimationComponent, AvatarRigComponent, createVRM } from '../components/AvatarAnimationComponent'
+import {
+  AvatarAnimationComponent,
+  AvatarRigComponent,
+  createVRM,
+  createVRMFromGLTF
+} from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { getAllLoadedAnimations, setupAvatarProportions } from '../functions/avatarFunctions'
 import { normalizeAnimationClips, retargetAnimationClips } from '../functions/retargetingFunctions'
@@ -219,7 +227,8 @@ const RigReactor = (props: { entity: Entity }) => {
   useEffect(() => {
     if (gltfComponent?.progress?.value !== 100 || !avatarAnimationComponent?.value) return
     try {
-      createVRM(entity)
+      if (gltfComponent.document?.value?.extensions?.VRM) createVRM(entity)
+      else createVRMFromGLTF(entity)
       setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Avatar)
       setupAvatarProportions(entity)
     } catch (e) {
@@ -231,20 +240,26 @@ const RigReactor = (props: { entity: Entity }) => {
     }
   }, [gltfComponent?.progress?.value, gltfComponent?.src.value, avatarAnimationComponent])
 
+  const rig = useOptionalComponent(entity, AvatarRigComponent)
+  useEffect(() => {
+    setVisibleComponent(entity, !!rig?.bonesToEntities?.hips?.value && gltfComponent?.progress.value === 100)
+  }, [rig?.bonesToEntities.hips, gltfComponent?.progress])
+
   return null
 }
 
 const AnimationReactor = (props: { entity: Entity }) => {
   const entity = props.entity
-  const rigComponent = useOptionalComponent(entity, AvatarRigComponent)
+  const avatarObject = useOptionalComponent(entity, ObjectComponent)
   const loadedAnimations = useMutableState(AnimationState).loadedAnimations
+  const avatarRigComponent = useComponent(entity, AvatarRigComponent)
   useEffect(() => {
-    if (!rigComponent?.vrm?.scene?.value) return
+    if (!avatarRigComponent.bonesToEntities?.hips.value) return
     setComponent(entity, AnimationComponent, {
       animations: getAllLoadedAnimations(),
-      mixer: new AnimationMixer(rigComponent.vrm.scene.value as Group)
+      mixer: new AnimationMixer(getComponent(entity, ObjectComponent) as Group)
     })
-  }, [rigComponent?.vrm, loadedAnimations])
+  }, [avatarRigComponent.bonesToEntities?.hips, avatarObject?.value, loadedAnimations])
   return null
 }
 

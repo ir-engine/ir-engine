@@ -33,13 +33,11 @@ import { getCanvasBlob } from '@ir-engine/client-core/src/common/utils'
 import multiLogger from '@ir-engine/common/src/logger'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { Button, Input } from '@ir-engine/ui'
+import { ArrowLeftLg, XCloseLg } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
-import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import { IoArrowBackOutline } from 'react-icons/io5'
-import { MdClose } from 'react-icons/md'
 import AvatarPreview from '../../../common/components/AvatarPreview'
-import { PopoverState } from '../../../common/services/PopoverState'
+import { ModalState } from '../../../common/services/ModalState'
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../util/avatarIdFunctions'
 import { AvatarService } from '../../services/AvatarService'
 import { DiscardAvatarChangesMenu } from './DiscardAvatarChangesMenu'
@@ -236,15 +234,15 @@ const AvatarCreatorMenu = (selectedSdk: string) =>
       )
 
       loading.set(LoadingState.None)
-      PopoverState.hidePopupover()
+      ModalState.closeModal()
     }
 
     const handleClose = () => {
-      PopoverState.showPopupover(
+      ModalState.openModal(
         <DiscardAvatarChangesMenu
           handleConfirm={() => {
-            PopoverState.hidePopupover()
-            PopoverState.hidePopupover()
+            ModalState.closeModal()
+            ModalState.closeModal()
           }}
         />
       )
@@ -270,97 +268,92 @@ const AvatarCreatorMenu = (selectedSdk: string) =>
     const avatarPreviewLoaded = loading.value === LoadingState.None && selectedBlob.value
 
     return (
-      <Modal
+      <div
         id="create-avatar-modal"
-        className="min-w-34 pointer-events-auto m-auto flex h-full max-h-[95vh] w-full max-w-[90vw] rounded-xl lg:h-[95vh] lg:w-full lg:max-w-6xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col"
-        showCloseButton={false}
-        hideFooter={true}
-        rawChildren={
-          <div className="flex h-full w-full flex-1 flex-col">
-            <div className="grid h-14 w-full grid-cols-[1.5rem,1fr,1.5rem] border-b px-5">
-              <button
-                data-testid="back-create-avatar-modal-button"
-                className=" h-6 w-6 cursor-pointer self-center bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
-                onClick={handleClose}
-              >
-                <IoArrowBackOutline size={16} />
-              </button>
-              <Text className="col-start-2  place-self-center self-center text-text-primary">
-                {loading.value !== LoadingState.Uploading
-                  ? t('user:avatar.titleCustomizeAvatar')
-                  : t('user:avatar.savingAvatar', { avatar: avatarName.value })}
+        className="min-w-34 pointer-events-auto absolute z-50 m-auto flex h-[90dvh] w-full max-w-[90vw] flex-1 flex-col overflow-y-auto rounded-xl bg-surface-4 lg:h-[95dvh] lg:w-full lg:max-w-6xl"
+      >
+        <div className="grid h-14 w-full grid-cols-[1.5rem,1fr,1.5rem] border-b px-5">
+          <button
+            data-testid="back-create-avatar-modal-button"
+            className=" h-6 w-6 cursor-pointer self-center bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
+            onClick={handleClose}
+          >
+            <ArrowLeftLg />
+          </button>
+          <Text className="col-start-2  place-self-center self-center text-text-primary">
+            {loading.value !== LoadingState.Uploading
+              ? t('user:avatar.titleCustomizeAvatar')
+              : t('user:avatar.savingAvatar', { avatar: avatarName.value })}
+          </Text>
+          <button
+            data-testid="close-create-avatar-modal-button"
+            className=" h-6 w-6 cursor-pointer self-center bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
+            onClick={handleClose}
+          >
+            <XCloseLg />
+          </button>
+        </div>
+        <div className="grid h-full w-full flex-1 grid-cols-[1fr,50%,1fr] gap-6 px-5 pb-2">
+          {loading.value === LoadingState.LoadingCreator && (
+            <iframe
+              id="rpm-iframe"
+              style={{
+                width: '100%',
+                height: '100%',
+                zIndex: 2,
+                maxWidth: '100%',
+                border: 0
+              }}
+              className="col-span-3"
+            />
+          )}
+          {loading.value !== LoadingState.LoadingCreator && avatarUrl.value && previewEnabled && (
+            <div className="relative col-start-2 rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
+              <div className="stars absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent"></div>
+              <AvatarPreview
+                avatarUrl={avatarUrl.value}
+                fill
+                onAvatarError={(e) => error.set(e)}
+                onAvatarLoaded={() => loading.set(LoadingState.None)}
+              />
+            </div>
+          )}
+          {avatarPreviewLoaded && !previewEnabled && (
+            <div className="relative col-span-3 flex">
+              <Text className="m-auto" fontSize="lg">
+                {previewDisabledMessage ? previewDisabledMessage : t('user:avatar.avatarPreviewDisabledMessage')}
               </Text>
-              <button
-                data-testid="close-create-avatar-modal-button"
-                className=" h-6 w-6 cursor-pointer self-center bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
-                onClick={handleClose}
-              >
-                <MdClose size={16} />
-              </button>
             </div>
-            <div className="grid h-full w-full flex-1 grid-cols-[1fr,50%,1fr] gap-6 px-5 pb-2">
-              {loading.value === LoadingState.LoadingCreator && (
-                <iframe
-                  id="rpm-iframe"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    zIndex: 2,
-                    maxWidth: '100%',
-                    border: 0
-                  }}
-                  className="col-span-3"
-                />
-              )}
-              {loading.value !== LoadingState.LoadingCreator && avatarUrl.value && previewEnabled && (
-                <div className="relative col-start-2 rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
-                  <div className="stars absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent"></div>
-                  <AvatarPreview
-                    avatarUrl={avatarUrl.value}
-                    fill
-                    onAvatarError={(e) => error.set(e)}
-                    onAvatarLoaded={() => loading.set(LoadingState.None)}
-                  />
-                </div>
-              )}
-              {avatarPreviewLoaded && !previewEnabled && (
-                <div className="relative col-span-3 flex">
-                  <Text className="m-auto" fontSize="lg">
-                    {previewDisabledMessage ? previewDisabledMessage : t('user:avatar.avatarPreviewDisabledMessage')}
-                  </Text>
-                </div>
-              )}
-            </div>
-            {avatarPreviewLoaded && (
-              <div className="mx-auto mb-2 flex items-center gap-2 py-2">
-                <Text className="text-text-secondary" fontSize="sm">
-                  {t('user:avatar.InputAvatarName')}
-                </Text>
-                <Input value={avatarName.value || ''} onChange={(e) => avatarName.set(e.target.value)} />
-                <Button
-                  size="xs"
-                  disabled={loading.value !== LoadingState.None}
-                  data-testid="upload-avatar-button"
-                  onClick={uploadAvatar}
-                  className="w-fit place-self-center rounded-md"
-                >
-                  {t('user:avatar.saveAvatar')}
-                </Button>
-              </div>
-            )}
-            {loading.value !== LoadingState.None && loading.value !== LoadingState.LoadingCreator && (
-              <div className="mx-auto flex justify-between py-2">
-                <LoadingView
-                  className="mr-2 h-6 max-h-6 w-6 justify-between text-text-primary"
-                  titleClassname="text-text-primary"
-                  containerClassName="flex-row"
-                  title={loadingTitle}
-                />
-              </div>
-            )}
+          )}
+        </div>
+        {avatarPreviewLoaded && (
+          <div className="mx-auto mb-2 flex items-center gap-2 py-2">
+            <Text className="text-text-secondary" fontSize="sm">
+              {t('user:avatar.InputAvatarName')}
+            </Text>
+            <Input value={avatarName.value || ''} onChange={(e) => avatarName.set(e.target.value)} />
+            <Button
+              size="xs"
+              disabled={loading.value !== LoadingState.None}
+              data-testid="upload-avatar-button"
+              onClick={uploadAvatar}
+              className="w-fit place-self-center rounded-md"
+            >
+              {t('user:avatar.saveAvatar')}
+            </Button>
           </div>
-        }
-      />
+        )}
+        {loading.value !== LoadingState.None && loading.value !== LoadingState.LoadingCreator && (
+          <div className="mx-auto flex justify-between py-2">
+            <LoadingView
+              className="mr-2 h-6 max-h-6 w-6 justify-between text-text-primary"
+              titleClassname="text-text-primary"
+              containerClassName="flex-row"
+              title={loadingTitle}
+            />
+          </div>
+        )}
+      </div>
     )
   })
 export default AvatarCreatorMenu

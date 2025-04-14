@@ -27,8 +27,8 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiArrowPath, HiPlus } from 'react-icons/hi2'
 
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { ProjectService, ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
 import config from '@ir-engine/common/src/config'
 import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
@@ -76,7 +76,7 @@ export default function ProjectTopMenu() {
         updateType: projectUpdateStatus.updateType,
         updateSchedule: projectUpdateStatus.updateSchedule
       })
-      PopoverState.hidePopupover()
+      ModalState.closeModal()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -113,7 +113,7 @@ export default function ProjectTopMenu() {
         <Button
           size="sm"
           onClick={() => {
-            PopoverState.showPopupover(<UpdateEngineModal />)
+            ModalState.openModal(<UpdateEngineModal />)
           }}
           disabled={config.client.localBuildOrDev}
         >
@@ -128,7 +128,7 @@ export default function ProjectTopMenu() {
         <Button
           size="sm"
           onClick={() => {
-            PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleSubmit} update={false} />)
+            ModalState.openModal(<AddEditProjectModal onSubmit={handleSubmit} update={false} />)
           }}
         >
           <HiPlus />

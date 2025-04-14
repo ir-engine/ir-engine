@@ -23,14 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { HookContext } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import {
   moderationAttachmentDataValidator,
   moderationAttachmentPatchValidator,
   moderationAttachmentQueryValidator
 } from '@ir-engine/common/src/schemas/moderation/moderation-attachment.schema'
-import config from '@ir-engine/server-core/src/appconfig'
 import verifyScope from '@ir-engine/server-core/src/hooks/verify-scope'
 import { iff, isProvider } from 'feathers-hooks-common'
 import {
@@ -41,21 +39,6 @@ import {
   moderationAttachmentResolver
 } from './moderation-attachment.resolvers'
 
-export const appendBaseUrl = () => {
-  return async (context: HookContext) => {
-    if (context.result) {
-      if (Array.isArray(context.result.data)) {
-        const baseUrl = config.aws.s3.endpoint
-        const bucketName = config.aws.s3.staticResourceBucket
-        context.result = context.result.data.map((item) => ({
-          ...item,
-          filePath: `${baseUrl}/${bucketName}${item.filePath}`
-        }))
-      }
-    }
-    return context
-  }
-}
 export default {
   around: {
     all: [
@@ -91,8 +74,8 @@ export default {
   },
   after: {
     all: [],
-    find: [appendBaseUrl()],
-    get: [appendBaseUrl()],
+    find: [],
+    get: [],
     create: [],
     update: [],
     patch: [],

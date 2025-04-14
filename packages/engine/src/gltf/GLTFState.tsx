@@ -48,7 +48,7 @@ import {
   useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
-import { defineState, getMutableState, startReactor } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, none, startReactor } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
@@ -87,7 +87,7 @@ export const SceneState = defineState({
         )
       }
       AssetState.unload(gltfEntity)
-      getMutableState(SceneState)[sceneURL].set(gltfEntity)
+      getMutableState(SceneState)[sceneURL].set(none)
     }
   }
 })
