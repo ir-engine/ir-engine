@@ -29,6 +29,7 @@ import {
   AnimationClip,
   Bone,
   BoxGeometry,
+  BufferAttribute,
   Color,
   InterpolateDiscrete,
   InterpolateLinear,
@@ -538,5 +539,43 @@ describe('exportGLTFScene', () => {
     assert.equal(skin.joints.length, 1)
     // The joint is referencing the root node
     assert.equal(skin.joints[0], 0)
+  })
+
+  it('should export morph targets', async () => {
+    const baseEntity = createSceneEntity('base')
+    setComponent(baseEntity, SourceComponent, 'test' as SourceID)
+
+    const morphName = 'POSITION'
+    const morphMesh = new Mesh(new BoxGeometry(1, 1, 1), new MeshBasicMaterial({ color: 0x00ff00 }))
+    morphMesh.morphTargetInfluences = [0, 1]
+    morphMesh.geometry.morphAttributes[morphName] = [
+      new BufferAttribute(new Float32Array([1, 2, 3, 4, 5]), 1),
+      new BufferAttribute(new Float32Array([5, 6, 7, 8, 9]), 1)
+    ]
+
+    const morphMeshEntity = createEntity()
+    setComponent(morphMeshEntity, SourceComponent, getComponent(baseEntity, SourceComponent))
+    setComponent(morphMeshEntity, MeshComponent, morphMesh)
+    setComponent(morphMeshEntity, EntityTreeComponent, { parentEntity: baseEntity })
+
+    const [gltf] = (await exportGLTFScene(baseEntity, 'dud', 'test/path')) as [GLTF.IGLTF]
+
+    const meshes = gltf.meshes
+    assert.equal(meshes?.length, 1)
+
+    const mesh = meshes![0]
+
+    for (let i = 0; i < morphMesh.morphTargetInfluences.length; i++) {
+      const influence = morphMesh.morphTargetInfluences[i]
+      const weight = mesh.weights![i]
+      assert.equal(influence, weight)
+    }
+
+    for (const primitive of mesh.primitives) {
+      assert.equal(primitive.targets!.length, morphMesh.morphTargetInfluences.length)
+      for (const target of primitive.targets!) {
+        assert(typeof target[morphName] === 'number')
+      }
+    }
   })
 })
