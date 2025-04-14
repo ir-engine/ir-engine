@@ -1007,6 +1007,8 @@ const exportSampler = (texture: Texture, gltf: GLTF.IGLTF, context: GLTFSceneExp
     wrapS: GLTF_WRAPPINGS[texture.wrapS] as GLTF.TextureWrapMode,
     wrapT: GLTF_WRAPPINGS[texture.wrapT] as GLTF.TextureWrapMode
   }
+  // Samplers are small and mostly the same across all textures,
+  // so use the sampler data as the key to keep the gltf files smaller
   const samplerStr = JSON.stringify(sampler)
   if (context.cache.samplers.has(samplerStr)) return context.cache.samplers.get(samplerStr)!
 
