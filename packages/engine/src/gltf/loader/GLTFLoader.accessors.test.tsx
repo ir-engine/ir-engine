@@ -79,15 +79,16 @@ describe('glTF: Accessor Type', () => {
       {
         componentType: 5126, // FLOAT
         count: 1,
-        type: 'SCALAR',
-        bufferView: undefined,
-        byteOffset: undefined,
-        normalized: undefined,
-        sparse: undefined,
-        min: undefined,
-        max: undefined,
-        extensions: undefined,
-        extras: undefined
+        type: 'SCALAR'
+        // Cannot explicitly set to undefined because `'a' in obj` would return true
+        // bufferView: undefined,
+        // byteOffset: undefined,
+        // normalized: undefined,
+        // sparse: undefined,
+        // min: undefined,
+        // max: undefined,
+        // extensions: undefined,
+        // extras: undefined
       }
     ]
     return result
@@ -111,8 +112,8 @@ describe('glTF: Accessor Type', () => {
       gltf.accessors!.push({
         componentType: 5126, // FLOAT
         count: 3,
-        type: 'VEC3',
-        bufferView: undefined // Explicitly set bufferView to undefined
+        type: 'VEC3'
+        // bufferView: undefined // Do not define .bufferView. Can't set to `undefined` because `'a' in obj` would return true
       })
       const options = mockGLTFOptions(gltf)
 
@@ -243,7 +244,8 @@ describe('glTF: Accessor Type', () => {
   describe('componentType', () => {
     it('MUST be defined', () => {
       const options = mockGLTFOptions(mockGLTFMinimal())
-      options.document.accessors![0].componentType = undefined as any
+      // @ts-expect-error Delete, even if mandatory, to provoke the error
+      delete options.document.accessors![0].componentType
       expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
     })
 
@@ -360,7 +362,8 @@ describe('glTF: Accessor Type', () => {
     /** @todo Should throw. Our implementation does not respect the specification for glTF.accessor.count */
     it.fails('MUST be defined', () => {
       const options = mockGLTFOptions(mockGLTFMinimal())
-      options.document.accessors![0].count = undefined as any
+      // @ts-expect-error Delete, even if mandatory, to provoke the error
+      delete options.document.accessors![0].count
       expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
     })
 
@@ -383,7 +386,8 @@ describe('glTF: Accessor Type', () => {
     /** @todo Should throw. Our implementation does not respect the specification for glTF.accessor.type */
     it.fails('MUST be defined', () => {
       const options = mockGLTFOptions(mockGLTFMinimal())
-      options.document.accessors![0].type = undefined as any
+      // @ts-expect-error Delete, even if mandatory, to provoke the error
+      delete options.document.accessors![0].type
       expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
     })
 
