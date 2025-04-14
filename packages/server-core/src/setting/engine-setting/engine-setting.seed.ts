@@ -37,6 +37,12 @@ import appConfig from '@ir-engine/server-core/src/appconfig'
 import appRootPath from 'app-root-path'
 import config from '../../appconfig'
 
+export const DISCORD_SCOPES = ['email', 'identify']
+export const GITHUB_SCOPES = ['repo', 'user', 'workflow']
+export const GOOGLE_SCOPES = ['profile', 'email']
+export const LINKEDIN_SCOPES = ['openid', 'profile', 'email']
+export const APPLE_SCOPES = ['openid', 'email', 'name']
+
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db

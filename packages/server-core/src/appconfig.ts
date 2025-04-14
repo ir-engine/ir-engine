@@ -54,7 +54,7 @@ import {
   GITHUB_SCOPES,
   GOOGLE_SCOPES,
   LINKEDIN_SCOPES
-} from './setting/authentication-setting/authentication-setting.seed'
+} from './setting/engine-setting/engine-setting.seed'
 
 const logger = multiLogger.child({ component: 'server-core:config' })
 
