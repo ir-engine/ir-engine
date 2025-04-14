@@ -98,7 +98,7 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
   const { children, rootEntity, sourceID } = props
   const selectionState = useMutableState(SelectionState)
   const hierarchyTreeState = useMutableState(HierarchyTreeState)
-  const [hideGlbChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.HideGlbChildren])
+  const [showGlbChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowGlbChildren])
   const renamingEntity = useHookstate<Entity | null>(null)
   const contextMenu = useHookstate({ entity: UndefinedEntity, anchorEvent: undefined as React.MouseEvent | undefined })
   const entities = useQuery([SourceComponent], Layers.Authoring)
@@ -122,11 +122,11 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
   }
 
   const hierarchyNodes = useMemo(
-    () => ecsHierarchyTreeWalker(rootEntity, hideGlbChildren),
+    () => ecsHierarchyTreeWalker(rootEntity, !showGlbChildren),
     [
       hierarchyTreeState.expandedNodes[sourceID],
       selectionState.selectedEntities,
-      hideGlbChildren,
+      showGlbChildren,
       entities,
       childEntities,
       reparentRefresh
