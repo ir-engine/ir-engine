@@ -650,11 +650,10 @@ export const KHRSpecularExtensionComponent = defineComponent({
   jsonID: 'KHR_materials_specular',
   schema: S.Object({
     specularFactor: S.Optional(S.Number()),
-    specularTexture: S.Optional(TextureInfoSchema),
+    specularTexture: S.Nullable(TextureInfoSchema),
     specularColorFactor: S.Optional(S.Tuple([S.Number(), S.Number(), S.Number()])),
-    specularColorTexture: S.Optional(TextureInfoSchema)
+    specularColorTexture: S.Nullable(TextureInfoSchema)
   }),
-
   getMaterialType() {
     return MeshPhysicalMaterial
   },
@@ -667,7 +666,7 @@ export const KHRSpecularExtensionComponent = defineComponent({
     >
     materialParams.specularIntensity = extension.specularFactor !== undefined ? extension.specularFactor : 1.0
 
-    if (extension.specularTexture !== undefined) {
+    if (extension?.specularTexture) {
       pending.push(
         GLTFLoaderFunctions.assignTexture(options, extension.specularTexture).then((map) => {
           materialParams.specularIntensityMap = map
@@ -678,7 +677,7 @@ export const KHRSpecularExtensionComponent = defineComponent({
     const colorArray = extension.specularColorFactor || [1, 1, 1]
     materialParams.specularColor = new Color().setRGB(colorArray[0], colorArray[1], colorArray[2], LinearSRGBColorSpace)
 
-    if (extension.specularColorTexture !== undefined) {
+    if (extension?.specularColorTexture) {
       pending.push(
         GLTFLoaderFunctions.assignTexture(options, extension.specularColorTexture).then((map) => {
           materialParams.specularColorMap = map
