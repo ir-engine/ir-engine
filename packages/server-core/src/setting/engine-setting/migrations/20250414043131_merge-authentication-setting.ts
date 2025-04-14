@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schema.type.module'
 import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
-import { flattenObjectToArray, unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
+import { flattenObjectToArray } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import type { Knex } from 'knex'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -55,9 +55,6 @@ export async function up(knex: Knex): Promise<void> {
         secret: authenticationSettingRecord.secret,
         callback: JSON.parse(authenticationSettingRecord.callback)
       })
-      console.log(`authenticationarray`, flattenedAuthData)
-      const temp = unflattenArrayToObject(flattenedAuthData)
-      console.log(`temp`, JSON.stringify(temp, null, 2))
 
       const authenticationSettings: EngineSettingType[] = await Promise.all(
         flattenedAuthData.map(async (authSetting) => ({
@@ -77,7 +74,7 @@ export async function up(knex: Knex): Promise<void> {
     }
   }
 
-  // await knex.schema.dropTableIfExists(authenticationSettingPath)
+  await knex.schema.dropTableIfExists(authenticationSettingPath)
 }
 
 /**
