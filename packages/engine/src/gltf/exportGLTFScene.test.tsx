@@ -25,7 +25,20 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { GLTF } from '@gltf-transform/core'
 import assert from 'assert'
-import { Color, Mesh, MeshStandardMaterial, SphereGeometry, Texture, Vector3 } from 'three'
+import {
+  AnimationClip,
+  Color,
+  InterpolateDiscrete,
+  InterpolateLinear,
+  InterpolateSmooth,
+  KeyframeTrack,
+  Mesh,
+  MeshStandardMaterial,
+  NormalAnimationBlendMode,
+  SphereGeometry,
+  Texture,
+  Vector3
+} from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
@@ -48,6 +61,7 @@ import {
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { SourceComponent, SourceID } from '../scene/components/SourceComponent'
 import { createSceneEntity } from '../scene/functions/createSceneEntity'
 import { exportGLTFScene } from './exportGLTFScene'
@@ -412,5 +426,70 @@ describe('exportGLTFScene', () => {
       assert.strictEqual(channel, color.toArray()[i])
     }
     assert.strictEqual(eeMaterial.prototype, 'MeshStandardMaterial')
+  })
+
+  it('should export animations', async () => {
+    const baseEntity = createSceneEntity('base')
+    setComponent(baseEntity, SourceComponent, 'test' as SourceID)
+    setComponent(baseEntity, UUIDComponent, 'test trac' as EntityUUID)
+
+    const tracks = [
+      new KeyframeTrack(
+        'test track',
+        new Float32Array([1, 2, 3, 4, 5]),
+        new Float32Array([1, 2, 3, 4, 5]),
+        InterpolateDiscrete
+      ),
+      new KeyframeTrack(
+        'test track',
+        new Float32Array([6, 7, 8, 9, 10]),
+        new Float32Array([6, 7, 8, 9, 10]),
+        InterpolateLinear
+      ),
+      new KeyframeTrack(
+        'test track',
+        new Float32Array([4, 3, 2, 1, 0]),
+        new Float32Array([0, 1, 2, 3, 4]),
+        InterpolateSmooth
+      )
+    ]
+
+    const clip = new AnimationClip('test clip', 1000, tracks, NormalAnimationBlendMode)
+
+    setComponent(baseEntity, AnimationComponent, {
+      animations: [clip]
+    })
+
+    const [gltf] = (await exportGLTFScene(baseEntity, 'dud', 'test/path')) as [GLTF.IGLTF]
+
+    // 1 for track values, 1 for track times
+    assert.equal(gltf.bufferViews?.length, tracks.length * 2)
+    assert.equal(gltf.accessors?.length, tracks.length * 2)
+
+    const animations = gltf.animations
+    assert.equal(animations?.length, 1)
+
+    const anim = animations![0]
+    assert.equal(anim.name, clip.name)
+    assert.equal(anim.channels.length, tracks.length)
+    assert.equal(anim.samplers.length, tracks.length)
+
+    const expInterpolation = ['STEP', 'LINEAR', 'LINEAR']
+    const inputOutputAccessors = new Set<number>()
+
+    for (let i = 0; i < tracks.length; i++) {
+      const channel = anim.channels[i]
+      const sampler = anim.samplers[i]
+
+      assert.equal(channel.sampler, i)
+      assert.equal(sampler.interpolation, expInterpolation[i])
+      // There's no required order that these will be created in so just check that they are valid and unqiue
+      assert(typeof sampler.input === 'number')
+      assert(typeof sampler.output === 'number')
+      assert(!inputOutputAccessors.has(sampler.input))
+      assert(!inputOutputAccessors.has(sampler.output))
+      inputOutputAccessors.add(sampler.input)
+      inputOutputAccessors.add(sampler.output)
+    }
   })
 })
