@@ -24,36 +24,37 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { cleanup, render, screen } from '@testing-library/react'
+import React from 'react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import React from 'react'
-import Modal from './index'
+import ConfirmDialog from './index'
 
-describe('Modal component', () => {
+describe('ConfirmDialog component', () => {
   beforeEach(() => {
-    render(<Modal onSubmit={() => {}} />)
+    render(<ConfirmDialog text="Test" onSubmit={() => {}} />)
   })
 
   afterEach(() => {
     cleanup()
   })
 
-  it('should render a container element with the data-testid attribute "modal"', () => {
-    const modal = screen.getByTestId('modal')
+  it('should render a button with the data-testid attribute "confirm-dialog"', () => {
+    const confirmDialog = screen.getByTestId('confirm-dialog')
     // @ts-expect-error
-    expect(modal).toBeInTheDocument()
+    expect(confirmDialog).toBeInTheDocument()
   })
 
-  it('should render a button with the data-testid attribute "modal-cancel-button"', () => {
-    const modalCancelButton = screen.getByTestId('modal-cancel-button')
-    // @ts-expect-error
-    expect(modalCancelButton).toBeInTheDocument()
-  })
-
-  it('should render a button with the data-testid attribute "modal-submit-button"', () => {
+  it('should render a button with the data-testid attribute "confirm-dialog-text-element"', () => {
     screen.debug(document.body, Infinity)
-    const modalSubmitButton = screen.getByTestId('modal-submit-button')
+    const confirmDialogTextElement = screen.getByTestId('confirm-dialog-text-element')
     // @ts-expect-error
-    expect(modalSubmitButton).toBeInTheDocument()
+    expect(confirmDialogTextElement).toBeInTheDocument()
+  })
+
+  it('should render a button with the data-testid attribute "confirm-dialog-text-element"', () => {
+    screen.debug(document.body, Infinity)
+    const confirmDialogTextElement = screen.getByTestId('confirm-dialog-text-element')
+    // @ts-expect-error
+    expect(confirmDialogTextElement).toBeInTheDocument()
   })
 })
