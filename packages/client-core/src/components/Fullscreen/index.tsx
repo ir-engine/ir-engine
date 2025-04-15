@@ -67,6 +67,7 @@ export const Fullscreen = () => {
         position: 'top'
       }}
       icon={Expand06Lg}
+      data-testid={`${fullScreenActive ? 'exit' : 'enter'}-fullscreen-button`}
       onClick={() => setFullscreen(!fullScreenActive)}
     />
   )

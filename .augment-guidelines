@@ -1,0 +1,105 @@
+# Augment Guidelines for IR Engine
+
+This file provides guidelines for AI assistants when working with the IR Engine codebase. It helps ensure that code generation and modifications align with the project's architecture, patterns, and conventions.
+
+## Core Packages Overview
+
+### hyperflux
+- **Purpose**: Reactive state management library for both local and agent-centric networked applications
+- **Key Components**:
+  - `HyperStore`: Central state container
+  - State slices defined with `defineState`
+  - Actions defined with `defineAction`
+  - Reactors for reactive logic operations
+
+### ecs
+- **Purpose**: Entity Component System implementation
+- **Key Components**:
+  - `Engine`: Core ECS engine
+  - Component definitions and functions
+  - System definitions and execution
+  - Entity management
+  - JSON schema utilities
+
+### network
+- **Purpose**: Networking abstractions and APIs
+- **Key Components**:
+  - Network creation and management
+  - Data serialization
+  - WebRTC transport functions
+  - Action systems (incoming/outgoing)
+
+### spatial
+- **Purpose**: Core spatial system
+- **Key Components**:
+  - Transform systems
+  - Physics integration
+  - Camera systems
+  - XR support
+  - Rendering
+  - Spatialized Input
+
+### engine
+- **Purpose**: Main engine module that integrates all other modules
+- **Key Components**:
+  - Asset management
+  - Avatar systems
+  - Scene management
+  - Audio/media systems
+  - Interaction systems
+
+## Code Style and Conventions
+
+### General
+- Use TypeScript for type safety
+- Follow functional programming patterns where possible
+- Prefer immutable data structures
+- Use descriptive variable and function names
+
+### Components and Systems
+- Component names should be PascalCase
+- System names should end with "System" (e.g., `XRSystem`)
+- System groups should end with "SystemGroup" (e.g., `InputSystemGroup`)
+
+### State Management
+- Use hyperflux for state management
+- Define state slices with proper typing
+- Use actions for state modifications
+- Avoid direct state mutations outside of defined actions
+
+### Reactivity
+- Use reactors for reactive logic
+- Keep reactors focused on specific functionality
+- Avoid side effects in reactors when possible
+
+## Common Patterns
+
+### Entity Creation
+- Use entity factory functions for creating entities
+- Initialize all required components
+- Set up proper hierarchies with parent-child relationships
+
+### Networking
+- Use the network module for all networked operations
+- Properly serialize and deserialize data
+- Handle network events appropriately
+
+### Performance Considerations
+- Minimize garbage collection by reusing objects
+- Use efficient data structures (e.g., typed arrays)
+- Batch operations where possible
+- Be mindful of performance in update loops
+
+## Documentation Standards
+
+- Document public APIs with JSDoc comments
+- Include parameter and return type descriptions
+- Provide examples for complex functions
+- Keep documentation up-to-date with code changes
+
+## Testing Guidelines
+
+- Write unit tests for core functionality
+- Test edge cases and error conditions
+- Mock dependencies appropriately
+- Ensure tests are deterministic

@@ -359,6 +359,7 @@ const duplicateObject = (entities: Entity[]) => {
         deserializeComponent(newEntity, ComponentJSONIDMap.get(component.name)!, component.props)
       }
 
+      if (hasComponent(entity, GLTFComponent)) return
       const children = getComponent(entity, EntityTreeComponent).children as Entity[]
       duplicateEntities(children, newEntity)
     })

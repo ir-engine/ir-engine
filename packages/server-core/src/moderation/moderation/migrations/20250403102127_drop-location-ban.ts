@@ -23,19 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+import type { Knex } from 'knex'
 
-import {
-  LocationBanData,
-  LocationBanPatch,
-  LocationBanQuery,
-  LocationBanType
-} from '@ir-engine/common/src/schemas/social/location-ban.schema'
-
-export interface LocationBanParams extends KnexAdapterParams<LocationBanQuery> {}
-
-export class LocationBanService<
-  T = LocationBanType,
-  ServiceParams extends Params = LocationBanParams
-> extends KnexService<LocationBanType, LocationBanData, LocationBanParams, LocationBanPatch> {}
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const tableExists = await knex.schema.hasTable('location-ban')
+  if (tableExists) {
+    await knex.schema.dropTable('location-ban')
+  }
+}
+export async function down(knex: Knex): Promise<void> {}
