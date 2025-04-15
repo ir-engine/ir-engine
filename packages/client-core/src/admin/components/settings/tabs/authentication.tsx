@@ -78,7 +78,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     linkedin: authSetting?.oauth?.linkedin,
     facebook: authSetting?.oauth?.facebook
   })
-  const patchAuthSettings = useMutation(engineSettingPath)
+  const authSettingMutation = useMutation(engineSettingPath)
 
   useEffect(() => {
     if (engineSettingData.status === 'success') {
@@ -123,7 +123,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       const settingInDb = engineSettingData.data.find((el) => el.key === setting.key)
       if (!settingInDb) {
         authOperationPromises.push(
-          patchAuthSettings.create({
+          authSettingMutation.create({
             key: setting.key,
             category: 'authentication',
             dataType: getDataType(setting.value),
@@ -133,7 +133,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         )
       } else if (settingInDb.value != setting.value) {
         authOperationPromises.push(
-          patchAuthSettings.patch(settingInDb.id, {
+          authSettingMutation.patch(settingInDb.id, {
             key: setting.key,
             category: 'authentication',
             dataType: getDataType(setting.value),
