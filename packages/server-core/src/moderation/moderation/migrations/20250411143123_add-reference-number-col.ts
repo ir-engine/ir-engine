@@ -29,10 +29,9 @@ import type { Knex } from 'knex'
 export async function up(knex: Knex): Promise<void> {
   await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  // 1. Create the column first
+  // 1. Add the column as nullable
   await knex.schema.alterTable(moderationPath, (table) => {
-    // Create as auto-incrementing column right away
-    table.increments('referenceNumber', { primaryKey: false })
+    table.integer('referenceNumber').unsigned().nullable()
   })
 
   // 2. Backfill values
@@ -43,10 +42,12 @@ export async function up(knex: Knex): Promise<void> {
       .update({ referenceNumber: i + 1 })
   }
 
-  // 3. Add unique constraint after backfilling
-  await knex.schema.alterTable(moderationPath, (table) => {
-    table.unique(['referenceNumber'])
-  })
+  // 3. Modify the column to be AUTO_INCREMENT and UNIQUE using raw SQL
+  const tableName = moderationPath.replace(/[^a-zA-Z0-9_]/g, '') // sanitize if needed
+  await knex.raw(`
+    ALTER TABLE \`${tableName}\`
+    MODIFY COLUMN referenceNumber INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE
+  `)
 
   await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
