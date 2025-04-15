@@ -506,16 +506,16 @@ const loadAccessor = async (options: GLTFParserOptions, accessorIndex: number) =
   return bufferAttribute
 }
 
-const loadBufferView = async (options: GLTFParserOptions, bufferViewIndex: number) => {
+const loadBufferView = async (options: GLTFParserOptions, bufferViewIndex: number): Promise<ArrayBuffer | null> => {
   const [bufferIndex, callback] = getBufferIndex(options, bufferViewIndex)
 
-  const buffer = await GLTFLoaderFunctions.loadBuffer(options, bufferIndex)
-  if (!buffer) return null
+  const buffer = await getDependency(options, 'buffer', bufferIndex)
+  if (!buffer) return Promise.resolve(null)
 
   return callback(buffer)
 }
 
-const loadBuffer = async (options: GLTFParserOptions, bufferIndex: number) => {
+const loadBuffer = async (options: GLTFParserOptions, bufferIndex: number): Promise<ArrayBuffer | null> => {
   const json = options.document
   const bufferDef = json.buffers![bufferIndex]
 
@@ -1060,7 +1060,7 @@ const loadImageSource = async (options: GLTFParserOptions, sourceIndex: number, 
     if (!isClient) {
       const texture = new Texture()
       texture.userData.mimeType = sourceDef.mimeType ?? getImageURIMimeType(sourceDef.uri)
-      return texture
+      return Promise.resolve(texture)
     }
     // Load binary image data from bufferView, if provided.
 
@@ -1562,6 +1562,22 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
   return nodeEntity
 }
 
+const loadIODependencies = async (options: GLTFParserOptions) => {
+  const gltf = options.document
+
+  const deps = [] as Promise<any>[]
+
+  for (let i = 0, len = gltf.buffers?.length ?? 0; i < len; i++) {
+    deps.push(getDependency(options, 'buffer', i))
+  }
+
+  for (let i = 0, len = gltf.materials?.length ?? 0; i < len; i++) {
+    deps.push(getDependency(options, 'material', i))
+  }
+
+  return Promise.all(deps)
+}
+
 const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const json = options.document
   const rootEntity = options.entity
@@ -1574,6 +1590,8 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   }
 
   DependencyCache.set(options.url, new Map())
+
+  await loadIODependencies(options)
 
   const sceneDef = json.scenes![sceneIndex]
 
@@ -1672,19 +1690,6 @@ export const GLTFLoaderFunctions = {
 
 export const DependencyCache = new Map<string, Map<string, Promise<any>>>()
 
-type DependencyType =
-  | 'scene'
-  | 'node'
-  | 'mesh'
-  | 'accessor'
-  | 'bufferView'
-  | 'buffer'
-  | 'material'
-  | 'texture'
-  | 'skin'
-  | 'animation'
-  | 'camera'
-
 const DependencyMap = {
   scene: loadScene,
   node: loadNode,
@@ -1739,4 +1744,5 @@ export type GLTFParserOptions = {
   manager: LoadingManager
   path: string
   requestHeader: Record<string, string>
+  loadAsLibrary: boolean
 }
