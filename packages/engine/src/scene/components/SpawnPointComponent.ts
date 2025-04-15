@@ -56,7 +56,6 @@ export const SpawnPointComponent = defineComponent({
   }),
 
   reactor: function () {
-    console.log('reactor')
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
@@ -64,8 +63,7 @@ export const SpawnPointComponent = defineComponent({
     const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
 
     const debugGLTF = useGLTFComponent(debugEnabled ? GLTF_PATH : '', entity)
-    console.log({ debugEnabled, debugGLTF })
-
+    
     useEffect(() => {
       if (!debugGLTF || !debugEnabled) return
 
@@ -100,7 +98,6 @@ export const SpawnPointComponent = defineComponent({
       }
     }, [])
 
-    console.log('rendererd')
     return null
   }
 })
