@@ -788,13 +788,13 @@ async function fetchAuthenticationSettings(app: Application) {
     const engineSettingData = await app.service(engineSettingPath).find({
       isInternal: true,
       query: {
-        category: 'authentication',
-        paginate: false
-      }
+        category: 'authentication'
+      },
+      paginate: false
     })
 
     const authenticationSettings = unflattenArrayToObject(
-      engineSettingData.data.map((el) => ({ key: el.key, value: el.value, dataType: el.dataType }))
+      engineSettingData.map((el) => ({ key: el.key, value: el.value, dataType: el.dataType }))
     ) as AuthenticationConfig
 
     return authenticationSettings
