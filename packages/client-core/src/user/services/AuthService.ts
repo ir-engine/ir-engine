@@ -34,7 +34,6 @@ import config, { validateEmail, validatePhoneNumber } from '@ir-engine/common/sr
 import { AuthUserSeed, resolveAuthUser } from '@ir-engine/common/src/interfaces/AuthUser'
 import multiLogger from '@ir-engine/common/src/logger'
 import {
-  AuthStrategiesType,
   IdentityProviderType,
   InstanceID,
   UserApiKeyType,
@@ -63,6 +62,7 @@ import {
   useHookstate
 } from '@ir-engine/hyperflux'
 import { MessageResponse, ParentCommunicator } from '../../common/iframeCOM'
+import { AuthStrategiesType } from '../../common/initialAuthState'
 import { NotificationService } from '../../common/services/NotificationService'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
