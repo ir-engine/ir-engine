@@ -100,7 +100,6 @@ export const updateAppConfig = async (): Promise<void> => {
             appConfig[setting.category][setting.key] = parseValue(setting.value, setting.dataType)
           }
         })
-      console.log(`appConfig` + `@`.repeat(200), appConfig.authentication)
 
       categoriesToUnflatten.forEach((category) => {
         processSettings(dbEngineSettings, category)
@@ -129,8 +128,6 @@ export const updateAppConfig = async (): Promise<void> => {
       appConfig['instance-server-webrtc'].webRTCSettings = unflattenArrayToObject(
         webRtcServerKeyValues
       ) as WebRTCSettings
-
-      console.log(`appConfig` + `*`.repeat(200), appConfig.authentication)
     })
 
     .catch((e) => {
