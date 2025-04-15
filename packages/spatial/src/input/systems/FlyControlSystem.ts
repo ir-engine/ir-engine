@@ -52,15 +52,23 @@ const flyControlQuery = defineQuery([FlyControlComponent, TransformComponent])
 
 const execute = () => {
   for (const entity of flyControlQuery()) {
-    const inputSourceEntities = InputComponent.getInputSourceEntities(entity)
     const buttons = InputComponent.getButtons(entity)
 
     const flyControlComponent = getComponent(entity, FlyControlComponent)
     const transform = getComponent(entity, TransformComponent)
 
     movement.copy(Vector3_Zero)
-    for (const inputSourceEntity of inputSourceEntities) {
-      const pointer = getOptionalComponent(inputSourceEntity, InputPointerComponent)
+
+    if (buttons.PrimaryClick?.dragging) {
+      const pointer = getOptionalComponent(buttons.PrimaryClick.inputSourceEntity, InputPointerComponent)
+      if (pointer) {
+        movement.x += pointer.movement.x
+        movement.y += pointer.movement.y
+      }
+    }
+
+    if (buttons.SecondaryClick?.dragging) {
+      const pointer = getOptionalComponent(buttons.SecondaryClick.inputSourceEntity, InputPointerComponent)
       if (pointer) {
         movement.x += pointer.movement.x
         movement.y += pointer.movement.y
