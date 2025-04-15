@@ -398,7 +398,7 @@ const fileTypeToMime = (fileType) => {
 const loaderIO = ModelTransformLoader().then(({ io }) => io)
 let ktx2Encoder: KTX2Encoder | null = null
 
-const doUpload = async (projectName, fileName, buffer) => {
+const doUpload = async (projectName, fileName, buffer, path?: string) => {
   const file = new File([buffer], fileName)
   const uploadRequestState = getMutableState(UploadRequestState)
   const queue = uploadRequestState.queue.get(NO_PROXY)
@@ -406,7 +406,7 @@ const doUpload = async (projectName, fileName, buffer) => {
   const promise = new Promise((resolve) => {
     resolver = resolve
   })
-  uploadRequestState.queue.set([...queue, { file, projectName, callback: resolver }])
+  uploadRequestState.queue.set([...queue, { file, projectName, callback: resolver, path: path }])
   if (fileName.includes('combined-mesh')) {
     uploadRequestState.isOnPublishing.set(true)
   }
@@ -794,15 +794,21 @@ const writeFiles = async (
       delete resources[uri]
     })
 
+    //just get `/assets/` or `/public/` from the srcBaseURL, needed to override behavior in doUpload which otherwise defaults to assets
+    const regex = /projects\/[^/]+\/[^/]+(\/(?:public|assets)\/)/
+    const match = srcBaseURL.match(regex)
+    const path = match ? match[1] : undefined
+
     await Promise.all(
       Object.entries(resources).map(async ([uri, data]) => {
         const blob = new Blob([data as BlobPart], { type: fileTypeToMime(uri.split('.').pop()!)! })
-        await doUpload(...toProjectAndFileName(uri, srcBaseURL), blob)
+        await doUpload(...toProjectAndFileName(uri, srcBaseURL), blob, path)
       })
     )
     await doUpload(
       ...toProjectAndFileName(finalPath, srcBaseURL),
-      new Blob([JSON.stringify(json)], { type: 'application/json' })
+      new Blob([JSON.stringify(json)], { type: 'application/json' }),
+      path
     )
   }
 
