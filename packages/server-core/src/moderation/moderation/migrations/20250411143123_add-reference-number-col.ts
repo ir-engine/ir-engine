@@ -43,11 +43,9 @@ export async function up(knex: Knex): Promise<void> {
   }
 
   // 3. Modify the column to be AUTO_INCREMENT and UNIQUE using raw SQL
-  const tableName = moderationPath.replace(/[^a-zA-Z0-9_]/g, '') // sanitize if needed
-  await knex.raw(`
-    ALTER TABLE \`${tableName}\`
-    MODIFY COLUMN referenceNumber INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE
-  `)
+  await knex.raw(
+    `ALTER TABLE ${moderationPath} MODIFY COLUMN referenceNumber INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE`
+  )
 
   await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
