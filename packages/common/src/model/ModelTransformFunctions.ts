@@ -80,7 +80,9 @@ import {
   EEResourceIDExtension
 } from '@ir-engine/engine/src/assets/compression/extensions/EE_ResourceIDTransformer'
 import { UploadRequestState } from '@ir-engine/engine/src/assets/state/UploadRequestState'
+import { API } from '../API.ts'
 import { MATCH_ASSET_PROJECT_FILENAME_REGEX, VALID_FILENAME_REGEX } from '../regex'
+import { fileBrowserPath } from '../schemas/media/file-browser.schema.ts'
 import ModelTransformLoader from './ModelTransformLoader'
 /**
  * https://ir.world/projects/ir-engine/default-project/assets/collisioncube-LOD0.glb
@@ -748,13 +750,14 @@ const writeFiles = async (
     )
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
     const folderURL = resourcePath.replace(config.client.fileServer, '')
+    const trimmedFolderURL = folderURL.startsWith('/') ? folderURL.slice(1) : folderURL
 
-    //@todo this might be part of the issue, as it's attempting to upload to a folder that doesn't yet exist in my testing
-    // const fileBrowserService = API.instance.service(fileBrowserPath)
-    // const folderExists = await fileBrowserService.get(folderURL)
-    // if (!folderExists) {
-    //   await fileBrowserService.create(folderURL)
-    // }
+    //create the folder, needed to trim leading '/' from the URL
+    const fileBrowserService = API.instance.service(fileBrowserPath)
+    const folderExists = await fileBrowserService.get(trimmedFolderURL)
+    if (!folderExists) {
+      await fileBrowserService.create(trimmedFolderURL)
+    }
 
     const removeExtension = (uri: string) => {
       const pathSegments = uri.split('/')
@@ -804,8 +807,7 @@ const writeFiles = async (
   }
 
   finalPath = pathJoin(srcBaseURL, finalPath)
-  console.log(`Wrote ${modelFormat} file: ${finalPath}`) //figure out why these files are not writing, maybe not uploading?
-  //https://tsu.atlassian.net/browse/IR-2979
+  console.log(`Wrote ${modelFormat} file: ${finalPath}`)
   return finalPath
 }
 
