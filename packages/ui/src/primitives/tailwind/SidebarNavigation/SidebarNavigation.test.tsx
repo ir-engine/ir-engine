@@ -23,19 +23,25 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+import { cleanup, render, screen } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import {
-  LocationBanData,
-  LocationBanPatch,
-  LocationBanQuery,
-  LocationBanType
-} from '@ir-engine/common/src/schemas/social/location-ban.schema'
+import React from 'react'
+import SidebarNavigation from './index'
 
-export interface LocationBanParams extends KnexAdapterParams<LocationBanQuery> {}
+describe('SidebarNavigation component', () => {
+  beforeEach(() => {
+    render(<SidebarNavigation labels={['']} currentTabIndex={0} onChange={() => {}} />)
+  })
 
-export class LocationBanService<
-  T = LocationBanType,
-  ServiceParams extends Params = LocationBanParams
-> extends KnexService<LocationBanType, LocationBanData, LocationBanParams, LocationBanPatch> {}
+  afterEach(() => {
+    cleanup()
+  })
+
+  it('should render a button with data-testid "sidebar-navigation-button"', () => {
+    screen.debug(document.body, Infinity)
+    const sidebarNavigationButton = screen.getByTestId('sidebar-navigation-button')
+    // @ts-expect-error
+    expect(sidebarNavigationButton).toBeInTheDocument()
+  })
+})

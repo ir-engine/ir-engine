@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import React, { ReactNode } from 'react'
 import Component from './index'
 
 const argTypes = {}
@@ -46,6 +47,30 @@ export const Default = {
     label: 'Source Path',
     containerClassName: 'w-96',
     values: ['test name 1', 'test value 2', 'test 3', 'test 4'],
-    inputLabel: 'Path'
+    inputLabel: 'Path',
+    onChange: () => {}
+  }
+}
+
+export const CustomerRender = {
+  args: {
+    label: 'Source Path',
+    containerClassName: 'w-96',
+    values: [
+      <span className="mr-2 text-sm text-gray-500">test name 1</span>,
+      <span className="mr-2 text-sm text-gray-500">test value 2</span>,
+      <span className="mr-2 text-sm text-gray-500">test 3</span>,
+      <span className="mr-2 text-sm text-gray-500">test 4</span>
+    ],
+    inputLabel: 'Path',
+    onChange: () => {},
+    renderFunction: (value: ReactNode) => {
+      return (
+        <div className="flex w-full items-center justify-between">
+          {value}
+          <button className="rounded bg-blue-500 px-2 py-1 text-white">Click Me</button>
+        </div>
+      )
+    }
   }
 }

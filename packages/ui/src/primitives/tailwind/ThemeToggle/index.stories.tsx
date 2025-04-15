@@ -23,24 +23,34 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import Component from './index'
 
-import {
-  locationBanDataSchema,
-  locationBanPatchSchema,
-  locationBanQuerySchema,
-  locationBanSchema
-} from '@ir-engine/common/src/schemas/social/location-ban.schema'
-
-export default createSwaggerServiceOptions({
-  schemas: {
-    locationBanDataSchema,
-    locationBanPatchSchema,
-    locationBanQuerySchema,
-    locationBanSchema
-  },
-  docs: {
-    description: 'Location ban service description',
-    securities: ['all']
+export default {
+  title: 'Primitives/Tailwind/ThemeToggle',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'ThemeToggle',
+    design: {
+      type: 'figma',
+      url: ''
+    }
   }
-})
+}
+
+export const LightMode = {
+  args: {
+    label: 'Light Mode',
+    value: false,
+    onChange: () => {},
+    disabled: false
+  }
+}
+
+export const DarkMode = {
+  args: {
+    label: 'Dark Mode',
+    value: true,
+    onChange: () => {},
+    disabled: false
+  }
+}

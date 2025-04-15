@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import { SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { NO_PROXY, useHookstate, useState } from '@ir-engine/hyperflux'
-import React, { useCallback, useEffect } from 'react'
+import React, { ReactNode, useCallback, useEffect } from 'react'
 import { DndProvider, useDrag, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { HiMinus, HiPlus } from 'react-icons/hi'
@@ -46,7 +46,8 @@ interface InputElement {
 export interface ArrayInputProps {
   name?: string
   containerClassName?: string
-  values: string[]
+  values: string[] | ReactNode[]
+  renderFunction?: (value: string | ReactNode) => ReactNode
   onChange: (values: string[]) => void
   onSelect?: (index: number) => void
   dropTypes?: string[]
@@ -64,7 +65,8 @@ const DiscardableInput = ({
   selected,
   inputElement,
   moveInputElement,
-  findInputElement
+  findInputElement,
+  renderFunction
 }: {
   value: string
   index: number
@@ -78,6 +80,7 @@ const DiscardableInput = ({
     inputElement: InputElement | undefined
     index: number
   }
+  renderFunction?: (value: string | ReactNode) => ReactNode
 } & Pick<ArrayInputProps, 'dropTypes'>) => {
   const originalIndex = () => {
     if (findInputElement) {
@@ -131,7 +134,12 @@ const DiscardableInput = ({
         <div ref={dragSourceRef} className=" flex h-full w-6 cursor-move items-center text-2xl text-text-inactive">
           <MdDragIndicator />
         </div>
-        <Input fullWidth={true} value={value} onChange={(event) => onChange(event.target.value, index)} />
+        {renderFunction ? (
+          renderFunction(value)
+        ) : (
+          <Input fullWidth={true} value={value} onChange={(event) => onChange(event.target.value, index)} />
+        )}
+
         {SelectIcon && (
           <Button
             className={twMerge(
@@ -156,6 +164,7 @@ export default function ArrayInputGroup({
   name,
   containerClassName,
   values: initialValues,
+  renderFunction,
   onChange,
   dropTypes,
   SelectIcon,
@@ -260,8 +269,8 @@ export default function ArrayInputGroup({
       >
         {inputElements.length > 0 && (
           <DndProvider backend={HTML5Backend} key="InputElementDropArea">
-            <div ref={drop} className="flex grid w-full grid-cols-1 space-y-1 py-1.5 ">
-              {inputElements.value.map((inputElement, idx) => (
+            <div ref={drop} className="grid w-full grid-cols-1 space-y-1 py-1.5 ">
+              {inputElements.get(NO_PROXY).map((inputElement, idx) => (
                 <DiscardableInput
                   key={inputElement.value + idx}
                   value={inputElement.value}
@@ -274,6 +283,7 @@ export default function ArrayInputGroup({
                   inputElement={inputElement}
                   moveInputElement={moveInputElement}
                   findInputElement={findInputElement}
+                  renderFunction={renderFunction}
                 />
               ))}
             </div>

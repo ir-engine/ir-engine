@@ -23,31 +23,34 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { configDefaults, defineConfig } from 'vitest/config'
+import { cleanup, render, screen } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-const reporters = !process.env.CI ? ['basic'] : configDefaults.reporters // Use default report config on CI.
+import React from 'react'
+import BlockSlider from './BlockSlider'
 
-import appRootPath from 'app-root-path'
-import path from 'path'
+describe('BlockSlider component', () => {
+  beforeEach(() => {
+    render(<BlockSlider label="" value={0} onChange={() => {}} />)
+  })
 
-export default defineConfig({
-  test: {
-    setupFiles: [
-      path.resolve(appRootPath.path, 'packages/hyperflux/tests/utils/patchNode.ts'),
-      path.resolve(appRootPath.path, 'packages/editor/vitest.setup.ts')
-    ],
-    environment: 'jsdom',
-    maxConcurrency: 1,
-    passWithNoTests: true,
-    testTimeout: 10000,
-    hookTimeout: 10000,
-    reporters: reporters,
-    slowTestThreshold: 1000,
-    coverage: {
-      enabled: true,
-      reporter: ['lcov'],
-      provider: 'istanbul',
-      include: ['src/**']
-    }
-  }
+  afterEach(() => {
+    cleanup()
+  })
+
+  it('should render an element with data-testid "slider-label"', () => {
+    const sliderLabel = screen.getByTestId('slider-label')
+    // @ts-expect-error
+    expect(sliderLabel).toBeInTheDocument()
+  })
+
+  it('should render an input element with data-testid "slider-text-value-input"', async () => {
+    const sliderTextValueInputs = await screen.findAllByTestId('slider-text-value-input')
+    expect(sliderTextValueInputs.length).toBeGreaterThan(0)
+  })
+
+  it('should render an input element with data-testid "slider-draggable-value-input"', async () => {
+    const sliderDraggableValueInputs = await screen.findAllByTestId('slider-draggable-value-input')
+    expect(sliderDraggableValueInputs.length).toBeGreaterThan(0)
+  })
 })

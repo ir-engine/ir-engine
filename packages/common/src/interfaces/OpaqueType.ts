@@ -23,6 +23,4 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export interface OpaqueType<T extends string> {
-  readonly __opaqueType: T
-}
+export type { OpaqueType } from '@ir-engine/hyperflux'

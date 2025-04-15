@@ -23,31 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { configDefaults, defineConfig } from 'vitest/config'
+import type { Knex } from 'knex'
 
-const reporters = !process.env.CI ? ['basic'] : configDefaults.reporters // Use default report config on CI.
-
-import appRootPath from 'app-root-path'
-import path from 'path'
-
-export default defineConfig({
-  test: {
-    setupFiles: [
-      path.resolve(appRootPath.path, 'packages/hyperflux/tests/utils/patchNode.ts'),
-      path.resolve(appRootPath.path, 'packages/ui/vitest.setup.ts')
-    ],
-    environment: 'jsdom',
-    maxConcurrency: 1,
-    passWithNoTests: true,
-    testTimeout: 10000,
-    hookTimeout: 10000,
-    reporters: reporters,
-    slowTestThreshold: 1000,
-    coverage: {
-      enabled: true,
-      reporter: ['lcov'],
-      provider: 'istanbul',
-      include: ['src/**']
-    }
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const tableExists = await knex.schema.hasTable('location-ban')
+  if (tableExists) {
+    await knex.schema.dropTable('location-ban')
   }
-})
+}
+export async function down(knex: Knex): Promise<void> {}
