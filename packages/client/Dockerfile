@@ -11,7 +11,7 @@ WORKDIR /app
 # to make use of caching, copy only package files and install dependencies
 COPY package*.json /app/
 #RUN  yarn ci --verbose  # we should make lockfile or shrinkwrap then use yarn ci for predicatble builds
-RUN npm install --no-progress --verbose
+RUN --mount=type=cache,target=/root/.npm npm install --no-progress --verbose
 
 # copy then compile the code
 COPY . .
