@@ -112,9 +112,6 @@ export const moderationQueryProperties = Type.Pick(moderationSchema, [
 export const moderationQuerySchema = Type.Intersect(
   [
     querySyntax(moderationQueryProperties, {
-      id: {
-        $like: Type.String()
-      },
       referenceNumber: {
         $like: Type.String()
       }
