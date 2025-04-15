@@ -204,7 +204,6 @@ describe('glTF: Accessor Type', () => {
       expect(result).toBe(Expected)
     })
 
-    /** @todo Should throw. Our implementation does not respect the specification for glTF.accessor.byteOffset */
     it('MUST be a multiple of the size of the component datatype.', async () => {
       const options = mockGLTFOptions(mockGLTFMinimal())
       options.document.accessors![0].bufferView = 0
@@ -516,20 +515,98 @@ describe('glTF: Accessor Type', () => {
       await expect(GLTFLoaderFunctions.loadAccessor(options, 0)).resolves.not.toThrow()
     })
 
-    it.todo('MUST be an array of `number`s', () => {})
-    it.todo('MUST have a length in the range [1-16]', () => {})
-    it.todo('MUST have a length corresponding to the type property:', () => {
-      // TODO: Separate test statement for each
-      // "SCALAR" : 1
-      // "VEC2"   : 2
-      // "VEC3"   : 3
-      // "VEC4"   : 4
-      // "MAT2"   : 4
-      // "MAT3"   : 9
-      // "MAT4"   : 16
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.accessor.min */
+    it.fails('MUST be an array of `number`s', () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      options.document.accessors![0].type = 'VEC3'
+      options.document.accessors![0].max = [1, 2, 3]
+      options.document.accessors![0].min = ['one', 'two', 'three'] as any // Not an array of `number`s
+      expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
     })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.accessor.min */
+    it.fails('MUST have a length in the range [1-16]', () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      options.document.accessors![0].type = 'VEC3'
+      options.document.accessors![0].max = [1, 2, 3]
+      options.document.accessors![0].min = [] // Not in range [1-16]
+      expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.accessor.min */
+    it.fails('MUST have a length of 1 for SCALAR type property', () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      options.document.accessors![0].type = 'SCALAR'
+      options.document.accessors![0].max = [1]
+      options.document.accessors![0].min = [1, 2, 3] // Not length 1
+      expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.accessor.min */
+    it.fails('MUST have a length of 2 for VEC2 type property', () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      options.document.accessors![0].type = 'VEC2'
+      options.document.accessors![0].max = [1]
+      options.document.accessors![0].min = [1] // Not length 2
+      expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.accessor.min */
+    it.fails('MUST have a length of 3 for VEC3 type property', () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      options.document.accessors![0].type = 'VEC3'
+      options.document.accessors![0].max = [1, 2]
+      options.document.accessors![0].min = [1, 2] // Not length 3
+      expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.accessor.min */
+    it.fails('MUST have a length of 4 for VEC4 type property', () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      options.document.accessors![0].type = 'VEC4'
+      options.document.accessors![0].max = [1, 2, 3]
+      options.document.accessors![0].min = [1, 2, 3] // Not length 4
+      expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.accessor.min */
+    it.fails('MUST have a length of 4 for MAT2 type property', () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      options.document.accessors![0].type = 'MAT2'
+      options.document.accessors![0].max = [1, 2, 3]
+      options.document.accessors![0].min = [1, 2, 3] // Not length 4
+      expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.accessor.min */
+    it.fails('MUST have a length of 9 for MAT3 type property', () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      options.document.accessors![0].type = 'MAT3'
+      options.document.accessors![0].max = [1, 2, 3, 4, 5, 6, 7, 8]
+      options.document.accessors![0].min = [1, 2, 3, 4, 5, 6, 7, 8] // Not length 9
+      expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.accessor.min */
+    it.fails('MUST have a length of 16 for MAT4 type property', () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      options.document.accessors![0].type = 'MAT4'
+      options.document.accessors![0].max = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+      options.document.accessors![0].min = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] // Not length 16
+      expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.accessor.min */
+    it.fails('MUST have the same length as the max array.', () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      options.document.accessors![0].type = 'VEC3'
+      options.document.accessors![0].max = [1, 2, 3]
+      options.document.accessors![0].min = [1, 2] // Not same length as max
+      expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo */
     it.todo('MUST treat values as having the same data type as accessor’s componentType.', () => {})
-    it.todo('MUST have the same length as the max array.', () => {})
     it.todo(
       'MUST contain minimum values of accessor data with sparse substitution applied when the accessor is sparse.',
       () => {}
@@ -556,7 +633,12 @@ describe('glTF: Accessor Type', () => {
       await expect(GLTFLoaderFunctions.loadAccessor(options, 0)).resolves.not.toThrow()
     })
 
-    it.todo('MUST be a `string` type when defined', () => {})
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.accessor.name */
+    it.fails('MUST be a `string` type when defined', async () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      options.document.accessors![0].name = 42 as any // Not a string
+      await expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
+    })
   }) //:: name
 
   describe('extensions', () => {
@@ -565,7 +647,12 @@ describe('glTF: Accessor Type', () => {
       await expect(GLTFLoaderFunctions.loadAccessor(options, 0)).resolves.not.toThrow()
     })
 
-    it.todo('MUST be a JSON object when defined', () => {})
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.accessor.extensions */
+    it.fails('MUST be a JSON object when defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      options.document.accessors![0].extensions = 42 as any // Not a JSON object
+      expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
+    })
   }) //:: extensions
 
   describe('extras', () => {
@@ -577,35 +664,133 @@ describe('glTF: Accessor Type', () => {
 }) //:: glTF: Accessor
 
 describe('glTF: Accessor.Sparse Type', () => {
+  /**
+   * @description Creates the most minimal gltf with one sparse accessor possible, as required by spec
+   * */
+  function mockGLTFMinimal() {
+    const result = mockGLTF()
+    result.accessors = [
+      {
+        componentType: 5126, // FLOAT
+        count: 1,
+        type: 'SCALAR',
+        sparse: {
+          count: 1,
+          indices: {
+            bufferView: 0,
+            byteOffset: 0,
+            componentType: 5123 // UNSIGNED_SHORT
+          },
+          values: {
+            bufferView: 0,
+            byteOffset: 0
+          }
+        }
+      }
+    ]
+    return result
+  }
+
   describe('count', () => {
-    it.todo('MUST be defined', () => {})
-    it.todo('MUST have an `integer` value', () => {})
-    it.todo('MUST have a value in range [1..]', () => {})
+    it('MUST be defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      // @ts-expect-error Delete, even if mandatory, to provoke the error
+      delete options.document.accessors![0].sparse.count
+      expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
+    })
+
+    it('MUST have an `integer` value', () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      // @ts-expect-error Force a string into the integer count property
+      options.document.accessors![0].sparse!.count = 'NotAnIntegerCount' // Not an integer
+      expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
+    })
+
+    it('MUST have a value in range [1..]', () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      options.document.accessors![0].sparse!.count = 0 // Not in range [1..]
+      expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
+    })
   }) //:: count
 
   // @note Accessor.Sparse.indices has its own describe for its properties, separate from this one
   describe('indices', () => {
-    it.todo('MUST be defined', () => {})
+    it('MUST be defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      // @ts-expect-error Delete, even if mandatory, to provoke the error
+      delete options.document.accessors![0].sparse.indices
+      expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
+    })
   }) //:: indices
 
   // @note Accessor.Sparse.values has its own describe for its properties, separate from this one
   describe('values', () => {
-    it.todo('MUST be defined', () => {})
+    it('MUST be defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      // @ts-expect-error Delete, even if mandatory, to provoke the error
+      delete options.document.accessors![0].sparse.values
+      expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
+    })
   }) //:: values
 
   describe('extensions', () => {
-    it.todo('MAY be undefined', () => {})
-    it.todo('MUST be a JSON object when defined', () => {})
+    it('MAY be undefined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      expect(GLTFLoaderFunctions.loadAccessor(options, 0)).resolves.not.toThrow()
+    })
+
+    it('MUST be a JSON object when defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      options.document.accessors![0].sparse!.extensions = 42 as any // Not a JSON object
+      expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
+    })
   }) //:: extensions
 
   describe('extras', () => {
-    it.todo('MAY be undefined', () => {})
+    it('MAY be undefined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      expect(GLTFLoaderFunctions.loadAccessor(options, 0)).resolves.not.toThrow()
+    })
   }) //:: extras
 }) //:: glTF: Accessor.Sparse
 
 describe('glTF: Accessor.Sparse.Indices Type', () => {
+  /**
+   * @description Creates the most minimal gltf with one sparse accessor possible, as required by spec
+   * */
+  function mockGLTFMinimal() {
+    const result = mockGLTF()
+    result.accessors = [
+      {
+        componentType: 5126, // FLOAT
+        count: 1,
+        type: 'SCALAR',
+        sparse: {
+          count: 1,
+          indices: {
+            bufferView: 0,
+            byteOffset: 0,
+            componentType: 5123 // UNSIGNED_SHORT
+          },
+          values: {
+            bufferView: 0,
+            byteOffset: 0
+          }
+        }
+      }
+    ]
+    return result
+  }
+
   describe('bufferView', () => {
-    it.todo('MUST be defined', () => {})
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.accessor.sparse.indices.bufferView */
+    it.fails('MUST be defined', async () => {
+      const options = mockGLTFOptions(mockGLTFMinimal())
+      // @ts-expect-error Delete, even if mandatory, to provoke the error
+      delete options.document.accessors![0].sparse.indices.bufferView
+      expect(async () => await GLTFLoaderFunctions.loadAccessor(options, 0)).toThrowError()
+    })
+
     it.todo('MUST have an `integer` value', () => {})
     it.todo('MUST have a value in range [0..]', () => {})
     it.todo('MUST reference a bufferView that has `count` indices', () => {})
