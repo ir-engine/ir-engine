@@ -35,7 +35,6 @@ import {
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import styles from '@ir-engine/editor/src/components/layout/styles.module.scss'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { getTextureAsync } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
@@ -300,7 +299,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         </Button>
       </div>
       {hasComponent(entity, MaterialPlugins[selectedPlugin.value]) && (
-        <div className={styles.contentContainer}>
+        <div className="m-2 w-full rounded-lg border-ui-outline bg-ui-primary p-1 text-text-primary">
           <ParameterInput
             entity={props.materialUUID}
             values={pluginValues.value}
@@ -330,7 +329,7 @@ export const MaterialPropertyTitle = () => {
   const { t } = useTranslation()
 
   return (
-    <div className={styles.dockableTab}>
+    <div>
       <PanelDragContainer>
         <PanelTitle>
           <Tooltip content={t('editor:properties.mesh.materialProperties.info')}>

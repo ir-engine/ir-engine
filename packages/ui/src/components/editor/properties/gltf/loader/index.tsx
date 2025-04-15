@@ -27,7 +27,6 @@ import { ProjectService, ProjectState } from '@ir-engine/client-core/src/common/
 import config from '@ir-engine/common/src/config'
 import { camelCaseToSpacedString } from '@ir-engine/common/src/utils/camelCaseToSpacedString'
 import { hasComponent, useAncestorWithComponents, useChildrenWithComponents, useComponent } from '@ir-engine/ecs'
-import ErrorPopUp from '@ir-engine/editor/src/components/popup/ErrorPopUp'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
@@ -155,7 +154,7 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
           }}
         />
         {errors?.LOADING_ERROR ||
-          (errors?.INVALID_SOURCE && ErrorPopUp({ message: t('editor:properties.model.error-url') }))}
+          (errors?.INVALID_SOURCE && <span className="text-text-error">{t('editor:properties.model.error-url')}</span>)}
       </InputGroup>
 
       <InputGroup name="Camera Occlusion" label={t('editor:properties.model.lbl-cameraOcclusion')}>

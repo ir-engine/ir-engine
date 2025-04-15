@@ -40,7 +40,7 @@ import { PlusCircleSm } from '@ir-engine/ui/src/icons'
 import React, { Suspense, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getComponent } from '../../../../ecs/src/ComponentFunctions'
-import { IconComponent } from '../../components/panels/IconComponent'
+import { IconComponent } from '../../components/IconComponent'
 import ElementList from './elementlist'
 import MaterialEditor from './materialeditor'
 
