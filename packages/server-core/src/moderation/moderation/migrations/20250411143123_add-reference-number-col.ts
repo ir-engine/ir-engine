@@ -42,12 +42,13 @@ export async function up(knex: Knex): Promise<void> {
       .update({ referenceNumber: i + 1 })
   }
 
-  // 3. Modify the column to be AUTO_INCREMENT and UNIQUE using raw SQL
-  const tableName = moderationPath.replace(/[^a-zA-Z0-9_]/g, '') // sanitize if needed
-  await knex.raw(`
-    ALTER TABLE \`${tableName}\`
-    MODIFY COLUMN referenceNumber INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE
-  `)
+  // 3. Modify the column using Knex schema builder
+  await knex.schema.alterTable(moderationPath, (table) => {
+    table.integer('referenceNumber').unsigned().notNullable().alter()
+    table.unique(['referenceNumber'])
+    // Note: Auto-increment needs to be set via raw SQL as Knex doesn't support it for existing columns
+    table.increments('referenceNumber', { primaryKey: false }).alter()
+  })
 
   await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
