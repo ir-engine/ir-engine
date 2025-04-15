@@ -68,7 +68,6 @@ export async function up(knex: Knex): Promise<void> {
           updatedAt: await getDateTimeSql()
         }))
       )
-      console.log(`authenticationSettings`, JSON.stringify(authenticationSettings, null, 2))
 
       await knex.from(engineSettingPath).insert([...authenticationSettings])
     }
