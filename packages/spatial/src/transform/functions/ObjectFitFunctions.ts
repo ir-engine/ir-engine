@@ -45,9 +45,9 @@ const _mat4 = new Matrix4()
 const _vec3 = new Vector3()
 const SCREEN_SIZE = new Vector2()
 
-export type ContentFitType = 'cover' | 'contain' | 'vertical' | 'horizontal'
+export type ContentFitType = 'cover' | 'contain' | 'stretch' | 'vertical' | 'horizontal'
 export const ContentFitTypeSchema = (init?: ContentFitType) =>
-  S.LiteralUnion(['cover', 'contain', 'vertical', 'horizontal'], init ?? 'contain')
+  S.LiteralUnion(['stretch', 'cover', 'contain', 'vertical', 'horizontal'], init ?? 'contain')
 
 // yes, multiple by the same direction twice, as the local coordinate changes with each rotation
 const _handRotation = new Quaternion()
@@ -62,7 +62,11 @@ export const ObjectFitFunctions = {
     containerWidth: number,
     containerHeight: number,
     fit: ContentFitType = 'contain'
-  ) => {
+  ): number => {
+    if (fit === 'stretch') {
+      return 1
+    }
+
     const ratioContent = contentWidth / contentHeight
     const ratioContainer = containerWidth / containerHeight
 
@@ -88,7 +92,7 @@ export const ObjectFitFunctions = {
   computeFrustumSizeAtDistance: (
     distance: number,
     camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent)
-  ) => {
+  ): Vector2 => {
     // const vFOV = camera.fov * DEG2RAD
     camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert()
     const inverseProjection = camera.projectionMatrixInverse
@@ -119,7 +123,7 @@ export const ObjectFitFunctions = {
     horizontalSnap: 'left' | 'right' | 'center' | number, // where number is range from -1 to 1
     verticalSnap: 'top' | 'bottom' | 'center' | number, // where number is range from -1 to 1
     cameraEntity = getState(ReferenceSpaceState).viewerEntity
-  ) => {
+  ): void => {
     const camera = getComponent(cameraEntity, CameraComponent)
     const containerSize = ObjectFitFunctions.computeFrustumSizeAtDistance(distance, camera)
     const screenSize = getComponent(cameraEntity, RendererComponent).renderer!.getSize(SCREEN_SIZE)
@@ -175,7 +179,7 @@ export const ObjectFitFunctions = {
     transform.matrixWorld.decompose(transform.position, transform.rotation, transform.scale)
   },
 
-  attachObjectInFrontOfCamera: (entity: Entity, scale: number, distance: number) => {
+  attachObjectInFrontOfCamera: (entity: Entity, scale: number, distance: number): void => {
     const transform = getComponent(entity, TransformComponent)
     _mat4.makeTranslation(0, 0, -distance).scale(_vec3.set(scale, scale, 1))
     transform.matrixWorld.multiplyMatrices(
@@ -185,7 +189,7 @@ export const ObjectFitFunctions = {
     transform.matrixWorld.decompose(transform.position, transform.rotation, transform.scale)
   },
 
-  lookAtCameraFromPosition: (container: WebContainer3D, position: Vector3) => {
+  lookAtCameraFromPosition: (container: WebContainer3D, position: Vector3): void => {
     const camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent)
     container.scale.setScalar(Math.max(1, camera.position.distanceTo(position) / 3))
     container.position.copy(position)
