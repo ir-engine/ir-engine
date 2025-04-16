@@ -138,7 +138,7 @@ export const TransformGizmoControlComponent = defineComponent({
       )
 
       setComponent(gizmoPlaneEntity, MeshComponent, gizmoPlane)
-      setComponent(gizmoPlaneEntity, TransformGizmoTagComponent)
+      //setComponent(gizmoPlaneEntity, TransformGizmoTagComponent) remove the gizmo plane from being considered in theheuristic , we use TransformGizmoTagComponent query to collect gizmo entities for heuristic
       ObjectLayerMaskComponent.setLayer(gizmoPlaneEntity, ObjectLayers.TransformGizmo)
 
       const pivotEntity = createEntity()

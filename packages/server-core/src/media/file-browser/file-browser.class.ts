@@ -53,7 +53,7 @@ import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import verifyProjectPermission from '../../hooks/verify-project-permission'
 import { getContentType } from '../../util/fileUtils'
-import { getIncrementalName } from '../FileUtil'
+import { getIncrementalName, isValidFileType } from '../FileUtil'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import { StorageObjectInterface, StorageProviderInterface } from '../storageprovider/storageprovider.interface'
 import { uploadStaticResource } from './file-helper'
@@ -466,6 +466,13 @@ export class FileBrowserService
       try {
         const response = await fetch(url)
         const arr = await response.arrayBuffer()
+
+        // Get the MIME type from the headers
+        const responseType = response.headers.get('Content-Type')
+        if (responseType !== null) {
+          data.contentType = responseType
+        }
+
         data.body = Buffer.from(arr)
       } catch (error) {
         throw new Error('Failure in fetching source URL: ' + url + 'Error: ' + error)
@@ -479,6 +486,9 @@ export class FileBrowserService
 
     /** @todo should we allow user-specific content types? Or standardize on the backend? */
     const contentType = data.contentType ?? getContentType(key)
+    if (!isValidFileType(contentType, key)) {
+      throw new BadRequest('Unsupported file type')
+    }
 
     const existingResourceQuery = (await this.app.service(staticResourcePath).find({
       query: { key }

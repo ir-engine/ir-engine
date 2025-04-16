@@ -41,6 +41,7 @@ import {
 import {
   defineComponent,
   getOptionalComponent,
+  getOptionalMutableComponent,
   hasComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -301,9 +302,13 @@ export const InteractableComponent = defineComponent({
     useEffect(() => {
       const simulationEntity = getSimulationCounterpart(entity)
       if (!isEditing.value) {
-        const uiEntity = addInteractableUI(simulationEntity)
+        addInteractableUI(simulationEntity)
         return () => {
+          const interactableComponent = getOptionalMutableComponent(entity, InteractableComponent)
+          if (!interactableComponent) return
+          const uiEntity = interactableComponent.uiEntity.value
           if (uiEntity) {
+            interactableComponent.uiEntity.set(UndefinedEntity)
             removeEntity(uiEntity)
           }
         }
