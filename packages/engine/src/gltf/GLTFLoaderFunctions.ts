@@ -1563,18 +1563,6 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
   return nodeEntity
 }
 
-const loadMaterialGLTF = async (options: GLTFParserOptions) => {
-  if (Array.isArray(options.document)) {
-    options.document = options.document[0]
-  }
-  DependencyCache.set(options.url, new Map())
-  for (const mat of options.document.materials!) {
-    const materialIndex = options.document.materials!.indexOf(mat)
-    await loadMaterial(options, materialIndex)
-  }
-  getComponent(options.entity, GLTFComponent).body = null
-}
-
 const setAnimationClips = (rootEntity: Entity, animationClips: AnimationClip[]) => {
   if (animationClips.length > 0) {
     // obj3d should always come from the simulation layer
@@ -1599,6 +1587,12 @@ const loadLibraryDependencies = async (options: GLTFParserOptions, dependencies:
 
   const deps = [] as Promise<any>[]
 
+  if (dependencies.has('texture')) {
+    for (let i = 0, len = gltf.textures?.length ?? 0; i < len; i++) {
+      deps.push(getDependency(options, 'texture', i))
+    }
+  }
+
   if (dependencies.has('material')) {
     for (let i = 0, len = gltf.materials?.length ?? 0; i < len; i++) {
       deps.push(getDependency(options, 'material', i))
@@ -1612,12 +1606,6 @@ const loadLibraryDependencies = async (options: GLTFParserOptions, dependencies:
     }
     const animationClips = await Promise.all(animationDeps)
     setAnimationClips(options.entity, animationClips)
-  }
-
-  if (dependencies.has('texture')) {
-    for (let i = 0, len = gltf.textures?.length ?? 0; i < len; i++) {
-      deps.push(getDependency(options, 'texture', i))
-    }
   }
 
   return Promise.all(deps)
@@ -1649,6 +1637,25 @@ const loadLibrary = async (
   getComponent(options.entity, GLTFComponent).body = null
 }
 
+const loadGLTFDependencies = async (options: GLTFParserOptions) => {
+  const gltf = options.document
+  const deps = [] as Promise<any>[]
+
+  for (let i = 0, len = gltf.textures?.length ?? 0; i < len; i++) {
+    deps.push(getDependency(options, 'texture', i))
+  }
+
+  for (let i = 0, len = gltf.materials?.length ?? 0; i < len; i++) {
+    deps.push(getDependency(options, 'material', i))
+  }
+
+  for (let i = 0, len = gltf.animations?.length ?? 0; i < len; i++) {
+    deps.push(getDependency(options, 'animation', i))
+  }
+
+  return Promise.all(deps)
+}
+
 const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const json = options.document
   const rootEntity = options.entity
@@ -1657,6 +1664,8 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   loadDeltas(json)
 
   DependencyCache.set(options.url, new Map())
+
+  if (options.preload) await loadGLTFDependencies(options)
 
   const sceneDef = json.scenes![sceneIndex]
   const nodeIds = sceneDef.nodes || []
@@ -1734,7 +1743,6 @@ export const GLTFLoaderFunctions = {
   loadNode,
   loadScene,
   loadLibrary,
-  loadMaterialGLTF,
   unloadScene
 }
 
@@ -1796,4 +1804,5 @@ export type GLTFParserOptions = {
   manager: LoadingManager
   path: string
   requestHeader: Record<string, string>
+  preload: boolean
 }

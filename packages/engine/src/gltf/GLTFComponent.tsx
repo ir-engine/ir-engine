@@ -261,19 +261,7 @@ export const GLTFComponentReactor = () => {
       }
     }
 
-    const isMaterialGLTF = GLTFComponent.isMaterialGLTF(gltfComponent.src)
-    if (gltfComponent.library || isMaterialGLTF) {
-      let deps
-      if (isMaterialGLTF) deps = ['material']
-
-      GLTFLoaderFunctions.loadLibrary(options, deps)
-        .then(onLoad)
-        .finally(() => {
-          getMutableComponent(entity, GLTFComponent)?.dependencies.set({ componentDependencies: {} })
-        })
-    } else {
-      GLTFLoaderFunctions.loadScene(options, sceneIndex).then(onLoad)
-    }
+    GLTFLoaderFunctions.loadScene(options, sceneIndex).then(onLoad)
 
     return () => {
       documentLoaded.set(false)
@@ -622,6 +610,7 @@ export const getGLTFOptions = (entity: Entity): GLTFParserOptions => {
     path: LoaderUtils.extractUrlBase(gltfComponent.src),
     body: gltfComponent.body,
     requestHeader: {},
-    manager
+    manager,
+    preload: true
   }
 }
