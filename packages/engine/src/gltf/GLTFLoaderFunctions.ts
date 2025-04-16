@@ -1562,6 +1562,7 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
 
   return nodeEntity
 }
+
 const loadMaterialGLTF = async (options: GLTFParserOptions) => {
   if (Array.isArray(options.document)) {
     options.document = options.document[0]
@@ -1572,6 +1573,25 @@ const loadMaterialGLTF = async (options: GLTFParserOptions) => {
     await loadMaterial(options, materialIndex)
   }
   getComponent(options.entity, GLTFComponent).body = null
+}
+
+const setAnimationClips = (rootEntity: Entity, animationClips: AnimationClip[]) => {
+  if (animationClips.length > 0) {
+    // obj3d should always come from the simulation layer
+    const obj3d = getComponent(
+      LayerFunctions.getLayerRelationsEntities(rootEntity)?.[Layers.Simulation]?.[1] ?? rootEntity,
+      ObjectComponent
+    )
+    obj3d.animations = animationClips
+    if (!hasComponent(rootEntity, AnimationComponent)) {
+      setComponent(rootEntity, AnimationComponent, {
+        mixer: new AnimationMixer(obj3d),
+        animations: obj3d.animations
+      })
+    } else {
+      getMutableComponent(rootEntity, AnimationComponent).animations.merge(obj3d.animations)
+    }
+  }
 }
 
 const loadLibraryDependencies = async (options: GLTFParserOptions, dependencies: Set<DependencyKey>) => {
@@ -1586,9 +1606,12 @@ const loadLibraryDependencies = async (options: GLTFParserOptions, dependencies:
   }
 
   if (dependencies.has('animation')) {
+    const animationDeps = [] as Promise<AnimationClip>[]
     for (let i = 0, len = gltf.animations?.length ?? 0; i < len; i++) {
-      deps.push(getDependency(options, 'animation', i))
+      animationDeps.push(getDependency(options, 'animation', i))
     }
+    const animationClips = await Promise.all(animationDeps)
+    setAnimationClips(options.entity, animationClips)
   }
 
   if (dependencies.has('texture')) {
@@ -1673,23 +1696,7 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   }
 
   const animationClips = await Promise.all(animationPromises)
-
-  if (animationClips.length > 0) {
-    // obj3d should always come from the simulation layer
-    const obj3d = getComponent(
-      LayerFunctions.getLayerRelationsEntities(rootEntity)?.[Layers.Simulation]?.[1] ?? rootEntity,
-      ObjectComponent
-    )
-    obj3d.animations = animationClips
-    if (!hasComponent(rootEntity, AnimationComponent)) {
-      setComponent(rootEntity, AnimationComponent, {
-        mixer: new AnimationMixer(obj3d),
-        animations: obj3d.animations
-      })
-    } else {
-      getMutableComponent(rootEntity, AnimationComponent).animations.merge(obj3d.animations)
-    }
-  }
+  setAnimationClips(rootEntity, animationClips)
 
   // dereference body non-reactively if it exists
   getComponent(options.entity, GLTFComponent).body = null
@@ -1727,8 +1734,8 @@ export const GLTFLoaderFunctions = {
   loadNode,
   loadScene,
   loadLibrary,
-  unloadScene,
-  loadMaterialGLTF
+  loadMaterialGLTF,
+  unloadScene
 }
 
 export const DependencyCache = new Map<string, Map<string, Promise<any>>>()

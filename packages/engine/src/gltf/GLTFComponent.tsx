@@ -62,6 +62,7 @@ import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/compon
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { LoaderUtils } from 'three'
+import { AssetType, FileToAssetType } from '../assets/constants/AssetType'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
@@ -139,6 +140,12 @@ export const GLTFComponent = defineComponent({
   },
   removeHashes: <T extends EntityUUID | SourceID | NodeID>(url: T) => {
     return url.replaceAll(/\?hash=[^-]+/g, '') as T
+  },
+  isMaterialGLTF: (url: string) => {
+    return FileToAssetType(url) === AssetType.Material
+  },
+  isLookdevGLTF: (url: string) => {
+    return FileToAssetType(url) === AssetType.Lookdev
   }
 })
 
@@ -254,8 +261,12 @@ export const GLTFComponentReactor = () => {
       }
     }
 
-    if (gltfComponent.library) {
-      GLTFLoaderFunctions.loadLibrary(options)
+    const isMaterialGLTF = GLTFComponent.isMaterialGLTF(gltfComponent.src)
+    if (gltfComponent.library || isMaterialGLTF) {
+      let deps
+      if (isMaterialGLTF) deps = ['material']
+
+      GLTFLoaderFunctions.loadLibrary(options, deps)
         .then(onLoad)
         .finally(() => {
           getMutableComponent(entity, GLTFComponent)?.dependencies.set({ componentDependencies: {} })
