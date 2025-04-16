@@ -73,7 +73,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
   const targets = useHookstate<OptionsType>([
     { label: 'Self', value: getComponent(props.entity, NodeIDComponent), callbacks: [] }
   ])
-  const callbackQuery = useQuery([CallbackComponent])
+  const callbackQuery = useQuery([CallbackComponent, NodeIDComponent], Layers.Authoring)
 
   const interactableComponent = useComponent(props.entity, InteractableComponent)
 

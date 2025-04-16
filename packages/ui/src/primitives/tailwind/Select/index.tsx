@@ -434,53 +434,55 @@ const Select = ({
       >
         {filteredOptions.length > 0 &&
           !disabled &&
-          filteredOptions.map(({ value: currentValue, ...optionProps }, index) => (
-            <DropdownItem
-              key={index}
-              {...optionProps}
-              selected={localValue.value === currentValue}
-              active={index === activeIndex}
-              onMouseDown={(e) => {
-                e.stopPropagation()
-                e.preventDefault()
-                closePopup()
-                localValue.set(currentValue)
-                setSelectedOptionIndex(index)
-                setDisplayText(optionProps.label)
-                onChange(currentValue)
-              }}
-              onMouseEnter={() => {
-                setActiveIndex(index)
-              }}
-              onMouseLeave={() => {
-                setActiveIndex(-1)
-              }}
-              onTouchMove={() => setTouchedMoved(true)}
-              onTouchEnd={() => {
-                if (!touchMoved) {
+          filteredOptions
+            .filter((option) => Boolean(option))
+            .map(({ value: currentValue, ...optionProps }, index) => (
+              <DropdownItem
+                key={index}
+                {...optionProps}
+                selected={localValue.value === currentValue}
+                active={index === activeIndex}
+                onMouseDown={(e) => {
+                  e.stopPropagation()
+                  e.preventDefault()
                   closePopup()
                   localValue.set(currentValue)
                   setSelectedOptionIndex(index)
                   setDisplayText(optionProps.label)
                   onChange(currentValue)
-                }
-                setTouchedMoved(false)
-              }}
-              onPointerUp={(e) => {
-                e.stopPropagation()
-                e.preventDefault()
-              }}
-              onKeyUp={(e) => {
-                if (e.code === 'Enter') {
-                  closePopup()
-                  localValue.set(currentValue)
-                  setSelectedOptionIndex(index)
-                  setDisplayText(optionProps.label)
-                  onChange(currentValue)
-                }
-              }}
-            />
-          ))}
+                }}
+                onMouseEnter={() => {
+                  setActiveIndex(index)
+                }}
+                onMouseLeave={() => {
+                  setActiveIndex(-1)
+                }}
+                onTouchMove={() => setTouchedMoved(true)}
+                onTouchEnd={() => {
+                  if (!touchMoved) {
+                    closePopup()
+                    localValue.set(currentValue)
+                    setSelectedOptionIndex(index)
+                    setDisplayText(optionProps.label)
+                    onChange(currentValue)
+                  }
+                  setTouchedMoved(false)
+                }}
+                onPointerUp={(e) => {
+                  e.stopPropagation()
+                  e.preventDefault()
+                }}
+                onKeyUp={(e) => {
+                  if (e.code === 'Enter') {
+                    closePopup()
+                    localValue.set(currentValue)
+                    setSelectedOptionIndex(index)
+                    setDisplayText(optionProps.label)
+                    onChange(currentValue)
+                  }
+                }}
+              />
+            ))}
 
         {filteredOptions.length === 0 && !disabled && (
           <div className="flex h-12 items-center justify-center bg-ui-background text-text-secondary">
