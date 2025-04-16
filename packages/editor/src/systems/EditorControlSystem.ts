@@ -73,7 +73,7 @@ import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunction
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { InputButtonBindings } from '@ir-engine/spatial/src/input/components/InputComponent'
-import { KeyboardButton, MouseButton } from '@ir-engine/spatial/src/input/state/ButtonState'
+import { KeyboardButton } from '@ir-engine/spatial/src/input/state/ButtonState'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem.tsx'
 import { computeWorldBounds } from '@ir-engine/spatial/src/transform/functions/BoundingBoxFunctions.ts'
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent.ts'
@@ -103,7 +103,6 @@ export const EditorButtonBindings = {
   DecreaseGridHeight: [KeyboardButton.Minus],
   CancelSelection: [KeyboardButton.Escape],
   DeleteSelection: [KeyboardButton.Delete],
-  FlyControlMode: [MouseButton.SecondaryClick],
   FocusCamera: [KeyboardButton.KeyF]
 } satisfies InputButtonBindings
 
@@ -319,8 +318,8 @@ const execute = () => {
   const viewerEntity = getState(ReferenceSpaceState).viewerEntity
   const buttons = InputComponent.getButtons(viewerEntity, EditorButtonBindings)
 
-  if (buttons.FlyControlMode?.down) onCameraFlyControlModeBegin()
-  if (buttons.FlyControlMode?.up) onCameraOrbitControlBegin()
+  if (buttons.SecondaryClick?.down) onCameraFlyControlModeBegin()
+  if (buttons.SecondaryClick?.up) onCameraOrbitControlBegin()
   if (buttons.FocusCamera?.down) onFocusCamera(viewerEntity)
 
   if (hasComponent(viewerEntity, FlyControlComponent)) return

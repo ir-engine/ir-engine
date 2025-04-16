@@ -48,10 +48,10 @@ import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { TransformComponent, TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
-import { DefaultButtonBindings, InputComponent } from '../components/InputComponent'
+import { InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
-import { ButtonState, ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
+import { ButtonState, ButtonStateMap, createInitialButtonState } from '../state/ButtonState'
 import { findProximity, findRaycastedInput, IntersectionData } from './ClientInputHeuristics'
 
 /** radian threshold for rotating state*/
@@ -146,25 +146,18 @@ export function updatePointerDragging(pointerEntity: Entity, event: PointerEvent
   const inputSourceComponent = getOptionalComponent(pointerEntity, InputSourceComponent)
   if (!inputSourceComponent) return
 
-  const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonBindings>
-
-  let button = MouseButton.PrimaryClick
-  if (event.type === 'pointermove') {
-    if ((event as MouseEvent).button === 1) button = MouseButton.AuxiliaryClick
-    else if ((event as MouseEvent).button === 2) button = MouseButton.SecondaryClick
-  }
-  const btn = state[button]
-  if (!btn || btn.dragging) return
-
   const pointer = getOptionalComponent(pointerEntity, InputPointerComponent)
 
-  if (!pointer || !btn.pressed || !btn.downPointerPosition) return
+  if (!pointer) return
 
-  //if not yet dragging, compare distance to drag threshold and begin if appropriate
-  const squaredDistance = btn.downPointerPosition.distanceToSquared(pointer.position)
-
-  if (squaredDistance > DRAGGING_THRESHOLD) {
-    btn.dragging = true
+  for (const key of Object.keys(inputSourceComponent.buttons)) {
+    const btn = inputSourceComponent.buttons[key] as ButtonState
+    if (btn.pressed && btn.downPointerPosition && !btn.dragging) {
+      const squaredDistance = btn.downPointerPosition.distanceToSquared(pointer.position)
+      if (squaredDistance > DRAGGING_THRESHOLD) {
+        btn.dragging = true
+      }
+    }
   }
 }
 

@@ -123,6 +123,6 @@ const execute = () => {
 
 export const FlyControlSystem = defineSystem({
   uuid: 'ee.engine.FlyControlSystem',
-  insert: { with: InputSystemGroup },
+  insert: { after: InputSystemGroup },
   execute
 })
