@@ -54,7 +54,7 @@ import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/M
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { getState, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
@@ -71,6 +71,7 @@ import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 import { HiOutlineInformationCircle } from 'react-icons/hi2'
 import { Quaternion, Vector3 } from 'three'
 import { NotificationService } from '../../../common/services/NotificationService'
+import { deleteScene } from '../../../world/SceneAPI'
 import CompressedPublishConfirmation from './CompressedPublishConfirmation'
 
 function formatPublishedDate(isoString) {
@@ -124,7 +125,6 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
   const { t } = useTranslation()
   const compressionLoading = useHookstate(false)
   const locationID = useHookstate(props.location?.id || null)
-
   const params = {
     query: {
       id: locationID.value,
@@ -179,6 +179,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
     }
   })
 
+  console.log('scenes', scenes)
   const scenesOptions = useMemo(() => {
     if (scenes.status === 'pending') {
       return [{ value: '', label: t('common:select.fetching') }]
@@ -230,12 +231,9 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
       //save current scene
       await saveSceneGLTF(sceneAssetID!, projectName!, sceneName!, abortController.signal)
       // save as duplicate scene
+      var saveScenePath: string | undefined
       if (sceneName && projectName) {
-        const saveScenePath = getState(EditorState)
-          .scenePath!.split('/')
-          .slice(0, -1)
-          .join('/')
-          .replace('scenes', 'publish')
+        saveScenePath = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/').replace('scenes', 'publish')
 
         const scenename = getState(EditorState).sceneName?.split('.').shift()
         //add all mesh into one entity
@@ -385,9 +383,21 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
         ModalState.closeModal()
       }
     } catch (error) {
+      ModalState.closeModal()
       ModalState.openModal(
         <ErrorDialog title={t('editor:savingError')} description={error?.message || t('editor:savingErrorMsg')} />
       )
+
+      getMutableState(EditorState).merge({
+        scenePath: scenePath,
+        sceneName: sceneName,
+        sceneAssetID: sceneAssetID
+      })
+      if (saveScenePath && sceneName) {
+        deleteScene(
+          `${saveScenePath}/${sceneName.replace('.gltf', '')}/${sceneName.replace('.gltf', '-compressed.gltf')}`
+        )
+      }
     }
   }
 
