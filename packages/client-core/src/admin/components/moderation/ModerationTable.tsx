@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import DataTable, { ITableHeadCell } from '@ir-engine/client-core/src/admin/common/Table'
 import { useFind, useSearch } from '@ir-engine/common'
-import { moderationPath, ModerationType, userPath } from '@ir-engine/common/src/schema.type.module'
+import { moderationPath, ModerationType } from '@ir-engine/common/src/schema.type.module'
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { Select } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -71,16 +71,6 @@ export default function ModerationTable({ search }) {
   const handleReportResolve = (report: ModerationType) => {
     setSelectedReport(userReportsQuery.data[userReportsQuery.data.findIndex((r) => r.id === report.id) + 1])
   }
-
-  const userIds = useFind(userPath, {
-    query: {
-      name: {
-        $like: `%${search}%`
-      },
-      $select: ['id'],
-      $limit: 12
-    }
-  }).data.map((user) => user.id)
 
   const userReportsQuery =
     statusFilter == ModerationFilterStatus.All
