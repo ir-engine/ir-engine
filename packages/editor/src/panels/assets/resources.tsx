@@ -410,8 +410,19 @@ function ResourceItems() {
   }
 
   const thumbnailJobState = useMutableState(FileThumbnailJobState)
+  const debouncedRefetchResourcesRef = useRef<ReturnType<typeof setTimeout>>()
+
   useEffect(() => {
-    refetchResources(true)
+    clearTimeout(debouncedRefetchResourcesRef.current)
+  }, [])
+
+  useEffect(() => {
+    if (debouncedRefetchResourcesRef) {
+      clearTimeout(debouncedRefetchResourcesRef.current)
+    }
+    debouncedRefetchResourcesRef.current = setTimeout(() => {
+      refetchResources()
+    }, 500)
   }, [thumbnailJobState.jobs.length])
 
   useEffect(() => {
