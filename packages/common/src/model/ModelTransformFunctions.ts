@@ -714,9 +714,13 @@ const writeFiles = async (
     finalPath += `.${modelFormat}`
   }
 
+  const regex = /projects\/[^/]+\/[^/]+(\/(?:public|assets)\/)/
+  const match = regex.exec(srcBaseURL)
+  const path = match ? match[1] : undefined
+
   if (['glb', 'vrm'].includes(modelFormat)) {
     const data = await io.writeBinary(document)
-    await doUpload(...toProjectAndFileName(finalPath, srcBaseURL), data)
+    await doUpload(...toProjectAndFileName(finalPath, srcBaseURL), data, path)
   } else if (modelFormat === 'gltf') {
     await Promise.all(
       [root.listBuffers(), root.listMeshes(), root.listTextures()].map(
@@ -793,11 +797,6 @@ const writeFiles = async (
       resources[localPath] = resources[uri]
       delete resources[uri]
     })
-
-    //just get `/assets/` or `/public/` from the srcBaseURL, needed to override behavior in doUpload which otherwise defaults to assets
-    const regex = /projects\/[^/]+\/[^/]+(\/(?:public|assets)\/)/
-    const match = srcBaseURL.match(regex)
-    const path = match ? match[1] : undefined
 
     await Promise.all(
       Object.entries(resources).map(async ([uri, data]) => {
