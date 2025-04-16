@@ -114,9 +114,6 @@ export const moderationQuerySchema = Type.Intersect(
     querySyntax(moderationQueryProperties, {
       referenceNumber: {
         $like: Type.String()
-      },
-      reportedUserId: {
-        $in: Type.Array(TypedString<string>())
       }
     }),
     // Add additional query properties here
