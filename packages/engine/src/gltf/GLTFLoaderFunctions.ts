@@ -1562,20 +1562,56 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
   return nodeEntity
 }
 
-const loadIODependencies = async (options: GLTFParserOptions) => {
+const loadLibraryDependencies = async (options: GLTFParserOptions, dependencies: Set<DependencyKey>) => {
   const gltf = options.document
 
   const deps = [] as Promise<any>[]
 
-  for (let i = 0, len = gltf.buffers?.length ?? 0; i < len; i++) {
-    deps.push(getDependency(options, 'buffer', i))
+  if (dependencies.has('material')) {
+    for (let i = 0, len = gltf.materials?.length ?? 0; i < len; i++) {
+      deps.push(getDependency(options, 'material', i))
+    }
   }
 
-  for (let i = 0, len = gltf.materials?.length ?? 0; i < len; i++) {
-    deps.push(getDependency(options, 'material', i))
+  if (dependencies.has('animation')) {
+    for (let i = 0, len = gltf.animations?.length ?? 0; i < len; i++) {
+      deps.push(getDependency(options, 'animation', i))
+    }
+  }
+
+  if (dependencies.has('texture')) {
+    for (let i = 0, len = gltf.textures?.length ?? 0; i < len; i++) {
+      deps.push(getDependency(options, 'texture', i))
+    }
   }
 
   return Promise.all(deps)
+}
+
+const loadDeltas = (document: GLTF.IGLTF) => {
+  const deltas = document.extensions?.[SCENE_DELTA_EXTENSION_NAME] as SceneDeltaRegistry | null
+  if (deltas) {
+    const parsedDeltas = parseStorageProviderURLs(deltas)
+    getMutableState(SceneDeltaState).merge(parsedDeltas)
+  }
+}
+
+const loadLibrary = async (
+  options: GLTFParserOptions,
+  dependencies: DependencyKey[] = ['material', 'animation', 'texture']
+) => {
+  const json = options.document
+
+  // load deltas into state before anything else
+  loadDeltas(json)
+
+  DependencyCache.set(options.url, new Map())
+
+  const depSet = new Set(dependencies)
+  await loadLibraryDependencies(options, depSet)
+
+  // dereference body non-reactively if it exists
+  getComponent(options.entity, GLTFComponent).body = null
 }
 
 const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
@@ -1583,18 +1619,11 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const rootEntity = options.entity
 
   // load deltas into state before anything else
-  const deltas = json.extensions?.[SCENE_DELTA_EXTENSION_NAME] as SceneDeltaRegistry | null
-  if (deltas) {
-    const parsedDeltas = parseStorageProviderURLs(deltas)
-    getMutableState(SceneDeltaState).merge(parsedDeltas)
-  }
+  loadDeltas(json)
 
   DependencyCache.set(options.url, new Map())
 
-  await loadIODependencies(options)
-
   const sceneDef = json.scenes![sceneIndex]
-
   const nodeIds = sceneDef.nodes || []
 
   const pending = [] as Promise<Entity>[]
@@ -1685,6 +1714,7 @@ export const GLTFLoaderFunctions = {
   loadMesh,
   loadNode,
   loadScene,
+  loadLibrary,
   unloadScene
 }
 
@@ -1704,11 +1734,13 @@ const DependencyMap = {
   camera: loadCamera
 }
 
+type DependencyKey = keyof typeof DependencyMap
+
 type ExcludeFirst<T extends any[]> = T extends [infer First, ...infer Rest extends any[]] ? Rest : never
 
 /** @todo integrate this with resource tracking or something */
 export const getDependency = <
-  Type extends keyof typeof DependencyMap,
+  Type extends DependencyKey,
   Func extends (typeof DependencyMap)[Type],
   Args extends ExcludeFirst<[...Parameters<Func>]>
 >(
@@ -1744,5 +1776,4 @@ export type GLTFParserOptions = {
   manager: LoadingManager
   path: string
   requestHeader: Record<string, string>
-  loadAsLibrary: boolean
 }

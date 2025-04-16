@@ -82,6 +82,8 @@ export const GLTFComponent = defineComponent({
 
   schema: S.Object({
     src: S.String(''),
+    library: S.Bool(false),
+
     /** @todo move this to it's own component */
     cameraOcclusion: S.Bool(false),
 
@@ -167,9 +169,6 @@ const buildComponentDependencies = (entity: Entity, json: GLTF.IGLTF) => {
     componentDependencies: {}
   } as ComponentDependencies
 
-  const meshes = new Set<number>()
-  const materials = new Set<number>()
-
   if (!json.nodes) return dependencies
   for (const node of json.nodes) {
     if (node.extensions && node.extensions[NodeIDComponent.jsonID]) {
@@ -184,14 +183,6 @@ const buildComponentDependencies = (entity: Entity, json: GLTF.IGLTF) => {
           dependencies.componentDependencies[uuid].push(ComponentJSONIDMap.get(extension)!)
         }
       }
-    }
-
-    if (node.mesh !== undefined) {
-      meshes.add(node.mesh)
-      const mesh = json.meshes![node.mesh]
-      mesh.primitives.forEach((prim) => {
-        if (prim.material !== undefined) materials.add(prim.material)
-      })
     }
   }
 
@@ -251,7 +242,7 @@ export const GLTFComponentReactor = () => {
       for (const entity of loadedEntities) removeEntity(entity)
     }
 
-    GLTFLoaderFunctions.loadScene(options, sceneIndex).then(() => {
+    const onLoad = () => {
       documentLoaded.set(true)
 
       // force transform update for all entities in the model.
@@ -261,7 +252,18 @@ export const GLTFComponentReactor = () => {
       if (aborted) {
         unloadEntities()
       }
-    })
+    }
+
+    if (gltfComponent.library) {
+      GLTFLoaderFunctions.loadLibrary(options)
+        .then(onLoad)
+        .finally(() => {
+          getMutableComponent(entity, GLTFComponent)?.dependencies.set({ componentDependencies: {} })
+        })
+    } else {
+      GLTFLoaderFunctions.loadScene(options, sceneIndex).then(onLoad)
+    }
+
     return () => {
       documentLoaded.set(false)
       GLTFLoaderFunctions.unloadScene(url, entity)
@@ -609,7 +611,6 @@ export const getGLTFOptions = (entity: Entity): GLTFParserOptions => {
     path: LoaderUtils.extractUrlBase(gltfComponent.src),
     body: gltfComponent.body,
     requestHeader: {},
-    manager,
-    loadAsLibrary: false
+    manager
   }
 }
