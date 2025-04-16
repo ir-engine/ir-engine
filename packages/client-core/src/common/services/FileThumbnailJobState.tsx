@@ -298,12 +298,12 @@ export const FileThumbnailJobState = defineState({
     })
   },
 
-  useGenerateThumbnails: async (files: readonly FileBrowserContentType[]) => {
+  useGenerateThumbnails: (files: readonly FileBrowserContentType[]) => {
     useGenerateHelper(files, (file) => (file.thumbnailURL || file.type === 'folder' ? undefined : file.key), {
       thumbnailKey: 'null'
     })
   },
-  useGenerateDimensions: async (files: readonly FileBrowserContentType[]) => {
+  useGenerateDimensions: (files: readonly FileBrowserContentType[]) => {
     useGenerateHelper(
       files,
       (file) => (file.type === 'gltf' || file.type === 'glb' ? file.key : undefined),
