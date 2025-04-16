@@ -261,7 +261,15 @@ export const GLTFComponentReactor = () => {
       }
     }
 
-    GLTFLoaderFunctions.loadScene(options, sceneIndex).then(onLoad)
+    if (gltfComponent.library) {
+      GLTFLoaderFunctions.loadLibrary(options)
+        .then(onLoad)
+        .finally(() => {
+          getMutableComponent(entity, GLTFComponent)?.dependencies.set({ componentDependencies: {} })
+        })
+    } else {
+      GLTFLoaderFunctions.loadScene(options, sceneIndex).then(onLoad)
+    }
 
     return () => {
       documentLoaded.set(false)
