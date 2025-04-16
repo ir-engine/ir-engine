@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { AnimationClip, AnimationMixer, Object3D, PropertyBinding } from 'three'
+import { AnimationClip, AnimationMixer, KeyframeTrack, Object3D, PropertyBinding } from 'three'
 
-import { Entity, iterateEntityNode, removeEntity, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
+import { Entity, EntityUUID, iterateEntityNode, removeEntity, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -49,7 +49,6 @@ import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { AssetState } from '../../gltf/GLTFState'
 import { SourceComponent } from '../../scene/components/SourceComponent'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
-import { NormalizedBoneComponent } from './NormalizedBoneComponent'
 
 export const AnimationComponent = defineComponent({
   name: 'AnimationComponent',
@@ -59,6 +58,9 @@ export const AnimationComponent = defineComponent({
     animations: S.Array(S.Type<AnimationClip>())
   })
 })
+
+export const getEntityUUIDFromTrack = (track: KeyframeTrack) =>
+  track.name.slice(0, track.name.lastIndexOf('.')) as EntityUUID
 
 export const useLoadAnimationFromBatchGLTF = (urls: string[], keepEntities = false) => {
   const animations = urls.map((url) => useLoadAnimationFromGLTF(url, keepEntities))
@@ -154,7 +156,6 @@ PropertyBinding.findNode = (root: Object3D, nodeName: string) => {
   }
 
   return (
-    getOptionalComponent(entity, NormalizedBoneComponent) ||
     getOptionalComponent(entity, BoneComponent) ||
     getOptionalComponent(entity, MeshComponent) ||
     getOptionalComponent(entity, ObjectComponent)!

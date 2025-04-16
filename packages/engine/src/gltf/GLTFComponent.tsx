@@ -83,7 +83,7 @@ export const GLTFComponent = defineComponent({
   schema: S.Object({
     src: S.String(''),
     /** @todo move this to it's own component */
-    cameraOcclusion: S.Bool(false),
+    cameraOcclusion: S.Bool(true),
 
     //collision info
     applyColliders: S.Bool(false),

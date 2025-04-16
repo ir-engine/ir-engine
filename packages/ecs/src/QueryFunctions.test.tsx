@@ -25,11 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import assert from 'assert'
 import { useEffect } from 'react'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 
 import { createEntity, removeEntity } from '@ir-engine/ecs'
-import { startReactor } from '@ir-engine/hyperflux'
-import { act, render } from '@testing-library/react'
+import { ReactorReconciler, startReactor } from '@ir-engine/hyperflux'
 import { ComponentMap, defineComponent, hasComponent, removeComponent, setComponent } from './ComponentFunctions'
 import { createEngine, destroyEngine } from './Engine'
 import { Entity, UndefinedEntity } from './Entity'
@@ -188,6 +187,8 @@ describe('QueryFunctions Hooks', async () => {
         return null
       })
 
+      ReactorReconciler.flushSync(() => reactor.run())
+
       assert.strictEqual(counter, 1)
 
       assert.strictEqual(entities.length, 2)
@@ -217,7 +218,10 @@ describe('QueryFunctions Hooks', async () => {
         return null
       })
 
-      assert.strictEqual(counter, 1)
+      await vi.waitFor(() => {
+        assert.strictEqual(counter, 1)
+      })
+
       assert.strictEqual(entities.length, 1)
       assert.strictEqual(entities[0], e1)
       assert.ok(hasComponent(entities[0], ComponentA))
@@ -227,9 +231,10 @@ describe('QueryFunctions Hooks', async () => {
       setComponent(e2, ComponentA)
       setComponent(e2, ComponentB)
 
-      await act(() => render(null))
+      await vi.waitFor(() => {
+        assert.strictEqual(counter, 2)
+      })
 
-      assert.strictEqual(counter, 2)
       assert.strictEqual(entities.length, 2)
       assert.strictEqual(entities[0], e1)
       assert.strictEqual(entities[1], e2)
@@ -263,7 +268,10 @@ describe('QueryFunctions Hooks', async () => {
         return null
       })
 
-      assert.strictEqual(renderCounter, 1)
+      await vi.waitFor(() => {
+        assert.strictEqual(renderCounter, 2)
+      })
+
       assert.strictEqual(effectCounter, 1)
       assert.strictEqual(entities.length, 2)
       assert.strictEqual(entities[0], e1)
@@ -274,9 +282,10 @@ describe('QueryFunctions Hooks', async () => {
       assert.ok(hasComponent(entities[1], ComponentB))
       removeComponent(e1, ComponentB)
 
-      await act(() => render(null))
+      await vi.waitFor(() => {
+        assert.strictEqual(renderCounter, 3)
+      })
 
-      assert.strictEqual(renderCounter, 3)
       assert.strictEqual(effectCounter, 2)
       assert.strictEqual(entities.length, 1)
       assert.strictEqual(entities[0], e2)
@@ -307,7 +316,11 @@ describe('QueryFunctions Hooks', async () => {
         return null
       })
 
-      assert.equal(renderCounter, 1)
+      await vi.waitFor(() => {
+        assert.strictEqual(renderCounter, 2)
+      })
+
+      assert.equal(renderCounter, 2)
       assert.strictEqual(effectCounter, 1)
       assert.strictEqual(entities.length, 2)
       assert.strictEqual(entities[0], e1)
@@ -320,9 +333,10 @@ describe('QueryFunctions Hooks', async () => {
       removeComponent(e1, ComponentB)
       setComponent(e1, ComponentB)
 
-      await act(() => render(null))
+      await vi.waitFor(() => {
+        assert.strictEqual(renderCounter, 2)
+      })
 
-      assert.equal(renderCounter, 2)
       assert.equal(effectCounter, 1)
       assert.strictEqual(entities.length, 2)
       assert.strictEqual(entities[0], e1)
@@ -357,7 +371,11 @@ describe('QueryFunctions Hooks', async () => {
         return null
       })
 
-      assert.equal(renderCounter, 1)
+      await vi.waitFor(() => {
+        assert.strictEqual(renderCounter, 2)
+      })
+
+      assert.equal(renderCounter, 2)
       assert.strictEqual(effectCounter, 1)
       assert.strictEqual(entities.length, 1)
       assert.strictEqual(entities[0], e2)
@@ -367,7 +385,9 @@ describe('QueryFunctions Hooks', async () => {
       setComponent(e1, ComponentB)
       removeComponent(e1, ComponentB)
 
-      await act(() => render(null))
+      await vi.waitFor(() => {
+        assert.strictEqual(renderCounter, 2)
+      })
 
       assert.equal(renderCounter, 2)
       assert.equal(effectCounter, 1)
@@ -389,6 +409,8 @@ describe('QueryFunctions Hooks', async () => {
         }, [data])
         return null
       })
+
+      ReactorReconciler.flushSync(() => reactor.run())
 
       assert.equal(counter, 1, `The reactor has run an incorrect number of times: ${counter}`)
       assert.notEqual(result, undefined, `The result data did not get assigned.`)
@@ -415,6 +437,8 @@ describe('QueryFunctions Hooks', async () => {
         return null
       })
 
+      ReactorReconciler.flushSync(() => reactor.run())
+
       assert.equal(counter, 1, `The reactor has run an incorrect number of times: ${counter}`)
       assert.notEqual(result, undefined, `The result data did not get assigned.`)
       assertArrayEqual(
@@ -439,6 +463,8 @@ describe('QueryFunctions Hooks', async () => {
         return null
       })
 
+      ReactorReconciler.flushSync(() => reactor.run())
+
       assert.equal(counter, 1, `The reactor has run an incorrect number of times: ${counter}`)
       assert.notEqual(result, undefined, `The result data did not get assigned.`)
       assertArrayEqual(
@@ -452,7 +478,9 @@ describe('QueryFunctions Hooks', async () => {
 
       setComponent(entity3, component)
 
-      await act(() => render(null))
+      await vi.waitFor(() => {
+        assert.strictEqual(counter, 2)
+      })
 
       const nextExpectedValue: ResultType = [entity3]
 

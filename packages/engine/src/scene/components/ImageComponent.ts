@@ -37,7 +37,6 @@ import {
   Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
-  ShaderMaterial,
   Side,
   SphereGeometry,
   SRGBColorSpace,
@@ -49,7 +48,6 @@ import {
 import { useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
-  getComponent,
   removeComponent,
   setComponent,
   useComponent,
@@ -60,7 +58,6 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { State } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { ImageAlphaMode, ImageProjection } from '../classes/ImageUtils'
@@ -97,21 +94,6 @@ export function getTextureSize(texture: Texture | CompressedTexture | null, size
   const width = image?.videoWidth || image?.naturalWidth || image?.width || 0
   const height = image?.videoHeight || image?.naturalHeight || image?.height || 0
   return size.set(width, height)
-}
-
-export function resizeVideoMesh(mesh: Mesh<any, ShaderMaterial>) {
-  if (!mesh.material.uniforms.map?.value) return
-
-  const { width, height } = getTextureSize(mesh.material.uniforms.map.value as Texture | CompressedTexture)
-
-  if (!width || !height) return
-
-  const transform = getComponent(mesh.entity!, TransformComponent)
-
-  const ratio = (height || 1) / (width || 1)
-  const _width = Math.min(1.0, 1.0 / ratio)
-  const _height = Math.min(1.0, ratio)
-  mesh.scale.set(_width, _height, 1)
 }
 
 const scaleMatrix = new Matrix4()

@@ -23,31 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { configDefaults, defineConfig } from 'vitest/config'
+import { Entity } from '@ir-engine/ecs'
+import { VRMHumanBoneName } from './VRMHumanBoneName'
+import { VRMRequiredHumanBoneName } from './VRMRequiredHumanBoneNames'
 
-const reporters = !process.env.CI ? ['basic'] : configDefaults.reporters // Use default report config on CI.
-
-import appRootPath from 'app-root-path'
-import path from 'path'
-
-export default defineConfig({
-  test: {
-    setupFiles: [
-      path.resolve(appRootPath.path, 'packages/hyperflux/tests/utils/patchNode.ts'),
-      path.resolve(appRootPath.path, 'packages/editor/vitest.setup.ts')
-    ],
-    environment: 'jsdom',
-    maxConcurrency: 1,
-    passWithNoTests: true,
-    testTimeout: 10000,
-    hookTimeout: 10000,
-    reporters: reporters,
-    slowTestThreshold: 1000,
-    coverage: {
-      enabled: true,
-      reporter: ['lcov'],
-      provider: 'istanbul',
-      include: ['src/**']
-    }
-  }
-})
+export type VRMHumanBones = {
+  [bone in VRMHumanBoneName]?: Entity
+} & { [bone in VRMRequiredHumanBoneName]: Entity }

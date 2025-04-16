@@ -25,7 +25,29 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { GLTF } from '@gltf-transform/core'
 import assert from 'assert'
-import { Color, Mesh, MeshStandardMaterial, SphereGeometry, Texture, Vector3 } from 'three'
+import {
+  AnimationClip,
+  Bone,
+  BoxGeometry,
+  BufferAttribute,
+  Color,
+  InterpolateDiscrete,
+  InterpolateLinear,
+  InterpolateSmooth,
+  KeyframeTrack,
+  Matrix4,
+  Mesh,
+  MeshBasicMaterial,
+  MeshPhysicalMaterial,
+  MeshStandardMaterial,
+  NormalAnimationBlendMode,
+  Skeleton,
+  SkinnedMesh,
+  SphereGeometry,
+  Texture,
+  Vector2,
+  Vector3
+} from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
@@ -33,6 +55,7 @@ import {
   defineComponent,
   EntityTreeComponent,
   EntityUUID,
+  getComponent,
   S,
   SerializedComponentType,
   setComponent,
@@ -42,15 +65,17 @@ import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { SourceComponent, SourceID } from '../scene/components/SourceComponent'
 import { createSceneEntity } from '../scene/functions/createSceneEntity'
-import { exportGLTFScene } from './exportGLTFScene'
+import { exportGLTFScene, materialExtensions } from './exportGLTFScene'
 import { EEMaterialComponent } from './MaterialExtensionComponents'
 
 describe('exportGLTFScene', () => {
@@ -152,7 +177,7 @@ describe('exportGLTFScene', () => {
       typeof EEMaterialComponent
     >
     assert.equal(eeMaterial.name, originalMaterial.name)
-    const serializedColor = eeMaterial.args['color'].contents as Color
+    const serializedColor = new Color().fromArray(material.pbrMetallicRoughness!.baseColorFactor!)
     for (const key of Object.keys(serializedColor)) {
       assert.strictEqual(serializedColor[key], color[key])
     }
@@ -243,7 +268,7 @@ describe('exportGLTFScene', () => {
       typeof EEMaterialComponent
     >
     assert.equal(eeMaterial1.name, material1.name)
-    const serializedColor1 = eeMaterial1.args['color'].contents as Color
+    const serializedColor1 = new Color().fromArray(exportedMaterial1.pbrMetallicRoughness!.baseColorFactor!)
     for (const key of Object.keys(serializedColor1)) {
       assert.strictEqual(serializedColor1[key], color1[key])
     }
@@ -256,7 +281,8 @@ describe('exportGLTFScene', () => {
       typeof EEMaterialComponent
     >
     assert.equal(eeMaterial2.name, material2.name)
-    const serializedColor2 = eeMaterial2.args['color'].contents as Color
+    const serializedColor2 = new Color().fromArray(exportedMaterial2.pbrMetallicRoughness!.baseColorFactor!)
+
     for (const key of Object.keys(serializedColor2)) {
       assert.strictEqual(serializedColor2[key], color2[key])
     }
@@ -336,12 +362,9 @@ describe('exportGLTFScene', () => {
 
     // Check that the exported material contains the EE_material extension.
     assert.strictEqual(typeof exportedMaterial.extensions![EEMaterialComponent.jsonID], 'object')
-    const eeMaterial = exportedMaterial.extensions![EEMaterialComponent.jsonID] as SerializedComponentType<
-      typeof EEMaterialComponent
-    >
 
-    // Verify that the texture URL was correctly serialized into the material's "map" field.
-    assert.strictEqual(eeMaterial.args['map']?.contents?.index, 0)
+    // Verify that the texture URL was correctly serialized into the material's baseColorTexture field.
+    assert.strictEqual(exportedMaterial.pbrMetallicRoughness?.baseColorTexture?.index, 0)
 
     assert.strictEqual(gltf.images?.length, 1)
     const image = gltf.images[0]
@@ -407,10 +430,228 @@ describe('exportGLTFScene', () => {
       typeof EEMaterialComponent
     >
     assert.equal(eeMaterial.name, originalMaterial.name)
-    const serializedColor = eeMaterial.args['color'].contents as Color
-    for (const key of Object.keys(serializedColor)) {
-      assert.strictEqual(serializedColor[key], color[key])
+    const serializedColor = material.pbrMetallicRoughness!.baseColorFactor!
+    // Skip alpha channel
+    for (let i = 0; i < 3; i++) {
+      const channel = serializedColor[i]
+      assert.strictEqual(channel, color.toArray()[i])
     }
     assert.strictEqual(eeMaterial.prototype, 'MeshStandardMaterial')
+  })
+
+  it('should export animations', async () => {
+    const baseEntity = createSceneEntity('base')
+    setComponent(baseEntity, SourceComponent, 'test' as SourceID)
+    setComponent(baseEntity, UUIDComponent, 'test trac' as EntityUUID)
+
+    const tracks = [
+      new KeyframeTrack(
+        'test track',
+        new Float32Array([1, 2, 3, 4, 5]),
+        new Float32Array([1, 2, 3, 4, 5]),
+        InterpolateDiscrete
+      ),
+      new KeyframeTrack(
+        'test track',
+        new Float32Array([6, 7, 8, 9, 10]),
+        new Float32Array([6, 7, 8, 9, 10]),
+        InterpolateLinear
+      ),
+      new KeyframeTrack(
+        'test track',
+        new Float32Array([4, 3, 2, 1, 0]),
+        new Float32Array([0, 1, 2, 3, 4]),
+        InterpolateSmooth
+      )
+    ]
+
+    const clip = new AnimationClip('test clip', 1000, tracks, NormalAnimationBlendMode)
+
+    setComponent(baseEntity, AnimationComponent, {
+      animations: [clip]
+    })
+
+    const [gltf] = (await exportGLTFScene(baseEntity, 'dud', 'test/path')) as [GLTF.IGLTF]
+
+    // 1 for track values, 1 for track times
+    assert.equal(gltf.bufferViews?.length, tracks.length * 2)
+    assert.equal(gltf.accessors?.length, tracks.length * 2)
+
+    const animations = gltf.animations
+    assert.equal(animations?.length, 1)
+
+    const anim = animations![0]
+    assert.equal(anim.name, clip.name)
+    assert.equal(anim.channels.length, tracks.length)
+    assert.equal(anim.samplers.length, tracks.length)
+
+    const expInterpolation = ['STEP', 'LINEAR', 'LINEAR']
+    const inputOutputAccessors = new Set<number>()
+
+    for (let i = 0; i < tracks.length; i++) {
+      const channel = anim.channels[i]
+      const sampler = anim.samplers[i]
+
+      assert.equal(channel.sampler, i)
+      assert.equal(sampler.interpolation, expInterpolation[i])
+      // There's no required order that these will be created in so just check that they are valid and unqiue
+      assert(typeof sampler.input === 'number')
+      assert(typeof sampler.output === 'number')
+      assert(!inputOutputAccessors.has(sampler.input))
+      assert(!inputOutputAccessors.has(sampler.output))
+      inputOutputAccessors.add(sampler.input)
+      inputOutputAccessors.add(sampler.output)
+    }
+  })
+
+  it('should export skins', async () => {
+    const baseEntity = createSceneEntity('base')
+    setComponent(baseEntity, SourceComponent, 'test' as SourceID)
+
+    const skinnedMesh = new SkinnedMesh(new BoxGeometry(1, 1, 1), new MeshBasicMaterial({ color: 0x00ff00 }))
+    const bones = [new Bone()] as Bone[]
+    bones[0].entity = baseEntity
+    const boneInverses = [new Matrix4(), new Matrix4(), new Matrix4()]
+    const skeleton = new Skeleton(bones, boneInverses)
+    skinnedMesh.skeleton = skeleton
+
+    const skinnedMeshEntity = createEntity()
+    setComponent(skinnedMeshEntity, SourceComponent, getComponent(baseEntity, SourceComponent))
+    setComponent(skinnedMeshEntity, MeshComponent, skinnedMesh)
+    setComponent(skinnedMeshEntity, SkinnedMeshComponent, skinnedMesh)
+    setComponent(skinnedMeshEntity, EntityTreeComponent, { parentEntity: baseEntity })
+
+    const [gltf] = (await exportGLTFScene(baseEntity, 'dud', 'test/path')) as [GLTF.IGLTF]
+
+    const nodes = gltf.nodes
+    const meshes = gltf.meshes
+    const skins = gltf.skins
+
+    assert.equal(nodes?.length, 2)
+    assert.equal(meshes?.length, 1)
+    assert.equal(skins?.length, 1)
+    const skin = skins![0]
+
+    const skinNode = nodes![1]
+
+    assert(typeof skinNode.mesh === 'number')
+    assert(typeof skinNode.skin === 'number')
+
+    assert(typeof skin.inverseBindMatrices === 'number')
+    assert.equal(skin.joints.length, 1)
+    // The joint is referencing the root node
+    assert.equal(skin.joints[0], 0)
+  })
+
+  it('should export morph targets', async () => {
+    const baseEntity = createSceneEntity('base')
+    setComponent(baseEntity, SourceComponent, 'test' as SourceID)
+
+    const morphName = 'POSITION'
+    const morphMesh = new Mesh(new BoxGeometry(1, 1, 1), new MeshBasicMaterial({ color: 0x00ff00 }))
+    morphMesh.morphTargetInfluences = [0, 1]
+    morphMesh.geometry.morphAttributes[morphName] = [
+      new BufferAttribute(new Float32Array([1, 2, 3, 4, 5]), 1),
+      new BufferAttribute(new Float32Array([5, 6, 7, 8, 9]), 1)
+    ]
+
+    const morphMeshEntity = createEntity()
+    setComponent(morphMeshEntity, SourceComponent, getComponent(baseEntity, SourceComponent))
+    setComponent(morphMeshEntity, MeshComponent, morphMesh)
+    setComponent(morphMeshEntity, EntityTreeComponent, { parentEntity: baseEntity })
+
+    const [gltf] = (await exportGLTFScene(baseEntity, 'dud', 'test/path')) as [GLTF.IGLTF]
+
+    const meshes = gltf.meshes
+    assert.equal(meshes?.length, 1)
+
+    const mesh = meshes![0]
+
+    for (let i = 0; i < morphMesh.morphTargetInfluences.length; i++) {
+      const influence = morphMesh.morphTargetInfluences[i]
+      const weight = mesh.weights![i]
+      assert.equal(influence, weight)
+    }
+
+    for (const primitive of mesh.primitives) {
+      assert.equal(primitive.targets!.length, morphMesh.morphTargetInfluences.length)
+      for (const target of primitive.targets!) {
+        assert(typeof target[morphName] === 'number')
+      }
+    }
+  })
+
+  it('should export material extensions', async () => {
+    const baseEntity = createSceneEntity('base')
+    setComponent(baseEntity, SourceComponent, 'test' as SourceID)
+
+    const textureUrl = 'https://example.com/projects/ir-engine/dud-project/public/images/image.png'
+    const texture = new Texture()
+    texture.userData = { src: textureUrl }
+    texture.image = {}
+
+    const material = new MeshPhysicalMaterial({
+      // KHR_materials_emissive_strength
+      emissiveIntensity: 1,
+      // KHR_materials_clearcoat
+      clearcoat: 1,
+      clearcoatMap: texture,
+      clearcoatRoughness: 1,
+      clearcoatRoughnessMap: texture,
+      clearcoatNormalMap: texture,
+      clearcoatNormalScale: new Vector2(1, 1),
+      // KHR_materials_iridescence
+      iridescence: 1,
+      iridescenceMap: texture,
+      iridescenceIOR: 1,
+      iridescenceThicknessMap: texture,
+      iridescenceThicknessRange: [100, 200],
+      // KHR_materials_sheen
+      sheenColor: new Color(0x111111),
+      sheenColorMap: texture,
+      sheenRoughness: 1,
+      sheenRoughnessMap: texture,
+      // KHR_materials_transmission
+      transmission: 1,
+      transmissionMap: texture,
+      // KHR_materials_volume
+      thickness: 1,
+      thicknessMap: texture,
+      attenuationDistance: 1,
+      attenuationColor: new Color(0x111111),
+      // KHR_materials_ior
+      ior: 1,
+      // KHR_materials_specular
+      specularIntensity: 1,
+      specularIntensityMap: texture,
+      specularColor: new Color(0x111111),
+      specularColorMap: texture,
+      // EXT_materials_bump
+      bumpScale: 1,
+      bumpMap: texture,
+      // KHR_materials_anisotropy
+      anisotropy: 1,
+      anisotropyRotation: 1,
+      anisotropyMap: texture
+    })
+
+    const materialEntity = createEntity()
+    setComponent(materialEntity, SourceComponent, getComponent(baseEntity, SourceComponent))
+    setComponent(materialEntity, EntityTreeComponent, { parentEntity: baseEntity })
+    setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
+    setComponent(materialEntity, MaterialStateComponent, {
+      material: material
+    })
+
+    const [gltf] = (await exportGLTFScene(baseEntity, 'dud', 'test/path')) as [GLTF.IGLTF]
+
+    const materials = gltf.materials
+    assert.equal(materials?.length, 1)
+
+    const mat = materials![0]
+
+    for (const ext of materialExtensions) {
+      assert(mat.extensions![ext.jsonID])
+    }
   })
 })

@@ -49,6 +49,7 @@ import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { assertArray } from '@ir-engine/spatial/tests/util/assert'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
@@ -184,7 +185,7 @@ describe('TriggerCallbackComponent', () => {
       return destroyEngine()
     })
 
-    it("should call Physics.setTrigger on the entity's collider when a new ColliderComponent is set", () => {
+    it("should call Physics.setTrigger on the entity's collider when a new ColliderComponent is set", async () => {
       assertColliderComponentEquals(getComponent(testEntity, ColliderComponent), ColliderComponentDefaults)
       removeComponent(testEntity, ColliderComponent)
       const ColliderComponentData = {
@@ -198,8 +199,7 @@ describe('TriggerCallbackComponent', () => {
       }
       setComponent(testEntity, ColliderComponent, ColliderComponentData)
       assertColliderComponentEquals(getComponent(testEntity, ColliderComponent), ColliderComponentData)
-      const reactor = ColliderComponent.reactorMap.get(testEntity)!
-      assert.ok(reactor.isRunning)
+      await act(() => render(null))
       const collider = physicsWorld.Colliders.get(testEntity)!
       assert.ok(collider)
       assert.ok(collider.isSensor())

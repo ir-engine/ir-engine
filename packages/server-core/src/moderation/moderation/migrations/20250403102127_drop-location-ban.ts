@@ -23,24 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import type { Knex } from 'knex'
 
-import {
-  locationBanDataSchema,
-  locationBanPatchSchema,
-  locationBanQuerySchema,
-  locationBanSchema
-} from '@ir-engine/common/src/schemas/social/location-ban.schema'
-
-export default createSwaggerServiceOptions({
-  schemas: {
-    locationBanDataSchema,
-    locationBanPatchSchema,
-    locationBanQuerySchema,
-    locationBanSchema
-  },
-  docs: {
-    description: 'Location ban service description',
-    securities: ['all']
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const tableExists = await knex.schema.hasTable('location-ban')
+  if (tableExists) {
+    await knex.schema.dropTable('location-ban')
   }
-})
+}
+export async function down(knex: Knex): Promise<void> {}

@@ -20,8 +20,10 @@ then
   # Insert script for setting up GCP credentials
   #bash ./scripts/setup_gcp.sh
 fi
-npx ts-node --swc scripts/check-db-exists.ts
-npm run prepare-database
+npx ts-node --swc scripts/check-db-exists.ts >check-db-exists-build-logs.txt 2>check-db-exists-build-error.txt || npm run record-build-error -- --service=check-db-exists
+test -s check-db-exists-build-error.txt && npm run record-build-error -- --service=check-db-exists
+npm run prepare-database >prepare-database-core-build-logs.txt 2>prepare-database-core-build-error.txt || npm run record-build-error -- --service=prepare-database-core
+test -s prepare-database-core-build-error.txt && npm run record-build-error -- --service=prepare-database-core
 npm run create-build-status
 BUILDER_RUN=$(tail -1 builder-run.txt)
 npx ts-node --swc scripts/install-projects.js >project-install-build-logs.txt 2>project-install-build-error.txt || npm run record-build-error -- --service=project-install
@@ -32,8 +34,8 @@ mv package-root-build.json package.json
 npm install
 rm package.json
 mv package.jsonmoved package.json
-npm run prepare-database >prepare-database-build-logs.txt 2>prepare-database-build-error.txt || npm run record-build-error -- --service=prepare-database
-test -s prepare-database-build-error.txt && npm run record-build-error -- --service=prepare-database
+npm run prepare-database >prepare-database-projects-build-logs.txt 2>prepare-database-projects-build-error.txt || npm run record-build-error -- --service=prepare-database-projects
+test -s prepare-database-projects-build-error.txt && npm run record-build-error -- --service=prepare-database-projects
 npx ts-node --swc packages/client/scripts/create-env-production.ts >buildenv-build-logs.txt 2>buildenv-build-error.txt || npm run record-build-error -- --service=buildenv
 test -s buildenv-build-error.txt && npm run record-build-error -- --service=buildenv
 if [ -n "$TWA_LINK" ]
@@ -176,7 +178,7 @@ else
     echo "PRUNING GCP ARTIFACT REGISTRY REPOS"
 
     # Determine suffix based on APP_HOST
-    if [[ "$APP_HOST" =~ "preview" ]] || [[ "$APP_HOST" =~ "mt-stg" ]]; then
+    if [[ "$APP_HOST" =~ "studio" ]] || [[ "$APP_HOST" =~ "mt-stg" ]]; then
       SUFFIX="mt"
     elif [[ "$APP_HOST" =~ "mt-rc" ]]; then
       SUFFIX="-mt-rc"

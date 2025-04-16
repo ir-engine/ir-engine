@@ -85,7 +85,6 @@ type GLTFElementKey =
   | 'images'
   | 'materials'
   | 'meshes'
-  | 'nodes'
   | 'samplers'
   | 'skins'
   | 'textures'
@@ -287,8 +286,20 @@ const appendAnimation = (animationIndex: number, src: GLTF.IGLTF, dst: GLTF.IGLT
   dst.animations.push(animation)
 }
 
-export const appendGLTF = (src: GLTF.IGLTF, dst: GLTF.IGLTF) => {
+type GLTFAppendOptions = {
+  mergeScenes?: boolean
+  assetsOnly?: boolean
+}
+
+const defaultOptions: GLTFAppendOptions = {
+  mergeScenes: false,
+  assetsOnly: false
+}
+
+export const appendGLTF = (src: GLTF.IGLTF, dst: GLTF.IGLTF, options: GLTFAppendOptions = {}) => {
   if (src.scene === undefined || src.scenes === undefined || src.nodes === undefined) return
+
+  const { mergeScenes, assetsOnly } = { ...defaultOptions, ...options }
 
   const context = {
     nodeTable: {},
@@ -304,11 +315,44 @@ export const appendGLTF = (src: GLTF.IGLTF, dst: GLTF.IGLTF) => {
     skinTable: {}
   } as GLTFAppendContext
 
-  const nodesToAppend = src.scenes[0].nodes
-  for (let i = 0, len = nodesToAppend.length; i < len; i++) {
-    const nodeIndex = nodesToAppend[i]
-    const newIndex = appendNode(nodeIndex, src, dst, context)
-    dst.scenes![0].nodes.push(newIndex)
+  if (!dst.scenes) dst.scenes = []
+
+  if (!assetsOnly) {
+    if (!mergeScenes) {
+      // Append src GLTF scenes as new scenes on dst GLTF
+      for (const scene of src.scenes) {
+        for (const nodeIndex of scene.nodes) {
+          const dstScene = { nodes: [] } as GLTF.IScene
+          const newIndex = appendNode(nodeIndex, src, dst, context)
+          dstScene.nodes.push(newIndex)
+          dst.scenes.push(dstScene)
+        }
+      }
+    } else {
+      // merge src scene with dst scene
+      const nodesToAppend = src.scenes[0].nodes
+      for (let i = 0, len = nodesToAppend.length; i < len; i++) {
+        const nodeIndex = nodesToAppend[i]
+        const newIndex = appendNode(nodeIndex, src, dst, context)
+        dst.scenes[0].nodes.push(newIndex)
+      }
+    }
+  } else {
+    // Only append assets (meshes, materials, skins)
+    if (!dst.meshes) dst.meshes = []
+    for (let i = 0, len = src.meshes?.length ?? 0; i < len; i++) {
+      appendMesh(i, src, dst, context)
+    }
+
+    if (!dst.materials) dst.materials = []
+    for (let i = 0, len = src.materials?.length ?? 0; i < len; i++) {
+      appendMaterial(i, src, dst, context)
+    }
+
+    if (!dst.skins) dst.skins = []
+    for (let i = 0, len = src.skins?.length ?? 0; i < len; i++) {
+      appendSkin(i, src, dst, context)
+    }
   }
 
   if (src.animations) {
