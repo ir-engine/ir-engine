@@ -51,7 +51,6 @@ import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/inpu
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
@@ -198,8 +197,6 @@ export const TransformGizmoControlComponent = defineComponent({
         onPointerHover(gizmoControlEntity, inputSourceEntities)
 
         if (pickerButtons?.PrimaryClick?.pressed) {
-          InputState.setCapturingEntity(pickerEntity)
-
           const pointerEntity = pickerButtons.PrimaryClick.inputSourceEntity
 
           if (pickerButtons?.PrimaryClick?.down) {

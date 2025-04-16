@@ -144,9 +144,6 @@ const execute = () => {
 
     const hasPointerLock = follow.pointerLock && document.pointerLockElement === canvas
 
-    if ((buttons?.PrimaryClick?.pressed && buttons?.PrimaryClick?.dragging) || hasPointerLock) {
-      InputState.setCapturingEntity(cameraEntity)
-    }
     if (buttons?.FollowCameraModeCycle?.down) onFollowCameraModeCycle(cameraEntity)
     if (buttons?.FollowCameraFirstPerson?.down) onFollowCameraFirstPerson(cameraEntity)
     if (buttons?.FollowCameraShoulderCam?.down) onFollowCameraShoulderCam(cameraEntity)

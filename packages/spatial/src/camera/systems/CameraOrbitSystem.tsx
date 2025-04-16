@@ -40,7 +40,6 @@ import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstant
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputPointerComponent } from '../../input/components/InputPointerComponent'
 import { MouseScroll } from '../../input/state/ButtonState'
-import { InputState } from '../../input/state/InputState'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 
@@ -69,10 +68,6 @@ const execute = () => {
 
     // TODO: handle multi-touch pinch/zoom
     const zoom = axes[MouseScroll.VerticalScroll]
-
-    if (orbiting?.dragging || panning?.dragging || zoom) {
-      InputState.setCapturingEntity(cameraEid)
-    }
 
     const transform = getComponent(cameraEid, TransformComponent)
     const editorCameraCenter = cameraOrbit.cameraOrbitCenter.value
