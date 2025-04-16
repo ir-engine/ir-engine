@@ -24,10 +24,9 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import DataTable, { ITableHeadCell } from '@ir-engine/client-core/src/admin/common/Table'
-import { useFind } from '@ir-engine/common'
+import { useFind, useSearch } from '@ir-engine/common'
 import { moderationPath, ModerationType, userPath } from '@ir-engine/common/src/schema.type.module'
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
-import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import { Select } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { t } from 'i18next'
@@ -90,50 +89,23 @@ export default function ModerationTable({ search }) {
             $limit: 12,
             $sort: {
               referenceNumber: -1
-            },
-            ...(search && {
-              $or: [
-                {
-                  referenceNumber: {
-                    $like: `%${search}%`
-                  }
-                },
-                {
-                  reportedLocationId: isValidId(search) ? search : undefined
-                },
-                {
-                  reportedUserId: {
-                    $in: userIds.length ? userIds : ['none']
-                  }
-                }
-              ]
-            })
+            }
           }
         })
       : useFind(moderationPath, {
           query: {
             status: statusFilter,
-            $limit: 12,
-            ...(search && {
-              $or: [
-                {
-                  referenceNumber: {
-                    $like: `%${search}%`
-                  }
-                },
-                {
-                  reportedLocationId: isValidId(search) ? search : undefined
-                },
-                {
-                  reportedUserId: {
-                    $in: userIds.length ? userIds : []
-                  }
-                }
-              ]
-            })
+            $limit: 12
           }
         })
 
+  useSearch(
+    userReportsQuery,
+    {
+      search
+    },
+    search
+  )
   const createRows = (rows: ModerationType[]) =>
     rows.map((moderation) => {
       return {

@@ -38,8 +38,11 @@ import {
 
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
+import { moderationPath } from '@ir-engine/common/src/schema.type.module'
+import { userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import verifyScope from '@ir-engine/server-core/src/hooks/verify-scope'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { discardQuery, iff, isProvider } from 'feathers-hooks-common'
+import persistQuery from '../../hooks/persist-query'
 
 const validateModeration = async (context: HookContext) => {
   const { data } = context
@@ -53,17 +56,57 @@ const validateModeration = async (context: HookContext) => {
   return context
 }
 
+/**
+ * Handles the moderation search functionality by modifying the query parameters
+ * and constructing a custom Knex query for filtering moderation records based on
+ * a search string. The search string can match either the `referenceNumber` of
+ * the moderation record or the `name` of the reported user.
+ *
+ * @param context - The hook context object containing the query parameters and service.
+ *
+ * @remarks
+ * - If a `search` parameter is present in the query, it is removed from the query
+ *   parameters to prevent it from being used in the default WHERE clause.
+ * - A custom Knex query is built to perform a search on the `referenceNumber` field
+ *   of the moderation record or the `name` field of the reported user.
+ * - The constructed query is assigned to `context.params.knex` for further processing.
+ *
+ * @returns The modified hook context with the custom Knex query applied.
+ */
+const handleModerationSearch = async (context: HookContext) => {
+  if (!context.params.query?.search) return context
+
+  const searchString = context.params.query.search
+  discardQuery('search')(context)
+
+  const query = context.service
+    .createQuery(context.params)
+    .clearSelect()
+    .select(`${moderationPath}.*`)
+    .leftJoin(userPath, `${userPath}.id`, `${moderationPath}.reportedUserId`)
+    .where((builder) => {
+      builder
+        .where(`${moderationPath}.referenceNumber`, 'like', `%${searchString}%`)
+        .orWhere(`${userPath}.name`, 'like', `%${searchString}%`)
+    })
+
+  context.params.knex = query
+  return context
+}
+
 export default {
   around: {
     all: [schemaHooks.resolveExternal(moderationExternalResolver), schemaHooks.resolveResult(moderationResolver)]
   },
   before: {
     all: [schemaHooks.validateQuery(moderationQueryValidator), schemaHooks.resolveQuery(moderationQueryResolver)],
-    find: [iff(isProvider('external'), verifyScope('moderation', 'read'))],
+    find: [iff(isProvider('external'), verifyScope('moderation', 'read')), persistQuery, handleModerationSearch],
     get: [
       iff(isProvider('external'), verifyScope('moderation', 'read')),
       schemaHooks.validateQuery(moderationQueryValidator),
-      schemaHooks.resolveQuery(moderationQueryResolver)
+      schemaHooks.resolveQuery(moderationQueryResolver),
+      persistQuery,
+      handleModerationSearch
     ],
     create: [
       validateModeration,
