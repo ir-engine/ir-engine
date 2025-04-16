@@ -32,7 +32,7 @@ import {
   Engine,
   Entity,
   EntityTreeComponent,
-  getComponent,
+  getOptionalComponent,
   hasComponent,
   removeEntity,
   setComponent,
@@ -185,8 +185,11 @@ export const TransformGizmoControlComponent = defineComponent({
 
     InputComponent.useExecuteWithInput(
       () => {
-        const gizmoControlComponent = getComponent(gizmoControlEntity, TransformGizmoControlComponent)
-        const visualComponent = getComponent(gizmoControlComponent.visualEntity, TransformGizmoVisualComponent)
+        const gizmoControlComponent = getOptionalComponent(gizmoControlEntity, TransformGizmoControlComponent)
+        if (!gizmoControlComponent) return
+        const visualComponent = getOptionalComponent(gizmoControlComponent.visualEntity, TransformGizmoVisualComponent)
+        if (!visualComponent) return
+
         const pickerEntity = visualComponent.picker
 
         const inputSourceEntities = InputComponent.getInputSourceEntities(pickerEntity)
