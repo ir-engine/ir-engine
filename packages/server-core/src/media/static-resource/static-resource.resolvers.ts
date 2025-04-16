@@ -102,7 +102,7 @@ export const staticResourceResolver = resolve<StaticResourceType, HookContext>(
       return getThumbnailURL(staticResource, context)
     }),
     user: virtual(async (rawData, context) => {
-      if (rawData.userId) {
+      if (rawData.userId && context.method !== 'get') {
         try {
           return await context.app.service(userPath).get(rawData.userId)
         } catch (err) {

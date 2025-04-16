@@ -203,7 +203,7 @@ export const ModerationDetail = ({
       <div className="mb-4 rounded-lg p-4 shadow">
         <div className="grid grid-cols-[30%_70%] gap-4">
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.id')}</Text>
-          <Text className="mb-4">{moderation.id}</Text>
+          <Text className="mb-4">{moderation.referenceNumber}</Text>
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.type')}</Text>
           <Text className="mb-4">
             {moderation.type == 'location' ? t('admin:components.moderation.space') : moderation.type}

@@ -72,6 +72,7 @@ export const moderationSchema = Type.Object(
     updatedBy: TypedString<UserID>({
       format: 'uuid'
     }),
+    referenceNumber: Type.Integer(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -102,6 +103,7 @@ export interface ModerationPatch extends Static<typeof moderationPatchSchema> {}
 export const moderationQueryProperties = Type.Pick(moderationSchema, [
   'id',
   'type',
+  'referenceNumber',
   'reportedLocationId',
   'reportedUserId',
   'abuseReason',
@@ -110,7 +112,7 @@ export const moderationQueryProperties = Type.Pick(moderationSchema, [
 export const moderationQuerySchema = Type.Intersect(
   [
     querySyntax(moderationQueryProperties, {
-      id: {
+      referenceNumber: {
         $like: Type.String()
       }
     }),

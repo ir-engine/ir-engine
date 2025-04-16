@@ -19,29 +19,23 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025 
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
-import { SceneOptionData } from '@ir-engine/ui/src/components/editor/AddScene/AddScene'
-export type StudioUIAddons = {
-  cancelText?: string
-  container: Record<string, JSX.Element>
-  newScene: Record<string, SceneOptionData>
-  //more addon points to come here
-}
-export const UIAddonsState = defineState({
-  name: 'UIAddonsState',
-  initial: () => ({
-    projectName: null as string | null,
-    editor: {
-      container: {},
-      newScene: {}
-    } as StudioUIAddons,
-    dashboard: {
-      newScene: {}
-    } as StudioUIAddons
-  }),
-  extension: syncStateWithLocalStorage(['projectName'])
+import { describe, expect, it } from 'vitest'
+
+import '@ir-engine/engine'
+import '@ir-engine/engine/src/avatar/state/AvatarNetworkState'
+import { generateThumbnailKey } from './FileThumbnailJobState'
+
+describe('FileThumbnailJobState', () => {
+  it('Should generate Thumbnail Key no larger than 50 char', () => {
+    const result = generateThumbnailKey(
+      'https://ir.world:8642/projects/ir-engine/default-project/blah/collisioncube-LOD0.glb',
+      'ir-engine'
+    )
+    console.log(result)
+    expect(result.length).toBeLessThanOrEqual(50)
+  })
 })

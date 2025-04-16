@@ -35,6 +35,7 @@ import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
 import { EngineState } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { isMobile, isSafari } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 
@@ -48,9 +49,15 @@ const linkLogic = (linkEntity: Entity, xrState) => {
   //   getMutableState(LinkState).location.set(linkComponent.location)
   // }
   xrState && xrState.session?.end()
-  typeof window === 'object' && window && linkComponent.newTab
-    ? window.open(linkComponent.url, '_blank')
-    : (window.location.href = linkComponent.url)
+  if (typeof window === 'object' && window && linkComponent.newTab) {
+    const windoOpen = window.open(linkComponent.url, '_blank')
+    //this error added when safari blocks new window
+    if (!windoOpen && isMobile && isSafari) {
+      addError(linkEntity, LinkComponent, 'WINDOW_BLOCKED', 'Unable to open link in new tab.')
+    }
+  } else {
+    window.location.href = linkComponent.url
+  }
 }
 const linkCallback = (linkEntity: Entity) => {
   console.log('linkCallback')
@@ -89,7 +96,7 @@ export const LinkComponent = defineComponent({
   linkCallback,
   interactMessage,
 
-  errors: ['INVALID_URL'],
+  errors: ['INVALID_URL', 'WINDOW_BLOCKED'],
 
   reactor: function () {
     if (!isClient) return null
