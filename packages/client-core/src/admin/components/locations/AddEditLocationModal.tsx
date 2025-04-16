@@ -375,7 +375,6 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
           true,
           saveScenePath + '/' + scenename
         )
-        throw new Error('No scene found')
         await handlePublish(true)
         //re-open the original scene
         const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${scenePath}`
