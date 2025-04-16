@@ -516,7 +516,10 @@ const RenderMaterialThumbnail = (props: RenderThumbnailProps) => {
     if (!entity || !lightEntity || !skyboxEntity || !cameraEntity || !gltfEntity) return
 
     const materialEntity = getChildrenWithComponents(gltfEntity, [MaterialStateComponent])[0]
-
+    if (!materialEntity) {
+      onError(`No material found in gltf with source: ${src}`)
+      return
+    }
     const material = getComponent(materialEntity, MaterialStateComponent).material
     if (!material) {
       onError(`Failed to load material for thumbnail with source: ${src}`)
