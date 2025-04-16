@@ -56,10 +56,10 @@ import {
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { getMutableState, getState, setNestedObject } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent } from '@ir-engine/spatial'
+import { TransformSpace } from '@ir-engine/spatial/src/common/constants/TransformConstants'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
@@ -359,6 +359,7 @@ const duplicateObject = (entities: Entity[]) => {
         deserializeComponent(newEntity, ComponentJSONIDMap.get(component.name)!, component.props)
       }
 
+      if (hasComponent(entity, GLTFComponent)) return
       const children = getComponent(entity, EntityTreeComponent).children as Entity[]
       duplicateEntities(children, newEntity)
     })

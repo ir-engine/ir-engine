@@ -47,6 +47,7 @@ import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 import { assertVec } from '../../../tests/util/assert'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { IntersectionData } from '../../input/functions/ClientInputHeuristics'
+import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
@@ -328,6 +329,7 @@ describe('PhysicsSystem', () => {
 
     describe('spatialInputRaycastHeuristic', () => {
       let testEntity = UndefinedEntity
+      let viewerEntity = UndefinedEntity
       let physicsWorldEntity = UndefinedEntity
       let physicsWorld: PhysicsWorld
 
@@ -354,12 +356,17 @@ describe('PhysicsSystem', () => {
           collisionLayer: CollisionGroups.Default,
           collisionMask: DefaultCollisionMask
         })
+
+        viewerEntity = createEntity()
+        setComponent(viewerEntity, RendererComponent, { scenes: [viewerEntity] })
+        setComponent(physicsWorldEntity, EntityTreeComponent, { parentEntity: viewerEntity })
         await act(() => render(null))
       })
 
       afterEach(() => {
         removeEntity(physicsWorldEntity)
         removeEntity(testEntity)
+        removeEntity(viewerEntity)
         return destroyEngine()
       })
 
@@ -371,7 +378,7 @@ describe('PhysicsSystem', () => {
 
         const intersectionData = new Set<IntersectionData>()
 
-        spatialInputRaycastHeuristic(intersectionData, position, direction)
+        spatialInputRaycastHeuristic(viewerEntity, intersectionData, position, direction)
 
         assert.equal(intersectionData.size, 1)
         assert.equal(intersectionData.values().next().value.entity, testEntity)
