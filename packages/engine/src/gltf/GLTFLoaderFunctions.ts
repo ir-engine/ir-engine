@@ -48,8 +48,8 @@ import {
 import { getMutableState, getState, isClient } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -140,6 +140,7 @@ import {
   assignExtrasToUserData,
   getNormalizedComponentScale
 } from './GLTFLoaderUtils'
+import { getMaxAnisotropy } from './gltfUtils'
 import { KHRTextureTransformExtensionComponent, KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
 import { NodeID, NodeIDComponent } from './NodeIDComponent'
 import { SCENE_DELTA_EXTENSION_NAME } from './SceneDeltaExporterExtension'
@@ -1043,7 +1044,7 @@ const loadTextureImage = async (
   texture.minFilter = WEBGL_FILTERS[sampler.minFilter] || LinearMipmapLinearFilter
   texture.wrapS = WEBGL_WRAPPINGS[sampler.wrapS] || RepeatWrapping
   texture.wrapT = WEBGL_WRAPPINGS[sampler.wrapT] || RepeatWrapping
-
+  texture.anisotropy = getMaxAnisotropy()
   return texture
 }
 
