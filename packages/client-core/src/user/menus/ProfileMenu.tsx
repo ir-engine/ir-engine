@@ -71,7 +71,8 @@ import {
   ReportWebsiteDefaullg,
   Send01Lg,
   Trash04Lg,
-  TwitterOriginalFalse
+  TwitterOriginalFalse,
+  XCloseMd
 } from '@ir-engine/ui/src/icons'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -122,10 +123,13 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   //const loginLink = useHookstate('')
 
   const authSetting = useFind(authenticationSettingPath).data.at(0)
+  console.log('authSetting test', useFind(authenticationSettingPath))
   const clientSetting = useFind(clientSettingPath).data.at(0)
+  console.log('clientSetting test', useFind(clientSettingPath))
   const loading = useHookstate(getMutableState(AuthState).isProcessing)
   const userId = selfUser.id.value
   const apiKey = useFind(userApiKeyPath).data[0]
+  console.log('apiKey test', useFind(userApiKeyPath))
   const isGuest = selfUser.isGuest.value
   const acceptedTOS = useMutableState(TermsOfServiceState).accepted.value
 
@@ -384,8 +388,27 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
 
   const enableConnect = authState?.value?.emailMagicLink || authState?.value?.smsMagicLink
 
+  console.log('hideLogin (within ProfileMenu)', hideLogin)
+  console.log('acceptedTOS (within ProfileMenu)', acceptedTOS)
+  console.log('enableSocial (within ProfileMenu)', enableSocial)
+  console.log('checked13OrOver (within ProfileMenu)', checked13OrOver.value)
+  console.log('checked18OrOver (within ProfileMenu)', checked18OrOver)
+  console.log('authSetting (within ProfileMenu)', authSetting)
+
   return (
     <div className="absolute z-50 h-fit max-h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 smh:max-h-[60dvh] smh:px-8 smh:py-6">
+      <div className="items-end">
+        <button
+          className={twMerge(
+            'flex h-[2rem] w-[2rem] items-center justify-center justify-self-end rounded-full text-ui-secondary hover:text-ui-hover-secondary focus:bg-ui-select-primary'
+          )}
+          onClick={() => {
+            ModalState.closeModal()
+          }}
+        >
+          <XCloseMd className="h-[1.5rem] w-[1.5rem]" />
+        </button>
+      </div>
       <div className="relative grid w-full grid-cols-5 gap-x-2">
         <div className="col-span-3 grid grid-cols-[auto,1fr] gap-x-6">
           <div className="relative h-20 w-20">
@@ -401,6 +424,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
                     )
                   }}
                   className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#DDE1E5] p-2"
+                  data-testid="profile-menu-avatar-edit-button"
                 >
                   <Edit01Lg className="place-items-center text-text-secondary" />
                 </button>
@@ -409,13 +433,17 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
           </div>
 
           <div className="flex flex-col">
-            <Text fontSize="xl" fontWeight="semibold" className="text-text-primary">
+            <Text fontSize="xl" fontWeight="semibold" className="text-text-primary" data-testid="profile-menu-username">
               {hasAdminAccess ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
               <span>{hasAdminAccess ? ' Admin' : isGuest ? ' Guest' : ' User'}</span>
             </Text>
 
             {acceptedTOS && (
-              <button className="w-fit" onClick={() => showUserId.set(!showUserId.value)}>
+              <button
+                className="w-fit"
+                data-testid={`profile-menu-${showUserId.value ? 'hide' : 'show'}-user-id-button`}
+                onClick={() => showUserId.set(!showUserId.value)}
+              >
                 <Text fontSize="sm" className="text-text-primary">
                   {showUserId.value ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
                 </Text>
@@ -423,7 +451,11 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             )}
 
             {acceptedTOS && apiKey?.id && (
-              <button onClick={() => showApiKey.set(!showApiKey.value)} className="w-fit text-text-primary">
+              <button
+                data-testid={`profile-menu-${showApiKey.value ? 'hide' : 'show'}-api-key-button`}
+                onClick={() => showApiKey.set(!showApiKey.value)}
+                className="w-fit text-text-primary"
+              >
                 <Text fontSize="sm">
                   {showApiKey.value ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
                 </Text>
@@ -438,16 +470,21 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               'flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-ui-secondary p-2 text-text-primary-button hover:bg-ui-hover-secondary focus:bg-ui-select-secondary',
               initialized ? 'justify-self-end' : 'col-start-3'
             )}
+            data-testid="profile-menu-settings-button"
             onClick={() => {
               ModalState.openModal(<SettingsMenu />)
             }}
           >
             <CogLg className="h-[1.875rem] w-[1.875rem]" />
           </button>
-
           {initialized && (
             <div className="flex w-full flex-col items-end gap-y-4">
-              <Button variant="secondary" className="w-[136px] rounded-[10px] lg:w-full" onClick={openChat}>
+              <Button
+                variant="secondary"
+                className="w-[136px] rounded-[10px] lg:w-full"
+                data-testid="profile-menu-help-chat-button"
+                onClick={openChat}
+              >
                 <HelpIconLg />
                 {t('user:usermenu.profile.helpChat')}
               </Button>
@@ -456,6 +493,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
                 variant="red"
                 fullWidth={!isMobile}
                 className="w-[136px] rounded-[10px] lg:w-full"
+                data-testid="profile-menu-report-space-button"
                 onClick={() => ModalState.openModal(<ReportMenu type="location" locationId={currentLocation.id} />)}
               >
                 <ReportWebsiteDefaullg />
@@ -496,7 +534,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
                 checked={checked13OrOver.value}
                 onChange={() => checked13OrOver.set((v) => !v)}
                 disabled={checked13OrOver.value}
-                label={t('user:usermenu.profile.confirmAge13')}
+                label={t('user:usermenu.profile.confirmAge16')}
               />
             </>
           )}
@@ -534,6 +572,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             </button>
           }
           fullWidth
+          data-testid="profile-menu-username-input"
         />
 
         {showUserId.value && (
@@ -546,6 +585,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             endComponent={
               <button
                 className="h-4 w-4 text-text-primary"
+                data-testid="profile-menu-user-id-copy-button"
                 onMouseDown={() => {
                   navigator.clipboard.writeText(userId)
                   NotificationService.dispatchNotify(t('user:usermenu.profile.userIdCopied'), {
@@ -557,6 +597,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               </button>
             }
             fullWidth
+            data-testid="profile-menu-user-id-input"
           />
         )}
 
@@ -575,6 +616,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             endComponent={
               <button
                 className="h-4 w-4 text-text-primary"
+                data-testid="profile-menu-api-key-copy-button"
                 onMouseDown={() => {
                   navigator.clipboard.writeText(apiKey?.token)
                   NotificationService.dispatchNotify(t('user:usermenu.profile.apiKeyCopied'), {
@@ -586,6 +628,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               </button>
             }
             fullWidth
+            data-testid="profile-menu-api-key-input"
           />
         )}
 
@@ -600,11 +643,16 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               state={error.value ? 'error' : undefined}
               helperText={error.value ? getErrorText() : ''}
               endComponent={
-                <button className="h-4 w-4 text-text-primary" onMouseDown={handleGuestSubmit}>
+                <button
+                  className="h-4 w-4 text-text-primary"
+                  data-testid="profile-menu-submit-email-phone-number-button"
+                  onMouseDown={handleGuestSubmit}
+                >
                   <Send01Lg />
                 </button>
               }
               fullWidth
+              data-testid="profile-menu-email-phone-number-input"
               value={emailPhone.value}
               onChange={(e) => {
                 emailPhone.set(e.target.value)
@@ -618,6 +666,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
         <div className="grid w-1/2 grid-cols-1 gap-y-1 px-5 smh:mt-5 smh:gap-y-2">
           <button
             className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
+            data-testid="profile-menu-logout-button"
             onClick={() => {
               ModalState.closeModal() // Close the ProfileMenu popover
               ModalState.openModal(
@@ -643,6 +692,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
 
           <button
             className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
+            data-testid="profile-menu-delete-account-button"
             onClick={() => {
               ModalState.closeModal() // Close the ProfileMenu popover
               ModalState.openModal(
@@ -674,7 +724,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
 
       {!hideLogin && acceptedTOS && enableSocial && (
         <div className="flex w-full items-center justify-between gap-x-4">
-          <div className="flex items-center gap-x-4">
+          <div className="flex items-center gap-x-4" data-testid="profile-menu-social-login-buttons">
             {authState?.value?.facebook && (
               <Tooltip
                 position="top"
@@ -682,6 +732,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               >
                 <button
                   className="relative h-8 w-8"
+                  data-testid="profile-menu-facebook-sso-login-button"
                   onClick={() => {
                     if (oauthConnectedState.facebook.value) {
                       handleRemoveOAuthServiceClick('facebook')
@@ -704,6 +755,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               >
                 <button
                   className="relative h-8 w-8"
+                  data-testid="profile-menu-twitter-sso-login-button"
                   onClick={() => {
                     if (oauthConnectedState.twitter.value) {
                       handleRemoveOAuthServiceClick('twitter')
@@ -726,6 +778,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               >
                 <button
                   className="relative h-8 w-8"
+                  data-testid="profile-menu-google-sso-login-button"
                   onClick={() => {
                     if (oauthConnectedState.google.value) {
                       handleRemoveOAuthServiceClick('google')
@@ -748,6 +801,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               >
                 <button
                   className="relative h-8 w-8"
+                  data-testid="profile-menu-apple-sso-login-button"
                   onClick={() => {
                     if (oauthConnectedState.apple.value) {
                       handleRemoveOAuthServiceClick('apple')
@@ -770,6 +824,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               >
                 <button
                   className="relative h-8 w-8"
+                  data-testid="profile-menu-github-sso-login-button"
                   onClick={() => {
                     if (oauthConnectedState.github.value) {
                       handleRemoveOAuthServiceClick('github')
@@ -792,6 +847,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               >
                 <button
                   className="relative h-8 w-8"
+                  data-testid="profile-menu-discord-sso-login-button"
                   onClick={() => {
                     if (oauthConnectedState.discord.value) {
                       handleRemoveOAuthServiceClick('discord')
@@ -813,7 +869,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
       )}
 
       <div className="mt-1 flex w-full items-center justify-center gap-x-2 smh:mt-5">
-        <a href={clientSetting?.privacyPolicy} target="_blank">
+        <a href={clientSetting?.privacyPolicy} data-testid="profile-menu-privacy-policy-link" target="_blank">
           <Text className="text-center text-text-primary" fontSize="sm">
             {t('user:usermenu.profile.privacyPolicy')}
           </Text>

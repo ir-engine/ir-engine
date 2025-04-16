@@ -90,6 +90,7 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
         className={`pointer-events-auto relative h-[80px] w-[80px] overflow-hidden rounded-[90px] lg:h-[131px] lg:w-[131px] ${
           (!videoMediaStream || videoStreamPaused) && 'hidden lg:block'
         }`}
+        data-testid="video-window"
         onClick={() => {
           if (isScreen && isPiP) togglePiP()
         }}
@@ -99,6 +100,7 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
           <img
             src={avatarThumbnail}
             alt={t('user:avatar.avatar')}
+            data-testid="avatar-thumbnail"
             crossOrigin="anonymous"
             draggable={false}
             className="bg-[radial-gradient(circle,_#DDDDDD,_#726B65)]"

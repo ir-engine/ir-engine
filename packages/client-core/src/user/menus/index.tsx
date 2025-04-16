@@ -53,6 +53,7 @@ export default function UserMenus() {
               position: 'top'
             }}
             icon={isMobile ? User01Md : User01Lg}
+            data-testid="open-profile-menu"
             onClick={() => ModalState.openModal(<ProfileMenu />)}
           />
         )}
@@ -63,6 +64,7 @@ export default function UserMenus() {
               position: 'top'
             }}
             icon={isMobile ? Send01Md : Send01Lg}
+            data-testid="send-location-button"
             onClick={() => ModalState.openModal(<ShareMenu />)}
           />
         )}
@@ -73,6 +75,7 @@ export default function UserMenus() {
               position: 'top'
             }}
             icon={isMobile ? EmoteLg : EmoteM}
+            data-testid="open-emote-menu"
             onClick={() => ModalState.openModal(<EmoteMenu />, undefined, 'transparent')}
           />
         )}
@@ -83,6 +86,7 @@ export default function UserMenus() {
               position: 'top'
             }}
             icon={FaUserFriends}
+            data-testid="open-friends-menu"
             onClick={() => ModalState.openModal(<FriendsMenu />)}
           />
         )}

@@ -34,6 +34,7 @@ import {
   Engine,
   EngineState,
   Entity,
+  EntityTreeComponent,
   EntityUUID,
   getMutableComponent,
   removeEntity,
@@ -49,6 +50,7 @@ import { destroySpatialEngine, destroySpatialViewer } from '../../initializeEngi
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
@@ -78,6 +80,7 @@ describe('ClientInputHeuristics', () => {
 
   describe('boundingBoxHeuristic', () => {
     let testEntity = UndefinedEntity
+    let viewerEntity = UndefinedEntity
 
     beforeEach(async () => {
       createEngine()
@@ -85,10 +88,15 @@ describe('ClientInputHeuristics', () => {
       testEntity = createEntity()
       setComponent(testEntity, TransformComponent)
       setComponent(testEntity, VisibleComponent)
+
+      viewerEntity = createEntity()
+      setComponent(viewerEntity, RendererComponent, { scenes: [viewerEntity] })
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: viewerEntity })
     })
 
     afterEach(() => {
       removeEntity(testEntity)
+      removeEntity(viewerEntity)
       destroySpatialEngine()
       destroySpatialViewer()
       return destroyEngine()
@@ -106,7 +114,7 @@ describe('ClientInputHeuristics', () => {
         const data = new Set<IntersectionData>()
 
         // Run and check that nothing was added
-        boundingBoxHeuristic(data, rayOrigin, rayDirection)
+        boundingBoxHeuristic(viewerEntity, data, rayOrigin, rayDirection)
         assert.equal(data.size, 0)
       })
 
@@ -120,7 +128,7 @@ describe('ClientInputHeuristics', () => {
         const data = new Set<IntersectionData>()
 
         // Run and check that nothing was added
-        boundingBoxHeuristic(data, rayOrigin, rayDirection)
+        boundingBoxHeuristic(viewerEntity, data, rayOrigin, rayDirection)
         assert.equal(data.size, 0)
       })
 
@@ -139,7 +147,7 @@ describe('ClientInputHeuristics', () => {
         const rayDirection = new Vector3(1, 0, 0).normalize()
         const data = new Set<IntersectionData>()
 
-        boundingBoxHeuristic(data, rayOrigin, rayDirection)
+        boundingBoxHeuristic(viewerEntity, data, rayOrigin, rayDirection)
         assertFloat.approxEq(1, Array.from(data)[0].distance)
         assert.equal(data.size, 1)
         const result = [...data]
@@ -151,6 +159,7 @@ describe('ClientInputHeuristics', () => {
         const otherEntity = createEntity()
         setComponent(otherEntity, TransformComponent)
         setComponent(otherEntity, VisibleComponent)
+        setComponent(otherEntity, EntityTreeComponent, { parentEntity: viewerEntity })
         type OwnedBox = { entity: Entity; box: Box3 }
         const box1Min = new Vector3(1.1, 1.1, 1.1)
         const box1Max = new Vector3(3.1, 3.1, 3.1)
@@ -175,7 +184,7 @@ describe('ClientInputHeuristics', () => {
         const rayDirection = new Vector3(2, 2, 2)
         const data = new Set<IntersectionData>()
 
-        boundingBoxHeuristic(data, rayOrigin, rayDirection)
+        boundingBoxHeuristic(viewerEntity, data, rayOrigin, rayDirection)
         assert.equal(data.size, boxes.length)
         const result = [...data]
         for (let id = 0; id < boxes.length; ++id) {
@@ -187,12 +196,17 @@ describe('ClientInputHeuristics', () => {
   })
 
   describe('meshHeuristic', () => {
+    let viewerEntity = UndefinedEntity
+
     beforeEach(() => {
       createEngine()
       mockSpatialEngine()
+      viewerEntity = createEntity()
+      setComponent(viewerEntity, RendererComponent, { scenes: [viewerEntity] })
     })
 
     afterEach(() => {
+      removeEntity(viewerEntity)
       destroySpatialEngine()
       destroySpatialViewer()
       return destroyEngine()
@@ -205,12 +219,14 @@ describe('ClientInputHeuristics', () => {
         setComponent(one, TransformComponent, { position: new Vector3(1, 1, 1) })
         setComponent(one, VisibleComponent)
         setComponent(one, MeshComponent, box1)
+        setComponent(one, EntityTreeComponent, { parentEntity: viewerEntity })
 
         const box2 = new Mesh(new BoxGeometry(0.5, 0.5, 0.5))
         const two = createEntity()
         setComponent(two, TransformComponent, { position: new Vector3(2, 2, 2) })
         setComponent(two, VisibleComponent)
         setComponent(two, MeshComponent, box2)
+        setComponent(two, EntityTreeComponent, { parentEntity: viewerEntity })
         const KnownEntities = [one, two]
 
         getMutableState(EngineState).isEditing.set(true)
@@ -220,7 +236,7 @@ describe('ClientInputHeuristics', () => {
         const rayOrigin = new Vector3(0, 0, 0)
         const rayDirection = new Vector3(1, 1, 1).normalize()
 
-        meshHeuristic(data, rayOrigin, rayDirection)
+        meshHeuristic(viewerEntity, data, rayOrigin, rayDirection)
         /** @todo find out why there are 7 hits returned... */
         assert.notEqual(data.size, 0)
         for (const hit of [...data]) {
@@ -239,12 +255,14 @@ describe('ClientInputHeuristics', () => {
         // setComponent(one, VisibleComponent)  // Do not make it visible, so it doesn't hit the meshesQuery
         setComponent(one, MeshComponent, box1)
         setComponent(one, ObjectComponent, box1)
+        setComponent(one, EntityTreeComponent, { parentEntity: viewerEntity })
         const box2 = new Mesh(new BoxGeometry(2, 2, 2))
         const two = createEntity()
         setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
         // setComponent(two, VisibleComponent)  // Do not make it visible, so it doesn't hit the meshesQuery
         setComponent(two, MeshComponent, box2)
         setComponent(two, ObjectComponent, box2)
+        setComponent(two, EntityTreeComponent, { parentEntity: viewerEntity })
         const KnownEntities = [one, two]
         getMutableState(InputState).inputMeshes.set(new Set(KnownEntities))
 
@@ -253,7 +271,7 @@ describe('ClientInputHeuristics', () => {
         const rayOrigin = new Vector3(0, 0, 0)
         const rayDirection = new Vector3(3, 3, 3).normalize()
 
-        meshHeuristic(data, rayOrigin, rayDirection)
+        meshHeuristic(viewerEntity, data, rayOrigin, rayDirection)
         assert.notEqual(data.size, 0)
         for (const hit of [...data]) {
           assert.equal(KnownEntities.includes(hit.entity), true)

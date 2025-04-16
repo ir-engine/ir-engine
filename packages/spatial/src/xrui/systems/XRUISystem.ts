@@ -38,7 +38,11 @@ import { EngineState } from '@ir-engine/ecs'
 import { ClientInputSystem } from '../../SpatialModule'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { InputHeuristicState, IntersectionData } from '../../input/functions/ClientInputHeuristics'
+import {
+  filterEntitiesByViewer,
+  InputHeuristicState,
+  IntersectionData
+} from '../../input/functions/ClientInputHeuristics'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { TransformSystem } from '../../transform/systems/TransformSystem'
 import { PointerComponent, PointerObject } from '../components/PointerComponent'
@@ -227,14 +231,20 @@ export const XRUISystem = defineSystem({
 const getIntersectionRays = (eid: Entity) => getComponent(eid, InputSourceComponent).raycaster.ray
 
 const _inputRay = new Ray()
-export function xruiInputHeuristic(intersectionData: Set<IntersectionData>, position: Vector3, direction: Vector3) {
+export function xruiInputHeuristic(
+  viewerEntity: Entity,
+  intersectionData: Set<IntersectionData>,
+  position: Vector3,
+  direction: Vector3
+) {
   const isEditing = getState(EngineState).isEditing
   if (isEditing) return
 
   _inputRay.origin.copy(position)
   _inputRay.direction.copy(direction)
 
-  for (const entity of xruiQuery()) {
+  const entities = xruiQuery().filter((eid) => filterEntitiesByViewer(eid, viewerEntity))
+  for (const entity of entities) {
     const xrui = getComponent(entity, XRUIComponent)
     const layerHit = xrui.hitTest(_inputRay)
     if (

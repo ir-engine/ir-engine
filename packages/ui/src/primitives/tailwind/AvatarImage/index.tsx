@@ -69,6 +69,7 @@ const AvatarImage = ({ src, size = 'medium', className, name }: AvatarImageProps
   return imageLoaded.value ? (
     <img
       className={twMerge(`${sizes[size]} rounded-full bg-[radial-gradient(circle,_#DDDDDD,_#726B65)]`, className)}
+      data-testid="avatar-image"
       src={src}
       alt={src.split('/').at(-1)}
       onError={() => imageLoaded.set(false)}
