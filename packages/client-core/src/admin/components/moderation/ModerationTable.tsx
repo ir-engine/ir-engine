@@ -24,14 +24,14 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import DataTable, { ITableHeadCell } from '@ir-engine/client-core/src/admin/common/Table'
-import { useFind, useSearch } from '@ir-engine/common'
-import { moderationPath, ModerationType } from '@ir-engine/common/src/schema.type.module'
+import { useFind } from '@ir-engine/common'
+import { moderationPath, ModerationType, userPath } from '@ir-engine/common/src/schema.type.module'
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import { Select } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { t } from 'i18next'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoArrowForward } from 'react-icons/io5'
 import { UserDisplayName } from './common/UserDisplayName'
@@ -62,6 +62,15 @@ export default function ModerationTable({ search }) {
   const { t } = useTranslation()
   const [statusFilter, setStatusFilter] = useState(ModerationFilterStatus.All)
   const [selectedReport, setSelectedReport] = useState<ModerationType>()
+  const [searchQuery, setSearchQuery] = useState('')
+
+  useEffect(() => {
+    const searchDelayTimer = setTimeout(() => {
+      setSearchQuery(search)
+    }, 1000)
+
+    return () => clearTimeout(searchDelayTimer)
+  }, [search])
 
   const handleViewDetails = (report) => {
     setSelectedReport(report)
@@ -72,6 +81,17 @@ export default function ModerationTable({ search }) {
   const handleReportResolve = (report: ModerationType) => {
     setSelectedReport(userReportsQuery.data[userReportsQuery.data.findIndex((r) => r.id === report.id) + 1])
   }
+
+  const userIds = useFind(userPath, {
+    query: {
+      name: {
+        $like: `%${search}%`
+      },
+      $select: ['id'],
+      $limit: 12
+    }
+  }).data.map((user) => user.id)
+
   const userReportsQuery =
     statusFilter == ModerationFilterStatus.All
       ? useFind(moderationPath, {
@@ -79,35 +99,49 @@ export default function ModerationTable({ search }) {
             $limit: 12,
             $sort: {
               referenceNumber: -1
-            }
+            },
+            ...(searchQuery && {
+              $or: [
+                {
+                  referenceNumber: {
+                    $like: `%${searchQuery}%`
+                  }
+                },
+                {
+                  reportedLocationId: isValidId(searchQuery) ? searchQuery : undefined
+                },
+                {
+                  reportedUserId: {
+                    $in: userIds.length ? userIds : ['none']
+                  }
+                }
+              ]
+            })
           }
         })
       : useFind(moderationPath, {
           query: {
             status: statusFilter,
-            $limit: 12
+            $limit: 12,
+            ...(searchQuery && {
+              $or: [
+                {
+                  referenceNumber: {
+                    $like: `%${searchQuery}%`
+                  }
+                },
+                {
+                  reportedLocationId: isValidId(searchQuery) ? searchQuery : undefined
+                },
+                {
+                  reportedUserId: {
+                    $in: userIds.length ? userIds : []
+                  }
+                }
+              ]
+            })
           }
         })
-
-  useSearch(
-    userReportsQuery,
-    {
-      $or: [
-        {
-          referenceNumber: {
-            $like: `%${search}%`
-          }
-        },
-        {
-          reportedLocationId: isValidId(search) ? search : undefined
-        },
-        {
-          reportedUserId: isValidId(search) ? search : undefined
-        }
-      ]
-    },
-    search
-  )
 
   const createRows = (rows: ModerationType[]) =>
     rows.map((moderation) => {
