@@ -24,16 +24,19 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { getState } from '@ir-engine/hyperflux'
-import { Button } from '@ir-engine/ui'
+import { getState, useMutableState } from '@ir-engine/hyperflux'
+import { Button, Tooltip } from '@ir-engine/ui'
+import { ViewportButton } from '@ir-engine/ui/editor'
 import SearchBar from '@ir-engine/ui/src/components/tailwind/SearchBar'
-import { FolderSm, PlusCircleSm, SearchSmSm } from '@ir-engine/ui/src/icons'
+import { Download01Sm, FolderSm, PlusCircleSm, SearchSmSm } from '@ir-engine/ui/src/icons'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { validateImportFolderPath } from '../../components/dialogs/ImportSettingsPanelDialog'
 import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
+import { FilesState } from '../../services/FilesState'
 import { ImportSettingsState } from '../../services/ImportSettingsState'
+import { handleDownloadProject } from '../files/loaders'
 import { BreadCrumbSlash, PanelToolbar } from '../files/toolbar'
 import { AssetCategoryNode } from './categories'
 import { findCategoryByPath } from './helpers'
@@ -107,6 +110,7 @@ export default function Topbar() {
   const { search } = useAssetsQuery()
   const { currentCategoryPath } = useAssetsCategory()
   const { refetchResources, staticResourcesPagination } = useAssetsQuery()
+  const filesState = useMutableState(FilesState)
 
   const handleBack = () => {
     const path = currentCategoryPath.value?.path.split('/') ?? []
@@ -143,6 +147,16 @@ export default function Topbar() {
           }}
           search={search}
         />
+      }
+      utilsComponent={
+        <Tooltip content={t('editor:layout.filebrowser.downloadProject')}>
+          <ViewportButton
+            onClick={() => handleDownloadProject(filesState.projectName.value, filesState.selectedDirectory.value)}
+            data-testid="files-panel-download-project-button"
+            icon={Download01Sm}
+            id="downloadProject"
+          />
+        </Tooltip>
       }
       uploadButton={
         <Button size="l" data-testid="assets-panel-upload-button" onClick={() => uploadFiles().then(handleRefresh)}>

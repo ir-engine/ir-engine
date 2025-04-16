@@ -89,6 +89,11 @@ const ChildMaterialReactor = () => {
   const forceBasicMaterials = useMutableState(RendererState).forceBasicMaterials
   const materialComponent = useComponent(entity, MaterialStateComponent)
   useEffect(() => {
+    if (materialComponent.promised || materialComponent.material.promised) {
+      // The material is still loading; don't access its value yet.
+      // This happens when setting graphics quality to 0, in many cases. HookState will throw a 103 error. see https://tsu.atlassian.net/browse/IR-8475
+      return
+    }
     if (!materialComponent.material.value || !materialComponent.instances.length) return
     convertMaterials(entity, forceBasicMaterials.value)
   }, [

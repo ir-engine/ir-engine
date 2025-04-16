@@ -1,4 +1,4 @@
-{
+{ 
   "loading": "Loading Project",
   "loadingNode": "Loading {{name}} Editor...",
   "loadingError": "Error loading project",
@@ -140,13 +140,11 @@
     "transformPivot": {
       "toggleTransformPivot": "[X] Toggle Transform Pivot",
       "lbl-selection": "Selection",
-      "info-selection": "The center pivot of the final asset you selected in the sequence.",
+      "info-selection": "The center pivot of the first entity you selected in the sequence.",
       "lbl-center": "Center",
-      "info-center": "A pivot that sits at an equal distance between all selections (centroid).",
-      "lbl-bbox": "BoundingBox",
-      "info-bbox": "A pivot that uses the center point of a bounding box containing all selected entities' positions.",
-      "lbl-bbox-bottom": "BBoxBottom",
-      "info-bbox-bottom": "A pivot that sits at the center of the bottom face of a bounding box containing all selected entities' positions.",
+      "info-center": "A pivot that uses the center point of a bounding box containing all selected entities' positions.",
+      "lbl-bottom": "Bottom",
+      "info-bottom": "A pivot that sits at the center of the bottom face of a bounding box containing all selected entities' positions.",
       "lbl-origin": "Origin",
       "info-origin": "Sets pivot mode to the world origin (0,0,0)"
     },
@@ -1060,7 +1058,9 @@
       "lbl-alpha-uv-scale": "Alpha UV Scale",
       "lbl-alpha-uv-scale-info": "The scale of the alpha channel in UV space",
       "lbl-synchronized-media-source": "Synchronized Media Source",
-      "lbl-synchronized-media-source-info": "Synchronized Media Source"
+      "lbl-synchronized-media-source-info": "Synchronized Media Source",
+      "lbl-aspect-ratio": "Aspect Ratio",
+      "lbl-match-aspect-ratio": "Match Aspect Ratio"
     },
     "volumetric": {
       "name": "Volumetric",
@@ -1555,6 +1555,18 @@
     "createScene": {
       "title": "New Scene",
       "create": "New Empty Scene"
+    },
+    "addScene": {
+      "continue": "Continue",
+      "cancel": "Back To Editor",
+      "title": "Select a way to get started",
+      "optionButtons": {
+        "defaultEditor": {
+          "title": "Blank Scene",
+          "description": "Use the advanced iR Spaces Editor to create your Space from the ground up. Recommended for experienced 3D creators.",
+          "submitButtonText": "Continue in Editor"
+        }
+      }
     },
     "file": "file",
     "folder": "folder"
