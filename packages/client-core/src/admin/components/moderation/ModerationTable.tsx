@@ -31,7 +31,7 @@ import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import { Select } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { t } from 'i18next'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoArrowForward } from 'react-icons/io5'
 import { UserDisplayName } from './common/UserDisplayName'
@@ -62,15 +62,6 @@ export default function ModerationTable({ search }) {
   const { t } = useTranslation()
   const [statusFilter, setStatusFilter] = useState(ModerationFilterStatus.All)
   const [selectedReport, setSelectedReport] = useState<ModerationType>()
-  const [searchQuery, setSearchQuery] = useState('')
-
-  useEffect(() => {
-    const searchDelayTimer = setTimeout(() => {
-      setSearchQuery(search)
-    }, 1000)
-
-    return () => clearTimeout(searchDelayTimer)
-  }, [search])
 
   const handleViewDetails = (report) => {
     setSelectedReport(report)
@@ -100,15 +91,15 @@ export default function ModerationTable({ search }) {
             $sort: {
               referenceNumber: -1
             },
-            ...(searchQuery && {
+            ...(search && {
               $or: [
                 {
                   referenceNumber: {
-                    $like: `%${searchQuery}%`
+                    $like: `%${search}%`
                   }
                 },
                 {
-                  reportedLocationId: isValidId(searchQuery) ? searchQuery : undefined
+                  reportedLocationId: isValidId(search) ? search : undefined
                 },
                 {
                   reportedUserId: {
@@ -123,15 +114,15 @@ export default function ModerationTable({ search }) {
           query: {
             status: statusFilter,
             $limit: 12,
-            ...(searchQuery && {
+            ...(search && {
               $or: [
                 {
                   referenceNumber: {
-                    $like: `%${searchQuery}%`
+                    $like: `%${search}%`
                   }
                 },
                 {
-                  reportedLocationId: isValidId(searchQuery) ? searchQuery : undefined
+                  reportedLocationId: isValidId(search) ? search : undefined
                 },
                 {
                   reportedUserId: {
