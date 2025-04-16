@@ -64,7 +64,6 @@ import { useXRUIState } from '@ir-engine/engine/src/xrui/useXRUIState'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { inFrustum } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { smootheLerpAlpha } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
-import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import {
   DistanceFromCameraComponent,
   DistanceFromLocalClientComponent
@@ -290,22 +289,14 @@ export const InteractableComponent = defineComponent({
 
     InputComponent.useExecuteWithInput(
       () => {
-        const buttons = InputComponent.getMergedButtons(entity)
-        if (!interactableComponent.clickInteract.value && buttons.PrimaryClick?.pressed) return
-        if (
-          buttons.Interact?.pressed &&
-          !buttons.Interact?.dragging &&
-          getState(InputState).capturingEntity === UndefinedEntity
-        ) {
-          InputState.setCapturingEntity(entity)
-
-          if (buttons.Interact?.up) {
-            callInteractCallbacks(entity)
-          }
+        const buttons = InputComponent.getButtons(entity)
+        if (!interactableComponent.clickInteract.value) return
+        if (buttons.Interact?.up && !buttons.Interact.dragging) {
+          callInteractCallbacks(entity)
         }
       },
-      true,
-      InputExecutionOrder.After
+      InputExecutionOrder.After,
+      true
     )
 
     useEffect(() => {

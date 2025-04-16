@@ -85,7 +85,7 @@ export const GLTFComponent = defineComponent({
     library: S.Bool(false),
 
     /** @todo move this to it's own component */
-    cameraOcclusion: S.Bool(false),
+    cameraOcclusion: S.Bool(true),
 
     //collision info
     applyColliders: S.Bool(false),
