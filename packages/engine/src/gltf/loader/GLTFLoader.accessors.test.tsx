@@ -494,8 +494,15 @@ describe('glTF: Accessor Type', () => {
       expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
     })
 
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.accessor.max */
+    it.fails('MUST treat values as having the same data type as accessor’s componentType.', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAccessor())
+      options.document.accessors![0].componentType = 5125 // UNSIGNED_INT
+      options.document.accessors![0].max = [-1, -2.0, -3] // Not unsigned ints
+      expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
+    })
+
     /** @todo */
-    it.todo('MUST treat values as having the same data type as accessor’s componentType.', () => {})
     it.todo(
       'MUST contain maximum values of accessor data with sparse substitution applied when the accessor is sparse.',
       () => {}
@@ -602,8 +609,15 @@ describe('glTF: Accessor Type', () => {
       expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
     })
 
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.accessor.max */
+    it.fails('MUST treat values as having the same data type as accessor’s componentType.', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAccessor())
+      options.document.accessors![0].componentType = 5125 // UNSIGNED_INT
+      options.document.accessors![0].min = [-1, -2.0, -3] // Not unsigned ints
+      expect(GLTFLoaderFunctions.loadAccessor(options, 0)).rejects.toThrowError()
+    })
+
     /** @todo */
-    it.todo('MUST treat values as having the same data type as accessor’s componentType.', () => {})
     it.todo(
       'MUST contain minimum values of accessor data with sparse substitution applied when the accessor is sparse.',
       () => {}
