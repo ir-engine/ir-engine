@@ -96,6 +96,7 @@ export default function ModerationTable({ search }) {
     },
     search
   )
+
   const createRows = (rows: ModerationType[]) =>
     rows.map((moderation) => {
       return {
