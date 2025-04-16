@@ -71,12 +71,10 @@ export function Browser() {
   }, [])
 
   useEffect(() => {
-    console.log('mbf', thumbnailJobState.jobs.length)
     if (debouncedRefetchDirectoryRef) {
       clearTimeout(debouncedRefetchDirectoryRef.current)
     }
     debouncedRefetchDirectoryRef.current = setTimeout(() => {
-      console.log('mbf', 'refreshDirectory')
       refreshDirectory()
     }, 1000)
   }, [thumbnailJobState.jobs.length])
