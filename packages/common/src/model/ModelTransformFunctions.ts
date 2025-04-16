@@ -58,7 +58,6 @@ import { $attributes } from 'property-graph'
 import { LoaderUtils } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
-import config from '@ir-engine/common/src/config'
 import {
   ExtractedImageTransformParameters,
   extractParameters,
@@ -80,9 +79,7 @@ import {
   EEResourceIDExtension
 } from '@ir-engine/engine/src/assets/compression/extensions/EE_ResourceIDTransformer'
 import { UploadRequestState } from '@ir-engine/engine/src/assets/state/UploadRequestState'
-import { API } from '../API.ts'
 import { MATCH_ASSET_PROJECT_FILENAME_REGEX, VALID_FILENAME_REGEX } from '../regex'
-import { fileBrowserPath } from '../schemas/media/file-browser.schema.ts'
 import ModelTransformLoader from './ModelTransformLoader'
 /**
  * https://ir.world/projects/ir-engine/default-project/assets/collisioncube-LOD0.glb
@@ -753,15 +750,6 @@ const writeFiles = async (
       })
     )
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
-    const folderURL = resourcePath.replace(config.client.fileServer, '')
-    const trimmedFolderURL = folderURL.startsWith('/') ? folderURL.slice(1) : folderURL
-
-    //create the folder, needed to trim leading '/' from the URL
-    const fileBrowserService = API.instance.service(fileBrowserPath)
-    const folderExists = await fileBrowserService.get(trimmedFolderURL)
-    if (!folderExists) {
-      await fileBrowserService.create(trimmedFolderURL)
-    }
 
     const removeExtension = (uri: string) => {
       const pathSegments = uri.split('/')
