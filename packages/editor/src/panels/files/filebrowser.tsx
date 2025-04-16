@@ -27,7 +27,7 @@ import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/service
 import { useFind } from '@ir-engine/common'
 import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import { twMerge } from 'tailwind-merge'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
@@ -64,8 +64,21 @@ export function Browser() {
     })
   }
 
+  const debouncedRefetchDirectoryRef = useRef<ReturnType<typeof setTimeout>>()
+
   useEffect(() => {
-    refreshDirectory()
+    clearTimeout(debouncedRefetchDirectoryRef.current)
+  }, [])
+
+  useEffect(() => {
+    console.log('mbf', thumbnailJobState.jobs.length)
+    if (debouncedRefetchDirectoryRef) {
+      clearTimeout(debouncedRefetchDirectoryRef.current)
+    }
+    debouncedRefetchDirectoryRef.current = setTimeout(() => {
+      console.log('mbf', 'refreshDirectory')
+      refreshDirectory()
+    }, 1000)
   }, [thumbnailJobState.jobs.length])
 
   const staticResourceDataQuery = useFind(staticResourcePath, {

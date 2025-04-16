@@ -417,7 +417,7 @@ function ResourceItems() {
     }
     debouncedRefetchResourcesRef.current = setTimeout(() => {
       refetchResources()
-    }, 500)
+    }, 1000)
   }, [thumbnailJobState.jobs.length])
 
   useEffect(() => {
