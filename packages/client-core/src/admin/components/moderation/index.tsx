@@ -47,7 +47,7 @@ export default function Moderation() {
                 <ModerationTable search={search.local.value} />
               </div>
             ),
-            topComponent: <SearchBar search={search} />
+            topComponent: <SearchBar search={search} debounceTime={1000} />
           },
           {
             title: t('admin:components.moderation.bannedUsers'),
@@ -57,7 +57,7 @@ export default function Moderation() {
                 <ModerationBanContainer search={search.local.value} />
               </div>
             ),
-            topComponent: <SearchBar search={search} />
+            topComponent: <SearchBar search={search} debounceTime={1000} />
           }
         ]}
         onTabChange={() => search.set({ local: '', query: '' })}

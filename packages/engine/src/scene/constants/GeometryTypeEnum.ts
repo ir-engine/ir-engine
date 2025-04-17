@@ -58,13 +58,13 @@ export enum GeometryTypeEnum {
 
 export const GeometryTypeParamsEnum = {
   [GeometryTypeEnum.BoxGeometry]: {
-    width: { default: 1, min: 0 },
-    height: { default: 1, min: 0 },
-    depth: { default: 1, min: 0 }
+    width: { default: 1, min: 1 },
+    height: { default: 1, min: 1 },
+    depth: { default: 1, min: 1 }
   },
 
   [GeometryTypeEnum.SphereGeometry]: {
-    radius: { default: 1, min: 0 },
+    radius: { default: 1, min: 1 },
     widthSegments: { default: 32, min: 3 },
     heightSegments: { default: 16, min: 2 },
     phiStart: { default: 0, min: 0 },
@@ -76,7 +76,7 @@ export const GeometryTypeParamsEnum = {
   [GeometryTypeEnum.CylinderGeometry]: {
     radiusTop: { default: 1, min: 0 },
     radiusBottom: { default: 1, min: 0 },
-    height: { default: 1, min: 0 },
+    height: { default: 1, min: 1 },
     radialSegments: { default: 8, min: 3 },
     heightSegments: { default: 1, min: 1 },
     openEnded: { default: false },
@@ -85,64 +85,64 @@ export const GeometryTypeParamsEnum = {
   },
 
   [GeometryTypeEnum.CapsuleGeometry]: {
-    radius: { default: 1, min: 0 },
-    length: { default: 1, min: 0 },
+    radius: { default: 1, min: 1 },
+    length: { default: 1, min: 1 },
     capSegments: { default: 4, min: 1 },
     radialSegments: { default: 8, min: 3 }
   },
 
   [GeometryTypeEnum.PlaneGeometry]: {
-    width: { default: 1, min: 0 },
-    height: { default: 1, min: 0 }
+    width: { default: 1, min: 1 },
+    height: { default: 1, min: 1 }
   },
 
   [GeometryTypeEnum.CircleGeometry]: {
-    radius: { default: 1, min: 0 },
-    segments: { default: 32, min: 3 },
+    radius: { default: 1, min: 1 },
+    segments: { default: 32, min: 0 },
     thetaStart: { default: 0, min: 0 },
     thetaLength: { default: Math.PI * 2, min: 0 }
   },
 
   [GeometryTypeEnum.RingGeometry]: {
-    innerRadius: { default: 0.5, min: 0 },
-    outerRadius: { default: 1, min: 0 },
-    thetaSegments: { default: 32, min: 3 },
+    innerRadius: { default: 0.5, min: 1 },
+    outerRadius: { default: 1, min: 1 },
+    thetaSegments: { default: 32, min: 1 },
     phiSegments: { default: 1, min: 1 },
     thetaStart: { default: 0, min: 0 },
     thetaLength: { default: Math.PI * 2, min: 0 }
   },
 
   [GeometryTypeEnum.TorusGeometry]: {
-    radius: { default: 1, min: 0 },
-    tube: { default: 0.4, min: 0 },
-    radialSegments: { default: 8, min: 3 },
+    radius: { default: 1, min: 1 },
+    tube: { default: 0.4, min: 0.1 },
+    radialSegments: { default: 8, min: 2 },
     tubularSegments: { default: 6, min: 3 },
-    arc: { default: Math.PI * 2, min: 0 }
+    arc: { default: Math.PI * 2, min: 0.1 }
   },
 
   [GeometryTypeEnum.DodecahedronGeometry]: {
-    radius: { default: 1, min: 0 },
+    radius: { default: 1, min: 1 },
     detail: { default: 0, min: 0 }
   },
 
   [GeometryTypeEnum.IcosahedronGeometry]: {
-    radius: { default: 1, min: 0 },
+    radius: { default: 1, min: 1 },
     detail: { default: 0, min: 0 }
   },
 
   [GeometryTypeEnum.OctahedronGeometry]: {
-    radius: { default: 1, min: 0 },
+    radius: { default: 1, min: 1 },
     detail: { default: 0, min: 0 }
   },
 
   [GeometryTypeEnum.TetrahedronGeometry]: {
-    radius: { default: 1, min: 0 },
+    radius: { default: 1, min: 1 },
     detail: { default: 0, min: 0 }
   },
 
   [GeometryTypeEnum.TorusKnotGeometry]: {
-    radius: { default: 1, min: 0 },
-    tube: { default: 0.4, min: 0 },
+    radius: { default: 1, min: 1 },
+    tube: { default: 0.4, min: 0.1 },
     tubularSegments: { default: 64, min: 3 },
     radialSegments: { default: 8, min: 3 },
     p: { default: 2, min: 1 },

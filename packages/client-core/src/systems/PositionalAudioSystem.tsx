@@ -108,12 +108,8 @@ const execute = () => {
       continue
     }
 
-    const videoMediaStream = peerMediaState[peer.peerID].cam.videoMediaStream
-    if (!videoMediaStream) {
-      if (avatarAudioStreams.has(networkObject)) avatarAudioStreams.delete(networkObject)
-      continue
-    }
-    const track = videoMediaStream.getVideoTracks()[0]
+    const audioMediaStream = peerMediaState[peer.peerID].cam.audioMediaStream
+    const track = audioMediaStream?.getAudioTracks()[0]
 
     // avatar still exists but audio stream does not
     if (!track) {
@@ -133,9 +129,7 @@ const execute = () => {
       continue
     }
 
-    // get existing stream - need to wait for UserWindowMedia to populate
-    /** @todo we need to properly handle this */
-    const existingAudioObject = document.getElementById(`${ownerID}_audio`)! as HTMLAudioElement
+    const existingAudioObject = peerMediaState[peer.peerID].cam.audioElement
     if (!existingAudioObject) continue
 
     // mute existing stream
