@@ -619,6 +619,6 @@ export const getGLTFOptions = (entity: Entity): GLTFParserOptions => {
     body: gltfComponent.body,
     requestHeader: {},
     manager,
-    preload: true
+    loadAll: true
   }
 }

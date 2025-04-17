@@ -571,6 +571,7 @@ describe('GLTF Loader', async () => {
     setComponent(entity2, GLTFComponent, { src: duck_gltf })
 
     await waitForScene(entity)
+    await waitForScene(entity2)
 
     const instanceID = GLTFComponent.getInstanceID(entity)
     const instanceID2 = GLTFComponent.getInstanceID(entity2)

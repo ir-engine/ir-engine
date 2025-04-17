@@ -1637,7 +1637,7 @@ const loadLibrary = async (
   getComponent(options.entity, GLTFComponent).body = null
 }
 
-const loadGLTFDependencies = async (options: GLTFParserOptions) => {
+const loadGLTFDependencies = (options: GLTFParserOptions) => {
   const gltf = options.document
   const deps = [] as Promise<any>[]
 
@@ -1649,11 +1649,11 @@ const loadGLTFDependencies = async (options: GLTFParserOptions) => {
     deps.push(getDependency(options, 'material', i))
   }
 
-  for (let i = 0, len = gltf.animations?.length ?? 0; i < len; i++) {
-    deps.push(getDependency(options, 'animation', i))
+  for (let i = 0, len = gltf.buffers?.length ?? 0; i < len; i++) {
+    deps.push(getDependency(options, 'buffer', i))
   }
 
-  return Promise.all(deps)
+  return deps
 }
 
 const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
@@ -1664,8 +1664,6 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   loadDeltas(json)
 
   DependencyCache.set(options.url, new Map())
-
-  if (options.preload) await loadGLTFDependencies(options)
 
   const sceneDef = json.scenes![sceneIndex]
   const nodeIds = sceneDef.nodes || []
@@ -1685,6 +1683,7 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   }
 
   const loadedNodeEntities = await Promise.all(pending)
+  if (options.loadAll) await Promise.all(loadGLTFDependencies(options))
 
   for (const entity of loadedNodeEntities) {
     setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity })
@@ -1804,5 +1803,5 @@ export type GLTFParserOptions = {
   manager: LoadingManager
   path: string
   requestHeader: Record<string, string>
-  preload: boolean
+  loadAll: boolean
 }
