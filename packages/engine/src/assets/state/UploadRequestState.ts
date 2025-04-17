@@ -29,6 +29,7 @@ export type UploadRequest = {
   file: File
   projectName: string
   callback?: () => void
+  path?: string
 }
 
 export const UploadRequestState = defineState({

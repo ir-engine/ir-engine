@@ -79,7 +79,10 @@ export const isValidFileType = function (fileType: string, fileName: string): bo
     fileType.startsWith('video/') ||
     fileType.startsWith('model/') ||
     (fileType === 'application/octet-stream' &&
-      (fileName.endsWith('.gltf') || fileName.endsWith('.glb') || fileName.endsWith('.bin'))) ||
+      (fileName.endsWith('.ktx2') ||
+        fileName.endsWith('.gltf') ||
+        fileName.endsWith('.glb') ||
+        fileName.endsWith('.bin'))) ||
     (fileType === 'application/macbinary' && fileName.endsWith('.bin')) // Mac changes the mimetype to this when using browser document upload.
   )
 }
