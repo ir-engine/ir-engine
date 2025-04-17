@@ -2,8 +2,12 @@ name: Chromatic
 
 on:
   pull_request:
-    paths:
-      - '**/*.tsx'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for running Chromatic'
+        required: false
+        default: 'Manual trigger'
 
 jobs:
   check-and-publish:
@@ -33,3 +37,4 @@ jobs:
         uses: chromaui/action@v1
         with:
           projectToken: ${{ secrets.CHROMATIC_TOKEN }}
+          autoAcceptChanges: 'dev'
