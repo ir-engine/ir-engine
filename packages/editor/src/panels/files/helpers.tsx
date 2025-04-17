@@ -40,7 +40,7 @@ import { bytesToSize } from '@ir-engine/common/src/utils/btyesToSize'
 import { cleanFileNameFile } from '@ir-engine/common/src/utils/cleanFileName'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
-import React, { ReactNode, createContext, useContext, useEffect } from 'react'
+import React, { ReactNode, createContext, useContext, useEffect, useMemo } from 'react'
 import { DnDFileType, FileDataType } from '../../constants/AssetTypes'
 import { filterExistingFiles, handleUploadFiles, validatedFiles } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
@@ -74,11 +74,20 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
       : '/projects/' + filesState.projectName.value
   ).replace(/^\/+/, '')
 
+  const projectName = useMutableState(EditorState).projectName.value
+
   const filesQuery = useFind(fileBrowserPath, {
     query: {
       $limit: FILES_PAGE_LIMIT,
       directory,
       recursive: !!filesState.searchText.value
+    }
+  })
+
+  const foldersQuery = useFind(fileBrowserPath, {
+    query: {
+      $limit: FILES_PAGE_LIMIT,
+      directory: `/projects/${projectName}/public/**`
     }
   })
 
@@ -111,26 +120,31 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
   }
 
   const refreshDirectory = async () => {
-    await filesQuery.refetch()
+    filesQuery.refetch()
+    foldersQuery.refetch()
   }
 
-  const createNewFolder = () => fileService.create(`${filesState.selectedDirectory.value}New-Folder`)
-  const files = filesQuery.data.map((file) => {
-    const isFolder = file.type === 'folder'
-    const fullName = isFolder ? file.name : file.name + '.' + file.type
+  useEffect(() => {
+    refreshDirectory()
+  }, [filesState.selectedDirectory])
 
-    return {
-      ...file,
-      size: file.size ? bytesToSize(file.size) : '0',
-      path: isFolder ? file.key.split(file.name)[0] : file.key.split(fullName)[0],
-      fullName,
-      isFolder
-    }
-  })
+  const createNewFolder = () => fileService.create(`${filesState.selectedDirectory.value}New-Folder`)
+  const files = useMemo(() => {
+    return filesQuery.data.map((file) => {
+      const isFolder = file.type === 'folder'
+      const fullName = isFolder ? file.name : file.name + '.' + file.type
+
+      return {
+        ...file,
+        size: file.size ? bytesToSize(file.size) : '0',
+        path: isFolder ? file.key.split(file.name)[0] : file.key.split(fullName)[0],
+        fullName,
+        isFolder
+      }
+    })
+  }, [filesQuery.data])
   useRealtime(staticResourcePath, filesQuery.refetch)
   FileThumbnailJobState.useGenerateThumbnails(filesQuery.data)
-
-  const projectName = useMutableState(EditorState).projectName.value
 
   function buildHierarchy(paths: { key: string; name: string }[]): AssetCategoryNode[] {
     const map = new Map<string, AssetCategoryNode>()
@@ -170,20 +184,13 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
     return roots
   }
 
-  const foldersQuery = useFind(fileBrowserPath, {
-    query: {
-      $limit: FILES_PAGE_LIMIT,
-      directory: `/projects/${projectName}/public/**`
-    }
-  })
-
   const folders = React.useMemo(() => foldersQuery.data.filter((file) => file.type === 'folder'), [foldersQuery.data])
 
   useEffect(() => {
     if (foldersQuery.status === 'success') {
       categories.set(buildHierarchy(folders))
     }
-  }, [foldersQuery.status])
+  }, [foldersQuery.data])
 
   return (
     <FilesQueryContext.Provider

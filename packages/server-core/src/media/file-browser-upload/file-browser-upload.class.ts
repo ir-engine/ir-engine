@@ -51,6 +51,7 @@ export class FileBrowserUploadService implements ServiceInterface<string[], any,
       await Promise.all(
         params.files.map((file, i) => {
           const args = data[i]
+          console.log(args.path)
           return this.app.service(fileBrowserPath).patch(null, {
             ...args,
             project: args.project,
