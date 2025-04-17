@@ -5,6 +5,11 @@ on:
     paths:
       - '**/*.tsx'
   workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for running Chromatic'
+        required: false
+        default: 'Manual trigger'
 
 jobs:
   check-and-publish:
