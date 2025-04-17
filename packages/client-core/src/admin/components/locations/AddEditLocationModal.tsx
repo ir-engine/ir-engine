@@ -53,6 +53,7 @@ import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbna
 import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/ModelTransform'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
@@ -62,6 +63,7 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
+import { EditorHistoryFunctions } from '@ir-engine/editor/src/services/EditorHistoryState'
 import { Button, DropdownItem, Input, Select, Tooltip } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
@@ -179,7 +181,6 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
     }
   })
 
-  console.log('scenes', scenes)
   const scenesOptions = useMemo(() => {
     if (scenes.status === 'pending') {
       return [{ value: '', label: t('common:select.fetching') }]
@@ -225,6 +226,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
       return
     }
     let saveScenePath: string | undefined
+    let combinedMeshEntity: Entity | undefined
     ModalState.openModal(<CompressedPublishConfirmation />)
     const { projectName, sceneName, rootEntity, sceneAssetID, scenePath } = getState(EditorState)
     const abortController = new AbortController()
@@ -237,7 +239,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
 
         const scenename = getState(EditorState).sceneName?.split('.').shift()
         //add all mesh into one entity
-        const combinedMeshEntity = createEntity(Layers.Authoring) //export entity need compress
+        combinedMeshEntity = createEntity(Layers.Authoring) //export entity need compress
         const rootEntity = getState(EditorState).rootEntity
         const meshEntity = [] as Entity[] //entity with mesh
         const exportParentEntity = [] as Entity[] //parent entity without mesh
@@ -387,6 +389,9 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
         <ErrorDialog title={t('editor:savingError')} description={error?.message || t('editor:savingErrorMsg')} />
       )
 
+      if (combinedMeshEntity) EditorHistoryFunctions.removeEntity([combinedMeshEntity])
+
+      getMutableState(AssetModifiedState).set({})
       getMutableState(EditorState).merge({
         scenePath: scenePath,
         sceneName: sceneName,
