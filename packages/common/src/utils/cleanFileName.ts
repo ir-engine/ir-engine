@@ -23,6 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import mime from 'mime-types'
+
 /**
  * This method takes a filename (with or without included path) and returns a cleaned version of it.
  * Ensures toLower file extension, truncates a file name if too long, and sanitizes special characters
@@ -71,8 +73,11 @@ export const cleanFileNameString = (fullFileName: string, useStorageProviderLeng
  * @param file
  */
 export function cleanFileNameFile(file: File): File {
+  // Ensure File object contains correct mimetype.
+  const mimeType = mime.lookup(file.name) || 'application/octet-stream'
+
   const newFile = new File([file], cleanFileNameString(file.name), {
-    type: file.type,
+    type: mimeType,
     lastModified: file.lastModified
   })
   //overwrite the webkitRelativePath property to preserve directory structure

@@ -293,7 +293,7 @@ export const S = {
     schema: T,
     init?: Initial,
     options?: TUnionSchema<[T, TUndefinedSchema]>['options']
-  ) => S.Union([S.Undefined(), schema], init ?? null, options),
+  ) => S.Union([S.Undefined(), schema], init ?? undefined, options),
 
   /**
    *

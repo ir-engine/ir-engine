@@ -35,6 +35,7 @@ import { Engine } from '@ir-engine/ecs'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { Button, DropdownItem } from '@ir-engine/ui'
+import { AddScene } from '@ir-engine/ui/src/components/editor/AddScene/AddScene'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import { ChevronDownSm, File04Sm, SquaresLg, UploadCloud02Sm } from '@ir-engine/ui/src/icons'
 import { t } from 'i18next'
@@ -46,7 +47,6 @@ import { uploadFiles } from '../../panels/assets/topbar'
 import { EditorState } from '../../services/EditorServices'
 import { UIAddonsState } from '../../services/UIAddonsState'
 import CreatePrefabPanel from '../dialogs/CreatePrefabPanelDialog'
-import CreateSceneDialog from '../dialogs/CreateScenePanelDialog'
 import ImportSettingsPanel from '../dialogs/ImportSettingsPanelDialog'
 import SaveNewSceneDialog from '../dialogs/SaveNewSceneDialog'
 import QuitToDashboardConfirmationDialog from './../dialogs/QuitToDashboardConfirmationDialog'
@@ -83,7 +83,8 @@ const onClickNewScene = async () => {
   const newSceneUIAddons = getState(UIAddonsState).editor.newScene
 
   if (Object.keys(newSceneUIAddons).length > 0) {
-    ModalState.openModal(<CreateSceneDialog />)
+    const { projectName } = getState(EditorState)
+    ModalState.openModal(<AddScene projectName={projectName!} />)
   } else {
     onNewScene()
   }
@@ -165,6 +166,8 @@ export default function Toolbar() {
   const anchorPosition = useHookstate({ left: 0, top: 0 })
 
   const { projectName, sceneName, sceneAssetID } = useMutableState(EditorState)
+  const sceneNameSimplified = sceneName.value?.split('.').slice(0, -1).join('.')
+
   const isModified = EditorState.useIsModified()
 
   const locationScopeQuery = useFind(scopePath, {
@@ -211,7 +214,7 @@ export default function Toolbar() {
               <span className="text-text-secondary">{' / '}</span>
             </Fragment>
           ))}
-          <span className="text-text-primary">{sceneName.value}</span>
+          <span className="text-text-primary">{sceneNameSimplified}</span>
         </div>
 
         <div className="flex items-center justify-center gap-2">

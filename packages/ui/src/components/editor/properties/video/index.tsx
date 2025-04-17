@@ -23,8 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getSimulationCounterpart, hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
+import {
+  getComponent,
+  getOptionalMutableComponent,
+  getSimulationCounterpart,
+  hasComponent,
+  useComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { MediaComponent, MediaElementComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -36,8 +42,18 @@ import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorCo
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { PlayMode } from '@ir-engine/engine/src/scene/constants/PlayMode'
-import { BackSide, ClampToEdgeWrapping, DoubleSide, FrontSide, MirroredRepeatWrapping, RepeatWrapping } from 'three'
+import {
+  BackSide,
+  ClampToEdgeWrapping,
+  DoubleSide,
+  FrontSide,
+  MirroredRepeatWrapping,
+  RepeatWrapping,
+  Vector3
+} from 'three'
 
+import { TransformComponent } from '@ir-engine/spatial'
+import { twMerge } from 'tailwind-merge'
 import Checkbox from '../../../../primitives/tailwind/Checkbox'
 import InputGroup from '../../input/Group'
 import SegmentedControlInput from '../../input/SegmentedControl'
@@ -73,8 +89,9 @@ const audioModeOptions = [
 const fitOptions = [
   { label: 'Cover', value: 'cover' },
   { label: 'Contain', value: 'contain' },
-  { label: 'Vertical', value: 'vertical' },
-  { label: 'Horizontal', value: 'horizontal' }
+  { label: 'Stretch', value: 'stretch' },
+  { label: 'Horizontal', value: 'horizontal' },
+  { label: 'Vertical', value: 'vertical' }
 ]
 
 const projectionOptions = [
@@ -96,6 +113,19 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
 
   const simulationEntity = getSimulationCounterpart(props.entity)
   const video = useComponent(simulationEntity, VideoComponent)
+  const mediaElement = getOptionalMutableComponent(simulationEntity, MediaElementComponent)
+
+  const resizeVideoToMatchAspectRatio = () => {
+    const transformComponent = getComponent(props.entity, TransformComponent)
+    const videoSize = video.currentVideoSize.value
+    const videoRatio = videoSize.x / videoSize.y
+    const scale = transformComponent.scale
+    const newX = scale.y * videoRatio
+    const newY = scale.y
+    const newZ = 1
+    const newScale = new Vector3(newX, newY, newZ)
+    commitProperty(TransformComponent, 'scale')(newScale)
+  }
 
   useEffect(() => {
     if (!hasComponent(props.entity, MediaComponent)) {
@@ -118,6 +148,19 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
         OnMediaSourceUpdate={commitProperty(VideoComponent, 'mediaUUID')}
         dropTypes={[...ItemTypes.Videos]}
       />
+
+      <InputGroup name="Aspect Ratio" label={t('editor:properties.video.lbl-aspect-ratio')}>
+        <button
+          className={twMerge(
+            'w-full flex-auto rounded-md  px-10 py-1 ',
+            mediaElement ? ' bg-surface-1 text-text-primary' : 'bg-surface-2 text-text-inactive'
+          )}
+          onClick={resizeVideoToMatchAspectRatio}
+          disabled={!mediaElement}
+        >
+          {t('editor:properties.video.lbl-match-aspect-ratio')}
+        </button>
+      </InputGroup>
 
       <InputGroup
         name="Video Fit"
@@ -148,19 +191,6 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
             { label: 'Back', value: BackSide },
             { label: 'Double', value: DoubleSide }
           ]}
-        />
-      </InputGroup>
-
-      <InputGroup
-        name="Video Size"
-        label={t('editor:properties.video.lbl-size')}
-        info={t('editor:properties.video.lbl-size-info')}
-      >
-        <Vector2Input
-          value={video.size.value}
-          onChange={updateProperty(VideoComponent, 'size')}
-          onRelease={commitProperty(VideoComponent, 'size')}
-          axisClassNames={['w-1/2', 'w-1/2']}
         />
       </InputGroup>
 

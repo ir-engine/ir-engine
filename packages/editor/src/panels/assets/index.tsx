@@ -35,7 +35,6 @@ import FileBrowser from '../files/filebrowser'
 import { CurrentFilesQueryProvider } from '../files/helpers'
 import FilesToolbar from '../files/toolbar'
 import CategoriesList, { VerticalDivider } from './categories'
-import { AssetsQueryProvider } from './hooks'
 import Resources from './resources'
 import Topbar from './topbar'
 
@@ -88,13 +87,11 @@ function AssetsContainer() {
   return (
     <div className="flex h-full flex-col">
       <CurrentFilesQueryProvider>
-        <AssetsQueryProvider>
-          {toolbar}
-          <VerticalDivider
-            leftChildren={<CategoriesList selected={sidebarType.value} onClick={handleSidebarChange} />}
-            rightChildren={rightChildren}
-          />
-        </AssetsQueryProvider>
+        {toolbar}
+        <VerticalDivider
+          leftChildren={<CategoriesList selected={sidebarType.value} onClick={handleSidebarChange} />}
+          rightChildren={rightChildren}
+        />
       </CurrentFilesQueryProvider>
     </div>
   )

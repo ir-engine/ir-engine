@@ -43,12 +43,12 @@ import {
 } from '@ir-engine/ecs'
 import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
-import { Vector3 } from 'three'
+import { Vector2 } from 'three'
 import { NameComponent } from '../../common/NameComponent'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
-import { DefaultButtonAlias, InputComponent } from '../components/InputComponent'
+import { DefaultButtonBindings, InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import {
@@ -57,6 +57,7 @@ import {
   ButtonStateMap,
   createInitialButtonState,
   MouseButton,
+  MouseScroll,
   XRStandardGamepadAxes
 } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
@@ -155,7 +156,7 @@ export const useXRInputSources = () => {
 
     const addInputSource = (source: XRInputSource) => {
       const eid = createEntity()
-      setComponent(eid, InputSourceComponent, { source })
+      setComponent(eid, InputSourceComponent, { source, sourceEntity: Engine.instance.viewerEntity })
       setComponent(eid, EntityTreeComponent, {
         parentEntity:
           source.targetRayMode === 'tracked-pointer' ? Engine.instance.localFloorEntity : Engine.instance.viewerEntity
@@ -183,7 +184,7 @@ export const useXRInputSources = () => {
       if (!eid) return
       const inputSourceComponent = getComponent(eid, InputSourceComponent)
       if (!inputSourceComponent) return
-      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
+      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonBindings>
       state.PrimaryClick = createInitialButtonState(eid)
     }
     const onXRSelectEnd = (event: XRInputSourceEvent) => {
@@ -191,7 +192,7 @@ export const useXRInputSources = () => {
       if (!eid) return
       const inputSourceComponent = getComponent(eid, InputSourceComponent)
       if (!inputSourceComponent) return
-      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
+      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonBindings>
       if (!state.PrimaryClick) return
       state.PrimaryClick.up = true
     }
@@ -239,7 +240,7 @@ export const CanvasInputReactor = () => {
         ) ?? createEntity()
       setComponent(pointerEntity, NameComponent, emulatedInputPointerEntityName)
       setComponent(pointerEntity, TransformComponent)
-      setComponent(pointerEntity, InputSourceComponent)
+      setComponent(pointerEntity, InputSourceComponent, { sourceEntity: cameraEntity })
       setComponent(pointerEntity, InputPointerComponent, {
         pointerId: event.pointerId,
         cameraEntity
@@ -258,13 +259,7 @@ export const CanvasInputReactor = () => {
     const onPointerLeave = (event: PointerEvent) => {
       const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, event.pointerId)
       ClientInputFunctions.redirectPointerEventsToXRUI(cameraEntity, event)
-
-      // because touch events don't have a leave event, we instead need to clear the state instead of removing the entity
-      if (event.pointerType === 'touch') {
-        clearPointerState(pointerEntity)
-      } else {
-        removeEntity(pointerEntity)
-      }
+      clearPointerState(pointerEntity)
     }
 
     const onPointerClick = (event: PointerEvent) => {
@@ -274,24 +269,24 @@ export const CanvasInputReactor = () => {
 
       const down = event.type === 'pointerdown'
 
+      if (down) canvas.setPointerCapture(event.pointerId)
+      else canvas.releasePointerCapture(event.pointerId)
+
       let button = MouseButton.PrimaryClick
       if (event.button === 1) button = MouseButton.AuxiliaryClick
       else if (event.button === 2) button = MouseButton.SecondaryClick
 
-      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
+      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonBindings>
       if (down) {
         state[button] = createInitialButtonState(pointerEntity) //down, pressed, touched = true
 
         const pointer = getOptionalComponent(pointerEntity, InputPointerComponent)
         if (pointer) {
-          state[button]!.downPosition = new Vector3(pointer.position.x, pointer.position.y, 0)
-          // touch input don't trigger pointermove events, so we need to set the position here
-          if (event.pointerType === 'touch') {
-            pointer.position.set(
-              ((event.clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
-              ((event.clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
-            )
-          }
+          state[button]!.downPointerPosition = new Vector2(pointer.position.x, pointer.position.y)
+          pointer.position.set(
+            ((event.clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
+            ((event.clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
+          )
         }
       } else if (state[button]) {
         state[button]!.up = true
@@ -322,6 +317,8 @@ export const CanvasInputReactor = () => {
 
     const onVisibilityChange = (event: Event) => {
       if (
+        !document.hasFocus() ||
+        document.hidden ||
         document.visibilityState === 'hidden' ||
         !canvas.checkVisibility({
           checkOpacity: true,
@@ -342,8 +339,8 @@ export const CanvasInputReactor = () => {
       const inputSourceComponent = getComponent(pointer, InputSourceComponent)
       const normalizedValues = normalizeWheel(event)
       const axes = inputSourceComponent.source.gamepad!.axes as number[]
-      axes[0] = normalizedValues.spinX
-      axes[1] = normalizedValues.spinY
+      axes[MouseScroll.HorizontalScroll] = normalizedValues.spinX
+      axes[MouseScroll.VerticalScroll] = normalizedValues.spinY
     }
 
     canvas.addEventListener('dragstart', ClientInputFunctions.preventDefault, false)

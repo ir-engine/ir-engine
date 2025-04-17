@@ -58,7 +58,9 @@ import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/Volu
 import { serializeEntity } from '@ir-engine/engine/src/scene/functions/serializeWorld'
 import { SceneDeltaState } from '@ir-engine/engine/src/scene/systems/SceneDeltaState'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
+
 import { getState, none } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
@@ -205,6 +207,11 @@ export async function addMediaNode(
               UUIDComponent,
               NodeIDComponent.getUUIDBySourceAndNodeID(newSource, getComponent(entity, NodeIDComponent))
             )
+            for (const comp of extraComponentJson) {
+              if (comp.name === TransformComponent.jsonID) {
+                setComponent(entity, TransformComponent, comp.props)
+              }
+            }
           }
           for (const childEntity of getComponent(entity, EntityTreeComponent).children) {
             setComponent(childEntity, EntityTreeComponent, { parentEntity: parent ?? rootEntity })

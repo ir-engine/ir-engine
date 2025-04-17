@@ -19,7 +19,7 @@ if [ "$SOURCE_REPO_PROVIDER" == "gcp" ]; then
   SOURCE_REPO_NAME="$SOURCE_REPO_NAME_STEM-root/$SOURCE_REPO_NAME_STEM-root"
   
   # Apply environment-specific suffixes based on APP_HOST
-  if [[ "$APP_HOST" =~ "preview" ]] || [[ "$APP_HOST" =~ "mt-stg" ]]; then
+  if [[ "$APP_HOST" =~ "studio" ]] || [[ "$APP_HOST" =~ "mt-stg" ]]; then
     SUFFIX="mt"
   elif [[ "$APP_HOST" =~ "mt-rc" ]]; then
     SUFFIX="mt-rc"
@@ -54,7 +54,7 @@ elif [ "$DESTINATION_REPO_PROVIDER" == "gcp" ]; then
   DESTINATION_REPO_NAME=$DESTINATION_REPO_NAME_STEM-$PACKAGE/$DESTINATION_REPO_NAME_STEM-$PACKAGE
 
   # Apply environment-specific suffixes based on APP_HOST
-  if [[ "$APP_HOST" =~ "preview" ]] || [[ "$APP_HOST" =~ "mt-stg" ]]; then
+  if [[ "$APP_HOST" =~ "studio" ]] || [[ "$APP_HOST" =~ "mt-stg" ]]; then
     SUFFIX="mt"
   elif [[ "$APP_HOST" =~ "mt-rc" ]]; then
     SUFFIX="mt-rc"
