@@ -137,7 +137,7 @@ export const GLTFComponent = defineComponent({
     if (!uuid || !src) return source ?? ('' as SourceID)
     return SourceComponent.getSourceID(uuid, src)
   },
-  removeHashes: <T extends EntityUUID | SourceID | NodeID>(url: T) => {
+  removeHashes: <T extends EntityUUID | SourceID | NodeID | string>(url: T) => {
     return url.replaceAll(/\?hash=[^-]+/g, '') as T
   },
   isMaterialGLTF: (url: string) => {
