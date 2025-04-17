@@ -58,7 +58,6 @@ import { $attributes } from 'property-graph'
 import { LoaderUtils } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
-import config from '@ir-engine/common/src/config'
 import {
   ExtractedImageTransformParameters,
   extractParameters,
@@ -396,7 +395,7 @@ const fileTypeToMime = (fileType) => {
 const loaderIO = ModelTransformLoader().then(({ io }) => io)
 let ktx2Encoder: KTX2Encoder | null = null
 
-const doUpload = async (projectName, fileName, buffer) => {
+const doUpload = async (projectName, fileName, buffer, path?: string) => {
   const file = new File([buffer], fileName)
   const uploadRequestState = getMutableState(UploadRequestState)
   const queue = uploadRequestState.queue.get(NO_PROXY)
@@ -404,7 +403,7 @@ const doUpload = async (projectName, fileName, buffer) => {
   const promise = new Promise((resolve) => {
     resolver = resolve
   })
-  uploadRequestState.queue.set([...queue, { file, projectName, callback: resolver }])
+  uploadRequestState.queue.set([...queue, { file, projectName, callback: resolver, path: path }])
   if (fileName.includes('combined-mesh')) {
     uploadRequestState.isOnPublishing.set(true)
   }
@@ -672,7 +671,7 @@ const transformTexture = async (resultCache: Map<string, Texture>, operation: Te
     texture.setURI(validTextureFileName(texture.getURI().replace(/\.[^.]+$/, '.ktx2')))
   }
 
-  if (shouldResize || shouldConvertToKTX) {
+  if ((shouldResize || shouldConvertToKTX) && texture.getURI() !== '') {
     //wipe relative path from URI
     const uri = texture.getURI()
     let newURI = uri.split('/').at(-1)!
@@ -712,9 +711,13 @@ const writeFiles = async (
     finalPath += `.${modelFormat}`
   }
 
+  const regex = /projects\/[^/]+\/[^/]+(\/(?:public|assets)\/)/
+  const match = regex.exec(srcBaseURL)
+  const path = match ? match[1] : undefined
+
   if (['glb', 'vrm'].includes(modelFormat)) {
     const data = await io.writeBinary(document)
-    await doUpload(...toProjectAndFileName(finalPath, srcBaseURL), data)
+    await doUpload(...toProjectAndFileName(finalPath, srcBaseURL), data, path)
   } else if (modelFormat === 'gltf') {
     await Promise.all(
       [root.listBuffers(), root.listMeshes(), root.listTextures()].map(
@@ -747,13 +750,6 @@ const writeFiles = async (
       })
     )
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
-    const folderURL = resourcePath.replace(config.client.fileServer, '')
-
-    // const fileBrowserService = API.instance.service(fileBrowserPath)
-    // const folderExists = await fileBrowserService.get(folderURL)
-    // if (!folderExists) {
-    //   await fileBrowserService.create(folderURL)
-    // }
 
     const removeExtension = (uri: string) => {
       const pathSegments = uri.split('/')
@@ -793,12 +789,13 @@ const writeFiles = async (
     await Promise.all(
       Object.entries(resources).map(async ([uri, data]) => {
         const blob = new Blob([data as BlobPart], { type: fileTypeToMime(uri.split('.').pop()!)! })
-        await doUpload(...toProjectAndFileName(uri, srcBaseURL), blob)
+        await doUpload(...toProjectAndFileName(uri, srcBaseURL), blob, path)
       })
     )
     await doUpload(
       ...toProjectAndFileName(finalPath, srcBaseURL),
-      new Blob([JSON.stringify(json)], { type: 'application/json' })
+      new Blob([JSON.stringify(json)], { type: 'application/json' }),
+      path
     )
   }
 
