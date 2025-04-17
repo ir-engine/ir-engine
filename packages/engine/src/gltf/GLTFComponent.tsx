@@ -607,7 +607,6 @@ export const getGLTFOptions = (entity: Entity): GLTFParserOptions => {
     path: LoaderUtils.extractUrlBase(gltfComponent.src),
     body: gltfComponent.body,
     requestHeader: {},
-    manager,
-    loadAll: true
+    manager
   }
 }

@@ -1602,10 +1602,6 @@ const loadGLTFDependencies = (options: GLTFParserOptions) => {
     deps.push(getDependency(options, 'material', i))
   }
 
-  for (let i = 0, len = gltf.buffers?.length ?? 0; i < len; i++) {
-    deps.push(getDependency(options, 'buffer', i))
-  }
-
   return deps
 }
 
@@ -1636,7 +1632,7 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   }
 
   const loadedNodeEntities = await Promise.all(pending)
-  if (options.loadAll) await Promise.all(loadGLTFDependencies(options))
+  await Promise.all(loadGLTFDependencies(options))
 
   for (const entity of loadedNodeEntities) {
     setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity })
@@ -1755,5 +1751,4 @@ export type GLTFParserOptions = {
   manager: LoadingManager
   path: string
   requestHeader: Record<string, string>
-  loadAll: boolean
 }
