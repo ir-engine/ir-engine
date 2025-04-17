@@ -70,111 +70,127 @@ export const PrefabShelfState = defineState({
         name: '3D Model',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/3d-model.prefab.gltf`,
         category: 'Geo',
-        detail: 'Blank 3D model ready for your own assets'
+        detail: 'Blank 3D model ready for your own assets.'
       },
       {
         name: '3D Model (Variants)',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/model-variants.prefab.gltf`,
         category: 'Geo',
-        detail: 'A 3D model with multiple variants'
+        detail: 'A 3D model with multiple variants for dynamic switching.'
       },
       {
         name: 'Primitive Geometry',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/geo.prefab.gltf`,
-        category: 'Geo'
+        category: 'Geo',
+        detail: 'Basic geometric shapes like cubes, spheres, and planes.'
       },
       {
         name: 'Ground Plane',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/ground-plane.prefab.gltf`,
-        category: 'Geo'
+        category: 'Geo',
+        detail: 'An infinite flat surface for grounding your scene.'
       },
       {
         name: 'Point Light',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/point-light.prefab.gltf`,
-        category: 'Lighting'
+        category: 'Lighting',
+        detail: 'Emits light uniformly in all directions from a single point.'
       },
       {
         name: 'Spot Light',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/spot-light.prefab.gltf`,
-        category: 'Lighting'
+        category: 'Lighting',
+        detail: 'Emits a cone-shaped beam of light in a specific direction.'
       },
       {
         name: 'Directional Light',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/directional-light.prefab.gltf`,
-        category: 'Lighting'
+        category: 'Lighting',
+        detail: 'Simulates light from a distant source, casting parallel rays.'
       },
       {
         name: 'Ambient Light',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/ambient-light.prefab.gltf`,
-        category: 'Lighting'
+        category: 'Lighting',
+        detail: 'Adds uniform lighting across the entire scene.'
       },
       {
         name: 'Hemisphere Light',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/hemisphere-light.prefab.gltf`,
-        category: 'Lighting'
+        category: 'Lighting',
+        detail: 'Provides ambient lighting that simulates a sky effect.'
       },
       {
         name: 'Box Collider',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/box-collider.prefab.gltf`,
         category: 'Collider',
-        detail: 'Simple box collider'
+        detail: 'Defines a box shape for collision detection.'
       },
       {
         name: 'Sphere Collider',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/sphere-collider.prefab.gltf`,
         category: 'Collider',
-        detail: 'Simple sphere collider'
+        detail: 'Defines a sphere shape for collision detection.'
       },
       {
         name: 'Cylinder Collider',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/cylinder-collider.prefab.gltf`,
         category: 'Collider',
-        detail: 'Simple cylinder collider'
+        detail: 'Defines a cylinder shape for collision detection.'
       },
       {
         name: 'Text',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/text.prefab.gltf`,
-        category: 'Text'
+        category: 'Text',
+        detail: 'Displays customizable text in the scene.'
       },
       {
         name: 'Title',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/title.prefab.gltf`,
-        category: 'Text'
+        category: 'Text',
+        detail: 'Displays a large heading-style text element.'
       },
       {
         name: 'Body',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/body.prefab.gltf`,
-        category: 'Text'
+        category: 'Text',
+        detail: 'Displays paragraph-style text for descriptions.'
       },
       {
         name: 'Image',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/image.prefab.gltf`,
-        category: 'Image'
+        category: 'Image',
+        detail: 'Displays images in your scene.'
       },
       {
         name: 'Video',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/video.prefab.gltf`,
-        category: 'Video'
+        category: 'Video',
+        detail: 'Plays a video on a flat plane or surface.'
       },
       {
         name: 'Skybox',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/skybox.prefab.gltf`,
-        category: 'Lookdev'
+        category: 'Lookdev',
+        detail: 'Adds a surrounding background environment to the scene.'
       },
       {
         name: 'Postprocessing',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/postprocessing.prefab.gltf`,
-        category: 'Lookdev'
+        category: 'Lookdev',
+        detail: 'Applies visual effects to the entire scene.'
       },
       {
         name: 'Fog',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/fog.prefab.gltf`,
-        category: 'Lookdev'
+        category: 'Lookdev',
+        detail: 'Adds atmospheric fog effects to the scene.'
       },
       {
         name: 'Camera',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/camera.prefab.gltf`,
-        category: 'Camera'
+        category: 'Camera',
+        detail: 'Defines a viewpoint from which the scene is rendered.'
       }
     ] as PrefabShelfItem[],
   reactor: () => {
