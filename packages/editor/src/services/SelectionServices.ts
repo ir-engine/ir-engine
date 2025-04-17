@@ -40,9 +40,7 @@ export const SelectionState = defineState({
   },
   updateSelection: (selectedEntities: EntityUUID[]) => {
     getMutableState(MaterialSelectionState).selectedMaterial.set(null)
-    getMutableState(SelectionState).merge({
-      selectedEntities: selectedEntities
-    })
+    getMutableState(SelectionState).selectedEntities.set(selectedEntities)
   },
   getSelectedEntities: (layer: LayerID = Layers.Authoring) => {
     return getState(SelectionState).selectedEntities.map((entity) => UUIDComponent.getEntityByUUID(entity, layer))

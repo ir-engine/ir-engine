@@ -34,7 +34,6 @@ import {
 import { getState } from '@ir-engine/hyperflux'
 import { NetworkObjectAuthorityTag } from '@ir-engine/network'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
-import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
 import { ClientInputSystem } from '@ir-engine/spatial/src/input/systems/ClientInputSystem'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
@@ -43,6 +42,7 @@ import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { getHandTarget } from '../avatar/components/AvatarIKComponents'
 import { GrabbableComponent, GrabbedComponent, GrabberComponent } from './GrabbableComponent'
 
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import '@ir-engine/spatial/src/transform/SpawnPoseState'
 import './GrabbableState'
 
@@ -73,8 +73,7 @@ const execute = () => {
 }
 
 const executeInput = () => {
-  const inputSources = InputSourceComponent.nonCapturedInputSources()
-  const buttons = InputComponent.getMergedButtonsForInputSources(inputSources)
+  const buttons = InputComponent.getButtons(getState(ReferenceSpaceState).viewerEntity)
   if (buttons.KeyU?.down) {
     const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
     if (!selfAvatarEntity) return
