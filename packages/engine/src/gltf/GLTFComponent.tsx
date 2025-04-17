@@ -250,10 +250,7 @@ export const GLTFComponentReactor = () => {
       const loadedEntities = SourceComponent.getEntitiesBySource(sourceID, layer)
       for (const entity of loadedEntities) removeEntity(entity)
     }
-    const hashUrl = new URL(url)
-    hashUrl.search = ''
-    const unhashUrl = hashUrl.href
-    if (unhashUrl.endsWith('.material.gltf')) {
+    if (url.includes('.material.gltf')) {
       GLTFLoaderFunctions.loadMaterialGLTF(options).then(() => {
         documentLoaded.set(true)
         if (aborted) {
