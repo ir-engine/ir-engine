@@ -139,6 +139,7 @@ const NumericInput = ({
       const clampedValue = min != null && max != null ? clamp(parsedValue, min, max) : parsedValue
       const roundedValue = precision ? toPrecision(clampedValue, precision) : clampedValue
       onChange?.(roundedValue)
+      tempValue.set(roundedValue as any)
     }
   }
 

@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { Quaternion } from 'three'
 
-import { getComponent, getMutableComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, getMutableComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { QueryReactor, defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
@@ -159,27 +159,8 @@ export const ClientInputSystem = defineSystem({
   reactor
 })
 
-const cleanupInputs = () => {
-  if (typeof globalThis.document === 'undefined') return
-
-  const hasFocus = document.hasFocus()
-
-  for (const eid of inputSourceQuery()) {
-    const source = getComponent(eid, InputSourceComponent)
-    for (const key in source.buttons) {
-      ClientInputFunctions.cleanupButton(key, source.buttons, hasFocus)
-    }
-
-    // clear non-spatial emulated axes data end of each frame
-    // this is used to clear wheel speed each frame
-    if (!hasComponent(eid, XRSpaceComponent) && hasComponent(eid, InputPointerComponent)) {
-      ;(source.source.gamepad!.axes as number[]).fill(0)
-    }
-  }
-}
-
 export const ClientInputCleanupSystem = defineSystem({
   uuid: 'ee.engine.input.ClientInputCleanupSystem',
   insert: { after: PresentationSystemGroup },
-  execute: cleanupInputs
+  execute: ClientInputFunctions.refreshInputs
 })
