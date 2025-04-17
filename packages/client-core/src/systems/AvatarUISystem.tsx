@@ -142,7 +142,7 @@ const execute = () => {
 
   const ecsState = getState(ECSState)
 
-  const buttons = InputComponent.getMergedButtons(viewerEntity)
+  const buttons = InputComponent.getButtons(viewerEntity)
 
   // const buttons = InputSourceComponent.getMergedButtons()
   if (buttons.SecondaryClick?.down) onSecondaryClick()
