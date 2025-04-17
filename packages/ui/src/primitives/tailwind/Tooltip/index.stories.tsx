@@ -45,7 +45,7 @@ const TooltipStory = (props: TooltipProps) => {
   return (
     <div className="flex h-screen items-center justify-center">
       <Tooltip {...props}>
-        <Button>Submit</Button>
+        <Button>Test Submit</Button>
       </Tooltip>
     </div>
   )

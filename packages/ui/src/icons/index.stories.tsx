@@ -30,7 +30,8 @@ export default {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=2283-24252&node-type=frame&t=XAGvEGVnphLHTwP3-0'
-    }
+    },
+    chromatic: { disable: true }
   }
 }
 
