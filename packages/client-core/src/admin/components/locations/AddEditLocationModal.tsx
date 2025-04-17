@@ -224,6 +224,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
     if (!isValid) {
       return
     }
+    let saveScenePath: string | undefined
     ModalState.openModal(<CompressedPublishConfirmation />)
     const { projectName, sceneName, rootEntity, sceneAssetID, scenePath } = getState(EditorState)
     const abortController = new AbortController()
@@ -231,7 +232,6 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
       //save current scene
       await saveSceneGLTF(sceneAssetID!, projectName!, sceneName!, abortController.signal)
       // save as duplicate scene
-      var saveScenePath: string | undefined
       if (sceneName && projectName) {
         saveScenePath = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/').replace('scenes', 'publish')
 
