@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - '**/*.tsx'
+  workflow_dispatch:
 
 jobs:
   check-and-publish:
@@ -33,3 +34,4 @@ jobs:
         uses: chromaui/action@v1
         with:
           projectToken: ${{ secrets.CHROMATIC_TOKEN }}
+          autoAcceptChanges: 'dev'
