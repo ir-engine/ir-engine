@@ -189,8 +189,6 @@ const ShareMenu = (): JSX.Element => {
 
     if (authSetting?.authStrategies) {
       for (const authStrategies of authSetting.authStrategies) {
-        console.log(authStrategies)
-
         if (authStrategies.smsMagicLink) smsMagicLink = true
         if (authStrategies.emailMagicLink) emailMagicLink = true
       }

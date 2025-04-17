@@ -201,7 +201,6 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
           temp[strategyName] = strategy
         })
       })
-      console.log(temp)
       authState.set(temp)
     }
   }, [authSetting])

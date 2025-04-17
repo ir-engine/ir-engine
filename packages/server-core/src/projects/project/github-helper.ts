@@ -800,7 +800,6 @@ async function fetchAuthenticationSettings(app: Application) {
     return authenticationSettings
   } catch (error) {
     logger.error('Error fetching authentication settings:', error)
-    console.log(JSON.stringify(error))
     throw new Error('Failed to fetch authentication settings' + error)
   }
 }
