@@ -83,7 +83,6 @@ export const GLTFComponent = defineComponent({
 
   schema: S.Object({
     src: S.String(''),
-    library: S.Bool(false),
 
     /** @todo move this to it's own component */
     cameraOcclusion: S.Bool(true),
@@ -249,7 +248,7 @@ export const GLTFComponentReactor = () => {
       for (const entity of loadedEntities) removeEntity(entity)
     }
 
-    const onLoad = () => {
+    GLTFLoaderFunctions.loadScene(options, sceneIndex).then(() => {
       documentLoaded.set(true)
 
       // force transform update for all entities in the model.
@@ -259,17 +258,7 @@ export const GLTFComponentReactor = () => {
       if (aborted) {
         unloadEntities()
       }
-    }
-
-    if (gltfComponent.library) {
-      GLTFLoaderFunctions.loadLibrary(options)
-        .then(onLoad)
-        .finally(() => {
-          getMutableComponent(entity, GLTFComponent)?.dependencies.set({ componentDependencies: {} })
-        })
-    } else {
-      GLTFLoaderFunctions.loadScene(options, sceneIndex).then(onLoad)
-    }
+    })
 
     return () => {
       documentLoaded.set(false)
