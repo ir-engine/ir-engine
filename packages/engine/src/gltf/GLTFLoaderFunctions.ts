@@ -1562,7 +1562,18 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
 
   return nodeEntity
 }
+const loadMaterialGLTF = async (options: GLTFParserOptions) => {
+  if (Array.isArray(options.document)) {
+    options.document = options.document[0]
+  }
+  DependencyCache.set(options.url, new Map())
+  for (const mat of options.document.materials!) {
+    const materialIndex = options.document.materials!.indexOf(mat)
+    await loadMaterial(options, materialIndex)
+  }
 
+  getComponent(options.entity, GLTFComponent).body = null
+}
 const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const json = options.document
   const rootEntity = options.entity
@@ -1668,7 +1679,8 @@ export const GLTFLoaderFunctions = {
   loadMesh,
   loadNode,
   loadScene,
-  unloadScene
+  unloadScene,
+  loadMaterialGLTF
 }
 
 export const DependencyCache = new Map<string, Map<string, Promise<any>>>()
