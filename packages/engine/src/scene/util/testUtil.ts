@@ -22,52 +22,17 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { ArgTypes } from '@storybook/react'
-import React from 'react'
 
-import Button from '../Button'
-import Tooltip, { TooltipProps } from './index'
+import { createEngine, createEntity, destroyEngine, Entity, removeEntity } from '@ir-engine/ecs'
+import { test as base } from 'vitest'
 
-const argTypes: ArgTypes = {
-  title: {
-    control: 'text'
-  },
-  content: {
-    control: 'text'
-  },
-  position: {
-    control: 'select',
-    options: ['auto', 'top', 'bottom', 'left', 'right']
+export const it = base.extend<{ entity: Entity }>({
+  // eslint-disable-next-line no-empty-pattern
+  entity: async ({}, use) => {
+    createEngine()
+    const entity = createEntity()
+    await use(entity)
+    removeEntity(entity)
+    destroyEngine()
   }
-}
-
-const TooltipStory = (props: TooltipProps) => {
-  return (
-    <div className="flex h-screen items-center justify-center">
-      <Tooltip {...props}>
-        <Button>Test Submit</Button>
-      </Tooltip>
-    </div>
-  )
-}
-
-export default {
-  title: 'Primitives/Tailwind/Tooltip',
-  component: TooltipStory,
-  parameters: {
-    componentSubtitle: 'Button',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
-}
-
-export const Default = {
-  args: {
-    title: 'Tooltip',
-    content: 'I am a tooltip 🚀',
-    position: 'right'
-  }
-}
+})
