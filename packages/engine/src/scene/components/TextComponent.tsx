@@ -325,6 +325,9 @@ export const TextComponent = defineComponent({
 
     useEffect(() => {
       troikaMeshRef.current.direction = text.textDirection.value
+      if (text.textDirection.value === 'rtl') {
+        troikaMeshRef.current.text = '\u202E' + text.text.value
+      }
       troikaMeshRef.current.sync()
     }, [text.textDirection])
 

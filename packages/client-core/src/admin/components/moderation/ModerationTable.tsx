@@ -76,7 +76,10 @@ export default function ModerationTable({ search }) {
     statusFilter == ModerationFilterStatus.All
       ? useFind(moderationPath, {
           query: {
-            $limit: 12
+            $limit: 12,
+            $sort: {
+              referenceNumber: -1
+            }
           }
         })
       : useFind(moderationPath, {
@@ -91,7 +94,7 @@ export default function ModerationTable({ search }) {
     {
       $or: [
         {
-          id: {
+          referenceNumber: {
             $like: `%${search}%`
           }
         },
@@ -109,7 +112,7 @@ export default function ModerationTable({ search }) {
   const createRows = (rows: ModerationType[]) =>
     rows.map((moderation) => {
       return {
-        id: moderation.id,
+        id: moderation.referenceNumber,
         type: (
           <span>
             {moderation.type == 'location'
