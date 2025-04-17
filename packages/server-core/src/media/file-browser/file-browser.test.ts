@@ -430,17 +430,17 @@ describe('file-browser.test', () => {
 
   describe('patch', () => {
     let user1, user2, project1, project2, testFile1FullPath, testFile2FullPath
-    const testFileFullName = getRandomizedName('file', '.txt')
+    const testFileFullName = getRandomizedName('file', '.jpg')
     const invalidString = '%$#@11234%%^^&&^&)(_)(+!%#%@#%&☼8µ█╚AV♠7~u{3A86♠32≥@╧É╚{'
-    const invalidFileFullName = getRandomizedName(invalidString, '.txt')
-    const shortFileFullName = 'aa.txt'
+    const invalidFileFullName = getRandomizedName(invalidString, '.jpg')
+    const shortFileFullName = 'aa.jpg'
     const longFileFullName = getRandomizedName(
       'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-      '.txt'
+      '.jpg'
     )
     const invalidFileExtensionName = getRandomizedName('file', `.${invalidString}`)
     const shortFileExtensionName = getRandomizedName('file', `.a`)
-    const longFileExtensionName = getRandomizedName('file', `.txtxt`)
+    const longFileExtensionName = getRandomizedName('file', `.jpgjpg`)
 
     const testProject1Name = `testorg1/${getRandomizedName('directory')}`
     const testProject2Name = `testorg2/${getRandomizedName('directory')}`
@@ -514,7 +514,7 @@ describe('file-browser.test', () => {
           project: testProject1Name,
           path: 'public/' + testFileFullName,
           body,
-          contentType: 'any'
+          contentType: 'image/jpeg'
         },
         {
           user: user1
@@ -533,7 +533,7 @@ describe('file-browser.test', () => {
               project: testProject1Name,
               path: 'public/' + invalidFileFullName,
               body,
-              contentType: 'any'
+              contentType: 'image/jpeg'
             },
             {
               user: user1
@@ -557,7 +557,7 @@ describe('file-browser.test', () => {
               project: testProject1Name,
               path: 'public/' + longFileFullName,
               body,
-              contentType: 'any'
+              contentType: 'image/jpeg'
             },
             {
               user: user1
@@ -581,7 +581,7 @@ describe('file-browser.test', () => {
               project: testProject1Name,
               path: 'public/' + shortFileFullName,
               body,
-              contentType: 'any'
+              contentType: 'image/jpeg'
             },
             {
               user: user1
@@ -605,7 +605,7 @@ describe('file-browser.test', () => {
               project: testProject1Name,
               path: 'public/' + invalidString + '/' + testFileFullName,
               body,
-              contentType: 'any'
+              contentType: 'image/jpeg'
             },
             {
               user: user1
@@ -632,7 +632,7 @@ describe('file-browser.test', () => {
               project: testProject1Name,
               path: 'public/' + invalidFileExtensionName,
               body,
-              contentType: 'any'
+              contentType: 'image/jpeg'
             },
             {
               user: user1
@@ -656,7 +656,7 @@ describe('file-browser.test', () => {
               project: testProject1Name,
               path: 'public/' + longFileExtensionName,
               body,
-              contentType: 'any'
+              contentType: 'image/jpeg'
             },
             {
               user: user1
@@ -680,7 +680,7 @@ describe('file-browser.test', () => {
               project: testProject1Name,
               path: 'public/' + shortFileExtensionName,
               body,
-              contentType: 'any'
+              contentType: 'image/jpeg'
             },
             {
               user: user1
@@ -715,7 +715,7 @@ describe('file-browser.test', () => {
           project: testProject1Name,
           path: 'public/' + testFileFullName,
           body: Buffer.from(newData, 'utf-8'),
-          contentType: 'any'
+          contentType: 'image/jpeg'
         },
         {
           user: user1
@@ -743,7 +743,7 @@ describe('file-browser.test', () => {
               project: testProject1Name,
               path: '../../' + testProject2Name + '/public/' + testFileFullName,
               body,
-              contentType: 'any'
+              contentType: 'image/jpeg'
             },
             {
               user: user1
@@ -769,7 +769,7 @@ describe('file-browser.test', () => {
               project: testProject1Name,
               path: 'public/' + testFileFullName,
               body,
-              contentType: 'any'
+              contentType: 'image/jpeg'
             },
             {
               user: user2
@@ -790,7 +790,7 @@ describe('file-browser.test', () => {
               project: testProject2Name,
               path: '../../' + testProject1Name + '/public/' + testFileFullName,
               body,
-              contentType: 'any'
+              contentType: 'image/jpeg'
             },
             {
               user: user2
@@ -865,7 +865,7 @@ describe('file-browser.test', () => {
               project: testProject2Name,
               path: '../../' + testProject1Name + '/public/' + testFileFullName,
               body,
-              contentType: 'any'
+              contentType: 'image/jpeg'
             },
             {
               user: user2
@@ -891,7 +891,7 @@ describe('file-browser.test', () => {
               project: testProject2Name,
               path: testFileFullName,
               body,
-              contentType: 'any'
+              contentType: 'image/jpeg'
             },
             {
               user: user2
@@ -917,7 +917,7 @@ describe('file-browser.test', () => {
               project: testProject1Name,
               path: '../../' + testFileFullName,
               body,
-              contentType: 'any'
+              contentType: 'image/jpeg'
             },
             {
               user: user1
@@ -928,26 +928,47 @@ describe('file-browser.test', () => {
         }
       )
     })
+
+    it('will not create a file with an invalid mimetype', async () => {
+      await assert.rejects(
+        () =>
+          app.service(fileBrowserPath).patch(
+            null,
+            {
+              project: testProject1Name,
+              path: 'public/' + testFileFullName,
+              body,
+              contentType: 'application/exe'
+            },
+            {
+              user: user1
+            }
+          ),
+        {
+          message: 'Unsupported file type'
+        }
+      )
+    })
   })
 
   describe('update', () => {
     const invalidString = '(_)(+!%#%@#%&☼8µ█╚AV♠7~u{3A86♠32≥@╧É╚{'
-    const testFileName2 = getRandomizedName('file2', '.md')
+    const testFileName2 = getRandomizedName('file2', '.jpg')
     const newData2 = getRandomizedName('new data 2')
-    const testFileName3 = getRandomizedName('file3', '.mdx')
+    const testFileName3 = getRandomizedName('file3', '.png')
     const newData3 = getRandomizedName('new data 3')
-    const invalidFileName = getRandomizedName(invalidString, '.txt')
+    const invalidFileName = getRandomizedName(invalidString, '.jpg')
     const shortFileName = 'aa.txt'
     const longFileName = getRandomizedName(
       'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-      '.txt'
+      '.jpg'
     )
     const invalidFileExtension = getRandomizedName('file4', `.${invalidString}`)
     const shortFileExtension = getRandomizedName('file4', '.a')
     const longFileExtension = getRandomizedName('file4', '.abcdef')
 
     let user1, user2, project1, project2, testFile1FullPath, testFile2FullPath
-    const testFileFullName = getRandomizedName('file', '.txt')
+    const testFileFullName = getRandomizedName('file', '.jpg')
 
     let testProject1Name
     let testProject2Name
@@ -1001,7 +1022,7 @@ describe('file-browser.test', () => {
           project: testProject1Name,
           path: 'public/test/' + testFileName2,
           body: Buffer.from(newData2, 'utf-8'),
-          contentType: 'any'
+          contentType: 'image/jpeg'
         },
         {
           user: user1
@@ -1014,7 +1035,7 @@ describe('file-browser.test', () => {
           project: testProject1Name,
           path: 'public/test/' + testFileName3,
           body: Buffer.from(newData3, 'utf-8'),
-          contentType: 'any'
+          contentType: 'image/png'
         },
         {
           user: user1
@@ -3691,15 +3712,15 @@ describe('file-browser.test', () => {
   describe('remove', () => {
     const testProject1Name = `testorg1/${getRandomizedName('directory')}`
     const testProject2Name = `testorg2/${getRandomizedName('directory')}`
-    const testFileFullName = getRandomizedName('file', '.txt')
+    const testFileFullName = getRandomizedName('file', '.jpg')
     let project1, project2: ProjectType
     let user1, user2
     const invalidString = '%$#@11234%%^^&&^&)(_)(+!%#%@#%&☼8µ█╚AV♠7~u{3A86♠32≥@╧É╚{'
-    const invalidFileName = getRandomizedName(invalidString, '.txt')
-    const shortFileName = 'aa.txt'
+    const invalidFileName = getRandomizedName(invalidString, '.jpg')
+    const shortFileName = 'aa.jpg'
     const longFileName = getRandomizedName(
       'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-      '.txt'
+      '.jpg'
     )
     const invalidFileExtension = getRandomizedName('file4', `.${invalidString}`)
     const shortFileExtension = getRandomizedName('file4', '.a')
@@ -3748,7 +3769,7 @@ describe('file-browser.test', () => {
           project: testProject1Name,
           path: 'public/' + testFileFullName,
           body: Buffer.from(''),
-          contentType: 'any'
+          contentType: 'image/jpeg'
         },
         {
           user: user1
@@ -3760,7 +3781,7 @@ describe('file-browser.test', () => {
           project: testProject1Name,
           path: 'public/test/' + testFileFullName,
           body: Buffer.from(''),
-          contentType: 'any'
+          contentType: 'image/jpeg'
         },
         {
           user: user1
@@ -3772,7 +3793,7 @@ describe('file-browser.test', () => {
           project: testProject2Name,
           path: 'public/' + testFileFullName,
           body: Buffer.from(''),
-          contentType: 'any'
+          contentType: 'image/jpeg'
         },
         {
           user: user1

@@ -83,7 +83,7 @@ export const GLTFComponent = defineComponent({
   schema: S.Object({
     src: S.String(''),
     /** @todo move this to it's own component */
-    cameraOcclusion: S.Bool(false),
+    cameraOcclusion: S.Bool(true),
 
     //collision info
     applyColliders: S.Bool(false),
@@ -250,18 +250,29 @@ export const GLTFComponentReactor = () => {
       const loadedEntities = SourceComponent.getEntitiesBySource(sourceID, layer)
       for (const entity of loadedEntities) removeEntity(entity)
     }
+    const hashUrl = new URL(url)
+    hashUrl.search = ''
+    const unhashUrl = hashUrl.href
+    if (unhashUrl.endsWith('.material.gltf')) {
+      GLTFLoaderFunctions.loadMaterialGLTF(options).then(() => {
+        documentLoaded.set(true)
+        if (aborted) {
+          unloadEntities()
+        }
+      })
+    } else {
+      GLTFLoaderFunctions.loadScene(options, sceneIndex).then(() => {
+        documentLoaded.set(true)
 
-    GLTFLoaderFunctions.loadScene(options, sceneIndex).then(() => {
-      documentLoaded.set(true)
+        // force transform update for all entities in the model.
+        // required to propagate dirty update auth to sim layers
+        TransformComponent.dirty[entity] = 1
 
-      // force transform update for all entities in the model.
-      // required to propagate dirty update auth to sim layers
-      TransformComponent.dirty[entity] = 1
-
-      if (aborted) {
-        unloadEntities()
-      }
-    })
+        if (aborted) {
+          unloadEntities()
+        }
+      })
+    }
     return () => {
       documentLoaded.set(false)
       GLTFLoaderFunctions.unloadScene(url, entity)
