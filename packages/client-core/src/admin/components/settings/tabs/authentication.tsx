@@ -108,14 +108,31 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
 
   const handleSubmit = () => {
     loadingState.loading.set(true)
-    const auth = Object.keys(state.value)
-      .filter((item) => (state[item].value ? item : null))
-      .filter(Boolean)
-      .map((prop) => ({ [prop]: state[prop].value }))
+    // Create a map of all strategies with their current values
+    const currentStrategiesMap = Object.keys(state.value).reduce(
+      (acc, item) => {
+        acc[item] = state[item].value
+        return acc
+      },
+      {} as Record<string, boolean>
+    )
+
+    // Preserve order by using authStrategiesInDb as reference
+    const updatedAuthStrategies = authSetting.authStrategies.map((strategy) => {
+      const [key] = Object.keys(strategy)
+      return { [key]: currentStrategiesMap[key] ?? false }
+    })
+
+    // Add any new strategies that weren't in authStrategiesInDb
+    Object.keys(currentStrategiesMap).forEach((key) => {
+      if (!updatedAuthStrategies.some((strategy) => Object.keys(strategy)[0] === key)) {
+        updatedAuthStrategies.push({ [key]: currentStrategiesMap[key] })
+      }
+    })
 
     const oauth = { ...authSetting.oauth, ...(keySecret.value as any) }
 
-    const updatedSettings = flattenObjectToArray({ oauth: oauth })
+    const updatedSettings = flattenObjectToArray({ oauth: oauth, authStrategies: updatedAuthStrategies })
 
     const authOperationPromises: Promise<EngineSettingType | EngineSettingType[]>[] = []
 

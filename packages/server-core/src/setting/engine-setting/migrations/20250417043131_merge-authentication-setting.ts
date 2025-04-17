@@ -62,7 +62,7 @@ export async function up(knex: Knex): Promise<void> {
           value: authSetting.value || '',
           id: uuidv4(),
           dataType: getDataType(`${authSetting.value}`),
-          type: 'private' as EngineSettingType['type'],
+          type: (authSetting.key.startsWith('authStrategies.') ? 'public' : 'private') as EngineSettingType['type'],
           category: 'authentication',
           createdAt: await getDateTimeSql(),
           updatedAt: await getDateTimeSql()
