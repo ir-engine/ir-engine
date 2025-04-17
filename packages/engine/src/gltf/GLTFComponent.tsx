@@ -135,7 +135,7 @@ export const GLTFComponent = defineComponent({
     if (!uuid || !src) return source ?? ('' as SourceID)
     return SourceComponent.getSourceID(uuid, src)
   },
-  removeHashes: <T extends EntityUUID | SourceID | NodeID>(url: T) => {
+  removeHashes: <T extends EntityUUID | SourceID | NodeID | string>(url: T) => {
     return url.replaceAll(/\?hash=[^-]+/g, '') as T
   }
 })
@@ -250,10 +250,8 @@ export const GLTFComponentReactor = () => {
       const loadedEntities = SourceComponent.getEntitiesBySource(sourceID, layer)
       for (const entity of loadedEntities) removeEntity(entity)
     }
-    const hashUrl = new URL(url)
-    hashUrl.search = ''
-    const unhashUrl = hashUrl.href
-    if (unhashUrl.endsWith('.material.gltf')) {
+    const unhashedUrl = GLTFComponent.removeHashes(url)
+    if (unhashedUrl.endsWith('.material.gltf')) {
       GLTFLoaderFunctions.loadMaterialGLTF(options).then(() => {
         documentLoaded.set(true)
         if (aborted) {
