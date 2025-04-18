@@ -80,7 +80,8 @@ export interface FfmpegParams extends Params {
 }
 
 /**
- * A class for File Browser Upload service
+ * A class for FFMPEG service convert gif to mp4
+ * @param {Application} app - The application instance
  */
 export class FfmpegService implements ServiceInterface<string[], any, FfmpegParams> {
   app: Application
