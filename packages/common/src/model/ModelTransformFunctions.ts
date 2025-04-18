@@ -753,6 +753,7 @@ const writeFiles = async (
     // if (!folderExists) {
     //   await fileBrowserService.create(folderURL)
     // }
+
     const removeExtension = (uri: string) => {
       const pathSegments = uri.split('/')
       const filename = pathSegments.pop()
