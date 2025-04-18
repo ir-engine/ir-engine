@@ -245,7 +245,7 @@ export const filterGifFiles = async (projectName: string, directoryPath: string,
   return notGifFiles
 }
 
-// uploads files and returns an array of uploaded urls
+// upload gif files and convert them to video and upload them returning the urls
 export const handleConvertGifFileToVideoAndUpload = (
   projectName: string,
   directoryPath: string,
