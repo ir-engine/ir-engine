@@ -31,6 +31,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { describe, expect, it } from 'vitest'
 
 import { GLTF } from '@gltf-transform/core'
+import { GLTFValidate } from '../GLTFLoaderFunctions'
 
 const mockAssetMinimal = (): GLTF.IAsset => ({ version: '2.0' })
 
