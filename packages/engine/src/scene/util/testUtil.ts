@@ -23,23 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineState } from '@ir-engine/hyperflux'
+import { createEngine, createEntity, destroyEngine, Entity, removeEntity } from '@ir-engine/ecs'
+import { test as base } from 'vitest'
 
-export type UploadRequest = {
-  file: File
-  projectName: string
-  callback?: () => void
-  path?: string
-}
-
-export const UploadRequestState = defineState({
-  name: 'UploadRequestState',
-  initial: {
-    queue: [] as UploadRequest[],
-    isOnPublishing: false
+export const it = base.extend<{ entity: Entity }>({
+  // eslint-disable-next-line no-empty-pattern
+  entity: async ({}, use) => {
+    createEngine()
+    const entity = createEntity()
+    await use(entity)
+    removeEntity(entity)
+    destroyEngine()
   }
 })
-
-export function executionPromiseKey(request: UploadRequest) {
-  return `${request.projectName}-${request.file.name}`
-}
