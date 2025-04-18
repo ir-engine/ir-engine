@@ -32,6 +32,7 @@ import { LoopAnimationComponent } from '../avatar/components/LoopAnimationCompon
 import { GrabbableComponent } from '../grabbable/GrabbableComponent'
 import { MountPointSystem } from '../interaction/systems/MountPointSystem'
 import { MaterialLibrarySystem } from '../scene/materials/systems/MaterialLibrarySystem'
+import { BehaviorComponent } from './components/BehaviorComponent'
 import { CameraSettingsComponent } from './components/CameraSettingsComponent'
 import { EnvMapBakeComponent } from './components/EnvMapBakeComponent'
 import { EnvMapComponent } from './components/EnvmapComponent'
@@ -72,6 +73,8 @@ import { DropShadowSystem, ShadowSystem } from './systems/ShadowSystem'
 import { TriggerCallbackSystem } from './systems/TriggerCallbackSystem'
 import { VariantSystem } from './systems/VariantSystem'
 
+import './components/OldTriggerComponents'
+
 /** This const MUST be kept here, to ensure all components definitions are loaded by the time the scene loading occurs */
 export const SceneComponents = [
   PositionalAudioComponent,
@@ -89,6 +92,7 @@ export const SceneComponents = [
   MediaComponent,
   // MediaSettingsComponent,
   MountPointComponent,
+  BehaviorComponent,
   // OceanComponent,
   ParticleSystemComponent,
   PostProcessingComponent,

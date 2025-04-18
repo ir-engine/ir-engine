@@ -1741,7 +1741,9 @@ export const getDependency = <
 }
 
 export const getNodeID = (node: GLTF.INode, documentID: SourceID, nodeIndex: number) =>
-  (node.extensions?.[NodeIDComponent.jsonID] as NodeID) ?? (`${nodeIndex}` as NodeID)
+  (node.extras?.['xrengine.EE_uuid'] as NodeID) ??
+  (node.extensions?.[NodeIDComponent.jsonID] as NodeID) ??
+  (`${nodeIndex}` as NodeID)
 
 export type GLTFParserOptions = {
   url: string

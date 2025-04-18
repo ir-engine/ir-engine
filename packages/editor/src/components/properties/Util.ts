@@ -107,5 +107,6 @@ export const commitProperties = <C extends Component>(
     ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value, Layers.Authoring)]
     : SelectionState.getSelectedEntities()
 
+  console.log('EditorHistoryFunctions.setComponent', affectedNodes, component, properties)
   EditorHistoryFunctions.setComponent(affectedNodes, component, properties)
 }

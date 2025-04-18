@@ -76,6 +76,7 @@ import { PersistentAnchorComponent } from '@ir-engine/spatial/src/xr/XRAnchorCom
 import PersistentAnchorNodeEditor from '@ir-engine/ui/src/components/editor/properties/anchor'
 import LoopAnimationNodeEditor from '@ir-engine/ui/src/components/editor/properties/animation'
 import AudioAnalysisEditor from '@ir-engine/ui/src/components/editor/properties/audio/analysis'
+import BehaviorNodeEditor from '@ir-engine/ui/src/components/editor/properties/behavior'
 import CameraNodeEditor from '@ir-engine/ui/src/components/editor/properties/camera'
 import CameraPropertiesNodeEditor from '@ir-engine/ui/src/components/editor/properties/cameraProperties'
 import ColliderComponentEditor from '@ir-engine/ui/src/components/editor/properties/collider'
@@ -115,6 +116,7 @@ import SkyboxNodeEditor from '@ir-engine/ui/src/components/editor/properties/sky
 import SpawnPointNodeEditor from '@ir-engine/ui/src/components/editor/properties/spawnPoint'
 import SplineNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline'
 
+import { BehaviorComponent } from '@ir-engine/engine/src/scene/components/BehaviorComponent'
 import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { LookAtComponent } from '@ir-engine/engine/src/scene/components/LookAtComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
@@ -188,7 +190,8 @@ export const ComponentEditorsState = defineState({
       [TextComponent.name]: TextNodeEditor,
       [LookAtComponent.name]: LookAtNodeEditor,
       [ReflectionProbeComponent.name]: ReflectionProbeNodeEditor,
-      [MediaComponent.name]: MediaNodeEditor
+      [MediaComponent.name]: MediaNodeEditor,
+      [BehaviorComponent.name]: BehaviorNodeEditor
     } as Record<string, EditorComponentType>
   }
 })

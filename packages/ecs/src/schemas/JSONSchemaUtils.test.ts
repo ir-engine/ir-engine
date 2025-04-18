@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -34,6 +34,7 @@ import {
   CloneSerializable,
   CreateSchemaValue,
   DeserializeSchemaValue,
+  flattenSchema,
   GenerateJSONSchema,
   HasRequiredSchema,
   HasRequiredSchemaValues,
@@ -41,6 +42,7 @@ import {
   HasSchemaValidators,
   HasValidSchemaValues,
   IsSingleValueSchema,
+  JSONSchema,
   JSONSchemaUtilsFunctions,
   requiresDeserialization,
   SerializeSchema
@@ -90,6 +92,109 @@ describe('DeserializeSchemaValue', () => {
     const result = DeserializeSchemaValue(testEntity, schema, curr, value)
 
     expect(result).toBe(Expected)
+  })
+
+  describe('case: Kind.Any', () => {
+    const TestSchemaKind = 'Any'
+
+    it('should return `@param value` as is for null value', () => {
+      const Expected = null
+
+      const schema = { [Kind]: TestSchemaKind } as Schema
+      const curr = {}
+      const value = Expected
+
+      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+
+      expect(result).toBe(Expected)
+    })
+
+    it('should return `@param value` as is for undefined value', () => {
+      const Expected = undefined
+
+      const schema = { [Kind]: TestSchemaKind } as Schema
+      const curr = {}
+      const value = Expected
+
+      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+
+      expect(result).toBe(Expected)
+    })
+
+    it('should return `@param value` as is for number value', () => {
+      const Expected = 42
+
+      const schema = { [Kind]: TestSchemaKind } as Schema
+      const curr = {}
+      const value = Expected
+
+      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+
+      expect(result).toBe(Expected)
+    })
+
+    it('should return `@param value` as is for string value', () => {
+      const Expected = 'test string'
+
+      const schema = { [Kind]: TestSchemaKind } as Schema
+      const curr = {}
+      const value = Expected
+
+      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+
+      expect(result).toBe(Expected)
+    })
+
+    it('should return `@param value` as is for boolean value', () => {
+      const Expected = true
+
+      const schema = { [Kind]: TestSchemaKind } as Schema
+      const curr = {}
+      const value = Expected
+
+      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+
+      expect(result).toBe(Expected)
+    })
+
+    it('should return `@param value` as is for object value', () => {
+      const Expected = { test: 'value', nested: { prop: 42 } }
+
+      const schema = { [Kind]: TestSchemaKind } as Schema
+      const curr = {}
+      const value = Expected
+
+      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+
+      expect(result).toEqual(Expected)
+    })
+
+    it('should return `@param value` as is for array value', () => {
+      const Expected = [1, 'string', true, { prop: 'value' }]
+
+      const schema = { [Kind]: TestSchemaKind } as Schema
+      const curr = {}
+      const value = Expected
+
+      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+
+      expect(result).toEqual(Expected)
+    })
+
+    it('should respect custom deserializer if provided', () => {
+      const CustomValue = 'custom deserialized value'
+      const schema = {
+        [Kind]: TestSchemaKind,
+        static: {},
+        options: { deserialize: () => CustomValue }
+      } as Schema
+      const curr = {}
+      const value = 'original value'
+
+      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+
+      expect(result).toBe(CustomValue)
+    })
   })
 
   describe('case: Kind.Number', () => {
@@ -463,6 +568,21 @@ describe('DeserializeSchemaValue', () => {
 
       expect(result).toBe(Expected)
     })
+
+    it('should return a new array with the deserialized values of `@param value`, if `@param curr` is not an array', () => {
+      const Expected = [40, 41, 42, 43, 44]
+
+      const properties = { [Kind]: 'Number' } as TArraySchema<Schema>['properties']
+      const schema = { [Kind]: TestSchemaKind, options: { deserialize: undefined }, properties: properties } as Schema
+
+      // This occurs in the case that the array is optional
+      const curr = null
+      const value = Expected
+
+      const result = DeserializeSchemaValue(testEntity, schema, curr, value)!
+
+      expect(result).toEqual(Expected)
+    })
   }) //:: Kind.Array
 
   describe('case: Kind.Tuple', () => {
@@ -762,6 +882,417 @@ describe('DeserializeSchemaValue', () => {
       expect(result).toBe(Expected)
     })
   }) //:: Kind -> default
+
+  describe('case: Kind.Union', () => {
+    it('should return undefined when value is null or undefined', () => {
+      const schema = {
+        [Kind]: 'Union',
+        properties: [{ [Kind]: 'Number' } as Schema, { [Kind]: 'String' } as Schema]
+      } as Schema
+      const curr = {}
+      const value = null
+
+      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+
+      expect(result).toBe(null)
+    })
+
+    it('should return undefined when properties array is empty', () => {
+      const schema = {
+        [Kind]: 'Union',
+        properties: []
+      } as Schema
+      const curr = {}
+      const value = 42
+
+      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+
+      expect(result).toBe(undefined)
+    })
+
+    it('should deserialize using the first matching schema in the Union array', () => {
+      const schema = {
+        [Kind]: 'Union',
+        properties: [{ [Kind]: 'String' } as Schema, { [Kind]: 'Number' } as Schema]
+      } as Schema
+      const curr = {}
+      const value = 42
+
+      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+
+      expect(result).toBe(42)
+    })
+
+    it('should return undefined if no schema in the Union array matches', () => {
+      const schema = {
+        [Kind]: 'Union',
+        properties: [{ [Kind]: 'String' } as Schema, { [Kind]: 'Bool' } as Schema]
+      } as Schema
+      const curr = {}
+      const value = 42
+
+      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+
+      expect(result).toBe(undefined)
+    })
+
+    it('should use custom deserializers in Union schemas if available', () => {
+      const customValue = 'custom value'
+      const schema = {
+        [Kind]: 'Union',
+        properties: [
+          {
+            [Kind]: 'Number',
+            static: 0,
+            options: { deserialize: () => customValue }
+          } as Schema,
+          { [Kind]: 'String', static: '' } as Schema
+        ]
+      } as Schema
+      const curr = {}
+      const value = 42
+
+      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+
+      expect(result).toBe(customValue)
+    })
+
+    it('should correctly deserialize objects with different shapes in a union', () => {
+      // Create two different object schemas
+      const objectSchema1 = {
+        [Kind]: 'Object',
+        static: { type: 'type1', value: 0 },
+        properties: {
+          type: { [Kind]: 'Literal', static: 'type1', properties: 'type1' } as Schema,
+          value: { [Kind]: 'Number', static: 0 } as Schema
+        }
+      } as Schema
+
+      const objectSchema2 = {
+        [Kind]: 'Object',
+        static: { type: 'type2', name: '' },
+        properties: {
+          type: { [Kind]: 'Literal', static: 'type2', properties: 'type2' } as Schema,
+          name: { [Kind]: 'String', static: '' } as Schema
+        }
+      } as Schema
+
+      const schema = {
+        [Kind]: 'Union',
+        static: { type: 'type1', value: 0 },
+        properties: [objectSchema1, objectSchema2]
+      } as Schema
+
+      // Test with first object shape
+      const value1 = { type: 'type1', value: 42 }
+      const curr1 = {}
+      const result1 = DeserializeSchemaValue(testEntity, schema, curr1, value1)
+      expect(result1).toEqual({ type: 'type1', value: 42 })
+
+      // Test with second object shape
+      const value2 = { type: 'type2', name: 'test' }
+      const curr2 = {}
+      const result2 = DeserializeSchemaValue(testEntity, schema, curr2, value2)
+      expect(result2).toEqual({ type: 'type2', name: 'test' })
+    })
+
+    it('should correctly identify the right schema based on string literal discriminators', () => {
+      // Create schemas with string literal discriminators
+      const schema1 = {
+        [Kind]: 'Object',
+        static: { kind: 'circle', radius: 0 },
+        properties: {
+          kind: { [Kind]: 'Literal', static: 'circle', properties: 'circle' } as Schema,
+          radius: { [Kind]: 'Number', static: 0 } as Schema
+        }
+      } as Schema
+
+      const schema2 = {
+        [Kind]: 'Object',
+        static: { kind: 'rectangle', width: 0, height: 0 },
+        properties: {
+          kind: { [Kind]: 'Literal', static: 'rectangle', properties: 'rectangle' } as Schema,
+          width: { [Kind]: 'Number', static: 0 } as Schema,
+          height: { [Kind]: 'Number', static: 0 } as Schema
+        }
+      } as Schema
+
+      const unionSchema = {
+        [Kind]: 'Union',
+        static: { kind: 'circle', radius: 0 },
+        properties: [schema1, schema2]
+      } as Schema
+
+      // Test with circle shape
+      const circle = { kind: 'circle', radius: 5 }
+      const currCircle = {}
+      const resultCircle = DeserializeSchemaValue(testEntity, unionSchema, currCircle, circle)
+      expect(resultCircle).toEqual({ kind: 'circle', radius: 5 })
+
+      // Test with rectangle shape
+      const rectangle = { kind: 'rectangle', width: 10, height: 20 }
+      const currRect = {}
+      const resultRect = DeserializeSchemaValue(testEntity, unionSchema, currRect, rectangle)
+      expect(resultRect).toEqual({ kind: 'rectangle', width: 10, height: 20 })
+
+      // Test with invalid shape (should return undefined)
+      const invalid = { kind: 'triangle', sides: 3 }
+      const currInvalid = {}
+      const resultInvalid = DeserializeSchemaValue(testEntity, unionSchema, currInvalid, invalid)
+      expect(resultInvalid).toBe(undefined)
+    })
+
+    it('should handle nested unions correctly', () => {
+      // Create a nested union schema
+      const numberSchema = { [Kind]: 'Number', static: 0 } as Schema
+      const stringSchema = { [Kind]: 'String', static: '' } as Schema
+
+      const innerUnionSchema = {
+        [Kind]: 'Union',
+        static: 0,
+        properties: [numberSchema, stringSchema]
+      } as Schema
+
+      const objectWithUnionSchema = {
+        [Kind]: 'Object',
+        static: { type: 'complex', value: 0 },
+        properties: {
+          type: { [Kind]: 'Literal', static: 'complex', properties: 'complex' } as Schema,
+          value: innerUnionSchema
+        }
+      } as Schema
+
+      const simpleObjectSchema = {
+        [Kind]: 'Object',
+        static: { type: 'simple', value: false },
+        properties: {
+          type: { [Kind]: 'Literal', static: 'simple', properties: 'simple' } as Schema,
+          value: { [Kind]: 'Bool', static: false } as Schema
+        }
+      } as Schema
+
+      const outerUnionSchema = {
+        [Kind]: 'Union',
+        static: { type: 'complex', value: 0 },
+        properties: [objectWithUnionSchema, simpleObjectSchema]
+      } as Schema
+
+      // Test with complex object with number
+      const complexNumber = { type: 'complex', value: 42 }
+      const currComplexNum = {}
+      const resultComplexNum = DeserializeSchemaValue(testEntity, outerUnionSchema, currComplexNum, complexNumber)
+      expect(resultComplexNum).toEqual({ type: 'complex', value: 42 })
+
+      // Test with complex object with string
+      const complexString = { type: 'complex', value: 'test' }
+      const currComplexStr = {}
+      const resultComplexStr = DeserializeSchemaValue(testEntity, outerUnionSchema, currComplexStr, complexString)
+      expect(resultComplexStr).toEqual({ type: 'complex', value: 'test' })
+
+      // Test with simple object
+      const simple = { type: 'simple', value: true }
+      const currSimple = {}
+      const resultSimple = DeserializeSchemaValue(testEntity, outerUnionSchema, currSimple, simple)
+      expect(resultSimple).toEqual({ type: 'simple', value: true })
+    })
+
+    it('should handle arrays of union types correctly', () => {
+      // Create a simple test case
+      const numberSchema = { [Kind]: 'Number', static: 0, options: {} } as Schema
+      const stringSchema = { [Kind]: 'String', static: '', options: {} } as Schema
+
+      // Create a union schema
+      const unionSchema = {
+        [Kind]: 'Union',
+        static: 0,
+        options: {},
+        properties: [numberSchema, stringSchema]
+      } as Schema
+
+      // Create an array schema that contains the union schema
+      const arraySchema = {
+        [Kind]: 'Array',
+        static: [],
+        options: {},
+        properties: unionSchema
+      } as Schema
+
+      // Test with an array containing both types
+      const value = [42, 'test']
+      const curr = []
+
+      // Deserialize the array
+      const result = DeserializeSchemaValue(testEntity, arraySchema, curr, value) as any
+
+      // Check that both elements were properly deserialized
+      expect(result.length).toBe(2)
+      expect(result[0]).toBe(42)
+      expect(result[1]).toBe('test')
+    })
+
+    it('should handle arrays of union types with existing current state', () => {
+      // Create a simple test case
+      const numberSchema = { [Kind]: 'Number', static: 0, options: {} } as Schema
+      const stringSchema = { [Kind]: 'String', static: '', options: {} } as Schema
+
+      // Create a union schema
+      const unionSchema = {
+        [Kind]: 'Union',
+        static: 0,
+        options: {},
+        properties: [numberSchema, stringSchema]
+      } as Schema
+
+      // Create an array schema that contains the union schema
+      const arraySchema = {
+        [Kind]: 'Array',
+        static: [],
+        options: {},
+        properties: unionSchema
+      } as Schema
+
+      // Test with an array containing both types
+      const value = [42, 'test']
+
+      // Current state with existing data (should be replaced)
+      const curr = ['old', 'values']
+
+      // Deserialize the array
+      const result = DeserializeSchemaValue(testEntity, arraySchema, curr, value) as any
+
+      // Check that both elements were properly deserialized
+      expect(result.length).toBe(2)
+      expect(result[0]).toBe(42)
+      expect(result[1]).toBe('test')
+    })
+
+    it('should handle arrays of union types with different matching types for each index', () => {
+      // Create schemas for different types
+      const numberSchema = { [Kind]: 'Number', static: 0, options: {} } as Schema
+      const stringSchema = { [Kind]: 'String', static: '', options: {} } as Schema
+      const boolSchema = { [Kind]: 'Bool', static: false, options: {} } as Schema
+
+      // Create a union schema that only accepts numbers and strings
+      const unionSchema = {
+        [Kind]: 'Union',
+        static: 0,
+        options: {},
+        properties: [numberSchema, stringSchema]
+      } as Schema
+
+      // Create an array schema that contains the union schema
+      const arraySchema = {
+        [Kind]: 'Array',
+        static: [],
+        options: {},
+        properties: unionSchema
+      } as Schema
+
+      // Test with an array containing mixed types including invalid ones
+      const value = [42, 'test', true, null, undefined, {}, []]
+
+      // Current state (empty array)
+      const curr = []
+
+      // Deserialize the array
+      const result = DeserializeSchemaValue(testEntity, arraySchema, curr, value) as any
+
+      // Check that only valid elements were properly deserialized (number and string)
+      // The boolean, null, undefined, object, and array should be filtered out
+      // as they don't match any type in the union
+      expect(result.length).toBe(2)
+      expect(result[0]).toBe(42)
+      expect(result[1]).toBe('test')
+    })
+
+    it('should handle arrays of union of multiple different object schemas', () => {
+      // Create schemas for different object types
+      const userObjectSchema = {
+        [Kind]: 'Object',
+        static: { type: 'user', name: '', age: 0 },
+        options: {},
+        properties: {
+          type: { [Kind]: 'Literal', static: 'user', properties: 'user', options: {} } as Schema,
+          name: { [Kind]: 'String', static: '', options: {} } as Schema,
+          age: { [Kind]: 'Number', static: 0, options: {} } as Schema
+        }
+      } as Schema
+
+      const postObjectSchema = {
+        [Kind]: 'Object',
+        static: { type: 'post', title: '', content: '' },
+        options: {},
+        properties: {
+          type: { [Kind]: 'Literal', static: 'post', properties: 'post', options: {} } as Schema,
+          title: { [Kind]: 'String', static: '', options: {} } as Schema,
+          content: { [Kind]: 'String', static: '', options: {} } as Schema
+        }
+      } as Schema
+
+      const commentObjectSchema = {
+        [Kind]: 'Object',
+        static: { type: 'comment', text: '', likes: 0 },
+        options: {},
+        properties: {
+          type: { [Kind]: 'Literal', static: 'comment', properties: 'comment', options: {} } as Schema,
+          text: { [Kind]: 'String', static: '', options: {} } as Schema,
+          likes: { [Kind]: 'Number', static: 0, options: {} } as Schema
+        }
+      } as Schema
+
+      // Create a union schema that accepts all three object types
+      const unionSchema = {
+        [Kind]: 'Union',
+        static: { type: 'user', name: '', age: 0 },
+        options: {},
+        properties: [userObjectSchema, postObjectSchema, commentObjectSchema]
+      } as Schema
+
+      // Create an array schema that contains the union schema
+      const arraySchema = {
+        [Kind]: 'Array',
+        static: [],
+        options: {},
+        properties: unionSchema
+      } as Schema
+
+      // Test with an array containing mixed object types including invalid ones
+      const value = [
+        { type: 'user', name: 'John', age: 30 },
+        { type: 'post', title: 'Hello World', content: 'This is a post' },
+        { type: 'comment', text: 'Great post!', likes: 5 },
+        { type: 'invalid', data: 'This should be filtered out' },
+        { name: 'Missing type field' },
+        null,
+        undefined
+      ]
+
+      // Current state (empty array)
+      const curr = []
+
+      // Deserialize the array
+      const result = DeserializeSchemaValue(testEntity, arraySchema, curr, value) as any
+
+      // Check that only valid elements were properly deserialized
+      // The invalid objects, null, and undefined should be filtered out
+      expect(result.length).toBe(3)
+
+      // Check the user object
+      expect(result[0].type).toBe('user')
+      expect(result[0].name).toBe('John')
+      expect(result[0].age).toBe(30)
+
+      // Check the post object
+      expect(result[1].type).toBe('post')
+      expect(result[1].title).toBe('Hello World')
+      expect(result[1].content).toBe('This is a post')
+
+      // Check the comment object
+      expect(result[2].type).toBe('comment')
+      expect(result[2].text).toBe('Great post!')
+      expect(result[2].likes).toBe(5)
+    })
+  }) //:: Kind.Union
 }) //:: DeserializeSchemaValue
 
 describe('HasSchemaDeserializers', () => {
@@ -1894,7 +2425,7 @@ describe('CheckSchemaValue', () => {
 
       const value = 42
       const properties = { [Kind]: 'NonSerialized' } as Schema
-      const schema = { [Kind]: TestSchemaKind, properties: properties } as Schema
+      const schema = { [Kind]: TestSchemaKind, properties: properties, options: {} } as Schema
 
       const result = CheckSchemaValue(schema, value)
 
@@ -2493,6 +3024,215 @@ describe('ConvertToSchema', () => {
 
         expect(result).toBe(Expected)
       })
+
+      describe('with arrays of object unions', () => {
+        it('should correctly serialize an array of union of different object types', () => {
+          // Create schemas for different object types
+          const userObjectSchema = {
+            [Kind]: 'Object',
+            properties: {
+              type: { [Kind]: 'Literal', properties: 'user' } as Schema,
+              name: { [Kind]: 'String' } as Schema,
+              age: { [Kind]: 'Number' } as Schema
+            }
+          } as Schema
+
+          const postObjectSchema = {
+            [Kind]: 'Object',
+            properties: {
+              type: { [Kind]: 'Literal', properties: 'post' } as Schema,
+              title: { [Kind]: 'String' } as Schema,
+              content: { [Kind]: 'String' } as Schema
+            }
+          } as Schema
+
+          const commentObjectSchema = {
+            [Kind]: 'Object',
+            properties: {
+              type: { [Kind]: 'Literal', properties: 'comment' } as Schema,
+              text: { [Kind]: 'String' } as Schema,
+              likes: { [Kind]: 'Number' } as Schema
+            }
+          } as Schema
+
+          // Create a union schema that accepts all three object types
+          const unionSchema = {
+            [Kind]: 'Union',
+            properties: [userObjectSchema, postObjectSchema, commentObjectSchema]
+          } as Schema
+
+          // Create an array schema that contains the union schema
+          const arraySchema = {
+            [Kind]: 'Array',
+            properties: unionSchema
+          } as Schema
+
+          // Test with an array containing mixed object types
+          const value = [
+            { type: 'user', name: 'John', age: 30 },
+            { type: 'post', title: 'Hello World', content: 'This is a post' },
+            { type: 'comment', text: 'Great post!', likes: 5 }
+          ]
+
+          const result = JSONSchemaUtilsFunctions.ConvertToSchema(arraySchema, value)
+
+          // Check that all objects were properly serialized
+          expect(result).toEqual([
+            { type: 'user', name: 'John', age: 30 },
+            { type: 'post', title: 'Hello World', content: 'This is a post' },
+            { type: 'comment', text: 'Great post!', likes: 5 }
+          ])
+        })
+
+        it('should correctly serialize an array of union of different object types with some invalid objects', () => {
+          // Create schemas for different object types
+          const userObjectSchema = {
+            [Kind]: 'Object',
+            properties: {
+              type: { [Kind]: 'Literal', properties: 'user' } as Schema,
+              name: { [Kind]: 'String' } as Schema,
+              age: { [Kind]: 'Number' } as Schema
+            }
+          } as Schema
+
+          const postObjectSchema = {
+            [Kind]: 'Object',
+            properties: {
+              type: { [Kind]: 'Literal', properties: 'post' } as Schema,
+              title: { [Kind]: 'String' } as Schema,
+              content: { [Kind]: 'String' } as Schema
+            }
+          } as Schema
+
+          // Create a union schema that accepts only user and post object types
+          const unionSchema = {
+            [Kind]: 'Union',
+            properties: [userObjectSchema, postObjectSchema]
+          } as Schema
+
+          // Create an array schema that contains the union schema
+          const arraySchema = {
+            [Kind]: 'Array',
+            properties: unionSchema
+          } as Schema
+
+          // Test with an array containing mixed object types including invalid ones
+          const value = [
+            { type: 'user', name: 'John', age: 30 },
+            { type: 'post', title: 'Hello World', content: 'This is a post' },
+            { type: 'comment', text: 'Great post!', likes: 5 }, // Should be null (not in union)
+            { type: 'invalid', data: 'This should be null' }, // Should be null (not in union)
+            { name: 'Missing type field' } // Should be null (not in union)
+          ]
+
+          const result = JSONSchemaUtilsFunctions.ConvertToSchema(arraySchema, value)
+
+          // Check that only valid objects were properly serialized
+          // Invalid objects should be converted to null
+          expect(result).toEqual([
+            { type: 'user', name: 'John', age: 30 },
+            { type: 'post', title: 'Hello World', content: 'This is a post' },
+            null,
+            null,
+            null
+          ])
+        })
+
+        it('should correctly serialize an array of union of different object types with nested objects', () => {
+          // Create schemas for nested object types
+          const addressSchema = {
+            [Kind]: 'Object',
+            properties: {
+              street: { [Kind]: 'String' } as Schema,
+              city: { [Kind]: 'String' } as Schema,
+              zipCode: { [Kind]: 'String' } as Schema
+            }
+          } as Schema
+
+          const userObjectSchema = {
+            [Kind]: 'Object',
+            properties: {
+              type: { [Kind]: 'Literal', properties: 'user' } as Schema,
+              name: { [Kind]: 'String' } as Schema,
+              address: addressSchema
+            }
+          } as Schema
+
+          const companyObjectSchema = {
+            [Kind]: 'Object',
+            properties: {
+              type: { [Kind]: 'Literal', properties: 'company' } as Schema,
+              name: { [Kind]: 'String' } as Schema,
+              employees: {
+                [Kind]: 'Array',
+                properties: {
+                  [Kind]: 'Object',
+                  properties: {
+                    name: { [Kind]: 'String' } as Schema,
+                    role: { [Kind]: 'String' } as Schema
+                  }
+                } as Schema
+              } as Schema
+            }
+          } as Schema
+
+          // Create a union schema that accepts both object types
+          const unionSchema = {
+            [Kind]: 'Union',
+            properties: [userObjectSchema, companyObjectSchema]
+          } as Schema
+
+          // Create an array schema that contains the union schema
+          const arraySchema = {
+            [Kind]: 'Array',
+            properties: unionSchema
+          } as Schema
+
+          // Test with an array containing nested object types
+          const value = [
+            {
+              type: 'user',
+              name: 'John',
+              address: {
+                street: '123 Main St',
+                city: 'Anytown',
+                zipCode: '12345'
+              }
+            },
+            {
+              type: 'company',
+              name: 'Acme Inc',
+              employees: [
+                { name: 'Alice', role: 'Developer' },
+                { name: 'Bob', role: 'Designer' }
+              ]
+            }
+          ]
+
+          const result = JSONSchemaUtilsFunctions.ConvertToSchema(arraySchema, value)
+
+          // Check that nested objects were properly serialized
+          expect(result).toEqual([
+            {
+              type: 'user',
+              name: 'John',
+              address: {
+                street: '123 Main St',
+                city: 'Anytown',
+                zipCode: '12345'
+              }
+            },
+            {
+              type: 'company',
+              name: 'Acme Inc',
+              employees: [
+                { name: 'Alice', role: 'Developer' },
+                { name: 'Bob', role: 'Designer' }
+              ]
+            }
+          ])
+        })
+      })
     }) //:: case 'Union'
 
     it.each(['Partial', 'Required', 'Proxy'])(
@@ -2564,19 +3304,19 @@ describe('GenerateJSONSchema', () => {
   it('should generate schema for Null type', () => {
     const schema = S.Null()
     const jsonSchema = GenerateJSONSchema(schema)
-    expect(jsonSchema).toEqual({ type: 'null' })
+    expect(jsonSchema).toBeUndefined()
   })
 
   it('should generate schema for Undefined type', () => {
     const schema = S.Undefined()
     const jsonSchema = GenerateJSONSchema(schema)
-    expect(jsonSchema).toEqual({ type: 'null' })
+    expect(jsonSchema).toBeUndefined()
   })
 
   it('should generate schema for Void type', () => {
     const schema = S.Void()
     const jsonSchema = GenerateJSONSchema(schema)
-    expect(jsonSchema).toEqual({ type: 'null' })
+    expect(jsonSchema).toBeUndefined()
   })
 
   it('should generate schema for Number type', () => {
@@ -2672,6 +3412,7 @@ describe('GenerateJSONSchema', () => {
     const jsonSchema = GenerateJSONSchema(schema)
     expect(jsonSchema).toEqual({
       type: 'object',
+      required: [],
       properties: {
         name: { type: 'string' },
         age: { type: 'number' }
@@ -2709,16 +3450,28 @@ describe('GenerateJSONSchema', () => {
     })
   })
 
-  it('should generate schema for Func type', () => {
+  it('should not generate schema for Func type', () => {
     const schema = S.Func([S.String()], S.Number())
     const jsonSchema = GenerateJSONSchema(schema)
-    expect(jsonSchema).toEqual({ type: 'null' })
+    expect(jsonSchema).toBeUndefined()
   })
 
-  it('should generate schema for NonSerialized type', () => {
+  it('should not generate schema for NonSerialized type', () => {
     const schema = S.NonSerialized(S.String())
     const jsonSchema = GenerateJSONSchema(schema)
-    expect(jsonSchema).toEqual({ type: 'null' })
+    expect(jsonSchema).toBeUndefined()
+  })
+
+  it('should not add to record non Func type', () => {
+    const schema = S.Object({ prop: S.Func([S.String()], S.Number()) })
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({ type: 'object', required: [] })
+  })
+
+  it('should not add to record non Func type', () => {
+    const schema = S.Object({ prop: S.NonSerialized(S.String()) })
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({ type: 'object', required: [] })
   })
 
   it('should generate schema for Class type', () => {
@@ -2728,9 +3481,7 @@ describe('GenerateJSONSchema', () => {
     }
     const schema = S.Class(() => new MyClass())
     const jsonSchema = GenerateJSONSchema(schema)
-    expect(jsonSchema).toEqual({
-      type: 'null'
-    })
+    expect(jsonSchema).toBeUndefined()
   })
 
   it('should generate schema for Proxy type', () => {
@@ -2742,7 +3493,7 @@ describe('GenerateJSONSchema', () => {
   it('should generate schema for Any type', () => {
     const schema = S.Any()
     const jsonSchema = GenerateJSONSchema(schema)
-    expect(jsonSchema).toEqual({})
+    expect(jsonSchema).toBeUndefined()
   })
 
   it('should include $id when provided in options', () => {
@@ -2784,4 +3535,162 @@ describe('GenerateJSONSchema', () => {
       required: []
     })
   })
+
+  it('should include $comment when provided in options', () => {
+    const schema = S.String('test', { $comment: 'test-comment' })
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({
+      type: 'string',
+      $comment: 'test-comment'
+    })
+  })
 }) //:: GenerateJSONSchema
+
+describe('flattenSchema', () => {
+  it('should flatten a simple object schema', () => {
+    const schema: JSONSchema = {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        age: { type: 'number' }
+      }
+    }
+    const result = flattenSchema(schema)
+    expect(result).toEqual({
+      name: { type: 'string' },
+      age: { type: 'number' }
+    })
+  })
+
+  it('should flatten a nested object schema', () => {
+    const schema: JSONSchema = {
+      type: 'object',
+      properties: {
+        person: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            age: { type: 'number' }
+          }
+        }
+      }
+    }
+    const result = flattenSchema(schema)
+    expect(result).toEqual({
+      'person.name': { type: 'string' },
+      'person.age': { type: 'number' }
+    })
+  })
+
+  it('should flatten an array of objects', () => {
+    const schema: JSONSchema = {
+      type: 'object',
+      properties: {
+        people: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              age: { type: 'number' }
+            }
+          }
+        }
+      }
+    }
+    const sampleData = {
+      people: [{ name: 'John', age: 30 }]
+    }
+    const result = flattenSchema(schema, '', sampleData)
+    expect(result).toEqual({
+      'people.0.name': { type: 'string' },
+      'people.0.age': { type: 'number' }
+    })
+  })
+
+  it('should flatten an array of arrays with fixed length', () => {
+    const schema: JSONSchema = {
+      type: 'object',
+      properties: {
+        matrix: {
+          type: 'array',
+          items: {
+            type: 'array',
+            items: { type: 'number' }
+          }
+        }
+      }
+    }
+    const sampleData = {
+      matrix: [
+        [1, 2],
+        [3, 4]
+      ]
+    }
+    const result = flattenSchema(schema, '', sampleData)
+    expect(result).toEqual({
+      'matrix.0': { type: 'number' },
+      'matrix.1': { type: 'number' }
+    })
+  })
+
+  it('should flatten an array of arrays without fixed length', () => {
+    const schema: JSONSchema = {
+      type: 'object',
+      properties: {
+        matrix: {
+          type: 'array',
+          items: {
+            type: 'array',
+            items: { type: 'number' }
+          }
+        }
+      }
+    }
+    const sampleData = {
+      matrix: [
+        [1, 2],
+        [3, 4, 5]
+      ]
+    }
+    const result = flattenSchema(schema, '', sampleData)
+    expect(result).toEqual({
+      matrix: { type: 'number' }
+    })
+  })
+
+  it('should flatten an array of primitives', () => {
+    const schema: JSONSchema = {
+      type: 'object',
+      properties: {
+        tags: {
+          type: 'array',
+          items: { type: 'string' }
+        }
+      }
+    }
+    const sampleData = {
+      tags: ['tag1', 'tag2']
+    }
+    const result = flattenSchema(schema, '', sampleData)
+    expect(result).toEqual({
+      /** @todo this isn't right... */
+      tags: { type: 'string' }
+    })
+  })
+
+  it('should handle an empty schema', () => {
+    // @ts-ignore
+    const schema: JSONSchema = {}
+    const result = flattenSchema(schema)
+    expect(result).toEqual({})
+  })
+
+  it('should handle a schema with no properties', () => {
+    const schema: JSONSchema = {
+      type: 'object'
+    }
+    const result = flattenSchema(schema)
+    expect(result).toEqual({})
+  })
+}) //:: flattenSchema

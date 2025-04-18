@@ -98,12 +98,12 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
   const modifiedNodes = [] as NodeID[]
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
+    // todo - need to handle scene deltas here
     if (add) {
-      setComponent(entity, component, args)
       if (args) {
         EditorControlFunctions.modifyProperty([entity], component, args)
       } else {
-        setComponent(entity, component, args)
+        deserializeComponent(entity, component, args)
       }
     } else {
       removeComponent(entity, component)
@@ -118,7 +118,7 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
 const modifyName = (entities: Entity[], name: string) => {
   const modifiedNodes = [] as NodeID[]
   for (const entity of entities) {
-    setComponent(entity, NameComponent, name)
+    deserializeComponent(entity, NameComponent, name)
     EditorState.markModifiedScene(entity)
     modifiedNodes.push(getComponent(entity, NodeIDComponent))
   }
@@ -149,7 +149,6 @@ const modifyProperty = <C extends Component<any, any>>(
     }
     deserializeComponent(entity, component, currentComponent)
     EditorState.markModifiedScene(entity)
-
     affectedNodes.push(getComponent(entity, NodeIDComponent))
   }
 

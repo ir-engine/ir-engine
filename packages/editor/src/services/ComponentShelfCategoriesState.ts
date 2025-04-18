@@ -31,6 +31,7 @@ import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GrabbableComponent } from '@ir-engine/engine/src/grabbable/GrabbableComponent'
 import { InteractableComponent } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
 import { AudioAnalysisComponent } from '@ir-engine/engine/src/scene/components/AudioAnalysisComponent'
+import { BehaviorComponent } from '@ir-engine/engine/src/scene/components/BehaviorComponent'
 import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/CameraSettingsComponent'
 import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
@@ -97,7 +98,7 @@ export const ComponentShelfCategoriesState = defineState({
         HemisphereLightComponent
       ],
       FX: [LoopAnimationComponent, ShadowComponent, ParticleSystemComponent, EnvMapComponent, PostProcessingComponent],
-      Scripting: [],
+      Scripting: [BehaviorComponent],
       Settings: [
         SceneSettingsComponent,
         RenderSettingsComponent,

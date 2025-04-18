@@ -5,6 +5,7 @@ This file provides guidelines for AI assistants when working with the IR Engine 
 ## Core Packages Overview
 
 ### hyperflux
+
 - **Purpose**: Reactive state management library for both local and agent-centric networked applications
 - **Key Components**:
   - `HyperStore`: Central state container
@@ -13,15 +14,16 @@ This file provides guidelines for AI assistants when working with the IR Engine 
   - Reactors for reactive logic operations
 
 ### ecs
+
 - **Purpose**: Entity Component System implementation
 - **Key Components**:
-  - `Engine`: Core ECS engine
   - Component definitions and functions
   - System definitions and execution
   - Entity management
   - JSON schema utilities
 
 ### network
+
 - **Purpose**: Networking abstractions and APIs
 - **Key Components**:
   - Network creation and management
@@ -30,6 +32,7 @@ This file provides guidelines for AI assistants when working with the IR Engine 
   - Action systems (incoming/outgoing)
 
 ### spatial
+
 - **Purpose**: Core spatial system
 - **Key Components**:
   - Transform systems
@@ -40,6 +43,7 @@ This file provides guidelines for AI assistants when working with the IR Engine 
   - Spatialized Input
 
 ### engine
+
 - **Purpose**: Main engine module that integrates all other modules
 - **Key Components**:
   - Asset management
@@ -51,23 +55,27 @@ This file provides guidelines for AI assistants when working with the IR Engine 
 ## Code Style and Conventions
 
 ### General
+
 - Use TypeScript for type safety
 - Follow functional programming patterns where possible
 - Prefer immutable data structures
 - Use descriptive variable and function names
 
 ### Components and Systems
+
 - Component names should be PascalCase
 - System names should end with "System" (e.g., `XRSystem`)
 - System groups should end with "SystemGroup" (e.g., `InputSystemGroup`)
 
 ### State Management
+
 - Use hyperflux for state management
 - Define state slices with proper typing
 - Use actions for state modifications
 - Avoid direct state mutations outside of defined actions
 
 ### Reactivity
+
 - Use reactors for reactive logic
 - Keep reactors focused on specific functionality
 - Avoid side effects in reactors when possible
@@ -75,16 +83,19 @@ This file provides guidelines for AI assistants when working with the IR Engine 
 ## Common Patterns
 
 ### Entity Creation
+
 - Use entity factory functions for creating entities
 - Initialize all required components
 - Set up proper hierarchies with parent-child relationships
 
 ### Networking
+
 - Use the network module for all networked operations
 - Properly serialize and deserialize data
 - Handle network events appropriately
 
 ### Performance Considerations
+
 - Minimize garbage collection by reusing objects
 - Use efficient data structures (e.g., typed arrays)
 - Batch operations where possible
@@ -103,3 +114,13 @@ This file provides guidelines for AI assistants when working with the IR Engine 
 - Test edge cases and error conditions
 - Mock dependencies appropriately
 - Ensure tests are deterministic
+
+## Running Tests
+
+- Use `npm run check-errors` to check for TypeScript errors
+- Use `npm run lint` to check for code style violations
+- Use `npm run test` to run all tests in a package
+- Use `npm run test` at the root of the monorepo to run all tests across all packages
+- Use `npm run test -- <filename.ext>` to run specific tests
+- Use `npm run test-coverage` to generate test coverage reports
+- Ensure tests pass before merging any changes

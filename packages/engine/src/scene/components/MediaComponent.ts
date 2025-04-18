@@ -342,7 +342,18 @@ export function MediaReactor() {
     renderer.domElement.addEventListener('pointerup', handleAutoplay)
     renderer.domElement.addEventListener('touchend', handleAutoplay)
 
-    setCallback(entity, StandardCallbacks.PLAY, () => media.paused.set(false))
+    setCallback(entity, StandardCallbacks.PLAY, (reset?: boolean) => {
+      if (reset) {
+        let seekTime = media.seekTime.value
+        if (seekTime == 0) {
+          seekTime = 0.000001
+        } else {
+          seekTime = 0
+        }
+        media.seekTime.set(seekTime)
+      }
+      media.paused.set(false)
+    })
     setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
     setCallback(entity, StandardCallbacks.RESET, () => {
       const autoPlay = getAutoPlay()

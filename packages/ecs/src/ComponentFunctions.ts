@@ -47,6 +47,7 @@ import {
   identifiable,
   none,
   resolveObject,
+  setNestedObject,
   startReactor,
   useHookstate
 } from '@ir-engine/hyperflux'

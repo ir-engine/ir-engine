@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -67,7 +67,7 @@ const CreateObject = (entity: Entity, props?: TProperties) => {
 }
 
 const validValue = (value) => {
-  return value !== undefined && value !== null
+  return value !== undefined && value !== null /* @todo get rid of null here if possible */
 }
 
 const IterateSchema = <T extends Schema>(schema: T, pred: (curr: T) => boolean): boolean => {
@@ -116,6 +116,8 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(
   if (validValue(value) && schema.options?.deserialize) return schema.options.deserialize(curr, value) as Val
 
   switch (schema[Kind]) {
+    case 'Any':
+      return value
     case 'Number': {
       if (!validValue(value)) return value
       return typeof value === 'number' ? value : undefined
@@ -142,8 +144,11 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(
     case 'Array': {
       if (!validValue(value)) return value
       if (!Array.isArray(value)) return undefined
-      const props = schema.properties as TArraySchema<Schema>['properties']
-      const _curr = curr as Array<any>
+      const arraySchema = schema as TArraySchema<Schema>
+      const props = arraySchema.properties
+      if (!props || !isSerializable(props)) return curr
+
+      const _curr = (curr as Array<any>) ?? []
       const currentLength = _curr.length
       if (currentLength < value.length) {
         for (let i = currentLength; i < value.length; i++) {
@@ -152,10 +157,10 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(
       }
       try {
         return value
-          .map((item, i) => DeserializeSchemaValue(entity, props, curr[i], item))
+          .map((item, i) => DeserializeSchemaValue(entity, props, _curr[i], item))
           .filter((item) => validValue(item)) as Val
       } catch (e) {
-        console.log(e)
+        console.error('Failed to deserialize array', e)
         return curr
       }
     }
@@ -183,6 +188,28 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(
       }
 
       return newValue
+    }
+
+    case 'Union': {
+      if (!validValue(value)) return value
+
+      const props = schema.properties as TUnionSchema<Schema[]>['properties']
+      if (!props.length) return undefined
+
+      // For non-array values, try each schema
+      for (const unionSchema of props) {
+        // First check if the value is valid for this schema
+        if (CheckSchemaValue(unionSchema, value)) {
+          // If valid, deserialize using this schema
+          const deserializedValue = DeserializeSchemaValue(entity, unionSchema, curr, value)
+          if (validValue(deserializedValue)) {
+            return deserializedValue
+          }
+        }
+      }
+
+      // If no schema matches, return undefined
+      return undefined
     }
 
     case 'Class': {
@@ -453,6 +480,7 @@ export const CloneSerializable = <Val>(value: Val) => {
 }
 
 const isSerializable = <T extends Schema>(schema: T) => {
+  if (!schema) return false
   const kind = schema[Kind]
   return kind !== 'Func' && kind !== 'NonSerialized'
 }
@@ -511,14 +539,15 @@ export const CheckSchemaValue = <T extends Schema, Val>(schema: T, value: Val) =
       return true
 
     case 'Array': {
-      const props = schema.properties as TArraySchema<Schema>['properties']
-      if (!isSerializable(props)) return true
+      const arraySchema = schema as TArraySchema<Schema>
+      const itemSchema = arraySchema.properties
+      if (!itemSchema || !isSerializable(itemSchema)) return true
 
       if (!Array.isArray(value)) return false
       else if (value.length === 0) return true
       else {
         for (const item of value) {
-          if (!CheckSchemaValue(props, item)) return false
+          if (!CheckSchemaValue(itemSchema, item)) return false
         }
 
         return true
@@ -664,20 +693,11 @@ const ConvertToSchema = <T extends Schema, Val>(schema: T, value: Val) => {
 }
 
 // Generate a JSON Schema from the Typebox Schema
-export const GenerateJSONSchema = <T extends Schema>(schema: T) => {
+export const GenerateJSONSchema = <T extends Schema>(schema: T): JSONSchema | undefined => {
   const jsonSchema: any = {}
 
   // Add type based on schema kind
   switch (schema[Kind]) {
-    case 'Null':
-      jsonSchema.type = 'null'
-      break
-    case 'Undefined':
-      jsonSchema.type = 'null' // JSON Schema doesn't have undefined type
-      break
-    case 'Void':
-      jsonSchema.type = 'null' // JSON Schema doesn't have void type
-      break
     case 'Number':
       jsonSchema.type = 'number'
       if (schema.options?.maximum !== undefined) jsonSchema.maximum = schema.options.maximum
@@ -700,11 +720,13 @@ export const GenerateJSONSchema = <T extends Schema>(schema: T) => {
     case 'Object': {
       jsonSchema.type = 'object'
       const props = schema.properties as TProperties
-      jsonSchema.properties = {}
       jsonSchema.required = []
 
       for (const [key, propSchema] of Object.entries(props)) {
-        jsonSchema.properties[key] = GenerateJSONSchema(propSchema)
+        const propJsonSchema = GenerateJSONSchema(propSchema)
+        if (!propJsonSchema || propJsonSchema.type === 'null') continue
+        if (!jsonSchema.properties) jsonSchema.properties = {}
+        jsonSchema.properties[key] = propJsonSchema
         if (propSchema[Kind] === 'Required') {
           jsonSchema.required.push(key)
         }
@@ -720,7 +742,9 @@ export const GenerateJSONSchema = <T extends Schema>(schema: T) => {
     case 'Partial': {
       const props = schema.properties as TPartialSchema<Schema>['properties']
       jsonSchema.type = 'object'
-      jsonSchema.properties = GenerateJSONSchema(props).properties
+      const subSchema = GenerateJSONSchema(props)
+      jsonSchema.properties = subSchema?.properties
+      jsonSchema.required = []
       break
     }
     case 'Array': {
@@ -744,32 +768,24 @@ export const GenerateJSONSchema = <T extends Schema>(schema: T) => {
       jsonSchema.oneOf = props.map((prop) => GenerateJSONSchema(prop))
       break
     }
-    case 'Func':
-      // Functions are not serializable in JSON Schema
-      jsonSchema.type = 'null'
-      break
     case 'Required': {
       const props = schema.properties as TRequiredSchema<Schema>['properties']
       return GenerateJSONSchema(props)
-    }
-    case 'NonSerialized':
-      // Non-serialized fields are not included in JSON Schema
-      jsonSchema.type = 'null'
-      break
-    case 'Class': {
-      // Classes are not serializable in JSON Schema
-      jsonSchema.type = 'null'
-      break
     }
     case 'Proxy': {
       const props = schema.properties as TProxySchema<Schema>['properties']
       return GenerateJSONSchema(props)
     }
+    // These types are not to be serialized
+    case 'Null':
+    case 'Undefined':
+    case 'Void':
+    case 'Func':
+    case 'NonSerialized':
+    case 'Class':
     case 'Any':
-      // Any type in JSON Schema is an empty object
-      break
     default:
-      jsonSchema.type = 'null'
+      return undefined
   }
 
   // Add any additional options that might be relevant for JSON Schema
@@ -777,7 +793,165 @@ export const GenerateJSONSchema = <T extends Schema>(schema: T) => {
     jsonSchema.$id = schema.options.id
   }
 
+  // Add $comment if provided in options
+  if (schema.options?.$comment) {
+    jsonSchema.$comment = schema.options.$comment
+  }
+
   return jsonSchema
+}
+
+/**
+ * Temporary type for JSON Schema until we implement a proper package to handle this.
+ */
+export type JSONSchema = {
+  type: string
+  properties?: { [key: string]: JSONSchema }
+  items?: JSONSchema
+  minItems?: number
+  maxItems?: number
+  oneOf?: JSONSchema[]
+  $comment?: string
+  $id?: string
+}
+
+/**
+ * @todo we may replace period separated paths with the JSON Pointer spec
+ */
+
+/**
+ * Recursively flattens a JSONSchema so that nested properties are represented
+ * with period-separated keys.
+ *
+ * When encountering an array-of-arrays, if sample data is provided and every sub-array
+ * has the same length, it will flatten the inner array so that each index becomes
+ * a selectable field (using the index as part of the period-separated key).
+ *
+ * @param schema - The JSON Schema to flatten.
+ * @param prefix - The current prefix (used during recursion).
+ * @param sampleData - Optional sample data to help determine fixed lengths.
+ * @returns An object whose keys are period-separated field paths, and whose values are the corresponding JSONSchema.
+ */
+export function flattenSchema(
+  schema: JSONSchema,
+  prefix: string = '',
+  sampleData?: any
+): { [key: string]: JSONSchema } {
+  let result: { [key: string]: JSONSchema } = {}
+
+  if (schema.type === 'object' && schema.properties) {
+    for (const key in schema.properties) {
+      const fullKey = prefix ? `${prefix}.${key}` : key
+      const childSchema = schema.properties[key]
+
+      // If the property is an object, recurse.
+      if (childSchema.type === 'object' && childSchema.properties) {
+        result = {
+          ...result,
+          ...flattenSchema(childSchema, fullKey, sampleData ? sampleData[key] : undefined)
+        }
+      }
+      // For an array of objects, flatten the items.
+      else if (
+        childSchema.type === 'array' &&
+        childSchema.items &&
+        childSchema.items.type === 'object' &&
+        childSchema.items.properties
+      ) {
+        result = {
+          ...result,
+          ...flattenSchema(
+            childSchema.items,
+            // if the array has one element, it's the only data we can use, so reference it directly
+            sampleData && sampleData[key].length === 1 ? fullKey + '.0' : fullKey,
+            sampleData ? sampleData[key]?.[0] : undefined
+          )
+        }
+      }
+      // For an array-of-arrays, try to infer a fixed length from sample data.
+      else if (childSchema.type === 'array' && childSchema.items && childSchema.items.type === 'array') {
+        let fixedLength: number | null = null
+        // If sample data is available for this property and is an array...
+        if (sampleData && Array.isArray(sampleData[key])) {
+          const arr = sampleData[key]
+          // Filter out elements that are arrays.
+          const subArrays = arr.filter((x: any) => Array.isArray(x))
+          if (subArrays.length > 0) {
+            const firstLength = subArrays[0].length
+            // Check if every sub-array has the same length.
+            const allSame = subArrays.every((sub: any) => sub.length === firstLength)
+            if (allSame) {
+              fixedLength = firstLength
+            }
+          }
+        }
+        if (fixedLength !== null && childSchema.items.items) {
+          // For each index in the fixed-length sub-arrays, flatten the inner schema.
+          for (let i = 0; i < fixedLength; i++) {
+            const newPrefix = `${fullKey}.${i}`
+            // Pass the corresponding sample data (if available) for this index.
+            const sampleForIndex = sampleData && Array.isArray(sampleData[key]) ? sampleData[key][i] : undefined
+            result = {
+              ...result,
+              ...flattenSchema(childSchema.items.items, newPrefix, sampleForIndex)
+            }
+          }
+        } else {
+          // If we can’t infer a fixed length, fall back to flattening the array normally.
+          result = {
+            ...result,
+            ...flattenSchema(childSchema.items, fullKey, sampleData ? sampleData[key] : undefined)
+          }
+        }
+      }
+      // For a regular array (non-array-of-arrays), flatten the items.
+      else if (childSchema.type === 'array' && childSchema.items) {
+        result = {
+          ...result,
+          ...flattenSchema(childSchema.items, fullKey, sampleData ? sampleData[key] : undefined)
+        }
+      }
+      // Base case: a primitive value.
+      else {
+        result[fullKey] = childSchema
+      }
+    }
+  } else if (schema.type === 'array' && schema.items) {
+    // If the schema itself is an array, try to flatten its items.
+    if (schema.items.type === 'array') {
+      let fixedLength: number | null = null
+      if (sampleData && Array.isArray(sampleData)) {
+        const subArrays = sampleData.filter((x: any) => Array.isArray(x))
+        if (subArrays.length > 0) {
+          const firstLength = subArrays[0].length
+          const allSame = subArrays.every((sub: any) => sub.length === firstLength)
+          if (allSame) fixedLength = firstLength
+        }
+      }
+      if (fixedLength !== null && schema.items.items) {
+        for (let i = 0; i < fixedLength; i++) {
+          const newPrefix = prefix ? `${prefix}.${i}` : `${i}`
+          result = {
+            ...result,
+            ...flattenSchema(
+              schema.items.items,
+              newPrefix,
+              sampleData && Array.isArray(sampleData) ? sampleData[i] : undefined
+            )
+          }
+        }
+      } else {
+        result = { ...result, ...flattenSchema(schema.items, prefix, sampleData) }
+      }
+    } else {
+      result = { ...result, ...flattenSchema(schema.items, prefix, sampleData) }
+    }
+  } else {
+    if (prefix) {
+      result[prefix] = schema
+    }
+  }
+  return result
 }
 
 export const SerializeSchema = <T extends Schema, Val>(schema: T, value: Val): Val => {
