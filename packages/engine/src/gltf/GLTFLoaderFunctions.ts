@@ -1753,3 +1753,58 @@ export type GLTFParserOptions = {
   path: string
   requestHeader: Record<string, string>
 }
+
+const validateVersionFormat = (vers: string): boolean => /^[0-9]{1,10}.[0-9]{1,10}$/.test(vers)
+
+function validateVersionGreaterThan(vers1: string, vers2: string): boolean {
+  const [major1, minor1] = vers1.split('.').map(Number)
+  const [major2, minor2] = vers2.split('.').map(Number)
+  return major1 > major2 || (major1 === major2 && minor1 > minor2)
+}
+
+function validateAsset(asset: GLTF.IAsset) {
+  // glTF.asset.version
+  if (asset.version === undefined) throw new Error('glTF.asset.version MUST be defined.')
+  if (!GLTFValidate.versionFormat(asset.version))
+    throw new Error('glTF.asset.version MUST respect the format ^[0-9]+.[0-9]+$.')
+  if (asset.version !== '2.0') throw new Error('glTF.asset.version MUST be "2.0".')
+
+  // glTF.asset.copyright
+  if (asset.copyright !== undefined) {
+    // MAY be undefined
+    if (typeof asset.copyright !== 'string') throw new Error('glTF.asset.copyright MUST be a string.')
+  }
+
+  // glTF.asset.generator
+  if (asset.generator !== undefined) {
+    // MAY be undefined
+    if (typeof asset.generator !== 'string') throw new Error('glTF.asset.generator MUST be a string.')
+  }
+
+  // glTF.asset.minVersion
+  if (asset.minVersion !== undefined) {
+    // MAY be undefined
+    if (typeof asset.minVersion !== 'string') throw new Error('glTF.asset.minVersion MUST be a string.')
+    if (!GLTFValidate.versionFormat(asset.minVersion))
+      throw new Error('glTF.asset.minVersion MUST respect the format ^[0-9]+.[0-9]+$.')
+    if (GLTFValidate.versionGreaterThan(asset.minVersion, asset.version))
+      throw new Error('glTF.asset.minVersion MUST NOT be greater than Asset.version.')
+  }
+
+  // glTF.asset.extensions
+  if (asset.extensions !== undefined) {
+    // MAY be undefined
+    if (typeof asset.extensions !== 'object') throw new Error('glTF.asset.extensions MUST be a JSON object.')
+  }
+
+  // glTF.asset.extras
+  if (asset.extras !== undefined) {
+    /* ignored */
+  } // MAY be undefined
+}
+
+export const GLTFValidate = {
+  versionFormat: validateVersionFormat,
+  versionGreaterThan: validateVersionGreaterThan,
+  asset: validateAsset
+}
