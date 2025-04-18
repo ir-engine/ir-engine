@@ -1333,7 +1333,7 @@
         "reflectionProbe": "Captures the environment and uses it for reflection.",
         "fog": "Adds fog to the entity.",
         "ecommerce-product": "Adds a product to the entity from a preconfigured store provider.",
-        "text_spatial": "Adds spatial 3D text to the entity.",
+        "text-spatial": "Adds spatial 3D text to the entity.",
         "portal": "A portal to teleport a player to other portals in different Spaces.",
         "ambient-light": "A combination of direct and indirect light, provides general lighting to all assets.",
         "point-light": "A light that emits in all directions from a single point.",

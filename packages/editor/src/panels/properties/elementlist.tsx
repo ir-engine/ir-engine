@@ -203,7 +203,8 @@ const usePrefabShelfCategories = (search: string): [string, PrefabShelfItem[]][]
       {
         name: 'Create',
         url: '',
-        category: 'Empty'
+        category: 'Empty',
+        detail: 'Creates an empty entity'
       }
     ]
     return shelves
