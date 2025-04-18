@@ -69,8 +69,6 @@ import { EditorErrorState } from '../services/EditorErrorServices'
 
 import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 
-import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags.tsx'
-import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags.ts'
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
@@ -470,8 +468,7 @@ const reactor = () => {
   const selectionBoxState = useMutableState(SelectionBoxState)
   const viewerEntity = useMutableState(ReferenceSpaceState).viewerEntity.value
 
-  //@todo remove hardcoded value once feature flag is added to MT
-  const [showGlbChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowGlbChildren])
+  showGlbChildrenFeatureFlagEnabled = getMutableState(EditorHelperState).showGlbChildren.value
 
   useEffect(() => {
     // todo figure out how to do these with our input system
@@ -525,10 +522,6 @@ const reactor = () => {
     if (!sceneLoaded) return
     onFocusCamera(viewerEntity)
   }, [sceneLoaded])
-
-  useEffect(() => {
-    showGlbChildrenFeatureFlagEnabled = showGlbChildren
-  }, [showGlbChildren])
 
   return null
 }
