@@ -18,9 +18,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { lazy, useEffect, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
-
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useFind, useMutation } from '@ir-engine/common'
 import { config } from '@ir-engine/common/src/config'
@@ -62,6 +59,8 @@ import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/Col
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import React, { lazy, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { EditorHistoryFunctions } from '@ir-engine/editor/src/services/EditorHistoryState'
 import { Button, DropdownItem, Input, Select, Tooltip } from '@ir-engine/ui'
@@ -392,16 +391,28 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
       if (combinedMeshEntity) EditorHistoryFunctions.removeEntity([combinedMeshEntity])
 
       getMutableState(AssetModifiedState).set({})
-      getMutableState(EditorState).merge({
-        scenePath: scenePath,
-        sceneName: sceneName,
-        sceneAssetID: sceneAssetID
-      })
-      if (saveScenePath && sceneName) {
-        deleteScene(
-          `${saveScenePath}/${sceneName.replace('.gltf', '')}/${sceneName.replace('.gltf', '-compressed.gltf')}`
-        )
+      if (saveScenePath) {
+        getMutableState(EditorState).merge({
+          scenePath: `${saveScenePath}/${sceneName!.replace('.gltf', '')}/${sceneName!.replace(
+            '.gltf',
+            '-compressed.gltf'
+          )}`
+        })
       }
+      // set timeout to allow EditorState to update for the compressed scene
+      setTimeout(() => {
+        getMutableState(EditorState).merge({
+          scenePath: scenePath,
+          sceneName: sceneName,
+          sceneAssetID: sceneAssetID,
+          projectName: projectName
+        })
+        if (saveScenePath && sceneName) {
+          deleteScene(
+            `${saveScenePath}/${sceneName.replace('.gltf', '')}/${sceneName.replace('.gltf', '-compressed.gltf')}`
+          )
+        }
+      }, 1000)
     }
   }
 
