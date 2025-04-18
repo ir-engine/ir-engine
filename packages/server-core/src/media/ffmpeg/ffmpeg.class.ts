@@ -23,14 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { Params } from '@feathersjs/feathers'
 import { ServiceInterface } from '@feathersjs/feathers/lib/declarations'
-import { KnexAdapterParams } from '@feathersjs/knex'
 
 import { UploadFile } from '@ir-engine/common/src/interfaces/UploadAssetInterface'
 
 import { Application } from '../../../declarations'
 
-export interface FfmpegParams extends KnexAdapterParams {
+export interface FfmpegParams extends Params {
   files: UploadFile[]
 }
 
