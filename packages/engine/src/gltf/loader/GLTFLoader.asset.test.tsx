@@ -57,6 +57,8 @@ describe('glTF.asset Property', () => {
       // @ts-expect-error Set the version property to a number to provoke the error
       asset.version = 2.0 // Not a string
       expect(() => GLTFValidate.asset(asset)).toThrow()
+      asset.version = '2.0' // Set a valid value
+      expect(() => GLTFValidate.asset(asset)).not.toThrow()
     })
 
     it('MUST match the glTF version format with pattern ^[0-9]+.[0-9]+$', () => {
@@ -77,6 +79,8 @@ describe('glTF.asset Property', () => {
       // @ts-expect-error Set the copyright property to a number to provoke the error
       asset.copyright = 2023 // Not a string
       expect(() => GLTFValidate.asset(asset)).toThrow()
+      asset.copyright = 'SomeCopyright' // Set a valid value
+      expect(() => GLTFValidate.asset(asset)).not.toThrow()
     })
   }) //:: copyright
 
@@ -91,6 +95,8 @@ describe('glTF.asset Property', () => {
       // @ts-expect-error Set the generator property to a number to provoke the error
       asset.generator = { toolName: 'SomeGeneratorTool' } // Not a string
       expect(() => GLTFValidate.asset(asset)).toThrow()
+      asset.generator = 'SomeGeneratorTool' // Set a valid value
+      expect(() => GLTFValidate.asset(asset)).not.toThrow()
     })
   }) //:: generator
 
@@ -105,12 +111,16 @@ describe('glTF.asset Property', () => {
       // @ts-expect-error Set the minVersion property to a number to provoke the error
       asset.minVersion = 2.0 // Not a string
       expect(() => GLTFValidate.asset(asset)).toThrow()
+      asset.minVersion = '2.0' // Set a valid value
+      expect(() => GLTFValidate.asset(asset)).not.toThrow()
     })
 
     it('MUST NOT be greater than Asset.version', () => {
       const asset = mockAssetMinimal()
       asset.minVersion = '2.1' // Greater than 2.0
       expect(() => GLTFValidate.asset(asset)).toThrow()
+      asset.minVersion = '2.0' // Set a valid value
+      expect(() => GLTFValidate.asset(asset)).not.toThrow()
     })
 
     it('MUST match the glTF version format with pattern ^[0-9]+.[0-9]+$', () => {
@@ -131,6 +141,8 @@ describe('glTF.asset Property', () => {
       // @ts-expect-error Set the extensions property to a number to provoke the error
       asset.extensions = 42 // Not a JSON object
       expect(() => GLTFValidate.asset(asset)).toThrow()
+      asset.extensions = {} // Set a valid value
+      expect(() => GLTFValidate.asset(asset)).not.toThrow()
     })
   }) //:: extensions
 
