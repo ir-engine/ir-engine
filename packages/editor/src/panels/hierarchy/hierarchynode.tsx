@@ -395,7 +395,7 @@ export default React.memo(function HierarchyTreeNode(
         !visible ? 'text-text-inactive' : '',
         selected ? 'rounded-sm border border-ui-select-outline bg-ui-select-background text-text-primary' : '',
         isOverOn && canDropOn ? 'border border-dotted' : '',
-        !showGlbChildrenFeatureFlag && isOverOn && !canDropOn ? 'border border-dotted bg-ui-hover-error' : ''
+        !showGlbChildrenFeatureFlag && isOverOn && !canDropOn ? 'border border-dotted text-text-error' : ''
       )}
       data-testid="hierarchy-panel-scene-item"
     >
@@ -519,7 +519,19 @@ export default React.memo(function HierarchyTreeNode(
               data-testid={`hierarchy-panel-scene-item-${visible ? 'hide' : 'unhide'}-button`}
               onClick={onHideUnhideNode}
             >
-              {visible ? <PiEyeBold className="text-base" /> : <PiEyeClosedBold className="text-base" />}
+              {visible ? (
+                <PiEyeBold
+                  className={`${
+                    !showGlbChildrenFeatureFlag && isOverOn && !canDropOn ? 'text-text-inactive' : 'text-base'
+                  }`}
+                />
+              ) : (
+                <PiEyeClosedBold
+                  className={`${
+                    !showGlbChildrenFeatureFlag && isOverOn && !canDropOn ? 'text-text-inactive' : 'text-base'
+                  }`}
+                />
+              )}
             </button>
           </div>
         </div>
