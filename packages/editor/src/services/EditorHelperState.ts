@@ -76,7 +76,9 @@ export const EditorHelperState = defineState({
 
     useEffect(() => {
       const showGlbChildren = getMutableState(EditorHelperState).showGlbChildren
-      showGlbChildren.set(showGlbChildrenFlag ?? true)
+      if (typeof showGlbChildrenFlag !== 'undefined') {
+        showGlbChildren.set(showGlbChildrenFlag)
+      }
     }, [showGlbChildrenFlag])
 
     return null

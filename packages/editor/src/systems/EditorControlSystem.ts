@@ -309,7 +309,6 @@ const findNextSelectionEntity = (topLevelParent: Entity, child: Entity): Entity 
 }
 
 let clickStartEntity = UndefinedEntity
-let showGlbChildrenFeatureFlagEnabled = true
 
 const execute = () => {
   const avatarEntity = AvatarComponent.getSelfAvatarEntity()
@@ -365,7 +364,7 @@ const execute = () => {
         selectedParentEntity === clickStartEntity ? closestIntersection.entity : selectedParentEntity
 
       // If hiding children of GLB, don't allow those children to be selected (clicking in scene view)
-      if (!showGlbChildrenFeatureFlagEnabled && selectedParentEntity) {
+      if (!getState(EditorHelperState).showGlbChildren && selectedParentEntity) {
         const forceSelectGlbParent = isEntityGlb(selectedParentEntity) // && hasComponent(selectedParentEntity, SceneComponent)
         clickStartEntity = forceSelectGlbParent ? selectedParentEntity : selectedEntity //selectedEntity vs clickStartEntity so that we allow closest intersection drill down above to work
       } else {
@@ -467,8 +466,6 @@ const reactor = () => {
   const rendererState = useMutableState(RendererState)
   const selectionBoxState = useMutableState(SelectionBoxState)
   const viewerEntity = useMutableState(ReferenceSpaceState).viewerEntity.value
-
-  showGlbChildrenFeatureFlagEnabled = getMutableState(EditorHelperState).showGlbChildren.value
 
   useEffect(() => {
     // todo figure out how to do these with our input system
