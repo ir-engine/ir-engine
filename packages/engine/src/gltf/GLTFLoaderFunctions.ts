@@ -1754,7 +1754,7 @@ export type GLTFParserOptions = {
   requestHeader: Record<string, string>
 }
 
-const validateVersionFormat = (vers: string): boolean => /^[0-9{1024}]+.[0-9{1024}]+$/.test(vers)
+const validateVersionFormat = (vers: string): boolean => /^[0-9]{1,1024}.[0-9]{1,1024}$/.test(vers)
 
 function validateVersionGreaterThan(vers1: string, vers2: string): boolean {
   const [major1, minor1] = vers1.split('.').map(Number)
