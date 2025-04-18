@@ -7,7 +7,6 @@ node_modules/
 
 # npm / yarn / pnpm
 package-lock.json
-bun.lock
 yarn.lock
 yarn-error.log
 .yarn/
@@ -166,6 +165,8 @@ packages/server/upload_test/
 project-package-jsons/*
 
 feathers/*
+packages/ui/build/*
+packages/ui/storybook-static*
 /packages/ui/tests/jest-test-results.json
 packages/ui/tests/jest-test-results.json
 

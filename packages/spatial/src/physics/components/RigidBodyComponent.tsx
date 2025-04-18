@@ -32,15 +32,15 @@ import {
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Physics } from '../classes/Physics'
 import { Body, BodyTypes } from '../types/PhysicsTypes'
 
 import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
-import React from 'react'
 import { Quaternion, Vector3 } from 'three'
 import { T } from '../../schema/schemaFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 const options = {
   deserialize: (curr, value) => curr.copy(value)
@@ -137,6 +137,11 @@ const RigidBodyReactor = () => {
   const entity = useEntityContext()
   const component = useComponent(entity, RigidBodyComponent)
   const physicsWorld = Physics.useWorld(entity)!
+
+  useEffect(() => {
+    if (!component.initialized.value) return
+    TransformComponent.dirty[entity] = 1
+  }, [component.initialized.value])
 
   useEffect(() => {
     if (!physicsWorld) return

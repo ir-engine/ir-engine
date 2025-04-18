@@ -92,7 +92,8 @@
     "record-build-error": "ts-node --swc scripts/record-build-error.ts",
     "record-build-success": "ts-node --swc scripts/record-build-success.ts",
     "add-license-headers": "ts-node --swc scripts/add-license-headers.ts",
-    "storybook": "cd packages/ui && npm run storybook"
+    "storybook": "cd packages/ui && npm run storybook",
+    "build:storybook": "cd packages/ui && npm run build:storybook"
   },
   "types": "lib/",
   "pre-commit": [
@@ -122,6 +123,7 @@
     "@vitejs/plugin-react": "4.3.1",
     "@vitest/coverage-istanbul": "2.1.1",
     "@vitest/ui": "2.1.1",
+    "chromatic": "^11.28.0",
     "concurrently": "7.6.0",
     "deep-object-diff": "^1.1.9",
     "depcheck": "1.4.3",

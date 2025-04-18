@@ -1,0 +1,6 @@
+{
+  "$schema": "https://www.chromatic.com/config-file.schema.json",
+  "projectId": "Project:infinite-reality",
+  "buildScriptName": "build:storybook",
+  "outputDir": "./packages/ui/build/"
+}

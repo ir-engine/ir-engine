@@ -338,13 +338,10 @@ const createObjectFromSceneElement = (
   return { entityUUID: getComponent(entity, UUIDComponent), sourceID }
 }
 
-/**
- * @todo copying an object should be rooted to which object is currently selected
- */
 const duplicateObject = (entities: Entity[]) => {
-  const duplicateEntities = (entities: Entity[], parentEntity: Entity) => {
-    const parentUUID = getComponent(parentEntity, UUIDComponent)
+  const newEntities: EntityUUID[] = []
 
+  const duplicateEntities = (entities: Entity[], parentEntity: Entity) => {
     entities.forEach((entity) => {
       const entityData = serializeEntity(entity).filter((c) => c.name !== NodeIDComponent.jsonID)
       const originalSource = getComponent(entity, SourceComponent)
@@ -359,6 +356,9 @@ const duplicateObject = (entities: Entity[]) => {
         deserializeComponent(newEntity, ComponentJSONIDMap.get(component.name)!, component.props)
       }
 
+      // Store the UUID of new entity for selection
+      newEntities.push(getComponent(newEntity, UUIDComponent))
+
       if (hasComponent(entity, GLTFComponent)) return
       const children = getComponent(entity, EntityTreeComponent).children as Entity[]
       duplicateEntities(children, newEntity)
@@ -372,6 +372,9 @@ const duplicateObject = (entities: Entity[]) => {
     duplicateEntities([rootEntity], parentEntity)
     EditorState.markModifiedScene(rootEntity)
   }
+
+  // Update selection to the new entities
+  SelectionState.updateSelection(newEntities)
 }
 
 const positionObject = (

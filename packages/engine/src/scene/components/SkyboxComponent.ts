@@ -44,7 +44,7 @@ import {
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { isClient, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
@@ -81,7 +81,7 @@ export const SkyboxComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    if (!isClient) return null
+    // if (!isClient) return null
 
     const skyboxState = useComponent(entity, SkyboxComponent)
     const cubemapTexture = useHookstate<undefined | CubeTexture>(undefined)
@@ -190,7 +190,6 @@ export const SkyboxComponent = defineComponent({
       sky.luminance = skyboxState.skyboxProps.value.luminance
 
       const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
-
       const texture = sky.generateSkyboxTextureCube(renderer.renderer!)
       texture.mapping = CubeReflectionMapping
 
