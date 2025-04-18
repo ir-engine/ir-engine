@@ -93,7 +93,7 @@ export const SceneThumbnailState = defineState({
     const source = editorState.scenePath
     if (!source || !projectName) return
 
-    const thumbnailKey = generateThumbnailKey(`${window.location.origin}/${source}`, projectName)
+    const thumbnailKey = generateThumbnailKey(source, projectName)
     const thumbnailMode = 'custom'
     const thumbnailURL = new URL(
       await uploadToFeathersService(fileBrowserUploadPath, [sceneThumbnailState.thumbnail.value], {
