@@ -35,11 +35,11 @@ export const HighlightState = defineState({
   initial: {
     blendFunction: BlendFunction.SCREEN,
     patternTexture: null! as Texture, // post processing args typed as (Texture | undefined) so we must override the type
-    patternScale: 1.0,
+    patternScale: 60.0,
     edgeStrength: 5.0,
     pulseSpeed: 0.0,
-    visibleEdgeColor: 0x375daf,
-    hiddenEdgeColor: 0x879ecf,
+    visibleEdgeColor: 0xffffff,
+    hiddenEdgeColor: 0xffffff,
     kernelSize: KernelSize.MEDIUM,
     blur: true,
     xRay: true,

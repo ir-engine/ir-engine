@@ -29,7 +29,7 @@ import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
 import { useFind } from '@ir-engine/common'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { clientSettingPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
-import { cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
+import { cleanFileNameFile } from '@ir-engine/common/src/utils/cleanFileName'
 import { useComponent, useQuery } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ResourcePendingComponent } from '@ir-engine/engine/src/gltf/ResourcePendingComponent'
@@ -86,12 +86,12 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
         Promise.all(
           Array.from(dropDataTransfer.files).map(async (file) => {
             try {
-              const name = cleanFileNameString(file.name)
+              file = cleanFileNameFile(file)
               return uploadToFeathersService(fileBrowserUploadPath, [file], {
                 args: [
                   {
                     project: projectName.value,
-                    path: `assets/` + name,
+                    path: `assets/` + file.name,
                     contentType: file.type
                   }
                 ]

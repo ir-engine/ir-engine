@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { Vector3 } from 'three'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { TransitionComponent, defineComponent, getComponent, setComponent } from './ComponentFunctions'
@@ -142,8 +142,8 @@ describe('TransitionSystem', () => {
     })
 
     // For quadratic.inOut:
-    // t < 0.5: fn(t * 2) / 2 where fn(t) = t^2
-    // t >= 0.5: 1 - fn((1-t) * 2) / 2 where fn(t) = t^2
+    // t < 0.5: fn(t * 2) / 2 where fn(x) = x^2
+    // t >= 0.5: 1 - fn((1-t) * 2) / 2 where fn(x) = x^2
 
     // At 250ms (t=0.25): (0.5)^2 / 2 = 0.125
     executeSystems(250)
@@ -152,6 +152,7 @@ describe('TransitionSystem', () => {
 
     // At 500ms (t=0.5): (1)^2 / 2 = 0.5
     executeSystems(500)
+    console.log(getState(ECSState).deltaSeconds)
     const secondComponent = getComponent(entity, TestComponent)
     expect(secondComponent.number).toBeCloseTo(0.5, 2)
 

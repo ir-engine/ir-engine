@@ -31,8 +31,8 @@ import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunction
 import { EngineState, EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
+  getSimulationCounterpart,
   hasComponent,
   useHasComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -51,6 +51,8 @@ import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/Ma
 import { getMutableState, getState, none, useHookstate, useMutableState, useState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
+import { TransformPivot, TransformSpace } from '@ir-engine/spatial/src/common/constants/TransformConstants'
+import { computeTransformPivot } from '@ir-engine/spatial/src/common/functions/TransformPivot'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { Button, Input } from '@ir-engine/ui'
@@ -287,9 +289,10 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     } else if (event.detail === 2) {
       const cameraEntity = getState(ReferenceSpaceState).viewerEntity
       if (entity && getOptionalComponent(cameraEntity, CameraOrbitComponent)) {
-        const editorCameraState = getMutableComponent(cameraEntity, CameraOrbitComponent)
-        editorCameraState.focusedEntities.set([entity])
-        editorCameraState.refocus.set(true)
+        const simulationEntity = getSimulationCounterpart(entity)
+        const pivot = computeTransformPivot([simulationEntity], TransformPivot.Center, TransformSpace.world)
+        if (!pivot?.position) return
+        CameraOrbitComponent.setFocus(cameraEntity, pivot.position, pivot.bounds)
       }
     }
   }

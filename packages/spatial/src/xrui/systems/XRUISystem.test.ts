@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createEngine, createEntity, destroyEngine, setComponent } from '@ir-engine/ecs'
+import { createEngine, createEntity, destroyEngine, Entity, EntityTreeComponent, setComponent } from '@ir-engine/ecs'
 import { Vector3 } from 'three'
 import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 import { createMockXRUI } from '../../../tests/util/MockXRUI'
@@ -31,8 +31,16 @@ import { assertFloat } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { destroySpatialEngine, destroySpatialViewer } from '../../initializeEngine'
 import { IntersectionData } from '../../input/functions/ClientInputHeuristics'
+import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { xruiInputHeuristic } from './XRUISystem'
+
+const createViewerEntity = (childEntity: Entity): Entity => {
+  const viewerEntity = createEntity()
+  setComponent(viewerEntity, RendererComponent, { scenes: [viewerEntity] })
+  setComponent(childEntity, EntityTreeComponent, { parentEntity: viewerEntity })
+  return viewerEntity
+}
 
 describe('XRUISystem', () => {
   describe('findXRUI', () => {
@@ -58,7 +66,7 @@ describe('XRUISystem', () => {
       const rayOrigin = new Vector3(0, 0, 0)
       const rayDirection = new Vector3(0, 0, -1).normalize()
 
-      xruiInputHeuristic(data, rayOrigin, rayDirection)
+      xruiInputHeuristic(createViewerEntity(testEntity), data, rayOrigin, rayDirection)
       assert.notEqual(data.size, 0)
       const result = [...data]
       assert.equal(result[0].entity, testEntity)
@@ -76,7 +84,7 @@ describe('XRUISystem', () => {
       const rayOrigin = new Vector3(10, 10, 10)
       const rayDirection = new Vector3(0, 0, -1).normalize()
 
-      xruiInputHeuristic(data, rayOrigin, rayDirection)
+      xruiInputHeuristic(createViewerEntity(testEntity), data, rayOrigin, rayDirection)
       assert.equal(data.size, 0)
     })
   })

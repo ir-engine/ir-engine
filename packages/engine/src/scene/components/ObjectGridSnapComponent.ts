@@ -44,7 +44,7 @@ import { getMutableState, useDidMount, useHookstate, useState } from '@ir-engine
 import { Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { LineSegmentComponent } from '@ir-engine/spatial/src/renderer/components/LineSegmentComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { ObjectLayerMask, ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
@@ -114,7 +114,7 @@ export const BoundingBoxHelperComponent = defineComponent({
     bbox: S.Required(S.Type<Box3>()),
     density: S.Number(2),
     color: T.Color(0xff0000),
-    layerMask: S.Number(ObjectLayerMasks.NodeHelper),
+    layerMask: S.Type<ObjectLayerMask>(ObjectLayerMasks.NodeHelper),
     helperEntity: S.Optional(S.Entity())
   }),
 
