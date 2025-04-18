@@ -47,7 +47,6 @@ export class FileBrowserUploadService implements ServiceInterface<string[], any,
 
   async create(rawData: { args: string }, params: FileBrowserUploadParams) {
     const data = typeof rawData.args === 'string' ? JSON.parse(rawData.args) : rawData.args
-    console.log('file-browser-upload', data)
     const result = (
       await Promise.all(
         params.files.map((file, i) => {

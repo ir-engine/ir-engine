@@ -28,7 +28,52 @@ import { ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 
 import { UploadFile } from '@ir-engine/common/src/interfaces/UploadAssetInterface'
 
+import ffmpegStatic from 'ffmpeg-static'
+import ffmpeg from 'fluent-ffmpeg'
+import fs from 'fs/promises'
+import os from 'os'
+import path from 'path'
 import { Application } from '../../../declarations'
+
+import { fileBrowserPath } from '@ir-engine/common/src/schemas/media/file-browser.schema'
+ffmpeg.setFfmpegPath(ffmpegStatic)
+
+async function convertGifToMp4(fileBuffer: Buffer): Promise<Buffer | null> {
+  const isGif = fileBuffer.slice(0, 3).toString('ascii') === 'GIF'
+  if (!isGif) return null
+
+  const tmpInput = path.join(os.tmpdir(), `input-${Date.now()}.gif`)
+  const tmpOutput = path.join(os.tmpdir(), `output-${Date.now()}.mp4`)
+
+  await fs.writeFile(tmpInput, new Uint8Array(fileBuffer))
+
+  return new Promise((resolve, reject) => {
+    ffmpeg(tmpInput)
+      .format('mp4')
+      .videoCodec('libx264')
+      .outputOptions([
+        '-r 15',
+        '-g 1',
+        '-pix_fmt yuv420p',
+        '-movflags +faststart',
+        '-profile:v baseline',
+        '-level 3.0',
+        '-preset fast'
+      ])
+      .on('error', (err) => reject(new Error(`FFmpeg error: ${err.message}`)))
+      .on('end', async () => {
+        try {
+          const result = await fs.readFile(tmpOutput)
+          await fs.unlink(tmpInput)
+          await fs.unlink(tmpOutput)
+          resolve(result)
+        } catch (err) {
+          reject(new Error(`Failed to read output: ${err.message}`))
+        }
+      })
+      .save(tmpOutput)
+  })
+}
 
 export interface FfmpegParams extends Params {
   files: UploadFile[]
@@ -43,14 +88,45 @@ export class FfmpegService implements ServiceInterface<string[], any, FfmpegPara
   constructor(app: Application) {
     this.app = app
   }
-  async get(id: string, params?: FfmpegParams): Promise<string[]> {
-    return [`test`]
-  }
 
   async create(rawData: { args: string }, params: FfmpegParams) {
     const data = typeof rawData.args === 'string' ? JSON.parse(rawData.args) : rawData.args
-    const result = ['yesy']
 
-    return result
+    const result = await Promise.all(
+      params.files.map(async (file, i) => {
+        const args = data[i]
+        let fileBuffer = file.buffer as Buffer
+        let contentType = args.contentType || file.mimetype
+        let path = args.path
+        // If the file is a GIF, try to convert it
+        if (contentType === 'image/gif') {
+          try {
+            const convertedBuffer = await convertGifToMp4(fileBuffer)
+            if (convertedBuffer) {
+              fileBuffer = convertedBuffer
+              contentType = 'video/mp4'
+              path = path.replace('.gif', '.mp4')
+              return this.app.service(fileBrowserPath).patch(null, {
+                ...args,
+                project: args.project,
+                path: path,
+                body: fileBuffer,
+                contentType: contentType
+              })
+            }
+          } catch (error) {
+            console.error('GIF conversion failed:', error)
+          }
+        }
+        return null
+      })
+    )
+
+    const urls = result.map((result) => result?.url).filter((url): url is string => url !== undefined)
+
+    // Clear params
+    for (const prop of Object.getOwnPropertyNames(params)) delete params[prop]
+
+    return urls
   }
 }
