@@ -69,7 +69,8 @@ export function Topbar() {
   )
 }
 
-export function Contents() {
+export function Contents(props: { showGlbChildren: boolean }) {
+  const { showGlbChildren } = props
   const listDimensions = useHookstate({
     height: 0,
     width: 0
@@ -81,7 +82,7 @@ export function Contents() {
 
   /**an explicit callback is required to rerender changed nodes inside FixedSizeList */
   const MemoTreeNode = useCallback(
-    (props: ListChildComponentProps<undefined>) => <HierarchyTreeNode {...props} />,
+    (props: ListChildComponentProps<undefined>) => <HierarchyTreeNode {...props} showGlbChildren={showGlbChildren} />,
     [nodes]
   )
 

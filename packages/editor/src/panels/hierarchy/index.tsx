@@ -23,6 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorBoundary, useMutableState } from '@ir-engine/hyperflux'
@@ -69,10 +71,12 @@ function HierarchyPanelWrapper() {
 }
 
 function HierarchyPanel() {
+  const [showGlbChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowGlbChildren])
+
   return (
-    <HierarchyPanelProvider>
+    <HierarchyPanelProvider showGlbChildren={showGlbChildren}>
       <Topbar />
-      <Contents />
+      <Contents showGlbChildren={showGlbChildren} />
       <HierarchyTreeContextMenu />
     </HierarchyPanelProvider>
   )

@@ -24,10 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
-import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { userHasProjectPermission } from '@ir-engine/client-core/src/hooks/useUserProjectPermission'
 import { API } from '@ir-engine/common'
-import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { projectPermissionPath } from '@ir-engine/common/src/schema.type.module'
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
 import { EngineState, EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
@@ -98,7 +96,11 @@ function toValidHierarchyNodeName(entity: Entity, name: string): string {
   return name
 }
 
-export default React.memo(function HierarchyTreeNode(props: ListChildComponentProps<undefined>) {
+export default React.memo(function HierarchyTreeNode(
+  props: ListChildComponentProps<undefined> & { showGlbChildren: boolean }
+) {
+  const showGlbChildrenFeatureFlag = props.showGlbChildren
+
   const { t } = useTranslation()
   const nodes = useHierarchyNodes()
   const node = nodes[props.index]
@@ -119,8 +121,6 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const isRenameOpen = useState(false)
   const canSaveNodeChanges = useState(false)
   const permissionToChangeNodeVerified = useState(false)
-
-  const showGlbChildrenFeatureFlag = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowGlbChildren])
 
   const handleRenameOpen = () => {
     if (!isRenameOpen.value) {

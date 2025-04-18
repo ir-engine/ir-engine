@@ -22,8 +22,6 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
-import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { VALID_HEIRARCHY_SEARCH_REGEX } from '@ir-engine/common/src/regex'
 import {
   Entity,
@@ -94,11 +92,15 @@ const HierarchyTreeContext = createContext({
   }
 })
 
-const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Entity; sourceID: string }) => {
-  const { children, rootEntity, sourceID } = props
+const HierarchySnapshotReactor = (props: {
+  children?: ReactNode
+  rootEntity: Entity
+  sourceID: string
+  showGlbChildren: boolean
+}) => {
+  const { children, rootEntity, sourceID, showGlbChildren } = props
   const selectionState = useMutableState(SelectionState)
   const hierarchyTreeState = useMutableState(HierarchyTreeState)
-  const [showGlbChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowGlbChildren])
   const renamingEntity = useHookstate<Entity | null>(null)
   const contextMenu = useHookstate({ entity: UndefinedEntity, anchorEvent: undefined as React.MouseEvent | undefined })
   const entities = useQuery([SourceComponent], Layers.Authoring)
@@ -184,11 +186,24 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
   )
 }
 
-export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) => {
+export const HierarchyPanelProvider = ({
+  children,
+  showGlbChildren
+}: {
+  children?: ReactNode
+  showGlbChildren: boolean
+}) => {
   const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
   const sourceID = GLTFComponent.useInstanceID(rootEntity)
   if (!sourceID) return null
-  return <HierarchySnapshotReactor children={children} rootEntity={rootEntity} sourceID={sourceID} />
+  return (
+    <HierarchySnapshotReactor
+      children={children}
+      rootEntity={rootEntity}
+      sourceID={sourceID}
+      showGlbChildren={showGlbChildren}
+    />
+  )
 }
 
 export const useHierarchyNodes = () => useContext(HierarchyTreeContext).nodes
