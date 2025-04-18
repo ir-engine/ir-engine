@@ -64,6 +64,7 @@ import {
 import { setupMaterialParameters } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import assert from 'assert'
 import {
   AnimationClip,
   AnimationMixer,
@@ -1754,7 +1755,10 @@ export type GLTFParserOptions = {
   requestHeader: Record<string, string>
 }
 
-const validateVersionFormat = (vers: string): boolean => /^[0-9]+.[0-9]+$/.test(vers)
+const validateVersionFormat = (vers: string): boolean => {
+  assert(vers.length < 1024, 'version string too long')
+  return /^[0-9]+.[0-9]+$/.test(vers)
+}
 
 function validateVersionGreaterThan(vers1: string, vers2: string): boolean {
   const [major1, minor1] = vers1.split('.').map(Number)
