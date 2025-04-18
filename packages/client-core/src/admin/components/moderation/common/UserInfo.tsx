@@ -23,26 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useFind } from '@ir-engine/common'
-import { identityProviderPath } from '@ir-engine/common/src/schema.type.module'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React from 'react'
 import { UserLastLoginInfo } from './UserLastLoginInfo'
 
-export const UserInfo = ({ userId, usersQuery }) => {
+export const UserInfo = ({ userId, userEmail, usersQuery }) => {
   const user = usersQuery.data.find((user) => user.id == userId)
-  const identityProvider = useFind(identityProviderPath, {
-    query: {
-      userId: userId,
-      $limit: 1
-    }
-  })
-
   return (
     <Text>
       {userId} <br />
       {user?.name} <br />
-      {identityProvider?.data[0]?.email}
+      {userEmail}
       <UserLastLoginInfo userId={userId} />
     </Text>
   )

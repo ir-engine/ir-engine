@@ -27,6 +27,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
+import { identityProviderPath, UserID } from '@ir-engine/common/src/schema.type.module'
 import {
   ModerationID,
   ModerationQuery,
@@ -35,10 +36,30 @@ import {
 import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import type { HookContext } from '@ir-engine/server-core/declarations'
 
+const resolveUserEmail = async (userId: UserID | undefined, context: HookContext) => {
+  if (!userId) return undefined
+
+  const identityProvider = await context.app.service(identityProviderPath).find({
+    isInternal: true,
+    query: {
+      userId: userId,
+      $limit: 1
+    }
+  })
+  return identityProvider?.data[0]?.email || undefined
+}
+
 export const moderationResolver = resolve<ModerationType, HookContext>({
   createdAt: virtual(async (moderation) => fromDateTimeSql(moderation.createdAt)),
-  updatedAt: virtual(async (moderation) => fromDateTimeSql(moderation.updatedAt))
+  updatedAt: virtual(async (moderation) => fromDateTimeSql(moderation.updatedAt)),
+  reportedUserEmail: virtual(async (moderation: ModerationType, context: HookContext) => {
+    return resolveUserEmail(moderation.reportedUserId, context)
+  }),
+  createdByEmail: virtual(async (moderation: ModerationType, context: HookContext) => {
+    return resolveUserEmail(moderation.createdBy, context)
+  })
 })
+
 export const moderationExternalResolver = resolve<ModerationType, HookContext>({})
 export const moderationDataResolver = resolve<ModerationType, HookContext>({
   id: async () => {

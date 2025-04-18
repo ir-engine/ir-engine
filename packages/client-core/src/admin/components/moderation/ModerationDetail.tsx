@@ -211,7 +211,11 @@ export const ModerationDetail = ({
           {isUserModeration && (
             <>
               <Text className="mb-4 text-text-primary">{t('admin:components.moderation.usernameBeingReported')}</Text>
-              <UserInfo userId={moderation.reportedUserId} usersQuery={usersQuery} />
+              <UserInfo
+                userId={moderation.reportedUserId}
+                userEmail={moderation.reportedUserEmail}
+                usersQuery={usersQuery}
+              />
               <Text className="mb-4 text-text-primary">{t('admin:components.moderation.accountType')}</Text>
               <Text className="mb-4">
                 {locationAdminQuery && locationAdminQuery.status == 'success' && locationAdminQuery.data.length > 0
@@ -225,7 +229,7 @@ export const ModerationDetail = ({
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.dateReported')}</Text>
           <Text className="mb-4">{toDisplayDateTimeUtc(moderation?.reportedAt)} UTC</Text>
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.reporter')}</Text>
-          <UserInfo userId={moderation.createdBy} usersQuery={usersQuery} />
+          <UserInfo userId={moderation.createdBy} userEmail={moderation.createdByEmail} usersQuery={usersQuery} />
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.space')}</Text>
           <Text className="mb-4">
             {moderation.reportedLocationId && (
