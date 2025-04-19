@@ -225,7 +225,7 @@ export const InputComponent = defineComponent({
                     }
 
                     if (result && isActive) {
-                      result.down = states.every((s) => s.down)
+                      result.down = states.some((s) => s.down)
                       result.pressed = states.every((s) => s.pressed)
                       result.touched = states.every((s) => s.touched)
                       result.value = Math.max(...states.map((s) => s.value))
