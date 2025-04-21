@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
@@ -107,6 +107,25 @@ export const TermsOfServiceState = defineState({
 })
 
 const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
+  const engineSettingData = useFind(engineSettingPath, {
+    query: {
+      category: 'authentication',
+      paginate: false
+    }
+  })
+
+  const authSetting = useMemo(() => {
+    if (!engineSettingData.data) return null
+
+    return unflattenArrayToObject(
+      engineSettingData.data.map((el) => ({
+        key: el.key,
+        value: el.value,
+        dataType: el.dataType
+      }))
+    )
+  }, [engineSettingData.status])
+
   const { t } = useTranslation()
   const location = useLocation()
 
@@ -123,22 +142,10 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   /** Login Link feature that was needed for multi cam mocap that is not currently necessary. Keeping code around for now if we return to it*/
   //const loginLink = useHookstate('')
 
-  const engineSettingData = useFind(engineSettingPath, {
-    query: {
-      category: 'authentication',
-      paginate: false
-    }
-  })
-  const authSetting = unflattenArrayToObject(
-    engineSettingData.data.map((el) => ({ key: el.key, value: el.value, dataType: el.dataType }))
-  )
-  console.log('authSetting test', engineSettingData.data)
   const clientSetting = useFind(clientSettingPath).data.at(0)
-  console.log('clientSetting test', useFind(clientSettingPath))
   const loading = useHookstate(getMutableState(AuthState).isProcessing)
   const userId = selfUser.id.value
   const apiKey = useFind(userApiKeyPath).data[0]
-  console.log('apiKey test', useFind(userApiKeyPath))
   const isGuest = selfUser.isGuest.value
   const acceptedTOS = useMutableState(TermsOfServiceState).accepted.value
 
