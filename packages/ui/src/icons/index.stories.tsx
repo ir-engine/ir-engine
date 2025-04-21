@@ -38,6 +38,7 @@ export default {
 interface FuseSearchItem {
   iconName: string
   index: number
+  test?: number
 }
 
 const allIcons = Object.entries(Icons).filter(([iconName]) => {

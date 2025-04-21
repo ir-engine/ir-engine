@@ -35,9 +35,6 @@ function log(...args: any[]) {
   }
 }
 
-//always pass this check for now
-process.exit(0)
-
 try {
   log('Comparing with origin/dev...\n')
 
@@ -49,6 +46,7 @@ try {
     log('No changes detected.')
     process.exit(1) // No changes, exit with failure
   }
+  console.log(output)
 
   const lines = output.split('\n')
   const tsxFiles: string[] = []
@@ -58,7 +56,7 @@ try {
     const file = fileParts.join(' ')
     const filename = path.basename(file)
 
-    if ((status === 'M' || status === 'A') && filename.endsWith('.tsx') && !filename.includes('.stories')) {
+    if (((status === 'M' || status === 'A') && filename.endsWith('.tsx')) || filename.includes('.stories')) {
       tsxFiles.push(file)
     }
   })
