@@ -48,6 +48,7 @@ import { DnDFileType, FileDataType, ItemTypes, SupportedFileTypes } from '../../
 import { addMediaNode } from '../../functions/addMediaNode'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { cmdOrCtrlString, isEntityGlb } from '../../functions/utils'
+import { EditorHelperState } from '../../services/EditorHelperState.ts'
 import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
@@ -92,18 +93,14 @@ const HierarchyTreeContext = createContext({
   }
 })
 
-const HierarchySnapshotReactor = (props: {
-  children?: ReactNode
-  rootEntity: Entity
-  sourceID: string
-  showGlbChildren: boolean
-}) => {
-  const { children, rootEntity, sourceID, showGlbChildren } = props
+const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Entity; sourceID: string }) => {
+  const { children, rootEntity, sourceID } = props
   const selectionState = useMutableState(SelectionState)
   const hierarchyTreeState = useMutableState(HierarchyTreeState)
   const renamingEntity = useHookstate<Entity | null>(null)
   const contextMenu = useHookstate({ entity: UndefinedEntity, anchorEvent: undefined as React.MouseEvent | undefined })
   const entities = useQuery([SourceComponent], Layers.Authoring)
+  const showGlbChildren = useMutableState(EditorHelperState).showGlbChildren
 
   const childEntities = useQuery([EntityTreeComponent], Layers.Authoring)
   const reparentRefresh = useHookstate(0)
@@ -124,7 +121,7 @@ const HierarchySnapshotReactor = (props: {
   }
 
   const hierarchyNodes = useMemo(
-    () => ecsHierarchyTreeWalker(rootEntity, !showGlbChildren),
+    () => ecsHierarchyTreeWalker(rootEntity, !showGlbChildren.value),
     [
       hierarchyTreeState.expandedNodes[sourceID],
       selectionState.selectedEntities,
@@ -186,24 +183,11 @@ const HierarchySnapshotReactor = (props: {
   )
 }
 
-export const HierarchyPanelProvider = ({
-  children,
-  showGlbChildren
-}: {
-  children?: ReactNode
-  showGlbChildren: boolean
-}) => {
+export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) => {
   const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
   const sourceID = GLTFComponent.useInstanceID(rootEntity)
   if (!sourceID) return null
-  return (
-    <HierarchySnapshotReactor
-      children={children}
-      rootEntity={rootEntity}
-      sourceID={sourceID}
-      showGlbChildren={showGlbChildren}
-    />
-  )
+  return <HierarchySnapshotReactor children={children} rootEntity={rootEntity} sourceID={sourceID} />
 }
 
 export const useHierarchyNodes = () => useContext(HierarchyTreeContext).nodes

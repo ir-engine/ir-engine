@@ -25,12 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { ErrorBoundary, getMutableState, useMutableState } from '@ir-engine/hyperflux'
+import { ErrorBoundary, useMutableState } from '@ir-engine/hyperflux'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import { TabData } from 'rc-dock'
 import React, { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
-import { EditorHelperState } from '../../services/EditorHelperState.ts'
 import HierarchyTreeContextMenu from './contextmenu'
 import { Contents, Topbar } from './hierarchytree'
 import { HierarchyPanelProvider } from './hooks'
@@ -70,12 +69,10 @@ function HierarchyPanelWrapper() {
 }
 
 function HierarchyPanel() {
-  const showGlbChildren = getMutableState(EditorHelperState).showGlbChildren.value
-
   return (
-    <HierarchyPanelProvider showGlbChildren={showGlbChildren}>
+    <HierarchyPanelProvider>
       <Topbar />
-      <Contents showGlbChildren={showGlbChildren} />
+      <Contents />
       <HierarchyTreeContextMenu />
     </HierarchyPanelProvider>
   )
