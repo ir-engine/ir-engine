@@ -158,7 +158,7 @@ const onUndo = () => {
   const rootEntity = getState(EditorState).rootEntity
   if (!rootEntity) return
   const sourceID = GLTFComponent.getInstanceID(rootEntity)
-  if (EditorHistoryState.canRedo(sourceID)) dispatchAction(EditorHistoryActions.undo({ sourceID }))
+  if (EditorHistoryState.canUndo(sourceID)) dispatchAction(EditorHistoryActions.undo({ sourceID }))
 }
 
 const onRedo = () => {
