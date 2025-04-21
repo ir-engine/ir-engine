@@ -319,7 +319,8 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   }
 
   const isModelRoot = hasComponent(entity, GLTFComponent)
-  const isModified = isModelRoot && !!getState(AssetModifiedState)[GLTFComponent.getInstanceID(entity)]
+  const modState = useMutableState(AssetModifiedState)
+  const isModified = isModelRoot && modState && modState.get()[GLTFComponent.getInstanceID(entity)]
 
   const onSaveChanges = () => {
     const gltfComponent = getComponent(node.entity, GLTFComponent)
