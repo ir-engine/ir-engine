@@ -27,20 +27,20 @@ Infinite Reality Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
-import { identityProviderPath, UserID } from '@ir-engine/common/src/schema.type.module'
 import {
   ModerationID,
   ModerationQuery,
   ModerationType
 } from '@ir-engine/common/src/schemas/moderation/moderation.schema'
+import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import type { HookContext } from '@ir-engine/server-core/declarations'
 
 const resolveUserEmail = async (userId: UserID | undefined, context: HookContext) => {
   if (!userId) return undefined
 
-  const identityProvider = await context.app.service(identityProviderPath).find({
-    isInternal: true,
+  const identityProvider = await context.app.service(identityProviderPath)._find({
     query: {
       userId: userId,
       $limit: 1
