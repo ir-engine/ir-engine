@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import useLoadingThumbnails from '@ir-engine/client-core/src/hooks/useLoadingThumbnails'
 import { useUploadingFiles } from '@ir-engine/client-core/src/util/upload'
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
@@ -163,30 +164,7 @@ function GeneratingThumbnailsProgress() {
   const thumbnailJobs = useMutableState(FileThumbnailJobState).jobs
 
   const isLoading = useHookstate(false)
-  const debouncedStatusRef = useRef<ReturnType<typeof setTimeout>>()
-
-  useEffect(() => {
-    clearTimeout(debouncedStatusRef.current)
-  }, [])
-
-  useEffect(() => {
-    if (debouncedStatusRef) {
-      clearTimeout(debouncedStatusRef.current)
-    }
-
-    const isThumbnailsLoading = thumbnailJobs.length > 0
-    if (isThumbnailsLoading) {
-      isLoading.set(true)
-    } else {
-      debouncedStatusRef.current = setTimeout(() => {
-        isLoading.set(false)
-      }, 1000)
-    }
-
-    return () => {
-      clearTimeout(debouncedStatusRef.current)
-    }
-  }, [thumbnailJobs.length])
+  useLoadingThumbnails(isLoading)
 
   return isLoading.value ? (
     <LoadingView

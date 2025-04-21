@@ -24,10 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
+import useLoadingThumbnails from '@ir-engine/client-core/src/hooks/useLoadingThumbnails'
 import { useFind } from '@ir-engine/common'
 import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import { twMerge } from 'tailwind-merge'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
@@ -64,20 +65,13 @@ export function Browser() {
     })
   }
 
-  const debouncedRefetchDirectoryRef = useRef<ReturnType<typeof setTimeout>>()
+  const isLoading = useHookstate(false)
+  useLoadingThumbnails(isLoading)
 
   useEffect(() => {
-    clearTimeout(debouncedRefetchDirectoryRef.current)
-  }, [])
-
-  useEffect(() => {
-    if (debouncedRefetchDirectoryRef) {
-      clearTimeout(debouncedRefetchDirectoryRef.current)
-    }
-    debouncedRefetchDirectoryRef.current = setTimeout(() => {
-      refreshDirectory()
-    }, 1000)
-  }, [thumbnailJobState.jobs.length])
+    if (isLoading.value) return
+    refreshDirectory()
+  }, [isLoading.value])
 
   const staticResourceDataQuery = useFind(staticResourcePath, {
     query: {
