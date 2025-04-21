@@ -28,66 +28,376 @@ Infinite Reality Engine. All Rights Reserved.
  * Unit Test suite for loading the `glTF.animations` root property and all its children.
  * Based on glTF 2.0 specification requirements.
  * */
-import { describe, it } from 'vitest'
+import { act, render } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { startEngineReactor } from '../../../tests/startEngineReactor'
+import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 
+import { createEngine, destroyEngine } from '@ir-engine/ecs'
+import { mockGLTF, mockGLTFOptions } from '../../../tests/util/mockGLTF'
+import { DependencyCache, GLTFLoaderFunctions } from '../GLTFLoaderFunctions'
+
+beforeEach(() => {
+  // Clear the dependency cache before each test
+  DependencyCache.clear()
+})
+
+overrideFileLoaderLoad()
+
+beforeEach(async () => {
+  createEngine()
+  startEngineReactor()
+
+  await act(() => render(null))
+})
+
+afterEach(() => {
+  destroyEngine()
+})
+
+/**
+ * @todo
+ * Cannot possibly tested in our current GLTFLoader implementation
+ * It requires a GLTFLoader gltf root properties validation function that does not exist.
+ * */
 describe('glTF.animations Property', () => {
   it.todo('MAY be undefined', () => {})
   it.todo('MUST be an array of `animation`s when defined', () => {})
   it.todo('MUST have a length in range [1..] when defined', () => {})
 }) //:: glTF.animations
 
+/**
+ * @todo
+ * Should be accessing the loader from the root GLTFLoader function (currently does not exist)
+ * */
 describe('glTF: Animation Type', () => {
+  /**
+   * @description Creates the most minimal gltf with one animation possible, as required by spec
+   * */
+  function mockGLTFMinimalAnimation() {
+    const result = mockGLTF()
+    result.nodes = [
+      {
+        name: 'node0'
+      },
+      {
+        name: 'node1'
+      }
+    ]
+    result.accessors = [
+      {
+        componentType: 5126, // FLOAT
+        count: 1,
+        type: 'SCALAR'
+      },
+      {
+        componentType: 5126, // FLOAT
+        count: 1,
+        type: 'SCALAR'
+      }
+    ]
+    result.animations = [
+      {
+        channels: [
+          {
+            sampler: 0,
+            target: {
+              node: 0,
+              path: 'translation'
+            }
+          }, //:: animation.channels.sampler 0
+          {
+            sampler: 1,
+            target: {
+              node: 1,
+              path: 'rotation'
+            }
+          } //:: animation.channels.sampler 1
+        ], //:: animation.channels
+        samplers: [
+          {
+            input: 0,
+            output: 1
+          },
+          {
+            input: 0,
+            output: 1
+          }
+        ]
+      }
+    ]
+    return result
+  }
+
   describe('channels', () => {
-    it.todo('MUST be defined', () => {})
-    it.todo('MUST be an array of `animation.channel` types', () => {})
-    it.todo('MUST have a length in range [1..]', () => {})
-    it.todo('MUST ensure that different channels of the same animation do NOT have the same targets.', () => {})
+    it('MUST be defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimation())
+      // @ts-expect-error Delete, even if mandatory, to provoke the error
+      delete options.document.animations![0].channels
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.animation.channels */
+    it.fails('MUST be an array of `animation.channel` types', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimation())
+      options.document.animations![0].channels = 42 as any // Not an array of `animation.channel` types
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.animation.channels */
+    it.fails('MUST have a length in range [1..]', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimation())
+      options.document.animations![0].channels = [] // Not in range [1..]
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.animation.channels */
+    it.fails('MUST ensure that different channels of the same animation do NOT have the same targets.', async () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimation())
+      options.document.animations![0].channels[1].target.node = 0 // Same target as channel 0
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
   }) //:: channels
 
   describe('samplers', () => {
-    it.todo('MUST be defined', () => {})
-    it.todo('MUST be an array of `animation.sampler` types', () => {})
-    it.todo('MUST have a length in range [1..]', () => {})
+    it('MUST be defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimation())
+      // @ts-expect-error Delete, even if mandatory, to provoke the error
+      delete options.document.animations![0].samplers
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
+    it('MUST be an array of `animation.sampler` types', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimation())
+      options.document.animations![0].samplers = 42 as any // Not an array of `animation.sampler` types
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
+    it('MUST have a length in range [1..]', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimation())
+      options.document.animations![0].samplers = [] // Not in range [1..]
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
   }) //:: samplers
 
   describe('name', () => {
-    it.todo('MAY be undefined', () => {})
-    it.todo('MUST be a `string` type when defined', () => {})
+    it('MAY be undefined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimation())
+      delete options.document.animations![0].name
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).resolves.not.toThrow()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.animation.name */
+    it.fails('MUST be a `string` type when defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimation())
+      options.document.animations![0].name = 42 as any // Not a string
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
   }) //:: name
 
   describe('extensions', () => {
-    it.todo('MAY be undefined', () => {})
-    it.todo('MUST be a JSON object when defined', () => {})
+    it('MAY be undefined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimation())
+      delete options.document.animations![0].extensions
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).resolves.not.toThrow()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.animation.extensions */
+    it.fails('MUST be a JSON object when defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimation())
+      options.document.animations![0].extensions = 42 as any // Not a JSON object
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
   }) //:: extensions
 
   describe('extras', () => {
-    it.todo('MAY be undefined', () => {})
+    it('MAY be undefined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimation())
+      delete options.document.animations![0].extras
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).resolves.not.toThrow()
+    })
   }) //:: extras
 }) //:: glTF: Animation
 
 describe('glTF: AnimationChannel Type', () => {
+  /**
+   * @description Creates the most minimal gltf with one animation possible, as required by spec
+   * */
+  function mockGLTFMinimalAnimationChannel() {
+    const result = mockGLTF()
+    result.nodes = [
+      {
+        name: 'node0'
+      },
+      {
+        name: 'node1'
+      }
+    ]
+    result.accessors = [
+      {
+        componentType: 5126, // FLOAT
+        count: 1,
+        type: 'SCALAR'
+      },
+      {
+        componentType: 5126, // FLOAT
+        count: 1,
+        type: 'SCALAR'
+      }
+    ]
+    result.animations = [
+      {
+        channels: [
+          {
+            sampler: 0,
+            target: {
+              node: 0,
+              path: 'translation'
+            }
+          }, //:: animation.channels.sampler 0
+          {
+            sampler: 1,
+            target: {
+              node: 1,
+              path: 'rotation'
+            }
+          } //:: animation.channels.sampler 1
+        ], //:: animation.channels
+        samplers: [
+          {
+            input: 0,
+            output: 1
+          },
+          {
+            input: 0,
+            output: 1
+          }
+        ]
+      }
+    ]
+    return result
+  }
+
   describe('sampler', () => {
-    it.todo('MUST be defined', () => {})
-    it.todo("MUST be an `integer` index into the animation's `samplers` array", () => {})
-    it.todo('MUST have a value in range [0..animation.samplers.length - 1]', () => {})
+    it('MUST be defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationChannel())
+      // @ts-expect-error Delete, even if mandatory, to provoke the error
+      delete options.document.animations![0].channels[0].sampler
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
+    it("MUST be an `integer` index into the animation's `samplers` array", () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationChannel())
+      options.document.animations![0].channels[0].sampler = 42 as any // Not an integer
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
+    it('MUST have a value in range [0..animation.samplers.length - 1]', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationChannel())
+      options.document.animations![0].channels[0].sampler = 42 as any // Not in range [0..animation.samplers.length - 1]
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
   }) //:: sampler
 
   describe('target', () => {
-    it.todo('MUST be defined', () => {})
-    it.todo('MUST be an `animation.channel.target` type object', () => {})
+    it('MUST be defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationChannel())
+      // @ts-expect-error Delete, even if mandatory, to provoke the error
+      delete options.document.animations![0].channels[0].target
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.animation.channel.target */
+    it.fails('MUST be an `animation.channel.target` type object', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationChannel())
+      options.document.animations![0].channels[0].target = 42 as any // Not an animation.channel.target type object
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
   }) //:: target
 
   describe('extensions', () => {
-    it.todo('MAY be undefined', () => {})
-    it.todo('MUST be a JSON object when defined', () => {})
+    it('MAY be undefined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationChannel())
+      delete options.document.animations![0].channels[0].extensions
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).resolves.not.toThrow()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.animation.channel.extensions */
+    it.fails('MUST be a JSON object when defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationChannel())
+      options.document.animations![0].channels[0].extensions = 42 as any // Not a JSON object
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
   }) //:: extensions
 
   describe('extras', () => {
-    it.todo('MAY be undefined', () => {})
+    it('MAY be undefined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationChannel())
+      delete options.document.animations![0].channels[0].extras
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).resolves.not.toThrow()
+    })
   }) //:: extras
 }) //:: glTF: AnimationChannel
 
 describe('glTF: AnimationChannelTarget Type', () => {
+  /**
+   * @description Creates the most minimal gltf with one animation possible, as required by spec
+   * */
+  function mockGLTFMinimalAnimationChannelTarget() {
+    const result = mockGLTF()
+    result.nodes = [
+      {
+        name: 'node0'
+      },
+      {
+        name: 'node1'
+      }
+    ]
+    result.accessors = [
+      {
+        componentType: 5126, // FLOAT
+        count: 1,
+        type: 'SCALAR'
+      },
+      {
+        componentType: 5126, // FLOAT
+        count: 1,
+        type: 'SCALAR'
+      }
+    ]
+    result.animations = [
+      {
+        channels: [
+          {
+            sampler: 0,
+            target: {
+              node: 0,
+              path: 'translation'
+            }
+          }, //:: animation.channels.sampler 0
+          {
+            sampler: 1,
+            target: {
+              node: 1,
+              path: 'rotation'
+            }
+          } //:: animation.channels.sampler 1
+        ], //:: animation.channels
+        samplers: [
+          {
+            input: 0,
+            output: 1
+          },
+          {
+            input: 0,
+            output: 1
+          }
+        ]
+      }
+    ]
+    return result
+  }
+
   describe('node', () => {
     // Note: Optional if an extension like KHR_animation_pointer is used
     it.todo('MAY be undefined (if using specific extensions)', () => {})
@@ -96,9 +406,29 @@ describe('glTF: AnimationChannelTarget Type', () => {
   }) //:: node
 
   describe('path', () => {
-    it.todo('MUST be defined', () => {})
-    it.todo('MUST be a `string`', () => {})
-    it.todo('MUST be one of the allowed values: "translation" | "rotation" | "scale" | "weights"', () => {})
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.animation.channel.target.path */
+    it.fails('MUST be defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationChannelTarget())
+      // @ts-expect-error Delete, even if mandatory, to provoke the error
+      delete options.document.animations![0].channels[0].target.path
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.animation.channel.target.path */
+    it.fails('MUST be a `string`', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationChannelTarget())
+      options.document.animations![0].channels[0].target.path = 42 as any // Not a string
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.animation.channel.target.path */
+    it.fails('MUST be one of the allowed values: "translation" | "rotation" | "scale" | "weights"', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationChannelTarget())
+      options.document.animations![0].channels[0].target.path = 'SomeIncorrectValue' as any // Not an allowed value
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo */
     it.todo(
       'MUST ensure that the sampler values are a translation along the (X,Y,Z) axes when its value is "translation".',
       () => {}
@@ -116,21 +446,111 @@ describe('glTF: AnimationChannelTarget Type', () => {
   }) //:: path
 
   describe('extensions', () => {
-    it.todo('MAY be undefined', () => {})
-    it.todo('MUST be a JSON object when defined', () => {})
+    it('MAY be undefined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationChannelTarget())
+      delete options.document.animations![0].channels[0].target.extensions
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).resolves.not.toThrow()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.animation.channel.target.extensions */
+    it.fails('MUST be a JSON object when defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationChannelTarget())
+      options.document.animations![0].channels[0].target.extensions = 42 as any // Not a JSON object
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
     // Example: KHR_animation_pointer specific properties
     it.todo('MUST contain valid extension properties if defined (e.g., KHR_animation_pointer.pointer)', () => {})
   }) //:: extensions
 
   describe('extras', () => {
-    it.todo('MAY be undefined', () => {})
+    it('MAY be undefined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationChannelTarget())
+      delete options.document.animations![0].channels[0].target.extras
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).resolves.not.toThrow()
+    })
   }) //:: extras
 }) //:: glTF: AnimationChannelTarget
 
 describe('glTF: AnimationSampler Type', () => {
+  /**
+   * @description Creates the most minimal gltf with one animation possible, as required by spec
+   * */
+  function mockGLTFMinimalAnimationSampler() {
+    const result = mockGLTF()
+    result.nodes = [
+      {
+        name: 'node0'
+      },
+      {
+        name: 'node1'
+      }
+    ]
+    result.accessors = [
+      {
+        componentType: 5126, // FLOAT
+        count: 1,
+        type: 'SCALAR'
+      },
+      {
+        componentType: 5126, // FLOAT
+        count: 1,
+        type: 'SCALAR'
+      }
+    ]
+    result.animations = [
+      {
+        channels: [
+          {
+            sampler: 0,
+            target: {
+              node: 0,
+              path: 'translation'
+            }
+          }, //:: animation.channels.sampler 0
+          {
+            sampler: 1,
+            target: {
+              node: 1,
+              path: 'rotation'
+            }
+          } //:: animation.channels.sampler 1
+        ], //:: animation.channels
+        samplers: [
+          {
+            input: 0,
+            output: 1
+          },
+          {
+            input: 0,
+            output: 1
+          }
+        ]
+      }
+    ]
+    return result
+  }
+
   describe('input', () => {
-    it.todo('MUST be defined', () => {})
-    it.todo('MUST be an integer value in range [0..glTF.accessors.length - 1]', () => {})
+    it('MUST be defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationSampler())
+      // @ts-expect-error Delete, even if mandatory, to provoke the error
+      delete options.document.animations![0].samplers[0].input
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
+    it('MUST be an integer when defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationSampler())
+      options.document.animations![0].samplers[0].input = 1.42 // Not an integer
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
+    it('MUST have a value in range [0..glTF.accessors.length - 1]', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationSampler())
+      options.document.animations![0].samplers[0].input = 42 as any // Not in range [0..glTF.accessors.length - 1]
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
     it.todo('MUST be an index into the root `accessors` array', () => {})
     it.todo('MUST reference an accessor containing FLOAT scalars', () => {})
     it.todo('MUST reference an accessor with strictly increasing values  _(ie. time[n + 1] > time[n])_', () => {})
