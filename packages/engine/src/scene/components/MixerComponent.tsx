@@ -24,8 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
-  ComponentMap,
-  createEntity,
+  Component,
+  ComponentJSONIDMap,
   defineComponent,
   Entity,
   EntityUUID,
@@ -35,7 +35,6 @@ import {
   useComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { TransformComponent } from '@ir-engine/spatial'
 import { quat, vec2, vec3, vec4 } from 'gl-matrix'
 import { useEffect } from 'react'
 
@@ -88,12 +87,65 @@ const mixFuncs: Record<MixableType, MixFunc<any>> = {
   }
 }
 
+type AnyComponent = Component<any, any, any, any, any, any>
+type AnyComponentWithID = AnyComponent & { jsonID: string }
+
+const toEntityUUID = (entity: Entity | EntityUUID): EntityUUID =>
+  typeof entity === 'string' ? entity : getComponent(entity, UUIDComponent)
+const toEntity = (entity: Entity | EntityUUID): Entity =>
+  typeof entity === 'string' ? UUIDComponent.getEntityByUUID(entity) : entity
+
+const toComponentID = (targetComponent: AnyComponentWithID | string): string | undefined =>
+  typeof targetComponent === 'string' ? targetComponent : targetComponent.jsonID
+const toComponent = (targetComponent: AnyComponentWithID | string): AnyComponent | undefined =>
+  typeof targetComponent === 'string' ? ComponentJSONIDMap.get(targetComponent) : targetComponent
+
+type PropertyAddress = [EntityUUID, string, string]
+
+const packAddress = (
+  targetEntity: Entity | EntityUUID,
+  targetComponent: AnyComponentWithID | string,
+  propertyPath: string
+): string => `${toEntityUUID(targetEntity)}::${toComponentID(targetComponent)}::${propertyPath}`
+
+const unpackAddress = (packedAddress: string): PropertyAddress =>
+  packedAddress.split('::') as [EntityUUID, string, string]
+
 type Entry = Record<string, number[]>
-type Property = { type: MixableType; ref: [WeakRef<any>, string] }
+type Property = { type: MixableType; address: PropertyAddress }
+
+const createProperty = (
+  targetEntity: Entity | EntityUUID,
+  targetComponent: AnyComponentWithID | string,
+  propertyPath: string
+): Property | null => {
+  const componentID = toComponentID(targetComponent)
+  if (componentID == null) return null
+  const Component = toComponent(targetComponent)
+  if (Component == null) return null
+
+  if (propertyPath.includes('.')) {
+    console.warn('MixerComponent does not support nested properties yet.')
+    return null
+  }
+
+  const propertySchema = Component.schema.properties[propertyPath] // TODO: support properties nestled in schema
+
+  if (propertySchema == null) return null
+  const entity = toEntity(targetEntity)
+  if (entity == null) return null
+  const component = getComponent(entity, Component)
+  if (component == null) return null
+  const type = MixableType.Number // TODO: pull from propertySchema
+  return {
+    type,
+    address: [toEntityUUID(targetEntity), componentID, propertyPath]
+  }
+}
 
 type MixerState = {
   properties: Map<string, Property>
-  entriesByCoord: Map<number, Entry>
+  entriesByCoord: Map<number, [Entry, number]>
   sortedEntries: [number, Entry][]
 }
 
@@ -104,97 +156,69 @@ const schema = S.Object({
   entries: S.Array(S.Tuple([S.Number(), S.Record(S.String(), S.Array(S.Number()))]))
 })
 
-type PropertyAddress = [EntityUUID, string, string]
-
-const packAddress = (entityUUID: EntityUUID, componentName: string, propertyName: string): string =>
-  `${entityUUID}::${componentName}::${propertyName}`
-
-const unpackAddress = (packedAddress: string): PropertyAddress =>
-  packedAddress.split('::') as [EntityUUID, string, string]
-
-const createProperty = (entityUUID: EntityUUID, componentName: string, propertyName: string): Property | null => {
-  const Component = ComponentMap.get(componentName)
-  if (Component == null) return null
-  const propertySchema = Component.schema?.properties?.[propertyName]
-  if (propertySchema == null) return null
-  const entity = UUIDComponent.getEntityByUUID(entityUUID)
-  if (entity == null) return null
-  const component = getComponent(entity, Component)
-  if (component == null) return null
-  const type = MixableType.Number // TODO: pull from propertySchema
-  return {
-    type,
-    ref: [new WeakRef(component), propertyName]
-  }
-}
-
 const MixerComponent = defineComponent({
   name: 'MixerComponent',
   jsonID: 'IR_mixer',
   schema,
 
-  reactor: (props: { entity: Entity }) => {
-    const entity = props.entity
-    const comp = useComponent(entity, MixerComponent)
+  reactor: (props: { mixerEntity: Entity }) => {
+    const entity = props.mixerEntity
+    const mixerComp = useComponent(entity, MixerComponent)
 
     useEffect(() => {
-      if (comp.state.value != null) return
+      if (mixerComp.state.value != null) return
 
       const properties = new Map<string, Property>(
-        comp.properties.value
+        mixerComp.properties.value
           .map((address: string): [string, Property] | null => {
-            const [entityUUID, componentName, propertyName] = unpackAddress(address)
-            const property = createProperty(entityUUID, componentName, propertyName)
+            const [entityUUID, componentID, propertyPath] = unpackAddress(address)
+            const property = createProperty(entityUUID, componentID, propertyPath)
             return property == null ? null : [address, property]
           })
-          .filter((p) => p != null)
+          .filter((p) => p != null) // TODO: address missing properties somehow
       )
 
-      const compEntries = comp.entries.value as [number, Entry][]
-
-      comp.state.set({
-        properties,
-        entriesByCoord: new Map(compEntries),
-        sortedEntries: compEntries.toSorted(([aCoord], [bCoord]) => aCoord - bCoord)
-      })
+      const compEntries = mixerComp.entries.value as [number, Entry][]
+      const entriesByCoord = new Map<number, [Entry, number]>(
+        compEntries.map(([coord, entry], index) => [coord, [entry, index]])
+      )
+      const sortedEntries = compEntries.toSorted(([aCoord], [bCoord]) => aCoord - bCoord)
+      mixerComp.state.set({ properties, entriesByCoord, sortedEntries })
     }, [])
 
     useEffect(() => {
+      const compEntries = mixerComp.entries.value as [number, Entry][]
+      mixerComp.state.sortedEntries.set(compEntries.toSorted(([aCoord], [bCoord]) => aCoord - bCoord))
+    }, [mixerComp.entries])
+
+    useEffect(() => {
       MixerComponent.mix(entity)
-    }, [comp.coord, comp.properties, comp.entries, comp.state])
+    }, [mixerComp.coord, mixerComp.properties, mixerComp.entries, mixerComp.state])
 
     return null
   },
 
-  mix: (entity: Entity, coord: number = NaN): void => {
-    const comp = getComponent(entity, MixerComponent)
-
-    if (isNaN(coord)) {
-      coord = comp.coord
-    }
-
-    const mixed = MixerComponent.getMixed(entity, coord)
+  mix: (mixerEntity: Entity): void => {
+    const mixerComp = getComponent(mixerEntity, MixerComponent)
+    const mixed = MixerComponent.getMixedEntry(mixerEntity, mixerComp.coord)
 
     for (const [
       propertyAddress,
       {
         type,
-        ref: [componentRef, propertyName]
+        address: [entityUUID, componentID, propertyPath]
       }
-    ] of comp.state.properties) {
-      const component = componentRef.deref()
-      if (component == null || component[propertyName] == null) {
-        continue
-        // TODO: gracefully handle unresolved reference. This can happen at any time.
-      }
-      const value = mixed[propertyAddress]
-      component[propertyName].set(mixFuncs[type].fromNumberList(value))
+    ] of mixerComp.state.properties) {
+      const entity = UUIDComponent.getEntityByUUID(entityUUID)
+      setComponent(entity, ComponentJSONIDMap.get(componentID)!, {
+        [propertyPath]: mixed[propertyAddress] // TODO: support properties nestled in schema
+      })
     }
   },
 
-  getMixed: (entity: Entity, coord: number): Entry => {
-    const comp = getComponent(entity, MixerComponent)
-    const sortedEntries = comp.state.sortedEntries
+  getMixedEntry: (mixerEntity: Entity, coord: number): Entry => {
+    const mixerComp = getComponent(mixerEntity, MixerComponent)
+    const sortedEntries = mixerComp.state.sortedEntries
     const lastCoord = sortedEntries.length - 1
     // binary search
     let left = 0,
@@ -221,7 +245,7 @@ const MixerComponent = defineComponent({
     const p = from === to ? 1 : (coord - fromCoord) / (toCoord - fromCoord)
 
     return Object.fromEntries(
-      comp.state.properties.entries().map(([propertyAddress, { type }]) => {
+      mixerComp.state.properties.entries().map(([propertyAddress, { type }]) => {
         const [fromValue, toValue] = [fromEntry[propertyAddress], toEntry[propertyAddress]]
         const value =
           fromValue == null || toValue == null
@@ -232,78 +256,91 @@ const MixerComponent = defineComponent({
     )
   },
 
-  addProperty: (entity: Entity, entityUUID: EntityUUID, componentName: string, propertyName: string) => {
-    const comp = getComponent(entity, MixerComponent)
+  addProperty: (
+    mixerEntity: Entity,
+    targetEntity: Entity | EntityUUID,
+    targetComponent: AnyComponentWithID | string,
+    propertyPath: string
+  ) => {
+    const mixerComp = getComponent(mixerEntity, MixerComponent)
 
-    const packedAddress = packAddress(entityUUID, componentName, propertyName)
-    if (comp.state.properties.has(packedAddress)) {
-      return MixerComponent.propertySetter(entity, entityUUID, componentName, propertyName)
+    const packedAddress = packAddress(targetEntity, targetComponent, propertyPath)
+    if (mixerComp.state.properties.has(packedAddress)) {
+      return MixerComponent.propertySetter(mixerEntity, targetEntity, targetComponent, propertyPath)
     }
 
-    const property = createProperty(entityUUID, componentName, propertyName)
+    const property = createProperty(targetEntity, targetComponent, propertyPath)
     if (property == null) return null
 
-    comp.state.properties.set(packedAddress, property)
-    comp.properties.push(packedAddress)
+    mixerComp.state.properties.set(packedAddress, property)
+    mixerComp.properties.push(packedAddress)
 
-    for (const entry of comp.entries) {
+    for (const entry of mixerComp.entries) {
       entry[packedAddress] = mixFuncs[property.type].create()
     }
 
-    return MixerComponent.propertySetter(entity, entityUUID, componentName, propertyName)
+    return MixerComponent.propertySetter(mixerEntity, targetEntity, targetComponent, propertyPath)
   },
 
   propertySetter: (
-    entity: Entity,
-    entityUUID: EntityUUID,
-    componentName: string,
-    propertyName: string
+    mixerEntity: Entity,
+    targetEntity: Entity | EntityUUID,
+    targetComponent: AnyComponentWithID | string,
+    propertyPath: string
   ): ((value: Mixable) => Entry) | null => {
-    const comp = getComponent(entity, MixerComponent)
-    const packedAddress = packAddress(entityUUID, componentName, propertyName)
+    const mixerComp = getComponent(mixerEntity, MixerComponent)
+    const packedAddress = packAddress(targetEntity, targetComponent, propertyPath)
 
-    const property = comp.state.properties.get(packedAddress)
+    const property = mixerComp.state.properties.get(packedAddress)
     if (property == null) return null
 
     return (value: Mixable) => ({ [packedAddress]: mixFuncs[property.type].toNumberList(value) })
   },
 
-  removeProperty: (entity: Entity, entityUUID: EntityUUID, componentName: string, propertyName: string) => {
-    const comp = getComponent(entity, MixerComponent)
-    const packedAddress = packAddress(entityUUID, componentName, propertyName)
+  removeProperty: (
+    mixerEntity: Entity,
+    targetEntity: Entity | EntityUUID,
+    targetComponent: AnyComponentWithID | string,
+    propertyPath: string
+  ) => {
+    const mixerComp = getComponent(mixerEntity, MixerComponent)
+    const packedAddress = packAddress(targetEntity, targetComponent, propertyPath)
 
-    if (!comp.state.properties.has(packedAddress)) return
+    if (!mixerComp.state.properties.has(packedAddress)) return
 
-    comp.state.properties.delete(packedAddress)
-    comp.properties = comp.properties.filter((p) => p !== packedAddress)
-    comp.state.entriesByCoord.forEach((entry) => delete entry[packedAddress])
+    mixerComp.state.properties.delete(packedAddress)
+    mixerComp.properties = mixerComp.properties.filter((p) => p !== packedAddress)
+  },
+
+  getEntry: (mixerEntity: Entity, coord: number): Entry | null => {
+    const mixerComp = getComponent(mixerEntity, MixerComponent)
+    return mixerComp.state.entriesByCoord.get(coord)?.[0] ?? null
+  },
+
+  setEntry: (mixerEntity: Entity, coord: number, entry: Entry) => {
+    const mixerCOmp = getComponent(mixerEntity, MixerComponent)
+    const index = mixerCOmp.state.entriesByCoord.get(coord)?.[1] ?? mixerCOmp.entries.length
+    mixerCOmp.state.entriesByCoord.set(coord, [entry, index])
+    mixerCOmp.entries[index] = [coord, entry]
+  },
+
+  appendEntry: (mixerEntity: Entity, coord: number, entry: Entry) => {
+    MixerComponent.setEntry(mixerEntity, coord, {
+      ...MixerComponent.getMixedEntry(mixerEntity, coord),
+      ...entry
+    })
+  },
+
+  deleteEntry: (mixerEntity: Entity, coord: number) => {
+    const mixerComp = getComponent(mixerEntity, MixerComponent)
+    const index = mixerComp.state.entriesByCoord.get(coord)?.[1]
+    if (index == null) return
+    mixerComp.state.entriesByCoord.delete(coord)
+    if (index === mixerComp.entries.length - 1) {
+      mixerComp.entries.pop()
+    } else {
+      mixerComp.entries[index] = mixerComp.entries.pop()!
+      mixerComp.state.entriesByCoord.set(mixerComp.entries[index][0], [mixerComp.entries[index][1], index])
+    }
   }
 })
-
-{
-  const e = createEntity()
-  setComponent(e, TransformComponent)
-  setComponent(e, MixerComponent)
-  const comp = getComponent(e, MixerComponent)
-
-  let rotationSet = MixerComponent.addProperty(e, getComponent(e, UUIDComponent), TransformComponent.name, 'rotation')
-  rotationSet = MixerComponent.propertySetter(e, getComponent(e, UUIDComponent), TransformComponent.name, 'rotation')!
-  comp.entries.push([
-    0,
-    {
-      ...MixerComponent.getMixed(e, 0),
-      ...rotationSet(quat.fromEuler(quat.create(), 0, Math.PI / 4, Math.PI / 3))
-    }
-  ])
-  comp.entries.push([
-    0.25,
-    {
-      ...MixerComponent.getMixed(e, 0.25),
-      ...rotationSet(quat.fromEuler(quat.create(), 0, Math.PI / 3, Math.PI / 4))
-    }
-  ])
-  comp.coord = 0.5
-  MixerComponent.mix(e)
-  MixerComponent.addProperty(e, getComponent(e, UUIDComponent), TransformComponent.name, 'position')
-  MixerComponent.removeProperty(e, getComponent(e, UUIDComponent), TransformComponent.name, 'rotation')
-}
