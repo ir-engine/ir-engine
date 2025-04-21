@@ -51,13 +51,7 @@ const resolveUserEmail = async (userId: UserID | undefined, context: HookContext
 
 export const moderationResolver = resolve<ModerationType, HookContext>({
   createdAt: virtual(async (moderation) => fromDateTimeSql(moderation.createdAt)),
-  updatedAt: virtual(async (moderation) => fromDateTimeSql(moderation.updatedAt)),
-  reportedUserEmail: virtual(async (moderation: ModerationType, context: HookContext) => {
-    return resolveUserEmail(moderation.reportedUserId, context)
-  }),
-  createdByEmail: virtual(async (moderation: ModerationType, context: HookContext) => {
-    return resolveUserEmail(moderation.createdBy, context)
-  })
+  updatedAt: virtual(async (moderation) => fromDateTimeSql(moderation.updatedAt))
 })
 
 export const moderationExternalResolver = resolve<ModerationType, HookContext>({
