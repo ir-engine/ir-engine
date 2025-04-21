@@ -156,7 +156,7 @@ const schema = S.Object({
   entries: S.Array(S.Tuple([S.Number(), S.Record(S.String(), S.Array(S.Number()))]))
 })
 
-const MixerComponent = defineComponent({
+export const MixerComponent = defineComponent({
   name: 'MixerComponent',
   jsonID: 'IR_mixer',
   schema,
