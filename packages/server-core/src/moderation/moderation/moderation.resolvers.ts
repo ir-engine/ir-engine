@@ -56,12 +56,15 @@ export const moderationResolver = resolve<ModerationType, HookContext>({
 
 export const moderationExternalResolver = resolve<ModerationType, HookContext>({
   reportedUserEmail: virtual(async (moderation: ModerationType, context: HookContext) => {
+    if (context.method !== 'find') return undefined
     return resolveUserEmail(moderation.reportedUserId, context)
   }),
   createdByEmail: virtual(async (moderation: ModerationType, context: HookContext) => {
+    if (context.method !== 'find') return undefined
     return resolveUserEmail(moderation.createdBy, context)
   })
 })
+
 export const moderationDataResolver = resolve<ModerationType, HookContext>({
   id: async () => {
     return uuidv4() as ModerationID
