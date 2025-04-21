@@ -182,6 +182,10 @@ function GeneratingThumbnailsProgress() {
         isLoading.set(false)
       }, 1000)
     }
+
+    return () => {
+      clearTimeout(debouncedStatusRef.current)
+    }
   }, [thumbnailJobs.length])
 
   return isLoading.value ? (
