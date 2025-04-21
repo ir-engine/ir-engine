@@ -34,6 +34,7 @@ import { startEngineReactor } from '../../../tests/startEngineReactor'
 import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 
 import { createEngine, destroyEngine } from '@ir-engine/ecs'
+import { AnimationClip, InterpolateLinear } from 'three'
 import { mockGLTF, mockGLTFOptions } from '../../../tests/util/mockGLTF'
 import { DependencyCache, GLTFLoaderFunctions } from '../GLTFLoaderFunctions'
 
@@ -551,16 +552,49 @@ describe('glTF: AnimationSampler Type', () => {
       expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
     })
 
-    it.todo('MUST be an index into the root `accessors` array', () => {})
-    it.todo('MUST reference an accessor containing FLOAT scalars', () => {})
+    it('MUST be an index into the root `accessors` array', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationSampler())
+      options.document.animations![0].samplers[0].input = 42 // Not an index into the root `accessors` array
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.animation.sampler.input */
+    it.fails('MUST reference an accessor containing FLOAT scalars', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationSampler())
+      options.document.accessors![0].type = 'VEC3' // Not a FLOAT scalar
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
     it.todo('MUST reference an accessor with strictly increasing values  _(ie. time[n + 1] > time[n])_', () => {})
     it.todo('MUST interpret the accessor values as time in seconds', () => {})
   }) //:: input
 
   describe('interpolation', () => {
-    it.todo('MAY be undefined', () => {})
-    it.todo('SHOULD assign a default value of "LINEAR"', () => {})
-    it.todo('MUST be one of the `string` allowed values: "LINEAR" | "STEP" | "CUBICSPLINE"', () => {})
+    it('MAY be undefined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationSampler())
+      delete options.document.animations![0].samplers[0].interpolation
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).resolves.not.toThrow()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.animation.sampler.interpolation */
+    it.fails('MUST be one of the `string` allowed values: "LINEAR" | "STEP" | "CUBICSPLINE"', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationSampler())
+      options.document.animations![0].samplers[0].interpolation = 'SomeIncorrectValue' as any // Not an allowed value
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.animation.sampler.interpolation */
+    it.fails('SHOULD assign a default value of "LINEAR"', () => {
+      const Expected = InterpolateLinear
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationSampler())
+      expect(options.document.animations![0].samplers[0].interpolation).toBeUndefined()
+      let animation = {} as AnimationClip
+      expect(async () => (animation = await GLTFLoaderFunctions.loadAnimation(options, 0))).not.toThrowError()
+      expect(animation.tracks).toBeDefined()
+      expect(animation.tracks.length).not.toBe(0)
+      expect(animation.tracks[0].getInterpolation()).toBe(Expected)
+    })
+
     // LINEAR
     it.todo('SHOULD use slerp to interpolate quaternions when "LINEAR"', () => {})
     it.todo('MUST have the same number of input and output elements "LINEAR"', () => {})
@@ -578,17 +612,46 @@ describe('glTF: AnimationSampler Type', () => {
   }) //:: interpolation
 
   describe('output', () => {
-    it.todo('MUST be defined', () => {})
-    it.todo('MUST be an `integer` index into the root `accessors` array', () => {})
-    it.todo('MUST have a value in range [0 .. glTF.accessors.length-1]', () => {})
+    it('MUST be defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationSampler())
+      // @ts-expect-error Delete, even if mandatory, to provoke the error
+      delete options.document.animations![0].samplers[0].output
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
+    it('MUST be an `integer` index into the root `accessors` array', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationSampler())
+      options.document.animations![0].samplers[0].output = 1.42 // Not an integer
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
+    it('MUST have a value in range [0 .. glTF.accessors.length-1]', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationSampler())
+      options.document.animations![0].samplers[0].output = 42 as any // Not in range [0 .. glTF.accessors.length-1]
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
   }) //:: output
 
   describe('extensions', () => {
-    it.todo('MAY be undefined', () => {})
-    it.todo('MUST be a JSON object when defined', () => {})
+    it('MAY be undefined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationSampler())
+      delete options.document.animations![0].samplers[0].extensions
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).resolves.not.toThrow()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.animation.sampler.extensions */
+    it.fails('MUST be a JSON object when defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationSampler())
+      options.document.animations![0].samplers[0].extensions = 42 as any // Not a JSON object
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
   }) //:: extensions
 
   describe('extras', () => {
-    it.todo('MAY be undefined', () => {})
+    it('MAY be undefined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationSampler())
+      delete options.document.animations![0].samplers[0].extras
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).resolves.not.toThrow()
+    })
   }) //:: extras
 }) //:: glTF: AnimationSampler
