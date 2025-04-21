@@ -54,7 +54,6 @@ export const SplineTrackNodeEditor: EditorComponentType = (props) => {
   const component = useComponent(props.entity, SplineTrackComponent)
   const velocity = component.velocity
   const alpha = component.velocity
-  const d = 0
 
   const availableSplines = useQuery([SplineComponent]).map((entity) => {
     const name = getComponent(entity, NameComponent)

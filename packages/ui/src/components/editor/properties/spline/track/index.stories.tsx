@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import Component from './index'
 
 const argTypes = {}
+
 export default {
   title: 'Editor/Properties/Spline/Track',
   component: Component,
