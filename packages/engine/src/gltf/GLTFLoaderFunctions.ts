@@ -1614,7 +1614,7 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
 
   DependencyCache.set(options.url, new Map())
 
-  const sceneDef = json.scenes![sceneIndex]
+  const sceneDef = json.scenes?.[sceneIndex] ?? ({} as GLTF.IScene)
   const nodeIds = sceneDef.nodes || []
 
   const pending = [] as Promise<Entity>[]
