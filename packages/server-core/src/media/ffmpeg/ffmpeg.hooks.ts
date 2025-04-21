@@ -27,6 +27,7 @@ import { iff, isProvider } from 'feathers-hooks-common'
 import { SYNC } from 'feathers-sync'
 
 import { BadRequest } from '@feathersjs/errors'
+import { disallow } from 'feathers-hooks-common'
 import { HookContext } from '../../../declarations'
 import verifyScope from '../../hooks/verify-scope'
 import { isValidFileType } from '../FileUtil'
@@ -43,8 +44,8 @@ const validateFile = (context: HookContext) => {
 export default {
   before: {
     all: [iff(isProvider('external'), verifyScope('editor', 'write'))],
-    find: [],
-    get: [],
+    find: [disallow()],
+    get: [disallow()],
     create: [
       (context) => {
         context[SYNC] = false
@@ -52,15 +53,9 @@ export default {
       },
       validateFile
     ],
-    update: [],
-    patch: [
-      (context) => {
-        context[SYNC] = false
-        return context
-      },
-      validateFile
-    ],
-    remove: []
+    update: [disallow()],
+    patch: [disallow()],
+    remove: [disallow()]
   },
   after: {
     all: [],
