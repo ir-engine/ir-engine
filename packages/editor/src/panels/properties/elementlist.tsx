@@ -201,7 +201,7 @@ const usePrefabShelfCategories = (search: string): [string, PrefabShelfItem[]][]
 
     shelves['Empty'] ??= [
       {
-        name: 'Create Empty Entity',
+        name: 'Create an Empty Entity',
         url: '',
         category: 'Empty',
         detail: 'Inserts an empty object into the scene, ready for components and child entities.'
