@@ -46,7 +46,6 @@ try {
     log('No changes detected.')
     process.exit(1) // No changes, exit with failure
   }
-  console.log(output)
 
   const lines = output.split('\n')
   const tsxFiles: string[] = []
@@ -56,24 +55,20 @@ try {
     const file = fileParts.join(' ')
     const filename = path.basename(file)
 
-    if (((status === 'M' || status === 'A') && filename.endsWith('.tsx')) || filename.includes('.stories')) {
+    if ((status === 'M' || status === 'A') && filename.endsWith('.tsx')) {
       tsxFiles.push(file)
     }
   })
 
   log('Relevant .tsx files:', tsxFiles)
 
-  const storyChanged = tsxFiles.filter((file) => file.includes('.stories'))
-  const nonStories = tsxFiles.filter((file) => !file.includes('.stories'))
+  const hasStories = tsxFiles.some((file) => {
+    if (file.endsWith('.stories.tsx')) return true
 
-  const hasStories =
-    storyChanged ||
-    nonStories.some((file) => {
-      const dirname = path.dirname(file)
-      const basename = path.basename(file, '.tsx')
-      const storiesPath = path.join(cwd, dirname, `${basename}.stories.tsx`)
-      return fs.existsSync(storiesPath)
-    })
+    const dirname = path.dirname(file)
+    const basename = path.basename(file, '.tsx')
+    return fs.existsSync(path.resolve(dirname, basename + '.stories.tsx'))
+  })
 
   if (!hasStories) {
     log('❌ No corresponding .stories.tsx files found. Exiting early.')
