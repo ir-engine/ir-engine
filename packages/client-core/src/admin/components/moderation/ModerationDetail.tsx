@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useFind, useMutation } from '@ir-engine/common'
+import config from '@ir-engine/common/src/config'
 import {
   locationAdminPath,
   moderationAttachmentPath,
@@ -150,7 +151,7 @@ export const ModerationDetail = ({
   })
 
   const getFullUrl = (path: string) => {
-    const baseUrl = window.location.origin
+    const baseUrl = config.client.clientUrl
     return `${baseUrl}${path}`
   }
 
