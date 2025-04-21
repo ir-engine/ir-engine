@@ -63,12 +63,17 @@ try {
 
   log('Relevant .tsx files:', tsxFiles)
 
-  const hasStories = tsxFiles.some((file) => {
-    const dirname = path.dirname(file)
-    const basename = path.basename(file, '.tsx')
-    const storiesPath = path.join(cwd, dirname, `${basename}.stories.tsx`)
-    return fs.existsSync(storiesPath)
-  })
+  const storyChanged = tsxFiles.filter((file) => file.includes('.stories'))
+  const nonStories = tsxFiles.filter((file) => !file.includes('.stories'))
+
+  const hasStories =
+    storyChanged ||
+    nonStories.some((file) => {
+      const dirname = path.dirname(file)
+      const basename = path.basename(file, '.tsx')
+      const storiesPath = path.join(cwd, dirname, `${basename}.stories.tsx`)
+      return fs.existsSync(storiesPath)
+    })
 
   if (!hasStories) {
     log('❌ No corresponding .stories.tsx files found. Exiting early.')
