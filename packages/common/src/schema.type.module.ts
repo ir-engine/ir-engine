@@ -288,3 +288,5 @@ export const moderationPath = 'moderation'
 export const moderationBanPath = 'moderation-ban'
 export const moderationAttachmentPath = 'moderation-attachment'
 export const moderationFileUploadPath = 'moderation-file-upload'
+
+export const ffmpegPath = 'ffmpeg'

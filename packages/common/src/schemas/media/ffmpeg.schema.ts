@@ -23,13 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import ffmpeg from './ffmpeg/ffmpeg'
-import FileBrowserUpload from './file-browser-upload/file-browser-upload'
-import FileBrowser from './file-browser/file-browser'
-import Invalidation from './invalidation/invalidation'
-import OEmbed from './oembed/oembed'
-import Archiver from './recursive-archiver/archiver'
-import StaticResource from './static-resource/static-resource'
-import Upload from './upload-asset/upload-asset.service'
+export const ffmpegPath = 'ffmpeg'
 
-export default [Invalidation, StaticResource, FileBrowser, FileBrowserUpload, OEmbed, Upload, Archiver, ffmpeg]
+export const ffmpegMethod = ['create'] as const
