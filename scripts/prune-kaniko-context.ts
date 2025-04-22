@@ -46,7 +46,7 @@ cli.main(async () => {
 
     const sorted = files.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     const toDelete = sorted.slice(5).map((item) => item.name)
-    await storageProvider.deleteResources(toDelete)
+    if (toDelete.length > 0) await storageProvider.deleteResources(toDelete)
 
     console.log('Pruned old Kaniko build contexts')
     process.exit(0)
