@@ -28,6 +28,7 @@ import ProfilePill from '@ir-engine/client-core/src/common/components/ProfilePil
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { RouterState } from '@ir-engine/client-core/src/common/services/RouterService'
+import { ThemeState } from '@ir-engine/client-core/src/common/services/ThemeService'
 import { useProjectPermissions } from '@ir-engine/client-core/src/hooks/useUserProjectPermission'
 import { useFind } from '@ir-engine/common'
 import { ScopeType, locationPath, scopePath } from '@ir-engine/common/src/schema.type.module'
@@ -37,7 +38,7 @@ import { getMutableState, getState, useHookstate, useMutableState } from '@ir-en
 import { Button, DropdownItem } from '@ir-engine/ui'
 import { AddScene } from '@ir-engine/ui/src/components/editor/AddScene/AddScene'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
-import { ChevronDownSm, File04Sm, SquaresLg, UploadCloud02Sm } from '@ir-engine/ui/src/icons'
+import { ChevronDownSm, File04Sm, UploadCloud02Sm } from '@ir-engine/ui/src/icons'
 import { t } from 'i18next'
 import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -168,6 +169,7 @@ export default function Toolbar() {
   const { t } = useTranslation()
   const anchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
   const anchorPosition = useHookstate({ left: 0, top: 0 })
+  const themeState = useMutableState(ThemeState)
 
   const { projectName, sceneName, sceneAssetID } = useMutableState(EditorState)
   const sceneNameSimplified = sceneName.value?.split('.').slice(0, -1).join('.')
@@ -191,17 +193,19 @@ export default function Toolbar() {
     <>
       <div className="flex h-10 items-center justify-between px-4 py-0.5">
         <div className="flex items-center">
-          <div className="ml-3 mr-6 cursor-pointer" onClick={onCloseProject}>
-            <img src="ir-studio-icon.svg" alt="iR Engine Logo" className={`h-6 w-6`} />
+          <div className="cursor-pointer" onClick={onCloseProject}>
+            <img
+              src={themeState.theme.value === 'dark' ? '/ir-studio-icon-dark.svg' : '/ir-studio-icon-light.svg'}
+              alt="iR Engine Logo"
+              className="h-6 w-6"
+            />
           </div>
           <button
-            className="flex items-center justify-end gap-1 px-1 py-2 text-[#9CA0AA]"
             onClick={(event) => {
-              anchorPosition.set({ left: event.clientX - 5, top: event.clientY - 2 })
+              anchorPosition.set({ left: event.clientX - 20, top: event.clientY - 20 })
               anchorEvent.set(event)
             }}
           >
-            <SquaresLg />
             <ChevronDownSm />
           </button>
         </div>
