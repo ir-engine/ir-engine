@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import * as Common from '@ir-engine/common'
 import { FileBrowserContentType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { destroyEngine } from '@ir-engine/ecs/src/Engine'
+import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { getMutableState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import sinon from 'sinon'
@@ -43,6 +43,7 @@ describe('FileThumbnailJobState', () => {
     }
   ]
   beforeEach(async () => {
+    createEngine()
     useFindStub = sinon.stub(Common, 'useFind').returns({
       data: [
         {
@@ -65,7 +66,6 @@ describe('FileThumbnailJobState', () => {
       skip: 0,
       limit: 10,
       sort: {},
-      // include other response fields if necessary (like status, error, etc.)
       status: 'success',
       error: '',
       refetch: sinon.fake()
