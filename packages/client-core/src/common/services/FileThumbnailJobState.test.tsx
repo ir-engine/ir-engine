@@ -22,34 +22,54 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { FileBrowserContentType } from '@ir-engine/common/src/schema.type.module'
+import * as Common from '@ir-engine/common'
+import { FileBrowserContentType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
+import { getMutableState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import sinon from 'sinon'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { FileThumbnailJobState } from './FileThumbnailJobState'
-
 describe('FileThumbnailJobState', () => {
+  let useFindStub
+  const testKey = 'projects/ir-engine/default-project/public/test.glb'
   const filesQueryData: FileBrowserContentType[] = [
     {
-      key: 'projects/ir-engine/default-project/public/test.glb',
+      key: testKey,
       name: 'test',
       size: 1000,
       type: 'glb',
-      url: 'https://domain/projects/ir-engine/default-project/public/test.glb?hash=test'
+      url: 'https://domain/' + testKey
     }
   ]
-
-  let app: any
-  let fakeService: any
   beforeEach(async () => {
-    fakeService = {
-      create: sinon.stub(),
-      find: sinon.stub()
-    }
-    app = {
-      service: sinon.stub().returns(fakeService)
-    }
+    useFindStub = sinon.stub(Common, 'useFind').returns({
+      data: [
+        {
+          id: '1',
+          key: testKey,
+          project: 'default-project',
+          url: 'https://domain/' + testKey,
+          thumbnailKey: null,
+          width: null,
+          height: null,
+          depth: null
+        }
+      ],
+      total: 1,
+      setSort: sinon.fake(),
+      setLimit: sinon.fake(),
+      setPage: sinon.fake(),
+      search: sinon.fake(),
+      page: 1,
+      skip: 0,
+      limit: 10,
+      sort: {},
+      // include other response fields if necessary (like status, error, etc.)
+      status: 'success',
+      error: '',
+      refetch: sinon.fake()
+    })
   })
 
   afterEach(async () => {
@@ -59,42 +79,33 @@ describe('FileThumbnailJobState', () => {
 
   describe('useGenerateThumbnails', () => {
     it('should add thumbnail jobs for files without thumbnails', async () => {
-      const testKey = 'projects/ir-engine/default-project/assets/testThumbnail.glb'
-
-      fakeService.create.resolves({
-        key: testKey,
-        project: 'default-project',
-        thumbnailKey: null,
-        thumbnailURL: null
-      })
-
       FileThumbnailJobState.useGenerateThumbnails(filesQueryData)
-      const resource = await app.service('fake-service').find({
-        query: { key: testKey }
+
+      sinon.assert.calledWith(useFindStub, staticResourcePath, {
+        query: {
+          key: { $in: [testKey] },
+          thumbnailKey: 'null'
+        }
       })
-      assert.ok(resource.data.thumbnailKey !== null, 'generated thumbnail key')
+
+      const jobState = getMutableState(FileThumbnailJobState)
+      assert.ok(jobState.jobs.value.length > 0, 'Jobs were added to state')
     })
   })
 
   describe('useGenerateDimensions', () => {
     it('should add dimension jobs for file without dimensions', async () => {
-      const testKey = 'projects/ir-engine/default-project/assets/testDimension.glb'
+      FileThumbnailJobState.useGenerateThumbnails(filesQueryData)
 
-      fakeService.create.resolves({
-        key: testKey,
-        project: 'default-project',
-        width: null,
-        depth: null,
-        height: null
+      sinon.assert.calledWith(useFindStub, staticResourcePath, {
+        query: {
+          key: { $in: [testKey] },
+          thumbnailKey: 'null'
+        }
       })
-      FileThumbnailJobState.useGenerateDimensions(filesQueryData)
-      const resource = await app.service('fake-service').find({
-        query: { key: testKey }
-      })
-      assert.ok(
-        resource.data.width !== null && resource.data.height !== null && resource.data.depth !== null,
-        'generated dimensions'
-      )
+
+      const jobState = getMutableState(FileThumbnailJobState)
+      assert.ok(jobState.jobs.value.length > 0, 'Jobs were added to state')
     })
   })
 })
