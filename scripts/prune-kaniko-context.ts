@@ -23,18 +23,36 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import React from 'react'
-import { UserLastLoginInfo } from './UserLastLoginInfo'
+/* eslint-disable @typescript-eslint/no-var-requires */
 
-export const UserInfo = ({ userId, userEmail, usersQuery }) => {
-  const user = usersQuery.data.find((user) => user.id == userId)
-  return (
-    <Text>
-      {userId} <br />
-      {user?.name} <br />
-      {userEmail}
-      <UserLastLoginInfo userId={userId} />
-    </Text>
-  )
-}
+import {
+  createDefaultStorageProvider,
+  getStorageProvider
+} from '@ir-engine/server-core/src/media/storageprovider/storageprovider'
+import cli from 'cli'
+
+cli.enable('status')
+
+cli.main(async () => {
+  try {
+    await createDefaultStorageProvider()
+    const storageProvider = getStorageProvider()
+    storageProvider.bucket = process.env.KANIKO_CONTEXT_REPO
+
+    const filesResponse = await storageProvider.provider.bucket(storageProvider.bucket).getFiles({
+      delimiter: '/'
+    })
+    const files = filesResponse[2].items
+
+    const sorted = files.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    const toDelete = sorted.slice(5).map((item) => item.name)
+    if (toDelete.length > 0) await storageProvider.deleteResources(toDelete)
+
+    console.log('Pruned old Kaniko build contexts')
+    process.exit(0)
+  } catch (err) {
+    console.log('Error in pruning Kaniko build contexts:')
+    console.log(err)
+    cli.fatal(err)
+  }
+})

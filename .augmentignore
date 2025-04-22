@@ -1,0 +1,3 @@
+!packages/projects/projects/**
+packages/projects/projects/**/node_modules
+packages/projects/projects/**/.git

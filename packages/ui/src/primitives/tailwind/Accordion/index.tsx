@@ -85,7 +85,7 @@ const Accordion = forwardRef(
         <div
           className={twMerge(
             'w-full origin-top overflow-hidden border-[0.5px] border-ui-outline bg-surface-1 transition-[max-height] duration-300 ease-in-out',
-            openState ? 'rounded-b-md' : ''
+            openState ? 'rounded-b-md border-t-0' : 'border-none'
           )}
           style={{
             maxHeight

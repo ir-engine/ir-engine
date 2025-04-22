@@ -72,7 +72,9 @@ const fetchManifest = async () => {
       .split('/')
     const clonePath = path.resolve(appRootPath.path, '.temp', repo)
     // enforce ssh connection rather than deprecated http usr/pwd
-    await execPromise(`git clone git@github.com:${org}/${repo} ${clonePath}`, {
+    console.log(`Cloning ${org}/${repo} on branch ${branch} for manifests`)
+    // Clone from the specific branch provided in the URL
+    await execPromise(`git clone -b ${branch} git@github.com:${org}/${repo} ${clonePath}`, {
       cwd: appRootPath.path
     })
     console.log('manifest installed')

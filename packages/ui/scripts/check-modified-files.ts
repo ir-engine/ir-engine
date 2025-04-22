@@ -35,9 +35,6 @@ function log(...args: any[]) {
   }
 }
 
-//always pass this check for now
-process.exit(0)
-
 try {
   log('Comparing with origin/dev...\n')
 
@@ -58,7 +55,7 @@ try {
     const file = fileParts.join(' ')
     const filename = path.basename(file)
 
-    if ((status === 'M' || status === 'A') && filename.endsWith('.tsx') && !filename.includes('.stories')) {
+    if ((status === 'M' || status === 'A') && filename.endsWith('.tsx')) {
       tsxFiles.push(file)
     }
   })
@@ -66,10 +63,11 @@ try {
   log('Relevant .tsx files:', tsxFiles)
 
   const hasStories = tsxFiles.some((file) => {
+    if (file.endsWith('.stories.tsx')) return true
+
     const dirname = path.dirname(file)
     const basename = path.basename(file, '.tsx')
-    const storiesPath = path.join(cwd, dirname, `${basename}.stories.tsx`)
-    return fs.existsSync(storiesPath)
+    return fs.existsSync(path.resolve(dirname, basename + '.stories.tsx'))
   })
 
   if (!hasStories) {
