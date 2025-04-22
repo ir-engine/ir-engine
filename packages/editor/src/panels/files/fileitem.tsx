@@ -62,9 +62,9 @@ export function TableWrapper({ children, handleSort }: { children: React.ReactNo
   const selectedTableColumns = useHookstate(getMutableState(FilesViewModeSettings).list.selectedTableColumns).value
 
   return (
-    <table className="w-full">
-      <thead>
-        <tr className="h-8 divide-x divide-[#42454D] border-b-[0.5px] border-[#42454D] bg-ui-background text-left text-text-primary">
+    <table className="w-full border-separate border-spacing-0">
+      <thead className="sticky top-0">
+        <tr className="h-8 divide-x divide-[#42454D] bg-ui-background text-left text-text-primary shadow-[inset_0_-1px_0_hsla(224,8%,28%,0.6)]">
           {availableTableColumns
             .filter((header) => selectedTableColumns[header])
             .map((header) => (
