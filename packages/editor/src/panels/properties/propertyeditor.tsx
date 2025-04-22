@@ -85,7 +85,6 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
             component.jsonID !== undefined
         )
         .map((component) => component.jsonID!)
-
       if (JSON.stringify(entityComponents) !== JSON.stringify(components.get(NO_PROXY))) {
         components.set(entityComponents)
       }
