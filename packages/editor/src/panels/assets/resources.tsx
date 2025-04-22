@@ -22,11 +22,9 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import {
-  FileThumbnailJobState,
-  removeFromFileThumbnailsSeen
-} from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
+import { removeFromFileThumbnailsSeen } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
+import useLoadingThumbnails from '@ir-engine/client-core/src/hooks/useLoadingThumbnails'
 import ProgressBar from '@ir-engine/client-core/src/systems/ui/LoadingDetailView/SimpleProgressBar'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
@@ -270,7 +268,7 @@ function ResourceFile({
             fileNameId: 'assets-panel-resource-file-name',
             fileItemId: 'assets-panel-resource-file'
           }}
-          onDoubleClick={() => {}}
+          onDoubleClick={() => { }}
           className="resource-file"
           onLoad={handleLoad}
           onLoadStart={handleLoadStart}
@@ -317,8 +315,8 @@ function SideNavBar({ handleScrollToPage }) {
                 hoveredIndex === null
                   ? 'bg-gray-400'
                   : i === (hoveredIndex + 1) % pages || i === (hoveredIndex - 1 + pages) % pages
-                  ? 'bg-gray-700'
-                  : 'bg-gray-400',
+                    ? 'bg-gray-700'
+                    : 'bg-gray-400',
                 hoveredIndex === i ? 'w-10 bg-white' : 'w-3'
               )}
             ></span>
@@ -329,17 +327,17 @@ function SideNavBar({ handleScrollToPage }) {
                 hoveredIndex === null
                   ? 'text-gray-400'
                   : i === (hoveredIndex + 1) % pages || i === (hoveredIndex - 1 + pages) % pages
-                  ? 'text-gray-700'
-                  : 'text-gray-400',
+                    ? 'text-gray-700'
+                    : 'text-gray-400',
                 hoveredIndex === i ? 'text-white' : ''
               )}
             >
               {i === 0
                 ? '▲'
                 : Math.min(
-                    (i + 1) * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()),
-                    staticResourcesPagination.total.value
-                  )}
+                  (i + 1) * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()),
+                  staticResourcesPagination.total.value
+                )}
             </span>
           </div>
         ))}
@@ -402,21 +400,13 @@ function ResourceItems() {
     fileIconsLoaded.set(fileIconsLoaded.get() + 1)
   }
 
-  const thumbnailJobState = useMutableState(FileThumbnailJobState)
-  const debouncedRefetchResourcesRef = useRef<ReturnType<typeof setTimeout>>()
+  const isLoading = useHookstate(false)
+  useLoadingThumbnails(isLoading)
 
   useEffect(() => {
-    clearTimeout(debouncedRefetchResourcesRef.current)
-  }, [])
-
-  useEffect(() => {
-    if (debouncedRefetchResourcesRef) {
-      clearTimeout(debouncedRefetchResourcesRef.current)
-    }
-    debouncedRefetchResourcesRef.current = setTimeout(() => {
-      refetchResources()
-    }, 500)
-  }, [thumbnailJobState.jobs.length])
+    if (isLoading.value) return
+    refetchResources()
+  }, [isLoading.value])
 
   useEffect(() => {
     fileIconsToLoad.set(0)
