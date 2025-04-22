@@ -26,7 +26,9 @@ import * as Common from '@ir-engine/common'
 import { FileBrowserContentType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { getMutableState } from '@ir-engine/hyperflux'
+import { render } from '@testing-library/react'
 import assert from 'assert'
+import React from 'react'
 import sinon from 'sinon'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { FileThumbnailJobState } from './FileThumbnailJobState'
@@ -76,10 +78,18 @@ describe('FileThumbnailJobState', () => {
     sinon.restore()
     destroyEngine()
   })
+  const TestThumbnailComponent = () => {
+    FileThumbnailJobState.useGenerateThumbnails(filesQueryData)
+    return null
+  }
 
+  const TestDimensionComponent = () => {
+    FileThumbnailJobState.useGenerateDimensions(filesQueryData)
+    return null
+  }
   describe('useGenerateThumbnails', () => {
     it('should add thumbnail jobs for files without thumbnails', async () => {
-      FileThumbnailJobState.useGenerateThumbnails(filesQueryData)
+      render(<TestThumbnailComponent />)
 
       sinon.assert.calledWith(useFindStub, staticResourcePath, {
         query: {
@@ -95,7 +105,7 @@ describe('FileThumbnailJobState', () => {
 
   describe('useGenerateDimensions', () => {
     it('should add dimension jobs for file without dimensions', async () => {
-      FileThumbnailJobState.useGenerateThumbnails(filesQueryData)
+      render(<TestDimensionComponent />)
 
       sinon.assert.calledWith(useFindStub, staticResourcePath, {
         query: {
