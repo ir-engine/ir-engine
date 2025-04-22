@@ -97,6 +97,7 @@ function toValidHierarchyNodeName(entity: Entity, name: string): string {
 }
 
 export default React.memo(function HierarchyTreeNode(props: ListChildComponentProps<undefined>) {
+  const showGlbChildrenFeatureFlag = useMutableState(EditorHelperState).showGlbChildren.value
   const { t } = useTranslation()
   const nodes = useHierarchyNodes()
   const node = nodes[props.index]
@@ -117,9 +118,6 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const isRenameOpen = useState(false)
   const canSaveNodeChanges = useState(false)
   const permissionToChangeNodeVerified = useState(false)
-
-  //@todo when this feature flag is added, remove the hardcoded value
-  const hideGlbChildrenFeatureFlag = [true] //useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.HideGlbChildren])
 
   const handleRenameOpen = () => {
     if (!isRenameOpen.value) {
@@ -394,7 +392,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
         !visible ? 'text-text-inactive' : '',
         selected ? 'rounded-sm border border-ui-select-outline bg-ui-select-background text-text-primary' : '',
         isOverOn && canDropOn ? 'border border-dotted' : '',
-        hideGlbChildrenFeatureFlag[0] && isOverOn && !canDropOn ? 'border border-dotted bg-ui-hover-error' : ''
+        !showGlbChildrenFeatureFlag && isOverOn && !canDropOn ? 'border border-dotted text-text-error' : ''
       )}
       data-testid="hierarchy-panel-scene-item"
     >
@@ -518,7 +516,19 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
               data-testid={`hierarchy-panel-scene-item-${visible ? 'hide' : 'unhide'}-button`}
               onClick={onHideUnhideNode}
             >
-              {visible ? <PiEyeBold className="text-base" /> : <PiEyeClosedBold className="text-base" />}
+              {visible ? (
+                <PiEyeBold
+                  className={`${
+                    !showGlbChildrenFeatureFlag && isOverOn && !canDropOn ? 'text-text-inactive' : 'text-base'
+                  }`}
+                />
+              ) : (
+                <PiEyeClosedBold
+                  className={`${
+                    !showGlbChildrenFeatureFlag && isOverOn && !canDropOn ? 'text-text-inactive' : 'text-base'
+                  }`}
+                />
+              )}
             </button>
           </div>
         </div>

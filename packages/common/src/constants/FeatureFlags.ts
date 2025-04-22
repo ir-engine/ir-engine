@@ -56,7 +56,7 @@ export const FeatureFlags = {
       SceneComplexityNotification: 'ir.editor.ui.sceneComplexityNotification',
       TransformPivot: 'ir.editor.ui.transformPivot',
       Hierarchy: {
-        HideGlbChildren: 'ir.editor.ui.hierarchy.hideGlbChildren' //@todo hook this up when ready (hierarchyNode:135 &&
+        ShowGlbChildren: 'ir.editor.ui.hierarchy.showGlbChildren'
       },
       PointClick: 'ir.editor.ui.pointClick'
     }

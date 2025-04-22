@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useFind, useMutation } from '@ir-engine/common'
+import config from '@ir-engine/common/src/config'
 import {
   locationAdminPath,
   moderationAttachmentPath,
@@ -148,6 +149,12 @@ export const ModerationDetail = ({
       moderationId: moderation.id
     }
   })
+
+  const getFullUrl = (path: string) => {
+    const baseUrl = config.client.clientUrl
+    return `${baseUrl}${path}`
+  }
+
   const handleExport = () => {
     const headers = [
       t('admin:components.moderation.type'),
@@ -160,21 +167,27 @@ export const ModerationDetail = ({
       t('admin:components.moderation.details')
     ]
     const rows = [
-      [
-        moderation.type,
-        usersQuery.data.find((user) => user.id == moderation.reportedUserId)?.name,
-        moderation.reportedUserId,
-        usersQuery.data.find((user) => user.id == moderation.createdBy)?.name,
-        moderation.abuseReason,
-        moderation.status,
-        `"${toDisplayDateTime(moderation.createdAt)}"`,
-        moderation.reportDetails
-      ]
+      moderation.type,
+      usersQuery.data.find((user) => user.id == moderation.reportedUserId)?.name,
+      moderation.reportedUserId,
+      usersQuery.data.find((user) => user.id == moderation.createdBy)?.name,
+      moderation.abuseReason,
+      moderation.status,
+      `"${toDisplayDateTime(moderation.createdAt)}"`,
+      `"${moderation.reportDetails}"`
     ]
 
+    // Attachments section
+    const attachmentHeader = [t('admin:components.moderation.uploadedFiles')]
+    const attachmentRows = reportAttachments.data.map((attachment) => [`"${getFullUrl(attachment.filePath)}"`])
+
+    // Combine all rows with empty row separators
     const csvContent = [
       headers.join(','), // Add headers
-      ...rows.map((row) => row.join(',')) // Add rows
+      rows.join(','),
+      '', // Empty row as separator
+      attachmentHeader.join(','),
+      ...attachmentRows.map((row) => row.join(',')) // Add rows
     ].join('\n')
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
@@ -243,7 +256,7 @@ export const ModerationDetail = ({
             {moderation?.reportDetails}
           </Text>
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.uploadedFiles')}</Text>
-          <div className="mb-4">
+          <div className="mb-4 flex flex-col space-y-2">
             {reportAttachments.data.map((attachment) => (
               <Text key={attachment.id}>
                 <a

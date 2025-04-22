@@ -32,6 +32,7 @@ import {
 import knex from 'knex'
 
 export const getClientSetting = async () => {
+  console.log('getClientSetting', process.env.MYSQL_USER, process.env.MYSQL_DATABASE)
   const knexClient = knex({
     client: 'mysql2',
     connection: {

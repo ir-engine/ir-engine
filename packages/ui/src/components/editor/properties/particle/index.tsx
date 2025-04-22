@@ -209,27 +209,42 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
             ? (particleSystemState.systemParameters.emissionBursts as State<BurstParametersJSON[]>)
             : []
         }
-        element={(burst: State<BurstParametersJSON>) => {
+        element={(burst: State<BurstParametersJSON>, index) => {
           return (
             <div>
               <InputGroup name="Time" label={t('editor:properties.particle-system.burst.time')}>
-                <NumericInput value={burst.time.value} onChange={onSetState('burst.time')} />
+                <NumericInput
+                  value={burst.time.value}
+                  onChange={onSetState(`systemParameters.emissionBursts.${index}.time`)}
+                />
               </InputGroup>
 
               <InputGroup name="Count" label={t('editor:properties.particle-system.burst.count')}>
-                <NumericInput value={burst.count.value} onChange={onSetState('burst.count')} />
+                <NumericInput
+                  value={burst.count.value}
+                  onChange={onSetState(`systemParameters.emissionBursts.${index}.count`)}
+                />
               </InputGroup>
 
               <InputGroup name="Cycle" label={t('editor:properties.particle-system.burst.cycle')}>
-                <NumericInput value={burst.cycle.value} onChange={onSetState('burst.cycle')} />
+                <NumericInput
+                  value={burst.cycle.value}
+                  onChange={onSetState(`systemParameters.emissionBursts.${index}.cycle`)}
+                />
               </InputGroup>
 
               <InputGroup name="Interval" label={t('editor:properties.particle-system.burst.interval')}>
-                <NumericInput value={burst.interval.value} onChange={onSetState('burst.interval')} />
+                <NumericInput
+                  value={burst.interval.value}
+                  onChange={onSetState(`systemParameters.emissionBursts.${index}.interval`)}
+                />
               </InputGroup>
 
               <InputGroup name="Probability" label={t('editor:properties.particle-system.burst.probability')}>
-                <NumericInput value={burst.probability.value} onChange={onSetState('burst.probability')} />
+                <NumericInput
+                  value={burst.probability.value}
+                  onChange={onSetState(`systemParameters.emissionBursts.${index}.probability`)}
+                />
               </InputGroup>
 
               <Button onClick={onRemoveBurst(burst as any)}>
