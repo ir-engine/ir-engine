@@ -158,6 +158,7 @@ const execute = () => {
       phi += y * 2
       const pointerDragging = inputSource.buttons?.PrimaryClick?.dragging
       if (pointerDragging || hasPointerLock) {
+        InputState.setCapturingEntity(cameraEntity)
         const inputPointer = getComponent(inputPointerEid, InputPointerComponent)
         pointerPositionDelta.copy(inputPointer.movement)
         phi -= pointerPositionDelta.y * cameraSettings.cameraRotationSpeed

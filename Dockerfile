@@ -114,6 +114,7 @@ RUN npm run build-client
 
 RUN rm -r packages/client/public
 
+RUN bash ./scripts/setup_docker.sh
 RUN bash ./scripts/setup_helm.sh
 
 ENV APP_ENV=production

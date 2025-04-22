@@ -23,18 +23,32 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import React from 'react'
-import { UserLastLoginInfo } from './UserLastLoginInfo'
+/* eslint-disable @typescript-eslint/no-var-requires */
 
-export const UserInfo = ({ userId, userEmail, usersQuery }) => {
-  const user = usersQuery.data.find((user) => user.id == userId)
-  return (
-    <Text>
-      {userId} <br />
-      {user?.name} <br />
-      {userEmail}
-      <UserLastLoginInfo userId={userId} />
-    </Text>
-  )
-}
+import cli from 'cli'
+
+import {
+  createDefaultStorageProvider,
+  getStorageProvider
+} from '@ir-engine/server-core/src/media/storageprovider/storageprovider'
+
+cli.enable('status')
+
+cli.main(async () => {
+  try {
+    await createDefaultStorageProvider()
+    const storageProvider = getStorageProvider()
+    let filesToPruneResponse = await storageProvider.getObject('client/StorageProviderFilesToRemoveFinal.json')
+    let filesToPrune = JSON.parse(filesToPruneResponse.Body.toString('utf-8'))
+    while (filesToPrune.length > 0) {
+      const toDelete = filesToPrune.splice(0, 1000)
+      await storageProvider.deleteResources(toDelete)
+    }
+    console.log('Deleted old storage provider files')
+    process.exit(0)
+  } catch (err) {
+    console.log('Error in deleting old storage provider client files:')
+    console.log(err)
+    cli.fatal(err)
+  }
+})
