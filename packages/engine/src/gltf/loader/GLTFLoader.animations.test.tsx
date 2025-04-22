@@ -402,8 +402,18 @@ describe('glTF: AnimationChannelTarget Type', () => {
   describe('node', () => {
     // Note: Optional if an extension like KHR_animation_pointer is used
     it.todo('MAY be undefined (if using specific extensions)', () => {})
-    it.todo('MUST be an `integer` index into the root `nodes` array when defined', () => {})
-    it.todo('MUST have a value in range [0..glTF.nodes.length - 1] when defined', () => {})
+
+    it('MUST be an `integer` index into the root `nodes` array when defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationChannelTarget())
+      options.document.animations![0].channels[0].target.node = 1.42 // Not an integer
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
+    it('MUST have a value in range [0..glTF.nodes.length - 1] when defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationChannelTarget())
+      options.document.animations![0].channels[0].target.node = 42 as any // Not in range [0..glTF.nodes.length - 1]
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
   }) //:: node
 
   describe('path', () => {
@@ -429,7 +439,10 @@ describe('glTF: AnimationChannelTarget Type', () => {
       expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
     })
 
-    /** @todo */
+    // Note: Extensions like KHR_animation_pointer allow "pointer"
+    it.todo('MAY allow "pointer" if KHR_animation_pointer extension is used', () => {})
+
+    /** @todo Are these requirements or recommendations? How do we test them if they are requirements? */
     it.todo(
       'MUST ensure that the sampler values are a translation along the (X,Y,Z) axes when its value is "translation".',
       () => {}
@@ -442,8 +455,6 @@ describe('glTF: AnimationChannelTarget Type', () => {
       'MUST ensure that the sampler values are the scaling factors along the (X,Y,Z) axes when its value is "scale".',
       () => {}
     )
-    // Note: Extensions like KHR_animation_pointer allow "pointer"
-    it.todo('MAY allow "pointer" if KHR_animation_pointer extension is used', () => {})
   }) //:: path
 
   describe('extensions', () => {
@@ -490,13 +501,33 @@ describe('glTF: AnimationSampler Type', () => {
     result.accessors = [
       {
         componentType: 5126, // FLOAT
-        count: 1,
-        type: 'SCALAR'
+        count: 4,
+        type: 'SCALAR',
+        bufferView: 0
       },
       {
         componentType: 5126, // FLOAT
         count: 1,
-        type: 'SCALAR'
+        type: 'SCALAR',
+        bufferView: 1
+      }
+    ]
+    result.bufferViews = [
+      {
+        buffer: 0,
+        byteLength: 16, // 4 floats * 4 bytes each
+        byteOffset: 0
+      },
+      {
+        buffer: 0,
+        byteLength: 4,
+        byteOffset: 16
+      }
+    ]
+    result.buffers = [
+      {
+        byteLength: 20
+        // uri: 'data:application/octet-stream;base64,AAAAAAAAgD8AAAAAAIA/AAAAAAAA' // base64 encoded data
       }
     ]
     result.animations = [
@@ -565,8 +596,17 @@ describe('glTF: AnimationSampler Type', () => {
       expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
     })
 
-    it.todo('MUST reference an accessor with strictly increasing values  _(ie. time[n + 1] > time[n])_', () => {})
-    it.todo('MUST interpret the accessor values as time in seconds', () => {})
+    /** @todo How to setup the buffer data? Loading from the URI fails ? */
+    it.todo('MUST reference an accessor with strictly increasing values  _(ie. time[n + 1] > time[n])_', async () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationSampler())
+      const accessor = options.document.accessors![0]
+      const bufferView = options.document.bufferViews![accessor.bufferView!]
+      // const buffer = options.document.buffers![bufferView.buffer]
+      const data = await GLTFLoaderFunctions.loadBuffer(options, bufferView.buffer)
+      console.log(data)
+      const values = []
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
   }) //:: input
 
   describe('interpolation', () => {
@@ -597,16 +637,51 @@ describe('glTF: AnimationSampler Type', () => {
 
     // LINEAR
     it.todo('SHOULD use slerp to interpolate quaternions when "LINEAR"', () => {})
-    it.todo('MUST have the same number of input and output elements "LINEAR"', () => {})
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.animation.sampler.interpolation */
+    it.fails('MUST have the same number of input and output elements when "LINEAR"', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationSampler())
+      options.document.animations![0].samplers[0].interpolation = 'LINEAR'
+      const inputID = options.document.animations![0].samplers[0].input
+      const outputID = options.document.animations![0].samplers[0].output
+      expect(options.document.accessors![inputID].count).not.toBe(options.document.accessors![outputID].count)
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
     // STEP
-    it.todo('MUST have the same number of input and output elements "STEP"', () => {})
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.animation.sampler.interpolation */
+    it.fails('MUST have the same number of input and output elements when "STEP"', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationSampler())
+      options.document.animations![0].samplers[0].interpolation = 'STEP'
+      const inputID = options.document.animations![0].samplers[0].input
+      const outputID = options.document.animations![0].samplers[0].output
+      expect(options.document.accessors![inputID].count).not.toBe(options.document.accessors![outputID].count)
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
     // CUBICSPLINE
-    it.todo('MUST have three times the number of input elements than output elements when "CUBICSPLINE"', () => {})
-    it.todo(
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.animation.sampler.interpolation */
+    it.fails(
       'MUST store three elements for each input in the output (in-tangent, spline vertex, out-tangent) when "CUBICSPLINE"',
-      () => {}
+      () => {
+        const options = mockGLTFOptions(mockGLTFMinimalAnimationSampler())
+        options.document.animations![0].samplers[0].interpolation = 'CUBICSPLINE'
+        const inputID = options.document.animations![0].samplers[0].input
+        const outputID = options.document.animations![0].samplers[0].output
+        expect(options.document.accessors![inputID].count * 3).not.toBe(options.document.accessors![outputID].count)
+        expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+      }
     )
-    it.todo('MUST check that there are at least two keyframes when "CUBICSPLINE"', () => {})
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.animation.sampler.interpolation */
+    it.fails('MUST check that there are at least two keyframes when "CUBICSPLINE"', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalAnimationSampler())
+      options.document.animations![0].samplers[0].interpolation = 'CUBICSPLINE'
+      const samplerID = options.document.animations![0].samplers[0].input
+      options.document.accessors![samplerID].count = 1 // Less than two keyframes
+      expect(GLTFLoaderFunctions.loadAnimation(options, 0)).rejects.toThrowError()
+    })
+
     // Note: Specific interpolations might be required for certain types via extensions
     // it.todo('MUST use "STEP" interpolation if animating integer or boolean types via extensions', () => {})
   }) //:: interpolation
