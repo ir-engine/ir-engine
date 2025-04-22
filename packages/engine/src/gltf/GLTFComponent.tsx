@@ -510,7 +510,6 @@ const useGLTFDocument = (entity: Entity) => {
     if (dynamicLoadAndNotEditing) return
 
     if (!url) {
-      addError(entity, GLTFComponent, 'INVALID_SOURCE', 'Invalid URL')
       return
     }
 

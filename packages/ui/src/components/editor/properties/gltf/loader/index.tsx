@@ -81,7 +81,6 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
   const validRootMesh = hasComponent(props.entity, MeshComponent)
   const validChildMeshes = childMeshEntities.length !== 0
   const showMeshError = isMeshOrConvexHull && !(validChildMeshes || validRootMesh)
-  const urlInputTouched = useHookstate(false)
 
   const errors = ErrorComponent.useComponentErrors(props.entity, GLTFComponent)?.value
   const srcProject = useHookstate(() => {
@@ -152,19 +151,12 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
         <ModelInput
           value={gltfComponent.src.value}
           onRelease={(src) => {
-            urlInputTouched.set(true)
             if (src != gltfComponent.src.value) {
               removeError(props.entity, GLTFComponent, 'LOADING_ERROR')
-              removeError(props.entity, GLTFComponent, 'INVALID_SOURCE')
             }
             commitProperty(GLTFComponent, 'src')(src)
           }}
         />
-        {urlInputTouched.value && errors?.INVALID_SOURCE && (
-          <Text fontSize="xs" className="text-ui-error">
-            {t('editor:properties.model.error-url')}
-          </Text>
-        )}
         {!errors?.INVALID_SOURCE && !!errors?.LOADING_ERROR && (
           <Text fontSize="xs" className="text-ui-error">
             {errors?.LOADING_ERROR}
