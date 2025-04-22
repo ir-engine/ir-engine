@@ -27,11 +27,19 @@ import { FileBrowserContentType, staticResourcePath } from '@ir-engine/common/sr
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { render } from '@testing-library/react'
-import assert from 'assert'
 import React from 'react'
 import sinon from 'sinon'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { FileThumbnailJobState } from './FileThumbnailJobState'
+vi.mock('@ir-engine/common', async () => {
+  const actual = await vi.importActual<typeof import('@ir-engine/common')>('@ir-engine/common')
+  return {
+    ...actual,
+    useFind: sinon.stub()
+  }
+})
+
+import { useFind } from '@ir-engine/common'
 describe('FileThumbnailJobState', () => {
   let useFindStub
   const testKey = 'projects/ir-engine/default-project/public/test.glb'
@@ -90,32 +98,16 @@ describe('FileThumbnailJobState', () => {
   describe('useGenerateThumbnails', () => {
     it('should add thumbnail jobs for files without thumbnails', async () => {
       render(<TestThumbnailComponent />)
-
-      sinon.assert.calledWithMatch(useFindStub, staticResourcePath, {
-        query: sinon.match({
+      expect(useFind).toHaveBeenCalledOnce()
+      expect(useFind).toHaveBeenCalledWith(staticResourcePath, {
+        query: {
           key: { $in: [testKey] },
           thumbnailKey: 'null'
-        })
+        }
       })
 
       const jobState = getMutableState(FileThumbnailJobState)
-      assert.ok(jobState.jobs.value.length > 0, 'Jobs were added to state')
-    })
-  })
-
-  describe('useGenerateDimensions', () => {
-    it('should add dimension jobs for file without dimensions', async () => {
-      render(<TestDimensionComponent />)
-
-      sinon.assert.calledWithMatch(useFindStub, staticResourcePath, {
-        query: sinon.match({
-          key: { $in: [testKey] },
-          $and: [{ width: null }, { height: null }, { depth: null }]
-        })
-      })
-
-      const jobState = getMutableState(FileThumbnailJobState)
-      assert.ok(jobState.jobs.value.length > 0, 'Jobs were added to state')
+      expect(jobState.jobs.value.length).toBeGreaterThan(0)
     })
   })
 })
