@@ -495,7 +495,7 @@ record_build_success() {
 
 handle_job_completion() {
   # Check if this is a job-based builder
-  if kubectl get jobs | grep -q "$RELEASE_NAME-builder-ir-engine-builder"; then
+  if kubectl get jobs | grep "$RELEASE_NAME-builder-ir-engine-builder"; then
     echo "Done with builder job"
   else
     log_info "Non-job builder, sleeping indefinitely"
