@@ -421,7 +421,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           return (
             <>
               <BehaviorInput
-                path="behaviorParameters"
+                path={`behaviorParameters.${index}`}
                 scope={behaviorState}
                 value={behaviorState.value as BehaviorJSON}
                 onChange={onSetState}

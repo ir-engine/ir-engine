@@ -1,0 +1,20 @@
+name: Qwiet.AI Static Analysis
+
+on:
+  pull_request:
+    branches:
+      - '**'
+jobs:
+  qwiet-nextgen-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout full codebase
+        uses: actions/checkout@v3  #Pulls the entire repo at that commit
+
+      - name: Run Qwiet.AI scan
+        run: |
+          curl https://cdn.shiftleft.io/download/sl > /usr/local/bin/sl && chmod a+rx /usr/local/bin/sl
+          sl analyze --app "${GITHUB_REPOSITORY_OWNER}_${GITHUB_REPOSITORY#*/}" --verbose .          
+        env:
+          SHIFTLEFT_ACCESS_TOKEN: ${{ secrets.SHIFTLEFT_ACCESS_TOKEN }}  #Make sure this secret is set
