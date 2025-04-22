@@ -44,7 +44,6 @@ import {
 import { createEntity, EntityTreeComponent, removeEntity, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
-  getAuthoringCounterpart,
   getComponent,
   getOptionalComponent,
   removeComponent,
@@ -53,7 +52,7 @@ import {
   useHasComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { Entity } from '@ir-engine/ecs/src/Entity'
 import { defineState, NO_PROXY, State, useHookstate, useState } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { createPriorityQueue } from '@ir-engine/spatial/src/common/functions/PriorityQueue'
@@ -65,9 +64,9 @@ import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformComponent } from '@ir-engine/spatial'
+import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { Vector2_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { HighlightComponent } from '@ir-engine/spatial/src/renderer/components/HighlightComponent'
-import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { NodeFunctions } from '../../gltf/NodeFunctions'
 import { NodeID, NodeIDSchema } from '../../gltf/NodeIDComponent'
@@ -254,11 +253,6 @@ function VideoReactor() {
         })
       )
     )
-    const authEntity = getAuthoringCounterpart(entity)
-    if (authEntity !== UndefinedEntity) {
-      const mesh = getComponent(videoMeshEntity, MeshComponent)
-      setComponent(authEntity, ObjectComponent, mesh)
-    }
     return videoMeshEntity
   }).value
 
@@ -281,6 +275,10 @@ function VideoReactor() {
     setComponent(videoEntity, EntityTreeComponent, { parentEntity: entity })
     setComponent(videoEntity, NameComponent, `video-group-${entity}`)
     setComponent(videoEntity, MediaComponent)
+
+    setCallback(entity, 'setVisible', () => setComponent(videoEntity, VisibleComponent))
+    setCallback(entity, 'setInvisible', () => removeComponent(videoEntity, VisibleComponent))
+
     video.mediaUUID.set('' as NodeID)
 
     return () => {
