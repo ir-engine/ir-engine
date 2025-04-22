@@ -28,7 +28,7 @@ import { twMerge } from 'tailwind-merge'
 
 export interface RadioProps {
   disabled?: boolean
-  label?: string
+  label?: React.ReactNode
   onClick?: (value: any) => void
   value: any
   checked?: boolean
@@ -113,8 +113,9 @@ export const Radio = ({ disabled, label, onClick, value, description, checked, v
 
 export type OptionType = {
   value: string
-  label?: string
+  label?: React.ReactNode
   description?: string
+  disabled?: boolean
 }
 export interface RadioGroupProps<T> {
   value?: T
@@ -142,11 +143,11 @@ const RadioGroup = <T extends OptionValueType>({
 }: RadioGroupProps<T>) => {
   return (
     <div className={twMerge('grid gap-6', horizontal && 'grid-flow-col', className)}>
-      {options.map(({ label: optionLabel, value: valueOption, description }) => (
+      {options.map(({ label: optionLabel, value: valueOption, description, disabled: optionDisabled }) => (
         <Radio
           variant={variant}
           key={valueOption}
-          disabled={disabled}
+          disabled={disabled || optionDisabled}
           label={optionLabel}
           onClick={(value) => onChange(value)}
           value={valueOption}

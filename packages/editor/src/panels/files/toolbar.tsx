@@ -46,7 +46,11 @@ import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaList } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
-import { handleUploadFiles, inputFileWithAddToScene } from '../../functions/assetFunctions'
+import {
+  handleConvertGifFileToVideoAndUpload,
+  handleUploadFiles,
+  inputFileWithAddToScene
+} from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { FilesState, FilesViewModeSettings, FilesViewModeState } from '../../services/FilesState'
 import { availableTableColumns, useCurrentFiles } from './helpers'
@@ -80,6 +84,25 @@ export const showMultipleFileModal = (projectName: string, directoryPath: string
       <Modal title={'test'} className="w-[50vw] max-w-2xl" onSubmit={onSubmit} onClose={PopoverState.hidePopupover}>
         <div className="flex flex-col rounded-lg bg-[#0e0f11] px-5 py-10 text-center">
           Warning: You will overwrite existing files by uploading these. Do you wish to continue? <br />
+          {fileNames.length > 0 && `Files: ${fileNames.join(', ')}`}
+        </div>
+      </Modal>
+    </>
+  )
+}
+export const showGifFileConfimation = (projectName: string, directoryPath: string, files: File[]) => {
+  const fileNames = files.map((file) => file.name)
+
+  const onSubmit = async () => {
+    await handleConvertGifFileToVideoAndUpload(projectName, directoryPath, files)
+    PopoverState.hidePopupover()
+  }
+
+  PopoverState.showPopupover(
+    <>
+      <Modal title={'test'} className="w-[50vw] max-w-2xl" onSubmit={onSubmit} onClose={PopoverState.hidePopupover}>
+        <div className="flex flex-col rounded-lg bg-[#0e0f11] px-5 py-10 text-center">
+          Warning: We don't support animated GIF files, do you want to convert them to Video? <br />
           {fileNames.length > 0 && `Files: ${fileNames.join(', ')}`}
         </div>
       </Modal>

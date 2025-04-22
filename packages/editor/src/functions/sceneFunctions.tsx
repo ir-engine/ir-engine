@@ -74,7 +74,9 @@ export const saveSceneGLTF = async (
 
   const { rootEntity } = getState(EditorState)
 
-  const sceneName = cleanString(sceneFile!.replace('.scene.json', '').replace('.gltf', '')) + '.gltf'
+  const baseSceneName = cleanString(sceneFile!.replace('.gltf', '').trim())
+  const sceneName = baseSceneName.endsWith('.gltf') ? baseSceneName : `${baseSceneName}.gltf`
+
   let currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
   if (savePath) {
     currentSceneDirectory = savePath

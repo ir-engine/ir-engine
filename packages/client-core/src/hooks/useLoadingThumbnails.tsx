@@ -23,13 +23,38 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import ffmpeg from './ffmpeg/ffmpeg'
-import FileBrowserUpload from './file-browser-upload/file-browser-upload'
-import FileBrowser from './file-browser/file-browser'
-import Invalidation from './invalidation/invalidation'
-import OEmbed from './oembed/oembed'
-import Archiver from './recursive-archiver/archiver'
-import StaticResource from './static-resource/static-resource'
-import Upload from './upload-asset/upload-asset.service'
+import { State, useMutableState } from '@ir-engine/hyperflux'
+import { useEffect, useRef } from 'react'
+import { FileThumbnailJobState } from '../common/services/FileThumbnailJobState'
 
-export default [Invalidation, StaticResource, FileBrowser, FileBrowserUpload, OEmbed, Upload, Archiver, ffmpeg]
+const useLoadingThumbnails = (isLoading: State<boolean>) => {
+  const thumbnailJobs = useMutableState(FileThumbnailJobState).jobs
+  const debouncedStatusRef = useRef<ReturnType<typeof setTimeout>>()
+
+  useEffect(() => {
+    clearTimeout(debouncedStatusRef.current)
+  }, [])
+
+  useEffect(() => {
+    if (debouncedStatusRef) {
+      clearTimeout(debouncedStatusRef.current)
+    }
+
+    const isThumbnailsLoading = thumbnailJobs.length > 0
+    if (isThumbnailsLoading) {
+      isLoading.set(true)
+    } else {
+      debouncedStatusRef.current = setTimeout(() => {
+        isLoading.set(false)
+      }, 1000)
+    }
+
+    return () => {
+      clearTimeout(debouncedStatusRef.current)
+    }
+  }, [thumbnailJobs.length])
+
+  return
+}
+
+export default useLoadingThumbnails

@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
+import useLoadingThumbnails from '@ir-engine/client-core/src/hooks/useLoadingThumbnails'
 import { useFind } from '@ir-engine/common'
 import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
@@ -64,9 +65,13 @@ export function Browser() {
     })
   }
 
+  const isLoading = useHookstate(false)
+  useLoadingThumbnails(isLoading)
+
   useEffect(() => {
+    if (isLoading.value) return
     refreshDirectory()
-  }, [thumbnailJobState.jobs.length])
+  }, [isLoading.value])
 
   const staticResourceDataQuery = useFind(staticResourcePath, {
     query: {
