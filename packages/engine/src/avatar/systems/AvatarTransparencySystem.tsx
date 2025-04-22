@@ -72,7 +72,7 @@ const execute = () => {
     const avatarComponent = getComponent(entity, AvatarComponent)
     const cameraComponent = getOptionalComponent(getState(ReferenceSpaceState).viewerEntity, FollowCameraComponent)
 
-    if (!materials?.length) return
+    if (!materials?.length) continue
     for (const materialUUID of materials) {
       const pluginComponent = getOptionalComponent(
         UUIDComponent.getEntityByUUID(materialUUID),
