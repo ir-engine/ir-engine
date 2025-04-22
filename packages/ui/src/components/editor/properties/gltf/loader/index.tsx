@@ -54,7 +54,6 @@ import SelectInput from '../../../input/Select'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { EditorHistoryFunctions } from '@ir-engine/editor/src/services/EditorHistoryState'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
-import { removeError } from '@ir-engine/engine/src/scene/functions/ErrorFunctions'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { HiPlus } from 'react-icons/hi2'
 import { OptionType } from '../../../../../primitives/tailwind/Select'
@@ -151,9 +150,6 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
         <ModelInput
           value={gltfComponent.src.value}
           onRelease={(src) => {
-            if (src != gltfComponent.src.value) {
-              removeError(props.entity, GLTFComponent, 'LOADING_ERROR')
-            }
             commitProperty(GLTFComponent, 'src')(src)
           }}
         />

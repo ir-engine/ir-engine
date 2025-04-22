@@ -520,6 +520,8 @@ const useGLTFDocument = (entity: Entity) => {
       addError(entity, GLTFComponent, 'LOADING_ERROR', 'Error loading model')
     }
 
+    removeError(entity, GLTFComponent, 'LOADING_ERROR')
+
     loadGLTFFile(
       url,
       (gltf, body) => {
