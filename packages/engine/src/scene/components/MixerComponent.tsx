@@ -317,11 +317,12 @@ export const MixerComponent = defineComponent({
     return mixerComp.state.entriesByCoord.get(coord)?.[0] ?? null
   },
 
-  setEntry: (mixerEntity: Entity, coord: number, entry: Entry) => {
-    const mixerCOmp = getComponent(mixerEntity, MixerComponent)
-    const index = mixerCOmp.state.entriesByCoord.get(coord)?.[1] ?? mixerCOmp.entries.length
-    mixerCOmp.state.entriesByCoord.set(coord, [entry, index])
-    mixerCOmp.entries[index] = [coord, entry]
+  setEntry: (mixerEntity: Entity, coord: number, entry: Entry): Entry => {
+    const mixerComp = getComponent(mixerEntity, MixerComponent)
+    const index = mixerComp.state.entriesByCoord.get(coord)?.[1] ?? mixerComp.entries.length
+    mixerComp.state.entriesByCoord.set(coord, [entry, index])
+    mixerComp.entries[index] = [coord, entry]
+    return entry
   },
 
   appendEntry: (mixerEntity: Entity, coord: number, entry: Entry) => {
