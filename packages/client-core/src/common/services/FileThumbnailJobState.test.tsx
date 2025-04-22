@@ -22,92 +22,55 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-
-import { Application } from '@feathersjs/feathers'
-import {
-  ScopeType,
-  UserApiKeyType,
-  UserName,
-  fileBrowserPath,
-  projectPath,
-  scopePath,
-  staticResourcePath,
-  userApiKeyPath,
-  userPath
-} from '@ir-engine/common/src/schema.type.module'
+import { FileBrowserContentType } from '@ir-engine/common/src/schema.type.module'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { FILES_PAGE_LIMIT } from '@ir-engine/editor/src/panels/files/helpers'
-import { createFeathersKoaApp, tearDownAPI } from '@ir-engine/server-core/src/createApp'
 import assert from 'assert'
-import { v4 as uuidv4 } from 'uuid'
+import sinon from 'sinon'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { FileThumbnailJobState } from './FileThumbnailJobState'
 
 describe('FileThumbnailJobState', () => {
-  let app: Application
-  let testUserApiKey: UserApiKeyType
-  let testProject
+  const filesQueryData: FileBrowserContentType[] = [
+    {
+      key: 'projects/ir-engine/default-project/public/test.glb',
+      name: 'test',
+      size: 1000,
+      type: 'glb',
+      url: 'https://domain/projects/ir-engine/default-project/public/test.glb?hash=test'
+    }
+  ]
 
-  const getProjectParams = () => ({
-    provider: 'rest',
-    headers: {
-      authorization: `Bearer ${testUserApiKey.token}`
+  let app: any
+  let fakeService: any
+  beforeEach(async () => {
+    fakeService = {
+      create: sinon.stub(),
+      find: sinon.stub()
+    }
+    app = {
+      service: sinon.stub().returns(fakeService)
     }
   })
 
-  beforeEach(async () => {
-    app = await createFeathersKoaApp()
-    await app.setup()
-
-    const name = ('test-project-user-name-' + uuidv4()) as UserName
-
-    const testUser = await app.service(userPath).create({
-      name,
-      isGuest: false
-    })
-
-    await app.service(scopePath).create({ userId: testUser.id, type: 'editor:write' as ScopeType })
-
-    testUserApiKey = await app.service(userApiKeyPath).create({ userId: testUser.id })
-
-    const projectName = `testorg/test-project-${uuidv4().slice(0, 8)}`
-    testProject = await app.service(projectPath).create(
-      {
-        name: projectName
-      },
-      getProjectParams()
-    )
-  })
-
   afterEach(async () => {
-    await tearDownAPI()
+    sinon.restore()
     destroyEngine()
   })
 
   describe('useGenerateThumbnails', () => {
     it('should add thumbnail jobs for files without thumbnails', async () => {
-      await app.service(fileBrowserPath).create({
-        project: testProject.name,
-        path: 'assets/testThumbnail.glb'
-      })
-      await app.service(staticResourcePath).create({
-        key: 'projects/ir-engine/default-project/assets/testThumbnail.glb',
-        project: testProject.name,
+      const testKey = 'projects/ir-engine/default-project/assets/testThumbnail.glb'
+
+      fakeService.create.resolves({
+        key: testKey,
+        project: 'default-project',
         thumbnailKey: null,
         thumbnailURL: null
       })
-      const filesQuery = await app.service(fileBrowserPath).find({
-        query: {
-          project: testProject.name,
-          directory: 'projects/ir-engine/default-project/assets',
-          $limit: FILES_PAGE_LIMIT
-        }
-      })
-      FileThumbnailJobState.useGenerateThumbnails(filesQuery.data)
-      const resource = await app.service(staticResourcePath).find({
-        query: {
-          key: 'projects/ir-engine/default-project/assets/testThumbnail.glb'
-        }
+
+      FileThumbnailJobState.useGenerateThumbnails(filesQueryData)
+      const resource = await app.service('fake-service').find({
+        query: { key: testKey }
       })
       assert.ok(resource.data.thumbnailKey !== null, 'generated thumbnail key')
     })
@@ -115,29 +78,18 @@ describe('FileThumbnailJobState', () => {
 
   describe('useGenerateDimensions', () => {
     it('should add dimension jobs for file without dimensions', async () => {
-      await app.service(fileBrowserPath).create({
-        project: testProject.name,
-        path: 'assets/testDimension.glb'
-      })
-      await app.service(staticResourcePath).create({
-        key: 'projects/ir-engine/default-project/assets/testDimension.glb',
-        project: testProject.name,
+      const testKey = 'projects/ir-engine/default-project/assets/testDimension.glb'
+
+      fakeService.create.resolves({
+        key: testKey,
+        project: 'default-project',
         width: null,
-        height: null,
-        depth: null
+        depth: null,
+        height: null
       })
-      const filesQuery = await app.service(fileBrowserPath).find({
-        query: {
-          project: testProject.name,
-          directory: 'projects/ir-engine/default-project/assets',
-          $limit: FILES_PAGE_LIMIT
-        }
-      })
-      FileThumbnailJobState.useGenerateDimensions(filesQuery.data)
-      const resource = await app.service(staticResourcePath).find({
-        query: {
-          key: 'projects/ir-engine/default-project/assets/testDimension.glb'
-        }
+      FileThumbnailJobState.useGenerateDimensions(filesQueryData)
+      const resource = await app.service('fake-service').find({
+        query: { key: testKey }
       })
       assert.ok(
         resource.data.width !== null && resource.data.height !== null && resource.data.depth !== null,
