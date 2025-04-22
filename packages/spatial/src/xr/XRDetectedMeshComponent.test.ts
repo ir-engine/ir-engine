@@ -383,18 +383,16 @@ describe('XRDetectedMeshComponent', () => {
 
         await act(() => render(null))
 
-        await vi.waitFor(() => {
-          expect(resultSpy).toHaveBeenCalledTimes(1)
-          expect(getComponent(testEntity, XRDetectedMeshComponent).mesh).toBeTruthy()
-        })
+        expect(resultSpy).toHaveBeenCalledTimes(1)
+        expect(getComponent(testEntity, XRDetectedMeshComponent).mesh).toBeTruthy()
 
         // Run and Check the result
         setComponent(testEntity, XRDetectedMeshComponent, { mesh: Expected })
 
-        await vi.waitFor(() => {
-          expect(resultSpy).toHaveBeenCalledTimes(2)
-          expect(resultSpy).toHaveBeenCalledWith(Expected)
-        })
+        await act(() => render(null))
+
+        expect(resultSpy).toHaveBeenCalledTimes(2)
+        expect(resultSpy).toHaveBeenCalledWith(Expected)
       })
 
       it('should set XRDetectedMeshComponent.geometry to the newly created geometry', async () => {
@@ -407,18 +405,18 @@ describe('XRDetectedMeshComponent', () => {
         expect(before).toBe(Initial)
         // Run and Check the result
         setComponent(testEntity, XRDetectedMeshComponent, { mesh: { semanticLabel: 'testLabelAfter' } as XRMesh })
+
         await act(() => render(null))
 
-        await vi.waitFor(() => {
-          const result = getComponent(testEntity, XRDetectedMeshComponent).geometry
-          expect(result).not.toBe(Initial) // A change in .mesh should trigger a change in .geometry
-        })
+        const result = getComponent(testEntity, XRDetectedMeshComponent).geometry
+        expect(result).not.toBe(Initial) // A change in .mesh should trigger a change in .geometry
       })
 
       it(`should create a new Mesh object with XRDetectedMeshComponent.shadowMesh
           and set an ObjectComponent to the entityContext with the new mesh`, async () => {
         // Set the data as expected
         setComponent(testEntity, XRDetectedMeshComponent, { mesh: { semanticLabel: 'testLabel' } as XRMesh })
+
         await act(() => render(null))
 
         // Sanity check before running
@@ -428,12 +426,10 @@ describe('XRDetectedMeshComponent', () => {
 
         await act(() => render(null))
 
-        await vi.waitFor(() => {
-          expect(getComponent(testEntity, ObjectComponent)).not.toEqual(Initial)
-          expect(getComponent(testEntity, ObjectComponent)).toBe(
-            getComponent(testEntity, XRDetectedMeshComponent).shadowMesh
-          )
-        })
+        expect(getComponent(testEntity, ObjectComponent)).not.toEqual(Initial)
+        expect(getComponent(testEntity, ObjectComponent)).toBe(
+          getComponent(testEntity, XRDetectedMeshComponent).shadowMesh
+        )
       })
 
       describe('when it unmounts ..', () => {

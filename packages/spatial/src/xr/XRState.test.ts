@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,13 +19,12 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import { createEngine, destroyEngine } from '@ir-engine/ecs'
 import { getMutableState, getState, startReactor } from '@ir-engine/hyperflux'
-import { act, render } from '@testing-library/react'
 import { Quaternion, Vector3 } from 'three'
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { destroyEmulatedXREngine, mockEmulatedXREngine } from '../../tests/util/mockEmulatedXREngine'
@@ -404,8 +403,9 @@ describe('XRState', () => {
       expect(result).not.toBe(Expected)
       // Run and Check the result
       startReactor(Reactor)
-      await act(() => render(null))
-      expect(result).toBe(Expected)
+      await vi.waitFor(() => {
+        expect(result).toBe(Expected)
+      })
     })
 
     it('should always return true when XRState.sessionActive is false', async () => {
@@ -423,8 +423,9 @@ describe('XRState', () => {
       expect(result).not.toBe(Expected)
       // Run and Check the result
       startReactor(Reactor)
-      await act(() => render(null))
-      expect(result).toBe(Expected)
+      await vi.waitFor(() => {
+        expect(result).toBe(Expected)
+      })
     })
 
     it("should return true if XRState.sceneScale is not 1, XRState.sessionMode is 'immersive-ar' and XRState.sessionActive is true", async () => {
@@ -444,8 +445,9 @@ describe('XRState', () => {
       expect(result).not.toBe(Expected)
       // Run and Check the result
       startReactor(Reactor)
-      await act(() => render(null))
-      expect(result).toBe(Expected)
+      await vi.waitFor(() => {
+        expect(result).toBe(Expected)
+      })
     })
 
     it("should return false if XRState.sceneScale is 1, XRState.sessionMode is 'immersive-ar' and XRState.sessionActive is true", async () => {
@@ -464,8 +466,9 @@ describe('XRState', () => {
       expect(result).not.toBe(Expected)
       // Run and Check the result
       startReactor(Reactor)
-      await act(() => render(null))
-      expect(result).toBe(Expected)
+      await vi.waitFor(() => {
+        expect(result).toBe(Expected)
+      })
     })
   }) //:: XRState.useMovementControlsEnabled
 
@@ -493,8 +496,9 @@ describe('XRState', () => {
       expect(getState(XRState).session).toBeFalsy()
       // Run and Check the result
       startReactor(Reactor)
-      await act(() => render(null))
-      expect(result).toBe(Expected)
+      await vi.waitFor(() => {
+        expect(result).toBe(Expected)
+      })
     })
 
     it("should return false when XRState.scenePlacementMode is 'placing'", async () => {
@@ -511,8 +515,9 @@ describe('XRState', () => {
       expect(getState(XRState).scenePlacementMode).toBe('placing')
       // Run and Check the result
       startReactor(Reactor)
-      await act(() => render(null))
-      expect(result).toBe(Expected)
+      await vi.waitFor(() => {
+        expect(result).toBe(Expected)
+      })
     })
 
     it("should return true when XRState.avatarCameraMode is 'auto' and XRState.sceneScale is 1", async () => {
@@ -533,8 +538,9 @@ describe('XRState', () => {
       expect(getState(XRState).sceneScale).toBe(1)
       // Run and Check the result
       startReactor(Reactor)
-      await act(() => render(null))
-      expect(result).toBe(Expected)
+      await vi.waitFor(() => {
+        expect(result).toBe(Expected)
+      })
     })
 
     it("should return false when XRState.avatarCameraMode is 'auto' and XRState.sceneScale is not 1", async () => {
@@ -556,8 +562,9 @@ describe('XRState', () => {
       expect(getState(XRState).sceneScale).not.toBe(1)
       // Run and Check the result
       startReactor(Reactor)
-      await act(() => render(null))
-      expect(result).toBe(Expected)
+      await vi.waitFor(() => {
+        expect(result).toBe(Expected)
+      })
     })
 
     it("should return true when XRState.avatarCameraMode is 'attached'", async () => {
@@ -578,8 +585,9 @@ describe('XRState', () => {
       expect(getState(XRState).avatarCameraMode).toBe('attached')
       // Run and Check the result
       startReactor(Reactor)
-      await act(() => render(null))
-      expect(result).toBe(Expected)
+      await vi.waitFor(() => {
+        expect(result).toBe(Expected)
+      })
     })
 
     it("should return false when XRState.avatarCameraMode is not 'attached'", async () => {
@@ -599,8 +607,9 @@ describe('XRState', () => {
       expect(getState(XRState).avatarCameraMode).not.toBe('attached')
       // Run and Check the result
       startReactor(Reactor)
-      await act(() => render(null))
-      expect(result).toBe(Expected)
+      await vi.waitFor(() => {
+        expect(result).toBe(Expected)
+      })
     })
   }) //:: XRState.useCameraAttachedToAvatar
 }) //:: XRState

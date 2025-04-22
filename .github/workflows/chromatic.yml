@@ -2,6 +2,8 @@ name: Chromatic
 
 on:
   pull_request:
+    paths:
+      - '**/*.tsx'
   workflow_dispatch:
     inputs:
       reason:

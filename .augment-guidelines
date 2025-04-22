@@ -17,6 +17,7 @@
 - Test edge cases and error conditions
 - Mock dependencies appropriately
 - Ensure tests are deterministic
+- Run isolated tests with `npm run test -- <filename>` in the respective package's root
 
 # Meta
 
@@ -27,6 +28,8 @@
 - Do not make assumptions
 - Never pander or appeal to the user, be objective and question if the solution actually meets what the user is requesting
 - Be concise and clear in your communication, but not to the degree that your become unhelpful
+- Ensure that any code and files that are no longer needed are removed
+- Do not leave unnecessary code comments explaining what you've changed, only leave comments that provide information about the code itself that isn't immediately obvious from the code
 
 # CLI Browser Bridge
 
