@@ -64,6 +64,7 @@ import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformComponent } from '@ir-engine/spatial'
+import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { Vector2_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { HighlightComponent } from '@ir-engine/spatial/src/renderer/components/HighlightComponent'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
@@ -273,6 +274,10 @@ function VideoReactor() {
     setComponent(videoEntity, EntityTreeComponent, { parentEntity: entity })
     setComponent(videoEntity, NameComponent, `video-group-${entity}`)
     setComponent(videoEntity, MediaComponent)
+
+    setCallback(entity, 'setVisible', () => setComponent(videoEntity, VisibleComponent))
+    setCallback(entity, 'setInvisible', () => removeComponent(videoEntity, VisibleComponent))
+
     video.mediaUUID.set('' as NodeID)
 
     return () => {
