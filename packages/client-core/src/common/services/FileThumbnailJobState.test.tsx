@@ -91,11 +91,11 @@ describe('FileThumbnailJobState', () => {
     it('should add thumbnail jobs for files without thumbnails', async () => {
       render(<TestThumbnailComponent />)
 
-      sinon.assert.calledWith(useFindStub, staticResourcePath, {
-        query: {
+      sinon.assert.calledWithMatch(useFindStub, staticResourcePath, {
+        query: sinon.match({
           key: { $in: [testKey] },
           thumbnailKey: 'null'
-        }
+        })
       })
 
       const jobState = getMutableState(FileThumbnailJobState)
@@ -107,11 +107,11 @@ describe('FileThumbnailJobState', () => {
     it('should add dimension jobs for file without dimensions', async () => {
       render(<TestDimensionComponent />)
 
-      sinon.assert.calledWith(useFindStub, staticResourcePath, {
-        query: {
+      sinon.assert.calledWithMatch(useFindStub, staticResourcePath, {
+        query: sinon.match({
           key: { $in: [testKey] },
-          thumbnailKey: 'null'
-        }
+          $and: [{ width: null }, { height: null }, { depth: null }]
+        })
       })
 
       const jobState = getMutableState(FileThumbnailJobState)
