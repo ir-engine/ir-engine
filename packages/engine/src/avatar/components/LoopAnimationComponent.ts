@@ -101,6 +101,21 @@ export const LoopAnimationComponent = defineComponent({
         (loopAnimationComponent.useVRM.value && rigComponent?.bonesToEntities.hips.value)
       )
         return
+
+      // If we have a previous action, stop it
+      if (loopAnimationComponent._action.value) {
+        loopAnimationComponent._action.value.stop()
+      }
+
+      // If activeClipIndex is -1 ("None"), stop all animations and clear the action
+      if (loopAnimationComponent.activeClipIndex.value === -1) {
+        if (animComponent.mixer.value) {
+          animComponent.mixer.value.stopAllAction()
+        }
+        loopAnimationComponent._action.set(null)
+        return
+      }
+
       const clip = animComponent.animations.value[loopAnimationComponent.activeClipIndex.value] as AnimationClip
       if (!clip) {
         loopAnimationComponent._action.set(null)
@@ -109,6 +124,12 @@ export const LoopAnimationComponent = defineComponent({
       animComponent.mixer.time.set(0)
       const action = animComponent.mixer.value.clipAction(clip)
       loopAnimationComponent._action.set(action)
+
+      // Start playing the new animation if not paused
+      if (!loopAnimationComponent.paused.value) {
+        action.play()
+      }
+
       return () => {
         action.stop()
       }
@@ -128,7 +149,14 @@ export const LoopAnimationComponent = defineComponent({
     const animationAction = loopAnimationComponent._action.value as AnimationAction
 
     useEffect(() => {
-      if (!animationAction) return
+      if (!animationAction) {
+        // If there's no action but we have a mixer, make sure all actions are stopped
+        if (animComponent?.mixer?.value && !loopAnimationComponent.paused.value) {
+          animComponent.mixer.value.stopAllAction()
+        }
+        return
+      }
+
       if (animationAction.isRunning()) {
         animationAction.paused = loopAnimationComponent.paused.value
       } else if (!animationAction.isRunning() && !loopAnimationComponent.paused.value) {
@@ -187,7 +215,19 @@ export const LoopAnimationComponent = defineComponent({
       const stop = () => {
         loopAnimationComponent.paused.set(true)
         loopAnimationComponent.time.set(0)
-        loopAnimationComponent._action.value?.stop()
+
+        // Stop the current action
+        if (loopAnimationComponent._action.value) {
+          loopAnimationComponent._action.value.stop()
+        }
+
+        // Also stop all actions in the mixer to be thorough
+        if (animComponent?.mixer?.value) {
+          animComponent.mixer.value.stopAllAction()
+        }
+
+        // Set activeClipIndex to -1 (None) to indicate no clip is selected
+        loopAnimationComponent.activeClipIndex.set(-1)
       }
       setCallback(entity, StandardCallbacks.PLAY, play)
       setCallback(entity, StandardCallbacks.PAUSE, pause)
