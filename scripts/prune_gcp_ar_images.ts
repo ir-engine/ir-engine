@@ -77,18 +77,14 @@ const getAllImages = async (arClient: any, repoName: string, images = [] as any[
 }
 
 const deleteImages = async (arClient, toBeDeleted, isCaches) => {
-  console.log('deleteImages')
   const parent = isCaches ? getParent(true) + '%2Fcache' : getParent(true)
-  console.log('parent', parent)
   const paginated = toBeDeleted.length > ARTIFACT_REGISTRY_BATCH_DELETE_PAGE_SIZE
   const deletePage = paginated ? toBeDeleted.slice(0, 50) : toBeDeleted
   const localOptions = {
     names: deletePage.map((image) => parent + '/versions/' + image.name.split('@')[1]),
     parent
   }
-  console.log('batch deleting page', localOptions)
   const [operation] = await arClient.batchDeleteVersions(localOptions)
-  console.log('operation', operation)
   if (paginated) return await deleteImages(arClient, toBeDeleted.slice(ARTIFACT_REGISTRY_BATCH_DELETE_PAGE_SIZE))
   return await operation.promise()
 }
