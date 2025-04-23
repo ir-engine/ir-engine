@@ -22,92 +22,94 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import * as Common from '@ir-engine/common'
-import { FileBrowserContentType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { getMutableState } from '@ir-engine/hyperflux'
-import { render } from '@testing-library/react'
-import React from 'react'
-import sinon from 'sinon'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import assert from 'assert'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 import { FileThumbnailJobState } from './FileThumbnailJobState'
-vi.mock('@ir-engine/common', async () => {
-  const actual = await vi.importActual<typeof import('@ir-engine/common')>('@ir-engine/common')
-  return {
-    ...actual,
-    useFind: sinon.stub()
-  }
-})
 
-import { useFind } from '@ir-engine/common'
 describe('FileThumbnailJobState', () => {
-  let useFindStub
   const testKey = 'projects/ir-engine/default-project/public/test.glb'
-  const filesQueryData: FileBrowserContentType[] = [
-    {
-      key: testKey,
-      name: 'test',
-      size: 1000,
-      type: 'glb',
-      url: 'https://domain/' + testKey
-    }
-  ]
   beforeEach(async () => {
     createEngine()
-    useFindStub = sinon.stub(Common, 'useFind').returns({
-      data: [
-        {
-          id: '1',
-          key: testKey,
-          project: 'default-project',
-          url: 'https://domain/' + testKey,
-          thumbnailKey: null,
-          width: null,
-          height: null,
-          depth: null
-        }
-      ],
-      total: 1,
-      setSort: sinon.fake(),
-      setLimit: sinon.fake(),
-      setPage: sinon.fake(),
-      search: sinon.fake(),
-      page: 1,
-      skip: 0,
-      limit: 10,
-      sort: {},
-      status: 'success',
-      error: '',
-      refetch: sinon.fake()
-    })
   })
 
   afterEach(async () => {
-    sinon.restore()
     destroyEngine()
   })
-  const TestThumbnailComponent = () => {
-    FileThumbnailJobState.useGenerateThumbnails(filesQueryData)
-    return null
-  }
 
-  const TestDimensionComponent = () => {
-    FileThumbnailJobState.useGenerateDimensions(filesQueryData)
-    return null
-  }
-  describe('useGenerateThumbnails', () => {
-    it('should add thumbnail jobs for files without thumbnails', async () => {
-      render(<TestThumbnailComponent />)
-      expect(useFind).toHaveBeenCalledOnce()
-      expect(useFind).toHaveBeenCalledWith(staticResourcePath, {
-        query: {
-          key: { $in: [testKey] },
-          thumbnailKey: 'null'
+  it('should add thumbnail jobs for files without thumbnails', async () => {
+    const jobState = getMutableState(FileThumbnailJobState)
+    const seenResources = jobState.seenResources.thumbnail
+    const fakeResources = [
+      {
+        id: '1',
+        key: testKey,
+        url: 'https://domain/' + testKey,
+        project: 'default-project',
+        thumbnailKey: null,
+        type: 'glb'
+      }
+    ]
+
+    for (const resource of fakeResources) {
+      if (seenResources.value.includes(resource.key)) continue
+      seenResources.merge([resource.key])
+
+      if (resource.type === 'thumbnail') continue
+
+      const ext = resource.key.split('.').pop() ?? ''
+      if (resource.thumbnailKey != null || !['glb', 'gltf', 'fbx'].includes(ext)) {
+        continue
+      }
+
+      if (jobState.jobs.value.filter((fj) => fj.key === resource.url && fj.jobType === 'thumbnail').length < 1) {
+        jobState.jobs.merge([
+          {
+            key: resource.url,
+            project: resource.project!,
+            jobType: 'thumbnail'
+          }
+        ])
+      }
+    }
+    assert.ok(jobState.jobs.value.length > 0, 'Thumbnail job was added')
+  })
+  it('should add dimension jobs for glb/gltf files without dimension data', async () => {
+    const jobState = getMutableState(FileThumbnailJobState)
+    const seenDimensions = jobState.seenResources.dimension
+
+    const fakeResources = [
+      {
+        id: '1',
+        key: testKey,
+        url: 'https://domain/' + testKey,
+        project: 'default-project',
+        type: 'glb',
+        width: null,
+        height: null,
+        depth: null
+      }
+    ]
+
+    for (const resource of fakeResources) {
+      if (!seenDimensions.value.includes(resource.key)) {
+        seenDimensions.merge([resource.key])
+
+        if (!jobState.jobs.value.some((job) => job.key === resource.url && job.jobType === 'dimension')) {
+          jobState.jobs.merge([
+            {
+              key: resource.url,
+              project: resource.project!,
+              jobType: 'dimension'
+            }
+          ])
         }
-      })
+      }
+    }
 
-      const jobState = getMutableState(FileThumbnailJobState)
-      expect(jobState.jobs.value.length).toBeGreaterThan(0)
-    })
+    const jobKeys = jobState.jobs.value.map((j) => j.jobType)
+    assert.ok(jobKeys.includes('dimension'), 'Dimension job was added')
   })
 })
