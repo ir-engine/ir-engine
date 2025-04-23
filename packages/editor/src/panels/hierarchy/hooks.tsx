@@ -22,8 +22,6 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
-import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { VALID_HEIRARCHY_SEARCH_REGEX } from '@ir-engine/common/src/regex'
 import {
   Entity,
@@ -50,6 +48,7 @@ import { DnDFileType, FileDataType, ItemTypes, SupportedFileTypes } from '../../
 import { addMediaNode } from '../../functions/addMediaNode'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { cmdOrCtrlString, isEntityGlb } from '../../functions/utils'
+import { EditorHelperState } from '../../services/EditorHelperState.ts'
 import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
@@ -98,10 +97,10 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
   const { children, rootEntity, sourceID } = props
   const selectionState = useMutableState(SelectionState)
   const hierarchyTreeState = useMutableState(HierarchyTreeState)
-  const [hideGlbChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.HideGlbChildren])
   const renamingEntity = useHookstate<Entity | null>(null)
   const contextMenu = useHookstate({ entity: UndefinedEntity, anchorEvent: undefined as React.MouseEvent | undefined })
   const entities = useQuery([SourceComponent], Layers.Authoring)
+  const showGlbChildren = useMutableState(EditorHelperState).showGlbChildren
 
   const childEntities = useQuery([EntityTreeComponent], Layers.Authoring)
   const reparentRefresh = useHookstate(0)
@@ -131,11 +130,11 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
   }
 
   const hierarchyNodes = useMemo(
-    () => ecsHierarchyTreeWalker(rootEntity, hideGlbChildren),
+    () => ecsHierarchyTreeWalker(rootEntity, !showGlbChildren.value),
     [
       hierarchyTreeState.expandedNodes[sourceID],
       selectionState.selectedEntities,
-      hideGlbChildren,
+      showGlbChildren,
       entities,
       childEntities,
       reparentRefresh,

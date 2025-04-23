@@ -276,8 +276,6 @@ const findNextSelectionEntity = (topLevelParent: Entity, child: Entity): Entity 
 const inputQuery = defineQuery([InputSourceComponent])
 let clickStartEntity = UndefinedEntity
 
-let hierarchyFeatureFlagEnabled = false
-
 const execute = () => {
   const entity = AvatarComponent.getSelfAvatarEntity()
   if (entity) return
@@ -347,7 +345,7 @@ const execute = () => {
         selectedParentEntity === clickStartEntity ? closestIntersection.entity : selectedParentEntity
 
       // If hiding children of GLB, don't allow those children to be selected (clicking in scene view)
-      if (hierarchyFeatureFlagEnabled && selectedParentEntity) {
+      if (!getState(EditorHelperState).showGlbChildren && selectedParentEntity) {
         const forceSelectGlbParent = isEntityGlb(selectedParentEntity) // && hasComponent(selectedParentEntity, SceneComponent)
         clickStartEntity = forceSelectGlbParent ? selectedParentEntity : selectedEntity //selectedEntity vs clickStartEntity so that we allow closest intersection drill down above to work
       } else {
@@ -441,9 +439,6 @@ const reactor = () => {
   const editorHelperState = useMutableState(EditorHelperState)
   const rendererState = useMutableState(RendererState)
 
-  //@todo remove hardcoded value once feature flag is added to MT
-  const hideGlbChildrenFeatureFlag = [true] // useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.HideGlbChildren])
-
   useEffect(() => {
     // todo figure out how to do these with our input system
     window.addEventListener('copy', copy)
@@ -475,10 +470,6 @@ const reactor = () => {
       removeComponent(viewerEntity, InputComponent)
     }
   }, [viewerEntity])
-
-  useEffect(() => {
-    hierarchyFeatureFlagEnabled = hideGlbChildrenFeatureFlag[0]
-  }, [hideGlbChildrenFeatureFlag])
 
   return null
 }
