@@ -30,7 +30,7 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
 import { Tween } from '@tweenjs/tween.js'
-import { CircleGeometry, DoubleSide, Euler, Mesh, MeshBasicMaterial, RingGeometry, Vector3 } from 'three'
+import { DoubleSide, Euler, Mesh, MeshBasicMaterial, TorusGeometry, Vector3 } from 'three'
 import { LookAtComponent } from '../components/LookAtComponent'
 
 export function createLoadingSpinner(name = 'loading spinner', parentEntity = UndefinedEntity) {
@@ -53,16 +53,10 @@ export function createLoadingSpinner(name = 'loading spinner', parentEntity = Un
   setComponent(sphereEntity, EntityTreeComponent, { parentEntity: rootEntity })
 
   const sphereMesh = new Mesh(
-    new RingGeometry(1.5, 1, 32, 1, 0, (Math.PI * 4) / 3),
+    new TorusGeometry(1, 0.2, 16, 100, Math.PI * 1.5),
     new MeshBasicMaterial({ side: DoubleSide, depthTest: false, color: 0x0077ff })
   )
   setComponent(sphereEntity, MeshComponent, sphereMesh)
-
-  const spinnerMesh = new Mesh(
-    new CircleGeometry(0.8, 64),
-    new MeshBasicMaterial({ side: DoubleSide, depthTest: false, transparent: true })
-  )
-  setComponent(spinnerEntity, MeshComponent, spinnerMesh)
 
   const loadingTransform = getComponent(sphereEntity, TransformComponent)
   const rotator = { rotation: 0 }
