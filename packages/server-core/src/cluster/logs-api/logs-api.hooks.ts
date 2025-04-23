@@ -30,7 +30,7 @@ import hasAction from '../../hooks/has-action'
 import isAction from '../../hooks/is-action'
 import { AnalyticsLogResolver, AnalyticsLogValidator, BQLogValidator } from './analytics-logger'
 
-const copyDataToParam = (property: string) => {
+export const copyDataToParam = (property: string) => {
   return async (context: HookContext<Application>) => {
     if (!context.data || !context.data[property]) return
     context.params[property] = context.data[property]
