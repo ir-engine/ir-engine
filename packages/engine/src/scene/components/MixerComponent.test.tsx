@@ -32,16 +32,24 @@ import {
   EngineState,
   Entity,
   getComponent,
+  getMutableComponent,
+  hasComponent,
   removeComponent,
   removeEntity,
   S,
   serializeComponent,
-  setComponent
+  setComponent,
+  UUIDComponent
 } from '@ir-engine/ecs'
 import { getMutableState, UserID } from '@ir-engine/hyperflux'
-import { initializeSpatialEngine, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
-import { afterEach, assert, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it, vi } from 'vitest'
 import { MixerComponent } from './MixerComponent'
+
+const createEntityWithUUID = () => {
+  const entity = createEntity()
+  setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+  return entity
+}
 
 const testComponent = defineComponent({
   name: 'TestComponent',
@@ -59,8 +67,6 @@ describe('MixerComponent.ts', async () => {
       beforeEach(async () => {
         createEngine()
         getMutableState(EngineState).userID.set('userId' as UserID)
-        initializeSpatialEngine()
-        initializeSpatialViewer()
       })
 
       afterEach(() => {
@@ -75,22 +81,15 @@ describe('MixerComponent.ts', async () => {
         assert.equal(MixerComponent.jsonID, 'IR_mixer')
       })
 
-      it('should set the mixer component initial data', () => {
-        const mixerEntity = createEntity()
+      it('should set the mixer component initial data', async () => {
+        const mixerEntity = createEntityWithUUID()
         const customData = {
           coord: 0,
-          properties: ['not::real::property_a', 'not::real::property_b'],
-          entries: [
-            [
-              0,
-              {
-                'not::real::property_a': [0, 0, 0, 0],
-                'not::real::property_b': [0, 0, 0, 0]
-              }
-            ] as [number, any]
-          ]
+          properties: [],
+          entries: [[0, {}] as [number, any]]
         }
         setComponent(mixerEntity, MixerComponent, customData)
+        await vi.waitUntil(() => getComponent(mixerEntity, MixerComponent).state != null)
         const { state, ...componentData } = getComponent(mixerEntity, MixerComponent)
         assert.deepEqual(componentData, customData)
         // The "state" property isn't serialized, so we ought to check it separately
@@ -109,13 +108,12 @@ describe('MixerComponent.ts', async () => {
       beforeEach(async () => {
         createEngine()
         getMutableState(EngineState).userID.set('userId' as UserID)
-        initializeSpatialEngine()
-        initializeSpatialViewer()
 
-        mixerEntity = createEntity()
-        targetEntity = createEntity()
+        mixerEntity = createEntityWithUUID()
+        targetEntity = createEntityWithUUID()
         setComponent(targetEntity, testComponent)
         setComponent(mixerEntity, MixerComponent)
+        await vi.waitUntil(() => getComponent(mixerEntity, MixerComponent).state != null)
         mixerComp = getComponent(mixerEntity, MixerComponent)
       })
 
@@ -141,7 +139,7 @@ describe('MixerComponent.ts', async () => {
         })
         it('should not add a property to the mixer component if it is not found in the target entity', () => {
           const lastSize = mixerComp.properties.length
-          assert.isNotNull(MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'fake'))
+          assert.isNull(MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'fake'))
           assert.equal(mixerComp.properties.length, lastSize)
           assert.equal(mixerComp.state.properties.size, lastSize)
         })
@@ -151,13 +149,14 @@ describe('MixerComponent.ts', async () => {
         it('should return a function that creates an entry partial for the property', () => {
           const x1Set = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
           const x2Set = MixerComponent.propertySetter(mixerEntity, targetEntity, testComponent, 'x')
+          const xProperty = mixerComp.properties.find((prop) => prop.endsWith('x'))
           assert.isNotNull(x2Set)
           const x1 = 0
           const x1Partial = x1Set(x1)
-          assert.deepEqual(x1Partial.x[0], x1)
+          assert.deepEqual(x1Partial[xProperty][0], x1)
           const x2 = 1
           const x2Partial = x2Set!(x2)
-          assert.deepEqual(x2Partial.x[0], x2)
+          assert.deepEqual(x2Partial[xProperty][0], x2)
         })
         it('should return null if the property was not added to the mixer', () => {
           assert.isNull(MixerComponent.propertySetter(mixerEntity, targetEntity, testComponent, 'fake'))
@@ -183,13 +182,15 @@ describe('MixerComponent.ts', async () => {
       beforeEach(async () => {
         createEngine()
         getMutableState(EngineState).userID.set('userId' as UserID)
-        initializeSpatialEngine()
-        initializeSpatialViewer()
 
-        mixerEntity = createEntity()
-        targetEntity = createEntity()
+        mixerEntity = createEntityWithUUID()
+        targetEntity = createEntityWithUUID()
         setComponent(targetEntity, testComponent)
         setComponent(mixerEntity, MixerComponent)
+        await vi.waitUntil(
+          () =>
+            getComponent(targetEntity, testComponent) != null && getComponent(mixerEntity, MixerComponent).state != null
+        )
         mixerComp = getComponent(mixerEntity, MixerComponent)
       })
 
@@ -197,6 +198,16 @@ describe('MixerComponent.ts', async () => {
         removeEntity(mixerEntity)
         removeEntity(targetEntity)
         return destroyEngine()
+      })
+
+      describe('getDefaultEntry', () => {
+        it('should return an entry with default values for all properties', () => {
+          MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
+          const xProperty = mixerComp.properties.find((prop) => prop.endsWith('x'))
+          const defaultValue = 0
+          const defaultEntry = MixerComponent.getDefaultEntry(mixerEntity, 0)
+          assert.equal(defaultEntry[xProperty][0], defaultValue)
+        })
       })
 
       describe('setEntry', () => {
@@ -217,8 +228,8 @@ describe('MixerComponent.ts', async () => {
           assert.equal(mixerComp.entries.length, lastSize + 1)
           assert.equal(mixerComp.state.entriesByCoord.size, lastSize + 1)
           assert.isNotNull(entry1)
-          assert.equal(entry1?.[xProperty][0], value1)
-          assert.equal(entry1?.[yProperty][0], defaultValue)
+          assert.equal(entry1?.[xProperty]?.[0], value1)
+          assert.equal(entry1?.[yProperty]?.[0], defaultValue)
 
           // We set the entry to a different value for x and y, and check that they are set
           const entry2 = MixerComponent.setEntry(mixerEntity, coord, { ...xSet(value2), ...ySet(value2) })
@@ -228,20 +239,6 @@ describe('MixerComponent.ts', async () => {
           assert.notDeepEqual(entry2, entry1)
           assert.equal(entry2?.[xProperty][0], value2)
           assert.equal(entry2?.[yProperty][0], value2)
-        })
-
-        it('should set a default value for any properties not set in the entry, that is mixed between the two closest entries, weighted by distance', () => {
-          const xSet = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
-          const xProperty = mixerComp.properties.find((prop) => prop.endsWith('x'))
-          const leftValue = 10,
-            rightValue = 20
-          const leftCoord = 10,
-            rightCoord = 11,
-            midCoord = 10.75
-          MixerComponent.setEntry(mixerEntity, leftCoord, xSet(leftValue))
-          MixerComponent.setEntry(mixerEntity, rightCoord, xSet(rightValue))
-          const midEntry = MixerComponent.setEntry(mixerEntity, midCoord, {})
-          assert.equal(midEntry?.[xProperty][0], leftValue * 0.25 + rightValue * 0.75)
         })
       })
 
@@ -264,6 +261,19 @@ describe('MixerComponent.ts', async () => {
           assert.equal(mixerComp.entries.length, lastSize + 1)
           assert.equal(mixerComp.state.entriesByCoord.size, lastSize + 1)
           assert.isNotNull(entry)
+        })
+        it('should provide a value for any properties not set in the entry, that is mixed between the two closest entries, weighted by distance', () => {
+          const xSet = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
+          const xProperty = mixerComp.properties.find((prop) => prop.endsWith('x'))
+          const leftValue = 10,
+            rightValue = 20
+          const leftCoord = 10,
+            rightCoord = 11,
+            midCoord = 10.75
+          MixerComponent.setEntry(mixerEntity, leftCoord, xSet(leftValue))
+          MixerComponent.setEntry(mixerEntity, rightCoord, xSet(rightValue))
+          const midEntry = MixerComponent.appendEntry(mixerEntity, midCoord, {})
+          assert.equal(midEntry?.[xProperty][0], leftValue * 0.25 + rightValue * 0.75)
         })
         it('should change an existing entry, while leaving existing values unchanged', () => {
           const xSet = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
@@ -290,8 +300,8 @@ describe('MixerComponent.ts', async () => {
           // This should not change the number of entries; it should modify the previous one
           assert.equal(mixerComp.entries.length, lastSize + 1)
           assert.equal(mixerComp.state.entriesByCoord.size, lastSize + 1)
-          // The entry should be the same object, though it has been modified
-          assert.equal(entry2, entry1)
+          // The entry should a different object, with the new value for y
+          assert.notEqual(entry2, entry1)
           assert.equal(entry2?.[xProperty][0], xValue)
           assert.equal(entry2?.[yProperty][0], yValue)
         })
@@ -327,13 +337,15 @@ describe('MixerComponent.ts', async () => {
       beforeEach(async () => {
         createEngine()
         getMutableState(EngineState).userID.set('userId' as UserID)
-        initializeSpatialEngine()
-        initializeSpatialViewer()
 
-        mixerEntity = createEntity()
-        targetEntity = createEntity()
+        mixerEntity = createEntityWithUUID()
+        targetEntity = createEntityWithUUID()
         setComponent(targetEntity, testComponent)
         setComponent(mixerEntity, MixerComponent)
+        await vi.waitUntil(
+          () =>
+            getComponent(targetEntity, testComponent) != null && getComponent(mixerEntity, MixerComponent).state != null
+        )
         mixerComp = getComponent(mixerEntity, MixerComponent)
       })
 
@@ -411,13 +423,15 @@ describe('MixerComponent.ts', async () => {
       beforeEach(async () => {
         createEngine()
         getMutableState(EngineState).userID.set('userId' as UserID)
-        initializeSpatialEngine()
-        initializeSpatialViewer()
 
-        mixerEntity = createEntity()
-        targetEntity = createEntity()
+        mixerEntity = createEntityWithUUID()
+        targetEntity = createEntityWithUUID()
         setComponent(targetEntity, testComponent)
         setComponent(mixerEntity, MixerComponent)
+        await vi.waitUntil(
+          () =>
+            getComponent(targetEntity, testComponent) != null && getComponent(mixerEntity, MixerComponent).state != null
+        )
         mixerComp = getComponent(mixerEntity, MixerComponent)
       })
 
@@ -427,8 +441,7 @@ describe('MixerComponent.ts', async () => {
         return destroyEngine()
       })
 
-      it('should correctly serialize and deserialize component data', () => {
-        setComponent(mixerEntity, MixerComponent)
+      it('should correctly serialize and deserialize component data', async () => {
         const xSet = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')
         const ySet = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'y')
         const xValue = 10,
@@ -439,7 +452,14 @@ describe('MixerComponent.ts', async () => {
 
         const serialized = serializeComponent(mixerEntity, MixerComponent)
         removeComponent(mixerEntity, MixerComponent)
+        await vi.waitUntil(() => {
+          return !hasComponent(mixerEntity, MixerComponent)
+        })
         deserializeComponent(mixerEntity, MixerComponent, serialized)
+        await vi.waitUntil(() => {
+          mixerComp = getComponent(mixerEntity, MixerComponent)
+          return mixerComp.state != null
+        })
 
         const { state: state2, ...componentData2 } = getComponent(mixerEntity, MixerComponent)
         assert.deepEqual(componentData2, componentData1)
@@ -453,6 +473,49 @@ describe('MixerComponent.ts', async () => {
         const testComp = getComponent(targetEntity, testComponent)
         assert.equal(testComp.x, xValue)
         assert.equal(testComp.y, yValue)
+      })
+    })
+    describe('Reactor', () => {
+      let targetEntity: Entity
+      let mixerEntity: Entity
+      let mixerComp: any
+      let targetComp: any
+
+      beforeEach(async () => {
+        createEngine()
+        getMutableState(EngineState).userID.set('userId' as UserID)
+
+        mixerEntity = createEntityWithUUID()
+        targetEntity = createEntityWithUUID()
+        setComponent(targetEntity, testComponent)
+        setComponent(mixerEntity, MixerComponent)
+        await vi.waitUntil(() => {
+          targetComp = getComponent(targetEntity, testComponent)
+          mixerComp = getComponent(mixerEntity, MixerComponent)
+          return targetComp != null && mixerComp.state != null
+        })
+      })
+
+      afterEach(() => {
+        removeEntity(mixerEntity)
+        removeEntity(targetEntity)
+        return destroyEngine()
+      })
+
+      describe('coord', () => {
+        it('should cause the target entity properties to be set to the mixed value of the entries at the mixer coord', async () => {
+          const xSet = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
+          const leftValue = 10,
+            rightValue = 20
+          const leftCoord = 10,
+            rightCoord = 11,
+            midCoord = leftCoord * 0.25 + rightCoord * 0.75
+          MixerComponent.setEntry(mixerEntity, leftCoord, xSet(leftValue))
+          MixerComponent.setEntry(mixerEntity, rightCoord, xSet(rightValue))
+          getMutableComponent(mixerEntity, MixerComponent).coord.set(midCoord)
+          // The reactor should run and set the target entity properties to the mixed value
+          await vi.waitUntil(() => targetComp.x === leftValue * 0.25 + rightValue * 0.75)
+        })
       })
     })
   })

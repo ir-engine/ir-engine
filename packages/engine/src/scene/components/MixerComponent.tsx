@@ -147,6 +147,7 @@ type MixerState = {
   properties: Map<string, Property>
   entriesByCoord: Map<number, [Entry, number]>
   sortedEntries: [number, Entry][]
+  needsUpdate: boolean
 }
 
 const schema = S.Object({
@@ -161,8 +162,7 @@ export const MixerComponent = defineComponent({
   jsonID: 'IR_mixer',
   schema,
 
-  reactor: (props: { mixerEntity: Entity }) => {
-    const entity = props.mixerEntity
+  reactor: ({ entity }: { entity: Entity }) => {
     const mixerComp = useComponent(entity, MixerComponent)
 
     useEffect(() => {
@@ -182,14 +182,13 @@ export const MixerComponent = defineComponent({
       const entriesByCoord = new Map<number, [Entry, number]>(
         compEntries.map(([coord, entry], index) => [coord, [entry, index]])
       )
-      const sortedEntries = compEntries.toSorted(([aCoord], [bCoord]) => aCoord - bCoord)
-      mixerComp.state.set({ properties, entriesByCoord, sortedEntries })
+      mixerComp.state.set({
+        properties,
+        entriesByCoord,
+        sortedEntries: [],
+        needsUpdate: true
+      })
     }, [])
-
-    useEffect(() => {
-      const compEntries = mixerComp.entries.value as [number, Entry][]
-      mixerComp.state.sortedEntries.set(compEntries.toSorted(([aCoord], [bCoord]) => aCoord - bCoord))
-    }, [mixerComp.entries])
 
     useEffect(() => {
       MixerComponent.mix(entity)
@@ -201,7 +200,6 @@ export const MixerComponent = defineComponent({
   mix: (mixerEntity: Entity): void => {
     const mixerComp = getComponent(mixerEntity, MixerComponent)
     const mixed = MixerComponent.getMixedEntry(mixerEntity, mixerComp.coord)
-
     for (const [
       propertyAddress,
       {
@@ -211,14 +209,23 @@ export const MixerComponent = defineComponent({
     ] of mixerComp.state.properties) {
       const entity = UUIDComponent.getEntityByUUID(entityUUID)
       setComponent(entity, ComponentJSONIDMap.get(componentID)!, {
-        [propertyPath]: mixed[propertyAddress] // TODO: support properties nestled in schema
+        [propertyPath]: mixFuncs[type].fromNumberList(mixed[propertyAddress]) // TODO: support properties nestled in schema
       })
     }
   },
 
   getMixedEntry: (mixerEntity: Entity, coord: number): Entry => {
     const mixerComp = getComponent(mixerEntity, MixerComponent)
+    if (mixerComp.state.needsUpdate) {
+      mixerComp.state.sortedEntries = mixerComp.entries.toSorted(([aCoord], [bCoord]) => aCoord - bCoord)
+      mixerComp.state.needsUpdate = false
+    }
     const sortedEntries = mixerComp.state.sortedEntries
+
+    if (sortedEntries.length === 0) return MixerComponent.getDefaultEntry(mixerEntity, coord)
+    if (sortedEntries.length === 1)
+      return Object.fromEntries(Object.entries(sortedEntries[0][1]).map(([key, value]) => [key, [...value]]))
+
     const lastCoord = sortedEntries.length - 1
     // binary search
     let left = 0,
@@ -238,8 +245,9 @@ export const MixerComponent = defineComponent({
     if (sortedEntries[mid][0] > coord) {
       mid--
     }
-    const from = mid,
-      to = Math.min(lastCoord, from + 1)
+    const from = mid
+    const to = Math.min(lastCoord, from + 1)
+
     const [fromCoord, fromEntry] = sortedEntries[from]
     const [toCoord, toEntry] = sortedEntries[to]
     const p = from === to ? 1 : (coord - fromCoord) / (toCoord - fromCoord)
@@ -251,7 +259,7 @@ export const MixerComponent = defineComponent({
           fromValue == null || toValue == null
             ? mixFuncs[type].create(fromValue ?? toValue)
             : mixFuncs[type].lerp(fromValue, toValue, p)
-        return [propertyAddress, value]
+        return [propertyAddress, mixFuncs[type].toNumberList(value)]
       })
     )
   },
@@ -317,16 +325,27 @@ export const MixerComponent = defineComponent({
     return mixerComp.state.entriesByCoord.get(coord)?.[0] ?? null
   },
 
+  getDefaultEntry: (mixerEntity: Entity, coord: number): Entry => {
+    const mixerComp = getComponent(mixerEntity, MixerComponent)
+    return Object.fromEntries(
+      mixerComp.state.properties
+        .entries()
+        .map(([propertyAddress, { type }]) => [propertyAddress, mixFuncs[type].toNumberList(mixFuncs[type].create())])
+    )
+  },
+
   setEntry: (mixerEntity: Entity, coord: number, entry: Entry): Entry => {
+    entry = { ...MixerComponent.getDefaultEntry(mixerEntity, coord), ...entry }
     const mixerComp = getComponent(mixerEntity, MixerComponent)
     const index = mixerComp.state.entriesByCoord.get(coord)?.[1] ?? mixerComp.entries.length
     mixerComp.state.entriesByCoord.set(coord, [entry, index])
     mixerComp.entries[index] = [coord, entry]
+    mixerComp.state.needsUpdate = true
     return entry
   },
 
-  appendEntry: (mixerEntity: Entity, coord: number, entry: Entry) => {
-    MixerComponent.setEntry(mixerEntity, coord, {
+  appendEntry: (mixerEntity: Entity, coord: number, entry: Entry): Entry => {
+    return MixerComponent.setEntry(mixerEntity, coord, {
       ...MixerComponent.getMixedEntry(mixerEntity, coord),
       ...entry
     })
@@ -343,5 +362,6 @@ export const MixerComponent = defineComponent({
       mixerComp.entries[index] = mixerComp.entries.pop()!
       mixerComp.state.entriesByCoord.set(mixerComp.entries[index][0], [mixerComp.entries[index][1], index])
     }
+    mixerComp.state.needsUpdate = true
   }
 })
