@@ -29,6 +29,7 @@ import {
   PresentationSystemGroup,
   QueryReactor,
   defineSystem,
+  getAuthoringCounterpart,
   removeEntityNodeRecursively,
   useComponent,
   useHasComponent,
@@ -42,9 +43,10 @@ import React, { useEffect, useRef } from 'react'
 
 const LoadingSpinnerReactor = (props: { entity: Entity }) => {
   const { entity } = props
-  const gltfComponent = useComponent(entity, GLTFComponent)
-  const errors = !!useOptionalComponent(entity, ErrorComponent)?.value?.[GLTFComponent.name]
-  const loaded = GLTFComponent.useSceneLoaded(entity)
+  const authoringCounterpart = getAuthoringCounterpart(entity)
+  const gltfComponent = useComponent(authoringCounterpart, GLTFComponent)
+  const errors = !!useOptionalComponent(authoringCounterpart, ErrorComponent)?.value?.[GLTFComponent.name]
+  const loaded = GLTFComponent.useSceneLoaded(authoringCounterpart)
   const isScene = useHasComponent(entity, SceneComponent)
   const spinnerEntity = useRef<Entity | null>(null)
   const shouldHaveSpinned = !isScene && !!gltfComponent.src.value && !errors && !loaded
@@ -65,6 +67,6 @@ export const ModelLoadingSpinnerSystem = defineSystem({
   uuid: 'ee.editor.ModelLoadingSpinnerSystem',
   insert: { before: PresentationSystemGroup },
   reactor: () => (
-    <QueryReactor ChildEntityReactor={LoadingSpinnerReactor} Components={[GLTFComponent]} layer={Layers.Authoring} />
+    <QueryReactor ChildEntityReactor={LoadingSpinnerReactor} Components={[GLTFComponent]} layer={Layers.Simulation} />
   )
 })
