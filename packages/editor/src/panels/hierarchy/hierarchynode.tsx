@@ -383,7 +383,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     }
     canSaveNodeChanges.set(userHasProjectPermission(permission, ['owner', 'editor']))
   }
-  console.log(currentRenameNode.value, rootEntity === entity)
+
   return (
     <li
       key={node.depth + ' ' + props.index + ' ' + entity}
