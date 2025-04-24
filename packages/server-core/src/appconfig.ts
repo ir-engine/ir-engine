@@ -455,6 +455,13 @@ const metabase = {
   environment: process.env.METABASE_ENVIRONMENT
 }
 
+const readyPlayerMe = {
+  appId: process.env.READY_PLAYER_ME_APP_ID,
+  api: process.env.READY_PLAYER_ME_API,
+  apiKey: process.env.READY_PLAYER_ME_API_KEY,
+  partner: process.env.READY_PLAYER_ME_PARTNER
+}
+
 /**
  * Full config
  */
@@ -488,7 +495,8 @@ const config = {
     typeof process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'undefined' || process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'true',
   fsProjectSyncEnabled: process.env.FS_PROJECT_SYNC_ENABLED === 'false' ? false : true,
   zendesk,
-  metabase
+  metabase,
+  readyPlayerMe
 }
 
 chargebeeInst.configure({

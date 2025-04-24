@@ -149,5 +149,11 @@ export const EngineSettings = {
       SecretAccessKey: 'eks.secretAccessKey',
       RoleArn: 'eks.roleArn'
     }
+  },
+  ReadyPlayerMe: {
+    appId: 'appId',
+    api: 'api',
+    apiKey: 'apiKey',
+    partner: 'partner'
   }
 }

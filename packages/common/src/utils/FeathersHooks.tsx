@@ -131,7 +131,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
   const fetchRef = useRef<() => void>()
   fetchRef.current = () => {
     const state = getMutableState(FeathersState)[serviceName][queryId]
-    if (method === 'get' && (!args || args[0] == null || args[0] === '')) {
+    if (method === 'get' && (!args || args[0] == null || args[0] === '' || args[0] === undefined) && !args[1]) {
       state.merge({
         status: 'error',
         error: 'Get method requires an id or query object'

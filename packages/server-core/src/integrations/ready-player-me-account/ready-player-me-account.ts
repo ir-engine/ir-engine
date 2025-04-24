@@ -23,8 +23,38 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import MetabaseUrl from './metabase/metabase-url/metabase-url'
-import ReadyPlayerMeAccount from './ready-player-me-account/ready-player-me-account'
-import ZendeskAuthentication from './zendesk/zendesk'
+import {
+  readyPlayerMeAccountMethods,
+  readyPlayerMeAccountPath
+} from '@ir-engine/common/src/schemas/integrations/ready-player-me/ready-player-me.schema'
 
-export default [ZendeskAuthentication, MetabaseUrl, ReadyPlayerMeAccount]
+import { Application } from '../../../declarations'
+import { ReadyPlayerMeAccountService } from './ready-player-me-account.class'
+import ReadyPlayerMeDocs from './ready-player-me-account.docs'
+import hooks from './ready-player-me-account.hooks'
+
+declare module '@ir-engine/common/declarations' {
+  interface ServiceTypes {
+    [readyPlayerMeAccountPath]: ReadyPlayerMeAccountService
+  }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: readyPlayerMeAccountPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: false
+  }
+
+  app.use(readyPlayerMeAccountPath, new ReadyPlayerMeAccountService(options), {
+    // A list of all methods this service exposes externally
+    methods: readyPlayerMeAccountMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: ReadyPlayerMeDocs
+  })
+
+  const service = app.service(readyPlayerMeAccountPath)
+  service.hooks(hooks)
+}

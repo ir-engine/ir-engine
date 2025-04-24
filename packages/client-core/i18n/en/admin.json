@@ -603,7 +603,15 @@
         "subtitle": "Edit Zendesk Settings"
       },
       "keyName": "key Name",
-      "kid": "Key Id"
+      "kid": "Key Id",
+      "readyPlayerMe": {
+        "header": "Ready Player Me",
+        "subtitle": "Edit Ready Player Me Settings",
+        "appId": "App ID",
+        "api": "Api URL",
+        "apiKey": "Api Key",
+        "partner": "Partner"
+      }
     },
     "avatar": {
       "columns": {

@@ -33,6 +33,7 @@ export type * from './schemas/cluster/logs-api.schema'
 export type * from './schemas/cluster/migrations-info.schema'
 export type * from './schemas/cluster/pods.schema'
 export type * from './schemas/integrations/metabase/metabase-url.schema'
+export type * from './schemas/integrations/ready-player-me/ready-player-me.schema'
 export type * from './schemas/integrations/zendesk/zendesk.schema'
 export type * from './schemas/matchmaking/match-instance.schema'
 export type * from './schemas/matchmaking/match-user.schema'
@@ -280,6 +281,8 @@ export const invalidationPath = 'invalidation'
 export const imageConvertPath = 'image-convert'
 
 export const zendeskPath = 'zendesk'
+
+export const readyPlayerMeAccountPath = 'ready-player-me-account'
 
 export const projectHistoryPath = 'project-history'
 

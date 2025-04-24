@@ -23,8 +23,25 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import MetabaseUrl from './metabase/metabase-url/metabase-url'
-import ReadyPlayerMeAccount from './ready-player-me-account/ready-player-me-account'
-import ZendeskAuthentication from './zendesk/zendesk'
+import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+import {
+  ReadyPlayerMeAccountData,
+  ReadyPlayerMeAccountType
+} from '@ir-engine/common/src/schemas/integrations/ready-player-me/ready-player-me.schema'
 
-export default [ZendeskAuthentication, MetabaseUrl, ReadyPlayerMeAccount]
+export interface ReadyPlayerMeAccountParams extends KnexAdapterParams {}
+
+/**
+ * A class for ReadyPlayerMe service
+ */
+
+export class ReadyPlayerMeAccountService<
+  T = ReadyPlayerMeAccountType,
+  ServiceParams extends Params = ReadyPlayerMeAccountParams
+> extends KnexService<
+  ReadyPlayerMeAccountType,
+  ReadyPlayerMeAccountData,
+  ReadyPlayerMeAccountParams,
+  ReadyPlayerMeAccountData
+> {}

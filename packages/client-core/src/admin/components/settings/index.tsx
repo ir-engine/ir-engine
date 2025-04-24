@@ -39,6 +39,7 @@ import HelmTab from './tabs/helm'
 import InstanceServerTab from './tabs/instanceServer'
 import MetabaseTab from './tabs/metabase'
 import ProjectTab from './tabs/project'
+import ReadyPlayerMeTab from './tabs/readyPlayerMe'
 import RedisTab from './tabs/redis'
 import ServerTab from './tabs/server'
 import TaskServerTab from './tabs/taskServer'
@@ -97,6 +98,10 @@ export const SettingsTabsData = [
   {
     label: t('admin:components.setting.zendesk.header'),
     Component: ZendeskTab
+  },
+  {
+    label: t('admin:components.setting.readyPlayerMe.header'),
+    Component: ReadyPlayerMeTab
   }
 ]
 

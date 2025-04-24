@@ -23,8 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import MetabaseUrl from './metabase/metabase-url/metabase-url'
-import ReadyPlayerMeAccount from './ready-player-me-account/ready-player-me-account'
-import ZendeskAuthentication from './zendesk/zendesk'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export default [ZendeskAuthentication, MetabaseUrl, ReadyPlayerMeAccount]
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Ready Player Me Account service description',
+    securities: ['all']
+  }
+})

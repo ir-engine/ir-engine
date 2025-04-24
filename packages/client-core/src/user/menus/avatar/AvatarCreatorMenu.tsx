@@ -30,8 +30,10 @@ import config from '@ir-engine/common/src/config'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@ir-engine/common/src/constants/AvatarConstants'
 
 import { getCanvasBlob } from '@ir-engine/client-core/src/common/utils'
+import { useGet, useMutation } from '@ir-engine/common'
 import multiLogger from '@ir-engine/common/src/logger'
-import { useHookstate } from '@ir-engine/hyperflux'
+import { readyPlayerMeAccountPath } from '@ir-engine/common/src/schema.type.module'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { Button, Input } from '@ir-engine/ui'
 import { ArrowLeftLg, XCloseLg } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
@@ -39,6 +41,7 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import AvatarPreview from '../../../common/components/AvatarPreview'
 import { ModalState } from '../../../common/services/ModalState'
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../util/avatarIdFunctions'
+import { AuthState } from '../../services/AuthService'
 import { AvatarService } from '../../services/AvatarService'
 import { DiscardAvatarChangesMenu } from './DiscardAvatarChangesMenu'
 
@@ -71,24 +74,30 @@ const AvatarCreatorMenu = (selectedSdk: string) =>
   forwardRef((props: AvatarCreatorMenuProps, ref) => {
     const { previewEnabled = true, previewDisabledMessage } = props
     const { t } = useTranslation()
+    const authState = useMutableState(AuthState)
+    const userId = authState.user?.id?.value
     const selectedBlob = useHookstate<Blob | null>(null)
     const thumbnail = useHookstate<Blob | null>(null)
     const avatarName = useHookstate('')
     const avatarUrl = useHookstate('')
     const loading = useHookstate(LoadingState.LoadingCreator)
     const error = useHookstate('')
-
+    const readyPlayerMeMutation = useMutation(readyPlayerMeAccountPath)
     const logger = multiLogger.child({ component: 'client-core:AvatarCreatorMenu' })
 
-    const getSdkUrl = () => {
-      switch (selectedSdk) {
-        case SupportedSdks.Avaturn:
-          return config.client.avaturnUrl
-        case SupportedSdks.ReadyPlayerMe:
-        default:
-          return config.client.readyPlayerMeUrl
+    const readyPlayerMeAccount = useGet(readyPlayerMeAccountPath, undefined, {
+      query: {
+        userId: userId
       }
-    }
+    })
+
+    useEffect(() => {
+      // If the condition is met, there's likely a token in cache that has already been used;
+      // therefore, a refetch is needed.
+      if (readyPlayerMeAccount.status === 'success') {
+        readyPlayerMeAccount.refetch()
+      }
+    }, [])
 
     useEffect(() => {
       window.addEventListener('message', handleMessageEvent)
@@ -98,9 +107,22 @@ const AvatarCreatorMenu = (selectedSdk: string) =>
     }, [])
 
     useEffect(() => {
-      const rpmIframe = document.getElementById('rpm-iframe') as HTMLIFrameElement
-      rpmIframe.src = getSdkUrl() as string
-    }, [])
+      const setSdkUrl = async (token?: string) => {
+        const rpmIframe = document.getElementById('rpm-iframe') as HTMLIFrameElement
+        let url = ''
+        if (selectedSdk === SupportedSdks.Avaturn) {
+          url = config.client.avaturnUrl as string
+        } else {
+          const tokenParam = token ? `&clearCache&token=${token}` : ''
+          url = `${config.client.readyPlayerMeUrl}${tokenParam}`
+        }
+        rpmIframe.src = url
+      }
+
+      if (readyPlayerMeAccount.status !== 'pending') {
+        setSdkUrl(readyPlayerMeAccount.data?.token)
+      }
+    }, [readyPlayerMeAccount])
 
     const export2DReadyPlayerMeAvatar = async (avatarId: string): Promise<Blob> => {
       const res = await fetch(
@@ -136,8 +158,9 @@ const AvatarCreatorMenu = (selectedSdk: string) =>
         return
       }
 
+      const rpmIframe = document.getElementById('rpm-iframe') as HTMLIFrameElement
+
       if (message.eventName === 'v1.frame.ready') {
-        const rpmIframe = document.getElementById('rpm-iframe') as HTMLIFrameElement
         rpmIframe?.contentWindow?.postMessage(
           JSON.stringify({
             target: 'readyplayerme',
@@ -149,6 +172,14 @@ const AvatarCreatorMenu = (selectedSdk: string) =>
       }
 
       if (message.eventName === 'v1.avatar.exported') {
+        rpmIframe?.contentWindow?.postMessage(
+          JSON.stringify({
+            target: 'readyplayerme',
+            type: 'query',
+            eventName: 'v1.user.logout'
+          }),
+          '*'
+        )
         loading.set(LoadingState.Downloading)
         error.set('')
         avatarName.set(message.data.avatarId)
@@ -168,6 +199,14 @@ const AvatarCreatorMenu = (selectedSdk: string) =>
           error.set(t('user:usermenu.avatar.selectValidFile'))
           loading.set(LoadingState.None)
         }
+      }
+
+      if (message.eventName === 'v1.user.authorized' && !!readyPlayerMeAccount.data?.id) {
+        await readyPlayerMeMutation.patch(readyPlayerMeAccount.data?.id, {
+          type: 'linked',
+          readyPlayerMeUserId: message.data.id
+        })
+        readyPlayerMeAccount.refetch()
       }
     }
 

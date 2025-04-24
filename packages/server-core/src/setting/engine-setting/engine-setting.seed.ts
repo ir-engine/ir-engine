@@ -420,6 +420,28 @@ export async function seed(knex: Knex): Promise<void> {
     ],
     'email'
   )
+
+  const readyPlayerMeSeedData = await generateSeedData(
+    [
+      {
+        key: EngineSettings.ReadyPlayerMe.appId,
+        value: process.env.READY_PLAYER_ME_APP_ID || ''
+      },
+      {
+        key: EngineSettings.ReadyPlayerMe.api,
+        value: process.env.READY_PLAYER_ME_API || ''
+      },
+      {
+        key: EngineSettings.ReadyPlayerMe.apiKey,
+        value: process.env.READY_PLAYER_ME_API_KEY || ''
+      },
+      {
+        key: EngineSettings.ReadyPlayerMe.partner,
+        value: process.env.READY_PLAYER_ME_PARTNER || ''
+      }
+    ],
+    'ready-player-me'
+  )
   const seedData: EngineSettingType[] = [
     ...taskServerSeedData,
     ...chargebeeSettingSeedData,
@@ -432,7 +454,8 @@ export async function seed(knex: Knex): Promise<void> {
     ...zendeskSettingSeedData,
     ...helmSeedData,
     ...awsSeedData,
-    ...emailSeedData
+    ...emailSeedData,
+    ...readyPlayerMeSeedData
   ]
 
   if (forceRefresh || testEnabled) {
