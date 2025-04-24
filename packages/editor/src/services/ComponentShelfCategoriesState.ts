@@ -191,5 +191,7 @@ export const ComponentShelfCategoriesState = defineState({
         }
       }
     }, [screenshareTargetEnabled])
+
+    return null
   }
 })
