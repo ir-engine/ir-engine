@@ -137,7 +137,7 @@ export function Browser() {
       <InfiniteScroll
         disableEvent={!filesQuery || filesQuery.limit >= filesQuery?.total}
         onScrollBottom={() => {
-          filesQuery?.setLimit(filesQuery.limit + 10)
+          filesQuery?.setLimit(filesQuery.limit + FILES_PAGE_LIMIT)
         }}
       >
         <div className="relative mt-auto flex h-full w-full flex-wrap gap-2">
