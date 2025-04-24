@@ -66,6 +66,7 @@ const Accordion = forwardRef(
             'flex w-full cursor-pointer flex-col items-center justify-between gap-y-2 border-[0.5px] border-ui-outline bg-surface-3 p-2',
             openState ? 'rounded-t-md' : ''
           )}
+          data-testid="accordion-header"
           onClick={() => {
             setOpenState((v) => !v)
           }}
@@ -74,6 +75,7 @@ const Accordion = forwardRef(
             <h2 className="flex-1 truncate text-base font-semibold leading-4 text-text-primary">{title}</h2>
             <ChevronDownLg
               className={twMerge('h-5 w-5 text-text-primary duration-300', openState ? 'rotate-180' : '')}
+              data-testid={openState ? 'close-accordion-icon' : 'open-accordion-icon'}
             />
           </div>
 
@@ -83,7 +85,7 @@ const Accordion = forwardRef(
         <div
           className={twMerge(
             'w-full origin-top overflow-hidden border-[0.5px] border-ui-outline bg-surface-1 transition-[max-height] duration-300 ease-in-out',
-            openState ? 'rounded-b-md' : ''
+            openState ? 'rounded-b-md border-t-0' : 'border-none'
           )}
           style={{
             maxHeight

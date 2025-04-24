@@ -24,26 +24,38 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
-import { EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
+import {
+  EntityTreeComponent,
+  getAncestorWithComponents,
+  getChildrenWithComponents,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import {
   ComponentType,
   getAllComponents,
   getComponent,
   getOptionalComponent,
   hasComponent,
+  LayerComponent,
+  Layers,
   serializeComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { getState } from '@ir-engine/hyperflux'
+import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
+import { destroy, getState, hookstate, startReactor, State, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import {
+  MaterialInstanceComponent,
   MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { injectMaterialDefaults } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { useEffect } from 'react'
 import {
+  AnimationClip,
   BufferAttribute,
   BufferGeometry,
   ClampToEdgeWrapping,
@@ -59,18 +71,43 @@ import {
   MathUtils,
   Matrix4,
   Mesh,
+  MeshPhysicalMaterial,
   MirroredRepeatWrapping,
   NearestFilter,
   NearestMipmapLinearFilter,
   NearestMipmapNearestFilter,
+  NumberKeyframeTrack,
+  Quaternion,
+  QuaternionKeyframeTrack,
   RepeatWrapping,
-  Texture
+  SkinnedMesh,
+  Texture,
+  Vector3,
+  VectorKeyframeTrack
 } from 'three'
 import { baseName, pathJoin, relativePathTo } from '../assets/functions/miscUtils'
 import { STATIC_ASSET_REGEX } from '../assets/functions/pathResolver'
+import { AnimationComponent, getEntityUUIDFromTrack } from '../avatar/components/AnimationComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { handleScenePaths } from '../scene/functions/GLTFConversion'
 import { GLTFComponent } from './GLTFComponent'
+import {
+  EXTBumpExtensionComponent,
+  KHRAnisotropyExtensionComponent,
+  KHRClearcoatExtensionComponent,
+  KHREmissiveStrengthExtensionComponent,
+  KHRIorExtensionComponent,
+  KHRIridescenceExtensionComponent,
+  KHRSheenExtensionComponent,
+  KHRSpecularExtensionComponent,
+  KHRTextureTransformExtensionComponent,
+  KHRTransmissionExtensionComponent,
+  KHRVolumeExtensionComponent,
+  MaterialColorValue,
+  MaterialNumberValue,
+  MaterialTextureValue,
+  MaterialValue
+} from './MaterialExtensionComponents'
 import { NodeIDComponent } from './NodeIDComponent'
 import { SceneDeltaExporterExtension } from './SceneDeltaExporterExtension'
 
@@ -141,19 +178,6 @@ const getMinMax = (attribute: BufferAttribute, start: number, count: number) => 
 
 const KHR_MESH_QUANTIZATION = 'KHR_mesh_quantization'
 
-const THREE_TO_WEBGL = {}
-
-THREE_TO_WEBGL[NearestFilter] = WEBGL_CONSTANTS.NEAREST
-THREE_TO_WEBGL[NearestMipmapNearestFilter] = WEBGL_CONSTANTS.NEAREST_MIPMAP_NEAREST
-THREE_TO_WEBGL[NearestMipmapLinearFilter] = WEBGL_CONSTANTS.NEAREST_MIPMAP_LINEAR
-THREE_TO_WEBGL[LinearFilter] = WEBGL_CONSTANTS.LINEAR
-THREE_TO_WEBGL[LinearMipmapNearestFilter] = WEBGL_CONSTANTS.LINEAR_MIPMAP_NEAREST
-THREE_TO_WEBGL[LinearMipmapLinearFilter] = WEBGL_CONSTANTS.LINEAR_MIPMAP_LINEAR
-
-THREE_TO_WEBGL[ClampToEdgeWrapping] = WEBGL_CONSTANTS.CLAMP_TO_EDGE
-THREE_TO_WEBGL[RepeatWrapping] = WEBGL_CONSTANTS.REPEAT
-THREE_TO_WEBGL[MirroredRepeatWrapping] = WEBGL_CONSTANTS.MIRRORED_REPEAT
-
 const PATH_PROPERTIES = {
   scale: 'scale',
   position: 'translation',
@@ -184,17 +208,23 @@ export interface GLTFSceneExportExtension {
 }
 
 type GLTFSceneExportContext = {
+  rootEntity: Entity
   sourceID: string
   buffers: ArrayBuffer[]
   extensionsUsed: Set<string>
   exportExtensions: GLTFSceneExportExtension[]
   projectName: string
   relativePath: string
+  entityPromises: Map<Entity, Promise<any>>
+  materialPromises: State<Record<Entity, number>>
   cache: {
+    entities: Map<Entity, number>
     meshes: Map<Mesh, number>
+    skins: Map<SkinnedMesh, number>
     materials: Map<Material, number>
     textures: Map<Texture, number>
     images: Map<ImageBitmap | string, number>
+    samplers: Map<string, number>
     attributes: Map<BufferAttribute | InterleavedBufferAttribute, number>
   }
 }
@@ -231,7 +261,7 @@ export function splitMeshByMaterials(originalMesh: Mesh): Mesh[] {
 
   // For each group, slice out the sub-geometry
   for (const group of geometry.groups) {
-    const subGeom = createSubGeometry(geometry as BufferGeometry, group.start, group.count)
+    const subGeom = createSubGeometry(geometry, group.start, group.count)
     const subMaterial = group.materialIndex
       ? materialsArray[group.materialIndex] || materialsArray[0]
       : materialsArray[0]
@@ -265,11 +295,12 @@ function createSubGeometry(originalGeometry: BufferGeometry, start: number, coun
 
   // 2) Determine if we need 32-bit indices by checking the largest index
   let maxIndex = 0
-  for (let i = 0; i < groupIndices.length; i++) {
-    if (groupIndices[i] > maxIndex) {
-      maxIndex = groupIndices[i]
+  for (const index of groupIndices) {
+    if (index > maxIndex) {
+      maxIndex = index
     }
   }
+
   const needs32Bits = maxIndex > 65535
 
   // 3) Build a map from oldIndex -> newIndex in encounter order
@@ -291,9 +322,7 @@ function createSubGeometry(originalGeometry: BufferGeometry, start: number, coun
 
   subGeometry.setIndex(new BufferAttribute(newIndices, 1))
 
-  // 4) For each attribute (position, normal, uv, etc.), build the new array
-  for (const attrName in originalGeometry.attributes) {
-    const oldAttr = originalGeometry.attributes[attrName] as BufferAttribute
+  const createAttribute = (oldAttr) => {
     const { itemSize } = oldAttr
     const oldArray = oldAttr.array
 
@@ -309,8 +338,28 @@ function createSubGeometry(originalGeometry: BufferGeometry, start: number, coun
     }
 
     const newAttr = new BufferAttribute(newArray, itemSize)
+    return newAttr
+  }
+
+  // 4) For each attribute (position, normal, uv, etc.), build the new array
+  for (const attrName in originalGeometry.attributes) {
+    const oldAttr = originalGeometry.attributes[attrName] as BufferAttribute
+    const newAttr = createAttribute(oldAttr)
     subGeometry.setAttribute(attrName, newAttr)
   }
+
+  for (const morphAttr in originalGeometry.morphAttributes) {
+    const oldAttrArr = originalGeometry.morphAttributes[morphAttr]
+    if (!oldAttrArr.length) continue
+
+    const attrArr = [] as (BufferAttribute | InterleavedBufferAttribute)[]
+    for (const oldAttr of oldAttrArr) {
+      attrArr.push(createAttribute(oldAttr))
+    }
+
+    subGeometry.morphAttributes[morphAttr] = attrArr
+  }
+  subGeometry.morphTargetsRelative = originalGeometry.morphTargetsRelative
 
   return subGeometry
 }
@@ -334,14 +383,18 @@ export async function exportGLTFScene(
   for (const extension of exportExtensions) extension.before?.(entity, gltf)
 
   const cache = {
+    entities: new Map<Entity, number>(),
     meshes: new Map<Mesh, number>(),
+    skins: new Map<SkinnedMesh, number>(),
     materials: new Map<Material, number>(),
     textures: new Map<Texture, number>(),
     images: new Map<ImageBitmap | string, number>(),
+    samplers: new Map<string, number>(),
     attributes: new Map<BufferAttribute | InterleavedBufferAttribute, number>()
   }
 
   const context: GLTFSceneExportContext = {
+    rootEntity: entity,
     sourceID: hasComponent(entity, GLTFComponent)
       ? GLTFComponent.getInstanceID(entity)
       : getComponent(entity, SourceComponent),
@@ -350,21 +403,32 @@ export async function exportGLTFScene(
     exportExtensions,
     projectName,
     relativePath,
+    materialPromises: hookstate({} as Record<Entity, number>),
+    entityPromises: new Map<Entity, Promise<number | undefined>>(),
     cache
   }
 
   if (exportRoot) {
-    const rootIndex = await exportGLTFSceneNode(entity, gltf, context)
-    if (typeof rootIndex === 'number') gltf.scenes![0].nodes.push(rootIndex)
+    context.entityPromises.set(entity, exportEntity(entity, gltf, context))
   } else {
-    const indices: number[] = []
     const children = getComponent(entity, EntityTreeComponent).children
     for (const child of children) {
-      const index = await exportGLTFSceneNode(child, gltf, context)
-      if (typeof index === 'number') indices.push(index)
+      const promise = exportEntity(child, gltf, context)
+      promise.then((index) => {
+        if (typeof index === 'number') gltf.scenes![0].nodes.push(index)
+      })
+      context.entityPromises.set(child, promise)
     }
-    gltf.scenes![0].nodes.push(...indices)
   }
+
+  await Promise.all(context.entityPromises.values())
+
+  const animationEntities = getChildrenWithComponents(entity, [AnimationComponent])
+  const animationPromises = [exportAnimations(entity, gltf, context)] as Promise<void>[]
+  for (const animEntity of animationEntities) {
+    animationPromises.push(exportAnimations(animEntity, gltf, context))
+  }
+  await Promise.all(animationPromises)
 
   if (context.extensionsUsed.size) gltf.extensionsUsed = [...context.extensionsUsed]
   handleScenePaths(gltf, 'encode')
@@ -403,6 +467,9 @@ export async function exportGLTFScene(
 
   for (const extension of exportExtensions) extension.after?.(entity, gltf)
 
+  // destroy hookstate store
+  destroy(context.materialPromises)
+
   if (!gltf) return []
 
   // const blob = [new Blob([JSON.stringify(gltf, null, 2)], { type: 'application/gltf+json' })]
@@ -410,17 +477,36 @@ export async function exportGLTFScene(
   return [gltf, ...files]
 }
 
+const awaitMaterial = (materialEntity: Entity, context: GLTFSceneExportContext) => {
+  const source = getOptionalComponent(materialEntity, SourceComponent)
+  if (source !== context.sourceID) return Promise.resolve(-1)
+  return new Promise<number>((resolve) => {
+    if (typeof context.materialPromises.value[materialEntity] === 'number')
+      return resolve(context.materialPromises.value[materialEntity])
+    const reactor = startReactor(() => {
+      const material = useHookstate(context.materialPromises[materialEntity])
+      useEffect(() => {
+        if (typeof material.value === 'number') {
+          resolve(material.value)
+          reactor.stop()
+        }
+      }, [material])
+      return null
+    })
+  })
+}
+
 const _diffMatrix = new Matrix4()
 const _transformMatrix = new Matrix4()
 
-const exportMesh = async (mesh: Mesh, gltf: GLTF.IGLTF, context: GLTFSceneExportContext): Promise<number> => {
+const exportMesh = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFSceneExportContext): Promise<number> => {
+  const mesh = getComponent(entity, MeshComponent)
   if (context.cache.meshes.has(mesh)) return context.cache.meshes.get(mesh)!
   const subMeshes = splitMeshByMaterials(mesh)
 
   const meshDef: GLTF.IMesh = {
     primitives: [] as GLTF.IMeshPrimitive[]
   }
-  const targets = []
 
   // Conversion between attributes names in threejs and gltf spec
   const nameConversion = {
@@ -431,11 +517,19 @@ const exportMesh = async (mesh: Mesh, gltf: GLTF.IGLTF, context: GLTFSceneExport
     skinIndex: 'JOINTS_0'
   }
 
+  if (mesh.morphTargetInfluences?.length) {
+    meshDef.weights = [...mesh.morphTargetInfluences]
+    if (mesh.morphTargetDictionary) {
+      if (!meshDef.extras) meshDef.extras = {}
+      meshDef.extras.targetNames = Object.keys(mesh.morphTargetDictionary)
+    }
+  }
+
   for (const subMesh of subMeshes) {
     const attributes: Record<string, number> = {}
     const geometry = subMesh.geometry
     for (const attributeName in geometry.attributes) {
-      if (attributeName.slice(0, 5) === 'morph') continue
+      if (attributeName.startsWith('morph')) continue
 
       const attribute = geometry.attributes[attributeName]
 
@@ -453,35 +547,56 @@ const exportMesh = async (mesh: Mesh, gltf: GLTF.IGLTF, context: GLTFSceneExport
       context.cache.attributes.set(attribute, attributeIndex)
     }
 
-    // const isMultiMaterial = Array.isArray(mesh.material)
-
-    // const materials: Material[] = isMultiMaterial ? (mesh.material as Material[]) : [mesh.material as Material]
-    // const groups = isMultiMaterial ? geometry.groups : [{ materialIndex: 0, start: undefined, count: undefined }]
-
-    // for (let i = 0; i < groups.length; i++) {
     const primitiveDef: GLTF.IMeshPrimitive = {
       attributes
     }
 
-    // const group = groups[i]
-
     if (geometry.index !== null) {
-      // if (context.cache.attributes.has(geometry.index)) {
-      //   primitiveDef.indices = context.cache.attributes.get(geometry.index)!
-      // } else {
       primitiveDef.indices = exportAccessor(geometry.index, gltf, context, geometry) //, group.start, group.count)
-      // context.cache.attributes.set(geometry.index, primitiveDef.indices)
-      // }
     }
 
-    if (subMesh.material) {
-      const material = subMesh.material as Material
-      const materialIndex = await exportMaterial(material, gltf, context)
-      if (materialIndex !== null) primitiveDef.material = materialIndex
+    const targets = [] as NonNullable<GLTF.IMeshPrimitive['targets']>
+    if (mesh.morphTargetInfluences) {
+      for (let i = 0; i < mesh.morphTargetInfluences.length; ++i) {
+        for (const attributeName in geometry.morphAttributes) {
+          const attribute = geometry.morphAttributes[attributeName][i]
+          const gltfAttributeName = attributeName.toUpperCase()
+
+          const accessor = exportAccessor(attribute.clone(), gltf, context, geometry)
+          if (!targets[i]) targets[i] = {}
+          targets[i][gltfAttributeName] = accessor
+        }
+      }
+    }
+
+    if (targets.length) {
+      primitiveDef.targets = [...targets]
     }
 
     meshDef.primitives.push(primitiveDef)
   }
+
+  const layer = LayerComponent.get(entity)
+
+  const materialPromises = [] as Promise<void>[]
+
+  const materialInstances = getOptionalComponent(entity, MaterialInstanceComponent)
+  if (materialInstances) {
+    for (let i = 0; i < materialInstances.uuid.length; i++) {
+      const materialInstance = materialInstances.uuid[i]
+      const materialEntity = UUIDComponent.getEntityByUUID(materialInstance, layer)
+      materialPromises.push(
+        new Promise<void>((resolve) => {
+          awaitMaterial(materialEntity, context).then((materialIndex) => {
+            if (materialIndex > -1) meshDef.primitives[i].material = materialIndex
+            resolve()
+          })
+        })
+      )
+    }
+  }
+
+  await Promise.all(materialPromises)
 
   gltf.meshes ??= []
   const meshIndex = gltf.meshes.length
@@ -492,8 +607,53 @@ const exportMesh = async (mesh: Mesh, gltf: GLTF.IGLTF, context: GLTFSceneExport
   return meshIndex
 }
 
+const exportSkin = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFSceneExportContext): Promise<number> => {
+  const skinnedMesh = getComponent(entity, SkinnedMeshComponent)
+  if (context.cache.skins.has(skinnedMesh)) return context.cache.skins.get(skinnedMesh)!
+
+  if (!gltf.skins) gltf.skins = []
+  const skinIndex = gltf.skins.length
+
+  const skinDef = {} as GLTF.ISkin
+
+  const skeleton = skinnedMesh.skeleton
+  const bones = skeleton.bones
+  const boneInverses = skeleton.boneInverses
+
+  if (boneInverses.length) {
+    // Build inverseBindMatrices accessor
+    const boneInverseArray = new Float32Array(boneInverses.length * 16)
+    for (let i = 0, len = boneInverses.length; i < len; i++) {
+      const boneInverseMatrixArray = boneInverses[i].toArray()
+      for (let j = 0, matLen = boneInverseMatrixArray.length; j < matLen; j++) {
+        boneInverseArray[i * matLen + j] = boneInverseMatrixArray[j]
+      }
+    }
+    const boneInverseAttr = new BufferAttribute(boneInverseArray, 16)
+    skinDef.inverseBindMatrices = exportAccessor(boneInverseAttr, gltf, context)
+  }
+
+  if (bones.length) {
+    // Build joint nodes
+    skinDef.joints = []
+    for (const bone of bones) {
+      const jointNode = await exportEntity(bone.entity, gltf, context)
+      if (typeof jointNode === 'number') skinDef.joints.push(jointNode)
+    }
+
+    const skeletonRootEntity = getAncestorWithComponents(bones[0].entity, [BoneComponent], false)
+    const skeletonNode = await exportEntity(skeletonRootEntity, gltf, context)
+    if (typeof skeletonNode === 'number') {
+      skinDef.skeleton = skeletonNode
+    }
+  }
+
+  gltf.skins.push(skinDef)
+  return skinIndex
+}
+
 const toDeInterleaved = (attribute: InterleavedBufferAttribute): BufferAttribute => {
-  return attribute.clone(undefined)
+  return attribute.clone()
 }
 
 const exportAccessor = (
@@ -542,7 +702,7 @@ const exportAccessor = (
 
   if (count === 0) throw new Error('trying to create empty accessor')
 
-  const minMax = getMinMax(attribute as BufferAttribute, start, count)
+  const minMax = getMinMax(attribute, start, count)
 
   let bufferViewTarget: number | null = null
 
@@ -565,7 +725,7 @@ const exportAccessor = (
   if (attribute.normalized) accessorDef.normalized = true
 
   gltf.accessors ??= []
-  const accessorIndex = gltf.accessors!.length
+  const accessorIndex = gltf.accessors.length
   gltf.accessors.push(accessorDef)
 
   return accessorIndex
@@ -653,11 +813,10 @@ const exportBufferView = (
     bufferViewDef.byteStride = attribute.itemSize * componentSize
   }
 
-  const bufferViewIndex = gltf.bufferViews!.length
+  const bufferViewIndex = gltf.bufferViews.length
   gltf.bufferViews.push(bufferViewDef)
 
   return bufferViewIndex
-  // this.byteOffset += byteLength;
 }
 
 const exportBuffer = (buffer: ArrayBuffer, gltf: GLTF.IGLTF, context: GLTFSceneExportContext): number => {
@@ -665,17 +824,74 @@ const exportBuffer = (buffer: ArrayBuffer, gltf: GLTF.IGLTF, context: GLTFSceneE
   const bufferDef: GLTF.IBuffer = {
     byteLength: buffer.byteLength
   }
-  const bufferIndex = gltf.buffers!.length
+  const bufferIndex = gltf.buffers.length
   gltf.buffers.push(bufferDef)
   context.buffers.push(buffer)
   return bufferIndex
 }
 
+const _builtinMaterialDefs = {
+  color: (materialDef: GLTF.IMaterial, value: MaterialColorValue) => {
+    if (!materialDef.pbrMetallicRoughness) materialDef.pbrMetallicRoughness = {}
+    // Set RGB array
+    materialDef.pbrMetallicRoughness.baseColorFactor = value.contents.toArray()
+    // Set A channel to GLTF default because color is just RGB
+    materialDef.pbrMetallicRoughness.baseColorFactor[3] = 1
+  },
+  map: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
+    if (!materialDef.pbrMetallicRoughness) materialDef.pbrMetallicRoughness = {}
+    materialDef.pbrMetallicRoughness.baseColorTexture = value.contents
+  },
+  normalMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
+    materialDef.normalTexture = value.contents
+  },
+  metalness: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
+    if (!materialDef.pbrMetallicRoughness) materialDef.pbrMetallicRoughness = {}
+    materialDef.pbrMetallicRoughness.metallicFactor = value.contents
+  },
+  metalnessMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
+    if (!materialDef.pbrMetallicRoughness) materialDef.pbrMetallicRoughness = {}
+    materialDef.pbrMetallicRoughness.metallicRoughnessTexture = value.contents
+  },
+  roughness: (materialDef: GLTF.IMaterial, value: MaterialNumberValue) => {
+    if (!materialDef.pbrMetallicRoughness) materialDef.pbrMetallicRoughness = {}
+    materialDef.pbrMetallicRoughness.roughnessFactor = value.contents
+  },
+  roughnessMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
+    if (!materialDef.pbrMetallicRoughness) materialDef.pbrMetallicRoughness = {}
+    materialDef.pbrMetallicRoughness.metallicRoughnessTexture = value.contents
+  },
+  emissive: (materialDef: GLTF.IMaterial, value: MaterialColorValue) => {
+    materialDef.emissiveFactor = value.contents.toArray()
+  },
+  emissiveMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
+    materialDef.emissiveTexture = value.contents
+  },
+  aoMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
+    materialDef.occlusionTexture = value.contents
+  }
+} as Record<keyof MeshPhysicalMaterial, (materialDef: GLTF.IMaterial, value: MaterialValue) => void>
+
+export const materialExtensions = [
+  KHREmissiveStrengthExtensionComponent,
+  KHRClearcoatExtensionComponent,
+  KHRIridescenceExtensionComponent,
+  KHRSheenExtensionComponent,
+  KHRTransmissionExtensionComponent,
+  KHRVolumeExtensionComponent,
+  KHRIorExtensionComponent,
+  KHRSpecularExtensionComponent,
+  EXTBumpExtensionComponent,
+  KHRAnisotropyExtensionComponent
+]
+
 const exportMaterial = async (
-  material: Material,
+  entity: Entity,
   gltf: GLTF.IGLTF,
   context: GLTFSceneExportContext
 ): Promise<number | null> => {
+  const material = getComponent(entity, MaterialStateComponent).material
+
   const cache = context.cache.materials
   if (cache.has(material)) return cache.get(material)!
 
@@ -684,33 +900,32 @@ const exportMaterial = async (
   //do not export fallback material
   if (materialEntityUUID === MaterialStateComponent.fallbackMaterialUUID) return null
 
-  const materialEntity = UUIDComponent.getEntityByUUID(materialEntityUUID)
-  if (materialEntity === UndefinedEntity) {
-    return null
-  }
   const materialDef: GLTF.IMaterial = {}
 
-  materialDef.name = getComponent(materialEntity, NameComponent)
+  materialDef.name = getComponent(entity, NameComponent)
 
   if (material.transparent) {
     materialDef.alphaMode = 'BLEND'
+  } else if (material.alphaTest > 0) {
+    materialDef.alphaMode = 'MASK'
+    materialDef.alphaCutoff = material.alphaTest
   } else {
-    if (material.alphaTest > 0) {
-      materialDef.alphaMode = 'MASK'
-      materialDef.alphaCutoff = material.alphaTest
-    } else {
-      materialDef.alphaMode = 'OPAQUE'
-    }
+    materialDef.alphaMode = 'OPAQUE'
   }
 
   if (material.side === DoubleSide) materialDef.doubleSided = true
 
   const argData = injectMaterialDefaults(materialEntityUUID)
   if (!argData) {
-    throw new Error('Unsupported material ' + material)
+    throw new Error('Unsupported material ' + JSON.stringify(material))
   }
   const result: any = {}
   for (const [field, value] of Object.entries(argData)) {
+    if (material[field] === null) {
+      delete argData[field]
+      continue
+    }
+
     const argEntry = {
       type: value.type,
       contents: material[field]
@@ -720,6 +935,7 @@ const exportMaterial = async (
       if ((material[field] as CubeTexture).isCubeTexture) continue //for skipping environment maps which cause errors
       const texture = material[field] as Texture
       const textureIndex = await exportTexture(texture, gltf, context)
+      if (typeof textureIndex !== 'number') continue
       argEntry.contents = {
         index: textureIndex,
         texCoord: texture.channel
@@ -727,31 +943,91 @@ const exportMaterial = async (
     }
     result[field] = argEntry
   }
-  const materialComponent = getComponent(materialEntity, MaterialStateComponent)
+
+  for (const key in _builtinMaterialDefs) {
+    const resultValue = result[key]
+    if (resultValue?.contents != null) {
+      _builtinMaterialDefs[key](materialDef, resultValue)
+      delete result[key]
+    }
+  }
+
+  materialDef.extensions ??= {}
+  for (const ext of materialExtensions) {
+    if (typeof ext.exportMaterialExtension === 'function') {
+      const extension = ext.exportMaterialExtension(result)
+      if (extension && Object.keys(extension).length > 0) {
+        materialDef.extensions[ext.jsonID] = extension
+      }
+    }
+  }
+
+  const materialComponent = getComponent(entity, MaterialStateComponent)
   const prototype = getState(MaterialPrototypeDefinitions)[materialComponent.material.type]
   //@todo: plugins
-  materialDef.extensions = materialDef.extensions ?? {}
   materialDef.extensions['EE_material'] = {
-    uuid: getComponent(materialEntity, NodeIDComponent),
-    name: getComponent(materialEntity, NameComponent),
+    uuid: getComponent(entity, NodeIDComponent),
+    name: getComponent(entity, NameComponent),
     prototype: prototype.prototypeConstructor.name,
     args: result,
     plugins: []
   }
 
-  context.extensionsUsed.add('EE_material')
+  for (const ext in materialDef.extensions) {
+    context.extensionsUsed.add(ext)
+  }
+
   gltf.materials ??= []
   const materialIndex = gltf.materials.length
   gltf.materials.push(materialDef)
   cache.set(material, materialIndex)
+  context.materialPromises[entity].set(materialIndex)
   return materialIndex
 }
 
-const exportTexture = async (texture: Texture, gltf: GLTF.IGLTF, context: GLTFSceneExportContext): Promise<number> => {
+const GLTF_FILTERS = {
+  [NearestFilter]: 9728,
+  [LinearFilter]: 9729,
+  [NearestMipmapNearestFilter]: 9984,
+  [LinearMipmapNearestFilter]: 9985,
+  [NearestMipmapLinearFilter]: 9986,
+  [LinearMipmapLinearFilter]: 9987
+}
+
+const GLTF_WRAPPINGS = {
+  [ClampToEdgeWrapping]: 33071,
+  [MirroredRepeatWrapping]: 33648,
+  [RepeatWrapping]: 10497
+}
+
+const exportSampler = (texture: Texture, gltf: GLTF.IGLTF, context: GLTFSceneExportContext): number => {
+  const sampler: GLTF.ISampler = {
+    magFilter: GLTF_FILTERS[texture.magFilter] as GLTF.TextureMagFilter,
+    minFilter: GLTF_FILTERS[texture.minFilter] as GLTF.TextureMinFilter,
+    wrapS: GLTF_WRAPPINGS[texture.wrapS] as GLTF.TextureWrapMode,
+    wrapT: GLTF_WRAPPINGS[texture.wrapT] as GLTF.TextureWrapMode
+  }
+  // Samplers are small and mostly the same across all textures,
+  // so use the sampler data as the key to keep the gltf files smaller
+  const samplerStr = JSON.stringify(sampler)
+  if (context.cache.samplers.has(samplerStr)) return context.cache.samplers.get(samplerStr)!
+
+  if (!gltf.samplers) gltf.samplers = []
+  const index = gltf.samplers.length
+  gltf.samplers.push(sampler)
+  context.cache.samplers.set(samplerStr, index)
+  return index
+}
+
+const textureExtensions = [KHRTextureTransformExtensionComponent]
+
+const exportTexture = async (
+  texture: Texture,
+  gltf: GLTF.IGLTF,
+  context: GLTFSceneExportContext
+): Promise<number | void> => {
   const cache = context.cache.textures
   if (cache.has(texture)) return cache.get(texture)!
-
-  gltf.textures ??= []
 
   let mimeType = texture.userData.mimeType
   if (mimeType === 'image/webp') mimeType = 'image/png'
@@ -766,13 +1042,28 @@ const exportTexture = async (texture: Texture, gltf: GLTF.IGLTF, context: GLTFSc
   if (mimeType) {
     texture.image.mimeType = mimeType
   }
+  if (!texture.image.src) return
 
-  const textureDef: GLTF.ITexture = {}
+  const imageIndex = await exportImage(texture.image, gltf, context)
+  if (typeof imageIndex !== 'number') return
 
-  textureDef.source = await exportImage(texture.image, gltf, context)
+  const textureDef: GLTF.ITexture = { name: src, source: imageIndex }
+  textureDef.sampler = exportSampler(texture, gltf, context)
+  gltf.textures ??= []
 
-  const textureIndex = gltf.textures!.length
-  gltf.textures!.push(textureDef)
+  textureDef.extensions ??= {}
+  for (const ext of textureExtensions) {
+    if (typeof ext.exportTextureExtension === 'function') {
+      const extension = ext.exportTextureExtension(texture)
+      if (extension && Object.keys(extension).length > 0) {
+        textureDef.extensions[ext.jsonID] = extension
+      }
+    }
+  }
+  if (Object.keys(textureDef.extensions).length === 0) delete textureDef.extensions
+
+  const textureIndex = gltf.textures.length
+  gltf.textures.push(textureDef)
   cache.set(texture, textureIndex)
   return textureIndex
 }
@@ -821,7 +1112,13 @@ const exportBufferViewImage = async (
   })
 }
 
-const exportImage = async (image: any, gltf: GLTF.IGLTF, context: GLTFSceneExportContext): Promise<number> => {
+const exportImage = async (
+  image: any,
+  gltf: GLTF.IGLTF,
+  context: GLTFSceneExportContext
+): Promise<number | undefined> => {
+  if (!image.src) return
+
   const cache = context.cache.images
   if (typeof image.src === 'string') {
     if (cache.has(image.src)) return cache.get(image.src)!
@@ -829,9 +1126,9 @@ const exportImage = async (image: any, gltf: GLTF.IGLTF, context: GLTFSceneExpor
 
   gltf.images ??= []
 
-  let imageDef = undefined as undefined | GLTF.IImage
+  let imageDef: undefined | GLTF.IImage
 
-  if (/^blob:/.test(image.src)) {
+  if (image.src.startsWith('blob:')) {
     const canvas = new OffscreenCanvas(image.width, image.height)
     const ctx = canvas.getContext('2d')!
     ctx.drawImage(image, 0, 0)
@@ -848,7 +1145,6 @@ const exportImage = async (image: any, gltf: GLTF.IGLTF, context: GLTFSceneExpor
     const dstRelativePath = pathJoin(dstOrgName, dstProjectName, dstInternalPath)
     const srcRelativePath = pathJoin(srcProjectName, context.relativePath)
     const dstName = baseName(dstRelativePath)
-    const srcName = baseName(srcRelativePath)
     const dstDir = LoaderUtils.extractUrlBase(dstRelativePath)
     const srcDir = LoaderUtils.extractUrlBase(srcRelativePath)
 
@@ -869,39 +1165,71 @@ const exportImage = async (image: any, gltf: GLTF.IGLTF, context: GLTFSceneExpor
   return imageIndex
 }
 
-const exportGLTFSceneNode = async (
+const exportEntity = async (
   entity: Entity,
   gltf: GLTF.IGLTF,
   context: GLTFSceneExportContext
 ): Promise<number | void> => {
+  if (context.cache.entities.has(entity)) return context.cache.entities.get(entity)
+
   for (const extension of context.exportExtensions) extension.beforeNode?.(entity)
 
   //ignore entities with no source
   if (!hasComponent(entity, SourceComponent)) return
   //ignore material entities as they get exported in exportMesh
-  const materialComponent = getOptionalComponent(entity, MaterialStateComponent)
-  if (materialComponent) return
+  const materialComponent = hasComponent(entity, MaterialStateComponent)
+  if (materialComponent) {
+    await exportMaterial(entity, gltf, context)
+    return
+  }
+
+  const node: GLTF.INode = {}
+  gltf.nodes!.push(node)
+
+  const index = gltf.nodes!.length - 1
+  context.cache.entities.set(entity, index)
+
+  if (entity === context.rootEntity) {
+    gltf.scenes![0].nodes.push(index)
+  }
+  const entityExportPromises = [] as Promise<void>[]
 
   const children = getOptionalComponent(entity, EntityTreeComponent)?.children
   const childrenIndicies = [] as number[]
   if (children && children.length > 0) {
     for (const child of children) {
       if (getComponent(child, SourceComponent) !== context.sourceID) continue
-      const childIndex = await exportGLTFSceneNode(child, gltf, context)
-      if (typeof childIndex === 'number') childrenIndicies.push(childIndex)
+      const childPromise = new Promise<void>((resolve) => {
+        exportEntity(child, gltf, context).then((childIndex) => {
+          if (typeof childIndex === 'number') childrenIndicies.push(childIndex)
+          resolve()
+        })
+      })
+      entityExportPromises.push(childPromise)
+      context.entityPromises.set(child, childPromise)
     }
   }
 
-  const node: GLTF.INode = {}
-
   const meshComponent = getOptionalComponent(entity, MeshComponent)
   if (meshComponent && !meshComponent.userData['ignoreOnExport']) {
-    node.mesh = await exportMesh(meshComponent, gltf, context)
+    const meshPromise = new Promise<void>((resolve) => {
+      exportMesh(entity, gltf, context).then((meshIndex) => {
+        node.mesh = meshIndex
+        resolve()
+      })
+    })
+    entityExportPromises.push(meshPromise)
   }
-
-  gltf.nodes!.push(node)
-
-  const index = gltf.nodes!.length - 1
+  const skinnedMeshComponent = getOptionalComponent(entity, SkinnedMeshComponent)
+  if (skinnedMeshComponent && !skinnedMeshComponent.userData['ignoreOnExport']) {
+    const skinnedMeshPromise = new Promise<void>((resolve) => {
+      exportSkin(entity, gltf, context).then((skinIndex) => {
+        node.skin = skinIndex
+        resolve()
+      })
+    })
+    entityExportPromises.push(skinnedMeshPromise)
+  }
 
   if (hasComponent(entity, NameComponent)) {
     node.name = getComponent(entity, NameComponent)
@@ -915,6 +1243,8 @@ const exportGLTFSceneNode = async (
     //skip components that don't have a jsonID
     if (!component.jsonID) continue
 
+    if (entity === context.rootEntity && component === GLTFComponent) continue
+
     if (component === TransformComponent) {
       const transform = getComponent(entity, TransformComponent)
       const parent = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
@@ -926,8 +1256,6 @@ const exportGLTFSceneNode = async (
         // If no parent, position at identity, but keep scale
         node.matrix = _diffMatrix.identity().scale(transform.scale).toArray()
       }
-    } else if (component === MeshComponent) {
-      continue
     } else {
       const compData = serializeComponent(entity, component)
       // Do we not want to serialize tag components?
@@ -938,6 +1266,9 @@ const exportGLTFSceneNode = async (
 
     for (const extension of context.exportExtensions) extension.afterComponent?.(entity, component, node, index)
   }
+
+  await Promise.all(entityExportPromises)
+
   if (node.matrix && matrixEqualsIdentity(node.matrix)) delete node.matrix
   if (Object.keys(extensions).length > 0) node.extensions = extensions
   if (childrenIndicies.length) node.children = childrenIndicies
@@ -945,6 +1276,101 @@ const exportGLTFSceneNode = async (
   for (const extension of context.exportExtensions) extension.afterNode?.(entity, node, index)
 
   return index
+}
+
+const _trsConversionMatrix = new Matrix4()
+const _trsTranslation = new Vector3()
+const _trsRotation = new Quaternion()
+const _trsScale = new Vector3()
+
+const exportAnimations = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFSceneExportContext) => {
+  if (!hasComponent(entity, AnimationComponent) || getOptionalComponent(entity, SourceComponent) !== context.sourceID)
+    return
+
+  const animationsDef = [] as GLTF.IAnimation[]
+  const animations = getComponent(entity, AnimationComponent).animations as AnimationClip[]
+
+  for (const animation of animations) {
+    const animationDef = { channels: [], samplers: [] } as GLTF.IAnimation
+    animationDef.name = animation.name
+
+    const tracks = animation.tracks
+    for (let i = 0, len = tracks.length; i < len; i++) {
+      const track = tracks[i]
+
+      // Create channel
+      const channelDef = { target: {} } as GLTF.IAnimationChannel
+      if (track instanceof NumberKeyframeTrack) {
+        channelDef.target.path = 'weights'
+      } else if (track instanceof QuaternionKeyframeTrack) {
+        channelDef.target.path = 'rotation'
+      } else if (track instanceof VectorKeyframeTrack) {
+        const isPosition = track.name.endsWith('position')
+        if (isPosition) {
+          channelDef.target.path = 'translation'
+        } else {
+          channelDef.target.path = 'scale'
+        }
+      }
+
+      const targetEntity = UUIDComponent.getEntityByUUID(getEntityUUIDFromTrack(track), Layers.Authoring)
+      const targetNode = await exportEntity(targetEntity, gltf, context)
+      if (typeof targetNode === 'number') {
+        channelDef.target.node = targetNode
+
+        // https://github.com/KhronosGroup/glTF/issues/892
+        // Animated nodes can not have a matrix property, only TRS
+        const node = gltf.nodes?.[targetNode]
+        if (node?.matrix) {
+          const mat = _trsConversionMatrix.fromArray(node.matrix)
+          mat.decompose(_trsTranslation, _trsRotation, _trsScale)
+          node.translation = _trsTranslation.toArray()
+          node.rotation = _trsRotation.toArray()
+          node.scale = _trsScale.toArray()
+          delete node.matrix
+        }
+      }
+      channelDef.sampler = i
+      animationDef.channels.push(channelDef)
+
+      // Create sampler
+      const samplerDef = {} as GLTF.IAnimationSampler
+      const inputAttr = new BufferAttribute(track.times, 1)
+      let outputSize = track.values.length / track.times.length
+      if (channelDef.target.path === 'weights') {
+        const mesh = getOptionalComponent(targetEntity, MeshComponent)
+        if (mesh?.morphTargetInfluences) {
+          outputSize /= mesh.morphTargetInfluences.length
+        }
+      }
+      const outputAttr = new BufferAttribute(track.values, outputSize)
+      const [input, output] = await Promise.all([
+        exportAccessor(inputAttr, gltf, context),
+        exportAccessor(outputAttr, gltf, context)
+      ])
+      samplerDef.input = input
+      samplerDef.output = output
+
+      const interpolantFunc = track.createInterpolant as (any) => any
+      if (interpolantFunc === track.InterpolantFactoryMethodDiscrete) {
+        samplerDef.interpolation = 'STEP'
+      } else if ((interpolantFunc as any).isInterpolantFactoryMethodGLTFCubicSpline) {
+        samplerDef.interpolation = 'CUBICSPLINE'
+      } else if (interpolantFunc === track.InterpolantFactoryMethodLinear) {
+        samplerDef.interpolation = 'LINEAR'
+      } else if (interpolantFunc === track.InterpolantFactoryMethodSmooth) {
+        samplerDef.interpolation = 'LINEAR'
+      } else {
+        samplerDef.interpolation = 'LINEAR'
+      }
+
+      animationDef.samplers.push(samplerDef)
+    }
+
+    animationsDef.push(animationDef)
+  }
+
+  if (animations.length) gltf.animations = animationsDef
 }
 
 const matrixEqualsIdentity = (matrix: number[]) => {

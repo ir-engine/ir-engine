@@ -25,7 +25,7 @@ PROJECT_ID=""
 
 if [ "$DESTINATION_REPO_PROVIDER" = "gcp" ]; then
   # Determine suffix based on APP_HOST
-  if [[ "$APP_HOST" =~ "preview" ]] || [[ "$APP_HOST" =~ "mt-stg" ]]; then
+  if [[ "$APP_HOST" =~ "studio" ]] || [[ "$APP_HOST" =~ "mt-stg" ]]; then
     SUFFIX="-mt"
   elif [[ "$APP_HOST" =~ "mt-rc" ]]; then
     SUFFIX="-mt-rc"

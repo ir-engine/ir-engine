@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { getMutableState, getState } from '@ir-engine/hyperflux'
 import {
   SnapMode,
   TransformModeType,
@@ -30,8 +31,7 @@ import {
   TransformPivotType,
   TransformSpace,
   TransformSpaceType
-} from '@ir-engine/engine/src/scene/constants/transformConstants'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+} from '@ir-engine/spatial/src/common/constants/TransformConstants'
 
 import { EditorHelperState } from '../services/EditorHelperState'
 

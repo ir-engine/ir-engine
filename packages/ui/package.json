@@ -1,5 +1,5 @@
 {
-"name": "@ir-engine/ui",
+  "name": "@ir-engine/ui",
   "version": "1.6.0",
   "description": "A declarative way to build 3D/VR/AR/XR apps that scale. Built with tooling web developers will love, using conventions that game developers and creative coders will find straightforward familiar.",
   "homepage": "https://github.com/ir-engine/ir-engine#readme",
@@ -34,7 +34,8 @@
     "storybook": "./scripts/start-storybook.sh",
     "build-storybook": "storybook build",
     "copy-icona": "./scripts/copy-icona-json.sh",
-    "build-icons": "npx tsx scripts/build-icons.ts"
+    "build-icons": "npx tsx scripts/build-icons.ts",
+    "chromatic": "chromatic --exit-zero-on-changes"
   },
   "dependencies": {
     "@ir-engine/common": "^1.6.0",
@@ -54,6 +55,7 @@
     "typescript": "5.6.3"
   },
   "devDependencies": {
+    "@chromatic-com/playwright": "^0.12.0",
     "@jest/globals": "^29.5.0",
     "@storybook/addon-a11y": "^8.0.5",
     "@storybook/addon-actions": "^8.0.5",
@@ -72,13 +74,14 @@
     "@svgr/core": "^8.1.0",
     "@svgr/plugin-jsx": "^8.1.0",
     "@svgr/plugin-svgo": "^8.1.0",
-    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/jest-dom": "^6.6.3",
     "@types/enzyme": "^3.10.12",
     "@types/enzyme-adapter-react-16": "^1.0.6",
     "@types/jest": "^29.5.1",
     "@types/node": "18.15.5",
     "@types/react": "18.2.0",
     "@types/three": "0.158.0",
+    "chromatic": "^11.28.0",
     "crypto-browserify": "^3.12.0",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.7",

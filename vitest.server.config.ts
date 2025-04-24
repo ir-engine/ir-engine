@@ -35,6 +35,12 @@ export default defineConfig({
     fileParallelism: false,
     hookTimeout: 10000,
     testTimeout: 10000,
-    maxConcurrency: 1
+    maxConcurrency: 1,
+    coverage: {
+      enabled: true,
+      reporter: ['lcov'],
+      provider: 'istanbul',
+      include: ['src/**']
+    }
   }
 })

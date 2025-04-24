@@ -30,6 +30,7 @@ import { CustomWebXRPolyfill } from '../../tests/webxr/emulator'
 
 import { EntityTreeComponent, hasComponent, removeComponent, removeEntity } from '@ir-engine/ecs'
 import { getMutableState } from '@ir-engine/hyperflux'
+import { act, render } from '@testing-library/react'
 import { destroyEmulatedXREngine, mockEmulatedXREngine } from '../../tests/util/mockEmulatedXREngine'
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -213,13 +214,13 @@ describe('XRAnchorComponent', () => {
       // Set the data as expected
       const resultSpy = vi.fn()
       setComponent(testEntity, XRAnchorComponent, { anchor: { delete: resultSpy } as unknown as XRAnchor })
+      await act(() => render(null))
       // Sanity check before running
       expect(resultSpy).not.toHaveBeenCalled()
       // Run and Check the result
-      await vi.waitFor(() => {
-        removeComponent(testEntity, XRAnchorComponent)
-        expect(resultSpy).toHaveBeenCalledOnce()
-      })
+      removeComponent(testEntity, XRAnchorComponent)
+      await act(() => render(null))
+      expect(resultSpy).toHaveBeenCalledOnce()
     })
   }) //:: reactor
 }) //:: XRAnchorComponent
@@ -246,7 +247,7 @@ describe('XRSpaceComponent', () => {
       destroyEngine()
     })
 
-    it('should set an EntityTreeComponent to the entityContext with EngineState.localFloorEntity as its parentEntity when entityContext.XRSpaceComponent.baseSpace is ReferenceSpace.localFloor', () => {
+    it('should set an EntityTreeComponent to the entityContext with EngineState.localFloorEntity as its parentEntity when entityContext.XRSpaceComponent.baseSpace is ReferenceSpace.localFloor', async () => {
       const Expected = createEntity()
       // Set the data as expected
       getMutableState(ReferenceSpaceState).localFloorEntity.set(Expected)
@@ -254,11 +255,12 @@ describe('XRSpaceComponent', () => {
       expect(hasComponent(testEntity, EntityTreeComponent)).toBe(false)
       // Run and Check the result
       setComponent(testEntity, XRSpaceComponent, { baseSpace: ReferenceSpace.localFloor! })
+      await act(() => render(null))
       const result = getComponent(testEntity, EntityTreeComponent).parentEntity
       expect(result).toBe(Expected)
     })
 
-    it('should set an EntityTreeComponent to the entityContext with EngineState.viewerEntity as its parentEntity when entityContext.XRSpaceComponent.baseSpace is ReferenceSpace.viewer', () => {
+    it('should set an EntityTreeComponent to the entityContext with EngineState.viewerEntity as its parentEntity when entityContext.XRSpaceComponent.baseSpace is ReferenceSpace.viewer', async () => {
       const Expected = createEntity()
       // Set the data as expected
       getMutableState(ReferenceSpaceState).viewerEntity.set(Expected)
@@ -266,21 +268,23 @@ describe('XRSpaceComponent', () => {
       expect(hasComponent(testEntity, EntityTreeComponent)).toBe(false)
       // Run and Check the result
       setComponent(testEntity, XRSpaceComponent, { baseSpace: ReferenceSpace.viewer! })
+      await act(() => render(null))
       const result = getComponent(testEntity, EntityTreeComponent).parentEntity
       expect(result).toBe(Expected)
     })
 
-    it('should set an EntityTreeComponent to the entityContext with UndefinedEntity as its parentEntity when entityContext.XRSpaceComponent.baseSpace is not ReferenceSpace.viewer or ReferenceSpace.localFloor', () => {
+    it('should set an EntityTreeComponent to the entityContext with UndefinedEntity as its parentEntity when entityContext.XRSpaceComponent.baseSpace is not ReferenceSpace.viewer or ReferenceSpace.localFloor', async () => {
       const Expected = UndefinedEntity
       // Sanity check before running
       expect(hasComponent(testEntity, EntityTreeComponent)).toBe(false)
       // Run and Check the result
       setComponent(testEntity, XRSpaceComponent, { baseSpace: undefined })
+      await act(() => render(null))
       const result = getComponent(testEntity, EntityTreeComponent).parentEntity
       expect(result).toBe(Expected)
     })
 
-    it('should set a TransformComponent to the entityContext', () => {
+    it('should set a TransformComponent to the entityContext', async () => {
       const Expected = true
       const Initial = !Expected
       // Sanity check before running
@@ -289,6 +293,7 @@ describe('XRSpaceComponent', () => {
       expect(before).not.toBe(Expected)
       // Run and Check the result
       setComponent(testEntity, XRSpaceComponent)
+      await act(() => render(null))
       const result = hasComponent(testEntity, TransformComponent)
       expect(result).not.toBe(Initial)
       expect(result).toBe(Expected)

@@ -175,7 +175,7 @@ const AvatarPreview = ({ fill, avatarUrl, onAvatarError, onAvatarLoaded }: Props
         </Tooltip>
       </div>
       <div id="stage" className={`${styles.stage} ${fill ? styles.fill : ''}`}>
-        <canvas ref={panelRef} style={{ pointerEvents: 'all' }} />
+        <canvas id="avatar-preview-canvas" ref={panelRef} style={{ pointerEvents: 'all' }} />
       </div>
 
       {!avatarUrl && <div className={commonStyles.previewText}>{t('admin:components.avatar.avatarPreview')}</div>}

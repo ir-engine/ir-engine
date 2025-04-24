@@ -72,7 +72,9 @@ const fetchManifest = async () => {
       .split('/')
     const clonePath = path.resolve(appRootPath.path, '.temp', repo)
     // enforce ssh connection rather than deprecated http usr/pwd
-    await execPromise(`git clone git@github.com:${org}/${repo} ${clonePath}`, {
+    console.log(`Cloning ${org}/${repo} on branch ${branch} for manifests`)
+    // Clone from the specific branch provided in the URL
+    await execPromise(`git clone -b ${branch} git@github.com:${org}/${repo} ${clonePath}`, {
       cwd: appRootPath.path
     })
     console.log('manifest installed')
@@ -108,9 +110,12 @@ const installManifest = async () => {
   await Promise.all(
     manifest.packages.map(async (url) => {
       /** Check if folder already exists */
-      const folder = url.split('/').pop()
-      if (!folder) throw new Error('Invalid URL')
-      const packageDir = path.resolve(appRootPath.path, 'packages/projects/projects', folder)
+      const urlSegments = url.split('/')
+      const folder = urlSegments[urlSegments.length - 1]
+      const org = urlSegments[urlSegments.length - 2]
+      if (!folder) throw new Error('Invalid URL, project folder not found')
+      if (!org) throw new Error('Invalid URL, org root not found')
+      const packageDir = path.resolve(appRootPath.path, 'packages/projects/projects', org, folder)
       /* 
        Performing Sync IO Operations withing Async Processes is an anti-pattern that will block
        the Thread and the Event Loop therefore defeats the purpose of having a Promise.all which is expected to execute
@@ -125,9 +130,9 @@ const installManifest = async () => {
         // Using async IO operations to avoid blocking the thread and event loop
         const stat = await fsp.stat(packageDir)
 
-        if (!replacing) return console.log(`Package ${folder} already exists, skipping`)
+        if (!replacing) return console.log(`Project '${org}/${folder}' already exists, skipping`)
 
-        console.log(`Package ${folder} already exists, cleaning up project directory`)
+        console.log(`Project '${org}/${folder}' already exists, cleaning up project directory`)
 
         try {
           // Using async IO operations to avoid blocking the thread and event loop
@@ -146,7 +151,7 @@ const installManifest = async () => {
       console.log(`Cloning ${curatedURL}`)
       // Improving performance by cloning the code from the expected branch in a single step
       await execPromise(`git clone -b ${branch} ${singleBranch === 'yes' ? '--single-branch' : ''} ${curatedURL}`, {
-        cwd: path.resolve(appRootPath.path, 'packages/projects/projects')
+        cwd: path.resolve(appRootPath.path, 'packages/projects/projects', org)
       })
 
       /*

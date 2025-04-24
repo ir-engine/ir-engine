@@ -77,15 +77,24 @@ import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxCo
 import { setCameraFocusOnBox } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { BackgroundComponent, SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { createHash } from 'crypto'
 import mime from 'mime-types'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
-export function generateThumbnailKey(src: string, projectName: string) {
-  return `${decodeURI(stripSearchFromURL(src).replace(/^.*?\/projects\//, ''))
-    .replace(projectName + '/', '')
-    .replaceAll(/[^a-zA-Z0-9\.\-_\s]/g, '_')
-    .replaceAll(/\s/g, '-')}-thumbnail.png`
+const getFilename = (url) => {
+  const path = new URL(url).pathname // Get the path part of the URL
+  return path.substring(path.lastIndexOf('/') + 1) // Get the filename after the last "/"
+}
+
+export function generateThumbnailKey(src: string, projectName: string): string {
+  const uniqueFileName = `${projectName}-${getFilename(src)}-${Date.now()}`
+  const encoder = new TextEncoder()
+  const buffer = encoder.encode(uniqueFileName)
+  let hash = createHash('sha256').update(buffer).digest('hex')
+  hash = hash.slice(0, 46) // Ensuring max length constraint with VALID_FILENAME_REGEX
+  return `${hash}.png`
 }
 
 type ThumbnailJob = {
@@ -162,7 +171,7 @@ const uploadThumbnail = async (src: string, projectName: string, blob: Blob | nu
           }
           updateThumbnailKey(staticResourceId)
         } else {
-          console.error('static Resource not foudn for key - ', fileKeyKey)
+          console.error('static Resource not found for key - ', fileKeyKey)
         }
       })
       .catch((e) => console.error(e))
@@ -506,13 +515,12 @@ const RenderMaterialThumbnail = (props: RenderThumbnailProps) => {
   useEffect(() => {
     if (!entity || !lightEntity || !skyboxEntity || !cameraEntity || !gltfEntity) return
 
-    const meshEntity = getChildrenWithComponents(gltfEntity, [MeshComponent])[0]
-    if (!meshEntity) {
-      onError(`No mesh found in gltf with source: ${src}`)
+    const materialEntity = getChildrenWithComponents(gltfEntity, [MaterialStateComponent])[0]
+    if (!materialEntity) {
+      onError(`No material found in gltf with source: ${src}`)
       return
     }
-
-    const material = getComponent(meshEntity, MeshComponent).material
+    const material = getComponent(materialEntity, MaterialStateComponent).material
     if (!material) {
       onError(`Failed to load material for thumbnail with source: ${src}`)
       return

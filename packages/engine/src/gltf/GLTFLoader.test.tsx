@@ -29,6 +29,7 @@ import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { GLTF } from '@gltf-transform/core/dist/types/gltf'
 import {
   createEntity,
+  Entity,
   EntityTreeComponent,
   generateEntityUUID,
   getChildrenWithComponents,
@@ -39,7 +40,6 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { applyIncomingActions, getState } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
@@ -53,8 +53,6 @@ import {
 import { InstancedMesh, MathUtils, MeshStandardMaterial } from 'three'
 import { startEngineReactor } from '../../tests/startEngineReactor'
 import { overrideFileLoaderLoad } from '../../tests/util/loadGLTFAssetNode'
-import { loadDRACODecoderNode, NodeDRACOLoader } from '../assets/loaders/gltf/NodeDracoLoader'
-import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { GLTFComponent } from './GLTFComponent'
 import { KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
@@ -62,6 +60,7 @@ import { EXTMeshGPUInstancingComponent, KHRLightsPunctualComponent, KHRPunctualL
 
 const base_url = 'packages/engine/tests/assets'
 const duck_gltf = base_url + '/duck/Duck.gltf'
+const duck_nodeless_gltf = base_url + '/duck/DuckNodeless.gltf'
 const draco_gltf = base_url + '/draco-duck/Duck.gltf'
 const unlit_gltf = base_url + '/unlit/UnlitTest.gltf'
 const textured_gltf = base_url + '/textured-box/BoxTextured.gltf'
@@ -74,6 +73,8 @@ const instanced_gltf = base_url + '/instanced/SimpleInstancing.gltf'
 const default_url = 'packages/projects/default-project/assets'
 const animation_pack = default_url + '/animations/emotes.glb'
 const rings_gltf = default_url + '/rings.glb'
+
+const waitForScene = (entity: Entity) => vi.waitUntil(() => GLTFComponent.isSceneLoaded(entity), { timeout: 5000 })
 
 const setupEntity = () => {
   const parent = createEntity()
@@ -107,7 +108,7 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: duck_gltf })
 
-    await act(() => render(null))
+    await waitForScene(entity)
 
     const document = getComponent(entity, GLTFComponent).document
 
@@ -134,7 +135,7 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: duck_gltf })
 
-    await act(() => render(null))
+    await waitForScene(entity)
 
     const document = getComponent(entity, GLTFComponent).document
 
@@ -162,19 +163,10 @@ describe('GLTF Loader', async () => {
   it('can load a draco geometry', async () => {
     const entity = setupEntity()
 
-    const loader = getState(AssetLoaderState).gltfLoader
-    loadDRACODecoderNode()
-    const dracoLoader = new NodeDRACOLoader()
-    /* @ts-ignore */
-    dracoLoader.preload = () => {
-      return dracoLoader
-    }
-    loader.setDRACOLoader(dracoLoader)
-
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: draco_gltf })
 
-    await act(() => render(null))
+    await waitForScene(entity)
 
     const document = getComponent(entity, GLTFComponent).document
 
@@ -200,7 +192,7 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: unlit_gltf })
 
-    await act(() => render(null))
+    await waitForScene(entity)
 
     const document = getComponent(entity, GLTFComponent).document
 
@@ -236,7 +228,7 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: textured_gltf })
 
-    await act(() => render(null))
+    await waitForScene(entity)
 
     const document = getComponent(entity, GLTFComponent).document
 
@@ -272,7 +264,7 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: multiple_mesh_primitives_gltf })
 
-    await act(() => render(null))
+    await waitForScene(entity)
 
     const document = getComponent(entity, GLTFComponent).document
     const nodes = document!.nodes
@@ -329,11 +321,10 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: morph_gltf })
 
-    await act(() => render(null))
+    await waitForScene(entity)
 
     await vi.waitFor(
       async () => {
-        await act(() => render(null))
         expect(getChildrenWithComponents(entity, [MeshComponent]).length).toBeTruthy()
       },
       { timeout: 10000 }
@@ -351,11 +342,10 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: rings_gltf })
 
-    await act(() => render(null))
+    await waitForScene(entity)
 
     await vi.waitFor(
       async () => {
-        await act(() => render(null))
         expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
       },
       { timeout: 10000 }
@@ -373,7 +363,7 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: animation_pack })
 
-    await act(() => render(null))
+    await waitForScene(entity)
 
     const document = getComponent(entity, GLTFComponent).document
 
@@ -385,8 +375,7 @@ describe('GLTF Loader', async () => {
     )
 
     const animationComponent = getComponent(entity, AnimationComponent)
-    /**@todo why does this occasionally fail? */
-    //assert(animationComponent?.animations.length === document!.animations!.length)
+    assert(animationComponent?.animations.length === document!.animations!.length)
   })
 
   it('can load skinned meshes with bones and animations', async () => {
@@ -394,7 +383,8 @@ describe('GLTF Loader', async () => {
 
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: skinned_gltf })
-    await act(() => render(null))
+
+    await waitForScene(entity)
 
     await vi.waitFor(
       () => {
@@ -430,12 +420,7 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: camera_gltf })
 
-    await act(() => render(null))
-
-    const document = getComponent(entity, GLTFComponent).document
-
-    // Update when orthographic cameras are supported
-    const cameras = document!.cameras!.filter((cam) => cam.type === 'perspective')
+    await waitForScene(entity)
 
     await vi.waitFor(
       () => {
@@ -443,6 +428,12 @@ describe('GLTF Loader', async () => {
       },
       { timeout: 10000 }
     )
+
+    const document = getComponent(entity, GLTFComponent).document
+
+    // Update when orthographic cameras are supported
+    const cameras = document!.cameras!.filter((cam) => cam.type === 'perspective')
+
     const cameraEntities = getChildrenWithComponents(entity, [CameraComponent])
 
     assert(cameraEntities.length === cameras.length)
@@ -473,7 +464,7 @@ describe('GLTF Loader', async () => {
     setComponent(testEntity, UUIDComponent, UUIDComponent.generateUUID())
     setComponent(testEntity, GLTFComponent, { src: khr_light_gltf })
 
-    await act(() => render(null))
+    await waitForScene(testEntity)
     // @todo @important This line makes the test pass, but only intermitently
 
     const document = getComponent(testEntity, GLTFComponent).document
@@ -524,7 +515,7 @@ describe('GLTF Loader', async () => {
     setComponent(testEntity, UUIDComponent, UUIDComponent.generateUUID())
     setComponent(testEntity, GLTFComponent, { src: instanced_gltf })
 
-    await act(() => render(null))
+    await waitForScene(testEntity)
 
     await vi.waitFor(
       () => {
@@ -580,11 +571,8 @@ describe('GLTF Loader', async () => {
     setComponent(entity2, UUIDComponent, UUIDComponent.generateUUID())
     setComponent(entity2, GLTFComponent, { src: duck_gltf })
 
-    await act(() => render(null))
-
-    applyIncomingActions()
-
-    await act(() => render(null))
+    await waitForScene(entity)
+    await waitForScene(entity2)
 
     const instanceID = GLTFComponent.getInstanceID(entity)
     const instanceID2 = GLTFComponent.getInstanceID(entity2)
@@ -595,5 +583,20 @@ describe('GLTF Loader', async () => {
     const meshEntities2 = getChildrenWithComponents(entity2, [MeshComponent])
 
     expect(meshEntities.length).toBe(meshEntities2.length)
+  })
+
+  it('can load GLTFs without scenes or nodes', async () => {
+    const entity = setupEntity()
+
+    setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+    setComponent(entity, GLTFComponent, { src: duck_nodeless_gltf })
+
+    await waitForScene(entity)
+
+    // Loads the material and texture in the GLTF without having an associated node
+    const materials = getChildrenWithComponents(entity, [MaterialStateComponent])
+    assert(materials.length === 1)
+    const materialState = getComponent(materials[0], MaterialStateComponent)
+    assert((materialState.material as MeshStandardMaterial).map?.isTexture)
   })
 })

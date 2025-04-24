@@ -41,6 +41,7 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { act, render } from '@testing-library/react'
 import { BoxGeometry, BufferGeometry, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { TransformComponent } from '../SpatialModule'
@@ -345,7 +346,7 @@ describe('XRDetectedMeshComponent', () => {
   describe('reactor', () => {
     let testEntity = UndefinedEntity
 
-    beforeEach(async () => {
+    beforeEach(() => {
       createEngine()
       testEntity = createEntity()
     })
@@ -371,7 +372,7 @@ describe('XRDetectedMeshComponent', () => {
         expect(resultSpy).toHaveBeenCalledTimes(0)
       })
 
-      it('should call XRDetectedMeshComponent.createGeometryFromMesh with XRDetectedMeshComponent.mesh.value as its argument', () => {
+      it('should call XRDetectedMeshComponent.createGeometryFromMesh with XRDetectedMeshComponent.mesh.value as its argument', async () => {
         const Expected = {} as XRMesh
         const Initial = { semanticLabel: 'testLabel' } as XRMesh
         // Set the data as expected
@@ -379,10 +380,17 @@ describe('XRDetectedMeshComponent', () => {
         // Sanity check before running
         expect(resultSpy).toHaveBeenCalledTimes(0)
         setComponent(testEntity, XRDetectedMeshComponent, { mesh: Initial })
+
+        await act(() => render(null))
+
         expect(resultSpy).toHaveBeenCalledTimes(1)
         expect(getComponent(testEntity, XRDetectedMeshComponent).mesh).toBeTruthy()
+
         // Run and Check the result
         setComponent(testEntity, XRDetectedMeshComponent, { mesh: Expected })
+
+        await act(() => render(null))
+
         expect(resultSpy).toHaveBeenCalledTimes(2)
         expect(resultSpy).toHaveBeenCalledWith(Expected)
       })
@@ -397,18 +405,27 @@ describe('XRDetectedMeshComponent', () => {
         expect(before).toBe(Initial)
         // Run and Check the result
         setComponent(testEntity, XRDetectedMeshComponent, { mesh: { semanticLabel: 'testLabelAfter' } as XRMesh })
+
+        await act(() => render(null))
+
         const result = getComponent(testEntity, XRDetectedMeshComponent).geometry
         expect(result).not.toBe(Initial) // A change in .mesh should trigger a change in .geometry
       })
 
       it(`should create a new Mesh object with XRDetectedMeshComponent.shadowMesh
-          and set an ObjectComponent to the entityContext with the new mesh`, () => {
+          and set an ObjectComponent to the entityContext with the new mesh`, async () => {
         // Set the data as expected
         setComponent(testEntity, XRDetectedMeshComponent, { mesh: { semanticLabel: 'testLabel' } as XRMesh })
+
+        await act(() => render(null))
+
         // Sanity check before running
         const Initial = getComponent(testEntity, ObjectComponent).clone()
         // Run and Check the result
         setComponent(testEntity, XRDetectedMeshComponent, { mesh: { semanticLabel: 'testLabelAfter' } as XRMesh })
+
+        await act(() => render(null))
+
         expect(getComponent(testEntity, ObjectComponent)).not.toEqual(Initial)
         expect(getComponent(testEntity, ObjectComponent)).toBe(
           getComponent(testEntity, XRDetectedMeshComponent).shadowMesh
@@ -416,16 +433,23 @@ describe('XRDetectedMeshComponent', () => {
       })
 
       describe('when it unmounts ..', () => {
-        it('.. should call removeComponent with the entityContext', () => {
+        it('.. should call removeComponent with the entityContext', async () => {
           const Expected = false
           const Initial = !Expected
           // Set the data as expected
           setComponent(testEntity, XRDetectedMeshComponent, { mesh: { semanticLabel: 'testLabel' } as XRMesh })
+
+          await act(() => render(null))
+
           // Sanity check before running
           const before = hasComponent(testEntity, ObjectComponent)
           expect(before).toBe(Initial)
           // Run and Check the result
+
           removeComponent(testEntity, XRDetectedMeshComponent)
+
+          await act(() => render(null))
+
           const result = hasComponent(testEntity, ObjectComponent)
           expect(result).toBe(Expected)
         })

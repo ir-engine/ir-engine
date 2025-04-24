@@ -30,37 +30,24 @@ import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 
-import { EngineState, Entity, UndefinedEntity } from '@ir-engine/ecs'
-import { SnapMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
-import { getState, useMutableState } from '@ir-engine/hyperflux'
+import { EngineState, Entity } from '@ir-engine/ecs'
+import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { CameraGizmoTagComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { SnapMode } from '@ir-engine/spatial/src/common/constants/TransformConstants'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
-import { InputHeuristicState, IntersectionData } from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
+import {
+  filterEntitiesByViewer,
+  InputHeuristicState,
+  IntersectionData
+} from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { MathUtils, Raycaster, Vector3 } from 'three'
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
-import { TransformGizmoControlledComponent } from '../classes/gizmo/transform/TransformGizmoControlledComponent'
-import { controlUpdate, gizmoUpdate, planeUpdate } from '../functions/transformGizmoHelper'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
-
-const transformGizmoControllerQuery = defineQuery([TransformGizmoControlComponent])
-
-const execute = () => {
-  for (const gizmoEntity of transformGizmoControllerQuery()) {
-    const gizmoControlComponent = getComponent(gizmoEntity, TransformGizmoControlComponent)
-    if (!gizmoControlComponent.enabled) return
-
-    if (!gizmoControlComponent.visualEntity) return
-    gizmoUpdate(gizmoEntity)
-    if (!gizmoControlComponent.planeEntity) return
-    planeUpdate(gizmoEntity)
-    controlUpdate(gizmoEntity)
-  }
-}
 
 /**Editor InputComponent raycast query */
 const inputObjectsQuery = defineQuery([InputComponent, VisibleComponent, ObjectComponent])
@@ -77,7 +64,12 @@ const cameraGizmoQuery = defineQuery([CameraGizmoTagComponent, InputComponent, V
 const raycaster = new Raycaster()
 raycaster.layers.enable(ObjectLayers.Gizmos)
 
-export function editorInputHeuristic(intersectionData: Set<IntersectionData>, position: Vector3, direction: Vector3) {
+export function editorInputHeuristic(
+  viewerEntity: Entity,
+  intersectionData: Set<IntersectionData>,
+  position: Vector3,
+  direction: Vector3
+) {
   const isEditing = getState(EngineState).isEditing
   if (!isEditing) return
 
@@ -97,6 +89,7 @@ export function editorInputHeuristic(intersectionData: Set<IntersectionData>, po
       ? inputObj.concat(cameraGizmo).concat(pickerObj)
       : inputObj.concat(inputObjectsQuery()).concat(cameraGizmo)
   ) // gizmo heuristic
+    .filter((eid) => filterEntitiesByViewer(eid, viewerEntity))
     .map((eid) => getComponent(eid, ObjectComponent))
 
   //camera gizmos layer should always be active here, since it doesn't disable based on transformGizmo existing
@@ -110,29 +103,31 @@ export function editorInputHeuristic(intersectionData: Set<IntersectionData>, po
   }
 }
 
-const useGizmoControl = (entities: Entity[]) => {
-  TransformGizmoControlComponent.useControlEntities(entities)
-
-  const controlledEntity = entities[entities.length - 1]
-
-  const gizmoControlledComponent = useOptionalComponent(controlledEntity, TransformGizmoControlledComponent)
-  const gizmoControlComponent = useOptionalComponent(
-    gizmoControlledComponent ? gizmoControlledComponent.controller.value : UndefinedEntity,
-    TransformGizmoControlComponent
-  )
+const useTransformGizmoControl = (entities: Entity[]) => {
+  const gizmoEntity = TransformGizmoControlComponent.useControlEntities(entities)
+  const gizmoControlComponent = useOptionalComponent(gizmoEntity, TransformGizmoControlComponent)
   const editorHelperState = useMutableState(EditorHelperState)
 
-  useEffect(() => {
+  useImmediateEffect(() => {
+    editorHelperState.transformGizmoEntity.set(gizmoEntity)
+  }, [gizmoEntity])
+
+  useImmediateEffect(() => {
     if (!gizmoControlComponent) return
     const mode = editorHelperState.transformMode.value
     gizmoControlComponent.mode.set(mode)
-  }, [!!gizmoControlComponent, editorHelperState.transformMode])
+  }, [gizmoEntity, editorHelperState.transformMode])
 
-  useEffect(() => {
+  useImmediateEffect(() => {
     if (!gizmoControlComponent) return
     const space = editorHelperState.transformSpace.value
     gizmoControlComponent.space.set(space)
-  }, [!!gizmoControlComponent, editorHelperState.transformSpace])
+  }, [gizmoEntity, editorHelperState.transformSpace])
+
+  useImmediateEffect(() => {
+    if (!gizmoControlComponent) return
+    gizmoControlComponent.transformPivot.set(editorHelperState.transformPivot.value)
+  }, [gizmoEntity, editorHelperState.transformPivot])
 
   useEffect(() => {
     if (!gizmoControlComponent) return
@@ -148,33 +143,28 @@ const useGizmoControl = (entities: Entity[]) => {
         gizmoControlComponent.scaleSnap.set(editorHelperState.scaleSnap.value)
         break
     }
-  }, [!!gizmoControlComponent, editorHelperState.gridSnap])
+  }, [gizmoEntity, editorHelperState.gridSnap])
 
   useEffect(() => {
     if (!gizmoControlComponent) return
     gizmoControlComponent.translationSnap.set(
       editorHelperState.gridSnap.value === SnapMode.Grid ? editorHelperState.translationSnap.value : 0
     )
-  }, [!!gizmoControlComponent, editorHelperState.translationSnap])
+  }, [gizmoEntity, editorHelperState.translationSnap])
 
   useEffect(() => {
     if (!gizmoControlComponent) return
     gizmoControlComponent.rotationSnap.set(
       editorHelperState.gridSnap.value === SnapMode.Grid ? MathUtils.degToRad(editorHelperState.rotationSnap.value) : 0
     )
-  }, [!!gizmoControlComponent, editorHelperState.rotationSnap])
+  }, [gizmoEntity, editorHelperState.rotationSnap])
 
   useEffect(() => {
     if (!gizmoControlComponent) return
     gizmoControlComponent.scaleSnap.set(
       editorHelperState.gridSnap.value === SnapMode.Grid ? editorHelperState.scaleSnap.value : 0
     )
-  }, [!!gizmoControlComponent, editorHelperState.scaleSnap])
-
-  useEffect(() => {
-    if (!gizmoControlComponent) return
-    gizmoControlComponent.transformPivot.set(editorHelperState.transformPivot.value)
-  }, [!!gizmoControlComponent, editorHelperState.transformPivot])
+  }, [gizmoEntity, editorHelperState.scaleSnap])
 }
 
 const reactor = () => {
@@ -184,7 +174,7 @@ const reactor = () => {
 
   const selectedEntities = SelectionState.useSelectedEntities()
 
-  useGizmoControl(selectedEntities)
+  useTransformGizmoControl(selectedEntities)
 
   return null
 }
@@ -192,6 +182,5 @@ const reactor = () => {
 export const TransformGizmoSystem = defineSystem({
   uuid: 'ee.editor.TransformGizmoSystem',
   insert: { with: InputSystemGroup },
-  execute,
   reactor
 })

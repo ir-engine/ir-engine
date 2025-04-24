@@ -135,7 +135,7 @@ export const injectMaterialDefaults = (materialUUID: EntityUUID) => {
   const prototype = getState(MaterialPrototypeDefinitions)[material.material.type].arguments
   if (!prototype) return
   return Object.fromEntries(
-    Object.entries(prototype).map(([k, v]: [string, any]) => [k, { ...v, default: material.parameters![k] }])
+    Object.entries(prototype).map(([k, v]: [string, any]) => [k, { ...v, default: material.parameters[k] }])
   )
 }
 
@@ -148,13 +148,15 @@ export const setupMaterialParameters = (entity: Entity, properties: { [_: string
     if (v.isTexture) {
       const url = v.userData?.url
       if (url) params[k] = url
-    } else if (v.isColor) {
-      params[k] = (v as Color).getHex()
-    } else {
-      params[k] = v
+      return
     }
+    if (v.isColor) {
+      params[k] = (v as Color).getHex()
+      return
+    }
+    if (typeof v === 'object') return
+    params[k] = v
   })
-
   setComponent(entity, MaterialStateComponent, {
     parameters: params,
     prototype: properties.userData?.type || properties.type

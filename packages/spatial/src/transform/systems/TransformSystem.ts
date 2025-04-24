@@ -75,6 +75,13 @@ export const computeTransformMatrix = (entity: Entity) => {
   }
 }
 
+export const computeTransformMatrixWithChildren = (entity: Entity) => {
+  hasComponent(entity, TransformComponent) && computeTransformMatrix(entity)
+  for (const child of getOptionalComponent(entity, EntityTreeComponent)?.children ?? []) {
+    computeTransformMatrixWithChildren(child)
+  }
+}
+
 const _tempDistSqrVec3 = new Vector3()
 
 export const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vector3) => {
@@ -188,7 +195,7 @@ const execute = () => {
     viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
   }
 
-  if (!viewerEntity) return
+  if (!viewerEntity || !hasComponent(viewerEntity, TransformComponent)) return
 
   const cameraPosition = getComponent(viewerEntity, TransformComponent).position
   const camera = getComponent(viewerEntity, CameraComponent)

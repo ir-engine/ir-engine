@@ -30,8 +30,9 @@ import { destroySpatialViewer, initializeSpatialViewer } from '@ir-engine/spatia
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { useEffect } from 'react'
 
-export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
+export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
   useEffect(() => {
+    if (!ref) return
     const parent = ref.current as HTMLElement
 
     const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
@@ -53,7 +54,7 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
       originalParent.appendChild(canvas)
       canvas.hidden = true
     }
-  }, [])
+  }, [ref?.current])
 
   useEffect(() => {
     const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement

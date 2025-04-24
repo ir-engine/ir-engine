@@ -70,8 +70,8 @@ export const outlineAddToEffectRegistry = () => {
       defaultValues: {
         isActive: false,
         blendFunction: BlendFunction.SCREEN,
-        patternScale: 1.0,
-        edgeStrength: 1.0,
+        patternScale: 60.0,
+        edgeStrength: 5.0,
         pulseSpeed: 0.0,
         visibleEdgeColor: 0xffffff,
         hiddenEdgeColor: 0x22090a,

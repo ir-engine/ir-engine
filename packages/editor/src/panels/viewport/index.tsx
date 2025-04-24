@@ -29,13 +29,12 @@ import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
 import { useFind } from '@ir-engine/common'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { clientSettingPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
-import { cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
+import { cleanFileNameFile } from '@ir-engine/common/src/utils/cleanFileName'
 import { useComponent, useQuery } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ResourcePendingComponent } from '@ir-engine/engine/src/gltf/ResourcePendingComponent'
 import { ErrorBoundary, useMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
-import { useEngineCanvas } from '@ir-engine/spatial/src/renderer/functions/useEngineCanvas'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -87,12 +86,12 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
         Promise.all(
           Array.from(dropDataTransfer.files).map(async (file) => {
             try {
-              const name = cleanFileNameString(file.name)
+              file = cleanFileNameFile(file)
               return uploadToFeathersService(fileBrowserUploadPath, [file], {
                 args: [
                   {
                     project: projectName.value,
-                    path: `assets/` + name,
+                    path: `assets/` + file.name,
                     contentType: file.type
                   }
                 ]
@@ -141,7 +140,7 @@ const SceneLoadingProgress = ({ rootEntity }) => {
 }
 
 function ViewportContainer() {
-  const { sceneName, rootEntity } = useMutableState(EditorState)
+  const { sceneName, rootEntity, canvasRef } = useMutableState(EditorState)
 
   const { t } = useTranslation()
   const clientSettingQuery = useFind(clientSettingPath)
@@ -149,8 +148,6 @@ function ViewportContainer() {
 
   const ref = React.useRef<HTMLDivElement>(null)
   const toolbarRef = React.useRef<HTMLDivElement>(null)
-
-  useEngineCanvas(ref)
 
   const [transformPivotFeatureFlag] = useFeatureFlags([FeatureFlags.Studio.UI.TransformPivot])
 
@@ -170,7 +167,11 @@ function ViewportContainer() {
         {sceneName.value ? <SelectionBox viewportRef={ref} toolbarRef={toolbarRef} /> : null}
         {sceneName.value ? <TransformGizmoTool /> : null}
         {sceneName.value ? <CameraGizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
-        <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
+        <div
+          id="engine-renderer-canvas-container"
+          ref={(ref) => canvasRef.set({ current: ref })}
+          className="absolute h-full w-full"
+        />
         {sceneName.value ? (
           <>{rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}</>
         ) : (
