@@ -19,6 +19,7 @@ source "$(dirname "$0")/common/error-handling.sh"
 : "${KEEP_IMAGES:=5}"                 # Default number of images to keep when pruning
 : "${BUILD_WAIT_INTERVAL:=10}"        # Default interval for checking (10 seconds)
 : "${BUILD_WAIT_TIMEOUT:=1800}"       # Default timeout for checking build status (30 minutes)
+: "${BUILD_WAIT_MINIMUM:=180}"        # Default minimum time to wait before checking kaniko pod status
 
 # Record timestamps for performance tracking
 START_TIME=`date +"%Y-%m-%dT%H-%M-%S"`
@@ -353,6 +354,7 @@ build_with_storage_provider() {
   helm upgrade --reuse-values --set builder.extraEnv.SOURCE_REPO_NAME_API=$SOURCE_REPO_NAME_API,builder.extraEnv.SOURCE_REPO_NAME_CLIENT=$SOURCE_REPO_NAME_CLIENT,builder.extraEnv.SOURCE_REPO_NAME_INSTANCESERVER=$SOURCE_REPO_NAME_INSTANCESERVER,builder.extraEnv.SOURCE_REPO_URL=$SOURCE_REPO_URL,builder.extraEnv.DESTINATION_REPO_NAME_API=$DESTINATION_REPO_NAME_API,builder.extraEnv.DESTINATION_REPO_NAME_CLIENT=$DESTINATION_REPO_NAME_CLIENT,builder.extraEnv.DESTINATION_REPO_NAME_INSTANCESERVER=$DESTINATION_REPO_NAME_INSTANCESERVER,builder.extraEnv.DESTINATION_REPO_URL=$DESTINATION_REPO_URL,builder.extraEnv.TAG=$TAG,builder.extraEnv.START_TIME=$START_TIME $RELEASE_NAME-kaniko ir-engine/ir-engine-kaniko
 
   echo "Waiting for Kaniko builds to finish"
+  sleep $BUILD_WAIT_MINIMUM
   wait_for_builds_finished
 
   record_build_error "api"
@@ -373,6 +375,7 @@ build_with_api_serving_client() {
   helm upgrade --reuse-values --set builder.extraEnv.SOURCE_REPO_NAME_API=$SOURCE_REPO_NAME_API,builder.extraEnv.SOURCE_REPO_NAME_CLIENT=$SOURCE_REPO_NAME_CLIENT,builder.extraEnv.SOURCE_REPO_NAME_INSTANCESERVER=$SOURCE_REPO_NAME_INSTANCESERVER,builder.extraEnv.SOURCE_REPO_URL=$SOURCE_REPO_URL,builder.extraEnv.DESTINATION_REPO_NAME_API=$DESTINATION_REPO_NAME_API,builder.extraEnv.DESTINATION_REPO_NAME_CLIENT=$DESTINATION_REPO_NAME_CLIENT,builder.extraEnv.DESTINATION_REPO_NAME_INSTANCESERVER=$DESTINATION_REPO_NAME_INSTANCESERVER,builder.extraEnv.DESTINATION_REPO_URL=$DESTINATION_REPO_URL,builder.extraEnv.TAG=$TAG,builder.extraEnv.START_TIME=$START_TIME $RELEASE_NAME-kaniko ir-engine/ir-engine-kaniko
 
   echo "Waiting for Kaniko builds to finish"
+  sleep $BUILD_WAIT_MINIMUM
   wait_for_builds_finished
 
   record_build_error "api"
@@ -393,6 +396,7 @@ build_standard() {
   helm upgrade --reuse-values --set builder.extraEnv.SOURCE_REPO_NAME_API=$SOURCE_REPO_NAME_API,builder.extraEnv.SOURCE_REPO_NAME_CLIENT=$SOURCE_REPO_NAME_CLIENT,builder.extraEnv.SOURCE_REPO_NAME_INSTANCESERVER=$SOURCE_REPO_NAME_INSTANCESERVER,builder.extraEnv.SOURCE_REPO_URL=$SOURCE_REPO_URL,builder.extraEnv.DESTINATION_REPO_NAME_API=$DESTINATION_REPO_NAME_API,builder.extraEnv.DESTINATION_REPO_NAME_CLIENT=$DESTINATION_REPO_NAME_CLIENT,builder.extraEnv.DESTINATION_REPO_NAME_INSTANCESERVER=$DESTINATION_REPO_NAME_INSTANCESERVER,builder.extraEnv.DESTINATION_REPO_URL=$DESTINATION_REPO_URL,builder.extraEnv.TAG=$TAG,builder.extraEnv.START_TIME=$START_TIME $RELEASE_NAME-kaniko ir-engine/ir-engine-kaniko
 
   echo "Waiting for Kaniko builds to finish"
+  sleep $BUILD_WAIT_MINIMUM
   wait_for_builds_finished
 
   record_build_error "api"
