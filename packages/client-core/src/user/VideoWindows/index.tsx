@@ -185,7 +185,7 @@ const ReportUserWindow = () => {
 
   return (
     <div
-      className="fixed right-[10%] top-[5%] grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 rounded-xl bg-surface-4 p-3 lg:right-[5%]"
+      className="fixed right-[10%] top-[5%] z-10 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 rounded-xl bg-surface-4 p-3 lg:right-[5%]"
       ref={ref}
     >
       <div className="h-[100px] w-[100px]">

@@ -98,6 +98,8 @@ export const FollowCameraComponent = defineComponent({
     phi: S.Number(10),
     minPhi: S.Number(0),
     maxPhi: S.Number(0),
+    minTheta: S.Optional(S.Number()),
+    maxTheta: S.Optional(S.Number()),
     locked: S.Bool(false),
     enabled: S.Bool(true),
     shoulderSide: S.Enum(FollowCameraShoulderSide, FollowCameraShoulderSide.Left),
@@ -414,6 +416,10 @@ const updateCameraTargetRotation = (cameraEntity: Entity) => {
   const epsilon = 0.001
 
   target.phi = Math.min(followCamera.maxPhi, Math.max(followCamera.minPhi, target.phi))
+
+  if (followCamera.maxTheta && followCamera.minTheta) {
+    target.theta = Math.min(followCamera.maxTheta, Math.max(followCamera.minTheta, target.theta))
+  }
 
   if (Math.abs(target.phi - followCamera.phi) < epsilon && Math.abs(target.theta - followCamera.theta) < epsilon) {
     removeComponent(followCamera.targetEntity, TargetCameraRotationComponent)

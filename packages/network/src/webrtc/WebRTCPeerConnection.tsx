@@ -247,7 +247,7 @@ export const MediaSendChannelReactor = (props: {
 
   const mediaStreamState = useMutableState(MediaStreamState)
   const microphoneEnabled = mediaStreamState.microphoneEnabled.value
-  const microphoneMediaStream = mediaStreamState.microphoneMediaStream.value
+  const microphoneMediaStream = mediaStreamState.microphoneDestinationNode.value?.stream
   const webcamEnabled = mediaStreamState.webcamEnabled.value
   const webcamMediaStream = mediaStreamState.webcamMediaStream.value
   const screenshareEnabled = mediaStreamState.screenshareEnabled.value

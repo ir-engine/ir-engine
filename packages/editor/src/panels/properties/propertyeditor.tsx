@@ -24,8 +24,14 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { calculateAndApplyYOffset } from '@ir-engine/common/src/utils/offsets'
-import { Entity, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
-import { Component, Layers, getAllComponents, useHasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity, EntityUUID, PresentationSystemGroup, UUIDComponent, useExecute } from '@ir-engine/ecs'
+import {
+  Component,
+  ComponentJSONIDMap,
+  Layers,
+  getAllComponents,
+  useHasComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { ComponentEditorsState } from '@ir-engine/editor/src/services/ComponentEditors'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
@@ -67,12 +73,25 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
 
   const entity = UUIDComponent.getEntityByUUID(entityUUID, Layers.Authoring)
   const componentEditors = useHookstate(getMutableState(ComponentEditorsState)).get(NO_PROXY)
-  const components: Component[] = []
-  const entityComponents = getAllComponents(entity)
-  for (const component of entityComponents) {
-    if (!componentEditors[component.name ?? '']) continue
-    components.push(component)
-  }
+  const components = useHookstate([] as string[])
+
+  useExecute(
+    () => {
+      const entityComponents = getAllComponents(entity)
+        .filter(
+          (component) =>
+            component.name &&
+            componentEditors[component.name] &&
+            component.name !== TransformComponent.name &&
+            component.jsonID !== undefined
+        )
+        .map((component) => component.jsonID!)
+      if (JSON.stringify(entityComponents) !== JSON.stringify(components.get(NO_PROXY))) {
+        components.set(entityComponents)
+      }
+    },
+    { after: PresentationSystemGroup }
+  )
 
   const popupRef = useRef<HTMLDivElement>(null)
 
@@ -95,8 +114,8 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
   if (!entity) return null
 
   return (
-    <>
-      <div className="flex w-full justify-between gap-2 bg-surface-3 p-1 px-3" id="add-component-popover">
+    <div className="flex h-full flex-col">
+      <div className="flex w-full justify-between gap-2 bg-surface-3 p-2 px-3" id="add-component-popover">
         {hasName && (
           <div className="flex h-full w-1/2 flex-row items-center text-sm text-text-secondary group-hover/component-dropdown:text-text-primary group-focus/component-dropdown:text-text-primary">
             <IconComponent entity={entity} />
@@ -110,7 +129,7 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
           open={isAddComponentMenuOpen}
           onClose={() => setIsAddComponentMenuOpen(false)}
           trigger={
-            <Button size="sm" onClick={() => setIsAddComponentMenuOpen(true)}>
+            <Button variant="tertiary" size="sm" onClick={() => setIsAddComponentMenuOpen(true)}>
               <PlusCircleSm />
               {t('editor:properties.lbl-addComponent')}
             </Button>
@@ -122,24 +141,29 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
           </div>
         </Popup>
       </div>
-      {hasTransform && (
-        <ErrorBoundary fallback={<div>Error occured displaying transform properties</div>}>
-          <Suspense>
-            <TransformPropertyGroup entity={entity} />
-          </Suspense>
-        </ErrorBoundary>
-      )}
-      {components.map((c) => (
-        <ErrorBoundary
-          key={`${entityUUID + entity}-${c.name}`}
-          fallback={<div>Error occured displaying properties for {c.name}</div>}
-        >
-          <Suspense>
-            <EntityComponentEditor multiEdit={multiEdit} entity={entity} component={c} />
-          </Suspense>
-        </ErrorBoundary>
-      ))}
-    </>
+      <div className="overflow-y-auto">
+        {hasTransform && (
+          <ErrorBoundary fallback={<div>Error occured displaying transform properties</div>}>
+            <Suspense>
+              <TransformPropertyGroup entity={entity} />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+        {components.get(NO_PROXY).map((c) => {
+          const component = ComponentJSONIDMap.get(c)
+          return component ? (
+            <ErrorBoundary
+              key={`${entityUUID + entity}-${component.name}`}
+              fallback={<div>Error occured displaying properties for {component.name}</div>}
+            >
+              <Suspense>
+                <EntityComponentEditor multiEdit={multiEdit} entity={entity} component={component as Component} />
+              </Suspense>
+            </ErrorBoundary>
+          ) : null
+        })}
+      </div>
+    </div>
   )
 }
 
@@ -153,7 +177,7 @@ const PropertiesEditor = () => {
   const uuid = lockedNode.value ? lockedNode.value : selectedEntities[selectedEntities.length - 1]
 
   return (
-    <div className="flex h-full flex-col gap-0.5 overflow-y-auto bg-surface-1">
+    <div className="flex h-full flex-col gap-0.5 bg-surface-1">
       {materialUUID && materialEntity ? (
         <ErrorBoundary fallback={<div>Error occured displaying material properties</div>}>
           <Suspense>

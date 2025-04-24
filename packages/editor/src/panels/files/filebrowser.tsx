@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
+import useLoadingThumbnails from '@ir-engine/client-core/src/hooks/useLoadingThumbnails'
 import { useFind } from '@ir-engine/common'
 import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
@@ -36,13 +37,7 @@ import { FilesState, FilesViewModeState, SelectedFilesState } from '../../servic
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileContextMenu } from './contextmenu'
 import FileItem, { TableWrapper } from './fileitem'
-import {
-  CurrentFilesQueryProvider,
-  FILES_PAGE_LIMIT,
-  canDropOnFileBrowser,
-  useCurrentFiles,
-  useFileBrowserDrop
-} from './helpers'
+import { FILES_PAGE_LIMIT, canDropOnFileBrowser, useCurrentFiles, useFileBrowserDrop } from './helpers'
 import FilesLoaders from './loaders'
 export function Browser() {
   const [anchorEvent, setAnchorEvent] = useState<undefined | React.MouseEvent>(undefined)
@@ -70,9 +65,13 @@ export function Browser() {
     })
   }
 
+  const isLoading = useHookstate(false)
+  useLoadingThumbnails(isLoading)
+
   useEffect(() => {
+    if (isLoading.value) return
     refreshDirectory()
-  }, [thumbnailJobState.jobs.length])
+  }, [isLoading.value])
 
   const staticResourceDataQuery = useFind(staticResourcePath, {
     query: {
@@ -199,9 +198,9 @@ export default function FileBrowser() {
   }, [projectName])
 
   return (
-    <CurrentFilesQueryProvider>
+    <>
       <FilesLoaders />
       <Browser />
-    </CurrentFilesQueryProvider>
+    </>
   )
 }

@@ -34,6 +34,7 @@ import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import {
   assetLibraryPath,
+  ffmpegPath,
   fileBrowserPath,
   fileBrowserUploadPath,
   staticResourcePath
@@ -47,7 +48,7 @@ import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathR
 import { getMutableState } from '@ir-engine/hyperflux'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 import i18n from 'i18next'
-import { showMultipleFileModal } from '../panels/files/toolbar'
+import { showGifFileConfimation, showMultipleFileModal } from '../panels/files/toolbar'
 import { ImportSettingsState } from '../services/ImportSettingsState'
 
 enum FileType {
@@ -55,20 +56,21 @@ enum FileType {
   IMAGE = 'Image',
   AUDIO = 'Audio',
   VIDEO = 'Video',
-  UNKNOWN = 'Unknown'
+  UNKNOWN = 'Unknown',
+  GIF = 'GIF'
 }
 
 const unsupportedFileMessage = {
-  [FileType.THREE_D]: 'Please upload either a .gltf or a .glb.',
-  [FileType.IMAGE]: 'Please upload a .png, .tiff, .jpg, .jpeg, .gif, or .ktx2.',
-  [FileType.AUDIO]: 'Please upload a .mp3, .mpeg, .m4a, or .wav.',
-  [FileType.VIDEO]: 'Please upload a .mp4, .mkv, or .avi.',
-  [FileType.UNKNOWN]: 'Please upload a valid 3D, Image, Audio, or Video file.'
+  [FileType.THREE_D]: 'editor:errors.unsupported-3D-file',
+  [FileType.IMAGE]: 'editor:errors.unsupported-image-file',
+  [FileType.AUDIO]: 'editor:errors.unsupported-audio-file',
+  [FileType.VIDEO]: 'editor:errors.unsupported-video-file',
+  [FileType.UNKNOWN]: 'editor:errors.unsupported-unknown-file'
 }
 
 const supportedFiles = {
   [FileType.THREE_D]: new Set(['.gltf', '.glb', '.bin']),
-  [FileType.IMAGE]: new Set(['.png', '.tiff', '.jpg', '.jpeg', '.gif', '.ktx2']),
+  [FileType.IMAGE]: new Set(['.png', '.jpg', '.jpeg', '.ktx2', '.gif']),
   [FileType.AUDIO]: new Set(['.mp3', '.mpeg', '.m4a', '.wav']),
   [FileType.VIDEO]: new Set(['.mp4', '.mkv', '.avi'])
 }
@@ -76,7 +78,11 @@ const supportedFiles = {
 function findMimeType(file: File): FileType {
   let fileType = FileType.UNKNOWN
   if (file.type.startsWith('image/')) {
-    fileType = FileType.IMAGE
+    if (file.type.includes('gif')) {
+      fileType = FileType.GIF
+    } else {
+      fileType = FileType.IMAGE
+    }
   } else if (file.type.startsWith('audio/')) {
     fileType = FileType.AUDIO
   } else if (file.type.startsWith('video/')) {
@@ -103,7 +109,7 @@ function isValidFileType(file): { isValid: boolean; errorMessage?: string } {
 
   return {
     isValid: false,
-    errorMessage: unsupportedFileMessage[mimeType]
+    errorMessage: i18n.t(unsupportedFileMessage[mimeType])
   }
 }
 
@@ -215,6 +221,95 @@ export const filterExistingFiles = async (projectName: string, directoryPath: st
 
   return uniqueFiles
 }
+export const filterGifFiles = async (projectName: string, directoryPath: string, files: File[]) => {
+  if (!files.length) {
+    return files
+  }
+
+  const { gifFiles, notGifFiles } = files.reduce(
+    (result, file) => {
+      const mimeType: FileType = findMimeType(file)
+      if (mimeType === FileType.GIF) {
+        result.gifFiles.push(file)
+      } else {
+        result.notGifFiles.push(file)
+      }
+      return result
+    },
+    { gifFiles: [], notGifFiles: [] } as { gifFiles: File[]; notGifFiles: File[] }
+  )
+
+  if (gifFiles.length > 0) {
+    showGifFileConfimation(projectName, directoryPath, gifFiles)
+  }
+  return notGifFiles
+}
+
+// upload gif files and convert them to video and upload them returning the urls
+export const handleConvertGifFileToVideoAndUpload = (
+  projectName: string,
+  directoryPath: string,
+  files: FileList | File[],
+  updateThumbnail = true
+): Promise<string[]> => {
+  return Promise.all(
+    Array.from(files).map(async (file) => {
+      file = cleanFileNameFile(file)
+
+      const ext = file.name.split('.').pop() ?? ''
+      const contentType = CommonKnownContentTypes[ext] as string | null
+
+      const fileDirectory = file.webkitRelativePath || file.name
+      console.log('fileDirectory', fileDirectory)
+      return uploadToFeathersService(ffmpegPath, [file], {
+        args: [
+          {
+            project: projectName,
+            path: directoryPath.replace('projects/' + projectName + '/', '') + fileDirectory,
+            type: 'asset',
+            contentType: file.type
+          }
+        ]
+      })
+        .promise.then((response) => {
+          if (!updateThumbnail) return response[0]
+          //get the static resource record for this file, so we can make it's thumbnail null, since it was oerwritten
+          const checkStaticResourceThumbnail = async (path) => {
+            await API.instance
+              .service(staticResourcePath)
+              .find({
+                query: { key: { $in: [path] } }
+              })
+              .then((reponse) => {
+                if (reponse.data.length > 0) {
+                  const staticResourceId = reponse.data[0].id
+                  const updateStaticResourceThumbnail = async (id: string) => {
+                    await API.instance
+                      .service(staticResourcePath)
+                      .patch(id, { thumbnailKey: null, thumbnailMode: null })
+                  }
+                  updateStaticResourceThumbnail(staticResourceId)
+                }
+              })
+              .catch((e) => console.error(e))
+            return path
+          }
+          const fileURL = new URL(response[0])
+          fileURL.search = ''
+          fileURL.hash = ''
+          const file = fileURL.href.replace(config.client.fileServer + '/', '')
+          removeFromFileThumbnailsSeen([file])
+          return checkStaticResourceThumbnail(file)
+        })
+        .catch((e) => {
+          NotificationService.dispatchNotify(i18n.t('editor:errors.fileUploadFailed', { reason: e }) as string, {
+            variant: 'error',
+            autoHideDuration: 20000
+          })
+        })
+    })
+  )
+}
 
 // uploads files and returns an array of uploaded urls
 export const handleUploadFiles = (
@@ -323,7 +418,8 @@ export const inputFileWithAddToScene = ({
       try {
         if (el.files?.length) {
           const newFiles = validatedFiles(el.files)
-          const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
+          const nonGifFiles = await filterGifFiles(projectName, directoryPath, newFiles)
+          const uniqueFiles = await filterExistingFiles(projectName, directoryPath, nonGifFiles)
           await handleUploadFiles(projectName, directoryPath, uniqueFiles)
         }
         resolve(null)

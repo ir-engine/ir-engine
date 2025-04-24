@@ -27,7 +27,6 @@ import { ProjectService, ProjectState } from '@ir-engine/client-core/src/common/
 import config from '@ir-engine/common/src/config'
 import { camelCaseToSpacedString } from '@ir-engine/common/src/utils/camelCaseToSpacedString'
 import { hasComponent, useAncestorWithComponents, useChildrenWithComponents, useComponent } from '@ir-engine/ecs'
-import ErrorPopUp from '@ir-engine/editor/src/components/popup/ErrorPopUp'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
@@ -147,15 +146,18 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
       Icon={GLTFNodeEditor.iconComponent}
       {...props}
     >
-      <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
+      <InputGroup name="Model Url" className="flex flex-col gap-y-2" label={t('editor:properties.model.lbl-modelurl')}>
         <ModelInput
           value={gltfComponent.src.value}
           onRelease={(src) => {
             commitProperty(GLTFComponent, 'src')(src)
           }}
         />
-        {errors?.LOADING_ERROR ||
-          (errors?.INVALID_SOURCE && ErrorPopUp({ message: t('editor:properties.model.error-url') }))}
+        {!errors?.INVALID_SOURCE && !!errors?.LOADING_ERROR && (
+          <Text fontSize="xs" className="text-ui-error">
+            {errors?.LOADING_ERROR}
+          </Text>
+        )}
       </InputGroup>
 
       <InputGroup name="Camera Occlusion" label={t('editor:properties.model.lbl-cameraOcclusion')}>

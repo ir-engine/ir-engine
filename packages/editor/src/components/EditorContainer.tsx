@@ -56,6 +56,8 @@ import { useTranslation } from 'react-i18next'
 import { IoHelpCircleOutline } from 'react-icons/io5'
 import { onSaveScene, setCurrentEditorScene } from '../functions/sceneFunctions'
 import { AssetsPanelTab } from '../panels/assets'
+import { AssetsQueryProvider } from '../panels/assets/hooks'
+import { CurrentFilesQueryProvider } from '../panels/files/helpers'
 import { HierarchyPanelTab } from '../panels/hierarchy'
 import { MaterialsPanelTab } from '../panels/materials'
 import { PropertiesPanelTab } from '../panels/properties'
@@ -104,7 +106,7 @@ const onEditorError = (error) => {
 }
 
 const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData => {
-  const tabs = [ScenePanelTab, AssetsPanelTab]
+  const tabs = [AssetsPanelTab]
   flags.visualScriptPanelEnabled && tabs.push(VisualScriptPanelTab)
 
   return {
@@ -128,7 +130,7 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
           size: 3,
           children: [
             {
-              tabs: [HierarchyPanelTab, MaterialsPanelTab]
+              tabs: [HierarchyPanelTab, ScenePanelTab, MaterialsPanelTab]
             },
             {
               tabs: [PropertiesPanelTab]
@@ -253,36 +255,44 @@ const EditorContainer = () => {
 
   return (
     <main className="pointer-events-auto">
-      <div id="editor-container" className="flex flex-col" style={scenePath.value ? { background: 'transparent' } : {}}>
-        {uiEnabled.value && (
-          <DndWrapper id="editor-container">
-            <DragLayer />
-            <Toolbar />
-            <div className="mt-1 flex overflow-hidden">
-              <DockContainer>
-                <DockLayout
-                  ref={dockPanelRef}
-                  defaultLayout={defaultLayout({ visualScriptPanelEnabled })}
-                  style={{ position: 'absolute', left: 5, top: 50, right: 5, bottom: 5 }}
-                />
-              </DockContainer>
+      <CurrentFilesQueryProvider>
+        <AssetsQueryProvider>
+          <div
+            id="editor-container"
+            className="flex flex-col"
+            style={scenePath.value ? { background: 'transparent' } : {}}
+          >
+            {uiEnabled.value && (
+              <DndWrapper id="editor-container">
+                <DragLayer />
+                <Toolbar />
+                <div className="mt-1 flex overflow-hidden">
+                  <DockContainer>
+                    <DockLayout
+                      ref={dockPanelRef}
+                      defaultLayout={defaultLayout({ visualScriptPanelEnabled })}
+                      style={{ position: 'absolute', left: 5, top: 50, right: 5, bottom: 5 }}
+                    />
+                  </DockContainer>
+                </div>
+              </DndWrapper>
+            )}
+            {Object.entries(editorUIAddon.container.get(NO_PROXY)).map(([key, value]) => {
+              return value
+            })}
+          </div>
+          <PopupMenu />
+          {!isWidgetVisible && initialized && (
+            <div className="absolute bottom-3 right-4">
+              <Tooltip position="left" key={t('editor:help')} content={t('editor:help')}>
+                <Button size="sm" className="h-8 w-8 p-0" onClick={openChat}>
+                  <IoHelpCircleOutline fontSize={24} />
+                </Button>
+              </Tooltip>
             </div>
-          </DndWrapper>
-        )}
-        {Object.entries(editorUIAddon.container.get(NO_PROXY)).map(([key, value]) => {
-          return value
-        })}
-      </div>
-      <PopupMenu />
-      {!isWidgetVisible && initialized && (
-        <div className="absolute bottom-3 right-4">
-          <Tooltip position="left" key={t('editor:help')} content={t('editor:help')}>
-            <Button size="sm" className="h-8 w-8 p-0" onClick={openChat}>
-              <IoHelpCircleOutline fontSize={24} />
-            </Button>
-          </Tooltip>
-        </div>
-      )}
+          )}
+        </AssetsQueryProvider>
+      </CurrentFilesQueryProvider>
     </main>
   )
 }

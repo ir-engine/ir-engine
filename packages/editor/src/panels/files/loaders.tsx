@@ -25,16 +25,17 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import useLoadingThumbnails from '@ir-engine/client-core/src/hooks/useLoadingThumbnails'
 import { useUploadingFiles } from '@ir-engine/client-core/src/util/upload'
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { archiverPath } from '@ir-engine/common/src/schema.type.module'
 import { bytesToSize } from '@ir-engine/common/src/utils/btyesToSize'
 import { downloadBlobAsZip } from '@ir-engine/editor/src/functions/assetFunctions'
-import { defineState, getMutableState, useMutableState } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Progress from '@ir-engine/ui/src/primitives/tailwind/Progress'
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useCurrentFiles } from './helpers'
 
@@ -144,7 +145,6 @@ export function ProjectDownloadProgress() {
 export function FileUploadProgress() {
   const { t } = useTranslation()
   const { completed, total, progress } = useUploadingFiles()
-
   return total ? (
     <div className="flex h-auto w-full justify-center pb-2 pt-2">
       <div className="flex w-1/2">
@@ -163,24 +163,45 @@ function GeneratingThumbnailsProgress() {
   const { t } = useTranslation()
   const thumbnailJobs = useMutableState(FileThumbnailJobState).jobs
 
-  if (!thumbnailJobs.length) return null
+  const isLoading = useHookstate(false)
+  useLoadingThumbnails(isLoading)
 
-  return (
+  return isLoading.value ? (
     <LoadingView
       titleClassname="mt-0"
       containerClassName="flex-row mt-1"
       className="mx-2 my-auto h-6 w-6"
       title={t('editor:layout.filebrowser.generatingThumbnails', { count: thumbnailJobs.length })}
     />
-  )
+  ) : null
 }
 
 function FilesLoading() {
   const { t } = useTranslation()
   const { filesQuery } = useCurrentFiles()
-  const isLoading = filesQuery?.status === 'pending'
+  const isLoading = useHookstate(false)
+  const debouncedStatusRef = useRef<ReturnType<typeof setTimeout>>()
 
-  return isLoading ? (
+  useEffect(() => {
+    clearTimeout(debouncedStatusRef.current)
+  }, [])
+
+  useEffect(() => {
+    if (debouncedStatusRef) {
+      clearTimeout(debouncedStatusRef.current)
+    }
+
+    const isFilesLoading = filesQuery?.status === 'pending'
+    if (isFilesLoading) {
+      isLoading.set(true)
+    } else {
+      debouncedStatusRef.current = setTimeout(() => {
+        isLoading.set(false)
+      }, 1000)
+    }
+  }, [filesQuery?.status])
+
+  return isLoading.value ? (
     <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} fullSpace className="block h-12 w-12" />
   ) : null
 }
@@ -188,10 +209,10 @@ function FilesLoading() {
 export default function Loaders() {
   return (
     <>
+      <GeneratingThumbnailsProgress />
       <FileUploadProgress />
       <ProjectDownloadProgress />
       <FilesLoading />
-      <GeneratingThumbnailsProgress />
     </>
   )
 }

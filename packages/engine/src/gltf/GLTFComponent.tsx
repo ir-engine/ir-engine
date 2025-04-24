@@ -89,7 +89,7 @@ export const GLTFComponent = defineComponent({
   schema: S.Object({
     src: S.String(''),
     /** @todo move this to it's own component */
-    cameraOcclusion: S.Bool(false),
+    cameraOcclusion: S.Bool(true),
 
     //collision info
     applyColliders: S.Bool(false),
@@ -208,6 +208,26 @@ export const GLTFComponentReactor = () => {
   const entity = useEntityContext()
   const gltfComponent = useComponent(entity, GLTFComponent)
   const documentLoaded = useHookstate(false)
+  const sceneLoaded = GLTFComponent.useSceneLoaded(entity)
+
+  useEffect(() => {
+    if (!sceneLoaded) return
+
+    const occlusion = gltfComponent.cameraOcclusion.value
+    const entities = SourceComponent.getEntitiesBySource(GLTFComponent.getInstanceID(entity))
+
+    if (!occlusion) {
+      ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
+      for (const curr of entities) {
+        ObjectLayerMaskComponent.disableLayer(curr, ObjectLayers.Camera)
+      }
+    } else {
+      ObjectLayerMaskComponent.enableLayer(entity, ObjectLayers.Camera)
+      for (const curr of entities) {
+        ObjectLayerMaskComponent.enableLayer(curr, ObjectLayers.Camera)
+      }
+    }
+  }, [gltfComponent.cameraOcclusion.value, sceneLoaded])
 
   useEffect(() => {
     const occlusion = gltfComponent.cameraOcclusion.value
@@ -264,8 +284,6 @@ export const GLTFComponentReactor = () => {
       }
     }
   }, [gltfComponent.document])
-
-  const sceneLoaded = GLTFComponent.useSceneLoaded(entity)
 
   const scene = useOptionalComponent(entity, SceneComponent)
 
@@ -492,7 +510,6 @@ const useGLTFDocument = (entity: Entity) => {
     if (dynamicLoadAndNotEditing) return
 
     if (!url) {
-      addError(entity, GLTFComponent, 'INVALID_SOURCE', 'Invalid URL')
       return
     }
 
@@ -502,6 +519,8 @@ const useGLTFDocument = (entity: Entity) => {
     const onError = (error: ErrorEvent) => {
       addError(entity, GLTFComponent, 'LOADING_ERROR', 'Error loading model')
     }
+
+    removeError(entity, GLTFComponent, 'LOADING_ERROR')
 
     loadGLTFFile(
       url,

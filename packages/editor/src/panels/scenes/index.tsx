@@ -26,12 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useFind, useRealtime } from '@ir-engine/common'
 import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import CreateSceneDialog from '@ir-engine/editor/src/components/dialogs/CreateScenePanelDialog'
 import { confirmSceneSaveIfModified } from '@ir-engine/editor/src/components/toolbar/Toolbar'
 import { onNewScene } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { Button } from '@ir-engine/ui'
+import { AddScene } from '@ir-engine/ui/src/components/editor/AddScene/AddScene'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import { PlusCircleSm } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
@@ -66,7 +66,8 @@ function ScenesPanel() {
     isCreatingScene.set(true)
     const newSceneUIAddons = getState(UIAddonsState).editor.newScene
     if (Object.keys(newSceneUIAddons).length > 0) {
-      PopoverState.showPopupover(<CreateSceneDialog />)
+      const { projectName } = getState(EditorState)
+      PopoverState.showPopupover(<AddScene projectName={projectName!} />)
     } else {
       await onNewScene()
     }
@@ -82,6 +83,7 @@ function ScenesPanel() {
           size="sm"
           data-testid="scene-panel-add-scene-button"
           onClick={handleCreateScene}
+          variant="tertiary"
         >
           <PlusCircleSm />
           <span className="text-nowrap">{t('editor:newScene')}</span>
