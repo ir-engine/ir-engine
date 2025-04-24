@@ -71,6 +71,12 @@ export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken t
 const iframe = document.getElementById('root-cookie-accessor') as HTMLIFrameElement
 const communicator = new ParentCommunicator('root-cookie-accessor', config.client.clientUrl) //Eventually we can configure iframe target seperatly
 
+declare global {
+  interface Window {
+    dataLayer?: any[]
+  }
+}
+
 export const UserSeed: UserType = {
   id: '' as UserID,
   name: '' as UserName,
@@ -305,6 +311,15 @@ export const AuthService = {
         authState.merge({ authUser })
         await writeAuthUserToIframe()
         await AuthService.loadUserData(authUser.identityProvider.userId)
+
+        // We are setting userId in dataLayer for Google Tag Manager user tracking.
+        // Ref: https://analystadmin.medium.com/implementing-google-analytics-and-google-tag-manager-into-a-react-js-app-e986579cd0ee
+        // Ref: https://developers.google.com/analytics/devguides/collection/ga4/user-id?client_type=gtm
+        if (window.dataLayer) {
+          window.dataLayer.push({
+            userId: authUser.identityProvider.userId
+          })
+        }
       } else {
         logger.warn('No response received from reAuthenticate()!')
       }
