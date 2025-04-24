@@ -63,9 +63,9 @@ export function Browser() {
   const { projectName } = useMutableState(FilesState)
   const staticResourceData = useHookstate<Record<string, Record<string, string>>>({})
 
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' })
+  const [sortConfig, setSortConfig] = useState({ key: null as null | string, direction: 'asc' })
 
-  const handleSort = (columnKey) => {
+  const handleSort = (columnKey: string) => {
     setSortConfig((prevConfig) => {
       const newDirection = prevConfig.key === columnKey && prevConfig.direction === 'asc' ? 'desc' : 'asc'
       return { key: columnKey, direction: newDirection }

@@ -57,7 +57,13 @@ type DisplayTypeProps = {
   className?: string
 }
 
-export function TableWrapper({ children, handleSort }: { children: React.ReactNode; handleSort: any }) {
+export function TableWrapper({
+  children,
+  handleSort
+}: {
+  children: React.ReactNode
+  handleSort: (header: (typeof availableTableColumns)[number]) => void
+}) {
   const { t } = useTranslation()
   const selectedTableColumns = useHookstate(getMutableState(FilesViewModeSettings).list.selectedTableColumns).value
 
