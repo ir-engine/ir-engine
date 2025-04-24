@@ -51,7 +51,7 @@ export const PopoverState = defineState({
     getMutableState(PopoverState).popups.merge([
       {
         element,
-        onClickOutside: onClickOutside || (() => {})
+        onClickOutside: onClickOutside || PopoverState.hidePopupover
       }
     ])
     if (backdrop === 'transparent') {

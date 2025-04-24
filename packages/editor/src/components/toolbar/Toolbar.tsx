@@ -85,7 +85,7 @@ const onClickNewScene = async () => {
 
   if (Object.keys(newSceneUIAddons).length > 0) {
     const { projectName } = getState(EditorState)
-    PopoverState.showPopupover(<AddScene projectName={projectName!} />)
+    PopoverState.showPopupover(<AddScene projectName={projectName!} />, () => {})
   } else {
     onNewScene()
   }
@@ -237,7 +237,8 @@ export default function Toolbar() {
                       inStudio={true}
                       sceneModified={isModified}
                       onPublish={onPublish}
-                    />
+                    />,
+                    () => {}
                   )
                 }
                 className="rounded-[32px] py-1 text-base"
