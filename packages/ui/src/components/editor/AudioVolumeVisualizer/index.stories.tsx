@@ -122,7 +122,8 @@ const AudioVolumeVisualizerRenderer = (args: AudioVolumeVisualizerProps & { star
     const files = e.target.files
     if (files && files.length > 0) {
       const file = files[0]
-      if (file.type.startsWith('audio/')) {
+      // Validate type and size (max 10MB)
+      if (file.type.startsWith('audio/') && file.size > 0 && file.size <= 10 * 1024 * 1024) {
         // Stop current playback if any
         if (audioElement.value) {
           audioElement.value.pause()
@@ -132,10 +133,18 @@ const AudioVolumeVisualizerRenderer = (args: AudioVolumeVisualizerProps & { star
 
         // Create new audio element
         const audio = new Audio()
-        const src = (audio.src = URL.createObjectURL(file))
-        audioSrc.set(src)
-        audio.crossOrigin = 'anonymous'
-        audioElement.set(audio)
+        let src: string
+        try {
+          src = URL.createObjectURL(file)
+          audio.src = src
+          audioSrc.set(src)
+          audio.crossOrigin = 'anonymous'
+          audioElement.set(audio)
+        } catch (error) {
+          console.error('Error creating object URL for file:', error)
+          alert('Failed to load the audio file. Please try again.')
+          return
+        }
 
         // Set initial volume (0dB = gain 1.0)
         try {
@@ -158,7 +167,16 @@ const AudioVolumeVisualizerRenderer = (args: AudioVolumeVisualizerProps & { star
 
         console.log('Audio element created:', file.name)
       } else {
-        alert('Please select a valid audio file.')
+        // Provide more specific error message based on validation failure
+        if (!file.type.startsWith('audio/')) {
+          alert('Please select a valid audio file. Supported formats include MP3, WAV, OGG, etc.')
+        } else if (file.size <= 0) {
+          alert('The selected file appears to be empty. Please select a valid audio file.')
+        } else if (file.size > 10 * 1024 * 1024) {
+          alert('The selected file exceeds the maximum size limit of 10MB. Please select a smaller file.')
+        } else {
+          alert('Please select a valid audio file.')
+        }
       }
     }
   }

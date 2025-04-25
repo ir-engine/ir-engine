@@ -50,7 +50,6 @@ function AudioVolumeVisualizer({
   scaleSettings,
   showCurrentTime = false
 }: AudioVolumeVisualizerProps) {
-  // Initialize volume with the provided value
   const volume = useHookstate(value)
   const audioData = useHookstate<number[]>([])
   const dbLevels = useHookstate<number[]>([])
@@ -60,15 +59,12 @@ function AudioVolumeVisualizer({
   const currentTime = useHookstate(0)
   const duration = useHookstate(0)
   // Default scale configuration
-  const defaultTransitionPoint = 0 // dB - Changed from -40 to 0
-  const defaultLowerRangePortion = 0.4 // 40% of space for -60dB to 0dB (transitionPoint)
-
-  // Use provided configuration or default values
+  const defaultTransitionPoint = 10
+  const defaultLowerRangePortion = 0.8
   const transitionPoint = scaleSettings?.transitionPoint ?? defaultTransitionPoint
   const lowerRangePortion = scaleSettings?.lowerRangePortion ?? defaultLowerRangePortion
   const upperRangePortion = 1 - lowerRangePortion
 
-  // Add sourceNodeRef with other refs at the component level
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const animationRef = useRef<number>()
@@ -85,7 +81,6 @@ function AudioVolumeVisualizer({
 
   const audio = useHookstate<HTMLAudioElement | null>(null)
 
-  // Initialize audio element when source changes
   useEffect(() => {
     if (audioSrc) {
       const newAudio = new Audio()
@@ -116,14 +111,13 @@ function AudioVolumeVisualizer({
 
   // Update internal volume when external value changes
   useEffect(() => {
-    // Update internal volume state
     volume.set(value)
 
     if (!gainNodeRef.current) return
 
     // Convert linear volume to dB, allowing for the full range
     const dbValue = value <= 0 ? -60 : Math.min(20, 20 * Math.log10(value))
-    const gainValue = Math.pow(10, dbValue / 20)
+    const gainValue = dbValue <= -60 ? 0 : Math.pow(10, dbValue / 20)
 
     // Apply the gain value
     gainNodeRef.current.gain.setValueAtTime(gainValue, audioContextRef.current?.currentTime || 0)
@@ -169,8 +163,7 @@ function AudioVolumeVisualizer({
       // Generate random dB levels
       const fakeDbLevels = fakeData.map((value) => {
         // Convert normalized value (0-1) to dB (-60 to +20)
-        // Usar un rango más amplio para aprovechar toda la escala
-        return 20 * Math.log10(value) * 2 // Multiplicar por 2 para amplificar
+        return 20 * Math.log10(value) * 2
       })
       dbLevels.set(fakeDbLevels)
     }
@@ -178,7 +171,6 @@ function AudioVolumeVisualizer({
     generateRandomData()
 
     try {
-      // Create audio context if it doesn't exist
       if (!audioContextRef.current) {
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
       }
@@ -226,7 +218,8 @@ function AudioVolumeVisualizer({
 
           // Set initial gain from volume value
           const dbValue = value <= 0 ? -60 : Math.min(20, 20 * Math.log10(value))
-          const gainValue = Math.pow(10, dbValue / 20)
+          // When dB is -60 or less, set gain to exactly 0 to ensure silence
+          const gainValue = dbValue <= -60 ? 0 : Math.pow(10, dbValue / 20)
           gainNodeRef.current!.gain.value = gainValue
           console.log('Audio chain connected with gain:', gainValue, 'dB:', dbValue)
           console.log('Audio successfully connected to analyzer')
@@ -237,7 +230,6 @@ function AudioVolumeVisualizer({
 
       // Wait for audio to be ready
       const handleCanPlay = () => {
-        console.log('Audio can play event triggered')
         connectAudio()
 
         // Set duration
@@ -260,7 +252,6 @@ function AudioVolumeVisualizer({
       generateRandomData()
     }
     return () => {
-      // Cleanup connections
       if (sourceNodeRef.current) {
         sourceNodeRef.current.disconnect()
       }
@@ -375,9 +366,6 @@ function AudioVolumeVisualizer({
       const dbSamples = Array.from(dataArray)
         .slice(0, 150)
         .map((db) => {
-          // Amplify values to reach the full range
-          // Typically real values are between -70dB and -20dB
-          // We want to map them to the full range from -60dB to +20dB
           const amplifiedDb = db + 20 // Amplify by 20dB
           return Math.max(-60, Math.min(20, amplifiedDb))
         })
@@ -729,7 +717,8 @@ function AudioVolumeVisualizer({
     const newDb = Math.max(-60, Math.min(20, currentDb + dbChange))
 
     // Convert dB to linear gain for the audio element
-    const newGain = Math.pow(10, newDb / 20)
+    // When dB is -60 or less, set gain to exactly 0 to ensure silence
+    const newGain = newDb <= -60 ? 0 : Math.pow(10, newDb / 20)
     volume.set(newGain)
 
     if (gainNodeRef.current) {
