@@ -129,7 +129,6 @@ export const createAvatarCollider = (entity: Entity) => {
   })
 }
 
-const avatarCapsuleOffset = 0.125
 export const setAvatarColliderTransform = (entity: Entity) => {
   const avatarCollider = getOptionalComponent(entity, AvatarColliderComponent)
   if (!avatarCollider) return
