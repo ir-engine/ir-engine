@@ -28,9 +28,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { API } from '@ir-engine/common'
 import {
-  authenticationSettingPath,
   avatarPath,
   clientSettingPath,
+  engineSettingPath,
   identityProviderPath,
   projectSettingPath,
   scopePath,
@@ -91,7 +91,7 @@ describe('SettingsMenu component', () => {
         }
       ],
       [avatarPath]: [],
-      [authenticationSettingPath]: [
+      [engineSettingPath]: [
         {
           id: 'auth-setting-id',
           authStrategies: [
@@ -146,7 +146,7 @@ describe('SettingsMenu component', () => {
       [scopePath]: createService(scopePath),
       [clientSettingPath]: createService(clientSettingPath),
       [identityProviderPath]: createService(identityProviderPath),
-      [authenticationSettingPath]: createService(authenticationSettingPath)
+      [engineSettingPath]: createService(engineSettingPath)
     }
     eventDispatcher = new EventDispatcher()
     ;(API.instance as any) = {

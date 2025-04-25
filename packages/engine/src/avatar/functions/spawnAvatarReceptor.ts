@@ -82,6 +82,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   })
 
   createAvatarCollider(entity)
+  setAvatarColliderTransform(entity)
 
   setComponent(entity, RigidBodyComponent, {
     type: BodyTypes.Dynamic,

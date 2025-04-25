@@ -51,7 +51,6 @@ import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { CameraComponent } from '../../../../spatial/src/camera/components/CameraComponent'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { setAvatarColliderTransform } from '../functions/spawnAvatarReceptor'
 import { AvatarComponent } from './AvatarComponent'
 
 export const eyeOffset = 0.25
@@ -127,8 +126,6 @@ export const AvatarControllerComponent = defineComponent({
 
     useEffect(() => {
       if (!avatarComponent) return
-      setAvatarColliderTransform(entity)
-
       const cameraEntity = avatarControllerComponent.cameraEntity.value
       if (cameraEntity && entityExists(cameraEntity) && hasComponent(cameraEntity, FollowCameraComponent)) {
         const cameraComponent = getComponent(cameraEntity, FollowCameraComponent)
