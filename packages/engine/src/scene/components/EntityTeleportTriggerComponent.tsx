@@ -25,24 +25,24 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   Entity,
-  EntityUUID,
   S,
   UUIDComponent,
   defineComponent,
   getComponent,
-  getMutableComponent,
   setComponent,
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
 
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { teleportAvatar } from '../../avatar/functions/moveAvatar'
 import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { useEffect } from 'react'
 import { Vector3 } from 'three'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { teleportAvatar } from '../../avatar/functions/moveAvatar'
+import { NodeID, NodeIDComponent } from '../../gltf/NodeIDComponent'
+import { SourceComponent } from './SourceComponent'
 
 export const EntityTeleportTriggerComponent = defineComponent({
   name: 'EntityTeleportTriggerComponent',
@@ -54,7 +54,7 @@ export const EntityTeleportTriggerComponent = defineComponent({
      * This is required - the avatar will be teleported to the position of this entity.
      */
     targetEntityUUID: S.EntityUUID(),
-    
+
     /**
      * Optional offset to apply to the target position.
      * This can be used to teleport the avatar to a position relative to the target entity.
@@ -64,7 +64,7 @@ export const EntityTeleportTriggerComponent = defineComponent({
       y: S.Number(0),
       z: S.Number(0)
     }),
-    
+
     /**
      * Whether to force the teleport even if the position is invalid.
      * If false, the teleport will only happen if the position is valid.
@@ -85,16 +85,23 @@ export const EntityTeleportTriggerComponent = defineComponent({
         if (otherEntity !== AvatarComponent.getSelfAvatarEntity()) return
 
         // Get the target entity to teleport to
-        let targetEntity = UUIDComponent.getEntityByUUID(component.targetEntityUUID.value as EntityUUID)
+        const sourceID = getComponent(entity, SourceComponent)
+        const targetUUID = NodeIDComponent.getUUIDBySourceAndNodeID(
+          sourceID,
+          component.targetEntityUUID.value as string as NodeID
+        )
+        const targetEntity = UUIDComponent.getEntityByUUID(targetUUID)
         if (!targetEntity) {
-          console.warn(`EntityTeleportTriggerComponent: Target entity with UUID ${component.targetEntityUUID.value} not found`)
+          console.warn(
+            `EntityTeleportTriggerComponent: Target entity with UUID ${component.targetEntityUUID.value} not found`
+          )
           return
         }
 
         // Get the position of the target entity
         const targetTransform = getComponent(targetEntity, TransformComponent)
         const targetPosition = targetTransform.position.clone()
-        
+
         // Apply offset if specified
         const offset = component.offset.value
         if (offset) {
@@ -107,14 +114,6 @@ export const EntityTeleportTriggerComponent = defineComponent({
 
       // Add the trigger to the TriggerComponent
       setComponent(entity, TriggerComponent)
-      const triggerComp = getMutableComponent(entity, TriggerComponent)
-      triggerComp?.triggers.merge([
-        {
-          onEnter: 'onEntityTeleportTriggerEnter',
-          onExit: '',
-          target: '' as EntityUUID
-        }
-      ])
     }, [component.targetEntityUUID, component.offset, component.force])
 
     return null
