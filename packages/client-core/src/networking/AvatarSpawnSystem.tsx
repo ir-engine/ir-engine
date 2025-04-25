@@ -48,7 +48,6 @@ import {
   useImmediateEffect,
   useMutableState
 } from '@ir-engine/hyperflux'
-import { NetworkState, WorldNetworkAction } from '@ir-engine/network'
 import { SpectateActions } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
 
 import { useFind, useMutation } from '@ir-engine/common'
@@ -58,7 +57,7 @@ import { EngineState, useChildrenWithComponents } from '@ir-engine/ecs'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
-import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { NetworkState, WorldNetworkAction } from '@ir-engine/network'
 import { SearchParamState } from '../common/services/RouterService'
 import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
 import { LocationState } from '../social/services/LocationService'
@@ -109,9 +108,8 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
     const avatarSpawnPose = getRandomSpawnPoint(userID)
     const user = getState(AuthState).user
     /**@todo force default avatars. Temporary solution for memory related crashing on iOS. */
-    const avatarURL = iOS
-      ? config.client.fileServer + '/projects/ir-engine/default-project/assets/avatars/irRobot.vrm'
-      : userAvatar.avatar.modelResource!.url
+    const avatarURL = config.client.fileServer + '/projects/ir-engine/default-project/assets/avatars/magic_marble.glb'
+
     spawnLocalAvatarInWorld({
       parentUUID: rootUUID,
       avatarSpawnPose,
@@ -152,9 +150,8 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   useEffect(() => {
     if (isSpectating || !userAvatar) return
     /**@todo force default avatars. Temporary solution for memory related crashing on iOS. */
-    const avatarURL = iOS
-      ? config.client.fileServer + '/projects/ir-engine/default-project/assets/avatars/irRobot.vrm'
-      : userAvatar.avatar.modelResource!.url
+    const avatarURL = config.client.fileServer + '/projects/ir-engine/default-project/assets/avatars/magic_marble.glb'
+
     dispatchAction(
       AvatarNetworkAction.setAvatarURL({
         avatarURL,
