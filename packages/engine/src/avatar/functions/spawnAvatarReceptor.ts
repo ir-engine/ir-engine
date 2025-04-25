@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import {
   createEntity,
@@ -38,7 +38,6 @@ import {
 } from '@ir-engine/ecs'
 import { NetworkObjectComponent, NetworkObjectSendPeriodicUpdatesTag } from '@ir-engine/network'
 import { setTargetCameraRotation } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
-import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
@@ -49,22 +48,14 @@ import {
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { getState, isClient } from '@ir-engine/hyperflux'
-import { ReferenceSpaceState } from '@ir-engine/spatial'
-import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
-import { TargetCameraRotationComponent } from '@ir-engine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { GrabberComponent } from '../../grabbable/GrabbableComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EnvMapComponent } from '../../scene/components/EnvmapComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { EnvMapSourceType } from '../../scene/constants/EnvMapEnum'
-import { AnimationComponent } from '../components/AnimationComponent'
-import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { AvatarColliderComponent, AvatarControllerComponent, eyeOffset } from '../components/AvatarControllerComponent'
-import { AvatarIKComponent } from '../components/AvatarIKComponents'
+import { AvatarColliderComponent, AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { BallControllerComponent } from '../components/BallControllerComponent'
 
 export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
@@ -72,32 +63,26 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   if (!entity) return
 
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
-  setComponent(entity, TransformComponent)
 
+  setComponent(entity, VisibleComponent)
+  setComponent(entity, TransformComponent)
   setComponent(entity, DistanceFromCameraComponent)
   setComponent(entity, FrustumCullCameraComponent)
+  setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Avatar)
 
   setComponent(entity, EnvMapComponent, {
     type: EnvMapSourceType.Skybox,
     envMapIntensity: 1
   })
 
-  setComponent(entity, AnimationComponent, {
-    mixer: new AnimationMixer(new Object3D()),
-    animations: [] as AnimationClip[]
+  setComponent(entity, AvatarComponent, {
+    avatarHeight: 1.0,
+    eyeHeight: 0.5,
+    hipsHeight: 0.5
   })
 
-  setComponent(entity, AvatarAnimationComponent, {
-    locomotion: new Vector3()
-  })
-
-  setComponent(entity, AvatarComponent)
-  ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.Avatar)
-
-  // Create sphere collider
   createAvatarCollider(entity)
 
-  // Set up rigid body for physics
   setComponent(entity, RigidBodyComponent, {
     type: BodyTypes.Dynamic,
     allowRolling: true,
@@ -107,28 +92,21 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   if (ownerID === Engine.instance.userID) {
     createAvatarController(entity)
-    const viewerEntity = getState(ReferenceSpaceState).viewerEntity
-    const targetCameraRotation = getComponent(viewerEntity, TargetCameraRotationComponent)
-    setComponent(viewerEntity, FollowCameraComponent, {
-      targetEntity: entity,
-      phi: targetCameraRotation.phi,
-      theta: targetCameraRotation.theta,
-      firstPersonOffset: new Vector3(0, 0, eyeOffset),
-      thirdPersonOffset: new Vector3(0, 0, 0)
-    })
+    //const viewerEntity = getState(ReferenceSpaceState).viewerEntity
+    //const targetCameraRotation = getComponent(viewerEntity, TargetCameraRotationComponent)
+    // setComponent(viewerEntity, FollowCameraComponent, {
+    //   targetEntity: entity,
+    //   phi: targetCameraRotation.phi,
+    //   theta: targetCameraRotation.theta,
+    //   firstPersonOffset: new Vector3(0, 0, eyeOffset),
+    //   thirdPersonOffset: new Vector3(0, 0, 0)
+    // })
     // Add ball controller instead of avatar controller
     setComponent(entity, BallControllerComponent)
   }
 
   setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
   setComponent(entity, ShadowComponent)
-  setComponent(entity, GrabberComponent)
-
-  if (isClient) {
-    setComponent(entity, AvatarRigComponent)
-  }
-  setComponent(entity, AvatarIKComponent)
-  setComponent(entity, InputComponent)
 }
 
 export const createAvatarCollider = (entity: Entity) => {
@@ -140,25 +118,27 @@ export const createAvatarCollider = (entity: Entity) => {
     shape: Shapes.Sphere,
     collisionLayer: CollisionGroups.Avatars,
     collisionMask: AvatarCollisionMask,
-    matchMesh: false
+    matchMesh: true
+  })
+
+  setComponent(colliderEntity, TransformComponent, {
+    position: new Vector3(0, 0, 0),
+    rotation: new Quaternion(),
+    scale: new Vector3(1, 1, 1)
   })
 }
 
-const avatarCapsuleOffset = 0.25
 export const setAvatarColliderTransform = (entity: Entity) => {
   const avatarCollider = getOptionalComponent(entity, AvatarColliderComponent)
-  if (!avatarCollider) {
-    return
-  }
-  const colliderEntity = avatarCollider.colliderEntity
-  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-  const avatarRadius = eyeOffset + camera.near
-  const avatarComponent = getComponent(entity, AvatarComponent)
-  const halfHeight = avatarComponent.avatarHeight * 0.5
+  if (!avatarCollider) return
 
+  const colliderEntity = avatarCollider.colliderEntity
+
+  // Update transform to stay centered
   setComponent(colliderEntity, TransformComponent, {
-    // position: new Vector3(0, halfHeight + avatarCapsuleOffset, 0),
-    scale: new Vector3(avatarRadius, halfHeight - avatarRadius - avatarCapsuleOffset, avatarRadius)
+    position: new Vector3(0, 0, 0),
+    rotation: new Quaternion(),
+    scale: new Vector3(1, 1, 1)
   })
 }
 

@@ -26,8 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { SRGBColorSpace } from 'three'
 
-import { createEntity, useEntityContext } from '@ir-engine/ecs'
-import { getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { traverseEntityNode, useEntityContext } from '@ir-engine/ecs'
+import { getComponent, hasComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { QueryReactor, defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
@@ -35,13 +35,11 @@ import { getMutableState, getState, isClient, useHookstate } from '@ir-engine/hy
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
-import { XRState } from '@ir-engine/spatial/src/xr/XRState'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { AnimationState } from '../AnimationManager'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
-import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { SpawnEffectComponent } from '../components/SpawnEffectComponent'
 import { AvatarAnimationSystem } from './AvatarAnimationSystem'
@@ -91,28 +89,19 @@ const execute = () => {
 
 const AvatarPendingReactor = () => {
   const entity = useEntityContext()
-
   const gltf = useComponent(entity, GLTFComponent)
 
   useEffect(() => {
-    if (gltf.progress.value === 100) return
+    if (gltf.progress.value !== 100) return
 
-    const loadingEffect = !getState(XRState).sessionActive && !iOS
+    setComponent(entity, VisibleComponent)
 
-    if (!isClient || !loadingEffect) return
-
-    const avatarHeight = getComponent(entity, AvatarComponent).avatarHeight
-    setComponent(entity, AvatarDissolveComponent, { height: avatarHeight })
-
-    const effectEntity = createEntity()
-    setComponent(effectEntity, SpawnEffectComponent, {
-      sourceEntity: entity,
-      opacityMultiplier: 1
+    traverseEntityNode(entity, (child) => {
+      if (hasComponent(child, ObjectComponent)) {
+        setComponent(child, VisibleComponent)
+        console.log('Setting child visible:', child)
+      }
     })
-
-    return () => {
-      SpawnEffectComponent.fadeOut(effectEntity)
-    }
   }, [gltf.progress.value])
 
   return null

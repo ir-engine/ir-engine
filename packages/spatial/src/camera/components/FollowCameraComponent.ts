@@ -232,12 +232,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
 
   let isInsideWall = false
 
-  follow.targetOffset =
-    follow.mode === FollowCameraMode.FirstPerson
-      ? follow.firstPersonOffset
-      : follow.thirdPersonOffset.y === 0
-      ? follow.targetOffset.set(0, cameraTransform.position.y, 0)
-      : follow.thirdPersonOffset
+  follow.targetOffset = follow.thirdPersonOffset
 
   const lerpstart =
     follow.originalOffset.distanceToSquared(Vector3_Zero) > 0 ? follow.originalOffset : follow.currentOffset
@@ -246,7 +241,6 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
 
   follow.targetPosition
     .copy(follow.targetOffset)
-    .applyQuaternion(TransformComponent.getWorldRotation(referenceEntity, _targetRotation))
     .add(TransformComponent.getWorldPosition(referenceEntity, _targetPosition))
 
   follow.currentTargetPosition.lerpVectors(
@@ -392,9 +386,9 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
     follow.currentTargetPosition.z + follow.distance * follow.direction.z
   )
 
-  follow.lookAtMatrix.lookAt(follow.direction, Vector3_Zero, Vector3_Up)
+  // Always look at marble's position, ignoring its rotation
+  follow.lookAtMatrix.lookAt(cameraTransform.position, follow.currentTargetPosition, Vector3_Up)
 
-  //slerp using rotationLerp value, this is reset to zero every time the follow target changes
   follow.targetRotation.setFromRotationMatrix(follow.lookAtMatrix)
   cameraTransform.rotation.slerpQuaternions(
     follow.originalRotation ?? cameraTransform.rotation,
