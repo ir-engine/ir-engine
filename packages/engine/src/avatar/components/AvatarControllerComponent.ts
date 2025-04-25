@@ -46,6 +46,7 @@ import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { FollowCameraMode } from '@ir-engine/spatial/src/camera/types/FollowCameraMode'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { CameraComponent } from '../../../../spatial/src/camera/components/CameraComponent'
@@ -131,8 +132,10 @@ export const AvatarControllerComponent = defineComponent({
       const cameraEntity = avatarControllerComponent.cameraEntity.value
       if (cameraEntity && entityExists(cameraEntity) && hasComponent(cameraEntity, FollowCameraComponent)) {
         const cameraComponent = getComponent(cameraEntity, FollowCameraComponent)
-        cameraComponent.firstPersonOffset.set(0, avatarComponent.eyeHeight.value, eyeOffset)
-        cameraComponent.thirdPersonOffset.set(0, avatarComponent.eyeHeight.value, 0)
+        cameraComponent.firstPersonOffset.set(0, 2, 0)
+        cameraComponent.thirdPersonOffset.set(0, 2, 0)
+        cameraComponent.locked = true
+        cameraComponent.allowedModes = [FollowCameraMode.ThirdPerson, FollowCameraMode.TopDown]
       }
     }, [avatarComponent?.avatarHeight, camera.near])
 
@@ -146,8 +149,8 @@ export const AvatarControllerComponent = defineComponent({
         phi: targetCameraRotation.phi,
         theta: targetCameraRotation.theta,
         targetDistance: 8,
-        firstPersonOffset: new Vector3(0, 0.001, eyeOffset),
-        thirdPersonOffset: new Vector3(0, 0.001, 0)
+        firstPersonOffset: new Vector3(0, avatarComponent.eyeHeight.value, eyeOffset),
+        thirdPersonOffset: new Vector3(0, avatarComponent.eyeHeight.value, 0)
       })
 
       return () => {

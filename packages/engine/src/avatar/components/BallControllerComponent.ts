@@ -31,7 +31,7 @@ export const BallControllerComponent = defineComponent({
   name: 'BallControllerComponent',
 
   schema: S.Object({
-    moveSpeed: S.Number(2), // Base movement speed
+    moveSpeed: S.Number(20), // Base movement speed
     jumpForce: S.Number(0.2), // Force applied when jumping
     airControl: S.Number(0.3), // Multiplier for air movement control
     groundControl: S.Number(1), // Multiplier for ground movement control

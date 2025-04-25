@@ -32,6 +32,7 @@ import {
   ECSState,
   Entity,
   getComponent,
+  hasComponent,
   setComponent,
   useComponent,
   useOptionalComponent,
@@ -52,7 +53,7 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
-import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import React from 'react'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
@@ -63,12 +64,7 @@ import { preloadedAnimations } from '../animation/Util'
 import { AnimationState } from '../AnimationManager'
 import { mixamoVRMRigMap } from '../AvatarBoneMatching'
 import { AnimationComponent, useLoadAnimationFromBatchGLTF } from '../components/AnimationComponent'
-import {
-  AvatarAnimationComponent,
-  AvatarRigComponent,
-  createVRM,
-  createVRMFromGLTF
-} from '../components/AvatarAnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent, createVRMFromGLTF } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { getAllLoadedAnimations, setupAvatarProportions } from '../functions/avatarFunctions'
 import { normalizeAnimationClips, retargetAnimationClips } from '../functions/retargetingFunctions'
@@ -223,13 +219,23 @@ const AnimationLoader = () => {
 const RigReactor = (props: { entity: Entity }) => {
   const entity = props.entity
   const gltfComponent = useOptionalComponent(entity, GLTFComponent)
-  const avatarAnimationComponent = useOptionalComponent(entity, AvatarAnimationComponent)
+
   useEffect(() => {
-    if (gltfComponent?.progress?.value !== 100 || !avatarAnimationComponent?.value) return
+    if (gltfComponent?.progress?.value !== 100) return
+
+    setComponent(entity, VisibleComponent)
+    setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Avatar)
+
+    traverseEntityNode(entity, (child) => {
+      if (hasComponent(child, ObjectComponent)) {
+        setComponent(child, VisibleComponent)
+      }
+    })
+
+    if (!gltfComponent.document?.value?.extensions?.VRM) return
+
     try {
-      if (gltfComponent.document?.value?.extensions?.VRM) createVRM(entity)
-      else createVRMFromGLTF(entity)
-      setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Avatar)
+      createVRMFromGLTF(entity)
       setupAvatarProportions(entity)
     } catch (e) {
       console.error('Failed to load avatar', e)
@@ -238,12 +244,7 @@ const RigReactor = (props: { entity: Entity }) => {
         removeError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
       }
     }
-  }, [gltfComponent?.progress?.value, gltfComponent?.src.value, avatarAnimationComponent])
-
-  const rig = useOptionalComponent(entity, AvatarRigComponent)
-  useEffect(() => {
-    setVisibleComponent(entity, !!rig?.bonesToEntities?.hips?.value && gltfComponent?.progress.value === 100)
-  }, [rig?.bonesToEntities.hips, gltfComponent?.progress])
+  }, [gltfComponent?.progress?.value])
 
   return null
 }
