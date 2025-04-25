@@ -145,8 +145,9 @@ export const AvatarControllerComponent = defineComponent({
         targetEntity: entity,
         phi: targetCameraRotation.phi,
         theta: targetCameraRotation.theta,
-        firstPersonOffset: new Vector3(0, avatarComponent.eyeHeight.value, eyeOffset),
-        thirdPersonOffset: new Vector3(0, avatarComponent.eyeHeight.value, 0)
+        targetDistance: 8,
+        firstPersonOffset: new Vector3(0, 0.001, eyeOffset),
+        thirdPersonOffset: new Vector3(0, 0.001, 0)
       })
 
       return () => {

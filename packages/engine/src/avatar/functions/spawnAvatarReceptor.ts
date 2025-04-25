@@ -49,8 +49,11 @@ import {
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { isClient } from '@ir-engine/hyperflux'
+import { getState, isClient } from '@ir-engine/hyperflux'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
+import { TargetCameraRotationComponent } from '@ir-engine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { GrabberComponent } from '../../grabbable/GrabbableComponent'
@@ -104,7 +107,15 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   if (ownerID === Engine.instance.userID) {
     createAvatarController(entity)
-
+    const viewerEntity = getState(ReferenceSpaceState).viewerEntity
+    const targetCameraRotation = getComponent(viewerEntity, TargetCameraRotationComponent)
+    setComponent(viewerEntity, FollowCameraComponent, {
+      targetEntity: entity,
+      phi: targetCameraRotation.phi,
+      theta: targetCameraRotation.theta,
+      firstPersonOffset: new Vector3(0, 0, eyeOffset),
+      thirdPersonOffset: new Vector3(0, 0, 0)
+    })
     // Add ball controller instead of avatar controller
     setComponent(entity, BallControllerComponent)
   }
@@ -123,7 +134,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 export const createAvatarCollider = (entity: Entity) => {
   const colliderEntity = createEntity()
   setComponent(entity, AvatarColliderComponent, { colliderEntity })
-
+  setComponent(colliderEntity, TransformComponent)
   setComponent(colliderEntity, EntityTreeComponent, { parentEntity: entity })
   setComponent(colliderEntity, ColliderComponent, {
     shape: Shapes.Sphere,
@@ -146,7 +157,7 @@ export const setAvatarColliderTransform = (entity: Entity) => {
   const halfHeight = avatarComponent.avatarHeight * 0.5
 
   setComponent(colliderEntity, TransformComponent, {
-    position: new Vector3(0, halfHeight + avatarCapsuleOffset, 0),
+    // position: new Vector3(0, halfHeight + avatarCapsuleOffset, 0),
     scale: new Vector3(avatarRadius, halfHeight - avatarRadius - avatarCapsuleOffset, avatarRadius)
   })
 }

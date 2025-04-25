@@ -28,7 +28,7 @@ import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems
 import { XRCameraUpdateSystem } from '@ir-engine/spatial/src/xr/XRCameraSystem'
 
 import { AvatarComponent } from '../components/AvatarComponent'
-import { moveAvatar, updateLocalAvatarRotation } from '../functions/moveAvatar'
+import { updateLocalAvatarRotation } from '../functions/moveAvatar'
 
 const execute = () => {
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
@@ -37,7 +37,7 @@ const execute = () => {
   /**
    * 1 - Update local client movement
    */
-  moveAvatar(selfAvatarEntity)
+  //moveAvatar(selfAvatarEntity)
   updateLocalAvatarRotation(selfAvatarEntity)
   computeTransformMatrix(selfAvatarEntity)
 }
