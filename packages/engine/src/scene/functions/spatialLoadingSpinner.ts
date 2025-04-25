@@ -39,18 +39,16 @@ export function createLoadingSpinner(name = 'loading spinner', parentEntity = Un
   setComponent(rootEntity, VisibleComponent)
   setComponent(rootEntity, TransformComponent)
   setComponent(rootEntity, EntityTreeComponent, { parentEntity })
-
-  const spinnerEntity = createEntity()
-  setComponent(spinnerEntity, NameComponent, name + ': spinner')
-  setComponent(spinnerEntity, VisibleComponent)
-  setComponent(spinnerEntity, TransformComponent, { position: new Vector3(0, 0, 0.1) })
-  setComponent(spinnerEntity, EntityTreeComponent, { parentEntity: rootEntity })
-
+  const transform = getComponent(parentEntity, TransformComponent)
   const sphereEntity = createEntity()
   setComponent(sphereEntity, NameComponent, name + ': helper')
   setComponent(sphereEntity, VisibleComponent)
-  setComponent(sphereEntity, TransformComponent)
-  setComponent(sphereEntity, EntityTreeComponent, { parentEntity: rootEntity })
+  setComponent(sphereEntity, TransformComponent, {
+    position: transform?.position
+      ? new Vector3(transform.position.x, transform.position.y, transform.position.z)
+      : new Vector3()
+  })
+  setComponent(sphereEntity, EntityTreeComponent, { parentEntity })
 
   const sphereMesh = new Mesh(
     new TorusGeometry(1, 0.2, 16, 100, Math.PI * 1.5),
