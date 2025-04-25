@@ -34,6 +34,7 @@ import { AvatarLoadingSystem } from './systems/AvatarLoadingSystem'
 import { AvatarMovementSystem } from './systems/AvatarMovementSystem'
 import { AvatarTeleportSystem } from './systems/AvatarTeleportSystem'
 import { AvatarTransparencySystem } from './systems/AvatarTransparencySystem'
+import { BallControllerSystem } from './systems/BallControllerSystem'
 import { ReferenceSpaceTransformSystem } from './systems/ReferenceSpaceTransformSystem'
 
 export default {
@@ -48,5 +49,6 @@ export default {
   AvatarMovementSystem,
   AvatarTeleportSystem,
   AvatarTransparencySystem,
-  ReferenceSpaceTransformSystem
+  ReferenceSpaceTransformSystem,
+  BallControllerSystem
 }

@@ -62,6 +62,7 @@ import { AvatarAnimationComponent, AvatarRigComponent } from '../components/Avat
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarColliderComponent, AvatarControllerComponent, eyeOffset } from '../components/AvatarControllerComponent'
 import { AvatarIKComponent } from '../components/AvatarIKComponents'
+import { BallControllerComponent } from '../components/BallControllerComponent'
 
 export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const entity = UUIDComponent.getEntityByUUID(entityUUID)
@@ -90,27 +91,32 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   setComponent(entity, AvatarComponent)
   ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.Avatar)
 
+  // Create sphere collider
   createAvatarCollider(entity)
 
+  // Set up rigid body for physics
   setComponent(entity, RigidBodyComponent, {
-    type: BodyTypes.Kinematic,
-    allowRolling: false,
-    enabledRotations: [false, true, false]
+    type: BodyTypes.Dynamic,
+    allowRolling: true,
+    enabledRotations: [true, true, true] as [boolean, boolean, boolean],
+    canSleep: false
   })
 
   if (ownerID === Engine.instance.userID) {
     createAvatarController(entity)
+
+    // Add ball controller instead of avatar controller
+    setComponent(entity, BallControllerComponent)
   }
 
   setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
-
   setComponent(entity, ShadowComponent)
   setComponent(entity, GrabberComponent)
+
   if (isClient) {
     setComponent(entity, AvatarRigComponent)
   }
   setComponent(entity, AvatarIKComponent)
-
   setComponent(entity, InputComponent)
 }
 
@@ -120,7 +126,7 @@ export const createAvatarCollider = (entity: Entity) => {
 
   setComponent(colliderEntity, EntityTreeComponent, { parentEntity: entity })
   setComponent(colliderEntity, ColliderComponent, {
-    shape: Shapes.Capsule,
+    shape: Shapes.Sphere,
     collisionLayer: CollisionGroups.Avatars,
     collisionMask: AvatarCollisionMask,
     matchMesh: false
