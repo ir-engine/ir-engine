@@ -30,6 +30,7 @@ import { entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -159,14 +160,12 @@ export const AvatarColliderComponent = defineComponent({
   name: 'AvatarColliderComponent',
   schema: S.Object({ colliderEntity: S.Entity() }),
 
-  reactor() {
-    const entity = useEntityContext()
-    const avatarColliderComponent = getComponent(entity, AvatarColliderComponent)
+  reactor({ entity }) {
     useEffect(() => {
+      const avatarColliderComponent = getOptionalComponent(entity, AvatarColliderComponent)
       return () => {
-        removeEntity(
-          avatarColliderComponent.colliderEntity
-        ) /** @todo Aidan said to figure out why this isn't cleaned up with EntityTree */
+        if (!avatarColliderComponent?.colliderEntity) return
+        removeEntity(avatarColliderComponent.colliderEntity)
       }
     }, [])
   }
