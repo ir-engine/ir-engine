@@ -6,8 +6,8 @@ Version 1.0. (the "License") you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -35,6 +35,7 @@ import {
   useComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
+import { Kind } from '@ir-engine/ecs/src/schemas/JSONSchemaTypes'
 import { useEffect } from 'react'
 import { Color, Quaternion, Vector2, Vector3, Vector4 } from 'three'
 
@@ -121,6 +122,84 @@ const unpackAddress = (packedAddress: string): PropertyAddress =>
 type Entry = Record<string, number[]>
 type Property = { type: MixableType; address: PropertyAddress }
 
+const getPropertySchema = (basisSchema: any, propertyPath: string): any => {
+  if (!propertyPath.includes('.')) {
+    return basisSchema.properties?.[propertyPath]
+  }
+
+  const parts = propertyPath.split('.')
+  let schema = basisSchema
+  for (const part of parts) {
+    if (schema.properties?.[part]) {
+      schema = schema.properties[part]
+    } else if (schema[Kind] === 'Object' || schema[Kind] === 'Class') {
+      schema = schema.properties?.[part]
+    } else {
+      return null
+    }
+
+    if (!schema) return null
+  }
+
+  return schema
+}
+
+const getMixableTypeFromSchema = (schema: any): MixableType => {
+  if (!schema) return MixableType.Number
+
+  const kind = schema[Kind]
+
+  if (kind === 'Number') {
+    return MixableType.Number
+  }
+
+  // Check for Vector types from T.Vec2, T.Vec3, etc.
+  if (kind === 'Class' || kind === 'SerializedClass') {
+    switch (schema.options?.id) {
+      case 'Vec2':
+        return MixableType.Vector2
+      case 'Vec3':
+        return MixableType.Vector3
+      case 'Vec4':
+        return MixableType.Vector4
+      case 'Color':
+        return MixableType.Color
+      case 'Quaternion':
+        return MixableType.Quaternion
+    }
+  }
+
+  // Check properties for vector-like structure
+  if (schema.properties) {
+    const props = Object.keys(schema.properties)
+
+    if (props.includes('x') && props.includes('y')) {
+      if (!props.includes('z')) return MixableType.Vector2
+      if (!props.includes('w')) return MixableType.Vector3
+      return MixableType.Vector4
+    }
+
+    if (props.includes('r') && props.includes('g') && props.includes('b')) {
+      return MixableType.Color
+    }
+  }
+
+  return MixableType.Number
+}
+
+const setPropertyValue = (obj: any, path: string, value: Mixable): any => {
+  const index = path.indexOf('.')
+  if (index === -1) {
+    return { ...obj, [path]: value }
+  }
+  const firstPart = path.substring(0, index)
+  const restParts = path.substring(index + 1)
+  return {
+    ...obj,
+    [firstPart]: setPropertyValue(obj[firstPart] || {}, restParts, value)
+  }
+}
+
 const createProperty = (
   targetEntity: Entity | EntityUUID,
   targetComponent: AnyComponentWithID | string,
@@ -131,19 +210,18 @@ const createProperty = (
   const Component = toComponent(targetComponent)
   if (Component == null) return null
 
-  if (propertyPath.includes('.')) {
-    console.warn('MixerComponent does not support nested properties yet.')
-    return null
-  }
-
-  const propertySchema = Component.schema.properties[propertyPath] // TODO: support properties nestled in schema
-
-  if (propertySchema == null) return null
   const entity = toEntity(targetEntity)
   if (entity == null) return null
   const component = getComponent(entity, Component)
   if (component == null) return null
-  const type = MixableType.Number // TODO: pull from propertySchema
+
+  // Get the property schema, supporting nested properties
+  const propertySchema = getPropertySchema(Component.schema, propertyPath)
+  if (propertySchema == null) return null
+
+  // Determine the mixable type from the schema
+  const type = getMixableTypeFromSchema(propertySchema)
+
   return {
     type,
     address: [toEntityUUID(targetEntity), componentID, propertyPath]
@@ -207,17 +285,36 @@ export const MixerComponent = defineComponent({
   mix: (mixerEntity: Entity): void => {
     const mixerComp = getComponent(mixerEntity, MixerComponent)
     const mixed = MixerComponent.getMixedEntry(mixerEntity, mixerComp.coord)
-    for (const [
-      propertyAddress,
-      {
+
+    // Group properties by entity and component to minimize setComponent calls
+    const updates = new Map<EntityUUID, Map<string, any>>()
+
+    for (const [propertyAddress, property] of mixerComp.state.properties) {
+      const {
         type,
         address: [entityUUID, componentID, propertyPath]
+      } = property
+      const mixedValue = mixFuncs[type].fromNumberList(mixed[propertyAddress])
+
+      if (!updates.has(entityUUID)) {
+        updates.set(entityUUID, new Map())
       }
-    ] of mixerComp.state.properties) {
+      const entityUpdates = updates.get(entityUUID)!
+      if (!entityUpdates.has(componentID)) {
+        entityUpdates.set(componentID, {})
+      }
+
+      const componentUpdate = entityUpdates.get(componentID)
+      const updatedComponent = setPropertyValue(componentUpdate, propertyPath, mixedValue)
+      updates.get(entityUUID)!.set(componentID, updatedComponent)
+    }
+
+    // Apply all updates
+    for (const [entityUUID, componentUpdates] of updates) {
       const entity = UUIDComponent.getEntityByUUID(entityUUID)
-      setComponent(entity, ComponentJSONIDMap.get(componentID)!, {
-        [propertyPath]: mixFuncs[type].fromNumberList(mixed[propertyAddress]) // TODO: support properties nestled in schema
-      })
+      for (const [componentID, update] of componentUpdates) {
+        setComponent(entity, ComponentJSONIDMap.get(componentID)!, update)
+      }
     }
   },
 
