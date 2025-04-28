@@ -134,13 +134,6 @@ const execute = () => {
     let time = 0.3
 
     const canvas = getComponent(cameraEntity, RendererComponent).canvas
-    if (follow.pointerLock && buttons?.PrimaryClick?.pressed && document.pointerLockElement !== canvas) {
-      /**
-       * @todo - add support for unadjustedMovement API
-       *  - https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API#handling_promise_and_non-promise_versions_of_requestpointerlock
-       */
-      canvas?.requestPointerLock()
-    }
 
     const hasPointerLock = follow.pointerLock && document.pointerLockElement === canvas
 
@@ -158,6 +151,7 @@ const execute = () => {
       phi += y * 2
       const pointerDragging = inputSource.buttons?.PrimaryClick?.dragging
       if (pointerDragging || hasPointerLock) {
+        InputState.setCapturingEntity(cameraEntity)
         const inputPointer = getComponent(inputPointerEid, InputPointerComponent)
         pointerPositionDelta.copy(inputPointer.movement)
         phi -= pointerPositionDelta.y * cameraSettings.cameraRotationSpeed

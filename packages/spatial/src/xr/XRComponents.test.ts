@@ -220,9 +220,7 @@ describe('XRAnchorComponent', () => {
       // Run and Check the result
       removeComponent(testEntity, XRAnchorComponent)
       await act(() => render(null))
-      await vi.waitFor(() => {
-        expect(resultSpy).toHaveBeenCalledOnce()
-      })
+      expect(resultSpy).toHaveBeenCalledOnce()
     })
   }) //:: reactor
 }) //:: XRAnchorComponent

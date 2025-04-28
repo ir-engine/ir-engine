@@ -33,7 +33,7 @@ import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/ecs'
 import { Vector3_One, Vector3_Zero } from '../../common/constants/MathConstants'
 import { setChildrenDirtyFast, TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix, isDirty, TransformDirtyUpdateSystem } from '../../transform/systems/TransformSystem'
-import { Physics } from '../classes/Physics'
+import { Physics, PhysicsWorld } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 
@@ -167,17 +167,22 @@ const copyTransformToCollider = (entity: Entity) => {
 const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent, EntityTreeComponent])
 const colliderQuery = defineQuery([TransformComponent, ColliderComponent, EntityTreeComponent]) // @todo maybe add Not(RigidBodyComponent) to this query
 
+const canUpdateRigidBody = (entity: Entity, world: PhysicsWorld) =>
+  !Physics.isSleeping(world, entity) && getComponent(entity, RigidBodyComponent).initialized
+
 const filterAwakeCleanRigidbodies = (entity: Entity) => {
   const world = Physics.getWorld(entity)
-  if (!world) return false
-  if (!world.Rigidbodies.has(entity)) return false
+  if (!world || !world.Rigidbodies.has(entity)) return false
+
   // if the entity has a parent that is dirty, we need to update the transform
   const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
-  if (TransformComponent.dirty[parentEntity]) return true
+  if (TransformComponent.dirty[parentEntity]) return canUpdateRigidBody(entity, world)
+
   // if the entity is dirty, we don't need to update the transform
   if (TransformComponent.dirty[entity]) return false
+
   // if the entity is not dirty, we only need to update the transform if it is awake
-  return !Physics.isSleeping(world, entity)
+  return canUpdateRigidBody(entity, world)
 }
 
 export const execute = () => {

@@ -23,29 +23,36 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Knex } from 'knex'
+/* eslint-disable @typescript-eslint/no-var-requires */
 
-import { authenticationSettingPath } from '@ir-engine/common/src/schemas/setting/authentication-setting.schema'
+import {
+  createDefaultStorageProvider,
+  getStorageProvider
+} from '@ir-engine/server-core/src/media/storageprovider/storageprovider'
+import cli from 'cli'
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function up(knex: Knex): Promise<void> {
-  const authSettings = await knex.table(authenticationSettingPath).first()
+cli.enable('status')
 
-  if (authSettings) {
-    const oauthSettings = JSON.parse(authSettings.oauth)
-    oauthSettings.linkedin.scope = ['profile', 'email']
+cli.main(async () => {
+  try {
+    await createDefaultStorageProvider()
+    const storageProvider = getStorageProvider()
+    storageProvider.bucket = process.env.KANIKO_CONTEXT_REPO
 
-    await knex.table(authenticationSettingPath).update({
-      oauth: JSON.stringify(oauthSettings)
+    const filesResponse = await storageProvider.provider.bucket(storageProvider.bucket).getFiles({
+      delimiter: '/'
     })
-  }
-}
+    const files = filesResponse[2].items
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function down(knex: Knex): Promise<void> {}
+    const sorted = files.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    const toDelete = sorted.slice(5).map((item) => item.name)
+    if (toDelete.length > 0) await storageProvider.deleteResources(toDelete)
+
+    console.log('Pruned old Kaniko build contexts')
+    process.exit(0)
+  } catch (err) {
+    console.log('Error in pruning Kaniko build contexts:')
+    console.log(err)
+    cli.fatal(err)
+  }
+})
