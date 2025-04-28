@@ -205,7 +205,7 @@ describe('MixerComponent.ts', async () => {
           MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
           const xProperty = mixerComp.properties.find((prop) => prop.endsWith('x'))
           const defaultValue = 0
-          const defaultEntry = MixerComponent.getDefaultEntry(mixerEntity, 0)
+          const defaultEntry = MixerComponent.getDefaultEntry(mixerEntity)
           assert.equal(defaultEntry[xProperty][0], defaultValue)
         })
       })

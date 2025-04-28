@@ -222,7 +222,7 @@ export const MixerComponent = defineComponent({
     }
     const sortedEntries = mixerComp.state.sortedEntries
 
-    if (sortedEntries.length === 0) return MixerComponent.getDefaultEntry(mixerEntity, coord)
+    if (sortedEntries.length === 0) return MixerComponent.getDefaultEntry(mixerEntity)
     if (sortedEntries.length === 1)
       return Object.fromEntries(Object.entries(sortedEntries[0][1]).map(([key, value]) => [key, [...value]]))
 
@@ -325,7 +325,7 @@ export const MixerComponent = defineComponent({
     return mixerComp.state.entriesByCoord.get(coord)?.[0] ?? null
   },
 
-  getDefaultEntry: (mixerEntity: Entity, coord: number): Entry => {
+  getDefaultEntry: (mixerEntity: Entity): Entry => {
     const mixerComp = getComponent(mixerEntity, MixerComponent)
     return Object.fromEntries(
       mixerComp.state.properties
@@ -335,7 +335,7 @@ export const MixerComponent = defineComponent({
   },
 
   setEntry: (mixerEntity: Entity, coord: number, entry: Entry): Entry => {
-    entry = { ...MixerComponent.getDefaultEntry(mixerEntity, coord), ...entry }
+    entry = { ...MixerComponent.getDefaultEntry(mixerEntity), ...entry }
     const mixerComp = getComponent(mixerEntity, MixerComponent)
     const index = mixerComp.state.entriesByCoord.get(coord)?.[1] ?? mixerComp.entries.length
     mixerComp.state.entriesByCoord.set(coord, [entry, index])
