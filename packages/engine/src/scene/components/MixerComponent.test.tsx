@@ -165,7 +165,7 @@ describe('MixerComponent.ts', async () => {
         it('should return a function that creates an entry partial for the property', () => {
           const x1Setter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
           const x2Setter = MixerComponent.propertySetter(mixerEntity, targetEntity, testComponent, 'x')
-          const xProperty = mixerComp.properties.find((prop) => prop.endsWith('x'))
+          const xProperty = mixerComp.properties.find((prop: string) => prop.endsWith('x'))
           assert.isNotNull(x2Setter)
           const x1 = 0
           const x1Partial = x1Setter(x1)
@@ -219,7 +219,7 @@ describe('MixerComponent.ts', async () => {
       describe('getDefaultEntry', () => {
         it('should return an entry with default values for all properties', () => {
           MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
-          const xProperty = mixerComp.properties.find((prop) => prop.endsWith('x'))
+          const xProperty = mixerComp.properties.find((prop: string) => prop.endsWith('x'))
           const defaultValue = 0
           const defaultEntry = MixerComponent.getDefaultEntry(mixerEntity)
           assert.equal(defaultEntry[xProperty][0], defaultValue)
@@ -229,9 +229,10 @@ describe('MixerComponent.ts', async () => {
       describe('setEntry', () => {
         it('should set an entry at the given coord, overwriting any existing entry at that coord', () => {
           const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
-          const xProperty = mixerComp.properties.find((prop) => prop.endsWith('x'))
+          const xProperty = mixerComp.properties.find((prop: string) => prop.endsWith('x'))
           const ySetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'y')!
-          const yProperty = mixerComp.properties.find((prop) => prop.endsWith('y'))
+          const yProperty = mixerComp.properties.find((prop: string) => prop.endsWith('y'))
+
           const coord = 3
           const value1 = 1
           const value2 = 2
@@ -280,7 +281,8 @@ describe('MixerComponent.ts', async () => {
         })
         it('should provide a value for any properties not set in the entry, that is mixed between the two closest entries, weighted by distance', () => {
           const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
-          const xProperty = mixerComp.properties.find((prop) => prop.endsWith('x'))
+          const xProperty = mixerComp.properties.find((prop: string) => prop.endsWith('x'))
+
           const leftValue = 10
           const rightValue = 20
           const leftCoord = 10
@@ -293,9 +295,9 @@ describe('MixerComponent.ts', async () => {
         })
         it('should change an existing entry, while leaving existing values unchanged', () => {
           const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
-          const xProperty = mixerComp.properties.find((prop) => prop.endsWith('x'))
+          const xProperty = mixerComp.properties.find((prop: string) => prop.endsWith('x'))
           const ySetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'y')!
-          const yProperty = mixerComp.properties.find((prop) => prop.endsWith('y'))
+          const yProperty = mixerComp.properties.find((prop: string) => prop.endsWith('y'))
           const coord = 3
           const xValue = 1
           const yValue = 2
@@ -374,7 +376,8 @@ describe('MixerComponent.ts', async () => {
       describe('getMixedEntry', () => {
         it('should return an entry that is the mixed value of the entries at the given coord, weighted by distance', () => {
           const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
-          const xProperty = mixerComp.properties.find((prop) => prop.endsWith('x'))
+          const xProperty = mixerComp.properties.find((prop: string) => prop.endsWith('x'))
+
           const leftValue = 10
           const rightValue = 20
           const leftCoord = 10
@@ -388,7 +391,6 @@ describe('MixerComponent.ts', async () => {
 
         it('should return an entry that is deeply equal to the entry at the given coord, if it exists', () => {
           const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
-          const xProperty = mixerComp.properties.find((prop) => prop.endsWith('x'))
           const value = 10
           const coord = 10
           const entry = MixerComponent.setEntry(mixerEntity, coord, xSetter(value))

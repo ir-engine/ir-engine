@@ -387,8 +387,8 @@ export const MixerComponent = defineComponent({
     mixerComp.state.properties.set(packedAddress, property)
     mixerComp.properties.push(packedAddress)
 
-    for (const entry of mixerComp.entries) {
-      entry[packedAddress] = mixFuncs[property.type].create()
+    for (const [_coord, entry] of mixerComp.entries) {
+      entry[packedAddress] = mixFuncs[property.type].toNumberList(mixFuncs[property.type].create())
     }
 
     return MixerComponent.propertySetter(mixerEntity, targetEntity, targetComponent, propertyPath)
