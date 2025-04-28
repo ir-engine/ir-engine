@@ -213,7 +213,7 @@ export const useExecute = (execute: () => void, insert: InsertSystem) => {
     return () => {
       destroySystem(handle)
     }
-  }, [])
+  })
 }
 
 /**

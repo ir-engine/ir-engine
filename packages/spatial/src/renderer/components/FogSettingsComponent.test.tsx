@@ -42,7 +42,7 @@ import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { Fog, FogExp2, MathUtils, ShaderChunk } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 import { assertFloat } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
@@ -229,114 +229,163 @@ describe('FogSettingsComponent', () => {
       return destroyEngine()
     })
 
-    it('should trigger when fog.type changes', () => {
+    it('should trigger when fog.type changes', async () => {
       setComponent(testEntity, FogSettingsComponent)
-      assert.equal(getComponent(testEntity, FogSettingsComponent).type, FogType.Disabled)
-      assert.equal(hasComponent(testEntity, FogComponent), false)
+      await vi.waitFor(() => {
+        assert.equal(getComponent(testEntity, FogSettingsComponent).type, FogType.Disabled)
+        assert.equal(hasComponent(testEntity, FogComponent), false)
+      })
       // Trigger the reactor and Check the result
       setComponent(testEntity, FogSettingsComponent, { type: FogType.Linear })
-      assert.equal(hasComponent(testEntity, FogComponent), true)
+      await vi.waitFor(() => {
+        assert.equal(hasComponent(testEntity, FogComponent), true)
+      })
     })
 
-    it('should trigger when fog.color changes', () => {
+    it('should trigger when fog.color changes', async () => {
       const ExpectedString = '#000000'
       const ExpectedColor = { r: 0, g: 0, b: 0, isColor: true }
       setComponent(testEntity, FogSettingsComponent)
-      assert.equal(getComponent(testEntity, FogSettingsComponent).type, FogType.Disabled)
-      assert.equal(hasComponent(testEntity, FogComponent), false)
+      await vi.waitFor(() => {
+        assert.equal(getComponent(testEntity, FogSettingsComponent).type, FogType.Disabled)
+        assert.equal(hasComponent(testEntity, FogComponent), false)
+      })
       // Sanity check the initial data
       setComponent(testEntity, FogSettingsComponent, { type: FogType.Linear })
-      assert.equal(hasComponent(testEntity, FogComponent), true)
-      assert.equal(getComponent(testEntity, FogSettingsComponent).color, FogSettingsComponentDefaults.color)
+      await vi.waitFor(() => {
+        assert.equal(hasComponent(testEntity, FogComponent), true)
+        assert.equal(getComponent(testEntity, FogSettingsComponent).color, FogSettingsComponentDefaults.color)
+      })
       // Trigger the reactor and Check the result
       setComponent(testEntity, FogSettingsComponent, { color: ExpectedString })
-      assert.equal(getComponent(testEntity, FogSettingsComponent).color, ExpectedString)
-      assert.deepEqual(getComponent(testEntity, FogComponent).color, ExpectedColor)
+      await vi.waitFor(() => {
+        assert.equal(getComponent(testEntity, FogSettingsComponent).color, ExpectedString)
+        assert.deepEqual(getComponent(testEntity, FogComponent).color, ExpectedColor)
+      })
     })
 
-    it('should trigger when fog.density changes', () => {
+    it('should trigger when fog.density changes', async () => {
       const Expected = 0.42 // (default: 0.005)
       setComponent(testEntity, FogSettingsComponent)
-      assert.equal(getComponent(testEntity, FogSettingsComponent).type, FogType.Disabled)
-      assert.equal(hasComponent(testEntity, FogComponent), false)
+      await vi.waitFor(() => {
+        assert.equal(getComponent(testEntity, FogSettingsComponent).type, FogType.Disabled)
+        assert.equal(hasComponent(testEntity, FogComponent), false)
+      })
       // Sanity check the initial data
       setComponent(testEntity, FogSettingsComponent, { type: FogType.Exponential })
-      assert.equal(hasComponent(testEntity, FogComponent), true)
-      assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).density, FogSettingsComponentDefaults.density)
+      await vi.waitFor(() => {
+        assert.equal(hasComponent(testEntity, FogComponent), true)
+        assertFloat.approxEq(
+          getComponent(testEntity, FogSettingsComponent).density,
+          FogSettingsComponentDefaults.density
+        )
+      })
       // Trigger the reactor and Check the result
       setComponent(testEntity, FogSettingsComponent, { density: Expected })
-      assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).density, Expected)
-      const result = getComponent(testEntity, FogComponent) as FogExp2
-      assertFloat.approxEq(result.density, Expected)
+      await vi.waitFor(() => {
+        assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).density, Expected)
+        const result = getComponent(testEntity, FogComponent) as FogExp2
+        assertFloat.approxEq(result.density, Expected)
+      })
     })
 
-    it('should trigger when fog.near changes', () => {
+    it('should trigger when fog.near changes', async () => {
       const Expected = 42 // (default: 1)
       setComponent(testEntity, FogSettingsComponent)
-      assert.equal(getComponent(testEntity, FogSettingsComponent).type, FogType.Disabled)
-      assert.equal(hasComponent(testEntity, FogComponent), false)
+      await vi.waitFor(() => {
+        assert.equal(getComponent(testEntity, FogSettingsComponent).type, FogType.Disabled)
+        assert.equal(hasComponent(testEntity, FogComponent), false)
+      })
       // Sanity check the initial data
       setComponent(testEntity, FogSettingsComponent, { type: FogType.Exponential })
-      assert.equal(hasComponent(testEntity, FogComponent), true)
-      assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).density, FogSettingsComponentDefaults.density)
+      await vi.waitFor(() => {
+        assert.equal(hasComponent(testEntity, FogComponent), true)
+        assertFloat.approxEq(
+          getComponent(testEntity, FogSettingsComponent).density,
+          FogSettingsComponentDefaults.density
+        )
+      })
       // Trigger the reactor and Check the result
       setComponent(testEntity, FogSettingsComponent, { near: Expected })
-      assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).near, Expected)
-      const result = getComponent(testEntity, FogComponent) as Fog
-      assertFloat.approxEq(result.near, Expected)
+      await vi.waitFor(() => {
+        assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).near, Expected)
+        const result = getComponent(testEntity, FogComponent) as Fog
+        assertFloat.approxEq(result.near, Expected)
+      })
     })
 
-    it('should trigger when fog.far changes', () => {
+    it('should trigger when fog.far changes', async () => {
       const Expected = 42 // (default: 1)
       setComponent(testEntity, FogSettingsComponent)
-      assert.equal(getComponent(testEntity, FogSettingsComponent).type, FogType.Disabled)
-      assert.equal(hasComponent(testEntity, FogComponent), false)
+      await vi.waitFor(() => {
+        assert.equal(getComponent(testEntity, FogSettingsComponent).type, FogType.Disabled)
+        assert.equal(hasComponent(testEntity, FogComponent), false)
+      })
       // Sanity check the initial data
       setComponent(testEntity, FogSettingsComponent, { type: FogType.Exponential })
-      assert.equal(hasComponent(testEntity, FogComponent), true)
-      assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).density, FogSettingsComponentDefaults.density)
+      await vi.waitFor(() => {
+        assert.equal(hasComponent(testEntity, FogComponent), true)
+        assertFloat.approxEq(
+          getComponent(testEntity, FogSettingsComponent).density,
+          FogSettingsComponentDefaults.density
+        )
+      })
       // Trigger the reactor and Check the result
       setComponent(testEntity, FogSettingsComponent, { far: Expected })
-      assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).far, Expected)
-      const result = getComponent(testEntity, FogComponent) as Fog
-      assertFloat.approxEq(result.far, Expected)
+      await vi.waitFor(() => {
+        assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).far, Expected)
+        const result = getComponent(testEntity, FogComponent) as Fog
+        assertFloat.approxEq(result.far, Expected)
+      })
     })
 
-    it('should trigger when fog.height changes', () => {
+    it('should trigger when fog.height changes', async () => {
       const Expected = 0.42 // (default: 0.05)
       setComponent(testEntity, FogSettingsComponent)
-      assert.equal(getComponent(testEntity, FogSettingsComponent).type, FogType.Disabled)
-      assert.equal(hasComponent(testEntity, FogComponent), false)
+      await vi.waitFor(() => {
+        assert.equal(getComponent(testEntity, FogSettingsComponent).type, FogType.Disabled)
+        assert.equal(hasComponent(testEntity, FogComponent), false)
+      })
       // Sanity check the initial data
       setComponent(testEntity, FogSettingsComponent, { type: FogType.Height })
-      assert.equal(hasComponent(testEntity, FogComponent), true)
-      assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).height, FogSettingsComponentDefaults.height)
+      await vi.waitFor(() => {
+        assert.equal(hasComponent(testEntity, FogComponent), true)
+        assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).height, FogSettingsComponentDefaults.height)
+      })
       // Trigger the reactor and Check the result
       setComponent(testEntity, FogSettingsComponent, { height: Expected })
-      assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).height, Expected)
-      for (const shader of FogShadersList) {
-        assertFloat.approxEq(shader.uniforms.heightFactor.value, Expected)
-      }
+      await vi.waitFor(() => {
+        assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).height, Expected)
+        for (const shader of FogShadersList) {
+          assertFloat.approxEq(shader.uniforms.heightFactor.value, Expected)
+        }
+      })
     })
 
-    it('should trigger when fog.timeScale changes', () => {
+    it('should trigger when fog.timeScale changes', async () => {
       const Expected = 42 // (default: 1)
       setComponent(testEntity, FogSettingsComponent)
-      assert.equal(getComponent(testEntity, FogSettingsComponent).type, FogType.Disabled)
-      assert.equal(hasComponent(testEntity, FogComponent), false)
+      await vi.waitFor(() => {
+        assert.equal(getComponent(testEntity, FogSettingsComponent).type, FogType.Disabled)
+        assert.equal(hasComponent(testEntity, FogComponent), false)
+      })
       // Sanity check the initial data
       setComponent(testEntity, FogSettingsComponent, { type: FogType.Brownian })
-      assert.equal(hasComponent(testEntity, FogComponent), true)
-      assertFloat.approxEq(
-        getComponent(testEntity, FogSettingsComponent).timeScale,
-        FogSettingsComponentDefaults.timeScale
-      )
+      await vi.waitFor(() => {
+        assert.equal(hasComponent(testEntity, FogComponent), true)
+        assertFloat.approxEq(
+          getComponent(testEntity, FogSettingsComponent).timeScale,
+          FogSettingsComponentDefaults.timeScale
+        )
+      })
       // Trigger the reactor and Check the result
       setComponent(testEntity, FogSettingsComponent, { timeScale: Expected })
-      assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).timeScale, Expected)
-      for (const shader of FogShadersList) {
-        assertFloat.approxEq(shader.uniforms.fogTimeScale.value, Expected)
-      }
+      await vi.waitFor(() => {
+        assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).timeScale, Expected)
+        for (const shader of FogShadersList) {
+          assertFloat.approxEq(shader.uniforms.fogTimeScale.value, Expected)
+        }
+      })
     })
   }) //:: reactor
 
@@ -364,7 +413,7 @@ describe('FogSettingsComponent', () => {
       return destroyEngine()
     })
 
-    it('should initialize/create a FogSettingsComponent, and all its data, as expected', () => {
+    it('should initialize/create a FogSettingsComponent, and all its data, as expected', async () => {
       const fogSettingsComponent = getMutableComponent(entity, FogSettingsComponent)
       assert(fogSettingsComponent.value, 'fog setting component exists')
 
@@ -375,34 +424,37 @@ describe('FogSettingsComponent', () => {
         near: 2,
         density: 0.02
       })
+      await vi.waitFor(() => {
+        const fogComponent = getComponent(entity, FogComponent)
+        assert(fogComponent, 'created fog component')
+        assert(fogComponent.color.r == 1 && fogComponent.color.g == 0 && fogComponent.color.b == 0, 'fog set color')
+        const fog = fogComponent as Fog
+        assert(fog.far == 2000, 'fog set far')
+        assert(fog.near == 2, 'fog set near')
+        const fogExp2 = fogComponent as FogExp2
+        assert(fogExp2.density == 0.02, 'fog set density')
 
-      const fogComponent = getComponent(entity, FogComponent)
-      assert(fogComponent, 'created fog component')
-      assert(fogComponent.color.r == 1 && fogComponent.color.g == 0 && fogComponent.color.b == 0, 'fog set color')
-      const fog = fogComponent as Fog
-      assert(fog.far == 2000, 'fog set far')
-      assert(fog.near == 2, 'fog set near')
-      const fogExp2 = fogComponent as FogExp2
-      assert(fogExp2.density == 0.02, 'fog set density')
-
-      assert(ShaderChunk.fog_fragment == FogShaders.fog_fragment.heightFog)
-      assert(ShaderChunk.fog_pars_fragment == FogShaders.fog_pars_fragment.heightFog)
-      assert(ShaderChunk.fog_vertex == FogShaders.fog_vertex.heightFog)
-      assert(ShaderChunk.fog_pars_vertex == FogShaders.fog_pars_vertex.heightFog)
+        assert(ShaderChunk.fog_fragment == FogShaders.fog_fragment.heightFog)
+        assert(ShaderChunk.fog_pars_fragment == FogShaders.fog_pars_fragment.heightFog)
+        assert(ShaderChunk.fog_vertex == FogShaders.fog_vertex.heightFog)
+        assert(ShaderChunk.fog_pars_vertex == FogShaders.fog_pars_vertex.heightFog)
+      })
 
       setComponent(entity, FogSettingsComponent, { type: FogType.Linear })
-
-      assert(ShaderChunk.fog_fragment == FogShaders.fog_fragment.default)
-      assert(ShaderChunk.fog_pars_fragment == FogShaders.fog_pars_fragment.default)
-      assert(ShaderChunk.fog_vertex == FogShaders.fog_vertex.default)
-      assert(ShaderChunk.fog_pars_vertex == FogShaders.fog_pars_vertex.default)
+      await vi.waitFor(() => {
+        assert(ShaderChunk.fog_fragment == FogShaders.fog_fragment.default)
+        assert(ShaderChunk.fog_pars_fragment == FogShaders.fog_pars_fragment.default)
+        assert(ShaderChunk.fog_vertex == FogShaders.fog_vertex.default)
+        assert(ShaderChunk.fog_pars_vertex == FogShaders.fog_pars_vertex.default)
+      })
 
       setComponent(entity, FogSettingsComponent, { type: FogType.Brownian })
-
-      assert(ShaderChunk.fog_fragment == FogShaders.fog_fragment.brownianMotionFog)
-      assert(ShaderChunk.fog_pars_fragment == FogShaders.fog_pars_fragment.brownianMotionFog)
-      assert(ShaderChunk.fog_vertex == FogShaders.fog_vertex.brownianMotionFog)
-      assert(ShaderChunk.fog_pars_vertex == FogShaders.fog_pars_vertex.brownianMotionFog)
+      await vi.waitFor(() => {
+        assert(ShaderChunk.fog_fragment == FogShaders.fog_fragment.brownianMotionFog)
+        assert(ShaderChunk.fog_pars_fragment == FogShaders.fog_pars_fragment.brownianMotionFog)
+        assert(ShaderChunk.fog_vertex == FogShaders.fog_vertex.brownianMotionFog)
+        assert(ShaderChunk.fog_pars_vertex == FogShaders.fog_pars_vertex.brownianMotionFog)
+      })
     })
   })
 })

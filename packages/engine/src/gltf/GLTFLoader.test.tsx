@@ -60,6 +60,7 @@ import { EXTMeshGPUInstancingComponent, KHRLightsPunctualComponent, KHRPunctualL
 
 const base_url = 'packages/engine/tests/assets'
 const duck_gltf = base_url + '/duck/Duck.gltf'
+const duck_nodeless_gltf = base_url + '/duck/DuckNodeless.gltf'
 const draco_gltf = base_url + '/draco-duck/Duck.gltf'
 const unlit_gltf = base_url + '/unlit/UnlitTest.gltf'
 const textured_gltf = base_url + '/textured-box/BoxTextured.gltf'
@@ -571,6 +572,7 @@ describe('GLTF Loader', async () => {
     setComponent(entity2, GLTFComponent, { src: duck_gltf })
 
     await waitForScene(entity)
+    await waitForScene(entity2)
 
     const instanceID = GLTFComponent.getInstanceID(entity)
     const instanceID2 = GLTFComponent.getInstanceID(entity2)
@@ -581,5 +583,20 @@ describe('GLTF Loader', async () => {
     const meshEntities2 = getChildrenWithComponents(entity2, [MeshComponent])
 
     expect(meshEntities.length).toBe(meshEntities2.length)
+  })
+
+  it('can load GLTFs without scenes or nodes', async () => {
+    const entity = setupEntity()
+
+    setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+    setComponent(entity, GLTFComponent, { src: duck_nodeless_gltf })
+
+    await waitForScene(entity)
+
+    // Loads the material and texture in the GLTF without having an associated node
+    const materials = getChildrenWithComponents(entity, [MaterialStateComponent])
+    assert(materials.length === 1)
+    const materialState = getComponent(materials[0], MaterialStateComponent)
+    assert((materialState.material as MeshStandardMaterial).map?.isTexture)
   })
 })

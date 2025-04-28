@@ -92,7 +92,7 @@ const onUpdate = (entity: Entity) => {
   if (inputSourceEntity) {
     const inputSource = getOptionalComponent(inputSourceEntity, InputSourceComponent)
 
-    if (capturingEntity !== UndefinedEntity) {
+    if (capturingEntity === entity) {
       const buttons = inputSource?.buttons
       clicking = !!buttons //clicking on our boundingbox this frame
 
@@ -136,7 +136,7 @@ const onUpdate = (entity: Entity) => {
 }
 
 const execute = () => {
-  if (getState(EngineState).isEditor || !isClient) return
+  if (getState(EngineState).isEditing || !isClient) return
 
   for (const entity of mediaQuery.enter()) {
     const mediaComponent = getComponent(entity, MediaComponent)

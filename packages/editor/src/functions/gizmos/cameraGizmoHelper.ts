@@ -34,9 +34,9 @@ import {
   setComponent,
   UndefinedEntity
 } from '@ir-engine/ecs'
-import { TransformAxis } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getState } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { TransformAxis } from '@ir-engine/spatial/src/common/constants/TransformConstants'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 

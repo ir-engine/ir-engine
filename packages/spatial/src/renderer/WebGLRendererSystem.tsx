@@ -398,6 +398,8 @@ export const render = (
   delta: number,
   effectComposer = true
 ) => {
+  if (!renderer.renderer) return
+
   const xrFrame = getState(XRState).xrFrame
 
   const canvasParent = renderer.canvas!.parentElement
@@ -424,7 +426,7 @@ export const render = (
     if (renderer.effectComposer) {
       renderer.effectComposer.setSize(width, height, true)
     } else {
-      renderer.renderer!.setSize(width, height, true)
+      renderer.renderer.setSize(width, height, true)
     }
 
     renderer.needsResize = false
@@ -436,8 +438,8 @@ export const render = (
   for (const c of camera.cameras) c.layers.mask = camera.layers.mask
 
   if (xrFrame || !effectComposer || !renderer.effectComposer) {
-    renderer.renderer!.clear()
-    renderer.renderer!.render(scene, camera)
+    renderer.renderer.clear()
+    renderer.renderer.render(scene, camera)
   } else {
     renderer.effectComposer.setMainScene(scene)
     renderer.effectComposer.setMainCamera(camera)
@@ -532,9 +534,10 @@ const rendererReactor = () => {
   }, [engineRendererSettings.qualityLevel, engineRendererSettings.automatic])
 
   useEffect(() => {
-    renderer.renderer.value!.setPixelRatio(window.devicePixelRatio * engineRendererSettings.renderScale.value)
+    if (!renderer.renderer.value) return
+    renderer.renderer.value.setPixelRatio(window.devicePixelRatio * engineRendererSettings.renderScale.value)
     renderer.needsResize.set(true)
-  }, [engineRendererSettings.renderScale])
+  }, [engineRendererSettings.renderScale, !!renderer.renderer.value])
 
   useEffect(() => {
     changeRenderMode(entity)

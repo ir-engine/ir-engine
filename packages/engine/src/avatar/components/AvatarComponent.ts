@@ -24,11 +24,14 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Engine, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
-import { defineComponent, getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { UserID } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent } from '@ir-engine/network'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { useEffect } from 'react'
+import { setAvatarColliderTransform } from '../functions/spawnAvatarReceptor'
 
 export const AvatarComponent = defineComponent({
   name: 'AvatarComponent',
@@ -70,6 +73,17 @@ export const AvatarComponent = defineComponent({
 
   useSelfAvatarEntity() {
     return UUIDComponent.useEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID)
+  },
+
+  reactor: ({ entity }) => {
+    const camera = useComponent(Engine.instance.cameraEntity, CameraComponent)
+    const avatarComponent = useComponent(entity, AvatarComponent)
+
+    useEffect(() => {
+      setAvatarColliderTransform(entity)
+    }, [avatarComponent?.avatarHeight, camera.near])
+
+    return null
   }
 })
 

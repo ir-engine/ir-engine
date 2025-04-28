@@ -192,14 +192,15 @@ function NewMessage() {
           spellCheck={false}
           autoComplete="off"
           className="my-auto ml-5 flex w-full resize-none items-center justify-start bg-transparent text-sm text-text-primary outline-none lg:ml-8 lg:mr-4 lg:text-base lg:text-white"
+          data-testid="chat-message-input"
           onKeyUp={(event) => event.key === 'Enter' && sendMessage()}
           onChange={handleComposedMessage}
         />
         <span className="sm:m-[5px] sm:mr-2.5">
           {isMobile ? (
-            <Send01Sm className="text-text-primary" onClick={sendMessage} />
+            <Send01Sm className="text-text-primary" data-testid="send-message-button-mobile" onClick={sendMessage} />
           ) : (
-            <LocationIconButton icon={Send01Lg} onClick={sendMessage} />
+            <LocationIconButton icon={Send01Lg} data-testid="send-message-button" onClick={sendMessage} />
           )}
         </span>
       </div>
@@ -216,7 +217,7 @@ function ReportUserButton({ userId }: { userId: UserID }) {
   if (!isCameraVisibile) return null
 
   return (
-    <button onClick={() => ReportUserState.setReportedPeerId(peerId)}>
+    <button data-testid="report-user-button" onClick={() => ReportUserState.setReportedPeerId(peerId)}>
       <ArrowTopRightOnSquareSm />
     </button>
   )
@@ -229,6 +230,7 @@ function Message({ message, hideUsername }: { message: MessageType; hideUsername
   return message.isNotification ? (
     <div
       className="my-4 place-self-center text-center text-xs text-text-primary lg:text-sm"
+      data-testid="notification-message"
       style={{
         textShadow: isMobile ? '' : '0px 1px 4px rgb(255, 255, 255)'
       }}
@@ -243,9 +245,13 @@ function Message({ message, hideUsername }: { message: MessageType; hideUsername
         newMessages.value[message.id] && 'opacity-100',
         hideUsername && '-mt-3'
       )}
+      data-testid="chat-message"
     >
       {message.senderId !== user.id.value && !hideUsername && (
-        <div className="flex items-center gap-x-2 text-xs font-bold text-text-primary lg:text-lg">
+        <div
+          className="flex items-center gap-x-2 text-xs font-bold text-text-primary lg:text-lg"
+          data-testid="chat-message-sender"
+        >
           {message.sender.name} <ReportUserButton userId={message.senderId} />
         </div>
       )}
@@ -304,6 +310,7 @@ function MessagesWrapper() {
           {!isMobile && isChatOpen.value && (
             <LocationIconButton
               icon={isChatOpen.value ? XCloseLg : MessageTextSquare01Lg}
+              data-testid="close-chat-button"
               onClick={() => isChatOpen.set(!isChatOpen.value)}
               className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
             />
@@ -311,6 +318,7 @@ function MessagesWrapper() {
           {!isChatOpen.value && (
             <LocationIconButton
               icon={MessageTextSquare01Md}
+              data-testid="open-chat-button"
               onClick={() => isChatOpen.set(!isChatOpen.value)}
               className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
             />

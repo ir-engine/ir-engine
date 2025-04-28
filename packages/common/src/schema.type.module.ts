@@ -68,7 +68,6 @@ export type * from './schemas/recording/recording.schema'
 export type * from './schemas/route/route.schema'
 export type * from './schemas/scope/scope-type.schema'
 export type * from './schemas/scope/scope.schema'
-export type * from './schemas/setting/authentication-setting.schema'
 export type * from './schemas/setting/client-setting.schema'
 export type * from './schemas/setting/engine-setting.schema'
 export type * from './schemas/setting/feature-flag-setting.schema'
@@ -80,7 +79,6 @@ export type * from './schemas/social/invite-type.schema'
 export type * from './schemas/social/invite.schema'
 export type * from './schemas/social/location-admin.schema'
 export type * from './schemas/social/location-authorized-user.schema'
-export type * from './schemas/social/location-ban.schema'
 export type * from './schemas/social/location-setting.schema'
 export type * from './schemas/social/location-type.schema'
 export type * from './schemas/social/location.schema'
@@ -176,8 +174,6 @@ export const locationAdminPath = 'location-admin'
 
 export const channelPath = 'channel'
 
-export const locationBanPath = 'location-ban'
-
 export const locationSettingPath = 'location-setting'
 
 export const assetLibraryPath = 'asset-library'
@@ -222,8 +218,6 @@ export const clientSettingPath = 'client-setting'
 export const matchUserPath = 'match-user'
 
 export const matchInstancePath = 'match-instance'
-
-export const authenticationSettingPath = 'authentication-setting'
 
 export const analyticsPath = 'analytics'
 

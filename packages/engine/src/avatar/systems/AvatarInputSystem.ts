@@ -200,7 +200,8 @@ const execute = () => {
   const inputState = getState(InputState)
   const avatarInputSettings = getState(AvatarInputSettingsState)
 
-  const controller = getComponent(selfAvatarEntity, AvatarControllerComponent)
+  const controller = getOptionalComponent(selfAvatarEntity, AvatarControllerComponent)
+  if (!controller) return
 
   const xrState = getState(XRState)
   const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
@@ -241,7 +242,7 @@ const execute = () => {
 
   if (!isMobile && !inputPointerEntity && !xrState.session) return
 
-  const buttons = InputComponent.getMergedButtons(viewerEntity)
+  const buttons = InputComponent.getButtons(viewerEntity)
 
   if (buttons.ShiftLeft?.down) onShiftLeft()
 

@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { UndefinedEntity, createEngine, createEntity, destroyEngine, getComponent, setComponent } from '@ir-engine/ecs'
 import { getState, setInitialState } from '@ir-engine/hyperflux'
+import { flushAll } from '@ir-engine/hyperflux/tests/utils/flushAll'
 import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 import { MediaSettingsState } from '../../audio/MediaSettingsState'
 import { MediaSettingsComponent } from './MediaSettingsComponent'
@@ -84,9 +85,10 @@ describe('MediaSettingsComponent.ts', () => {
     assertDatasetsEquals(changedData, expectedChangedData)
   })
 
-  it('Should update the MediaSettingsState to the match the values of MediaSettingsComponent', () => {
+  it('Should update the MediaSettingsState to the match the values of MediaSettingsComponent', async () => {
     setInitialState(MediaSettingsState)
     setComponent(entity, MediaSettingsComponent)
+    await flushAll()
     const initialComponentValues = getComponent(entity, MediaSettingsComponent)
     const initialStateValues = getState(MediaSettingsState)
     // Check that the props in state are updated to match those on component when component is called
@@ -104,6 +106,7 @@ describe('MediaSettingsComponent.ts', () => {
       coneOuterGain: 43
     }
     setComponent(entity, MediaSettingsComponent, expectedChangedData)
+    await flushAll()
     const updatedByUseffect = getState(MediaSettingsState)
     // Check that the state props also updates on prop change inside component and not just on component call
     assertDatasetsEquals(updatedByUseffect, expectedChangedData)

@@ -41,6 +41,7 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState, getState, startReactor } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import sinon from 'sinon'
 import { Box3, BoxGeometry, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
@@ -285,7 +286,8 @@ describe('TransformSystem', () => {
         }
       })
 
-      it('.. should not do anything for the EngineState.viewerEntity when both itself and XSState.xrFrame are truthy', () => {
+      it('.. should not do anything for the EngineState.viewerEntity when both itself and XSState.xrFrame are truthy', async () => {
+        await act(() => render(null))
         const position = new Vector3(1, 2, 3)
         const rotation = new Quaternion(4, 5, 6, 7).normalize()
         const scale = new Vector3(8, 9, 10)
@@ -294,7 +296,7 @@ describe('TransformSystem', () => {
         // Set the data as expected
         // @ts-ignore Coerce the mocked XRFrame into XRState
         getMutableState(XRState).xrFrame.set(new MockXRFrame())
-        getMutableComponent(viewerEntity, CameraComponent).matrixWorld.set(Initial)
+        getComponent(viewerEntity, CameraComponent).matrixWorld.copy(Initial)
         // Sanity check before running
         assert.equal(Boolean(viewerEntity), true)
         assert.equal(Boolean(getState(XRState).xrFrame), true)
@@ -341,7 +343,7 @@ describe('TransformSystem', () => {
       })
 
       describe('... for every entity that has the components [TransformComponent, FrustumCullCameraComponent]', () => {
-        it(".. should set FrustumCullCameraComponent.isCulled for the entity if it does not have a BoundingBoxComponent and the worldPosition of the entity is contained in the frustrum of the viewerEntity's camera", () => {
+        it(".. should set FrustumCullCameraComponent.isCulled for the entity if it does not have a BoundingBoxComponent and the worldPosition of the entity is contained in the frustrum of the viewerEntity's camera", async () => {
           const Initial = 0
           const Expected = 1
           const viewerEntity = getState(ReferenceSpaceState).viewerEntity
@@ -352,6 +354,7 @@ describe('TransformSystem', () => {
             setComponent(entity, FrustumCullCameraComponent)
             // setComponent(entity, BoundingBoxComponent)  // Do not set a bounding box, so we hit the `:` branch when frustum culling
           }
+          await act(() => render(null))
           // Sanity check before running
           for (const entity of entities) {
             assert.equal(Boolean(viewerEntity), true)
@@ -369,7 +372,7 @@ describe('TransformSystem', () => {
           }
         })
 
-        it(".. should set FrustumCullCameraComponent.isCulled for the entity if it has a BoundingBoxComponent and its .box intersect with the frustrum of the viewerEntity's camera", () => {
+        it(".. should set FrustumCullCameraComponent.isCulled for the entity if it has a BoundingBoxComponent and its .box intersect with the frustrum of the viewerEntity's camera", async () => {
           const Initial = 0
           const Expected = 1
           const viewerEntity = getState(ReferenceSpaceState).viewerEntity
@@ -381,6 +384,7 @@ describe('TransformSystem', () => {
             setComponent(entity, MeshComponent, new Mesh(new BoxGeometry(1, 1, 1)))
             setComponent(entity, BoundingBoxComponent) // Set a bounding box, so we hit the `?` branch when frustum culling
           }
+          await act(() => render(null))
           // Sanity check before running
           for (const entity of entities) {
             assert.equal(Boolean(viewerEntity), true)
@@ -502,23 +506,26 @@ describe('TransformSystem', () => {
 
       const systemReactor = System.reactor!
 
-      it('should set NetworkState.networkSchema[TransformSerialization.ID] when it mounts', () => {
+      it('should set NetworkState.networkSchema[TransformSerialization.ID] when it mounts', async () => {
         const before = getState(NetworkState).networkSchema[TransformSerialization.ID]
         assert.equal(before, undefined)
         // Run and Check the result
         const root = startReactor(systemReactor)
+        await act(() => render(null))
         const after = getState(NetworkState).networkSchema[TransformSerialization.ID]
         assert.notEqual(after, undefined)
       })
 
-      it('should set NetworkState.networkSchema[TransformSerialization.ID] to none when it unmounts', () => {
+      it('should set NetworkState.networkSchema[TransformSerialization.ID] to none when it unmounts', async () => {
         const before = getState(NetworkState).networkSchema[TransformSerialization.ID]
         assert.equal(before, undefined)
         // Run and Check the result
         const root = startReactor(systemReactor)
+        await act(() => render(null))
         const after = getState(NetworkState).networkSchema[TransformSerialization.ID]
         assert.notEqual(after, undefined)
         root.stop()
+        await act(() => render(null))
         const result = getState(NetworkState).networkSchema[TransformSerialization.ID]
         assert.equal(result, undefined)
       })

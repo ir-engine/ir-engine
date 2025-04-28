@@ -25,8 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { KnexSeed } from '@ir-engine/common/src/interfaces/KnexSeed'
 
-import * as authenticationSeed from './authentication-setting/authentication-setting.seed'
 import * as clientSeed from './client-setting/client-setting.seed'
 import * as engineSeed from './engine-setting/engine-setting.seed'
 
-export const settingSeeds: Array<KnexSeed> = [authenticationSeed, clientSeed, engineSeed]
+export const settingSeeds: Array<KnexSeed> = [clientSeed, engineSeed]

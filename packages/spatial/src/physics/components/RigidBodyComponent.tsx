@@ -26,19 +26,19 @@ Infinite Reality Engine. All Rights Reserved.
 import { Entity, S, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
+  getMutableComponent,
   hasComponent,
   removeComponent,
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Physics } from '../classes/Physics'
 import { Body, BodyTypes } from '../types/PhysicsTypes'
 
 import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
-import React from 'react'
 import { Quaternion, Vector3 } from 'three'
 import { T } from '../../schema/schemaFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -151,7 +151,7 @@ const RigidBodyReactor = () => {
     return () => {
       Physics.removeRigidbody(physicsWorld, entity)
       if (!hasComponent(entity, RigidBodyComponent)) return
-      component.initialized.set(false)
+      getMutableComponent(entity, RigidBodyComponent).initialized.set(false)
     }
   }, [physicsWorld])
 
@@ -160,7 +160,6 @@ const RigidBodyReactor = () => {
     const type = component.type.value
     setComponent(entity, getTagComponentForRigidBody(type))
     Physics.setRigidBodyType(physicsWorld, entity, type)
-    TransformComponent.dirty[entity] = 1
     return () => {
       removeComponent(entity, getTagComponentForRigidBody(type))
     }

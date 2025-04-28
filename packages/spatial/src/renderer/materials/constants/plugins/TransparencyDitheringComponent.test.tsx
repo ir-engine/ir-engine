@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -37,7 +37,7 @@ import {
 } from '@ir-engine/ecs'
 import assert from 'assert'
 import { Material, Uniform } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 import { assertArray } from '../../../../../tests/util/assert'
 import { MaterialStateComponent } from '../../MaterialComponent'
 import {
@@ -161,23 +161,28 @@ describe('TransparencyDitheringPluginComponent', () => {
       return destroyEngine()
     })
 
-    it('should set call `setPlugin` on the MaterialStateComponent.material of the entityContext', () => {
+    it('should set call `setPlugin` on the MaterialStateComponent.material of the entityContext', async () => {
       const material = new Material()
       // Set the data as expected
       setComponent(testEntity, MaterialStateComponent, { material: material })
+
       // Sanity check before running
       assert.equal(getComponent(testEntity, MaterialStateComponent).material.plugins, undefined)
       // Run and Check the result
       setComponent(testEntity, TransparencyDitheringPluginComponent)
-      assert.notEqual(getComponent(testEntity, MaterialStateComponent).material.plugins, undefined)
+      await vi.waitFor(() => {
+        assert.notEqual(getComponent(testEntity, MaterialStateComponent).material.plugins, undefined)
+      })
     })
 
-    it('should not do anything if the entityContext does not have a MaterialStateComponent', () => {
+    it('should not do anything if the entityContext does not have a MaterialStateComponent', async () => {
       // Sanity check before running
       assert.equal(hasComponent(testEntity, MaterialStateComponent), false)
       // Run and Check the result
       setComponent(testEntity, TransparencyDitheringPluginComponent)
-      assert.equal(hasComponent(testEntity, MaterialStateComponent), false)
+      await vi.waitFor(() => {
+        assert.equal(hasComponent(testEntity, MaterialStateComponent), false)
+      })
     })
   }) //:: reactor
 })

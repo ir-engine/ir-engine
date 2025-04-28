@@ -110,35 +110,37 @@ function BreadcrumbItems() {
   breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx > nestedIndex + 1)
 
   return (
-    <div className="flex items-center gap-2">
-      <FolderSm className="text-base text-text-primary" />
-      {breadcrumbDirectoryFiles.map((file, index, arr) => (
-        <Fragment key={index}>
-          {index !== 0 && (
-            <span className="cursor-default items-center text-base text-text-primary">
-              <BreadCrumbSlash />
-            </span>
-          )}
-          {index === arr.length - 1 ? (
-            <span
-              className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-base text-text-secondary hover:underline"
-              data-testid={'files-panel-breadcrumb-current-directory'}
-            >
-              {file}
-            </span>
-          ) : (
-            <a
-              className="hover: focus: inline-flex cursor-pointer items-center overflow-hidden text-sm text-text-secondary hover:underline"
-              onClick={() => handleBreadcrumbDirectoryClick(file)}
-              data-testid={`files-panel-breadcrumb-nested-level-${index}`}
-            >
-              <span className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-base text-text-secondary hover:underline">
+    <div className="grid grid-cols-[auto_auto] items-center gap-2">
+      <FolderSm className="min-w-[1rem] text-base text-text-primary" />
+      <div className="flex w-full items-center gap-2 overflow-x-auto">
+        {breadcrumbDirectoryFiles.map((file, index, arr) => (
+          <Fragment key={index}>
+            {index !== 0 && (
+              <span className="cursor-default items-center text-base text-text-primary">
+                <BreadCrumbSlash />
+              </span>
+            )}
+            {index === arr.length - 1 ? (
+              <span
+                className="cursor-pointer whitespace-nowrap text-base text-text-secondary hover:underline"
+                data-testid={'files-panel-breadcrumb-current-directory'}
+              >
                 {file}
               </span>
-            </a>
-          )}
-        </Fragment>
-      ))}
+            ) : (
+              <a
+                className="hover: focus: flex cursor-pointer items-center text-sm text-text-secondary hover:underline"
+                onClick={() => handleBreadcrumbDirectoryClick(file)}
+                data-testid={`files-panel-breadcrumb-nested-level-${index}`}
+              >
+                <span className="cursor-pointer whitespace-nowrap text-base text-text-secondary hover:underline">
+                  {file}
+                </span>
+              </a>
+            )}
+          </Fragment>
+        ))}
+      </div>
     </div>
   )
 }
@@ -160,7 +162,7 @@ const ViewModeSettings = () => {
       position={'bottom left'}
       trigger={
         <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-          <ViewportButton data-testid="files-panel-view-options-button" icon={CogSm} />
+          <ViewportButton data-testid="view-options-button" icon={CogSm} />
         </Tooltip>
       }
     >
@@ -245,7 +247,12 @@ export default function FilesToolbar() {
           data-testid="files-panel-search-input"
         />
       }
-      dataTestIdJson={{}}
+      dataTestIdJson={{
+        topbarId: 'files-panel-top-bar',
+        backButtonId: 'files-panel-back-directory-button',
+        refreshButtonId: 'files-panel-refresh-directory-button',
+        createNewFolderButtonId: 'files-panel-create-new-folder-button'
+      }}
       utilsComponent={
         <>
           <Tooltip
@@ -263,13 +270,19 @@ export default function FilesToolbar() {
             />
           </Tooltip>
           <div className="flex h-7 items-center gap-2 rounded p-2">
-            <button className="p-1 text-text-secondary hover:text-text-primary">
+            <button
+              className="p-1 text-text-secondary hover:text-text-primary"
+              data-testid="files-panel-view-mode-list-button"
+            >
               <FaList
                 className={twMerge('h-5 w-5', filesViewMode.value === 'list' ? 'cursor-auto text-ui-primary' : '')}
                 onClick={() => filesViewMode.set('list')}
               />
             </button>
-            <button className="p-1 text-text-secondary hover:text-text-primary">
+            <button
+              className="p-1 text-text-secondary hover:text-text-primary"
+              data-testid="files-panel-view-mode-icons-button"
+            >
               <Grid01Sm
                 className={twMerge('h-5 w-5', filesViewMode.value === 'icons' ? 'cursor-auto text-ui-primary' : '')}
                 onClick={() => filesViewMode.set('icons')}
@@ -352,7 +365,7 @@ export function PanelToolbar({
 
   return (
     <div
-      className="mb-1 flex items-center justify-between gap-2 bg-[#1E1F22] bg-surface-4 px-2 py-1"
+      className="mb-1 grid grid-cols-[max-content_auto_max-content] items-center gap-2 bg-[#1E1F22] bg-surface-4 px-2 py-1"
       data-testid={dataTestIdJson?.topbarId}
     >
       {/* Tools */}
@@ -379,7 +392,11 @@ export function PanelToolbar({
             </Tooltip>
           </div>
           <Tooltip content={t('editor:layout.filebrowser.addNewFolder')}>
-            <ViewportButton onClick={createNewFolder} icon={FolderPlusSm} />
+            <ViewportButton
+              data-testid={dataTestIdJson?.createNewFolderButtonId}
+              onClick={createNewFolder}
+              icon={FolderPlusSm}
+            />
           </Tooltip>
           <ViewModeSettings />
         </div>
@@ -388,7 +405,7 @@ export function PanelToolbar({
       </div>
 
       {/* Breadcrumb */}
-      <div className="flex items-center justify-between">{breadcrumbComponent}</div>
+      <div className="grid">{breadcrumbComponent}</div>
 
       {/* Search */}
       <div>{searchbar}</div>

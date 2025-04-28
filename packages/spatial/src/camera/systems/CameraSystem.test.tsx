@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 
 import { Engine, EngineState, UUIDComponent, destroyEngine, getComponent, hasComponent } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
@@ -49,7 +49,7 @@ describe('CameraSystem', () => {
       return destroyEngine()
     })
 
-    it('should create a camera entity and apply a CameraComponent to that entity', () => {
+    it('should create a camera entity and apply a CameraComponent to that entity', async () => {
       const hostUserID = 'host user' as UserID
       const hostPeerID = Engine.instance.store.peerID
 
@@ -70,13 +70,14 @@ describe('CameraSystem', () => {
         })
       )
       applyIncomingActions()
-
-      const cameraEntity = UUIDComponent.getEntityByUUID(cameraUUID)
-      assert.ok(cameraEntity, "The spawnCamera Action didn't create an entity.")
-      assert.ok(
-        hasComponent(cameraEntity, CameraComponent),
-        "The spawnCamera Action didn't apply the CameraComponent to the entity"
-      )
+      await vi.waitFor(() => {
+        const cameraEntity = UUIDComponent.getEntityByUUID(cameraUUID)
+        assert.ok(cameraEntity, "The spawnCamera Action didn't create an entity.")
+        assert.ok(
+          hasComponent(cameraEntity, CameraComponent),
+          "The spawnCamera Action didn't apply the CameraComponent to the entity"
+        )
+      })
     })
   })
 })
