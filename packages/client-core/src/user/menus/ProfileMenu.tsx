@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
@@ -33,8 +33,8 @@ import multiLogger from '@ir-engine/common/src/logger'
 import {
   ScopeType,
   UserName,
-  authenticationSettingPath,
   clientSettingPath,
+  engineSettingPath,
   identityProviderPath,
   projectSettingPath,
   scopePath,
@@ -53,6 +53,7 @@ import {
 import { API } from '@ir-engine/common'
 import { USERNAME_MAX_LENGTH } from '@ir-engine/common/src/constants/UserConstants'
 import { INVALID_USER_NAME_REGEX } from '@ir-engine/common/src/regex'
+import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { iOS, isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
@@ -106,6 +107,25 @@ export const TermsOfServiceState = defineState({
 })
 
 const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
+  const engineSettingData = useFind(engineSettingPath, {
+    query: {
+      category: 'authentication',
+      paginate: false
+    }
+  })
+
+  const authSetting = useMemo(() => {
+    if (!engineSettingData.data) return null
+
+    return unflattenArrayToObject(
+      engineSettingData.data.map((el) => ({
+        key: el.key,
+        value: el.value,
+        dataType: el.dataType
+      }))
+    )
+  }, [engineSettingData.status])
+
   const { t } = useTranslation()
   const location = useLocation()
 
@@ -122,14 +142,10 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   /** Login Link feature that was needed for multi cam mocap that is not currently necessary. Keeping code around for now if we return to it*/
   //const loginLink = useHookstate('')
 
-  const authSetting = useFind(authenticationSettingPath).data.at(0)
-  console.log('authSetting test', useFind(authenticationSettingPath))
   const clientSetting = useFind(clientSettingPath).data.at(0)
-  console.log('clientSetting test', useFind(clientSettingPath))
   const loading = useHookstate(getMutableState(AuthState).isProcessing)
   const userId = selfUser.id.value
   const apiKey = useFind(userApiKeyPath).data[0]
-  console.log('apiKey test', useFind(userApiKeyPath))
   const isGuest = selfUser.isGuest.value
   const acceptedTOS = useMutableState(TermsOfServiceState).accepted.value
 

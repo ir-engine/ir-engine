@@ -38,10 +38,9 @@ import {
   UndefinedEntity
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
-import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { Color, ColorRepresentation, ShaderMaterial } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 import { assertFloat } from '../../../tests/util/assert'
 import { NameComponent } from '../../common/NameComponent'
 import { RendererState } from '../RendererState'
@@ -144,7 +143,6 @@ describe('InfiniteGridComponent', () => {
       createEngine()
       testEntity = createEntity()
       setComponent(testEntity, InfiniteGridComponent)
-      await act(() => render(null))
     })
 
     afterEach(() => {
@@ -160,8 +158,9 @@ describe('InfiniteGridComponent', () => {
       assert.notEqual(gridHeightBefore, gridHeightAfter)
       // Run and Check the result
 
-      await act(() => render(null))
-      assert.equal(getComponent(testEntity, MeshComponent).position.y, Expected)
+      await vi.waitFor(() => {
+        assert.equal(getComponent(testEntity, MeshComponent).position.y, Expected)
+      })
     })
 
     it('should trigger when component.color changes', async () => {
@@ -171,9 +170,10 @@ describe('InfiniteGridComponent', () => {
       assert.deepEqual(getComponent(testEntity, InfiniteGridComponent).color, Expected)
       // Run and Check the result
 
-      await act(() => render(null))
-      const result = getComponent(testEntity, MeshComponent).material as ShaderMaterial
-      assert.equal(result.uniforms.uColor.value, Expected)
+      await vi.waitFor(() => {
+        const result = getComponent(testEntity, MeshComponent).material as ShaderMaterial
+        assert.equal(result.uniforms.uColor.value, Expected)
+      })
     })
 
     it('should trigger when component.size changes', async () => {
@@ -183,10 +183,11 @@ describe('InfiniteGridComponent', () => {
       assert.equal(getComponent(testEntity, InfiniteGridComponent).size, Expected)
       // Run and Check the result
 
-      await act(() => render(null))
-      const result = getComponent(testEntity, MeshComponent).material as ShaderMaterial
-      assert.equal(result.uniforms.uSize1.value, Expected)
-      assert.equal(result.uniforms.uSize2.value, Expected * 10)
+      await vi.waitFor(() => {
+        const result = getComponent(testEntity, MeshComponent).material as ShaderMaterial
+        assert.equal(result.uniforms.uSize1.value, Expected)
+        assert.equal(result.uniforms.uSize2.value, Expected * 10)
+      })
     })
 
     describe('when distance changes ...', () => {
@@ -197,33 +198,47 @@ describe('InfiniteGridComponent', () => {
         assert.equal(getComponent(testEntity, InfiniteGridComponent).distance, Expected)
         // Run and Check the result
 
-        await act(() => render(null))
-        const result = getComponent(testEntity, MeshComponent).material as ShaderMaterial
-        assert.equal(result.uniforms.uDistance.value, Expected)
+        await vi.waitFor(() => {
+          const result = getComponent(testEntity, MeshComponent).material as ShaderMaterial
+          assert.equal(result.uniforms.uDistance.value, Expected)
+        })
       })
 
       const LineColors = ['red', 'green', 'blue'] // duplicate of the lineColors array inside the component.distance useEffect
       const LineQuery = defineQuery([LineSegmentComponent])
-      it('... should create, for every line color, an entity that has a LineSegmentComponent with name `infinite-grid-helper-line-${i}`', () => {
+      it('... should create, for every line color, an entity that has a LineSegmentComponent with name `infinite-grid-helper-line-${i}`', async () => {
         const Names = ['infinite-grid-helper-line-0', 'infinite-grid-helper-line-1', 'infinite-grid-helper-line-2']
-        assert.equal(LineQuery().length, LineColors.length)
-        for (const entity of LineQuery()) {
-          assert.equal(Names.includes(getComponent(entity, LineSegmentComponent).name), true)
-        }
+        // Trigger the distance change to create line entities
+        getMutableComponent(testEntity, InfiniteGridComponent).distance.set(300)
+        await vi.waitFor(() => {
+          assert.equal(LineQuery().length, LineColors.length)
+          for (const entity of LineQuery()) {
+            assert.equal(Names.includes(getComponent(entity, LineSegmentComponent).name), true)
+          }
+        })
       })
 
-      it('... should create, for every line color, an entity that has an EntityTreeComponent whose parent should be the entityContext', () => {
-        assert.equal(LineQuery().length, LineColors.length)
-        for (const entity of LineQuery()) {
-          assert.equal(getComponent(entity, EntityTreeComponent).parentEntity, testEntity)
-        }
+      it('... should create, for every line color, an entity that has an EntityTreeComponent whose parent should be the entityContext', async () => {
+        // Trigger the distance change to create line entities
+        getMutableComponent(testEntity, InfiniteGridComponent).distance.set(300)
+        await vi.waitFor(() => {
+          assert.equal(LineQuery().length, LineColors.length)
+          for (const entity of LineQuery()) {
+            assert.equal(getComponent(entity, EntityTreeComponent).parentEntity, testEntity)
+          }
+        })
       })
 
       it('... should remove all lineEntities of the grid when the InfiniteGridComponent is removed from the entity', async () => {
-        assert.equal(LineQuery().length, LineColors.length)
+        // Trigger the distance change to create line entities
+        getMutableComponent(testEntity, InfiniteGridComponent).distance.set(300)
+        await vi.waitFor(() => {
+          assert.equal(LineQuery().length, LineColors.length)
+        })
         removeComponent(testEntity, InfiniteGridComponent)
-        await act(() => render(null))
-        assert.equal(LineQuery().length, 0)
+        await vi.waitFor(() => {
+          assert.equal(LineQuery().length, 0)
+        })
       })
     })
   }) //:: reactor

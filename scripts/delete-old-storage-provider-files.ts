@@ -23,22 +23,32 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Knex } from 'knex'
+/* eslint-disable @typescript-eslint/no-var-requires */
 
-import { authenticationSettingPath } from '@ir-engine/common/src/schemas/setting/authentication-setting.schema'
+import cli from 'cli'
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function up(knex: Knex): Promise<void> {
-  await knex.schema.alterTable(authenticationSettingPath, async (table) => {
-    table.string('secret', 4095).nullable().alter()
-  })
-}
+import {
+  createDefaultStorageProvider,
+  getStorageProvider
+} from '@ir-engine/server-core/src/media/storageprovider/storageprovider'
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function down(knex: Knex): Promise<void> {}
+cli.enable('status')
+
+cli.main(async () => {
+  try {
+    await createDefaultStorageProvider()
+    const storageProvider = getStorageProvider()
+    let filesToPruneResponse = await storageProvider.getObject('client/StorageProviderFilesToRemoveFinal.json')
+    let filesToPrune = JSON.parse(filesToPruneResponse.Body.toString('utf-8'))
+    while (filesToPrune.length > 0) {
+      const toDelete = filesToPrune.splice(0, 1000)
+      await storageProvider.deleteResources(toDelete)
+    }
+    console.log('Deleted old storage provider files')
+    process.exit(0)
+  } catch (err) {
+    console.log('Error in deleting old storage provider client files:')
+    console.log(err)
+    cli.fatal(err)
+  }
+})

@@ -352,6 +352,7 @@ jobs:
       - run: mkdir -p packages_moved/network/
       - run: mkdir -p packages_moved/xrui/
       - run: mkdir -p packages_moved/spatial/
+      - run: mkdir -p packages_moved/visual-script/
       - run: mkdir -p packages_moved/engine/
       - run: mkdir -p packages_moved/projects/
       - run: mv packages/hyperflux packages_moved/
@@ -359,6 +360,7 @@ jobs:
       - run: mv packages/network packages_moved/
       - run: mv packages/xrui packages_moved/
       - run: mv packages/spatial packages_moved/
+      - run: mv packages/visual-script packages_moved/
       - run: mv packages/engine packages_moved/
       - run: mv packages/projects packages_moved/
       - run: rm -rf packages/*
@@ -367,6 +369,7 @@ jobs:
       - run: mv packages_moved/network packages/
       - run: mv packages_moved/xrui packages/
       - run: mv packages_moved/spatial packages/
+      - run: mv packages_moved/visual-script packages/
       - run: mv packages_moved/engine packages/
       - run: mv packages_moved/projects packages/
       - run: cd packages/engine && npm run test
@@ -376,6 +379,66 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_engine }}
         with:
           projectBaseDir: packages/engine/
+
+  test_visual_script:
+    needs: install-modules
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - name: Restore
+        uses: actions/cache/restore@v4
+        id: cache
+        with:
+          path: |
+            ./node_modules
+            ./packages/*/node_modules
+          key: ${{ runner.os }}-build-${{ hashFiles('./package.json', './packages/*/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
+      - run: cp .env.local.default .env.local
+      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
+      - run: mkdir -p packages_moved/hyperflux/
+      - run: mkdir -p packages_moved/ecs/
+      - run: mkdir -p packages_moved/network/
+      - run: mkdir -p packages_moved/xrui/
+      - run: mkdir -p packages_moved/spatial/
+      - run: mkdir -p packages_moved/visual-script/
+      - run: mkdir -p packages_moved/engine/
+      - run: mkdir -p packages_moved/projects/
+      - run: mv packages/hyperflux packages_moved/
+      - run: mv packages/ecs packages_moved/
+      - run: mv packages/network packages_moved/
+      - run: mv packages/xrui packages_moved/
+      - run: mv packages/spatial packages_moved/
+      - run: mv packages/visual-script packages_moved/
+      - run: mv packages/engine packages_moved/
+      - run: mv packages/projects packages_moved/
+      - run: rm -rf packages/*
+      - run: mv packages_moved/hyperflux packages/
+      - run: mv packages_moved/ecs packages/
+      - run: mv packages_moved/network packages/
+      - run: mv packages_moved/xrui packages/
+      - run: mv packages_moved/spatial packages/
+      - run: mv packages_moved/visual-script packages/
+      - run: mv packages_moved/engine packages/
+      - run: mv packages_moved/projects packages/
+      - run: cd packages/visual-script && npm run test
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_visual_script }}
+        with:
+          projectBaseDir: packages/visual-script/
 
   test_client:
     needs: install-modules

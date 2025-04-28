@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -53,7 +53,7 @@ import {
   isAncestor
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { act, render } from '@testing-library/react'
+import { vi } from 'vitest'
 import { assertArray } from '../../../tests/util/assert'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { initializeSpatialEngine, initializeSpatialViewer } from '../../initializeEngine'
@@ -516,9 +516,10 @@ describe('InputComponent', () => {
 
       // Run reactor before the entity has any sources attached
 
-      await act(() => render(null))
-      assert.ok(reactorSpy.called)
-      assert.ok(effectSpy.called) // Called when we start the reactor
+      await vi.waitFor(() => {
+        assert.ok(reactorSpy.called)
+        assert.ok(effectSpy.called) // Called when we start the reactor
+      })
 
       // Set the testEntity input sources
       const inputSourceEntity = createEntity()
@@ -527,14 +528,14 @@ describe('InputComponent', () => {
 
       // Extract the useExecute system out of the global list
       const list = Array.from(SystemDefinitions.entries())
-      const [uuid, syst] = list[list.length - 1]
+      const [_, syst] = list[list.length - 1]
       syst.execute()
       root.run()
 
       await flushAll()
 
       // Check that we have run the correct number of times
-      assert.equal(reactorSpy.callCount, 4)
+      assert.equal(reactorSpy.callCount, 3)
       assert.equal(effectSpy.callCount, 2)
       const afterOne = InputComponent.getInputSourceEntities(testEntity)
       assert.ok(afterOne.length > 0, 'getInputSourceEntities for testEntity should return an array containing entities')
@@ -546,22 +547,24 @@ describe('InputComponent', () => {
 
       // Run again, and clear the list of inputSources for the testEntity
 
-      await act(() => render(null))
+      await vi.waitFor(() => {
+        assert.equal(effectSpy.callCount, 2)
+      })
       getMutableComponent(testEntity, InputComponent).inputSources.set([])
-      assert.equal(effectSpy.callCount, 2)
       syst.execute()
 
       // Check the spies and the list of sources after running the system and the reactor
-      assert.equal(reactorSpy.callCount, 4)
+      assert.equal(reactorSpy.callCount, 3)
       assert.equal(effectSpy.callCount, 2)
       const afterTwo = InputComponent.getInputSourceEntities(testEntity).length == 0
       assert.ok(afterTwo, 'getInputSourceEntities for testEntity should return an empty array after we clear it')
 
       // Check that everything is updated as expected after running the reactor root
 
-      await act(() => render(null))
-      assert.equal(reactorSpy.callCount, 5)
-      assert.equal(effectSpy.callCount, 3)
+      await vi.waitFor(() => {
+        assert.equal(reactorSpy.callCount, 4)
+        assert.equal(effectSpy.callCount, 3)
+      })
     })
   })
 

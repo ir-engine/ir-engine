@@ -50,13 +50,11 @@ import {
   VolumetricFileTypes
 } from '@ir-engine/engine/src/assets/constants/fileTypes'
 
-import {
-  AuthAppCredentialsType,
-  authenticationSettingPath
-} from '@ir-engine/common/src/schemas/setting/authentication-setting.schema'
+import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import config from '../../appconfig'
+import config, { AuthenticationConfig } from '../../appconfig'
 import { createExecutorJob } from '../../k8s-job-helper'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
@@ -72,7 +70,7 @@ const OID_REGEX = /oid sha256:([0-9a-fA-F]{64})/
 const PUSH_TIMEOUT = 60 * 10 //10 minute timeout on GitHub push jobs completing or failing
 const COMMIT_FILE_PAGE_SIZE = 150 //Only upload 150 files in a push to GitHub; more than ~200 may trigger errors on uploading trees
 
-export const refreshToken = async (githubSettings: AuthAppCredentialsType, token: string, app: Application) => {
+export const refreshToken = async (githubSettings: AuthenticationConfig, token: string, app: Application) => {
   const identityProviderResponse = await app.service(identityProviderPath).find({
     query: {
       type: 'github',
@@ -83,8 +81,8 @@ export const refreshToken = async (githubSettings: AuthAppCredentialsType, token
   const identityProvider = identityProviderResponse.data[0]
   if (!identityProvider.oauthRefreshToken) return ''
   const params = new URLSearchParams()
-  params.append('client_id', githubSettings.key)
-  params.append('client_secret', githubSettings.secret)
+  params.append('client_id', githubSettings.oauth.github.key)
+  params.append('client_secret', githubSettings.oauth.github.secret)
   params.append('grant_type', 'refresh_token')
   params.append('refresh_token', identityProvider.oauthRefreshToken)
   const refreshResponse = await fetch(`https://github.com/login/oauth/access_token`, {
@@ -548,11 +546,7 @@ export const getGithubOwnerRepo = (url: string) => {
 
 export const getOctokitForToken = async (app: Application, token: string) => {
   let octoKit = new Octokit({ auth: token })
-  const authenticationSettings = (
-    await app.service(authenticationSettingPath).find({
-      isInternal: true
-    })
-  ).data[0]
+  const authenticationSettings = await fetchAuthenticationSettings(app)
   try {
     const checkerOctokit = new Octokit({
       authStrategy: createOAuthAppAuth,
@@ -567,7 +561,7 @@ export const getOctokitForToken = async (app: Application, token: string) => {
       access_token: token
     })
   } catch (err) {
-    token = await refreshToken(authenticationSettings.oauth!.github!, token, app)
+    token = await refreshToken(authenticationSettings, token, app)
     octoKit = new Octokit({ auth: token })
   }
   return {
@@ -591,19 +585,15 @@ export const getOctokitForChecking = async (app: Application, url: string, param
     throw new Forbidden('You must have a connected GitHub account to access public repos')
   const { owner, repo } = getGithubOwnerRepo(url)
   let octoKit = new Octokit({ auth: githubIdentityProvider.data[0].oauthToken })
-  const authenticationSettings = (
-    await app.service(authenticationSettingPath).find({
-      isInternal: true
-    })
-  ).data[0]
+  const authenticationSettings = await fetchAuthenticationSettings(app)
   let token = githubIdentityProvider.data[0].oauthToken
   try {
     const checkerOctokit = new Octokit({
       authStrategy: createOAuthAppAuth,
       auth: {
         clientType: 'oauth-app',
-        clientId: authenticationSettings.oauth!.github!.key,
-        clientSecret: authenticationSettings.oauth!.github!.secret
+        clientId: authenticationSettings?.oauth!.github!.key,
+        clientSecret: authenticationSettings?.oauth!.github!.secret
       }
     })
     await checkerOctokit.rest.apps.checkToken({
@@ -611,7 +601,7 @@ export const getOctokitForChecking = async (app: Application, url: string, param
       access_token: token!
     })
   } catch (err) {
-    token = await refreshToken(authenticationSettings.oauth!.github!, token!, app)
+    token = await refreshToken(authenticationSettings, token!, app)
     octoKit = new Octokit({ auth: token })
   }
   return {
@@ -782,4 +772,34 @@ export const generateInstallationOctokit = (appId: string, privateKey: string, i
       installationId
     }
   })
+}
+/**
+ * Fetches the authentication settings from the application's service.
+ *
+ * This function retrieves settings categorized under 'authentication' from the engine settings
+ * service and converts them into an `AuthenticationConfig` object. The settings are unflattened
+ * into a structured object using the `unflattenArrayToObject` utility.
+ *
+ * @param app - The application instance used to access the engine settings service.
+ * @returns A promise that resolves to the authentication settings as an `AuthenticationConfig` object.
+ */
+async function fetchAuthenticationSettings(app: Application) {
+  try {
+    const engineSettingData = await app.service(engineSettingPath).find({
+      isInternal: true,
+      query: {
+        category: 'authentication'
+      },
+      paginate: false
+    })
+
+    const authenticationSettings = unflattenArrayToObject(
+      engineSettingData.map((el) => ({ key: el.key, value: el.value, dataType: el.dataType }))
+    ) as AuthenticationConfig
+
+    return authenticationSettings
+  } catch (error) {
+    logger.error('Error fetching authentication settings:', error)
+    throw new Error('Failed to fetch authentication settings' + error)
+  }
 }

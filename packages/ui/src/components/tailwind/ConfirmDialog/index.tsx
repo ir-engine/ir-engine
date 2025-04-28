@@ -62,11 +62,11 @@ export const ConfirmDialog = ({ title, text, onSubmit, onClose, modalProps }: Co
         ModalState.closeModal()
         onClose?.()
       }}
-      className="h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl bg-surface-1 smh:h-auto smh:min-w-fit"
+      className="h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl bg-surface-1 xsh:h-auto xsh:min-w-fit"
       submitLoading={modalProcessing.value}
       rawChildren={
         <div
-          className="flex h-[calc(90dvh-4rem-4.5rem)] flex-col items-center justify-center gap-2 smh:h-auto smh:py-2"
+          className="flex h-[calc(90dvh-4rem-4.5rem)] flex-col items-center justify-center gap-2 xsh:h-auto xsh:py-2"
           data-testid="confirm-dialog"
         >
           <Text className="text-text-secondary" data-testid="confirm-dialog-text-element">

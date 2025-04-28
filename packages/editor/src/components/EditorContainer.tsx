@@ -264,7 +264,7 @@ const EditorContainer = () => {
           className="flex flex-col"
           style={scenePath.value ? { background: 'transparent' } : {}}
         >
-          {uiEnabled.value && (
+          {uiEnabled.value && typeof visualScriptPanelEnabled !== 'undefined' && (
             <DndWrapper id="editor-container">
               <DragLayer />
               <Toolbar />
