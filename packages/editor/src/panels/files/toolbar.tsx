@@ -37,7 +37,8 @@ import {
   Grid01Sm,
   PlusCircleSm,
   Refresh1Sm,
-  SearchSmSm
+  SearchSmSm,
+  XCircleLg
 } from '@ir-engine/ui/src/icons'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { Fragment } from 'react'
@@ -194,6 +195,11 @@ export default function FilesToolbar() {
           height="xs"
           startComponent={<SearchSmSm className="h-[14px] w-[14px] text-[#9CA0AA]" />}
           data-testid="files-panel-search-input"
+          endComponent={
+            <button className="h-4 w-4" onClick={() => filesState.searchText.set('')}>
+              <XCircleLg className="h-full w-full" />
+            </button>
+          }
         />
       }
       dataTestIdJson={{}}
@@ -232,6 +238,7 @@ export default function FilesToolbar() {
       uploadButton={
         <>
           <Button
+            variant="tertiary"
             size="l"
             disabled={!showUploadButtons}
             onClick={() =>
@@ -252,6 +259,7 @@ export default function FilesToolbar() {
           </Button>
           <Button
             size="l"
+            variant="tertiary"
             disabled={!showUploadButtons}
             className="disabled:bg-[#212226]"
             onClick={() =>
