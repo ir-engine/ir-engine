@@ -36,17 +36,18 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { useEffect } from 'react'
-import { Quaternion, Vector2, Vector3, Vector4 } from 'three'
+import { Color, Quaternion, Vector2, Vector3, Vector4 } from 'three'
 
 enum MixableType {
   Number,
   Vector2,
   Vector3,
   Vector4,
-  Quaternion
+  Quaternion,
+  Color
 }
 
-type Mixable = number | Vector2 | Vector3 | Vector4 | Quaternion
+type Mixable = number | Vector2 | Vector3 | Vector4 | Color | Quaternion
 
 type MixFunc<M> = {
   create: (a?: M) => M
@@ -78,6 +79,12 @@ const mixFuncs: Record<MixableType, MixFunc<any>> = {
     lerp: (a: Vector4, b: Vector4, p) => a.clone().lerp(b, p),
     fromNumberList: (a: number[]) => new Vector4(...a),
     toNumberList: (a: Vector4) => [...a]
+  },
+  [MixableType.Color]: {
+    create: (a?: number[]) => new Color(...(a ?? [])),
+    lerp: (a: Color, b: Color, p) => a.clone().lerp(b, p),
+    fromNumberList: (a: number[]) => new Color(...a),
+    toNumberList: (a: Color) => [...a]
   },
   [MixableType.Quaternion]: {
     create: (a?: number[]) => new Quaternion(...(a ?? [])),
