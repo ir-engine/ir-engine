@@ -44,6 +44,7 @@
     "@ir-engine/projects": "^1.6.0",
     "@pixiv/three-vrm": "^2.0.6",
     "autoprefixer": "^10.4.14",
+    "class-variance-authority": "0.7.1",
     "country-state-city": "^3.2.1",
     "fuse.js": "^7.0.0",
     "re-resizable": "^6.9.9",

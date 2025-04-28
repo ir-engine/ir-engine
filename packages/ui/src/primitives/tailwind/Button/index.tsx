@@ -23,40 +23,64 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import type { VariantProps } from 'class-variance-authority'
+import { cva } from 'class-variance-authority'
 import React, { ReactNode } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-const sizes = {
-  xs: 'h-6',
-  sm: 'h-7',
-  l: 'h-8',
-  xl: 'h-10'
-} as const
+export const buttonStyles = cva(
+  [
+    'flex items-center justify-center gap-1',
+    'text-sm font-medium leading-4',
+    'px-4 py-1',
+    'disabled:cursor-not-allowed'
+  ],
+  {
+    variants: {
+      color: {
+        primary:
+          'bg-ui-primary text-text-primary-button hover:bg-ui-hover-primary focus:bg-ui-select-primary disabled:bg-ui-inactive-primary disabled:text-text-inactive',
+        secondary:
+          'bg-ui-secondary text-text-primary-button hover:bg-ui-hover-secondary focus:bg-ui-select-secondary disabled:bg-ui-inactive-secondary disabled:text-text-inactive',
+        tertiary:
+          'text-text-primary border border-ui-secondary hover:border-ui-hover-secondary focus:border-ui-select-secondary disabled:border-ui-inactive-secondary disabled:text-text-inactive',
+        green:
+          'bg-ui-success text-text-primary-button hover:bg-ui-hover-success focus:bg-ui-select-success disabled:bg-ui-inactive-success disabled:text-text-inactive',
+        red: 'bg-ui-error text-text-primary-button hover:bg-ui-hover-error focus:bg-ui-select-error disabled:bg-ui-inactive-error disabled:text-text-inactive'
+      },
+      size: {
+        xs: 'h-6',
+        sm: 'h-7',
+        l: 'h-8',
+        xl: 'h-10'
+      },
+      radius: {
+        primary: 'rounded-[0.625rem]',
+        secondary: 'rounded-[0.625rem]',
+        tertiary: 'rounded-[0.625rem]',
+        green: 'rounded-lg',
+        red: 'rounded-lg'
+      },
+      fullWidth: {
+        true: 'w-full',
+        false: 'w-fit'
+      }
+    },
+    defaultVariants: {
+      color: 'primary',
+      radius: 'primary',
+      size: 'l',
+      fullWidth: false
+    }
+  }
+)
 
-const variants = {
-  primary:
-    'bg-ui-primary text-text-primary-button hover:bg-ui-hover-primary focus:bg-ui-select-primary disabled:bg-ui-inactive-primary disabled:text-text-inactive',
-  secondary:
-    'bg-ui-secondary text-text-primary-button hover:bg-ui-hover-secondary focus:bg-ui-select-secondary disabled:bg-ui-inactive-secondary disabled:text-text-inactive',
-  tertiary:
-    'text-text-primary border border-ui-secondary hover:border-ui-hover-secondary focus:border-ui-select-secondary disabled:border-ui-inactive-secondary disabled:text-text-inactive',
-  green:
-    'bg-ui-success text-text-primary-button hover:bg-ui-hover-success focus:bg-ui-select-success disabled:bg-ui-inactive-success disabled:text-text-inactive',
-  red: 'bg-ui-error text-text-primary-button hover:bg-ui-hover-error focus:bg-ui-select-error disabled:bg-ui-inactive-error disabled:text-text-inactive'
-} as const
-
-const radiusMap: Record<keyof typeof variants, string> = {
-  primary: 'rounded-[0.625rem]',
-  secondary: 'rounded-[0.625rem]',
-  tertiary: 'rounded-[0.625rem]',
-  green: 'rounded-lg',
-  red: 'rounded-lg'
-} as const
+export type ButtonVariants = VariantProps<typeof buttonStyles>
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: ReactNode
-  size?: keyof typeof sizes
-  variant?: keyof typeof variants
+  size?: ButtonVariants['size']
+  variant?: ButtonVariants['color']
   fullWidth?: boolean
 }
 
@@ -69,14 +93,12 @@ const Button = (
       ref={ref}
       role="button"
       className={twMerge(
-        'flex items-center justify-center gap-1',
-        radiusMap[variant],
-        'text-sm font-medium leading-4',
-        'px-4 py-1',
-        sizes[size],
-        fullWidth ? 'w-full' : 'w-fit',
-        'disabled:cursor-not-allowed',
-        variants[variant],
+        buttonStyles({
+          radius: variant,
+          color: variant,
+          fullWidth,
+          size
+        }),
         className
       )}
       {...props}
