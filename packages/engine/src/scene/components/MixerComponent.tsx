@@ -35,8 +35,8 @@ import {
   useComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { quat, vec2, vec3, vec4 } from 'gl-matrix'
 import { useEffect } from 'react'
+import { Quaternion, Vector2, Vector3, Vector4 } from 'three'
 
 enum MixableType {
   Number,
@@ -46,7 +46,7 @@ enum MixableType {
   Quaternion
 }
 
-type Mixable = number | vec2 | vec3 | vec4 | quat
+type Mixable = number | Vector2 | Vector3 | Vector4 | Quaternion
 
 type MixFunc<M> = {
   create: (a?: M) => M
@@ -62,28 +62,28 @@ const mixFuncs: Record<MixableType, MixFunc<any>> = {
     toNumberList: (a: number) => [a]
   },
   [MixableType.Vector2]: {
-    create: (a?: number[]) => (a == null ? vec2.create() : vec2.fromValues(...(a as [number, number]))),
-    lerp: (a: vec2, b: vec2, p) => vec2.lerp(vec2.create(), a, b, p),
-    fromNumberList: (a: number[]) => vec2.fromValues(...(a as [number, number])),
-    toNumberList: (a: vec2) => [...a]
+    create: (a?: number[]) => new Vector2(...(a ?? [])),
+    lerp: (a: Vector2, b: Vector2, p) => a.clone().lerp(b, p),
+    fromNumberList: (a: number[]) => new Vector2(...a),
+    toNumberList: (a: Vector2) => [...a]
   },
   [MixableType.Vector3]: {
-    create: (a?: number[]) => (a == null ? vec3.create() : vec3.fromValues(...(a as [number, number, number]))),
-    lerp: (a: vec3, b: vec3, p) => vec3.lerp(vec3.create(), a, b, p),
-    fromNumberList: (a: number[]) => vec3.fromValues(...(a as [number, number, number])),
-    toNumberList: (a: vec3) => [...a]
+    create: (a?: number[]) => new Vector3(...(a ?? [])),
+    lerp: (a: Vector3, b: Vector3, p) => a.clone().lerp(b, p),
+    fromNumberList: (a: number[]) => new Vector3(...a),
+    toNumberList: (a: Vector3) => [...a]
   },
   [MixableType.Vector4]: {
-    create: (a?: number[]) => (a == null ? vec4.create() : vec4.fromValues(...(a as [number, number, number, number]))),
-    lerp: (a: vec4, b: vec4, p) => vec4.lerp(vec4.create(), a, b, p),
-    fromNumberList: (a: number[]) => vec4.fromValues(...(a as [number, number, number, number])),
-    toNumberList: (a: vec4) => [...a]
+    create: (a?: number[]) => new Vector4(...(a ?? [])),
+    lerp: (a: Vector4, b: Vector4, p) => a.clone().lerp(b, p),
+    fromNumberList: (a: number[]) => new Vector4(...a),
+    toNumberList: (a: Vector4) => [...a]
   },
   [MixableType.Quaternion]: {
-    create: (a?: number[]) => (a == null ? quat.create() : quat.fromValues(...(a as [number, number, number, number]))),
-    lerp: (a: quat, b: quat, p) => quat.lerp(quat.create(), a, b, p),
-    fromNumberList: (a: number[]) => quat.fromValues(...(a as [number, number, number, number])),
-    toNumberList: (a: quat) => [...a]
+    create: (a?: number[]) => new Quaternion(...(a ?? [])),
+    lerp: (a: Quaternion, b: Quaternion, p) => a.clone().slerp(b, p),
+    fromNumberList: (a: number[]) => new Quaternion(...a),
+    toNumberList: (a: Quaternion) => [...a]
   }
 }
 
