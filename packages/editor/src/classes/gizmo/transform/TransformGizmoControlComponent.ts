@@ -57,13 +57,14 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+
 import {
-  gizmoUpdate,
   onPointerDown,
   onPointerDrag,
   onPointerHover,
-  onPointerUp
-} from '../../../functions/transformGizmoHelper'
+  onPointerUp,
+  transformGizmoUpdate
+} from '../../../functions/gizmos/transformGizmoHelper'
 import { EditorHelperState } from '../../../services/EditorHelperState'
 import { TransformGizmoVisualComponent } from './TransformGizmoVisualComponent'
 
@@ -212,7 +213,7 @@ export const TransformGizmoControlComponent = defineComponent({
           }
         }
 
-        gizmoUpdate(gizmoControlEntity)
+        transformGizmoUpdate(gizmoControlEntity)
       },
       InputExecutionOrder.Before,
       true
