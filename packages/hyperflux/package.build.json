@@ -19,7 +19,7 @@
     "url": "https://github.com/ir-engine/ir-engine/issues"
   },
   "dependencies": {
-    "@hookstate/core": "npm:@speigg/hookstate@4.0.1-fix-111-106.2",
+    "@hookstate/core": "^4.0.0",
     "@hookstate/identifiable": "^4.0.0",
     "react": "18.2.0",
     "react-reconciler": "^0.29.0",
