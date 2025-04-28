@@ -53,7 +53,7 @@ const LoadingSpinnerReactor = (props: { entity: Entity }) => {
 
   useEffect(() => {
     if (!shouldHaveSpinned) return
-    spinnerEntity.current = createLoadingSpinner(`loading ${gltfComponent.src.value}`)
+    spinnerEntity.current = createLoadingSpinner(`loading ${gltfComponent.src.value}`, entity)
     return () => {
       removeEntityNodeRecursively(spinnerEntity?.current!)
       spinnerEntity.current = null

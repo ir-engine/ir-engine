@@ -30,7 +30,7 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
 import { Tween } from '@tweenjs/tween.js'
-import { DoubleSide, Euler, Mesh, MeshBasicMaterial, TorusGeometry, Vector3 } from 'three'
+import { DoubleSide, Euler, Mesh, MeshBasicMaterial, TorusGeometry } from 'three'
 import { LookAtComponent } from '../components/LookAtComponent'
 
 export function createLoadingSpinner(name = 'loading spinner', parentEntity = UndefinedEntity) {
@@ -39,15 +39,11 @@ export function createLoadingSpinner(name = 'loading spinner', parentEntity = Un
   setComponent(rootEntity, VisibleComponent)
   setComponent(rootEntity, TransformComponent)
   setComponent(rootEntity, EntityTreeComponent, { parentEntity })
-  const transform = getComponent(parentEntity, TransformComponent)
+
   const sphereEntity = createEntity()
   setComponent(sphereEntity, NameComponent, name + ': helper')
   setComponent(sphereEntity, VisibleComponent)
-  setComponent(sphereEntity, TransformComponent, {
-    position: transform?.position
-      ? new Vector3(transform.position.x, transform.position.y, transform.position.z)
-      : new Vector3()
-  })
+  setComponent(sphereEntity, TransformComponent)
   setComponent(sphereEntity, EntityTreeComponent, { parentEntity })
 
   const sphereMesh = new Mesh(
@@ -59,7 +55,7 @@ export function createLoadingSpinner(name = 'loading spinner', parentEntity = Un
   const loadingTransform = getComponent(sphereEntity, TransformComponent)
   const rotator = { rotation: 0 }
   setComponent(
-    rootEntity,
+    sphereEntity,
     TweenComponent,
     new Tween<any>(rotator)
       .to({ rotation: Math.PI * 2 }, 1000)
@@ -71,5 +67,5 @@ export function createLoadingSpinner(name = 'loading spinner', parentEntity = Un
   )
 
   setComponent(rootEntity, LookAtComponent)
-  return rootEntity
+  return sphereEntity
 }
