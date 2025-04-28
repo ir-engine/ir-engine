@@ -44,7 +44,7 @@ import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { isClient } from '@ir-engine/hyperflux'
-import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 
 /**
@@ -253,11 +253,11 @@ export const TextComponent = defineComponent({
       }
 
       troikaMesh = new TroikaText()
-      setComponent(entity, MeshComponent, troikaMesh)
+      setComponent(entity, ObjectComponent, troikaMesh)
       troikaMeshRef.current = troikaMesh
 
       return () => {
-        removeComponent(entity, MeshComponent)
+        removeComponent(entity, ObjectComponent)
         troikaMesh.dispose()
       }
     }, [text.text])
