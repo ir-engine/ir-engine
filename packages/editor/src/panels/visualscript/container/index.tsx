@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getComponent, hasComponent, useQuery } from '@ir-engine/ecs'
+import { getComponent, useHasComponent } from '@ir-engine/ecs'
 import { commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
@@ -70,13 +70,10 @@ const VisualFlow = () => {
   const ref = useRef<HTMLDivElement>(null)
   const entities = SelectionState.useSelectedEntities()
   const entity = entities[entities.length - 1]
-  const validEntity = typeof entity === 'number' && hasComponent(entity, VisualScriptComponent)
+  const validEntity = useHasComponent(entity, VisualScriptComponent)
   const flowDimensions = useHookstate({ height: 0, width: 0 })
 
   const addVisualScript = () => EditorControlFunctions.addOrRemoveComponent([entity], VisualScriptComponent, true)
-
-  // ensure reactivity of adding new visualScript
-  useQuery([VisualScriptComponent])
 
   useEffect(() => {
     if (!ref.current) return

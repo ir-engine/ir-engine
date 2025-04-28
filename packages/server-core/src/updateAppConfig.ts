@@ -32,10 +32,6 @@ import { WebRTCSettings, defaultWebRTCSettings } from '@ir-engine/common/src/con
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { EngineSettingType, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import {
-  AuthenticationSettingDatabaseType,
-  authenticationSettingPath
-} from '@ir-engine/common/src/schemas/setting/authentication-setting.schema'
-import {
   ClientSettingDatabaseType,
   clientDbToSchema,
   clientSettingPath
@@ -44,7 +40,6 @@ import { parseValue } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { FlattenedEntry, unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { createHash } from 'crypto'
 import appConfig, { updateNestedConfig } from './appconfig'
-import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
 
 const db = {
   user: process.env.MYSQL_USER ?? 'server',
@@ -69,44 +64,6 @@ export const updateAppConfig = async (): Promise<void> => {
 
   const promises: any[] = []
 
-  const authenticationSettingPromise = knexClient
-    .select()
-    .from<AuthenticationSettingDatabaseType>(authenticationSettingPath)
-    .then(([dbAuthentication]) => {
-      const dbAuthenticationConfig = authenticationDbToSchema(dbAuthentication)
-      if (dbAuthenticationConfig) {
-        const authStrategies = ['jwt']
-        for (let authStrategy of dbAuthenticationConfig.authStrategies) {
-          const keys = Object.keys(authStrategy)
-          for (let key of keys)
-            if (nonFeathersStrategies.indexOf(key) < 0 && authStrategies.indexOf(key) < 0) authStrategies.push(key)
-        }
-        delete (dbAuthenticationConfig as any).authStrategies
-
-        appConfig.authentication = {
-          ...appConfig.authentication,
-          ...(dbAuthenticationConfig as any),
-          secret: dbAuthenticationConfig.secret.split(String.raw`\n`).join('\n'),
-          authStrategies: authStrategies
-        }
-        if (dbAuthenticationConfig.oauth?.github?.privateKey)
-          appConfig.authentication.oauth.github.privateKey = dbAuthenticationConfig.oauth.github.privateKey
-            .split(String.raw`\n`)
-            .join('\n')
-        if (dbAuthentication.jwtPublicKey && typeof dbAuthentication.jwtPublicKey === 'string') {
-          appConfig.authentication.jwtPublicKey = dbAuthentication.jwtPublicKey.split(String.raw`\n`).join('\n')
-          ;(appConfig.authentication.jwtOptions as any).keyid = createHash('sha3-256')
-            .update(appConfig.authentication.jwtPublicKey)
-            .digest('hex')
-        }
-        appConfig.authentication.jwtOptions.algorithm = dbAuthentication.jwtAlgorithm || 'HS256'
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read ${authenticationSettingPath}: ${e.message}`)
-    })
-  promises.push(authenticationSettingPromise)
-
   const clientSettingPromise = knexClient
     .select()
     .from<ClientSettingDatabaseType>(clientSettingPath)
@@ -124,7 +81,7 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(clientSettingPromise)
 
-  const categoriesToUnflatten = ['email', 'aws']
+  const categoriesToUnflatten = ['email', 'aws', 'authentication']
 
   const engineSettingPromise = knexClient
     .select()
@@ -189,8 +146,43 @@ const processSettings = (settings: EngineSettingType[], category: string) => {
       dataType: setting.dataType
     }))
   )
-  appConfig[category] = {
-    ...appConfig[category],
-    ...settingsObject
+  if (category === 'authentication') {
+    const authStrategies = ['jwt']
+    for (const authStrategy of settingsObject.authStrategies) {
+      const keys = Object.keys(authStrategy)
+      for (const key of keys) {
+        if (nonFeathersStrategies.indexOf(key) < 0 && authStrategies.indexOf(key) < 0) {
+          authStrategies.push(key)
+        }
+      }
+    }
+    delete (settingsObject as any).authStrategies
+
+    appConfig.authentication = {
+      ...appConfig.authentication,
+      ...(settingsObject as any),
+      secret: settingsObject.secret.split(String.raw`\n`).join('\n'),
+      authStrategies: authStrategies
+    }
+
+    if (settingsObject.oauth?.github?.privateKey) {
+      appConfig.authentication.oauth.github.privateKey = settingsObject.oauth.github.privateKey
+        .split(String.raw`\n`)
+        .join('\n')
+    }
+
+    if (settingsObject.jwtPublicKey && typeof settingsObject.jwtPublicKey === 'string') {
+      appConfig.authentication.jwtPublicKey = settingsObject.jwtPublicKey.split(String.raw`\n`).join('\n')
+      ;(appConfig.authentication.jwtOptions as any).keyid = createHash('sha3-256')
+        .update(appConfig.authentication.jwtPublicKey)
+        .digest('hex')
+    }
+
+    appConfig.authentication.jwtOptions.algorithm = settingsObject.jwtAlgorithm || 'HS256'
+  } else {
+    appConfig[category] = {
+      ...appConfig[category],
+      ...settingsObject
+    }
   }
 }

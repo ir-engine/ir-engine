@@ -387,6 +387,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
       key={node.depth + ' ' + props.index + ' ' + entity}
       style={fixedSizeListStyles}
       className={twMerge(
+        'flex items-center',
         'cursor-pointer text-text-secondary hover:bg-ui-hover-background hover:text-text-primary',
         'bg-ui-background',
         !visible ? 'text-text-inactive' : '',
@@ -431,7 +432,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
             </button>
           )}
 
-          <div className="flex w-full items-center gap-2 bg-inherit">
+          <div className="grid w-full grid-cols-[max-content_auto_max-content_max-content] items-center gap-2 bg-inherit">
             <IconComponent entity={entity} />
             {renamingNode.entity === entity ? (
               <Input
@@ -453,8 +454,12 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
                 maxLength={64}
               />
             ) : (
-              <div className="min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 ">
-                <span className="text-nowrap text-sm" data-testid="hierarchy-panel-scene-item-name">
+              <div className="grid min-w-0 text-nowrap rounded bg-transparent px-0.5 py-0 ">
+                <span
+                  className="overflow-x-auto text-nowrap text-sm"
+                  style={{ scrollbarWidth: `none` }}
+                  data-testid="hierarchy-panel-scene-item-name"
+                >
                   {currentRenameNode.value}
                 </span>
               </div>

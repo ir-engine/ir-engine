@@ -506,16 +506,16 @@ const loadAccessor = async (options: GLTFParserOptions, accessorIndex: number) =
   return bufferAttribute
 }
 
-const loadBufferView = async (options: GLTFParserOptions, bufferViewIndex: number) => {
+const loadBufferView = async (options: GLTFParserOptions, bufferViewIndex: number): Promise<ArrayBuffer | null> => {
   const [bufferIndex, callback] = getBufferIndex(options, bufferViewIndex)
 
-  const buffer = await GLTFLoaderFunctions.loadBuffer(options, bufferIndex)
-  if (!buffer) return null
+  const buffer = await getDependency(options, 'buffer', bufferIndex)
+  if (!buffer) return Promise.resolve(null)
 
   return callback(buffer)
 }
 
-const loadBuffer = async (options: GLTFParserOptions, bufferIndex: number) => {
+const loadBuffer = async (options: GLTFParserOptions, bufferIndex: number): Promise<ArrayBuffer | null> => {
   const json = options.document
   const bufferDef = json.buffers![bufferIndex]
 
@@ -1060,7 +1060,7 @@ const loadImageSource = async (options: GLTFParserOptions, sourceIndex: number, 
     if (!isClient) {
       const texture = new Texture()
       texture.userData.mimeType = sourceDef.mimeType ?? getImageURIMimeType(sourceDef.uri)
-      return texture
+      return Promise.resolve(texture)
     }
     // Load binary image data from bufferView, if provided.
 
@@ -1562,33 +1562,59 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
 
   return nodeEntity
 }
-const loadMaterialGLTF = async (options: GLTFParserOptions) => {
-  if (Array.isArray(options.document)) {
-    options.document = options.document[0]
+
+const setAnimationClips = (rootEntity: Entity, animationClips: AnimationClip[]) => {
+  if (animationClips.length > 0) {
+    // obj3d should always come from the simulation layer
+    const obj3d = getComponent(
+      LayerFunctions.getLayerRelationsEntities(rootEntity)?.[Layers.Simulation]?.[1] ?? rootEntity,
+      ObjectComponent
+    )
+    obj3d.animations = animationClips
+    if (!hasComponent(rootEntity, AnimationComponent)) {
+      setComponent(rootEntity, AnimationComponent, {
+        mixer: new AnimationMixer(obj3d),
+        animations: obj3d.animations
+      })
+    } else {
+      getMutableComponent(rootEntity, AnimationComponent).animations.merge(obj3d.animations)
+    }
   }
-  DependencyCache.set(options.url, new Map())
-  for (const mat of options.document.materials!) {
-    const materialIndex = options.document.materials!.indexOf(mat)
-    await loadMaterial(options, materialIndex)
+}
+
+const loadDeltas = (document: GLTF.IGLTF) => {
+  const deltas = document.extensions?.[SCENE_DELTA_EXTENSION_NAME] as SceneDeltaRegistry | null
+  if (deltas) {
+    const parsedDeltas = parseStorageProviderURLs(deltas)
+    getMutableState(SceneDeltaState).merge(parsedDeltas)
+  }
+}
+
+const loadGLTFDependencies = (options: GLTFParserOptions) => {
+  const gltf = options.document
+  const deps = [] as Promise<any>[]
+
+  for (let i = 0, len = gltf.textures?.length ?? 0; i < len; i++) {
+    deps.push(getDependency(options, 'texture', i))
   }
 
-  getComponent(options.entity, GLTFComponent).body = null
+  for (let i = 0, len = gltf.materials?.length ?? 0; i < len; i++) {
+    deps.push(getDependency(options, 'material', i))
+  }
+
+  return deps
 }
+
 const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const json = options.document
   const rootEntity = options.entity
 
   // load deltas into state before anything else
-  const deltas = json.extensions?.[SCENE_DELTA_EXTENSION_NAME] as SceneDeltaRegistry | null
-  if (deltas) {
-    const parsedDeltas = parseStorageProviderURLs(deltas)
-    getMutableState(SceneDeltaState).merge(parsedDeltas)
-  }
+  loadDeltas(json)
 
   DependencyCache.set(options.url, new Map())
 
-  const sceneDef = json.scenes![sceneIndex]
-
+  const sceneDef = json.scenes?.[sceneIndex] ?? ({} as GLTF.IScene)
   const nodeIds = sceneDef.nodes || []
 
   const pending = [] as Promise<Entity>[]
@@ -1606,6 +1632,7 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   }
 
   const loadedNodeEntities = await Promise.all(pending)
+  await Promise.all(loadGLTFDependencies(options))
 
   for (const entity of loadedNodeEntities) {
     setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity })
@@ -1626,23 +1653,7 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   }
 
   const animationClips = await Promise.all(animationPromises)
-
-  if (animationClips.length > 0) {
-    // obj3d should always come from the simulation layer
-    const obj3d = getComponent(
-      LayerFunctions.getLayerRelationsEntities(rootEntity)?.[Layers.Simulation]?.[1] ?? rootEntity,
-      ObjectComponent
-    )
-    obj3d.animations = animationClips
-    if (!hasComponent(rootEntity, AnimationComponent)) {
-      setComponent(rootEntity, AnimationComponent, {
-        mixer: new AnimationMixer(obj3d),
-        animations: obj3d.animations
-      })
-    } else {
-      getMutableComponent(rootEntity, AnimationComponent).animations.merge(obj3d.animations)
-    }
-  }
+  setAnimationClips(rootEntity, animationClips)
 
   // dereference body non-reactively if it exists
   getComponent(options.entity, GLTFComponent).body = null
@@ -1679,24 +1690,10 @@ export const GLTFLoaderFunctions = {
   loadMesh,
   loadNode,
   loadScene,
-  unloadScene,
-  loadMaterialGLTF
+  unloadScene
 }
 
 export const DependencyCache = new Map<string, Map<string, Promise<any>>>()
-
-type DependencyType =
-  | 'scene'
-  | 'node'
-  | 'mesh'
-  | 'accessor'
-  | 'bufferView'
-  | 'buffer'
-  | 'material'
-  | 'texture'
-  | 'skin'
-  | 'animation'
-  | 'camera'
 
 const DependencyMap = {
   scene: loadScene,
@@ -1712,11 +1709,13 @@ const DependencyMap = {
   camera: loadCamera
 }
 
+type DependencyKey = keyof typeof DependencyMap
+
 type ExcludeFirst<T extends any[]> = T extends [infer First, ...infer Rest extends any[]] ? Rest : never
 
 /** @todo integrate this with resource tracking or something */
 export const getDependency = <
-  Type extends keyof typeof DependencyMap,
+  Type extends DependencyKey,
   Func extends (typeof DependencyMap)[Type],
   Args extends ExcludeFirst<[...Parameters<Func>]>
 >(
