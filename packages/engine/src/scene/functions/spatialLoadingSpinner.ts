@@ -31,15 +31,8 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
 import { Tween } from '@tweenjs/tween.js'
 import { DoubleSide, Euler, Mesh, MeshBasicMaterial, TorusGeometry } from 'three'
-import { LookAtComponent } from '../components/LookAtComponent'
 
 export function createLoadingSpinner(name = 'loading spinner', parentEntity = UndefinedEntity) {
-  const rootEntity = createEntity()
-  setComponent(rootEntity, NameComponent, name)
-  setComponent(rootEntity, VisibleComponent)
-  setComponent(rootEntity, TransformComponent)
-  setComponent(rootEntity, EntityTreeComponent, { parentEntity })
-
   const sphereEntity = createEntity()
   setComponent(sphereEntity, NameComponent, name + ': helper')
   setComponent(sphereEntity, VisibleComponent)
@@ -66,6 +59,5 @@ export function createLoadingSpinner(name = 'loading spinner', parentEntity = Un
       .repeat(Infinity)
   )
 
-  setComponent(rootEntity, LookAtComponent)
   return sphereEntity
 }
