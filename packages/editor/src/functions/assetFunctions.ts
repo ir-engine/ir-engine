@@ -282,20 +282,6 @@ export const handleConvertGifFileToVideoAndUpload = (
               .find({
                 query: { key: { $in: [path] } }
               })
-              .then((reponse) => {
-                console.log('staticResourceId 0', response[0])
-                if (reponse.data.length > 0) {
-                  console.log('staticResourceId 1', response[0])
-                  const staticResourceId = reponse.data[0].id
-                  const updateStaticResourceThumbnail = async (id: string) => {
-                    console.log('staticResourceId', staticResourceId, response[0])
-                    await API.instance
-                      .service(staticResourcePath)
-                      .patch(id, { thumbnailKey: null, thumbnailMode: null })
-                  }
-                  updateStaticResourceThumbnail(staticResourceId)
-                }
-              })
               .catch((e) => console.error(e))
             return path
           }
@@ -304,7 +290,7 @@ export const handleConvertGifFileToVideoAndUpload = (
           fileURL.hash = ''
           const file = fileURL.href.replace(config.client.fileServer + '/', '')
           removeFromFileThumbnailsSeen([file])
-          return response[0]
+          return checkStaticResourceThumbnail(file)
         })
         .catch((e) => {
           NotificationService.dispatchNotify(i18n.t('editor:errors.fileUploadFailed', { reason: e }) as string, {
