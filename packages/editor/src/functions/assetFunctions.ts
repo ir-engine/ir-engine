@@ -94,11 +94,17 @@ function findMimeType(file: File): FileType {
   return fileType
 }
 
-function isValidFileType(file): { isValid: boolean; errorMessage?: string } {
+function isValidFileType(file, acceptedFileTypes?: string | undefined): { isValid: boolean; errorMessage?: string } {
   const mimeType: FileType = findMimeType(file)
+  // check for the mimetype of file
+  if (acceptedFileTypes && !acceptedFileTypes?.toLocaleLowerCase().includes(mimeType.toLocaleLowerCase())) {
+    return {
+      isValid: false,
+      errorMessage: i18n.t(unsupportedFileMessage[mimeType])
+    }
+  }
   const fileName = file.name
   const extension = fileName.slice(fileName.lastIndexOf('.')).toLowerCase()
-
   for (const [type, extensions] of Object.entries(supportedFiles)) {
     if (extensions.has(extension)) {
       return {
@@ -113,7 +119,7 @@ function isValidFileType(file): { isValid: boolean; errorMessage?: string } {
   }
 }
 
-export function validatedFiles(files: FileList | File[]): File[] {
+export function validatedFiles(files: FileList | File[], acceptedFileTypes?: string | undefined): File[] {
   const { maxFileSizeToUpload } = config.client
   const invalidSizeFiles: string[] = []
   const newFiles: File[] = []
@@ -126,7 +132,7 @@ export function validatedFiles(files: FileList | File[]): File[] {
     }
 
     // Check file type
-    const { isValid: isValidType, errorMessage } = isValidFileType(file)
+    const { isValid: isValidType, errorMessage } = isValidFileType(file, acceptedFileTypes)
     if (!isValidType) {
       NotificationService.dispatchNotify(
         i18n.t('editor:errors.fileNotSupported', { file: file.name, errorMessage: errorMessage || '' }) as string,
@@ -461,7 +467,7 @@ const createFileUploader = ({
     el.onchange = async () => {
       try {
         if (el.files?.length) {
-          const newFiles = validatedFiles(el.files)
+          const newFiles = validatedFiles(el.files, acceptedFileTypes)
           const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
           const [uploadedFileUrl] = await handleUploadFiles(projectName, directoryPath, uniqueFiles, updateThumbnail)
 
