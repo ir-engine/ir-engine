@@ -265,7 +265,7 @@ const resourceCallbacks = {
                 requestAnimationFrame(checkSync)
               } else {
                 gl.deleteSync(sync)
-                resource.metadata.merge({ onGPU: true, discarded: true })
+                resource.metadata?.merge({ onGPU: true, discarded: true })
                 asset.source.data = null
                 asset.mipmaps = []
               }
