@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Entity, S, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
+  getMutableComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -150,7 +151,7 @@ const RigidBodyReactor = () => {
     return () => {
       Physics.removeRigidbody(physicsWorld, entity)
       if (!hasComponent(entity, RigidBodyComponent)) return
-      component.initialized.set(false)
+      getMutableComponent(entity, RigidBodyComponent).initialized.set(false)
     }
   }, [physicsWorld])
 

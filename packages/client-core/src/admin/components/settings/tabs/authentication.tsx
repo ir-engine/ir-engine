@@ -27,7 +27,7 @@ import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useFind, useMutation } from '@ir-engine/common'
-import { AuthenticationSettingType, authenticationSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schema.type.module'
 import { State, useHookstate } from '@ir-engine/hyperflux'
 import { Button, Input } from '@ir-engine/ui'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
@@ -36,8 +36,10 @@ import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 
+import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
+import { flattenObjectToArray, unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
+import { AuthenticationConfig } from '@ir-engine/server-core/src/appconfig'
 import { initialAuthState } from '../../../../common/initialAuthState'
-import { NotificationService } from '../../../../common/services/NotificationService'
 
 const OAUTH_TYPES = {
   APPLE: 'apple',
@@ -52,12 +54,19 @@ const OAUTH_TYPES = {
 const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
 
-  const authSetting = useFind(authenticationSettingPath).data.at(0) as AuthenticationSettingType
-  const id = authSetting?.id
   const loadingState = useHookstate({
     loading: false,
     errorMessage: ''
   })
+  const engineSettingData = useFind(engineSettingPath, {
+    query: {
+      category: 'authentication',
+      paginate: false
+    }
+  })
+  const authSetting = unflattenArrayToObject(
+    engineSettingData.data.map((el) => ({ key: el.key, value: el.value, dataType: el.dataType }))
+  ) as AuthenticationConfig
   const state = useHookstate(initialAuthState)
   const holdAuth = useHookstate(initialAuthState)
   const keySecret = useHookstate({
@@ -69,10 +78,10 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     linkedin: authSetting?.oauth?.linkedin,
     facebook: authSetting?.oauth?.facebook
   })
-  const patchAuthSettings = useMutation(authenticationSettingPath).patch
+  const authSettingMutation = useMutation(engineSettingPath)
 
   useEffect(() => {
-    if (authSetting) {
+    if (engineSettingData.status === 'success') {
       const tempAuthState = { ...initialAuthState }
       authSetting?.authStrategies?.forEach((el) => {
         Object.entries(el).forEach(([strategyName, strategy]) => {
@@ -95,27 +104,66 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       )
       keySecret.set(tempKeySecret)
     }
-  }, [authSetting])
+  }, [engineSettingData.status])
 
   const handleSubmit = () => {
     loadingState.loading.set(true)
-    const auth = Object.keys(state.value)
-      .filter((item) => (state[item].value ? item : null))
-      .filter(Boolean)
-      .map((prop) => ({ [prop]: state[prop].value }))
+    // Create a map of all strategies with their current values
+    const currentStrategiesMap = Object.keys(state.value).reduce(
+      (acc, item) => {
+        acc[item] = state[item].value
+        return acc
+      },
+      {} as Record<string, boolean>
+    )
+
+    // Preserve order by using authStrategiesInDb as reference
+    const updatedAuthStrategies = authSetting.authStrategies.map((strategy) => {
+      const [key] = Object.keys(strategy)
+      return { [key]: currentStrategiesMap[key] ?? false }
+    })
+
+    // Add any new strategies that weren't in authStrategiesInDb
+    Object.keys(currentStrategiesMap).forEach((key) => {
+      if (!updatedAuthStrategies.some((strategy) => Object.keys(strategy)[0] === key)) {
+        updatedAuthStrategies.push({ [key]: currentStrategiesMap[key] })
+      }
+    })
 
     const oauth = { ...authSetting.oauth, ...(keySecret.value as any) }
 
-    for (const key of Object.keys(oauth)) {
-      oauth[key] = JSON.parse(JSON.stringify(oauth[key]))
-    }
+    const updatedSettings = flattenObjectToArray({ oauth: oauth, authStrategies: updatedAuthStrategies })
 
-    patchAuthSettings(id, { authStrategies: auth, oauth: oauth })
+    const authOperationPromises: Promise<EngineSettingType | EngineSettingType[]>[] = []
+
+    updatedSettings.forEach((setting) => {
+      const settingInDb = engineSettingData.data.find((el) => el.key === setting.key)
+      if (!settingInDb) {
+        authOperationPromises.push(
+          authSettingMutation.create({
+            key: setting.key,
+            category: 'authentication',
+            dataType: getDataType(setting.value),
+            value: `${setting.value}`,
+            type: 'private'
+          })
+        )
+      } else if (settingInDb.value != setting.value) {
+        authOperationPromises.push(
+          authSettingMutation.patch(settingInDb.id, {
+            key: setting.key,
+            category: 'authentication',
+            dataType: getDataType(setting.value),
+            value: setting.value,
+            type: 'private'
+          })
+        )
+      }
+    })
+
+    Promise.all(authOperationPromises)
       .then(() => {
         loadingState.set({ loading: false, errorMessage: '' })
-        NotificationService.dispatchNotify(t('admin:components.setting.authSettingsRefreshNotification'), {
-          variant: 'warning'
-        })
       })
       .catch((e) => {
         loadingState.set({ loading: false, errorMessage: e.message })

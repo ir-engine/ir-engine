@@ -80,7 +80,6 @@ describe('WebGl Renderer System', () => {
     setComponent(rootEntity, VisibleComponent)
     mockEngineRenderer(rootEntity)
     setComponent(rootEntity, BackgroundComponent, new Color(0xffffff))
-
     setComponent(rootEntity, EnvironmentMapComponent, new Texture())
     setComponent(rootEntity, FogSettingsComponent, { type: FogType.Height })
 
@@ -110,7 +109,6 @@ describe('WebGl Renderer System', () => {
     setComponent(invisibleEntity, SceneComponent)
 
     setComponent(rootEntity, RendererComponent, { scenes: [visibleEntity, invisibleEntity] })
-
     await act(() => render(null))
   })
 

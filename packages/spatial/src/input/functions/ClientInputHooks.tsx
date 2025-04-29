@@ -219,7 +219,7 @@ export const CanvasInputReactor = () => {
   useEffect(() => {
     if (xrState.session.value) return // pointer input sources are automatically handled by webxr
 
-    const canvas = rendererComponent.canvas.value
+    const canvas = rendererComponent.canvas.value as HTMLCanvasElement
     if (!canvas) return
 
     /** Clear mouse events */
@@ -269,8 +269,12 @@ export const CanvasInputReactor = () => {
 
       const down = event.type === 'pointerdown'
 
-      if (down) canvas.setPointerCapture(event.pointerId)
-      else canvas.releasePointerCapture(event.pointerId)
+      try {
+        if (down) canvas.setPointerCapture(event.pointerId)
+        else canvas.releasePointerCapture(event.pointerId)
+      } catch (e) {
+        //
+      }
 
       let button = MouseButton.PrimaryClick
       if (event.button === 1) button = MouseButton.AuxiliaryClick
@@ -281,7 +285,7 @@ export const CanvasInputReactor = () => {
         state[button] = createInitialButtonState(pointerEntity) //down, pressed, touched = true
 
         const pointer = getOptionalComponent(pointerEntity, InputPointerComponent)
-        if (pointer) {
+        if (pointer && document.pointerLockElement !== canvas) {
           state[button]!.downPointerPosition = new Vector2(pointer.position.x, pointer.position.y)
           pointer.position.set(
             ((event.clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
@@ -300,7 +304,7 @@ export const CanvasInputReactor = () => {
       const pointerComponent = getOptionalComponent(pointerEntity, InputPointerComponent)
       if (!pointerComponent) return
 
-      if (document.pointerLockElement === (canvas as HTMLCanvasElement)) {
+      if (document.pointerLockElement === canvas) {
         pointerComponent.position.set(
           pointerComponent.position.x + event.movementX / canvas.clientWidth,
           pointerComponent.position.y - event.movementY / canvas.clientHeight

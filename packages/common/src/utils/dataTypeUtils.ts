@@ -33,7 +33,7 @@ import { EngineSettingType } from '../schema.type.module'
  */
 export const getDataType = (value: string | number | boolean): EngineSettingType['dataType'] => {
   let dataType = 'string'
-  const normalizedValue = value.toString().toLowerCase()
+  const normalizedValue = value?.toString()?.toLowerCase()
   if (normalizedValue === 'true' || normalizedValue === 'false') {
     dataType = 'boolean'
   } else if (isValidInteger(value)) {
