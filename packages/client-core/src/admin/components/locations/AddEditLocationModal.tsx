@@ -235,11 +235,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
       // save as duplicate scene
       if (sceneName && projectName) {
         saveScenePath.set(
-          `${getState(EditorState)
-            .scenePath!.split('/')
-            .slice(0, -1)
-            .join('/')
-            .replace('scenes', 'publish')}/${sceneName.split('.').shift()}`
+          getState(EditorState).scenePath!.split('/').slice(0, -1).join('/').replace('scenes', 'publish')
         )
 
         const scenename = getState(EditorState).sceneName?.split('.').shift()
