@@ -274,23 +274,7 @@ export const handleConvertGifFileToVideoAndUpload = (
         ]
       })
         .promise.then((response) => {
-          if (!updateThumbnail) return response[0]
-          //get the static resource record for this file, so we can make it's thumbnail null, since it was oerwritten
-          const checkStaticResourceThumbnail = async (path) => {
-            await API.instance
-              .service(staticResourcePath)
-              .find({
-                query: { key: { $in: [path] } }
-              })
-              .catch((e) => console.error(e))
-            return path
-          }
-          const fileURL = new URL(response[0])
-          fileURL.search = ''
-          fileURL.hash = ''
-          const file = fileURL.href.replace(config.client.fileServer + '/', '')
-          removeFromFileThumbnailsSeen([file])
-          return checkStaticResourceThumbnail(file)
+          return response[0]
         })
         .catch((e) => {
           NotificationService.dispatchNotify(i18n.t('editor:errors.fileUploadFailed', { reason: e }) as string, {
@@ -351,12 +335,9 @@ export const handleUploadFiles = (
                 query: { key: { $in: [path] } }
               })
               .then((reponse) => {
-                console.log('staticResourceId 0', response[0])
                 if (reponse.data.length > 0) {
-                  console.log('staticResourceId 1', response[0])
                   const staticResourceId = reponse.data[0].id
                   const updateStaticResourceThumbnail = async (id: string) => {
-                    console.log('staticResourceId', staticResourceId, response[0])
                     await API.instance
                       .service(staticResourcePath)
                       .patch(id, { thumbnailKey: null, thumbnailMode: null })

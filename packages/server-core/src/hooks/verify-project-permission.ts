@@ -38,7 +38,7 @@ import { Application } from '../../declarations'
 export default (types: string[]) => {
   return async (context: HookContext<Application>) => {
     if (context.params.isInternal) return context
-    console.log('verify-project-permission', context)
+
     const loggedInUser = context.params.user as UserType
 
     if (!loggedInUser) throw new NotAuthenticated('No logged in user')
@@ -46,13 +46,10 @@ export default (types: string[]) => {
     let projectId = ''
     let project
     if (context.params.query?.projectId) {
-      console.log(1, 'context')
       projectId = context.params.query.projectId
     } else if (context.data?.projectId) {
-      console.log(2, 'context')
       projectId = context.data.projectId
     } else if (context.data?.project) {
-      console.log(3, 'context')
       const projectResult = await context.app.service(projectPath).find({
         query: {
           name: context.data.project
@@ -62,10 +59,8 @@ export default (types: string[]) => {
       project = projectResult.data[0]
       projectId = project.id
     } else if (context.id && context.path === projectPath) {
-      console.log(4, 'context')
       projectId = context.id.toString()
     } else {
-      console.log(5, 'context')
       throw new BadRequest('Missing project ID in request')
     }
 
