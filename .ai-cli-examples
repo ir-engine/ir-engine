@@ -1,0 +1,44 @@
+# Get a specific property from a state (properties defined by the shape of the state)
+Engine.instance.store.stateMap['NameComponentState'].get().entitiesByName
+# Get a component value for an entity (defined by the schema of the component)
+ComponentMap.get('NameComponent').valueMap[entity]
+# Get a SoA storage property for an entity (returns a number)
+ComponentMap.get('DistanceFromCameraComponent').squaredDistance[entity]
+# List all defined states
+Object.keys(Engine.instance.store.stateMap)
+# List all defined components
+Array.from(ComponentMap.keys())
+# Check if entity has component
+ComponentMap.get('NameComponent').valueMap[entity] !== undefined
+# Get all entities with a component
+Object.keys(ComponentMap.get('NameComponent').valueMap).map(Number)
+# Get entity by UUID
+ComponentMap.get('UUIDComponent').getEntityByUUID('some-uuid-string')
+# Get current scene entities
+ECS.defineQuery([ComponentMap.get('SourceComponent')])().length
+# Simple Scene Analysis
+(() => {
+  // 1. Get camera information
+  const cameraEntity = Engine.instance.store.stateMap['ReferenceSpaceState'].get().viewerEntity;
+  const cameraPosition = ComponentMap.get('TransformComponent').valueMap[cameraEntity].position;
+  
+  // 2. Find light entities
+  const lightEntities = Object.keys(ComponentMap.get('NameComponent').valueMap)
+    .map(Number)
+    .filter(entity => 
+      ComponentMap.get('DirectionalLightComponent').valueMap[entity] !== undefined || 
+      ComponentMap.get('HemisphereLightComponent').valueMap[entity] !== undefined
+    );
+
+  // 4. Return simple scene analysis
+  return {
+    camera: {
+      entity: cameraEntity,
+      position: cameraPosition
+    },
+    stats: {
+      totalEntities: Object.keys(ComponentMap.get('NameComponent').valueMap).length,
+      lightCount: lightEntities.length
+    }
+  };
+})()

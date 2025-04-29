@@ -19,28 +19,23 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025 
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import { describe, expect, it } from 'vitest'
 
-import {
-  authenticationSettingDataSchema,
-  authenticationSettingPatchSchema,
-  authenticationSettingQuerySchema,
-  authenticationSettingSchema
-} from '@ir-engine/common/src/schemas/setting/authentication-setting.schema'
+import '@ir-engine/engine'
+import '@ir-engine/engine/src/avatar/state/AvatarNetworkState'
+import { generateThumbnailKey } from './FileThumbnailJobState'
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    authenticationSettingDataSchema,
-    authenticationSettingPatchSchema,
-    authenticationSettingQuerySchema,
-    authenticationSettingSchema
-  },
-  docs: {
-    description: 'Authentication setting service description',
-    securities: ['all']
-  }
+describe('FileThumbnailJobState', () => {
+  it('Should generate Thumbnail Key no larger than 50 char', () => {
+    const result = generateThumbnailKey(
+      'https://ir.world:8642/projects/ir-engine/default-project/blah/collisioncube-LOD0.glb',
+      'ir-engine'
+    )
+    console.log(result)
+    expect(result.length).toBeLessThanOrEqual(50)
+  })
 })

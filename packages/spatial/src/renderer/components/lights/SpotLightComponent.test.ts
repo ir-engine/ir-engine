@@ -37,10 +37,9 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
-import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { ColorRepresentation, SpotLight, Vector3 } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 import { assertColor, assertVec } from '../../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { NameComponent } from '../../../common/NameComponent'
@@ -117,7 +116,6 @@ describe('SpotLightComponent', () => {
       createEngine()
       testEntity = createEntity()
       setComponent(testEntity, SpotLightComponent)
-      await act(() => render(null))
     })
 
     afterEach(() => {
@@ -140,7 +138,6 @@ describe('SpotLightComponent', () => {
       testEntity = createEntity()
       setComponent(testEntity, TransformComponent)
       setComponent(testEntity, SpotLightComponent)
-      await act(() => render(null))
     })
 
     afterEach(() => {
@@ -166,11 +163,11 @@ describe('SpotLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, Expected)
-      await act(() => render(null))
-
-      const result = getComponent(testEntity, SpotLightComponent)
-      assertSpotLightComponentNotEq(result, SpotLightComponentDefaults)
-      assertSpotLightComponentEq(result, Expected)
+      await vi.waitFor(() => {
+        const result = getComponent(testEntity, SpotLightComponent)
+        assertSpotLightComponentNotEq(result, SpotLightComponentDefaults)
+        assertSpotLightComponentEq(result, Expected)
+      })
     })
   }) //:: onSet
 
@@ -183,7 +180,6 @@ describe('SpotLightComponent', () => {
       testEntity = createEntity()
       setComponent(testEntity, TransformComponent)
       setComponent(testEntity, SpotLightComponent)
-      await act(() => render(null))
     })
 
     afterEach(() => {
@@ -233,9 +229,9 @@ describe('SpotLightComponent', () => {
       setComponent(testEntity, SpotLightComponent)
 
       // Wait for the reactor to run
-      await act(() => render(null))
-
-      assert.equal(hasComponent(testEntity, LightTagComponent), true)
+      await vi.waitFor(() => {
+        assert.equal(hasComponent(testEntity, LightTagComponent), true)
+      })
     })
 
     it('should set the light.target.position to (1,0,0) when it is mounted', async () => {
@@ -244,11 +240,11 @@ describe('SpotLightComponent', () => {
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent)
 
-      await act(() => render(null))
-
-      // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent) as SpotLight
-      assertVec.approxEq(light.target.position, Expected, 3)
+      await vi.waitFor(() => {
+        // Check side-effect
+        const light = getComponent(testEntity, ObjectComponent) as SpotLight
+        assertVec.approxEq(light.target.position, Expected, 3)
+      })
     })
 
     it("should set the light.target.name to 'light-target' when it is mounted", async () => {
@@ -256,10 +252,11 @@ describe('SpotLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent)
-      await act(() => render(null))
-      // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent) as SpotLight
-      assert.equal(light.target.name, Expected)
+      await vi.waitFor(() => {
+        // Check side-effect
+        const light = getComponent(testEntity, ObjectComponent) as SpotLight
+        assert.equal(light.target.name, Expected)
+      })
     })
 
     it('should create a new SpotLight object and add it to the ObjectComponent of the entity when it is mounted', async () => {
@@ -269,11 +266,12 @@ describe('SpotLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent)
-      await act(() => render(null))
-      const after = getComponent(testEntity, ObjectComponent)
-      assert.equal(!!after, true)
-      const result = after.type === 'SpotLight'
-      assert.equal(result, true)
+      await vi.waitFor(() => {
+        const after = getComponent(testEntity, ObjectComponent)
+        assert.equal(!!after, true)
+        const result = after.type === 'SpotLight'
+        assert.equal(result, true)
+      })
     })
 
     it('should remove the SpotLight object from the ObjectComponent of the entityContext when it is unmounted', async () => {
@@ -281,16 +279,17 @@ describe('SpotLightComponent', () => {
       const before1 = getComponent(testEntity, ObjectComponent)
       assert.equal(!!before1, false)
       setComponent(testEntity, SpotLightComponent)
-      await act(() => render(null))
+      await vi.waitFor(() => {
+        assert.equal(!!getComponent(testEntity, ObjectComponent), true)
+      })
 
       // Run and Check the result
       removeComponent(testEntity, SpotLightComponent)
-      await act(() => render(null))
-
-      const after = getComponent(testEntity, ObjectComponent)
-      console.log({ after })
-      assert.equal(!!after, false)
-      assert.notEqual(after?.type, 'SpotLight')
+      await vi.waitFor(() => {
+        const after = getComponent(testEntity, ObjectComponent)
+        assert.equal(!!after, false)
+        assert.notEqual(after?.type, 'SpotLight')
+      })
     })
 
     it('should react when directionalLightComponent.color changes', async () => {
@@ -298,180 +297,189 @@ describe('SpotLightComponent', () => {
 
       // Set the data as expected
       setComponent(testEntity, SpotLightComponent)
-      await act(() => render(null))
-
-      // Sanity check before running
-      const before = getComponent(testEntity, SpotLightComponent).color
-      assertColor.eq(before, SpotLightComponentDefaults.color)
+      await vi.waitFor(() => {
+        // Sanity check before running
+        const before = getComponent(testEntity, SpotLightComponent).color
+        assertColor.eq(before, SpotLightComponentDefaults.color)
+      })
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, { color: Expected })
-      await act(() => render(null))
-      const result = getComponent(testEntity, SpotLightComponent).color
-      assertColor.eq(result, Expected)
-      // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent) as SpotLight
-      assert.equal(light.color.getHex(), Expected)
+      await vi.waitFor(() => {
+        const result = getComponent(testEntity, SpotLightComponent).color
+        assertColor.eq(result, Expected)
+        // Check side-effect
+        const light = getComponent(testEntity, ObjectComponent) as SpotLight
+        assert.equal(light.color.getHex(), Expected)
+      })
     })
 
     it('should react when hemisphereLightComponent.intensity changes', async () => {
       const Expected = 42
       setComponent(testEntity, SpotLightComponent)
-      await act(() => render(null))
-
-      // Sanity check before running
-      const before = getComponent(testEntity, SpotLightComponent).intensity
-      assert.equal(before, SpotLightComponentDefaults.intensity)
-      assert.notEqual(before, Expected)
+      await vi.waitFor(() => {
+        // Sanity check before running
+        const before = getComponent(testEntity, SpotLightComponent).intensity
+        assert.equal(before, SpotLightComponentDefaults.intensity)
+        assert.notEqual(before, Expected)
+      })
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, { intensity: Expected })
-      await act(() => render(null))
-      const result = getComponent(testEntity, SpotLightComponent).intensity
-      assert.equal(result, Expected)
-      // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent) as SpotLight
-      assert.equal(light.intensity, Expected)
+      await vi.waitFor(() => {
+        const result = getComponent(testEntity, SpotLightComponent).intensity
+        assert.equal(result, Expected)
+        // Check side-effect
+        const light = getComponent(testEntity, ObjectComponent) as SpotLight
+        assert.equal(light.intensity, Expected)
+      })
     })
 
     it('should react when pointLightComponent.range changes', async () => {
       const Expected = 42
       setComponent(testEntity, SpotLightComponent)
-      await act(() => render(null))
-
-      // Sanity check before running
-      const before = getComponent(testEntity, SpotLightComponent).range
-      assert.equal(before, SpotLightComponentDefaults.range)
-      assert.notEqual(before, Expected)
+      await vi.waitFor(() => {
+        // Sanity check before running
+        const before = getComponent(testEntity, SpotLightComponent).range
+        assert.equal(before, SpotLightComponentDefaults.range)
+        assert.notEqual(before, Expected)
+      })
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, { range: Expected })
-      await act(() => render(null))
-      const result = getComponent(testEntity, SpotLightComponent).range
-      assert.equal(result, Expected)
-      // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent) as SpotLight
-      assert.equal(light.distance, Expected)
+      await vi.waitFor(() => {
+        const result = getComponent(testEntity, SpotLightComponent).range
+        assert.equal(result, Expected)
+        // Check side-effect
+        const light = getComponent(testEntity, ObjectComponent) as SpotLight
+        assert.equal(light.distance, Expected)
+      })
     })
 
     it('should react when pointLightComponent.decay changes', async () => {
       const Expected = 42
       setComponent(testEntity, SpotLightComponent)
-      await act(() => render(null))
-
-      // Sanity check before running
-      const before = getComponent(testEntity, SpotLightComponent).decay
-      assert.equal(before, SpotLightComponentDefaults.decay)
-      assert.notEqual(before, Expected)
+      await vi.waitFor(() => {
+        // Sanity check before running
+        const before = getComponent(testEntity, SpotLightComponent).decay
+        assert.equal(before, SpotLightComponentDefaults.decay)
+        assert.notEqual(before, Expected)
+      })
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, { decay: Expected })
-      await act(() => render(null))
-      const result = getComponent(testEntity, SpotLightComponent).decay
-      assert.equal(result, Expected)
-      // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent) as SpotLight
-      assert.equal(light.decay, Expected)
+      await vi.waitFor(() => {
+        const result = getComponent(testEntity, SpotLightComponent).decay
+        assert.equal(result, Expected)
+        // Check side-effect
+        const light = getComponent(testEntity, ObjectComponent) as SpotLight
+        assert.equal(light.decay, Expected)
+      })
     })
 
     it('should react when pointLightComponent.angle changes', async () => {
       const Expected = 42
       setComponent(testEntity, SpotLightComponent)
-      await act(() => render(null))
-
-      // Sanity check before running
-      const before = getComponent(testEntity, SpotLightComponent).angle
-      assert.equal(before, SpotLightComponentDefaults.angle)
-      assert.notEqual(before, Expected)
+      await vi.waitFor(() => {
+        // Sanity check before running
+        const before = getComponent(testEntity, SpotLightComponent).angle
+        assert.equal(before, SpotLightComponentDefaults.angle)
+        assert.notEqual(before, Expected)
+      })
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, { angle: Expected })
-      await act(() => render(null))
-      const result = getComponent(testEntity, SpotLightComponent).angle
-      assert.equal(result, Expected)
-      // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent) as SpotLight
-      assert.equal(light.angle, Expected)
+      await vi.waitFor(() => {
+        const result = getComponent(testEntity, SpotLightComponent).angle
+        assert.equal(result, Expected)
+        // Check side-effect
+        const light = getComponent(testEntity, ObjectComponent) as SpotLight
+        assert.equal(light.angle, Expected)
+      })
     })
 
     it('should react when pointLightComponent.penumbra changes', async () => {
       const Expected = 42
       setComponent(testEntity, SpotLightComponent)
-      await act(() => render(null))
-
-      // Sanity check before running
-      const before = getComponent(testEntity, SpotLightComponent).penumbra
-      assert.equal(before, SpotLightComponentDefaults.penumbra)
-      assert.notEqual(before, Expected)
+      await vi.waitFor(() => {
+        // Sanity check before running
+        const before = getComponent(testEntity, SpotLightComponent).penumbra
+        assert.equal(before, SpotLightComponentDefaults.penumbra)
+        assert.notEqual(before, Expected)
+      })
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, { penumbra: Expected })
-      await act(() => render(null))
-      const result = getComponent(testEntity, SpotLightComponent).penumbra
-      assert.equal(result, Expected)
-      // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent) as SpotLight
-      assert.equal(light.penumbra, Expected)
+      await vi.waitFor(() => {
+        const result = getComponent(testEntity, SpotLightComponent).penumbra
+        assert.equal(result, Expected)
+        // Check side-effect
+        const light = getComponent(testEntity, ObjectComponent) as SpotLight
+        assert.equal(light.penumbra, Expected)
+      })
     })
 
     it('should react when pointLightComponent.castShadow changes', async () => {
       const Expected = !SpotLightComponentDefaults.castShadow
       setComponent(testEntity, SpotLightComponent)
-      await act(() => render(null))
-
-      // Sanity check before running
-      const before = getComponent(testEntity, SpotLightComponent).castShadow
-      assert.equal(before, SpotLightComponentDefaults.castShadow)
-      assert.notEqual(before, Expected)
+      await vi.waitFor(() => {
+        // Sanity check before running
+        const before = getComponent(testEntity, SpotLightComponent).castShadow
+        assert.equal(before, SpotLightComponentDefaults.castShadow)
+        assert.notEqual(before, Expected)
+      })
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, { castShadow: Expected })
-      await act(() => render(null))
-      const result = getComponent(testEntity, SpotLightComponent).castShadow
-      assert.equal(result, Expected)
-      // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent) as SpotLight
-      assert.equal(light.castShadow, Expected)
+      await vi.waitFor(() => {
+        const result = getComponent(testEntity, SpotLightComponent).castShadow
+        assert.equal(result, Expected)
+        // Check side-effect
+        const light = getComponent(testEntity, ObjectComponent) as SpotLight
+        assert.equal(light.castShadow, Expected)
+      })
     })
 
     it('should react when pointLightComponent.shadowBias changes', async () => {
       const Expected = 42
       setComponent(testEntity, SpotLightComponent)
-      await act(() => render(null))
-
-      // Sanity check before running
-      const before = getComponent(testEntity, SpotLightComponent).shadowBias
-      assert.equal(before, SpotLightComponentDefaults.shadowBias)
-      assert.notEqual(before, Expected)
+      await vi.waitFor(() => {
+        // Sanity check before running
+        const before = getComponent(testEntity, SpotLightComponent).shadowBias
+        assert.equal(before, SpotLightComponentDefaults.shadowBias)
+        assert.notEqual(before, Expected)
+      })
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, { shadowBias: Expected })
-      await act(() => render(null))
-      const result = getComponent(testEntity, SpotLightComponent).shadowBias
-      assert.equal(result, Expected)
-      // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent) as SpotLight
-      assert.equal(light.shadow.bias, Expected)
+      await vi.waitFor(() => {
+        const result = getComponent(testEntity, SpotLightComponent).shadowBias
+        assert.equal(result, Expected)
+        // Check side-effect
+        const light = getComponent(testEntity, ObjectComponent) as SpotLight
+        assert.equal(light.shadow.bias, Expected)
+      })
     })
 
     it('should react when pointLightComponent.shadowRadius changes', async () => {
       const Expected = 42
       setComponent(testEntity, SpotLightComponent)
-      await act(() => render(null))
-
-      // Sanity check before running
-      const before = getComponent(testEntity, SpotLightComponent).shadowRadius
-      assert.equal(before, SpotLightComponentDefaults.shadowRadius)
-      assert.notEqual(before, Expected)
+      await vi.waitFor(() => {
+        // Sanity check before running
+        const before = getComponent(testEntity, SpotLightComponent).shadowRadius
+        assert.equal(before, SpotLightComponentDefaults.shadowRadius)
+        assert.notEqual(before, Expected)
+      })
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, { shadowRadius: Expected })
-      await act(() => render(null))
-      const result = getComponent(testEntity, SpotLightComponent).shadowRadius
-      assert.equal(result, Expected)
-      // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent) as SpotLight
-      assert.equal(light.shadow.radius, Expected)
+      await vi.waitFor(() => {
+        const result = getComponent(testEntity, SpotLightComponent).shadowRadius
+        assert.equal(result, Expected)
+        // Check side-effect
+        const light = getComponent(testEntity, ObjectComponent) as SpotLight
+        assert.equal(light.shadow.radius, Expected)
+      })
     })
 
     it('should react when renderState.shadowMapResolution changes', async () => {
@@ -481,17 +489,17 @@ describe('SpotLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent)
-      await act(() => render(null))
-
-      const before = getComponent(testEntity, ObjectComponent) as SpotLight
-      assert.equal(before.shadow.mapSize.x, Initial)
+      await vi.waitFor(() => {
+        const before = getComponent(testEntity, ObjectComponent) as SpotLight
+        assert.equal(before.shadow.mapSize.x, Initial)
+      })
 
       // Re-run and Check the result again
       getMutableState(RendererState).shadowMapResolution.set(Expected)
-
-      await act(() => render(null))
-      const result = getComponent(testEntity, ObjectComponent) as SpotLight
-      assert.equal(result.shadow.mapSize.x, Expected)
+      await vi.waitFor(() => {
+        const result = getComponent(testEntity, ObjectComponent) as SpotLight
+        assert.equal(result.shadow.mapSize.x, Expected)
+      })
     })
 
     it('should react when debugEnabled changes', async () => {
@@ -504,23 +512,22 @@ describe('SpotLightComponent', () => {
 
       // Run and Check the Initial result
       setComponent(testEntity, SpotLightComponent)
-      await act(() => render(null))
       setComponent(testEntity, NameComponent, 'spot-light')
 
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
-
-      await act(() => render(null))
-
-      const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
-      assert.equal(hasComponent(childEntity1, ObjectComponent), Expected)
-      assert.equal(getComponent(childEntity1, NameComponent), 'spot-light-helper')
+      await vi.waitFor(() => {
+        const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
+        assert.equal(hasComponent(childEntity1, ObjectComponent), Expected)
+        assert.equal(getComponent(childEntity1, NameComponent), 'spot-light-helper')
+      })
 
       // Re-run and Check the unmount case
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
-
-      await act(() => render(null))
-      assert.equal(hasComponent(childEntity1, ObjectComponent), Initial)
+      await vi.waitFor(() => {
+        const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
+        assert.equal(hasComponent(childEntity1, ObjectComponent), Initial)
+      })
     })
   }) //:: reactor
 })

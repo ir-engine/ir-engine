@@ -56,10 +56,10 @@ import {
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { getMutableState, getState, setNestedObject } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent } from '@ir-engine/spatial'
+import { TransformSpace } from '@ir-engine/spatial/src/common/constants/TransformConstants'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
@@ -338,13 +338,10 @@ const createObjectFromSceneElement = (
   return { entityUUID: getComponent(entity, UUIDComponent), sourceID }
 }
 
-/**
- * @todo copying an object should be rooted to which object is currently selected
- */
 const duplicateObject = (entities: Entity[]) => {
-  const duplicateEntities = (entities: Entity[], parentEntity: Entity) => {
-    const parentUUID = getComponent(parentEntity, UUIDComponent)
+  const newEntities: EntityUUID[] = []
 
+  const duplicateEntities = (entities: Entity[], parentEntity: Entity) => {
     entities.forEach((entity) => {
       const entityData = serializeEntity(entity).filter((c) => c.name !== NodeIDComponent.jsonID)
       const originalSource = getComponent(entity, SourceComponent)
@@ -359,6 +356,10 @@ const duplicateObject = (entities: Entity[]) => {
         deserializeComponent(newEntity, ComponentJSONIDMap.get(component.name)!, component.props)
       }
 
+      // Store the UUID of new entity for selection
+      newEntities.push(getComponent(newEntity, UUIDComponent))
+
+      if (hasComponent(entity, GLTFComponent)) return
       const children = getComponent(entity, EntityTreeComponent).children as Entity[]
       duplicateEntities(children, newEntity)
     })
@@ -371,6 +372,9 @@ const duplicateObject = (entities: Entity[]) => {
     duplicateEntities([rootEntity], parentEntity)
     EditorState.markModifiedScene(rootEntity)
   }
+
+  // Update selection to the new entities
+  SelectionState.updateSelection(newEntities)
 }
 
 const positionObject = (

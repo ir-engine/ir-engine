@@ -1066,6 +1066,8 @@ export const ParticleSystemComponent = defineComponent({
           }
         }
         removeComponent(entity, ObjectComponent)
+        setComponent(entity, ObjectComponent, new Object3D())
+
         nuSystem.dispose()
         emitterAsObj3D.dispose()
         removeBatchedRenderer(sceneID!)

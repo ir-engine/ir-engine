@@ -6,7 +6,7 @@ RUN apt-get install -y build-essential meson python3-testresources python3-venv 
 # Create app directory
 WORKDIR /app
 
-RUN npm install -g npm lerna cross-env rimraf --loglevel notice
+RUN --mount=type=cache,target=/root/.npm npm install -g npm lerna cross-env rimraf --loglevel notice
 
 # to make use of caching, copy only package files and install dependencies
 COPY package.json .
@@ -114,6 +114,7 @@ RUN npm run build-client
 
 RUN rm -r packages/client/public
 
+RUN bash ./scripts/setup_docker.sh
 RUN bash ./scripts/setup_helm.sh
 
 ENV APP_ENV=production

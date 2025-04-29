@@ -1,0 +1,9 @@
+packages/server/upload/
+packages/server/upload_test/
+packages/projects/projects/
+packages/matchmaking/
+**/node_modules/**
+packages/*/dist/
+packages/*/coverage/
+**/.env
+**/.env.local

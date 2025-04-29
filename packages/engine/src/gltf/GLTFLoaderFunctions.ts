@@ -506,16 +506,16 @@ const loadAccessor = async (options: GLTFParserOptions, accessorIndex: number) =
   return bufferAttribute
 }
 
-const loadBufferView = async (options: GLTFParserOptions, bufferViewIndex: number) => {
+const loadBufferView = async (options: GLTFParserOptions, bufferViewIndex: number): Promise<ArrayBuffer | null> => {
   const [bufferIndex, callback] = getBufferIndex(options, bufferViewIndex)
 
-  const buffer = await GLTFLoaderFunctions.loadBuffer(options, bufferIndex)
-  if (!buffer) return null
+  const buffer = await getDependency(options, 'buffer', bufferIndex)
+  if (!buffer) return Promise.resolve(null)
 
   return callback(buffer)
 }
 
-const loadBuffer = async (options: GLTFParserOptions, bufferIndex: number) => {
+const loadBuffer = async (options: GLTFParserOptions, bufferIndex: number): Promise<ArrayBuffer | null> => {
   const json = options.document
   const bufferDef = json.buffers![bufferIndex]
 
@@ -1060,7 +1060,7 @@ const loadImageSource = async (options: GLTFParserOptions, sourceIndex: number, 
     if (!isClient) {
       const texture = new Texture()
       texture.userData.mimeType = sourceDef.mimeType ?? getImageURIMimeType(sourceDef.uri)
-      return texture
+      return Promise.resolve(texture)
     }
     // Load binary image data from bufferView, if provided.
 
@@ -1428,6 +1428,8 @@ const loadSkin = async (options: GLTFParserOptions, nodeEntity: Entity, nodeInde
 
   const skeleton = new Skeleton(bones, boneInverses)
   skinnedMesh.skeleton = skeleton
+  // Make sure skeleton is propagated to simulation layer
+  setComponent(skinnedMesh.entity, SkinnedMeshComponent, skinnedMesh)
 }
 
 const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
@@ -1514,7 +1516,6 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
     const bone = new Bone()
     // bone.name = node.name ?? 'Node-' + i
     setComponent(nodeEntity, BoneComponent, bone)
-    removeComponent(nodeEntity, VisibleComponent) // remove visible so it isn't rendered
   } else {
     const obj3d = new Object3D()
     // obj3d.name = node.name ?? 'Node-' + i
@@ -1562,21 +1563,58 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
   return nodeEntity
 }
 
+const setAnimationClips = (rootEntity: Entity, animationClips: AnimationClip[]) => {
+  if (animationClips.length > 0) {
+    // obj3d should always come from the simulation layer
+    const obj3d = getComponent(
+      LayerFunctions.getLayerRelationsEntities(rootEntity)?.[Layers.Simulation]?.[1] ?? rootEntity,
+      ObjectComponent
+    )
+    obj3d.animations = animationClips
+    if (!hasComponent(rootEntity, AnimationComponent)) {
+      setComponent(rootEntity, AnimationComponent, {
+        mixer: new AnimationMixer(obj3d),
+        animations: obj3d.animations
+      })
+    } else {
+      getMutableComponent(rootEntity, AnimationComponent).animations.merge(obj3d.animations)
+    }
+  }
+}
+
+const loadDeltas = (document: GLTF.IGLTF) => {
+  const deltas = document.extensions?.[SCENE_DELTA_EXTENSION_NAME] as SceneDeltaRegistry | null
+  if (deltas) {
+    const parsedDeltas = parseStorageProviderURLs(deltas)
+    getMutableState(SceneDeltaState).merge(parsedDeltas)
+  }
+}
+
+const loadGLTFDependencies = (options: GLTFParserOptions) => {
+  const gltf = options.document
+  const deps = [] as Promise<any>[]
+
+  for (let i = 0, len = gltf.textures?.length ?? 0; i < len; i++) {
+    deps.push(getDependency(options, 'texture', i))
+  }
+
+  for (let i = 0, len = gltf.materials?.length ?? 0; i < len; i++) {
+    deps.push(getDependency(options, 'material', i))
+  }
+
+  return deps
+}
+
 const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const json = options.document
   const rootEntity = options.entity
 
   // load deltas into state before anything else
-  const deltas = json.extensions?.[SCENE_DELTA_EXTENSION_NAME] as SceneDeltaRegistry | null
-  if (deltas) {
-    const parsedDeltas = parseStorageProviderURLs(deltas)
-    getMutableState(SceneDeltaState).merge(parsedDeltas)
-  }
+  loadDeltas(json)
 
   DependencyCache.set(options.url, new Map())
 
-  const sceneDef = json.scenes![sceneIndex]
-
+  const sceneDef = json.scenes?.[sceneIndex] ?? ({} as GLTF.IScene)
   const nodeIds = sceneDef.nodes || []
 
   const pending = [] as Promise<Entity>[]
@@ -1594,6 +1632,7 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   }
 
   const loadedNodeEntities = await Promise.all(pending)
+  await Promise.all(loadGLTFDependencies(options))
 
   for (const entity of loadedNodeEntities) {
     setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity })
@@ -1614,23 +1653,7 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   }
 
   const animationClips = await Promise.all(animationPromises)
-
-  if (animationClips.length > 0) {
-    // obj3d should always come from the simulation layer
-    const obj3d = getComponent(
-      LayerFunctions.getLayerRelationsEntities(rootEntity)?.[Layers.Simulation]?.[1] ?? rootEntity,
-      ObjectComponent
-    )
-    obj3d.animations = animationClips
-    if (!hasComponent(rootEntity, AnimationComponent)) {
-      setComponent(rootEntity, AnimationComponent, {
-        mixer: new AnimationMixer(obj3d),
-        animations: obj3d.animations
-      })
-    } else {
-      getMutableComponent(rootEntity, AnimationComponent).animations.merge(obj3d.animations)
-    }
-  }
+  setAnimationClips(rootEntity, animationClips)
 
   // dereference body non-reactively if it exists
   getComponent(options.entity, GLTFComponent).body = null
@@ -1672,19 +1695,6 @@ export const GLTFLoaderFunctions = {
 
 export const DependencyCache = new Map<string, Map<string, Promise<any>>>()
 
-type DependencyType =
-  | 'scene'
-  | 'node'
-  | 'mesh'
-  | 'accessor'
-  | 'bufferView'
-  | 'buffer'
-  | 'material'
-  | 'texture'
-  | 'skin'
-  | 'animation'
-  | 'camera'
-
 const DependencyMap = {
   scene: loadScene,
   node: loadNode,
@@ -1699,11 +1709,13 @@ const DependencyMap = {
   camera: loadCamera
 }
 
+type DependencyKey = keyof typeof DependencyMap
+
 type ExcludeFirst<T extends any[]> = T extends [infer First, ...infer Rest extends any[]] ? Rest : never
 
 /** @todo integrate this with resource tracking or something */
 export const getDependency = <
-  Type extends keyof typeof DependencyMap,
+  Type extends DependencyKey,
   Func extends (typeof DependencyMap)[Type],
   Args extends ExcludeFirst<[...Parameters<Func>]>
 >(
@@ -1739,4 +1751,59 @@ export type GLTFParserOptions = {
   manager: LoadingManager
   path: string
   requestHeader: Record<string, string>
+}
+
+const validateVersionFormat = (vers: string): boolean => /^[0-9]{1,10}.[0-9]{1,10}$/.test(vers)
+
+function validateVersionGreaterThan(vers1: string, vers2: string): boolean {
+  const [major1, minor1] = vers1.split('.').map(Number)
+  const [major2, minor2] = vers2.split('.').map(Number)
+  return major1 > major2 || (major1 === major2 && minor1 > minor2)
+}
+
+function validateAsset(asset: GLTF.IAsset) {
+  // glTF.asset.version
+  if (asset.version === undefined) throw new Error('glTF.asset.version MUST be defined.')
+  if (!GLTFValidate.versionFormat(asset.version))
+    throw new Error('glTF.asset.version MUST respect the format ^[0-9]+.[0-9]+$.')
+  if (asset.version !== '2.0') throw new Error('glTF.asset.version MUST be "2.0".')
+
+  // glTF.asset.copyright
+  if (asset.copyright !== undefined) {
+    // MAY be undefined
+    if (typeof asset.copyright !== 'string') throw new Error('glTF.asset.copyright MUST be a string.')
+  }
+
+  // glTF.asset.generator
+  if (asset.generator !== undefined) {
+    // MAY be undefined
+    if (typeof asset.generator !== 'string') throw new Error('glTF.asset.generator MUST be a string.')
+  }
+
+  // glTF.asset.minVersion
+  if (asset.minVersion !== undefined) {
+    // MAY be undefined
+    if (typeof asset.minVersion !== 'string') throw new Error('glTF.asset.minVersion MUST be a string.')
+    if (!GLTFValidate.versionFormat(asset.minVersion))
+      throw new Error('glTF.asset.minVersion MUST respect the format ^[0-9]+.[0-9]+$.')
+    if (GLTFValidate.versionGreaterThan(asset.minVersion, asset.version))
+      throw new Error('glTF.asset.minVersion MUST NOT be greater than Asset.version.')
+  }
+
+  // glTF.asset.extensions
+  if (asset.extensions !== undefined) {
+    // MAY be undefined
+    if (typeof asset.extensions !== 'object') throw new Error('glTF.asset.extensions MUST be a JSON object.')
+  }
+
+  // glTF.asset.extras
+  if (asset.extras !== undefined) {
+    /* ignored */
+  } // MAY be undefined
+}
+
+export const GLTFValidate = {
+  versionFormat: validateVersionFormat,
+  versionGreaterThan: validateVersionGreaterThan,
+  asset: validateAsset
 }

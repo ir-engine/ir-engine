@@ -1,0 +1,30 @@
+## Testing Guidelines
+
+- Write unit tests for core functionality
+- Test edge cases and error conditions
+- Mock dependencies appropriately
+- Ensure tests are deterministic
+- Run isolated tests with `npm run test -- <filename>` in the respective package's root
+
+# Meta
+
+- Always double check for errors
+- Always ensure that any tests that are written pass
+- Never do more than is asked of by the user, but always ensure that all issues are resolved before finishing
+- Always double check your thinking, ensuring that any uncertainty is resolved by the user before continuing
+- Do not make assumptions
+- Never pander or appeal to the user, be objective and question if the solution actually meets what the user is requesting
+- Be concise and clear in your communication, but not to the degree that your become unhelpful
+- Ensure that any code and files that are no longer needed are removed
+- Do not leave unnecessary code comments explaining what you've changed, only leave comments that provide information about the code itself that isn't immediately obvious from the code
+
+# CLI Browser Bridge
+
+- Execute JavaScript in browser: `npx cli-browser-bridge exec "window.document.title"`
+- Reload browser: `npx cli-browser-bridge reload`
+- Open the Vite development server in the default browser: `npx cli-browser-bridge open`
+- Close all browser tabs: `npx cli-browser-bridge close`
+- Commands execute in browser context and return results to CLI
+- Any valid JavaScript can be executed
+- Objects are automatically JSON-stringified in the response
+- Common usages can be found at .ai-cli-examples

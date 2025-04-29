@@ -28,7 +28,7 @@ import React, { useEffect } from 'react'
 import { Entity, useAncestorWithComponents, useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, hasComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
-import { useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { useMutableState } from '@ir-engine/hyperflux'
 import { GraphJSON, IRegistry, VisualScriptState, defaultVisualScript } from '@ir-engine/visual-script'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -45,7 +45,7 @@ export const VisualScriptComponent = defineComponent({
 
   schema: S.Object({
     domain: S.Enum(VisualScriptDomain, VisualScriptDomain.ECS),
-    visualScript: S.Nullable(S.Type<GraphJSON>(), null, {
+    visualScript: S.Nullable(S.Type<GraphJSON>(), () => parseStorageProviderURLs(defaultVisualScript), {
       deserialize(curr, value) {
         if (!value) return value
         return parseStorageProviderURLs(value)
@@ -63,11 +63,6 @@ export const VisualScriptComponent = defineComponent({
     const canPlay = visualScript.run.value && !visualScript.disabled.value
     const registry = visualScriptState.registries[visualScript.domain.value].get({ noproxy: true }) as IRegistry
     const gltfAncestor = useAncestorWithComponents(entity, [GLTFComponent])
-
-    useImmediateEffect(() => {
-      if (visualScript.visualScript.value === null)
-        visualScript.visualScript.set(parseStorageProviderURLs(defaultVisualScript))
-    }, [])
 
     const visualScriptRunner = useVisualScriptRunner({
       visualScriptJson: visualScript.visualScript.get({ noproxy: true }) as GraphJSON,

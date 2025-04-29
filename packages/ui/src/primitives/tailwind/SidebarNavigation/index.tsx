@@ -55,6 +55,7 @@ const SidebarNavigation = ({
             'flex items-center justify-start gap-x-1 border-text-secondary pb-4 font-medium text-text-secondary hover:border-b-2',
             index === currentTabIndex ? 'border-b-2 border-ui-select-primary text-ui-select-primary' : ''
           )}
+          data-testid="sidebar-navigation-button"
           onClick={() => onChange(index)}
         >
           {label}

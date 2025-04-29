@@ -23,28 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+import { createEngine, createEntity, destroyEngine, Entity, removeEntity } from '@ir-engine/ecs'
+import { test as base } from 'vitest'
 
-import {
-  AuthenticationSettingData,
-  AuthenticationSettingPatch,
-  AuthenticationSettingQuery,
-  AuthenticationSettingType
-} from '@ir-engine/common/src/schemas/setting/authentication-setting.schema'
-
-export interface AuthenticationSettingParams extends KnexAdapterParams<AuthenticationSettingQuery> {}
-
-/**
- * A class for AuthenticationSetting service
- */
-
-export class AuthenticationSettingService<
-  T = AuthenticationSettingType,
-  ServiceParams extends Params = AuthenticationSettingParams
-> extends KnexService<
-  AuthenticationSettingType,
-  AuthenticationSettingData,
-  AuthenticationSettingParams,
-  AuthenticationSettingPatch
-> {}
+export const it = base.extend<{ entity: Entity }>({
+  // eslint-disable-next-line no-empty-pattern
+  entity: async ({}, use) => {
+    createEngine()
+    const entity = createEntity()
+    await use(entity)
+    removeEntity(entity)
+    destroyEngine()
+  }
+})

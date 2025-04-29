@@ -54,7 +54,7 @@ import {
   GITHUB_SCOPES,
   GOOGLE_SCOPES,
   LINKEDIN_SCOPES
-} from './setting/authentication-setting/authentication-setting.seed'
+} from './setting/engine-setting/engine-setting.seed'
 
 const logger = multiLogger.child({ component: 'server-core:config' })
 
@@ -359,6 +359,7 @@ const authentication = {
     }
   }
 }
+export type AuthenticationConfig = typeof authentication
 
 if (authentication.jwtPublicKey && typeof authentication.jwtPublicKey === 'string')
   (authentication.jwtOptions as any).keyid = createHash('sha3-256').update(authentication.jwtPublicKey).digest('hex')

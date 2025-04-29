@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,12 +19,12 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   Entity,
@@ -41,7 +41,7 @@ import {
 
 import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { act, render } from '@testing-library/react'
+
 import { Vector3 } from 'three'
 import { assertVec } from '../../../tests/util/assert'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
@@ -116,7 +116,10 @@ describe('ColliderComponent', () => {
       setComponent(entity, TransformComponent)
       setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed })
       setComponent(entity, ColliderComponent)
-      await act(() => render(null))
+      await vi.waitFor(() => {
+        const body = physicsWorld.Rigidbodies.get(entity)
+        expect(body).toBeDefined()
+      })
 
       const body = physicsWorld.Rigidbodies.get(entity)!
       const collider = physicsWorld.Colliders.get(entity)!
@@ -130,7 +133,10 @@ describe('ColliderComponent', () => {
       setComponent(entity, TransformComponent)
       setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed })
       setComponent(entity, ColliderComponent)
-      await act(() => render(null))
+      await vi.waitFor(() => {
+        const body = physicsWorld.Rigidbodies.get(entity)
+        expect(body).toBeDefined()
+      })
 
       const body = physicsWorld.Rigidbodies.get(entity)!
       const collider = physicsWorld.Colliders.get(entity)!
@@ -140,7 +146,11 @@ describe('ColliderComponent', () => {
       assert.equal(collider, body.collider(0))
 
       removeComponent(entity, ColliderComponent)
-      await act(() => render(null))
+      await vi.waitFor(() => {
+        const body = physicsWorld.Rigidbodies.get(entity)
+        expect(body).toBeDefined()
+        expect(body!.numColliders()).toBe(0)
+      })
 
       assert.equal(body.numColliders(), 0)
     })
@@ -151,7 +161,10 @@ describe('ColliderComponent', () => {
       setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed })
       setComponent(entity, TriggerComponent)
       setComponent(entity, ColliderComponent)
-      await act(() => render(null))
+      await vi.waitFor(() => {
+        const collider = physicsWorld.Colliders.get(entity)
+        expect(collider).toBeDefined()
+      })
 
       const collider = physicsWorld.Colliders.get(entity)!
       assert.equal(collider!.isSensor(), true)
@@ -174,7 +187,9 @@ describe('ColliderComponent', () => {
       createEngine()
       testEntity = createEntity()
       setComponent(testEntity, ColliderComponent)
-      await act(() => render(null))
+      await vi.waitFor(() => {
+        expect(getComponent(testEntity, ColliderComponent)).toBeDefined()
+      })
     })
 
     afterEach(() => {
@@ -195,7 +210,9 @@ describe('ColliderComponent', () => {
       createEngine()
       testEntity = createEntity()
       setComponent(testEntity, ColliderComponent)
-      await act(() => render(null))
+      await vi.waitFor(() => {
+        expect(getComponent(testEntity, ColliderComponent)).toBeDefined()
+      })
     })
 
     afterEach(() => {
@@ -216,7 +233,9 @@ describe('ColliderComponent', () => {
       const before = getComponent(testEntity, ColliderComponent)
       assertColliderComponentEquals(before, ColliderComponentDefaults)
       setComponent(testEntity, ColliderComponent, Expected)
-      await act(() => render(null))
+      await vi.waitFor(() => {
+        expect(getComponent(testEntity, ColliderComponent)).toBeDefined()
+      })
 
       const data = getComponent(testEntity, ColliderComponent)
       assertColliderComponentEquals(data, Expected)
@@ -231,7 +250,9 @@ describe('ColliderComponent', () => {
       await Physics.load()
       testEntity = createEntity()
       setComponent(testEntity, ColliderComponent)
-      await act(() => render(null))
+      await vi.waitFor(() => {
+        expect(getComponent(testEntity, ColliderComponent)).toBeDefined()
+      })
     })
 
     afterEach(() => {
@@ -277,7 +298,9 @@ describe('ColliderComponent', () => {
       setComponent(testEntity, TransformComponent)
       setComponent(testEntity, RigidBodyComponent)
       setComponent(testEntity, ColliderComponent)
-      await act(() => render(null))
+      await vi.waitFor(() => {
+        expect(physicsWorld.Colliders.get(testEntity)).toBeDefined()
+      })
     })
 
     afterEach(() => {
@@ -294,7 +317,12 @@ describe('ColliderComponent', () => {
         assert.equal(getComponent(testEntity, ColliderComponent).shape, ColliderComponentDefaults.shape)
 
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
-        await act(() => render(null))
+        await vi.waitFor(() => {
+          expect(getComponent(testEntity, ColliderComponent).shape).toBe(Shapes.Sphere)
+          const newCollider = physicsWorld.Colliders.get(testEntity)
+          expect(newCollider).toBeDefined()
+          expect(newCollider!.handle).not.toBe(beforeCollider.handle)
+        })
         assert.notEqual(getComponent(testEntity, ColliderComponent).shape, ColliderComponentDefaults.shape)
         const after1Collider = physicsWorld.Colliders.get(testEntity)!
         const after1 = after1Collider.shape
@@ -302,7 +330,10 @@ describe('ColliderComponent', () => {
         assert.notDeepEqual(after1, before)
 
         removeComponent(testEntity, ColliderComponent)
-        await act(() => render(null))
+        await vi.waitFor(() => {
+          expect(getComponent(testEntity, ColliderComponent)).toBeUndefined()
+          expect(physicsWorld.Colliders.get(testEntity)).toBeUndefined()
+        })
         assert.notEqual(getComponent(testEntity, ColliderComponent)?.shape, ColliderComponentDefaults.shape)
         const after2Collider = physicsWorld.Colliders.get(testEntity)!
         assert.equal(after2Collider, undefined)
@@ -318,13 +349,18 @@ describe('ColliderComponent', () => {
 
         // Apply and check on changes
         setComponent(testEntity, TransformComponent, { scale: Expected })
-        await act(() => render(null))
+        await vi.waitFor(() => {
+          expect(getComponent(testEntity, TransformComponent).scale).toBeDefined()
+        })
         const after1 = getComponent(testEntity, TransformComponent).scale.clone()
         assertVec.allApproxNotEq(before, after1, 3)
 
         // Apply and check on component removal
         removeComponent(testEntity, ColliderComponent)
-        await act(() => render(null))
+        await vi.waitFor(() => {
+          expect(getComponent(testEntity, ColliderComponent)).toBeUndefined()
+          expect(physicsWorld.Colliders.get(testEntity)).toBeUndefined()
+        })
         const after2 = getComponent(testEntity, TransformComponent).scale.clone()
         assert.notEqual(after1, after2)
         const afterCollider = physicsWorld.Colliders.get(testEntity)
@@ -337,7 +373,15 @@ describe('ColliderComponent', () => {
 
         removeComponent(testEntity, EntityTreeComponent)
         setComponent(testEntity, EntityTreeComponent, { parentEntity: newParent })
-        await act(() => render(null))
+        await vi.waitFor(() => {
+          const ancestor = getAncestorWithComponents(
+            testEntity,
+            [RigidBodyComponent],
+            /*closest*/ true,
+            /*includeSelf*/ false
+          )
+          expect(ancestor).toBe(newParent)
+        })
         const ancestor = getAncestorWithComponents(
           testEntity,
           [RigidBodyComponent],
@@ -352,7 +396,11 @@ describe('ColliderComponent', () => {
       const Expected = 42
       const before = physicsWorld.Colliders.get(testEntity)!.mass()
       setComponent(testEntity, ColliderComponent, { mass: Expected })
-      await act(() => render(null))
+      await vi.waitFor(() => {
+        const collider = physicsWorld.Colliders.get(testEntity)
+        expect(collider).toBeDefined()
+        expect(collider!.mass()).toBe(Expected)
+      })
       const after = physicsWorld.Colliders.get(testEntity)!.mass()
       assert.notEqual(before, after, 'Before and After should not be equal')
       assert.notEqual(before, Expected, 'Before and Expected should not be equal')
@@ -363,7 +411,11 @@ describe('ColliderComponent', () => {
       const Expected = 42
       const before = physicsWorld.Colliders.get(testEntity)!.friction()
       setComponent(testEntity, ColliderComponent, { friction: Expected })
-      await act(() => render(null))
+      await vi.waitFor(() => {
+        const collider = physicsWorld.Colliders.get(testEntity)
+        expect(collider).toBeDefined()
+        expect(collider!.friction()).toBe(Expected)
+      })
       const after = physicsWorld.Colliders.get(testEntity)!.friction()
       assert.notEqual(before, after, 'Before and After should not be equal')
       assert.notEqual(before, Expected, 'Before and Expected should not be equal')
@@ -374,7 +426,11 @@ describe('ColliderComponent', () => {
       const Expected = 42
       const before = physicsWorld.Colliders.get(testEntity)!.restitution()
       setComponent(testEntity, ColliderComponent, { restitution: Expected })
-      await act(() => render(null))
+      await vi.waitFor(() => {
+        const collider = physicsWorld.Colliders.get(testEntity)
+        expect(collider).toBeDefined()
+        expect(collider!.restitution()).toBe(Expected)
+      })
       const after = physicsWorld.Colliders.get(testEntity)!.restitution()
       assert.notEqual(before, after, 'Before and After should not be equal')
       assert.notEqual(before, Expected, 'Before and Expected should not be equal')
@@ -385,7 +441,12 @@ describe('ColliderComponent', () => {
       const Expected = CollisionGroups.Avatars
       const before = getLayerFromCollisionGroups(physicsWorld.Colliders.get(testEntity)!.collisionGroups())
       setComponent(testEntity, ColliderComponent, { collisionLayer: Expected })
-      await act(() => render(null))
+      await vi.waitFor(() => {
+        const collider = physicsWorld.Colliders.get(testEntity)
+        expect(collider).toBeDefined()
+        const layer = getLayerFromCollisionGroups(collider!.collisionGroups())
+        expect(layer).toBe(Expected)
+      })
       const after = getLayerFromCollisionGroups(physicsWorld.Colliders.get(testEntity)!.collisionGroups())
       assert.notEqual(before, after, 'Before and After should not be equal')
       assert.notEqual(before, Expected, 'Before and Expected should not be equal')
@@ -396,7 +457,12 @@ describe('ColliderComponent', () => {
       const Expected = CollisionGroups.Avatars
       const before = getMaskFromCollisionGroups(physicsWorld.Colliders.get(testEntity)!.collisionGroups())
       setComponent(testEntity, ColliderComponent, { collisionMask: Expected })
-      await act(() => render(null))
+      await vi.waitFor(() => {
+        const collider = physicsWorld.Colliders.get(testEntity)
+        expect(collider).toBeDefined()
+        const mask = getMaskFromCollisionGroups(collider!.collisionGroups())
+        expect(mask).toBe(Expected)
+      })
       const after = getMaskFromCollisionGroups(physicsWorld.Colliders.get(testEntity)!.collisionGroups())
       assert.notEqual(before, after, 'Before and After should not be equal')
       assert.notEqual(before, Expected, 'Before and Expected should not be equal')

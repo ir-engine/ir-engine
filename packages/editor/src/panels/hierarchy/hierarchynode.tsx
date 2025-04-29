@@ -31,8 +31,8 @@ import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunction
 import { EngineState, EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
+  getSimulationCounterpart,
   hasComponent,
   useHasComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -51,6 +51,8 @@ import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/Ma
 import { getMutableState, getState, none, useHookstate, useMutableState, useState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
+import { TransformPivot, TransformSpace } from '@ir-engine/spatial/src/common/constants/TransformConstants'
+import { computeTransformPivot } from '@ir-engine/spatial/src/common/functions/TransformPivot'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { Button, Input } from '@ir-engine/ui'
@@ -95,6 +97,7 @@ function toValidHierarchyNodeName(entity: Entity, name: string): string {
 }
 
 export default React.memo(function HierarchyTreeNode(props: ListChildComponentProps<undefined>) {
+  const showGlbChildrenFeatureFlag = useMutableState(EditorHelperState).showGlbChildren.value
   const { t } = useTranslation()
   const nodes = useHierarchyNodes()
   const node = nodes[props.index]
@@ -115,9 +118,6 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const isRenameOpen = useState(false)
   const canSaveNodeChanges = useState(false)
   const permissionToChangeNodeVerified = useState(false)
-
-  //@todo when this feature flag is added, remove the hardcoded value
-  const hideGlbChildrenFeatureFlag = [true] //useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.HideGlbChildren])
 
   const handleRenameOpen = () => {
     if (!isRenameOpen.value) {
@@ -287,9 +287,10 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     } else if (event.detail === 2) {
       const cameraEntity = getState(ReferenceSpaceState).viewerEntity
       if (entity && getOptionalComponent(cameraEntity, CameraOrbitComponent)) {
-        const editorCameraState = getMutableComponent(cameraEntity, CameraOrbitComponent)
-        editorCameraState.focusedEntities.set([entity])
-        editorCameraState.refocus.set(true)
+        const simulationEntity = getSimulationCounterpart(entity)
+        const pivot = computeTransformPivot([simulationEntity], TransformPivot.Center, TransformSpace.world)
+        if (!pivot?.position) return
+        CameraOrbitComponent.setFocus(cameraEntity, pivot.position, pivot.bounds)
       }
     }
   }
@@ -386,12 +387,13 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
       key={node.depth + ' ' + props.index + ' ' + entity}
       style={fixedSizeListStyles}
       className={twMerge(
+        'flex items-center',
         'cursor-pointer text-text-secondary hover:bg-ui-hover-background hover:text-text-primary',
         'bg-ui-background',
         !visible ? 'text-text-inactive' : '',
         selected ? 'rounded-sm border border-ui-select-outline bg-ui-select-background text-text-primary' : '',
         isOverOn && canDropOn ? 'border border-dotted' : '',
-        hideGlbChildrenFeatureFlag[0] && isOverOn && !canDropOn ? 'border border-dotted bg-ui-hover-error' : ''
+        !showGlbChildrenFeatureFlag && isOverOn && !canDropOn ? 'border border-dotted text-text-error' : ''
       )}
       data-testid="hierarchy-panel-scene-item"
     >
@@ -430,7 +432,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
             </button>
           )}
 
-          <div className="flex w-full items-center gap-2 bg-inherit">
+          <div className="grid w-full grid-cols-[max-content_auto_max-content_max-content] items-center gap-2 bg-inherit">
             <IconComponent entity={entity} />
             {renamingNode.entity === entity ? (
               <Input
@@ -452,8 +454,12 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
                 maxLength={64}
               />
             ) : (
-              <div className="min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 ">
-                <span className="text-nowrap text-sm" data-testid="hierarchy-panel-scene-item-name">
+              <div className="grid min-w-0 text-nowrap rounded bg-transparent px-0.5 py-0 ">
+                <span
+                  className="overflow-x-auto text-nowrap text-sm"
+                  style={{ scrollbarWidth: `none` }}
+                  data-testid="hierarchy-panel-scene-item-name"
+                >
                   {currentRenameNode.value}
                 </span>
               </div>
@@ -515,7 +521,19 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
               data-testid={`hierarchy-panel-scene-item-${visible ? 'hide' : 'unhide'}-button`}
               onClick={onHideUnhideNode}
             >
-              {visible ? <PiEyeBold className="text-base" /> : <PiEyeClosedBold className="text-base" />}
+              {visible ? (
+                <PiEyeBold
+                  className={`${
+                    !showGlbChildrenFeatureFlag && isOverOn && !canDropOn ? 'text-text-inactive' : 'text-base'
+                  }`}
+                />
+              ) : (
+                <PiEyeClosedBold
+                  className={`${
+                    !showGlbChildrenFeatureFlag && isOverOn && !canDropOn ? 'text-text-inactive' : 'text-base'
+                  }`}
+                />
+              )}
             </button>
           </div>
         </div>
