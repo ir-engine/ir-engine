@@ -27,12 +27,10 @@ import { ModalState } from '@ir-engine/client-core/src/common/services/ModalStat
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { REMOVE_EDGE_SLASH_REGEX } from '@ir-engine/common/src/regex'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
-import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
-import { Slider, ViewportButton } from '@ir-engine/ui/editor'
-import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
+import { Button, Input, Tooltip } from '@ir-engine/ui'
+import { ViewportButton } from '@ir-engine/ui/editor'
 import {
   ArrowLeftSm,
-  CogSm,
   Download01Sm,
   FolderPlusSm,
   FolderSm,
@@ -48,8 +46,8 @@ import { FaList } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
 import { handleUploadFiles, inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
-import { FilesState, FilesViewModeSettings, FilesViewModeState } from '../../services/FilesState'
-import { availableTableColumns, useCurrentFiles } from './helpers'
+import { FilesState, FilesViewModeState } from '../../services/FilesState'
+import { useCurrentFiles } from './helpers'
 import { handleDownloadProject } from './loaders'
 
 // keeping this here for now, Move this to icons or static folder
@@ -142,76 +140,6 @@ function BreadcrumbItems() {
         ))}
       </div>
     </div>
-  )
-}
-
-const ViewModeSettings = () => {
-  const { t } = useTranslation()
-  const viewModeSettings = useMutableState(FilesViewModeSettings)
-  const filesViewMode = useMutableState(FilesViewModeState).viewMode
-
-  return (
-    <Popup
-      contentStyle={{
-        background: 'var(--surface-1)',
-        border: 'solid',
-        borderColor: 'var(--ui-outline)',
-        borderWidth: '2px',
-        borderRadius: '0.5rem'
-      }}
-      position={'bottom left'}
-      trigger={
-        <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-          <ViewportButton data-testid="view-options-button" icon={CogSm} />
-        </Tooltip>
-      }
-    >
-      {filesViewMode.value === 'icons' ? (
-        <div className="flex justify-end">
-          <Slider
-            label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}
-            min={10}
-            max={100}
-            step={0.5}
-            value={viewModeSettings.icons.iconSize.value}
-            onChange={viewModeSettings.icons.iconSize.set}
-            onRelease={viewModeSettings.icons.iconSize.set}
-            data-testid="files-panel-view-options-icon-size-value-input-group"
-          />
-        </div>
-      ) : (
-        <div className="flex flex-col items-center gap-y-1">
-          <div className="flex justify-end">
-            <Slider
-              label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
-              data-testid="files-panel-view-options-list-font-size-value-input-group"
-              min={10}
-              max={100}
-              step={0.5}
-              value={viewModeSettings.list.fontSize.value}
-              onChange={viewModeSettings.list.fontSize.set}
-              onRelease={viewModeSettings.list.fontSize.set}
-            />
-          </div>
-          <div className="flex w-full flex-col gap-y-1">
-            <div className="mt-1 flex flex-auto font-semibold text-text-primary">
-              <h3>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</h3>
-            </div>
-            <div className="flex flex-col gap-y-0.5">
-              {availableTableColumns.map((column, index) => (
-                <Checkbox
-                  checked={viewModeSettings.list.selectedTableColumns[column].value}
-                  onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
-                  label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}
-                  data-testid={`files-panel-view-mode-list-options-column-${column}`}
-                  key={index}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-    </Popup>
   )
 }
 
@@ -398,7 +326,6 @@ export function PanelToolbar({
               icon={FolderPlusSm}
             />
           </Tooltip>
-          <ViewModeSettings />
         </div>
         {utilsComponent && <div className="flex items-center">{utilsComponent}</div>}
         <div className="flex items-center gap-x-2 px-1">{uploadButton}</div>
