@@ -119,7 +119,7 @@ const drawToCanvas = (source: CanvasImageSource): Promise<HTMLCanvasElement | nu
   ctx.drawImage(source, 0, 0, 90, 90)
   return Promise.resolve(canvas)
 }
-const uploadDimension = async (modelEntity: Entity, src: string, projectName: string) => {
+export const uploadDimension = async (modelEntity: Entity, src: string, projectName: string) => {
   try {
     setComponent(modelEntity, BoundingBoxComponent)
     updateBoundingBox(modelEntity)
