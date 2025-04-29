@@ -24,14 +24,13 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 
 import { Engine, EngineState, UUIDComponent, destroyEngine, getComponent, hasComponent } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { UserID, applyIncomingActions, dispatchAction, getMutableState, getState } from '@ir-engine/hyperflux'
 import { Network, NetworkState, NetworkTopics } from '@ir-engine/network'
 import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
-import { act, render } from '@testing-library/react'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { initializeSpatialViewer } from '../../initializeEngine'
 import { CameraActions } from '../CameraState'
@@ -71,14 +70,14 @@ describe('CameraSystem', () => {
         })
       )
       applyIncomingActions()
-      await act(() => render(null))
-
-      const cameraEntity = UUIDComponent.getEntityByUUID(cameraUUID)
-      assert.ok(cameraEntity, "The spawnCamera Action didn't create an entity.")
-      assert.ok(
-        hasComponent(cameraEntity, CameraComponent),
-        "The spawnCamera Action didn't apply the CameraComponent to the entity"
-      )
+      await vi.waitFor(() => {
+        const cameraEntity = UUIDComponent.getEntityByUUID(cameraUUID)
+        assert.ok(cameraEntity, "The spawnCamera Action didn't create an entity.")
+        assert.ok(
+          hasComponent(cameraEntity, CameraComponent),
+          "The spawnCamera Action didn't apply the CameraComponent to the entity"
+        )
+      })
     })
   })
 })

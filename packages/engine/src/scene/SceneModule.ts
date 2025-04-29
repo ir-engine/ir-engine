@@ -72,6 +72,8 @@ import { DropShadowSystem, ShadowSystem } from './systems/ShadowSystem'
 import { TriggerCallbackSystem } from './systems/TriggerCallbackSystem'
 import { VariantSystem } from './systems/VariantSystem'
 
+import './functions/definePrefab'
+
 /** This const MUST be kept here, to ensure all components definitions are loaded by the time the scene loading occurs */
 export const SceneComponents = [
   PositionalAudioComponent,

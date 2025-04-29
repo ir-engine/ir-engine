@@ -82,6 +82,7 @@ export const GLTFComponent = defineComponent({
 
   schema: S.Object({
     src: S.String(''),
+
     /** @todo move this to it's own component */
     cameraOcclusion: S.Bool(true),
 
@@ -167,9 +168,6 @@ const buildComponentDependencies = (entity: Entity, json: GLTF.IGLTF) => {
     componentDependencies: {}
   } as ComponentDependencies
 
-  const meshes = new Set<number>()
-  const materials = new Set<number>()
-
   if (!json.nodes) return dependencies
   for (const node of json.nodes) {
     if (node.extensions && node.extensions[NodeIDComponent.jsonID]) {
@@ -184,14 +182,6 @@ const buildComponentDependencies = (entity: Entity, json: GLTF.IGLTF) => {
           dependencies.componentDependencies[uuid].push(ComponentJSONIDMap.get(extension)!)
         }
       }
-    }
-
-    if (node.mesh !== undefined) {
-      meshes.add(node.mesh)
-      const mesh = json.meshes![node.mesh]
-      mesh.primitives.forEach((prim) => {
-        if (prim.material !== undefined) materials.add(prim.material)
-      })
     }
   }
 
@@ -250,27 +240,19 @@ export const GLTFComponentReactor = () => {
       const loadedEntities = SourceComponent.getEntitiesBySource(sourceID, layer)
       for (const entity of loadedEntities) removeEntity(entity)
     }
-    const unhashedUrl = GLTFComponent.removeHashes(url)
-    if (unhashedUrl.endsWith('.material.gltf')) {
-      GLTFLoaderFunctions.loadMaterialGLTF(options).then(() => {
-        documentLoaded.set(true)
-        if (aborted) {
-          unloadEntities()
-        }
-      })
-    } else {
-      GLTFLoaderFunctions.loadScene(options, sceneIndex).then(() => {
-        documentLoaded.set(true)
 
-        // force transform update for all entities in the model.
-        // required to propagate dirty update auth to sim layers
-        TransformComponent.dirty[entity] = 1
+    GLTFLoaderFunctions.loadScene(options, sceneIndex).then(() => {
+      documentLoaded.set(true)
 
-        if (aborted) {
-          unloadEntities()
-        }
-      })
-    }
+      // force transform update for all entities in the model.
+      // required to propagate dirty update auth to sim layers
+      TransformComponent.dirty[entity] = 1
+
+      if (aborted) {
+        unloadEntities()
+      }
+    })
+
     return () => {
       documentLoaded.set(false)
       GLTFLoaderFunctions.unloadScene(url, entity)

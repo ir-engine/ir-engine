@@ -30,7 +30,7 @@ import { Connection, Handle, Position, useReactFlow } from 'reactflow'
 import { OutputSocketSpecJSON } from '@ir-engine/visual-script'
 import { twMerge } from 'tailwind-merge'
 import { NodeSpecGenerator } from '../../hooks'
-import { valueTypeColorMap } from '../../util/colors'
+import { colors, valueTypeColorMap } from '../../util/colors'
 import { isValidConnection } from '../../util/isValidConnection'
 
 export type OutputSocketProps = {
@@ -49,7 +49,7 @@ export default function OutputSocket({ specGenerator, connected, ...rest }: Outp
   if (colorName === undefined) {
     colorName = 'red'
   }
-  // @ts-ignore
+
   const [backgroundColor, borderColor] = colors[colorName]
   const showName = isFlowSocket === false || name !== 'flow'
   const position = {} as any

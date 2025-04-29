@@ -716,6 +716,7 @@ const writeFiles = async (
   const path = match ? match[1] : undefined
 
   if (['glb', 'vrm'].includes(modelFormat)) {
+    // For GLB/VRM, we keep textures embedded and don't process them separately
     const data = await io.writeBinary(document)
     await doUpload(...toProjectAndFileName(finalPath, srcBaseURL), data, path)
   } else if (modelFormat === 'gltf') {
@@ -866,15 +867,47 @@ export const transformModel = async (
   }
 
   for (let i = 0; i < numDocOperations; i++) {
-    const docOperation = modelOperations[i]
+    const params = modelOperations[i]
+    const isGLBFormat = ['glb', 'vrm'].includes(params.modelFormat)
 
-    const document = await toTransformedDocument(srcDocument, docOperation)
+    const document = await cloneDocument(srcDocument)
+
+    // Apply basic optimizations
+    await document.transform(unInstanceSingletons)
+    params.split && (await document.transform(split))
+    params.combineMaterials && (await document.transform(combineMaterials))
+    params.instance && (await document.transform(doInstancing))
+    params.dedup && (await document.transform(dedup()))
+    params.flatten && (await document.transform(flatten()))
+    params.join.enabled && (await document.transform(join(params.join.options)))
+
+    if (params.simplifyRatio < 1) {
+      const simplifyTransforms = [] as Transform[]
+      if (!params.weld.enabled) simplifyTransforms.push(weld())
+      simplifyTransforms.push(
+        simplify({ simplifier: MeshoptSimplifier, ratio: params.simplifyRatio, error: params.simplifyErrorThreshold })
+      )
+      await document.transform(...simplifyTransforms)
+    }
+
+    // For GLB/VRM formats, skip texture conversion to KTX2
+    if (!isGLBFormat && params.textureFormat !== 'default') {
+      const textureUsages = new Map<string, Set<string>>()
+      const operations = createTextureOperations(document, params, params.resources, textureUsages)
+      textureOperations.push(...operations)
+    }
+
+    // Apply final optimizations
+    if (params.reorder) {
+      await MeshoptEncoder.ready
+      await document.transform(reorder({ encoder: MeshoptEncoder, target: 'performance' }))
+    }
+
+    if (params.dracoCompression.enabled) {
+      await document.transform(draco(params.dracoCompression.options))
+    }
+
     documents.push(document)
-
-    const operations = createTextureOperations(document, docOperation, docOperation.resources, textureUsages)
-    const maxTextureSize = Math.max(...operations.map(({ texture }) => texture.getSize()?.[0] ?? 0))
-    onMetadata(i, 'maxTextureSize', maxTextureSize)
-    textureOperations.push(...operations)
   }
 
   const numTextureOperations = textureOperations.length
@@ -886,6 +919,7 @@ export const transformModel = async (
     await transformTexture(resultCache, textureOperations[i], i)
   }
 
+  // Write files
   const results: string[] = []
 
   for (const document of documents) {
@@ -933,7 +967,13 @@ export const transformModel = async (
     onProgress?.((i + 1 + numTextureOperations) / totalProgressSteps, Status.WritingFiles)
 
     const document = documents[i]
-    results.push(...(await writeFiles(srcURL, document, modelOperations[i])))
+    results.push(
+      await writeFiles(srcURL, document, {
+        modelFormat: modelOperations[i].modelFormat,
+        resourceUri: modelOperations[i].resourceUri,
+        dst: modelOperations[i].dst
+      })
+    )
 
     const totalVertexCount = document
       .getRoot()
