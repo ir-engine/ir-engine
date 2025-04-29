@@ -262,11 +262,7 @@ export const handleConvertGifFileToVideoAndUpload = (
     Array.from(files).map(async (file) => {
       file = cleanFileNameFile(file)
 
-      const ext = file.name.split('.').pop() ?? ''
-      const contentType = CommonKnownContentTypes[ext] as string | null
-
       const fileDirectory = file.webkitRelativePath || file.name
-      console.log('fileDirectory', fileDirectory)
       return uploadToFeathersService(ffmpegPath, [file], {
         args: [
           {
@@ -287,9 +283,12 @@ export const handleConvertGifFileToVideoAndUpload = (
                 query: { key: { $in: [path] } }
               })
               .then((reponse) => {
+                console.log('staticResourceId 0', response[0])
                 if (reponse.data.length > 0) {
+                  console.log('staticResourceId 1', response[0])
                   const staticResourceId = reponse.data[0].id
                   const updateStaticResourceThumbnail = async (id: string) => {
+                    console.log('staticResourceId', staticResourceId, response[0])
                     await API.instance
                       .service(staticResourcePath)
                       .patch(id, { thumbnailKey: null, thumbnailMode: null })
@@ -305,7 +304,7 @@ export const handleConvertGifFileToVideoAndUpload = (
           fileURL.hash = ''
           const file = fileURL.href.replace(config.client.fileServer + '/', '')
           removeFromFileThumbnailsSeen([file])
-          return checkStaticResourceThumbnail(file)
+          return response[0]
         })
         .catch((e) => {
           NotificationService.dispatchNotify(i18n.t('editor:errors.fileUploadFailed', { reason: e }) as string, {
@@ -366,9 +365,12 @@ export const handleUploadFiles = (
                 query: { key: { $in: [path] } }
               })
               .then((reponse) => {
+                console.log('staticResourceId 0', response[0])
                 if (reponse.data.length > 0) {
+                  console.log('staticResourceId 1', response[0])
                   const staticResourceId = reponse.data[0].id
                   const updateStaticResourceThumbnail = async (id: string) => {
+                    console.log('staticResourceId', staticResourceId, response[0])
                     await API.instance
                       .service(staticResourcePath)
                       .patch(id, { thumbnailKey: null, thumbnailMode: null })
@@ -498,7 +500,8 @@ const createFileUploader = ({
       try {
         if (el.files?.length) {
           const newFiles = validatedFiles(el.files, acceptedFileTypes)
-          const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
+          const nonGifFiles = await filterGifFiles(projectName, directoryPath, newFiles)
+          const uniqueFiles = await filterExistingFiles(projectName, directoryPath, nonGifFiles)
           const [uploadedFileUrl] = await handleUploadFiles(
             projectName,
             directoryPath,

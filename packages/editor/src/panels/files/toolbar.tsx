@@ -74,6 +74,7 @@ export const showMultipleFileModal = (projectName: string, directoryPath: string
   const fileNames = files.map((file) => file.name)
 
   const onSubmit = async () => {
+    console.log(projectName, 'projectName')
     await handleUploadFiles(projectName, directoryPath, files)
     ModalState.closeModal()
   }
@@ -93,6 +94,7 @@ export const showGifFileConfimation = (projectName: string, directoryPath: strin
   const fileNames = files.map((file) => file.name)
 
   const onSubmit = async () => {
+    console.log(projectName, 'projectName')
     await handleConvertGifFileToVideoAndUpload(projectName, directoryPath, files)
     PopoverState.hidePopupover()
   }
