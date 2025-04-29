@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags.tsx'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags.ts'
 import { defineState, getMutableState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
+
 import {
   SnapMode,
   SnapModeType,
@@ -33,9 +34,9 @@ import {
   TransformModeType,
   TransformPivot,
   TransformPivotType,
-  TransformSpace,
   TransformSpaceType
-} from '@ir-engine/spatial/src/common/constants/TransformConstants'
+} from '@ir-engine/engine/src/scene/constants/transformConstants'
+import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants.ts'
 import { useEffect } from 'react'
 import { EditorMode, EditorModeType } from '../constants/EditorModeTypes'
 
