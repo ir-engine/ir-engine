@@ -18,16 +18,22 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import * as Common from '@ir-engine/common'
+import { API } from '@ir-engine/common'
 import { FileBrowserContentType } from '@ir-engine/common/src/schema.type.module'
-import { createEngine, destroyEngine } from '@ir-engine/ecs'
+import { createEngine, createEntity, destroyEngine, setComponent } from '@ir-engine/ecs'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { useMutableState } from '@ir-engine/hyperflux'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 import { act, render, waitFor } from '@testing-library/react'
+import { assert } from 'console'
 import React from 'react'
 import sinon from 'sinon'
+import { Box3, BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { FileThumbnailJobState } from './FileThumbnailJobState'
+import { FileThumbnailJobState, uploadDimension } from './FileThumbnailJobState'
 
-describe('FileThumbnailJobState (React-safe + Sinon only)', () => {
+describe('FileThumbnailJobState', () => {
   const testKey = 'projects/ir-engine/default-project/public/test.glb'
   const testUrl = 'https://domain/' + testKey
 
@@ -40,12 +46,12 @@ describe('FileThumbnailJobState (React-safe + Sinon only)', () => {
       url: testUrl
     }
   ]
-  let useFindStub: sinon.SinonStub
-
+  let patchStub: sinon.SinonStub
+  let findStub: sinon.SinonStub
+  let data: any[]
   beforeEach(() => {
     createEngine()
-
-    useFindStub = sinon.stub(Common, 'useFind').returns({
+    findStub = sinon.stub().resolves({
       data: [
         {
           id: '1',
@@ -59,53 +65,85 @@ describe('FileThumbnailJobState (React-safe + Sinon only)', () => {
           type: 'glb'
         }
       ],
-      total: 1,
-      setSort: sinon.fake(),
-      setLimit: sinon.fake(),
-      setPage: sinon.fake(),
-      search: sinon.fake(),
-      page: 1,
-      skip: 0,
-      limit: 10,
-      sort: {},
-      status: 'success',
-      error: '',
-      refetch: sinon.fake()
+      total: 1
     })
+    data = [
+      {
+        id: '1',
+        key: testKey,
+        project: 'default-project',
+        url: testUrl,
+        thumbnailKey: null,
+        width: null,
+        height: null,
+        depth: null,
+        type: 'glb'
+      }
+    ]
+
+    patchStub = sinon.stub().callsFake((id, patchData) => {
+      return new Promise((resolve) => {
+        const index = data.findIndex((item) => item.id === id)
+        if (index !== -1) {
+          data[index] = { ...data[index], ...patchData }
+          resolve(data[index])
+        } else {
+          resolve(null)
+        }
+      })
+    })
+    findStub = sinon.stub().resolves({ data: data, total: 1 })
+    const serviceStub = sinon.stub().returns({
+      patch: patchStub,
+      find: findStub
+    })
+    sinon.stub(API, 'instance').value({ service: serviceStub })
   })
 
   afterEach(() => {
     sinon.restore()
     destroyEngine()
   })
+  null
 
-  const TestThumbnailComponent = () => {
-    FileThumbnailJobState.useGenerateThumbnails(filesQueryData)
-
-    return null
-  }
-  const TestDimensionComponent = () => {
-    FileThumbnailJobState.useGenerateDimensions(filesQueryData)
-
-    return null
-  }
-
-  it('should add thumbnail jobs using useGenerateThumbnails', async () => {
-    await act(async () => {
-      render(<TestThumbnailComponent />)
-    })
-
-    await waitFor(() => {
-      sinon.assert.called(useFindStub)
-    })
-  })
   it('should add dimension jobs using useGenerateDimenshion', async () => {
+    let jobState: any
+    const TestDimensionComponent = () => {
+      FileThumbnailJobState.useGenerateDimensions(filesQueryData)
+      jobState = useMutableState(FileThumbnailJobState).jobs
+      return null
+    }
     await act(async () => {
       render(<TestDimensionComponent />)
     })
+    await waitFor(() => {
+      sinon.assert.called(findStub)
+      assert(jobState.length > 0, 'Should have at least one job in the queue')
+    })
+  })
+  it('should calculate dimensions', async () => {
+    const projectName = 'default-project'
+    const entity = createEntity()
+    const boxMin = new Vector3(-1, -2, -3)
+    const boxMax = new Vector3(1, 2, 3)
+    const box = new Box3(boxMin, boxMax)
+    setComponent(entity, BoundingBoxComponent, { box })
+    const geometry = new BoxGeometry(2, 4, 6)
+    const material = new MeshBasicMaterial({ color: 0x00ff00 })
+    setComponent(entity, GLTFComponent, { src: testUrl })
+    const mesh = new Mesh(geometry, material)
+    setComponent(entity, MeshComponent, mesh)
+    await uploadDimension(entity, testUrl, projectName)
 
     await waitFor(() => {
-      sinon.assert.called(useFindStub)
+      sinon.assert.calledOnce(findStub)
+      sinon.assert.calledOnce(patchStub)
+      sinon.assert.calledWith(patchStub, '1', {
+        width: 2,
+        height: 4,
+        depth: 6,
+        project: projectName
+      })
     })
   })
 })
