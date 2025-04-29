@@ -35,7 +35,7 @@ cli.enable('status')
 const options = cli.parse({
   repoUrl: [false, 'Name of registry', 'string'],
   repoName: [false, 'Name of repository', 'string'],
-  packageName: [false, 'Name of package'],
+  packageName: [false, 'Name of package', 'string'],
   service: [true, 'Name of service', 'string'],
   releaseName: [true, 'Name of release', 'string']
 })
@@ -76,8 +76,8 @@ const getAllImages = async (arClient: any, repoName: string, images = [] as any[
   return images.filter((image) => new RegExp(repoName).test(image.uri))
 }
 
-const deleteImages = async (arClient, toBeDeleted) => {
-  const parent = getParent(true)
+const deleteImages = async (arClient, toBeDeleted, isCaches) => {
+  const parent = isCaches ? getParent(true) + '%2Fcache' : getParent(true)
   const paginated = toBeDeleted.length > ARTIFACT_REGISTRY_BATCH_DELETE_PAGE_SIZE
   const deletePage = paginated ? toBeDeleted.slice(0, 50) : toBeDeleted
   const localOptions = {
@@ -169,11 +169,14 @@ cli.main(async () => {
     }
     const withoutLatestOrCurrent = images.filter((image) => excludedImageUris.indexOf(image.uri) < 0)
     const sorted = withoutLatestOrCurrent.sort((a, b) => b.uploadTime.seconds - a.uploadTime.seconds)
-    let toBeDeleted = sorted.slice(9)
-    if (toBeDeleted.length > 0) {
-      await deleteImages(arClient, toBeDeleted)
-      process.exit(0)
-    } else process.exit(0)
+    const toBeDeletedImages = sorted.filter((item) => !/%2Fcache@/.test(item.name)).slice(9)
+    const toBeDeletedCaches = sorted.filter((item) => /%2Fcache@/.test(item.name)).slice(20)
+    if (toBeDeletedImages.length > 0 || toBeDeletedCaches.length > 0) {
+      await deleteImages(arClient, toBeDeletedImages, false)
+      await deleteImages(arClient, toBeDeletedCaches, true)
+    }
+    console.log('Pruned GCP Artifact Registry images')
+    process.exit(0)
   } catch (err) {
     console.log('Error in deleting old Artifact Registry images:')
     console.log(err)

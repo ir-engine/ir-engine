@@ -68,7 +68,6 @@ export type * from './schemas/recording/recording.schema'
 export type * from './schemas/route/route.schema'
 export type * from './schemas/scope/scope-type.schema'
 export type * from './schemas/scope/scope.schema'
-export type * from './schemas/setting/authentication-setting.schema'
 export type * from './schemas/setting/client-setting.schema'
 export type * from './schemas/setting/engine-setting.schema'
 export type * from './schemas/setting/feature-flag-setting.schema'
@@ -219,8 +218,6 @@ export const clientSettingPath = 'client-setting'
 export const matchUserPath = 'match-user'
 
 export const matchInstancePath = 'match-instance'
-
-export const authenticationSettingPath = 'authentication-setting'
 
 export const analyticsPath = 'analytics'
 

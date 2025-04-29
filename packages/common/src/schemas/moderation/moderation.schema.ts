@@ -73,6 +73,8 @@ export const moderationSchema = Type.Object(
       format: 'uuid'
     }),
     referenceNumber: Type.Integer(),
+    reportedUserEmail: Type.Optional(Type.String()),
+    createdByEmail: Type.Optional(Type.String()),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },

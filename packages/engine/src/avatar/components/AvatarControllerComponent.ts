@@ -30,6 +30,7 @@ import { entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -50,7 +51,6 @@ import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { CameraComponent } from '../../../../spatial/src/camera/components/CameraComponent'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { setAvatarColliderTransform } from '../functions/spawnAvatarReceptor'
 import { AvatarComponent } from './AvatarComponent'
 
 export const eyeOffset = 0.25
@@ -126,8 +126,6 @@ export const AvatarControllerComponent = defineComponent({
 
     useEffect(() => {
       if (!avatarComponent) return
-      setAvatarColliderTransform(entity)
-
       const cameraEntity = avatarControllerComponent.cameraEntity.value
       if (cameraEntity && entityExists(cameraEntity) && hasComponent(cameraEntity, FollowCameraComponent)) {
         const cameraComponent = getComponent(cameraEntity, FollowCameraComponent)
@@ -162,14 +160,12 @@ export const AvatarColliderComponent = defineComponent({
   name: 'AvatarColliderComponent',
   schema: S.Object({ colliderEntity: S.Entity() }),
 
-  reactor() {
-    const entity = useEntityContext()
-    const avatarColliderComponent = getComponent(entity, AvatarColliderComponent)
+  reactor({ entity }) {
     useEffect(() => {
+      const avatarColliderComponent = getOptionalComponent(entity, AvatarColliderComponent)
       return () => {
-        removeEntity(
-          avatarColliderComponent.colliderEntity
-        ) /** @todo Aidan said to figure out why this isn't cleaned up with EntityTree */
+        if (!avatarColliderComponent?.colliderEntity) return
+        removeEntity(avatarColliderComponent.colliderEntity)
       }
     }, [])
   }

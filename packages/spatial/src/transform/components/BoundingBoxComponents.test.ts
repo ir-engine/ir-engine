@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -38,10 +38,10 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
-import { act, render } from '@testing-library/react'
+
 import assert from 'assert'
 import { Box3, BoxGeometry, Mesh, Vector3 } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { assertVec } from '../../../tests/util/assert'
 import { NameComponent } from '../../common/NameComponent'
 import { RendererState } from '../../renderer/RendererState'
@@ -158,7 +158,10 @@ describe('BoundingBoxComponent', () => {
           const Expected = true
           // Run and Check the result
 
-          await act(() => render(null))
+          await vi.waitFor(() => {
+            const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
+            expect(helperEntity).not.toBe(UndefinedEntity)
+          })
           const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
           assert.notEqual(helperEntity, UndefinedEntity)
           const result = hasComponent(helperEntity, VisibleComponent)
@@ -169,7 +172,10 @@ describe('BoundingBoxComponent', () => {
           const Expected = `bounding-box-helper-${testEntity}`
           // Run and Check the result
 
-          await act(() => render(null))
+          await vi.waitFor(() => {
+            const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
+            expect(helperEntity).not.toBe(UndefinedEntity)
+          })
           const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
           assert.notEqual(helperEntity, UndefinedEntity)
           assert.equal(hasComponent(helperEntity, NameComponent), true)
@@ -181,7 +187,10 @@ describe('BoundingBoxComponent', () => {
           const Expected = testEntity
           // Run and Check the result
 
-          await act(() => render(null))
+          await vi.waitFor(() => {
+            const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
+            expect(helperEntity).not.toBe(UndefinedEntity)
+          })
           const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
           assert.notEqual(helperEntity, UndefinedEntity)
           assert.equal(hasComponent(helperEntity, EntityTreeComponent), true)
@@ -193,7 +202,10 @@ describe('BoundingBoxComponent', () => {
           const Expected = `bounding-box-helper-${testEntity}`
           // Run and Check the result
 
-          await act(() => render(null))
+          await vi.waitFor(() => {
+            const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
+            expect(helperEntity).not.toBe(UndefinedEntity)
+          })
           const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
           assert.notEqual(helperEntity, UndefinedEntity)
           assert.equal(hasComponent(helperEntity, NameComponent), true)
@@ -207,7 +219,10 @@ describe('BoundingBoxComponent', () => {
           const Expected = true
           // Run and Check the result
 
-          await act(() => render(null))
+          await vi.waitFor(() => {
+            const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
+            expect(helperEntity).not.toBe(UndefinedEntity)
+          })
           const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
           assert.notEqual(helperEntity, UndefinedEntity)
           assert.equal(hasComponent(helperEntity, NameComponent), true)
@@ -231,7 +246,9 @@ describe('BoundingBoxComponent', () => {
         assert.equal(getState(RendererState).nodeHelperVisibility, false)
         // Run and Check the result
 
-        await act(() => render(null))
+        await vi.waitFor(() => {
+          expect(getComponent(testEntity, BoundingBoxComponent)).toBeDefined()
+        })
         const result = getComponent(testEntity, BoundingBoxComponent).helper
         assert.equal(result, Expected)
       })
@@ -251,7 +268,11 @@ describe('BoundingBoxComponent', () => {
         getMutableState(RendererState).nodeHelperVisibility.set(true)
         assert.equal(getState(RendererState).nodeHelperVisibility, true)
 
-        await act(() => render(null))
+        await vi.waitFor(() => {
+          for (const entity of entityList) {
+            expect(getComponent(entity, MeshComponent).geometry.boundingBox).not.toBeNull()
+          }
+        })
         for (const entity of entityList) assert.notEqual(getComponent(entity, MeshComponent).geometry.boundingBox, null)
       })
     })
@@ -268,7 +289,10 @@ describe('BoundingBoxComponent', () => {
         // Sanity check before running
         assert.equal(getState(RendererState).nodeHelperVisibility, true)
 
-        await act(() => render(null))
+        await vi.waitFor(() => {
+          const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
+          expect(helperEntity).not.toBe(UndefinedEntity)
+        })
         const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
         assert.notEqual(helperEntity, UndefinedEntity)
         // Run and Check the result
@@ -283,7 +307,10 @@ describe('BoundingBoxComponent', () => {
         // Sanity check before running
         assert.equal(getState(RendererState).nodeHelperVisibility, true)
 
-        await act(() => render(null))
+        await vi.waitFor(() => {
+          const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
+          expect(helperEntity).not.toBe(UndefinedEntity)
+        })
         const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
         assert.notEqual(helperEntity, UndefinedEntity)
         assert.equal(hasComponent(helperEntity, NameComponent), true)
@@ -291,7 +318,9 @@ describe('BoundingBoxComponent', () => {
         assert.equal(hasComponent(helperEntity, ObjectComponent), true)
         // Run and Check the result
         removeComponent(testEntity, BoundingBoxComponent)
-        await act(() => render(null))
+        await vi.waitFor(() => {
+          expect(hasComponent(helperEntity, VisibleComponent)).toBe(false)
+        })
         assert.equal(hasComponent(helperEntity, VisibleComponent), false)
         assert.equal(hasComponent(helperEntity, NameComponent), false)
         assert.equal(hasComponent(helperEntity, TransformComponent), false)

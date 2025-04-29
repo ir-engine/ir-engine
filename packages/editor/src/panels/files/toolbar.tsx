@@ -27,12 +27,10 @@ import { ModalState } from '@ir-engine/client-core/src/common/services/ModalStat
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { REMOVE_EDGE_SLASH_REGEX } from '@ir-engine/common/src/regex'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
-import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
-import { Slider, ViewportButton } from '@ir-engine/ui/editor'
-import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
+import { Button, Input, Tooltip } from '@ir-engine/ui'
+import { ViewportButton } from '@ir-engine/ui/editor'
 import {
   ArrowLeftSm,
-  CogSm,
   Download01Sm,
   FolderPlusSm,
   FolderSm,
@@ -48,8 +46,8 @@ import { FaList } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
 import { handleUploadFiles, inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
-import { FilesState, FilesViewModeSettings, FilesViewModeState } from '../../services/FilesState'
-import { availableTableColumns, useCurrentFiles } from './helpers'
+import { FilesState, FilesViewModeState } from '../../services/FilesState'
+import { useCurrentFiles } from './helpers'
 import { handleDownloadProject } from './loaders'
 
 // keeping this here for now, Move this to icons or static folder
@@ -110,106 +108,38 @@ function BreadcrumbItems() {
   breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx > nestedIndex + 1)
 
   return (
-    <div className="flex items-center gap-2">
-      <FolderSm className="text-base text-text-primary" />
-      {breadcrumbDirectoryFiles.map((file, index, arr) => (
-        <Fragment key={index}>
-          {index !== 0 && (
-            <span className="cursor-default items-center text-base text-text-primary">
-              <BreadCrumbSlash />
-            </span>
-          )}
-          {index === arr.length - 1 ? (
-            <span
-              className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-base text-text-secondary hover:underline"
-              data-testid={'files-panel-breadcrumb-current-directory'}
-            >
-              {file}
-            </span>
-          ) : (
-            <a
-              className="hover: focus: inline-flex cursor-pointer items-center overflow-hidden text-sm text-text-secondary hover:underline"
-              onClick={() => handleBreadcrumbDirectoryClick(file)}
-              data-testid={`files-panel-breadcrumb-nested-level-${index}`}
-            >
-              <span className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-base text-text-secondary hover:underline">
+    <div className="grid grid-cols-[auto_auto] items-center gap-2">
+      <FolderSm className="min-w-[1rem] text-base text-text-primary" />
+      <div className="flex w-full items-center gap-2 overflow-x-auto">
+        {breadcrumbDirectoryFiles.map((file, index, arr) => (
+          <Fragment key={index}>
+            {index !== 0 && (
+              <span className="cursor-default items-center text-base text-text-primary">
+                <BreadCrumbSlash />
+              </span>
+            )}
+            {index === arr.length - 1 ? (
+              <span
+                className="cursor-pointer whitespace-nowrap text-base text-text-secondary hover:underline"
+                data-testid={'files-panel-breadcrumb-current-directory'}
+              >
                 {file}
               </span>
-            </a>
-          )}
-        </Fragment>
-      ))}
+            ) : (
+              <a
+                className="hover: focus: flex cursor-pointer items-center text-sm text-text-secondary hover:underline"
+                onClick={() => handleBreadcrumbDirectoryClick(file)}
+                data-testid={`files-panel-breadcrumb-nested-level-${index}`}
+              >
+                <span className="cursor-pointer whitespace-nowrap text-base text-text-secondary hover:underline">
+                  {file}
+                </span>
+              </a>
+            )}
+          </Fragment>
+        ))}
+      </div>
     </div>
-  )
-}
-
-const ViewModeSettings = () => {
-  const { t } = useTranslation()
-  const viewModeSettings = useMutableState(FilesViewModeSettings)
-  const filesViewMode = useMutableState(FilesViewModeState).viewMode
-
-  return (
-    <Popup
-      contentStyle={{
-        background: 'var(--surface-1)',
-        border: 'solid',
-        borderColor: 'var(--ui-outline)',
-        borderWidth: '2px',
-        borderRadius: '0.5rem'
-      }}
-      position={'bottom left'}
-      trigger={
-        <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-          <ViewportButton data-testid="view-options-button" icon={CogSm} />
-        </Tooltip>
-      }
-    >
-      {filesViewMode.value === 'icons' ? (
-        <div className="flex justify-end">
-          <Slider
-            label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}
-            min={10}
-            max={100}
-            step={0.5}
-            value={viewModeSettings.icons.iconSize.value}
-            onChange={viewModeSettings.icons.iconSize.set}
-            onRelease={viewModeSettings.icons.iconSize.set}
-            data-testid="files-panel-view-options-icon-size-value-input-group"
-          />
-        </div>
-      ) : (
-        <div className="flex flex-col items-center gap-y-1">
-          <div className="flex justify-end">
-            <Slider
-              label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
-              data-testid="files-panel-view-options-list-font-size-value-input-group"
-              min={10}
-              max={100}
-              step={0.5}
-              value={viewModeSettings.list.fontSize.value}
-              onChange={viewModeSettings.list.fontSize.set}
-              onRelease={viewModeSettings.list.fontSize.set}
-            />
-          </div>
-          <div className="flex w-full flex-col gap-y-1">
-            <div className="mt-1 flex flex-auto font-semibold text-text-primary">
-              <h3>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</h3>
-            </div>
-            <div className="flex flex-col gap-y-0.5">
-              {availableTableColumns.map((column, index) => (
-                <Checkbox
-                  checked={viewModeSettings.list.selectedTableColumns[column].value}
-                  onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
-                  label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}
-                  data-testid={`files-panel-view-mode-list-options-column-${column}`}
-                  key={index}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-    </Popup>
   )
 }
 
@@ -363,7 +293,7 @@ export function PanelToolbar({
 
   return (
     <div
-      className="mb-1 flex items-center justify-between gap-2 bg-[#1E1F22] bg-surface-4 px-2 py-1"
+      className="mb-1 grid grid-cols-[max-content_auto_max-content] items-center gap-2 bg-[#1E1F22] bg-surface-4 px-2 py-1"
       data-testid={dataTestIdJson?.topbarId}
     >
       {/* Tools */}
@@ -396,14 +326,13 @@ export function PanelToolbar({
               icon={FolderPlusSm}
             />
           </Tooltip>
-          <ViewModeSettings />
         </div>
         {utilsComponent && <div className="flex items-center">{utilsComponent}</div>}
         <div className="flex items-center gap-x-2 px-1">{uploadButton}</div>
       </div>
 
       {/* Breadcrumb */}
-      <div className="flex items-center justify-between">{breadcrumbComponent}</div>
+      <div className="grid">{breadcrumbComponent}</div>
 
       {/* Search */}
       <div>{searchbar}</div>
