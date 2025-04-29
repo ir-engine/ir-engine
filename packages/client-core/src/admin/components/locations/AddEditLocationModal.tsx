@@ -143,6 +143,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
   const isNewPublished = useHookstate(false)
   const isLoading = locationQuery.status === 'pending' || publishLoading.value || unPublishLoading.value
   const errors = useHookstate(getDefaultErrors())
+  const saveScenePath = useHookstate<string | undefined>(undefined)
 
   const name = useHookstate(location?.name || '')
   const maxUsers = useHookstate(LOCATION_MAX)
@@ -224,7 +225,6 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
     if (!isValid) {
       return
     }
-    let saveScenePath: string | undefined
     let combinedMeshEntity: Entity | undefined
     ModalState.openModal(<CompressedPublishConfirmation />)
     const { projectName, sceneName, rootEntity, sceneAssetID, scenePath } = getState(EditorState)
@@ -234,7 +234,13 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
       await saveSceneGLTF(sceneAssetID!, projectName!, sceneName!, abortController.signal)
       // save as duplicate scene
       if (sceneName && projectName) {
-        saveScenePath = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/').replace('scenes', 'publish')
+        saveScenePath.set(
+          `${getState(EditorState)
+            .scenePath!.split('/')
+            .slice(0, -1)
+            .join('/')
+            .replace('scenes', 'publish')}/${sceneName.split('.').shift()}`
+        )
 
         const scenename = getState(EditorState).sceneName?.split('.').shift()
         //add all mesh into one entity
@@ -254,7 +260,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
         setComponent(combinedMeshEntity, UUIDComponent, UUIDComponent.generateUUID())
         const newSource = GLTFComponent.getInstanceID(rootEntity)
         setComponent(combinedMeshEntity, SourceComponent, newSource)
-        const srcURL = pathJoin(config.client.fileServer, saveScenePath + '/' + scenename + '/combined-mesh.gltf')
+        const srcURL = pathJoin(config.client.fileServer, saveScenePath.value + '/' + scenename + '/combined-mesh.gltf')
         iterateEntityNode(rootEntity, (entity) => {
           if (hasComponent(entity, MeshComponent)) {
             if (meshEntity.includes(entity) || hasComponent(entity, ColliderComponent)) return
@@ -374,7 +380,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
           sceneName.replace('.gltf', '-compressed.gltf'),
           abortController.signal,
           true,
-          saveScenePath + '/' + scenename
+          saveScenePath.value + '/' + scenename
         )
         await handlePublish(true)
         //re-open the original scene
@@ -391,9 +397,9 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
       if (combinedMeshEntity) EditorHistoryFunctions.removeEntity([combinedMeshEntity])
 
       getMutableState(AssetModifiedState).set({})
-      if (saveScenePath) {
+      if (saveScenePath.value) {
         getMutableState(EditorState).merge({
-          scenePath: `${saveScenePath}/${sceneName!.replace('.gltf', '')}/${sceneName!.replace(
+          scenePath: `${saveScenePath.value}/${sceneName!.replace('.gltf', '')}/${sceneName!.replace(
             '.gltf',
             '-compressed.gltf'
           )}`
@@ -407,11 +413,12 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
           sceneAssetID: sceneAssetID,
           projectName: projectName
         })
-        if (saveScenePath && sceneName) {
+        if (saveScenePath.value && sceneName) {
           deleteScene(
-            `${saveScenePath}/${sceneName.replace('.gltf', '')}/${sceneName.replace('.gltf', '-compressed.gltf')}`
+            `${saveScenePath.value}/${sceneName.replace('.gltf', '')}/${sceneName.replace('.gltf', '-compressed.gltf')}`
           )
         }
+        saveScenePath.set(undefined)
       }, 1000)
     }
   }
