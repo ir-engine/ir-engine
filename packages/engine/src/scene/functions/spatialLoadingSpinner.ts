@@ -30,25 +30,44 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
 import { Tween } from '@tweenjs/tween.js'
-import { DoubleSide, Euler, Mesh, MeshBasicMaterial, TorusGeometry } from 'three'
+import { CircleGeometry, DoubleSide, Euler, Mesh, MeshBasicMaterial, RingGeometry, Vector3 } from 'three'
+import { LookAtComponent } from '../components/LookAtComponent'
 
 export function createLoadingSpinner(name = 'loading spinner', parentEntity = UndefinedEntity) {
+  const rootEntity = createEntity()
+  setComponent(rootEntity, NameComponent, name)
+  setComponent(rootEntity, VisibleComponent)
+  setComponent(rootEntity, TransformComponent)
+  setComponent(rootEntity, EntityTreeComponent, { parentEntity })
+
+  const spinnerEntity = createEntity()
+  setComponent(spinnerEntity, NameComponent, name + ': spinner')
+  setComponent(spinnerEntity, VisibleComponent)
+  setComponent(spinnerEntity, TransformComponent, { position: new Vector3(0, 0, 0.1) })
+  setComponent(spinnerEntity, EntityTreeComponent, { parentEntity: rootEntity })
+
   const sphereEntity = createEntity()
   setComponent(sphereEntity, NameComponent, name + ': helper')
   setComponent(sphereEntity, VisibleComponent)
   setComponent(sphereEntity, TransformComponent)
-  setComponent(sphereEntity, EntityTreeComponent, { parentEntity })
+  setComponent(sphereEntity, EntityTreeComponent, { parentEntity: rootEntity })
 
   const sphereMesh = new Mesh(
-    new TorusGeometry(1, 0.2, 16, 100, Math.PI * 1.5),
-    new MeshBasicMaterial({ side: DoubleSide, depthTest: false, color: 0x0077ff })
+    new RingGeometry(0.55, 0.8, 32, 1, 0, (Math.PI * 4) / 3),
+    new MeshBasicMaterial({ side: DoubleSide, depthTest: false, color: 0xb2b5bd })
   )
   setComponent(sphereEntity, MeshComponent, sphereMesh)
 
-  const loadingTransform = getComponent(sphereEntity, TransformComponent)
+  const spinnerMesh = new Mesh(
+    new CircleGeometry(0.8, 64),
+    new MeshBasicMaterial({ side: DoubleSide, depthTest: false })
+  )
+  setComponent(spinnerEntity, MeshComponent, spinnerMesh)
+
+  const loadingTransform = getComponent(rootEntity, TransformComponent)
   const rotator = { rotation: 0 }
   setComponent(
-    sphereEntity,
+    rootEntity,
     TweenComponent,
     new Tween<any>(rotator)
       .to({ rotation: Math.PI * 2 }, 1000)
@@ -59,5 +78,6 @@ export function createLoadingSpinner(name = 'loading spinner', parentEntity = Un
       .repeat(Infinity)
   )
 
-  return sphereEntity
+  setComponent(rootEntity, LookAtComponent)
+  return rootEntity
 }
