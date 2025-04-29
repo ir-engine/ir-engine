@@ -248,6 +248,8 @@ const resourceCallbacks = {
       if (!asset.image) return
       resource.metadata.merge({ onGPU: false, discarded: false })
       asset.onUpdate = () => {
+        if (!resource.metadata || resource.metadata.onGPU.value) return
+
         resource.metadata.merge({ onGPU: true, discarded: discardUponUpload })
         //@ts-ignore
         // asset.onUpdate = null
