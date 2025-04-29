@@ -63,7 +63,7 @@ export function TableWrapper({
 
   return (
     <table className="w-full border-separate border-spacing-0">
-      <thead className="sticky top-0">
+      <thead className="sticky top-0 z-20">
         <tr className="h-8 divide-x divide-[#42454D] bg-ui-background text-left text-text-primary shadow-[inset_0_-1px_0_#42454D]">
           {availableTableColumns.map((header) => (
             <th
@@ -117,7 +117,7 @@ function FileItemRow({
       key={file?.key}
       ref={(ref) => drag(drop(ref))}
       className={twMerge(
-        'h-9 rounded text-text-primary',
+        'z-10 h-9 rounded text-text-primary',
         isOver && 'border-2 border-gray-400',
         className,
         !isSelected ? 'hover:bg-ui-hover-background' : 'bg-ui-primary'
