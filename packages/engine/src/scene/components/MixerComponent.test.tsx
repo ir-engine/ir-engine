@@ -23,21 +23,30 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+/**
+ * MixerComponent.test.tsx
+ *
+ * Test suite for the MixerComponent, which provides property interpolation functionality.
+ * These tests verify that the MixerComponent correctly:
+ * - Tracks properties from target entities/components
+ * - Stores and manages entries (keyframes) at specific coordinates
+ * - Interpolates between entries based on the current coordinate
+ * - Applies the interpolated values to the target properties
+ * - Handles nested properties and various value types
+ * - Properly serializes and deserializes its state
+ */
+
 import {
   createEngine,
   createEntity,
   defineComponent,
-  deserializeComponent,
   destroyEngine,
   EngineState,
   Entity,
   getComponent,
   getMutableComponent,
-  hasComponent,
-  removeComponent,
   removeEntity,
   S,
-  serializeComponent,
   setComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
@@ -53,21 +62,29 @@ const createEntityWithUUID = () => {
   return entity
 }
 
+/**
+ * Test component definition with various property types for testing the MixerComponent
+ * Includes simple properties, nested objects, and vector types
+ */
 const testComponent = defineComponent({
   name: 'TestComponent',
   jsonID: 'EE_test',
   schema: S.Object({
+    // Simple number properties
     x: S.Number(0),
     y: S.Number(0),
     z: S.Number(0),
 
+    // Single property for simple tests
     simple: S.Number(0),
 
+    // First-level nested object
     nested: S.Object({
       x: S.Number(0),
       y: S.Number(0)
     }),
 
+    // Deeply nested object with vector and rotation
     deepNested: S.Object({
       position: T.Vec3(new Vector3(0, 0, 0)),
       rotation: S.Object({
@@ -104,12 +121,19 @@ describe('MixerComponent.ts', async () => {
           properties: [],
           entries: [[0, {}] as [number, any]]
         }
+
+        // Set component with custom data
         setComponent(mixerEntity, MixerComponent, customData)
+
+        // Wait for reactor to initialize state
         await vi.waitUntil(() => getComponent(mixerEntity, MixerComponent).state != null)
+
+        // Verify serialized data matches what we set
         const { state, ...componentData } = getComponent(mixerEntity, MixerComponent)
         assert.deepEqual(componentData, customData)
-        // The "state" property isn't serialized, so we ought to check it separately
-        // to verify the reactor is properly running:
+
+        // Verify internal state was properly initialized
+        // The "state" property isn't serialized, so we check it separately
         assert.equal(state.properties.size, customData.properties.length)
         assert.equal(state.entriesByCoord.size, customData.entries.length)
         assert.equal(state.sortedEntries.length, customData.entries.length)
@@ -167,9 +191,13 @@ describe('MixerComponent.ts', async () => {
           const x2Setter = MixerComponent.propertySetter(mixerEntity, targetEntity, testComponent, 'x')
           const xProperty = mixerComp.properties.find((prop: string) => prop.endsWith('x'))
           assert.isNotNull(x2Setter)
+
+          // Test first setter
           const x1 = 0
           const x1Partial = x1Setter(x1)
           assert.deepEqual(x1Partial[xProperty][0], x1)
+
+          // Test second setter (should be equivalent)
           const x2 = 1
           const x2Partial = x2Setter!(x2)
           assert.deepEqual(x2Partial[xProperty][0], x2)
@@ -184,6 +212,8 @@ describe('MixerComponent.ts', async () => {
           MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')
           MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'y')
           const lastSize = mixerComp.properties.length
+
+          // Removing one property shouldn't affect the other properties
           MixerComponent.removeProperty(mixerEntity, targetEntity, testComponent, 'x')
           assert.equal(mixerComp.properties.length, lastSize - 1)
           assert.equal(mixerComp.state.properties.size, lastSize - 1)
@@ -239,7 +269,7 @@ describe('MixerComponent.ts', async () => {
           const defaultValue = 0
           const lastSize = mixerComp.entries.length
 
-          // We set the entry to a value for x, default value for y, and check that they are set
+          // Test 1: Set entry with only x value
           const entry1 = MixerComponent.setEntry(mixerEntity, coord, { ...xSetter(value1) })
           // There should be one more entry than before
           assert.equal(mixerComp.entries.length, lastSize + 1)
@@ -248,7 +278,7 @@ describe('MixerComponent.ts', async () => {
           assert.equal(entry1?.[xProperty]?.[0], value1)
           assert.equal(entry1?.[yProperty]?.[0], defaultValue)
 
-          // We set the entry to a different value for x and y, and check that they are set
+          // Test 2: Set entry with both x and y values (overwriting previous entry)
           const entry2 = MixerComponent.setEntry(mixerEntity, coord, { ...xSetter(value2), ...ySetter(value2) })
           // This should not change the number of entries; it should overwrite the previous one
           assert.equal(mixerComp.entries.length, lastSize + 1)
@@ -283,16 +313,22 @@ describe('MixerComponent.ts', async () => {
           const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
           const xProperty = mixerComp.properties.find((prop: string) => prop.endsWith('x'))
 
+          // Create two entries at different coordinates
           const leftValue = 10
           const rightValue = 20
           const leftCoord = 10
           const rightCoord = 11
-          const midCoord = 10.75
+          const midCoord = 10.75 // 75% of the way from left to right
+
+          // Set entries at left and right coordinates
           MixerComponent.setEntry(mixerEntity, leftCoord, xSetter(leftValue))
           MixerComponent.setEntry(mixerEntity, rightCoord, xSetter(rightValue))
+
+          // Create entry at middle coordinate and verify interpolation
           const midEntry = MixerComponent.appendEntry(mixerEntity, midCoord, {})
           assert.equal(midEntry?.[xProperty][0], leftValue * 0.25 + rightValue * 0.75)
         })
+
         it('should change an existing entry, while leaving existing values unchanged', () => {
           const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
           const xProperty = mixerComp.properties.find((prop: string) => prop.endsWith('x'))
@@ -304,7 +340,7 @@ describe('MixerComponent.ts', async () => {
           const defaultValue = 0
           const lastSize = mixerComp.entries.length
 
-          // We set the entry to a value for x, default value for y, and check that they are set
+          // Test 1: Create entry with only x value
           const entry1 = MixerComponent.appendEntry(mixerEntity, coord, { ...xSetter(xValue) })
           // There should be one more entry than before
           assert.equal(mixerComp.entries.length, lastSize + 1)
@@ -313,12 +349,12 @@ describe('MixerComponent.ts', async () => {
           assert.equal(entry1?.[xProperty][0], xValue)
           assert.equal(entry1?.[yProperty][0], defaultValue)
 
-          // We append the entry with a different value for y, and check that x is unchanged while y is set
+          // Test 2: Append to existing entry with y value, x should remain unchanged
           const entry2 = MixerComponent.appendEntry(mixerEntity, coord, { ...ySetter(yValue) })
           // This should not change the number of entries; it should modify the previous one
           assert.equal(mixerComp.entries.length, lastSize + 1)
           assert.equal(mixerComp.state.entriesByCoord.size, lastSize + 1)
-          // The entry should a different object, with the new value for y
+          // The entry should be a different object, with the new value for y
           assert.notEqual(entry2, entry1)
           assert.equal(entry2?.[xProperty][0], xValue)
           assert.equal(entry2?.[yProperty][0], yValue)
@@ -333,11 +369,19 @@ describe('MixerComponent.ts', async () => {
           MixerComponent.setEntry(mixerEntity, coord1, {})
           MixerComponent.setEntry(mixerEntity, coord2, {})
           MixerComponent.setEntry(mixerEntity, coord3, {})
+
+          // Store state before deletion
           const lastEntryCoords = [...mixerComp.state.entriesByCoord.keys()]
           const lastSize = mixerComp.entries.length
+
+          // Delete one entry
           MixerComponent.deleteEntry(mixerEntity, coord1)
+
+          // Verify entry was removed
           assert.equal(mixerComp.entries.length, lastSize - 1)
           assert.equal(mixerComp.state.entriesByCoord.size, lastSize - 1)
+
+          // Verify remaining entries are correct
           const entryCoords = [...mixerComp.state.entriesByCoord.keys()]
           // The entriesByCoord in the mixer state should be the same as before, except for the deleted one
           assert.deepEqual(
@@ -378,42 +422,63 @@ describe('MixerComponent.ts', async () => {
           const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
           const xProperty = mixerComp.properties.find((prop: string) => prop.endsWith('x'))
 
+          // Create entries at two coordinates
           const leftValue = 10
           const rightValue = 20
           const leftCoord = 10
           const rightCoord = 11
-          const midCoord = 10.75
+          const midCoord = 10.75 // 75% of the way from left to right
+
+          // Set entries
           MixerComponent.setEntry(mixerEntity, leftCoord, xSetter(leftValue))
           MixerComponent.setEntry(mixerEntity, rightCoord, xSetter(rightValue))
+
+          // Get interpolated entry and verify
           const midEntry = MixerComponent.getMixedEntry(mixerEntity, midCoord)
           assert.equal(midEntry[xProperty][0], leftValue * 0.25 + rightValue * 0.75)
         })
 
+        // Test getting entry at exact coordinate
         it('should return an entry that is deeply equal to the entry at the given coord, if it exists', () => {
           const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
           const value = 10
           const coord = 10
+
+          // Create entry
           const entry = MixerComponent.setEntry(mixerEntity, coord, xSetter(value))
+
+          // Get mixed entry at exact coordinate
           const mixedEntry = MixerComponent.getMixedEntry(mixerEntity, coord)
+
+          // Should be deeply equal but not the same object
           assert.notEqual(entry, mixedEntry)
           assert.deepEqual(entry, mixedEntry)
         })
 
+        // Test getting entry outside the range
         it('should return an entry that is deeply equal to the nearest entry if the given coord is outside the range of entries', () => {
           const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
+
+          // Create entries
           const leftValue = 10
           const rightValue = 20
           const leftCoord = 10
           const rightCoord = 11
-          const farCoord = 100
+          const farCoord = 100 // Far outside the range
+
           MixerComponent.setEntry(mixerEntity, leftCoord, xSetter(leftValue))
           const rightEntry = MixerComponent.setEntry(mixerEntity, rightCoord, xSetter(rightValue))
+
+          // Get entry far outside the range
           const farEntry = MixerComponent.getMixedEntry(mixerEntity, farCoord)
+
+          // Should match the rightmost entry (nearest to farCoord)
           assert.notEqual(farEntry, rightEntry)
           assert.deepEqual(farEntry, rightEntry)
         })
       })
 
+      /**
       describe('mix', () => {
         it('should set the target entity properties to the mixed value of the entries at the mixer coord', () => {
           const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
@@ -427,6 +492,7 @@ describe('MixerComponent.ts', async () => {
           mixerComp.coord = midCoord
           MixerComponent.mix(mixerEntity)
 
+          // Verify target property was updated with interpolated value
           const testComp = getComponent(targetEntity, testComponent)
           assert.equal(testComp.x, leftValue * 0.25 + rightValue * 0.75)
         })
@@ -460,31 +526,38 @@ describe('MixerComponent.ts', async () => {
       })
 
       it('should correctly serialize and deserialize component data', async () => {
+        // Set up properties and entries
         const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')
         const ySetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'y')
         const xValue = 10
         const yValue = 20
         MixerComponent.setEntry(mixerEntity, 0, { ...xSetter?.(xValue), ...ySetter?.(yValue) })
 
+        // Store original component data
         const { state: state1, ...componentData1 } = getComponent(mixerEntity, MixerComponent)
 
+        // Serialize, remove, and deserialize component
         const serialized = serializeComponent(mixerEntity, MixerComponent)
         removeComponent(mixerEntity, MixerComponent)
         await vi.waitUntil(() => !hasComponent(mixerEntity, MixerComponent))
         deserializeComponent(mixerEntity, MixerComponent, serialized)
+
+        // Wait for component to be reinitialized
         await vi.waitUntil(() => {
           mixerComp = getComponent(mixerEntity, MixerComponent)
           return mixerComp.state != null
         })
 
+        // Verify serialized data matches original
         const { state: state2, ...componentData2 } = getComponent(mixerEntity, MixerComponent)
         assert.deepEqual(componentData2, componentData1)
-        // The "state" property isn't serialized, so we ought to check it separately
+
+        // The "state" property isn't serialized, so we check it separately
         // to verify the reactor is properly running:
         assert.deepEqual(state2.properties, state2.properties)
         assert.deepEqual(state2.sortedEntries, state2.sortedEntries)
 
-        // The new component should be able to set the target entity properties
+        // Verify the deserialized component can still function
         MixerComponent.mix(mixerEntity)
         const testComp = getComponent(targetEntity, testComponent)
         assert.equal(testComp.x, xValue)
@@ -518,18 +591,27 @@ describe('MixerComponent.ts', async () => {
         return destroyEngine()
       })
 
+      /**
+       * Tests for automatic mixing when coord changes
+       */
       describe('coord', () => {
         it('should cause the target entity properties to be set to the mixed value of the entries at the mixer coord', async () => {
+          // Set up property and entries
           const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
           const leftValue = 10
           const rightValue = 20
           const leftCoord = 10
           const rightCoord = 11
           const midCoord = leftCoord * 0.25 + rightCoord * 0.75
+
+          // Create entries
           MixerComponent.setEntry(mixerEntity, leftCoord, xSetter(leftValue))
           MixerComponent.setEntry(mixerEntity, rightCoord, xSetter(rightValue))
+
+          // Change the coordinate using the mutable component
           getMutableComponent(mixerEntity, MixerComponent).coord.set(midCoord)
-          // The reactor should run and set the target entity properties to the mixed value
+
+          // The reactor should automatically run and set the target entity properties
           await vi.waitUntil(() => targetComp.x === leftValue * 0.25 + rightValue * 0.75)
         })
       })
@@ -610,10 +692,12 @@ describe('MixerComponent.ts', async () => {
         )
         assert.isNotNull(positionSetter)
 
+        // Set entry with vector value and apply
         MixerComponent.setEntry(mixerEntity, 0, positionSetter!(new Vector3(1, 2, 3)))
         mixerComp.coord = 0
         MixerComponent.mix(mixerEntity)
 
+        // Verify vector components were updated
         assert.equal(targetComp.deepNested.position.x, 1)
         assert.equal(targetComp.deepNested.position.y, 2)
         assert.equal(targetComp.deepNested.position.z, 3)
@@ -636,10 +720,12 @@ describe('MixerComponent.ts', async () => {
         mixerComp.coord = 5
         MixerComponent.mix(mixerEntity)
 
+        // Verify interpolation worked correctly
         assert.equal(targetComp.deepNested.rotation.angle, 50)
       })
 
       it('should handle multiple nested properties simultaneously', async () => {
+        // Add multiple properties at different nesting levels
         const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'nested.x')
         const ySetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'nested.y')
         const angleSetter = MixerComponent.addProperty(
@@ -653,7 +739,7 @@ describe('MixerComponent.ts', async () => {
         assert.isNotNull(ySetter)
         assert.isNotNull(angleSetter)
 
-        // Set values at coordinate 0
+        // Set values for all properties in a single entry
         let entry = xSetter!(10)
         entry = { ...entry, ...ySetter!(20) }
         entry = { ...entry, ...angleSetter!(30) }
