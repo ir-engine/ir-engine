@@ -40,13 +40,17 @@ import {
   createEngine,
   createEntity,
   defineComponent,
+  deserializeComponent,
   destroyEngine,
   EngineState,
   Entity,
   getComponent,
   getMutableComponent,
+  hasComponent,
+  removeComponent,
   removeEntity,
   S,
+  serializeComponent,
   setComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
@@ -478,7 +482,6 @@ describe('MixerComponent.ts', async () => {
         })
       })
 
-      /**
       describe('mix', () => {
         it('should set the target entity properties to the mixed value of the entries at the mixer coord', () => {
           const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
