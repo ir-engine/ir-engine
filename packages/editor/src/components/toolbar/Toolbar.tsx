@@ -30,6 +30,8 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { RouterState } from '@ir-engine/client-core/src/common/services/RouterService'
 import { ThemeState } from '@ir-engine/client-core/src/common/services/ThemeService'
 import { useProjectPermissions } from '@ir-engine/client-core/src/hooks/useUserProjectPermission'
+import irStudioIconDark from '@ir-engine/client/src/assets/ir-studio-icon-dark.svg'
+import irStudioIconLight from '@ir-engine/client/src/assets/ir-studio-icon-light.svg'
 import { useFind } from '@ir-engine/common'
 import { ScopeType, locationPath, scopePath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs'
@@ -195,7 +197,7 @@ export default function Toolbar() {
         <div className="flex items-center">
           <div className="cursor-pointer" onClick={onCloseProject}>
             <img
-              src={themeState.theme.value === 'dark' ? '/ir-studio-icon-dark.svg' : '/ir-studio-icon-light.svg'}
+              src={themeState.theme.value === 'dark' ? irStudioIconDark : irStudioIconLight}
               alt="iR Engine Logo"
               className="h-6 w-6"
             />
