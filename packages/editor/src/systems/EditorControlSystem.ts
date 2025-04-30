@@ -88,11 +88,12 @@ import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 export const EditorButtonBindings = {
   Undo: [[usesCtrlKey() ? KeyboardButton.ControlLeft : KeyboardButton.MetaLeft, KeyboardButton.KeyZ]],
   Redo: [
-    [
-      usesCtrlKey() ? KeyboardButton.ControlLeft : KeyboardButton.MetaLeft,
-      KeyboardButton.ShiftLeft,
-      KeyboardButton.KeyZ
-    ],
+    /** @todo this is bugged */
+    // [
+    //   usesCtrlKey() ? KeyboardButton.ControlLeft : KeyboardButton.MetaLeft,
+    //   KeyboardButton.ShiftLeft,
+    //   KeyboardButton.KeyZ
+    // ],
     [usesCtrlKey() ? KeyboardButton.ControlLeft : KeyboardButton.MetaLeft, KeyboardButton.KeyY]
   ],
   ObjectGridSnap: [KeyboardButton.KeyB],
