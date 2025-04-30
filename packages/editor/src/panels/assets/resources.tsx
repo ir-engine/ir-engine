@@ -423,6 +423,8 @@ function ResourceItems() {
     fileIconsLoaded.set(0)
   }, [currentCategory?.path])
 
+  console.log(resources.length, new Set(resources.map((r) => r.id)).size)
+
   return (
     <div className="relative flex w-full ">
       <div className="relative flex w-[95%] flex-col">
@@ -511,6 +513,11 @@ export default function Resources() {
       <InfiniteScroll
         disableEvent={staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || resourcesLoading}
         onScrollBottom={() => {
+          if (
+            staticResourcesPagination.skip.value + ASSETS_PAGE_LIMIT + calculateItemsToFetch() >
+            staticResourcesPagination.total.value
+          )
+            return
           staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT + calculateItemsToFetch())
           refetchResources()
         }}
