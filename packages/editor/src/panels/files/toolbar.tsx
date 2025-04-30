@@ -250,7 +250,7 @@ export default function FilesToolbar() {
                 directoryPath: filesState.selectedDirectory.get(NO_PROXY).slice(1),
                 preserveDirectory: true
               })
-                .then(refreshDirectory)
+                .then(() => refreshDirectory())
                 .catch((err) => {
                   NotificationService.dispatchNotify(err.message, { variant: 'error' })
                 })

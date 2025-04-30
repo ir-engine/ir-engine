@@ -89,7 +89,8 @@ export default function FilePropertiesModal() {
       getMutableState(FileThumbnailJobState).jobs.merge([
         {
           key: resource.url,
-          project: resource.project!
+          project: resource.project!,
+          jobType: 'thumbnail'
         }
       ])
     }
@@ -313,6 +314,10 @@ export default function FilePropertiesModal() {
           <Text className="" data-testid="files-panel-file-item-properties-file-type">
             {fileDigest.type.toUpperCase()}
           </Text>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <Text className="text-end">{'dimensions'}</Text>({resourceDigest.width.value}, {resourceDigest.height.value},{' '}
+          {resourceDigest.depth.value})
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.size')}</Text>

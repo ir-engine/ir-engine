@@ -167,16 +167,31 @@ export function FileUploadProgress() {
 function GeneratingThumbnailsProgress() {
   const { t } = useTranslation()
   const thumbnailJobs = useMutableState(FileThumbnailJobState).jobs
-
   if (!thumbnailJobs.length) return null
-
+  let thumbnailjobCount = 0
+  let dimensionJobCount = 0
+  for (const job of thumbnailJobs.value) {
+    if (job.jobType === 'thumbnail') {
+      thumbnailjobCount++
+    } else if (job.jobType === 'dimension') {
+      dimensionJobCount++
+    }
+  }
   return (
-    <LoadingView
-      titleClassname="mt-0"
-      containerClassName="flex-row mt-1"
-      className="mx-2 my-auto h-6 w-6"
-      title={t('editor:layout.filebrowser.generatingThumbnails', { count: thumbnailJobs.length })}
-    />
+    <>
+      <LoadingView
+        titleClassname="mt-0"
+        containerClassName="flex-row mt-1"
+        className="mx-2 my-auto h-6 w-6"
+        title={t('editor:layout.filebrowser.generatingThumbnails', { count: thumbnailjobCount })}
+      />
+      <LoadingView
+        titleClassname="mt-0"
+        containerClassName="flex-row mt-1"
+        className="mx-2 my-auto h-6 w-6"
+        title={t('editor:layout.filebrowser.generatingDimension', { count: dimensionJobCount })}
+      />
+    </>
   )
 }
 
