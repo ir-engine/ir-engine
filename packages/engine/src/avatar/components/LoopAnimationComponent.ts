@@ -45,7 +45,7 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { NO_PROXY, isClient, useHookstate } from '@ir-engine/hyperflux'
+import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -88,7 +88,6 @@ export const LoopAnimationComponent = defineComponent({
   }),
 
   reactor: function () {
-    if (!isClient) return null
     const entity = useEntityContext()
 
     const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
@@ -225,9 +224,6 @@ export const LoopAnimationComponent = defineComponent({
         if (animComponent?.mixer?.value) {
           animComponent.mixer.value.stopAllAction()
         }
-
-        // Set activeClipIndex to -1 (None) to indicate no clip is selected
-        loopAnimationComponent.activeClipIndex.set(-1)
       }
       setCallback(entity, StandardCallbacks.PLAY, play)
       setCallback(entity, StandardCallbacks.PAUSE, pause)
