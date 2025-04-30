@@ -411,8 +411,6 @@ function ResourceItems() {
     fileIconsToLoad.set(0)
   }, [category.currentCategoryPath])
 
-  console.log(resources.length, new Set(resources.map((r) => r.id)).size)
-
   return (
     <div className="relative flex w-full ">
       <div className="relative flex w-[95%] flex-col">
