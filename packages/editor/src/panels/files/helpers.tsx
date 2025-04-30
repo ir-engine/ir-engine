@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { ImmutableArray } from '@hookstate/core'
-import { useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 
 import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
@@ -45,6 +45,7 @@ import { DnDFileType, FileDataType } from '../../constants/AssetTypes'
 import { filterExistingFiles, handleUploadFiles, validatedFiles } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { FilesState } from '../../services/FilesState'
+import { ImportSettingsState } from '../../services/ImportSettingsState'
 import { AssetCategoryNode } from '../assets/categories'
 
 /* CONSTANTS */
@@ -114,7 +115,15 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
     await filesQuery.refetch()
   }
 
-  const createNewFolder = () => fileService.create(`${filesState.selectedDirectory.value}New-Folder`)
+  const createNewFolder = () => {
+    let currentDirectory = filesState.selectedDirectory.value
+    const projectName = getMutableState(FilesState).projectName.get(NO_PROXY)
+    const importFolder = getMutableState(ImportSettingsState).importFolder.get(NO_PROXY)
+    if (currentDirectory.startsWith(`/projects/${projectName}${importFolder}`)) {
+      currentDirectory = currentDirectory.replace(importFolder, '/public/')
+    }
+    fileService.create(`${currentDirectory}New-Folder`)
+  }
   const files = filesQuery.data.map((file) => {
     const isFolder = file.type === 'folder'
     const fullName = isFolder ? file.name : file.name + '.' + file.type
