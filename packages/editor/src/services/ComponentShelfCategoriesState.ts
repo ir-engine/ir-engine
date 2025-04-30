@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { Component } from '@ir-engine/ecs'
+import { VisualScriptComponent } from '@ir-engine/engine'
 import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GrabbableComponent } from '@ir-engine/engine/src/grabbable/GrabbableComponent'
@@ -119,6 +120,8 @@ export const ComponentShelfCategoriesState = defineState({
     const [portalEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.Portal])
     const [grabbleEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.Grabble])
 
+    const [visualScriptEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
+
     const [legacyVolumetricEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.LegacyVolumetric])
     const [volumetricEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.Volumetric])
     const [audioAnalysisEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.AudioAnalysis])
@@ -147,6 +150,17 @@ export const ComponentShelfCategoriesState = defineState({
         }
       }
     }, [grabbleEnabled])
+
+    useEffect(() => {
+      if (visualScriptEnabled) {
+        cShelfState.Scripting.merge([VisualScriptComponent])
+        return () => {
+          cShelfState.Scripting.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == VisualScriptComponent.name))
+          })
+        }
+      }
+    }, [visualScriptEnabled])
 
     useEffect(() => {
       if (legacyVolumetricEnabled) {

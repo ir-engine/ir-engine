@@ -149,5 +149,113 @@ export const EngineSettings = {
       SecretAccessKey: 'eks.secretAccessKey',
       RoleArn: 'eks.roleArn'
     }
+  },
+  Authentication: {
+    service: 'service',
+    entity: 'entity',
+    secret: 'secret',
+    AuthStrategies: {
+      Jwt: 'authStrategies.[0].jwt',
+      SmsMagicLink: 'authStrategies.[1].smsMagicLink',
+      EmailMagicLink: 'authStrategies.[2].emailMagicLink',
+      Apple: 'authStrategies.[3].apple',
+      Discord: 'authStrategies.[4].discord',
+      Facebook: 'authStrategies.[5].facebook',
+      Github: 'authStrategies.[6].github',
+      Google: 'authStrategies.[7].google',
+      Linkedin: 'authStrategies.[8].linkedin',
+      Twitter: 'authStrategies.[9].twitter',
+      DidWallet: 'authStrategies.[10].didWallet'
+    },
+    BearerToken: {
+      NumBytes: 'bearerToken.numBytes'
+    },
+    Callback: {
+      Apple: 'callback.apple',
+      Discord: 'callback.discord',
+      Facebook: 'callback.facebook',
+      Github: 'callback.github',
+      Google: 'callback.google',
+      Linkedin: 'callback.linkedin',
+      Twitter: 'callback.twitter'
+    },
+    JwtAlgorithm: 'jwtAlgorithm',
+    JwtPublicKey: 'jwtPublicKey',
+    JwtOptions: {
+      Algorithm: 'jwtOptions.algorithm',
+      ExpiresIn: 'jwtOptions.expiresIn'
+    },
+    Oauth: {
+      Default: {
+        Host: 'oauth.defaults.host',
+        Protocol: 'oauth.defaults.protocol'
+      },
+      Apple: {
+        Key: 'oauth.apple.key',
+        Secret: 'oauth.apple.secret',
+        Scope: {
+          OpenId: 'oauth.apple.scope.[0]',
+          Email: 'oauth.apple.scope.[1]',
+          Name: 'oauth.apple.scope.[2]'
+        },
+        Response: {
+          Raw: 'oauth.apple.response.[0]',
+          Jwt: 'oauth.apple.response.[1]'
+        },
+        CustomParams: {
+          ResponseMode: 'oauth.apple.custom_params.response_mode',
+          ResponseType: 'oauth.apple.custom_params.response_type'
+        },
+        Nonce: 'oauth.apple.nonce'
+      },
+      Discord: {
+        Key: 'oauth.discord.key',
+        Secret: 'oauth.discord.secret',
+        Scope: {
+          Email: 'oauth.discord.scope.[0]',
+          Identify: 'oauth.discord.scope.[1]'
+        },
+        CustomParams: {
+          Prompt: 'oauth.discord.custom_params.prompt'
+        }
+      },
+      Facebook: {
+        Key: 'oauth.facebook.key',
+        Secret: 'oauth.facebook.secret'
+      },
+      Github: {
+        AppId: 'oauth.github.appid',
+        Key: 'oauth.github.key',
+        Secret: 'oauth.github.secret',
+        PrivateKey: 'oauth.github.privateKey',
+        PrivateKeyPassphrase: 'oauth.github.privateKeyPassphrase',
+        Scope: {
+          Repo: 'oauth.github.scope.[0]',
+          User: 'oauth.github.scope.[1]',
+          Workflow: 'oauth.github.scope.[2]'
+        }
+      },
+      Google: {
+        Key: 'oauth.google.key',
+        Secret: 'oauth.google.secret',
+        Scope: {
+          Profile: 'oauth.google.scope.[0]',
+          Email: 'oauth.google.scope.[1]'
+        }
+      },
+      Linkedin: {
+        Key: 'oauth.linkedin.key',
+        Secret: 'oauth.linkedin.secret',
+        Scope: {
+          OpenId: 'oauth.linkedin.scope.[0]',
+          Profile: 'oauth.linkedin.scope.[1]',
+          Email: 'oauth.linkedin.scope.[2]'
+        }
+      },
+      Twitter: {
+        Key: 'oauth.twitter.key',
+        Secret: 'oauth.twitter.secret'
+      }
+    }
   }
 }

@@ -77,7 +77,7 @@ export function flattenObjectToArray(obj: Record<string, any>, parentKey: string
           }
         })
       } else if (typeof currentObj[key] === 'boolean') {
-        result.push({ key: fullPath, value: currentObj[key], dataType: getDataType(currentObj[key]) })
+        result.push({ key: fullPath, value: `${currentObj[key]}`, dataType: getDataType(currentObj[key]) })
       } else {
         result.push({ key: fullPath, value: currentObj[key], dataType: getDataType(currentObj[key]) })
       }
@@ -134,7 +134,7 @@ export function unflattenArrayToObject(flattenedArray: FlattenedEntry[]): Record
     }
 
     const lastKey = keys[keys.length - 1]
-    current[lastKey] = parseValue(value, dataType as EngineSettingType['dataType']) // Use parseValue to parse the value based on dataType
+    current[lastKey] = parseValue(`${value}`, dataType as EngineSettingType['dataType']) // Use parseValue to parse the value based on dataType
   })
 
   return result
