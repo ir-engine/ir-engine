@@ -404,13 +404,6 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
 
   const enableConnect = authState?.value?.emailMagicLink || authState?.value?.smsMagicLink
 
-  console.log('hideLogin (within ProfileMenu)', hideLogin)
-  console.log('acceptedTOS (within ProfileMenu)', acceptedTOS)
-  console.log('enableSocial (within ProfileMenu)', enableSocial)
-  console.log('checked13OrOver (within ProfileMenu)', checked13OrOver.value)
-  console.log('checked18OrOver (within ProfileMenu)', checked18OrOver)
-  console.log('authSetting (within ProfileMenu)', authSetting)
-
   return (
     <div className="absolute z-50 h-fit max-h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 smh:max-h-[60dvh] smh:px-8 smh:py-6">
       <div className="items-end">

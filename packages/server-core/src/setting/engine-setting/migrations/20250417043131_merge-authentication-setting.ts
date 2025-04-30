@@ -46,14 +46,29 @@ export async function up(knex: Knex): Promise<void> {
       const flattenedAuthData = flattenObjectToArray({
         service: authenticationSettingRecord.service,
         entity: authenticationSettingRecord.entity,
-        jwtOptions: JSON.parse(authenticationSettingRecord.jwtOptions),
-        bearerToken: JSON.parse(authenticationSettingRecord.bearerToken),
-        authStrategies: JSON.parse(authenticationSettingRecord.authStrategies),
-        oauth: JSON.parse(authenticationSettingRecord.oauth),
+        jwtOptions:
+          typeof authenticationSettingRecord.jwtOptions === 'string'
+            ? JSON.parse(authenticationSettingRecord.jwtOptions)
+            : authenticationSettingRecord.jwtOptions,
+        bearerToken:
+          typeof authenticationSettingRecord.bearerToken === 'string'
+            ? JSON.parse(authenticationSettingRecord.bearerToken)
+            : authenticationSettingRecord.bearerToken,
+        authStrategies:
+          typeof authenticationSettingRecord.authStrategies === 'string'
+            ? JSON.parse(authenticationSettingRecord.authStrategies)
+            : authenticationSettingRecord.authStrategies,
+        oauth:
+          typeof authenticationSettingRecord.oauth === 'string'
+            ? JSON.parse(authenticationSettingRecord.oauth)
+            : authenticationSettingRecord.oauth,
         jwtPublicKey: authenticationSettingRecord.jwtPublicKey,
         jwtAlgorithm: authenticationSettingRecord.jwtAlgorithm,
         secret: authenticationSettingRecord.secret,
-        callback: JSON.parse(authenticationSettingRecord.callback)
+        callback:
+          typeof authenticationSettingRecord.callback === 'string'
+            ? JSON.parse(authenticationSettingRecord.callback)
+            : authenticationSettingRecord.callback
       })
 
       const authenticationSettings: EngineSettingType[] = await Promise.all(

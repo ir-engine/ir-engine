@@ -32,7 +32,9 @@ import { Application } from '../../../declarations'
 import { logger } from '../../ServerLogger'
 import { logToBigQuery } from './analytics-logger'
 
-export interface LogsApiParams extends KnexAdapterParams {}
+export interface LogsApiParams extends KnexAdapterParams {
+  action?: string
+}
 
 /**
  * A class for LogsApi service
@@ -45,36 +47,31 @@ export class LogsApiService implements ServiceInterface<void, any, LogsApiParams
     this.app = app
   }
 
-  async create(data: any, params?: LogsApiParams) {
+  async create(log: any, params?: LogsApiParams) {
     if (config.client.logs.forceClientAggregate === 'true') {
-      const userId = params?.user?.id
-
-      if (Array.isArray(data)) {
-        for (const item of data) {
-          await this._processLogItem(item, userId)
+      if (Array.isArray(log)) {
+        for (const item of log) {
+          await this._processLogItem(item, params?.action)
         }
       } else {
-        await this._processLogItem(data, userId)
+        await this._processLogItem(log, params?.action)
       }
     }
-
-    return
   }
 
-  _processLogItem = async (logItem, userId?: string) => {
-    const { msg, level, action } = logItem
-
-    delete logItem.action
-
-    if (action === 'analytics' && process.env.BQ_PROJECT_ID && process.env.BQ_DATASET_ID && process.env.BQ_TABLE_ID) {
-      await logToBigQuery({ ...logItem, user_id: userId })
-      return
+  _processLogItem = async (log, action?: string) => {
+    const { msg, level } = log
+    switch (action) {
+      case 'analytics':
+        await logToBigQuery(log)
+        break
+      default:
+        delete log.level
+        delete log.msg
+        logger[['trace', 'debug', 'info', 'warn', 'error', 'fatal', 'analytics'].includes(level) ? level : 'info'](
+          log,
+          msg
+        )
     }
-
-    delete logItem.level
-    delete logItem.msg
-
-    const safeLevel = ['trace', 'debug', 'info', 'warn', 'error', 'fatal', 'analytics'].includes(level) ? level : 'info'
-    logger[safeLevel]({ ...logItem, userId }, msg)
   }
 }
