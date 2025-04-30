@@ -177,7 +177,7 @@ const PropertiesEditor = () => {
   const uuid = lockedNode.value ? lockedNode.value : selectedEntities[selectedEntities.length - 1]
 
   return (
-    <div className="flex h-full flex-col gap-0.5 bg-surface-1">
+    <div className="flex h-full flex-col gap-0.5 overflow-y-auto bg-surface-1">
       {materialUUID && materialEntity ? (
         <ErrorBoundary fallback={<div>Error occured displaying material properties</div>}>
           <Suspense>
