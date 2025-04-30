@@ -23,80 +23,50 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import {
   Entity,
   Layers,
   PresentationSystemGroup,
-  UndefinedEntity,
+  QueryReactor,
   defineSystem,
+  getAuthoringCounterpart,
   removeEntityNodeRecursively,
   useComponent,
   useHasComponent,
-  useOptionalComponent,
-  useQuery
+  useOptionalComponent
 } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { createLoadingSpinner } from '@ir-engine/engine/src/scene/functions/spatialLoadingSpinner'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 
 const LoadingSpinnerReactor = (props: { entity: Entity }) => {
   const { entity } = props
-  const gltfComponent = useComponent(entity, GLTFComponent)
-  const errors = !!useOptionalComponent(entity, ErrorComponent)?.value?.[GLTFComponent.name]
-  const loaded = GLTFComponent.useSceneLoaded(entity)
+  const authoringCounterpart = getAuthoringCounterpart(entity)
+  const gltfComponent = useComponent(authoringCounterpart, GLTFComponent)
+  const errors = !!useOptionalComponent(authoringCounterpart, ErrorComponent)?.value?.[GLTFComponent.name]
+  const loaded = GLTFComponent.useSceneLoaded(authoringCounterpart)
   const isScene = useHasComponent(entity, SceneComponent)
-
-  const loadingEntity = useHookstate<Entity>(UndefinedEntity)
-
-  const createLoadingGeo = () => {
-    const spinnerEntity = createLoadingSpinner(`loading ${gltfComponent.src.value}`, entity)
-    loadingEntity.set(spinnerEntity)
-  }
-
-  const removeLoadingGeo = () => {
-    if (!loadingEntity.value) return
-    removeEntityNodeRecursively(loadingEntity.value)
-    loadingEntity.set(UndefinedEntity)
-  }
+  const spinnerEntity = useRef<Entity | null>(null)
+  const shouldHaveSpinned = !isScene && !!gltfComponent.src.value && !errors && !loaded
 
   useEffect(() => {
-    if (isScene) return
-    if (loadingEntity.value) return
-    if (!gltfComponent.src.value) return
-    createLoadingGeo()
-  }, [gltfComponent.src.value])
-
-  useEffect(() => {
-    if (isScene) return
-    if (!errors) return
-    removeLoadingGeo()
-  }, [errors])
-
-  useEffect(() => {
-    if (isScene) return
-    if (!loaded) return
-    removeLoadingGeo()
-  }, [loaded])
+    if (!shouldHaveSpinned) return
+    spinnerEntity.current = createLoadingSpinner(`loading ${gltfComponent.src.value}`, entity)
+    return () => {
+      removeEntityNodeRecursively(spinnerEntity?.current!)
+      spinnerEntity.current = null
+    }
+  }, [shouldHaveSpinned])
 
   return null
-}
-
-const reactor = () => {
-  const entities = useQuery([GLTFComponent], Layers.Authoring)
-  return (
-    <>
-      {entities.map((entity) => (
-        <LoadingSpinnerReactor key={entity} entity={entity} />
-      ))}
-    </>
-  )
 }
 
 export const ModelLoadingSpinnerSystem = defineSystem({
   uuid: 'ee.editor.ModelLoadingSpinnerSystem',
   insert: { before: PresentationSystemGroup },
-  reactor
+  reactor: () => (
+    <QueryReactor ChildEntityReactor={LoadingSpinnerReactor} Components={[GLTFComponent]} layer={Layers.Simulation} />
+  )
 })
