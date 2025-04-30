@@ -464,7 +464,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
                 </span>
               </div>
             )}
-            {isModified && canSaveNodeChanges.value && (
+            {isModified && canSaveNodeChanges.value && node.entity !== rootEntity && (
               <div className="flex items-center gap-1">
                 <Button
                   variant="tertiary"
