@@ -19,32 +19,23 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025 
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+import { describe, expect, it } from 'vitest'
 
-import {
-  AuthenticationSettingData,
-  AuthenticationSettingPatch,
-  AuthenticationSettingQuery,
-  AuthenticationSettingType
-} from '@ir-engine/common/src/schemas/setting/authentication-setting.schema'
+import '@ir-engine/engine'
+import '@ir-engine/engine/src/avatar/state/AvatarNetworkState'
+import { generateThumbnailKey } from './FileThumbnailJobState'
 
-export interface AuthenticationSettingParams extends KnexAdapterParams<AuthenticationSettingQuery> {}
-
-/**
- * A class for AuthenticationSetting service
- */
-
-export class AuthenticationSettingService<
-  T = AuthenticationSettingType,
-  ServiceParams extends Params = AuthenticationSettingParams
-> extends KnexService<
-  AuthenticationSettingType,
-  AuthenticationSettingData,
-  AuthenticationSettingParams,
-  AuthenticationSettingPatch
-> {}
+describe('FileThumbnailJobState', () => {
+  it('Should generate Thumbnail Key no larger than 50 char', () => {
+    const result = generateThumbnailKey(
+      'https://ir.world:8642/projects/ir-engine/default-project/blah/collisioncube-LOD0.glb',
+      'ir-engine'
+    )
+    console.log(result)
+    expect(result.length).toBeLessThanOrEqual(50)
+  })
+})

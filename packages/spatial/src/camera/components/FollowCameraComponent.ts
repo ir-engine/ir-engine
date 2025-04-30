@@ -23,26 +23,29 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ECSState, defineQuery, useEntityContext } from '@ir-engine/ecs'
+import { defineQuery, ECSState, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { getState, NO_PROXY, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { Clock, MathUtils, Quaternion, Raycaster, Vector3 } from 'three'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { Vector3_Up, Vector3_Zero } from '../../common/constants/MathConstants'
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp, smootherStep } from '../../common/functions/MathLerpFunctions'
+import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectLayerComponents } from '../../renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
@@ -183,12 +186,44 @@ export const FollowCameraComponent = defineComponent({
       }
     }, [follow.mode])
 
+    const rendererComponent = useOptionalComponent(entity, RendererComponent)
+
     useImmediateEffect(() => {
-      if (!follow.pointerLock.value) return
+      if (!follow.pointerLock.value || !rendererComponent) return
+
+      const canvas = rendererComponent.canvas.get(NO_PROXY) as HTMLCanvasElement
+      if (!canvas) return
+
+      const onClick = () => {
+        if (!hasComponent(entity, RendererComponent)) return
+        if (document.pointerLockElement !== canvas) {
+          /**
+           * @todo - add support for unadjustedMovement API
+           *  - https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API#handling_promise_and_non-promise_versions_of_requestpointerlock
+           */
+          canvas?.requestPointerLock()
+        }
+      }
+
+      const onPointerLock = () => {
+        // console.log('pointer lock')
+      }
+
+      const onPointerUnlock = () => {
+        // console.log('pointer unlock')
+      }
+
+      canvas?.addEventListener('click', onClick)
+      document.addEventListener('pointerlockchange', onPointerLock)
+      document.addEventListener('pointerlockerror', onPointerUnlock)
+
       return () => {
+        canvas?.removeEventListener('click', onClick)
+        document.removeEventListener('pointerlockchange', onPointerLock)
+        document.removeEventListener('pointerlockerror', onPointerUnlock)
         document.exitPointerLock()
       }
-    }, [follow.pointerLock])
+    }, [follow.pointerLock.value, !!rendererComponent?.canvas])
 
     useEffect(() => {
       follow.lerpValue.set(0)
@@ -431,7 +466,7 @@ const updateCameraTargetRotation = (cameraEntity: Entity) => {
   }
 }
 
-const cameraLayerQuery = defineQuery([VisibleComponent, ObjectLayerComponents[ObjectLayers.Camera], MeshComponent])
+const cameraLayerQuery = defineQuery([VisibleComponent, ObjectLayerComponents[ObjectLayers.Scene], MeshComponent])
 
 const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   const followCamera = getComponent(cameraEntity, FollowCameraComponent)
@@ -457,7 +492,7 @@ const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   let maxDistance = Math.min(followCamera.thirdPersonMaxDistance, raycastProps.rayLength)
 
   // Check hit with mid ray
-  raycaster.layers.set(ObjectLayers.Camera)
+  raycaster.layers.set(ObjectLayers.Scene)
   raycaster.firstHitOnly = true
   raycaster.far = followCamera.thirdPersonMaxDistance
   raycaster.set(target, followCamera.targetToCamera.normalize())

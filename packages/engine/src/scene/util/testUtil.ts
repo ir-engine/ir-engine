@@ -23,22 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Knex } from 'knex'
+import { createEngine, createEntity, destroyEngine, Entity, removeEntity } from '@ir-engine/ecs'
+import { test as base } from 'vitest'
 
-import { authenticationSettingPath } from '@ir-engine/common/src/schemas/setting/authentication-setting.schema'
-
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function up(knex: Knex): Promise<void> {
-  await knex.schema.alterTable(authenticationSettingPath, async (table) => {
-    table.string('secret', 4095).nullable().alter()
-  })
-}
-
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function down(knex: Knex): Promise<void> {}
+export const it = base.extend<{ entity: Entity }>({
+  // eslint-disable-next-line no-empty-pattern
+  entity: async ({}, use) => {
+    createEngine()
+    const entity = createEntity()
+    await use(entity)
+    removeEntity(entity)
+    destroyEngine()
+  }
+})

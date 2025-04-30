@@ -36,6 +36,7 @@ export const initialAuthState = {
   emailMagicLink: false,
   didWallet: false
 }
+export type AuthStrategiesType = typeof initialAuthState
 
 export const initialOAuthConnectedState = {
   apple: false,

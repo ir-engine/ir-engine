@@ -254,6 +254,10 @@ export class GCSStorage implements StorageProviderInterface {
         logger.error(err)
       }
     } else {
+      // I attempted to replace this with a call to gcloud CLI to invalidate the cache, so as to not require
+      // installing @google-cloud/compute, which takes up ~65 MB for just this one situation. But that required
+      // installing the gcloud CLI in the client Dockerfiles, which takes a couple of minutes.
+      // Overall, I think it's better to install the node_module. -Kyle
       return await this.urlMaps.invalidateCache({
         cacheInvalidationRuleResource: {
           host: config.server.clientHost as string,

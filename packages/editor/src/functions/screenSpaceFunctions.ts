@@ -26,8 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { Intersection, Object3D, Raycaster, Vector2, Vector3 } from 'three'
 
 import { Engine, getComponent } from '@ir-engine/ecs'
-import { SnapMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getState } from '@ir-engine/hyperflux'
+import { SnapMode } from '@ir-engine/spatial/src/common/constants/TransformConstants'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 

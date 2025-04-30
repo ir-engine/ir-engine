@@ -28,8 +28,37 @@ Infinite Reality Engine. All Rights Reserved.
  * Unit Test suite for loading the `glTF.bufferViews` root property and all its children.
  * Based on glTF 2.0 specification requirements.
  * */
-import { describe, it } from 'vitest'
+import { createEngine, destroyEngine } from '@ir-engine/ecs'
+import { act, render } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { startEngineReactor } from '../../../tests/startEngineReactor'
+import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
+import { mockGLTF, mockGLTFOptions } from '../../../tests/util/mockGLTF'
+import { DependencyCache, GLTFLoaderFunctions } from '../GLTFLoaderFunctions'
 
+beforeEach(() => {
+  // Clear the dependency cache before each test
+  DependencyCache.clear()
+})
+
+overrideFileLoaderLoad()
+
+beforeEach(async () => {
+  createEngine()
+  startEngineReactor()
+
+  await act(() => render(null))
+})
+
+afterEach(() => {
+  destroyEngine()
+})
+
+/**
+ * @todo
+ * Cannot possibly tested in our current GLTFLoader implementation
+ * It requires a GLTFLoader gltf root properties validation function that does not exist.
+ * */
 describe('glTF.bufferViews Property', () => {
   it.todo('MAY be undefined', () => {})
   it.todo('MUST be an array of `bufferView` objects when defined', () => {})
@@ -37,35 +66,156 @@ describe('glTF.bufferViews Property', () => {
 }) //:: glTF.bufferViews
 
 describe('glTF: BufferView Type', () => {
+  /**
+   * @description Creates the most minimal gltf with one accessor possible, as required by spec
+   * */
+  function mockGLTFMinimalBufferView() {
+    const result = mockGLTF()
+    result.bufferViews = [
+      {
+        buffer: 0,
+        byteLength: 0
+      }
+    ]
+    result.buffers = [
+      {
+        byteLength: 0
+      }
+    ]
+    return result
+  }
+
   describe('buffer', () => {
-    it.todo('MUST be defined', () => {})
-    it.todo('MUST be an `integer` type', () => {})
-    it.todo('MUST be an index into the root `buffers` array', () => {})
-    it.todo('MUST have a value in range [0 .. glTF.buffers.length-1]', () => {})
+    it('MUST be defined', async () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      // @ts-expect-error Delete, even if mandatory, to provoke the error
+      delete options.document.bufferViews![0].buffer
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).rejects.toThrowError()
+    })
+
+    it('MUST be an `integer` type', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      options.document.bufferViews![0].buffer = 1.42 // Not an integer
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).rejects.toThrowError()
+    })
+
+    it('MUST be an index into the root `buffers` array', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      options.document.bufferViews![0].buffer = 42 // Not an index into the root `buffers` array
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).rejects.toThrowError()
+    })
+
+    it('MUST have a value in range [0 .. glTF.buffers.length-1]', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      options.document.bufferViews![0].buffer = -1 // Not in range [0 .. glTF.buffers.length-1]
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).rejects.toThrowError()
+    })
   }) //:: buffer
 
   describe('byteOffset', () => {
-    it.todo('MAY be undefined', () => {})
+    it('MAY be undefined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      delete options.document.bufferViews![0].byteOffset
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).resolves.not.toThrow()
+    })
+
+    /**
+     * @todo
+     * Cannot be tested in our current GLTFLoader implementation
+     * The implementation respects the spec, but the output does not.
+     * */
     it.todo('SHOULD assign a default value of 0', () => {})
-    it.todo('MUST be an `integer` type when defined', () => {})
-    it.todo('MUST have a value in range [0..]', () => {})
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.bufferView.byteOffset */
+    it.fails('MUST be an `integer` type when defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      options.document.bufferViews![0].byteOffset = 1.42 // Not an integer
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.bufferView.byteOffset */
+    it.fails('MUST have a value in range [0..]', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      options.document.bufferViews![0].byteOffset = -1 // Not in range [0..]
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).rejects.toThrowError()
+    })
+
     it.todo('MUST specify the offset into the referenced buffer in bytes', () => {})
   }) //:: byteOffset
 
   describe('byteLength', () => {
-    it.todo('MUST be defined', () => {})
-    it.todo('MUST be an `integer` type', () => {})
-    it.todo('MUST have a value in range [1..]', () => {})
-    it.todo('MUST specify the length of the buffer view in bytes', () => {})
-    it.todo('MUST ensure (bufferView.byteOffset + bufferView.byteLength) <= buffer.byteLength', () => {})
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.bufferView.byteLength */
+    it.fails('MUST be defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      // @ts-expect-error Delete, even if mandatory, to provoke the error
+      delete options.document.bufferViews![0].byteLength
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.bufferView.byteLength */
+    it.fails('MUST be an `integer` type', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      options.document.bufferViews![0].byteLength = 1.42 // Not an integer
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.bufferView.byteLength */
+    it.fails('MUST have a value in range [1..]', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      options.document.bufferViews![0].byteLength = 0 // Not in range [1..]
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.bufferView.byteLength */
+    it.fails('MUST ensure (bufferView.byteOffset + bufferView.byteLength) <= buffer.byteLength', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      const bufferView = options.document.bufferViews![0]!
+      bufferView.byteOffset = 42 // Invalid byteOffset value, to provoke the error
+      const result = bufferView.byteOffset! + bufferView.byteLength
+      const Expected = options.document.buffers![bufferView.buffer].byteLength
+      expect(result).not.toBeLessThanOrEqual(Expected)
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).rejects.toThrowError()
+    })
   }) //:: byteLength
 
   describe('byteStride', () => {
-    it.todo('MAY be undefined', () => {})
+    it('MAY be undefined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      delete options.document.bufferViews![0].byteStride
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).resolves.not.toThrow()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.bufferView.byteStride */
+    it.fails('MUST be defined when two or more accessors use the same buffer view', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      options.document.accessors = []
+      for (const _ of [0, 1])
+        options.document.accessors.push({
+          componentType: 5126, // FLOAT
+          type: 'SCALAR',
+          count: 1,
+          bufferView: 0
+        })
+      delete options.document.bufferViews![0].byteStride
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.bufferView.byteStride */
+    it.fails('MUST be an `integer` type when defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      options.document.bufferViews![0].byteStride = 1.42 // Not an integer
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.bufferView.byteStride */
+    it.fails('MUST have a value in range [4..252] when defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      options.document.bufferViews![0].byteStride = 253 // Not in range [4..252]
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).rejects.toThrowError()
+    })
+
     it.todo('MUST ensure that data is tightly packed when not defined', () => {})
-    it.todo('MUST be defined when two or more accessors use the same buffer view', () => {})
-    it.todo('MUST be an `integer` type when defined', () => {})
-    it.todo('MUST have a value in range [4..252] when defined', () => {})
+
     /*
     // @todo: Are these valid ?
     it.todo('MUST be a multiple of 4 when defined', () => {})
@@ -75,22 +225,62 @@ describe('glTF: BufferView Type', () => {
   }) //:: byteStride
 
   describe('target', () => {
-    it.todo('MAY be undefined', () => {})
-    it.todo('MUST be an `integer` type when defined', () => {})
-    it.todo('MUST be one of the allowed values: 34962 (ARRAY_BUFFER) | 34963 (ELEMENT_ARRAY_BUFFER)', () => {})
+    it('MAY be undefined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      delete options.document.bufferViews![0].target
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).resolves.not.toThrow()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.bufferView.target */
+    it.fails('MUST be an `integer` type when defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      options.document.bufferViews![0].target = 1.42 // Not an integer
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).rejects.toThrowError()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.bufferView.target */
+    it.fails('MUST be one of the allowed values: 34962 (ARRAY_BUFFER) | 34963 (ELEMENT_ARRAY_BUFFER)', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      options.document.bufferViews![0].target = 42 // Not an allowed value
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).rejects.toThrowError()
+    })
   }) //:: target
 
   describe('name', () => {
-    it.todo('MAY be undefined', () => {})
-    it.todo('MUST be a `string` type when defined', () => {})
+    it('MAY be undefined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      delete options.document.bufferViews![0].name
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).resolves.not.toThrow()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.bufferView.name */
+    it.fails('MUST be a `string` type when defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      options.document.bufferViews![0].name = 42 as any // Not a string
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).rejects.toThrowError()
+    })
   }) //:: name
 
   describe('extensions', () => {
-    it.todo('MAY be undefined', () => {})
-    it.todo('MUST be a JSON object when defined', () => {})
+    it('MAY be undefined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      delete options.document.bufferViews![0].extensions
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).resolves.not.toThrow()
+    })
+
+    /** @todo Should throw. Our implementation does not respect the specification for glTF.bufferView.extensions */
+    it.fails('MUST be a JSON object when defined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      options.document.bufferViews![0].extensions = 42 as any // Not a JSON object
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).rejects.toThrowError()
+    })
   }) //:: extensions
 
   describe('extras', () => {
-    it.todo('MAY be undefined', () => {})
+    it('MAY be undefined', () => {
+      const options = mockGLTFOptions(mockGLTFMinimalBufferView())
+      delete options.document.bufferViews![0].extras
+      expect(GLTFLoaderFunctions.loadBufferView(options, 0)).resolves.not.toThrow()
+    })
   }) //:: extras
 }) //:: glTF: BufferView

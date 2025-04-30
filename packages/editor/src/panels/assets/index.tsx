@@ -35,7 +35,6 @@ import FileBrowser from '../files/filebrowser'
 import { CurrentFilesQueryProvider } from '../files/helpers'
 import FilesToolbar from '../files/toolbar'
 import CategoriesList, { VerticalDivider } from './categories'
-import { AssetsQueryProvider } from './hooks'
 import Resources from './resources'
 import Topbar from './topbar'
 
@@ -72,12 +71,18 @@ function AssetsContainer() {
   const toolbar = sidebarType.value === SidebarType.FILES ? <FilesToolbar /> : <Topbar />
   const rightChildren = sidebarType.value === SidebarType.FILES ? <FileBrowser /> : <Resources />
 
+  const initAssetsSidebar = () => {
+    const projectName = getMutableState(FilesState).projectName.get(NO_PROXY)
+    const importFolder = getMutableState(ImportSettingsState).importFolder.get(NO_PROXY)
+    const dir = `/projects/${projectName}${importFolder}`
+    getMutableState(FilesState).selectedDirectory.set(dir)
+  }
+
+  useEffect(() => initAssetsSidebar(), [])
+
   useEffect(() => {
     if (sidebarType.value === SidebarType.ASSETS) {
-      const projectName = getMutableState(FilesState).projectName.get(NO_PROXY)
-      const importFolder = getMutableState(ImportSettingsState).importFolder.get(NO_PROXY)
-      const dir = `projects/${projectName}${importFolder}`
-      getMutableState(FilesState).selectedDirectory.set(dir)
+      initAssetsSidebar()
     }
   }, [sidebarType])
 
@@ -88,13 +93,11 @@ function AssetsContainer() {
   return (
     <div className="flex h-full flex-col">
       <CurrentFilesQueryProvider>
-        <AssetsQueryProvider>
-          {toolbar}
-          <VerticalDivider
-            leftChildren={<CategoriesList selected={sidebarType.value} onClick={handleSidebarChange} />}
-            rightChildren={rightChildren}
-          />
-        </AssetsQueryProvider>
+        {toolbar}
+        <VerticalDivider
+          leftChildren={<CategoriesList selected={sidebarType.value} onClick={handleSidebarChange} />}
+          rightChildren={rightChildren}
+        />
       </CurrentFilesQueryProvider>
     </div>
   )

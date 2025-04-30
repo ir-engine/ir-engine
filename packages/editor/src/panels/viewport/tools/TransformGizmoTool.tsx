@@ -25,9 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useDraggable } from '@ir-engine/client-core/src/hooks/useDraggable'
 import { setTransformMode } from '@ir-engine/editor/src/functions/transformFunctions'
-import { TransformMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
-import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
+import { useMutableState } from '@ir-engine/hyperflux'
+import { TransformMode } from '@ir-engine/spatial/src/common/constants/TransformConstants'
 import { Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
 import { Cursor03Default, MoveMd, Refresh1Md, Scale02Md, TransformMd } from '@ir-engine/ui/src/icons'
@@ -40,12 +39,6 @@ const GizmoTools = {
   ...TransformMode
 }
 type GizmoToolsType = (typeof GizmoTools)[keyof typeof GizmoTools]
-
-const SelectionModes = {
-  pointer: 'pointer' as const,
-  selectionBox: 'selection_box' as const
-}
-type SelectionModesType = (typeof SelectionModes)[keyof typeof SelectionModes]
 
 function Placer({ id }: { id: string }) {
   return (
@@ -62,7 +55,7 @@ export default function TransformGizmoTool() {
   const editorHelperState = useMutableState(EditorHelperState)
   const transformMode = editorHelperState.transformMode.value
 
-  const selectionMode = useHookstate<SelectionModesType>(SelectionModes.pointer)
+  const selectionBoxEnabled = useMutableState(SelectionBoxState).selectionBoxEnabled
   const [toolSelected, setToolSelected] = useState<GizmoToolsType>(transformMode)
 
   useDraggable({
@@ -72,12 +65,6 @@ export default function TransformGizmoTool() {
     targetStartY: 56,
     targetStartX: 16
   })
-
-  useEffect(() => {
-    const isSelecting = selectionMode.value === SelectionModes.selectionBox
-    getMutableState(SelectionBoxState).selectionBoxEnabled.set(isSelecting)
-    getMutableState(InputState).capturingCameraOrbitEnabled.set(!isSelecting)
-  }, [selectionMode])
 
   useEffect(() => {
     const mode = editorHelperState.transformMode.value
@@ -91,18 +78,18 @@ export default function TransformGizmoTool() {
         <Tooltip content={t('editor:toolbar.gizmo.pointer')} position="right">
           <ViewportButton
             onClick={() => {
-              selectionMode.set(SelectionModes.pointer)
+              selectionBoxEnabled.set(false)
             }}
-            selected={selectionMode.value === SelectionModes.pointer}
+            selected={!selectionBoxEnabled.value}
             icon={Cursor03Default}
           />
         </Tooltip>
         <Tooltip content={t('editor:toolbar.gizmo.marquee')} position="right">
           <ViewportButton
             onClick={() => {
-              selectionMode.set(SelectionModes.selectionBox)
+              selectionBoxEnabled.set(true)
             }}
-            selected={selectionMode.value === SelectionModes.selectionBox}
+            selected={selectionBoxEnabled.value}
             icon={TransformMd}
           />
         </Tooltip>

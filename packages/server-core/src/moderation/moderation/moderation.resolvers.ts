@@ -32,14 +32,36 @@ import {
   ModerationQuery,
   ModerationType
 } from '@ir-engine/common/src/schemas/moderation/moderation.schema'
+import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import type { HookContext } from '@ir-engine/server-core/declarations'
+
+const resolveUserEmail = async (userId: UserID | undefined, context: HookContext) => {
+  if (!userId) return undefined
+
+  const identityProvider = await context.app.service(identityProviderPath)._find({
+    query: {
+      userId: userId,
+      $limit: 1
+    }
+  })
+  return identityProvider?.data[0]?.email || undefined
+}
 
 export const moderationResolver = resolve<ModerationType, HookContext>({
   createdAt: virtual(async (moderation) => fromDateTimeSql(moderation.createdAt)),
   updatedAt: virtual(async (moderation) => fromDateTimeSql(moderation.updatedAt))
 })
-export const moderationExternalResolver = resolve<ModerationType, HookContext>({})
+
+export const moderationExternalResolver = resolve<ModerationType, HookContext>({
+  reportedUserEmail: virtual(async (moderation: ModerationType, context: HookContext) => {
+    if (context.method === 'find') return resolveUserEmail(moderation.reportedUserId, context)
+  }),
+  createdByEmail: virtual(async (moderation: ModerationType, context: HookContext) => {
+    if (context.method === 'find') return resolveUserEmail(moderation.createdBy, context)
+  })
+})
 export const moderationDataResolver = resolve<ModerationType, HookContext>({
   id: async () => {
     return uuidv4() as ModerationID

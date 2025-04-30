@@ -93,8 +93,8 @@ export const saveSceneGLTF = async (
     logger.error('Failed to save scene, no gltf data found')
   }
 
-  const blob = [new Blob([JSON.stringify(gltfData, null, 2)], { type: 'application/gltf+json' })]
-  const gltfFile = new File(blob, sceneFile)
+  const blob = [new Blob([JSON.stringify(gltfData, null, 2)], { type: 'model/gltf+json' })]
+  const gltfFile = new File(blob, sceneFile, { type: 'model/gltf+json' })
 
   const currentScene = await API.instance.service(staticResourcePath).get(sceneAssetID)
 

@@ -24,13 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
-import {
-  FilesState,
-  FilesViewModeSettings,
-  FilesViewModeState,
-  SelectedFilesState
-} from '@ir-engine/editor/src/services/FilesState'
-import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { FilesState, FilesViewModeState, SelectedFilesState } from '@ir-engine/editor/src/services/FilesState'
+import { useMutableState } from '@ir-engine/hyperflux'
 import React, { MouseEventHandler, useEffect } from 'react'
 import { ConnectDragSource, ConnectDropTarget, useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
@@ -57,28 +52,31 @@ type DisplayTypeProps = {
   className?: string
 }
 
-export function TableWrapper({ children, handleSort }: { children: React.ReactNode; handleSort: any }) {
+export function TableWrapper({
+  children,
+  handleSort
+}: {
+  children: React.ReactNode
+  handleSort: (header: (typeof availableTableColumns)[number]) => void
+}) {
   const { t } = useTranslation()
-  const selectedTableColumns = useHookstate(getMutableState(FilesViewModeSettings).list.selectedTableColumns).value
 
   return (
-    <table className="w-full">
-      <thead>
-        <tr className="h-8 divide-x divide-[#42454D] border-b-[0.5px] border-[#42454D] bg-ui-background text-left text-text-primary">
-          {availableTableColumns
-            .filter((header) => selectedTableColumns[header])
-            .map((header) => (
-              <th
-                key={header}
-                onClick={() => handleSort(header)}
-                className="table-cell p-2 text-xs font-normal dark:text-[#A3A3A3]"
-              >
-                <div className="flex items-center justify-between">
-                  <span>{t(`editor:layout.filebrowser.table-list.headers.${header}`)}</span>
-                  <MdKeyboardArrowDown />
-                </div>
-              </th>
-            ))}
+    <table className="w-full border-separate border-spacing-0">
+      <thead className="sticky top-0 z-20">
+        <tr className="h-8 divide-x divide-[#42454D] bg-ui-background text-left text-text-primary shadow-[inset_0_-1px_0_#42454D]">
+          {availableTableColumns.map((header) => (
+            <th
+              key={header}
+              onClick={() => handleSort(header)}
+              className="table-cell p-2 text-xs font-normal dark:text-[#A3A3A3]"
+            >
+              <div className="flex items-center justify-between">
+                <span className="whitespace-nowrap">{t(`editor:layout.filebrowser.table-list.headers.${header}`)}</span>
+                <MdKeyboardArrowDown />
+              </div>
+            </th>
+          ))}
         </tr>
       </thead>
       <tbody>{children}</tbody>
@@ -97,18 +95,11 @@ function FileItemRow({
   onContextMenu,
   className
 }: DisplayTypeProps) {
-  const filesViewModeSettings = useMutableState(FilesViewModeSettings)
-  const selectedTableColumns = filesViewModeSettings.list.selectedTableColumns.value
-  const fontSize = filesViewModeSettings.list.fontSize.value
-
   const thumbnailURL = file?.thumbnailURL
 
   const tableColumns = {
     name: (
-      <span
-        className="flex h-7 max-h-7 flex-row items-center gap-2 font-figtree text-text-primary"
-        style={{ fontSize: `${fontSize}px` }}
-      >
+      <span className="flex h-7 max-h-7 flex-row items-center gap-2 font-figtree text-sm text-text-primary">
         {file.isFolder ? <IoIosArrowForward /> : <VscBlank />}
         <FileIcon isMinified={true} thumbnailURL={thumbnailURL} type={file?.type} isFolder={file?.isFolder} />
         <span className="text-ellipsis text-nowrap">{file?.fullName}</span>
@@ -126,7 +117,7 @@ function FileItemRow({
       key={file?.key}
       ref={(ref) => drag(drop(ref))}
       className={twMerge(
-        'h-9 rounded text-text-primary',
+        'z-10 h-9 rounded text-text-primary',
         isOver && 'border-2 border-gray-400',
         className,
         !isSelected ? 'hover:bg-ui-hover-background' : 'bg-ui-primary'
@@ -136,23 +127,21 @@ function FileItemRow({
       onDoubleClick={onDoubleClick}
       data-testid="files-panel-file-item"
     >
-      {availableTableColumns
-        .filter((header) => selectedTableColumns[header])
-        .map((header, idx) => {
-          let content = tableColumns[header]
-          if (header === 'statistics') {
-            content = (
-              <pre>
-                <code>{tableColumns[header]}</code>
-              </pre>
-            )
-          }
-          return (
-            <td key={idx} style={{ fontSize: `${fontSize}px` }} data-testid={`files-panel-file-item-${header}`}>
-              {content}
-            </td>
+      {availableTableColumns.map((header, idx) => {
+        let content = tableColumns[header]
+        if (header === 'statistics') {
+          content = (
+            <pre>
+              <code>{tableColumns[header]}</code>
+            </pre>
           )
-        })}
+        }
+        return (
+          <td key={idx} className="text-sm" data-testid={`files-panel-file-item-${header}`}>
+            {content}
+          </td>
+        )
+      })}
     </tr>
   )
 }

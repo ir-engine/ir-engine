@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
@@ -33,8 +33,8 @@ import multiLogger from '@ir-engine/common/src/logger'
 import {
   ScopeType,
   UserName,
-  authenticationSettingPath,
   clientSettingPath,
+  engineSettingPath,
   identityProviderPath,
   projectSettingPath,
   scopePath,
@@ -53,6 +53,7 @@ import {
 import { API } from '@ir-engine/common'
 import { USERNAME_MAX_LENGTH } from '@ir-engine/common/src/constants/UserConstants'
 import { INVALID_USER_NAME_REGEX } from '@ir-engine/common/src/regex'
+import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { iOS, isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
@@ -71,7 +72,8 @@ import {
   ReportWebsiteDefaullg,
   Send01Lg,
   Trash04Lg,
-  TwitterOriginalFalse
+  TwitterOriginalFalse,
+  XCloseMd
 } from '@ir-engine/ui/src/icons'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -105,6 +107,25 @@ export const TermsOfServiceState = defineState({
 })
 
 const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
+  const engineSettingData = useFind(engineSettingPath, {
+    query: {
+      category: 'authentication',
+      paginate: false
+    }
+  })
+
+  const authSetting = useMemo(() => {
+    if (!engineSettingData.data) return null
+
+    return unflattenArrayToObject(
+      engineSettingData.data.map((el) => ({
+        key: el.key,
+        value: el.value,
+        dataType: el.dataType
+      }))
+    )
+  }, [engineSettingData.status])
+
   const { t } = useTranslation()
   const location = useLocation()
 
@@ -121,14 +142,10 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   /** Login Link feature that was needed for multi cam mocap that is not currently necessary. Keeping code around for now if we return to it*/
   //const loginLink = useHookstate('')
 
-  const authSetting = useFind(authenticationSettingPath).data.at(0)
-  console.log('authSetting test', useFind(authenticationSettingPath))
   const clientSetting = useFind(clientSettingPath).data.at(0)
-  console.log('clientSetting test', useFind(clientSettingPath))
   const loading = useHookstate(getMutableState(AuthState).isProcessing)
   const userId = selfUser.id.value
   const apiKey = useFind(userApiKeyPath).data[0]
-  console.log('apiKey test', useFind(userApiKeyPath))
   const isGuest = selfUser.isGuest.value
   const acceptedTOS = useMutableState(TermsOfServiceState).accepted.value
 
@@ -387,15 +404,20 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
 
   const enableConnect = authState?.value?.emailMagicLink || authState?.value?.smsMagicLink
 
-  console.log('hideLogin (within ProfileMenu)', hideLogin)
-  console.log('acceptedTOS (within ProfileMenu)', acceptedTOS)
-  console.log('enableSocial (within ProfileMenu)', enableSocial)
-  console.log('checked13OrOver (within ProfileMenu)', checked13OrOver.value)
-  console.log('checked18OrOver (within ProfileMenu)', checked18OrOver)
-  console.log('authSetting (within ProfileMenu)', authSetting)
-
   return (
     <div className="absolute z-50 h-fit max-h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 smh:max-h-[60dvh] smh:px-8 smh:py-6">
+      <div className="items-end">
+        <button
+          className={twMerge(
+            'flex h-[2rem] w-[2rem] items-center justify-center justify-self-end rounded-full text-ui-secondary hover:text-ui-hover-secondary focus:bg-ui-select-primary'
+          )}
+          onClick={() => {
+            ModalState.closeModal()
+          }}
+        >
+          <XCloseMd className="h-[1.5rem] w-[1.5rem]" />
+        </button>
+      </div>
       <div className="relative grid w-full grid-cols-5 gap-x-2">
         <div className="col-span-3 grid grid-cols-[auto,1fr] gap-x-6">
           <div className="relative h-20 w-20">
@@ -464,7 +486,6 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
           >
             <CogLg className="h-[1.875rem] w-[1.875rem]" />
           </button>
-
           {initialized && (
             <div className="flex w-full flex-col items-end gap-y-4">
               <Button
@@ -522,7 +543,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
                 checked={checked13OrOver.value}
                 onChange={() => checked13OrOver.set((v) => !v)}
                 disabled={checked13OrOver.value}
-                label={t('user:usermenu.profile.confirmAge13')}
+                label={t('user:usermenu.profile.confirmAge16')}
               />
             </>
           )}

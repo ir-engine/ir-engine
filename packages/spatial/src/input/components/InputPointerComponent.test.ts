@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Ethereal Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Ethereal Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
 Ethereal Engine. All Rights Reserved.
 */
 
@@ -35,7 +35,6 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getState, startReactor } from '@ir-engine/hyperflux'
-import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { useEffect } from 'react'
 import sinon from 'sinon'
@@ -123,7 +122,6 @@ describe('InputPointerComponent', () => {
         pointerId: InputPointerComponentDefaults.pointerId,
         cameraEntity: InputPointerComponentDefaults.cameraEntity
       })
-      await act(() => render(null))
     })
 
     afterEach(() => {
@@ -160,11 +158,12 @@ describe('InputPointerComponent', () => {
         cameraEntity: DummyEntity
       }
       setComponent(testEntity, InputPointerComponent, Expected)
-      await act(() => render(null))
-      const after = getComponent(testEntity, InputPointerComponent)
-      assert.deepEqual(after, Expected)
-      assert.equal(after.pointerId, DummyPointerID)
-      assert.equal(after.cameraEntity, DummyEntity)
+      await vi.waitFor(() => {
+        const after = getComponent(testEntity, InputPointerComponent)
+        assert.deepEqual(after, Expected)
+        assert.equal(after.pointerId, DummyPointerID)
+        assert.equal(after.cameraEntity, DummyEntity)
+      })
     })
 
     it('should set the entity into the InputPointerState with the expected hash id', async () => {
@@ -177,9 +176,10 @@ describe('InputPointerComponent', () => {
       }
       const ExpectedHash = InputPointerState.createCameraPointerHash(PointerData.cameraEntity, PointerData.pointerId)
       setComponent(testEntity, InputPointerComponent, PointerData)
-      await act(() => render(null))
-      const result = getState(InputPointerState).pointers.get(ExpectedHash)
-      assert.equal(result, testEntity)
+      await vi.waitFor(() => {
+        const result = getState(InputPointerState).pointers.get(ExpectedHash)
+        assert.equal(result, testEntity)
+      })
     })
   }) // << onSet
 
@@ -207,9 +207,10 @@ describe('InputPointerComponent', () => {
       const ExpectedHash = InputPointerState.createCameraPointerHash(PointerData.cameraEntity, PointerData.pointerId)
       setComponent(testEntity, InputPointerComponent, PointerData)
       removeComponent(testEntity, InputPointerComponent)
-      await act(() => render(null))
-      const result = getState(InputPointerState).pointers.get(ExpectedHash)
-      assert.equal(result, undefined)
+      await vi.waitFor(() => {
+        const result = getState(InputPointerState).pointers.get(ExpectedHash)
+        assert.equal(result, undefined)
+      })
     })
   }) // << onRemove
 
@@ -258,8 +259,6 @@ describe('InputPointerComponent', () => {
       const Expected = UndefinedEntity
       const Camera = 42 as Entity
       const Pointer = 21
-      const DummyData = { cameraEntity: Camera, pointerId: Pointer }
-      // setComponent(testEntity, InputPointerComponent, DummyData)  // Do not set the component, so the InputPointerState Map is empty
       const result = InputPointerComponent.getPointerByID(Camera, Pointer)
       assert.equal(result, Expected)
     })
@@ -308,7 +307,7 @@ describe('InputPointerComponent', () => {
         useEffect(effectSpy, [cameraPointers.length])
         return null
       }
-      const root = startReactor(Reactor)
+      startReactor(Reactor)
       await vi.waitFor(() => {
         assert.equal(reactorSpy.callCount, 2)
         assert.equal(effectSpy.callCount, 1)
@@ -342,7 +341,7 @@ describe('InputPointerComponent', () => {
         useEffect(effectSpy, [cameraPointers.length])
         return null
       }
-      const root = startReactor(Reactor)
+      startReactor(Reactor)
       await vi.waitFor(() => {
         assert.equal(reactorSpy.callCount, 2)
         assert.equal(effectSpy.callCount, 1)

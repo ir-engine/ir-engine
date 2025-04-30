@@ -23,29 +23,39 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { moderationPath } from '@ir-engine/common/src/schemas/moderation/moderation.schema'
 import type { Knex } from 'knex'
 
-import { authenticationSettingPath } from '@ir-engine/common/src/schemas/setting/authentication-setting.schema'
-
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
 export async function up(knex: Knex): Promise<void> {
-  const authSettings = await knex.table(authenticationSettingPath).first()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  if (authSettings) {
-    const oauthSettings = JSON.parse(authSettings.oauth)
-    oauthSettings.linkedin.scope = ['profile', 'email']
+  // 1. Add the column as nullable
+  await knex.schema.alterTable(moderationPath, (table) => {
+    table.integer('referenceNumber').unsigned().nullable()
+  })
 
-    await knex.table(authenticationSettingPath).update({
-      oauth: JSON.stringify(oauthSettings)
-    })
+  // 2. Backfill values
+  const records = await knex(moderationPath).select('id').orderBy('createdAt', 'asc')
+  for (let i = 0; i < records.length; i++) {
+    await knex(moderationPath)
+      .where('id', records[i].id)
+      .update({ referenceNumber: i + 1 })
   }
+
+  // 3. Modify the column to be AUTO_INCREMENT and UNIQUE using raw SQL
+  await knex.raw(
+    `ALTER TABLE ${moderationPath} MODIFY COLUMN referenceNumber INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE`
+  )
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function down(knex: Knex): Promise<void> {}
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  await knex.schema.alterTable(moderationPath, (table) => {
+    table.dropColumn('referenceNumber')
+  })
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}

@@ -30,7 +30,8 @@ export default (...params: string[]) => {
   return (hook: HookContext): boolean => {
     return (
       (hook.params?.query && args.includes(hook.params.query.action)) ||
-      (hook.params?.actualQuery && args.includes(hook.params.actualQuery.action))
+      (hook.params?.actualQuery && args.includes(hook.params.actualQuery.action)) ||
+      (hook.data?.action && args.includes(hook.data.action))
     )
   }
 }

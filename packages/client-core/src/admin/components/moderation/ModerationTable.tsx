@@ -27,7 +27,6 @@ import DataTable, { ITableHeadCell } from '@ir-engine/client-core/src/admin/comm
 import { useFind, useSearch } from '@ir-engine/common'
 import { moderationPath, ModerationType } from '@ir-engine/common/src/schema.type.module'
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
-import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import { Select } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { t } from 'i18next'
@@ -72,11 +71,15 @@ export default function ModerationTable({ search }) {
   const handleReportResolve = (report: ModerationType) => {
     setSelectedReport(userReportsQuery.data[userReportsQuery.data.findIndex((r) => r.id === report.id) + 1])
   }
+
   const userReportsQuery =
     statusFilter == ModerationFilterStatus.All
       ? useFind(moderationPath, {
           query: {
-            $limit: 12
+            $limit: 12,
+            $sort: {
+              referenceNumber: -1
+            }
           }
         })
       : useFind(moderationPath, {
@@ -89,19 +92,7 @@ export default function ModerationTable({ search }) {
   useSearch(
     userReportsQuery,
     {
-      $or: [
-        {
-          id: {
-            $like: `%${search}%`
-          }
-        },
-        {
-          reportedLocationId: isValidId(search) ? search : undefined
-        },
-        {
-          reportedUserId: isValidId(search) ? search : undefined
-        }
-      ]
+      search
     },
     search
   )
@@ -109,7 +100,7 @@ export default function ModerationTable({ search }) {
   const createRows = (rows: ModerationType[]) =>
     rows.map((moderation) => {
       return {
-        id: moderation.id,
+        id: moderation.referenceNumber,
         type: (
           <span>
             {moderation.type == 'location'

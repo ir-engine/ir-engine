@@ -118,11 +118,16 @@ export function ProjectDownloadProgress() {
   return (
     <>
       {isDownloading && (
-        <div className="flex h-auto w-full justify-center pb-2 pt-2">
-          <div className="flex w-1/2">
-            <span className="inline-block pr-2 text-xs font-normal leading-none ">
-              {t('editor:layout.filebrowser.downloadingProject', { completed, total })}
-            </span>
+        <div className="flex h-auto w-full justify-center pb-2 pt-1">
+          <div className="flex w-1/2 items-center gap-x-3">
+            <div className="flex gap-x-1 whitespace-nowrap text-center text-xs font-normal leading-none">
+              <div>{t('editor:layout.filebrowser.downloadingProject')}</div>
+              <div className="flex gap-x-1">
+                <span className="min-w-[6em] text-right">{completed}</span>
+                {`/`}
+                <span>{total}</span>
+              </div>
+            </div>
             <div className="basis-1/2">
               <Progress value={progress} />
             </div>
