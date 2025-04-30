@@ -205,7 +205,9 @@ export function FileCard({
             {name}
           </Text>
         </Tooltip>
-        <span className="text-xs text-[#375DAF]">{info}</span>
+        <span className="max-w-24 overflow-hidden text-ellipsis whitespace-nowrap text-xs text-[#375DAF]">
+          {info + Date.now()}
+        </span>
       </div>
     </>
   )
