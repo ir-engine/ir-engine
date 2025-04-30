@@ -30,7 +30,7 @@ import { Button } from '@ir-engine/ui'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import ThemeToggle from '@ir-engine/ui/src/primitives/tailwind/ThemeToggle'
-import React, { useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiPencil } from 'react-icons/hi2'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
@@ -38,7 +38,7 @@ import { useUserAvatarThumbnail } from '../../../hooks/useUserAvatarThumbnail'
 import AvatarSelectMenu from '../../../user/menus/avatar/AvatarSelectMenu'
 import { AuthState } from '../../../user/services/AuthService'
 import { ModalState } from '../../services/ModalState'
-import { ProjectService, ProjectState } from '../../services/ProjectService'
+import { ProjectState } from '../../services/ProjectService'
 import { ThemeState } from '../../services/ThemeService'
 
 const ProfilePill = () => {
@@ -54,11 +54,6 @@ const ProfilePill = () => {
   } | null>(null)
 
   const projectState = useMutableState(ProjectState)
-  ProjectService.useAPIListeners()
-
-  useEffect(() => {
-    ProjectService.getBuilderInfo()
-  }, [])
 
   const onAvatarSelectClose = () => {
     if (avatarSelectMenuRef.current) {

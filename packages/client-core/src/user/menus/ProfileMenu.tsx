@@ -82,7 +82,7 @@ import { twMerge } from 'tailwind-merge'
 import { initialAuthState, initialOAuthConnectedState } from '../../common/initialAuthState'
 import { ModalState } from '../../common/services/ModalState'
 import { NotificationService } from '../../common/services/NotificationService'
-import { ProjectService, ProjectState } from '../../common/services/ProjectService'
+import { ProjectState } from '../../common/services/ProjectService'
 import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { useZendesk } from '../../hooks/useZendesk'
 import { LocationState } from '../../social/services/LocationService'
@@ -159,11 +159,6 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const currentLocation = getState(LocationState).currentLocation.location
 
   const projectState = useMutableState(ProjectState)
-  ProjectService.useAPIListeners()
-
-  useEffect(() => {
-    ProjectService.getBuilderInfo()
-  }, [])
 
   const projectSettings = useFind(projectSettingPath, {
     query: {
