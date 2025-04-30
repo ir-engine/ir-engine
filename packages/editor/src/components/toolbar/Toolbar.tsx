@@ -242,7 +242,8 @@ export default function Toolbar() {
                       inStudio={true}
                       sceneModified={isModified}
                       onPublish={onPublish}
-                    />
+                    />,
+                    () => {}
                   )
                 }
                 className="rounded-[8px] py-1 text-base"
