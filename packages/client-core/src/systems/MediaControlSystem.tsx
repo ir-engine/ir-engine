@@ -37,7 +37,7 @@ import {
 import { getComponent, getOptionalComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { defineQuery, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { getState } from '@ir-engine/hyperflux'
@@ -50,6 +50,7 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 import { WebLayer3D } from '@ir-engine/xrui'
 
+import React, { useEffect } from 'react'
 import { createMediaControlsView } from './ui/MediaControlsUI'
 
 const controlsUiPosVec3 = new Vector3()
@@ -138,27 +139,31 @@ const onUpdate = (entity: Entity) => {
 const execute = () => {
   if (getState(EngineState).isEditing || !isClient) return
 
-  for (const entity of mediaQuery.enter()) {
-    const mediaComponent = getComponent(entity, MediaComponent)
-    if (!mediaComponent.controls) continue
-
-    const transition = createTransitionState(0.25, 'IN')
-    MediaFadeTransitions.set(entity, transition)
-    mediaComponent.xruiEntity = createMediaControlsUI(entity).entity
-    setComponent(mediaComponent.xruiEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-  }
-
-  for (const entity of mediaQuery.exit()) {
-    if (MediaFadeTransitions.has(entity)) MediaFadeTransitions.delete(entity)
-  }
-
   for (const entity of mediaQuery()) {
     onUpdate(entity)
   }
 }
 
+const MediaXRUIReactor = ({ entity }: { entity: Entity }) => {
+  useEffect(() => {
+    const mediaComponent = getComponent(entity, MediaComponent)
+    if (!mediaComponent.controls) return
+
+    const transition = createTransitionState(0.25, 'IN')
+    MediaFadeTransitions.set(entity, transition)
+    mediaComponent.xruiEntity = createMediaControlsUI(entity).entity
+    setComponent(mediaComponent.xruiEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+
+    return () => {
+      if (MediaFadeTransitions.has(entity)) MediaFadeTransitions.delete(entity)
+    }
+  }, [])
+  return null
+}
+
 export const MediaControlSystem = defineSystem({
   uuid: 'ee.engine.MediaControlSystem',
   insert: { after: InputSystemGroup },
-  execute
+  execute,
+  reactor: () => <QueryReactor Components={[MediaComponent]} ChildEntityReactor={MediaXRUIReactor} />
 })

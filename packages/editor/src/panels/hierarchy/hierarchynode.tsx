@@ -387,7 +387,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
       key={node.depth + ' ' + props.index + ' ' + entity}
       style={fixedSizeListStyles}
       className={twMerge(
-        'flex items-center',
+        'inline-flex w-auto min-w-full items-center',
         'cursor-pointer text-text-secondary hover:bg-ui-hover-background hover:text-text-primary',
         'bg-ui-background',
         !visible ? 'text-text-inactive' : '',
@@ -407,7 +407,10 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
           event.preventDefault()
           setMenu(event, entity)
         }}
-        className={twMerge('flex w-full justify-between bg-inherit', rootEntity === entity ? 'p-2' : 'py-1 pl-10 pr-2')}
+        className={twMerge(
+          'inline-flex h-full min-w-full justify-between bg-inherit',
+          rootEntity === entity ? 'px-2' : 'pl-10 pr-2'
+        )}
       >
         <div
           className={twMerge('h-1', isOverBefore && canDropBefore && 'bg-white')}
@@ -432,7 +435,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
             </button>
           )}
 
-          <div className="grid w-full grid-cols-[max-content_auto_max-content_max-content] items-center gap-2 bg-inherit">
+          <div className="grid h-full w-full grid-cols-[max-content_auto_max-content_max-content] items-center gap-2 bg-inherit">
             <IconComponent entity={entity} />
             {renamingNode.entity === entity ? (
               <Input
@@ -464,7 +467,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
                 </span>
               </div>
             )}
-            {isModified && canSaveNodeChanges.value && (
+            {isModified && canSaveNodeChanges.value && node.entity !== rootEntity && (
               <div className="flex items-center gap-1">
                 <Button
                   variant="tertiary"
