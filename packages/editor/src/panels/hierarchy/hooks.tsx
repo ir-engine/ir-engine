@@ -27,7 +27,10 @@ import {
   Entity,
   entityExists,
   EntityTreeComponent,
+  getAncestorWithComponents,
+  getChildrenWithComponents,
   getComponent,
+  hasComponent,
   isAncestor,
   Layers,
   QuerySubReactor,
@@ -40,6 +43,7 @@ import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent.tsx'
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { useHotkeys } from 'react-hotkeys-hook'
@@ -67,6 +71,30 @@ type DragItemType = {
   type: (typeof ItemTypes)[keyof typeof ItemTypes]
   value: Entity | Entity[]
   multiple: boolean
+}
+
+function containsRigidbodyInChildren(entity: Entity): boolean {
+  return getChildrenWithComponents(entity, [RigidBodyComponent]).length > 0 || hasComponent(entity, RigidBodyComponent)
+}
+function containsRigidbodyInParent(entity: Entity): boolean {
+  return getAncestorWithComponents(entity, [RigidBodyComponent], true, true) !== UndefinedEntity
+}
+function bothContainsRigidbody(dragEntity: Entity | Entity[], targetEntity: Entity): boolean {
+  const targetHasRb = containsRigidbodyInParent(targetEntity)
+
+  //early out false for comparing against self target
+  if (
+    !targetHasRb ||
+    (!Array.isArray(dragEntity) && targetEntity === dragEntity) ||
+    (Array.isArray(dragEntity) && dragEntity.some((dragListEntity) => dragListEntity === targetEntity))
+  )
+    return false
+
+  return Array.isArray(dragEntity)
+    ? //if it is an array, check for any that violate this
+      targetHasRb && dragEntity.some((dragListEntity) => containsRigidbodyInChildren(dragListEntity))
+    : //otherwise only check single entity
+      targetHasRb && containsRigidbodyInChildren(dragEntity)
 }
 
 const didHierarchyChange = (prev: HierarchyTreeNodeType[], curr: HierarchyTreeNodeType[]) => {
@@ -240,7 +268,8 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
     if (item.type === ItemTypes.Node) {
       if (node?.entity) {
         const entityTreeComponent = getComponent(node.entity, EntityTreeComponent)
-        if (place === 'On' && isEntityGlb(node.entity)) return false
+
+        if ((place === 'On' && isEntityGlb(node.entity)) || bothContainsRigidbody(item.value, node.entity)) return false
         if (place === 'On' || !!entityTreeComponent.parentEntity) return true
       }
 
