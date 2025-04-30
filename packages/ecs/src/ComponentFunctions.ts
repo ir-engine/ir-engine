@@ -563,7 +563,10 @@ export const setComponent = <C extends Component>(
 
   if (component.reactor && !component.reactorRoot) {
     const root = startReactor(() => {
-      return React.createElement(QueryReactor, { Components: [component], ChildEntityReactor: component.reactor })
+      return React.createElement(QueryReactor, {
+        Components: [component],
+        ChildEntityReactor: component.reactor as any
+      })
     }) as ReactorRoot
     root.cleanupFunctions.add(() => {
       component.reactorRoot = undefined

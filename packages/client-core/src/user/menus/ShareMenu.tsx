@@ -30,10 +30,11 @@ import { useTranslation } from 'react-i18next'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import multiLogger from '@ir-engine/common/src/logger'
 import { EMAIL_REGEX, PHONE_REGEX } from '@ir-engine/common/src/regex'
-import { InviteCode, InviteData, authenticationSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { InviteCode, InviteData, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { useMutableState } from '@ir-engine/hyperflux'
 
 import { useFind } from '@ir-engine/common'
+import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { Button, Input } from '@ir-engine/ui'
 import { Copy03Lg, Send01Lg, Share06Sm } from '@ir-engine/ui/src/icons'
@@ -172,7 +173,15 @@ const ShareMenu = (): JSX.Element => {
     navigator.clipboard.writeText(text)
     NotificationService.dispatchNotify(t('user:usermenu.share.linkCopied'), { variant: 'success' })
   }
-  const authSetting = useFind(authenticationSettingPath).data.at(0)
+  const engineSettingData = useFind(engineSettingPath, {
+    query: {
+      category: 'authentication',
+      paginate: false
+    }
+  })
+  const authSetting = unflattenArrayToObject(
+    engineSettingData.data.map((el) => ({ key: el.key, value: el.value, dataType: el.dataType }))
+  )
 
   const getConnectPlaceholder = () => {
     let smsMagicLink = false,

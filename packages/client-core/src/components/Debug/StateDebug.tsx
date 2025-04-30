@@ -44,10 +44,28 @@ const labelRenderer = (data: Record<string | number, any>) => {
       return <Text fontWeight="medium">{Array.isArray(data[key].type) ? data[key].type[0] : data[key].type}</Text>
     }
     if (keyPath.length === 4 && typeof key === 'number') {
-      const actions = data[keyPath[2]].actions
+      const actions = data
       return (
         <Text fontWeight="medium">{Array.isArray(actions[key].type) ? actions[key].type[0] : actions[key].type}</Text>
       )
+    }
+    return <Text fontWeight="medium">{key}</Text>
+  }
+}
+
+const actionLabelRenderer = (data: Record<string | number, any>) => {
+  return (keyPath: (string | number)[], ...args) => {
+    const key = keyPath[0]
+    // action
+    if (keyPath.length === 2 && typeof key === 'number') {
+      const actions = data
+      return (
+        <Text fontWeight="medium">{Array.isArray(actions[key].type) ? actions[key].type[0] : actions[key].type}</Text>
+      )
+    }
+    //$stack
+    if (keyPath.length === 4) {
+      return ''
     }
     return <Text fontWeight="medium">{key}</Text>
   }
@@ -115,7 +133,7 @@ export function StateDebug() {
         <h1>{t('common:debug.actionsHistory')}</h1>
         <JSONTree
           data={actionHistory}
-          labelRenderer={labelRenderer(actionHistory)}
+          labelRenderer={actionLabelRenderer(actionHistory)}
           shouldExpandNodeInitially={() => false}
         />
       </div>
@@ -123,7 +141,7 @@ export function StateDebug() {
         <h1>{t('common:debug.actionsCached')}</h1>
         <JSONTree
           data={cachedHistory}
-          labelRenderer={labelRenderer(cachedHistory)}
+          labelRenderer={actionLabelRenderer(cachedHistory)}
           shouldExpandNodeInitially={() => false}
         />
       </div>

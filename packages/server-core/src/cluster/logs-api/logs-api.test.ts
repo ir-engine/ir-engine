@@ -23,29 +23,39 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Knex } from 'knex'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { copyDataToParam } from './logs-api.hooks'
 
-import { authenticationSettingPath } from '@ir-engine/common/src/schemas/setting/authentication-setting.schema'
+describe('logs-api.hooks', () => {
+  let mockContext
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function up(knex: Knex): Promise<void> {
-  const authSettings = await knex.table(authenticationSettingPath).first()
+  beforeEach(async () => {
+    mockContext = {
+      type: 'before',
+      method: 'create',
+      app: {},
+      params: {},
+      data: {}
+    }
+  })
 
-  if (authSettings) {
-    const oauthSettings = JSON.parse(authSettings.oauth)
-    oauthSettings.linkedin.scope = ['profile', 'email']
-
-    await knex.table(authenticationSettingPath).update({
-      oauth: JSON.stringify(oauthSettings)
+  describe('copyDataToParam', () => {
+    it('should copy the specified property from context.data to context.params', async () => {
+      mockContext.data = { action: 'testAction' }
+      await copyDataToParam('action')(mockContext)
+      expect(mockContext.params.action).toBe('testAction')
     })
-  }
-}
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function down(knex: Knex): Promise<void> {}
+    it('should do nothing if context.data is missing', async () => {
+      mockContext.data = undefined
+      await copyDataToParam('action')(mockContext)
+      expect(mockContext.params.action).toBeUndefined()
+    })
+
+    it('should do nothing if the property is missing in context.data', async () => {
+      mockContext.data = {}
+      await copyDataToParam('action')(mockContext)
+      expect(mockContext.params.action).toBeUndefined()
+    })
+  })
+})

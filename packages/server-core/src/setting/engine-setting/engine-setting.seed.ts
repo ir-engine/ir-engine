@@ -28,12 +28,20 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
+import { identityProviderPath } from '@ir-engine/common/src/schema.type.module'
 import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
 import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { flattenObjectToArray } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import appConfig from '@ir-engine/server-core/src/appconfig'
 import appRootPath from 'app-root-path'
+import config from '../../appconfig'
+
+export const DISCORD_SCOPES = ['email', 'identify']
+export const GITHUB_SCOPES = ['repo', 'user', 'workflow']
+export const GOOGLE_SCOPES = ['profile', 'email']
+export const LINKEDIN_SCOPES = ['openid', 'profile', 'email']
+export const APPLE_SCOPES = ['openid', 'email', 'name']
 
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
@@ -420,6 +428,275 @@ export async function seed(knex: Knex): Promise<void> {
     ],
     'email'
   )
+
+  const authSeedData = (
+    await generateSeedData(
+      [
+        {
+          key: EngineSettings.Authentication.service,
+          value: identityProviderPath
+        },
+        {
+          key: EngineSettings.Authentication.entity,
+          value: identityProviderPath
+        },
+        {
+          key: EngineSettings.Authentication.secret,
+          value: process.env.AUTH_SECRET || 'test'
+        },
+        {
+          key: EngineSettings.Authentication.JwtAlgorithm,
+          value: process.env.JWT_ALGORITHM || ''
+        },
+        {
+          key: EngineSettings.Authentication.JwtPublicKey,
+          value: process.env.JWT_PUBLIC_KEY || ''
+        },
+        {
+          key: EngineSettings.Authentication.AuthStrategies.Jwt,
+          value: 'true'
+        },
+        {
+          key: EngineSettings.Authentication.AuthStrategies.Apple,
+          value: 'true'
+        },
+        {
+          key: EngineSettings.Authentication.AuthStrategies.Discord,
+          value: 'true'
+        },
+        {
+          key: EngineSettings.Authentication.AuthStrategies.Facebook,
+          value: 'true'
+        },
+        {
+          key: EngineSettings.Authentication.AuthStrategies.Github,
+          value: 'true'
+        },
+        {
+          key: EngineSettings.Authentication.AuthStrategies.Google,
+          value: 'true'
+        },
+        {
+          key: EngineSettings.Authentication.AuthStrategies.Linkedin,
+          value: 'true'
+        },
+        {
+          key: EngineSettings.Authentication.AuthStrategies.Twitter,
+          value: 'true'
+        },
+        {
+          key: EngineSettings.Authentication.AuthStrategies.SmsMagicLink,
+          value: 'true'
+        },
+        {
+          key: EngineSettings.Authentication.AuthStrategies.EmailMagicLink,
+          value: 'true'
+        },
+        {
+          key: EngineSettings.Authentication.AuthStrategies.DidWallet,
+          value: 'true'
+        },
+        {
+          key: EngineSettings.Authentication.JwtOptions.Algorithm,
+          value: process.env.JWT_ALGORITHM || 'HS256'
+        },
+        {
+          key: EngineSettings.Authentication.JwtOptions.ExpiresIn,
+          value: '30 days'
+        },
+        {
+          key: EngineSettings.Authentication.BearerToken.NumBytes,
+          value: '16'
+        },
+        {
+          key: EngineSettings.Authentication.Callback.Apple,
+          value: process.env.APPLE_CALLBACK_URL || `${appConfig.client.url}/auth/oauth/apple`
+        },
+        {
+          key: EngineSettings.Authentication.Callback.Discord,
+          value: process.env.DISCORD_CALLBACK_URL || `${appConfig.client.url}/auth/oauth/discord`
+        },
+        {
+          key: EngineSettings.Authentication.Callback.Facebook,
+          value: process.env.FACEBOOK_CALLBACK_URL || `${appConfig.client.url}/auth/oauth/facebook`
+        },
+        {
+          key: EngineSettings.Authentication.Callback.Github,
+          value: process.env.GITHUB_CALLBACK_URL || `${appConfig.client.url}/auth/oauth/github`
+        },
+        {
+          key: EngineSettings.Authentication.Callback.Google,
+          value: process.env.GOOGLE_CALLBACK_URL || `${appConfig.client.url}/auth/oauth/google`
+        },
+        {
+          key: EngineSettings.Authentication.Callback.Linkedin,
+          value: process.env.LINKEDIN_CALLBACK_URL || `${appConfig.client.url}/auth/oauth/linkedin`
+        },
+        {
+          key: EngineSettings.Authentication.Callback.Twitter,
+          value: process.env.TWITTER_CALLBACK_URL || `${appConfig.client.url}/auth/oauth/twitter`
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Default.Host,
+          value:
+            config.server.hostname !== '127.0.0.1' && config.server.hostname !== 'localhost'
+              ? config.server.hostname
+              : config.server.hostname + ':' + config.server.port
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Default.Protocol,
+          value: 'https'
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Apple.Key,
+          value: process.env.APPLE_CLIENT_ID || ''
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Apple.Secret,
+          value: process.env.APPLE_CLIENT_SECRET || ''
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Apple.Scope.OpenId,
+          value: 'openid'
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Apple.Scope.Email,
+          value: 'email'
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Apple.Scope.Name,
+          value: 'name'
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Apple.Response.Raw,
+          value: 'raw'
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Apple.Response.Jwt,
+          value: 'jwt'
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Apple.CustomParams.ResponseMode,
+          value: 'form_post'
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Apple.CustomParams.ResponseType,
+          value: 'code id_token'
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Apple.Nonce,
+          value: 'true'
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Discord.Key,
+          value: process.env.DISCORD_CLIENT_ID || ''
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Discord.Secret,
+          value: process.env.DISCORD_CLIENT_SECRET || ''
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Discord.Scope.Email,
+          value: 'email'
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Discord.Scope.Identify,
+          value: 'identify'
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Discord.CustomParams.Prompt,
+          value: 'none'
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Facebook.Key,
+          value: process.env.FACEBOOK_CLIENT_ID || ''
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Facebook.Secret,
+          value: process.env.FACEBOOK_CLIENT_SECRET || ''
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Github.AppId,
+          value: process.env.GITHUB_APP_ID || ''
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Github.Key,
+          value: process.env.GITHUB_CLIENT_ID || ''
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Github.Secret,
+          value: process.env.GITHUB_CLIENT_SECRET || ''
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Github.PrivateKey,
+          value: process.env.GITHUB_PRIVATE_KEY || ''
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Github.Scope.Repo,
+          value: 'repo'
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Github.Scope.User,
+          value: 'user'
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Github.Scope.Workflow,
+          value: 'workflow'
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Google.Key,
+          value: process.env.GOOGLE_CLIENT_ID || ''
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Google.Secret,
+          value: process.env.GOOGLE_CLIENT_SECRET || ''
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Google.Scope.Profile,
+          value: 'profile'
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Google.Scope.Email,
+          value: 'email'
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Linkedin.Key,
+          value: process.env.LINKEDIN_CLIENT_ID!
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Linkedin.Secret,
+          value: process.env.LINKEDIN_CLIENT_SECRET || ''
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Linkedin.Scope.OpenId,
+          value: 'openid'
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Linkedin.Scope.Profile,
+          value: 'profile'
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Linkedin.Scope.Email,
+          value: 'email'
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Twitter.Key,
+          value: process.env.TWITTER_CLIENT_ID || ''
+        },
+        {
+          key: EngineSettings.Authentication.Oauth.Twitter.Secret,
+          value: process.env.TWITTER_CLIENT_SECRET || ''
+        }
+      ],
+      'authentication'
+    )
+  ).map((setting) => {
+    return {
+      ...setting,
+      type: (setting.key.startsWith('authStrategies.') ? 'public' : 'private') as EngineSettingType['type']
+    }
+  })
+
   const seedData: EngineSettingType[] = [
     ...taskServerSeedData,
     ...chargebeeSettingSeedData,
@@ -432,7 +709,8 @@ export async function seed(knex: Knex): Promise<void> {
     ...zendeskSettingSeedData,
     ...helmSeedData,
     ...awsSeedData,
-    ...emailSeedData
+    ...emailSeedData,
+    ...authSeedData
   ]
 
   if (forceRefresh || testEnabled) {
