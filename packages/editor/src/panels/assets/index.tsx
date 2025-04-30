@@ -71,12 +71,18 @@ function AssetsContainer() {
   const toolbar = sidebarType.value === SidebarType.FILES ? <FilesToolbar /> : <Topbar />
   const rightChildren = sidebarType.value === SidebarType.FILES ? <FileBrowser /> : <Resources />
 
+  const initAssetsSidebar = () => {
+    const projectName = getMutableState(FilesState).projectName.get(NO_PROXY)
+    const importFolder = getMutableState(ImportSettingsState).importFolder.get(NO_PROXY)
+    const dir = `/projects/${projectName}${importFolder}`
+    getMutableState(FilesState).selectedDirectory.set(dir)
+  }
+
+  useEffect(() => initAssetsSidebar(), [])
+
   useEffect(() => {
     if (sidebarType.value === SidebarType.ASSETS) {
-      const projectName = getMutableState(FilesState).projectName.get(NO_PROXY)
-      const importFolder = getMutableState(ImportSettingsState).importFolder.get(NO_PROXY)
-      const dir = `projects/${projectName}${importFolder}`
-      getMutableState(FilesState).selectedDirectory.set(dir)
+      initAssetsSidebar()
     }
   }, [sidebarType])
 
