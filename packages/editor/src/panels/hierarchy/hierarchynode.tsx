@@ -68,6 +68,7 @@ import { ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
 import { IconComponent } from '../../components/panels/IconComponent'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
+import { isEntityGlb } from '../../functions/utils.ts'
 import { EditorHelperState, PlacementMode } from '../../services/EditorHelperState'
 import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { EditorState } from '../../services/EditorServices'
@@ -190,7 +191,10 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     dropTarget: onDropTarget,
     rigidbodyParentingWarning
   } = useHierarchyTreeDrop(node, 'On')
-  const showRedState = (!showGlbChildrenFeatureFlag || rigidbodyParentingWarning) && isOverOn && canDropOn
+  const isOverAndCanDrop = isOverOn && canDropOn
+  const showGlbRedState = isOverAndCanDrop && !showGlbChildrenFeatureFlag && isEntityGlb(entity)
+  const showRigidbodyRedState = isOverAndCanDrop && rigidbodyParentingWarning
+  const showRedState = showGlbRedState || showRigidbodyRedState
 
   useEffect(() => {
     preview(getEmptyImage(), { captureDraggingState: true })
