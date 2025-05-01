@@ -169,7 +169,7 @@ export default function ColorGenerator({
             <div className="flex flex-col">
               <div className="flex items-center gap-x-1">
                 <Text fontSize="xs">Start</Text>
-                <NumericInput value={item.start} onChange={onChange(path + '.functions[' + index + '].start')} />
+                <NumericInput value={item.start} onChange={onChange(path + '.functions.' + index + '.start')} />
               </div>
 
               <div className="flex items-center gap-x-1">
@@ -177,7 +177,7 @@ export default function ColorGenerator({
                 <div className="col-span-1 grid">
                   <ColorJSONInput
                     value={item.function.a}
-                    onChange={onChange(path + '.functions[' + index + '].function.a')}
+                    onChange={onChange(path + '.functions.' + index + '.function.a')}
                   />
                 </div>
               </div>
@@ -187,7 +187,7 @@ export default function ColorGenerator({
                 <div className="col-span-1 grid">
                   <ColorJSONInput
                     value={item.function.b}
-                    onChange={onChange(path + '.functions[' + index + '].function.b')}
+                    onChange={onChange(path + '.functions.' + index + '.function.b')}
                   />
                 </div>
               </div>
