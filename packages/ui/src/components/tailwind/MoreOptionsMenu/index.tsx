@@ -78,7 +78,7 @@ export default function MoreOptionsMenu({
       contentStyle={{ padding: '0px', border: 'none' }}
     >
       <ul
-        className="w-[180px] divide-y divide-gray-300 rounded-lg bg-white p-1 dark:divide-none dark:bg-surface-4"
+        className="w-[180px] divide-y divide-gray-300 rounded-lg border border-ui-tertiary bg-white dark:divide-none dark:border-none dark:bg-surface-4"
         data-testid="more-options-list"
       >
         {actionProps.map((actionProp, index) => (
