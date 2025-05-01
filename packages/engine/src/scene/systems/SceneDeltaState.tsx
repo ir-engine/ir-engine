@@ -28,11 +28,19 @@ import {
   Entity,
   getAncestorWithComponents,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   SerializedComponentType
 } from '@ir-engine/ecs'
 import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
-import { defineState, getMutableState, NO_PROXY_STEALTH, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import {
+  defineState,
+  getMutableState,
+  NO_PROXY_STEALTH,
+  State,
+  useHookstate,
+  useMutableState
+} from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { SceneState } from '../../gltf/GLTFState'
@@ -44,7 +52,15 @@ export const MATERIAL_PROTOTYPE_JSON_ID = 'prototypeConstructor' as const
 
 export type MaterialDeltaEntry = Record<typeof MATERIAL_JSON_ID, any>
 
-export type SceneDeltaRegistry = Record<NodeID, Record<NodeID, SceneDeltaEntry<any> | MaterialDeltaEntry>>
+type HierarchyModification = 'remove' | 'append'
+export type HierarchyDeltaEntry = {
+  hierarchy: Record<NodeID, HierarchyModification>
+}
+
+export type SceneDeltaRegistry = Record<
+  NodeID,
+  Record<NodeID, SceneDeltaEntry<any> | MaterialDeltaEntry | HierarchyDeltaEntry>
+>
 
 export const SceneDeltaState = defineState({
   name: 'SceneDeltaState',
@@ -74,6 +90,19 @@ export const SceneDeltaState = defineState({
     if (props) componentMap[MATERIAL_JSON_ID] = { ...componentMap[MATERIAL_JSON_ID], ...props }
     if (prototype) componentMap[MATERIAL_PROTOTYPE_JSON_ID] = prototype
     source[nodeID].set(componentMap)
+  },
+  registerHierarchyDelta(parent: Entity, child: Entity, mod: HierarchyModification) {
+    const parentNodeID = getOptionalComponent(parent, NodeIDComponent)
+    const childNodeID = getOptionalComponent(child, NodeIDComponent)
+    if (!parentNodeID || !childNodeID) return
+
+    const source = SceneDeltaState.getSource(parent)
+    const sourceValue = source.value[parentNodeID] as HierarchyDeltaEntry
+    const sourceState = source[parentNodeID] as State<HierarchyDeltaEntry>
+
+    if (!sourceValue) sourceState.set({ hierarchy: {} } as HierarchyDeltaEntry)
+    else if (!sourceValue.hierarchy) sourceState.merge({ hierarchy: { [childNodeID]: mod } })
+    else sourceState.hierarchy.merge({ [childNodeID]: mod })
   },
   reactor: () => {
     const sceneState = useMutableState(SceneState)
