@@ -125,8 +125,9 @@ export async function addMediaNode(
 
       AssetState.loadAsync(url, false, UUIDComponent.generateUUID(), UndefinedEntity, Layers.Authoring as LayerID).then(
         (assetEntity) => {
-          const [material] = getChildrenWithComponents(assetEntity, [MaterialStateComponent])
+          const [materialEntity] = getChildrenWithComponents(assetEntity, [MaterialStateComponent])
           let foundTarget = false
+          const affectedEntities = [] as Entity[]
           for (const intersection of intersections) {
             if (!hasComponent(intersection.object.entity, VisibleComponent)) continue
 
@@ -147,7 +148,7 @@ export async function addMediaNode(
               //uuids[materialIndex] = materialUUID,
               //setComponent(entity, MaterialInstanceComponent, { uuid: uuids })
               /**scene deltas do not yet support this, so a temporary hackfix is to modify existing materials to match */
-              const materialComponent = getComponent(material, MaterialStateComponent)
+              const materialComponent = getComponent(materialEntity, MaterialStateComponent)
               const materialToMutate = UUIDComponent.getEntityByUUID(uuids[materialIndex], Layers.Authoring)
               // wipe out any existing deltas for this material
               const existingDelta =
@@ -164,14 +165,16 @@ export async function addMediaNode(
                 materialToMutate,
                 materialComponent.material.userData?.type ?? materialComponent.material.type
               )
+              affectedEntities.push(materialToMutate)
               EditorControlFunctions.modifyMaterial([uuids[materialIndex]], uuids[materialIndex], [
-                getComponent(material, MaterialStateComponent).parameters
+                getComponent(materialEntity, MaterialStateComponent).parameters
               ])
               removeEntity(assetEntity)
               foundTarget = true
             })
             if (foundTarget) break
           }
+          AuthoringState.snapshotEntities(affectedEntities)
         }
       )
     } else if (contentType.startsWith('model/lookdev')) {
@@ -237,9 +240,12 @@ export async function addMediaNode(
         requestedName
       )
 
+      console.log('LOADING MODEL', { entityUUID })
+
       const rootEntity = getState(EditorState).rootEntity
       const newSource = GLTFComponent.getInstanceID(rootEntity)
       AuthoringState.snapshot(newSource)
+      console.log('SNAPSHOTTED', { newSource })
       return entityUUID
     }
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {

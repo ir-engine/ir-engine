@@ -109,10 +109,10 @@ export const AuthoringActions = {
   }),
 
   /**
-   * Use to add entities or components
+   * Use to add JSON patch operations to the history
    */
   ops: defineAction({
-    type: 'ir.engine.authoring.ADD',
+    type: 'ir.engine.authoring.OPS',
     ops: matches.object as Validator<unknown, Record<SourceID, Operation[]>>
   })
 }
@@ -203,7 +203,7 @@ export const AuthoringState = defineState({
   },
 
   snapshotEntities: (entities: Entity[]) => {
-    const affectedSources = new Set<SourceID>(entities.map((entity) => GLTFComponent.getInstanceID(entity)))
+    const affectedSources = new Set<SourceID>(entities.map((entity) => getComponent(entity, SourceComponent)))
     if (affectedSources.size === 0) return
     const ops = {} as Record<SourceID, Operation[]>
     for (const sourceID of affectedSources) {
