@@ -460,8 +460,30 @@ function VideoReactor() {
     const sourceTexture = sourceVideoComponent?.texture
 
     if (video.texture.value) {
+      const videoEl = mediaElement.element as HTMLVideoElement
+
+      const resetMuted = () => {
+        videoEl.muted = false
+        document.removeEventListener('pointerdown', resetMuted)
+      }
+
+      if (videoEl.paused) {
+        videoEl.pause()
+      } else {
+        videoEl.play().catch((error) => {
+          if (error.name === 'NotAllowedError') {
+            videoEl.muted = true
+            videoEl.play()
+
+            document.addEventListener('pointerdown', resetMuted)
+          } else {
+            console.error(error)
+          }
+        })
+      }
+
       //needed to set up the self-referencing source video texture
-      ;(video.texture.value.image as HTMLVideoElement) = mediaElement.element as HTMLVideoElement
+      ;(video.texture.value.image as HTMLVideoElement) = videoEl
       clearErrors(entity, VideoComponent)
     } else {
       if (sourceTexture && sourceMeshComponent) {

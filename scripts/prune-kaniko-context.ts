@@ -44,7 +44,7 @@ cli.main(async () => {
     })
     const files = filesResponse[2].items
 
-    const sorted = files.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    const sorted = files.sort((a, b) => new Date(b.createdAt || b.timeCreated) - new Date(a.createdAt || a.timeCreated))
     const toDelete = sorted.slice(5).map((item) => item.name)
     if (toDelete.length > 0) await storageProvider.deleteResources(toDelete)
 

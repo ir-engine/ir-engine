@@ -63,7 +63,7 @@ export function TableWrapper({
 
   return (
     <table className="w-full border-separate border-spacing-0">
-      <thead className="sticky top-0">
+      <thead className="sticky top-0 z-20">
         <tr className="h-8 divide-x divide-[#42454D] bg-ui-background text-left text-text-primary shadow-[inset_0_-1px_0_#42454D]">
           {availableTableColumns.map((header) => (
             <th
@@ -72,7 +72,7 @@ export function TableWrapper({
               className="table-cell p-2 text-xs font-normal dark:text-[#A3A3A3]"
             >
               <div className="flex items-center justify-between">
-                <span>{t(`editor:layout.filebrowser.table-list.headers.${header}`)}</span>
+                <span className="whitespace-nowrap">{t(`editor:layout.filebrowser.table-list.headers.${header}`)}</span>
                 <MdKeyboardArrowDown />
               </div>
             </th>
@@ -117,7 +117,7 @@ function FileItemRow({
       key={file?.key}
       ref={(ref) => drag(drop(ref))}
       className={twMerge(
-        'h-9 rounded text-text-primary',
+        'z-10 h-9 rounded text-text-primary',
         isOver && 'border-2 border-gray-400',
         className,
         !isSelected ? 'hover:bg-ui-hover-background' : 'bg-ui-primary'

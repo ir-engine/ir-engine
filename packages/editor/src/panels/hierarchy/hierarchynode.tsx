@@ -98,6 +98,7 @@ function toValidHierarchyNodeName(entity: Entity, name: string): string {
 
 export default React.memo(function HierarchyTreeNode(props: ListChildComponentProps<undefined>) {
   const showGlbChildrenFeatureFlag = useMutableState(EditorHelperState).showGlbChildren.value
+
   const { t } = useTranslation()
   const nodes = useHierarchyNodes()
   const node = nodes[props.index]
@@ -183,7 +184,13 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     isOver: isOverAfter,
     dropTarget: afterDropTarget
   } = useHierarchyTreeDrop(node, 'After')
-  const { canDrop: canDropOn, isOver: isOverOn, dropTarget: onDropTarget } = useHierarchyTreeDrop(node, 'On')
+  const {
+    canDrop: canDropOn,
+    isOver: isOverOn,
+    dropTarget: onDropTarget,
+    rigidbodyParentingWarning
+  } = useHierarchyTreeDrop(node, 'On')
+  const showRedState = (!showGlbChildrenFeatureFlag || rigidbodyParentingWarning) && isOverOn && canDropOn
 
   useEffect(() => {
     preview(getEmptyImage(), { captureDraggingState: true })
@@ -387,13 +394,13 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
       key={node.depth + ' ' + props.index + ' ' + entity}
       style={fixedSizeListStyles}
       className={twMerge(
-        'flex items-center',
+        'inline-flex w-auto min-w-full items-center',
         'cursor-pointer text-text-secondary hover:bg-ui-hover-background hover:text-text-primary',
         'bg-ui-background',
         !visible ? 'text-text-inactive' : '',
         selected ? 'rounded-sm border border-ui-select-outline bg-ui-select-background text-text-primary' : '',
         isOverOn && canDropOn ? 'border border-dotted' : '',
-        !showGlbChildrenFeatureFlag && isOverOn && !canDropOn ? 'border border-dotted text-text-error' : ''
+        showRedState ? 'border border-dotted text-text-error' : ''
       )}
       data-testid="hierarchy-panel-scene-item"
     >
@@ -407,7 +414,10 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
           event.preventDefault()
           setMenu(event, entity)
         }}
-        className={twMerge('flex w-full justify-between bg-inherit', rootEntity === entity ? 'p-2' : 'py-1 pl-10 pr-2')}
+        className={twMerge(
+          'inline-flex h-full min-w-full justify-between bg-inherit',
+          rootEntity === entity ? 'px-2' : 'pl-10 pr-2'
+        )}
       >
         <div
           className={twMerge('h-1', isOverBefore && canDropBefore && 'bg-white')}
@@ -432,7 +442,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
             </button>
           )}
 
-          <div className="grid w-full grid-cols-[max-content_auto_max-content_max-content] items-center gap-2 bg-inherit">
+          <div className="grid h-full w-full grid-cols-[max-content_auto_max-content_max-content] items-center gap-2 bg-inherit">
             <IconComponent entity={entity} />
             {renamingNode.entity === entity ? (
               <Input
@@ -464,7 +474,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
                 </span>
               </div>
             )}
-            {isModified && canSaveNodeChanges.value && (
+            {isModified && canSaveNodeChanges.value && node.entity !== rootEntity && (
               <div className="flex items-center gap-1">
                 <Button
                   variant="tertiary"
@@ -522,17 +532,9 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
               onClick={onHideUnhideNode}
             >
               {visible ? (
-                <PiEyeBold
-                  className={`${
-                    !showGlbChildrenFeatureFlag && isOverOn && !canDropOn ? 'text-text-inactive' : 'text-base'
-                  }`}
-                />
+                <PiEyeBold className={`${showRedState ? 'text-text-inactive' : 'text-base'}`} />
               ) : (
-                <PiEyeClosedBold
-                  className={`${
-                    !showGlbChildrenFeatureFlag && isOverOn && !canDropOn ? 'text-text-inactive' : 'text-base'
-                  }`}
-                />
+                <PiEyeClosedBold className={`${showRedState ? 'text-text-inactive' : 'text-base'}`} />
               )}
             </button>
           </div>
