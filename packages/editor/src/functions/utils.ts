@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import { isApple } from '@ir-engine/common/src/utils/getDeviceStats'
 import { Entity, EntityTreeComponent, getComponent, getOptionalComponent } from '@ir-engine/ecs'
-import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent.tsx'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { getState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { EditorState } from '../services/EditorServices'

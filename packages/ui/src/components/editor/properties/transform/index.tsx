@@ -51,7 +51,7 @@ import EulerInput from '../../input/Euler'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import Vector3Input from '../../input/Vector3'
-import { TransformUniformScaleState } from './TransformUniformScaleState.ts'
+import { TransformUniformScaleState } from './TransformUniformScaleState'
 
 /**
  * TransformPropertyGroup component is used to render editor view to customize properties.
