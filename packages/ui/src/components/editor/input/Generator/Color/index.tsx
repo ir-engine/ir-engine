@@ -120,19 +120,14 @@ export default function ColorGenerator({
     )
   }, [scope])
 
-  const onRemoveGradient = useCallback(
-    (index: number) => {
-      const gradientScope = scope as State<ColorGradientJSON>
-      const gradient = gradientScope.value
-      const thisOnChange = onChange(path + '.functions')
-      return () => {
-        const nuFunctions = [...gradient.functions]
-        nuFunctions.splice(index, 1)
-        thisOnChange(JSON.parse(JSON.stringify(nuFunctions)))
-      }
-    },
-    [scope, onChange, path]
-  )
+  const onRemoveGradient = (index: number) => {
+    const gradientScope = scope as State<ColorGradientJSON>
+    const gradient = gradientScope.value
+    const thisOnChange = onChange(path + '.functions')
+    const nuFunctions = [...gradient.functions]
+    nuFunctions.splice(index, 1)
+    thisOnChange(JSON.parse(JSON.stringify(nuFunctions)))
+  }
 
   const GradientInput = useCallback(() => {
     const gradientScope = scope as State<ColorGradientJSON>
@@ -195,7 +190,7 @@ export default function ColorGenerator({
                 </div>
               </div>
             </div>
-            <Button onClick={onRemoveGradient(index)}>Remove</Button>
+            <Button onClick={() => onRemoveGradient(index)}>Remove</Button>
           </div>
         ))}
       </div>
