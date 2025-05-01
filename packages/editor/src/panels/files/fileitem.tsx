@@ -72,7 +72,7 @@ export function TableWrapper({
               className="table-cell p-2 text-xs font-normal dark:text-[#A3A3A3]"
             >
               <div className="flex items-center justify-between">
-                <span>{t(`editor:layout.filebrowser.table-list.headers.${header}`)}</span>
+                <span className="whitespace-nowrap">{t(`editor:layout.filebrowser.table-list.headers.${header}`)}</span>
                 <MdKeyboardArrowDown />
               </div>
             </th>

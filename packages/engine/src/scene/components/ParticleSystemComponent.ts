@@ -50,7 +50,6 @@ import {
   ParticleSystemJSONParameters,
   RenderMode
 } from 'three.quarks'
-import matches from 'ts-matches'
 
 import {
   Entity,
@@ -66,6 +65,7 @@ import {
 } from '@ir-engine/ecs'
 import {
   defineComponent,
+  entityExists,
   getComponent,
   removeComponent,
   setComponent,
@@ -739,45 +739,6 @@ export type ParticleSystemComponentType = {
   behaviors?: Behavior[] | undefined
 }
 
-export const ParticleSystemJSONParametersValidator = matches.shape({
-  version: matches.string,
-  autoDestroy: matches.boolean,
-  looping: matches.boolean,
-  duration: matches.number,
-  shape: matches.shape({
-    type: matches.string,
-    radius: matches.number.optional(),
-    arc: matches.number.optional(),
-    thickness: matches.number.optional(),
-    angle: matches.number.optional(),
-    mesh: matches.string.optional()
-  }),
-  startLife: matches.object,
-  startSpeed: matches.object,
-  startRotation: matches.object,
-  startSize: matches.object,
-  startColor: matches.object,
-  emissionOverTime: matches.object,
-  emissionOverDistance: matches.object,
-  onlyUsedByOther: matches.boolean,
-  rendererEmitterSettings: matches
-    .shape({
-      startLength: matches.object.optional(),
-      followLocalOrigin: matches.boolean.optional()
-    })
-    .optional(),
-  renderMode: matches.natural,
-  speedFactor: matches.number,
-  texture: matches.string,
-  instancingGeometry: matches.object.optional(),
-  startTileIndex: matches.natural,
-  uTileCount: matches.natural,
-  vTileCount: matches.natural,
-  blending: matches.natural,
-  behaviors: matches.arrayOf(matches.any),
-  worldSpace: matches.boolean
-})
-
 const BlendingSchema = S.LiteralUnion(
   [NoBlending, NormalBlending, AdditiveBlending, SubtractiveBlending, MultiplyBlending, CustomBlending],
   AdditiveBlending
@@ -1066,7 +1027,7 @@ export const ParticleSystemComponent = defineComponent({
           }
         }
         removeComponent(entity, ObjectComponent)
-        setComponent(entity, ObjectComponent, new Object3D())
+        if (entityExists(entity)) setComponent(entity, ObjectComponent, new Object3D())
 
         nuSystem.dispose()
         emitterAsObj3D.dispose()
