@@ -35,7 +35,7 @@ const sizes = {
 
 const variants = {
   primary:
-    'bg-ui-primary text-text-primary-button hover:bg-ui-hover-primary focus:bg-ui-select-primary disabled:bg-ui-inactive-primary disabled:text-text-inactive',
+    'bg-ui-primary text-text-primary-button hover:bg-ui-hover-primary focus:bg-ui-select-primary disabled:bg-ui-inactive-primary dark:disabled:text-text-inactive disabled:text-white',
   secondary:
     'bg-[#4D84BF33] dark:bg-ui-secondary text-ui-primary dark:text-text-primary-button hover:bg-ui-hover-secondary hover:text-text-primary-button focus:bg-ui-select-secondary disabled:bg-ui-inactive-secondary disabled:text-text-inactive',
   tertiary:
