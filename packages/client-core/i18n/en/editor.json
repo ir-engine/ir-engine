@@ -80,6 +80,8 @@
     "maxUploadFileSizeExceed": "That file size is too large. Please upload a file under {{maxFileSizeToUploadMB}}MB. The following files are too large: {{filesNames}}"
   },
   "warnings": {
+    "addChildToGlbError": "Re-parenting was canceled - Adding children to glb model prefabs is currently not supported.",
+    "rigidbodyDropWarning" : "Re-parenting was canceled - Entities with a rigidbody are not allowed to have an ancestor with a rigidbody. Please remove one of the rigidbodies and try again.",
     "sceneComplexity": "Scene complexity is {{sceneComplexity}}. Consider optimizing your scene for better performance."
   },
   "viewport": {

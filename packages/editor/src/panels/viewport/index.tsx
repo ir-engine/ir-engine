@@ -154,7 +154,7 @@ function ViewportContainer() {
   return (
     <ViewportDnD>
       <div className="relative z-30 flex h-full w-full flex-col">
-        <div ref={toolbarRef} className="z-10 flex gap-1 bg-surface-4 px-1 py-0.5">
+        <div ref={toolbarRef} className="z-10 flex gap-1 bg-surface-4 px-1 py-1">
           <TransformSpaceTool />
           {transformPivotFeatureFlag && <TransformPivotTool />}
           <GridTool />
