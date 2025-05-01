@@ -1531,7 +1531,6 @@
       "lbl-material": "Materials",
       "lbl-texture": "Textures",
       "lbl-lights": "Lights",
-      "lbl-fileSize": "File Size",
       "info-polycount": "We recommend your Scene use no more than 50,000 triangles for mobile devices.",
       "info-material": "We recommend using no more than 25 unique materials in your Scene to reduce draw calls on mobile devices.",
       "info-texture": "We recommend your textures use no more than 256MB of video RAM for mobile devices. We also recommend against using textures larger than 2048 x 2048.",

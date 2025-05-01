@@ -101,7 +101,6 @@ function toValidHierarchyNodeName(entity: Entity, name: string): string {
 
 export default React.memo(function HierarchyTreeNode(props: ListChildComponentProps<undefined>) {
   const showGlbChildrenFeatureFlag = useMutableState(EditorHelperState).showGlbChildren.value
-
   const { t } = useTranslation()
   const nodes = useHierarchyNodes()
   const node = nodes[props.index]
