@@ -1371,6 +1371,7 @@
       "downloadingProject": "Downloading Project",
       "search-placeholder": "Search",
       "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
+      "generatingDimension": "Generating Dimensions ({{count}} remaining)",
       "file": "File",
       "directory": "Directory",
       "fileNameLengthError": "File name must be between 4 and 64 characters.",

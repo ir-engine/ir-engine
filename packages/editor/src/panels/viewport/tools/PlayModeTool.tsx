@@ -40,7 +40,7 @@ const PlayModeTool: React.FC = () => {
   }
 
   return (
-    <div id="preview" className="flex items-center">
+    <div id="preview" className="flex items-center px-2">
       <Tooltip
         title={
           engineState.isEditing.value

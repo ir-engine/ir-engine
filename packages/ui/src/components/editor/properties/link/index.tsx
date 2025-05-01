@@ -65,6 +65,19 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
           }
         ]
       })
+    } else {
+      EditorControlFunctions.modifyProperty([props.entity], InteractableComponent, {
+        label: LinkComponent.interactMessage,
+        uiInteractable: false,
+        clickInteract: true,
+        uiActivationType: XRUIActivationType.hover,
+        callbacks: [
+          {
+            callbackID: LinkComponent.linkCallbackName,
+            target: getComponent(props.entity, NodeIDComponent)
+          }
+        ]
+      })
     }
   }, [])
 
