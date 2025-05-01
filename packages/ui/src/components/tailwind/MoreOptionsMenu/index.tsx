@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useRef } from 'react'
 import Popup from 'reactjs-popup'
 import { PopupActions, PopupPosition } from 'reactjs-popup/dist/types'
+import { twMerge } from 'tailwind-merge'
 import { Button } from '../../..'
 import { DotsHorizontalLg, DotsVerticalLg } from '../../../icons'
 
@@ -78,7 +79,10 @@ export default function MoreOptionsMenu({
       contentStyle={{ padding: '0px', border: 'none' }}
     >
       <ul
-        className="w-[180px] divide-y divide-gray-300 rounded-lg border border-ui-tertiary bg-white dark:divide-none dark:border-none dark:bg-surface-4"
+        className={twMerge(
+          'w-[180px] divide-y divide-gray-300 rounded-lg border border-ui-tertiary',
+          'bg-white dark:divide-none dark:border-none dark:bg-surface-4'
+        )}
         data-testid="more-options-list"
       >
         {actionProps.map((actionProp, index) => (
