@@ -22,6 +22,7 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService.tsx'
 import { VALID_HEIRARCHY_SEARCH_REGEX } from '@ir-engine/common/src/regex'
 import {
   Entity,
@@ -47,6 +48,7 @@ import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/Ri
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { useHotkeys } from 'react-hotkeys-hook'
+import { useTranslation } from 'react-i18next'
 import useUpload from '../../components/assets/useUpload'
 import { DnDFileType, FileDataType, ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
@@ -95,6 +97,11 @@ function bothContainsRigidbody(dragEntity: Entity | Entity[], targetEntity: Enti
       targetHasRb && dragEntity.some((dragListEntity) => containsRigidbodyInChildren(dragListEntity))
     : //otherwise only check single entity
       targetHasRb && containsRigidbodyInChildren(dragEntity)
+}
+
+function isGlbIssue(entity: Entity): boolean {
+  //@todo update this when we support adding children to GLB based prefabs
+  return isEntityGlb(entity) //&& !getMutableState(EditorHelperState).showGlbChildren.value
 }
 
 const didHierarchyChange = (prev: HierarchyTreeNodeType[], curr: HierarchyTreeNodeType[]) => {
@@ -253,6 +260,9 @@ export const useNodeCollapseExpand = () => {
 export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' | 'Before' | 'After') => {
   const onUpload = useUpload(uploadOptions)
   const rootEntity = useMutableState(EditorState).rootEntity.value
+  const { t } = useTranslation()
+  const [rigidbodyParentingWarning, setRigidbodyParentingWarning] = useState(false)
+  const [lastTargetNode, setTargetNode] = useState(UndefinedEntity)
 
   const canDropItem = (item: DragItemType, monitor: DropTargetMonitor): boolean => {
     if (!monitor.isOver({ shallow: true })) {
@@ -269,8 +279,22 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
       if (node?.entity) {
         const entityTreeComponent = getComponent(node.entity, EntityTreeComponent)
 
-        if ((place === 'On' && isEntityGlb(node.entity)) || bothContainsRigidbody(item.value, node.entity)) return false
+        if (place === 'On') {
+          const updateRigidbodyCheck = node.entity !== lastTargetNode
+          setTargetNode(node.entity)
+
+          if (isGlbIssue(node.entity)) return true
+          // Check rigidbody condition and update state
+          const hasRigidbodyWarning =
+            (!updateRigidbodyCheck && rigidbodyParentingWarning) ||
+            (updateRigidbodyCheck && bothContainsRigidbody(item.value, node.entity))
+
+          setRigidbodyParentingWarning(hasRigidbodyWarning)
+          if (hasRigidbodyWarning) return true
+        }
         if (place === 'On' || !!entityTreeComponent.parentEntity) return true
+      } else {
+        setTargetNode(UndefinedEntity)
       }
 
       const entity = node?.entity || rootEntity
@@ -283,6 +307,22 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
   }
 
   const dropItem = (item: FileDataType | DnDFileType | DragItemType, monitor: DropTargetMonitor): void => {
+    if (node?.entity) {
+      //check for glb issue (adding child to glb prefab)
+      if (isGlbIssue(node.entity)) {
+        NotificationService.dispatchNotify(t('editor:warnings.addChildToGlbError'), { variant: 'warning' })
+        return
+      }
+      // Check if this is a rigidbody drop case that needs special handling
+      if ('type' in item && item.type === ItemTypes.Node && place === 'On') {
+        // If this is a rigidbody drop onto another rigidbody hierarchy, show warning and exit early
+        if (bothContainsRigidbody((item as DragItemType).value, node.entity)) {
+          NotificationService.dispatchNotify(t('editor:warnings.rigidbodyDropWarning'), { variant: 'warning' })
+          return // Exit early, don't process the drop
+        }
+      }
+    }
+
     let parentNode: Entity | undefined
     let beforeNode: Entity = UndefinedEntity
     let afterNode: Entity = UndefinedEntity
@@ -366,7 +406,7 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
     })
   })
 
-  return { canDrop, isOver, dropTarget }
+  return { canDrop, isOver, dropTarget, rigidbodyParentingWarning }
 }
 
 const useSimplifiedHotkey = (key: string, onAction: () => void) => {
