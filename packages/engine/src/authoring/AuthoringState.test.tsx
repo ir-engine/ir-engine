@@ -740,7 +740,7 @@ describe('AuthoringState', () => {
       const actions = Engine.instance.store.actions.incoming
       expect(actions).toHaveLength(1)
       const action = actions[0] as typeof AuthoringActions.ops.matches._TYPE
-      expect(action.type).toBe('ir.engine.authoring.ADD')
+      expect(action.type).toBe(AuthoringActions.ops.type)
       expect(action.ops[sourceID1]).toBeDefined()
       expect(action.ops[sourceID1]).toHaveLength(1)
       const op = action.ops[sourceID1][0] as AddOperation
@@ -772,7 +772,7 @@ describe('AuthoringState', () => {
       const actions = Engine.instance.store.actions.incoming
       expect(actions).toHaveLength(1)
       const action = actions[0] as typeof AuthoringActions.ops.matches._TYPE
-      expect(action.type).toBe('ir.engine.authoring.ADD')
+      expect(action.type).toBe(AuthoringActions.ops.type)
       expect(action.ops[sourceID1]).toBeDefined()
       expect(action.ops[sourceID1]).toHaveLength(1)
       expect(action.ops[sourceID2]).toBeDefined()
