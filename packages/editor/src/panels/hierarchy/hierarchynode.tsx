@@ -34,6 +34,8 @@ import {
   getOptionalComponent,
   getSimulationCounterpart,
   hasComponent,
+  removeComponent,
+  setComponent,
   useHasComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
@@ -43,6 +45,7 @@ import { EntityHierarchyLockState } from '@ir-engine/editor/src/services/EntityH
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
+import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFLoaderFunctions } from '@ir-engine/engine/src/gltf/GLTFLoaderFunctions'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
@@ -69,7 +72,6 @@ import { twMerge } from 'tailwind-merge'
 import { IconComponent } from '../../components/panels/IconComponent'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorHelperState, PlacementMode } from '../../services/EditorHelperState'
-import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { deleteNode, HierarchyTreeNodeType } from './helpers'
@@ -133,7 +135,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
       document.removeEventListener('mousedown', handleClickOutside)
       if (saveRename) {
         EditorControlFunctions.modifyName([entity], toValidHierarchyNodeName(entity, currentRenameNode.value))
-        EditorHistoryFunctions.snapshot(getComponent(entity, SourceComponent))
+        AuthoringState.snapshot(getComponent(entity, SourceComponent))
         currentRenameNode.set(getComponent(entity, NameComponent))
       }
       renamingNode.clear()
@@ -311,9 +313,11 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const onHideUnhideNode = (event: React.MouseEvent) => {
     event.stopPropagation()
     if (visible) {
-      EditorHistoryFunctions.removeComponent([entity], VisibleComponent)
+      removeComponent(entity, VisibleComponent)
+      AuthoringState.snapshotEntities([entity])
     } else {
-      EditorHistoryFunctions.setComponent([entity], VisibleComponent)
+      setComponent(entity, VisibleComponent)
+      AuthoringState.snapshotEntities([entity])
     }
   }
 

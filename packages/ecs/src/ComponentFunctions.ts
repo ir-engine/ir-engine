@@ -37,6 +37,7 @@ import {
   HyperFlux,
   Identifiable,
   NO_PROXY_STEALTH,
+  Path,
   ReactorRoot,
   SetPartialStateAction,
   State,
@@ -505,9 +506,7 @@ const _getComponentState = <C extends Component>(entity: Entity, component: C) =
         onSet: (s, d) => {
           const rootState = component.stateMap[entity]
           component.valueMap[entity] = rootState.promised ? undefined : rootState.get(NO_PROXY_STEALTH)
-          if (bitECS.hasComponent(HyperFlux.store, entity, component)) {
-            LayerFunctions.propagateLayer(entity, component)
-          }
+          LayerFunctions.propagateLayer(entity, component)
         }
       }))
     )
@@ -1165,6 +1164,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
  * @note Checking whether this process/behavior should be run or not is done with the {@link shouldPropagate} helper function.
  * */
 function propagateLayer<C extends Component>(entity: Entity, component: C) {
+  if (!bitECS.hasComponent(HyperFlux.store, entity, component)) return
   if ((component as any) === LayerComponent || LayerComponents.includes(component as any)) return
   const relations = LayerFunctions.getLayerRelationsEntities(entity)
   if (!relations) return

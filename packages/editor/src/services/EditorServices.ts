@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { LayoutData } from 'rc-dock'
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { EntityUUID, getOptionalComponent } from '@ir-engine/ecs'
+import { getOptionalComponent } from '@ir-engine/ecs'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
@@ -49,7 +49,6 @@ export const EditorState = defineState({
     scenePath: null as string | null,
     /** just used to store the id of the current scene asset */
     sceneAssetID: null as string | null,
-    lockPropertiesPanel: '' as EntityUUID,
     panelLayout: {} as LayoutData,
     rootEntity: UndefinedEntity,
     uiEnabled: true,

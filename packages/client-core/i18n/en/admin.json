@@ -452,6 +452,7 @@
       "webmanifestLink": "Webmanifest",
       "swScriptLink": "service-worker.js",
       "releaseName": "Release Name",
+      "releaseVersion": "Release",
       "email": {
         "header": "Email",
         "subtitle": "Edit Email Settings"

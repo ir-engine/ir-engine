@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useQuery } from '@ir-engine/ecs'
-import { getComponent, hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, hasComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   commitProperties,
   commitProperty,
@@ -32,7 +32,6 @@ import {
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { EditorHistoryFunctions } from '@ir-engine/editor/src/services/EditorHistoryState'
 import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -66,7 +65,7 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
     const sinks = [...(inputComponent.inputSinks.value ?? []), getComponent(props.entity, NodeIDComponent)]
 
     if (!hasComponent(props.entity, InputComponent)) {
-      EditorHistoryFunctions.setComponent([props.entity], InputComponent, {
+      setComponent(props.entity, InputComponent, {
         inputSinks: JSON.parse(JSON.stringify(sinks))
       })
     } else {

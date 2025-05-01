@@ -40,9 +40,10 @@ import {
   useComponent,
   useQuery
 } from '@ir-engine/ecs'
+import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react'
@@ -55,7 +56,6 @@ import { addMediaNode } from '../../functions/addMediaNode'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { cmdOrCtrlString, isEntityGlb } from '../../functions/utils'
 import { EditorHelperState } from '../../services/EditorHelperState'
-import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { SelectionState } from '../../services/SelectionServices'
@@ -379,7 +379,7 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
         parentNode,
         beforeNode
       )
-      EditorHistoryFunctions.snapshot()
+      AuthoringState.snapshotEntities([getState(EditorState).rootEntity])
       return
     }
 
@@ -393,7 +393,7 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
       afterNode,
       parentNode
     )
-    EditorHistoryFunctions.snapshot()
+    AuthoringState.snapshotEntities([getState(EditorState).rootEntity])
   }
 
   const [{ canDrop, isOver }, dropTarget] = useDrop({
