@@ -25,9 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Entity, getComponent, useComponent } from '@ir-engine/ecs'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
-import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent.ts'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { EffectReactorProps, PostProcessingEffectState } from '@ir-engine/spatial/src/renderer/effects/EffectRegistry'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem.tsx'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { EffectComposer, Resolution } from 'postprocessing'
 import React, { useEffect } from 'react'
 import { SSGIEffect, VelocityDepthNormalPass } from 'realism-effects'

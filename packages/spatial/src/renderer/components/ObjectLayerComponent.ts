@@ -28,7 +28,7 @@ import { Object3D } from 'three'
 import { Entity, entityExists } from '@ir-engine/ecs'
 import { defineComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
-import { ObjectLayer, ObjectLayerMask, ObjectLayerMasks } from '../constants/ObjectLayers.ts'
+import { ObjectLayer, ObjectLayerMask, ObjectLayerMasks } from '../constants/ObjectLayers'
 
 const maxBitWidth = 32
 /**

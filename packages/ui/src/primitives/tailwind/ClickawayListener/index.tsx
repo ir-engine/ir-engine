@@ -28,7 +28,7 @@ import React from 'react'
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 
 import { getState } from '@ir-engine/hyperflux'
-import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile.ts'
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { useEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 

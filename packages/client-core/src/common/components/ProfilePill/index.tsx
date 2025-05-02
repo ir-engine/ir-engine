@@ -28,17 +28,21 @@ import { identityProviderPath } from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { Button } from '@ir-engine/ui'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import ThemeToggle from '@ir-engine/ui/src/primitives/tailwind/ThemeToggle'
 import React, { useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { HiPencil } from 'react-icons/hi2'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { useUserAvatarThumbnail } from '../../../hooks/useUserAvatarThumbnail'
 import AvatarSelectMenu from '../../../user/menus/avatar/AvatarSelectMenu'
 import { AuthState } from '../../../user/services/AuthService'
 import { ModalState } from '../../services/ModalState'
+import { ProjectState } from '../../services/ProjectService'
 import { ThemeState } from '../../services/ThemeService'
 
 const ProfilePill = () => {
+  const { t } = useTranslation()
   const user = getMutableState(AuthState).user
   const avatarThumbnail = useUserAvatarThumbnail(user.value.id)
   const identityProvidersQuery = useFind(identityProviderPath)
@@ -48,6 +52,8 @@ const ProfilePill = () => {
   const avatarSelectMenuRef = useRef<{
     handleClose: () => Promise<void>
   } | null>(null)
+
+  const projectState = useMutableState(ProjectState)
 
   const onAvatarSelectClose = () => {
     if (avatarSelectMenuRef.current) {
@@ -111,6 +117,11 @@ const ProfilePill = () => {
           </div>
         </div>
         <hr className="mb-1 mt-4 w-full border border-ui-outline" />
+        <div className="flex-1 text-right">
+          <Text className="text-sm">
+            {t('admin:components.setting.releaseVersion')}: {projectState.builderInfo.engineVersion.value}
+          </Text>
+        </div>
       </div>
     </Popup>
   )

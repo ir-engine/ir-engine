@@ -664,20 +664,11 @@ const ConvertToSchema = <T extends Schema, Val>(schema: T, value: Val) => {
 }
 
 // Generate a JSON Schema from the Typebox Schema
-export const GenerateJSONSchema = <T extends Schema>(schema: T) => {
+export const GenerateJSONSchema = <T extends Schema>(schema: T): JSONSchema | undefined => {
   const jsonSchema: any = {}
 
   // Add type based on schema kind
   switch (schema[Kind]) {
-    case 'Null':
-      jsonSchema.type = 'null'
-      break
-    case 'Undefined':
-      jsonSchema.type = 'null' // JSON Schema doesn't have undefined type
-      break
-    case 'Void':
-      jsonSchema.type = 'null' // JSON Schema doesn't have void type
-      break
     case 'Number':
       jsonSchema.type = 'number'
       if (schema.options?.maximum !== undefined) jsonSchema.maximum = schema.options.maximum
@@ -700,11 +691,13 @@ export const GenerateJSONSchema = <T extends Schema>(schema: T) => {
     case 'Object': {
       jsonSchema.type = 'object'
       const props = schema.properties as TProperties
-      jsonSchema.properties = {}
       jsonSchema.required = []
 
       for (const [key, propSchema] of Object.entries(props)) {
-        jsonSchema.properties[key] = GenerateJSONSchema(propSchema)
+        const propJsonSchema = GenerateJSONSchema(propSchema)
+        if (!propJsonSchema || propJsonSchema.type === 'null') continue
+        if (!jsonSchema.properties) jsonSchema.properties = {}
+        jsonSchema.properties[key] = propJsonSchema
         if (propSchema[Kind] === 'Required') {
           jsonSchema.required.push(key)
         }
@@ -720,7 +713,9 @@ export const GenerateJSONSchema = <T extends Schema>(schema: T) => {
     case 'Partial': {
       const props = schema.properties as TPartialSchema<Schema>['properties']
       jsonSchema.type = 'object'
-      jsonSchema.properties = GenerateJSONSchema(props).properties
+      const subSchema = GenerateJSONSchema(props)
+      jsonSchema.properties = subSchema?.properties
+      jsonSchema.required = []
       break
     }
     case 'Array': {
@@ -744,32 +739,24 @@ export const GenerateJSONSchema = <T extends Schema>(schema: T) => {
       jsonSchema.oneOf = props.map((prop) => GenerateJSONSchema(prop))
       break
     }
-    case 'Func':
-      // Functions are not serializable in JSON Schema
-      jsonSchema.type = 'null'
-      break
     case 'Required': {
       const props = schema.properties as TRequiredSchema<Schema>['properties']
       return GenerateJSONSchema(props)
-    }
-    case 'NonSerialized':
-      // Non-serialized fields are not included in JSON Schema
-      jsonSchema.type = 'null'
-      break
-    case 'Class': {
-      // Classes are not serializable in JSON Schema
-      jsonSchema.type = 'null'
-      break
     }
     case 'Proxy': {
       const props = schema.properties as TProxySchema<Schema>['properties']
       return GenerateJSONSchema(props)
     }
+    // These types are not to be serialized
+    case 'Null':
+    case 'Undefined':
+    case 'Void':
+    case 'Func':
+    case 'NonSerialized':
+    case 'Class':
     case 'Any':
-      // Any type in JSON Schema is an empty object
-      break
     default:
-      jsonSchema.type = 'null'
+      return undefined
   }
 
   // Add any additional options that might be relevant for JSON Schema
@@ -777,7 +764,26 @@ export const GenerateJSONSchema = <T extends Schema>(schema: T) => {
     jsonSchema.$id = schema.options.id
   }
 
+  // Add $comment if provided in options
+  if (schema.options?.$comment) {
+    jsonSchema.$comment = schema.options.$comment
+  }
+
   return jsonSchema
+}
+
+/**
+ * Temporary type for JSON Schema until we implement a proper package to handle this.
+ */
+export type JSONSchema = {
+  type: string
+  properties?: { [key: string]: JSONSchema }
+  items?: JSONSchema
+  minItems?: number
+  maxItems?: number
+  oneOf?: JSONSchema[]
+  $comment?: string
+  $id?: string
 }
 
 export const SerializeSchema = <T extends Schema, Val>(schema: T, value: Val): Val => {
