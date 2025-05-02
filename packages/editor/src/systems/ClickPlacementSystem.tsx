@@ -71,7 +71,8 @@ export const ClickPlacementState = defineState({
     pitchOffset: 0,
     rollOffset: 0,
     maxDistance: 25,
-    materialCache: [] as [Mesh, Material][]
+    materialCache: [] as [Mesh, Material][],
+    metadata: {}
   },
   setSelectedAsset: (src: string) => {
     const assetExt = FileToAssetExt(src)
@@ -83,6 +84,9 @@ export const ClickPlacementState = defineState({
         ClickPlacementState.assetError()
       } else ClickPlacementState.resetSelectedAsset()
     }
+  },
+  setSelectedAssetData: (resource) => {
+    getMutableState(ClickPlacementState).metadata.set(resource)
   },
   resetSelectedAsset: () => {
     getMutableState(ClickPlacementState).selectedAsset.set('')
