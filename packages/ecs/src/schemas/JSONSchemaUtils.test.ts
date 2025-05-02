@@ -2564,19 +2564,19 @@ describe('GenerateJSONSchema', () => {
   it('should generate schema for Null type', () => {
     const schema = S.Null()
     const jsonSchema = GenerateJSONSchema(schema)
-    expect(jsonSchema).toEqual({ type: 'null' })
+    expect(jsonSchema).toBeUndefined()
   })
 
   it('should generate schema for Undefined type', () => {
     const schema = S.Undefined()
     const jsonSchema = GenerateJSONSchema(schema)
-    expect(jsonSchema).toEqual({ type: 'null' })
+    expect(jsonSchema).toBeUndefined()
   })
 
   it('should generate schema for Void type', () => {
     const schema = S.Void()
     const jsonSchema = GenerateJSONSchema(schema)
-    expect(jsonSchema).toEqual({ type: 'null' })
+    expect(jsonSchema).toBeUndefined()
   })
 
   it('should generate schema for Number type', () => {
@@ -2672,6 +2672,7 @@ describe('GenerateJSONSchema', () => {
     const jsonSchema = GenerateJSONSchema(schema)
     expect(jsonSchema).toEqual({
       type: 'object',
+      required: [],
       properties: {
         name: { type: 'string' },
         age: { type: 'number' }
@@ -2709,16 +2710,28 @@ describe('GenerateJSONSchema', () => {
     })
   })
 
-  it('should generate schema for Func type', () => {
+  it('should not generate schema for Func type', () => {
     const schema = S.Func([S.String()], S.Number())
     const jsonSchema = GenerateJSONSchema(schema)
-    expect(jsonSchema).toEqual({ type: 'null' })
+    expect(jsonSchema).toBeUndefined()
   })
 
-  it('should generate schema for NonSerialized type', () => {
+  it('should not generate schema for NonSerialized type', () => {
     const schema = S.NonSerialized(S.String())
     const jsonSchema = GenerateJSONSchema(schema)
-    expect(jsonSchema).toEqual({ type: 'null' })
+    expect(jsonSchema).toBeUndefined()
+  })
+
+  it('should not add to record non Func type', () => {
+    const schema = S.Object({ prop: S.Func([S.String()], S.Number()) })
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({ type: 'object', required: [] })
+  })
+
+  it('should not add to record non Func type', () => {
+    const schema = S.Object({ prop: S.NonSerialized(S.String()) })
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({ type: 'object', required: [] })
   })
 
   it('should generate schema for Class type', () => {
@@ -2728,9 +2741,7 @@ describe('GenerateJSONSchema', () => {
     }
     const schema = S.Class(() => new MyClass())
     const jsonSchema = GenerateJSONSchema(schema)
-    expect(jsonSchema).toEqual({
-      type: 'null'
-    })
+    expect(jsonSchema).toBeUndefined()
   })
 
   it('should generate schema for Proxy type', () => {
@@ -2742,7 +2753,7 @@ describe('GenerateJSONSchema', () => {
   it('should generate schema for Any type', () => {
     const schema = S.Any()
     const jsonSchema = GenerateJSONSchema(schema)
-    expect(jsonSchema).toEqual({})
+    expect(jsonSchema).toBeUndefined()
   })
 
   it('should include $id when provided in options', () => {
@@ -2782,6 +2793,15 @@ describe('GenerateJSONSchema', () => {
         active: { type: 'boolean' }
       },
       required: []
+    })
+  })
+
+  it('should include $comment when provided in options', () => {
+    const schema = S.String('test', { $comment: 'test-comment' })
+    const jsonSchema = GenerateJSONSchema(schema)
+    expect(jsonSchema).toEqual({
+      type: 'string',
+      $comment: 'test-comment'
     })
   })
 }) //:: GenerateJSONSchema

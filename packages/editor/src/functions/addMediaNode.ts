@@ -59,6 +59,7 @@ import { serializeEntity } from '@ir-engine/engine/src/scene/functions/serialize
 import { SceneDeltaState } from '@ir-engine/engine/src/scene/systems/SceneDeltaState'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 
+import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import { getState, none } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -70,7 +71,6 @@ import {
   MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { EditorHistoryFunctions } from '../services/EditorHistoryState'
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
@@ -125,8 +125,9 @@ export async function addMediaNode(
 
       AssetState.loadAsync(url, false, UUIDComponent.generateUUID(), UndefinedEntity, Layers.Authoring as LayerID).then(
         (assetEntity) => {
-          const [material] = getChildrenWithComponents(assetEntity, [MaterialStateComponent])
+          const [materialEntity] = getChildrenWithComponents(assetEntity, [MaterialStateComponent])
           let foundTarget = false
+          const affectedEntities = [] as Entity[]
           for (const intersection of intersections) {
             if (!hasComponent(intersection.object.entity, VisibleComponent)) continue
 
@@ -147,7 +148,7 @@ export async function addMediaNode(
               //uuids[materialIndex] = materialUUID,
               //setComponent(entity, MaterialInstanceComponent, { uuid: uuids })
               /**scene deltas do not yet support this, so a temporary hackfix is to modify existing materials to match */
-              const materialComponent = getComponent(material, MaterialStateComponent)
+              const materialComponent = getComponent(materialEntity, MaterialStateComponent)
               const materialToMutate = UUIDComponent.getEntityByUUID(uuids[materialIndex], Layers.Authoring)
               // wipe out any existing deltas for this material
               const existingDelta =
@@ -164,14 +165,16 @@ export async function addMediaNode(
                 materialToMutate,
                 materialComponent.material.userData?.type ?? materialComponent.material.type
               )
+              affectedEntities.push(materialToMutate)
               EditorControlFunctions.modifyMaterial([uuids[materialIndex]], uuids[materialIndex], [
-                getComponent(material, MaterialStateComponent).parameters
+                getComponent(materialEntity, MaterialStateComponent).parameters
               ])
               removeEntity(assetEntity)
               foundTarget = true
             })
             if (foundTarget) break
           }
+          AuthoringState.snapshotEntities(affectedEntities)
         }
       )
     } else if (contentType.startsWith('model/lookdev')) {
@@ -184,7 +187,9 @@ export async function addMediaNode(
           const json = serializeEntity(firstChild)
           EditorControlFunctions.overwriteLookdevObject([...json, ...extraComponentJson], parent!, before)
           removeEntity(entity)
-          EditorHistoryFunctions.snapshot()
+          const rootEntity = getState(EditorState).rootEntity
+          const newSource = GLTFComponent.getInstanceID(rootEntity)
+          AuthoringState.snapshot(newSource)
         }
       )
     } else if (contentType.startsWith('model/prefab')) {
@@ -219,7 +224,7 @@ export async function addMediaNode(
           removeEntity(entity)
           const gltfEntity = getAncestorWithComponents(parent ?? rootEntity, [GLTFComponent])
           EditorState.markModifiedScene(gltfEntity)
-          EditorHistoryFunctions.snapshot()
+          AuthoringState.snapshot(newSource)
         }
       )
     } else {
@@ -234,7 +239,13 @@ export async function addMediaNode(
         before,
         requestedName
       )
-      EditorHistoryFunctions.snapshot()
+
+      console.log('LOADING MODEL', { entityUUID })
+
+      const rootEntity = getState(EditorState).rootEntity
+      const newSource = GLTFComponent.getInstanceID(rootEntity)
+      AuthoringState.snapshot(newSource)
+      console.log('SNAPSHOTTED', { newSource })
       return entityUUID
     }
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
@@ -249,7 +260,9 @@ export async function addMediaNode(
       before,
       requestedName
     )
-    EditorHistoryFunctions.snapshot()
+    const rootEntity = getState(EditorState).rootEntity
+    const newSource = GLTFComponent.getInstanceID(rootEntity)
+    AuthoringState.snapshot(newSource)
     return entityUUID
   } else if (contentType.startsWith('image/')) {
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
@@ -258,7 +271,9 @@ export async function addMediaNode(
       before,
       requestedName
     )
-    EditorHistoryFunctions.snapshot()
+    const rootEntity = getState(EditorState).rootEntity
+    const newSource = GLTFComponent.getInstanceID(rootEntity)
+    AuthoringState.snapshot(newSource)
     return entityUUID
   } else if (contentType.startsWith('audio/')) {
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
@@ -267,7 +282,9 @@ export async function addMediaNode(
       before,
       requestedName
     )
-    EditorHistoryFunctions.snapshot()
+    const rootEntity = getState(EditorState).rootEntity
+    const newSource = GLTFComponent.getInstanceID(rootEntity)
+    AuthoringState.snapshot(newSource)
     return entityUUID
   } else if (url.includes('.uvol')) {
     // TODO: detect whether to add LegacyVolumetricComponent or VolumetricComponent
@@ -281,7 +298,9 @@ export async function addMediaNode(
       before,
       requestedName
     )
-    EditorHistoryFunctions.snapshot()
+    const rootEntity = getState(EditorState).rootEntity
+    const newSource = GLTFComponent.getInstanceID(rootEntity)
+    AuthoringState.snapshot(newSource)
     return entityUUID
   }
   return null

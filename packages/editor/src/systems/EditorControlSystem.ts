@@ -70,26 +70,31 @@ import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
+import { AuthoringActions, AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState.tsx'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { InputButtonBindings } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { KeyboardButton } from '@ir-engine/spatial/src/input/state/ButtonState'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem.tsx'
-import { computeWorldBounds } from '@ir-engine/spatial/src/transform/functions/BoundingBoxFunctions.ts'
-import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent.ts'
-import { isEntityGlb } from '../functions/utils.ts'
-import { SelectionBoxState } from '../panels/viewport/tools/SelectionBoxTool.tsx'
-import { EditorHistoryActions, EditorHistoryFunctions, EditorHistoryState } from '../services/EditorHistoryState'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { computeWorldBounds } from '@ir-engine/spatial/src/transform/functions/BoundingBoxFunctions'
+import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
+import { isEntityGlb } from '../functions/utils'
+import { SelectionBoxState } from '../panels/viewport/tools/SelectionBoxTool'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { ClickPlacementState } from './ClickPlacementSystem'
 import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 
 export const EditorButtonBindings = {
-  Undo: [[KeyboardButton.ControlLeft, KeyboardButton.KeyZ]],
+  Undo: [[usesCtrlKey() ? KeyboardButton.ControlLeft : KeyboardButton.MetaLeft, KeyboardButton.KeyZ]],
   Redo: [
-    [KeyboardButton.ControlLeft, KeyboardButton.ShiftLeft, KeyboardButton.KeyZ],
-    [KeyboardButton.ControlLeft, KeyboardButton.KeyY]
+    /** @todo this is bugged */
+    // [
+    //   usesCtrlKey() ? KeyboardButton.ControlLeft : KeyboardButton.MetaLeft,
+    //   KeyboardButton.ShiftLeft,
+    //   KeyboardButton.KeyZ
+    // ],
+    [usesCtrlKey() ? KeyboardButton.ControlLeft : KeyboardButton.MetaLeft, KeyboardButton.KeyY]
   ],
   ObjectGridSnap: [KeyboardButton.KeyB],
   TransformModeTranslate: [KeyboardButton.KeyW],
@@ -157,15 +162,13 @@ const onToggleTransformSpace = () => {
 const onUndo = () => {
   const rootEntity = getState(EditorState).rootEntity
   if (!rootEntity) return
-  const sourceID = GLTFComponent.getInstanceID(rootEntity)
-  if (EditorHistoryState.canUndo(sourceID)) dispatchAction(EditorHistoryActions.undo({ sourceID }))
+  if (AuthoringState.canUndo()) dispatchAction(AuthoringActions.undo({}))
 }
 
 const onRedo = () => {
   const rootEntity = getState(EditorState).rootEntity
   if (!rootEntity) return
-  const sourceID = GLTFComponent.getInstanceID(rootEntity)
-  if (EditorHistoryState.canRedo(sourceID)) dispatchAction(EditorHistoryActions.redo({ sourceID }))
+  if (AuthoringState.canRedo()) dispatchAction(AuthoringActions.redo({}))
 }
 
 const onIncreaseGridHeight = () => {
@@ -179,8 +182,9 @@ const onDecreaseGridHeight = () => {
 }
 
 const onDeleteSelection = () => {
-  EditorControlFunctions.removeObject(SelectionState.getSelectedEntities())
-  EditorHistoryFunctions.snapshot()
+  const entities = SelectionState.getSelectedEntities()
+  EditorControlFunctions.removeObject(entities)
+  AuthoringState.snapshotEntities(entities)
 }
 
 let lastDistanceToCenter = 10

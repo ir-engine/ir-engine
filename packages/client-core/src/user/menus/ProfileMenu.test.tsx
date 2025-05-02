@@ -29,9 +29,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { API } from '@ir-engine/common'
 import {
   avatarPath,
+  builderInfoPath,
   clientSettingPath,
   engineSettingPath,
   identityProviderPath,
+  projectPath,
   projectSettingPath,
   scopePath,
   staticResourcePath,
@@ -97,6 +99,12 @@ describe('ProfileMenu component', () => {
             }
           ]
         }
+      ],
+      [builderInfoPath]: [
+        {
+          engineVersion: '1.0.0',
+          engineCommit: '1234567890'
+        }
       ]
     }
 
@@ -141,7 +149,9 @@ describe('ProfileMenu component', () => {
       [scopePath]: createService(scopePath),
       [clientSettingPath]: createService(clientSettingPath),
       [identityProviderPath]: createService(identityProviderPath),
-      [engineSettingPath]: createService(engineSettingPath)
+      [engineSettingPath]: createService(engineSettingPath),
+      [projectPath]: createService(projectPath),
+      [builderInfoPath]: createService(builderInfoPath)
     }
     eventDispatcher = new EventDispatcher()
     ;(API.instance as any) = {

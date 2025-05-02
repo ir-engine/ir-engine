@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Entity, getComponent } from '@ir-engine/ecs'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
-import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent.ts'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { EffectReactorProps, PostProcessingEffectState } from '@ir-engine/spatial/src/renderer/effects/EffectRegistry'
 import { ShockWaveEffect } from 'postprocessing'
 import React, { useEffect } from 'react'
