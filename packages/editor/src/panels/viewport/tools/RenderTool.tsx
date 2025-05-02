@@ -79,7 +79,7 @@ const RenderModeTool = () => {
         <Tooltip key={mode.name} content={mode.name} position="bottom">
           <button
             onClick={() => rendererState.renderMode.set(mode.name)}
-            className="rounded-md bg-ui-secondary px-2 px-3.5 py-1.5"
+            className="rounded-lg bg-ui-secondary px-2 px-3.5 py-1.5"
           >
             {mode.icon}
           </button>
@@ -88,7 +88,7 @@ const RenderModeTool = () => {
       <Popup
         keepInside
         trigger={
-          <button className="rounded-md bg-ui-secondary px-2 px-3.5 py-1.5 text-[#9CA0AA]">
+          <button className="rounded-lg bg-ui-secondary px-2 px-3.5 py-1.5 text-[#9CA0AA]">
             <ChevronDownMd />
           </button>
         }
