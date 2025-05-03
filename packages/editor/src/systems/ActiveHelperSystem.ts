@@ -44,7 +44,11 @@ import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelpe
 import { createHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
-import { InputHeuristicState, IntersectionData } from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
+import {
+  HeuristicFunctions,
+  InputHeuristicState,
+  IntersectionData
+} from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
@@ -68,11 +72,12 @@ _raycaster.firstHitOnly = true
 
 const inputObjectsQuery = defineQuery([InputComponent, VisibleComponent, ObjectComponent])
 
-export function studioIconGizmoInputHeuristic(
+export const studioIconGizmoInputHeuristic = (
+  viewerEmtity: Entity = getState(ReferenceSpaceState).viewerEntity,
   intersectionData: Set<IntersectionData>,
   position: Vector3,
   direction: Vector3
-) {
+) => {
   const isEditing = getState(EngineState).isEditing
   if (!isEditing) return
 
@@ -80,7 +85,7 @@ export function studioIconGizmoInputHeuristic(
   if (!gizmoEnabled) return
 
   _raycaster.set(position, direction)
-  _raycaster.camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent).cameras[0]
+  _raycaster.camera = getComponent(viewerEmtity, CameraComponent).cameras[0]
 
   const objects = inputObjectsQuery().map((eid) => getComponent(eid, ObjectComponent))
 
@@ -206,12 +211,7 @@ const useActiveHelper = (entities) => {
 
 const reactor = () => {
   useEffect(() => {
-    getMutableState(InputHeuristicState).merge([
-      {
-        order: 1,
-        heuristic: studioIconGizmoInputHeuristic
-      }
-    ])
+    InputHeuristicState.addHeuristic(1, studioIconGizmoInputHeuristic as HeuristicFunctions)
   }, [])
 
   const selectedEntities = SelectionState.useSelectedEntities() // all authoring layer

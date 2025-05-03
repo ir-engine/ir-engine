@@ -57,6 +57,7 @@ const gizmoPickerObjectsQuery = defineQuery([
   VisibleComponent,
   TransformGizmoTagComponent
 ])
+export const transformGizmoControllerQuery = defineQuery([TransformGizmoControlComponent])
 
 //prevent query from detecting CameraGizmoVisualEntity which has no ObjectComponent but has CameraGizmoTagComponent
 const cameraGizmoQuery = defineQuery([CameraGizmoTagComponent, InputComponent, VisibleComponent, ObjectComponent])
