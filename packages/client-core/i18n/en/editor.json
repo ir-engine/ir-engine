@@ -70,6 +70,8 @@
     "uploadAborted": "Upload aborted",
     "uploadFailed": "Upload failed {{reason}}",
     "fileUploadFailed": "File upload failed; {{reason}}",
+    "fileUploadFailedMultiple": "Mulitple file uploads failed.. {{reason}}",
+    "fileNameInvalidMultiple": "Mulitple invalid file names.. {{reason}}",
     "assetDeletionFail": "Asset deletion failed. {{reason}}",
     "projectAssetDeletionFail": "Project Asset deletion failed. {{reason}}",
     "networkError": "Network Error: {{status}}. {{text}}",
