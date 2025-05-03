@@ -35,8 +35,8 @@ import { TransformComponent } from '@ir-engine/spatial/src/SpatialModule'
 import { Line, Raycaster, Sprite, SpriteMaterial, TextureLoader } from 'three'
 import { getCameraFactor, intersectObjectWithRay } from './gizmoCommonFunctions'
 
-const _raycaster = new Raycaster()
-_raycaster.layers.set(ObjectLayers.NodeHelper)
+const _raycaster = new Raycaster() // for hover
+_raycaster.layers.set(ObjectLayers.NodeIcon)
 _raycaster.firstHitOnly = true
 
 const _interpolationFactor = 0.3 // used for the hover grow effect
@@ -75,12 +75,12 @@ export function gizmoIconHelperUpdate(helperEntity, start, end) {
 
 export function gizmoIconUpdate(parentEntity: Entity) {
   const activeHelperComponent = getComponent(parentEntity, ActiveHelperComponent)
-  const transform = getComponent(activeHelperComponent.helperDefaultGizmo, TransformComponent)
+  const transform = getComponent(activeHelperComponent.helperIconGizmo, TransformComponent)
   const size = transform.scale
   const finalSize = size
     .set(1, 1, 1)
     .multiplyScalar(getCameraFactor(transform.position, activeHelperComponent.sizeFactor))
-  setComponent(activeHelperComponent.helperDefaultGizmo, TransformComponent, { scale: finalSize })
+  setComponent(activeHelperComponent.helperIconGizmo, TransformComponent, { scale: finalSize })
   for (const entity of activeHelperComponent.directionalEntities) {
     setComponent(entity, TransformComponent, { scale: finalSize })
   }
@@ -88,9 +88,10 @@ export function gizmoIconUpdate(parentEntity: Entity) {
 
 function pointerHover(parentEntity: Entity) {
   const activeHelperComponent = getMutableComponent(parentEntity, ActiveHelperComponent)
-  const spriteObject = getComponent(activeHelperComponent.helperDefaultGizmo.value, ObjectComponent)
+  const spriteObject = getComponent(activeHelperComponent.helperIconGizmo.value, ObjectComponent)
   const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
+
   const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
   const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
   _raycaster.setFromCamera(pointerPosition, camera)
@@ -107,7 +108,7 @@ function pointerHover(parentEntity: Entity) {
 
 export function onPointerHover(entity) {
   const activeHelperComponent = getComponent(entity, ActiveHelperComponent)
-  const spriteObject = getOptionalComponent(activeHelperComponent.helperDefaultGizmo, ObjectComponent)
+  const spriteObject = getOptionalComponent(activeHelperComponent.helperIconGizmo, ObjectComponent)
   if (spriteObject === undefined) return
 
   return pointerHover(entity)

@@ -31,7 +31,7 @@ import { useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
-import { ColliderAtomsMd, RulerUnitsMd, ScreenshotMenuMd } from '@ir-engine/ui/src/icons'
+import { CubeOutlineLg, ScreenshotMenuMd, SunMd } from '@ir-engine/ui/src/icons'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuMousePointerClick, LuMove3D } from 'react-icons/lu'
@@ -63,25 +63,25 @@ export default function SceneHelpersTool() {
         </>
       )}
       <Tooltip
-        title={t('editor:toolbar.helpersToggle.lbl-helpers')}
-        content={t('editor:toolbar.helpersToggle.info-helpers')}
+        title={t('editor:toolbar.helpersToggle.lbl-nodeIcons')}
+        content={t('editor:toolbar.helpersToggle.info-nodeHelpers')}
         position="bottom"
       >
         <ViewportButton
-          onClick={() => rendererState.physicsDebug.set(!rendererState.physicsDebug.value)}
-          selected={rendererState.physicsDebug.value}
-          icon={RulerUnitsMd}
+          onClick={() => rendererState.nodeIconVisibility.set(!rendererState.nodeIconVisibility.value)}
+          selected={rendererState.nodeIconVisibility.value}
+          icon={SunMd}
         />
       </Tooltip>
       <Tooltip
-        title={t('editor:toolbar.helpersToggle.lbl-nodeHelpers')}
-        content={t('editor:toolbar.helpersToggle.info-nodeHelpers')}
+        title={t('editor:toolbar.helpersToggle.lbl-nodeVolume')}
+        content={t('editor:toolbar.helpersToggle.info-nodeVolume')}
         position="bottom"
       >
         <ViewportButton
           onClick={() => rendererState.nodeHelperVisibility.set(!rendererState.nodeHelperVisibility.value)}
           selected={rendererState.nodeHelperVisibility.value}
-          icon={ColliderAtomsMd}
+          icon={CubeOutlineLg}
         />
       </Tooltip>
       <Tooltip

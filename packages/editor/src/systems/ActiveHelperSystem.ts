@@ -66,8 +66,8 @@ import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
 import { transformGizmoControllerQuery } from './TransformGizmoSystem'
 
-const _raycaster = new Raycaster()
-_raycaster.layers.enable(ObjectLayers.NodeHelper)
+const _raycaster = new Raycaster() // for heuristic
+_raycaster.layers.enable(ObjectLayers.NodeIcon) // only icons
 _raycaster.firstHitOnly = true
 
 const inputObjectsQuery = defineQuery([InputComponent, VisibleComponent, ObjectComponent])
@@ -90,6 +90,7 @@ export const studioIconGizmoInputHeuristic = (
   const objects = inputObjectsQuery().map((eid) => getComponent(eid, ObjectComponent))
 
   const hits = _raycaster.intersectObjects(objects, true)
+
   for (const hit of hits) {
     intersectionData.add({ entity: hit.object.entity!, distance: hit.distance })
   }
@@ -100,14 +101,15 @@ const helperQuery = defineQuery([ActiveHelperComponent])
 const execute = () => {
   for (const entity of helperQuery()) {
     const activeHelperComponent = getComponent(entity, ActiveHelperComponent)
-
-    if (!activeHelperComponent.helperDefaultGizmo) continue
+    const isEditing = getState(EngineState).isEditing
+    if (!activeHelperComponent.helperIconGizmo) continue
 
     gizmoIconUpdate(entity)
 
     const intersect = onPointerHover(entity)
+
     for (const lineEntity of activeHelperComponent.lineEntities) {
-      setVisibleComponent(lineEntity, intersect ? true : false)
+      setVisibleComponent(lineEntity, intersect && isEditing ? true : false)
       gizmoIconHelperYAxisUpdate(lineEntity, getComponent(entity, TransformComponent).position)
     }
 
@@ -121,7 +123,7 @@ const execute = () => {
     )
       continue
 
-    const defaultGizmoButtons = InputComponent.getMergedButtons(activeHelperComponent.helperDefaultGizmo)
+    const defaultGizmoButtons = InputComponent.getMergedButtons(activeHelperComponent.helperIconGizmo) // why does this not work !!!!!!!! ?????
 
     if (defaultGizmoButtons.PrimaryClick?.down) {
       SelectionState.updateSelection([getComponent(entity, UUIDComponent)])
@@ -132,11 +134,10 @@ const execute = () => {
 const useStudioIconGizmo = () => {
   const componentStudioIconState = useHookstate(getMutableState(ComponentStudioIconState))
   const helperQuery = useQuery([ActiveHelperComponent, SimulationLayerComponent])
-  const isEditing = useHookstate(getMutableState(EngineState)).isEditing
 
   useEffect(() => {
     for (const entity of helperQuery) {
-      if (getComponent(entity, ActiveHelperComponent).helperDefaultGizmo !== UndefinedEntity) continue
+      if (getComponent(entity, ActiveHelperComponent).helperIconGizmo !== UndefinedEntity) continue //dont create if already exists
       const componentStudioIcon = componentStudioIconState.get(NO_PROXY)
       const entityComponents = getAllComponents(entity)
       const targetComponent: any = entityComponents.find((component) =>
@@ -150,7 +151,7 @@ const useStudioIconGizmo = () => {
           const lineEntitites = setupGizmo(
             getState(ReferenceSpaceState).originEntity,
             iconGizmoYHelper,
-            ObjectLayers.NodeHelper
+            ObjectLayers.NodeIcon
           )
           setComponent(entity, ActiveHelperComponent, { lineEntities: lineEntitites })
           if (getComponent(entity, ActiveHelperComponent).directional) {
@@ -159,42 +160,19 @@ const useStudioIconGizmo = () => {
           }
           return iconGizmo
         },
-        ObjectLayerMasks.NodeHelper,
+        ObjectLayerMasks.NodeIcon,
         'icon-helper'
       )
-      setComponent(entity, ActiveHelperComponent, { helperDefaultGizmo: iconHelper })
+      setComponent(entity, ActiveHelperComponent, { helperIconGizmo: iconHelper })
       // create the icon helper
     }
   }, [helperQuery])
-
-  useEffect(() => {
-    const setGizmoVisibility = (entity: Entity, visible: boolean) => {
-      setVisibleComponent(getComponent(entity, ActiveHelperComponent).helperDefaultGizmo, visible)
-      getComponent(entity, ActiveHelperComponent).directionalEntities.forEach((entity) => {
-        setVisibleComponent(entity, visible)
-      })
-      getComponent(entity, ActiveHelperComponent).lineEntities.forEach((entity) => {
-        setVisibleComponent(entity, visible)
-      })
-    }
-
-    if (!isEditing.value) {
-      for (const entity of helperQuery) {
-        setGizmoVisibility(entity, false)
-      }
-    }
-
-    return () => {
-      for (const entity of helperQuery) {
-        setGizmoVisibility(entity, true)
-      }
-    }
-  }, [isEditing])
 }
 
 const useActiveHelper = (entities) => {
   const refs = LayerComponents[Layers.Simulation].refs
   const simulationEntities = Object.keys(refs).filter((key) => entities.includes(refs[key])) as unknown as Entity[]
+
   useEffect(() => {
     for (const entity of simulationEntities) {
       if (!entityExists(entity)) continue

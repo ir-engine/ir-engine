@@ -203,7 +203,11 @@
       "lbl-helpers": "Toggle Helpers",
       "info-helpers": "View hidden information about your scene, ie: colliders",
       "lbl-nodeHelpers": "Toggle Node Helpers",
-      "info-nodeHelpers": "Helper geometry that helps components have visibility in the scene when inactive."
+      "info-nodeHelpers": "Helper geometry that helps components have visibility in the scene when inactive.",
+      "lbl-nodeIcons": "Toggle Node Icons",
+      "lbl-nodeVolume": "Toggle Node Volume",
+      "info-nodeVolume": "Helper geometry that helps visualize bounding box of assets in the scene"
+
     },
     "sceneScreenshot": {
       "lbl": "Screenshot",
