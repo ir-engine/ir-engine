@@ -39,7 +39,7 @@ import {
 import { getState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { Axis, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { Axis, Q_IDENTITY, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import {
   TransformAxis,
   TransformMode,
@@ -199,8 +199,8 @@ export function transformGizmoUpdate(gizmoControlEntity) {
       gizmoIconHelperUpdate(helperEntity, gizmoControl.pivotStartPosition, position)
       if (gizmoControl.dragging) setComponent(helperEntity, VisibleComponent)
     } else {
-      transform.rotation.copy(rotation)
-      transform.position.copy(position)
+      transform.rotation.copy(Q_IDENTITY)
+      transform.position.copy(gizmoControl.pivotStartPosition)
       if (gizmoControl.axis) {
         if (gizmoControl.axis.search(name) !== -1) setComponent(helperEntity, VisibleComponent)
       }
