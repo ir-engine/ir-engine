@@ -23,14 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EngineState, S, UndefinedEntity } from '@ir-engine/ecs'
-import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { useEffect } from 'react'
-import { Sprite } from 'three'
-import { useEntityContext } from '../../../ecs/src/ComponentFunctions'
-import { ObjectComponent } from '../renderer/components/ObjectComponent'
-import { setVisibleComponent } from '../renderer/components/VisibleComponent'
+import { S, UndefinedEntity } from '@ir-engine/ecs'
+import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
 export const ActiveHelperComponent = defineComponent({
   name: 'ActiveHelperComponent',
@@ -42,40 +36,11 @@ export const ActiveHelperComponent = defineComponent({
     directional: S.Bool(false),
     directionalEntities: S.Array(S.Entity(UndefinedEntity)),
     lineEntities: S.Array(S.Entity(UndefinedEntity)),
+    volumeEnabled: S.Bool(false),
+    volumeEntities: S.Array(S.Entity(UndefinedEntity)),
     sizeFactor: S.Number(0.25)
   }),
   reactor: () => {
-    const entity = useEntityContext()
-    const activeHelperComponent = useComponent(entity, ActiveHelperComponent)
-    const engineState = useHookstate(getMutableState(EngineState))
-    useEffect(() => {
-      const setGizmoVisibility = (visible: boolean) => {
-        if (getComponent(entity, ActiveHelperComponent).helperIconGizmo === UndefinedEntity) return
-
-        setVisibleComponent(getComponent(entity, ActiveHelperComponent).helperIconGizmo, visible)
-        getComponent(entity, ActiveHelperComponent).directionalEntities.forEach((entity) => {
-          setVisibleComponent(entity, visible)
-        })
-        getComponent(entity, ActiveHelperComponent).lineEntities.forEach((entity) => {
-          setVisibleComponent(entity, visible)
-        })
-      }
-      setGizmoVisibility(engineState.isEditing.value)
-    }, [engineState.isEditing])
-
-    // i truly wish to move this component to the editor package and create the icon itself in here, but not possible atm
-    // cannot import editor into spatial
-    useEffect(() => {
-      return () => {
-        //cleanup the sprite in the icon gizmo, prevent leaks
-        if (activeHelperComponent.helperIconGizmo.value !== UndefinedEntity) {
-          const sprite = getComponent(activeHelperComponent.helperIconGizmo.value, ObjectComponent) as Sprite
-          //sprite.material.dispose()
-          //sprite.geometry.dispose()
-        }
-      }
-    }, [])
-
     return null
   }
 })

@@ -25,25 +25,29 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { defineQuery, EngineState, Entity, UndefinedEntity, useQuery, UUIDComponent } from '@ir-engine/ecs'
+import { defineQuery, EngineState, Entity, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
 import {
   getAllComponents,
   getComponent,
   LayerComponents,
   Layers,
   setComponent,
-  SimulationLayerComponent
+  SimulationLayerComponent,
+  useComponent,
+  useEntityContext
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
-import { createHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
+import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
+import React from 'react'
 
-import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
+import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
 import {
   HeuristicFunctions,
   InputHeuristicState,
@@ -52,6 +56,7 @@ import {
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 import { Raycaster, Vector3 } from 'three'
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
 import { iconGizmoArrow, iconGizmoYHelper, setupGizmo } from '../constants/GizmoPresets'
@@ -96,79 +101,6 @@ export const studioIconGizmoInputHeuristic = (
   }
 }
 
-const helperQuery = defineQuery([ActiveHelperComponent])
-
-const execute = () => {
-  for (const entity of helperQuery()) {
-    const activeHelperComponent = getComponent(entity, ActiveHelperComponent)
-    const isEditing = getState(EngineState).isEditing
-    if (!activeHelperComponent.helperIconGizmo) continue
-
-    gizmoIconUpdate(entity)
-
-    const intersect = onPointerHover(entity)
-
-    for (const lineEntity of activeHelperComponent.lineEntities) {
-      setVisibleComponent(lineEntity, intersect && isEditing ? true : false)
-      gizmoIconHelperYAxisUpdate(lineEntity, getComponent(entity, TransformComponent).position)
-    }
-
-    const transformGizmoControllerEntity = transformGizmoControllerQuery()
-    const selectedEntities = SelectionState.getSelectedEntities()
-    if (!(selectedEntities.find((e) => e === entity) === undefined)) continue
-
-    if (
-      transformGizmoControllerEntity.length > 0 &&
-      getComponent(transformGizmoControllerEntity[0], TransformGizmoControlComponent).dragging
-    )
-      continue
-
-    const defaultGizmoButtons = InputComponent.getMergedButtons(activeHelperComponent.helperIconGizmo) // why does this not work !!!!!!!! ?????
-
-    if (defaultGizmoButtons.PrimaryClick?.down) {
-      SelectionState.updateSelection([getComponent(entity, UUIDComponent)])
-    }
-  }
-}
-
-const useStudioIconGizmo = () => {
-  const componentStudioIconState = useHookstate(getMutableState(ComponentStudioIconState))
-  const helperQuery = useQuery([ActiveHelperComponent, SimulationLayerComponent])
-
-  useEffect(() => {
-    for (const entity of helperQuery) {
-      if (getComponent(entity, ActiveHelperComponent).helperIconGizmo !== UndefinedEntity) continue //dont create if already exists
-      const componentStudioIcon = componentStudioIconState.get(NO_PROXY)
-      const entityComponents = getAllComponents(entity)
-      const targetComponent: any = entityComponents.find((component) =>
-        Object.keys(componentStudioIcon).find((key) => key === component.name)
-      )
-      const iconHelper = createHelperEntity(
-        entity,
-        () => {
-          const iconGizmo = createIconGizmo(componentStudioIcon[targetComponent?.name])
-          iconGizmo.renderOrder = -1
-          const lineEntitites = setupGizmo(
-            getState(ReferenceSpaceState).originEntity,
-            iconGizmoYHelper,
-            ObjectLayers.NodeIcon
-          )
-          setComponent(entity, ActiveHelperComponent, { lineEntities: lineEntitites })
-          if (getComponent(entity, ActiveHelperComponent).directional) {
-            const directionalEntity = setupGizmo(entity, iconGizmoArrow, ObjectLayers.NodeHelper)
-            setComponent(entity, ActiveHelperComponent, { directionalEntities: directionalEntity })
-          }
-          return iconGizmo
-        },
-        ObjectLayerMasks.NodeIcon,
-        'icon-helper'
-      )
-      setComponent(entity, ActiveHelperComponent, { helperIconGizmo: iconHelper })
-      // create the icon helper
-    }
-  }, [helperQuery])
-}
-
 const useActiveHelper = (entities) => {
   const refs = LayerComponents[Layers.Simulation].refs
   const simulationEntities = Object.keys(refs).filter((key) => entities.includes(refs[key])) as unknown as Entity[]
@@ -187,6 +119,93 @@ const useActiveHelper = (entities) => {
   }, [entities])
 }
 
+const ActiveHelperReactor = () => {
+  const entity = useEntityContext()
+  const activeHelperComponent = useComponent(entity, ActiveHelperComponent)
+  const componentStudioIcon = getState(ComponentStudioIconState)
+  const selectedEntities = SelectionState.useSelectedEntities()
+  const engineState = useHookstate(getMutableState(EngineState))
+
+  const entityComponents = getAllComponents(entity)
+  const targetComponent: any = entityComponents.find((component) =>
+    Object.keys(componentStudioIcon).find((key) => key === component.name)
+  )
+
+  const studioIcon = useHelperEntity(
+    entity,
+    () => {
+      const iconGizmo = createIconGizmo(componentStudioIcon[targetComponent?.name])
+      iconGizmo.renderOrder = -1
+      const lineEntitites = setupGizmo(
+        getState(ReferenceSpaceState).originEntity,
+        iconGizmoYHelper,
+        ObjectLayers.NodeIcon
+      )
+      activeHelperComponent.lineEntities.set(lineEntitites)
+
+      if (getComponent(entity, ActiveHelperComponent).directional) {
+        const directionalEntities = setupGizmo(entity, iconGizmoArrow, ObjectLayers.NodeIcon)
+        activeHelperComponent.directionalEntities.set(directionalEntities)
+      }
+      if (getComponent(entity, ActiveHelperComponent).volumeEnabled) {
+        setComponent(entity, BoundingBoxComponent)
+      }
+      return iconGizmo
+    },
+    true,
+    ObjectLayerMasks.NodeIcon,
+    'icon-helper'
+  )
+
+  setComponent(entity, ActiveHelperComponent, { helperIconGizmo: studioIcon })
+
+  InputComponent.useExecuteWithInput(
+    () => {
+      if (activeHelperComponent.helperIconGizmo.value === UndefinedEntity) return
+      gizmoIconUpdate(entity)
+
+      const intersect = onPointerHover(entity)
+
+      for (const lineEntity of activeHelperComponent.lineEntities.value) {
+        setVisibleComponent(lineEntity, intersect && getState(EngineState).isEditing ? true : false)
+        gizmoIconHelperYAxisUpdate(lineEntity, getComponent(entity, TransformComponent).position)
+      }
+
+      const transformGizmoControllerEntity = transformGizmoControllerQuery()
+      if (!(selectedEntities.find((e) => e === entity) === undefined))
+        if (
+          transformGizmoControllerEntity.length > 0 &&
+          getComponent(transformGizmoControllerEntity[0], TransformGizmoControlComponent).dragging
+        )
+          return
+
+      const defaultGizmoButtons = InputComponent.getMergedButtons(activeHelperComponent.helperIconGizmo.value) // why does this not work !!!!!!!! ?????
+
+      if (defaultGizmoButtons.PrimaryClick?.down) {
+        SelectionState.updateSelection([getComponent(entity, UUIDComponent)])
+      }
+    },
+    InputExecutionOrder.Before,
+    true
+  )
+
+  useEffect(() => {
+    const setGizmoVisibility = (visible: boolean) => {
+      if (getComponent(entity, ActiveHelperComponent).helperIconGizmo === UndefinedEntity) return
+
+      setVisibleComponent(getComponent(entity, ActiveHelperComponent).helperIconGizmo, visible)
+      getComponent(entity, ActiveHelperComponent).directionalEntities.forEach((entity) => {
+        setVisibleComponent(entity, visible)
+      })
+      getComponent(entity, ActiveHelperComponent).lineEntities.forEach((entity) => {
+        setVisibleComponent(entity, visible)
+      })
+    }
+    setGizmoVisibility(engineState.isEditing.value)
+  }, [engineState.isEditing])
+  return null
+}
+
 const reactor = () => {
   useEffect(() => {
     InputHeuristicState.addHeuristic(1, studioIconGizmoInputHeuristic as HeuristicFunctions)
@@ -194,14 +213,20 @@ const reactor = () => {
 
   const selectedEntities = SelectionState.useSelectedEntities() // all authoring layer
 
-  useStudioIconGizmo()
+  //useStudioIconGizmo()
   useActiveHelper(selectedEntities)
-  return null
+
+  return (
+    <QueryReactor
+      Components={[ActiveHelperComponent, SimulationLayerComponent]}
+      ChildEntityReactor={ActiveHelperReactor}
+    />
+  )
 }
 
 export const ActiveHelperSystem = defineSystem({
   uuid: 'ee.engine.ActiveHelperSystem',
   insert: { before: PresentationSystemGroup },
-  execute,
+  execute: () => {},
   reactor
 })

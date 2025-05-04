@@ -85,6 +85,17 @@ export default function SceneHelpersTool() {
         />
       </Tooltip>
       <Tooltip
+        title={t('editor:toolbar.helpersToggle.lbl-helpers')}
+        content={t('editor:toolbar.helpersToggle.info-helpers')}
+        position="bottom"
+      >
+        <ViewportButton
+          onClick={() => rendererState.physicsDebug.set(!rendererState.physicsDebug.value)}
+          selected={rendererState.physicsDebug.value}
+          icon={CubeOutlineLg}
+        />
+      </Tooltip>
+      <Tooltip
         title={t('editor:toolbar.sceneScreenshot.lbl')}
         content={t('editor:toolbar.sceneScreenshot.info')}
         position="bottom"
