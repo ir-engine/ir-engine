@@ -134,6 +134,7 @@ const modifyProperty = <C extends Component<any, any>>(
   properties: Partial<SerializedComponentType<C>>
 ) => {
   const affectedNodes = [] as NodeID[]
+
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
     if (!EditorState.isInActiveScene(entity)) {

@@ -41,8 +41,9 @@ export const EntitiesBySourceState = defineState({
   initial: {} as Record<LayerID, Record<SourceID, Entity[]>>
 })
 
-export const SourceIDSchema = () =>
-  S.String('', {
+export const SourceIDSchema = (options?: TTypedSchema<SourceID>['options']) =>
+  S.String({
+    ...options,
     validate: NonEmptyString('SourceComponent expects a non-empty string'),
     id: 'SourceID'
   }) as unknown as TTypedSchema<SourceID>
@@ -50,7 +51,7 @@ export const SourceIDSchema = () =>
 export const SourceComponent = defineComponent({
   name: 'SourceComponent',
 
-  schema: S.Required(SourceIDSchema()),
+  schema: SourceIDSchema({ required: true }),
 
   onSet: (entity, component, source: SourceID) => {
     const layer = LayerComponent.get(entity)

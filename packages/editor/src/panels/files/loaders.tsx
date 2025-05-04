@@ -120,7 +120,7 @@ export function ProjectDownloadProgress() {
       {isDownloading && (
         <div className="flex h-auto w-full justify-center pb-2 pt-1">
           <div className="flex w-1/2 items-center gap-x-3">
-            <div className="flex gap-x-1 whitespace-nowrap text-center text-xs font-normal leading-none">
+            <div className="flex gap-x-1 whitespace-nowrap text-center text-xs font-normal leading-none dark:text-[#A3A3A3]">
               <div>{t('editor:layout.filebrowser.downloadingProject')}</div>
               <div className="flex gap-x-1">
                 <span className="min-w-[6em] text-right">{completed}</span>
@@ -167,16 +167,31 @@ export function FileUploadProgress() {
 function GeneratingThumbnailsProgress() {
   const { t } = useTranslation()
   const thumbnailJobs = useMutableState(FileThumbnailJobState).jobs
-
   if (!thumbnailJobs.length) return null
-
+  let thumbnailjobCount = 0
+  let dimensionJobCount = 0
+  for (const job of thumbnailJobs.value) {
+    if (job.jobType === 'thumbnail') {
+      thumbnailjobCount++
+    } else if (job.jobType === 'dimension') {
+      dimensionJobCount++
+    }
+  }
   return (
-    <LoadingView
-      titleClassname="mt-0"
-      containerClassName="flex-row mt-1"
-      className="mx-2 my-auto h-6 w-6"
-      title={t('editor:layout.filebrowser.generatingThumbnails', { count: thumbnailJobs.length })}
-    />
+    <>
+      <LoadingView
+        titleClassname="mt-0"
+        containerClassName="flex-row mt-1"
+        className="mx-2 my-auto h-6 w-6"
+        title={t('editor:layout.filebrowser.generatingThumbnails', { count: thumbnailjobCount })}
+      />
+      <LoadingView
+        titleClassname="mt-0"
+        containerClassName="flex-row mt-1"
+        className="mx-2 my-auto h-6 w-6"
+        title={t('editor:layout.filebrowser.generatingDimension', { count: dimensionJobCount })}
+      />
+    </>
   )
 }
 

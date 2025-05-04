@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -93,35 +93,36 @@ export const EffectSchema = S.Union([S.Any(), S.Type<Effect>(undefined, { isActi
 export const RendererComponent = defineComponent({
   name: 'RendererComponent',
 
-  schema: S.NonSerialized(
-    S.Object({
+  schema: S.Object(
+    {
       /** Is resize needed? */
-      needsResize: S.Bool(false),
+      needsResize: S.Bool({ default: false }),
 
-      renderPass: S.Nullable(S.Type<RenderPass>()),
-      normalPass: S.Nullable(S.Type<NormalPass>()),
+      renderPass: S.Type<RenderPass | null>(),
+      normalPass: S.Type<NormalPass | null>(),
       passes: S.Record(S.String(), S.Type<Pass>()),
       passesFakeMap: S.Record(S.String(), S.Type<PassCount>()),
 
-      renderContext: S.Nullable(S.Type<WebGLRenderingContext | WebGL2RenderingContext>()),
+      renderContext: S.Type<WebGLRenderingContext | null | WebGL2RenderingContext>(),
       effects: S.Record(S.String(), EffectSchema),
       effectInstances: S.Record(S.String(), S.Type<Effect>()),
 
-      canvas: S.Nullable(S.Type<HTMLCanvasElement>()),
+      canvas: S.Type<HTMLCanvasElement | null>(),
 
-      renderer: S.Nullable(S.Type<WebGLRenderer>()),
-      effectComposer: S.Nullable(S.Type<EffectComposer>()),
+      renderer: S.Type<WebGLRenderer | null>(),
+      effectComposer: S.Type<EffectComposer | null>(),
 
       scenes: S.Array(S.Entity()),
       scene: S.Class(() => new Scene()),
 
       /** @todo deprecate and replace with engine implementation */
-      xrManager: S.Nullable(S.Type<WebXRManager>()),
-      webGLLostContext: S.Nullable(S.Type<WEBGL_lose_context>()),
+      xrManager: S.Type<WebXRManager | null>(),
+      webGLLostContext: S.Type<WEBGL_lose_context | null>(),
 
-      csm: S.Nullable(S.Type<CSM>()),
-      csmHelper: S.Nullable(S.Type<CSMHelper>())
-    })
+      csm: S.Type<CSM | null>(),
+      csmHelper: S.Type<CSMHelper | null>()
+    },
+    { serialized: false }
   ),
 
   onInit(initial) {

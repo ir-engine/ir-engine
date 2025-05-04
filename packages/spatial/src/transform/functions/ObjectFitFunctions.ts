@@ -47,7 +47,7 @@ const SCREEN_SIZE = new Vector2()
 
 export type ContentFitType = 'cover' | 'contain' | 'stretch' | 'vertical' | 'horizontal'
 export const ContentFitTypeSchema = (init?: ContentFitType) =>
-  S.LiteralUnion(['stretch', 'cover', 'contain', 'vertical', 'horizontal'], init ?? 'contain')
+  S.LiteralUnion(['stretch', 'cover', 'contain', 'vertical', 'horizontal'], { default: init ?? 'contain' })
 
 // yes, multiple by the same direction twice, as the local coordinate changes with each rotation
 const _handRotation = new Quaternion()

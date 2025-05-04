@@ -37,7 +37,7 @@ import { TweenComponent } from '../../transform/components/TweenComponent'
 
 export const AnimateScaleComponent = defineComponent({
   name: 'AnimateScaleComponent',
-  schema: S.Object({ multiplier: S.Number(1.05), duration: S.Number(300) }),
+  schema: S.Object({ multiplier: S.Number({ default: 1.05 }), duration: S.Number({ default: 300 }) }),
 
   reactor: function () {
     const entity = useEntityContext()

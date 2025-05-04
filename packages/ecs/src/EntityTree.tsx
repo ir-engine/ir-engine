@@ -61,7 +61,7 @@ export const EntityTreeComponent = defineComponent({
   name: 'EntityTreeComponent',
 
   schema: S.Object({
-    parentEntity: S.Entity(UndefinedEntity, {
+    parentEntity: S.Entity({
       validate: (value, prev, entity) => {
         if (entity === value) {
           console.error('Entity cannot be its own parent: ' + entity)
@@ -71,8 +71,8 @@ export const EntityTreeComponent = defineComponent({
         return true
       }
     }),
-    childIndex: S.NonSerialized(S.Optional(S.Number())), // automatically updated if parent exists
-    children: S.NonSerialized(S.Array(S.Entity()))
+    childIndex: S.Optional(S.Number(), { serialized: false }), // automatically updated if parent exists
+    children: S.Array(S.Entity(), { serialized: false })
   }),
 
   onSet: (entity, component, json?: Readonly<EntityTreeSetType>) => {

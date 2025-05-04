@@ -32,7 +32,7 @@ import { ObjectComponent } from './ObjectComponent'
 export const BoneComponent = defineComponent({
   name: 'BoneComponent',
 
-  schema: S.Required(S.Type<Bone>()),
+  schema: S.Type<Bone>({ required: true }),
 
   onSet: (entity, component, bone: Bone) => {
     component.set(bone)

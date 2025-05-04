@@ -22,11 +22,12 @@ ENV APP_ENV=development
 FROM node:22-slim AS runner
 WORKDIR /app
 
+ARG CACHEBUST
+
 # This commands runs the setup_docker.sh and setup_helm.sh scripts to install Docker, helm, and relevent installations
 COPY scripts/setup_docker.sh .
 COPY scripts/setup_helm.sh .
 RUN chmod +x setup_docker.sh && ./setup_docker.sh true
-RUN chmod +x setup_helm.sh && ./setup_helm.sh
 
 # Install debugging tools (vim and default-mysql-client) and gcloud prerequisites
 RUN apt-get update && \
@@ -41,6 +42,9 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
   | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
   && apt-get update -y \
   && apt-get install google-cloud-cli -y
+
+RUN echo "$CACHEBUST"
+RUN chmod +x setup_helm.sh && ./setup_helm.sh
 
 COPY --from=builder /app ./
 

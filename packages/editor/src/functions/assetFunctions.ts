@@ -221,7 +221,8 @@ export const handleUploadFiles = (
   projectName: string,
   directoryPath: string,
   files: FileList | File[],
-  updateThumbnail = true
+  updateThumbnail = true,
+  updateDimension = true
 ): Promise<string[]> => {
   const { ktx2: compressedImage } = CommonKnownContentTypes
   const importSettingsState = getMutableState(ImportSettingsState)
@@ -255,7 +256,7 @@ export const handleUploadFiles = (
         ]
       })
         .promise.then((response) => {
-          if (!updateThumbnail) return response[0]
+          if (!updateThumbnail && !updateDimension) return response[0]
           //get the static resource record for this file, so we can make it's thumbnail null, since it was oerwritten
           const checkStaticResourceThumbnail = async (path) => {
             await API.instance
@@ -277,12 +278,40 @@ export const handleUploadFiles = (
               .catch((e) => console.error(e))
             return path
           }
+          const checkStaticResourceDimension = async (path) => {
+            await API.instance
+              .service(staticResourcePath)
+              .find({
+                query: { key: { $in: [path] } }
+              })
+              .then((reponse) => {
+                if (reponse.data.length > 0) {
+                  const staticResourceId = reponse.data[0].id
+                  const updateStaticResourceDimension = async (id: string) => {
+                    await API.instance.service(staticResourcePath).patch(id, { width: null, height: null, depth: null })
+                  }
+                  updateStaticResourceDimension(staticResourceId)
+                }
+              })
+              .catch((e) => console.error(e))
+            return path
+          }
           const fileURL = new URL(response[0])
           fileURL.search = ''
           fileURL.hash = ''
           const file = fileURL.href.replace(config.client.fileServer + '/', '')
-          removeFromFileThumbnailsSeen([file])
-          return checkStaticResourceThumbnail(file)
+          if (!updateDimension && updateThumbnail) {
+            removeFromFileThumbnailsSeen([file])
+            return checkStaticResourceThumbnail(file)
+          } else if (updateDimension && !updateThumbnail) {
+            removeFromFileThumbnailsSeen([file], 'dimension')
+            return checkStaticResourceDimension(file)
+          } else if (updateDimension && updateThumbnail) {
+            removeFromFileThumbnailsSeen([file], 'dimension')
+            checkStaticResourceDimension(file)
+            removeFromFileThumbnailsSeen([file])
+            return checkStaticResourceThumbnail(file)
+          }
         })
         .catch((e) => {
           NotificationService.dispatchNotify(i18n.t('editor:errors.fileUploadFailed', { reason: e }) as string, {
@@ -302,8 +331,7 @@ export const handleUploadFiles = (
 export const inputFileWithAddToScene = ({
   projectName,
   directoryPath,
-  preserveDirectory,
-  updateThumbnail = true
+  preserveDirectory
 }: {
   projectName: string
   directoryPath: string
@@ -344,13 +372,15 @@ const createFileUploader = ({
   directoryPath,
   preserveDirectory,
   acceptedFileTypes,
-  updateThumbnail = true
+  updateThumbnail = true,
+  updateDimension = true
 }: {
   projectName: string
   directoryPath: string
   preserveDirectory?: boolean
   acceptedFileTypes: string
   updateThumbnail?: boolean
+  updateDimension?: boolean
 }): Promise<string> =>
   new Promise((resolve, reject) => {
     const el = document.createElement('input')
@@ -367,7 +397,13 @@ const createFileUploader = ({
         if (el.files?.length) {
           const newFiles = validatedFiles(el.files)
           const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
-          const [uploadedFileUrl] = await handleUploadFiles(projectName, directoryPath, uniqueFiles, updateThumbnail)
+          const [uploadedFileUrl] = await handleUploadFiles(
+            projectName,
+            directoryPath,
+            uniqueFiles,
+            updateThumbnail,
+            updateDimension
+          )
 
           if (uploadedFileUrl) {
             resolve(uploadedFileUrl)
@@ -397,7 +433,8 @@ export const uploadImageFile = (params: {
   createFileUploader({
     ...params,
     acceptedFileTypes: params.acceptedFileTypes ?? 'image/*',
-    updateThumbnail: false
+    updateThumbnail: false,
+    updateDimension: false
   })
 
 // currently only supporting mp4
@@ -409,7 +446,8 @@ export const uploadVideoFile = (params: {
   createFileUploader({
     ...params,
     acceptedFileTypes: 'video/mp4,.mp4',
-    updateThumbnail: false
+    updateThumbnail: false,
+    updateDimension: false
   })
 
 export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], args?: object[]) => {

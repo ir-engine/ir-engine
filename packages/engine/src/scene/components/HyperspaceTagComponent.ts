@@ -180,7 +180,7 @@ export const HyperspaceTagComponent = defineComponent({
 
   schema: S.Object({
     // all internals
-    sceneVisible: S.Bool(true),
+    sceneVisible: S.Bool({ default: true }),
     transition: TransitionStateSchema(createTransitionState(0.5, 'OUT'))
   }),
 

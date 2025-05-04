@@ -47,12 +47,12 @@ export const EnvMapComponent = defineComponent({
   jsonID: 'EE_envmap',
 
   schema: S.Object({
-    type: S.LiteralUnion(Object.values(EnvMapSourceType), EnvMapSourceType.Skybox),
+    type: S.LiteralUnion(Object.values(EnvMapSourceType), { default: EnvMapSourceType.Skybox }),
     envMapSourceColor: T.Color('#8080FF'),
-    envMapSourceURL: S.String(''),
-    envMapCubemapURL: S.String(''),
+    envMapSourceURL: S.String(),
+    envMapCubemapURL: S.String(),
     envMapSourceEntityUUID: NodeIDSchema(),
-    envMapIntensity: S.Number(1)
+    envMapIntensity: S.Number({ default: 1 })
   }),
 
   errors: ['MISSING_FILE']

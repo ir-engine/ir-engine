@@ -57,8 +57,8 @@ export const AvatarDissolveComponent = defineComponent({
   name: 'AvatarDissolveComponent',
 
   schema: S.Object({
-    height: S.Number(1),
-    currentTime: S.Number(0),
+    height: S.Number({ default: 1 }),
+    currentTime: S.Number(),
     dissolveMaterials: S.Array(S.Type<ShaderMaterial>()),
     originMaterials: S.Array(
       S.Object({

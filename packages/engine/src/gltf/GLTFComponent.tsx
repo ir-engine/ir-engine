@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -81,21 +81,21 @@ export const GLTFComponent = defineComponent({
   jsonID: 'EE_model',
 
   schema: S.Object({
-    src: S.String(''),
+    src: S.String({ default: '' }),
 
     /** @todo move this to it's own component */
-    cameraOcclusion: S.Bool(true),
+    cameraOcclusion: S.Bool({ default: true }),
 
     //collision info
-    applyColliders: S.Bool(false),
+    applyColliders: S.Bool(),
     shape: ShapeSchema('box'),
 
     // internals
-    body: S.NonSerialized(S.Nullable(S.Type<ArrayBuffer>())),
-    document: S.NonSerialized(S.Nullable(S.Type<GLTF.IGLTF>())),
-    progress: S.NonSerialized(S.Number(0)),
-    extensions: S.NonSerialized(S.Record(S.String(), S.Any(), {})),
-    dependencies: S.NonSerialized(S.Optional(S.Type<ComponentDependencies>()))
+    body: S.Type<ArrayBuffer | null>({ serialized: false }),
+    document: S.Type<GLTF.IGLTF | null>({ serialized: false }),
+    progress: S.Number({ default: 0, serialized: false }),
+    extensions: S.Record(S.String(), S.Any(), { serialized: false }),
+    dependencies: S.Type<ComponentDependencies | undefined>({ serialized: false })
   }),
 
   errors: ['LOADING_ERROR', 'INVALID_SOURCE'],

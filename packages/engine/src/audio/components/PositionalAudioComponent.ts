@@ -58,7 +58,7 @@ export interface PositionalAudioInterface {
   coneOuterGain: number
 }
 
-const distanceModel = S.LiteralUnion(['exponential', 'inverse', 'linear'], 'inverse')
+const distanceModel = S.LiteralUnion(['exponential', 'inverse', 'linear'], { default: 'inverse' })
 
 export const PositionalAudioComponent = defineComponent({
   name: 'EE_positionalAudio',
@@ -67,12 +67,12 @@ export const PositionalAudioComponent = defineComponent({
 
   schema: S.Object({
     distanceModel,
-    rolloffFactor: S.Number(1),
-    refDistance: S.Number(1),
-    maxDistance: S.Number(40),
-    coneInnerAngle: S.Number(360),
-    coneOuterAngle: S.Number(360),
-    coneOuterGain: S.Number(0)
+    rolloffFactor: S.Number({ default: 1 }),
+    refDistance: S.Number({ default: 1 }),
+    maxDistance: S.Number({ default: 40 }),
+    coneInnerAngle: S.Number({ default: 360 }),
+    coneOuterAngle: S.Number({ default: 360 }),
+    coneOuterGain: S.Number()
   }),
 
   reactor: function () {

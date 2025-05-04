@@ -511,6 +511,11 @@ export default function Resources() {
       <InfiniteScroll
         disableEvent={staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || resourcesLoading}
         onScrollBottom={() => {
+          if (
+            staticResourcesPagination.skip.value + ASSETS_PAGE_LIMIT + calculateItemsToFetch() >
+            staticResourcesPagination.total.value
+          )
+            return
           staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT + calculateItemsToFetch())
           refetchResources()
         }}

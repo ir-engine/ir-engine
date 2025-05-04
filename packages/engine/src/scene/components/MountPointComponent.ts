@@ -59,7 +59,7 @@ export const MountPoint = {
 
 export type MountPointTypes = (typeof MountPoint)[keyof typeof MountPoint]
 
-const MountPointTypesSchema = S.LiteralUnion(Object.values(MountPoint), 'seat')
+const MountPointTypesSchema = S.LiteralUnion(Object.values(MountPoint), { default: 'seat' })
 
 /** Mapping of mount point types to interact messages using translation keys from i18n. */
 const mountPointInteractMessages = {
@@ -145,7 +145,7 @@ export const MountPointComponent = defineComponent({
   schema: S.Object({
     type: MountPointTypesSchema,
     dismountOffset: T.Vec3(new Vector3(0, 0, 0.75)),
-    forceDismountPosition: S.Bool(false)
+    forceDismountPosition: S.Bool()
   }),
 
   mountEntity,

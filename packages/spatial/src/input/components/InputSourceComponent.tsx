@@ -43,8 +43,8 @@ export const InputSourceComponent = defineComponent({
 
   schema: S.Object({
     sourceEntity: S.Entity(),
-    source: S.Type<XRInputSource>({} as XRInputSource),
-    buttons: S.Type<Readonly<ButtonStateMap<typeof DefaultButtonBindings>>>({}),
+    source: S.Type<XRInputSource>({ default: {} as XRInputSource }),
+    buttons: S.Type<Readonly<ButtonStateMap<typeof DefaultButtonBindings>>>({ default: {} }),
     raycaster: S.Class(() => new Raycaster()),
     intersections: S.Array(
       S.Object({

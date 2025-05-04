@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -289,8 +289,8 @@ const BufferMetadataSchema = S.Object({
 
 const InfoItemSchema = S.Object({
   targets: S.Array(S.String()),
-  userTarget: S.Number(-1), // -1 implies 'auto'
-  currentTarget: S.Number(0),
+  userTarget: S.Number({ default: -1 }), // -1 implies 'auto'
+  currentTarget: S.Number({ default: 0 }),
   buffered: S.Array(BufferMetadataSchema)
 })
 
@@ -298,12 +298,12 @@ export const UVOL2Component = defineComponent({
   name: 'UVOL2Component',
 
   schema: S.Object({
-    canPlay: S.Bool(false),
-    manifestPath: S.String(''),
+    canPlay: S.Bool({ default: false }),
+    manifestPath: S.String({ default: '' }),
     data: S.Type<PlayerManifest>({} as PlayerManifest),
-    useVideoTexture: S.Bool(true),
-    hasAudio: S.Bool(false),
-    bufferedUntil: S.Number(0),
+    useVideoTexture: S.Bool({ default: true }),
+    hasAudio: S.Bool({ default: false }),
+    bufferedUntil: S.Number({ default: 0 }),
     geometryInfo: InfoItemSchema,
     textureInfo: S.Object({
       textureTypes: S.Array(TextureTypeSchema),
@@ -313,12 +313,12 @@ export const UVOL2Component = defineComponent({
       emissive: InfoItemSchema,
       occlusion: InfoItemSchema
     }),
-    initialGeometryBuffersLoaded: S.Bool(false),
-    initialTextureBuffersLoaded: S.Bool(false),
-    firstGeometryFrameLoaded: S.Bool(false),
-    firstTextureFrameLoaded: S.Bool(false),
-    loadingEffectStarted: S.Bool(false),
-    loadingEffectEnded: S.Bool(false)
+    initialGeometryBuffersLoaded: S.Bool({ default: false }),
+    initialTextureBuffersLoaded: S.Bool({ default: false }),
+    firstGeometryFrameLoaded: S.Bool({ default: false }),
+    firstTextureFrameLoaded: S.Bool({ default: false }),
+    loadingEffectStarted: S.Bool({ default: false }),
+    loadingEffectEnded: S.Bool({ default: false })
   }),
 
   setStartAndPlaybackTime: (entity: Entity, newMediaStartTime: number, newPlaybackStartDate: number) => {
@@ -520,7 +520,7 @@ out vec2 custom_vUv;`
         '#include <begin_vertex>',
         `
 vec3 transformed = vec3(position);
-transformed.x += mix(keyframeA.x, keyframeB.x, mixRatio); 
+transformed.x += mix(keyframeA.x, keyframeB.x, mixRatio);
 transformed.y += mix(keyframeA.y, keyframeB.y, mixRatio);
 transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 

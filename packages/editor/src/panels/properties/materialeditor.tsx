@@ -38,6 +38,7 @@ import {
 import styles from '@ir-engine/editor/src/components/layout/styles.module.scss'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { getTextureAsync } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
+import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { NO_PROXY, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
@@ -64,7 +65,6 @@ import ParameterInput from '@ir-engine/ui/src/components/editor/properties/param
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Material, Texture, Uniform } from 'three'
-import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 
 type ThumbnailData = {
   src: string
@@ -225,7 +225,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
     if (prototypeName.value === material.type) return
 
     EditorControlFunctions.updateMaterialPrototype(entity, prototypeName.value)
-    EditorHistoryFunctions.snapshot()
+    AuthoringState.snapshotEntities([entity])
   }, [prototypeName])
 
   return (
@@ -274,7 +274,11 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
               currentSelectedMaterial.value!,
               [{ [key]: texture?.isTexture ? value : property }]
             )
-            EditorHistoryFunctions.snapshot()
+            const entity = UUIDComponent.getEntityByUUID(
+              materialComponent.material.value!.uuid as EntityUUID,
+              Layers.Authoring
+            )
+            AuthoringState.snapshotEntities([entity])
             await checkThumbs()
           }}
           defaults={prototype.arguments!.value}

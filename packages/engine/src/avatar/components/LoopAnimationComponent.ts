@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -55,36 +55,35 @@ import { setupMixamoAnimation } from '../systems/AvatarAnimationSystem'
 import { AnimationComponent, useLoadAnimationFromGLTF } from './AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from './AvatarAnimationComponent'
 
-const AnimationBlendMode = S.LiteralUnion(
-  [NormalAnimationBlendMode, AdditiveAnimationBlendMode],
-  NormalAnimationBlendMode
-)
+const AnimationBlendMode = S.LiteralUnion([NormalAnimationBlendMode, AdditiveAnimationBlendMode], {
+  default: NormalAnimationBlendMode
+})
 
-const AnimationActionLoopStyles = S.LiteralUnion([LoopOnce, LoopRepeat, LoopPingPong], LoopRepeat)
+const AnimationActionLoopStyles = S.LiteralUnion([LoopOnce, LoopRepeat, LoopPingPong], { default: LoopRepeat })
 
 export const LoopAnimationComponent = defineComponent({
   name: 'LoopAnimationComponent',
   jsonID: 'EE_loop_animation',
 
   schema: S.Object({
-    activeClipIndex: S.Number(-1),
-    animationPack: S.String(''),
-    useVRM: S.Bool(false),
+    activeClipIndex: S.Number({ default: -1 }),
+    animationPack: S.String({ default: '' }),
+    useVRM: S.Bool({ default: false }),
     // TODO: support blending multiple animation actions. Refactor into AnimationMixerComponent and AnimationActionComponent
-    enabled: S.Bool(true),
-    paused: S.Bool(false),
-    time: S.Number(0),
-    timeScale: S.Number(1),
+    enabled: S.Bool({ default: true }),
+    paused: S.Bool({ default: false }),
+    time: S.Number({ default: 0 }),
+    timeScale: S.Number({ default: 1 }),
     blendMode: AnimationBlendMode,
     loop: AnimationActionLoopStyles,
-    repetitions: S.NonSerialized(S.Number(Infinity)), //No longer serializable for now. We don't expose in editor anyway
-    clampWhenFinished: S.Bool(false),
-    zeroSlopeAtStart: S.Bool(true),
-    zeroSlopeAtEnd: S.Bool(true),
-    weight: S.Number(1),
+    repetitions: S.Number({ default: Infinity, serialized: false }), //No longer serializable for now. We don't expose in editor anyway
+    clampWhenFinished: S.Bool({ default: false }),
+    zeroSlopeAtStart: S.Bool({ default: true }),
+    zeroSlopeAtEnd: S.Bool({ default: true }),
+    weight: S.Number({ default: 1 }),
 
     // internal
-    _action: S.NonSerialized(S.Nullable(S.Type<AnimationAction>()))
+    _action: S.Type<AnimationAction | null>({ serialized: false, default: null })
   }),
 
   reactor: function () {

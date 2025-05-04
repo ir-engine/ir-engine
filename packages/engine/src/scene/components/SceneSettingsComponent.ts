@@ -33,12 +33,12 @@ export const SceneSettingsComponent = defineComponent({
   jsonID: 'EE_scene_settings',
 
   schema: S.Object({
-    thumbnailURL: S.String(''),
-    loadingScreenURL: S.String(''),
-    primaryColor: S.String('#000000'),
-    backgroundColor: S.String('#FFFFFF'),
-    alternativeColor: S.String('#000000'),
-    sceneKillHeight: S.Number(DefaultKillHeight),
+    thumbnailURL: S.String(),
+    loadingScreenURL: S.String(),
+    primaryColor: S.String({ default: '#000000' }),
+    backgroundColor: S.String({ default: '#FFFFFF' }),
+    alternativeColor: S.String({ default: '#000000' }),
+    sceneKillHeight: S.Number({ default: DefaultKillHeight }),
     /** @todo we need some kind of "Either" type in our schemas to allow either a UserID or a NodeID here, rather than an EntityUUID */
     spectateEntity: S.EntityUUID()
   })

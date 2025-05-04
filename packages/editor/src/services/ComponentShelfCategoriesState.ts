@@ -46,7 +46,7 @@ import { OverlayComponent } from '@ir-engine/engine/src/scene/components/Overlay
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
 import { PortalComponent } from '@ir-engine/engine/src/scene/components/PortalComponent'
 import { PrimitiveGeometryComponent } from '@ir-engine/engine/src/scene/components/PrimitiveGeometryComponent'
-import { ReflectionProbeComponent } from '@ir-engine/engine/src/scene/components/ReflectionProbeComponent.tsx'
+import { ReflectionProbeComponent } from '@ir-engine/engine/src/scene/components/ReflectionProbeComponent'
 import { RenderSettingsComponent } from '@ir-engine/engine/src/scene/components/RenderSettingsComponent'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'

@@ -33,6 +33,9 @@ export type ResourceType = {
   attribution?: string
   thumbnailKey?: string
   thumbnailMode?: string // 'automatic' | 'manual'
+  width?: number
+  height?: number
+  depth?: number
 }
 
 // key = /path/to/file.ext

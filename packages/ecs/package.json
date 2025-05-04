@@ -24,6 +24,7 @@
   "dependencies": {
     "@ir-engine/hyperflux": "^1.6.0",
     "bitecs": "github:NateTheGreatt/bitECS#rc-0-4-0",
+    "rfc6902": "^5.1.2",
     "uuid": "9.0.0"
   },
   "devDependencies": {
