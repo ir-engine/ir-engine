@@ -304,7 +304,7 @@ type MixerState = {
  * Schema definition for the MixerComponent
  */
 const schema = S.Object({
-  state: S.NonSerialized(S.Type<MixerState>()), // Runtime state (not serialized)
+  state: S.Type<MixerState>({ serialized: false }), // Runtime state (not serialized)
   coord: S.Number(), // Current coordinate position
   properties: S.Array(S.String()), // Array of property addresses
   entries: S.Array(S.Tuple([S.Number(), S.Record(S.String(), S.Array(S.Number()))])) // Array of [coord, entry] tuples

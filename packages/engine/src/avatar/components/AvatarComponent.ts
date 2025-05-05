@@ -37,25 +37,25 @@ export const AvatarComponent = defineComponent({
   name: 'AvatarComponent',
   schema: S.Object({
     /** The total height of the avatar in a t-pose, must always be non zero and positive for the capsule collider */
-    avatarHeight: S.Number(0),
+    avatarHeight: S.Number(),
     /** The length of the torso in a t-pose, from the hip joint to the head joint */
-    torsoLength: S.Number(0),
+    torsoLength: S.Number(),
     /** The length of the upper leg in a t-pose, from the hip joint to the knee joint */
-    upperLegLength: S.Number(0),
+    upperLegLength: S.Number(),
     /** The length of the lower leg in a t-pose, from the knee joint to the ankle joint */
-    lowerLegLength: S.Number(0),
+    lowerLegLength: S.Number(),
     /** The height of the foot in a t-pose, from the ankle joint to the bottom of the avatar's model */
-    footHeight: S.Number(0),
+    footHeight: S.Number(),
     /** The height of the hips in a t-pose */
-    hipsHeight: S.Number(0),
+    hipsHeight: S.Number(),
     /** The length of the arm in a t-pose, from the shoulder joint to the elbow joint */
-    armLength: S.Number(0),
+    armLength: S.Number(),
     /** The distance between the left and right foot in a t-pose */
-    footGap: S.Number(0),
+    footGap: S.Number(),
     /** The angle of the foot in a t-pose */
-    footAngle: S.Number(0),
+    footAngle: S.Number(),
     /** The height of the eyes in a t-pose */
-    eyeHeight: S.Number(0)
+    eyeHeight: S.Number()
   }),
 
   /**

@@ -101,7 +101,7 @@ export const T = {
     S.SerializedClass(
       () => new Matrix4().fromArray(init),
       {
-        elements: S.Array(S.Number(), undefined, {
+        elements: S.Array(S.Number(), {
           maxItems: 16,
           minItems: 16
         })

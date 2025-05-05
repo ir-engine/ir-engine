@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -27,7 +27,10 @@ import {
   createEngine,
   defineComponent,
   destroyEngine,
+  Engine,
+  EngineState,
   entityExists,
+  EntityTreeComponent,
   getComponent,
   Layers,
   setComponent,
@@ -35,27 +38,34 @@ import {
 } from '@ir-engine/ecs'
 import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { SourceID } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { getMutableState, getState, UserID } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { AddOperation } from 'rfc6902/diff'
+import { Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
   applyCommandsToECS,
+  AuthoringActions,
+  AuthoringState,
   computeCommands,
   getSourceSnapshot,
   HistoryCommand,
   SourceData
-} from './EditorHistoryState'
+} from './AuthoringState'
 
 const sourceID1 = 'source1' as SourceID
 const sourceID2 = 'source2' as SourceID
 const nodeID1 = 'node1' as NodeID
 const nodeID2 = 'node2' as NodeID
 
-describe('EditorHistoryState', () => {
+describe('AuthoringState', () => {
   describe('computeCommands', () => {
     it('should handle undo and redo commands correctly', () => {
       const commands: HistoryCommand[] = [
-        { type: 'snapshot', sourceID: sourceID1, partialState: {} },
-        { type: 'undo', sourceID: sourceID1 },
-        { type: 'redo', sourceID: sourceID1 }
+        { [sourceID1]: [{ op: 'add', path: '/node1', value: {} }] },
+        { type: 'undo' },
+        { type: 'redo' }
       ]
       const { doneStack, redoStack } = computeCommands(commands)
       expect(doneStack).toHaveLength(1)
@@ -64,9 +74,9 @@ describe('EditorHistoryState', () => {
 
     it('should clear redo stack on new command', () => {
       const commands: HistoryCommand[] = [
-        { type: 'snapshot', sourceID: sourceID1, partialState: {} },
-        { type: 'undo', sourceID: sourceID1 },
-        { type: 'snapshot', sourceID: sourceID1, partialState: {} }
+        { [sourceID1]: [{ op: 'add', path: '/node1', value: {} }] },
+        { type: 'undo' },
+        { [sourceID1]: [{ op: 'add', path: '/node2', value: {} }] }
       ]
       const { doneStack, redoStack } = computeCommands(commands)
       expect(doneStack).toHaveLength(1)
@@ -75,11 +85,11 @@ describe('EditorHistoryState', () => {
 
     it('should handle multiple undo and redo commands correctly', () => {
       const commands: HistoryCommand[] = [
-        { type: 'snapshot', sourceID: sourceID1, partialState: {} },
-        { type: 'snapshot', sourceID: sourceID1, partialState: {} },
-        { type: 'undo', sourceID: sourceID1 },
-        { type: 'redo', sourceID: sourceID1 },
-        { type: 'undo', sourceID: sourceID1 }
+        { [sourceID1]: [{ op: 'add', path: '/node1', value: {} }] },
+        { [sourceID1]: [{ op: 'add', path: '/node2', value: {} }] },
+        { type: 'undo' },
+        { type: 'redo' },
+        { type: 'undo' }
       ]
       const { doneStack, redoStack } = computeCommands(commands)
       expect(doneStack).toHaveLength(1)
@@ -88,16 +98,28 @@ describe('EditorHistoryState', () => {
 
     it('should handle multiple undo and redo commands with commands between them correctly', () => {
       const commands: HistoryCommand[] = [
-        { type: 'snapshot', sourceID: sourceID1, partialState: {} },
-        { type: 'snapshot', sourceID: sourceID1, partialState: {} },
-        { type: 'undo', sourceID: sourceID1 },
-        { type: 'snapshot', sourceID: sourceID1, partialState: {} },
-        { type: 'redo', sourceID: sourceID1 },
-        { type: 'undo', sourceID: sourceID1 }
+        { [sourceID1]: [{ op: 'add', path: '/node1', value: {} }] },
+        { [sourceID1]: [{ op: 'add', path: '/node2', value: {} }] },
+        { type: 'undo' },
+        { [sourceID1]: [{ op: 'add', path: '/node3', value: {} }] },
+        { type: 'redo' },
+        { type: 'undo' }
       ]
       const { doneStack, redoStack } = computeCommands(commands)
       expect(doneStack).toHaveLength(1)
       expect(redoStack).toHaveLength(1)
+    })
+
+    it('should handle undo and redo commands for multiple sources correctly', () => {
+      const commands: HistoryCommand[] = [
+        { [sourceID1]: [{ op: 'add', path: '/node1', value: {} }] },
+        { [sourceID2]: [{ op: 'add', path: '/node2', value: {} }] },
+        { type: 'undo' },
+        { type: 'redo' }
+      ]
+      const { doneStack, redoStack } = computeCommands(commands)
+      expect(doneStack).toHaveLength(2)
+      expect(redoStack).toHaveLength(0)
     })
   })
 
@@ -466,6 +488,295 @@ describe('EditorHistoryState', () => {
         [nodeID1]: { [Component1.name]: {} },
         [nodeID2]: { [Component2.name]: {} }
       })
+    })
+
+    it('should include TransformComponent in the snapshot with correct data', () => {
+      const entity = NodeIDComponent.create(sourceID1, nodeID1, Layers.Authoring)
+
+      const position = new Vector3(1, 2, 3)
+      const rotation = new Quaternion(0.1, 0.2, 0.3, 0.4)
+      const scale = new Vector3(2, 2, 2)
+
+      setComponent(entity, TransformComponent, {
+        position,
+        rotation,
+        scale
+      })
+
+      const snapshot = getSourceSnapshot(sourceID1)
+
+      expect(snapshot[nodeID1]).toBeDefined()
+      expect(snapshot[nodeID1][TransformComponent.name]).toBeDefined()
+      expect(snapshot[nodeID1][TransformComponent.name].position).toEqual({ x: 1, y: 2, z: 3 })
+      expect(snapshot[nodeID1][TransformComponent.name].rotation).toEqual({ x: 0.1, y: 0.2, z: 0.3, w: 0.4 })
+      expect(snapshot[nodeID1][TransformComponent.name].scale).toEqual({ x: 2, y: 2, z: 2 })
+    })
+
+    it('should include EntityTreeComponent in the snapshot with correct data', () => {
+      const parentEntity = NodeIDComponent.create(sourceID1, 'parent' as NodeID, Layers.Authoring)
+      const childEntity = NodeIDComponent.create(sourceID1, nodeID1, Layers.Authoring)
+
+      setComponent(childEntity, EntityTreeComponent, {
+        parentEntity: parentEntity,
+        childIndex: 2
+      })
+
+      const snapshot = getSourceSnapshot(sourceID1)
+
+      expect(snapshot[nodeID1]).toBeDefined()
+      expect(snapshot[nodeID1][EntityTreeComponent.name]).toBeDefined()
+      expect(snapshot[nodeID1][EntityTreeComponent.name].parentEntity).toBe(parentEntity)
+
+      expect(snapshot[nodeID1][EntityTreeComponent.name].childIndex).toBeDefined()
+    })
+
+    it('should include NameComponent in the snapshot with correct data', () => {
+      const entity = NodeIDComponent.create(sourceID1, nodeID1, Layers.Authoring)
+
+      setComponent(entity, NameComponent, 'TestEntityName')
+
+      const snapshot = getSourceSnapshot(sourceID1)
+
+      expect(snapshot[nodeID1]).toBeDefined()
+      expect(snapshot[nodeID1][NameComponent.name]).toBeDefined()
+      expect(snapshot[nodeID1][NameComponent.name]).toBe('TestEntityName')
+    })
+
+    it('should include all special case components in the snapshot correctly', () => {
+      const parentEntity = NodeIDComponent.create(sourceID1, 'parent' as NodeID, Layers.Authoring)
+      const entity = NodeIDComponent.create(sourceID1, nodeID1, Layers.Authoring)
+
+      const position = new Vector3(1, 2, 3)
+      const rotation = new Quaternion(0.1, 0.2, 0.3, 0.4)
+      const scale = new Vector3(2, 2, 2)
+
+      setComponent(entity, TransformComponent, {
+        position,
+        rotation,
+        scale
+      })
+
+      setComponent(entity, EntityTreeComponent, {
+        parentEntity: parentEntity,
+        childIndex: 1
+      })
+
+      setComponent(entity, NameComponent, 'TestEntityName')
+
+      const snapshot = getSourceSnapshot(sourceID1)
+
+      expect(snapshot[nodeID1]).toBeDefined()
+
+      expect(snapshot[nodeID1][TransformComponent.name]).toBeDefined()
+      expect(snapshot[nodeID1][TransformComponent.name].position).toEqual({ x: 1, y: 2, z: 3 })
+      expect(snapshot[nodeID1][TransformComponent.name].rotation).toEqual({ x: 0.1, y: 0.2, z: 0.3, w: 0.4 })
+      expect(snapshot[nodeID1][TransformComponent.name].scale).toEqual({ x: 2, y: 2, z: 2 })
+
+      expect(snapshot[nodeID1][EntityTreeComponent.name]).toBeDefined()
+      expect(snapshot[nodeID1][EntityTreeComponent.name].parentEntity).toBe(parentEntity)
+
+      expect(snapshot[nodeID1][EntityTreeComponent.name].childIndex).toBeDefined()
+
+      expect(snapshot[nodeID1][NameComponent.name]).toBeDefined()
+      expect(snapshot[nodeID1][NameComponent.name]).toBe('TestEntityName')
+    })
+  })
+
+  describe('canUndo', () => {
+    beforeEach(() => {
+      createEngine()
+
+      getMutableState(EngineState).userID.set('testUser' as UserID)
+    })
+
+    afterEach(() => {
+      return destroyEngine()
+    })
+
+    it('should return false when there are no commands', () => {
+      getMutableState(AuthoringState).commands['testUser'].set([])
+
+      expect(AuthoringState.canUndo()).toBe(false)
+    })
+
+    it('should return false when there are only undo commands', () => {
+      getMutableState(AuthoringState).commands['testUser'].set([{ type: 'undo' }, { type: 'undo' }])
+
+      expect(AuthoringState.canUndo()).toBe(false)
+    })
+
+    it('should return true when there are commands that can be undone', () => {
+      getMutableState(AuthoringState).commands['testUser'].set([
+        { [sourceID1]: [{ op: 'add', path: '/node1', value: {} }] }
+      ])
+
+      expect(AuthoringState.canUndo()).toBe(true)
+    })
+
+    it('should return true when there are commands after undo/redo operations', () => {
+      getMutableState(AuthoringState).commands['testUser'].set([
+        { [sourceID1]: [{ op: 'add', path: '/node1', value: {} }] },
+        { type: 'undo' },
+        { type: 'redo' },
+        { [sourceID1]: [{ op: 'add', path: '/node2', value: {} }] }
+      ])
+
+      expect(AuthoringState.canUndo()).toBe(true)
+    })
+  })
+
+  describe('canRedo', () => {
+    beforeEach(() => {
+      createEngine()
+
+      getMutableState(EngineState).userID.set('testUser' as UserID)
+    })
+
+    afterEach(() => {
+      return destroyEngine()
+    })
+
+    it('should return false when there are no commands', () => {
+      getMutableState(AuthoringState).commands['testUser'].set([])
+
+      expect(AuthoringState.canRedo()).toBe(false)
+    })
+
+    it('should return false when there are no undo commands', () => {
+      getMutableState(AuthoringState).commands['testUser'].set([
+        { [sourceID1]: [{ op: 'add', path: '/node1', value: {} }] },
+        { [sourceID1]: [{ op: 'add', path: '/node2', value: {} }] }
+      ])
+
+      expect(AuthoringState.canRedo()).toBe(false)
+    })
+
+    it('should return true when there are commands that can be redone', () => {
+      getMutableState(AuthoringState).commands['testUser'].set([
+        { [sourceID1]: [{ op: 'add', path: '/node1', value: {} }] },
+        { type: 'undo' }
+      ])
+
+      expect(AuthoringState.canRedo()).toBe(true)
+    })
+
+    it('should return false after a new command is added after an undo', () => {
+      getMutableState(AuthoringState).commands['testUser'].set([
+        { [sourceID1]: [{ op: 'add', path: '/node1', value: {} }] },
+        { type: 'undo' },
+        { [sourceID1]: [{ op: 'add', path: '/node2', value: {} }] }
+      ])
+
+      expect(AuthoringState.canRedo()).toBe(false)
+    })
+  })
+
+  describe('snapshot', () => {
+    beforeEach(() => {
+      createEngine()
+
+      getMutableState(EngineState).userID.set('testUser' as UserID)
+    })
+
+    afterEach(() => {
+      return destroyEngine()
+    })
+
+    it('should dispatch an action for the sourceID with', () => {
+      const Component1 = defineComponent({ name: 'Component1', jsonID: 'Component1', toJSON: () => ({}) })
+      const entity = NodeIDComponent.create(sourceID1, nodeID1, Layers.Authoring)
+      setComponent(entity, Component1)
+
+      const initialSnapshot = getSourceSnapshot(sourceID1)
+      getMutableState(AuthoringState).sources[sourceID1].set({
+        initial: initialSnapshot,
+        latest: initialSnapshot
+      })
+
+      const Component2 = defineComponent({ name: 'Component2', jsonID: 'Component2', toJSON: () => ({}) })
+      setComponent(entity, Component2)
+
+      AuthoringState.snapshot(sourceID1)
+
+      const latestSnapshot = getState(AuthoringState).sources[sourceID1].latest
+      expect(latestSnapshot).toBeDefined()
+      expect(latestSnapshot[nodeID1]).toBeDefined()
+
+      const updatedSnapshot = getSourceSnapshot(sourceID1)
+      expect(updatedSnapshot[nodeID1][Component2.name]).toBeDefined()
+    })
+  })
+
+  describe('snapshotEntities', () => {
+    beforeEach(() => {
+      createEngine()
+
+      getMutableState(EngineState).userID.set('testUser' as UserID)
+    })
+
+    afterEach(() => {
+      return destroyEngine()
+    })
+
+    it('should do nothing when no entities are provided', () => {
+      AuthoringState.snapshotEntities([])
+
+      const actions = Engine.instance.store.actions.history
+      expect(actions).toHaveLength(0)
+    })
+
+    it('should dispatch an ops action for each source when entities are provided', () => {
+      getMutableState(AuthoringState).sources[sourceID1].set({
+        initial: {},
+        latest: {}
+      })
+
+      const Component1 = defineComponent({ name: 'Component1', jsonID: 'Component1', toJSON: () => ({}) })
+      const entity = NodeIDComponent.create(sourceID1, nodeID1, Layers.Authoring)
+      setComponent(entity, Component1)
+
+      AuthoringState.snapshotEntities([entity])
+
+      const actions = Engine.instance.store.actions.incoming
+      expect(actions).toHaveLength(1)
+      const action = actions[0] as typeof AuthoringActions.ops.matches._TYPE
+      expect(action.type).toBe(AuthoringActions.ops.type)
+      expect(action.ops[sourceID1]).toBeDefined()
+      expect(action.ops[sourceID1]).toHaveLength(1)
+      const op = action.ops[sourceID1][0] as AddOperation
+      expect(op.op).toBe('add')
+      expect(op.path).toBe('/node1')
+      expect(op.value).toStrictEqual({ Component1: {} })
+    })
+
+    it('should dispatch an ops action for each source when entities are provided', () => {
+      getMutableState(AuthoringState).sources[sourceID1].set({
+        initial: {},
+        latest: {}
+      })
+      getMutableState(AuthoringState).sources[sourceID2].set({
+        initial: {},
+        latest: {}
+      })
+
+      const Component1 = defineComponent({ name: 'Component1', jsonID: 'Component1', toJSON: () => ({}) })
+      const entity1 = NodeIDComponent.create(sourceID1, nodeID1, Layers.Authoring)
+      setComponent(entity1, Component1)
+
+      const Component2 = defineComponent({ name: 'Component2', jsonID: 'Component2', toJSON: () => ({}) })
+      const entity2 = NodeIDComponent.create(sourceID2, nodeID2, Layers.Authoring)
+      setComponent(entity2, Component2)
+
+      AuthoringState.snapshotEntities([entity1, entity2])
+
+      const actions = Engine.instance.store.actions.incoming
+      expect(actions).toHaveLength(1)
+      const action = actions[0] as typeof AuthoringActions.ops.matches._TYPE
+      expect(action.type).toBe(AuthoringActions.ops.type)
+      expect(action.ops[sourceID1]).toBeDefined()
+      expect(action.ops[sourceID1]).toHaveLength(1)
+      expect(action.ops[sourceID2]).toBeDefined()
+      expect(action.ops[sourceID2]).toHaveLength(1)
     })
   })
 })

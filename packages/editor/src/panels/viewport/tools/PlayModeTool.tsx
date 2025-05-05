@@ -40,7 +40,7 @@ const PlayModeTool: React.FC = () => {
   }
 
   return (
-    <div id="preview" className="flex items-center">
+    <div id="preview" className="ml-2 flex items-center">
       <Tooltip
         title={
           engineState.isEditing.value
@@ -54,7 +54,7 @@ const PlayModeTool: React.FC = () => {
         }
         position="bottom"
       >
-        <button className="p-0" onClick={onTogglePlayMode}>
+        <button className="rounded-lg bg-ui-secondary px-3.5 py-1.5" onClick={onTogglePlayMode}>
           {engineState.isEditing.value ? (
             <PlayLg className="text-[#9CA0AA]" />
           ) : (

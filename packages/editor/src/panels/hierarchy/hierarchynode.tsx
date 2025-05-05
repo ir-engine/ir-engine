@@ -34,6 +34,8 @@ import {
   getOptionalComponent,
   getSimulationCounterpart,
   hasComponent,
+  removeComponent,
+  setComponent,
   useHasComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
@@ -43,6 +45,7 @@ import { EntityHierarchyLockState } from '@ir-engine/editor/src/services/EntityH
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
+import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFLoaderFunctions } from '@ir-engine/engine/src/gltf/GLTFLoaderFunctions'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
@@ -68,8 +71,8 @@ import { ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
 import { IconComponent } from '../../components/panels/IconComponent'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
+import { isEntityGlb } from '../../functions/utils'
 import { EditorHelperState, PlacementMode } from '../../services/EditorHelperState'
-import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { deleteNode, HierarchyTreeNodeType } from './helpers'
@@ -98,6 +101,7 @@ function toValidHierarchyNodeName(entity: Entity, name: string): string {
 
 export default React.memo(function HierarchyTreeNode(props: ListChildComponentProps<undefined>) {
   const showGlbChildrenFeatureFlag = useMutableState(EditorHelperState).showGlbChildren.value
+
   const { t } = useTranslation()
   const nodes = useHierarchyNodes()
   const node = nodes[props.index]
@@ -132,7 +136,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
       document.removeEventListener('mousedown', handleClickOutside)
       if (saveRename) {
         EditorControlFunctions.modifyName([entity], toValidHierarchyNodeName(entity, currentRenameNode.value))
-        EditorHistoryFunctions.snapshot(getComponent(entity, SourceComponent))
+        AuthoringState.snapshot(getComponent(entity, SourceComponent))
         currentRenameNode.set(getComponent(entity, NameComponent))
       }
       renamingNode.clear()
@@ -183,7 +187,16 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     isOver: isOverAfter,
     dropTarget: afterDropTarget
   } = useHierarchyTreeDrop(node, 'After')
-  const { canDrop: canDropOn, isOver: isOverOn, dropTarget: onDropTarget } = useHierarchyTreeDrop(node, 'On')
+  const {
+    canDrop: canDropOn,
+    isOver: isOverOn,
+    dropTarget: onDropTarget,
+    rigidbodyParentingWarning
+  } = useHierarchyTreeDrop(node, 'On')
+  const isOverAndCanDrop = isOverOn && canDropOn
+  const showGlbRedState = isOverAndCanDrop && !showGlbChildrenFeatureFlag && isEntityGlb(entity)
+  const showRigidbodyRedState = isOverAndCanDrop && rigidbodyParentingWarning
+  const showRedState = showGlbRedState || showRigidbodyRedState
 
   useEffect(() => {
     preview(getEmptyImage(), { captureDraggingState: true })
@@ -304,9 +317,11 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const onHideUnhideNode = (event: React.MouseEvent) => {
     event.stopPropagation()
     if (visible) {
-      EditorHistoryFunctions.removeComponent([entity], VisibleComponent)
+      removeComponent(entity, VisibleComponent)
+      AuthoringState.snapshotEntities([entity])
     } else {
-      EditorHistoryFunctions.setComponent([entity], VisibleComponent)
+      setComponent(entity, VisibleComponent)
+      AuthoringState.snapshotEntities([entity])
     }
   }
 
@@ -393,7 +408,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
         !visible ? 'text-text-inactive' : '',
         selected ? 'rounded-sm border border-ui-select-outline bg-ui-select-background text-text-primary' : '',
         isOverOn && canDropOn ? 'border border-dotted' : '',
-        !showGlbChildrenFeatureFlag && isOverOn && !canDropOn ? 'border border-dotted text-text-error' : ''
+        showRedState ? 'border border-dotted text-text-error' : ''
       )}
       data-testid="hierarchy-panel-scene-item"
     >
@@ -525,17 +540,9 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
               onClick={onHideUnhideNode}
             >
               {visible ? (
-                <PiEyeBold
-                  className={`${
-                    !showGlbChildrenFeatureFlag && isOverOn && !canDropOn ? 'text-text-inactive' : 'text-base'
-                  }`}
-                />
+                <PiEyeBold className={`${showRedState ? 'text-text-inactive' : 'text-base'}`} />
               ) : (
-                <PiEyeClosedBold
-                  className={`${
-                    !showGlbChildrenFeatureFlag && isOverOn && !canDropOn ? 'text-text-inactive' : 'text-base'
-                  }`}
-                />
+                <PiEyeClosedBold className={`${showRedState ? 'text-text-inactive' : 'text-base'}`} />
               )}
             </button>
           </div>

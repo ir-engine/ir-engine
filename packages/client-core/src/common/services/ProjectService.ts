@@ -68,7 +68,7 @@ export const ProjectState = defineState({
     failed: false,
     builderTags: [] as Array<ProjectBuilderTagsType>,
     builderInfo: {
-      engineVersion: '',
+      engineVersion: '1.0.2',
       engineCommit: ''
     },
     refreshingGithubRepoAccess: false

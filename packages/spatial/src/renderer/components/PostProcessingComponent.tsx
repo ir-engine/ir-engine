@@ -38,7 +38,7 @@ export const PostProcessingComponent = defineComponent({
   jsonID: 'EE_postprocessing',
 
   schema: S.Object({
-    enabled: S.Bool(false),
+    enabled: S.Bool(),
     effects: S.Record(S.String(), EffectSchema)
   }),
 

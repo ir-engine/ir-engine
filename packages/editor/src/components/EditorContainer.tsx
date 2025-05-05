@@ -47,6 +47,7 @@ import { LocationState } from '@ir-engine/client-core/src/social/services/Locati
 import { API } from '@ir-engine/common'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { EngineState, EntityUUID, getComponent } from '@ir-engine/ecs'
+import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { useSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
@@ -64,7 +65,6 @@ import { PropertiesPanelTab } from '../panels/properties'
 import { ScenePanelTab } from '../panels/scenes'
 import { ViewportPanelTab } from '../panels/viewport'
 import { VisualScriptPanelTab } from '../panels/visualscript'
-import { EditorHistoryState } from '../services/EditorHistoryState'
 import { EditorWarningState } from '../services/EditorWarningServices'
 import { UIAddonsState } from '../services/UIAddonsState'
 import './EditorContainer.css'
@@ -192,7 +192,7 @@ const EditorContainer = () => {
   useSpatialEngine()
 
   /** Call get state since it needs to be created */
-  getState(EditorHistoryState)
+  getState(AuthoringState)
 
   const engineState = useHookstate(getMutableState(EngineState))
 

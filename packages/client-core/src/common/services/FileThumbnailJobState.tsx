@@ -62,7 +62,10 @@ import {
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
-import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
+import {
+  BoundingBoxComponent,
+  updateBoundingBox
+} from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 import React, { Suspense, useEffect } from 'react'
 import { Color, Euler, Material, Mesh, Quaternion, SphereGeometry } from 'three'
 
@@ -100,6 +103,7 @@ export function generateThumbnailKey(src: string, projectName: string): string {
 type ThumbnailJob = {
   key: string
   project: string // the project name
+  jobType: 'thumbnail' | 'dimension'
 }
 
 const seekVideo = (video: HTMLVideoElement, time: number): Promise<void> =>
@@ -123,6 +127,44 @@ const drawToCanvas = (source: CanvasImageSource): Promise<HTMLCanvasElement | nu
   }
   ctx.drawImage(source, 0, 0, 90, 90)
   return Promise.resolve(canvas)
+}
+export const uploadDimension = async (modelEntity: Entity, src: string, projectName: string) => {
+  try {
+    setComponent(modelEntity, BoundingBoxComponent)
+    updateBoundingBox(modelEntity)
+    const boundingBox = getComponent(modelEntity, BoundingBoxComponent).box
+    const dimensions_x = boundingBox.max.x - boundingBox.min.x
+    const dimensions_y = boundingBox.max.y - boundingBox.min.y
+    const dimensions_z = boundingBox.max.z - boundingBox.min.z
+    const fileURL = new URL(src)
+    fileURL.search = ''
+    fileURL.hash = ''
+    const fileKeyKey = fileURL.href.replace(config.client.fileServer + '/', '')
+    await API.instance
+      .service(staticResourcePath)
+      .find({
+        query: { key: { $in: [fileKeyKey] } }
+      })
+      .then((reponse) => {
+        if (reponse.data.length > 0) {
+          const staticResourceId = reponse.data[0].id
+          const updateDimension = async (staticResourceId) => {
+            await API.instance.service(staticResourcePath).patch(staticResourceId, {
+              width: dimensions_x,
+              height: dimensions_y,
+              depth: dimensions_z,
+              project: projectName
+            })
+          }
+          updateDimension(staticResourceId)
+        } else {
+          console.error('static Resource not foudn for key - ', fileKeyKey)
+        }
+      })
+      .catch((e) => console.error(e))
+  } catch (e) {
+    console.error('error in uploadDimension', e)
+  }
 }
 
 const uploadThumbnail = async (src: string, projectName: string, blob: Blob | null) => {
@@ -179,89 +221,106 @@ const uploadThumbnail = async (src: string, projectName: string, blob: Blob | nu
     ;(e) => console.error(e)
   }
 }
+const useGenerateHelper = (
+  files: readonly FileBrowserContentType[],
+  filterKey: (file: FileBrowserContentType) => string | undefined,
+  queryConditions: Record<string, any>,
+  jobType: 'thumbnail' | 'dimension' = 'thumbnail'
+) => {
+  const jobState = useMutableState(FileThumbnailJobState)
+  const seenResources = jobState.seenResources[jobType]
+  const fileList = files
+    .map(filterKey)
+    .filter((key): key is string => key !== undefined)
+    .filter((key) => !seenResources.value.includes(key))
 
-export const removeFromFileThumbnailsSeen = (files: readonly string[]) => {
+  const resourceQuery = useFind(staticResourcePath, {
+    query: {
+      key: { $in: fileList },
+      ...queryConditions
+    } as PaginationQuery
+  })
+
+  useEffect(() => {
+    for (const resource of resourceQuery.data) {
+      if (seenResources.value.includes(resource.key)) continue
+      seenResources.merge([resource.key])
+      if (jobType === 'thumbnail') {
+        if (resource.type === 'thumbnail') {
+          API.instance.service(staticResourcePath).patch(resource.id, {
+            thumbnailKey: resource.key,
+            project: resource.project
+          })
+          continue
+        }
+
+        const ext = resource.key.split('.').pop() ?? ''
+        if (resource.thumbnailKey != null || !extensionCanHaveThumbnail(ext)) {
+          continue
+        }
+      }
+      const fileJobs = getMutableState(FileThumbnailJobState).jobs
+      if (fileJobs.value.filter((fj) => fj.key === resource.url && fj.jobType === jobType).length < 1) {
+        fileJobs.merge([
+          {
+            key: resource.url,
+            project: resource.project!,
+            jobType: jobType
+          }
+        ])
+      }
+    }
+    // If there are more files left to be processed in the list we have specified, refetch the query
+    if (resourceQuery.total > resourceQuery.data.length) resourceQuery.refetch()
+  }, [resourceQuery.data])
+}
+export const removeFromFileThumbnailsSeen = (
+  files: readonly string[],
+  jobType: 'thumbnail' | 'dimension' = 'thumbnail'
+) => {
   const jobState = getMutableState(FileThumbnailJobState)
-  const seenResources = jobState.seenResources.get(NO_PROXY) as string[]
+  const seenResources = jobState.seenResources[jobType].get(NO_PROXY) as string[]
   files.forEach((file) => {
     const index = seenResources.indexOf(file)
     if (index >= 0) {
       seenResources.splice(index, 1)
     }
   })
-  jobState.seenResources.set(seenResources)
+  jobState.seenResources[jobType].set(seenResources)
 }
 
 export const FileThumbnailJobState = defineState({
   name: 'FileThumbnailJobState',
   initial: {
-    seenResources: [] as string[],
+    seenResources: {
+      thumbnail: [] as string[],
+      dimension: [] as string[]
+    },
     jobs: [] as ThumbnailJob[]
   },
   reactor: () => <ThumbnailJobReactor />,
   removeCurrentJob: () => {
     const jobState = getMutableState(FileThumbnailJobState)
     jobState.jobs.set((prev) => {
-      prev.splice(0, 1)
-      return prev
+      prev.splice(0, 1) // remove the first job
+      return [...prev]
     })
   },
-  useGenerateThumbnails: async (files: readonly FileBrowserContentType[]) => {
-    const jobState = useMutableState(FileThumbnailJobState)
-    const seenResources = jobState.seenResources
 
-    const fileList = files
-      .map((file) => (file.thumbnailURL || file.type === 'folder' ? undefined : file.key))
-      .filter((key) => key !== undefined)
-      .filter((key) => !seenResources.value.includes(key))
-
-    const query = {
-      key: {
-        $in: fileList
-      },
+  useGenerateThumbnails: (files: readonly FileBrowserContentType[]) => {
+    useGenerateHelper(files, (file) => (file.thumbnailURL || file.type === 'folder' ? undefined : file.key), {
       thumbnailKey: 'null'
-    } as PaginationQuery
-
-    const resourceQuery = useFind(staticResourcePath, {
-      query: query
     })
-
-    /**
-     * This useEffect will continuously check for new resources that need thumbnails generated until all resources have thumbnails
-     */
-    useEffect(() => {
-      for (const resource of resourceQuery.data) {
-        if (seenResources.value.includes(resource.key)) continue
-        seenResources.merge([resource.key])
-
-        if (resource.type === 'thumbnail') {
-          //set thumbnail's thumbnail as itself
-          API.instance
-            .service(staticResourcePath)
-            .patch(resource.id, { thumbnailKey: resource.key, project: resource.project })
-          continue
-        }
-
-        if (resource.thumbnailKey != null || !extensionCanHaveThumbnail(resource.key.split('.').pop() ?? '')) continue
-
-        const fileJobs = getMutableState(FileThumbnailJobState).jobs
-        if (
-          fileJobs.value.filter((fj) => {
-            fj.key === resource.url
-          }).length < 1
-        ) {
-          fileJobs.merge([
-            {
-              key: resource.url,
-              project: resource.project!
-            }
-          ])
-        }
-      }
-
-      // If there are more files left to be processed in the list we have specified, refetch the query
-      if (resourceQuery.total > resourceQuery.data.length) resourceQuery.refetch()
-    }, [resourceQuery.data])
+  },
+  useGenerateDimensions: (files: readonly FileBrowserContentType[]) => {
+    useGenerateHelper(
+      files,
+      (file) => (file.type === 'gltf' || file.type === 'glb' ? file.key : undefined),
+      {
+        $and: [{ width: null }, { height: null }, { depth: null }]
+      },
+      'dimension'
+    )
   }
 })
 
@@ -368,6 +427,7 @@ type RenderThumbnailProps = {
   src: string
   project: string
   onError: (err) => void
+  jobType?: 'thumbnail' | 'dimension'
 }
 
 const renderThumbnail = (
@@ -452,7 +512,7 @@ const RenderImageThumbnail = (props: RenderThumbnailProps) => {
 }
 
 const RenderModelThumbnail = (props: RenderThumbnailProps) => {
-  const { src, onError } = props
+  const { src, onError, jobType } = props
   const [entity, lightEntity, skyboxEntity, cameraEntity] = useRenderEntities(src)
   const errors = ErrorComponent.useComponentErrors(entity, GLTFComponent)
   const loaded = GLTFComponent.useSceneLoaded(entity)
@@ -464,8 +524,20 @@ const RenderModelThumbnail = (props: RenderThumbnailProps) => {
 
   useEffect(() => {
     if (!loaded) return
-    renderThumbnail(entity, lightEntity, skyboxEntity, cameraEntity, props)
-  }, [loaded])
+    if (jobType === 'dimension') {
+      tryCatch(
+        () => {
+          uploadDimension(entity, src, props.project).then(() => {
+            FileThumbnailJobState.removeCurrentJob()
+          })
+        },
+        (err) => onError(err)
+      )
+    } else if (jobType === 'thumbnail') {
+      console.log('upload thumbnail')
+      renderThumbnail(entity, lightEntity, skyboxEntity, cameraEntity, props)
+    }
+  }, [loaded, jobType])
 
   useEffect(() => {
     if (!errors) return
@@ -573,7 +645,7 @@ const RenderLookDevThumbnail = (props: RenderThumbnailProps) => {
 const ThumbnailJobReactor = () => {
   const jobState = useHookstate(getMutableState(FileThumbnailJobState))
   const currentJob = useHookstate(null as ThumbnailJob | null)
-  const { key: src, project } = currentJob.value ?? { key: '', project: '', id: '' }
+  const { key: src, project, jobType } = currentJob.value ?? { key: '', project: '', id: '' }
   const strippedSrc = stripSearchFromURL(src)
   let extension = strippedSrc
   if (strippedSrc.endsWith('.material.gltf')) {
@@ -585,7 +657,7 @@ const ThumbnailJobReactor = () => {
   }
   const fileType = extensionThumbnailTypeMap.get(extension)
 
-  const onError = (err) => {
+  const onError = (err: any) => {
     console.error('failed to generate thumbnail for', src)
     console.error(err)
     FileThumbnailJobState.removeCurrentJob()
@@ -594,7 +666,11 @@ const ThumbnailJobReactor = () => {
   useEffect(() => {
     if (jobState.jobs.length > 0) {
       const newJob = jobState.jobs[0].get(NO_PROXY)
-      currentJob.set(JSON.parse(JSON.stringify(newJob)))
+      currentJob.set({
+        key: newJob.key,
+        project: newJob.project,
+        jobType: newJob.jobType
+      })
     } else {
       currentJob.set(null)
     }
@@ -607,7 +683,7 @@ const ThumbnailJobReactor = () => {
       case 'image':
         return <RenderImageThumbnail src={src} project={project} onError={onError} />
       case 'model':
-        return <RenderModelThumbnail src={src} project={project} onError={onError} />
+        return <RenderModelThumbnail src={src} project={project} onError={onError} jobType={jobType} />
       case 'texture':
         return <RenderTextureThumbnail src={src} project={project} onError={onError} />
       case 'material':
