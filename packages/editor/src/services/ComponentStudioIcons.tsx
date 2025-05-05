@@ -30,6 +30,7 @@ import { MountPointComponent } from '@ir-engine/engine/src/scene/components/Moun
 import { PortalComponent } from '@ir-engine/engine/src/scene/components/PortalComponent'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
 import { SpawnPointComponent } from '@ir-engine/engine/src/scene/components/SpawnPointComponent'
+import { TriggerCallbackComponent } from '@ir-engine/engine/src/scene/components/TriggerCallbackComponent'
 import { defineState } from '@ir-engine/hyperflux'
 import {
   DirectionalLightComponent,
@@ -39,7 +40,6 @@ import {
 } from '@ir-engine/spatial'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
-import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import BoxColliderIcon from '@ir-engine/ui/src/components/editor/assets/boxCollider.png'
 import CameraIcon from '@ir-engine/ui/src/components/editor/assets/camera.png'
@@ -62,20 +62,20 @@ export const ComponentStudioIconState = defineState({
   name: 'ee.editor.ComponentStudioIconState',
   initial: () => {
     return {
-      [DirectionalLightComponent.name]: DirectionalLightIcon, // point to texture files
-      [EnvMapBakeComponent.name]: EnvMapBakeIcon,
-      [MediaComponent.name]: MediaIcon,
-      [HemisphereLightComponent.name]: HemisphereLightIcon,
-      [MountPointComponent.name]: MountPointIcon,
-      [PointLightComponent.name]: PointLightIcon,
-      [PositionalAudioComponent.name]: PositionalAudioIcon,
-      [PortalComponent.name]: PortalIcon,
-      [ScenePreviewCameraComponent.name]: CameraIcon,
-      [SpotLightComponent.name]: SpotLightIcon,
-      [SpawnPointComponent.name]: SpawnPointIcon,
-      [RigidBodyComponent.name]: RigidBodyIcon,
-      [TriggerComponent.name]: TriggerIcon,
-      [ColliderComponent.name]: (shape = 'box') => {
+      [DirectionalLightComponent.jsonID]: DirectionalLightIcon, // point to texture files
+      [EnvMapBakeComponent.jsonID]: EnvMapBakeIcon,
+      [MediaComponent.jsonID]: MediaIcon,
+      [HemisphereLightComponent.jsonID]: HemisphereLightIcon,
+      [MountPointComponent.jsonID]: MountPointIcon,
+      [PointLightComponent.jsonID]: PointLightIcon,
+      [PositionalAudioComponent.jsonID]: PositionalAudioIcon,
+      [PortalComponent.jsonID]: PortalIcon,
+      [ScenePreviewCameraComponent.jsonID]: CameraIcon,
+      [SpotLightComponent.jsonID]: SpotLightIcon,
+      [SpawnPointComponent.jsonID]: SpawnPointIcon,
+      [RigidBodyComponent.jsonID]: RigidBodyIcon,
+      [TriggerCallbackComponent.jsonID]: TriggerIcon,
+      [ColliderComponent.jsonID]: (shape = 'box') => {
         switch (shape) {
           case Shapes.Sphere:
           case Shapes.Capsule:
