@@ -65,7 +65,7 @@ export const HemisphereLightComponent = defineComponent({
         activeHelperComponent.enabled.value &&
         (activeHelperComponent.selected.value || activeHelperComponent.hovered.value))
     const light = useHookstate(() => new HemisphereLight()).get(NO_PROXY) as HemisphereLight
-    const helperEntity = useHelperEntity(entity, () => new HemisphereLightHelper(light, 100), debugEnabled)
+    const helperEntity = useHelperEntity(entity, () => new HemisphereLightHelper(light, 10), debugEnabled)
 
     useImmediateEffect(() => {
       setComponent(entity, LightTagComponent)
