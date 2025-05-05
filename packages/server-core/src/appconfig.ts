@@ -43,6 +43,7 @@ import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identit
 import { loginPath } from '@ir-engine/common/src/schemas/user/login.schema'
 
 import { HookContext } from '@feathersjs/feathers'
+import { MediaSettingsType } from '@ir-engine/common/src/config'
 import { defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
 import { EngineSettingType, instanceSignalingPath, projectsPath } from '@ir-engine/common/src/schema.type.module'
 import { jwtPublicKeyPath } from '@ir-engine/common/src/schemas/user/jwt-public-key.schema'
@@ -566,23 +567,5 @@ export type ClientEngineSettingType = {
   homepageLinkButtonText: string
 
   // Media settings
-  mediaSettings: {
-    audio: {
-      maxBitrate: number
-    }
-    video: {
-      codec: string
-      maxResolution: string
-      lowResMaxBitrate: number
-      midResMaxBitrate: number
-      highResMaxBitrate: number
-    }
-    screenshare: {
-      codec: string
-      maxResolution: string
-      lowResMaxBitrate: number
-      midResMaxBitrate: number
-      highResMaxBitrate: number
-    }
-  }
+  mediaSettings: MediaSettingsType
 }

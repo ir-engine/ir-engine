@@ -43,7 +43,9 @@ const ClientSettings = () => {
   const clientSetting = useEngineSetting<ClientEngineSettingType>('client')
 
   useEffect(() => {
-    config.client.mediaSettings = clientSetting?.data?.mediaSettings
+    if (clientSetting?.data?.mediaSettings) {
+      config.client.mediaSettings = clientSetting?.data?.mediaSettings
+    }
   }, [clientSetting.status])
 
   return <></>
