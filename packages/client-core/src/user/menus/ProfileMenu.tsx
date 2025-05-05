@@ -114,6 +114,13 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     }
   })
 
+  const clientSettingQuery = useFind(engineSettingPath, {
+    query: {
+      category: 'client',
+      paginate: false
+    }
+  })
+
   const authSetting = useMemo(() => {
     if (!engineSettingData.data) return null
 
@@ -125,6 +132,16 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
       }))
     )
   }, [engineSettingData.status])
+
+  const clientSetting = useMemo(() => {
+    return unflattenArrayToObject(
+      clientSettingQuery.data.map((setting) => ({
+        key: setting.key,
+        value: setting.value,
+        dataType: setting.dataType
+      }))
+    ) as ClientEngineSettingType
+  }, [clientSettingQuery.status])
 
   const { t } = useTranslation()
   const location = useLocation()
@@ -141,17 +158,6 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const authState = useHookstate(initialAuthState)
   /** Login Link feature that was needed for multi cam mocap that is not currently necessary. Keeping code around for now if we return to it*/
   //const loginLink = useHookstate('')
-
-  const clientSettingQuery = useFind(engineSettingPath, {
-    query: {
-      category: 'client',
-      paginate: false
-    }
-  })
-
-  const clientSetting = unflattenArrayToObject(
-    clientSettingQuery.data.map((setting) => ({ key: setting.key, value: setting.value, dataType: setting.dataType }))
-  ) as ClientEngineSettingType
 
   const loading = useHookstate(getMutableState(AuthState).isProcessing)
   const userId = selfUser.id.value

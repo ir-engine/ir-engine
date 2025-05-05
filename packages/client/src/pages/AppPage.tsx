@@ -48,7 +48,7 @@ const ClientSettings = () => {
   })
   useEffect(() => {
     config.client.mediaSettings = clientSettingQuery?.data
-  }, [clientSettingQuery.data])
+  }, [clientSettingQuery.status])
 
   return <></>
 }
