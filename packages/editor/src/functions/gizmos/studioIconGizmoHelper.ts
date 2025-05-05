@@ -41,7 +41,7 @@ _raycaster.firstHitOnly = true
 
 const _interpolationFactor = 0.3 // used for the hover grow effect
 
-export const createIconGizmo = (textureURL) => {
+export const getIconGizmo = (textureURL) => {
   const texture = new TextureLoader().load(textureURL)
   const material = new SpriteMaterial({
     map: texture,
@@ -76,10 +76,13 @@ export function gizmoIconHelperUpdate(helperEntity, start, end) {
 export function gizmoIconUpdate(parentEntity: Entity) {
   const activeHelperComponent = getComponent(parentEntity, ActiveHelperComponent)
   const transform = getComponent(activeHelperComponent.helperIconGizmo, TransformComponent)
+  const parentTransformScale = getComponent(parentEntity, TransformComponent).scale
   const size = transform.scale
   const finalSize = size
     .set(1, 1, 1)
+    .divide(parentTransformScale)
     .multiplyScalar(getCameraFactor(transform.position, activeHelperComponent.sizeFactor))
+
   setComponent(activeHelperComponent.helperIconGizmo, TransformComponent, { scale: finalSize })
   for (const entity of activeHelperComponent.directionalEntities) {
     setComponent(entity, TransformComponent, { scale: finalSize })

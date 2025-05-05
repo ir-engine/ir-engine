@@ -66,10 +66,7 @@ export const SpawnPointComponent = defineComponent({
     const debugGLTF = useGLTFComponent(debugEnabled ? GLTF_PATH : '', entity)
 
     useEffect(() => {
-      setComponent(entity, ActiveHelperComponent, { directional: true })
-    }, [])
-
-    useEffect(() => {
+      setComponent(entity, ActiveHelperComponent, { directional: true, volumeEnabled: true })
       if (!debugGLTF || !debugEnabled) return
 
       const boundsHelperEntity = createEntity()

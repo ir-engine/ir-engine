@@ -37,9 +37,13 @@ import {
   PointLightComponent,
   SpotLightComponent
 } from '@ir-engine/spatial'
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
+import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
+import BoxColliderIcon from '@ir-engine/ui/src/components/editor/assets/boxCollider.png'
 import CameraIcon from '@ir-engine/ui/src/components/editor/assets/camera.png'
+import CylinderColliderIcon from '@ir-engine/ui/src/components/editor/assets/cylinderCollider.png'
 import DirectionalLightIcon from '@ir-engine/ui/src/components/editor/assets/directional.png'
 import EnvMapBakeIcon from '@ir-engine/ui/src/components/editor/assets/envMap.png'
 import HemisphereLightIcon from '@ir-engine/ui/src/components/editor/assets/hemisphere.png'
@@ -50,6 +54,7 @@ import PortalIcon from '@ir-engine/ui/src/components/editor/assets/portal.png'
 import PositionalAudioIcon from '@ir-engine/ui/src/components/editor/assets/positionalAudio.png'
 import RigidBodyIcon from '@ir-engine/ui/src/components/editor/assets/rigidBody.png'
 import SpawnPointIcon from '@ir-engine/ui/src/components/editor/assets/spawnPoint.png'
+import SphereColiderIcon from '@ir-engine/ui/src/components/editor/assets/sphereCollider.png'
 import SpotLightIcon from '@ir-engine/ui/src/components/editor/assets/spot.png'
 import TriggerIcon from '@ir-engine/ui/src/components/editor/assets/trigger.png'
 
@@ -69,7 +74,20 @@ export const ComponentStudioIconState = defineState({
       [SpotLightComponent.name]: SpotLightIcon,
       [SpawnPointComponent.name]: SpawnPointIcon,
       [RigidBodyComponent.name]: RigidBodyIcon,
-      [TriggerComponent.name]: TriggerIcon
+      [TriggerComponent.name]: TriggerIcon,
+      [ColliderComponent.name]: (shape = 'box') => {
+        switch (shape) {
+          case Shapes.Sphere:
+          case Shapes.Capsule:
+            return SphereColiderIcon
+          case Shapes.Cylinder:
+            return CylinderColliderIcon
+          case Shapes.Box: /*fall-through*/
+          case Shapes.Plane:
+          default:
+            return BoxColliderIcon
+        }
+      }
     } as Record<string, any>
   }
 })
