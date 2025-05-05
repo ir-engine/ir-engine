@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -50,7 +50,6 @@ import {
   ParticleSystemJSONParameters,
   RenderMode
 } from 'three.quarks'
-import matches from 'ts-matches'
 
 import {
   Entity,
@@ -66,6 +65,7 @@ import {
 } from '@ir-engine/ecs'
 import {
   defineComponent,
+  entityExists,
   getComponent,
   removeComponent,
   setComponent,
@@ -739,106 +739,86 @@ export type ParticleSystemComponentType = {
   behaviors?: Behavior[] | undefined
 }
 
-export const ParticleSystemJSONParametersValidator = matches.shape({
-  version: matches.string,
-  autoDestroy: matches.boolean,
-  looping: matches.boolean,
-  duration: matches.number,
-  shape: matches.shape({
-    type: matches.string,
-    radius: matches.number.optional(),
-    arc: matches.number.optional(),
-    thickness: matches.number.optional(),
-    angle: matches.number.optional(),
-    mesh: matches.string.optional()
-  }),
-  startLife: matches.object,
-  startSpeed: matches.object,
-  startRotation: matches.object,
-  startSize: matches.object,
-  startColor: matches.object,
-  emissionOverTime: matches.object,
-  emissionOverDistance: matches.object,
-  onlyUsedByOther: matches.boolean,
-  rendererEmitterSettings: matches
-    .shape({
-      startLength: matches.object.optional(),
-      followLocalOrigin: matches.boolean.optional()
-    })
-    .optional(),
-  renderMode: matches.natural,
-  speedFactor: matches.number,
-  texture: matches.string,
-  instancingGeometry: matches.object.optional(),
-  startTileIndex: matches.natural,
-  uTileCount: matches.natural,
-  vTileCount: matches.natural,
-  blending: matches.natural,
-  behaviors: matches.arrayOf(matches.any),
-  worldSpace: matches.boolean
-})
-
 const BlendingSchema = S.LiteralUnion(
   [NoBlending, NormalBlending, AdditiveBlending, SubtractiveBlending, MultiplyBlending, CustomBlending],
-  AdditiveBlending
+  { default: AdditiveBlending }
 )
 
 export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS = S.Object({
-  version: S.String('1.0'),
-  autoDestroy: S.Bool(false),
-  looping: S.Bool(true),
-  prewarm: S.Bool(false),
-  material: S.String(''),
+  version: S.String({ default: '1.0' }),
+  autoDestroy: S.Bool({ default: false }),
+  looping: S.Bool({ default: true }),
+  prewarm: S.Bool({ default: false }),
+  material: S.String({ default: '' }),
   transparent: S.Optional(S.Bool()),
-  duration: S.Number(5),
-  shape: S.Object({ type: S.String('point'), mesh: S.Optional(S.String()), geometry: S.Optional(S.String()) }),
+  duration: S.Number({ default: 5 }),
+  shape: S.Object({
+    type: S.String({ default: 'point' }),
+    mesh: S.Optional(S.String()),
+    geometry: S.Optional(S.String())
+  }),
   startLife: S.Object({
-    type: S.String('IntervalValue'),
-    a: S.Number(1),
-    b: S.Number(2),
-    value: S.Number(1),
+    type: S.String({ default: 'IntervalValue' }),
+    a: S.Number({ default: 1 }),
+    b: S.Number({ default: 2 }),
+    value: S.Number({ default: 1 }),
     functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   startSpeed: S.Object({
-    type: S.String('IntervalValue'),
-    a: S.Number(0.1),
-    b: S.Number(5),
-    value: S.Number(1),
+    type: S.String({ default: 'IntervalValue' }),
+    a: S.Number({ default: 0.1 }),
+    b: S.Number({ default: 5 }),
+    value: S.Number({ default: 1 }),
     functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   startRotation: S.Object({
-    type: S.String('IntervalValue'),
-    a: S.Number(0),
-    b: S.Number(300),
-    value: S.Number(1),
+    type: S.String({ default: 'IntervalValue' }),
+    a: S.Number({ default: 0 }),
+    b: S.Number({ default: 300 }),
+    value: S.Number({ default: 1 }),
     functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   startSize: S.Object({
-    type: S.String('IntervalValue'),
-    a: S.Number(0.025),
-    b: S.Number(0.45),
-    value: S.Number(1),
+    type: S.String({ default: 'IntervalValue' }),
+    a: S.Number({ default: 0.025 }),
+    b: S.Number({ default: 0.45 }),
+    value: S.Number({ default: 1 }),
     functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   startColor: S.Object({
-    type: S.String('ConstantColor'),
-    color: S.Object({ r: S.Number(1), g: S.Number(1), b: S.Number(1), a: S.Number(0.1) }),
-    a: S.Object({ r: S.Number(1), g: S.Number(1), b: S.Number(1), a: S.Number(1) }),
-    b: S.Object({ r: S.Number(1), g: S.Number(1), b: S.Number(1), a: S.Number(1) }),
+    type: S.String({ default: 'ConstantColor' }),
+    color: S.Object({
+      r: S.Number({ default: 1 }),
+      g: S.Number({ default: 1 }),
+      b: S.Number({ default: 1 }),
+      a: S.Number({ default: 0.1 })
+    }),
+    a: S.Object({
+      r: S.Number({ default: 1 }),
+      g: S.Number({ default: 1 }),
+      b: S.Number({ default: 1 }),
+      a: S.Number({ default: 1 })
+    }),
+    b: S.Object({
+      r: S.Number({ default: 1 }),
+      g: S.Number({ default: 1 }),
+      b: S.Number({ default: 1 }),
+      a: S.Number({ default: 1 })
+    }),
     functions: S.Array(S.Type<ColorGradientFunctionJSON>())
   }),
   emissionOverTime: S.Object({
-    type: S.String('ConstantValue'),
-    value: S.Number(400),
-    a: S.Number(0),
-    b: S.Number(1),
+    type: S.String({ default: 'ConstantValue' }),
+    value: S.Number({ default: 400 }),
+    a: S.Number({ default: 0 }),
+    b: S.Number({ default: 1 }),
     functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   emissionOverDistance: S.Object({
-    type: S.String('ConstantValue'),
-    value: S.Number(0),
-    a: S.Number(0),
-    b: S.Number(1),
+    type: S.String({ default: 'ConstantValue' }),
+    value: S.Number({ default: 0 }),
+    a: S.Number({ default: 0 }),
+    b: S.Number({ default: 1 }),
     functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   emissionBursts: S.Array(
@@ -850,35 +830,35 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS = S.Object({
       probability: S.Number()
     })
   ),
-  onlyUsedByOther: S.Bool(false),
+  onlyUsedByOther: S.Bool({ default: false }),
   rendererEmitterSettings: S.Object({
     startLength: S.Object({
-      type: S.String('ConstantValue'),
-      value: S.Number(1),
-      a: S.Number(0),
-      b: S.Number(1),
+      type: S.String({ default: 'ConstantValue' }),
+      value: S.Number({ default: 1 }),
+      a: S.Number({ default: 0 }),
+      b: S.Number({ default: 1 }),
       functions: S.Array(S.Type<BezierFunctionJSON>())
     }),
-    followLocalOrigin: S.Bool(true)
+    followLocalOrigin: S.Bool({ default: true })
   }),
-  renderMode: S.Enum(RenderMode, RenderMode.BillBoard),
-  texture: S.String(''),
+  renderMode: S.Enum(RenderMode, { default: RenderMode.BillBoard }),
+  texture: S.String({ default: '' }),
   /**
    * particle mesh geometry
    */
-  instancingGeometry: S.String(''),
+  instancingGeometry: S.String({ default: '' }),
   startTileIndex: S.Object({
-    type: S.String('ConstantValue'),
-    value: S.Number(0),
-    a: S.Number(0),
-    b: S.Number(1),
+    type: S.String({ default: 'ConstantValue' }),
+    value: S.Number({ default: 0 }),
+    a: S.Number({ default: 0 }),
+    b: S.Number({ default: 1 }),
     functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
-  uTileCount: S.Number(1),
-  vTileCount: S.Number(1),
+  uTileCount: S.Number({ default: 1 }),
+  vTileCount: S.Number({ default: 1 }),
   blending: BlendingSchema,
   behaviors: S.Array(S.Type<BehaviorJSON>()),
-  worldSpace: S.Bool(true)
+  worldSpace: S.Bool({ default: true })
 })
 
 export const ParticleSystemComponent = defineComponent({
@@ -888,8 +868,8 @@ export const ParticleSystemComponent = defineComponent({
   schema: S.Object({
     systemParameters: DEFAULT_PARTICLE_SYSTEM_PARAMETERS,
     behaviorParameters: S.Array(S.Type<BehaviorJSON>()),
-    behaviors: S.NonSerialized(S.Optional(S.Array(S.Type<Behavior>()))),
-    system: S.NonSerialized(S.Type<ParticleSystem>())
+    behaviors: S.Optional(S.Array(S.Type<Behavior>()), { serialized: false }),
+    system: S.Type<ParticleSystem>({ serialized: false } as any)
   }),
 
   onSet: (entity, component, json) => {
@@ -1066,7 +1046,7 @@ export const ParticleSystemComponent = defineComponent({
           }
         }
         removeComponent(entity, ObjectComponent)
-        setComponent(entity, ObjectComponent, new Object3D())
+        if (entityExists(entity)) setComponent(entity, ObjectComponent, new Object3D())
 
         nuSystem.dispose()
         emitterAsObj3D.dispose()

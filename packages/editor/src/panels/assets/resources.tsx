@@ -31,7 +31,7 @@ import ProgressBar from '@ir-engine/client-core/src/systems/ui/LoadingDetailView
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
-import { getMutableState, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { Button, Tooltip } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import InfiniteScroll from '@ir-engine/ui/src/components/tailwind/InfiniteScroll'
@@ -41,7 +41,6 @@ import { DragPreviewImage, useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
-import { FilesViewModeSettings } from '../../services/FilesState'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileIcon } from '../files/fileicon'
 import { FileUploadProgress } from '../files/loaders'
@@ -163,7 +162,6 @@ export function FileCard({
   onLoad,
   onLoadStart
 }) {
-  const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
   const thumbnailURL = item.thumbnailURL
   return (
     <>
@@ -180,14 +178,9 @@ export function FileCard({
       >
         <div
           className={twMerge(
-            'box-border rounded border-0 p-2 font-figtree',
-            isSelected ? 'rounded border-2 border-text-link bg-[#2C2E30]' : 'group-hover:bg-ui-hover-background'
+            `box-border h-20 w-16 rounded font-figtree text-sm`,
+            isSelected ? 'rounded border border-[#375DAF] bg-[#2C2E30]' : 'group-hover:bg-[#202225]'
           )}
-          style={{
-            height: iconSize,
-            width: iconSize,
-            fontSize: iconSize
-          }}
           data-testid={dataTestIdJson?.fileIconId}
         >
           <FileIcon
@@ -518,6 +511,11 @@ export default function Resources() {
       <InfiniteScroll
         disableEvent={staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || resourcesLoading}
         onScrollBottom={() => {
+          if (
+            staticResourcesPagination.skip.value + ASSETS_PAGE_LIMIT + calculateItemsToFetch() >
+            staticResourcesPagination.total.value
+          )
+            return
           staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT + calculateItemsToFetch())
           refetchResources()
         }}

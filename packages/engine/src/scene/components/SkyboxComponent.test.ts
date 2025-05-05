@@ -46,7 +46,6 @@ const SkyboxComponentDefaults = {
   equirectangularPath: '',
   cubemapPath: '',
   backgroundType: 1,
-  sky: null,
   skyboxProps: {
     turbidity: 10,
     rayleigh: 1,
@@ -82,8 +81,7 @@ describe('SkyboxComponent', () => {
       setComponent(entity, SkyboxComponent)
 
       const result = serializeComponent(entity, SkyboxComponent)
-      const { sky, ...expected } = SkyboxComponentDefaults
-      expect(result).toEqual(expected)
+      expect(result).toEqual(SkyboxComponentDefaults)
     })
 
     it("should serialize the component's non-default data as expected", ({ entity }) => {

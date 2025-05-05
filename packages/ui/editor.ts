@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+export { default as AudioVolumeVisualizer } from './src/components/editor/AudioVolumeVisualizer'
 export { default as ImageLink } from './src/components/editor/ImageLink'
 export type { ImageLinkProps } from './src/components/editor/ImageLink'
 export { default as Seeker } from './src/components/editor/Seeker'

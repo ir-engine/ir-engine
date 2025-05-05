@@ -37,8 +37,8 @@ export const ShadowComponent = defineComponent({
   jsonID: 'EE_shadow',
 
   schema: S.Object({
-    cast: S.Bool(true),
-    receive: S.Bool(true)
+    cast: S.Bool({ default: true }),
+    receive: S.Bool({ default: true })
   }),
 
   reactor: () => {

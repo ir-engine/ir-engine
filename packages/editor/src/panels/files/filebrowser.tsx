@@ -140,34 +140,32 @@ export function Browser() {
           filesQuery?.setLimit(filesQuery.limit + FILES_PAGE_LIMIT)
         }}
       >
-        <div className="relative mt-auto flex h-full w-full flex-wrap gap-2">
-          {sortedFiles.map((file, idx) => {
-            const backgroundColor = idx % 2 === 0 ? 'bg-surface-1' : 'bg-surface-0'
-            return (
-              <FileItem
-                file={{ ...file, ...staticResourceData.value[file?.key] }}
-                onContextMenu={(event) => {
-                  event.preventDefault()
-                  event.stopPropagation()
-                  if (!selectedFiles.value.find((selectedFile) => selectedFile.key === file.key)) {
-                    selectedFiles.set([file])
-                  }
-                  setAnchorEvent(event)
-                }}
-                key={file.key}
-                data-testid="files-panel-file-item"
-                className={`${isListView ? `${backgroundColor}` : ''}`}
-              />
-            )
-          })}
-        </div>
+        {sortedFiles.map((file, idx) => {
+          const backgroundColor = idx % 2 === 0 ? 'bg-surface-1' : 'bg-surface-0'
+          return (
+            <FileItem
+              file={{ ...file, ...staticResourceData.value[file?.key] }}
+              onContextMenu={(event) => {
+                event.preventDefault()
+                event.stopPropagation()
+                if (!selectedFiles.value.find((selectedFile) => selectedFile.key === file.key)) {
+                  selectedFiles.set([file])
+                }
+                setAnchorEvent(event)
+              }}
+              key={file.key}
+              data-testid="files-panel-file-item"
+              className={`${isListView ? `${backgroundColor}` : ''}`}
+            />
+          )
+        })}
       </InfiniteScroll>
     </>
   )
 
   return (
     <div
-      className={twMerge('h-full overflow-y-scroll bg-surface-1', isFileDropOver ? 'border-2 border-gray-300' : '')}
+      className={twMerge('h-full overflow-y-auto bg-surface-1', isFileDropOver ? 'border-2 border-gray-300' : '')}
       ref={fileDropRef}
       onContextMenu={(event) => {
         event.preventDefault()

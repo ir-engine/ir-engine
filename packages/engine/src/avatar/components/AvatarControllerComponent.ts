@@ -30,6 +30,7 @@ import { entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -61,13 +62,13 @@ export const AvatarControllerComponent = defineComponent({
     /** The camera entity that should be updated by this controller */
     cameraEntity: S.Entity(),
     movementCaptured: S.Array(S.Entity()),
-    isJumping: S.Bool(false),
-    isWalking: S.Bool(false),
-    isInAir: S.Bool(false),
+    isJumping: S.Bool(),
+    isWalking: S.Bool(),
+    isInAir: S.Bool(),
     /** velocity along the Y axis */
-    verticalVelocity: S.Number(0),
+    verticalVelocity: S.Number(),
     /** Is the gamepad-driven jump active */
-    gamepadJumpActive: S.Bool(false),
+    gamepadJumpActive: S.Bool(),
     /** gamepad-driven input, in the local XZ plane */
     gamepadLocalInput: T.Vec3(),
     /** gamepad-driven movement, in the world XZ plane */
@@ -159,14 +160,12 @@ export const AvatarColliderComponent = defineComponent({
   name: 'AvatarColliderComponent',
   schema: S.Object({ colliderEntity: S.Entity() }),
 
-  reactor() {
-    const entity = useEntityContext()
-    const avatarColliderComponent = getComponent(entity, AvatarColliderComponent)
+  reactor({ entity }) {
     useEffect(() => {
+      const avatarColliderComponent = getOptionalComponent(entity, AvatarColliderComponent)
       return () => {
-        removeEntity(
-          avatarColliderComponent.colliderEntity
-        ) /** @todo Aidan said to figure out why this isn't cleaned up with EntityTree */
+        if (!avatarColliderComponent?.colliderEntity) return
+        removeEntity(avatarColliderComponent.colliderEntity)
       }
     }, [])
   }

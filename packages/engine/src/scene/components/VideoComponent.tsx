@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -95,12 +95,11 @@ class VideoTexturePriorityQueue extends VideoTexture {
   update() {}
 }
 
-const WrappingSchema = S.LiteralUnion(
-  [RepeatWrapping, ClampToEdgeWrapping, MirroredRepeatWrapping],
-  ClampToEdgeWrapping
-)
+const WrappingSchema = S.LiteralUnion([RepeatWrapping, ClampToEdgeWrapping, MirroredRepeatWrapping], {
+  default: ClampToEdgeWrapping
+})
 
-const ProjectionSchema = S.LiteralUnion(['Flat', 'Equirectangular360'], 'Flat')
+const ProjectionSchema = S.LiteralUnion(['Flat', 'Equirectangular360'], { default: 'Flat' })
 
 export const VideoComponent = defineComponent({
   name: 'EE_video',
@@ -113,17 +112,17 @@ export const VideoComponent = defineComponent({
     alphaUVOffset: T.Vec2(),
     wrapS: WrappingSchema,
     wrapT: WrappingSchema,
-    useAlpha: S.Bool(false),
-    useAlphaInvert: S.Bool(false),
-    alphaThreshold: S.Number(0.5),
+    useAlpha: S.Bool({ default: false }),
+    useAlphaInvert: S.Bool({ default: false }),
+    alphaThreshold: S.Number({ default: 0.5 }),
     fit: ContentFitTypeSchema('stretch'),
     projection: ProjectionSchema,
     mediaUUID: NodeIDSchema(),
 
     // internal
-    videoMeshEntity: S.NonSerialized(S.Entity()),
-    currentVideoSize: S.NonSerialized(T.Vec2(Vector2_One)),
-    texture: S.NonSerialized(S.Nullable(S.Type<VideoTexturePriorityQueue>()))
+    videoMeshEntity: S.Entity({ serialized: false }),
+    currentVideoSize: T.Vec2(Vector2_One, { serialized: false }),
+    texture: S.Type<VideoTexturePriorityQueue | null>()
   }),
 
   onRemove: (entity, component) => {
@@ -211,7 +210,7 @@ function VideoReactor() {
           } else {
             wrappedUv.x = clamp(wrappedUv.x, 0.0, 1.0);
           }
-          
+
           if (wrapT == 1000) {
             wrappedUv.y = fract(wrappedUv.y);
           } else if (wrapT == 1002) {
@@ -239,10 +238,10 @@ function VideoReactor() {
               intensity = 1.0 - intensity;
             }
             if (intensity < alphaThreshold) discard;
-          }          
+          }
           if( adjustedUv.y < 0.0 || adjustedUv.y > 1.0 || adjustedUv.x < 0.0 || adjustedUv.x > 1.0) {
-              discard;    
-          }          
+              discard;
+          }
           gl_FragColor = color;
         #else
           gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
@@ -460,8 +459,30 @@ function VideoReactor() {
     const sourceTexture = sourceVideoComponent?.texture
 
     if (video.texture.value) {
+      const videoEl = mediaElement.element as HTMLVideoElement
+
+      const resetMuted = () => {
+        videoEl.muted = false
+        document.removeEventListener('pointerdown', resetMuted)
+      }
+
+      if (videoEl.paused) {
+        videoEl.pause()
+      } else {
+        videoEl.play().catch((error) => {
+          if (error.name === 'NotAllowedError') {
+            videoEl.muted = true
+            videoEl.play()
+
+            document.addEventListener('pointerdown', resetMuted)
+          } else {
+            console.error(error)
+          }
+        })
+      }
+
       //needed to set up the self-referencing source video texture
-      ;(video.texture.value.image as HTMLVideoElement) = mediaElement.element as HTMLVideoElement
+      ;(video.texture.value.image as HTMLVideoElement) = videoEl
       clearErrors(entity, VideoComponent)
     } else {
       if (sourceTexture && sourceMeshComponent) {

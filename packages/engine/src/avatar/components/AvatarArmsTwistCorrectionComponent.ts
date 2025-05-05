@@ -32,8 +32,8 @@ export const AvatarArmsTwistCorrectionComponent = defineComponent({
 
   schema: S.Object({
     LeftHandBindRotationInv: T.Quaternion(),
-    LeftArmTwistAmount: S.Number(0),
+    LeftArmTwistAmount: S.Number(),
     RightHandBindRotationInv: T.Quaternion(),
-    RightArmTwistAmount: S.Number(0)
+    RightArmTwistAmount: S.Number()
   })
 })

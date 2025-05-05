@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -89,7 +89,7 @@ export const MediaElementComponent = defineComponent({
 
   schema: S.Object({
     element: S.Type<HTMLMediaElement>(),
-    hls: S.Optional(S.Type<Hls>()),
+    hls: S.Type<Hls | undefined>(),
     abortController: S.Class(() => new AbortController())
   }),
 
@@ -136,27 +136,27 @@ export const MediaComponent = defineComponent({
   jsonID: 'EE_media',
 
   schema: S.Object({
-    controls: S.Bool(false),
-    synchronize: S.Bool(true),
-    autoplay: S.Bool(false), //false = personal preference, this is super annoying when it just starts playing once added to a scene while editing
-    muteEditor: S.Bool(false), //false
+    controls: S.Bool({ default: false }),
+    synchronize: S.Bool({ default: true }),
+    autoplay: S.Bool({ default: false }), //false = personal preference, this is super annoying when it just starts playing once added to a scene while editing
+    muteEditor: S.Bool({ default: false }), //false
     uiOffset: T.Vec3(),
-    volume: S.Number(1),
+    volume: S.Number({ default: 1 }),
     resources: S.Array(S.String()),
-    playMode: S.Enum(PlayMode, PlayMode.loop),
-    isMusic: S.Bool(false),
-    seekTime: S.NonSerialized(S.Number(0)),
+    playMode: S.Enum(PlayMode, { default: PlayMode.loop }),
+    isMusic: S.Bool({ default: false }),
+    seekTime: S.Number({ default: 0, serialized: false }),
     /**@deprecated */
     paths: S.Array(S.String()),
     // runtime props
-    xruiEntity: S.NonSerialized(S.Entity()),
-    paused: S.NonSerialized(S.Bool(true)),
-    ended: S.NonSerialized(S.Bool(true)),
-    waiting: S.NonSerialized(S.Bool(false)),
-    track: S.NonSerialized(S.Number(-1)),
-    currentTrackTime: S.NonSerialized(S.Number(0)),
-    currentTrackDuration: S.NonSerialized(S.Number(0)),
-    isCurrentTrackLoaded: S.NonSerialized(S.Bool(false)),
+    xruiEntity: S.Entity({ serialized: false }),
+    paused: S.Bool({ default: true, serialized: false }),
+    ended: S.Bool({ default: true, serialized: false }),
+    waiting: S.Bool({ default: false, serialized: false }),
+    track: S.Number({ default: -1, serialized: false }),
+    currentTrackTime: S.Number({ default: 0, serialized: false }),
+    currentTrackDuration: S.Number({ default: 0, serialized: false }),
+    isCurrentTrackLoaded: S.Bool({ default: false, serialized: false }),
     externalMediaNodeID: NodeIDSchema()
     /**
      * TODO: refactor this into a ScheduleComponent for invoking callbacks at scheduled times

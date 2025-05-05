@@ -80,14 +80,27 @@ wait_for_builds_finished() {
   INSTANCESERVER_SLICE=($(kubectl get pods | grep ir-engine-kaniko-instanceserver))
   INSTANCESERVER_STATUS=${INSTANCESERVER_SLICE[2]}
 
-  if [[ "$API_STATUS" != "Running" && "$CLIENT_STATUS" != "Running" && "$INSTANCESERVER_STATUS" != "Running" ]]
+  if [[ "$API_STATUS" == "Running" ]] || [[ "$API_STATUS" == "Failed" ]]
   then
     API_KANIKO_POD=$(kubectl get pods | grep ir-engine-kaniko-api | tail -n 1 | cut -d ' ' -f 1)
-    CLIENT_KANIKO_POD=$(kubectl get pods | grep ir-engine-kaniko-client | tail -n 1 | cut -d ' ' -f 1)
-    INSTANCESERVER_KANIKO_POD=$(kubectl get pods | grep ir-engine-kaniko-instanceserver | tail -n 1 | cut -d ' ' -f 1)
     kubectl logs $API_KANIKO_POD >api-build-error.txt
+  fi
+
+  if [[ "$CLIENT_STATUS" == "Running" ]] || [[ "$CLIENT_STATUS" == "Failed" ]]
+  then
+    CLIENT_KANIKO_POD=$(kubectl get pods | grep ir-engine-kaniko-client | tail -n 1 | cut -d ' ' -f 1)
     kubectl logs $CLIENT_KANIKO_POD >client-build-error.txt
+  fi
+
+  if [[ "$INSTANCESERVER_STATUS" == "Running" ]] || [[ "$INSTANCESERVER_STATUS" == "Failed" ]]
+  then
+    INSTANCESERVER_KANIKO_POD=$(kubectl get pods | grep ir-engine-kaniko-instanceserver | tail -n 1 | cut -d ' ' -f 1)
     kubectl logs $INSTANCESERVER_KANIKO_POD >instanceserver-build-error.txt
+  fi
+
+  if [[ "$API_STATUS" != "Running" && "$API_STATUS" != "Pending" && "$CLIENT_STATUS" != "Running" && "$CLIENT_STATUS" != "Pending" && "$INSTANCESERVER_STATUS" != "Running" && "$INSTANCESERVER_STATUS" != "Pending" ]]
+  then
+    return 0
   else
     wait_for_builds_finished
   fi
@@ -495,7 +508,7 @@ record_build_success() {
 
 handle_job_completion() {
   # Check if this is a job-based builder
-  if kubectl get jobs | grep -q "$RELEASE_NAME-builder-ir-engine-builder"; then
+  if kubectl get jobs | grep "$RELEASE_NAME-builder-ir-engine-builder"; then
     echo "Done with builder job"
   else
     log_info "Non-job builder, sleeping indefinitely"

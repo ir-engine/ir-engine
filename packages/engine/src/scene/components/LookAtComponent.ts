@@ -33,7 +33,7 @@ export const LookAtComponent = defineComponent({
 
   schema: S.Object({
     target: NodeIDSchema(),
-    xAxis: S.Bool(true),
-    yAxis: S.Bool(true)
+    xAxis: S.Bool({ default: true }),
+    yAxis: S.Bool({ default: true })
   })
 })

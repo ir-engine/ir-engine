@@ -83,6 +83,7 @@ import { twMerge } from 'tailwind-merge'
 import { initialAuthState, initialOAuthConnectedState } from '../../common/initialAuthState'
 import { ModalState } from '../../common/services/ModalState'
 import { NotificationService } from '../../common/services/NotificationService'
+import { ProjectState } from '../../common/services/ProjectService'
 import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { useZendesk } from '../../hooks/useZendesk'
 import { LocationState } from '../../social/services/LocationService'
@@ -158,6 +159,8 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const originallyAgeVerified = useHookstate(checked18OrOver)
   const originallyAcceptedTOS = useHookstate(acceptedTOS).value
   const currentLocation = getState(LocationState).currentLocation.location
+
+  const projectState = useMutableState(ProjectState)
 
   const projectSettings = useFind(projectSettingPath, {
     query: {
@@ -405,13 +408,6 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     authState?.value?.twitter
 
   const enableConnect = authState?.value?.emailMagicLink || authState?.value?.smsMagicLink
-
-  console.log('hideLogin (within ProfileMenu)', hideLogin)
-  console.log('acceptedTOS (within ProfileMenu)', acceptedTOS)
-  console.log('enableSocial (within ProfileMenu)', enableSocial)
-  console.log('checked13OrOver (within ProfileMenu)', checked13OrOver.value)
-  console.log('checked18OrOver (within ProfileMenu)', checked18OrOver)
-  console.log('authSetting (within ProfileMenu)', authSetting)
 
   return (
     <div className="absolute z-50 h-fit max-h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 smh:max-h-[60dvh] smh:px-8 smh:py-6">
@@ -886,24 +882,32 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
         </div>
       )}
 
-      <div className="mt-1 flex w-full items-center justify-center gap-x-2 smh:mt-5">
-        <a href={clientSetting?.data?.privacyPolicy} data-testid="profile-menu-privacy-policy-link" target="_blank">
-          <Text className="text-center text-text-primary" fontSize="sm">
-            {t('user:usermenu.profile.privacyPolicy')}
-          </Text>
-        </a>
-        {creatorPrivacyPolicyUrl?.value && (
-          <>
+      <div className="mt-1 flex w-full items-center justify-evenly gap-x-2 smh:mt-5">
+        <div className="flex-1"></div>
+        <div className="flex-1">
+          <a href={clientSetting?.data?.privacyPolicy} data-testid="profile-menu-privacy-policy-link" target="_blank">
             <Text className="text-center text-text-primary" fontSize="sm">
-              |
+              {t('user:usermenu.profile.privacyPolicy')}
             </Text>
-            <a href={creatorPrivacyPolicyUrl.value} target="_blank">
+          </a>
+          {creatorPrivacyPolicyUrl?.value && (
+            <>
               <Text className="text-center text-text-primary" fontSize="sm">
-                {t('user:usermenu.profile.creatorPrivacyPolicy')}
+                |
               </Text>
-            </a>
-          </>
-        )}
+              <a href={creatorPrivacyPolicyUrl.value} target="_blank">
+                <Text className="text-center text-text-primary" fontSize="sm">
+                  {t('user:usermenu.profile.creatorPrivacyPolicy')}
+                </Text>
+              </a>
+            </>
+          )}
+        </div>
+        <div className="flex-1 text-right">
+          <Text className="text-sm">
+            {t('admin:components.setting.releaseVersion')}: {projectState.builderInfo.engineVersion.value}
+          </Text>
+        </div>
       </div>
     </div>
   )
