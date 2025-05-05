@@ -55,20 +55,6 @@ const ensureUserSettingsOwner = () => {
   }
 }
 
-// const ensureUserThemeModes = () => {
-//   return async (context: HookContext): Promise<HookContext> => {
-//     const { app, result } = context
-//     const clientSettings = await app.service(clientSettingPath).find()
-//     if (clientSettings && clientSettings.data.length > 0) {
-//       context.result = await app
-//         .service(userSettingPath)
-//         .patch(result.id, { themeModes: clientSettings.data[0].themeModes })
-//     }
-
-//     return context
-//   }
-// }
-
 export default {
   around: {
     all: [schemaHooks.resolveExternal(userSettingExternalResolver), schemaHooks.resolveResult(userSettingResolver)]
@@ -96,7 +82,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    // create: [ensureUserThemeModes()],
+    create: [],
     update: [],
     patch: [],
     remove: []
