@@ -147,12 +147,13 @@ const ActiveHelperReactor = () => {
 
   InputComponent.useExecuteWithInput(
     () => {
-      if (activeHelperComponent.helperIconGizmo.value === UndefinedEntity) return
+      const activeHelperComponent = getComponent(entity, ActiveHelperComponent)
+      if (activeHelperComponent.helperIconGizmo === UndefinedEntity) return
       gizmoIconUpdate(entity)
 
       const intersect = onPointerHover(entity)
 
-      for (const lineEntity of activeHelperComponent.lineEntities.value) {
+      for (const lineEntity of activeHelperComponent.lineEntities) {
         setVisibleComponent(lineEntity, intersect && getState(EngineState).isEditing ? true : false)
         gizmoIconHelperYAxisUpdate(lineEntity, getComponent(entity, TransformComponent).position)
       }
@@ -165,7 +166,7 @@ const ActiveHelperReactor = () => {
         )
           return
 
-      const defaultGizmoButtons = InputComponent.getMergedButtons(activeHelperComponent.helperIconGizmo.value) // why does this not work !!!!!!!! ?????
+      const defaultGizmoButtons = InputComponent.getButtons(activeHelperComponent.helperIconGizmo) // why does this not work !!!!!!!! ?????
 
       if (defaultGizmoButtons.PrimaryClick?.down) {
         SelectionState.updateSelection([getComponent(entity, UUIDComponent)])
