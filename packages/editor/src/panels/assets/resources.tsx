@@ -173,11 +173,13 @@ export function FileCard({
         data-testid={dataTestIdJson?.fileItemId}
       >
         <div
-          className={twMerge(
-            `box-border h-20 w-16 rounded font-figtree text-sm`,
-            isSelected ? 'rounded border border-[#375DAF] bg-[#2C2E30]' : 'group-hover:bg-[#202225]'
-          )}
+          className={isSelected ? 'rounded border border-ui-primary bg-ui-select-background p-1' : ''}
           data-testid={dataTestIdJson?.fileIconId}
+          style={{
+            height: 100,
+            width: 100,
+            fontSize: 100
+          }}
         >
           <FileIcon
             thumbnailURL={thumbnailURL}
