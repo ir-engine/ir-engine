@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -75,25 +75,25 @@ export const TransformGizmoControlComponent = defineComponent({
     visualEntity: S.Entity(),
     planeEntity: S.Entity(),
     pivotEntity: S.Entity(),
-    dragging: S.Bool(false),
-    axis: S.Nullable(S.LiteralUnion(Object.values(TransformAxis)), null),
-    space: S.LiteralUnion(Object.values(TransformSpace), TransformSpace.world),
-    mode: S.LiteralUnion(Object.values(TransformMode), TransformMode.translate),
-    transformPivot: S.LiteralUnion(Object.values(TransformPivot), TransformPivot.FirstSelected),
-    translationSnap: S.Nullable(S.Number(), null),
-    rotationSnap: S.Nullable(S.Number(), null),
-    scaleSnap: S.Nullable(S.Number(), null),
-    size: S.Number(1),
-    showX: S.Bool(true),
-    showY: S.Bool(true),
-    showZ: S.Bool(true),
+    dragging: S.Bool({ default: false }),
+    axis: S.Union([S.Null(), S.LiteralUnion(Object.values(TransformAxis))]),
+    space: S.LiteralUnion(Object.values(TransformSpace), { default: TransformSpace.world }),
+    mode: S.LiteralUnion(Object.values(TransformMode), { default: TransformMode.translate }),
+    transformPivot: S.LiteralUnion(Object.values(TransformPivot), { default: TransformPivot.FirstSelected }),
+    translationSnap: S.Union([S.Null(), S.Number()]),
+    rotationSnap: S.Union([S.Null(), S.Number()]),
+    scaleSnap: S.Union([S.Null(), S.Number()]),
+    size: S.Number({ default: 1 }),
+    showX: S.Bool({ default: true }),
+    showY: S.Bool({ default: true }),
+    showZ: S.Bool({ default: true }),
     pivotBounds: T.Box3(),
     pivotStartPosition: T.Vec3(),
     pivotStartRotation: T.Quaternion(),
     pointerPlaneStartPosition: T.Vec3(),
     pointerPlaneEndPosition: T.Vec3(),
     rotationAxis: T.Vec3(),
-    rotationAngle: S.Number(0),
+    rotationAngle: S.Number({ default: 0 }),
     eye: T.Vec3()
   }),
 

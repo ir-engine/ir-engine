@@ -38,17 +38,17 @@ export const CameraSettingsComponent = defineComponent({
   jsonID: 'EE_camera_settings',
 
   schema: S.Object({
-    fov: S.Number(60),
-    cameraNearClip: S.Number(0.1),
-    cameraFarClip: S.Number(1000),
-    projectionType: S.Enum(ProjectionType, ProjectionType.Perspective),
-    minCameraDistance: S.Number(1.5),
-    maxCameraDistance: S.Number(50),
-    startCameraDistance: S.Number(3),
-    cameraMode: S.Enum(FollowCameraMode, FollowCameraMode.Dynamic),
-    cameraModeDefault: S.Enum(FollowCameraMode, FollowCameraMode.ThirdPerson),
-    minPhi: S.Number(-70),
-    maxPhi: S.Number(85)
+    fov: S.Number({ default: 60 }),
+    cameraNearClip: S.Number({ default: 0.1 }),
+    cameraFarClip: S.Number({ default: 1000 }),
+    projectionType: S.Enum(ProjectionType, { default: ProjectionType.Perspective }),
+    minCameraDistance: S.Number({ default: 1.5 }),
+    maxCameraDistance: S.Number({ default: 50 }),
+    startCameraDistance: S.Number({ default: 3 }),
+    cameraMode: S.Enum(FollowCameraMode, { default: FollowCameraMode.Dynamic }),
+    cameraModeDefault: S.Enum(FollowCameraMode, { default: FollowCameraMode.ThirdPerson }),
+    minPhi: S.Number({ default: -70 }),
+    maxPhi: S.Number({ default: 85 })
   }),
 
   reactor: () => {

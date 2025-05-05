@@ -709,10 +709,10 @@ describe('traverseEntityNodeParent', () => {
   })
 }) //:: traverseEntityNodeParent
 
-const ComponentA = defineComponent({ name: 'ComponentA', schema: S.String('') })
-const ComponentB = defineComponent({ name: 'ComponentB', schema: S.String('') })
-const ComponentC = defineComponent({ name: 'ComponentC', schema: S.String('') })
-const ComponentD = defineComponent({ name: 'ComponentD', schema: S.String('') })
+const ComponentA = defineComponent({ name: 'ComponentA', schema: S.String() })
+const ComponentB = defineComponent({ name: 'ComponentB', schema: S.String() })
+const ComponentC = defineComponent({ name: 'ComponentC', schema: S.String() })
+const ComponentD = defineComponent({ name: 'ComponentD', schema: S.String() })
 
 describe('getAncestorWithComponents', () => {
   beforeEach(() => {

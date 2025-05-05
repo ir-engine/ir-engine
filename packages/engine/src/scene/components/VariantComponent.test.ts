@@ -34,10 +34,10 @@ import {
   setComponent,
   UndefinedEntity
 } from '@ir-engine/ecs'
-import { assertArray } from '@ir-engine/spatial/tests/util/assert.ts'
+import { assertArray } from '@ir-engine/spatial/tests/util/assert'
 import { afterEach, assert, beforeEach, describe, it } from 'vitest'
-import { GLTFComponent } from '../../gltf/GLTFComponent.tsx'
-import { deviceMetadataSchema, distanceMetadataSchema, VariantComponent } from './VariantComponent.tsx'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
+import { deviceMetadataSchema, distanceMetadataSchema, VariantComponent } from './VariantComponent'
 
 const VariantComponentDefaults = {
   levels: [] as Array<{

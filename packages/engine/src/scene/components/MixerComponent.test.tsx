@@ -75,24 +75,24 @@ const testComponent = defineComponent({
   jsonID: 'EE_test',
   schema: S.Object({
     // Simple number properties
-    x: S.Number(0),
-    y: S.Number(0),
-    z: S.Number(0),
+    x: S.Number(),
+    y: S.Number(),
+    z: S.Number(),
 
     // Single property for simple tests
-    simple: S.Number(0),
+    simple: S.Number(),
 
     // First-level nested object
     nested: S.Object({
-      x: S.Number(0),
-      y: S.Number(0)
+      x: S.Number(),
+      y: S.Number()
     }),
 
     // Deeply nested object with vector and rotation
     deepNested: S.Object({
       position: T.Vec3(new Vector3(0, 0, 0)),
       rotation: S.Object({
-        angle: S.Number(0)
+        angle: S.Number()
       })
     })
   })

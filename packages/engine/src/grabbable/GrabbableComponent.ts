@@ -39,7 +39,7 @@ import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { InteractableComponent, XRUIVisibilityOverride } from '../interaction/components/InteractableComponent'
 
 // @todo move this to spatial package schema definitions
-export const XRHandedness = S.LiteralUnion(['none', 'left', 'right'], 'none')
+export const XRHandedness = S.LiteralUnion(['none', 'left', 'right'])
 
 /**
  * GrabbableComponent

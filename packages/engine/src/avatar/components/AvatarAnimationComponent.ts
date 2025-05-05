@@ -56,10 +56,10 @@ export const AvatarAnimationComponent = defineComponent({
 
   schema: S.Object({
     animationGraph: S.Object({
-      blendAnimation: S.Optional(S.Type<AnimationAction>()),
-      fadingOut: S.Bool(false),
-      blendStrength: S.Number(0),
-      layer: S.Number(0)
+      blendAnimation: S.Type<AnimationAction | undefined>(),
+      fadingOut: S.Bool(),
+      blendStrength: S.Number(),
+      layer: S.Number()
     }),
     /** The input vector for 2D locomotion blending space */
     locomotion: T.Vec3()

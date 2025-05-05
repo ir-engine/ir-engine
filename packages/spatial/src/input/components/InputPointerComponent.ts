@@ -65,7 +65,7 @@ export const InputPointerComponent = defineComponent({
   name: 'InputPointerComponent',
 
   schema: S.Object({
-    pointerId: S.Number(-1),
+    pointerId: S.Number({ default: -1 }),
     position: T.Vec2(),
     lastPosition: T.Vec2(),
     movement: T.Vec2(),

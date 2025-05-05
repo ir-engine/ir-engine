@@ -384,8 +384,8 @@ describe('exportGLTFScene', () => {
       name: 'TestComponent',
       jsonID: 'IR_test-component',
       schema: S.Object({
-        string: S.String('value'),
-        number: S.Number(1)
+        string: S.String({ default: 'value' }),
+        number: S.Number({ default: 1 })
       })
     })
     const entity = createSceneEntity('test')

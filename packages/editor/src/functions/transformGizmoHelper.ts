@@ -50,6 +50,7 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 
 import { EntityHierarchyLockState } from '@ir-engine/editor/src/services/EntityHierarchyLockState'
+import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { computeTransformPivot } from '@ir-engine/spatial/src/common/functions/TransformPivot'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -58,7 +59,6 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
 import { TransformGizmoVisualComponent } from '../classes/gizmo/transform/TransformGizmoVisualComponent'
 import { GizmoMaterial, gizmoMaterialProperties } from '../constants/GizmoPresets'
-import { EditorHistoryFunctions } from '../services/EditorHistoryState'
 import { ObjectGridSnapState } from '../systems/ObjectGridSnapSystem'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
@@ -673,7 +673,7 @@ export function onPointerUp(gizmoEntity: Entity, pointerEntity: Entity) {
     }
   } else {
     if (getState(ObjectGridSnapState).enabled) ObjectGridSnapState.apply()
-    EditorHistoryFunctions.setComponent(gizmoControl.controlledEntities.value as Entity[], TransformComponent)
+    AuthoringState.snapshotEntities(gizmoControl.controlledEntities.value as Entity[])
   }
 }
 

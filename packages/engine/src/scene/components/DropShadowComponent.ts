@@ -31,7 +31,7 @@ export const DropShadowComponent = defineComponent({
   name: 'DropShadowComponent',
 
   schema: S.Object({
-    radius: S.Number(0),
+    radius: S.Number(),
     center: T.Vec3(),
     entity: S.Entity()
   })

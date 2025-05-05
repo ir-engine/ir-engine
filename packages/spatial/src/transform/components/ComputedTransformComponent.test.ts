@@ -24,7 +24,9 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
+  CreateSchemaValue,
   Entity,
+  S,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -43,9 +45,11 @@ type ComputedTransformComponentData = {
   computeFunction: (() => void) | undefined
 }
 
+const defaultSchemaFunction = CreateSchemaValue(UndefinedEntity, S.Call())
+
 const ComputedTransformComponentDefaults: ComputedTransformComponentData = {
   referenceEntities: [] as Entity[],
-  computeFunction: undefined
+  computeFunction: defaultSchemaFunction
 }
 
 function assertComputedTransformComponentEq(

@@ -45,7 +45,8 @@ import { SourceComponent, SourceID } from '../scene/components/SourceComponent'
 
 export type NodeID = OpaqueType<'NodeID'> & string
 
-export const NodeIDSchema = () => S.String('', { id: 'NodeID' }) as unknown as TTypedSchema<NodeID>
+export const NodeIDSchema = (options?: TTypedSchema<NodeID>['options']) =>
+  S.String({ ...options, id: 'NodeID' }) as unknown as TTypedSchema<NodeID>
 
 export const NodesBySourceState = defineState({
   name: 'ir.world.NodesBySourceState',
@@ -56,13 +57,10 @@ export const NodeIDComponent = defineComponent({
   name: 'NodeIDComponent',
   jsonID: 'EE_uuid',
 
-  schema: S.Required(
-    S.String('', {
-      /** @todo we should also validate to see if it currently is defined, and if not then disallow changing */
-      validate: NonEmptyString('NodeIDComponent expects a non-empty string'),
-      id: 'NodeID'
-    }) as unknown as TTypedSchema<NodeID>
-  ),
+  schema: NodeIDSchema({
+    /** @todo we should also validate to see if it currently is defined, and if not then disallow changing */
+    validate: NonEmptyString('NodeIDComponent expects a non-empty string')
+  }),
 
   reactor: () => {
     const entity = useEntityContext()

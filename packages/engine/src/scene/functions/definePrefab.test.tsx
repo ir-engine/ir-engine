@@ -82,9 +82,9 @@ describe('definePrefab', () => {
       name: 'TestPrefab',
       jsonID: 'test-prefab',
       schema: S.Object({
-        health: S.Number(100),
-        name: S.String('Default'),
-        isActive: S.Bool(true)
+        health: S.Number({ default: 100 }),
+        name: S.String({ default: 'Default' }),
+        isActive: S.Bool({ default: true })
       }),
       reactor: () => null
     })
@@ -116,8 +116,8 @@ describe('definePrefab', () => {
       name: 'TestPrefabReactor',
       jsonID: 'test-prefab-reactor',
       schema: S.Object({
-        health: S.Number(100),
-        name: S.String('Default')
+        health: S.Number({ default: 100 }),
+        name: S.String({ default: 'Default' })
       }),
       reactor: () => null
     })
@@ -134,8 +134,8 @@ describe('definePrefab', () => {
       name: 'TestPrefabSpawn',
       jsonID: 'test-prefab-spawn',
       schema: S.Object({
-        health: S.Number(100),
-        name: S.String('Default')
+        health: S.Number({ default: 100 }),
+        name: S.String({ default: 'Default' })
       }),
       reactor: () => null
     })
