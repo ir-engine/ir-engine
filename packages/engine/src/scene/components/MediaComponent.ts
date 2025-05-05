@@ -29,6 +29,7 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  getOptionalMutableComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -224,7 +225,15 @@ export function MediaReactor() {
       return
     }
 
-    const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
+    const urlToPlay = encodeURI(AssetLoader.getAbsolutePath(path))
+
+    const checkMediaElement = getOptionalComponent(entity, MediaElementComponent)
+    /** do nothing if we are already playing this track */
+    if (checkMediaElement && urlToPlay === checkMediaElement.element.src) {
+      return
+    }
+
+    const assetClass = AssetLoader.getAssetClass(urlToPlay).toLowerCase()
 
     if (assetClass !== 'audio' && assetClass !== 'video') {
       addError(entity, MediaComponent, 'UNSUPPORTED_ASSET_CLASS')
@@ -233,18 +242,17 @@ export function MediaReactor() {
 
     media.ended.set(false)
 
-    const checkMediaElement = getComponent(entity, MediaElementComponent)
     if (
       !checkMediaElement ||
       !checkMediaElement.element ||
       checkMediaElement.element.nodeName.toLowerCase() !== assetClass
     ) {
-      setUpMediaElement(entity, path, media, audioContext, gainNodeMixBuses)
+      setUpMediaElement(entity, urlToPlay, media, audioContext, gainNodeMixBuses)
     }
 
     const mutableMediaElement = getMutableComponent(entity, MediaElementComponent)
 
-    if (mutableMediaElement.element.src.value === path && media.isCurrentTrackLoaded.value) {
+    if (mutableMediaElement.element.src.value === urlToPlay && media.isCurrentTrackLoaded.value) {
       const duration = mutableMediaElement.element.duration.value
       media.currentTrackDuration.set(duration)
       return
@@ -254,9 +262,9 @@ export function MediaReactor() {
     mutableMediaElement.hls.set(undefined)
     ;(mutableMediaElement.element.value as HTMLMediaElement).crossOrigin = 'anonymous'
     ;(mutableMediaElement.element.value as HTMLMediaElement).ontimeupdate = (event) => {
-      const localMedia = getMutableComponent(entity, MediaComponent)
-      const localMediaElement = getComponent(entity, MediaElementComponent)
+      const localMedia = getOptionalMutableComponent(entity, MediaComponent)
       if (!localMedia) return
+      const localMediaElement = getOptionalComponent(entity, MediaElementComponent)
       if (!localMediaElement) return
       if (!localMediaElement.element) return
       const time = (localMediaElement.element as HTMLMediaElement).currentTime
@@ -273,13 +281,13 @@ export function MediaReactor() {
       localMedia.currentTrackDuration.set(time)
       localMedia.isCurrentTrackLoaded.set(true)
     }
-    if (isHLS(path)) {
-      setupHLS(entity, path).then((hls) => {
+    if (isHLS(urlToPlay)) {
+      setupHLS(entity, urlToPlay).then((hls) => {
         mutableMediaElement.hls.set(hls)
         mutableMediaElement.hls.value!.attachMedia(mutableMediaElement.element.value as HTMLMediaElement)
       })
     } else {
-      mutableMediaElement.element.src.set(path)
+      mutableMediaElement.element.src.set(urlToPlay)
     }
 
     if (!media.paused.value) {
