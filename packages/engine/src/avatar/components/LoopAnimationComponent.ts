@@ -100,12 +100,10 @@ export const LoopAnimationComponent = defineComponent({
       )
         return
 
-      // If we have a previous action, stop it
       if (loopAnimationComponent._action.value) {
         loopAnimationComponent._action.value.stop()
       }
 
-      // If activeClipIndex is -1 ("None"), stop all animations and clear the action
       if (loopAnimationComponent.activeClipIndex.value === -1) {
         if (animComponent.mixer.value) {
           animComponent.mixer.value.stopAllAction()
@@ -123,7 +121,6 @@ export const LoopAnimationComponent = defineComponent({
       const action = animComponent.mixer.value.clipAction(clip)
       loopAnimationComponent._action.set(action)
 
-      // Start playing the new animation if not paused
       if (!loopAnimationComponent.paused.value) {
         action.play()
       }
@@ -148,7 +145,6 @@ export const LoopAnimationComponent = defineComponent({
 
     useEffect(() => {
       if (!animationAction) {
-        // If there's no action but we have a mixer, make sure all actions are stopped
         if (animComponent?.mixer?.value && !loopAnimationComponent.paused.value) {
           animComponent.mixer.value.stopAllAction()
         }
@@ -214,12 +210,10 @@ export const LoopAnimationComponent = defineComponent({
         loopAnimationComponent.paused.set(true)
         loopAnimationComponent.time.set(0)
 
-        // Stop the current action
         if (loopAnimationComponent._action.value) {
           loopAnimationComponent._action.value.stop()
         }
 
-        // Also stop all actions in the mixer to be thorough
         if (animComponent?.mixer?.value) {
           animComponent.mixer.value.stopAllAction()
         }
