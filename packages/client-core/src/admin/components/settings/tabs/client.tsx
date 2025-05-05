@@ -158,8 +158,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
     loadingState.loading.set(true)
     event.preventDefault()
 
-    // Exclude fields that should not be migrated
-    const excludedFields = ['key8thWall', 'themeModes', 'themeSettings']
     const newSettings = { ...settingsState.get() }
 
     // Flatten the object for engine-setting
@@ -169,11 +167,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
     const clientOperationPromises: Promise<EngineSettingType | EngineSettingType[]>[] = []
 
     flattenedSettings.forEach((setting) => {
-      // Skip excluded fields
-      if (excludedFields.some((field) => setting.key === field || setting.key.startsWith(`${field}.`))) {
-        return
-      }
-
       const settingInDb = engineSettingData.data.find((el) => el.key === setting.key)
       if (!settingInDb) {
         // Create new setting

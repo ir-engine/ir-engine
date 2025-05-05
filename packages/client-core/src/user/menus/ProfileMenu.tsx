@@ -51,6 +51,7 @@ import {
 
 import { API } from '@ir-engine/common'
 import { USERNAME_MAX_LENGTH } from '@ir-engine/common/src/constants/UserConstants'
+import useEngineSetting from '@ir-engine/common/src/hooks/useEngineSetting'
 import { INVALID_USER_NAME_REGEX } from '@ir-engine/common/src/regex'
 import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { ClientEngineSettingType } from '@ir-engine/server-core/src/appconfig'
@@ -114,13 +115,6 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     }
   })
 
-  const clientSettingQuery = useFind(engineSettingPath, {
-    query: {
-      category: 'client',
-      paginate: false
-    }
-  })
-
   const authSetting = useMemo(() => {
     if (!engineSettingData.data) return null
 
@@ -133,15 +127,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     )
   }, [engineSettingData.status])
 
-  const clientSetting = useMemo(() => {
-    return unflattenArrayToObject(
-      clientSettingQuery.data.map((setting) => ({
-        key: setting.key,
-        value: setting.value,
-        dataType: setting.dataType
-      }))
-    ) as ClientEngineSettingType
-  }, [clientSettingQuery.status])
+  const clientSetting = useEngineSetting<ClientEngineSettingType>('client')
 
   const { t } = useTranslation()
   const location = useLocation()
@@ -555,7 +541,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
                 />
                 <a
                   className="inline text-sm text-text-primary underline-offset-4 hover:text-ui-hover-primary hover:underline"
-                  href={clientSetting?.termsOfService}
+                  href={clientSetting?.data?.termsOfService}
                   target="_blank"
                 >
                   {t('user:usermenu.profile.termsOfService')}
@@ -901,7 +887,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
       )}
 
       <div className="mt-1 flex w-full items-center justify-center gap-x-2 smh:mt-5">
-        <a href={clientSetting?.privacyPolicy} data-testid="profile-menu-privacy-policy-link" target="_blank">
+        <a href={clientSetting?.data?.privacyPolicy} data-testid="profile-menu-privacy-policy-link" target="_blank">
           <Text className="text-center text-text-primary" fontSize="sm">
             {t('user:usermenu.profile.privacyPolicy')}
           </Text>

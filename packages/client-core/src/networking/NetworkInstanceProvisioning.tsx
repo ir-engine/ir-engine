@@ -39,10 +39,9 @@ import {
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { ChannelService, ChannelState } from '@ir-engine/client-core/src/social/services/ChannelService'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
-import { useFind } from '@ir-engine/common'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { engineSettingPath, InstanceID, LocationID, RoomCode } from '@ir-engine/common/src/schema.type.module'
-import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
+import useEngineSetting from '@ir-engine/common/src/hooks/useEngineSetting'
+import { InstanceID, LocationID, RoomCode } from '@ir-engine/common/src/schema.type.module'
 import { defineSystem, PresentationSystemGroup } from '@ir-engine/ecs'
 import { getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
@@ -186,17 +185,10 @@ export const WorldInstance = ({ id }: { id: InstanceID }) => {
 }
 
 export const MediaInstanceProvisioning = () => {
-  const clientSettingQuery = useFind(engineSettingPath, {
-    query: {
-      category: 'client',
-      paginate: false
-    }
-  })
-  const clientSetting = unflattenArrayToObject(
-    clientSettingQuery.data.map((setting) => ({ key: setting.key, value: setting.value, dataType: setting.dataType }))
-  ) as ClientEngineSettingType
+  const clientSetting = useEngineSetting<ClientEngineSettingType>('client')
 
-  const maxResolution = clientSetting && (clientSetting.mediaSettings.video.maxResolution as any)
+  const maxResolution =
+    clientSetting && clientSetting.data && (clientSetting.data.mediaSettings.video.maxResolution as any)
 
   useEffect(() => {
     if (!maxResolution) return
