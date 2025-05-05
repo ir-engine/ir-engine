@@ -36,12 +36,12 @@ import { ViteEjsPlugin } from 'vite-plugin-ejs'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import svgr from 'vite-plugin-svgr'
 
+import { EngineSettingType } from '@ir-engine/common/src/schema.type.module'
 import appRootPath from 'app-root-path'
 import { EngineSettings } from '../common/src/constants/EngineSettings'
 import manifest from './manifest.default.json'
 import packageJson from './package.json'
 import PWA from './pwa.config'
-import { getClientSetting } from './scripts/getClientSettings'
 import { getEngineSetting } from './scripts/getEngineSettings'
 
 const merge = (src, dest) =>
@@ -184,8 +184,10 @@ export default defineConfig(async () => {
   dotenv.config({
     path: packageRoot.path + '/.env.local'
   })
-  const clientSetting = await getClientSetting()
-  const coilSetting = await getEngineSetting('coil', [EngineSettings.Coil.PaymentPointer])
+  const engineSettings = await getEngineSetting(['coil', 'client'])
+  const paymentPointer = engineSettings?.find((item) => item.key === EngineSettings.Coil.PaymentPointer)?.value || ''
+  const clientSettings = getClientSetting(engineSettings as EngineSettingType[])
+  console.log('test', clientSettings)
 
   resetSWFiles()
 
@@ -259,35 +261,35 @@ export default defineConfig(async () => {
       svgr(),
       nodePolyfills(),
       mediapipe_workaround(),
-      process.env.VITE_PWA_ENABLED === 'true' ? PWA(clientSetting) : undefined,
+      process.env.VITE_PWA_ENABLED === 'true' ? PWA(clientSettings) : undefined,
       ViteEjsPlugin({
         ...manifest,
-        title: clientSetting.title || 'iR Engine',
-        description: clientSetting?.siteDescription || 'Connected Worlds for Everyone',
+        title: clientSettings.title || 'iR Engine',
+        description: clientSettings?.siteDescription || 'Connected Worlds for Everyone',
         // short_name: clientSetting?.shortName || 'EE',
         // theme_color: clientSetting?.themeColor || '#ffffff',
         // background_color: clientSetting?.backgroundColor || '#000000',
-        appleTouchIcon: clientSetting.appleTouchIcon || '/apple-touch-icon.png',
-        favicon32px: clientSetting.favicon32px || '/favicon-32x32.png',
-        favicon16px: clientSetting.favicon16px || '/favicon-16x16.png',
-        icon192px: clientSetting.icon192px || '/android-chrome-192x192.png',
-        icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
-        webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest',
-        siteManifest: clientSetting.siteManifest || '/site.webmanifest',
-        safariPinnedTab: clientSetting.safariPinnedTab || '/safari-pinned-tab.svg',
-        favicon: clientSetting.favicon || '/favicon.ico',
+        appleTouchIcon: clientSettings.appleTouchIcon || '/apple-touch-icon.png',
+        favicon32px: clientSettings.favicon32px || '/favicon-32x32.png',
+        favicon16px: clientSettings.favicon16px || '/favicon-16x16.png',
+        icon192px: clientSettings.icon192px || '/android-chrome-192x192.png',
+        icon512px: clientSettings.icon512px || '/android-chrome-512x512.png',
+        webmanifestLink: clientSettings.webmanifestLink || '/manifest.webmanifest',
+        siteManifest: clientSettings.siteManifest || '/site.webmanifest',
+        safariPinnedTab: clientSettings.safariPinnedTab || '/safari-pinned-tab.svg',
+        favicon: clientSettings.favicon || '/favicon.ico',
         swScriptLink:
-          clientSetting.swScriptLink || process.env.VITE_PWA_ENABLED === 'true'
+          clientSettings.swScriptLink || process.env.VITE_PWA_ENABLED === 'true'
             ? process.env.APP_ENV === 'development'
               ? 'dev-sw.js?dev-sw'
               : 'service-worker.js'
             : '',
-        paymentPointer: coilSetting?.find((item) => item.key === EngineSettings.Coil.PaymentPointer)?.value || '',
-        rootCookieAccessor: `${clientSetting.url}/root-cookie-accessor.html`,
-        gtmId: clientSetting.gtmContainerId,
+        paymentPointer: paymentPointer || '',
+        rootCookieAccessor: `${clientSettings.url}/root-cookie-accessor.html`,
+        gtmId: clientSettings.gtmContainerId,
         gtmEnvironent:
-          clientSetting.gtmAuth && clientSetting.gtmPreview
-            ? `&gtm_auth=${clientSetting.gtmAuth}&gtm_preview=${clientSetting.gtmPreview}&gtm_cookies_win=x`
+          clientSettings.gtmAuth && clientSettings.gtmPreview
+            ? `&gtm_auth=${clientSettings.gtmAuth}&gtm_preview=${clientSettings.gtmPreview}&gtm_cookies_win=x`
             : ''
       }),
       viteCompression({
@@ -342,3 +344,24 @@ export default defineConfig(async () => {
 
   return await getProjectConfigExtensions(returned)
 })
+
+function getClientSetting(engineSettings: EngineSettingType[]) {
+  return {
+    title: engineSettings.find((setting) => setting.key === EngineSettings.Client.Title)?.value,
+    siteDescription: engineSettings.find((setting) => setting.key === EngineSettings.Client.AppDescription)?.value,
+    appleTouchIcon: engineSettings.find((setting) => setting.key == EngineSettings.Client.AppleTouchIcon)?.value,
+    favicon32px: engineSettings.find((setting) => setting.key == EngineSettings.Client.Favicon32px)?.value,
+    favicon16px: engineSettings.find((setting) => setting.key == EngineSettings.Client.Favicon16px)?.value,
+    icon192px: engineSettings.find((setting) => setting.key == EngineSettings.Client.Icon192px)?.value,
+    icon512px: engineSettings.find((setting) => setting.key == EngineSettings.Client.Icon512px)?.value,
+    webmanifestLink: engineSettings.find((setting) => setting.key == EngineSettings.Client.WebmanifestLink)?.value,
+    siteManifest: engineSettings.find((setting) => setting.key == EngineSettings.Client.SiteManifest)?.value,
+    safariPinnedTab: engineSettings.find((setting) => setting.key == EngineSettings.Client.SafariPinnedTab)?.value,
+    favicon: engineSettings.find((setting) => setting.key == EngineSettings.Client.Favicon)?.value,
+    swScriptLink: engineSettings.find((setting) => setting.key == EngineSettings.Client.SwScriptLink)?.value,
+    gtmContainerId: engineSettings.find((setting) => setting.key == EngineSettings.Client.GtmContainerId)?.value,
+    url: engineSettings.find((setting) => setting.key == EngineSettings.Client.Url)?.value,
+    gtmPreview: engineSettings.find((setting) => setting.key == EngineSettings.Client.GtmPreview)?.value,
+    gtmAuth: engineSettings.find((setting) => setting.key == EngineSettings.Client.GtmAuth)?.value
+  }
+}

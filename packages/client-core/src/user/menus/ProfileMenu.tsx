@@ -33,7 +33,6 @@ import multiLogger from '@ir-engine/common/src/logger'
 import {
   ScopeType,
   UserName,
-  clientSettingPath,
   engineSettingPath,
   identityProviderPath,
   projectSettingPath,
@@ -54,6 +53,7 @@ import { API } from '@ir-engine/common'
 import { USERNAME_MAX_LENGTH } from '@ir-engine/common/src/constants/UserConstants'
 import { INVALID_USER_NAME_REGEX } from '@ir-engine/common/src/regex'
 import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
+import { ClientEngineSettingType } from '@ir-engine/server-core/src/appconfig'
 import { iOS, isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
@@ -142,7 +142,17 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   /** Login Link feature that was needed for multi cam mocap that is not currently necessary. Keeping code around for now if we return to it*/
   //const loginLink = useHookstate('')
 
-  const clientSetting = useFind(clientSettingPath).data.at(0)
+  const clientSettingQuery = useFind(engineSettingPath, {
+    query: {
+      category: 'client',
+      paginate: false
+    }
+  })
+
+  const clientSetting = unflattenArrayToObject(
+    clientSettingQuery.data.map((setting) => ({ key: setting.key, value: setting.value, dataType: setting.dataType }))
+  ) as ClientEngineSettingType
+
   const loading = useHookstate(getMutableState(AuthState).isProcessing)
   const userId = selfUser.id.value
   const apiKey = useFind(userApiKeyPath).data[0]

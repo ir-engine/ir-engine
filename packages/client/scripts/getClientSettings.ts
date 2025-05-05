@@ -22,14 +22,8 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-
-import {
-  ClientSettingDatabaseType,
-  clientDbToSchema,
-  clientSettingPath
-} from '../../common/src/schemas/setting/client-setting.schema'
-
 import knex from 'knex'
+import { engineSettingPath, EngineSettingType } from '../../common/src/schemas/setting/engine-setting.schema'
 
 export const getClientSetting = async () => {
   console.log('getClientSetting', process.env.MYSQL_USER, process.env.MYSQL_DATABASE)
@@ -47,23 +41,32 @@ export const getClientSetting = async () => {
 
   const clientSetting = await knexClient
     .select()
-    .from<ClientSettingDatabaseType>(clientSettingPath)
-    .then(([dbClient]) => {
-      const dbClientConfig = clientDbToSchema(dbClient) || {
-        logo: './logo.svg',
-        title: 'IR Engine',
-        url: 'https://local.ir-engine.org',
-        releaseName: 'local',
-        siteDescription: 'Connected Worlds for Everyone',
-        favicon32px: '/favicon-32x32.png',
-        favicon16px: '/favicon-16x16.png',
-        icon192px: '/android-chrome-192x192.png',
-        icon512px: '/android-chrome-512x512.png'
-      }
-      if (dbClientConfig) {
-        return dbClientConfig
-      }
-    })
+    .from<EngineSettingType>(engineSettingPath)
+    .where('category', 'client')
+    // .then((engineSettings) => {
+    //   console.log('engineSettings*********', engineSettings)
+
+    //   const dbClientConfig =
+    //     (unflattenArrayToObject(
+    //       engineSettings.map((setting) => ({ key: setting.key, value: setting.value, dataType: setting.dataType }))
+    //     ) as any) ||
+    //     ({
+    //       logo: './logo.svg',
+    //       title: 'IR Engine',
+    //       url: 'https://local.ir-engine.org',
+    //       releaseName: 'local',
+    //       siteDescription: 'Connected Worlds for Everyone',
+    //       favicon32px: '/favicon-32x32.png',
+    //       favicon16px: '/favicon-16x16.png',
+    //       icon192px: '/android-chrome-192x192.png',
+    //       icon512px: '/android-chrome-512x512.png'
+    //     } as any)
+    //   if (dbClientConfig) {
+    //     console.log('dbClientConfig', dbClientConfig)
+
+    //     return dbClientConfig
+    //   }
+    // })
     .catch((e) => {
       console.warn('[vite.config]: Failed to read clientSetting')
       console.warn(e)

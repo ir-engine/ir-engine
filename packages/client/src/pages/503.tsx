@@ -24,14 +24,21 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useFind } from '@ir-engine/common'
-import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 export const Custom503 = (): any => {
   console.log('503')
   const { t } = useTranslation()
-  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSettingQuery = useFind(engineSettingPath, {
+    query: {
+      category: 'client',
+      key: 'appTitle',
+      paginate: false
+    }
+  })
+
   const clientSetting = clientSettingQuery.data[0]
   return (
     <>
@@ -41,7 +48,7 @@ export const Custom503 = (): any => {
           height: 'auto',
           maxWidth: '100%'
         }}
-        src={clientSetting?.appTitle}
+        src={clientSetting?.value}
       />
     </>
   )

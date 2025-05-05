@@ -35,17 +35,20 @@ import { LoadWebappInjection } from '@ir-engine/client-core/src/components/LoadW
 import { useAuthenticated } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useFind } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
-import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import './styles.scss'
 
 const ClientSettings = () => {
-  const clientSettingQuery = useFind(clientSettingPath)
-  const clientSettings = clientSettingQuery.data[0] ?? null
+  const clientSettingQuery = useFind(engineSettingPath, {
+    query: {
+      category: 'client',
+      paginate: false
+    }
+  })
   useEffect(() => {
-    config.client.key8thWall = clientSettings?.key8thWall
-    config.client.mediaSettings = clientSettings?.mediaSettings
-  }, [clientSettings])
+    config.client.mediaSettings = clientSettingQuery?.data
+  }, [clientSettingQuery.data])
 
   return <></>
 }

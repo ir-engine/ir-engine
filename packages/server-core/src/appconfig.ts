@@ -218,6 +218,7 @@ const instanceserver = {
   locationName: process.env.PRELOAD_LOCATION_NAME!,
   shutdownDelayMs: parseInt(process.env.INSTANCESERVER_SHUTDOWN_DELAY_MS!) || 0
 }
+
 const instanceServerWebRtc = {
   webRTCSettings: defaultWebRTCSettings
 }
@@ -516,3 +517,72 @@ export function updateNestedConfig(appConfig: Record<string, any>, setting: Engi
 }
 
 export default config
+
+export type ClientEngineSettingType = {
+  // Basic settings
+  logo: string
+  title: string
+  shortTitle: string
+  startPath: string
+  url: string
+  releaseName: string
+  siteDescription: string
+
+  // Icons and favicons
+  appleTouchIcon: string
+  favicon32px: string
+  favicon16px: string
+  icon192px: string
+  icon512px: string
+  siteManifest: string
+  safariPinnedTab: string
+  favicon: string
+  webmanifestLink: string
+  swScriptLink: string
+
+  // App appearance
+  appBackground: string
+  appTitle: string
+  appSubtitle: string
+  appDescription: string
+
+  // Google Tag Manager
+  gtmContainerId: string
+  gtmAuth?: string
+  gtmPreview?: string
+
+  // Social and legal
+  appSocialLinks: Array<{
+    link: string
+    icon: string
+  }>
+  privacyPolicy: string
+  termsOfService: string
+  assistanceLink: string
+
+  // Homepage settings
+  homepageLinkButtonEnabled: boolean
+  homepageLinkButtonRedirect: string
+  homepageLinkButtonText: string
+
+  // Media settings
+  mediaSettings: {
+    audio: {
+      maxBitrate: number
+    }
+    video: {
+      codec: string
+      maxResolution: string
+      lowResMaxBitrate: number
+      midResMaxBitrate: number
+      highResMaxBitrate: number
+    }
+    screenshare: {
+      codec: string
+      maxResolution: string
+      lowResMaxBitrate: number
+      midResMaxBitrate: number
+      highResMaxBitrate: number
+    }
+  }
+}

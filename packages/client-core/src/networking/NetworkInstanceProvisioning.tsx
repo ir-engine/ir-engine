@@ -41,11 +41,13 @@ import { ChannelService, ChannelState } from '@ir-engine/client-core/src/social/
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { useFind } from '@ir-engine/common'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { clientSettingPath, InstanceID, LocationID, RoomCode } from '@ir-engine/common/src/schema.type.module'
+import { engineSettingPath, InstanceID, LocationID, RoomCode } from '@ir-engine/common/src/schema.type.module'
+import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { defineSystem, PresentationSystemGroup } from '@ir-engine/ecs'
 import { getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
+import { ClientEngineSettingType } from '@ir-engine/server-core/src/appconfig'
 import { FriendService } from '../social/services/FriendService'
 import { connectToInstance } from '../transports/mediasoup/MediasoupClientFunctions'
 import { PeerToPeerNetworkState } from '../transports/p2p/PeerToPeerNetworkState'
@@ -184,8 +186,16 @@ export const WorldInstance = ({ id }: { id: InstanceID }) => {
 }
 
 export const MediaInstanceProvisioning = () => {
-  const clientSettingQuery = useFind(clientSettingPath)
-  const clientSetting = clientSettingQuery.data[0]
+  const clientSettingQuery = useFind(engineSettingPath, {
+    query: {
+      category: 'client',
+      paginate: false
+    }
+  })
+  const clientSetting = unflattenArrayToObject(
+    clientSettingQuery.data.map((setting) => ({ key: setting.key, value: setting.value, dataType: setting.dataType }))
+  ) as ClientEngineSettingType
+
   const maxResolution = clientSetting && (clientSetting.mediaSettings.video.maxResolution as any)
 
   useEffect(() => {

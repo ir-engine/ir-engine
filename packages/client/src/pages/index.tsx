@@ -36,15 +36,24 @@ import { ModalState } from '@ir-engine/client-core/src/common/services/ModalStat
 import ProfileMenu from '@ir-engine/client-core/src/user/menus/ProfileMenu'
 import { ViewerMenuState } from '@ir-engine/client-core/src/util/ViewerMenuState'
 import { useFind } from '@ir-engine/common'
-import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
+import { ClientEngineSettingType } from '@ir-engine/server-core/src/appconfig'
 import './index.scss'
 
 const ROOT_REDIRECT = config.client.rootRedirect
 
 export const HomePage = (): any => {
   const { t } = useTranslation()
-  const clientSettingQuery = useFind(clientSettingPath)
-  const clientSetting = clientSettingQuery.data[0]
+  const clientSettingQuery = useFind(engineSettingPath, {
+    query: {
+      category: 'client',
+      paginate: false
+    }
+  })
+  const clientSetting = unflattenArrayToObject(
+    clientSettingQuery.data.map((setting) => ({ key: setting.key, value: setting.value, dataType: setting.dataType }))
+  ) as ClientEngineSettingType
   const viewerMenuState = useMutableState(ViewerMenuState)
 
   useEffect(() => {

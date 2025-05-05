@@ -28,7 +28,6 @@ import { HookContext } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import { clientSettingPath } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
 import {
   userSettingDataValidator,
   userSettingPatchValidator,
@@ -56,19 +55,19 @@ const ensureUserSettingsOwner = () => {
   }
 }
 
-const ensureUserThemeModes = () => {
-  return async (context: HookContext): Promise<HookContext> => {
-    const { app, result } = context
-    const clientSettings = await app.service(clientSettingPath).find()
-    if (clientSettings && clientSettings.data.length > 0) {
-      context.result = await app
-        .service(userSettingPath)
-        .patch(result.id, { themeModes: clientSettings.data[0].themeModes })
-    }
+// const ensureUserThemeModes = () => {
+//   return async (context: HookContext): Promise<HookContext> => {
+//     const { app, result } = context
+//     const clientSettings = await app.service(clientSettingPath).find()
+//     if (clientSettings && clientSettings.data.length > 0) {
+//       context.result = await app
+//         .service(userSettingPath)
+//         .patch(result.id, { themeModes: clientSettings.data[0].themeModes })
+//     }
 
-    return context
-  }
-}
+//     return context
+//   }
+// }
 
 export default {
   around: {
@@ -97,7 +96,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [ensureUserThemeModes()],
+    // create: [ensureUserThemeModes()],
     update: [],
     patch: [],
     remove: []

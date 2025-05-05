@@ -28,7 +28,7 @@ import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
 import { useFind } from '@ir-engine/common'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { clientSettingPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
+import { engineSettingPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
 import { cleanFileNameFile } from '@ir-engine/common/src/utils/cleanFileName'
 import { useComponent, useQuery } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
@@ -143,8 +143,15 @@ function ViewportContainer() {
   const { sceneName, rootEntity, canvasRef } = useMutableState(EditorState)
 
   const { t } = useTranslation()
-  const clientSettingQuery = useFind(clientSettingPath)
-  const clientSettings = clientSettingQuery.data[0]
+  const clientSettingQuery = useFind(engineSettingPath, {
+    query: {
+      category: 'client',
+      key: 'appTitle',
+      paginate: false
+    }
+  })
+
+  const clientSetting = clientSettingQuery.data[0]
 
   const ref = React.useRef<HTMLDivElement>(null)
   const toolbarRef = React.useRef<HTMLDivElement>(null)
@@ -176,7 +183,7 @@ function ViewportContainer() {
           <>{rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}</>
         ) : (
           <div className="flex h-full w-full flex-col justify-center gap-2">
-            <img src={clientSettings?.appTitle} className="block scale-[.8]" />
+            <img src={clientSetting?.value} className="block scale-[.8]" />
             <Text className="text-center">{t('editor:selectSceneMsg')}</Text>
           </div>
         )}
