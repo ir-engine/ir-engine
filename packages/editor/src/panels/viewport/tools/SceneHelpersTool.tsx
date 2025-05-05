@@ -31,7 +31,7 @@ import { useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
-import { CubeOutlineLg, ScreenshotMenuMd, SunMd } from '@ir-engine/ui/src/icons'
+import { ColliderAtomsLg, CubeOutlineLg, ScreenshotMenuMd, SunMd } from '@ir-engine/ui/src/icons'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuMousePointerClick, LuMove3D } from 'react-icons/lu'
@@ -92,7 +92,7 @@ export default function SceneHelpersTool() {
         <ViewportButton
           onClick={() => rendererState.physicsDebug.set(!rendererState.physicsDebug.value)}
           selected={rendererState.physicsDebug.value}
-          icon={CubeOutlineLg}
+          icon={ColliderAtomsLg}
         />
       </Tooltip>
       <Tooltip

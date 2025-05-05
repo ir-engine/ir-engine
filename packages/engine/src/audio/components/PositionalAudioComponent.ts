@@ -81,7 +81,9 @@ export const PositionalAudioComponent = defineComponent({
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const debugEnabled =
       renderState.nodeHelperVisibility.value ||
-      (activeHelperComponent !== undefined && activeHelperComponent.enabled.value === true)
+      (activeHelperComponent !== undefined &&
+        activeHelperComponent.enabled.value &&
+        (activeHelperComponent.selected.value || activeHelperComponent.hovered.value))
     const audio = useComponent(entity, PositionalAudioComponent)
     const mediaElement = useOptionalComponent(entity, MediaElementComponent)
 

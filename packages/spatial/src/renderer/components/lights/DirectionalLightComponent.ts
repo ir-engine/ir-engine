@@ -177,7 +177,15 @@ export const DirectionalLightComponent = defineComponent({
     }, [renderState.shadowMapResolution])
 
     useEffect(() => {
-      if (!(debugEnabled.value || (activeHelperComponent !== undefined && activeHelperComponent.enabled.value))) return
+      if (
+        !(
+          debugEnabled.value ||
+          (activeHelperComponent !== undefined &&
+            activeHelperComponent.enabled.value &&
+            (activeHelperComponent.selected.value || activeHelperComponent.hovered.value))
+        )
+      )
+        return
 
       activeHelperComponent!.helperSelectedGizmo.set(createEntity())
       setComponent(activeHelperComponent!.helperSelectedGizmo.value, EntityTreeComponent, { parentEntity: entity })
@@ -192,7 +200,12 @@ export const DirectionalLightComponent = defineComponent({
         removeEntity(activeHelperComponent!.helperSelectedGizmo.value)
         activeHelperComponent!.helperSelectedGizmo.set(UndefinedEntity)
       }
-    }, [debugEnabled, activeHelperComponent?.enabled])
+    }, [
+      debugEnabled,
+      activeHelperComponent?.enabled,
+      activeHelperComponent?.selected.value,
+      activeHelperComponent?.hovered.value
+    ])
 
     return null
   }

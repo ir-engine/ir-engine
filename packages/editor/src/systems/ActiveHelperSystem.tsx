@@ -28,15 +28,13 @@ import { useEffect } from 'react'
 import { defineQuery, EngineState, Entity, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
 import {
   getAllComponents,
+  getAuthoringCounterpart,
   getComponent,
-  LayerComponents,
-  Layers,
   setComponent,
   SimulationLayerComponent,
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
@@ -53,6 +51,7 @@ import {
   InputHeuristicState,
   IntersectionData
 } from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
@@ -61,7 +60,7 @@ import { Raycaster, Vector3 } from 'three'
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
 import { iconGizmoArrow, iconGizmoYHelper, setupGizmo } from '../constants/GizmoPresets'
 import {
-  createIconGizmo,
+  getIconGizmo,
   gizmoIconHelperYAxisUpdate,
   gizmoIconUpdate,
   onPointerHover
@@ -101,40 +100,26 @@ export const studioIconGizmoInputHeuristic = (
   }
 }
 
-const useActiveHelper = (entities) => {
-  const refs = LayerComponents[Layers.Simulation].refs
-  const simulationEntities = Object.keys(refs).filter((key) => entities.includes(refs[key])) as unknown as Entity[]
-
-  useEffect(() => {
-    for (const entity of simulationEntities) {
-      if (!entityExists(entity)) continue
-      setComponent(entity, ActiveHelperComponent, { enabled: true })
-    }
-    return () => {
-      for (const entity of simulationEntities) {
-        if (!entityExists(entity)) continue
-        setComponent(entity, ActiveHelperComponent, { enabled: false })
-      }
-    }
-  }, [entities])
-}
-
 const ActiveHelperReactor = () => {
   const entity = useEntityContext()
   const activeHelperComponent = useComponent(entity, ActiveHelperComponent)
   const componentStudioIcon = getState(ComponentStudioIconState)
-  const selectedEntities = SelectionState.useSelectedEntities()
   const engineState = useHookstate(getMutableState(EngineState))
+  const selectedEntities = SelectionState.useSelectedEntities() // all authoring layer
 
   const entityComponents = getAllComponents(entity)
   const targetComponent: any = entityComponents.find((component) =>
-    Object.keys(componentStudioIcon).find((key) => key === component.name)
+    Object.keys(componentStudioIcon).find((key) => key === component.jsonID)
   )
+  let componentName = componentStudioIcon[targetComponent?.jsonID]
+  if (targetComponent?.jsonID === ColliderComponent.jsonID) {
+    componentName = componentStudioIcon[targetComponent?.jsonID](getComponent(entity, ColliderComponent).shape)
+  }
 
   const studioIcon = useHelperEntity(
     entity,
     () => {
-      const iconGizmo = createIconGizmo(componentStudioIcon[targetComponent?.name])
+      const iconGizmo = getIconGizmo(componentName)
       iconGizmo.renderOrder = -1
       const lineEntitites = setupGizmo(
         getState(ReferenceSpaceState).originEntity,
@@ -147,6 +132,7 @@ const ActiveHelperReactor = () => {
         const directionalEntities = setupGizmo(entity, iconGizmoArrow, ObjectLayers.NodeIcon)
         activeHelperComponent.directionalEntities.set(directionalEntities)
       }
+
       if (getComponent(entity, ActiveHelperComponent).volumeEnabled) {
         setComponent(entity, BoundingBoxComponent)
       }
@@ -190,6 +176,14 @@ const ActiveHelperReactor = () => {
   )
 
   useEffect(() => {
+    const authoringEntity = getAuthoringCounterpart(entity)
+
+    setComponent(entity, ActiveHelperComponent, {
+      selected: selectedEntities.find((e) => e === authoringEntity) !== undefined
+    })
+  }, [selectedEntities])
+
+  useEffect(() => {
     const setGizmoVisibility = (visible: boolean) => {
       if (getComponent(entity, ActiveHelperComponent).helperIconGizmo === UndefinedEntity) return
 
@@ -210,11 +204,6 @@ const reactor = () => {
   useEffect(() => {
     InputHeuristicState.addHeuristic(1, studioIconGizmoInputHeuristic as HeuristicFunctions)
   }, [])
-
-  const selectedEntities = SelectionState.useSelectedEntities() // all authoring layer
-
-  //useStudioIconGizmo()
-  useActiveHelper(selectedEntities)
 
   return (
     <QueryReactor

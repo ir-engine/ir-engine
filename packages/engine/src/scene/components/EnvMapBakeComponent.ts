@@ -64,7 +64,9 @@ export const EnvMapBakeComponent = defineComponent({
     const renderState = useMutableState(RendererState)
     const debugEnabled =
       renderState.nodeHelperVisibility.value ||
-      (activeHelperComponent !== undefined && activeHelperComponent.enabled.value)
+      (activeHelperComponent !== undefined &&
+        activeHelperComponent.enabled.value &&
+        (activeHelperComponent.selected.value || activeHelperComponent.hovered.value))
 
     const helperEntity = useHelperEntity(entity, () => new Mesh(sphereGeometry, helperMeshMaterial), debugEnabled)
 

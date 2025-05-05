@@ -30,8 +30,10 @@ export const ActiveHelperComponent = defineComponent({
   name: 'ActiveHelperComponent',
   jsonID: 'EE_activeHelper',
   schema: S.Object({
-    enabled: S.Bool({ default: false }),
+    enabled: S.Bool({ default: true }),
     helperIconGizmo: S.Entity(UndefinedEntity), // manages the icon and minor gizmo
+    hovered: S.Bool({ default: false }),
+    selected: S.Bool({ default: false }),
     helperSelectedGizmo: S.Entity(UndefinedEntity), // manages the elaborate gizmo
     directional: S.Bool({ default: false }),
     directionalEntities: S.Array(S.Entity(UndefinedEntity)),

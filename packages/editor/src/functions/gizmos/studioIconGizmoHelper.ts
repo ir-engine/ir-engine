@@ -100,6 +100,7 @@ function pointerHover(parentEntity: Entity) {
   _raycaster.setFromCamera(pointerPosition, camera)
 
   const intersect = intersectObjectWithRay(spriteObject, _raycaster, true)
+  activeHelperComponent.hovered.set(intersect !== false)
   const targetSize = intersect ? 0.5 : 0.4 // 0.25 is the hover size, 0.2 is the default size
   //TODO : make the sizeFactor editable
   const originalSize = activeHelperComponent.sizeFactor.value

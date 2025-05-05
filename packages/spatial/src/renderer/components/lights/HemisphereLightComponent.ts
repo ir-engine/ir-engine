@@ -61,7 +61,9 @@ export const HemisphereLightComponent = defineComponent({
     const renderState = useMutableState(RendererState)
     const debugEnabled =
       renderState.nodeHelperVisibility.value ||
-      (activeHelperComponent !== undefined && activeHelperComponent.enabled.value === true)
+      (activeHelperComponent !== undefined &&
+        activeHelperComponent.enabled.value &&
+        (activeHelperComponent.selected.value || activeHelperComponent.hovered.value))
     const light = useHookstate(() => new HemisphereLight()).get(NO_PROXY) as HemisphereLight
     const helperEntity = useHelperEntity(entity, () => new HemisphereLightHelper(light, 100), debugEnabled)
 
