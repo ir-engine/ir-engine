@@ -111,15 +111,16 @@ const ActiveHelperReactor = () => {
   const targetComponent: any = entityComponents.find((component) =>
     Object.keys(componentStudioIcon).find((key) => key === component.jsonID)
   )
-  let componentName = componentStudioIcon[targetComponent?.jsonID]
+  let studioIconTexture = componentStudioIcon[targetComponent?.jsonID]
   if (targetComponent?.jsonID === ColliderComponent.jsonID) {
-    componentName = componentStudioIcon[targetComponent?.jsonID](getComponent(entity, ColliderComponent).shape)
+    const colliderIconFunc = componentStudioIcon[targetComponent?.jsonID]
+    studioIconTexture = colliderIconFunc(getComponent(entity, ColliderComponent).shape)
   }
 
   const studioIcon = useHelperEntity(
     entity,
     () => {
-      const iconGizmo = getIconGizmo(componentName)
+      const iconGizmo = getIconGizmo(studioIconTexture)
       iconGizmo.renderOrder = -1
       const lineEntitites = setupGizmo(
         getState(ReferenceSpaceState).originEntity,
@@ -148,6 +149,7 @@ const ActiveHelperReactor = () => {
   InputComponent.useExecuteWithInput(
     () => {
       const activeHelperComponent = getComponent(entity, ActiveHelperComponent)
+      if (activeHelperComponent === undefined) return
       if (activeHelperComponent.helperIconGizmo === UndefinedEntity) return
       gizmoIconUpdate(entity)
 

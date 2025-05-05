@@ -33,12 +33,14 @@ import {
   getOptionalComponent,
   hasComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { ActiveHelperComponent } from '../../common/ActiveHelperComponent'
 import { NameComponent } from '../../common/NameComponent'
 import { RendererState } from '../../renderer/RendererState'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
@@ -60,10 +62,18 @@ export const BoundingBoxComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
+    const activeHelpercomponent = useOptionalComponent(entity, ActiveHelperComponent)
     const boundingBox = useComponent(entity, BoundingBoxComponent)
 
     useEffect(() => {
-      if (!debugEnabled.value) return
+      const showVolume =
+        activeHelpercomponent === undefined
+          ? debugEnabled.value
+          : debugEnabled.value &&
+            activeHelpercomponent.enabled.value &&
+            (activeHelpercomponent.hovered.value || activeHelpercomponent.selected.value)
+
+      if (!showVolume) return
 
       const helperEntity = createEntity()
 
@@ -87,7 +97,7 @@ export const BoundingBoxComponent = defineComponent({
         if (!hasComponent(entity, BoundingBoxComponent)) return
         boundingBox.helper.set(UndefinedEntity)
       }
-    }, [debugEnabled])
+    }, [debugEnabled, activeHelpercomponent?.enabled, activeHelpercomponent?.hovered, activeHelpercomponent?.selected])
 
     return null
   }
@@ -117,7 +127,7 @@ export const updateBoundingBox = (entity: Entity) => {
   if (!helperEntity) return
 
   const helperObject = getComponent(helperEntity, ObjectComponent) as any as Box3Helper
-  helperObject.updateMatrixWorld(true)
+  helperObject.updateMatrix()
 }
 
 const _box = new Box3()

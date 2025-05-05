@@ -23,12 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent, useComponent, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
+import { defineComponent, setComponent, useComponent, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
 import { useState } from '@ir-engine/hyperflux'
 
 import { useAncestorWithComponents } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import React, { useEffect, useLayoutEffect } from 'react'
+import { ActiveHelperComponent } from '../../common/ActiveHelperComponent'
 import { removeCallback, setCallback } from '../../common/CallbackComponent'
 import { Vector3_One } from '../../common/constants/MathConstants'
 import { T } from '../../schema/schemaFunctions'
@@ -101,6 +102,7 @@ const ColliderReactor = function () {
   ])
 
   useEffect(() => {
+    setComponent(entity, ActiveHelperComponent, { volumeEnabled: true })
     return () => {
       if (!physicsWorld) return
       Physics.removeCollider(physicsWorld, entity)
