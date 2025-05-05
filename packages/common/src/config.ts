@@ -24,7 +24,80 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { EMAIL_REGEX } from './regex'
-import type { MediaSettingsType } from './schema.type.module'
+/**
+ * Media settings configuration for audio, video, and screenshare
+ */
+export interface MediaSettingsType {
+  /**
+   * Audio settings configuration
+   */
+  audio: {
+    /**
+     * Maximum bitrate for audio in kbps
+     */
+    maxBitrate: number
+  }
+
+  /**
+   * Video settings configuration
+   */
+  video: {
+    /**
+     * Video codec (e.g., 'VP9', 'H264')
+     */
+    codec: string
+
+    /**
+     * Maximum resolution for video (e.g., 'hd', 'sd')
+     */
+    maxResolution: string
+
+    /**
+     * Maximum bitrate for low resolution video in kbps
+     */
+    lowResMaxBitrate: number
+
+    /**
+     * Maximum bitrate for medium resolution video in kbps
+     */
+    midResMaxBitrate: number
+
+    /**
+     * Maximum bitrate for high resolution video in kbps
+     */
+    highResMaxBitrate: number
+  }
+
+  /**
+   * Screen sharing settings configuration
+   */
+  screenshare: {
+    /**
+     * Screen sharing codec (e.g., 'VP9', 'H264')
+     */
+    codec: string
+
+    /**
+     * Maximum resolution for screen sharing (e.g., 'hd', 'sd')
+     */
+    maxResolution: string
+
+    /**
+     * Maximum bitrate for low resolution screen sharing in kbps
+     */
+    lowResMaxBitrate: number
+
+    /**
+     * Maximum bitrate for medium resolution screen sharing in kbps
+     */
+    midResMaxBitrate: number
+
+    /**
+     * Maximum bitrate for high resolution screen sharing in kbps
+     */
+    highResMaxBitrate: number
+  }
+}
 
 /**
  * Config settings (for client and isomorphic engine usage).
