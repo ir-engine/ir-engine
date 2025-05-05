@@ -45,7 +45,7 @@ export const getEngineSetting = async (categories: EngineSettingType['category']
     .from<EngineSettingType>(engineSettingPath)
     .whereIn('category', categories)
     .catch((e) => {
-      console.warn(`[vite.config]: Failed to read engineSetting`, categories, categories)
+      console.warn(`[vite.config]: Failed to read engineSetting`, categories)
       console.warn(e)
     })
 

@@ -83,8 +83,7 @@ export async function up(knex: Knex): Promise<void> {
     }
   }
 
-  // Note: We're not dropping the client-setting table yet to ensure the migration works correctly
-  // await knex.schema.dropTableIfExists(clientSettingPath)
+  await knex.schema.dropTableIfExists(clientSettingPath)
 }
 
 /**

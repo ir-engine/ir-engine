@@ -186,8 +186,7 @@ export default defineConfig(async () => {
   })
   const engineSettings = await getEngineSetting(['coil', 'client'])
   const paymentPointer = engineSettings?.find((item) => item.key === EngineSettings.Coil.PaymentPointer)?.value || ''
-  const clientSettings = getClientSetting(engineSettings as EngineSettingType[])
-  console.log('test', clientSettings)
+  const clientSetting = getClientSetting(engineSettings as EngineSettingType[])
 
   resetSWFiles()
 
@@ -261,35 +260,35 @@ export default defineConfig(async () => {
       svgr(),
       nodePolyfills(),
       mediapipe_workaround(),
-      process.env.VITE_PWA_ENABLED === 'true' ? PWA(clientSettings) : undefined,
+      process.env.VITE_PWA_ENABLED === 'true' ? PWA(clientSetting) : undefined,
       ViteEjsPlugin({
         ...manifest,
-        title: clientSettings.title || 'iR Engine',
-        description: clientSettings?.siteDescription || 'Connected Worlds for Everyone',
+        title: clientSetting.title || 'iR Engine',
+        description: clientSetting?.siteDescription || 'Connected Worlds for Everyone',
         // short_name: clientSetting?.shortName || 'EE',
         // theme_color: clientSetting?.themeColor || '#ffffff',
         // background_color: clientSetting?.backgroundColor || '#000000',
-        appleTouchIcon: clientSettings.appleTouchIcon || '/apple-touch-icon.png',
-        favicon32px: clientSettings.favicon32px || '/favicon-32x32.png',
-        favicon16px: clientSettings.favicon16px || '/favicon-16x16.png',
-        icon192px: clientSettings.icon192px || '/android-chrome-192x192.png',
-        icon512px: clientSettings.icon512px || '/android-chrome-512x512.png',
-        webmanifestLink: clientSettings.webmanifestLink || '/manifest.webmanifest',
-        siteManifest: clientSettings.siteManifest || '/site.webmanifest',
-        safariPinnedTab: clientSettings.safariPinnedTab || '/safari-pinned-tab.svg',
-        favicon: clientSettings.favicon || '/favicon.ico',
+        appleTouchIcon: clientSetting.appleTouchIcon || '/apple-touch-icon.png',
+        favicon32px: clientSetting.favicon32px || '/favicon-32x32.png',
+        favicon16px: clientSetting.favicon16px || '/favicon-16x16.png',
+        icon192px: clientSetting.icon192px || '/android-chrome-192x192.png',
+        icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
+        webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest',
+        siteManifest: clientSetting.siteManifest || '/site.webmanifest',
+        safariPinnedTab: clientSetting.safariPinnedTab || '/safari-pinned-tab.svg',
+        favicon: clientSetting.favicon || '/favicon.ico',
         swScriptLink:
-          clientSettings.swScriptLink || process.env.VITE_PWA_ENABLED === 'true'
+          clientSetting.swScriptLink || process.env.VITE_PWA_ENABLED === 'true'
             ? process.env.APP_ENV === 'development'
               ? 'dev-sw.js?dev-sw'
               : 'service-worker.js'
             : '',
         paymentPointer: paymentPointer || '',
-        rootCookieAccessor: `${clientSettings.url}/root-cookie-accessor.html`,
-        gtmId: clientSettings.gtmContainerId,
+        rootCookieAccessor: `${clientSetting.url}/root-cookie-accessor.html`,
+        gtmId: clientSetting.gtmContainerId,
         gtmEnvironent:
-          clientSettings.gtmAuth && clientSettings.gtmPreview
-            ? `&gtm_auth=${clientSettings.gtmAuth}&gtm_preview=${clientSettings.gtmPreview}&gtm_cookies_win=x`
+          clientSetting.gtmAuth && clientSetting.gtmPreview
+            ? `&gtm_auth=${clientSetting.gtmAuth}&gtm_preview=${clientSetting.gtmPreview}&gtm_cookies_win=x`
             : ''
       }),
       viteCompression({
