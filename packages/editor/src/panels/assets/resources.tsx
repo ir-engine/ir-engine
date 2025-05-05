@@ -22,8 +22,8 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { removeFromFileThumbnailsSeen } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
+import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import useLoadingThumbnails from '@ir-engine/client-core/src/hooks/useLoadingThumbnails'
 import ProgressBar from '@ir-engine/client-core/src/systems/ui/LoadingDetailView/SimpleProgressBar'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
@@ -177,7 +177,9 @@ export function FileCard({
         <div
           className={twMerge(
             `box-border h-20 w-16 rounded font-figtree text-sm`,
-            isSelected ? 'rounded border border-ui-primary bg-ui-select-background p-1' : 'group-hover:bg-ui-hover-background'
+            isSelected
+              ? 'rounded border border-ui-primary bg-ui-select-background p-1'
+              : 'group-hover:bg-ui-hover-background'
           )}
           data-testid={dataTestIdJson?.fileIconId}
         >
@@ -268,7 +270,7 @@ function ResourceFile({
             fileNameId: 'assets-panel-resource-file-name',
             fileItemId: 'assets-panel-resource-file'
           }}
-          onDoubleClick={() => { }}
+          onDoubleClick={() => {}}
           className="resource-file"
           onLoad={handleLoad}
           onLoadStart={handleLoadStart}
@@ -315,8 +317,8 @@ function SideNavBar({ handleScrollToPage }) {
                 hoveredIndex === null
                   ? 'bg-gray-400'
                   : i === (hoveredIndex + 1) % pages || i === (hoveredIndex - 1 + pages) % pages
-                    ? 'bg-gray-700'
-                    : 'bg-gray-400',
+                  ? 'bg-gray-700'
+                  : 'bg-gray-400',
                 hoveredIndex === i ? 'w-10 bg-white' : 'w-3'
               )}
             ></span>
@@ -327,17 +329,17 @@ function SideNavBar({ handleScrollToPage }) {
                 hoveredIndex === null
                   ? 'text-gray-400'
                   : i === (hoveredIndex + 1) % pages || i === (hoveredIndex - 1 + pages) % pages
-                    ? 'text-gray-700'
-                    : 'text-gray-400',
+                  ? 'text-gray-700'
+                  : 'text-gray-400',
                 hoveredIndex === i ? 'text-white' : ''
               )}
             >
               {i === 0
                 ? '▲'
                 : Math.min(
-                  (i + 1) * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()),
-                  staticResourcesPagination.total.value
-                )}
+                    (i + 1) * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()),
+                    staticResourcesPagination.total.value
+                  )}
             </span>
           </div>
         ))}
