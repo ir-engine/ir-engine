@@ -1539,7 +1539,12 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
     for (const extension in nodeDef.extensions) {
       const Component = ComponentJSONIDMap.get(extension) as ComponentExt | undefined
       if (!Component) continue
-      deserializeComponent(nodeEntity, Component, nodeDef.extensions[extension])
+      let compData = nodeDef.extensions[extension]
+      // Check if component data is for a primitive component that has been wrapped in an object per the GLTF spec
+      if (compData && typeof compData === 'object' && 'value' in compData && Object.keys(compData).length === 1) {
+        compData = compData.value
+      }
+      deserializeComponent(nodeEntity, Component, compData)
       if (typeof Component.loadNode === 'function') {
         extensionPending.push(Component.loadNode(options, nodeIndex))
       }
