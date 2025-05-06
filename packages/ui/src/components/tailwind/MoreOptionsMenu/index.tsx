@@ -78,7 +78,13 @@ export default function MoreOptionsMenu({
       repositionOnResize={true}
       contentStyle={{ padding: '0px', border: 'none' }}
     >
-      <ul className={twMerge('w-[180px] rounded-lg bg-surface-4 p-1')} data-testid="more-options-list">
+      <ul
+        className={twMerge(
+          'w-[180px] divide-y divide-gray-300 rounded-lg border border-ui-tertiary',
+          'bg-white dark:divide-none dark:border-none dark:bg-surface-4'
+        )}
+        data-testid="more-options-list"
+      >
         {actionProps.map((actionProp, index) => (
           <li className="h-8" key={index}>
             <Button

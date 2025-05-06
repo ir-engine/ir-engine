@@ -475,7 +475,10 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
   }, [location, props.onPublishSuccess, isNewPublished.value])
 
   return (
-    <div className="absolute z-50 bg-surface-2 px-8 pt-6" data-testid="publish-panel">
+    <div
+      className="absolute z-50 rounded-xl border border-surface-1 bg-white px-8 pt-6 shadow-lg dark:bg-surface-1"
+      data-testid="publish-panel"
+    >
       <div className="relative rounded-lg py-2">
         <div className="flex justify-between pb-6">
           <span className="text-xl">
@@ -547,13 +550,13 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
             />*/}
 
             <div className="grid grid-cols-[276px_minmax(0,1fr)] gap-12 border-t border-t-ui-outline py-6">
-              <div className="flex flex-col">
-                {props.inStudio && (
+              {props.inStudio && (
+                <div className="flex flex-col">
                   <React.Suspense fallback={null}>
                     <StudioSections />
                   </React.Suspense>
-                )}
-              </div>
+                </div>
+              )}
 
               <div className="grid h-full grid-rows-[auto,1fr] gap-5">
                 <div className="flex h-auto flex-col self-start">

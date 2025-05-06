@@ -23,37 +23,24 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { ReactNode } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-export interface BadgeProps {
-  label: string
-  className?: string
-  variant?: 'success' | 'successLight' | 'danger' | 'neutral' | 'warning'
-}
-
-const variantMap = {
-  success: 'bg-ui-hover-success',
-  successLight: 'bg-ui-hover-success opacity-80',
-  danger: 'bg-ui-hover-error',
-  neutral: 'bg-gray-700',
-  warning: 'bg-ui-hover-warning'
-} as const
-
-const Badge = ({ label, className, variant }: BadgeProps) => {
-  variant = variant || 'neutral'
-
+type Props = Readonly<{
+  children: ReactNode
+  className: string
+}>
+export default function SceneCard({ children, className }: Props) {
   return (
     <div
       className={twMerge(
-        'flex h-fit items-center justify-around gap-x-1.5	rounded-full px-2.5 py-0.5 text-white',
-        variantMap[variant],
+        'col-span-2 inline-flex h-64 w-64 min-w-64 max-w-64 flex-col',
+        'rounded-lg border border-ui-tertiary shadow-lg',
+        'dark:border-ui-outline dark:bg-ui-background lg:col-span-1',
         className
       )}
     >
-      <span className="font-semibold">{label}</span>
+      {children}
     </div>
   )
 }
-
-export default Badge

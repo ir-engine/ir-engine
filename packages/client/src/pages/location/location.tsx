@@ -59,7 +59,7 @@ const LocationRoutes = () => {
         </Routes>
       )}
       {!ready && (
-        <div className="relative flex h-dvh w-dvw items-center justify-center bg-white" style={{ zIndex: 1000000 }}>
+        <div className="relative flex h-dvh w-dvw items-center justify-center bg-white" style={{ zIndex: 100 }}>
           <LoadingView fullScreen animated title={t('common:loader.loadingApp')} titleClassname="text-black" />
         </div>
       )}

@@ -63,7 +63,7 @@ const Accordion = forwardRef(
       <div className="w-full" {...props} ref={ref}>
         <div
           className={twMerge(
-            'flex w-full cursor-pointer flex-col items-center justify-between gap-y-2 border-[0.5px] border-ui-outline bg-surface-3 p-2',
+            'flex w-full cursor-pointer flex-col items-center justify-between gap-y-2 border-[0.5px] border-ui-outline bg-white p-2 dark:bg-surface-3',
             openState ? 'rounded-t-md' : ''
           )}
           data-testid="accordion-header"
@@ -84,7 +84,7 @@ const Accordion = forwardRef(
 
         <div
           className={twMerge(
-            'w-full origin-top overflow-hidden border-[0.5px] border-ui-outline bg-surface-1 transition-[max-height] duration-300 ease-in-out',
+            'w-full origin-top overflow-hidden border-[0.5px] border-ui-outline bg-white transition-[max-height] duration-300 ease-in-out dark:bg-surface-1',
             openState ? 'rounded-b-md border-t-0' : 'border-none'
           )}
           style={{
