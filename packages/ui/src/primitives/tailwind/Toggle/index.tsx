@@ -60,11 +60,11 @@ const Toggle = ({ size, label, value, onChange, disabled }: ToggleProps) => {
         className={twMerge(
           "peer relative rounded-full border border-ui-outline after:absolute after:left-[0.0625rem] after:top-1/2 after:-translate-y-1/2  after:rounded-full after:transition-all after:content-['']",
           'peer-checked:border-ui-inactive-primary peer-checked:after:translate-x-full peer-checked:after:border-ui-outline',
-          'peer-disabled:ui-inactive-background peer-disabled:pointer-events-none',
+          'peer-disabled:ui-inactive-background after:bg-white peer-disabled:pointer-events-none',
           sizeMap[size ?? 'md'],
           disabled
-            ? 'bg-ui-inactive-background after:bg-text-inactive peer-checked:bg-ui-inactive-primary'
-            : 'bg-ui-background after:bg-text-primary peer-checked:bg-ui-primary'
+            ? 'bg-ui-inactive-background peer-checked:bg-ui-inactive-primary'
+            : 'bg-ui-background peer-checked:bg-ui-primary'
         )}
         onClick={() => onChange(!value)}
       />

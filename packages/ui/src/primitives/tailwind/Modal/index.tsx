@@ -158,7 +158,10 @@ const Modal = ({
   cancelKey = 'Escape',
   submitKey = 'Enter'
 }: ModalProps) => {
-  const twClassName = twMerge('absolute z-50 w-full rounded-xl border border-surface-1 bg-surface-1', className)
+  const twClassName = twMerge(
+    'absolute z-50 w-full rounded-xl border border-surface-1 bg-white dark:bg-surface-1',
+    className
+  )
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
