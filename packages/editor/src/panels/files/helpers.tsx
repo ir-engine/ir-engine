@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { ImmutableArray } from '@hookstate/core'
-import { useHookstate } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, useHookstate } from '@ir-engine/hyperflux'
 
 import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
@@ -52,6 +52,17 @@ import { AssetCategoryNode } from '../assets/categories'
 export const FILES_PAGE_LIMIT = 100 as const
 
 export const availableTableColumns = ['name', 'type', 'author', 'createdAt', 'statistics', 'size'] as const
+
+// refresh counter
+export const FileRefreshState = defineState({
+  name: 'FileRefreshState',
+  initial: () => ({
+    refreshCounter: 0
+  }),
+  triggerRefresh: () => {
+    getMutableState(FileRefreshState).refreshCounter.set((prev) => prev + 1)
+  }
+})
 
 /* HOOKS */
 
@@ -185,6 +196,14 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
     }
   }, [foldersQuery.status])
 
+  const refreshState = useHookstate(getMutableState(FileRefreshState))
+
+  useEffect(() => {
+    if (refreshState.refreshCounter.value > 0) {
+      refreshDirectory()
+    }
+  }, [refreshState.refreshCounter.value])
+
   return (
     <FilesQueryContext.Provider
       value={{
@@ -233,7 +252,7 @@ export function useFileBrowserDrop() {
         newPath,
         isCopy
       })
-
+      console.log(currentFiles.refreshDirectory, 'refreshDirectory')
       await currentFiles.refreshDirectory()
     } catch (error) {
       console.error('Error moving file:', error)
