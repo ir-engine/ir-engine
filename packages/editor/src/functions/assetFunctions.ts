@@ -439,7 +439,7 @@ const createFileUploader = ({
           const newFiles = validatedFiles(el.files)
           const nonGifFiles = await filterGifFiles(projectName, directoryPath, newFiles)
           const uniqueFiles = await filterExistingFiles(projectName, directoryPath, nonGifFiles)
-          const [uploadedFileUrl] = await handleUploadFiles(projectName, directoryPath, uniqueFiles)
+          const [uploadedFileUrl] = await handleUploadFiles(projectName, directoryPath, uniqueFiles, updateThumbnail)
 
           if (uploadedFileUrl) {
             resolve(uploadedFileUrl)
