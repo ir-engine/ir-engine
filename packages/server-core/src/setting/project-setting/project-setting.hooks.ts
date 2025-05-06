@@ -35,6 +35,7 @@ import {
 
 import checkProjectPermission from '../../hooks/check-project-permission'
 import checkScope from '../../hooks/check-scope'
+import enableClientPagination from '../../hooks/enable-client-pagination'
 import setInContext from '../../hooks/set-in-context'
 import verifyProjectPermission from '../../hooks/verify-project-permission'
 import {
@@ -59,6 +60,7 @@ export default {
       schemaHooks.resolveQuery(projectSettingQueryResolver)
     ],
     find: [
+      iff(isProvider('external'), enableClientPagination()),
       iff(
         isProvider('external'),
         iffElse(
