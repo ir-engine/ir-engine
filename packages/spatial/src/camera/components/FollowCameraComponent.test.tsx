@@ -42,8 +42,8 @@ import { FollowCameraComponent } from './FollowCameraComponent'
 
 type FollowCameraComponentData = { minPhi: number; maxPhi: number; minTheta?: number; maxTheta?: number }
 const FollowCameraComponentDefaults = {
-  minTheta: undefined,
-  maxTheta: undefined
+  minTheta: 0,
+  maxTheta: 0
 } as FollowCameraComponentData
 
 function assertFollowCameraComponentEqual(A: FollowCameraComponentData, B: FollowCameraComponentData): void {
