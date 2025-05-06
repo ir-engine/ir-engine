@@ -53,14 +53,14 @@ const resolveUserEmail = async (userId: UserID | undefined, context: HookContext
 const resolveUserIp = async (userId: UserID | undefined, context: HookContext) => {
   if (!userId) return undefined
 
-  const login = await context.app.service(userLoginPath)._find({
+  const lastLogin = await context.app.service(userLoginPath)._find({
     query: {
       userId: userId,
       $sort: { createdAt: -1 },
       $limit: 1
     }
   })
-  return login?.data[0]?.ipAddress || undefined
+  return lastLogin?.data[0]?.ipAddress || undefined
 }
 
 export const moderationResolver = resolve<ModerationType, HookContext>({
