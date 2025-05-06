@@ -84,7 +84,6 @@ function ResourceFileContextMenu({
   const { t } = useTranslation()
   const userID = useMutableState(AuthState).user.id.value
   const { refetchResources, staticResourcesPagination } = useAssetsQuery()
-
   const splitResourceKey = resource.key.split('/')
   const name = resource.name || splitResourceKey.at(-1)!
   const path = splitResourceKey.slice(0, -1).join('/') + '/'
