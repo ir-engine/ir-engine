@@ -154,7 +154,7 @@ function ViewportContainer() {
   return (
     <ViewportDnD>
       <div className="relative z-30 flex h-full w-full flex-col">
-        <div ref={toolbarRef} className="z-10 flex gap-1 bg-surface-4 px-1 py-1">
+        <div ref={toolbarRef} className="z-30 flex gap-1 bg-surface-4 px-1 py-1">
           <TransformSpaceTool />
           {transformPivotFeatureFlag && <TransformPivotTool />}
           <GridTool />
@@ -170,14 +170,16 @@ function ViewportContainer() {
         <div
           id="engine-renderer-canvas-container"
           ref={(ref) => canvasRef.set({ current: ref })}
-          className="absolute h-full w-full"
+          className="absolute z-10 h-full w-full"
         />
         {sceneName.value ? (
           <>{rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}</>
         ) : (
-          <div className="flex h-full w-full flex-col justify-center gap-2">
-            <img src={clientSettings?.appTitle} className="block scale-[.8]" />
-            <Text className="text-center">{t('editor:selectSceneMsg')}</Text>
+          <div className="relative z-20 flex h-full w-full justify-center">
+            <div className="flex max-w-[40rem] flex-col justify-center gap-5 px-6">
+              <img src={clientSettings?.appTitle} className="block" />
+              <Text className="text-center dark:text-[#A3A3A3]">{t('editor:selectSceneMsg')}</Text>
+            </div>
           </div>
         )}
       </div>
