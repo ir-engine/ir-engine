@@ -1,4 +1,4 @@
-{ 
+{
   "loading": "Loading Project",
   "loadingNode": "Loading {{name}} Editor...",
   "loadingError": "Error loading Project",
@@ -115,7 +115,9 @@
       "FPS": "FPS",
       "frameTime": "Frame Time",
       "calls": "Calls",
-      "triangles": "Triangles",
+      "sceneTriangles": "Scene Triangles",
+      "triangles": "Render Triangles",
+      "trianglesTooltip": "Number of triangles currently being rendered, post processing effects will affect this number.",
       "points": "Points",
       "lines": "Lines",
       "shaderComplexity": "Shader Complexity",
@@ -1706,4 +1708,3 @@
     "okay": "Okay"
   }
 }
-

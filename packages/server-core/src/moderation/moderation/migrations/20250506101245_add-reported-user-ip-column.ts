@@ -23,37 +23,25 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
+import { moderationPath } from '@ir-engine/common/src/schemas/moderation/moderation.schema'
+import type { Knex } from 'knex'
 
-export interface BadgeProps {
-  label: string
-  className?: string
-  variant?: 'success' | 'successLight' | 'danger' | 'neutral' | 'warning'
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  await knex.schema.alterTable(moderationPath, (table) => {
+    table.string('reportedUserIpAddress', 255).nullable()
+  })
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-const variantMap = {
-  success: 'bg-ui-hover-success',
-  successLight: 'bg-ui-hover-success opacity-80',
-  danger: 'bg-ui-hover-error',
-  neutral: 'bg-gray-700',
-  warning: 'bg-ui-hover-warning'
-} as const
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-const Badge = ({ label, className, variant }: BadgeProps) => {
-  variant = variant || 'neutral'
+  await knex.schema.alterTable(moderationPath, (table) => {
+    table.dropColumn('reportedUserIpAddress')
+  })
 
-  return (
-    <div
-      className={twMerge(
-        'flex h-fit items-center justify-around gap-x-1.5	rounded-full px-2.5 py-0.5 text-white',
-        variantMap[variant],
-        className
-      )}
-    >
-      <span className="font-semibold">{label}</span>
-    </div>
-  )
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
-
-export default Badge
