@@ -252,7 +252,6 @@ export function useFileBrowserDrop() {
         newPath,
         isCopy
       })
-      console.log(currentFiles.refreshDirectory, 'refreshDirectory')
       await currentFiles.refreshDirectory()
     } catch (error) {
       console.error('Error moving file:', error)
