@@ -111,14 +111,13 @@ export const GifFileConfirmationModal = ({ projectName, directoryPath, files, on
 }
 
 export const showGifFileConfimation = (projectName: string, directoryPath: string, files: File[]) => {
-  PopoverState.showPopupover(
+  ModalState.openModal(
     <GifFileConfirmationModal
       projectName={projectName}
       directoryPath={directoryPath}
       files={files}
-      onClose={PopoverState.hidePopupover}
-    />,
-    () => {}
+      onClose={ModalState.closeModal}
+    />
   )
 }
 

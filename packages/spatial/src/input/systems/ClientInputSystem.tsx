@@ -135,11 +135,11 @@ const reactor = () => {
   if (!isClient) return null
 
   useEffect(() => {
-    document.addEventListener('visibilitychange', cleanupInputs)
+    document.addEventListener('visibilitychange', () => ClientInputFunctions.refreshInputs())
     InputHeuristicState.addHeuristic(-1, meshHeuristic)
     InputHeuristicState.addHeuristic(0, boundingBoxHeuristic)
     return () => {
-      document.removeEventListener('visibilitychange', cleanupInputs)
+      document.removeEventListener('visibilitychange', () => ClientInputFunctions.refreshInputs())
     }
   }, [])
 
