@@ -275,7 +275,7 @@ function ResourceFile({
           name={name}
           onClick={() => {
             ClickPlacementState.setSelectedAsset(resource.url)
-            ClickPlacementState.setSelectedAssetData(resource)
+            ClickPlacementState.setSelectedAssetData(metadata)
           }}
           onContextMenu={(event) => {
             event.preventDefault()

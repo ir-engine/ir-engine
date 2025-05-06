@@ -62,6 +62,25 @@ import { SelectionState } from '../services/SelectionServices'
 import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 
 let placedCount = 0
+
+type AssetTag = string
+
+interface AssetMetadataType {
+  thumbnail: string
+  name: string
+  type: string
+  author: string
+  dateCreated: string
+  fileSize: string
+  dimensions: {
+    height: number
+    width: number
+    depth: number
+  }
+  mesh: string
+  resources: string
+  tags: AssetTag[]
+}
 export const ClickPlacementState = defineState({
   name: 'ClickPlacementState',
   initial: {
@@ -72,7 +91,7 @@ export const ClickPlacementState = defineState({
     rollOffset: 0,
     maxDistance: 25,
     materialCache: [] as [Mesh, Material][],
-    metadata: {}
+    metadata: {} as AssetMetadataType
   },
   setSelectedAsset: (src: string) => {
     const assetExt = FileToAssetExt(src)

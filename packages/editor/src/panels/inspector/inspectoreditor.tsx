@@ -23,39 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ErrorBoundary } from '@ir-engine/hyperflux'
-import { Tooltip } from '@ir-engine/ui'
-import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
-import { TabData } from 'rc-dock'
-import React, { Suspense } from 'react'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
-import InspectorEditor from './inspectoreditor'
-// import PropertiesEditor from './propertyeditor'
+import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 
-const InspectorPanelTitle = () => {
+const InspectorEditor = () => {
   const { t } = useTranslation()
+  const { metadata } = useHookstate(getMutableState(ClickPlacementState)).value
+  const { thumbnail, name, type, author, dateCreated, fileSize, dimensions, mesh, resources, tags } = metadata
 
-  return (
-    <div>
-      <PanelDragContainer>
-        <Tooltip content={t('editor:properties.info')}>
-          <PanelTitle>{t('editor:inspector.title')}</PanelTitle>
-        </Tooltip>
-      </PanelDragContainer>
+  return Object.keys(metadata).length > 0 ? (
+    <div className="flex h-full flex-col p-3 px-10 text-text-secondary">
+      <div className="align-center flex justify-center">
+        <img src={thumbnail} alt={name} className="m-3 text-center" />
+      </div>
+      <Text fontSize="xl">{name}</Text>
+      <div></div>
     </div>
+  ) : (
+    <div className="flex h-full items-center justify-center p-3 text-text-secondary">No asset selected</div>
   )
 }
 
-export const InspectorPanelTab: TabData = {
-  id: 'inspectorPanel',
-  closable: true,
-  cached: true,
-  title: <InspectorPanelTitle />,
-  content: (
-    <ErrorBoundary fallback={<div>Error occured with the inspector tab</div>}>
-      <Suspense>
-        <InspectorEditor />
-      </Suspense>
-    </ErrorBoundary>
-  )
-}
+export default InspectorEditor
