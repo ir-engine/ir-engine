@@ -30,7 +30,6 @@ import { TabData } from 'rc-dock'
 import React, { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import InspectorEditor from './inspectoreditor'
-// import PropertiesEditor from './propertyeditor'
 
 const InspectorPanelTitle = () => {
   const { t } = useTranslation()
