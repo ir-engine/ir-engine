@@ -24,24 +24,26 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
+  EntityID,
   EntityTreeComponent,
   getAncestorWithComponents,
   getComponent,
   hasComponent,
   useAncestorWithComponents,
   useComponent,
-  useQuery
+  useQuery,
+  UUIDComponent
 } from '@ir-engine/ecs'
 import {
-  EditorComponentType,
   commitProperties,
   commitProperty,
+  EditorComponentType,
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
-import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
+import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { TriggerCallbackComponent } from '@ir-engine/engine/src/scene/components/TriggerCallbackComponent'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
@@ -86,7 +88,7 @@ const TriggerProperties: EditorComponentType = (props) => {
       const callbacks = getComponent(entity, CallbackComponent)
       options.push({
         label: getComponent(entity, NameComponent),
-        value: getComponent(entity, NodeIDComponent),
+        value: getComponent(entity, UUIDComponent).entityID,
         callbacks: Object.keys(callbacks).map((cb) => ({ label: cb, value: cb }))
       })
     }
@@ -163,7 +165,7 @@ const TriggerProperties: EditorComponentType = (props) => {
               info={t('editor:properties.triggerVolume.info-target')}
             >
               <NodeInput
-                value={trigger.target.value ?? ('' as NodeID)}
+                value={trigger.target.value ?? ('' as EntityID)}
                 onRelease={commitProperty(TriggerCallbackComponent, `triggers.${index}.target` as any)}
                 disabled={props.multiEdit}
               />

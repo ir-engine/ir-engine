@@ -197,7 +197,6 @@ export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
  */
 export const onSaveScene = async () => {
   const { sceneAssetID, projectName, sceneName, rootEntity } = getState(EditorState)
-  const sceneModified = EditorState.isModified()
 
   try {
     await SceneThumbnailState.createThumbnail()
@@ -206,18 +205,12 @@ export const onSaveScene = async () => {
     console.error(error)
   }
 
-  if (!sceneModified) {
-    ModalState.closeModal()
-    NotificationService.dispatchNotify(`${i18n.t('editor:dialog.saveScene.info-save-success')}`, { variant: 'success' })
-    return
-  }
-
   const abortController = new AbortController()
 
   try {
     await saveSceneGLTF(sceneAssetID!, projectName!, sceneName!, abortController.signal)
     NotificationService.dispatchNotify(`${i18n.t('editor:dialog.saveScene.info-save-success')}`, { variant: 'success' })
-    const sourceID = GLTFComponent.getInstanceID(rootEntity)
+    const sourceID = GLTFComponent.getSourceID(rootEntity)
     getMutableState(AssetModifiedState)[sourceID].set(none)
 
     ModalState.closeModal()

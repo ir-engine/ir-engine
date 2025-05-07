@@ -34,7 +34,7 @@ import { teleportAvatar } from './moveAvatar'
 
 export const respawnAvatar = (entity?: Entity) => {
   if (!entity) return
-  const { spawnPosition } = getState(SpawnPoseState)[getComponent(entity, UUIDComponent)]
+  const { spawnPosition } = getState(SpawnPoseState)[UUIDComponent.get(entity)]
   const controller = getComponent(entity, AvatarControllerComponent)
   controller.verticalVelocity = 0
   teleportAvatar(entity, spawnPosition)

@@ -59,31 +59,30 @@ export const EditorState = defineState({
     const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
     const modifiedState = useMutableState(AssetModifiedState)
     if (!rootEntity) return false
-    return !!modifiedState[GLTFComponent.getInstanceID(rootEntity)].value
+    return !!modifiedState[GLTFComponent.getSourceID(rootEntity)].value
   },
   isModified: () => {
     const rootEntity = getState(EditorState).rootEntity
     if (!rootEntity) return false
-    return !!getState(AssetModifiedState)[GLTFComponent.getInstanceID(rootEntity)]
+    return !!getState(AssetModifiedState)[GLTFComponent.getSourceID(rootEntity)]
   },
   markModifiedScene: (entity: Entity) => {
-    const sourceID = getOptionalComponent(entity, SourceComponent) || GLTFComponent.getInstanceID(entity)
+    const sourceID = GLTFComponent.getSourceID(entity)
     if (!sourceID) return
 
     const modifiedState = getMutableState(AssetModifiedState)
     modifiedState[sourceID].set(true)
     const activeScene = getState(EditorState).rootEntity
     //also mark the active scene as modified due to scene deltas being added
-    const rootSourceID = GLTFComponent.getInstanceID(activeScene)
+    const rootSourceID = GLTFComponent.getSourceID(activeScene)
     if (rootSourceID !== sourceID) {
       modifiedState[rootSourceID].set(true)
     }
   },
   isInActiveScene: (entity: Entity) => {
     const rootEntity = getState(EditorState).rootEntity
-    const rootSourceID = GLTFComponent.getInstanceID(rootEntity)
     const sourceID = getOptionalComponent(entity, SourceComponent)
-    return sourceID === rootSourceID
+    return sourceID === rootEntity
   },
   reactor: () => {
     const linkState = useMutableState(LinkState)

@@ -24,7 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
+  EntityID,
   EntityTreeComponent,
+  SourceID,
+  UUIDComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -90,6 +93,10 @@ describe('HemisphereLightComponent', () => {
     beforeEach(async () => {
       createEngine()
       testEntity = createEntity()
+      setComponent(testEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'id' as EntityID
+      })
       setComponent(testEntity, HemisphereLightComponent)
     })
 
@@ -173,6 +180,10 @@ describe('HemisphereLightComponent', () => {
       createEngine()
       mockSpatialEngine()
       testEntity = createEntity()
+      setComponent(testEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'id' as EntityID
+      })
       setComponent(testEntity, TransformComponent)
     })
 

@@ -29,7 +29,6 @@ import {
   SimulationSystemGroup,
   SystemDefinitions,
   SystemUUID,
-  UUIDComponent,
   UndefinedEntity,
   createEntity,
   getComponent,
@@ -89,7 +88,6 @@ describe('PhysicsSystem', () => {
       createEngine()
       await Physics.load()
       physicsWorldEntity = createEntity()
-      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
       setComponent(physicsWorldEntity, EntityTreeComponent)
@@ -242,7 +240,7 @@ describe('PhysicsSystem', () => {
         createEngine()
         await Physics.load()
         physicsWorldEntity = createEntity()
-        setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+
         setComponent(physicsWorldEntity, SceneComponent)
         setComponent(physicsWorldEntity, TransformComponent)
         setComponent(physicsWorldEntity, EntityTreeComponent)
@@ -295,7 +293,7 @@ describe('PhysicsSystem', () => {
         startReactor(physicsSystemReactor!)
 
         physicsWorldEntity = createEntity()
-        setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+
         setComponent(physicsWorldEntity, EntityTreeComponent)
         setComponent(physicsWorldEntity, TransformComponent)
 
@@ -337,7 +335,7 @@ describe('PhysicsSystem', () => {
         createEngine()
         await Physics.load()
         physicsWorldEntity = createEntity()
-        setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+
         setComponent(physicsWorldEntity, EntityTreeComponent)
         setComponent(physicsWorldEntity, TransformComponent)
         setComponent(physicsWorldEntity, SceneComponent)

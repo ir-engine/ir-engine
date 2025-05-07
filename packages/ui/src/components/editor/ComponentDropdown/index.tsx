@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, UUIDComponent, getComponent } from '@ir-engine/ecs'
+import { Entity, UUIDComponent } from '@ir-engine/ecs'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { InfoCircleSm } from '@ir-engine/ui/src/icons'
 import React, { useEffect } from 'react'
@@ -55,7 +55,7 @@ export default function ComponentDropdown({
   onClose,
   entity
 }: ComponentDropdownProps) {
-  const entityUUID = getComponent(entity, UUIDComponent)
+  const entityUUID = UUIDComponent.get(entity)
   const dropdownStateRecord = useMutableState(ComponentDropdownState).componentStates
 
   // State to track if minimized

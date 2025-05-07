@@ -135,7 +135,8 @@ export const setInputSources = (startEntity: Entity, inputSources: Entity[]) => 
   const inputComponent = getComponent(inputEntity, InputComponent)
 
   for (const sinkEntityUUID of inputComponent.inputSinks) {
-    const sinkEntity = sinkEntityUUID === 'Self' ? inputEntity : UUIDComponent.getEntityByUUID(sinkEntityUUID) //TODO why is this not sending input to my sinks
+    const sinkEntity =
+      sinkEntityUUID === 'Self' ? inputEntity : UUIDComponent.getEntityFromSameSourceByID(inputEntity, sinkEntityUUID)
     if (!hasComponent(sinkEntity, InputComponent)) continue
     const sinkInputComponent = getMutableComponent(sinkEntity, InputComponent)
     sinkInputComponent.inputSources.merge(inputSources)
