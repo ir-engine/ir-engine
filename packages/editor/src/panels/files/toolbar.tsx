@@ -52,7 +52,7 @@ import {
 } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { FilesState, FilesViewModeState } from '../../services/FilesState'
-import { useAssetsQuery } from '../assets/hooks'
+import { AssetsRefreshState } from '../assets/hooks'
 import { useCurrentFiles } from './helpers'
 import { handleDownloadProject } from './loaders'
 
@@ -91,12 +91,11 @@ export const showMultipleFileModal = (projectName: string, directoryPath: string
 }
 
 export const GifFileConfirmationModal = ({ projectName, directoryPath, files, onClose }) => {
-  const { refetchResources } = useAssetsQuery()
   const fileNames = files.map((file) => file.name)
 
   const onSubmit = async () => {
     await handleConvertGifFileToVideoAndUpload(projectName, directoryPath, files)
-    await refetchResources(true) // Refresh assets after conversion
+    AssetsRefreshState.triggerRefresh()
     onClose()
   }
 
