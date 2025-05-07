@@ -28,7 +28,17 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 
 export const VisibleComponent = defineComponent({
   name: 'VisibleComponent',
-  jsonID: 'EE_visible'
+  jsonID: 'EE_visible',
+
+  onSet(entity, component, json) {
+    component.set(true)
+  },
+
+  toJSON(component) {
+    return {
+      value: true
+    }
+  }
 })
 
 export const setVisibleComponent = (entity: Entity, visible: boolean) => {

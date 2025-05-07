@@ -1257,16 +1257,9 @@ const exportEntity = async (
         node.matrix = _diffMatrix.identity().scale(transform.scale).toArray()
       }
     } else {
-      let compData = serializeComponent(entity, component)
+      const compData = serializeComponent(entity, component)
       // Do we not want to serialize tag components?
       if (compData == null) continue
-
-      if (typeof compData !== 'object') {
-        const data = compData
-        compData = {
-          value: data
-        }
-      }
 
       extensions[component.jsonID] = compData
       context.extensionsUsed.add(component.jsonID)

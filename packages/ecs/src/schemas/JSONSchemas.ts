@@ -279,5 +279,36 @@ export const S = {
     ({
       ...buildSchema('Proxy', { create: proxy, serialized: true }),
       properties: schema
-    }) as TProxySchema<T>
+    }) as TProxySchema<T>,
+
+  GLTFExtensionSchema: <T extends Schema>(schema: T): T => {
+    const options = schema.options ?? {}
+
+    schema.options = {
+      ...options,
+      serialize(value) {
+        if (options.serialize) value = options.serialize(value)
+        if (value == null) return value
+
+        if (typeof value !== 'object') {
+          return {
+            value: value
+          }
+        }
+
+        return value
+      },
+      deserialize(curr, value) {
+        if (options.deserialize) value = options.deserialize(curr, value)
+
+        if (value != null && typeof value === 'object' && 'value' in value && Object.keys(value).length === 1) {
+          return value.value
+        }
+
+        return value
+      }
+    }
+
+    return schema
+  }
 }

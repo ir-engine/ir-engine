@@ -57,10 +57,12 @@ export const NodeIDComponent = defineComponent({
   name: 'NodeIDComponent',
   jsonID: 'EE_uuid',
 
-  schema: NodeIDSchema({
-    /** @todo we should also validate to see if it currently is defined, and if not then disallow changing */
-    validate: NonEmptyString('NodeIDComponent expects a non-empty string')
-  }),
+  schema: S.GLTFExtensionSchema(
+    NodeIDSchema({
+      /** @todo we should also validate to see if it currently is defined, and if not then disallow changing */
+      validate: NonEmptyString('NodeIDComponent expects a non-empty string')
+    })
+  ),
 
   reactor: () => {
     const entity = useEntityContext()
