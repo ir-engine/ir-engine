@@ -27,6 +27,7 @@ import {
   Entity,
   entityExists,
   getTreeFromChildToAncestor,
+  hasComponent,
   removeComponent,
   setComponent,
   UndefinedEntity,
@@ -69,15 +70,21 @@ export function useApplyCollidersToChildMeshesEffect(entity: Entity) {
 
     if (!component.applyColliders.value) return
 
-    const children = childMeshEntities
+    const children = [...childMeshEntities]
+    if (hasComponent(entity, MeshComponent)) children.push(entity)
+
+    const added = [] as Entity[]
     for (const child of children) {
-      setComponent(child, ColliderComponent, { shape: component.shape.value, matchMesh: true })
-      forceUpdateMatrices(child)
+      if (!hasComponent(child, ColliderComponent)) {
+        setComponent(child, ColliderComponent, { shape: component.shape.value, matchMesh: true })
+        forceUpdateMatrices(child)
+        added.push(child)
+      }
     }
 
     return () => {
-      for (const child of children) {
-        if (entityExists(child)) removeComponent(child, ColliderComponent)
+      for (const entity of added) {
+        if (entityExists(entity)) removeComponent(entity, ColliderComponent)
       }
     }
   }, [
