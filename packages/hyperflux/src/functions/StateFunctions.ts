@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -43,9 +43,9 @@ export const createState = hookstate
 export const NO_PROXY = { noproxy: true }
 export const NO_PROXY_STEALTH = { noproxy: true, stealth: true }
 
-export type ReceptorMap = Record<string, ActionReceptor<any>>
+export type ReceptorMap<S = any> = Record<string, ActionReceptor<any, S>>
 
-export type StateDefinition<S, I, E, Receptors extends ReceptorMap> = {
+export type StateDefinition<S, I, E, Receptors extends ReceptorMap<S>> = {
   name: string
   initial: SetInitialStateAction<S>
   extension?: ExtensionFactory<S, I, E>
@@ -56,9 +56,9 @@ export type StateDefinition<S, I, E, Receptors extends ReceptorMap> = {
   onCreate?: (store: HyperStore, state: State<S, I & E>) => void
 }
 
-export const StateDefinitions = new Map<string, StateDefinition<any, any, any, any>>()
+export const StateDefinitions = new Map<string, StateDefinition<any, any, any, ReceptorMap<any>>>()
 
-export const setInitialState = (def: StateDefinition<any, any, any, any>) => {
+export const setInitialState = (def: StateDefinition<any, any, any, ReceptorMap<any>>) => {
   const initial = typeof def.initial === 'function' ? (def.initial as any)() : JSON.parse(JSON.stringify(def.initial))
   if (HyperFlux.store.stateMap[def.name]) {
     HyperFlux.store.stateMap[def.name].set(initial)
@@ -75,7 +75,7 @@ export const setInitialState = (def: StateDefinition<any, any, any, any>) => {
   }
 }
 
-export function defineState<S, I, E, R extends ReceptorMap, StateExtras = Record<string, any>>(
+export function defineState<S, I, E, R extends ReceptorMap<S>, StateExtras = Record<string, any>>(
   definition: StateDefinition<S, I, E, R> & StateExtras
 ) {
   if (StateDefinitions.has(definition.name)) throw new Error(`State ${definition.name} already defined`)
@@ -83,7 +83,7 @@ export function defineState<S, I, E, R extends ReceptorMap, StateExtras = Record
   return definition as StateDefinition<S, I, E, R> & { _TYPE: S } & StateExtras
 }
 
-export function getMutableState<S, I, E, R extends ReceptorMap>(StateDefinition: StateDefinition<S, I, E, R>) {
+export function getMutableState<S, I, E, R extends ReceptorMap<S>>(StateDefinition: StateDefinition<S, I, E, R>) {
   if (!HyperFlux.store.stateMap[StateDefinition.name]) setInitialState(StateDefinition)
   return HyperFlux.store.stateMap[StateDefinition.name] as State<S, I & E & Identifiable>
 }
@@ -178,14 +178,14 @@ const _mergeStateValuesDeep = (target: State<any>, source: any) => {
   }
 }
 
-export function useMutableState<S, I, E, R extends ReceptorMap, P extends string>(
+export function useMutableState<S, I, E, R extends ReceptorMap<S>, P extends string>(
   StateDefinition: StateDefinition<S, I, E, R>
 ): State<S, I & E & Identifiable>
-export function useMutableState<S, I, E, R extends ReceptorMap, P extends string>(
+export function useMutableState<S, I, E, R extends ReceptorMap<S>, P extends string>(
   StateDefinition: StateDefinition<S, I, E, R>,
   path: Function.AutoPath<State<S, E>, P>
 ): _Object.Path<State<S, I & E & Identifiable>, String.Split<P, '.'>>
-export function useMutableState<S, I, E, R extends ReceptorMap, P extends string>(
+export function useMutableState<S, I, E, R extends ReceptorMap<S>, P extends string>(
   StateDefinition: StateDefinition<S, I, E, R>,
   path?: Function.AutoPath<State<S, E>, P>
 ): _Object.Path<State<S, I & E & Identifiable>, String.Split<P, '.'>> {

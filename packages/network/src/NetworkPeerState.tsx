@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,27 +19,29 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { NetworkID, PeerID, UserID, defineState, getMutableState, none } from '@ir-engine/hyperflux'
+import { NetworkID, PeerID, UserID, defineState, none } from '@ir-engine/hyperflux'
 import { NetworkActions, NetworkPeer } from './NetworkState'
+
+// Define the state type
+type NetworkPeerStateType = Record<
+  NetworkID,
+  {
+    peers: Record<PeerID, NetworkPeer>
+    peerIndexToPeerID: Record<number, PeerID>
+    peerIDToPeerIndex: Record<PeerID, number>
+    users: Record<UserID, PeerID[]>
+  }
+>
 
 export const NetworkPeerState = defineState({
   name: 'ir.network.NetworkPeerState',
-  initial: {} as Record<
-    NetworkID,
-    {
-      peers: Record<PeerID, NetworkPeer>
-      peerIndexToPeerID: Record<number, PeerID>
-      peerIDToPeerIndex: Record<PeerID, number>
-      users: Record<UserID, PeerID[]>
-    }
-  >,
+  initial: {} as NetworkPeerStateType,
   receptors: {
-    onPeerJoined: NetworkActions.peerJoined.receive((action) => {
-      const state = getMutableState(NetworkPeerState)
+    onPeerJoined: NetworkActions.peerJoined.receive<NetworkPeerStateType>((action, state) => {
       if (!state.value[action.$network]) {
         state[action.$network].set({
           peers: {},
@@ -64,9 +66,7 @@ export const NetworkPeerState = defineState({
           state[action.$network].users[action.userID].merge([action.peerID])
       }
     }),
-    onPeerLeft: NetworkActions.peerLeft.receive((action) => {
-      const state = getMutableState(NetworkPeerState)
-
+    onPeerLeft: NetworkActions.peerLeft.receive<NetworkPeerStateType>((action, state) => {
       if (!state[action.$network].peers[action.peerID]) {
         console.error(`NetworkPeerState: peer ${action.peerID} not found`)
         return
@@ -91,12 +91,14 @@ export const NetworkPeerState = defineState({
   }
 })
 
+// Define the state type
+type WorldUserStateType = Record<UserID, Record<NetworkID, PeerID[]>>
+
 export const WorldUserState = defineState({
   name: 'ir.network.WorldUserState',
-  initial: {} as Record<UserID, Record<NetworkID, PeerID[]>>,
+  initial: {} as WorldUserStateType,
   receptors: {
-    onPeerJoined: NetworkActions.peerJoined.receive((action) => {
-      const state = getMutableState(WorldUserState)
+    onPeerJoined: NetworkActions.peerJoined.receive<WorldUserStateType>((action, state) => {
       if (!state.value[action.userID]) {
         state[action.userID].set({})
       }
@@ -107,8 +109,7 @@ export const WorldUserState = defineState({
           state[action.userID][action.$network].merge([action.peerID])
       }
     }),
-    onPeerLeft: NetworkActions.peerLeft.receive((action) => {
-      const state = getMutableState(WorldUserState)
+    onPeerLeft: NetworkActions.peerLeft.receive<WorldUserStateType>((action, state) => {
       const userPeers = state[action.userID][action.$network]!
       const index = userPeers.value.indexOf(action.peerID)
       userPeers[index].set(none)

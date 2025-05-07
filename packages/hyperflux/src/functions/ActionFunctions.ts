@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -32,7 +32,7 @@ import { OpaqueType } from '../types/OpaqueType'
 import { NetworkID, PeerID, UserID } from '../types/Types'
 import { isDev } from './EnvironmentConstants'
 import { ReactorReconciler, ReactorRoot } from './ReactorFunctions'
-import { setInitialState, StateDefinitions } from './StateFunctions'
+import { getMutableState, setInitialState, State, StateDefinitions } from './StateFunctions'
 import { HyperFlux } from './StoreFunctions'
 
 const matchesPeerID = matches.string as Validator<unknown, PeerID>
@@ -227,13 +227,13 @@ export type PartialActionType<Shape extends ActionShape<any>> = Omit<
  */
 export const ActionDefinitions = {} as Record<string, any>
 
-export type ActionReceptor<A extends ActionShape<Action>> = ((action: A) => void) & {
+export type ActionReceptor<A extends ActionShape<Action>, S = any> = ((action: A, state: State<S>) => void) & {
   matchesAction: Validator<A, any>
-  validate: (validator: (action: ResolvedActionType<A>) => boolean) => ActionReceptor<A>
+  validate: (validator: (action: ResolvedActionType<A>) => boolean) => ActionReceptor<A, S>
   validator?: (action: A) => boolean
 }
 
-export function isActionReceptor<A extends ActionShape<Action>>(f: any): f is ActionReceptor<A> {
+export function isActionReceptor<A extends ActionShape<Action>, S = any>(f: any): f is ActionReceptor<A, S> {
   return 'matchesAction' in f
 }
 
@@ -311,14 +311,14 @@ export function defineAction<Shape extends Omit<ActionShape<Action>, keyof Actio
   actionCreator.extend = <ExtendShape extends ActionShape<Action>>(extendShape: ExtendShape & ActionOptions) => {
     return { ...shape, ...extendShape, type: [extendShape.type, ...(Array.isArray(type) ? type : [type])] }
   }
-  actionCreator.receive = (actionReceptor: (action: ResolvedAction) => void) => {
+  actionCreator.receive = <S = never>(actionReceptor: (action: ResolvedAction, state: State<S>) => void) => {
     const hookableReceptor = createHookableFunction(actionReceptor)
     hookableReceptor['matchesAction'] = matchesShape
     hookableReceptor['validate'] = (actionValidator: (action: ResolvedAction) => boolean) => {
       hookableReceptor['validator'] = actionValidator
       return hookableReceptor
     }
-    return hookableReceptor as typeof hookableReceptor & ActionReceptor<Shape>
+    return hookableReceptor as typeof hookableReceptor & ActionReceptor<Shape, S>
   }
 
   ActionDefinitions[actionCreator.type as string] = actionCreator
@@ -426,9 +426,8 @@ const createEventSourceQueues = (action: Required<ResolvedActionType>) => {
   for (const definition of StateDefinitions.values()) {
     if (!definition.receptors || HyperFlux.store.receptors[definition.name]) continue
 
-    const matchedActions = Object.values(definition.receptors).map(
-      (r: ActionReceptor<ResolvedActionType>) => r.matchesAction
-    )
+    // The receptors are already typed with the correct state type from the state definition
+    const matchedActions = Object.values(definition.receptors).map((r) => r.matchesAction)
     if (!matchedActions.some((m) => m.test(action))) continue
 
     const receptorActionQueue = defineActionQueue(matchedActions)
@@ -454,10 +453,11 @@ const createEventSourceQueues = (action: Required<ResolvedActionType>) => {
       for (const action of receptorActionQueue()) {
         for (const definitionReceptor of Object.values(definition.receptors!)) {
           try {
-            const receptor = definitionReceptor as ActionReceptor<ResolvedActionType>
+            // The receptor is already typed with the correct state type from the state definition
+            const receptor = definitionReceptor as ActionReceptor<ResolvedActionType, any>
             if (receptor.matchesAction.test(action)) {
               if (receptor.validator && !receptor.validator(action)) continue
-              receptor(action)
+              receptor(action, getMutableState(definition))
               hasNewActions = true
             }
           } catch (e) {
@@ -483,7 +483,7 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
     //actions had circular references. Just try/catching the logger.info call was not catching them properly,
     //So the solution was to attempt to JSON.stringify them manually first to see if that would error.
     try {
-      const jsonStringified = JSON.stringify(action)
+      JSON.stringify(action) // Test if action can be stringified
       // logger.info('Repeat action %o', action)
     } catch (err) {
       console.log('error in logging action', action)
@@ -504,6 +504,7 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
     //actions had circular references. Just try/catching the logger.info call was not catching them properly,
     //So the solution was to attempt to JSON.stringify them manually first to see if that would error.
     try {
+      JSON.stringify(action) // Test if action can be stringified
       // HyperFlux.store.logger('hyperflux:action').info(`[Action]: ${action.type} %o`, action)
     } catch (err) {
       console.log('error in logging action', action)
