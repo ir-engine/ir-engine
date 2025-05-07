@@ -42,8 +42,8 @@ export const UVOLDissolveComponent = defineComponent({
   name: 'UVOLDissolveComponent',
 
   schema: S.Object({
-    currentTime: S.Number(0),
-    duration: S.Number(2)
+    currentTime: S.Number(),
+    duration: S.Number({ default: 2 })
   }),
 
   /**

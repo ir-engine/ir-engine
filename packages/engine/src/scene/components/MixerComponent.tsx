@@ -127,7 +127,7 @@ type AnyComponent = Component<any, any, any, any, any, any>
 type AnyComponentWithID = AnyComponent & { jsonID: string }
 
 const toEntityUUID = (entity: Entity | EntityUUID): EntityUUID =>
-  typeof entity === 'string' ? entity : getComponent(entity, UUIDComponent)
+  typeof entity === 'string' ? entity : UUIDComponent.get(entity)
 const toEntity = (entity: Entity | EntityUUID): Entity =>
   typeof entity === 'string' ? UUIDComponent.getEntityByUUID(entity) : entity
 
@@ -304,7 +304,7 @@ type MixerState = {
  * Schema definition for the MixerComponent
  */
 const schema = S.Object({
-  state: S.NonSerialized(S.Type<MixerState>()), // Runtime state (not serialized)
+  state: S.Type<MixerState>({ serialized: false }), // Runtime state (not serialized)
   coord: S.Number(), // Current coordinate position
   properties: S.Array(S.String()), // Array of property addresses
   entries: S.Array(S.Tuple([S.Number(), S.Record(S.String(), S.Array(S.Number()))])) // Array of [coord, entry] tuples

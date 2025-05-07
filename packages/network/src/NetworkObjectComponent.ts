@@ -52,7 +52,7 @@ let availableNetworkId = 0 as NetworkId
 export const NetworkSchema = {
   /** NetworkID type schema helper, defaults to 0 */
   NetworkID: (options?: TTypedSchema<NetworkId>['options']) =>
-    S.Number(0, { ...options, id: 'NetworkID' } as any) as unknown as TTypedSchema<NetworkId>
+    S.Number({ ...options, id: 'NetworkID' }) as unknown as TTypedSchema<NetworkId>
 }
 
 const proxyNetworkId = proxySoAStore(() => NetworkObjectComponent.networkId)
@@ -62,10 +62,10 @@ export const NetworkObjectComponent = defineComponent({
 
   schema: S.Object({
     /** The user who is authority over this object. */
-    ownerId: S.UserID('' as UserID),
-    ownerPeer: S.PeerID('' as PeerID),
+    ownerId: S.UserID(),
+    ownerPeer: S.PeerID(),
     /** The peer who is authority over this object. */
-    authorityPeerID: S.PeerID('' as PeerID),
+    authorityPeerID: S.PeerID(),
     /** The network id for this object (this id is only unique per owner) */
     networkId: S.Proxy(NetworkSchema.NetworkID(), proxyNetworkId)
   }),

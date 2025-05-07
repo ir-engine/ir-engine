@@ -53,7 +53,6 @@ import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbna
 import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/ModelTransform'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -62,6 +61,7 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { Button, DropdownItem, Input, Select, Tooltip } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
@@ -252,9 +252,12 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
         EditorControlFunctions.modifyProperty([combinedMeshEntity], EntityTreeComponent, { parentEntity: rootEntity })
         setComponent(combinedMeshEntity, NameComponent, 'combined mesh entity')
         setComponent(combinedMeshEntity, TransformComponent)
-        setComponent(combinedMeshEntity, UUIDComponent, UUIDComponent.generateUUID())
-        const newSource = GLTFComponent.getInstanceID(rootEntity)
-        setComponent(combinedMeshEntity, SourceComponent, newSource)
+        const newSource = GLTFComponent.getSourceID(rootEntity)
+        setComponent(combinedMeshEntity, UUIDComponent, {
+          entitySourceID: newSource,
+          entityID: UUIDComponent.generateUUID()
+        })
+        setComponent(combinedMeshEntity, SourceComponent, rootEntity)
         const srcURL = pathJoin(config.client.fileServer, saveScenePath + '/' + scenename + '/combined-mesh.gltf')
         iterateEntityNode(rootEntity, (entity) => {
           if (hasComponent(entity, MeshComponent)) {
@@ -344,25 +347,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
             compressionProgress.set({ progress, caption })
           }
         )
-        // const result = createSceneEntity('container')
-        // const variant = createSceneEntity('LOD Variant', result)
-        // const heuristic = Heuristic.DISTANCE
-        // setComponent(variant, VariantComponent, {
-        //   levels: lods.map((lod, lodIndex) => ({
-        //     src: `${LoaderUtils.extractUrlBase(srcURL)}${lod.params.dst}.${lod.params.modelFormat}`,
-        //     metadata: {
-        //       ...lod.variantMetadata,
-        //       ...transformMetadata[lodIndex]
-        //     }
-        //   })),
-        //   heuristic
-        // })
-        // const destinationPath = srcURL.replace(/\.[^.]*$/, `-integrated.gltf`)
-        // const gltfEntity = getAncestorWithComponents(result, [GLTFComponent])
-        // const uuid = getComponent(gltfEntity, UUIDComponent)
-        // const sourceID = SourceComponent.getSourceID(uuid, destinationPath)
-        // iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, sourceID))
-        // await exportGLTF(result, destinationPath, false)
+
         const compressedFilePath = srcURL.replace(/\.[^.]*$/, `-LOD2.gltf`)
         //update src from combined mesh to compressed mesh
         compressionLoading.set(false)
@@ -475,7 +460,10 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
   }, [location, props.onPublishSuccess, isNewPublished.value])
 
   return (
-    <div className="absolute z-50 bg-surface-2 px-8 pt-6" data-testid="publish-panel">
+    <div
+      className="absolute z-50 rounded-xl border border-surface-1 bg-white px-8 pt-6 shadow-lg dark:bg-surface-1"
+      data-testid="publish-panel"
+    >
       <div className="relative rounded-lg py-2">
         <div className="flex justify-between pb-6">
           <span className="text-xl">
@@ -547,13 +535,13 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
             />*/}
 
             <div className="grid grid-cols-[276px_minmax(0,1fr)] gap-12 border-t border-t-ui-outline py-6">
-              <div className="flex flex-col">
-                {props.inStudio && (
+              {props.inStudio && (
+                <div className="flex flex-col">
                   <React.Suspense fallback={null}>
                     <StudioSections />
                   </React.Suspense>
-                )}
-              </div>
+                </div>
+              )}
 
               <div className="grid h-full grid-rows-[auto,1fr] gap-5">
                 <div className="flex h-auto flex-col self-start">

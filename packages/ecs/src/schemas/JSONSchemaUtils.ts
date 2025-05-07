@@ -33,13 +33,11 @@ import {
   TArraySchema,
   TEnumSchema,
   TFuncSchema,
-  TNonSerializedSchema,
   TPartialSchema,
   TProperties,
   TPropertyKeySchema,
   TProxySchema,
   TRecordSchema,
-  TRequiredSchema,
   TTupleSchema,
   TUnionSchema
 } from './JSONSchemaTypes'
@@ -87,14 +85,8 @@ const IterateSchema = <T extends Schema>(schema: T, pred: (curr: T) => boolean):
     }
 
     case 'Partial':
-    case 'Required':
-    case 'Proxy':
-    case 'NonSerialized': {
-      const props = schema.properties as
-        | TPartialSchema<Schema>['properties']
-        | TNonSerializedSchema<Schema>['properties']
-        | TRequiredSchema<Schema>['properties']
-        | TProxySchema<Schema>['properties']
+    case 'Proxy': {
+      const props = schema.properties as TPartialSchema<Schema>['properties'] | TProxySchema<Schema>['properties']
       return IterateSchema(props, pred)
     }
 
@@ -200,15 +192,9 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(
       break
     }
 
-    case 'Required':
     case 'Proxy':
-    case 'NonSerialized':
     case 'Partial': {
-      const props = schema.properties as
-        | TPartialSchema<Schema>['properties']
-        | TNonSerializedSchema<Schema>['properties']
-        | TRequiredSchema<Schema>['properties']
-        | TProxySchema<Schema>['properties']
+      const props = schema.properties as TPartialSchema<Schema>['properties'] | TProxySchema<Schema>['properties']
       return DeserializeSchemaValue(entity, props, curr, value)
     }
 
@@ -220,10 +206,12 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(
 }
 
 export const HasRequiredSchema = <T extends Schema>(schema: T): boolean => {
-  return IterateSchema(schema, (curr) => curr[Kind] === 'Required')
+  return IterateSchema(schema, (curr) => !!curr.options?.required)
 }
 
 export const HasRequiredSchemaValues = <T extends Schema>(schema: T, value, current = ''): [boolean, string] => {
+  if (schema.options?.required) return [validValue(value), current]
+
   switch (schema[Kind]) {
     case 'Object':
     case 'Class': {
@@ -239,17 +227,9 @@ export const HasRequiredSchemaValues = <T extends Schema>(schema: T, value, curr
     }
 
     case 'Proxy':
-    case 'Partial':
-    case 'NonSerialized': {
-      const props = schema.properties as
-        | TPartialSchema<Schema>['properties']
-        | TNonSerializedSchema<Schema>['properties']
-        | TProxySchema<Schema>['properties']
+    case 'Partial': {
+      const props = schema.properties as TPartialSchema<Schema>['properties'] | TProxySchema<Schema>['properties']
       return HasRequiredSchemaValues(props, value)
-    }
-
-    case 'Required': {
-      return [validValue(value), current]
     }
 
     default:
@@ -285,14 +265,8 @@ export const HasValidSchemaValues = <T extends Schema, Val>(
     }
 
     case 'Proxy':
-    case 'Required':
-    case 'NonSerialized':
     case 'Partial': {
-      const props = schema.properties as
-        | TPartialSchema<Schema>['properties']
-        | TNonSerializedSchema<Schema>['properties']
-        | TRequiredSchema<Schema>['properties']
-        | TProxySchema<Schema>['properties']
+      const props = schema.properties as TPartialSchema<Schema>['properties'] | TProxySchema<Schema>['properties']
       return HasValidSchemaValues(props, value, prev, entity)
     }
 
@@ -338,13 +312,8 @@ export const IsSingleValueSchema = <T extends Schema>(schema?: T): boolean => {
       return true
     }
 
-    case 'NonSerialized':
-    case 'Required':
     case 'Proxy': {
-      const props = schema.properties as
-        | TNonSerializedSchema<Schema>['properties']
-        | TRequiredSchema<Schema>['properties']
-        | TProxySchema<Schema>['properties']
+      const props = schema.properties as TProxySchema<Schema>['properties']
       return IsSingleValueSchema(props)
     }
     default:
@@ -394,14 +363,6 @@ export const CreateSchemaValue = <T extends Schema>(entity: Entity, schema: T): 
     case 'Func': {
       const props = schema.properties as TFuncSchema<Schema[], Schema>['properties']
       return () => CreateSchemaValue(entity, props.return)
-    }
-    case 'Required': {
-      const props = schema.properties as TRequiredSchema<Schema>['properties']
-      return CreateSchemaValue(entity, props)
-    }
-    case 'NonSerialized': {
-      const props = schema.properties as TNonSerializedSchema<Schema>['properties']
-      return CreateSchemaValue(entity, props)
     }
     default:
       return undefined
@@ -453,8 +414,7 @@ export const CloneSerializable = <Val>(value: Val) => {
 }
 
 const isSerializable = <T extends Schema>(schema: T) => {
-  const kind = schema[Kind]
-  return kind !== 'Func' && kind !== 'NonSerialized'
+  return !!schema?.options?.serialized
 }
 
 export const CheckSchemaValue = <T extends Schema, Val>(schema: T, value: Val) => {
@@ -553,18 +513,12 @@ export const CheckSchemaValue = <T extends Schema, Val>(schema: T, value: Val) =
       }
     }
 
-    case 'Required': {
-      const props = schema.properties as TRequiredSchema<Schema>['properties']
-      return CheckSchemaValue(props, value)
-    }
-
     case 'Proxy': {
       const props = schema.properties as TProxySchema<Schema>['properties']
       return CheckSchemaValue(props, value)
     }
 
     case 'Func':
-    case 'NonSerialized':
       return true
 
     default:
@@ -573,7 +527,9 @@ export const CheckSchemaValue = <T extends Schema, Val>(schema: T, value: Val) =
 }
 
 const ConvertToSchema = <T extends Schema, Val>(schema: T, value: Val) => {
+  if (!isSerializable(schema)) return undefined
   if (schema.options?.serialize) return schema.options?.serialize(value)
+
   switch (schema[Kind]) {
     case 'Null':
     case 'Undefined':
@@ -603,7 +559,7 @@ const ConvertToSchema = <T extends Schema, Val>(schema: T, value: Val) => {
     case 'Record': {
       const props = schema.properties as TRecordSchema<TPropertyKeySchema, Schema>['properties']
       const keySchema = props.key
-      const valueSchema = props.value ?? ({ [Kind]: 'NonSerialized' } as Schema)
+      const valueSchema = props.value
 
       if (!isSerializable(valueSchema)) return null
       if (value && typeof value === 'object') {
@@ -646,17 +602,10 @@ const ConvertToSchema = <T extends Schema, Val>(schema: T, value: Val) => {
     }
 
     case 'Partial':
-    case 'Required':
     case 'Proxy': {
-      const props = schema.properties as
-        | TRequiredSchema<Schema>['properties']
-        | TPartialSchema<Schema>['properties']
-        | TProxySchema<Schema>['properties']
+      const props = schema.properties as TPartialSchema<Schema>['properties'] | TProxySchema<Schema>['properties']
       return ConvertToSchema(props, value)
     }
-
-    case 'NonSerialized':
-      return undefined
 
     default:
       return null
@@ -665,6 +614,8 @@ const ConvertToSchema = <T extends Schema, Val>(schema: T, value: Val) => {
 
 // Generate a JSON Schema from the Typebox Schema
 export const GenerateJSONSchema = <T extends Schema>(schema: T): JSONSchema | undefined => {
+  if (schema.options?.serialized === false) return undefined
+
   const jsonSchema: any = {}
 
   // Add type based on schema kind
@@ -698,7 +649,8 @@ export const GenerateJSONSchema = <T extends Schema>(schema: T): JSONSchema | un
         if (!propJsonSchema || propJsonSchema.type === 'null') continue
         if (!jsonSchema.properties) jsonSchema.properties = {}
         jsonSchema.properties[key] = propJsonSchema
-        if (propSchema[Kind] === 'Required') {
+
+        if (propSchema.options?.required) {
           jsonSchema.required.push(key)
         }
       }
@@ -739,10 +691,6 @@ export const GenerateJSONSchema = <T extends Schema>(schema: T): JSONSchema | un
       jsonSchema.oneOf = props.map((prop) => GenerateJSONSchema(prop))
       break
     }
-    case 'Required': {
-      const props = schema.properties as TRequiredSchema<Schema>['properties']
-      return GenerateJSONSchema(props)
-    }
     case 'Proxy': {
       const props = schema.properties as TProxySchema<Schema>['properties']
       return GenerateJSONSchema(props)
@@ -752,7 +700,6 @@ export const GenerateJSONSchema = <T extends Schema>(schema: T): JSONSchema | un
     case 'Undefined':
     case 'Void':
     case 'Func':
-    case 'NonSerialized':
     case 'Class':
     case 'Any':
     default:

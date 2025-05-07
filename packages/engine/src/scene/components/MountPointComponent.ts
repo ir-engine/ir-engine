@@ -59,7 +59,7 @@ export const MountPoint = {
 
 export type MountPointTypes = (typeof MountPoint)[keyof typeof MountPoint]
 
-const MountPointTypesSchema = S.LiteralUnion(Object.values(MountPoint), 'seat')
+const MountPointTypesSchema = S.LiteralUnion(Object.values(MountPoint), { default: 'seat' })
 
 /** Mapping of mount point types to interact messages using translation keys from i18n. */
 const mountPointInteractMessages = {
@@ -69,14 +69,14 @@ const mountPointInteractMessages = {
 const mountCallbackName = 'mountEntity'
 
 const mountEntity = (avatarEntity: Entity, mountEntity: Entity) => {
-  if (avatarEntity === UndefinedEntity) return //No avatar found, likely in edit mode for now
+  if (avatarEntity === UndefinedEntity || mountEntity === UndefinedEntity) return //No avatar found, likely in edit mode for now
   const mountedEntities = getState(MountPointState)
-  if (getComponent(mountEntity, UUIDComponent) in mountedEntities.mountsToMountedEntities) return //already sitting, exiting
+  if (UUIDComponent.get(mountEntity) in mountedEntities.mountsToMountedEntities) return //already sitting, exiting
 
-  const avatarUUID = getComponent(avatarEntity, UUIDComponent)
+  const avatarUUID = UUIDComponent.get(avatarEntity)
   const mountPoint = getOptionalComponent(mountEntity, MountPointComponent)
   if (!mountPoint || mountPoint.type !== MountPoint.seat) return
-  const mountPointUUID = getComponent(mountEntity, UUIDComponent)
+  const mountPointUUID = UUIDComponent.get(mountEntity)
 
   //check if we're already sitting or if the seat is occupied
   if (
@@ -102,8 +102,8 @@ const mountEntity = (avatarEntity: Entity, mountEntity: Entity) => {
   dispatchAction(
     MountPointActions.mountInteraction({
       mounted: true,
-      mountedEntity: getComponent(avatarEntity, UUIDComponent),
-      targetMount: getComponent(mountEntity, UUIDComponent)
+      mountedEntity: UUIDComponent.get(avatarEntity),
+      targetMount: UUIDComponent.get(mountEntity)
     })
   )
 }
@@ -116,7 +116,7 @@ const unmountEntity = (entity: Entity) => {
       animationAsset: preloadedAnimations.emotes,
       clipName: emoteAnimations.seated,
       needsSkip: true,
-      entityUUID: getComponent(entity, UUIDComponent)
+      entityUUID: UUIDComponent.get(entity)
     })
   )
 
@@ -126,8 +126,8 @@ const unmountEntity = (entity: Entity) => {
   dispatchAction(
     MountPointActions.mountInteraction({
       mounted: false,
-      mountedEntity: getComponent(entity, UUIDComponent),
-      targetMount: getComponent(sittingComponent.mountPointEntity, UUIDComponent)
+      mountedEntity: UUIDComponent.get(entity),
+      targetMount: UUIDComponent.get(sittingComponent.mountPointEntity)
     })
   )
   const mountTransform = getComponent(sittingComponent.mountPointEntity, TransformComponent)
@@ -145,7 +145,7 @@ export const MountPointComponent = defineComponent({
   schema: S.Object({
     type: MountPointTypesSchema,
     dismountOffset: T.Vec3(new Vector3(0, 0, 0.75)),
-    forceDismountPosition: S.Bool(false)
+    forceDismountPosition: S.Bool()
   }),
 
   mountEntity,
@@ -167,7 +167,7 @@ export const MountPointComponent = defineComponent({
       const interactableComponent = getComponent(entity, InteractableComponent)
       if (interactableComponent) {
         interactableComponent.uiVisibilityOverride =
-          getComponent(entity, UUIDComponent) in mountedEntities.mountsToMountedEntities.value
+          UUIDComponent.get(entity) in mountedEntities.mountsToMountedEntities.value
             ? XRUIVisibilityOverride.off
             : XRUIVisibilityOverride.none
       }

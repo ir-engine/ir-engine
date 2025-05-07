@@ -51,7 +51,7 @@ import { VisibleComponent } from './VisibleComponent'
 export const ObjectComponent = defineComponent({
   name: 'ObjectComponent',
 
-  schema: S.Required(S.Type<Object3D>()),
+  schema: S.Type<Object3D>({ required: true }),
 
   onSet(entity, component, obj: Object3D) {
     if (!obj?.isObject3D) throw new Error('ObjectComponent requires an Object3D')

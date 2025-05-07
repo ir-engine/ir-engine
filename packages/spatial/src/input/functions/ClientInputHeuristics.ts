@@ -114,13 +114,15 @@ export function findProximity(
   sortedIntersections: IntersectionData[],
   intersectionData: Set<IntersectionData>
 ) {
-  const userID = getState(EngineState).userID
+  const userID = getState(EngineState).userID as string
   if (!userID) return
 
   const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
 
   // @todo need a better way to do this
-  const selfAvatarEntity = UUIDComponent.getEntityByUUID((userID + '_avatar') as EntityUUID)
+
+  /**@todo avatar logic not to be in spatial package */
+  const selfAvatarEntity = UUIDComponent.getEntityByUUID((userID + 'avatar') as EntityUUID)
 
   // use sourceEid if controller (one InputSource per controller), otherwise use avatar rather than InputSource-emulated-pointer
   const inputSourceEntity = isCameraAttachedToAvatar && isSpatialInput ? sourceEid : selfAvatarEntity

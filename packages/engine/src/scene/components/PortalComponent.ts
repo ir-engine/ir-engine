@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,14 +19,14 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
 import { ArrowHelper, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
-import { EntityTreeComponent, EntityUUID, createEntity, useEntityContext } from '@ir-engine/ecs'
+import { EntityTreeComponent, createEntity, useEntityContext } from '@ir-engine/ecs'
 import {
   ComponentType,
   defineComponent,
@@ -34,7 +34,7 @@ import {
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { Entity, EntityID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -77,18 +77,17 @@ export const PortalComponent = defineComponent({
   jsonID: 'EE_portal',
 
   schema: S.Object({
-    linkedPortalId:
-      S.EntityUUID() /** @todo due to the NodeID refactor, we have to re-think how we reference entities in other assets/scenes, so this will no longer work */,
-    location: S.String(''),
-    effectType: S.String('None'),
-    previewType: S.String(PortalPreviewTypeSimple),
-    previewImageURL: S.String(''),
-    redirect: S.Bool(false),
+    linkedPortalId: S.EntityID(),
+    location: S.String({ default: '' }),
+    effectType: S.String({ default: 'None' }),
+    previewType: S.String({ default: PortalPreviewTypeSimple }),
+    previewImageURL: S.String({ default: '' }),
+    redirect: S.Bool({ default: false }),
     spawnPosition: T.Vec3(),
     spawnRotation: T.Quaternion(),
     remoteSpawnPosition: T.Vec3(),
     remoteSpawnRotation: T.Quaternion(),
-    mesh: S.NonSerialized(S.Type<Mesh<SphereGeometry, MeshBasicMaterial>>())
+    mesh: S.Type<Mesh<SphereGeometry, MeshBasicMaterial>>({ serialized: false })
   }),
 
   reactor: function () {
@@ -118,7 +117,7 @@ export const PortalComponent = defineComponent({
           {
             onEnter: 'teleport',
             onExit: '',
-            target: '' as EntityUUID
+            target: '' as EntityID
           }
         ]
       })

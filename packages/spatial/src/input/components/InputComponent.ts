@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -42,7 +42,7 @@ import {
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import { Entity, EntityID } from '@ir-engine/ecs/src/Entity'
 import { getState, NO_PROXY_STEALTH, useHookstate } from '@ir-engine/hyperflux'
 
 import { getAncestorWithComponents, isAncestor } from '@ir-engine/ecs'
@@ -146,23 +146,23 @@ export const InputComponent = defineComponent({
   jsonID: 'EE_input',
 
   schema: S.Object({
-    inputSinks: S.Array(S.EntityUUID(), ['Self']),
-    activationDistance: S.Number(2),
-    highlight: S.Bool(false),
-    grow: S.Bool(false),
+    inputSinks: S.Array(S.EntityID(), { default: ['Self' as EntityID] }),
+    activationDistance: S.Number({ default: 2 }),
+    highlight: S.Bool({ default: false }),
+    grow: S.Bool({ default: false }),
     buttonBindings: S.Record(S.String(), S.Array(S.Union([ButtonSchema, S.Array(ButtonSchema)])), {
       ...DefaultButtonBindings
     }),
     //internal
     /** populated automatically by ClientInputSystem */
-    inputSources: S.NonSerialized(S.Array(S.Entity())),
-    cachedButtons: S.NonSerialized(S.Type<ButtonStateMap<any>>({})),
+    inputSources: S.Array(S.Entity(), { serialized: false }),
+    cachedButtons: S.Type<ButtonStateMap<any>>({ serialized: false, default: {} }),
 
     /** if true, the input component will automatically capture input when a button is consumed */
-    autoCapture: S.Bool(false),
+    autoCapture: S.Bool({ default: false }),
 
-    buttons: S.NonSerialized(
-      S.SerializedClass((entity) => {
+    buttons: S.SerializedClass(
+      (entity) => {
         // Helper function to find first unconsumed button state
         const findButtonState = (button: AnyButton): ButtonState | undefined => {
           const inputComponent = getComponent(entity, InputComponent)
@@ -265,7 +265,9 @@ export const InputComponent = defineComponent({
             }
           }
         )
-      }, {})
+      },
+      {},
+      { serialized: false }
     )
   }),
 

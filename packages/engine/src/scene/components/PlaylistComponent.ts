@@ -41,11 +41,11 @@ export const PlaylistComponent = defineComponent({
         src: S.String()
       })
     ),
-    currentTrackUUID: S.String(''),
-    currentTrackIndex: S.Number(-1),
-    paused: S.Bool(true),
-    playMode: S.Enum(PlayMode, PlayMode.loop),
-    autoplay: S.Bool(true)
+    currentTrackUUID: S.String(),
+    currentTrackIndex: S.Number({ default: -1 }),
+    paused: S.Bool({ default: true }),
+    playMode: S.Enum(PlayMode, { default: PlayMode.loop }),
+    autoplay: S.Bool({ default: true })
   }),
 
   toJSON: (component) => {

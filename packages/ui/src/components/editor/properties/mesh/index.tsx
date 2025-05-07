@@ -26,9 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, Layers, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
+import { getComponent, LayerFunctions, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity } from '@ir-engine/ecs/src/Entity'
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import MaterialEditor from '@ir-engine/editor/src/panels/properties/materialeditor'
@@ -38,9 +37,7 @@ import { GiMeshBall } from 'react-icons/gi'
 import Accordion from '../../../../primitives/tailwind/Accordion'
 import GeometryEditor from './geometryEditor'
 
-const materialIsInAuthoringLayer = (materialUUID: EntityUUID): boolean => {
-  return !!UUIDComponent.getEntityByUUID(materialUUID, Layers.Authoring)
-}
+const materialIsInAuthoringLayer = (entity: Entity) => !!LayerFunctions.getLayerRelationsEntities(entity)?.[0]?.[1]
 
 const MeshNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
   const entity = props.entity
@@ -58,11 +55,11 @@ const MeshNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
       <Accordion title={t('editor:properties.mesh.geometryEditor')}>
         <GeometryEditor geometry={meshComponent?.geometry ?? null} />
       </Accordion>
-      {materialInstanceComponent.value.uuid.map((materialUUID) => {
-        if (!materialIsInAuthoringLayer(materialUUID)) return null
+      {materialInstanceComponent.value.entities.map((entity) => {
+        if (!materialIsInAuthoringLayer(entity)) return null
         return (
-          <Accordion title={t('editor:properties.mesh.materialEditor')} key={materialUUID}>
-            <MaterialEditor materialUUID={materialUUID} />
+          <Accordion title={t('editor:properties.mesh.materialEditor')} key={entity}>
+            <MaterialEditor entity={entity} />
           </Accordion>
         )
       })}

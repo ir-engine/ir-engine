@@ -26,54 +26,55 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   Component,
   Entity,
+  EntityUUID,
   getAncestorWithComponents,
-  getComponent,
   hasComponent,
-  SerializedComponentType
+  SerializedComponentType,
+  UUIDComponent
 } from '@ir-engine/ecs'
-import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
-import { defineState, getMutableState, NO_PROXY_STEALTH, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { NodeID } from '@ir-engine/engine/src/gltf/NodeIDComponent'
+import {
+  defineState,
+  getMutableState,
+  getState,
+  NO_PROXY_STEALTH,
+  none,
+  useHookstate,
+  useMutableState
+} from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { SceneState } from '../../gltf/GLTFState'
 
-export type SceneDeltaEntry<C extends Component> = Record<string, Partial<SerializedComponentType<C>>>
+export type SceneDeltaRegistry = Record<EntityUUID, SceneDeltaEntry<any>>
+export type SceneDeltaEntry<C extends Component> = Record<NodeID, Record<string, Partial<SerializedComponentType<C>>>>
+export type MaterialDeltaEntry = Record<typeof MATERIAL_JSON_ID, any>
 
 export const MATERIAL_JSON_ID = 'materialParameters' as const
 export const MATERIAL_PROTOTYPE_JSON_ID = 'prototypeConstructor' as const
 
-export type MaterialDeltaEntry = Record<typeof MATERIAL_JSON_ID, any>
-
-export type SceneDeltaRegistry = Record<NodeID, Record<NodeID, SceneDeltaEntry<any> | MaterialDeltaEntry>>
-
 export const SceneDeltaState = defineState({
   name: 'SceneDeltaState',
   initial: {} as SceneDeltaRegistry,
-  getSource: (entity: Entity) => {
-    const rootNodeID = getComponent(getAncestorWithComponents(entity, [GLTFComponent]), NodeIDComponent)
-    const state = getMutableState(SceneDeltaState)
-    if (!state.value[rootNodeID]) state[rootNodeID].set({})
-    const source = state[rootNodeID]
-    return source
+  getDelta: (entity: Entity) => {
+    const uuid = UUIDComponent.get(entity)
+    return getState(SceneDeltaState)[uuid] as SceneDeltaEntry<any>
   },
-  registerDelta<C extends Component>(entity: Entity, component: C, delta: Partial<SerializedComponentType<C>>) {
-    if (!component.jsonID || !hasComponent(entity, NodeIDComponent)) return
-    const source = SceneDeltaState.getSource(entity)
-    const nodeID = getComponent(entity, NodeIDComponent)
-    if (!source.value[nodeID]) source[nodeID].set({} as SceneDeltaEntry<C>)
-    const componentMap = source[nodeID].get(NO_PROXY_STEALTH) as SceneDeltaEntry<C>
-    componentMap[component.jsonID] = { ...componentMap[component.jsonID], ...delta }
-    source[nodeID].set(componentMap)
+  setDelta<C extends Component>(entity: Entity, component: C, delta: Partial<SerializedComponentType<C>>) {
+    if (!component.jsonID) return
+    if (!hasComponent(entity, UUIDComponent)) return
+    if (!getAncestorWithComponents(entity, [GLTFComponent])) return
+    const deltaState = getMutableState(SceneDeltaState)
+    const uuid = UUIDComponent.get(entity)
+    if (!deltaState[uuid].value) deltaState[uuid].set({} as SceneDeltaEntry<C>)
+    const componentDelta = deltaState[uuid].get(NO_PROXY_STEALTH) as SceneDeltaEntry<C>
+    componentDelta[component.jsonID] = { ...componentDelta[component.jsonID], ...delta }
   },
-  registerMaterialDelta(entity: Entity, props?: any, prototype?: string) {
-    if (!hasComponent(entity, NodeIDComponent)) return
-    const source = SceneDeltaState.getSource(entity)
-    const nodeID = getComponent(entity, NodeIDComponent)
-    if (!source.value[nodeID]) source[nodeID].set({} as MaterialDeltaEntry)
-    const componentMap = source[nodeID].get(NO_PROXY_STEALTH) as MaterialDeltaEntry
-    if (props) componentMap[MATERIAL_JSON_ID] = { ...componentMap[MATERIAL_JSON_ID], ...props }
-    if (prototype) componentMap[MATERIAL_PROTOTYPE_JSON_ID] = prototype
-    source[nodeID].set(componentMap)
+  removeDelta: (entity: Entity) => {
+    const deltaState = getMutableState(SceneDeltaState)
+    const uuid = UUIDComponent.get(entity)
+    if (!deltaState[uuid].value) return
+    deltaState[uuid].set(none)
   },
   reactor: () => {
     const sceneState = useMutableState(SceneState)

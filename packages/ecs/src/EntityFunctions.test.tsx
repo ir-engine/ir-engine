@@ -27,10 +27,17 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { HyperFlux } from '@ir-engine/hyperflux'
 import * as bitECS from 'bitecs'
-import { LayerComponent, LayerID, Layers, _removeMarkedEntity } from './ComponentFunctions'
+import {
+  LayerComponent,
+  LayerID,
+  Layers,
+  _removeMarkedEntity,
+  createEntity,
+  entityExists,
+  removeEntity
+} from './ComponentFunctions'
 import { createEngine, destroyEngine } from './Engine'
 import { Entity, UndefinedEntity } from './Entity'
-import { createEntity, entityExists, removeEntity } from './EntityFunctions'
 
 describe('createEntity', () => {
   beforeEach(() => {

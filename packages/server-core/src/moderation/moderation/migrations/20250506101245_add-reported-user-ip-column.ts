@@ -23,24 +23,25 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Mesh } from 'three'
+import { moderationPath } from '@ir-engine/common/src/schemas/moderation/moderation.schema'
+import type { Knex } from 'knex'
 
-import { defineComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-import { S } from '@ir-engine/ecs'
-import { ObjectComponent } from './ObjectComponent'
+  await knex.schema.alterTable(moderationPath, (table) => {
+    table.string('reportedUserIpAddress', 255).nullable()
+  })
 
-export const MeshComponent = defineComponent({
-  name: 'MeshComponent',
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}
 
-  schema: S.Type<Mesh>({ required: true }),
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  onSet(entity, component, json) {
-    setComponent(entity, ObjectComponent, json as Mesh)
-    component.set(json as Mesh)
-  },
+  await knex.schema.alterTable(moderationPath, (table) => {
+    table.dropColumn('reportedUserIpAddress')
+  })
 
-  onRemove(entity, component) {
-    removeComponent(entity, ObjectComponent)
-  }
-})
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}

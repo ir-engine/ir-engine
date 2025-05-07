@@ -34,15 +34,18 @@ import {
   Engine,
   EngineState,
   Entity,
+  EntityID,
   EntityTreeComponent,
   EntityUUID,
+  EntityUUIDPair,
   getMutableComponent,
   removeEntity,
   setComponent,
+  SourceID,
   UndefinedEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { getMutableState, UserID } from '@ir-engine/hyperflux'
+import { getMutableState, getState, UserID } from '@ir-engine/hyperflux'
 import { Box3, BoxGeometry, Mesh, Vector3 } from 'three'
 import { assertFloat } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
@@ -330,7 +333,10 @@ describe('ClientInputHeuristics', () => {
         setComponent(sourceEntity, TransformComponent)
         const sorted = [] as IntersectionData[]
         const intersections = new Set<IntersectionData>()
-        const UUID = (Engine.instance.userID + '_avatar') as EntityUUID
+        const UUID = {
+          entitySourceID: getState(EngineState).userID as any as SourceID,
+          entityID: 'avatar' as EntityID
+        } as EntityUUIDPair
         const testEntity = createEntity()
         setComponent(testEntity, VisibleComponent)
         setComponent(testEntity, TransformComponent)
@@ -479,7 +485,10 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, InputComponent)
         // Make the entity the selfAvatarEntity
         getMutableState(EngineState).userID.set('testUserID' as UserID)
-        const UUID = (Engine.instance.userID + '_avatar') as EntityUUID
+        const UUID = {
+          entitySourceID: getState(EngineState).userID as any,
+          entityID: 'avatar' as EntityID
+        } as EntityUUIDPair
         setComponent(testEntity, UUIDComponent, UUID)
 
         // Run and Check the result
@@ -505,7 +514,10 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, InputComponent)
         // Make the entity the selfAvatarEntity
         getMutableState(EngineState).userID.set('testUserID' as UserID)
-        const UUID = (Engine.instance.userID + '_avatar') as EntityUUID
+        const UUID = {
+          entitySourceID: getState(EngineState).userID as any,
+          entityID: 'avatar' as EntityID
+        } as EntityUUIDPair
         setComponent(testEntity, UUIDComponent, UUID)
 
         // Run and Check the result
@@ -533,7 +545,7 @@ describe('ClientInputHeuristics', () => {
         // getMutableState(EngineState).userID.set("testUserID" as UserID)
         // const UUID = Engine.instance.userID + '_avatar' as EntityUUID
         // setComponent(testEntity, UUIDComponent, UUID)
-        const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID)
+        const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.userID + 'avatar') as EntityUUID)
         assert.equal(selfAvatarEntity, UndefinedEntity)
 
         // Run and Check the result
@@ -564,7 +576,10 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, InputComponent)
         // Make the entity the selfAvatarEntity
         getMutableState(EngineState).userID.set('testUserID' as UserID)
-        const UUID = (Engine.instance.userID + '_avatar') as EntityUUID
+        const UUID = {
+          entitySourceID: getState(EngineState).userID as any,
+          entityID: 'avatar' as EntityID
+        } as EntityUUIDPair
         setComponent(testEntity, UUIDComponent, UUID)
 
         // Run and Check the result
@@ -586,7 +601,10 @@ describe('ClientInputHeuristics', () => {
 
         const testEntity = createEntity()
         getMutableState(EngineState).userID.set('testUserID' as UserID)
-        const UUID = (Engine.instance.userID + '_avatar') as EntityUUID
+        const UUID = {
+          entitySourceID: getState(EngineState).userID as any,
+          entityID: 'avatar' as EntityID
+        } as EntityUUIDPair
         setComponent(testEntity, UUIDComponent, UUID)
         setComponent(testEntity, VisibleComponent)
         setComponent(testEntity, TransformComponent)

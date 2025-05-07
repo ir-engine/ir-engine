@@ -137,9 +137,9 @@ export const InfiniteGridComponent = defineComponent({
   name: 'InfiniteGridComponent',
 
   schema: S.Object({
-    size: S.Number(1),
+    size: S.Number({ default: 1 }),
     color: T.Color(0x535353),
-    distance: S.Number(200)
+    distance: S.Number({ default: 200 })
   }),
 
   reactor: () => {

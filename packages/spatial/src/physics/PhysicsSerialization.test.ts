@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   Entity,
   EntityTreeComponent,
-  UUIDComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -344,7 +343,6 @@ describe('PhysicsSerialization', () => {
         beforeEach(async () => {
           await Physics.load()
           physicsWorldEntity = createEntity()
-          setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
           setComponent(physicsWorldEntity, SceneComponent)
           setComponent(physicsWorldEntity, TransformComponent)
           setComponent(physicsWorldEntity, EntityTreeComponent)

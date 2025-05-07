@@ -1,4 +1,4 @@
-{ 
+{
   "loading": "Loading Project",
   "loadingNode": "Loading {{name}} Editor...",
   "loadingError": "Error loading project",
@@ -70,6 +70,8 @@
     "uploadAborted": "Upload aborted",
     "uploadFailed": "Upload failed {{reason}}",
     "fileUploadFailed": "File upload failed; {{reason}}",
+    "fileUploadFailedMultiple": "Mulitple file uploads failed.. {{reason}}",
+    "fileNameInvalidMultiple": "Mulitple invalid file names.. {{reason}}",
     "assetDeletionFail": "Asset deletion failed. {{reason}}",
     "projectAssetDeletionFail": "Project Asset deletion failed. {{reason}}",
     "networkError": "Network Error: {{status}}. {{text}}",
@@ -81,7 +83,7 @@
   },
   "warnings": {
     "addChildToGlbError": "Re-parenting was canceled - Adding children to glb model prefabs is currently not supported.",
-    "rigidbodyDropWarning" : "Re-parenting was canceled - Entities with a rigidbody are not allowed to have an ancestor with a rigidbody. Please remove one of the rigidbodies and try again.",
+    "rigidbodyDropWarning": "Re-parenting was canceled - Entities with a rigidbody are not allowed to have an ancestor with a rigidbody. Please remove one of the rigidbodies and try again.",
     "sceneComplexity": "Scene complexity is {{sceneComplexity}}. Consider optimizing your scene for better performance."
   },
   "viewport": {
@@ -109,7 +111,9 @@
       "FPS": "FPS",
       "frameTime": "Frame Time",
       "calls": "Calls",
-      "triangles": "Triangles",
+      "sceneTriangles": "Scene Triangles",
+      "triangles": "Render Triangles",
+      "trianglesTooltip": "Number of triangles currently being rendered, post processing effects will affect this number.",
       "points": "Points",
       "lines": "Lines",
       "shaderComplexity": "Shader Complexity",
@@ -1665,4 +1669,3 @@
     "okay": "Okay"
   }
 }
-
