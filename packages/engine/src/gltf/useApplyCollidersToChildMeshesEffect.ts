@@ -75,7 +75,7 @@ export function useApplyCollidersToChildMeshesEffect(entity: Entity) {
 
     const added = [] as Entity[]
     for (const child of children) {
-      if (!hasComponent(child, ColliderComponent)) {
+      if (entityExists(child) && !hasComponent(child, ColliderComponent)) {
         setComponent(child, ColliderComponent, { shape: component.shape.value, matchMesh: true })
         forceUpdateMatrices(child)
         added.push(child)
