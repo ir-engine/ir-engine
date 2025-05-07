@@ -85,7 +85,7 @@ export function useApplyCollidersToChildMeshesEffect(entity: Entity) {
     physicsWorld,
     component.shape,
     !!rigidbodyComponent?.initialized?.value,
-    component.applyColliders,
+    component.applyColliders.value,
     childMeshEntities
   ])
 }
