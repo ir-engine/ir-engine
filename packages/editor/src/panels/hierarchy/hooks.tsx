@@ -63,6 +63,8 @@ import {
   copyNodes,
   duplicateNode,
   ecsHierarchyTreeWalker,
+  getNodeElId,
+  getSelectedEntities,
   groupNodes,
   HierarchyTreeNodeType,
   pasteNodes,
@@ -429,6 +431,8 @@ const useSimplifiedHotkey = (key: string, onAction: () => void) => {
 
 export const useHierarchyTreeHotkeys = () => {
   const renamingNode = useRenamingNode()
+  const nodes = useHierarchyNodes()
+  const { expandNode, collapseNode } = useNodeCollapseExpand()
   useSimplifiedHotkey('d', duplicateNode)
   useSimplifiedHotkey('g', groupNodes)
   useSimplifiedHotkey('c', copyNodes)
@@ -438,5 +442,67 @@ export const useHierarchyTreeHotkeys = () => {
     for (const entity of selectedEntities) {
       renamingNode.set(entity)
     }
+  })
+  useHotkeys('ArrowLeft', () => {
+    const selectedEntity = getMutableState(HierarchyTreeState).firstSelectedEntity.value
+    const index = nodes.findIndex((node) => node.entity === selectedEntity)
+    if (index === -1) return
+    const node = nodes[index]
+    const entityTree = getComponent(node.entity, EntityTreeComponent)
+    if (!entityTree || !entityTree.children || entityTree.children.length === 0) return
+    collapseNode(node.entity)
+  })
+  useHotkeys('ArrowRight', () => {
+    const selectedEntity = getMutableState(HierarchyTreeState).firstSelectedEntity.value
+    const index = nodes.findIndex((node) => node.entity === selectedEntity)
+    if (index === -1) return
+    const node = nodes[index]
+    const entityTree = getComponent(node.entity, EntityTreeComponent)
+    if (!entityTree || !entityTree.children || entityTree.children.length === 0) return
+    expandNode(node.entity)
+  })
+
+  useHotkeys(['ArrowUp', 'Shift + ArrowUp'], (event) => {
+    const selectedEntity = getMutableState(HierarchyTreeState).firstSelectedEntity.value
+    const index = nodes.findIndex((node) => node.entity === selectedEntity)
+    if (index === -1) return
+    const upperNode = nodes.at(index - 1)
+    if (!upperNode) return
+    const upperNodeEl = document.getElementById(getNodeElId(upperNode))
+    upperNodeEl?.focus()
+    if (event.shiftKey) {
+      const uuids = [
+        ...getSelectedEntities().map((e) => getComponent(e, UUIDComponent)),
+        getComponent(upperNode.entity, UUIDComponent)
+      ].filter((value, index, array) => array.indexOf(value) === index)
+
+      EditorControlFunctions.addToSelection([...uuids, getComponent(upperNode.entity, UUIDComponent)])
+    } else {
+      EditorControlFunctions.replaceSelection([getComponent(upperNode.entity, UUIDComponent)])
+    }
+    getMutableState(HierarchyTreeState).firstSelectedEntity.set(upperNode.entity)
+  })
+  useHotkeys(['ArrowDown', 'Shift + ArrowDown'], (event) => {
+    const selectedEntity = getMutableState(HierarchyTreeState).firstSelectedEntity.value
+    const index = nodes.findIndex((node) => node.entity === selectedEntity)
+    if (index === -1) return
+    let lowerNode = nodes.at(index + 1)
+    if (!lowerNode) {
+      lowerNode = nodes.at(0)
+    }
+    lowerNode = lowerNode!
+    const lowerNodeEl = document.getElementById(getNodeElId(lowerNode))
+    lowerNodeEl?.focus()
+    if (event.shiftKey) {
+      const uuids = [
+        ...getSelectedEntities().map((e) => getComponent(e, UUIDComponent)),
+        getComponent(lowerNode!.entity, UUIDComponent)
+      ].filter((value, index, array) => array.indexOf(value) === index)
+
+      EditorControlFunctions.addToSelection([...uuids, getComponent(lowerNode.entity, UUIDComponent)])
+    } else {
+      EditorControlFunctions.replaceSelection([getComponent(lowerNode.entity, UUIDComponent)])
+    }
+    getMutableState(HierarchyTreeState).firstSelectedEntity.set(lowerNode.entity)
   })
 }
