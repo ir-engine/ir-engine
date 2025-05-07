@@ -26,11 +26,22 @@ Infinite Reality Engine. All Rights Reserved.
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { API } from '@ir-engine/common'
 import { StaticResourceQuery, StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { State, getState, useHookstate, usePrevious } from '@ir-engine/hyperflux'
+import { State, defineState, getMutableState, getState, useHookstate, usePrevious } from '@ir-engine/hyperflux'
 import React, { ReactNode, createContext, useContext, useEffect } from 'react'
 import { AssetsPanelCategories, MyAssetCategory } from '../../services/AssetPanelCategoriesState'
 import { AssetCategoryNode } from './categories'
 import { ASSETS_PAGE_LIMIT, calculateItemsToFetch, convertToHierarchy, iterativelyListTags } from './helpers'
+
+// Define a state to track refresh operations
+export const AssetsRefreshState = defineState({
+  name: 'AssetsRefreshState',
+  initial: () => ({
+    refreshCounter: 0
+  }),
+  triggerRefresh: () => {
+    getMutableState(AssetsRefreshState).refreshCounter.set((prev) => prev + 1)
+  }
+})
 
 const AssetsQueryContext = createContext({
   search: null! as State<{ local: string; query: string }>,
@@ -52,6 +63,7 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
   const staticResourcesPagination = useHookstate({ total: 0, skip: 0 })
   const resources = useHookstate<StaticResourceType[]>([])
   const resourcesLoading = useHookstate(false)
+  const refreshState = useHookstate(getMutableState(AssetsRefreshState))
 
   const currentCategoryPath = useHookstate<AssetCategoryNode | undefined>(undefined)
 
@@ -151,6 +163,11 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
     const abortSignal = staticResourcesFindApi()
     return () => abortSignal()
   }, [])
+  useEffect(() => {
+    if (refreshState.refreshCounter.value > 0) {
+      staticResourcesFindApi(true)
+    }
+  }, [refreshState.refreshCounter.value])
 
   return (
     <AssetsQueryContext.Provider

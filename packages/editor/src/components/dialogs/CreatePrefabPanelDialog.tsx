@@ -62,6 +62,7 @@ import { HiOutlineXMark } from 'react-icons/hi2'
 import { Quaternion, Scene, Vector3 } from 'three'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
+import { AssetsRefreshState } from '../../panels/assets/hooks'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 
@@ -88,6 +89,7 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
     isOverwriteModalVisible.set(false)
     isOverwriteConfirmed.set(false)
     ModalState.openModal(<PrefabConfirmationPanelDialog />)
+    AssetsRefreshState.triggerRefresh()
   }
 
   const exportLookDevPrefab = async (srcProject: string, fileName: string) => {
