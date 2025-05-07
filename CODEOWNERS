@@ -41,7 +41,6 @@
 /packages/spatial/src/renderer/ @AidanCaruso @DanielBelmes @MichaelEstes
 /scripts/ @barankyle @hanzlamateen @DanielBelmes
 /patches/postprocessing+6.34.1.patch @DanielBelmes
-/patches/three+0.158.0.patch @DanielBelmes
 /patches/realism-effects+1.1.2.patch @DanielBelmes
 /dockerfiles/ @barankyle
 /certs/ @DanielBelmes

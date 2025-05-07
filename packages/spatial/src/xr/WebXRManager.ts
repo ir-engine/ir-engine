@@ -33,10 +33,8 @@ import {
   UnsignedInt248Type,
   UnsignedIntType,
   Vector4,
-  WebGLMultiviewRenderTarget,
   WebGLRenderer,
-  WebGLRenderTarget,
-  WebGLRenderTargetOptions
+  WebGLRenderTarget
 } from 'three'
 
 import { getComponent } from '@ir-engine/ecs'
@@ -60,14 +58,6 @@ declare module 'three/src/cameras/PerspectiveCamera.js' {
 declare module 'three/src/renderers/WebGLRenderer.js' {
   interface WebGLRenderer {
     animation: WebGLAnimation
-  }
-}
-
-declare module 'three' {
-  class WebGLMultiviewRenderTarget extends WebGLRenderTarget {
-    constructor(width: number, height: number, numViews: number, options: WebGLRenderTargetOptions)
-    numViews: number
-    static isWebGLMultiviewRenderTarget: true
   }
 }
 
@@ -225,8 +215,8 @@ function createRenderTarget(
   framebufferScaleFactor: number,
   gl: WebGLRenderingContext,
   attributes: WebGLContextAttributes,
-  renderer: WebGLRenderer,
-  manager: WebXRManager
+  renderer: WebGLRenderer
+  // manager: WebXRManager
 ): WebGLRenderTarget {
   let result = null as WebGLRenderTarget | null
   let glDepthFormat: number | undefined
@@ -242,13 +232,14 @@ function createRenderTarget(
   }
 
   const extensions = renderer.extensions
-  manager.isMultiview = manager.useMultiview && extensions.has('OCULUS_multiview')
+  // manager.isMultiview = manager.useMultiview && extensions.has('OCULUS_multiview')
 
   const projectionlayerInit = {
     colorFormat: gl.RGBA8,
     depthFormat: glDepthFormat,
     scaleFactor: framebufferScaleFactor,
-    textureType: (manager.isMultiview ? 'texture-array' : 'texture') as XRTextureType
+    // textureType: (manager.isMultiview ? 'texture-array' : 'texture') as XRTextureType
+    textureType: 'texture' as XRTextureType
     // quality: "graphics-optimized" /** @todo - this does not work yet, must be set directly on the layer */
   }
 
@@ -282,15 +273,15 @@ function createRenderTarget(
     samples: attributes.antialias ? 4 : 0
   }
 
-  if (manager.isMultiview) {
-    const extension = extensions.get('OCULUS_multiview')
-    manager.maxNumViews = gl.getParameter(extension.MAX_VIEWS_OVR)
-    result = new WebGLMultiviewRenderTarget(glProjLayer.textureWidth, glProjLayer.textureHeight, 2, rtOptions)
-  } else {
-    result = new WebGLRenderTarget(glProjLayer.textureWidth, glProjLayer.textureHeight, rtOptions)
-  }
+  // if (manager.isMultiview) {
+  //   const extension = extensions.get('OCULUS_multiview')
+  //   manager.maxNumViews = gl.getParameter(extension.MAX_VIEWS_OVR)
+  //   result = new WebGLMultiviewRenderTarget(glProjLayer.textureWidth, glProjLayer.textureHeight, 2, rtOptions)
+  // } else {
+  result = new WebGLRenderTarget(glProjLayer.textureWidth, glProjLayer.textureHeight, rtOptions)
+  // }
   const renderTargetProperties = renderer.properties.get(result)
-  renderTargetProperties.__ignoreDepthValues = glProjLayer.ignoreDepthValues
+  // renderTargetProperties.__ignoreDepthValues = glProjLayer.ignoreDepthValues
 
   return result
 }
@@ -332,7 +323,13 @@ function createFunctionSetSession(renderer: WebGLRenderer, manager: WebXRManager
             renderer,
             manager
           )
-        : WebXRManagerFunctions.createRenderTarget(session, framebufferScaleFactor, gl, attributes, renderer, manager)
+        : WebXRManagerFunctions.createRenderTarget(
+            session,
+            framebufferScaleFactor,
+            gl,
+            attributes,
+            renderer /**manager*/
+          )
 
     // @ts-expect-error @todo Remove scope when possible, see #23278
     newRenderTarget.isXRRenderTarget = true
