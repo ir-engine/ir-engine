@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import {
   Entity,
+  EntityID,
   getComponent,
   getOptionalComponent,
   getOptionalMutableComponent,
@@ -48,7 +49,7 @@ import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorCo
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
-import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
+import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { MediaComponent, MediaElementComponent, setTime } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import { PlayMode } from '@ir-engine/engine/src/scene/constants/PlayMode'
@@ -150,8 +151,8 @@ export function updateConeAngle(
 export interface MediaInputProps {
   mediaMode: MediaMode
   entity: Entity
-  mediaNodeId: NodeID
-  OnMediaSourceUpdate: (value: NodeID) => void
+  mediaNodeId: EntityID
+  OnMediaSourceUpdate: (value: EntityID) => void
   dropTypes?: string[]
 }
 
@@ -177,7 +178,7 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
       }
     })
 
-  const [mediaSourceValue, setMediaSourceValue] = useState(mediaNodeId === ('' as NodeID) ? 'Self' : 'Other')
+  const [mediaSourceValue, setMediaSourceValue] = useState(mediaNodeId === ('' as EntityID) ? 'Self' : 'Other')
   const currentTrackMin = useHookstate(0)
   const currentTrackMax = useHookstate(1)
   const currentTrackPercent = useHookstate(0)
@@ -188,7 +189,7 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
   const mediaSourceChange = (val: string) => {
     setMediaSourceValue(val)
     if (val === 'Self') {
-      OnMediaSourceUpdate('' as NodeID)
+      OnMediaSourceUpdate('' as EntityID)
     } else {
       if (media) {
         media.paused.set(true)
@@ -324,7 +325,7 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
         </InputGroup>
       )}
 
-      {mediaSourceValue === 'Self' && mediaNodeId === ('' as NodeID) && media && (
+      {mediaSourceValue === 'Self' && mediaNodeId === ('' as EntityID) && media && (
         <>
           <InputGroup
             name="SourcePaths"

@@ -63,6 +63,7 @@ export const moderationSchema = Type.Object(
       format: 'uuid'
     }),
     ipAddress: Type.Optional(Type.String({ maxLength: 255 })),
+    reportedUserIpAddress: Type.Optional(Type.String({ maxLength: 255 })),
     reportDetails: Type.String({ maxLength: 1050 }),
     status: StringEnum(['open', 'resolved']),
     reportedAt: Type.String({ format: 'date-time' }),

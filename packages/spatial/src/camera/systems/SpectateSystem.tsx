@@ -31,7 +31,7 @@ import {
   EntityUUID,
   getComponent,
   getOptionalComponent,
-  matchesEntityUUID,
+  matchesEntityID,
   removeComponent,
   setComponent,
   UUIDComponent
@@ -57,7 +57,7 @@ export class SpectateActions {
   static spectateEntity = defineAction({
     type: 'ee.engine.Engine.SPECTATE_USER' as const,
     spectatorUserID: matchesUserID,
-    spectatingEntity: matchesEntityUUID.optional(),
+    spectatingEntity: matchesEntityID.optional(),
     $topic: NetworkTopics.world
   })
 

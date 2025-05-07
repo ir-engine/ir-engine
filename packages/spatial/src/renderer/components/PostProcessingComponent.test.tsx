@@ -26,14 +26,11 @@
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 
 import assert from 'assert'
-import { MathUtils } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 
 import {
   Entity,
   EntityTreeComponent,
-  EntityUUID,
-  UUIDComponent,
   UndefinedEntity,
   createEntity,
   getComponent,
@@ -293,7 +290,6 @@ describe('PostProcessingComponent', async () => {
       rootEntity = getState(ReferenceSpaceState).viewerEntity
 
       testEntity = createEntity()
-      setComponent(testEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
       getMutableState(RendererState).usePostProcessing.set(true)
       setComponent(testEntity, SceneComponent)
       setComponent(testEntity, PostProcessingComponent, { enabled: true })

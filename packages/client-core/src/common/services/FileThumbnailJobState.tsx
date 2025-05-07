@@ -31,10 +31,11 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import {
   Entity,
+  EntityID,
+  SourceID,
   UUIDComponent,
   UndefinedEntity,
   createEntity,
-  generateEntityUUID,
   getComponent,
   removeEntity,
   setComponent,
@@ -92,7 +93,7 @@ const getFilename = (url) => {
 }
 
 export function generateThumbnailKey(src: string, projectName: string): string {
-  const uniqueFileName = `${projectName}-${getFilename(src)}-${Date.now()}`
+  const uniqueFileName = `${projectName}-${getFilename(`${window.location}/${src}`)}-${Date.now()}`
   const encoder = new TextEncoder()
   const buffer = encoder.encode(uniqueFileName)
   let hash = createHash('sha256').update(buffer).digest('hex')
@@ -372,7 +373,10 @@ const useRenderEntities = (src: string): [Entity, Entity, Entity, Entity] => {
     const cameraEntity = createEntity()
 
     setComponent(entity, NameComponent, 'thumbnail job asset ' + src)
-    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, UUIDComponent, {
+      entitySourceID: 'thumbnail-job' as SourceID,
+      entityID: src as EntityID
+    })
     setComponent(entity, VisibleComponent)
     setComponent(entity, ShadowComponent, { cast: true, receive: true })
     setComponent(entity, BoundingBoxComponent)

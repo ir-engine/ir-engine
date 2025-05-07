@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 /**
  * @note
  * Other related code that also has ECSLayers specific tests:
- * - EntityFunctions.test.tsx : createEntity removeEntity
+ * - ComponentFunctions.test.tsx : createEntity removeEntity
  * - UUIDComponent.test.tsx   : Almost every function
  * */
 
@@ -34,8 +34,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import assert from 'assert'
 import {
+  createEntity,
   CreatePropagationArgs,
   defineComponent,
+  entityExists,
   getComponent,
   hasComponent,
   LayerComponent,
@@ -50,7 +52,6 @@ import {
 } from './ComponentFunctions'
 import { createEngine, destroyEngine } from './Engine'
 import { Entity, UndefinedEntity } from './Entity'
-import { createEntity, entityExists } from './EntityFunctions'
 import { defineQuery } from './QueryFunctions'
 import { S } from './schemas/JSONSchemas'
 import { Kind, Schema } from './schemas/JSONSchemaTypes'

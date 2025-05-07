@@ -30,7 +30,6 @@ import { RigidBodyType } from '@dimforge/rapier3d-compat'
 import {
   EntityTreeComponent,
   SystemDefinitions,
-  UUIDComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -223,7 +222,7 @@ describe('RigidBodyComponent', () => {
       createEngine()
       await Physics.load()
       physicsWorldEntity = createEntity()
-      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
       setComponent(physicsWorldEntity, EntityTreeComponent)
@@ -252,7 +251,6 @@ describe('RigidBodyComponent', () => {
       assert.ok(physicsWorld!.bodies.contains(before))
 
       const newPhysicsEntity = createEntity()
-      setComponent(newPhysicsEntity, UUIDComponent, UUIDComponent.generateUUID())
       setComponent(newPhysicsEntity, SceneComponent)
       setComponent(newPhysicsEntity, TransformComponent)
       setComponent(newPhysicsEntity, EntityTreeComponent)

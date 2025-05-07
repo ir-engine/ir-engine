@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { UUIDComponent } from '@ir-engine/ecs'
-import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { emoteAnimations, preloadedAnimations } from '@ir-engine/engine/src/avatar/animation/Util'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
@@ -238,7 +237,7 @@ const EmoteMenu = (): JSX.Element => {
         clipName: stateName,
         loop: false,
         layer: 0,
-        entityUUID: getComponent(selfAvatarEntity, UUIDComponent)
+        entityUUID: UUIDComponent.get(selfAvatarEntity)
       })
     )
     ModalState.closeModal()

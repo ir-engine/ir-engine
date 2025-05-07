@@ -28,7 +28,6 @@ import {
   Entity,
   EntityTreeComponent,
   SystemDefinitions,
-  UUIDComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -132,7 +131,6 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
       // mockSpatialEngine()
       await Physics.load()
       physicsWorldEntity = createEntity()
-      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
       setComponent(physicsWorldEntity, EntityTreeComponent)
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
@@ -263,7 +261,6 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
       await Physics.load()
       physicsWorldEntity = createEntity()
       setComponent(physicsWorldEntity, NameComponent, 'physicsWorldEntity')
-      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
       setComponent(physicsWorldEntity, EntityTreeComponent)
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)

@@ -29,18 +29,19 @@ import {
   Component,
   ComponentType,
   defineComponent,
+  entityExists,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   getOptionalMutableComponent,
   hasComponent,
   hasComponents,
+  removeEntity,
   setComponent,
   useHasComponents,
   useOptionalComponent
 } from './ComponentFunctions'
 import { Entity, UndefinedEntity } from './Entity'
-import { entityExists, removeEntity } from './EntityFunctions'
 import { S } from './schemas/JSONSchemas'
 
 type EntityTreeSetType = {

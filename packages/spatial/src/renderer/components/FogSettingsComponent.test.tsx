@@ -26,8 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   Entity,
   EntityTreeComponent,
-  EntityUUID,
-  UUIDComponent,
   UndefinedEntity,
   createEntity,
   destroyEngine,
@@ -41,7 +39,7 @@ import {
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
-import { Fog, FogExp2, MathUtils, ShaderChunk } from 'three'
+import { Fog, FogExp2, ShaderChunk } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 import { assertFloat } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
@@ -401,7 +399,6 @@ describe('FogSettingsComponent', () => {
       rootEntity = getState(ReferenceSpaceState).viewerEntity
 
       entity = createEntity()
-      setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
       setComponent(entity, VisibleComponent)
       setComponent(entity, FogSettingsComponent)
       setComponent(entity, EntityTreeComponent)

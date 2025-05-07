@@ -36,10 +36,10 @@ import {
   stopAllReactors
 } from '@ir-engine/hyperflux'
 
+import { $RemovedComponent, removeEntity } from './ComponentFunctions'
 import { ECSState } from './ECSState'
 import { EngineState } from './EngineState'
 import { Entity } from './Entity'
-import { $RemovedComponent, removeEntity } from './EntityFunctions'
 import { queries, removeQuery } from './QueryFunctions'
 import { SystemState } from './SystemState'
 
