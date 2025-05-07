@@ -171,7 +171,7 @@ const ActiveHelperReactor = () => {
       const defaultGizmoButtons = InputComponent.getButtons(activeHelperComponent.helperIconGizmo) // why does this not work !!!!!!!! ?????
 
       if (defaultGizmoButtons.PrimaryClick?.down) {
-        SelectionState.updateSelection([getComponent(entity, UUIDComponent)])
+        SelectionState.updateSelection([UUIDComponent.get(entity)])
       }
     },
     InputExecutionOrder.Before,

@@ -27,12 +27,17 @@ import { useEffect } from 'react'
 import { CatmullRomCurve3, Quaternion, Vector3 } from 'three'
 
 import { useEntityContext } from '@ir-engine/ecs'
-import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import {
+  defineComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { SplineHelperComponent } from './debug/SplineHelperComponent'
 
@@ -70,8 +75,12 @@ export const SplineComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const component = useComponent(entity, SplineComponent)
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const elements = component.elements
+    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
+    const debugEnabled =
+      activeHelperComponent !== undefined &&
+      activeHelperComponent.enabled.value &&
+      (activeHelperComponent.selected.value || activeHelperComponent.hovered.value)
 
     useEffect(() => {
       if (elements.length < 3) {
@@ -92,7 +101,7 @@ export const SplineComponent = defineComponent({
     ])
 
     useEffect(() => {
-      if (debugEnabled.value) {
+      if (debugEnabled) {
         setComponent(entity, SplineHelperComponent)
       }
 

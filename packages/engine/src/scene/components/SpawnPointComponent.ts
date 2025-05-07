@@ -60,10 +60,9 @@ export const SpawnPointComponent = defineComponent({
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
 
     const debugEnabled =
-      renderState.nodeHelperVisibility.value ||
-      (activeHelperComponent !== undefined &&
-        activeHelperComponent.enabled.value &&
-        (activeHelperComponent.selected.value || activeHelperComponent.hovered.value))
+      activeHelperComponent !== undefined &&
+      activeHelperComponent.enabled.value &&
+      (activeHelperComponent.selected.value || activeHelperComponent.hovered.value)
 
     const debugGLTF = useGLTFComponent(debugEnabled ? GLTF_PATH : '', entity)
 

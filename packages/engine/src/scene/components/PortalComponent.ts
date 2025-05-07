@@ -36,7 +36,7 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Vector3_Right, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
@@ -45,7 +45,6 @@ import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/Ri
 import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
 import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -96,12 +95,10 @@ export const PortalComponent = defineComponent({
     const entity = useEntityContext()
     const portalComponent = useComponent(entity, PortalComponent)
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
-    const renderState = useMutableState(RendererState)
     const debugEnabled =
-      renderState.nodeHelperVisibility.value ||
-      (activeHelperComponent !== undefined &&
-        activeHelperComponent.enabled.value &&
-        (activeHelperComponent.selected.value || activeHelperComponent.hovered.value))
+      activeHelperComponent !== undefined &&
+      activeHelperComponent.enabled.value &&
+      (activeHelperComponent.selected.value || activeHelperComponent.hovered.value)
 
     useEffect(() => {
       setCallback(entity, 'teleport', (triggerEntity: Entity, otherEntity: Entity) => {

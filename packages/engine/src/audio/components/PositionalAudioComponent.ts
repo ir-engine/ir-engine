@@ -40,9 +40,7 @@ import {
   MediaComponent,
   MediaElementComponent
 } from '@ir-engine/engine/src/scene/components/MediaComponent'
-import { useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ActiveHelperComponent } from '../../../../spatial/src/common/ActiveHelperComponent'
@@ -77,13 +75,11 @@ export const PositionalAudioComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const renderState = useMutableState(RendererState)
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const debugEnabled =
-      renderState.nodeHelperVisibility.value ||
-      (activeHelperComponent !== undefined &&
-        activeHelperComponent.enabled.value &&
-        (activeHelperComponent.selected.value || activeHelperComponent.hovered.value))
+      activeHelperComponent !== undefined &&
+      activeHelperComponent.enabled.value &&
+      (activeHelperComponent.selected.value || activeHelperComponent.hovered.value)
     const audio = useComponent(entity, PositionalAudioComponent)
     const mediaElement = useOptionalComponent(entity, MediaElementComponent)
 

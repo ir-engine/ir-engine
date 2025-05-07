@@ -25,15 +25,21 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { BufferAttribute, BufferGeometry, Line, LineBasicMaterial, MeshBasicMaterial, Vector3 } from 'three'
 
-import { defineComponent, getComponent, setComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
+import {
+  defineComponent,
+  getComponent,
+  setComponent,
+  useComponent,
+  useEntityContext,
+  useOptionalComponent
+} from '@ir-engine/ecs'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { useMutableState } from '@ir-engine/hyperflux'
+import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { useEffect } from 'react'
 import { SplineComponent } from '../SplineComponent'
 
@@ -57,8 +63,11 @@ export const SplineHelperComponent = defineComponent({
     const entity = useEntityContext()
     const component = useComponent(entity, SplineHelperComponent)
     const spline = useComponent(entity, SplineComponent)
-    const nodeHelperVisibility = useMutableState(RendererState).nodeHelperVisibility.value
-
+    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
+    const debugEnabled =
+      activeHelperComponent !== undefined &&
+      activeHelperComponent.enabled.value &&
+      (activeHelperComponent.selected.value || activeHelperComponent.hovered.value)
     const helperEntity = useHelperEntity(
       entity,
       () => {
@@ -114,7 +123,7 @@ export const SplineHelperComponent = defineComponent({
 
         return line
       },
-      nodeHelperVisibility && spline.elements.length < 3
+      debugEnabled && spline.elements.length < 3
     )
 
     // const [lineGeometry] = useResource(createLineGeom, entity)

@@ -61,23 +61,22 @@ export const BoundingBoxComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-    const activeHelpercomponent = useOptionalComponent(entity, ActiveHelperComponent)
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility) // show all volumes
+    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const boundingBox = useComponent(entity, BoundingBoxComponent)
 
     useEffect(() => {
       const showVolume =
-        activeHelpercomponent === undefined
-          ? debugEnabled.value
-          : debugEnabled.value &&
-            activeHelpercomponent.enabled.value &&
-            (activeHelpercomponent.hovered.value || activeHelpercomponent.selected.value)
+        debugEnabled.value ||
+        (activeHelperComponent !== undefined &&
+          activeHelperComponent.enabled.value &&
+          (activeHelperComponent.hovered.value || activeHelperComponent.selected.value))
 
       if (!showVolume) return
 
       const helperEntity = createEntity()
 
-      const helper = new Box3Helper(boundingBox.box.value)
+      const helper = new Box3Helper(boundingBox.box.value, 'white')
       helper.name = `bounding-box-helper-${entity}`
 
       setComponent(helperEntity, NameComponent, helper.name)
@@ -97,7 +96,7 @@ export const BoundingBoxComponent = defineComponent({
         if (!hasComponent(entity, BoundingBoxComponent)) return
         boundingBox.helper.set(UndefinedEntity)
       }
-    }, [debugEnabled, activeHelpercomponent?.enabled, activeHelpercomponent?.hovered, activeHelpercomponent?.selected])
+    }, [debugEnabled, activeHelperComponent?.enabled, activeHelperComponent?.hovered, activeHelperComponent?.selected])
 
     return null
   }
@@ -127,7 +126,8 @@ export const updateBoundingBox = (entity: Entity) => {
   if (!helperEntity) return
 
   const helperObject = getComponent(helperEntity, ObjectComponent) as any as Box3Helper
-  helperObject.updateMatrix()
+  helperObject.updateMatrixWorld(true)
+  helperObject.position.set(0, 0, 0)
 }
 
 const _box = new Box3()

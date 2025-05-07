@@ -124,7 +124,6 @@ export const DirectionalLightComponent = defineComponent({
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
-    const debugEnabled = renderState.nodeHelperVisibility
     const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
     const light = useHookstate(() => new DirectionalLight()).value as DirectionalLight
 
@@ -177,19 +176,18 @@ export const DirectionalLightComponent = defineComponent({
     }, [renderState.shadowMapResolution])
 
     useEffect(() => {
+      if (activeHelperComponent === undefined) return
       if (
         !(
-          debugEnabled.value ||
-          (activeHelperComponent !== undefined &&
-            activeHelperComponent.enabled.value &&
-            (activeHelperComponent.selected.value || activeHelperComponent.hovered.value))
+          activeHelperComponent.enabled.value &&
+          (activeHelperComponent.selected.value || activeHelperComponent.hovered.value)
         )
       )
         return
 
-      activeHelperComponent!.helperSelectedGizmo.set(createEntity())
-      setComponent(activeHelperComponent!.helperSelectedGizmo.value, EntityTreeComponent, { parentEntity: entity })
-      setComponent(activeHelperComponent!.helperSelectedGizmo.value, LineSegmentComponent, {
+      activeHelperComponent.helperSelectedGizmo.set(createEntity())
+      setComponent(activeHelperComponent.helperSelectedGizmo.value, EntityTreeComponent, { parentEntity: entity })
+      setComponent(activeHelperComponent.helperSelectedGizmo.value, LineSegmentComponent, {
         name: 'directional-light-helper',
         // Clone geometry because LineSegmentComponent disposes it when removed
         geometry: mergedGeometry?.clone(),
@@ -200,12 +198,7 @@ export const DirectionalLightComponent = defineComponent({
         removeEntity(activeHelperComponent!.helperSelectedGizmo.value)
         activeHelperComponent!.helperSelectedGizmo.set(UndefinedEntity)
       }
-    }, [
-      debugEnabled,
-      activeHelperComponent?.enabled,
-      activeHelperComponent?.selected.value,
-      activeHelperComponent?.hovered.value
-    ])
+    }, [activeHelperComponent?.enabled, activeHelperComponent?.selected, activeHelperComponent?.hovered])
 
     return null
   }

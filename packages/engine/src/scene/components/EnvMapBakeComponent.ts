@@ -25,10 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Mesh, MeshPhysicalMaterial, SphereGeometry } from 'three'
 
+import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { useMutableState } from '@ir-engine/hyperflux'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 
@@ -61,12 +59,10 @@ export const EnvMapBakeComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
-    const renderState = useMutableState(RendererState)
     const debugEnabled =
-      renderState.nodeHelperVisibility.value ||
-      (activeHelperComponent !== undefined &&
-        activeHelperComponent.enabled.value &&
-        (activeHelperComponent.selected.value || activeHelperComponent.hovered.value))
+      activeHelperComponent !== undefined &&
+      activeHelperComponent.enabled.value &&
+      (activeHelperComponent.selected.value || activeHelperComponent.hovered.value)
 
     const helperEntity = useHelperEntity(entity, () => new Mesh(sphereGeometry, helperMeshMaterial), debugEnabled)
 

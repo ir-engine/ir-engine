@@ -59,10 +59,9 @@ export const ScenePreviewCameraComponent = defineComponent({
     const renderState = useMutableState(RendererState)
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const debugEnabled =
-      renderState.nodeHelperVisibility ||
-      (activeHelperComponent !== undefined &&
-        activeHelperComponent.enabled.value &&
-        (activeHelperComponent.selected.value || activeHelperComponent.hovered.value))
+      activeHelperComponent !== undefined &&
+      activeHelperComponent.enabled.value &&
+      (activeHelperComponent.selected.value || activeHelperComponent.hovered.value)
     const previewCamera = useComponent(entity, ScenePreviewCameraComponent)
     const previewCameraTransform = useComponent(entity, TransformComponent)
     const engineCameraTransform = useOptionalComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
@@ -102,7 +101,7 @@ export const ScenePreviewCameraComponent = defineComponent({
     const helperEntity = useHelperEntity(
       entity,
       () => new CameraHelper(previewCamera.camera.value as PerspectiveCamera),
-      debugEnabled.value
+      debugEnabled
     )
 
     useEffect(() => {
