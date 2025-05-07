@@ -45,7 +45,7 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { NO_PROXY, isClient, useHookstate } from '@ir-engine/hyperflux'
+import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -87,7 +87,6 @@ export const LoopAnimationComponent = defineComponent({
   }),
 
   reactor: function () {
-    if (!isClient) return null
     const entity = useEntityContext()
 
     const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
@@ -100,6 +99,19 @@ export const LoopAnimationComponent = defineComponent({
         (loopAnimationComponent.useVRM.value && rigComponent?.bonesToEntities.hips.value)
       )
         return
+
+      if (loopAnimationComponent._action.value) {
+        loopAnimationComponent._action.value.stop()
+      }
+
+      if (loopAnimationComponent.activeClipIndex.value === -1) {
+        if (animComponent.mixer.value) {
+          animComponent.mixer.value.stopAllAction()
+        }
+        loopAnimationComponent._action.set(null)
+        return
+      }
+
       const clip = animComponent.animations.value[loopAnimationComponent.activeClipIndex.value] as AnimationClip
       if (!clip) {
         loopAnimationComponent._action.set(null)
@@ -108,6 +120,11 @@ export const LoopAnimationComponent = defineComponent({
       animComponent.mixer.time.set(0)
       const action = animComponent.mixer.value.clipAction(clip)
       loopAnimationComponent._action.set(action)
+
+      if (!loopAnimationComponent.paused.value) {
+        action.play()
+      }
+
       return () => {
         action.stop()
       }
@@ -127,7 +144,13 @@ export const LoopAnimationComponent = defineComponent({
     const animationAction = loopAnimationComponent._action.value as AnimationAction
 
     useEffect(() => {
-      if (!animationAction) return
+      if (!animationAction) {
+        if (animComponent?.mixer?.value && !loopAnimationComponent.paused.value) {
+          animComponent.mixer.value.stopAllAction()
+        }
+        return
+      }
+
       if (animationAction.isRunning()) {
         animationAction.paused = loopAnimationComponent.paused.value
       } else if (!animationAction.isRunning() && !loopAnimationComponent.paused.value) {
@@ -186,7 +209,14 @@ export const LoopAnimationComponent = defineComponent({
       const stop = () => {
         loopAnimationComponent.paused.set(true)
         loopAnimationComponent.time.set(0)
-        loopAnimationComponent._action.value?.stop()
+
+        if (loopAnimationComponent._action.value) {
+          loopAnimationComponent._action.value.stop()
+        }
+
+        if (animComponent?.mixer?.value) {
+          animComponent.mixer.value.stopAllAction()
+        }
       }
       setCallback(entity, StandardCallbacks.PLAY, play)
       setCallback(entity, StandardCallbacks.PAUSE, pause)
