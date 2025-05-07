@@ -215,7 +215,7 @@ export const onSaveScene = async () => {
   try {
     await saveSceneGLTF(sceneAssetID!, projectName!, sceneName!, abortController.signal)
     NotificationService.dispatchNotify(`${i18n.t('editor:dialog.saveScene.info-save-success')}`, { variant: 'success' })
-    const sourceID = GLTFComponent.getInstanceID(rootEntity)
+    const sourceID = GLTFComponent.getSourceID(rootEntity)
     getMutableState(AssetModifiedState)[sourceID].set(none)
 
     ModalState.closeModal()

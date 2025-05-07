@@ -30,15 +30,17 @@ import { HyperFlux } from '@ir-engine/hyperflux'
 
 import { getAllEntities } from 'bitecs'
 import {
+  createEntity,
   defineComponent,
+  entityExists,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
+  removeEntity,
   setComponent
 } from '../src/ComponentFunctions'
 import { createEngine, destroyEngine } from '../src/Engine'
-import { createEntity, entityExists, removeEntity } from '../src/EntityFunctions'
 import { defineQuery } from '../src/QueryFunctions'
 import { S } from '../src/schemas/JSONSchemas'
 

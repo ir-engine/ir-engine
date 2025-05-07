@@ -27,78 +27,37 @@ import {
   createEntity,
   defineComponent,
   Entity,
-  EntityUUID,
+  EntityID,
   LayerID,
   Layers,
   S,
   setComponent,
-  TTypedSchema,
-  useComponent,
-  useEntityContext,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { defineState, getMutableState, getState, none, OpaqueType } from '@ir-engine/hyperflux'
-import { NonEmptyString } from '@ir-engine/spatial/src/schema/schemaFunctions'
-import { useEffect } from 'react'
-import { v4 as uuidv4 } from 'uuid'
-import { SourceComponent, SourceID } from '../scene/components/SourceComponent'
+import { SourceComponent } from '../scene/components/SourceComponent'
 
-export type NodeID = OpaqueType<'NodeID'> & string
+/** @deprecated - use EntityID */
+export type NodeID = EntityID
 
-export const NodeIDSchema = (options?: TTypedSchema<NodeID>['options']) =>
-  S.String({ ...options, id: 'NodeID' }) as unknown as TTypedSchema<NodeID>
-
-export const NodesBySourceState = defineState({
-  name: 'ir.world.NodesBySourceState',
-  initial: {} as Record<SourceID, Record<NodeID, Entity>>
-})
-
+/** @deprecated - use UUIDComponent.entityID */
 export const NodeIDComponent = defineComponent({
   name: 'NodeIDComponent',
   jsonID: 'EE_uuid',
 
-  schema: NodeIDSchema({
-    /** @todo we should also validate to see if it currently is defined, and if not then disallow changing */
-    validate: NonEmptyString('NodeIDComponent expects a non-empty string')
-  }),
-
-  reactor: () => {
-    const entity = useEntityContext()
-    const nodeID = useComponent(entity, NodeIDComponent).value
-    const sourceID = useComponent(entity, SourceComponent).value
-
-    useEffect(() => {
-      const state = getMutableState(NodesBySourceState)
-
-      if (!state.value[sourceID]) state[sourceID].set({})
-
-      if (!state[sourceID].value[nodeID]) state[sourceID][nodeID].set(entity)
-
-      return () => {
-        if (!getState(NodesBySourceState)?.[sourceID]?.[nodeID]) return
-
-        state[sourceID][nodeID].set(none)
-
-        if (!state[sourceID].keys.length) state[sourceID].set(none)
-      }
-    }, [nodeID, sourceID])
-
-    return null
-  },
-
-  getUUIDBySourceAndNodeID: (source: SourceID, nodeID: NodeID) => `${source}-${nodeID}` as EntityUUID,
+  schema: S.EntityID(),
 
   /**
    * Creates a new entity with the NodeIDComponent and SourceComponent.
    * - Also sets the UUIDComponent to the NodeIDComponent's UUID.
    */
-  create: (sourceID: SourceID, nodeID: NodeID, layer = Layers.Simulation as LayerID) => {
+  create: (sourceEntity: Entity, nodeID: EntityID, layer = Layers.Simulation as LayerID) => {
     const entity = createEntity(layer)
     setComponent(entity, NodeIDComponent, nodeID)
-    setComponent(entity, SourceComponent, sourceID)
-    setComponent(entity, UUIDComponent, NodeIDComponent.getUUIDBySourceAndNodeID(sourceID, nodeID))
+    setComponent(entity, SourceComponent, sourceEntity)
+    setComponent(entity, UUIDComponent, {
+      entitySourceID: UUIDComponent.getAsSourceID(sourceEntity),
+      entityID: nodeID
+    })
     return entity
-  },
-
-  generate: () => uuidv4() as NodeID
+  }
 })

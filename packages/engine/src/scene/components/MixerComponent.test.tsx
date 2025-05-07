@@ -52,6 +52,7 @@ import {
   S,
   serializeComponent,
   setComponent,
+  SourceID,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { getMutableState, UserID } from '@ir-engine/hyperflux'
@@ -62,7 +63,10 @@ import { MixerComponent } from './MixerComponent'
 
 const createEntityWithUUID = () => {
   const entity = createEntity()
-  setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+  setComponent(entity, UUIDComponent, {
+    entitySourceID: 'source' as SourceID,
+    entityID: UUIDComponent.generate()
+  })
   return entity
 }
 

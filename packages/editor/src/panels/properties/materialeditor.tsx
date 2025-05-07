@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
-  EntityUUID,
+  Entity,
   Layers,
   UUIDComponent,
   getComponent,
@@ -79,9 +79,9 @@ const toBlobs = (thumbnails: Record<string, ThumbnailData>): Record<string, stri
   return blobs
 }
 
-export function MaterialEditor(props: { materialUUID: EntityUUID }) {
+export function MaterialEditor(props: { entity: Entity }) {
   const { t } = useTranslation()
-  const entity = UUIDComponent.useEntityByUUID(props.materialUUID, Layers.Authoring)
+  const entity = props.entity
   const materialComponent = useComponent(entity, MaterialStateComponent)
   const material = materialComponent.material.get(NO_PROXY) as Material
 
@@ -260,7 +260,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
 
       {prototype && (
         <ParameterInput
-          entity={props.materialUUID}
+          entity={UUIDComponent.get(entity)}
           values={materialParameters.get(NO_PROXY)}
           onChange={(key) => async (value) => {
             const property = await shouldLoadTexture(value, key, prototype.arguments)
@@ -269,15 +269,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
               texture.flipY = false
               texture.needsUpdate = true
             }
-            EditorControlFunctions.modifyMaterial(
-              [materialComponent.material.value!.uuid],
-              currentSelectedMaterial.value!,
-              [{ [key]: texture?.isTexture ? value : property }]
-            )
-            const entity = UUIDComponent.getEntityByUUID(
-              materialComponent.material.value!.uuid as EntityUUID,
-              Layers.Authoring
-            )
+            EditorControlFunctions.modifyMaterial(entity, [{ [key]: texture?.isTexture ? value : property }])
             AuthoringState.snapshotEntities([entity])
             await checkThumbs()
           }}
@@ -306,7 +298,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
       {hasComponent(entity, MaterialPlugins[selectedPlugin.value]) && (
         <div className={styles.contentContainer}>
           <ParameterInput
-            entity={props.materialUUID}
+            entity={UUIDComponent.get(entity)}
             values={pluginValues.value}
             onChange={(key) => async (value) => {
               const property = await shouldLoadTexture(value, key, pluginParameters)

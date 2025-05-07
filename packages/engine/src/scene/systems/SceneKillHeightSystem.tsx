@@ -70,7 +70,7 @@ const execute = () => {
 
     const rigidBodyPosition = getComponent(entity, RigidBodyComponent).position
     if (rigidBodyPosition.y < sceneHeight) {
-      const uuid = getComponent(entity, UUIDComponent)
+      const uuid = UUIDComponent.get(entity)
       const spawnState = getState(SpawnPoseState)[uuid]
 
       // reset entity to it's spawn position

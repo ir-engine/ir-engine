@@ -46,21 +46,23 @@ export const SplineComponent = defineComponent({
         position: T.Vec3(),
         rotation: T.Quaternion()
       }),
-      () => [
-        { position: new Vector3(-1, 0, -1), rotation: new Quaternion() },
-        {
-          position: new Vector3(1, 0, -1),
-          rotation: new Quaternion().setFromAxisAngle(Vector3_Up, Math.PI / 2)
-        },
-        {
-          position: new Vector3(1, 0, 1),
-          rotation: new Quaternion().setFromAxisAngle(Vector3_Up, Math.PI)
-        },
-        {
-          position: new Vector3(-1, 0, 1),
-          rotation: new Quaternion().setFromAxisAngle(Vector3_Up, (3 * Math.PI) / 2)
-        }
-      ]
+      {
+        default: () => [
+          { position: new Vector3(-1, 0, -1), rotation: new Quaternion() },
+          {
+            position: new Vector3(1, 0, -1),
+            rotation: new Quaternion().setFromAxisAngle(Vector3_Up, Math.PI / 2)
+          },
+          {
+            position: new Vector3(1, 0, 1),
+            rotation: new Quaternion().setFromAxisAngle(Vector3_Up, Math.PI)
+          },
+          {
+            position: new Vector3(-1, 0, 1),
+            rotation: new Quaternion().setFromAxisAngle(Vector3_Up, (3 * Math.PI) / 2)
+          }
+        ]
+      }
     ),
     curve: S.Class(() => new CatmullRomCurve3([], true), { serialized: false })
   }),

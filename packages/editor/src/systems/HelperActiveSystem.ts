@@ -25,11 +25,15 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { UUIDComponent } from '@ir-engine/ecs'
-import { Layers, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
-import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
+import {
+  defineSystem,
+  entityExists,
+  Layers,
+  PresentationSystemGroup,
+  removeComponent,
+  setComponent,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { SelectionState } from '../services/SelectionServices'

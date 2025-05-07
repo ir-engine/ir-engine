@@ -24,8 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
+  EntityID,
   EntityTreeComponent,
   EntityUUID,
+  SourceID,
   UUIDComponent,
   UndefinedEntity,
   createEngine,
@@ -53,7 +55,6 @@ import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { NodeID } from '../../gltf/NodeIDComponent'
 import { TriggerCallbackComponent } from './TriggerCallbackComponent'
 
 const TriggerCallbackComponentDefaults = {
@@ -122,7 +123,7 @@ describe('TriggerCallbackComponent', () => {
           {
             onEnter: 'onEnter.Expected',
             onExit: 'onExit.Expected',
-            target: 'target' as NodeID
+            target: 'target' as EntityID
           }
         ]
       }
@@ -165,7 +166,10 @@ describe('TriggerCallbackComponent', () => {
       createEngine()
       await Physics.load()
       physicsWorldEntity = createEntity()
-      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+      setComponent(physicsWorldEntity, UUIDComponent, {
+        entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+        entityID: UUIDComponent.generateUUID() as any as EntityID
+      })
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
       setComponent(physicsWorldEntity, EntityTreeComponent)

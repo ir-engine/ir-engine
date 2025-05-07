@@ -109,7 +109,7 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
     } else {
       if (!clickState.placementEntity.value) return
       const selectedEntities = getState(SelectionState).selectedEntities.filter(
-        (uuid) => uuid !== getComponent(clickState.placementEntity.value, UUIDComponent)
+        (uuid) => uuid !== UUIDComponent.get(clickState.placementEntity.value)
       )
       EditorControlFunctions.removeObject([clickState.placementEntity.value])
       clickState.placementEntity.set(UndefinedEntity)

@@ -27,8 +27,9 @@ import { useEffect } from 'react'
 
 import {
   Entity,
+  EntityID,
   EntityTreeComponent,
-  EntityUUID,
+  EntityUUIDPair,
   Static,
   UUIDComponent,
   UndefinedEntity,
@@ -130,7 +131,10 @@ export const VariantComponent = defineComponent({
     useEffect(() => {
       if (instancingComponent) return
       const _childEntity = createEntity()
-      setComponent(_childEntity, UUIDComponent)
+      setComponent(_childEntity, UUIDComponent, {
+        entitySourceID: UUIDComponent.getAsSourceID(entity),
+        entityID: 'variant-child' as EntityID
+      })
       setComponent(_childEntity, NameComponent, 'Variant Child w/ GLTFComponent')
       setComponent(_childEntity, TransformComponent)
       setComponent(_childEntity, EntityTreeComponent, { parentEntity: entity })
@@ -210,11 +214,10 @@ const VariantInstanceLoadReactor = (props: { entity: Entity; level: number }) =>
 
   const modelEntity = useHookstate(() => {
     const entity = createEntity()
-    setComponent(
-      entity,
-      UUIDComponent,
-      (getComponent(props.entity, UUIDComponent) + '-LOD-' + props.level) as EntityUUID
-    )
+    setComponent(entity, UUIDComponent, {
+      entitySourceID: getComponent(props.entity, UUIDComponent).entitySourceID,
+      entityID: 'LOD-' + props.level
+    } as EntityUUIDPair)
     setComponent(entity, NameComponent, getComponent(props.entity, NameComponent) + ' LOD ' + props.level)
     setComponent(entity, TransformComponent)
     setComponent(entity, EntityTreeComponent, { parentEntity: props.entity })
