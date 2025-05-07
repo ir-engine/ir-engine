@@ -23,12 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Engine, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
+import { EngineState, EntityID, SourceID, UUIDComponent } from '@ir-engine/ecs'
 import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { UserID } from '@ir-engine/hyperflux'
+import { getState, UserID } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent } from '@ir-engine/network'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { useEffect } from 'react'
 import { setAvatarColliderTransform } from '../functions/spawnAvatarReceptor'
@@ -59,7 +60,29 @@ export const AvatarComponent = defineComponent({
   }),
 
   /**
-   * Get the user avatar entity (the network object w/ an Avatar component)
+   * A unique entityID for avatars
+   */
+  entityID: 'avatar' as EntityID,
+
+  /**
+   * Get the sourceID for the user's avatar
+   */
+  getSelfSourceID() {
+    return getState(EngineState).userID as any as SourceID
+  },
+
+  /**
+   * Get the UUID for the user's avatar
+   */
+  getSelfAvatarUUID() {
+    return UUIDComponent.join({
+      entitySourceID: AvatarComponent.getSelfSourceID(),
+      entityID: AvatarComponent.entityID
+    })
+  },
+
+  /**
+   * Get the avatar entity for a given user
    * @param userId
    * @returns
    */
@@ -67,16 +90,22 @@ export const AvatarComponent = defineComponent({
     return avatarNetworkObjectQuery().find((eid) => getComponent(eid, NetworkObjectComponent).ownerId === userId)!
   },
 
+  /*
+   * Get the active user's avatar entity
+   */
   getSelfAvatarEntity() {
-    return UUIDComponent.getEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID)
+    return UUIDComponent.getEntityByUUID(AvatarComponent.getSelfAvatarUUID())
   },
 
+  /**
+   * Reactively get the active user's avatar entity
+   */
   useSelfAvatarEntity() {
-    return UUIDComponent.useEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID)
+    return UUIDComponent.useEntityByUUID(AvatarComponent.getSelfAvatarUUID())
   },
 
   reactor: ({ entity }) => {
-    const camera = useComponent(Engine.instance.cameraEntity, CameraComponent)
+    const camera = useComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent)
     const avatarComponent = useComponent(entity, AvatarComponent)
 
     useEffect(() => {

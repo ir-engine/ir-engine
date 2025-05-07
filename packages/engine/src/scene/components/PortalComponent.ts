@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { ArrowHelper, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
-import { EntityTreeComponent, EntityUUID, createEntity, useEntityContext } from '@ir-engine/ecs'
+import { EntityTreeComponent, createEntity, useEntityContext } from '@ir-engine/ecs'
 import {
   ComponentType,
   defineComponent,
@@ -35,7 +35,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { Entity, EntityID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -79,8 +79,7 @@ export const PortalComponent = defineComponent({
   jsonID: 'EE_portal',
 
   schema: S.Object({
-    linkedPortalId:
-      S.EntityUUID() /** @todo due to the NodeID refactor, we have to re-think how we reference entities in other assets/scenes, so this will no longer work */,
+    linkedPortalId: S.EntityID(),
     location: S.String({ default: '' }),
     effectType: S.String({ default: 'None' }),
     previewType: S.String({ default: PortalPreviewTypeSimple }),
@@ -126,7 +125,7 @@ export const PortalComponent = defineComponent({
           {
             onEnter: 'teleport',
             onExit: '',
-            target: '' as EntityUUID
+            target: '' as EntityID
           }
         ]
       })

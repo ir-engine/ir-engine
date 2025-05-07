@@ -29,6 +29,7 @@ import { Mesh, Object3D } from 'three'
 import {
   createEntity,
   Entity,
+  EntityID,
   EntityTreeComponent,
   getComponent,
   getOptionalComponent,
@@ -109,12 +110,17 @@ export function createHelperEntity<TObject extends DisposableObject3D>(
   const name = getComponent(parentEntity, NameComponent)
   const helper = helperFactory()
   helper.preserveChildren = true
+
   setComponent(helperEntity, EntityTreeComponent, { parentEntity: parentEntity })
   setComponent(helperEntity, TransformComponent)
   setComponent(helperEntity, ObjectComponent, helper)
-  setComponent(helperEntity, UUIDComponent, UUIDComponent.generateUUID())
+  setComponent(helperEntity, UUIDComponent, {
+    entityID: 'helper-entity' as EntityID,
+    entitySourceID: getComponent(parentEntity, UUIDComponent).entitySourceID
+  })
   setComponent(helperEntity, ObjectLayerMaskComponent, layerMask)
   setComponent(helperEntity, VisibleComponent, true)
+
   setComponent(helperEntity, NameComponent, `${name ?? parentEntity}-${nameSuffix}`)
   setComponent(helperEntity, InputComponent, { grow: true })
   return helperEntity
