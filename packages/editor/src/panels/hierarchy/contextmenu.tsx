@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import { hasComponent } from '@ir-engine/ecs'
+import { EntityTreeComponent, getComponent, hasComponent, UndefinedEntity } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { DropdownItem } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
@@ -32,6 +32,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import CreatePrefabPanel from '../../components/dialogs/CreatePrefabPanelDialog'
 import SavePrefabPanel from '../../components/dialogs/SavePrefabDialog'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { copyNodes, deleteNode, duplicateNode, groupNodes, pasteNodes } from './helpers'
 import { useHierarchyNodes, useHierarchyTreeContextMenu, useNodeCollapseExpand, useRenamingNode } from './hooks'
@@ -69,6 +70,24 @@ export default function HierarchyTreeContextMenu() {
     deleteNode(entity)
   }
 
+  const onMoveToTop = () => {
+    const parent = getComponent(entity, EntityTreeComponent).parentEntity
+    const children = getComponent(parent, EntityTreeComponent).children
+    const firstChild = children.at(0)
+
+    EditorControlFunctions.reparentObject([entity], firstChild, UndefinedEntity, parent)
+    setMenu()
+  }
+
+  const onMoveToBottom = () => {
+    const parent = getComponent(entity, EntityTreeComponent).parentEntity
+    const children = getComponent(parent, EntityTreeComponent).children
+    const lastChild = children.at(-1)
+
+    EditorControlFunctions.reparentObject([entity], UndefinedEntity, lastChild, parent)
+    setMenu()
+  }
+
   return (
     <ContextMenu anchorEvent={anchorEvent} open={!!entity} onClose={() => setMenu()}>
       <div className="w-[220px]" data-testid="hierarchy-panel-scene-item-context-menu">
@@ -92,6 +111,16 @@ export default function HierarchyTreeContextMenu() {
           onClick={onGroupNodes}
           secondaryText={cmdOrCtrlString + ' + g'}
           label={t('editor:hierarchy.lbl-group')}
+        />
+        <DropdownItem
+          data-testid="hierarchy-panel-scene-item-context-menu-move-to-top-button"
+          onClick={onMoveToTop}
+          label={t('editor:hierarchy.lbl-move-to-top')}
+        />
+        <DropdownItem
+          data-testid="hierarchy-panel-scene-item-context-menu-move-to-bottom-button"
+          onClick={onMoveToBottom}
+          label={t('editor:hierarchy.lbl-move-to-bottom')}
         />
         <DropdownItem
           data-testid="hierarchy-panel-scene-item-context-menu-copy-button"

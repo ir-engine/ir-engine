@@ -70,7 +70,7 @@ import { EditorHelperState, PlacementMode } from '../../services/EditorHelperSta
 import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
-import { deleteNode, HierarchyTreeNodeType } from './helpers'
+import { HierarchyTreeNodeType } from './helpers'
 import {
   useHierarchyNodes,
   useHierarchyTreeContextMenu,
@@ -187,76 +187,6 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
 
-  const onKeyDown = (event: KeyboardEvent) => {
-    const nodeIndex = nodes.findIndex((node) => node.entity === entity)
-    const entityTree = getComponent(entity, EntityTreeComponent)
-    switch (event.key) {
-      case 'ArrowDown': {
-        event.preventDefault()
-        if (entity === rootEntity) return
-
-        const nextNode = nodeIndex !== -1 && nodes[nodeIndex + 1]
-        if (!nextNode) return
-
-        if (event.shiftKey) {
-          EditorControlFunctions.addToSelection([getComponent(nextNode.entity, UUIDComponent)])
-        }
-
-        const nextNodeEl = document.getElementById(getNodeElId(nextNode))
-        if (nextNodeEl) {
-          nextNodeEl.focus()
-        }
-        break
-      }
-      case 'ArrowUp': {
-        event.preventDefault()
-        if (entity === rootEntity) return
-
-        const prevNode = nodeIndex !== -1 && nodes[nodeIndex - 1]
-        if (!prevNode) return
-
-        if (event.shiftKey) {
-          EditorControlFunctions.addToSelection([getComponent(prevNode.entity, UUIDComponent)])
-        }
-
-        const prevNodeEl = document.getElementById(getNodeElId(prevNode))
-        if (prevNodeEl) {
-          prevNodeEl.focus()
-        }
-        break
-      }
-      case 'ArrowLeft': {
-        if (entityTree && (!entityTree.children || entityTree.children.length === 0)) return
-
-        if (event.shiftKey) collapseChildren(entity)
-        else collapseNode(entity)
-        break
-      }
-      case 'ArrowRight': {
-        if (entityTree && (!entityTree.children || entityTree.children.length === 0)) return
-
-        if (event.shiftKey) expandChildren(entity)
-        else expandNode(entity)
-        break
-      }
-      case 'Enter': {
-        if (entity === rootEntity) return
-        if (event.shiftKey) {
-          EditorControlFunctions.toggleSelection([getComponent(entity, UUIDComponent)])
-        } else {
-          EditorControlFunctions.replaceSelection([getComponent(entity, UUIDComponent)])
-        }
-        break
-      }
-      case 'Delete':
-      case 'Backspace': {
-        if (entity === rootEntity) return
-        if (selected && renamingNode.entity !== entity) deleteNode(entity)
-        break
-      }
-    }
-  }
-
   const onClickNode = (event: React.MouseEvent) => {
     if (renamingNode.entity !== entity) {
       renamingNode.clear()
@@ -280,6 +210,12 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
         if (!selected) {
           EditorControlFunctions.replaceSelection([getComponent(entity, UUIDComponent)])
         }
+        const node = nodes.find((node) => node.entity === entity)
+        if (node) {
+          const nodeEl = document.getElementById(getNodeElId(node))
+          nodeEl?.focus()
+        }
+
         firstSelectedEntity.set(entity)
       }
     } else if (event.detail === 2) {
@@ -400,7 +336,6 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
         ref={drag}
         id={getNodeElId(node)}
         tabIndex={0}
-        onKeyDown={onKeyDown}
         onClick={onClickNode}
         onContextMenu={(event) => {
           event.preventDefault()

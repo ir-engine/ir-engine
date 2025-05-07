@@ -102,6 +102,7 @@ export function Contents() {
   return (
     <div
       ref={ref}
+      tabIndex={0}
       className={twMerge('h-5/6 overflow-hidden', isOver && canDrop && 'border border-dotted')}
       data-testid="hierarchy-panel-scene-item-list"
     >
