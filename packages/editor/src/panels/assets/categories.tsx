@@ -32,7 +32,7 @@ import { twMerge } from 'tailwind-merge'
 import { EditorState } from '../../services/EditorServices'
 import { FilesState } from '../../services/FilesState'
 import { useCurrentFiles } from '../files/helpers'
-import { assetCategories, useAssetsCategory, useAssetsQuery } from './hooks'
+import { assetCategories, AssetsRefreshState, useAssetsCategory, useAssetsQuery } from './hooks'
 
 export type AssetCategoryNode = {
   name: string
@@ -79,12 +79,12 @@ function FolderCategory({ item }: { item: AssetCategoryNode }) {
 
 function AssetCategory({ item }: { item: AssetCategoryNode }) {
   const { currentCategoryPath } = useAssetsCategory()
-  const { refetchResources, staticResourcesPagination } = useAssetsQuery()
+  const { staticResourcesPagination } = useAssetsQuery()
 
   const handleClickCategory = (item) => {
     currentCategoryPath.set(item)
     staticResourcesPagination.skip.set(0)
-    refetchResources()
+    AssetsRefreshState.triggerRefresh()
   }
 
   return <NodeHierarchyItem node={item} onClick={handleClickCategory} />

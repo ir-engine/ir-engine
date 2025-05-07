@@ -43,7 +43,7 @@ import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileIcon } from '../files/fileicon'
 import DeleteFileModal from '../files/modals/DeleteFileModal'
 import { ASSETS_PAGE_LIMIT, calculateItemsToFetch } from './helpers'
-import { useAssetsQuery } from './hooks'
+import { AssetsRefreshState, useAssetsQuery } from './hooks'
 
 interface MetadataTableRowProps {
   label: string
@@ -83,7 +83,6 @@ function ResourceFileContextMenu({
 }) {
   const { t } = useTranslation()
   const userID = useMutableState(AuthState).user.id.value
-  const { refetchResources, staticResourcesPagination } = useAssetsQuery()
   const splitResourceKey = resource.key.split('/')
   const name = resource.name || splitResourceKey.at(-1)!
   const path = splitResourceKey.slice(0, -1).join('/') + '/'
@@ -127,7 +126,7 @@ function ResourceFileContextMenu({
                   onComplete={(err?: unknown) => {
                     if (!err) {
                       removeFromFileThumbnailsSeen([resource.key])
-                      refetchResources(true)
+                      AssetsRefreshState.triggerRefresh()
                     }
                   }}
                 />
@@ -375,7 +374,7 @@ function BottomPaginationNavBar({ handleScrollToPage }) {
 
 function ResourceItems() {
   const { t } = useTranslation()
-  const { category, resourcesLoading, resources, staticResourcesPagination, refetchResources } = useAssetsQuery()
+  const { category, resourcesLoading, resources, staticResourcesPagination } = useAssetsQuery()
   const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]) // Create a ref array
   const fileIconsLoaded = useHookstate(0)
@@ -402,7 +401,7 @@ function ResourceItems() {
 
   useEffect(() => {
     if (isLoading.value) return
-    refetchResources()
+    AssetsRefreshState.triggerRefresh()
   }, [isLoading.value])
 
   useEffect(() => {
@@ -491,7 +490,7 @@ function ResourceItems() {
 }
 
 export default function Resources() {
-  const { resourcesLoading, staticResourcesPagination, refetchResources } = useAssetsQuery()
+  const { resourcesLoading, staticResourcesPagination } = useAssetsQuery()
 
   return (
     <div id="asset-panel" className="relative flex h-full w-full flex-col overflow-auto bg-surface-1">
@@ -504,7 +503,7 @@ export default function Resources() {
           )
             return
           staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT + calculateItemsToFetch())
-          refetchResources()
+          AssetsRefreshState.triggerRefresh()
         }}
       >
         <div

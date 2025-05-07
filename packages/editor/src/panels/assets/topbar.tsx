@@ -37,7 +37,7 @@ import { ImportSettingsState } from '../../services/ImportSettingsState'
 import { BreadCrumbSlash, PanelToolbar } from '../files/toolbar'
 import { AssetCategoryNode } from './categories'
 import { findCategoryByPath } from './helpers'
-import { assetCategories, useAssetsCategory, useAssetsQuery } from './hooks'
+import { assetCategories, AssetsRefreshState, useAssetsCategory, useAssetsQuery } from './hooks'
 
 export const uploadFiles = (): Promise<null> =>
   new Promise((resolve, reject) => {
@@ -66,7 +66,6 @@ export const uploadFiles = (): Promise<null> =>
 
 export function AssetsBreadcrumbs() {
   const { currentCategoryPath } = useAssetsCategory()
-  const { refetchResources } = useAssetsQuery()
   const currentCategory = currentCategoryPath.get({ noproxy: true }) as AssetCategoryNode
 
   const breadcrumbTrail = currentCategory?.path
@@ -80,7 +79,7 @@ export function AssetsBreadcrumbs() {
     const selectedPath = breadcrumbTrail[index].path
     const newParent = findCategoryByPath(assetCategories as AssetCategoryNode[], selectedPath)
     currentCategoryPath.set(newParent || undefined)
-    refetchResources()
+    AssetsRefreshState.triggerRefresh()
   }
 
   return (
@@ -106,7 +105,7 @@ export default function Topbar() {
   const { t } = useTranslation()
   const { search } = useAssetsQuery()
   const { currentCategoryPath } = useAssetsCategory()
-  const { refetchResources, staticResourcesPagination } = useAssetsQuery()
+  const { staticResourcesPagination } = useAssetsQuery()
 
   const handleBack = () => {
     const path = currentCategoryPath.value?.path.split('/') ?? []
@@ -117,16 +116,16 @@ export default function Topbar() {
     const selectedPath = path.slice(0, path.length - 1).join('/')
     const foundCategory = findCategoryByPath(assetCategories as AssetCategoryNode[], selectedPath)
     currentCategoryPath.set(foundCategory || undefined)
-    refetchResources()
+    AssetsRefreshState.triggerRefresh()
   }
 
   const handleRefresh = () => {
-    refetchResources()
+    AssetsRefreshState.triggerRefresh()
   }
 
   useEffect(() => {
     staticResourcesPagination.skip.set(0)
-    refetchResources()
+    AssetsRefreshState.triggerRefresh()
   }, [search.query])
 
   return (
