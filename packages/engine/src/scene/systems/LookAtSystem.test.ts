@@ -27,9 +27,12 @@ import assert from 'assert'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
+  EntityID,
   EntityTreeComponent,
+  SourceID,
   SystemDefinitions,
   SystemUUID,
+  UUIDComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -47,14 +50,13 @@ import { assertVec } from '@ir-engine/spatial/tests/util/assert'
 import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
 import { act, render } from '@testing-library/react'
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { NodeID, NodeIDComponent } from '../../gltf/NodeIDComponent'
+import { NodeIDComponent } from '../../gltf/NodeIDComponent'
 import { LookAtComponent } from '../components/LookAtComponent'
-import { SourceID } from '../components/SourceComponent'
 import { LookAtSystem } from './LookAtSystem'
 
 const sourceID = 'sourceID' as SourceID
-const facerNodeID = 'facerNodeID' as NodeID
-const testNodeID = 'testNodeID' as NodeID
+const facerNodeID = 'facerNodeID' as EntityID
+const testNodeID = 'testNodeID' as EntityID
 
 describe('LookAtSystem', () => {
   const System = SystemDefinitions.get(LookAtSystem)!
@@ -83,9 +85,10 @@ describe('LookAtSystem', () => {
 
       beforeEach(async () => {
         createEngine()
-        // mockSpatialEngine()   // Do not set EngineState.viewerEntity
-        facerEntity = NodeIDComponent.create(sourceID, facerNodeID)
-        testEntity = NodeIDComponent.create(sourceID, testNodeID)
+        const source = createEntity()
+        setComponent(source, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'ID' as EntityID })
+        facerEntity = NodeIDComponent.create(source, facerNodeID)
+        testEntity = NodeIDComponent.create(source, testNodeID)
         await act(() => render(null))
       })
 
@@ -100,7 +103,7 @@ describe('LookAtSystem', () => {
 
         setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42) })
         setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22), rotation: Initial })
-        setComponent(testEntity, LookAtComponent, { target: getComponent(facerEntity, NodeIDComponent) })
+        setComponent(testEntity, LookAtComponent, { target: getComponent(facerEntity, UUIDComponent).entityID })
 
         System.execute()
         const result = getComponent(testEntity, TransformComponent).rotation.clone()
@@ -116,8 +119,10 @@ describe('LookAtSystem', () => {
         beforeEach(async () => {
           createEngine()
           mockSpatialEngine() // Set EngineState.viewerEntity
-          facerEntity = NodeIDComponent.create(sourceID, facerNodeID)
-          testEntity = NodeIDComponent.create(sourceID, testNodeID)
+          const source = createEntity()
+          setComponent(source, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'ID' as EntityID })
+          facerEntity = NodeIDComponent.create(source, facerNodeID)
+          testEntity = NodeIDComponent.create(source, testNodeID)
           await act(() => render(null))
         })
 
@@ -132,7 +137,7 @@ describe('LookAtSystem', () => {
 
           setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42), rotation: Initial })
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
-          setComponent(testEntity, LookAtComponent, { target: 'invalidTestNodeID' as NodeID })
+          setComponent(testEntity, LookAtComponent, { target: 'invalidTestNodeID' as EntityID })
 
           System.execute()
           const result = getComponent(facerEntity, TransformComponent).rotation.clone()
@@ -144,7 +149,7 @@ describe('LookAtSystem', () => {
 
           setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42), rotation: Initial })
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
-          setComponent(testEntity, LookAtComponent, { target: '' as NodeID })
+          setComponent(testEntity, LookAtComponent, { target: '' as EntityID })
           System.execute()
           const result = getComponent(facerEntity, TransformComponent).rotation.clone()
           assertVec.approxEq(result, Initial, 4)
@@ -156,7 +161,7 @@ describe('LookAtSystem', () => {
 
           setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42), rotation: Initial })
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
-          setComponent(testEntity, LookAtComponent, { target: '' as NodeID })
+          setComponent(testEntity, LookAtComponent, { target: '' as EntityID })
           System.execute()
           const result = getComponent(facerEntity, TransformComponent).rotation.clone()
           assertVec.approxEq(result, Expected, 4)
@@ -173,7 +178,7 @@ describe('LookAtSystem', () => {
           setComponent(facerEntity, EntityTreeComponent, { parentEntity: parentEntity })
           setComponent(facerEntity, TransformComponent, { matrixWorld: Initial })
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
-          setComponent(testEntity, LookAtComponent, { target: getComponent(facerEntity, NodeIDComponent) })
+          setComponent(testEntity, LookAtComponent, { target: getComponent(facerEntity, UUIDComponent).entityID })
           CleanupSystem.execute()
 
           System.execute()

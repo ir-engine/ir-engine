@@ -44,6 +44,17 @@ export const NonEmptyString = (errMsg: string) => {
   }
 }
 
+export const NonEmptyArray = (errMsg: string) => {
+  return (arr: unknown[]): boolean => {
+    if (!arr || arr.length === 0) {
+      console.error(errMsg)
+      return false
+    }
+
+    return true
+  }
+}
+
 type Init<T> = T | ((entity: Entity) => T)
 
 export const T = {
@@ -101,7 +112,7 @@ export const T = {
     S.SerializedClass(
       () => new Matrix4().fromArray(init),
       {
-        elements: S.Array(S.Number(), undefined, {
+        elements: S.Array(S.Number(), {
           maxItems: 16,
           minItems: 16
         })

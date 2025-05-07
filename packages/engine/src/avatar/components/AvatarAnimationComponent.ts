@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import type * as V0VRM from '@pixiv/types-vrm-0.0'
 
-import { AnimationAction, Euler, Group, Matrix4, Object3D, Quaternion, Vector3 } from 'three'
+import { AnimationAction, Euler, Group, Matrix4, Object3D, Quaternion } from 'three'
 
 import { EntityTreeComponent, UUIDComponent, iterateEntityNode } from '@ir-engine/ecs'
 import {
@@ -37,7 +37,7 @@ import {
   setComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
+import { Entity, EntityID, SourceID } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -56,10 +56,10 @@ export const AvatarAnimationComponent = defineComponent({
 
   schema: S.Object({
     animationGraph: S.Object({
-      blendAnimation: S.Optional(S.Type<AnimationAction>()),
-      fadingOut: S.Bool(false),
-      blendStrength: S.Number(0),
-      layer: S.Number(0)
+      blendAnimation: S.Type<AnimationAction | undefined>(),
+      fadingOut: S.Bool(),
+      blendStrength: S.Number(),
+      layer: S.Number()
     }),
     /** The input vector for 2D locomotion blending space */
     locomotion: T.Vec3()
@@ -106,12 +106,9 @@ export const AvatarRigComponent = defineComponent({
   errors: ['UNSUPPORTED_AVATAR']
 })
 
-const _rightHandPos = new Vector3(),
-  _rightUpperArmPos = new Vector3()
 const yFlip = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 
 export function createVRM(rootEntity: Entity) {
-  const documentID = GLTFComponent.getInstanceID(rootEntity)
   const gltf = getComponent(rootEntity, GLTFComponent).document!
 
   if (!hasComponent(rootEntity, ObjectComponent)) {
@@ -154,8 +151,11 @@ export function createVRM(rootEntity: Entity) {
   })
 
   for (const bone of humanBonesArray) {
-    const nodeID = `${documentID}-${bone.node}` as EntityUUID
-    const entity = UUIDComponent.getEntityByUUID(nodeID)
+    const uuid = UUIDComponent.join({
+      entitySourceID: UUIDComponent.join(getComponent(rootEntity, UUIDComponent)) as string as SourceID,
+      entityID: bone.node!.toString() as EntityID
+    })
+    const entity = UUIDComponent.getEntityByUUID(uuid)
     AvatarRigComponent.setBone(rootEntity, entity, bone.bone as VRMHumanBoneName)
     AvatarRigComponent.setPose(rootEntity, entity, bone.bone as VRMHumanBoneName)
   }

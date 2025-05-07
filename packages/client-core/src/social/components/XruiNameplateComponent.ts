@@ -73,7 +73,7 @@ export const XruiNameplateComponent = defineComponent({
   name: 'XruiNameplateComponent',
   schema: S.Object({
     uiEntity: S.Entity(),
-    nameLabel: S.String('')
+    nameLabel: S.String()
   }),
 
   Transitions: new Map<Entity, ReturnType<typeof createTransitionState>>(),

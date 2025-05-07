@@ -166,7 +166,7 @@ export const AddScene = ({ projectName }: AddNewSceneProps) => {
   }
 
   return (
-    <div className="absolute z-50 w-fit max-w-5xl rounded-xl border-2 border-surface-outline-1-1 bg-surface-2">
+    <div className="absolute z-50 w-fit max-w-5xl rounded-xl border-2 border-surface-outline-1-1 bg-white dark:bg-surface-1">
       <div className="flex flex-col items-center px-6">
         <h1
           className="w-full border-b border-surface-outline-4-1 py-5 text-center text-2xl font-semibold leading-[1.3rem] text-text-primary"

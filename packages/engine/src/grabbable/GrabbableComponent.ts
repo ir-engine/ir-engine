@@ -39,7 +39,7 @@ import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { InteractableComponent, XRUIVisibilityOverride } from '../interaction/components/InteractableComponent'
 
 // @todo move this to spatial package schema definitions
-export const XRHandedness = S.LiteralUnion(['none', 'left', 'right'], 'none')
+export const XRHandedness = S.LiteralUnion(['none', 'left', 'right'])
 
 /**
  * GrabbableComponent
@@ -88,8 +88,8 @@ export const GrabbableComponent = defineComponent({
     if (grabbedEntity) return
     dispatchAction(
       GrabbableNetworkAction.setGrabbedObject({
-        entityUUID: getComponent(grabbableEntity, UUIDComponent),
-        grabberEntityUUID: getComponent(grabberEntity, UUIDComponent),
+        entityUUID: UUIDComponent.get(grabbableEntity),
+        grabberEntityUUID: UUIDComponent.get(grabberEntity),
         grabbed: true,
         attachmentPoint: handedness
       })
@@ -106,8 +106,8 @@ export const GrabbableComponent = defineComponent({
 
     dispatchAction(
       GrabbableNetworkAction.setGrabbedObject({
-        entityUUID: getComponent(grabbableEntity, UUIDComponent),
-        grabberEntityUUID: getComponent(grabberEntity, UUIDComponent),
+        entityUUID: UUIDComponent.get(grabbableEntity),
+        grabberEntityUUID: UUIDComponent.get(grabberEntity),
         grabbed: false
       })
     )

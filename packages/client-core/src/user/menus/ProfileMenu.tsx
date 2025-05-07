@@ -82,6 +82,7 @@ import { twMerge } from 'tailwind-merge'
 import { initialAuthState, initialOAuthConnectedState } from '../../common/initialAuthState'
 import { ModalState } from '../../common/services/ModalState'
 import { NotificationService } from '../../common/services/NotificationService'
+import { ProjectState } from '../../common/services/ProjectService'
 import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { useZendesk } from '../../hooks/useZendesk'
 import { LocationState } from '../../social/services/LocationService'
@@ -156,6 +157,8 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const originallyAgeVerified = useHookstate(checked18OrOver)
   const originallyAcceptedTOS = useHookstate(acceptedTOS).value
   const currentLocation = getState(LocationState).currentLocation.location
+
+  const projectState = useMutableState(ProjectState)
 
   const projectSettings = useFind(projectSettingPath, {
     query: {
@@ -877,24 +880,32 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
         </div>
       )}
 
-      <div className="mt-1 flex w-full items-center justify-center gap-x-2 smh:mt-5">
-        <a href={clientSetting?.privacyPolicy} data-testid="profile-menu-privacy-policy-link" target="_blank">
-          <Text className="text-center text-text-primary" fontSize="sm">
-            {t('user:usermenu.profile.privacyPolicy')}
-          </Text>
-        </a>
-        {creatorPrivacyPolicyUrl?.value && (
-          <>
+      <div className="mt-1 flex w-full items-center justify-evenly gap-x-2 smh:mt-5">
+        <div className="flex-1"></div>
+        <div className="flex-1">
+          <a href={clientSetting?.privacyPolicy} data-testid="profile-menu-privacy-policy-link" target="_blank">
             <Text className="text-center text-text-primary" fontSize="sm">
-              |
+              {t('user:usermenu.profile.privacyPolicy')}
             </Text>
-            <a href={creatorPrivacyPolicyUrl.value} target="_blank">
+          </a>
+          {creatorPrivacyPolicyUrl?.value && (
+            <>
               <Text className="text-center text-text-primary" fontSize="sm">
-                {t('user:usermenu.profile.creatorPrivacyPolicy')}
+                |
               </Text>
-            </a>
-          </>
-        )}
+              <a href={creatorPrivacyPolicyUrl.value} target="_blank">
+                <Text className="text-center text-text-primary" fontSize="sm">
+                  {t('user:usermenu.profile.creatorPrivacyPolicy')}
+                </Text>
+              </a>
+            </>
+          )}
+        </div>
+        <div className="flex-1 text-right">
+          <Text className="text-sm">
+            {t('admin:components.setting.releaseVersion')}: {projectState.builderInfo.engineVersion.value}
+          </Text>
+        </div>
       </div>
     </div>
   )

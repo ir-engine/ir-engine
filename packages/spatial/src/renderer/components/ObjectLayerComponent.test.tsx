@@ -33,7 +33,7 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { UndefinedEntity } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { ObjectLayer, ObjectLayerMask, ObjectLayers } from '../constants/ObjectLayers.ts'
+import { ObjectLayer, ObjectLayerMask, ObjectLayers } from '../constants/ObjectLayers'
 import { ObjectComponent } from './ObjectComponent'
 import { Layer, ObjectLayerComponents, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 

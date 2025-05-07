@@ -39,6 +39,7 @@ import {
   getComponent,
   hasComponent,
   iterateEntityNode,
+  removeEntity,
   setComponent
 } from '@ir-engine/ecs'
 import { LODVariantDescriptor, defaultLODs } from '@ir-engine/editor/src/constants/GLTFPresets'
@@ -59,16 +60,14 @@ import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/Col
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
-import React, { lazy, useEffect, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
-
-import { EditorHistoryFunctions } from '@ir-engine/editor/src/services/EditorHistoryState'
 import { Button, DropdownItem, Input, Select, Tooltip } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
 import { CheckCircleLg, Copy02Sm, EllipsisVertical } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
+import React, { lazy, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { HiOutlineInformationCircle } from 'react-icons/hi2'
 import { Quaternion, Vector3 } from 'three'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -253,9 +252,12 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
         EditorControlFunctions.modifyProperty([combinedMeshEntity], EntityTreeComponent, { parentEntity: rootEntity })
         setComponent(combinedMeshEntity, NameComponent, 'combined mesh entity')
         setComponent(combinedMeshEntity, TransformComponent)
-        setComponent(combinedMeshEntity, UUIDComponent, UUIDComponent.generateUUID())
-        const newSource = GLTFComponent.getInstanceID(rootEntity)
-        setComponent(combinedMeshEntity, SourceComponent, newSource)
+        const newSource = GLTFComponent.getSourceID(rootEntity)
+        setComponent(combinedMeshEntity, UUIDComponent, {
+          entitySourceID: newSource,
+          entityID: UUIDComponent.generateUUID()
+        })
+        setComponent(combinedMeshEntity, SourceComponent, rootEntity)
         const srcURL = pathJoin(config.client.fileServer, saveScenePath.value + '/' + scenename + '/combined-mesh.gltf')
         iterateEntityNode(rootEntity, (entity) => {
           if (hasComponent(entity, MeshComponent)) {
@@ -345,25 +347,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
             compressionProgress.set({ progress, caption })
           }
         )
-        // const result = createSceneEntity('container')
-        // const variant = createSceneEntity('LOD Variant', result)
-        // const heuristic = Heuristic.DISTANCE
-        // setComponent(variant, VariantComponent, {
-        //   levels: lods.map((lod, lodIndex) => ({
-        //     src: `${LoaderUtils.extractUrlBase(srcURL)}${lod.params.dst}.${lod.params.modelFormat}`,
-        //     metadata: {
-        //       ...lod.variantMetadata,
-        //       ...transformMetadata[lodIndex]
-        //     }
-        //   })),
-        //   heuristic
-        // })
-        // const destinationPath = srcURL.replace(/\.[^.]*$/, `-integrated.gltf`)
-        // const gltfEntity = getAncestorWithComponents(result, [GLTFComponent])
-        // const uuid = getComponent(gltfEntity, UUIDComponent)
-        // const sourceID = SourceComponent.getSourceID(uuid, destinationPath)
-        // iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, sourceID))
-        // await exportGLTF(result, destinationPath, false)
+
         const compressedFilePath = srcURL.replace(/\.[^.]*$/, `-LOD2.gltf`)
         //update src from combined mesh to compressed mesh
         compressionLoading.set(false)
@@ -390,7 +374,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
         <ErrorDialog title={t('editor:savingError')} description={error?.message || t('editor:savingErrorMsg')} />
       )
 
-      if (combinedMeshEntity) EditorHistoryFunctions.removeEntity([combinedMeshEntity])
+      if (combinedMeshEntity) removeEntity(combinedMeshEntity)
 
       getMutableState(AssetModifiedState).set({})
       if (saveScenePath.value) {
@@ -503,7 +487,10 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
   }, [location, props.onPublishSuccess, isNewPublished.value])
 
   return (
-    <div className="absolute z-50 bg-surface-2 px-8 pt-6" data-testid="publish-panel">
+    <div
+      className="absolute z-50 rounded-xl border border-surface-1 bg-white px-8 pt-6 shadow-lg dark:bg-surface-1"
+      data-testid="publish-panel"
+    >
       <div className="relative rounded-lg py-2">
         <div className="flex justify-between pb-6">
           <span className="text-xl">
@@ -575,13 +562,13 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
             />*/}
 
             <div className="grid grid-cols-[276px_minmax(0,1fr)] gap-12 border-t border-t-ui-outline py-6">
-              <div className="flex flex-col">
-                {props.inStudio && (
+              {props.inStudio && (
+                <div className="flex flex-col">
                   <React.Suspense fallback={null}>
                     <StudioSections />
                   </React.Suspense>
-                )}
-              </div>
+                </div>
+              )}
 
               <div className="grid h-full grid-rows-[auto,1fr] gap-5">
                 <div className="flex h-auto flex-col self-start">

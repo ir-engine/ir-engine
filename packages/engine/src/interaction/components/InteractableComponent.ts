@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -36,7 +36,8 @@ import {
   removeEntity,
   setComponent,
   UndefinedEntity,
-  useEntityContext
+  useEntityContext,
+  UUIDComponent
 } from '@ir-engine/ecs'
 import {
   defineComponent,
@@ -71,8 +72,6 @@ import {
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { useEffect } from 'react'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { NodeFunctions } from '../../gltf/NodeFunctions'
-import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 import { createUI } from '../functions/createUI'
 import { InteractableState, InteractableTransitions } from '../functions/interactableFunctions'
 import { InteractiveModalState } from '../ui/InteractiveModalView'
@@ -244,15 +243,15 @@ export const InteractableComponent = defineComponent({
   jsonID: 'EE_interactable',
 
   schema: S.Object({
-    canInteract: S.NonSerialized(S.Bool(false)),
-    uiInteractable: S.NonSerialized(S.Bool(true)),
-    uiEntity: S.NonSerialized(S.Entity()),
-    label: S.String('E'),
-    uiVisibilityOverride: S.NonSerialized(S.Enum(XRUIVisibilityOverride, XRUIVisibilityOverride.none)),
-    uiActivationType: S.Enum(XRUIActivationType, XRUIActivationType.proximity),
-    activationDistance: S.Number(2),
-    clickInteract: S.Bool(false),
-    highlighted: S.NonSerialized(S.Bool(false)),
+    canInteract: S.Bool({ default: false, serialized: false }),
+    uiInteractable: S.Bool({ default: true, serialized: false }),
+    uiEntity: S.Entity({ serialized: false }),
+    label: S.String({ default: 'E' }),
+    uiVisibilityOverride: S.Enum(XRUIVisibilityOverride, { default: XRUIVisibilityOverride.none, serialized: false }),
+    uiActivationType: S.Enum(XRUIActivationType, { default: XRUIActivationType.proximity }),
+    activationDistance: S.Number({ default: 2 }),
+    clickInteract: S.Bool({ default: false }),
+    highlighted: S.Bool({ default: false, serialized: false }),
     callbacks: S.Array(
       S.Object({
         /**
@@ -262,7 +261,7 @@ export const InteractableComponent = defineComponent({
         /**
          * empty string represents self
          */
-        target: NodeIDSchema()
+        target: S.EntityID()
       })
     )
   }),
@@ -326,8 +325,8 @@ export const InteractableComponent = defineComponent({
 const callInteractCallbacks = (entity: Entity) => {
   const interactable = getComponent(entity, InteractableComponent)
   for (const callback of interactable.callbacks) {
-    if (callback.target && !NodeFunctions.getEntityFromNodeID(entity, callback.target)) continue
-    const targetEntity = callback.target ? NodeFunctions.getEntityFromNodeID(entity, callback.target) : entity
+    if (callback.target && !UUIDComponent.getEntityFromSameSourceByID(entity, callback.target)) continue
+    const targetEntity = callback.target ? UUIDComponent.getEntityFromSameSourceByID(entity, callback.target) : entity
     if (targetEntity && callback.callbackID) {
       const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
       if (!callbacks) continue

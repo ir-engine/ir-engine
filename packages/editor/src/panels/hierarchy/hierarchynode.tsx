@@ -34,6 +34,8 @@ import {
   getOptionalComponent,
   getSimulationCounterpart,
   hasComponent,
+  removeComponent,
+  setComponent,
   useHasComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
@@ -43,10 +45,10 @@ import { EntityHierarchyLockState } from '@ir-engine/editor/src/services/EntityH
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
+import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFLoaderFunctions } from '@ir-engine/engine/src/gltf/GLTFLoaderFunctions'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, none, useHookstate, useMutableState, useState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
@@ -68,8 +70,8 @@ import { ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
 import { IconComponent } from '../../components/panels/IconComponent'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
+import { isEntityGlb } from '../../functions/utils'
 import { EditorHelperState, PlacementMode } from '../../services/EditorHelperState'
-import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { deleteNode, HierarchyTreeNodeType } from './helpers'
@@ -104,7 +106,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const node = nodes[props.index]
   const entity = node.entity
   const fixedSizeListStyles = props.style
-  const uuid = getComponent(entity, UUIDComponent)
+  const uuid = UUIDComponent.get(entity)
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities).value.includes(uuid)
   const visible = useHasComponent(entity, VisibleComponent)
   const locked = useHookstate(getMutableState(EntityHierarchyLockState).lockedEntities).value[entity] ?? false
@@ -112,7 +114,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const { collapseChildren, expandChildren, collapseNode, expandNode } = useNodeCollapseExpand()
   const renamingNode = useRenamingNode()
   const { expandedNodes, firstSelectedEntity } = useMutableState(HierarchyTreeState)
-  const sourceID = GLTFComponent.useInstanceID(rootEntity)
+  const sourceID = GLTFComponent.useSourceID(rootEntity)
   const currentRenameNode = useHookstate(getComponent(entity, NameComponent))
   const { setMenu } = useHierarchyTreeContextMenu()
   const renameRef = useRef<HTMLInputElement>(null)
@@ -133,7 +135,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
       document.removeEventListener('mousedown', handleClickOutside)
       if (saveRename) {
         EditorControlFunctions.modifyName([entity], toValidHierarchyNodeName(entity, currentRenameNode.value))
-        EditorHistoryFunctions.snapshot(getComponent(entity, SourceComponent))
+        AuthoringState.snapshot(getComponent(entity, UUIDComponent).entitySourceID)
         currentRenameNode.set(getComponent(entity, NameComponent))
       }
       renamingNode.clear()
@@ -190,7 +192,10 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     dropTarget: onDropTarget,
     rigidbodyParentingWarning
   } = useHierarchyTreeDrop(node, 'On')
-  const showRedState = (!showGlbChildrenFeatureFlag || rigidbodyParentingWarning) && isOverOn && canDropOn
+  const isOverAndCanDrop = isOverOn && canDropOn
+  const showGlbRedState = isOverAndCanDrop && !showGlbChildrenFeatureFlag && isEntityGlb(entity)
+  const showRigidbodyRedState = isOverAndCanDrop && rigidbodyParentingWarning
+  const showRedState = showGlbRedState || showRigidbodyRedState
 
   useEffect(() => {
     preview(getEmptyImage(), { captureDraggingState: true })
@@ -208,7 +213,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
         if (!nextNode) return
 
         if (event.shiftKey) {
-          EditorControlFunctions.addToSelection([getComponent(nextNode.entity, UUIDComponent)])
+          EditorControlFunctions.addToSelection([UUIDComponent.get(nextNode.entity)])
         }
 
         const nextNodeEl = document.getElementById(getNodeElId(nextNode))
@@ -225,7 +230,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
         if (!prevNode) return
 
         if (event.shiftKey) {
-          EditorControlFunctions.addToSelection([getComponent(prevNode.entity, UUIDComponent)])
+          EditorControlFunctions.addToSelection([UUIDComponent.get(prevNode.entity)])
         }
 
         const prevNodeEl = document.getElementById(getNodeElId(prevNode))
@@ -251,9 +256,9 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
       case 'Enter': {
         if (entity === rootEntity) return
         if (event.shiftKey) {
-          EditorControlFunctions.toggleSelection([getComponent(entity, UUIDComponent)])
+          EditorControlFunctions.toggleSelection([UUIDComponent.get(entity)])
         } else {
-          EditorControlFunctions.replaceSelection([getComponent(entity, UUIDComponent)])
+          EditorControlFunctions.replaceSelection([UUIDComponent.get(entity)])
         }
         break
       }
@@ -275,19 +280,20 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
       getMutableState(EditorHelperState).placementMode.set(PlacementMode.DRAG)
       // Deselect material entity since we've just clicked on a hierarchy node
       getMutableState(MaterialSelectionState).selectedMaterial.set(null)
+      const uuid = UUIDComponent.get(entity)
       if (usesCtrlKey() ? event.ctrlKey : event.metaKey) {
         if (entity === rootEntity) return
-        EditorControlFunctions.toggleSelection([getComponent(entity, UUIDComponent)])
+        EditorControlFunctions.toggleSelection([uuid])
       } else if (event.shiftKey && firstSelectedEntity.value) {
         const startIndex = nodes.findIndex((n) => n.entity === firstSelectedEntity.value)
         const endIndex = nodes.findIndex((n) => n.entity === entity)
         const range = nodes.slice(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex) + 1)
-        const entityUuids = range.filter((n) => n.entity).map((n) => getComponent(n.entity!, UUIDComponent))
+        const entityUuids = range.filter((n) => n.entity).map((n) => UUIDComponent.get(n.entity))
         EditorControlFunctions.replaceSelection(entityUuids)
       } else {
-        const selected = getState(SelectionState).selectedEntities.includes(getComponent(entity, UUIDComponent))
+        const selected = getState(SelectionState).selectedEntities.includes(UUIDComponent.get(entity))
         if (!selected) {
-          EditorControlFunctions.replaceSelection([getComponent(entity, UUIDComponent)])
+          EditorControlFunctions.replaceSelection([uuid])
         }
         firstSelectedEntity.set(entity)
       }
@@ -311,9 +317,11 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const onHideUnhideNode = (event: React.MouseEvent) => {
     event.stopPropagation()
     if (visible) {
-      EditorHistoryFunctions.removeComponent([entity], VisibleComponent)
+      removeComponent(entity, VisibleComponent)
+      AuthoringState.snapshotEntities([entity])
     } else {
-      EditorHistoryFunctions.setComponent([entity], VisibleComponent)
+      setComponent(entity, VisibleComponent)
+      AuthoringState.snapshotEntities([entity])
     }
   }
 
@@ -327,7 +335,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   }
 
   const isModelRoot = hasComponent(entity, GLTFComponent)
-  const isModified = isModelRoot && !!getState(AssetModifiedState)[GLTFComponent.getInstanceID(entity)]
+  const isModified = isModelRoot && !!getState(AssetModifiedState)[GLTFComponent.getSourceID(entity)]
 
   const onSaveChanges = () => {
     const gltfComponent = getComponent(node.entity, GLTFComponent)
@@ -336,7 +344,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     const parsedName = fileName.split('?')[0]
     exportRelativeGLTF(node.entity, fullProjectName, parsedName, false).then((newSRC) => {
       EditorControlFunctions.modifyProperty([node.entity], GLTFComponent, { src: newSRC })
-      getMutableState(AssetModifiedState)[GLTFComponent.getInstanceID(entity)].set(none)
+      getMutableState(AssetModifiedState)[GLTFComponent.getSourceID(entity)].set(none)
     })
   }
 
@@ -345,7 +353,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     GLTFLoaderFunctions.unloadScene(gltfComponent.src, node.entity)
     EditorControlFunctions.modifyProperty([node.entity], GLTFComponent, { src: gltfComponent.src })
     ResourceLoaderManager.reloadResource(gltfComponent.src)
-    getMutableState(AssetModifiedState)[GLTFComponent.getInstanceID(entity)].set(none)
+    getMutableState(AssetModifiedState)[GLTFComponent.getSourceID(entity)].set(none)
   }
 
   useEffect(() => {

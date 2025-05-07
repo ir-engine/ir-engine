@@ -51,7 +51,7 @@ export const GroundPlaneComponent = defineComponent({
 
   schema: S.Object({
     color: T.Color(0xffffff),
-    visible: S.Bool(true)
+    visible: S.Bool({ default: true })
   }),
 
   reactor: function () {

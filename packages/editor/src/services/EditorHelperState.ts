@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags.tsx'
-import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags.ts'
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs'
 import { defineState, getMutableState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
 import {

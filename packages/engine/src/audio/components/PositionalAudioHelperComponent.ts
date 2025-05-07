@@ -57,7 +57,7 @@ export const PositionalAudioHelperComponent = defineComponent({
   name: 'PositionalAudioHelperComponent',
 
   schema: S.Object({
-    name: S.String('positional-audio-helper'),
+    name: S.String({ default: 'positional-audio-helper' }),
     entity: S.Entity()
   }),
 

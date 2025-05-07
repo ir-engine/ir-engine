@@ -43,9 +43,8 @@ export const TransitionStateSchema = (init: ReturnType<typeof createTransitionSt
       setState: S.Func([TransitionTypeSchema], S.Void()),
       update: S.Func([S.Number(), S.Func([S.Number()], S.Void())], S.Void())
     },
-    init,
     {
-      default: () => ({}),
+      default: () => init,
       $id: 'TransitionState'
     }
   )

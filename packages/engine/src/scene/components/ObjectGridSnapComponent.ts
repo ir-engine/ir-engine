@@ -111,11 +111,11 @@ export const BoundingBoxHelperComponent = defineComponent({
   name: 'BoundingBoxHelperComponent',
 
   schema: S.Object({
-    bbox: S.Required(S.Type<Box3>()),
-    density: S.Number(2),
+    bbox: S.Type<Box3>({ required: true }),
+    density: S.Number({ default: 2 }),
     color: T.Color(0xff0000),
-    layerMask: S.Type<ObjectLayerMask>(ObjectLayerMasks.NodeHelper),
-    helperEntity: S.Optional(S.Entity())
+    layerMask: S.Type<ObjectLayerMask>({ default: ObjectLayerMasks.NodeHelper }),
+    helperEntity: S.Entity()
   }),
 
   reactor: function () {

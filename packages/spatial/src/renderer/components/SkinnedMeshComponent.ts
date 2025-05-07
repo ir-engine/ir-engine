@@ -64,7 +64,7 @@ import { setVisibleComponent, VisibleComponent } from './VisibleComponent'
 
 export const SkinnedMeshComponent = defineComponent({
   name: 'SkinnedMeshComponent',
-  schema: S.Required(S.Type<SkinnedMesh>()),
+  schema: S.Type<SkinnedMesh>({ required: true }),
 
   onSet(entity, component, json) {
     component.set(json as SkinnedMesh)

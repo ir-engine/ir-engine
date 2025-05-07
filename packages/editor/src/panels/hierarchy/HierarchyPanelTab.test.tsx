@@ -98,7 +98,7 @@ describe('HierarchyPanel component', () => {
 
     startEngineReactor()
 
-    const nodeID = NodeIDComponent.generate()
+    const nodeID = UUIDComponent.generateUUID()
 
     const gltf: GLTF.IGLTF = {
       asset: {

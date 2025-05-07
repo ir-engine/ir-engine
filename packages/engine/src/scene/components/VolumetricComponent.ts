@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -193,31 +193,31 @@ export const VolumetricComponent = defineComponent({
   jsonID: 'IR_volumetric',
 
   schema: S.Object({
-    useVideoTextureForBaseColor: S.Bool(false), // legacy for UVOL1
-    useLoadingEffect: S.Bool(true),
-    volume: S.Number(1),
-    checkForEnoughBuffers: S.Bool(true),
-    notEnoughBuffers: S.Bool(true),
+    useVideoTextureForBaseColor: S.Bool({ default: false }), // legacy for UVOL1
+    useLoadingEffect: S.Bool({ default: true }),
+    volume: S.Number({ default: 1 }),
+    checkForEnoughBuffers: S.Bool({ default: true }),
+    notEnoughBuffers: S.Bool({ default: true }),
     time: S.Object({
-      start: S.Number(0),
-      checkpointAbsolute: S.Number(-1),
-      checkpointRelative: S.Number(0),
-      currentTime: S.Number(0),
-      bufferedUntil: S.Number(0),
-      duration: S.Number(0)
+      start: S.Number({ default: 0 }),
+      checkpointAbsolute: S.Number({ default: -1 }),
+      checkpointRelative: S.Number({ default: 0 }),
+      currentTime: S.Number({ default: 0 }),
+      bufferedUntil: S.Number({ default: 0 }),
+      duration: S.Number({ default: 0 })
     }),
     geometry: S.Object({
       targets: S.Array(S.String()),
-      initialBufferLoaded: S.Bool(false),
-      firstFrameLoaded: S.Bool(false),
-      currentTarget: S.Number(0),
-      userTarget: S.Number(-1)
+      initialBufferLoaded: S.Bool({ default: false }),
+      firstFrameLoaded: S.Bool({ default: false }),
+      currentTarget: S.Number({ default: 0 }),
+      userTarget: S.Number({ default: -1 })
     }),
     geometryType: S.Enum(GeometryType),
     textureBuffer: S.Type<Map<string, Map<string, CompressedTexture[]>>>(
       new Map<string, Map<string, CompressedTexture[]>>()
     ),
-    setIntervalId: S.Number(-1),
+    setIntervalId: S.Number({ default: -1 }),
     texture: S.Record(
       TextureTypeSchema,
       S.Object({
@@ -233,7 +233,7 @@ export const VolumetricComponent = defineComponent({
       initialBufferLoaded: S.Partial(S.Record(TextureTypeSchema, S.Bool())),
       firstFrameLoaded: S.Partial(S.Record(TextureTypeSchema, S.Bool()))
     }),
-    paused: S.Bool(true),
+    paused: S.Bool({ default: true }),
     preTrackBufferingCallback: S.Optional(S.Func([S.Type<State<ComponentType<any>>>()], S.Void()))
   }),
 

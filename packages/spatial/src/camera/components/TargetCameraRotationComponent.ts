@@ -30,9 +30,9 @@ export const TargetCameraRotationComponent = defineComponent({
   name: 'TargetCameraRotationComponent',
 
   schema: S.Object({
-    phi: S.Number(0),
-    theta: S.Number(0),
-    time: S.Number(0)
+    phi: S.Number(),
+    theta: S.Number(),
+    time: S.Number()
   }),
 
   onInit: (initial) => ({

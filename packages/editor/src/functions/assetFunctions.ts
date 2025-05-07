@@ -110,6 +110,7 @@ function isValidFileType(file): { isValid: boolean; errorMessage?: string } {
 export function validatedFiles(files: FileList | File[]): File[] {
   const { maxFileSizeToUpload } = config.client
   const invalidSizeFiles: string[] = []
+  const invalidNameErrors: string[] = []
   const newFiles: File[] = []
 
   for (const file of files) {
@@ -132,8 +133,8 @@ export function validatedFiles(files: FileList | File[]): File[] {
     // Check filename
     const fileNameWithOutExtension = file.name.replace(/\.[^/.]+$/, '')
     const resultFileNameValid = isValidFileName(fileNameWithOutExtension)
-    if (!resultFileNameValid.isValid) {
-      NotificationService.dispatchNotify(resultFileNameValid.error, { variant: 'warning', autoHideDuration: 20000 })
+    if (!resultFileNameValid.isValid && resultFileNameValid.error) {
+      invalidNameErrors.push(resultFileNameValid.error)
       continue
     }
     newFiles.push(file)
@@ -147,6 +148,19 @@ export function validatedFiles(files: FileList | File[]): File[] {
       }) as string,
       { variant: 'warning' }
     )
+  }
+
+  if (invalidNameErrors.length) {
+    if (invalidNameErrors.length > 3) {
+      NotificationService.dispatchNotify(
+        i18n.t('editor:errors.fileNameInvalidMultiple', { reason: invalidNameErrors[0] }) as string,
+        { variant: 'warning', autoHideDuration: 20000 }
+      )
+    } else {
+      invalidNameErrors.map((error) => {
+        NotificationService.dispatchNotify(error, { variant: 'warning', autoHideDuration: 20000 })
+      })
+    }
   }
 
   return newFiles
@@ -226,6 +240,8 @@ export const handleUploadFiles = (
 ): Promise<string[]> => {
   const { ktx2: compressedImage } = CommonKnownContentTypes
   const importSettingsState = getMutableState(ImportSettingsState)
+  const errors: Error[] = []
+
   return Promise.all(
     Array.from(files).map(async (file) => {
       file = cleanFileNameFile(file)
@@ -313,14 +329,29 @@ export const handleUploadFiles = (
             return checkStaticResourceThumbnail(file)
           }
         })
-        .catch((e) => {
+        .catch((e: Error) => {
+          errors.push(e)
+        })
+    })
+  ).then((promise) => {
+    if (errors.length) {
+      if (errors.length > 3) {
+        NotificationService.dispatchNotify(
+          i18n.t('editor:errors.fileUploadFailedMultiple', { reason: errors[0] }) as string,
+          { variant: 'error', autoHideDuration: 20000 }
+        )
+      } else {
+        errors.map((e) => {
           NotificationService.dispatchNotify(i18n.t('editor:errors.fileUploadFailed', { reason: e }) as string, {
             variant: 'error',
             autoHideDuration: 20000
           })
         })
-    })
-  )
+      }
+    }
+
+    return promise
+  })
 }
 
 /**
