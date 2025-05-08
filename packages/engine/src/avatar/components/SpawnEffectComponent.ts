@@ -53,7 +53,7 @@ export const SpawnEffectComponent = defineComponent({
 
   schema: S.Object({
     sourceEntity: S.Entity(),
-    opacityMultiplier: S.Number(1),
+    opacityMultiplier: S.Number({ default: 1 }),
     plateEntity: S.Entity(),
     lightEntities: S.Array(S.Entity())
   }),

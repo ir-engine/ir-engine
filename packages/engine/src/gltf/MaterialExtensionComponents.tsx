@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,16 +19,19 @@ The Original Code is Ethereal Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Ethereal Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
 Ethereal Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
-import { Component, ComponentType, defineComponent, S } from '@ir-engine/ecs'
+import { Component, ComponentType, defineComponent, getComponent, S } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
 import { Vector2_One, Vector2_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
-import { MaterialPrototypeDefinitions } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import {
+  MaterialPrototypeDefinitions,
+  MaterialStateComponent
+} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import {
   CanvasTexture,
   Color,
@@ -40,7 +43,6 @@ import {
   Vector2
 } from 'three'
 import { getDependency, GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
-import { NodeIDSchema } from './NodeIDComponent'
 
 export type MaterialTextureValue = {
   contents: { index: number; texCoord: number }
@@ -112,7 +114,7 @@ const MaterialAlphaModeSchema = S.LiteralUnion(['OPAQUE', 'MASK', 'BLEND'])
 const MaterialDefinitionSchema = S.Object({
   type: S.Union(
     [S.Literal('MeshStandardMaterial'), S.Literal('MeshPhysicalMaterial'), S.Literal('MeshBasicMaterial'), S.String()],
-    'MeshStandardMaterial'
+    { default: 'MeshStandardMaterial' }
   ),
 
   name: S.Optional(S.String()),
@@ -650,9 +652,9 @@ export const KHRSpecularExtensionComponent = defineComponent({
   jsonID: 'KHR_materials_specular',
   schema: S.Object({
     specularFactor: S.Optional(S.Number()),
-    specularTexture: S.Nullable(TextureInfoSchema),
+    specularTexture: TextureInfoSchema,
     specularColorFactor: S.Optional(S.Tuple([S.Number(), S.Number(), S.Number()])),
-    specularColorTexture: S.Nullable(TextureInfoSchema)
+    specularColorTexture: TextureInfoSchema
   }),
   getMaterialType() {
     return MeshPhysicalMaterial
@@ -907,8 +909,8 @@ export const MozillaHubsLightMapComponent = defineComponent({
   name: 'MozillaHubsLightMapComponent',
   jsonID: 'MOZ_lightmap',
   schema: S.Object({
-    index: S.Number(1),
-    intensity: S.Number(1.0)
+    index: S.Number({ default: 1 }),
+    intensity: S.Number({ default: 1.0 })
   }),
 
   extendMaterialParams(
@@ -930,8 +932,9 @@ export const MozillaHubsLightMapComponent = defineComponent({
         materialParams.lightMap = lightMap
         materialParams.lightMapIntensity = extensionDef.intensity ?? 1.0
 
-        getDependency(options, 'material', materialIndex).then((material) => {
+        getDependency(options, 'material', materialIndex).then((entity) => {
           // fix for change to MeshBasicMaterial shading WRT lightmaps
+          const material = getComponent(entity, MaterialStateComponent).material as MeshBasicMaterial
           if (material.type === 'MeshBasicMaterial') {
             material.lightMapIntensity *= Math.PI
           }
@@ -1041,7 +1044,7 @@ export const EEMaterialComponent = defineComponent({
   name: 'EEMaterialComponent',
   jsonID: 'EE_material',
   schema: S.Object({
-    uuid: NodeIDSchema(),
+    uuid: S.EntityID(),
     name: S.String(),
     prototype: S.String(),
     args: S.Record(

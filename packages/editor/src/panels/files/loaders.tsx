@@ -120,7 +120,7 @@ export function ProjectDownloadProgress() {
       {isDownloading && (
         <div className="flex h-auto w-full justify-center pb-2 pt-1">
           <div className="flex w-1/2 items-center gap-x-3">
-            <div className="flex gap-x-1 whitespace-nowrap text-center text-xs font-normal leading-none">
+            <div className="flex gap-x-1 whitespace-nowrap text-center text-xs font-normal leading-none dark:text-[#A3A3A3]">
               <div>{t('editor:layout.filebrowser.downloadingProject')}</div>
               <div className="flex gap-x-1">
                 <span className="min-w-[6em] text-right">{completed}</span>

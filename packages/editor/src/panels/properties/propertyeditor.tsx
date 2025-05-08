@@ -33,7 +33,6 @@ import {
   useHasComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ComponentEditorsState } from '@ir-engine/editor/src/services/ComponentEditors'
-import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { ErrorBoundary, NO_PROXY, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
@@ -169,18 +168,17 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
 const PropertiesEditor = () => {
   const { t } = useTranslation()
   const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities).value
-  const lockedNode = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
   const materialUUID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial).value
   const materialEntity = UUIDComponent.useEntityByUUID(materialUUID!, Layers.Authoring)
   const multiEdit = selectedEntities.length > 1
-  const uuid = lockedNode.value ? lockedNode.value : selectedEntities[selectedEntities.length - 1]
+  const uuid = selectedEntities[selectedEntities.length - 1]
 
   return (
     <div className="flex h-full flex-col gap-0.5 overflow-y-auto bg-surface-1">
       {materialUUID && materialEntity ? (
         <ErrorBoundary fallback={<div>Error occured displaying material properties</div>}>
           <Suspense>
-            <MaterialEditor materialUUID={materialUUID} />
+            <MaterialEditor entity={materialEntity} />
           </Suspense>
         </ErrorBoundary>
       ) : uuid ? (

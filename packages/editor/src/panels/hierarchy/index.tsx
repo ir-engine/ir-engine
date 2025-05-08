@@ -61,7 +61,7 @@ export const HierarchyPanelTab: TabData = {
 
 function HierarchyPanelWrapper() {
   const { scenePath, rootEntity } = useMutableState(EditorState).value
-  const sourceID = GLTFComponent.useInstanceID(rootEntity)
+  const sourceID = GLTFComponent.useSourceID(rootEntity)
 
   if (!scenePath || !rootEntity || !sourceID) return null
 

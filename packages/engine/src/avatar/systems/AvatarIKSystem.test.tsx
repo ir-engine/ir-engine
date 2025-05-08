@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -27,7 +27,8 @@ import {
   createEngine,
   destroyEngine,
   Entity,
-  EntityUUID,
+  EntityID,
+  EntityUUIDPair,
   getComponent,
   getOptionalComponent,
   hasComponent,
@@ -73,10 +74,11 @@ describe('AvatarIKSystem', () => {
   })
 
   it('should solve IK such that every tip joint world position is at the ik target', async () => {
-    const avatarUuid = 'mock-avatar-uuid' as EntityUUID
+    const avatarUuidPair = { entitySourceID: 'user-id', entityID: 'avatar' } as EntityUUIDPair
+    const avatarUuid = UUIDComponent.join(avatarUuidPair)
     let avatarEntity = UndefinedEntity as Entity
     avatarEntity = await mockAnimatedAvatar()
-    setComponent(avatarEntity, UUIDComponent, avatarUuid)
+    setComponent(avatarEntity, UUIDComponent, avatarUuidPair)
     setComponent(avatarEntity, AvatarIKComponent)
     startReactor(AvatarIkReactor)
     const rig = getComponent(avatarEntity, AvatarRigComponent)
@@ -104,15 +106,16 @@ describe('AvatarIKSystem', () => {
       ).toBeTruthy()
     })
 
-    const rightHandUuid = (avatarUuid + 'rightHand') as EntityUUID
-    const leftHandUuid = (avatarUuid + 'leftHand') as EntityUUID
-    const leftFootUuid = (avatarUuid + 'leftFoot') as EntityUUID
-    const rightFootUuid = (avatarUuid + 'rightFoot') as EntityUUID
-    const headUuid = (avatarUuid + 'head') as EntityUUID
+    const rightHandId = 'rightHand' as EntityID
+    const leftHandId = 'leftHand' as EntityID
+    const leftFootId = 'leftFoot' as EntityID
+    const rightFootId = 'rightFoot' as EntityID
+    const headId = 'head' as EntityID
     dispatchAction(
       AvatarNetworkAction.spawnIKTarget({
         parentUUID: avatarUuid,
-        entityUUID: rightHandUuid,
+        entityID: rightHandId,
+        entitySourceID: avatarUuidPair.entitySourceID,
         name: 'rightHand',
         blendWeight: 1
       })
@@ -120,7 +123,8 @@ describe('AvatarIKSystem', () => {
     dispatchAction(
       AvatarNetworkAction.spawnIKTarget({
         parentUUID: avatarUuid,
-        entityUUID: leftHandUuid,
+        entityID: leftHandId,
+        entitySourceID: avatarUuidPair.entitySourceID,
         name: 'leftHand',
         blendWeight: 1
       })
@@ -128,7 +132,8 @@ describe('AvatarIKSystem', () => {
     dispatchAction(
       AvatarNetworkAction.spawnIKTarget({
         parentUUID: avatarUuid,
-        entityUUID: leftFootUuid,
+        entityID: leftFootId,
+        entitySourceID: avatarUuidPair.entitySourceID,
         name: 'leftFoot',
         blendWeight: 1
       })
@@ -136,7 +141,8 @@ describe('AvatarIKSystem', () => {
     dispatchAction(
       AvatarNetworkAction.spawnIKTarget({
         parentUUID: avatarUuid,
-        entityUUID: rightFootUuid,
+        entityID: rightFootId,
+        entitySourceID: avatarUuidPair.entitySourceID,
         name: 'rightFoot',
         blendWeight: 1
       })
@@ -144,12 +150,33 @@ describe('AvatarIKSystem', () => {
     dispatchAction(
       AvatarNetworkAction.spawnIKTarget({
         parentUUID: avatarUuid,
-        entityUUID: headUuid,
+        entityID: headId,
+        entitySourceID: avatarUuidPair.entitySourceID,
         name: 'head',
         blendWeight: 1
       })
     )
     applyIncomingActions()
+
+    // Create the concatenated UUIDs
+    const rightHandUuid = UUIDComponent.join({
+      entitySourceID: avatarUuidPair.entitySourceID,
+      entityID: rightHandId
+    })
+    const leftHandUuid = UUIDComponent.join({
+      entitySourceID: avatarUuidPair.entitySourceID,
+      entityID: leftHandId
+    })
+    const leftFootUuid = UUIDComponent.join({
+      entitySourceID: avatarUuidPair.entitySourceID,
+      entityID: leftFootId
+    })
+    const rightFootUuid = UUIDComponent.join({
+      entitySourceID: avatarUuidPair.entitySourceID,
+      entityID: rightFootId
+    })
+    const headUuid = UUIDComponent.join({ entitySourceID: avatarUuidPair.entitySourceID, entityID: headId })
+
     await vi.waitUntil(() => {
       return (
         UUIDComponent.getEntityByUUID(rightHandUuid) &&

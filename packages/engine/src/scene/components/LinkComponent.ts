@@ -86,10 +86,10 @@ export const LinkComponent = defineComponent({
   jsonID: 'EE_link',
 
   schema: S.Object({
-    url: S.String(''),
-    sceneNav: S.Bool(false),
-    location: S.String(''),
-    newTab: S.Bool(true)
+    url: S.String(),
+    sceneNav: S.Bool(),
+    location: S.String(),
+    newTab: S.Bool({ default: true })
   }),
 
   linkCallbackName,

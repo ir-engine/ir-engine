@@ -26,13 +26,14 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import {
   Entity,
   EntityTreeComponent,
-  getComponent,
   getOptionalComponent,
   hasComponent,
   Layers,
+  removeEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { AllFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
+import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
@@ -42,7 +43,6 @@ import { t } from 'i18next'
 import { CopyPasteFunctions, EntityCopyDataType } from '../../functions/CopyPasteFunctions'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { isEntityGlb } from '../../functions/utils'
-import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { SelectionState } from '../../services/SelectionServices'
 
@@ -68,25 +68,27 @@ export const uploadOptions = {
 /* NODE FUNCTIONALITIES */
 
 const getSelectedEntities = (entity?: Entity) => {
-  const selected = entity
-    ? getState(SelectionState).selectedEntities.includes(getComponent(entity, UUIDComponent))
-    : true
+  const selected = entity ? getState(SelectionState).selectedEntities.includes(UUIDComponent.get(entity)) : true
   const selectedEntities = selected ? SelectionState.getSelectedEntities() : [entity!]
   return selectedEntities
 }
 
 export const deleteNode = (entity: Entity) => {
-  EditorHistoryFunctions.removeEntity(getSelectedEntities(entity))
+  const entities = getSelectedEntities(entity)
+  entities.map(removeEntity)
+  AuthoringState.snapshotEntities(entities)
 }
 
 export const duplicateNode = (entity?: Entity) => {
-  EditorControlFunctions.duplicateObject(getSelectedEntities(entity))
-  EditorHistoryFunctions.snapshot()
+  const entities = getSelectedEntities(entity)
+  EditorControlFunctions.duplicateObject(entities)
+  AuthoringState.snapshotEntities(entities)
 }
 
 export const groupNodes = (entity?: Entity) => {
-  EditorControlFunctions.groupObjects(getSelectedEntities(entity))
-  EditorHistoryFunctions.snapshot()
+  const entities = getSelectedEntities(entity)
+  EditorControlFunctions.groupObjects(entities)
+  AuthoringState.snapshotEntities
 }
 
 export const copyNodes = (entity?: Entity) => {
@@ -120,7 +122,7 @@ export const pasteNodes = (parentEntity?: Entity) => {
       parentEntities.forEach((entity) => {
         ProcessEntityData(entity, nodeEntitiesData)
       })
-      EditorHistoryFunctions.snapshot()
+      AuthoringState.snapshotEntities(parentEntities)
     })
     .catch(() => {
       NotificationService.dispatchNotify(t('editor:hierarchy.copy-paste.no-hierarchy-nodes') as string, {
@@ -154,7 +156,7 @@ export function ecsHierarchyTreeWalker(rootEntity: Entity, enableHideGlbChildren
     //@todo temporary check for glb so we don't display children we can't save edits to
     const hideChildren = isEntityGlb(entity) && enableHideGlbChildren
     const isLeaf = !children || children.length === 0 || hideChildren //check glb here to hide expansion chevron
-    const sourceID = GLTFComponent.getInstanceID(rootEntity)
+    const sourceID = UUIDComponent.get(rootEntity)
     const isCollapsed = !getState(HierarchyTreeState).expandedNodes[sourceID]?.[entity]
     const isRendered = originalIsRendered && !isCollapsed
     result.push({

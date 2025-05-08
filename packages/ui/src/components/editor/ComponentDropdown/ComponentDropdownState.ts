@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, EntityUUID, UUIDComponent, getOptionalComponent } from '@ir-engine/ecs'
+import { Entity, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { defineState, getMutableState, none } from '@ir-engine/hyperflux'
 
 export const ComponentDropdownState = defineState({
@@ -33,7 +33,7 @@ export const ComponentDropdownState = defineState({
   }),
 
   addOrUpdateEntity: (entity: Entity, componentName: string, value: boolean, updateIfExists: boolean = true) => {
-    const entityUUID = getOptionalComponent(entity, UUIDComponent)
+    const entityUUID = UUIDComponent.get(entity)
     if (!entityUUID) return
 
     const componentStates = getMutableState(ComponentDropdownState).componentStates
@@ -72,7 +72,7 @@ export const ComponentDropdownState = defineState({
 
   removeComponentEntry: (entities: Entity[], componentName: string) => {
     for (const entity of entities) {
-      const entityUUID = getOptionalComponent(entity, UUIDComponent)
+      const entityUUID = UUIDComponent.get(entity)
       if (!entityUUID) continue
 
       const componentStates = getMutableState(ComponentDropdownState).componentStates

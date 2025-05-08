@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PresentationSystemGroup, UUIDComponent, UndefinedEntity, defineSystem, getComponent } from '@ir-engine/ecs'
+import { PresentationSystemGroup, UndefinedEntity, defineSystem, getComponent } from '@ir-engine/ecs'
 import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { teleportAvatar } from '@ir-engine/engine/src/avatar/functions/moveAvatar'
@@ -44,7 +44,10 @@ export const reactor = () => {
     const activePortal = getComponent(activePortalEntity, PortalComponent)
 
     const currentLocation = locationState.locationName.value.split('/')[1]
-    if (currentLocation === activePortal.location || UUIDComponent.getEntityByUUID(activePortal.linkedPortalId)) {
+    if (
+      currentLocation === activePortal.location
+      //  || UUIDComponent.getEntityFromSameSourceByID(activePortalEntity, activePortal.linkedPortalId)
+    ) {
       teleportAvatar(
         AvatarComponent.getSelfAvatarEntity(),
         activePortal.remoteSpawnPosition,

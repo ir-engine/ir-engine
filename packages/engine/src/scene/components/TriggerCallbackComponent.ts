@@ -27,7 +27,6 @@ import { defineComponent, removeComponent, setComponent, useEntityContext } from
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
 import { useEffect } from 'react'
-import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 
 export const TriggerCallbackComponent = defineComponent({
   name: 'TriggerCallbackComponent',
@@ -47,7 +46,7 @@ export const TriggerCallbackComponent = defineComponent({
         /**
          * empty string represents self
          */
-        target: NodeIDSchema()
+        target: S.EntityID()
       })
     )
   }),

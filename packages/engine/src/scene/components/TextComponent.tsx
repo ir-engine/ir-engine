@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -61,7 +61,7 @@ type TroikaColor = string | number | Color
  * @notes troika.Text direction type, as declared by `troika-three-text` in its Text.direction `@member` property.
  */
 export type TroikaTextDirection = 'auto' | 'ltr' | 'rtl'
-const TroikaTextDirectionSchema = S.LiteralUnion(['auto', 'ltr', 'rtl'], 'auto')
+const TroikaTextDirectionSchema = S.LiteralUnion(['auto', 'ltr', 'rtl'])
 
 /**
  * @description
@@ -69,7 +69,7 @@ const TroikaTextDirectionSchema = S.LiteralUnion(['auto', 'ltr', 'rtl'], 'auto')
  * @notes troika.Text alignment type, as declared by `troika-three-text` in its Text.textAlign `@member` property.
  */
 export type TroikaTextAlignment = 'left' | 'center' | 'right' | 'justify'
-const TroikaTextAlignmentSchema = S.LiteralUnion(['left', 'center', 'right', 'justify'], 'justify')
+const TroikaTextAlignmentSchema = S.LiteralUnion(['left', 'center', 'right', 'justify'], { default: 'justify' })
 
 /**
  * @description
@@ -79,7 +79,7 @@ const TroikaTextAlignmentSchema = S.LiteralUnion(['left', 'center', 'right', 'ju
  * @notes troika.Text wrap, as declared by `troika-three-text` in its Text.whiteSpace `@member` property.
  */
 export type TroikaTextWrap = 'normal' | 'nowrap'
-const TroikaTextWrapSchema = S.LiteralUnion(['normal', 'nowrap'], 'normal')
+const TroikaTextWrapSchema = S.LiteralUnion(['normal', 'nowrap'])
 
 /**
  * @description
@@ -89,7 +89,7 @@ const TroikaTextWrapSchema = S.LiteralUnion(['normal', 'nowrap'], 'normal')
  * @notes troika.Text wrapping kind, as declared by `troika-three-text` in its Text.overflowWrap `@member` property.
  */
 export type TroikaTextWrapKind = 'normal' | 'break-word'
-const TroikaTextWrapKindSchema = S.LiteralUnion(['normal', 'break-word'], 'normal')
+const TroikaTextWrapKindSchema = S.LiteralUnion(['normal', 'break-word'])
 
 /**
  * @description
@@ -98,7 +98,7 @@ const TroikaTextWrapKindSchema = S.LiteralUnion(['normal', 'break-word'], 'norma
  * @notes troika.Text line height format, as declared by `troika-three-text`in its Text.lineHeight `@member` property.
  */
 export type TroikaTextLineHeight = number | 'normal'
-const TroikaTextLineHeightSchema = S.Union([S.Number(), S.Literal('normal')], 'normal')
+const TroikaTextLineHeightSchema = S.Union([S.Number(), S.Literal('normal')], { default: 'normal' })
 
 /**
  * @summary
@@ -198,44 +198,44 @@ export const TextComponent = defineComponent({
 
   schema: S.Object({
     // Text contents to render
-    text: S.String(DefaultText),
-    textOpacity: S.Number(100, { minimum: 0, maximum: 100 }), // range[0..100], sent to troika as [0..1] :number
-    textWidth: S.Number(Infinity),
-    textIndent: S.Number(0),
+    text: S.String({ default: DefaultText }),
+    textOpacity: S.Number({ default: 100, minimum: 0, maximum: 100 }), // range[0..100], sent to troika as [0..1] :number
+    textWidth: S.Number({ default: Infinity }),
+    textIndent: S.Number({ default: 0 }),
     textAlign: TroikaTextAlignmentSchema,
-    textWrap: S.Bool(true), // Maps to: troika.Text.whiteSpace as TroikaTextWrap
+    textWrap: S.Bool({ default: true }), // Maps to: troika.Text.whiteSpace as TroikaTextWrap
     textWrapKind: TroikaTextWrapKindSchema, // Maps to troika.Text.overflowWrap
     textAnchor: T.Vec2(), // range[0..100+], sent to troika as [0..100]% :string
-    textDepthOffset: S.Number(0), // For Z-fighting adjustments. Similar to anchor.Z
-    textCurveRadius: S.Number(0),
-    letterSpacing: S.Number(0),
+    textDepthOffset: S.Number({ default: 0 }), // For Z-fighting adjustments. Similar to anchor.Z
+    textCurveRadius: S.Number({ default: 0 }),
+    letterSpacing: S.Number({ default: 0 }),
     lineHeight: TroikaTextLineHeightSchema,
     textDirection: TroikaTextDirectionSchema,
 
     // Font Properties
-    font: S.Nullable(S.String()), // font: string|null
-    fontSize: S.Number(0.2),
+    font: S.String({ default: '' }), // font: string|null
+    fontSize: S.Number({ default: 0.2 }),
     fontColor: T.Color(0xffffff),
-    fontMaterial: S.Enum(FontMaterialKind, FontMaterialKind.Basic), // Default to whatever value is marked at id=0 in FontMaterialKind
+    fontMaterial: S.Enum(FontMaterialKind, { default: FontMaterialKind.Basic }), // Default to whatever value is marked at id=0 in FontMaterialKind
     // Font Outline Properties
-    outlineOpacity: S.Number(0, { minimum: 0, maximum: 100 }), // range[0..100], sent to troika as [0..1] :number
-    outlineWidth: S.Number(0, { minimum: 0, maximum: 100 }), // range[0..100+], sent to troika as [0..100]% :string
-    outlineBlur: S.Number(0, { minimum: 0, maximum: 100 }), // range[0..100+], sent to troika as [0..100]% :string
+    outlineOpacity: S.Number({ default: 0, minimum: 0, maximum: 100 }), // range[0..100], sent to troika as [0..1] :number
+    outlineWidth: S.Number({ default: 0, minimum: 0, maximum: 100 }), // range[0..100+], sent to troika as [0..100]% :string
+    outlineBlur: S.Number({ default: 0, minimum: 0, maximum: 100 }), // range[0..100+], sent to troika as [0..100]% :string
     outlineOffset: T.Vec2(new Vector2(0, 0)), // range[0..100+], sent to troika as [0..100]% :string
     outlineColor: T.Color(0xffffff),
     // Font Stroke Properties
-    strokeOpacity: S.Number(0, { minimum: 0, maximum: 100 }), // range[0..100], sent to troika as [0..1] :number
-    strokeWidth: S.Number(0, { minimum: 0, maximum: 100 }), // range[0..100+], sent to troika as [0..100]% :string
+    strokeOpacity: S.Number({ default: 0, minimum: 0, maximum: 100 }), // range[0..100], sent to troika as [0..1] :number
+    strokeWidth: S.Number({ default: 0, minimum: 0, maximum: 100 }), // range[0..100+], sent to troika as [0..100]% :string
     strokeColor: T.Color(0x444444),
 
     // Advanced Configuration
-    textOrientation: S.String('+x+y'),
-    clipActive: S.Bool(false), // sends []: Array<number> to Text.clipRect when true
+    textOrientation: S.String({ default: '+x+y' }),
+    clipActive: S.Bool({ default: false }), // sends []: Array<number> to Text.clipRect when true
     clipRectMin: T.Vec2(new Vector2(-1024, -1024)), // pixels. Sent to troika as [minX, minY, maxX, maxY] :Array<number>
     clipRectMax: T.Vec2(new Vector2(1024, 1024)), // pixels. Sent to troika as [minX, minY, maxX, maxY] :Array<number>
-    gpuAccelerated: S.Bool(true),
-    glyphResolution: S.Number(6), // Maps to troika.Text.sdfGlyphSize. Sent to troika as 2^N :number
-    glyphDetail: S.Number(1) // Maps to troika.Text.glyphGeometryDetail
+    gpuAccelerated: S.Bool({ default: true }),
+    glyphResolution: S.Number({ default: 6 }), // Maps to troika.Text.sdfGlyphSize. Sent to troika as 2^N :number
+    glyphDetail: S.Number({ default: 1 }) // Maps to troika.Text.glyphGeometryDetail
   }),
 
   reactor: function () {

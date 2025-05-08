@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { API } from '@ir-engine/common'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { EntityUUID, Layers, UUIDComponent } from '@ir-engine/ecs'
+import { Entity, EntityUUID, Layers, UUIDComponent } from '@ir-engine/ecs'
 import exportMaterialsGLTF from '@ir-engine/engine/src/assets/functions/exportMaterialsGLTF'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
@@ -42,8 +42,8 @@ export function FixedSizeListWrapper({
   nodes,
   children
 }: {
-  nodes: readonly EntityUUID[]
-  children: ListProps<{ nodes: EntityUUID[] }>['children']
+  nodes: readonly Entity[]
+  children: ListProps<{ nodes: Entity[] }>['children']
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const listDimensions = useHookstate({

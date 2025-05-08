@@ -26,7 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { Mesh, MeshStandardMaterial, Shader } from 'three'
 
-import { Entity, PresentationSystemGroup, QueryReactor, useComponent, useEntityContext } from '@ir-engine/ecs'
+import {
+  Entity,
+  PresentationSystemGroup,
+  QueryReactor,
+  hasComponent,
+  useComponent,
+  useEntityContext
+} from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { NO_PROXY, getState } from '@ir-engine/hyperflux'
@@ -81,6 +88,7 @@ function FogGroupReactor(props: { fogEntity: Entity }) {
     if (customShader) {
       addFogShaderPlugin(obj as any)
       return () => {
+        if (!hasComponent(entity, ObjectComponent)) return
         removeFogShaderPlugin(obj as any)
       }
     }

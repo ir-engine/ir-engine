@@ -27,7 +27,7 @@ import React, { useCallback, useEffect, useRef } from 'react'
 import { BufferAttribute, Mesh, SphereGeometry } from 'three'
 
 import { useRender3DPanelSystem } from '@ir-engine/client-core/src/hooks/useRender3DPanelSystem'
-import { getComponent, getOptionalComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
+import { EntityID, getComponent, Layers, setComponent, SourceID, UUIDComponent } from '@ir-engine/ecs'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
@@ -48,13 +48,16 @@ function MaterialPreviewCanvas() {
   useEffect(() => {
     const { sceneEntity, cameraEntity } = renderPanel
     if (
-      !selectedMaterial.value ||
-      selectedMaterial.value === getOptionalComponent(sceneEntity, MaterialInstanceComponent)?.uuid[0]
+      !selectedMaterial.value
+      // || selectedMaterial.value === getOptionalComponent(sceneEntity, MaterialInstanceComponent)?.uuid[0]
     )
       return
 
     setComponent(sceneEntity, TransformComponent)
-    setComponent(sceneEntity, UUIDComponent, UUIDComponent.generateUUID())
+    setComponent(sceneEntity, UUIDComponent, {
+      entitySourceID: 'preview' as SourceID,
+      entityID: 'material' as EntityID
+    })
     setComponent(sceneEntity, NameComponent, 'Material Preview Entity')
     setComponent(sceneEntity, VisibleComponent, true)
     const sphereMesh = new Mesh(new SphereGeometry(5, 32, 32))
@@ -64,7 +67,8 @@ function MaterialPreviewCanvas() {
     )
     sphereMesh.geometry.attributes['uv1'] = sphereMesh.geometry.attributes['uv']
     setComponent(sceneEntity, MeshComponent, sphereMesh)
-    setComponent(sceneEntity, MaterialInstanceComponent, { uuid: [selectedMaterial.value] })
+    const selectedMaterialEntity = UUIDComponent.getEntityByUUID(selectedMaterial.value, Layers.Authoring)
+    setComponent(sceneEntity, MaterialInstanceComponent, { entities: [selectedMaterialEntity] })
 
     const pivot = computeTransformPivot([sceneEntity])
     if (pivot.position) {

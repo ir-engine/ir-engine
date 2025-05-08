@@ -58,7 +58,7 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { applyInputSourcePoseToIKTargets } from '../functions/applyInputSourcePoseToIKTargets'
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 
-import { Entity } from '@ir-engine/ecs'
+import { EngineState, Entity } from '@ir-engine/ecs'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import { FollowCameraMode } from '@ir-engine/spatial/src/camera/types/FollowCameraMode'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
@@ -187,7 +187,7 @@ let mouseMovedDuringPrimaryClick = false
 const findWalkableWithInput = (entity: Entity) => getComponent(entity, InputComponent)?.inputSources.length
 
 const execute = () => {
-  if (!Engine.instance.userID) return
+  if (!getState(EngineState).userID) return
 
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
   if (!selfAvatarEntity) return
