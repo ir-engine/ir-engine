@@ -66,7 +66,8 @@ export function useApplyCollidersToChildMeshesEffect(entity: Entity) {
   const component = useComponent(entity, GLTFComponent)
 
   useLayoutEffect(() => {
-    if (!rigidbodyComponent?.initialized?.value || !physicsWorld || !physicsWorld.Rigidbodies.has(entity)) return
+    if (!rigidbodyComponent?.initialized?.value || !physicsWorld || !physicsWorld.Rigidbodies.has(rigidbodyEntity))
+      return
     forceUpdateMatrices(entity)
 
     if (!component.applyColliders.value) return
