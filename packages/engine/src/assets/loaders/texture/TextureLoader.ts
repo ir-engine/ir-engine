@@ -91,8 +91,8 @@ class TextureLoader extends Loader<Texture> {
             this.loadRetry(url, onLoad, onProgress, onError, signal, retryCount + 1)
           } else {
             onError?.(err)
-            reject(err)
           }
+          reject(err)
         }
 
         const loadCallback = (img: ImageBitmap) => {

@@ -42,6 +42,7 @@ import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/Ri
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { useLayoutEffect } from 'react'
+import { SourceComponent } from '../scene/components/SourceComponent'
 import { GLTFComponent } from './GLTFComponent'
 
 function forceUpdateMatrices(childEntity: Entity, ancestorEntity: Entity = UndefinedEntity) {
@@ -65,7 +66,7 @@ export function useApplyCollidersToChildMeshesEffect(entity: Entity) {
   const component = useComponent(entity, GLTFComponent)
 
   useLayoutEffect(() => {
-    if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return
+    if (!rigidbodyComponent?.initialized?.value || !physicsWorld || !physicsWorld.Rigidbodies.has(entity)) return
     forceUpdateMatrices(entity)
 
     if (!component.applyColliders.value) return
@@ -75,7 +76,8 @@ export function useApplyCollidersToChildMeshesEffect(entity: Entity) {
 
     const added = [] as Entity[]
     for (const child of children) {
-      if (entityExists(child) && !hasComponent(child, ColliderComponent)) {
+      // Don't add colliders to meshes with colliders baked in or helper meshes
+      if (entityExists(child) && !hasComponent(child, ColliderComponent) && hasComponent(child, SourceComponent)) {
         setComponent(child, ColliderComponent, { shape: component.shape.value, matchMesh: true })
         forceUpdateMatrices(child)
         added.push(child)
