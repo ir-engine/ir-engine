@@ -35,44 +35,46 @@ const InspectorEditor = () => {
   const { t } = useTranslation()
   const { metadata } = useHookstate(getMutableState(ClickPlacementState)).value
   const { thumbnail, name, type, author, dateCreated, fileSize, dimensions, mesh, resources, tags } = metadata
-  const leftTableCellCss = `table-cell w-2/5 text-left font-bold py-0.5`
-  const rightTableCellCss = `table-cell text-left py-0.5`
+  const rowCss = `flex flex-row gap-y-1`
+  const leftTableCellCss = `table-cell w-[40%] text-left font-bold`
+  const rightTableCellCss = `table-cell text-left`
+  const noData = '--'
 
   return Object.keys(metadata).length > 0 ? (
     <div className="flex h-full flex-col gap-6 overflow-y-auto bg-surface-3 p-3 px-10 text-text-secondary">
       <div className="align-center flex justify-center">
         <img src={thumbnail} alt={name} className="m-3 text-center" />
       </div>
-      <div className="flex flex-row items-center justify-between">
+      <div className="flex flex-row items-center justify-between gap-x-4 break-all">
         <Text fontSize="xl">{name}</Text>
         <div>
           <FiEdit2 />
         </div>
       </div>
-      <div className="table">
-        <div className="table-row gap-4">
+      <div className="flex flex-col">
+        <div className={rowCss}>
           <div className={leftTableCellCss}>{t('editor:inspector.assetType')}</div>
           <div className={rightTableCellCss}>{type}</div>
         </div>
-        <div className="table-row">
+        <div className={rowCss}>
           <div className={leftTableCellCss}>{t('editor:inspector.assetAuthor')}</div>
-          <div className={rightTableCellCss}>{author || 'N/A'}</div>
+          <div className={rightTableCellCss}>{author || noData}</div>
         </div>
-        <div className="table-row">
+        <div className={rowCss}>
           <div className={leftTableCellCss}>{t('editor:inspector.assetDateCreated')}</div>
-          <div className={rightTableCellCss}>{toDisplayDateTime(dateCreated) || 'N/A'}</div>
+          <div className={rightTableCellCss}>{toDisplayDateTime(dateCreated) || noData}</div>
         </div>
-        <div className="table-row">
+        <div className={rowCss}>
           <div className={leftTableCellCss}>{t('editor:inspector.assetFileSize')}</div>
-          <div className={rightTableCellCss}>{'N/A'}</div>
+          <div className={rightTableCellCss}>{noData}</div>
         </div>
-        <div className="table-row">
+        <div className={rowCss}>
           <div className={leftTableCellCss}>{t('editor:inspector.assetDimensions')}</div>
-          <div className={rightTableCellCss}>{'N/A'}</div>
+          <div className={rightTableCellCss}>{noData}</div>
         </div>
-        <div className="table-row">
+        <div className={rowCss}>
           <div className={leftTableCellCss}>{t('editor:inspector.assetMeshComplexity')}</div>
-          <div className={rightTableCellCss}>{'N/A'}</div>
+          <div className={rightTableCellCss}>{noData}</div>
         </div>
       </div>
       <div className="flex flex-col gap-3">
@@ -80,7 +82,7 @@ const InspectorEditor = () => {
         <div className="text-lg">
           {tags.length > 0
             ? tags.map((tag) => (
-                <span className="rounded-[30px] border border-[#42454D] bg-surface-2 px-3 py-1">{tag}</span>
+                <span className="rounded-full border border-[#42454D] bg-surface-2 px-3 py-1">{tag}</span>
               ))
             : ''}
         </div>
