@@ -93,7 +93,7 @@ const getFilename = (url) => {
 }
 
 export function generateThumbnailKey(src: string, projectName: string): string {
-  const uniqueFileName = `${projectName}-${getFilename(src)}-${Date.now()}`
+  const uniqueFileName = `${projectName}-${getFilename(`${window.location}/${src}`)}-${Date.now()}`
   const encoder = new TextEncoder()
   const buffer = encoder.encode(uniqueFileName)
   let hash = createHash('sha256').update(buffer).digest('hex')

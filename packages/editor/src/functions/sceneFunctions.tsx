@@ -195,19 +195,12 @@ export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
  */
 export const onSaveScene = async () => {
   const { sceneAssetID, projectName, sceneName, rootEntity } = getState(EditorState)
-  const sceneModified = EditorState.isModified()
 
   try {
     await SceneThumbnailState.createThumbnail()
     await SceneThumbnailState.uploadThumbnail()
   } catch (error) {
     console.error(error)
-  }
-
-  if (!sceneModified) {
-    ModalState.closeModal()
-    NotificationService.dispatchNotify(`${i18n.t('editor:dialog.saveScene.info-save-success')}`, { variant: 'success' })
-    return
   }
 
   const abortController = new AbortController()
