@@ -33,6 +33,7 @@ import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstant
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { SplineHelperComponent } from './debug/SplineHelperComponent'
 
@@ -93,7 +94,7 @@ export const SplineComponent = defineComponent({
 
     useEffect(() => {
       if (debugEnabled.value) {
-        setComponent(entity, SplineHelperComponent)
+        setComponent(entity, SplineHelperComponent, { layerMask: ObjectLayerMasks.Scene })
       }
 
       return () => {
