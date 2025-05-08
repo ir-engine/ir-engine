@@ -1170,6 +1170,8 @@ const exportEntity = async (
 ): Promise<number | void> => {
   if (context.cache.entities.has(entity)) return context.cache.entities.get(entity)
 
+  console.log('exportEntity', entity)
+
   for (const extension of context.exportExtensions) extension.beforeNode?.(entity)
 
   //ignore entities with no source
@@ -1196,6 +1198,7 @@ const exportEntity = async (
   const childrenIndicies = [] as number[]
   if (children && children.length > 0) {
     for (const child of children) {
+      console.log(child, getComponent(child, UUIDComponent).entitySourceID, context.sourceID)
       if (getComponent(child, UUIDComponent).entitySourceID !== context.sourceID) continue
       const childPromise = new Promise<void>((resolve) => {
         exportEntity(child, gltf, context).then((childIndex) => {
@@ -1284,7 +1287,8 @@ const _trsScale = new Vector3()
 const exportAnimations = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFSceneExportContext) => {
   if (
     !hasComponent(entity, AnimationComponent) ||
-    getComponent(entity, UUIDComponent).entitySourceID !== context.sourceID
+    getComponent(entity, UUIDComponent).entitySourceID !== context.sourceID ||
+    (hasComponent(entity, AnimationComponent) && hasComponent(entity, GLTFComponent) && entity !== context.rootEntity)
   )
     return
 
