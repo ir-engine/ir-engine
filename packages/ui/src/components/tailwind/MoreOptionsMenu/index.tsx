@@ -80,7 +80,7 @@ export default function MoreOptionsMenu({
     >
       <ul
         className={twMerge(
-          'w-[180px] divide-y divide-gray-300 rounded-lg border border-ui-tertiary',
+          'min-w-[180px] max-w-[300px] divide-y divide-gray-300 rounded-lg border border-ui-tertiary',
           'bg-white dark:divide-none dark:border-none dark:bg-surface-4'
         )}
         data-testid="more-options-list"
@@ -89,7 +89,7 @@ export default function MoreOptionsMenu({
           <li className="h-8" key={index}>
             <Button
               variant="tertiary"
-              className="h-full w-full justify-start gap-2 border-0 p-2 text-text-primary hover:bg-ui-hover-quadrary"
+              className="h-full w-full justify-start gap-2 whitespace-nowrap border-0 p-2 text-text-primary hover:bg-ui-hover-quadrary"
               data-testid={`${actionProp.label.toLowerCase().replace(' ', '-')}-button`}
               disabled={actionProp.disabled}
               onClick={() => {
