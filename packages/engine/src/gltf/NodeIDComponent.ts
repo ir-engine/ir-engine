@@ -45,6 +45,7 @@ export const NodeIDComponent = defineComponent({
   jsonID: 'EE_uuid',
 
   schema: S.EntityID({
+    // Wrapping in an object on serialization to comply with the GLTF spec, but accept primitive value for backwards compatibility
     serialize(value) {
       if (value == null) return value
 
