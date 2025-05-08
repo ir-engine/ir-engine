@@ -1445,27 +1445,5 @@
     "EE_trigger",
     "EE_mount_point",
     "IR_scene_delta"
-  ],
-  "extensions": {
-    "IR_scene_delta": {
-      "b46b57c1-bd37-43cc-b000-8b4411fe728b": {
-        "material-1": {
-          "IR_material_lava": {},
-          "IR_material": {
-            "parameters.color": 13633287
-          }
-        },
-        "material-2": {
-          "IR_material": {
-            "parameters.color": 396556
-          }
-        },
-        "material-3": {
-          "IR_material": {
-            "parameters.color": 10966614
-          }
-        }
-      }
-    }
-  }
+  ]
 }

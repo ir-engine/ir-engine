@@ -1,0 +1,2006 @@
+{
+  "asset": {
+    "generator": "IREngine.SceneExporter",
+    "version": "2.0"
+  },
+  "nodes": [
+    {
+      "name": "Settings",
+      "extensions": {
+        "EE_uuid": "0d5a20e1-abe2-455e-9963-d5e1e19fca19",
+        "EE_scene_settings": {
+          "thumbnailURL": "__$project$__/ir-engine/default-project/public/scenes/test.thumbnail.jpg",
+          "loadingScreenURL": "__$project$__/ir-engine/default-project/public/scenes/test.loadingscreen.ktx2",
+          "primaryColor": "#B3B3B3",
+          "backgroundColor": "#2C2C2C",
+          "alternativeColor": "#A1A1A1",
+          "sceneKillHeight": -10,
+          "spectateEntity": ""
+        },
+        "EE_camera_settings": {
+          "fov": 50,
+          "cameraNearClip": 0.1,
+          "cameraFarClip": 1000,
+          "projectionType": 1,
+          "minCameraDistance": 1,
+          "maxCameraDistance": 50,
+          "startCameraDistance": 3,
+          "cameraMode": "Dynamic",
+          "cameraModeDefault": "ThirdPerson",
+          "minPhi": -70,
+          "maxPhi": 85
+        },
+        "EE_render_settings": {
+          "primaryLight": "cb045cfd-8daf-4a2b-b764-35625be54a11",
+          "csm": true,
+          "cascades": 3,
+          "toneMapping": 1,
+          "toneMappingExposure": 0.8,
+          "shadowMapType": 2
+        },
+        "EE_visible": true
+      }
+    },
+    {
+      "name": "scene preview camera",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        15,
+        30,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "bb362197-f14d-4da7-9c3c-1ed834386423",
+        "EE_scene_preview_camera": {},
+        "EE_visible": true
+      }
+    },
+    {
+      "name": "Orthographic Camera",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -35,
+        1,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "bb362197-f14d-4da7-9c3c-1ed834386424",
+        "EE_visible": true,
+        "EE_camera_settings": {
+          "fov": 50,
+          "cameraNearClip": 0.1,
+          "cameraFarClip": 1000,
+          "projectionType": 0,
+          "minCameraDistance": 1,
+          "maxCameraDistance": 50,
+          "startCameraDistance": 3,
+          "cameraMode": "Dynamic",
+          "cameraModeDefault": "ThirdPerson",
+          "minPhi": -70,
+          "maxPhi": 85
+        }
+      }
+    },
+    {
+      "name": "Skybox - Cubemap",
+      "extensions": {
+        "EE_uuid": "e7d6bfb1-6390-4a8b-b744-da83b059c2d3",
+        "EE_visible": true,
+        "EE_skybox": {
+          "backgroundColor": 3026478,
+          "equirectangularPath": "__$project$__/ir-engine/default-project/assets/generic_midday_02.ktx2?hash=19535b",
+          "cubemapPath": "__$project$__/ir-engine/default-project/assets/skyboxsun25deg/",
+          "backgroundType": 2,
+          "skyboxProps": {
+            "turbidity": 10,
+            "rayleigh": 1,
+            "luminance": 1,
+            "mieCoefficient": 0.004999999999999893,
+            "mieDirectionalG": 0.99,
+            "inclination": 0.10471975511965978,
+            "azimuth": 0.20833333333333334
+          }
+        }
+      }
+    },
+    {
+      "name": "Skybox - Color",
+      "extensions": {
+        "EE_uuid": "e7d6bfb1-6390-4a8b-b744-da83b059c2d4",
+        "EE_visible": true,
+        "EE_skybox": {
+          "backgroundColor": 8421504,
+          "equirectangularPath": "",
+          "cubemapPath": "",
+          "backgroundType": 0,
+          "skyboxProps": {
+            "turbidity": 10,
+            "rayleigh": 1,
+            "luminance": 1,
+            "mieCoefficient": 0.004999999999999893,
+            "mieDirectionalG": 0.99,
+            "inclination": 0.10471975511965978,
+            "azimuth": 0.20833333333333334
+          }
+        }
+      }
+    },
+    {
+      "name": "Skybox - Equirectangular",
+      "extensions": {
+        "EE_uuid": "e7d6bfb1-6390-4a8b-b744-da83b059c2d5",
+        "EE_visible": true,
+        "EE_skybox": {
+          "backgroundColor": 3026478,
+          "equirectangularPath": "__$project$__/ir-engine/default-project/assets/generic_midday_02.ktx2?hash=19535b",
+          "cubemapPath": "",
+          "backgroundType": 1,
+          "skyboxProps": {
+            "turbidity": 10,
+            "rayleigh": 1,
+            "luminance": 1,
+            "mieCoefficient": 0.004999999999999893,
+            "mieDirectionalG": 0.99,
+            "inclination": 0.10471975511965978,
+            "azimuth": 0.20833333333333334
+          }
+        }
+      }
+    },
+    {
+      "name": "spawn point",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -25,
+        0.5,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "3e8a430e-9dcf-440e-990c-44ecb8051762",
+        "EE_visible": true,
+        "EE_spawn_point": {
+          "permissionedUsers": []
+        }
+      }
+    },
+    {
+      "name": "hemisphere light",
+      "extensions": {
+        "EE_uuid": "f77dc4c6-c9a6-433d-8102-4a9a8e1c0ce9",
+        "EE_visible": true,
+        "EE_hemisphere_light": {
+          "skyColor": 16777215,
+          "groundColor": 16777215,
+          "intensity": 1
+        }
+      }
+    },
+    {
+      "name": "directional light",
+      "matrix": [
+        0.8201518642540717,
+        0.2860729507918132,
+        -0.49549287218469207,
+        0,
+        -2.135677357184562e-9,
+        0.866025399522099,
+        0.5000000073825887,
+        0,
+        0.5721458901019657,
+        -0.41007593712366663,
+        0.7102723465203862,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "cb045cfd-8daf-4a2b-b764-35625be54a11",
+        "EE_directional_light": {
+          "color": 16777215,
+          "intensity": 1,
+          "castShadow": true,
+          "shadowBias": -0.00001,
+          "shadowRadius": 1,
+          "cameraFar": 50
+        },
+        "EE_visible": true
+      }
+    },
+    {
+      "name": "ground plane",
+      "matrix": [
+        0.01,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0.01,
+        0,
+        20,
+        0,
+        45,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "685c48da-e2a0-4a9a-af7c-c5a3c187c99a",
+        "EE_visible": true,
+        "EE_ground_plane": {
+          "color": 8421504,
+          "visible": true
+        },
+        "EE_shadow": {
+          "cast": false,
+          "receive": true
+        }
+      }
+    },
+    {
+      "name": "Image - Flat",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -25,
+        1,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "7a7d0f05-6c02-4a01-b760-7af3ec46954b",
+        "EE_visible": true,
+        "EE_image": {
+          "source": "__$project$__/ir-engine/default-project/assets/apartment_skybox.jpg",
+          "alphaMode": "Opaque",
+          "alphaCutoff": 0.5,
+          "projection": "Flat",
+          "side": 2
+        }
+      }
+    },
+    {
+      "name": "Image - 360",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -25,
+        1,
+        5,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "8b8d0f05-6c02-4a01-b760-7af3ec46954b",
+        "EE_visible": true,
+        "EE_image": {
+          "source": "__$project$__/ir-engine/default-project/assets/apartment_skybox.jpg",
+          "alphaMode": "Opaque",
+          "alphaCutoff": 0.5,
+          "projection": "Equirectangular360",
+          "side": 2
+        }
+      }
+    },
+    {
+      "name": "Video - Flat",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -20,
+        1,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "9c9d0f05-6c02-4a01-b760-7af3ec46954b",
+        "EE_visible": true,
+        "EE_video": {
+          "side": 2,
+          "uvOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "uvScale": {
+            "x": 1,
+            "y": 1
+          },
+          "alphaUVOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "wrapS": 1001,
+          "wrapT": 1001,
+          "useAlpha": false,
+          "useAlphaInvert": false,
+          "alphaThreshold": 0.5,
+          "fit": "stretch",
+          "projection": "Flat",
+          "mediaUUID": "",
+          "texture": null
+        }
+      }
+    },
+    {
+      "name": "Video - Equirectangular360",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -20,
+        1,
+        5,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "9c9d0f05-6c02-4a01-b760-7af3ec46954c",
+        "EE_visible": true,
+        "EE_video": {
+          "side": 2,
+          "uvOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "uvScale": {
+            "x": 1,
+            "y": 1
+          },
+          "alphaUVOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "wrapS": 1001,
+          "wrapT": 1001,
+          "useAlpha": false,
+          "useAlphaInvert": false,
+          "alphaThreshold": 0.5,
+          "fit": "stretch",
+          "projection": "Equirectangular360",
+          "mediaUUID": "",
+          "texture": null
+        }
+      }
+    },
+    {
+      "name": "Text - Basic",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -15,
+        1,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "aca0f05-6c02-4a01-b760-7af3ec46954b",
+        "EE_visible": true,
+        "EE_text_spatial": {
+          "text": "Component Test",
+          "textOpacity": 100,
+          "textWidth": null,
+          "textIndent": 0,
+          "textAlign": "center",
+          "textWrap": true,
+          "textWrapKind": "normal",
+          "textAnchor": {
+            "x": 0,
+            "y": 0
+          },
+          "textDepthOffset": 0,
+          "textCurveRadius": 0,
+          "letterSpacing": 0,
+          "lineHeight": "normal",
+          "textDirection": "auto",
+          "font": "",
+          "fontSize": 0.2,
+          "fontColor": 16777215,
+          "fontMaterial": 0,
+          "outlineOpacity": 0,
+          "outlineWidth": 0,
+          "outlineBlur": 0,
+          "outlineOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "outlineColor": 16777215,
+          "strokeOpacity": 0,
+          "strokeWidth": 0,
+          "strokeColor": 4473924,
+          "textOrientation": "+x+y",
+          "clipActive": false,
+          "clipRectMin": {
+            "x": -1024,
+            "y": -1024
+          },
+          "clipRectMax": {
+            "x": 1024,
+            "y": 1024
+          },
+          "gpuAccelerated": true,
+          "glyphResolution": 6,
+          "glyphDetail": 1
+        }
+      }
+    },
+    {
+      "name": "Primitive - Box",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -10,
+        1,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "bdb1f05-6c02-4a01-b760-7af3ec46954b",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 0,
+          "geometryParams": {
+            "width": 1,
+            "height": 1,
+            "depth": 1
+          }
+        }
+      }
+    },
+    {
+      "name": "Primitive - Sphere",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -10,
+        1,
+        5,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec46954b",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 1,
+          "geometryParams": {
+            "radius": 0.5,
+            "widthSegments": 32,
+            "heightSegments": 16
+          }
+        }
+      }
+    },
+    {
+      "name": "Primitive - Cylinder",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -10,
+        1,
+        10,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec46954c",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 2,
+          "geometryParams": {
+            "radiusTop": 0.5,
+            "radiusBottom": 0.5,
+            "height": 1,
+            "radialSegments": 32
+          }
+        }
+      }
+    },
+    {
+      "name": "Primitive - Capsule",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -10,
+        1,
+        15,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec46954d",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 3,
+          "geometryParams": {
+            "radius": 0.5,
+            "length": 1,
+            "capSegments": 8,
+            "radialSegments": 16
+          }
+        }
+      }
+    },
+    {
+      "name": "Primitive - Plane",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -10,
+        1,
+        20,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec46954e",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 4,
+          "geometryParams": {
+            "width": 1,
+            "height": 1
+          }
+        }
+      }
+    },
+    {
+      "name": "Primitive - Circle",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -10,
+        1,
+        35,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec46954g",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 5,
+          "geometryParams": {
+            "radius": 0.5,
+            "segments": 32
+          }
+        }
+      }
+    },
+    {
+      "name": "Primitive - Ring",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -10,
+        1,
+        40,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec46954h",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 6,
+          "geometryParams": {
+            "innerRadius": 0.3,
+            "outerRadius": 0.5,
+            "thetaSegments": 32
+          }
+        }
+      }
+    },
+    {
+      "name": "Primitive - Torus",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -10,
+        1,
+        25,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec46954f",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 7,
+          "geometryParams": {
+            "radius": 0.5,
+            "tube": 0.2,
+            "radialSegments": 16,
+            "tubularSegments": 32
+          }
+        }
+      }
+    },
+    {
+      "name": "Primitive - Dodecahedron",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -10,
+        1,
+        30,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec469540",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 8,
+          "geometryParams": {
+            "radius": 0.5,
+            "detail": 0
+          }
+        }
+      }
+    },
+    {
+      "name": "Primitive - Icosahedron",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -10,
+        1,
+        45,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec469541",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 9,
+          "geometryParams": {
+            "radius": 0.5,
+            "detail": 0
+          }
+        }
+      }
+    },
+    {
+      "name": "Primitive - Octahedron",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -10,
+        1,
+        50,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec469542",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 10,
+          "geometryParams": {
+            "radius": 0.5,
+            "detail": 0
+          }
+        }
+      }
+    },
+    {
+      "name": "Primitive - Tetrahedron",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -10,
+        1,
+        55,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec469543",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 11,
+          "geometryParams": {
+            "radius": 0.5,
+            "detail": 0
+          }
+        }
+      }
+    },
+    {
+      "name": "Primitive - TorusKnot",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -10,
+        1,
+        60,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec469544",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 12,
+          "geometryParams": {
+            "radius": 0.3,
+            "tube": 0.1,
+            "tubularSegments": 64,
+            "radialSegments": 8,
+            "p": 2,
+            "q": 3
+          }
+        }
+      }
+    },
+    {
+      "name": "Shadow - Cast and Receive",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -5,
+        1,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "dfd3f05-6c02-4a01-b760-7af3ec46954b",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 0,
+          "geometryParams": {
+            "width": 1,
+            "height": 1,
+            "depth": 1
+          }
+        },
+        "EE_shadow": {
+          "cast": true,
+          "receive": true
+        }
+      }
+    },
+    {
+      "name": "Shadow - Cast Only",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -5,
+        1,
+        5,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "efe4f05-6c02-4a01-b760-7af3ec46954b",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 0,
+          "geometryParams": {
+            "width": 1,
+            "height": 1,
+            "depth": 1
+          }
+        },
+        "EE_shadow": {
+          "cast": true,
+          "receive": false
+        }
+      }
+    },
+    {
+      "name": "EnvMap - Skybox",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        5,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "f0f5f05-6c02-4a01-b760-7af3ec46954b",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 1,
+          "geometryParams": {
+            "radius": 0.5,
+            "widthSegments": 32,
+            "heightSegments": 16
+          }
+        },
+        "EE_envmap": {
+          "type": "Skybox",
+          "envMapSourceColor": 8421504,
+          "envMapSourceURL": "",
+          "envMapCubemapURL": "",
+          "envMapSourceEntityUUID": "",
+          "envMapIntensity": 1
+        }
+      }
+    },
+    {
+      "name": "EnvMap - Color",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        10,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "01f6f05-6c02-4a01-b760-7af3ec46954b",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 1,
+          "geometryParams": {
+            "radius": 0.5,
+            "widthSegments": 32,
+            "heightSegments": 16
+          }
+        },
+        "EE_envmap": {
+          "type": "Color",
+          "envMapSourceColor": 16711680,
+          "envMapSourceURL": "",
+          "envMapCubemapURL": "",
+          "envMapSourceEntityUUID": "",
+          "envMapIntensity": 1
+        }
+      }
+    },
+    {
+      "name": "EnvMap - Equirectangular",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        15,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "01f6f05-6c02-4a01-b760-7af3ec46954c",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 1,
+          "geometryParams": {
+            "radius": 0.5,
+            "widthSegments": 32,
+            "heightSegments": 16
+          }
+        },
+        "EE_envmap": {
+          "type": "Equirectangular",
+          "envMapSourceColor": 8421504,
+          "envMapSourceURL": "__$project$__/ir-engine/default-project/assets/generic_midday_02.ktx2?hash=19535b",
+          "envMapCubemapURL": "",
+          "envMapSourceEntityUUID": "",
+          "envMapIntensity": 1
+        }
+      }
+    },
+    {
+      "name": "EnvMap - Cubemap",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        20,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "01f6f05-6c02-4a01-b760-7af3ec46954d",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 1,
+          "geometryParams": {
+            "radius": 0.5,
+            "widthSegments": 32,
+            "heightSegments": 16
+          }
+        },
+        "EE_envmap": {
+          "type": "Cubemap",
+          "envMapSourceColor": 8421504,
+          "envMapSourceURL": "",
+          "envMapCubemapURL": "__$project$__/ir-engine/default-project/assets/skyboxsun25deg/",
+          "envMapSourceEntityUUID": "",
+          "envMapIntensity": 1
+        }
+      }
+    },
+    {
+      "name": "LookAt - Both Axes",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        5,
+        1,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "12f7f05-6c02-4a01-b760-7af3ec46954b",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 2,
+          "geometryParams": {
+            "radius": 0.5,
+            "height": 1,
+            "radialSegments": 32
+          }
+        },
+        "IR_lookAt": {
+          "target": "",
+          "xAxis": true,
+          "yAxis": true
+        }
+      }
+    },
+    {
+      "name": "LookAt - X Axis Only",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        5,
+        1,
+        5,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "23f8f05-6c02-4a01-b760-7af3ec46954b",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 2,
+          "geometryParams": {
+            "radius": 0.5,
+            "height": 1,
+            "radialSegments": 32
+          }
+        },
+        "IR_lookAt": {
+          "target": "",
+          "xAxis": true,
+          "yAxis": false
+        }
+      }
+    },
+    {
+      "name": "LookAt - Look at target",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        5,
+        1,
+        10,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "34f9f05-6c02-4a01-b760-7af3ec46954b",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 2,
+          "geometryParams": {
+            "radius": 0.5,
+            "height": 1,
+            "radialSegments": 32
+          }
+        },
+        "IR_lookAt": {
+          "target": "511ad793-2a07-4f04-a14d-b26762967552",
+          "xAxis": true,
+          "yAxis": true
+        }
+      }
+    },
+    {
+      "name": "Particle System",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        10,
+        1,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "511ad793-2a07-4f04-a14d-b26762967552",
+        "EE_visible": true,
+        "EE_particle_system": {
+          "systemParameters": {
+            "version": "1.0",
+            "autoDestroy": false,
+            "looping": true,
+            "prewarm": false,
+            "material": "",
+            "duration": 5,
+            "shape": {
+              "type": "point"
+            },
+            "startLife": {
+              "type": "IntervalValue",
+              "a": 1,
+              "b": 2,
+              "value": 1,
+              "functions": []
+            },
+            "startSpeed": {
+              "type": "IntervalValue",
+              "a": 0.1,
+              "b": 5,
+              "value": 1,
+              "functions": []
+            },
+            "startRotation": {
+              "type": "IntervalValue",
+              "a": 0,
+              "b": 300,
+              "value": 1,
+              "functions": []
+            },
+            "startSize": {
+              "type": "IntervalValue",
+              "a": 0.025,
+              "b": 0.45,
+              "value": 1,
+              "functions": []
+            },
+            "startColor": {
+              "type": "ConstantColor",
+              "color": {
+                "r": 1,
+                "g": 1,
+                "b": 1,
+                "a": 0.1
+              },
+              "a": {
+                "r": 1,
+                "g": 1,
+                "b": 1,
+                "a": 1
+              },
+              "b": {
+                "r": 1,
+                "g": 1,
+                "b": 1,
+                "a": 1
+              },
+              "functions": []
+            },
+            "emissionOverTime": {
+              "type": "ConstantValue",
+              "value": 400,
+              "a": 0,
+              "b": 1,
+              "functions": []
+            },
+            "emissionOverDistance": {
+              "type": "ConstantValue",
+              "value": 0,
+              "a": 0,
+              "b": 1,
+              "functions": []
+            },
+            "emissionBursts": [],
+            "onlyUsedByOther": false,
+            "rendererEmitterSettings": {
+              "startLength": {
+                "type": "ConstantValue",
+                "value": 1,
+                "a": 0,
+                "b": 1,
+                "functions": []
+              },
+              "followLocalOrigin": true
+            },
+            "renderMode": 0,
+            "texture": "",
+            "instancingGeometry": "",
+            "startTileIndex": {
+              "type": "ConstantValue",
+              "value": 0,
+              "a": 0,
+              "b": 1,
+              "functions": []
+            },
+            "uTileCount": 1,
+            "vTileCount": 1,
+            "blending": 2,
+            "behaviors": [],
+            "worldSpace": true
+          },
+          "behaviorParameters": []
+        }
+      }
+    },
+    {
+      "name": "Trigger",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        20,
+        1,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "fcbe4641-e0bb-4435-b30d-13ae64690b31",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 0,
+          "geometryParams": {
+            "width": 1,
+            "height": 1,
+            "depth": 1
+          }
+        },
+        "EE_trigger": {
+          "triggers": [
+            {
+              "onEnter": "setInvisible",
+              "onExit": "setVisible",
+              "target": "fcbe4641-e0bb-4435-b30d-13ae64690b31"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Spline",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        25,
+        1,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "60a15eb3-1ae8-44a8-8952-ea1f67fa8083",
+        "EE_visible": true,
+        "EE_spline": {
+          "elements": [
+            {
+              "position": {
+                "x": -1,
+                "y": 0,
+                "z": -1
+              },
+              "rotation": {
+                "x": 0,
+                "y": 0,
+                "z": 0,
+                "w": 1
+              }
+            },
+            {
+              "position": {
+                "x": 1,
+                "y": 0,
+                "z": -1
+              },
+              "rotation": {
+                "x": 0,
+                "y": 0.7071067811865475,
+                "z": 0,
+                "w": 0.7071067811865475
+              }
+            },
+            {
+              "position": {
+                "x": 1,
+                "y": 0,
+                "z": 1
+              },
+              "rotation": {
+                "x": 0,
+                "y": 1,
+                "z": 0,
+                "w": 0
+              }
+            },
+            {
+              "position": {
+                "x": -1,
+                "y": 0,
+                "z": 1
+              },
+              "rotation": {
+                "x": 0,
+                "y": -0.7071067811865475,
+                "z": 0,
+                "w": 0.7071067811865475
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Spline Track",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        25,
+        1,
+        5,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "fcbe4641-e0bb-4435-b30d-13ae64690b32",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 0,
+          "geometryParams": {
+            "width": 0.5,
+            "height": 0.5,
+            "depth": 0.5
+          }
+        },
+        "EE_spline_track": {
+          "splineEntityUUID": "60a15eb3-1ae8-44a8-8952-ea1f67fa8083",
+          "velocity": 1,
+          "enableRotation": true,
+          "lockToXZPlane": true,
+          "loop": true
+        }
+      }
+    },
+    {
+      "name": "Mount Point",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        30,
+        1,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "adaa4d16-df22-47fa-9c0d-4111a8383f13",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 0,
+          "geometryParams": {
+            "width": 1,
+            "height": 0.5,
+            "depth": 1
+          }
+        },
+        "EE_mount_point": {
+          "type": "seat",
+          "dismountOffset": {
+            "x": 0,
+            "y": 0,
+            "z": 0.75
+          },
+          "forceDismountPosition": false
+        }
+      }
+    },
+    {
+      "name": "Postprocessing",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        35,
+        1,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "10eb1bb2-5cf2-4b4e-abab-3132b3a995fa",
+        "EE_visible": true,
+        "EE_postprocessing": {
+          "enabled": true,
+          "effects": {
+            "BloomEffect": {
+              "isActive": true,
+              "intensity": 1,
+              "luminanceThreshold": 0.9,
+              "luminanceSmoothing": 0.025,
+              "mipmapBlur": true
+            },
+            "SSAOEffect": {
+              "isActive": false,
+              "intensity": 1,
+              "samples": 16,
+              "rings": 7,
+              "radius": 0.1825,
+              "distanceThreshold": 0.125,
+              "distanceFalloff": 0.02,
+              "rangeThreshold": 0.0015,
+              "rangeFalloff": 0.01,
+              "luminanceInfluence": 0.7,
+              "bias": 0.025,
+              "color": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Dynamic Load",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        40,
+        1,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "60a15eb3-1ae8-44a8-8952-ea1f67fa8084",
+        "EE_visible": true,
+        "EE_dynamic_load": {
+          "mode": "distance",
+          "distance": 20
+        }
+      },
+      "children": [
+        44
+      ]
+    },
+    {
+      "name": "Dynamic Load Model",
+      "extensions": {
+        "EE_uuid": "60a15eb3-1ae8-44a8-8952-ea1f67fa8085",
+        "EE_visible": true,
+        "EE_model": {
+          "src": "__$project$__/ir-engine/default-project/assets/rings.glb",
+          "cameraOcclusion": true,
+          "applyColliders": false,
+          "shape": "box"
+        },
+        "EE_loop_animation": {
+          "activeClipIndex": 0,
+          "animationPack": "",
+          "useVRM": false,
+          "enabled": true,
+          "paused": false,
+          "time": 0,
+          "timeScale": 1,
+          "blendMode": 2500,
+          "loop": 2201,
+          "clampWhenFinished": false,
+          "zeroSlopeAtStart": true,
+          "zeroSlopeAtEnd": true,
+          "weight": 1
+        }
+      }
+    },
+    {
+      "name": "EnvMapBake",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        45,
+        1,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "60a15eb3-1ae8-44a8-8952-ea1f67fa8086",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 1,
+          "geometryParams": {
+            "radius": 0.5,
+            "widthSegments": 32,
+            "heightSegments": 16
+          }
+        },
+        "EE_envmapbake": {
+          "bakePosition": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "bakePositionOffset": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "bakeScale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          },
+          "bakeType": "Baked",
+          "resolution": 1024,
+          "refreshMode": "OnAwake",
+          "envMapOrigin": "",
+          "boxProjection": true
+        }
+      }
+    },
+    {
+      "name": "Link - External URL",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        50,
+        1,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "174d63bd-4177-4dc3-ad87-90894320986b",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 0,
+          "geometryParams": {
+            "width": 1,
+            "height": 1,
+            "depth": 1
+          }
+        },
+        "EE_link": {
+          "url": "https://www.ir-engine.org",
+          "sceneNav": false,
+          "location": "",
+          "newTab": true
+        }
+      }
+    },
+    {
+      "name": "Link - Scene Navigation",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        50,
+        1,
+        5,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "174d63bd-4177-4dc3-ad87-90894320986c",
+        "EE_visible": true,
+        "EE_primitive_geometry": {
+          "geometryType": 0,
+          "geometryParams": {
+            "width": 1,
+            "height": 1,
+            "depth": 1
+          }
+        },
+        "EE_link": {
+          "url": "",
+          "sceneNav": true,
+          "location": "test.gltf",
+          "newTab": false
+        }
+      }
+    },
+    {
+      "name": "Loop Animation",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        55,
+        1,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "174d63bd-4177-4dc3-ad87-90894320986d",
+        "EE_visible": true,
+        "EE_model": {
+          "src": "__$project$__/ir-engine/default-project/assets/rings.glb",
+          "cameraOcclusion": false,
+          "applyColliders": false,
+          "shape": "box"
+        },
+        "EE_loop_animation": {
+          "activeClipIndex": 0,
+          "animationPack": "",
+          "useVRM": false,
+          "enabled": true,
+          "paused": false,
+          "time": 0,
+          "timeScale": 1,
+          "blendMode": 2500,
+          "loop": 2201,
+          "clampWhenFinished": false,
+          "zeroSlopeAtStart": true,
+          "zeroSlopeAtEnd": true,
+          "weight": 1
+        }
+      }
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "nodes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        45,
+        46,
+        47,
+        48,
+        43
+      ]
+    }
+  ],
+  "extensionsUsed": [
+    "EE_uuid",
+    "EE_scene_settings",
+    "EE_camera_settings",
+    "EE_render_settings",
+    "EE_visible",
+    "EE_scene_preview_camera",
+    "EE_skybox",
+    "EE_spawn_point",
+    "EE_hemisphere_light",
+    "EE_directional_light",
+    "EE_ground_plane",
+    "EE_shadow",
+    "EE_image",
+    "EE_video",
+    "EE_text_spatial",
+    "EE_primitive_geometry",
+    "EE_envmap",
+    "IR_lookAt",
+    "EE_particle_system",
+    "EE_trigger",
+    "EE_spline",
+    "EE_spline_track",
+    "EE_mount_point",
+    "EE_postprocessing",
+    "EE_model",
+    "EE_loop_animation",
+    "EE_dynamic_load",
+    "EE_envmapbake",
+    "EE_link"
+  ]
+}

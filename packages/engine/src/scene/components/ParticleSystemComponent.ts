@@ -114,6 +114,8 @@ const createBatchedRenderer = (entity: Entity) => {
     renderer.preserveChildren = true
     renderer.parent = {
       type: 'Scene',
+      matrix: new Matrix4().identity(),
+      matrixWorld: new Matrix4().identity(),
       remove: () => {},
       removeFromParent: () => {}
     } as Object3D
@@ -1016,6 +1018,7 @@ export const ParticleSystemComponent = defineComponent({
 
       const emitterAsObj3D = nuSystem.emitter
       emitterAsObj3D.parent = renderer
+      setComponent(entity, EntityTreeComponent, { parentEntity: renderer.entity })
       setComponent(entity, ObjectComponent, emitterAsObj3D)
       // quarks expects the parent property on the emitter object to be the renderer, otherwise it will dispose the emitter
       Object.defineProperties(emitterAsObj3D, {
@@ -1029,7 +1032,6 @@ export const ParticleSystemComponent = defineComponent({
           }
         }
       })
-      setComponent(entity, EntityTreeComponent, { parentEntity: renderer.entity })
       const transformComponent = getComponent(entity, TransformComponent)
       emitterAsObj3D.matrix = transformComponent.matrix
       componentState.system.set(nuSystem)
