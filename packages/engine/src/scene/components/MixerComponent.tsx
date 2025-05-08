@@ -127,7 +127,7 @@ type AnyComponent = Component<any, any, any, any, any, any>
 type AnyComponentWithID = AnyComponent & { jsonID: string }
 
 const toEntityUUID = (entity: Entity | EntityUUID): EntityUUID =>
-  typeof entity === 'string' ? entity : getComponent(entity, UUIDComponent)
+  typeof entity === 'string' ? entity : UUIDComponent.get(entity)
 const toEntity = (entity: Entity | EntityUUID): Entity =>
   typeof entity === 'string' ? UUIDComponent.getEntityByUUID(entity) : entity
 

@@ -83,7 +83,13 @@ export const projectSettingQuerySchema = Type.Intersect(
   [
     querySyntax(projectSettingQueryProperties),
     // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
+    Type.Object(
+      {
+        paginate: Type.Optional(Type.Boolean()),
+        projectName: Type.Optional(Type.String())
+      },
+      { additionalProperties: false }
+    )
   ],
   { additionalProperties: false }
 )

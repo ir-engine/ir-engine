@@ -32,7 +32,8 @@ import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { RenderInfoState } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { LightTagComponent } from '@ir-engine/spatial/src/renderer/components/lights/LightTagComponent'
-import { Button } from '@ir-engine/ui'
+import { ResourceState } from '@ir-engine/spatial/src/resources/ResourceState'
+import { Button, Tooltip } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Stats from './stats'
 
@@ -77,6 +78,7 @@ export const StatsPanel = (props: { show: boolean }) => {
   const renderInfoState = useMutableState(RenderInfoState)
   const info = renderInfoState.visible.value && renderInfoState.info.value
   const lightQuery = defineQuery([LightTagComponent, VisibleComponent, SourceComponent])
+  const sceneTriangles = Math.floor(ResourceState.budgets.useVisibleVertexCount() / 3)
 
   const toggleStats = () => {
     renderInfoState.visible.set(!renderInfoState.visible.value)
@@ -158,6 +160,12 @@ export const StatsPanel = (props: { show: boolean }) => {
                 {t('editor:viewport.state.calls')}: {info.calls}
               </li>
               <li>
+                {t('editor:viewport.state.sceneTriangles')}: {sceneTriangles}
+              </li>
+              <li className="flex gap-1">
+                <Tooltip content={t('editor:viewport.state.trianglesTooltip')}>
+                  <div>{'ⓘ'}</div>
+                </Tooltip>
                 {t('editor:viewport.state.triangles')}: {info.triangles}
               </li>
               <li>

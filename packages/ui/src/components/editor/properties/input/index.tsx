@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useQuery } from '@ir-engine/ecs'
+import { useQuery, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   commitProperties,
@@ -32,7 +32,6 @@ import {
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
@@ -53,16 +52,16 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
   const options = authoringLayerEntities.map((entity) => {
     return {
       label: getComponent(entity, NameComponent),
-      value: getComponent(entity, NodeIDComponent)
+      value: getComponent(entity, UUIDComponent).entityID
     }
   })
   options.unshift({
     label: 'Self',
-    value: getComponent(props.entity, NodeIDComponent)
+    value: getComponent(props.entity, UUIDComponent).entityID
   })
 
   const addSink = () => {
-    const sinks = [...(inputComponent.inputSinks.value ?? []), getComponent(props.entity, NodeIDComponent)]
+    const sinks = [...(inputComponent.inputSinks.value ?? []), getComponent(props.entity, UUIDComponent)]
 
     if (!hasComponent(props.entity, InputComponent)) {
       setComponent(props.entity, InputComponent, {

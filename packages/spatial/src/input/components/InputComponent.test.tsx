@@ -44,8 +44,8 @@ import {
   EngineState,
   Entity,
   EntityContext,
+  EntityID,
   EntityTreeComponent,
-  EntityUUID,
   InputSystemGroup,
   SystemDefinitions,
   UndefinedEntity,
@@ -69,7 +69,7 @@ import { InputSourceComponent } from './InputSourceComponent'
 type Axes = [number, number, number, number]
 
 type InputComponentData = {
-  inputSinks: EntityUUID[]
+  inputSinks: EntityID[]
   activationDistance: number
   highlight: boolean
   grow: boolean
@@ -77,7 +77,7 @@ type InputComponentData = {
 }
 
 const InputComponentDefaults: InputComponentData = {
-  inputSinks: ['Self'] as EntityUUID[],
+  inputSinks: ['Self'] as EntityID[],
   activationDistance: 2,
   highlight: false,
   grow: false,
@@ -131,7 +131,7 @@ describe('InputComponent', () => {
       const before = getComponent(testEntity, InputComponent)
       assertInputComponentEq(before, InputComponentDefaults)
       const Expected = {
-        inputSinks: ['SomeUUID'] as EntityUUID[],
+        inputSinks: ['SomeUUID'] as EntityID[],
         activationDistance: 10_000,
         highlight: false,
         grow: true,

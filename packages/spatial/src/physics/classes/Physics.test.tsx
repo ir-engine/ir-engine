@@ -29,7 +29,7 @@ import sinon from 'sinon'
 import { BoxGeometry, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
-import { createEntity } from '@ir-engine/ecs'
+import { EntityID, SourceID, createEntity } from '@ir-engine/ecs'
 import {
   getComponent,
   getMutableComponent,
@@ -84,7 +84,6 @@ describe('Physics : External API', () => {
     createEngine()
     await Physics.load()
     physicsWorldEntity = createEntity()
-    setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
     setComponent(physicsWorldEntity, SceneComponent)
     setComponent(physicsWorldEntity, TransformComponent)
     setComponent(physicsWorldEntity, EntityTreeComponent)
@@ -355,7 +354,10 @@ describe('Physics : Rapier->ECS API', () => {
       createEngine()
       await Physics.load()
       physicsWorldEntity = createEntity()
-      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+      setComponent(physicsWorldEntity, UUIDComponent, {
+        entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+        entityID: UUIDComponent.generateUUID() as any as EntityID
+      })
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
       setComponent(physicsWorldEntity, EntityTreeComponent)
@@ -585,7 +587,7 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         physicsWorldEntity = createEntity()
-        setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+
         physicsWorld = Physics.createWorld(physicsWorldEntity)
         setComponent(physicsWorldEntity, SceneComponent)
         setComponent(physicsWorldEntity, TransformComponent)
@@ -662,7 +664,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         physicsWorld = Physics.createWorld(entity)
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
@@ -701,7 +706,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -746,7 +754,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -785,7 +796,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -844,7 +858,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -899,7 +916,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -945,7 +965,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -991,7 +1014,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -1057,7 +1083,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -1132,7 +1161,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -1200,7 +1232,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -1323,7 +1358,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -1371,7 +1409,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -1423,7 +1464,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -1491,7 +1535,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -1554,7 +1601,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -1592,7 +1642,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -1630,7 +1683,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -1668,7 +1724,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -1756,7 +1815,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -1794,7 +1856,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -1857,7 +1922,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -2126,7 +2194,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -2182,7 +2253,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -2240,7 +2314,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -2320,7 +2397,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -2361,7 +2441,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -2408,7 +2491,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -2467,7 +2553,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -2523,7 +2612,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -2570,7 +2662,7 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {entitySourceID: UUIDComponent.generateUUID() as any as SourceID, entityID: UUIDComponent.generateUUID() as any as EntityID})
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -2651,7 +2743,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -2902,7 +2997,10 @@ describe('Physics : Rapier->ECS API', () => {
         createEngine()
         await Physics.load()
         const entity = createEntity()
-        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, UUIDComponent, {
+          entitySourceID: UUIDComponent.generateUUID() as any as SourceID,
+          entityID: UUIDComponent.generateUUID() as any as EntityID
+        })
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)

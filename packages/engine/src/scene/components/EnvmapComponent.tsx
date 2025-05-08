@@ -33,7 +33,6 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { removePlugin, setPlugin } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
-import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 import {
   envmapParsReplaceLambert,
   envmapPhysicalParsReplace,
@@ -51,7 +50,7 @@ export const EnvMapComponent = defineComponent({
     envMapSourceColor: T.Color('#8080FF'),
     envMapSourceURL: S.String(),
     envMapCubemapURL: S.String(),
-    envMapSourceEntityUUID: NodeIDSchema(),
+    envMapSourceEntityUUID: S.EntityID(),
     envMapIntensity: S.Number({ default: 1 })
   }),
 

@@ -25,7 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   Entity,
+  EntityID,
   EntityTreeComponent,
+  SourceID,
+  UUIDComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -210,6 +213,10 @@ describe('PointLightComponent', () => {
       createEngine()
       mockSpatialEngine()
       testEntity = createEntity()
+      setComponent(testEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'id' as EntityID
+      })
       setComponent(testEntity, TransformComponent)
     })
 

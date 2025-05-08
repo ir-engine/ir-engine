@@ -28,13 +28,12 @@ import { useTranslation } from 'react-i18next'
 
 import { OverlayComponentState } from '@ir-engine/client-core/src/systems/OverlaySystem'
 import capitalizeFirstLetter from '@ir-engine/common/src/utils/capitalizeFirstLetter'
-import { getComponent, hasComponent, useComponent } from '@ir-engine/ecs'
+import { getComponent, hasComponent, useComponent, UUIDComponent } from '@ir-engine/ecs'
 import { commitProperty, EditorComponentType, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { ImageFileTypes, VideoFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
-import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import {
   InteractableComponent,
   XRUIActivationType
@@ -68,7 +67,7 @@ export const OverlayNodeEditor: EditorComponentType = (props) => {
         callbacks: [
           {
             callbackID: OverlayComponent.overlayCallbackName,
-            target: getComponent(props.entity, NodeIDComponent)
+            target: getComponent(props.entity, UUIDComponent).entityID
           }
         ]
       })
