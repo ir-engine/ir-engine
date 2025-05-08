@@ -44,7 +44,26 @@ export const NodeIDComponent = defineComponent({
   name: 'NodeIDComponent',
   jsonID: 'EE_uuid',
 
-  schema: S.EntityID(),
+  schema: S.EntityID({
+    serialize(value) {
+      if (value == null) return value
+
+      if (typeof value !== 'object') {
+        return {
+          value: value
+        }
+      }
+
+      return value
+    },
+    deserialize(curr, value) {
+      if (value != null && typeof value === 'object' && 'value' in value && Object.keys(value).length === 1) {
+        return (value as { value: EntityID }).value
+      }
+
+      return value
+    }
+  }),
 
   /**
    * Creates a new entity with the NodeIDComponent and SourceComponent.
