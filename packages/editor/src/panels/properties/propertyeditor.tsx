@@ -178,7 +178,7 @@ const PropertiesEditor = () => {
       {materialUUID && materialEntity ? (
         <ErrorBoundary fallback={<div>Error occured displaying material properties</div>}>
           <Suspense>
-            <MaterialEditor materialUUID={materialUUID} />
+            <MaterialEditor entity={materialEntity} />
           </Suspense>
         </ErrorBoundary>
       ) : uuid ? (

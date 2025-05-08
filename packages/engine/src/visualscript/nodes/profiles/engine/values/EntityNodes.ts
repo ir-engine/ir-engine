@@ -68,7 +68,7 @@ export const getEntity = makeFunctionNodeDefinition({
     entity: (_) => {
       const choices = sceneQuery().map((entity) => ({
         text: getComponent(entity, NameComponent),
-        value: getComponent(entity, UUIDComponent) as string
+        value: UUIDComponent.get(entity)
       }))
       return {
         valueType: 'string',
@@ -140,7 +140,7 @@ export const entityExists = makeFlowNodeDefinition({
       write('rotation', transform.rotation)
       write('scale', transform.scale)
       write('matrix', transform.matrix)
-      write('uuid', getComponent(entity, UUIDComponent) as string)
+      write('uuid', UUIDComponent.get(entity))
     }
     commit('flow')
   }
@@ -155,7 +155,7 @@ export const addEntity = makeFlowNodeDefinition({
     parentEntity: (_) => {
       const choices = sceneQuery().map((entity) => ({
         text: getComponent(entity, NameComponent),
-        value: getComponent(entity, UUIDComponent) as string
+        value: UUIDComponent.get(entity)
       }))
       return {
         valueType: 'string',
@@ -200,9 +200,9 @@ export const deleteEntity = makeFlowNodeDefinition({
     entityUUID: (_) => {
       const choices = sceneQuery().map((entity) => ({
         text: getComponent(entity, NameComponent),
-        value: getComponent(entity, UUIDComponent) as string
+        value: UUIDComponent.get(entity)
       }))
-      choices.unshift({ text: 'none', value: '' })
+      choices.unshift({ text: 'none', value: '' as EntityUUID })
       return {
         valueType: 'string',
         choices: choices // no default beacause we dont want to acciedently delete the default, none is safer

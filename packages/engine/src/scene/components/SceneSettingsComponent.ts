@@ -39,7 +39,6 @@ export const SceneSettingsComponent = defineComponent({
     backgroundColor: S.String({ default: '#FFFFFF' }),
     alternativeColor: S.String({ default: '#000000' }),
     sceneKillHeight: S.Number({ default: DefaultKillHeight }),
-    /** @todo we need some kind of "Either" type in our schemas to allow either a UserID or a NodeID here, rather than an EntityUUID */
-    spectateEntity: S.EntityUUID()
+    spectateEntity: S.EntityID()
   })
 })

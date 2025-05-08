@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { Light, Material, Mesh, Object3D, SkinnedMesh, Texture } from 'three'
 
-import { UUIDComponent } from '@ir-engine/ecs'
 import {
   getComponent,
   hasComponent,
@@ -120,8 +119,7 @@ const execute = () => {
 
 const ModelEntityReactor = (props: { entity: Entity }) => {
   const entity = props.entity
-  const modelInstanceID = GLTFComponent.useInstanceID(entity)
-  const childEntities = SourceComponent.useEntitiesBySource(modelInstanceID)
+  const childEntities = SourceComponent.useEntitiesBySource(entity)
 
   return (
     <EntityArrayBoundary entities={childEntities} ChildEntityReactor={ChildReactor} props={{ parentEntity: entity }} />
@@ -130,11 +128,10 @@ const ModelEntityReactor = (props: { entity: Entity }) => {
 
 const useIsUnlit = (entity: Entity) => {
   let isUnlit = useHasComponent(entity, KHRUnlitExtensionComponent)
-  const materialInstanceUUIDs = useOptionalComponent(entity, MaterialInstanceComponent)?.uuid.value
+  const materialInstanceUUIDs = useOptionalComponent(entity, MaterialInstanceComponent)?.entities.value
 
   if (materialInstanceUUIDs) {
-    for (const uuid of materialInstanceUUIDs) {
-      const matEntity = UUIDComponent.getEntityByUUID(uuid)
+    for (const matEntity of materialInstanceUUIDs) {
       if (matEntity && hasComponent(matEntity, KHRUnlitExtensionComponent)) {
         isUnlit = true
         break

@@ -28,7 +28,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   Entity,
-  UUIDComponent,
   UndefinedEntity,
   createEntity,
   destroyEngine,
@@ -98,7 +97,7 @@ describe('ColliderComponent', () => {
       createEngine()
       await Physics.load()
       physicsWorldEntity = createEntity()
-      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+
       physicsWorld = Physics.createWorld(physicsWorldEntity)
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
@@ -284,7 +283,7 @@ describe('ColliderComponent', () => {
       createEngine()
       await Physics.load()
       physicsWorldEntity = createEntity()
-      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+
       physicsWorld = Physics.createWorld(physicsWorldEntity)
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
