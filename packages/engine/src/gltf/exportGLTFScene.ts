@@ -1170,8 +1170,6 @@ const exportEntity = async (
 ): Promise<number | void> => {
   if (context.cache.entities.has(entity)) return context.cache.entities.get(entity)
 
-  console.log('exportEntity', entity)
-
   for (const extension of context.exportExtensions) extension.beforeNode?.(entity)
 
   //ignore entities with no source
@@ -1198,7 +1196,6 @@ const exportEntity = async (
   const childrenIndicies = [] as number[]
   if (children && children.length > 0) {
     for (const child of children) {
-      console.log(child, getComponent(child, UUIDComponent).entitySourceID, context.sourceID)
       if (getComponent(child, UUIDComponent).entitySourceID !== context.sourceID) continue
       const childPromise = new Promise<void>((resolve) => {
         exportEntity(child, gltf, context).then((childIndex) => {
