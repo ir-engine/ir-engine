@@ -66,12 +66,15 @@ export const BoundingBoxComponent = defineComponent({
     const boundingBox = useComponent(entity, BoundingBoxComponent)
 
     useEffect(() => {
-      const showVolume =
-        debugEnabled.value ||
-        (activeHelperComponent !== undefined &&
-          activeHelperComponent.enabled.value &&
-          (activeHelperComponent.hovered.value || activeHelperComponent.selected.value))
+      const helperEnabled =
+        activeHelperComponent !== undefined &&
+        activeHelperComponent.enabled.value &&
+        (activeHelperComponent.hovered.value || activeHelperComponent.selected.value)
 
+      const showVolume =
+        activeHelperComponent !== undefined && activeHelperComponent.volumeControlled.value
+          ? helperEnabled
+          : debugEnabled.value
       if (!showVolume) return
 
       const helperEntity = createEntity()
@@ -96,7 +99,13 @@ export const BoundingBoxComponent = defineComponent({
         if (!hasComponent(entity, BoundingBoxComponent)) return
         boundingBox.helper.set(UndefinedEntity)
       }
-    }, [debugEnabled, activeHelperComponent?.enabled, activeHelperComponent?.hovered, activeHelperComponent?.selected])
+    }, [
+      debugEnabled,
+      activeHelperComponent?.volumeControlled,
+      activeHelperComponent?.enabled,
+      activeHelperComponent?.hovered,
+      activeHelperComponent?.selected
+    ])
 
     return null
   }

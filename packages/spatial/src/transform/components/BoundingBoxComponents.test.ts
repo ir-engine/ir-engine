@@ -49,7 +49,7 @@ import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
-import { BoundingBoxComponent, BoundingBoxComponentFunctions, updateBoundingBox } from './BoundingBoxComponents'
+import { BoundingBoxComponent, BoundingBoxComponentFunctions, updateBoundingBox } from './BoundingBoxComponent'
 import { TransformComponent } from './TransformComponent'
 
 function createEntityWithBoxAndParent(parent: Entity): Entity {

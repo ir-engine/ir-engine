@@ -23,7 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Engine, Entity, getComponent, getMutableComponent, getOptionalComponent, setComponent } from '@ir-engine/ecs'
+import {
+  defineQuery,
+  Engine,
+  Entity,
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  setComponent
+} from '@ir-engine/ecs'
+import { getMutableState } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -31,6 +40,7 @@ import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/I
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { TransformComponent } from '@ir-engine/spatial/src/SpatialModule'
 import { Line, Raycaster, Sprite, SpriteMaterial, TextureLoader } from 'three'
 import { getCameraFactor, intersectObjectWithRay } from './gizmoCommonFunctions'
@@ -41,6 +51,12 @@ _raycaster.firstHitOnly = true
 
 const _interpolationFactor = 0.3 // used for the hover grow effect
 
+export const VolumeVisibility = {
+  Off: 'Off' as const,
+  Auto: 'Auto' as const,
+  On: 'On' as const
+}
+
 export const getIconGizmo = (textureURL) => {
   const texture = new TextureLoader().load(textureURL)
   const material = new SpriteMaterial({
@@ -50,6 +66,13 @@ export const getIconGizmo = (textureURL) => {
   })
   material.depthTest = false // Disable depth testing
   return new Sprite(material)
+}
+
+export const setVolumeVisibility = (visibility) => {
+  getMutableState(RendererState).nodeHelperVisibility.set(visibility !== VolumeVisibility.Off)
+  defineQuery([ActiveHelperComponent])().forEach((entity) =>
+    setComponent(entity, ActiveHelperComponent, { volumeControlled: visibility === VolumeVisibility.Auto })
+  )
 }
 
 export function gizmoIconHelperYAxisUpdate(helperEntity, position) {

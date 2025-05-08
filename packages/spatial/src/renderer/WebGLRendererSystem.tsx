@@ -569,7 +569,8 @@ const cameraReactor = () => {
 
   // the studio icons exist on the same layer as the selected gizmos, so disabling the node helper layer also hides the studio icons, which is not desired
   useEffect(() => {
-    camera.layers.enable(ObjectLayers.NodeHelper)
+    if (engineRendererSettings.nodeHelperVisibility.value) camera.layers.enable(ObjectLayers.NodeHelper)
+    else camera.layers.disable(ObjectLayers.NodeHelper)
   }, [engineRendererSettings.nodeHelperVisibility])
 
   useEffect(() => {

@@ -29,15 +29,13 @@ import { Mesh, Object3D } from 'three'
 import {
   createEntity,
   Entity,
-  EntityID,
   EntityTreeComponent,
   getComponent,
   getOptionalComponent,
   removeEntity,
   setComponent,
   UndefinedEntity,
-  useOptionalComponent,
-  UUIDComponent
+  useOptionalComponent
 } from '@ir-engine/ecs'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -114,10 +112,6 @@ export function createHelperEntity<TObject extends DisposableObject3D>(
   setComponent(helperEntity, EntityTreeComponent, { parentEntity: parentEntity })
   setComponent(helperEntity, TransformComponent)
   setComponent(helperEntity, ObjectComponent, helper)
-  setComponent(helperEntity, UUIDComponent, {
-    entityID: 'helper-entity' as EntityID,
-    entitySourceID: getComponent(parentEntity, UUIDComponent).entitySourceID
-  })
   setComponent(helperEntity, ObjectLayerMaskComponent, layerMask)
   setComponent(helperEntity, VisibleComponent, true)
 

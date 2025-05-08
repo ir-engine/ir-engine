@@ -39,7 +39,7 @@ export const ActiveHelperComponent = defineComponent({
     directionalEntities: S.Array(S.Entity(UndefinedEntity)),
     lineEntities: S.Array(S.Entity(UndefinedEntity)),
     volumeEnabled: S.Bool({ default: false }),
-    volumeEntities: S.Array(S.Entity(UndefinedEntity)),
+    volumeControlled: S.Bool({ default: true }),
     sizeFactor: S.Number({ default: 0.25 })
   }),
   reactor: () => {
