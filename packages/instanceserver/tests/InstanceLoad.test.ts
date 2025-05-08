@@ -148,7 +148,7 @@ describe('InstanceLoad', () => {
 
     const scene = await app.service(staticResourcePath).get(skyStationScene.data[0].sceneId)
 
-    const entity = UUIDComponent.getEntityByUUID(scene.id as EntityUUID)
+    const entity = UUIDComponent.getEntityByUUID(('root' + scene.id) as EntityUUID)
     assert(entity > 0)
 
     assert.equal(getComponent(entity, GLTFComponent).progress, 100)

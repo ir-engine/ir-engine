@@ -42,7 +42,7 @@ import {
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
+import { Entity, EntityID } from '@ir-engine/ecs/src/Entity'
 import { getState, NO_PROXY_STEALTH, useHookstate } from '@ir-engine/hyperflux'
 
 import { getAncestorWithComponents, isAncestor } from '@ir-engine/ecs'
@@ -146,7 +146,7 @@ export const InputComponent = defineComponent({
   jsonID: 'EE_input',
 
   schema: S.Object({
-    inputSinks: S.Array(S.EntityUUID(), { default: ['Self' as EntityUUID] }),
+    inputSinks: S.Array(S.EntityID(), { default: ['Self' as EntityID] }),
     activationDistance: S.Number({ default: 2 }),
     highlight: S.Bool({ default: false }),
     grow: S.Bool({ default: false }),

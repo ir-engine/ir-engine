@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
-  EntityUUID,
+  Entity,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -46,10 +46,10 @@ import {
 } from './TransparencyDitheringComponent'
 
 type TransparencyDitheringRootComponentData = {
-  materials: EntityUUID[]
+  materials: Entity[]
 }
 const TransparencyDitheringRootComponentDefaults: TransparencyDitheringRootComponentData = {
-  materials: [] as EntityUUID[]
+  materials: [] as Entity[]
 }
 
 function assertTransparencyDitheringRootComponentEq(

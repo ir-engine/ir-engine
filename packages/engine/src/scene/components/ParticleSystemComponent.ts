@@ -56,7 +56,6 @@ import {
   EntityTreeComponent,
   UUIDComponent,
   createEntity,
-  generateEntityUUID,
   getAncestorWithComponents,
   getChildrenWithComponents,
   removeEntity,
@@ -104,14 +103,19 @@ const createBatchedRenderer = (entity: Entity) => {
   } else {
     const renderer = new BatchedRenderer()
     const rendererEntity = createEntity()
-    setComponent(rendererEntity, UUIDComponent, generateEntityUUID())
     setComponent(rendererEntity, VisibleComponent)
     setComponent(rendererEntity, NameComponent, 'Particle Renderer')
     const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
+    setComponent(rendererEntity, UUIDComponent, {
+      entitySourceID: getComponent(sceneEntity, UUIDComponent).entitySourceID,
+      entityID: UUIDComponent.generateUUID()
+    })
     setComponent(rendererEntity, EntityTreeComponent, { parentEntity: sceneEntity })
     renderer.preserveChildren = true
     renderer.parent = {
       type: 'Scene',
+      matrix: new Matrix4().identity(),
+      matrixWorld: new Matrix4().identity(),
       remove: () => {},
       removeFromParent: () => {}
     } as Object3D
@@ -123,7 +127,7 @@ const createBatchedRenderer = (entity: Entity) => {
   }
 }
 
-const removeBatchedRenderer: (sceneID: string) => void = (sceneID) => {
+const removeBatchedRenderer: (sceneEntity: Entity) => void = (sceneID) => {
   const particleState = getMutableState(ParticleState)
   if (particleState.renderers[sceneID].value) {
     const instance = particleState.renderers[sceneID].get(NO_PROXY) as ParticleSystemRendererInstance
@@ -1014,6 +1018,7 @@ export const ParticleSystemComponent = defineComponent({
 
       const emitterAsObj3D = nuSystem.emitter
       emitterAsObj3D.parent = renderer
+      setComponent(entity, EntityTreeComponent, { parentEntity: renderer.entity })
       setComponent(entity, ObjectComponent, emitterAsObj3D)
       // quarks expects the parent property on the emitter object to be the renderer, otherwise it will dispose the emitter
       Object.defineProperties(emitterAsObj3D, {
@@ -1027,7 +1032,6 @@ export const ParticleSystemComponent = defineComponent({
           }
         }
       })
-      setComponent(entity, EntityTreeComponent, { parentEntity: renderer.entity })
       const transformComponent = getComponent(entity, TransformComponent)
       emitterAsObj3D.matrix = transformComponent.matrix
       componentState.system.set(nuSystem)

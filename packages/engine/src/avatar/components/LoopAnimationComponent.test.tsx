@@ -26,11 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   createEngine,
   destroyEngine,
-  generateEntityUUID,
+  EntityID,
   getComponent,
   hasComponent,
   removeComponent,
   setComponent,
+  SourceID,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { afterEach, assert, beforeEach, describe, it, vi } from 'vitest'
@@ -58,7 +59,10 @@ describe('LoopAnimationComponent', () => {
     it('Should start animation when index is set', async () => {
       const entity = createTestGLTFEntity()
 
-      setComponent(entity, UUIDComponent, generateEntityUUID())
+      setComponent(entity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'test' as EntityID
+      })
       setComponent(entity, GLTFComponent, { src: rings_gltf })
 
       await vi.waitFor(
@@ -82,7 +86,10 @@ describe('LoopAnimationComponent', () => {
     it('Should stop animation when index is set to -1', async () => {
       const entity = createTestGLTFEntity()
 
-      setComponent(entity, UUIDComponent, generateEntityUUID())
+      setComponent(entity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'test' as EntityID
+      })
       setComponent(entity, GLTFComponent, { src: rings_gltf })
 
       await vi.waitFor(
@@ -117,7 +124,10 @@ describe('LoopAnimationComponent', () => {
     it('Should stop animation when the component is removed', async () => {
       const entity = createTestGLTFEntity()
 
-      setComponent(entity, UUIDComponent, generateEntityUUID())
+      setComponent(entity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'test' as EntityID
+      })
       setComponent(entity, GLTFComponent, { src: rings_gltf })
 
       await vi.waitFor(

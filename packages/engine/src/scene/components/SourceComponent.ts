@@ -23,38 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { TTypedSchema } from '@ir-engine/ecs'
-import { defineComponent, LayerComponent, LayerID, Layers } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
+import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity, SourceID } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { defineState, getMutableState, getState, none, OpaqueType, useHookstate } from '@ir-engine/hyperflux'
-import { NonEmptyString } from '@ir-engine/spatial/src/schema/schemaFunctions'
+import { defineState, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
+import { NodeID } from '../../gltf/NodeIDComponent'
 
 /**
  * A source ID is expeced to in the format of `<nodeid>-<src>` where src is the source of the model and nodeid is the node id of the entity
  */
 
-export type SourceID = OpaqueType<'SourceID'> & string
-
 export const EntitiesBySourceState = defineState({
   name: 'ir.world.EntitiesBySourceState',
-  initial: {} as Record<LayerID, Record<SourceID, Entity[]>>
+  initial: {} as Record<SourceID, Entity[]>
 })
 
-export const SourceIDSchema = (options?: TTypedSchema<SourceID>['options']) =>
-  S.String({
-    ...options,
-    validate: NonEmptyString('SourceComponent expects a non-empty string'),
-    id: 'SourceID'
-  }) as unknown as TTypedSchema<SourceID>
-
+/** @deprecated - use UUIDComponent.entitySourceID */
 export const SourceComponent = defineComponent({
   name: 'SourceComponent',
 
-  schema: SourceIDSchema({ required: true }),
+  schema: S.Entity(),
 
-  onSet: (entity, component, source: SourceID) => {
-    const layer = LayerComponent.get(entity)
+  onSet: (entity, component, source: Entity) => {
     const currentSource = component.value
     if (currentSource) {
       if (currentSource === source) return
@@ -64,8 +54,7 @@ export const SourceComponent = defineComponent({
     }
     component.set(source)
     const state = getMutableState(EntitiesBySourceState)
-    if (!getState(EntitiesBySourceState)[layer]) state[layer].set({})
-    const entitiesBySourceState = state[layer][source]
+    const entitiesBySourceState = state[source]
     if (!entitiesBySourceState.value) {
       entitiesBySourceState.set([entity])
     } else {
@@ -74,26 +63,24 @@ export const SourceComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    const layer = LayerComponent.get(entity)
-    const entities = getState(EntitiesBySourceState)[layer][component.value].filter(
-      (currentEntity) => currentEntity !== entity
-    )
-    const layerState = getMutableState(EntitiesBySourceState)[layer]
+    const source = component.value.toString()
+    const entities = getState(EntitiesBySourceState)[source].filter((currentEntity) => currentEntity !== entity)
+    const layerState = getMutableState(EntitiesBySourceState)
     if (entities.length === 0) {
-      layerState[component.value].set(none)
+      layerState[source].set(none)
     } else {
-      layerState[component.value].set(entities)
+      layerState[source].set(entities)
     }
   },
 
-  useEntitiesBySource: (sourceID: SourceID, layer = Layers.Simulation as LayerID) => {
-    const state = useHookstate(getMutableState(EntitiesBySourceState)[layer]).value
-    return state?.[sourceID] || []
+  useEntitiesBySource: (source: Entity) => {
+    const state = useHookstate(getMutableState(EntitiesBySourceState)).value
+    return state[source] || []
   },
 
-  getEntitiesBySource: (sourceID: SourceID, layer = Layers.Simulation as LayerID) => {
-    return getState(EntitiesBySourceState)[layer]?.[sourceID] || []
+  getEntitiesBySource: (source: Entity): Entity[] => {
+    return getState(EntitiesBySourceState)[source] || []
   },
 
-  getSourceID: (uuid: EntityUUID, src: string) => `${uuid}-${src}` as SourceID
+  getSourceID: (context: string, nodeID: NodeID) => `${context}-${nodeID}` as SourceID
 })

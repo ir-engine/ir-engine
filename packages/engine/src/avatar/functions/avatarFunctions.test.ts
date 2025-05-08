@@ -32,7 +32,7 @@
 // import { loadDRACODecoderNode } from '../../assets/loaders/gltf/NodeDracoLoader'
 // import { destroyEngine, Engine } from '@ir-engine/ecs/src/Engine'
 // import { addComponent, getComponent, setComponent } from '@ir-engine/ecs/srcComponentFunctions'
-// import { createEntity } from '@ir-engine/ecs/srcEntityFunctions'
+// import { createEntity } from '@ir-engine/ecs/srcComponentFunctions'
 // import { createEngine } from '@ir-engine/ecs/src/Engine'
 // import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 // import { setTransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'

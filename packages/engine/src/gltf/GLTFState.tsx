@@ -28,14 +28,15 @@ import { Group, MathUtils } from 'three'
 
 import {
   Entity,
+  EntityID,
   EntityTreeComponent,
-  EntityUUID,
   LayerComponent,
   LayerComponents,
   LayerID,
   Layers,
   PresentationSystemGroup,
   QuerySubReactor,
+  SourceID,
   UUIDComponent,
   UndefinedEntity,
   createEntity,
@@ -66,7 +67,7 @@ export const SceneState = defineState({
   initial: {} as Record<string, Entity>,
 
   loadScene: (sceneURL: string, uuid: string, viewerEntity?: Entity, layer?: LayerID) => {
-    const gltfEntity = AssetState.load(sceneURL, uuid as EntityUUID, UndefinedEntity, layer)
+    const gltfEntity = AssetState.load(sceneURL, uuid as string as EntityID, UndefinedEntity, layer)
     getMutableState(SceneState)[sceneURL].set(gltfEntity)
     setComponent(gltfEntity, SceneComponent)
 
@@ -104,12 +105,12 @@ export const AssetState = defineState({
    */
   load: (
     source: string,
-    uuid = MathUtils.generateUUID() as EntityUUID,
+    uuid = MathUtils.generateUUID() as EntityID,
     parentEntity = UndefinedEntity,
     layer = Layers.Simulation as LayerID
   ) => {
     const entity = createEntity(layer)
-    setComponent(entity, UUIDComponent, uuid)
+    setComponent(entity, UUIDComponent, { entityID: uuid, entitySourceID: 'root' as SourceID })
     setComponent(entity, NameComponent, source.split('/').pop()!)
     setComponent(entity, VisibleComponent, true)
     setComponent(entity, TransformComponent)

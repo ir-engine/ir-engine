@@ -28,9 +28,12 @@ import {
   deserializeComponent,
   EngineState,
   Entity,
+  EntityID,
   EntityTreeComponent,
+  EntityUUID,
   getAllComponents,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   Layers,
   QueryReactor,
@@ -38,11 +41,12 @@ import {
   removeEntity,
   serializeComponent,
   setComponent,
+  SourceID,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
-import { SourceComponent, SourceID } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import {
   defineAction,
   defineState,
@@ -203,10 +207,15 @@ export const AuthoringState = defineState({
   },
 
   snapshotEntities: (entities: Entity[]) => {
-    const affectedSources = new Set<SourceID>(entities.map((entity) => getComponent(entity, SourceComponent)))
+    const affectedSources = new Set<SourceID>(
+      entities
+        .filter((entity) => hasComponent(entity, UUIDComponent))
+        .map((entity) => getComponent(entity, UUIDComponent).entitySourceID)
+    )
     if (affectedSources.size === 0) return
     const ops = {} as Record<SourceID, Operation[]>
     for (const sourceID of affectedSources) {
+      if (!sourceID) continue
       const newData = getSourceSnapshot(sourceID)
       const patch = createPatch(getState(AuthoringState).sources[sourceID].latest, newData)
       ops[sourceID] = patch
@@ -236,8 +245,7 @@ const SourceReactor = (props: { entity: Entity }) => {
   useEffect(() => {
     if (!loaded) return
 
-    const sourceID = GLTFComponent.getInstanceID(props.entity)
-
+    const sourceID = UUIDComponent.getAsSourceID(props.entity)
     const sourceData = getSourceSnapshot(sourceID)
 
     dispatchAction(AuthoringActions.initialize({ sourceID, partialState: sourceData }))
@@ -332,12 +340,16 @@ export const computeCommands = (commands: HistoryCommand[], sourceID?: SourceID)
  * @param finalState
  */
 export const applyCommandsToECS = (sourceID: SourceID, currentState: SourceData, finalState: SourceData) => {
-  for (const nodeID of Object.keys(finalState) as NodeID[]) {
+  for (const nodeID of Object.keys(finalState) as EntityID[]) {
     if (finalState[nodeID]) {
-      const uuid = NodeIDComponent.getUUIDBySourceAndNodeID(sourceID, nodeID)
+      const uuid = UUIDComponent.join({ entitySourceID: sourceID, entityID: nodeID })
       if (!currentState[nodeID] && !UUIDComponent.getEntityByUUID(uuid, Layers.Authoring)) {
         // entity does not exist, add entity
-        NodeIDComponent.create(sourceID, nodeID, Layers.Authoring)
+        NodeIDComponent.create(
+          UUIDComponent.getEntityByUUID(sourceID as any as EntityUUID, Layers.Authoring),
+          nodeID as any as EntityID,
+          Layers.Authoring
+        )
       }
       const entity = UUIDComponent.getEntityByUUID(uuid, Layers.Authoring)
       for (const [componentName, componentData] of Object.entries(finalState[nodeID])) {
@@ -361,13 +373,13 @@ export const applyCommandsToECS = (sourceID: SourceID, currentState: SourceData,
       }
     }
   }
-  for (const nodeID of Object.keys(currentState) as NodeID[]) {
+  for (const nodeID of Object.keys(currentState) as EntityID[]) {
     if (!finalState[nodeID]) {
       // entity does not exist, remove entity
-      const uuid = NodeIDComponent.getUUIDBySourceAndNodeID(sourceID, nodeID)
+      const uuid = (sourceID + nodeID) as EntityUUID
       const entity = UUIDComponent.getEntityByUUID(uuid, Layers.Authoring)
       // ensure the entity has actually been removed, and not moved to another source
-      if (getComponent(entity, SourceComponent) === sourceID) {
+      if (getOptionalComponent(entity, UUIDComponent)?.entitySourceID === sourceID) {
         removeEntity(entity)
       }
     }
@@ -375,7 +387,9 @@ export const applyCommandsToECS = (sourceID: SourceID, currentState: SourceData,
 }
 
 export const getSourceSnapshot = (sourceID: SourceID) => {
-  const sourceEntities = SourceComponent.getEntitiesBySource(sourceID, Layers.Authoring)
+  const sourceEntities = SourceComponent.getEntitiesBySource(
+    UUIDComponent.getEntityByUUID(sourceID as string as EntityUUID, Layers.Authoring)
+  )
 
   const sourceData = {} as SourceData
 
