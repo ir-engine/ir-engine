@@ -51,7 +51,13 @@ import {
   Vector3
 } from 'three'
 
-import { getComponent, getOptionalComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  entityExists,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  setComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 
 import { getAncestorWithComponents, useAncestorWithComponents } from '@ir-engine/ecs'
@@ -676,7 +682,7 @@ function attachCollider(
   rigidBodyEntity: Entity,
   colliderEntity: Entity
 ) {
-  if (world.Colliders.has(colliderEntity)) return
+  if (world.Colliders.has(colliderEntity) || !entityExists(colliderEntity)) return
   const rigidBody = world.Rigidbodies.get(rigidBodyEntity) // guaranteed will exist
   if (!rigidBody) return console.error('Rigidbody not found for entity ' + rigidBodyEntity)
   const collider = world.createCollider(colliderDesc, rigidBody)
