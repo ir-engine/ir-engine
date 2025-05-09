@@ -114,7 +114,7 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
               for (const entity of entities) setComponent(entity, RigidBodyComponent, { type: 'fixed' })
               AuthoringState.snapshotEntities(entities)
               // trigger the rerender for the editor panel
-              SelectionState.updateSelection(entities.map((node) => getComponent(node, UUIDComponent)))
+              SelectionState.updateSelection(entities.map((node) => UUIDComponent.get(node)))
             }}
           >
             <HiPlus />

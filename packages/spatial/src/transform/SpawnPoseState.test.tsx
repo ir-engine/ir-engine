@@ -25,7 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   Entity,
-  EntityUUID,
+  EntityID,
+  EntityUUIDPair,
+  SourceID,
   UUIDComponent,
   createEngine,
   createEntity,
@@ -73,12 +75,12 @@ describe('SpawnPoseState', () => {
         const Expected = new Vector3().setScalar(42)
         const Initial = new Vector3().setScalar(21)
         // Set the data as expected
-        const keys: EntityUUID[] = [
-          UUIDComponent.generateUUID(),
-          UUIDComponent.generateUUID(),
-          UUIDComponent.generateUUID()
+        const keys: EntityUUIDPair[] = [
+          { entitySourceID: 'source' as SourceID, entityID: 'test1' as EntityID },
+          { entitySourceID: 'source' as SourceID, entityID: 'test2' as EntityID },
+          { entitySourceID: 'source' as SourceID, entityID: 'test3' as EntityID }
         ]
-        const entities: Entity[] = keys.map((uuid: EntityUUID) => {
+        const entities: Entity[] = keys.map((uuid: EntityUUIDPair) => {
           const entity = createEntity()
           setComponent(entity, UUIDComponent, uuid)
           setComponent(entity, TransformComponent, { position: Initial })
@@ -86,7 +88,7 @@ describe('SpawnPoseState', () => {
         })
         getMutableState(SpawnPoseState).set(
           keys.reduce((list, uuid) => {
-            list[uuid] = {
+            list[UUIDComponent.join(uuid)] = {
               spawnPosition: Expected,
               spawnRotation: new Quaternion(1, 2, 3, 4).normalize()
             }
@@ -106,12 +108,12 @@ describe('SpawnPoseState', () => {
         const Expected = new Quaternion(1, 2, 3, 4).normalize()
         const Initial = new Quaternion(5, 6, 7, 8).normalize()
         // Set the data as expected
-        const keys: EntityUUID[] = [
-          UUIDComponent.generateUUID(),
-          UUIDComponent.generateUUID(),
-          UUIDComponent.generateUUID()
+        const keys: EntityUUIDPair[] = [
+          { entitySourceID: 'source' as SourceID, entityID: 'test1' as EntityID },
+          { entitySourceID: 'source' as SourceID, entityID: 'test2' as EntityID },
+          { entitySourceID: 'source' as SourceID, entityID: 'test3' as EntityID }
         ]
-        const entities: Entity[] = keys.map((uuid: EntityUUID) => {
+        const entities: Entity[] = keys.map((uuid: EntityUUIDPair) => {
           const entity = createEntity()
           setComponent(entity, UUIDComponent, uuid)
           setComponent(entity, TransformComponent, { rotation: Initial })
@@ -119,7 +121,7 @@ describe('SpawnPoseState', () => {
         })
         getMutableState(SpawnPoseState).set(
           keys.reduce((list, uuid) => {
-            list[uuid] = {
+            list[UUIDComponent.join(uuid)] = {
               spawnPosition: Vector3_One.clone(),
               spawnRotation: Expected
             }
@@ -138,12 +140,12 @@ describe('SpawnPoseState', () => {
       it('... should not do anything if entity is falsy', async () => {
         const Initial = new Vector3().setScalar(21)
         // Set the data as expected
-        const keys: EntityUUID[] = [
+        const keys: EntityID[] = [
           UUIDComponent.generateUUID(),
           UUIDComponent.generateUUID(),
           UUIDComponent.generateUUID()
         ]
-        const entities: Entity[] = keys.map((_uuid: EntityUUID) => {
+        const entities: Entity[] = keys.map((_uuid: EntityID) => {
           const entity = createEntity()
           // setComponent(entity, UUIDComponent, uuid)   // Do not set the UUID so the entity is falsy inside the reactor
           setComponent(entity, TransformComponent, { position: Initial })

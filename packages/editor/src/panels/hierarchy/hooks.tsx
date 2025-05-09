@@ -220,7 +220,7 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
 
 export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) => {
   const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
-  const sourceID = GLTFComponent.useInstanceID(rootEntity)
+  const sourceID = GLTFComponent.useSourceID(rootEntity)
   if (!sourceID) return null
   return <HierarchySnapshotReactor children={children} rootEntity={rootEntity} sourceID={sourceID} />
 }
@@ -232,7 +232,7 @@ export const useHierarchyTreeContextMenu = () => useContext(HierarchyTreeContext
 export const useNodeCollapseExpand = () => {
   const rootEntity = useMutableState(EditorState).rootEntity.value
   const expandedNodes = useMutableState(HierarchyTreeState).expandedNodes
-  const sourceID = GLTFComponent.useInstanceID(rootEntity)
+  const sourceID = GLTFComponent.useSourceID(rootEntity)
 
   const expandNode = (entity: Entity) => {
     expandedNodes[sourceID][entity].set(true)

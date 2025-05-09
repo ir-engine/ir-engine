@@ -62,7 +62,7 @@ export const ConfirmDialog = ({ title, text, onSubmit, onClose, modalProps }: Co
         ModalState.closeModal()
         onClose?.()
       }}
-      className="h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl bg-surface-1 xsh:h-auto xsh:min-w-fit"
+      className="h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl xsh:h-auto xsh:min-w-fit"
       submitLoading={modalProcessing.value}
       rawChildren={
         <div

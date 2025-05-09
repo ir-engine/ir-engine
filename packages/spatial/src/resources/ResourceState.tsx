@@ -42,14 +42,16 @@ import {
   Engine,
   Entity,
   QueryReactor,
+  UUIDComponent,
   getAncestorWithComponents,
   getAuthoringCounterpart,
   getComponent,
   getOptionalComponent,
+  hasComponent,
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
-import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@ir-engine/hyperflux'
+import { NO_PROXY, State, defineState, getMutableState, getState, none, useMutableState } from '@ir-engine/hyperflux'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 
 import { ReferenceSpaceState } from '@ir-engine/spatial'
@@ -60,6 +62,7 @@ import iterateObject3D from '../common/functions/iterateObject3D'
 import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { PerformanceState } from '../renderer/PerformanceState'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'
+import { VisibleComponent } from '../renderer/components/VisibleComponent'
 
 export interface DisposableObject {
   uuid: string
@@ -161,6 +164,36 @@ const getTotalVertexCount = () => {
   for (const key in resources) {
     const resource = resources[key]
     if (resource.type == ResourceType.Geometry && (resource.metadata as GLTFMetadata).vertexCount)
+      verts += (resource.metadata as GLTFMetadata).vertexCount
+  }
+
+  return verts
+}
+
+const useTotalVertexCount = () => {
+  let verts = 0
+  const resources = useMutableState(ResourceState).resources.value as Record<string, Resource>
+  for (const key in resources) {
+    const resource = resources[key]
+    if (resource.type == ResourceType.Geometry && (resource.metadata as GLTFMetadata).vertexCount)
+      verts += (resource.metadata as GLTFMetadata).vertexCount
+  }
+
+  return verts
+}
+
+const useVisibleVertexCount = () => {
+  let verts = 0
+  const resources = useMutableState(ResourceState).resources.value as Record<string, Resource>
+  for (const key in resources) {
+    const resource = resources[key]
+    if (
+      resource.type == ResourceType.Geometry &&
+      (resource.metadata as GLTFMetadata).vertexCount &&
+      hasComponent(resource.entity, VisibleComponent) &&
+      // Ignore helpers and gizmos
+      hasComponent(resource.entity, UUIDComponent)
+    )
       verts += (resource.metadata as GLTFMetadata).vertexCount
   }
 
@@ -683,7 +716,9 @@ export const ResourceState = defineState({
   budgets: {
     getTotalSizeOfResources,
     getTotalBufferSize,
-    getTotalVertexCount
+    getTotalVertexCount,
+    useTotalVertexCount,
+    useVisibleVertexCount
   },
   /** Removes a resource even if it is still being referenced, needed for updating assets in the studio */
   __unsafeRemoveResource: removeResource,

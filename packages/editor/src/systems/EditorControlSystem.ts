@@ -359,7 +359,10 @@ const execute = () => {
       let selectedParentEntity = getAncestorWithComponents(closestIntersection.entity, [GLTFComponent])
       // If selectedParentEntity has a parent in a different GLTF document use that as top most parent
       const parent = getOptionalComponent(selectedParentEntity, EntityTreeComponent)?.parentEntity
-      if (parent && GLTFComponent.getInstanceID(parent) !== getComponent(selectedParentEntity, SourceComponent)) {
+      if (
+        parent &&
+        UUIDComponent.getAsSourceID(parent) !== getComponent(selectedParentEntity, UUIDComponent).entitySourceID
+      ) {
         selectedParentEntity = parent
       }
 
@@ -426,14 +429,12 @@ const updateSelection = (clickedEntity: Entity, control: boolean, shift: boolean
   if (control) {
     if (selectedEntities.includes(clickedEntity)) {
       SelectionState.updateSelection(
-        selectedEntities
-          .filter((entity) => entity !== clickedEntity)
-          .map((entity) => getComponent(entity, UUIDComponent))
+        selectedEntities.filter((entity) => entity !== clickedEntity).map((entity) => UUIDComponent.get(entity))
       )
     } else {
       SelectionState.updateSelection([
-        ...selectedEntities.map((entity) => getComponent(entity, UUIDComponent)),
-        getComponent(clickedEntity, UUIDComponent)
+        ...selectedEntities.map((entity) => UUIDComponent.get(entity)),
+        UUIDComponent.get(clickedEntity)
       ])
     }
   }
@@ -458,7 +459,7 @@ const updateSelection = (clickedEntity: Entity, control: boolean, shift: boolean
   //   }
   // }
   else {
-    SelectionState.updateSelection([getComponent(clickedEntity, UUIDComponent)])
+    SelectionState.updateSelection([UUIDComponent.get(clickedEntity)])
   }
 }
 

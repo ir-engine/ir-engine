@@ -30,13 +30,8 @@ import {
   transformModel as clientSideTransformModel,
   ModelTransformStatus
 } from '@ir-engine/common/src/model/ModelTransformFunctions'
-import {
-  getAncestorWithComponents,
-  iterateEntityNode,
-  removeEntityNodeRecursively,
-  UUIDComponent
-} from '@ir-engine/ecs'
-import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getAncestorWithComponents, iterateEntityNode, removeEntityNodeRecursively } from '@ir-engine/ecs'
+import { setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   DefaultModelTransformParameters as defaultParams,
   ModelTransformParameters
@@ -112,9 +107,7 @@ const createLODVariants = async (
     })
     const destinationPath = srcURL.replace(/\.[^.]*$/, `-integrated.gltf`)
     const gltfEntity = getAncestorWithComponents(result, [GLTFComponent])
-    const uuid = getComponent(gltfEntity, UUIDComponent)
-    const sourceID = SourceComponent.getSourceID(uuid, destinationPath)
-    iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, sourceID))
+    iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, gltfEntity))
     await exportGLTF(result, destinationPath)
     removeEntityNodeRecursively(result)
   }

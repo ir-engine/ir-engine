@@ -27,10 +27,8 @@ import {
   ECSState,
   Entity,
   EntityTreeComponent,
-  EntityUUID,
   SystemDefinitions,
   Timer,
-  UUIDComponent,
   UndefinedEntity,
   createEntity,
   destroyEngine,
@@ -41,7 +39,7 @@ import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { getMutableState, startReactor } from '@ir-engine/hyperflux'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
-import { Color, Group, MathUtils, Texture } from 'three'
+import { Color, Group, Texture } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 import { mockEngineRenderer } from '../../tests/util/MockEngineRenderer'
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
@@ -74,7 +72,7 @@ describe('WebGl Renderer System', () => {
 
     rootEntity = createEntity()
     getMutableState(ReferenceSpaceState).viewerEntity.set(rootEntity)
-    setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, CameraComponent)
     setComponent(rootEntity, VisibleComponent)
@@ -84,25 +82,21 @@ describe('WebGl Renderer System', () => {
     setComponent(rootEntity, FogSettingsComponent, { type: FogType.Height })
 
     invisibleEntity = createEntity()
-    setComponent(invisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(invisibleEntity, ObjectComponent, new Group())
     setComponent(invisibleEntity, EntityTreeComponent)
 
     visibleEntity = createEntity()
-    setComponent(visibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(visibleEntity, VisibleComponent)
     setComponent(visibleEntity, ObjectComponent, new Group())
     setComponent(visibleEntity, EntityTreeComponent)
     setComponent(rootEntity, SceneComponent)
 
     nestedInvisibleEntity = createEntity()
-    setComponent(nestedInvisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(nestedInvisibleEntity, ObjectComponent, new Group())
     setComponent(nestedInvisibleEntity, EntityTreeComponent)
     setComponent(visibleEntity, SceneComponent)
 
     nestedVisibleEntity = createEntity()
-    setComponent(nestedVisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(nestedVisibleEntity, VisibleComponent)
     setComponent(nestedVisibleEntity, ObjectComponent, new Group())
     setComponent(nestedVisibleEntity, EntityTreeComponent)

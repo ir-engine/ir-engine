@@ -23,18 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, getComponent } from '@ir-engine/ecs'
+import { Entity, EntityID, getComponent, UUIDComponent } from '@ir-engine/ecs'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
-import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import React from 'react'
 import { useDrop } from 'react-dnd'
 import { InputProps } from '../../../../primitives/tailwind/Input'
 import { ControlledStringInput } from '../String'
 
 export interface NodeInputProps extends Omit<InputProps, 'onChange'> {
-  value: NodeID
-  onChange?: (value: NodeID) => void
-  onRelease?: (value: NodeID) => void
+  value: EntityID
+  onChange?: (value: EntityID) => void
+  onRelease?: (value: EntityID) => void
   inputRef?: React.Ref<any>
 }
 
@@ -43,7 +42,7 @@ export function NodeInput({ onRelease, value, ...rest }: NodeInputProps) {
     accept: [ItemTypes.Node],
     async drop(item: any, monitor) {
       const entity: Entity = item.value as Entity
-      const uuid = getComponent(entity, NodeIDComponent)
+      const uuid = getComponent(entity, UUIDComponent).entityID
       onRelease?.(uuid)
     },
     collect: (monitor) => ({

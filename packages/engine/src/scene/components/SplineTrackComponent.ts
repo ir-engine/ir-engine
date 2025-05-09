@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { EngineState, EntityTreeComponent, useEntityContext } from '@ir-engine/ecs'
+import { EngineState, EntityTreeComponent, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -40,8 +40,6 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { PhysicsSystem } from '@ir-engine/spatial/src/physics/systems/PhysicsSystem'
-import { NodeFunctions } from '../../gltf/NodeFunctions'
-import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 import { SplineComponent } from './SplineComponent'
 
 const _euler = new Euler()
@@ -54,7 +52,7 @@ export const SplineTrackComponent = defineComponent({
   jsonID: 'EE_spline_track',
 
   schema: S.Object({
-    splineEntityUUID: NodeIDSchema(),
+    splineEntityUUID: S.EntityID(),
     velocity: S.Number({ default: 1.0 }),
     enableRotation: S.Bool({ default: false }),
     lockToXZPlane: S.Bool({ default: true }),
@@ -74,7 +72,7 @@ export const SplineTrackComponent = defineComponent({
         const { deltaSeconds } = getState(ECSState)
         if (isEditing) return
         if (!component.splineEntityUUID.value) return
-        const splineTargetEntity = NodeFunctions.getEntityFromNodeID(entity, component.splineEntityUUID.value)
+        const splineTargetEntity = UUIDComponent.getEntityFromSameSourceByID(entity, component.splineEntityUUID.value)
         if (!splineTargetEntity) return
 
         const splineComponent = getOptionalComponent(splineTargetEntity, SplineComponent)
@@ -154,7 +152,7 @@ export const SplineTrackComponent = defineComponent({
 
     useEffect(() => {
       if (!component.splineEntityUUID.value) return
-      const splineTargetEntity = NodeFunctions.getEntityFromNodeID(entity, component.splineEntityUUID.value)
+      const splineTargetEntity = UUIDComponent.getEntityFromSameSourceByID(entity, component.splineEntityUUID.value)
       if (!splineTargetEntity) return
       const splineComponent = getOptionalComponent(splineTargetEntity, SplineComponent)
       if (!splineComponent) return

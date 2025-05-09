@@ -34,8 +34,7 @@ import {
   getComponent,
   hasComponent,
   useComponent,
-  useEntityContext,
-  useOptionalComponent
+  useEntityContext
 } from '@ir-engine/ecs'
 import { dispatchAction, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkState, ScenePeer, SceneUser, WorldNetworkAction } from '@ir-engine/network'
@@ -51,10 +50,10 @@ import { SourceComponent } from '../components/SourceComponent'
 const SourcedEntityReactor = () => {
   const entity = useEntityContext()
   const parentEntity = useComponent(entity, EntityTreeComponent).parentEntity.value
-  const parentUUID = useOptionalComponent(parentEntity, UUIDComponent)?.value
+  const parentUUID = UUIDComponent.use(parentEntity)
 
   useEffect(() => {
-    const entityUUID = getComponent(entity, UUIDComponent)
+    const entityUUID = UUIDComponent.get(entity)
     return () => {
       dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID }))
     }
@@ -66,7 +65,8 @@ const SourcedEntityReactor = () => {
     dispatchAction(
       WorldNetworkAction.spawnEntity({
         ownerID: SceneUser,
-        entityUUID,
+        entityID: entityUUID.entityID,
+        entitySourceID: entityUUID.entitySourceID,
         parentUUID,
         $network: undefined,
         $topic: undefined,
@@ -97,8 +97,7 @@ const SourcedSceneReactor = () => {
 
 const SceneReactor = () => {
   const entity = useEntityContext()
-  const source = GLTFComponent.useInstanceID(entity)
-  const sourcedEntities = SourceComponent.useEntitiesBySource(source)
+  const sourcedEntities = SourceComponent.useEntitiesBySource(entity)
 
   return (
     <>

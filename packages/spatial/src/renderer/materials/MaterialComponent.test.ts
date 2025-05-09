@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,14 +19,12 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
   Entity,
-  EntityUUID,
-  UUIDComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -154,7 +152,7 @@ describe('MaterialStateComponent', () => {
       return destroyEngine()
     })
 
-    it("should call setMeshMaterial for every entity in the  `@param entity`.MaterialStateComponent.instances list, using that instanceEntity's UUID", () => {
+    it("should call setMeshMaterial for every entity in the  `@param entity`.MaterialStateComponent.instances list, using that instanceEntity's material entities", () => {
       // Set the data as expected
       const instance1 = createEntity()
       const instance2 = createEntity()
@@ -164,43 +162,44 @@ describe('MaterialStateComponent', () => {
       const mesh2 = new Mesh(new BoxGeometry(), [new Material(), new Material()])
       const meshes = [mesh1, mesh2] as Mesh[]
 
-      const uuid1 = UUIDComponent.generateUUID()
-      const uuid2 = UUIDComponent.generateUUID()
-      const uuids = [uuid1, uuid2]
+      const materialEntity1 = createEntity()
+      const materialEntity2 = createEntity()
+      const materialEntities = [materialEntity1, materialEntity2]
 
       const material1 = new Material()
       const material2 = new Material()
-      material1.uuid = uuid1
-      material2.uuid = uuid2
 
-      setComponent(testEntity, MaterialStateComponent, { instances: instances, material: material1 })
-      setComponent(testEntity, UUIDComponent, uuid1)
-      const otherEntity = createEntity()
-      setComponent(otherEntity, MaterialStateComponent, { instances: instances, material: material2 })
-      setComponent(otherEntity, UUIDComponent, uuid2)
+      setComponent(materialEntity1, MaterialStateComponent, { instances: instances, material: material1 })
+      setComponent(materialEntity2, MaterialStateComponent, { instances: instances, material: material2 })
 
       for (const id in instances) {
-        setComponent(instances[id], MaterialInstanceComponent, { uuid: uuids })
+        setComponent(instances[id], MaterialInstanceComponent, { entities: materialEntities })
         setComponent(instances[id], MeshComponent, meshes[id])
       }
 
       // Sanity check before running
-      assert.equal(hasComponent(testEntity, MaterialStateComponent), true)
-      for (const entity of getComponent(testEntity, MaterialStateComponent).instances) {
+      assert.equal(hasComponent(materialEntity1, MaterialStateComponent), true)
+      for (const entity of getComponent(materialEntity1, MaterialStateComponent).instances) {
         assert.equal(hasComponent(entity, MaterialInstanceComponent), true)
         assert.equal(hasComponent(entity, MeshComponent), true)
         assert.notEqual(
           (getComponent(entity, MeshComponent).material as Material).uuid,
-          getComponent(testEntity, MaterialStateComponent).material.uuid
+          getComponent(materialEntity1, MaterialStateComponent).material.uuid
         )
       }
 
       // Run and Check the result
-      removeComponent(testEntity, MaterialStateComponent)
+      removeComponent(materialEntity1, MaterialStateComponent)
       for (const instance of instances) {
-        const instanceUUIDs = getComponent(instance, MaterialInstanceComponent).uuid
+        const instanceMaterialEntities = getComponent(instance, MaterialInstanceComponent).entities
         const meshMaterials = getComponent(instance, MeshComponent).material as Material[]
-        for (const id in instanceUUIDs) assert.equal(meshMaterials[id].uuid, instanceUUIDs[id])
+        for (const id in instanceMaterialEntities) {
+          const materialEntity = instanceMaterialEntities[id]
+          if (materialEntity === materialEntity1) continue // Skip the removed entity
+          if (hasComponent(materialEntity, MaterialStateComponent)) {
+            assert.equal(meshMaterials[id].uuid, getComponent(materialEntity, MaterialStateComponent).material.uuid)
+          }
+        }
       }
     })
 
@@ -214,62 +213,56 @@ describe('MaterialStateComponent', () => {
       const mesh2 = new Mesh(new BoxGeometry(), [new Material(), new Material()])
       const meshes = [mesh1, mesh2] as Mesh[]
 
-      const uuid1 = UUIDComponent.generateUUID()
-      const uuid2 = UUIDComponent.generateUUID()
-      const uuids = [uuid1, uuid2]
+      const materialEntity1 = createEntity()
+      const materialEntity2 = createEntity()
+      const materialEntities = [materialEntity1, materialEntity2]
 
       const material1 = new Material()
       const material2 = new Material()
-      material1.uuid = uuid1
-      material2.uuid = uuid2
 
-      // setComponent(testEntity, MaterialStateComponent, { instances: instances, material: material1 })
-      setComponent(testEntity, UUIDComponent, uuid1)
-      const otherEntity = createEntity()
-      setComponent(otherEntity, MaterialStateComponent, { instances: instances, material: material2 })
-      setComponent(otherEntity, UUIDComponent, uuid2)
+      // Don't set MaterialStateComponent on materialEntity1
+      setComponent(materialEntity2, MaterialStateComponent, { instances: instances, material: material2 })
 
       for (const id in instances) {
-        setComponent(instances[id], MaterialInstanceComponent, { uuid: uuids })
+        setComponent(instances[id], MaterialInstanceComponent, { entities: materialEntities })
         setComponent(instances[id], MeshComponent, meshes[id])
       }
 
       // Sanity check before running
-      assert.equal(hasComponent(testEntity, MaterialStateComponent), true)
-      for (const entity of getComponent(testEntity, MaterialStateComponent).instances) {
-        assert.equal(hasComponent(entity, MaterialInstanceComponent), true)
-        assert.equal(hasComponent(entity, MeshComponent), true)
-        assert.notEqual(
-          (getComponent(entity, MeshComponent).material as Material).uuid,
-          getComponent(testEntity, MaterialStateComponent).material.uuid
-        )
-      }
+      assert.equal(hasComponent(materialEntity1, MaterialStateComponent), false)
+      assert.equal(hasComponent(materialEntity2, MaterialStateComponent), true)
 
       // Run and Check the result
-      removeComponent(testEntity, MaterialStateComponent)
+      removeComponent(materialEntity1, MaterialStateComponent) // This should do nothing
       for (const instance of instances) {
-        const instanceUUIDs = getComponent(instance, MaterialInstanceComponent).uuid
+        const instanceMaterialEntities = getComponent(instance, MaterialInstanceComponent).entities
         const meshMaterials = getComponent(instance, MeshComponent).material as Material[]
-        for (const id in instanceUUIDs) assert.notEqual(meshMaterials[id].uuid, instanceUUIDs[id])
+        // Verify that the materials haven't been changed
+        for (const id in instanceMaterialEntities) {
+          const materialEntity = instanceMaterialEntities[id]
+          if (materialEntity === materialEntity2) {
+            assert.notEqual(meshMaterials[id].uuid, getComponent(materialEntity, MaterialStateComponent).material.uuid)
+          }
+        }
       }
     })
   }) //:: onRemove
 }) //:: MaterialStateComponent
 
 type MaterialInstanceComponentData = {
-  uuid: EntityUUID[]
+  entities: Entity[]
 }
 
 const MaterialInstanceComponentDefaults: MaterialInstanceComponentData = {
-  uuid: [] as EntityUUID[]
+  entities: [] as Entity[]
 }
 
 function assertMaterialInstanceComponentEq(A: MaterialInstanceComponentData, B: MaterialInstanceComponentData) {
-  assertArray.eq(A.uuid, B.uuid)
+  assertArray.eq(A.entities, B.entities)
 }
 
 function assertMaterialInstanceComponentNotEq(A: MaterialInstanceComponentData, B: MaterialInstanceComponentData) {
-  assertArray.anyNotEq(A.uuid, B.uuid)
+  assertArray.anyNotEq(A.entities, B.entities)
 }
 
 describe('MaterialInstanceComponent', () => {
@@ -314,8 +307,10 @@ describe('MaterialInstanceComponent', () => {
     })
 
     it('should change the values of an initialized MaterialInstanceComponent', () => {
+      const entity1 = createEntity()
+      const entity2 = createEntity()
       const Expected: MaterialInstanceComponentData = {
-        uuid: [UUIDComponent.generateUUID(), UUIDComponent.generateUUID()] as EntityUUID[]
+        entities: [entity1, entity2] as Entity[]
       }
       setComponent(testEntity, MaterialInstanceComponent, Expected)
       const result = getComponent(testEntity, MaterialInstanceComponent)
@@ -323,7 +318,7 @@ describe('MaterialInstanceComponent', () => {
     })
 
     it('should not change values of an initialized MaterialInstanceComponent when the data passed had incorrect types', () => {
-      const Incorrect = { uuid: 'someUUID' }
+      const Incorrect = { entities: 'someUUID' }
       const before = getComponent(testEntity, MaterialInstanceComponent)
       // @ts-ignore Coerce an incorrect type into the component's data
       setComponent(testEntity, MaterialInstanceComponent, Incorrect)
@@ -345,21 +340,17 @@ describe('MaterialInstanceComponent', () => {
       return destroyEngine()
     })
 
-    describe("for every instanceEntity in the testEntity's MaterialInstanceComponent.uuid list", () => {
-      it('... should remove the instanceEntity from its MaterialStateComponent.instances list (found by its UUID)', () => {
+    describe("for every materialEntity in the testEntity's MaterialInstanceComponent.uuid list", () => {
+      it("... should remove the testEntity from each materialEntity's MaterialStateComponent.instances list", () => {
         const otherEntity1 = createEntity()
         const otherEntity2 = createEntity()
         const materialEntities = [otherEntity1, otherEntity2]
-        const uuid1 = UUIDComponent.generateUUID()
-        const uuid2 = UUIDComponent.generateUUID()
-        const instanceUUIDs = [uuid1, uuid2]
-        setComponent(otherEntity1, UUIDComponent, uuid1)
-        setComponent(otherEntity2, UUIDComponent, uuid2)
+
         setComponent(otherEntity1, MaterialStateComponent, { instances: [testEntity], material: new Material() })
         setComponent(otherEntity2, MaterialStateComponent, { instances: [testEntity], material: new Material() })
 
         // Set the data as expected
-        setComponent(testEntity, MaterialInstanceComponent, { uuid: instanceUUIDs })
+        setComponent(testEntity, MaterialInstanceComponent, { entities: materialEntities })
 
         // Sanity check before running
         assert.equal(hasComponent(testEntity, MaterialInstanceComponent), true)
