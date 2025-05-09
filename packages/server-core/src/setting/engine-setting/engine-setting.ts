@@ -72,7 +72,7 @@ export default (app: Application): void => {
           appConfig[setting.category][setting.key] = parseValue(setting.value, setting.dataType)
         }
       }
-      const categoriesToUnflatten = ['email', 'aws']
+      const categoriesToUnflatten = ['email', 'aws', 'authentication', 'client']
       if (categoriesToUnflatten.includes(setting.category)) {
         const categorySettings = await service.find({
           query: {

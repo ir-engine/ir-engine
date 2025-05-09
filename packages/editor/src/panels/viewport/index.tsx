@@ -27,6 +27,7 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
 import { useFind } from '@ir-engine/common'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { engineSettingPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
 import { cleanFileNameFile } from '@ir-engine/common/src/utils/cleanFileName'
@@ -146,7 +147,7 @@ function ViewportContainer() {
   const clientSettingQuery = useFind(engineSettingPath, {
     query: {
       category: 'client',
-      key: 'appTitle',
+      key: EngineSettings.Client.AppTitle,
       paginate: false
     }
   })

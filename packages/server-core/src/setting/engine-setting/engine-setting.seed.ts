@@ -731,7 +731,6 @@ export async function seed(knex: Knex): Promise<void> {
       { icon: 'static/discord.svg', link: 'https://discord.gg/xrf' },
       { icon: 'static/github.svg', link: 'https://github.com/ir-engine' }
     ]),
-    key8thWall: process.env.VITE_8TH_WALL || '',
     privacyPolicy: 'https://www.ir.world/privacy-policy',
     termsOfService: 'https://www.ir.world/terms-of-service',
     assistanceLink: 'https://help.theinfinitereality.com/hc/en-us',
