@@ -89,7 +89,7 @@ export default function MoreOptionsMenu({
           <li className="h-8 overflow-hidden rounded-none first:rounded-t-lg last:rounded-b-lg" key={index}>
             <Button
               variant="tertiary"
-              className="h-full w-full justify-start gap-2 whitespace-nowrap border-0 p-2 text-text-primary hover:bg-ui-hover-quadrary"
+              className="h-full w-full justify-start gap-2 whitespace-nowrap rounded-none border-0 p-2 text-text-primary hover:bg-ui-hover-quadrary"
               data-testid={`${actionProp.label.toLowerCase().replace(' ', '-')}-button`}
               disabled={actionProp.disabled}
               onClick={() => {
