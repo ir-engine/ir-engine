@@ -285,7 +285,7 @@ const EnvMapBakeReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   >
   const envMapComponent = useComponent(rootEntity, EnvMapComponent)
   const bakeEntity =
-    UUIDComponent.useEntityFromSameSourceByID(props.entity, envMapComponent.envMapSourceEntityUUID.value) ??
+    UUIDComponent.useEntityFromSameSourceByID(props.rootEntity, envMapComponent.envMapSourceEntityUUID.value) ??
     UndefinedEntity
   const bakeComponent = useOptionalComponent(bakeEntity, EnvMapBakeComponent)
 

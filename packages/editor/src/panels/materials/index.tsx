@@ -24,8 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
-import { Entity, getOptionalComponent, hasComponent, LayerID, Layers, useQuery } from '@ir-engine/ecs'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { Entity, hasComponent, LayerID, Layers, useQuery, UUIDComponent } from '@ir-engine/ecs'
+
 import { ErrorBoundary, getMutableState } from '@ir-engine/hyperflux'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { Button, Input } from '@ir-engine/ui'
@@ -81,7 +81,7 @@ function MaterialsLibrary() {
     const materialsBySource = {} as Record<string, Entity[]>
     for (const materialEntity of materials) {
       if (!hasComponent(materialEntity, MaterialStateComponent)) continue
-      const source = getOptionalComponent(materialEntity, SourceComponent)
+      const source = UUIDComponent.getSourceEntity(materialEntity)
       if (!source) continue
       materialsBySource[source] = materialsBySource[source]
         ? [...materialsBySource[source], materialEntity]

@@ -17,7 +17,10 @@
     "save": "Save",
     "none": "None",
     "update": "Update",
-    "clear": "Clear"
+    "clear": "Clear",
+    "embedCodeCopied": "Embed code copied to clipboard!",
+    "embed": "Embed",
+    "copyEmbedCode": "Copy Embed Code"
   },
   "tooltip": {
     "pressKey": "Press {{tip}} to {{message}}"

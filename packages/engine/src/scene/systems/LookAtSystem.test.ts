@@ -50,7 +50,6 @@ import { assertVec } from '@ir-engine/spatial/tests/util/assert'
 import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
 import { act, render } from '@testing-library/react'
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { NodeIDComponent } from '../../gltf/NodeIDComponent'
 import { LookAtComponent } from '../components/LookAtComponent'
 import { LookAtSystem } from './LookAtSystem'
 
@@ -87,8 +86,8 @@ describe('LookAtSystem', () => {
         createEngine()
         const source = createEntity()
         setComponent(source, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'ID' as EntityID })
-        facerEntity = NodeIDComponent.create(source, facerNodeID)
-        testEntity = NodeIDComponent.create(source, testNodeID)
+        facerEntity = UUIDComponent.create(source, facerNodeID)
+        testEntity = UUIDComponent.create(source, testNodeID)
         await act(() => render(null))
       })
 
@@ -121,8 +120,8 @@ describe('LookAtSystem', () => {
           mockSpatialEngine() // Set EngineState.viewerEntity
           const source = createEntity()
           setComponent(source, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'ID' as EntityID })
-          facerEntity = NodeIDComponent.create(source, facerNodeID)
-          testEntity = NodeIDComponent.create(source, testNodeID)
+          facerEntity = UUIDComponent.create(source, facerNodeID)
+          testEntity = UUIDComponent.create(source, testNodeID)
           await act(() => render(null))
         })
 

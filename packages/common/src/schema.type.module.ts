@@ -68,7 +68,6 @@ export type * from './schemas/recording/recording.schema'
 export type * from './schemas/route/route.schema'
 export type * from './schemas/scope/scope-type.schema'
 export type * from './schemas/scope/scope.schema'
-export type * from './schemas/setting/client-setting.schema'
 export type * from './schemas/setting/engine-setting.schema'
 export type * from './schemas/setting/feature-flag-setting.schema'
 export type * from './schemas/setting/project-setting.schema'
@@ -212,8 +211,6 @@ export const helmVersionPath = 'helm-version'
 export const projectSettingPath = 'project-setting'
 
 export const featureFlagSettingPath = 'feature-flag-setting'
-
-export const clientSettingPath = 'client-setting'
 
 export const matchUserPath = 'match-user'
 

@@ -1490,6 +1490,7 @@
     "lbl-group": "Group",
     "lbl-copy": "Copy",
     "lbl-paste": "Paste",
+    "lbl-copyEmbedCode": "Copy Embed code",
     "lbl-delete": "Delete",
     "lbl-deleteScene": "Delete Scene",
     "lbl-deleteSceneDescription": "Are you sure you want to delete the '{{sceneName}}' Scene",

@@ -46,7 +46,7 @@ import {
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+
 import { dispatchAction, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { FlyControlComponent } from '@ir-engine/spatial/src/camera/components/FlyControlComponent'
@@ -391,11 +391,7 @@ const execute = () => {
 
   if (buttons.PrimaryClick?.up && !buttons.PrimaryClick?.dragging) {
     const editorHelperState = getState(EditorHelperState)
-    if (
-      hasComponent(clickStartEntity, SourceComponent) &&
-      !getState(ClickPlacementState).placementEntity &&
-      editorHelperState.gizmoEnabled
-    ) {
+    if (!getState(ClickPlacementState).placementEntity && editorHelperState.gizmoEnabled) {
       const selectedEntities = SelectionState.getSelectedEntities()
       const clickParentEntity = getAncestorWithComponents(clickStartEntity, [GLTFComponent])
 
@@ -459,6 +455,7 @@ const updateSelection = (clickedEntity: Entity, control: boolean, shift: boolean
   //   }
   // }
   else {
+    if (!clickedEntity || !hasComponent(clickedEntity, UUIDComponent)) return
     SelectionState.updateSelection([UUIDComponent.get(clickedEntity)])
   }
 }
