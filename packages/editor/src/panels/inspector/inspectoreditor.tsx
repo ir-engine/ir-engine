@@ -34,10 +34,8 @@ import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 const InspectorEditor = () => {
   const { t } = useTranslation()
   const { metadata } = useHookstate(getMutableState(ClickPlacementState)).value
-  const { thumbnail, name, type, author, dateCreated, fileSize, dimensions, mesh, resources, tags } = metadata
-  const rowCss = `flex flex-row gap-y-1`
-  const leftCellCss = `w-[40%] text-left font-bold`
-  const rightCellCss = `text-left`
+  const { thumbnail, name, type, author, dateCreated, tags } = metadata
+  const leftCellCss = `text-left font-bold`
   const noData = '--'
 
   return Object.keys(metadata).length > 0 ? (
@@ -51,31 +49,19 @@ const InspectorEditor = () => {
           <FiEdit2 />
         </div>
       </div>
-      <div className="flex flex-col">
-        <div className={rowCss}>
-          <div className={leftCellCss}>{t('editor:inspector.assetType')}</div>
-          <div className={rightCellCss}>{type}</div>
-        </div>
-        <div className={rowCss}>
-          <div className={leftCellCss}>{t('editor:inspector.assetAuthor')}</div>
-          <div className={rightCellCss}>{author || noData}</div>
-        </div>
-        <div className={rowCss}>
-          <div className={leftCellCss}>{t('editor:inspector.assetDateCreated')}</div>
-          <div className={rightCellCss}>{toDisplayDateTime(dateCreated) || noData}</div>
-        </div>
-        <div className={rowCss}>
-          <div className={leftCellCss}>{t('editor:inspector.assetFileSize')}</div>
-          <div className={rightCellCss}>{noData}</div>
-        </div>
-        <div className={rowCss}>
-          <div className={leftCellCss}>{t('editor:inspector.assetDimensions')}</div>
-          <div className={rightCellCss}>{noData}</div>
-        </div>
-        <div className={rowCss}>
-          <div className={leftCellCss}>{t('editor:inspector.assetMeshComplexity')}</div>
-          <div className={rightCellCss}>{noData}</div>
-        </div>
+      <div className="grid grid-cols-[auto_auto] gap-y-1 text-left">
+        <div className={leftCellCss}>{t('editor:inspector.assetType')}</div>
+        <div>{type}</div>
+        <div className={leftCellCss}>{t('editor:inspector.assetAuthor')}</div>
+        <div>{author || noData}</div>
+        <div className={leftCellCss}>{t('editor:inspector.assetDateCreated')}</div>
+        <div>{toDisplayDateTime(dateCreated) || noData}</div>
+        <div className={leftCellCss}>{t('editor:inspector.assetFileSize')}</div>
+        <div>{noData}</div>
+        <div className={leftCellCss}>{t('editor:inspector.assetDimensions')}</div>
+        <div>{noData}</div>
+        <div className={leftCellCss}>{t('editor:inspector.assetMeshComplexity')}</div>
+        <div>{noData}</div>
       </div>
       <div className="flex flex-col gap-3">
         <div className="font-bold">{t('editor:inspector.assetTags')}</div>
