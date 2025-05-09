@@ -24,20 +24,22 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { getComponent, getOptionalMutableComponent, hasComponent } from '@ir-engine/ecs'
-import { getState, none, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, none, useMutableState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { destroySpatialViewer, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { useEffect } from 'react'
+import { EngineCanvasState } from '../EngineCanvasState.ts'
 
 export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
   useEffect(() => {
-    if (!ref) return
+    const previousEngineCanvasParent = getMutableState(EngineCanvasState).previousEngineCanvasParent
+    if (!ref?.current) return
     const parent = ref.current as HTMLElement
 
     const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
 
-    const originalParent = canvas.parentElement!
+    previousEngineCanvasParent.set(canvas.parentElement!)
     canvas.hidden = false
 
     parent.appendChild(canvas)
@@ -47,11 +49,13 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
     })
 
     observer.observe(parent)
-
     return () => {
       observer.disconnect()
       parent.removeChild(canvas)
-      originalParent.appendChild(canvas)
+      if (previousEngineCanvasParent.value !== null) {
+        previousEngineCanvasParent.value.appendChild(canvas)
+        previousEngineCanvasParent.set(null)
+      }
       canvas.hidden = true
     }
   }, [ref?.current])
