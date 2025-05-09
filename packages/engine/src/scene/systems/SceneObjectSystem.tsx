@@ -35,7 +35,7 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import { Entity, SourceID } from '@ir-engine/ecs/src/Entity'
 import { defineQuery, EntityArrayBoundary, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
@@ -119,7 +119,7 @@ const execute = () => {
 
 const ModelEntityReactor = (props: { entity: Entity }) => {
   const entity = props.entity
-  const sourceID = UUIDComponent.getAsSourceID(entity)
+  const sourceID = hasComponent(entity, UUIDComponent) ? UUIDComponent.getAsSourceID(entity) : ('' as SourceID)
   const childEntities = UUIDComponent.useEntitiesBySource(sourceID)
 
   return (
