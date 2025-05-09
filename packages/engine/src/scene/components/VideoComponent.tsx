@@ -272,6 +272,10 @@ function VideoReactor() {
     setComponent(videoEntity, EntityTreeComponent, { parentEntity: entity })
     setComponent(videoEntity, NameComponent, `video-group-${entity}`)
     setComponent(videoEntity, MediaComponent)
+    setComponent(videoEntity, UUIDComponent, {
+      entitySourceID: UUIDComponent.getAsSourceID(entity),
+      entityID: 'video-mesh' as EntityID
+    })
 
     setCallback(entity, 'setVisible', () => setComponent(videoEntity, VisibleComponent))
     setCallback(entity, 'setInvisible', () => removeComponent(videoEntity, VisibleComponent))
