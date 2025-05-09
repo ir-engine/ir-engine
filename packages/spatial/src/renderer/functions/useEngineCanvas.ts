@@ -24,49 +24,92 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { getComponent, getOptionalMutableComponent, hasComponent } from '@ir-engine/ecs'
-import { getMutableState, getState, none, useMutableState } from '@ir-engine/hyperflux'
-import { ReferenceSpaceState } from '@ir-engine/spatial'
-import { destroySpatialViewer, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
-import { EngineCanvasState } from '../EngineCanvasState.ts'
+
+import { useMutableState } from '@ir-engine/hyperflux'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { initializeSpatialViewer } from '../../initializeEngine'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
+import { EngineCanvasState } from '../EngineCanvasState'
 
 export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
   useEffect(() => {
-    const previousEngineCanvasParent = getMutableState(EngineCanvasState).previousEngineCanvasParent
-    if (!ref?.current) return
-    const parent = ref.current as HTMLElement
+    // Create canvas if it doesn't exist
+    let canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
+    if (!canvas) {
+      canvas = document.createElement('canvas')
+      canvas.id = 'engine-renderer-canvas'
+      canvas.style.width = '100%'
+      canvas.style.height = '100%'
+      document.body.appendChild(canvas)
+    }
 
-    const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
+    // Ensure the spatial viewer is initialized
+    if (!getState(ReferenceSpaceState).viewerEntity) {
+      initializeSpatialViewer(canvas)
+    }
 
-    previousEngineCanvasParent.set(canvas.parentElement!)
-    canvas.hidden = false
+    const engineCanvasState = getMutableState(EngineCanvasState)
 
-    parent.appendChild(canvas)
+    // Handle parent changes
+    if (ref?.current) {
+      const parent = ref.current as HTMLElement
 
-    const observer = new ResizeObserver(() => {
-      getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).needsResize = true
-    })
-
-    observer.observe(parent)
-    return () => {
-      observer.disconnect()
-      parent.removeChild(canvas)
-      if (previousEngineCanvasParent.value !== null) {
-        previousEngineCanvasParent.value.appendChild(canvas)
-        previousEngineCanvasParent.set(null)
+      // Store previous parent before moving
+      if (canvas.parentElement && canvas.parentElement !== parent) {
+        engineCanvasState.previousEngineCanvasParent.set(canvas.parentElement)
       }
-      canvas.hidden = true
+
+      // Only append if not already a child of this parent
+      if (canvas.parentElement !== parent) {
+        canvas.hidden = false
+        parent.appendChild(canvas)
+      }
+
+      const observer = new ResizeObserver(() => {
+        const viewerEntity = getState(ReferenceSpaceState).viewerEntity
+        if (viewerEntity && hasComponent(viewerEntity, RendererComponent)) {
+          getComponent(viewerEntity, RendererComponent).needsResize = true
+        }
+      })
+
+      observer.observe(parent)
+      return () => {
+        observer.disconnect()
+        // Only remove if still a child of this parent
+        if (canvas.parentElement === parent) {
+          parent.removeChild(canvas)
+          // Return to previous parent if available
+          const previousParent = engineCanvasState.previousEngineCanvasParent.value
+          if (previousParent && previousParent.isConnected) {
+            previousParent.appendChild(canvas)
+          } else {
+            // If no previous parent or it's no longer in DOM, hide canvas
+            canvas.hidden = true
+            document.body.appendChild(canvas)
+          }
+        }
+      }
+    } else {
+      // No ref - check if we have a previous parent to return to
+      const previousParent = engineCanvasState.previousEngineCanvasParent.value
+      if (previousParent && previousParent.isConnected && canvas.parentElement !== previousParent) {
+        if (canvas.parentElement) {
+          canvas.parentElement.removeChild(canvas)
+        }
+        previousParent.appendChild(canvas)
+        canvas.hidden = false
+      } else if (canvas.parentElement !== document.body) {
+        // No valid previous parent - move to body and hide
+        if (canvas.parentElement) {
+          canvas.parentElement.removeChild(canvas)
+        }
+        document.body.appendChild(canvas)
+        canvas.hidden = true
+      }
     }
   }, [ref?.current])
-
-  useEffect(() => {
-    const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
-    initializeSpatialViewer(canvas)
-    return () => {
-      destroySpatialViewer()
-    }
-  }, [])
 
   /**
    * Since the viewer and XR reference spaces can technically exist without the other,
@@ -85,7 +128,9 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
     return () => {
       if (!hasComponent(viewerEntity, RendererComponent)) return
       const index = rendererComponent.scenes.value.indexOf(originEntity)
-      rendererComponent.scenes[index].set(none)
+      if (index >= 0) {
+        rendererComponent.scenes[index].set(none)
+      }
     }
   }, [viewerEntity, originEntity])
 
@@ -100,19 +145,35 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
     return () => {
       if (!hasComponent(viewerEntity, RendererComponent)) return
       const index = rendererComponent.scenes.value.indexOf(localFloorEntity)
-      rendererComponent.scenes[index].set(none)
+      if (index >= 0) {
+        rendererComponent.scenes[index].set(none)
+      }
     }
   }, [viewerEntity, localFloorEntity])
 }
 
 export const useRemoveEngineCanvas = () => {
   useEffect(() => {
-    const canvas = document.getElementById('engine-renderer-canvas')!
+    const canvas = document.getElementById('engine-renderer-canvas')
+    if (!canvas) return
+
     const parent = canvas.parentElement
-    parent?.removeChild(canvas)
+    const previousEngineCanvasParent = getMutableState(EngineCanvasState).previousEngineCanvasParent
+
+    if (parent) {
+      // Store the current parent before removing
+      previousEngineCanvasParent.set(parent)
+      parent.removeChild(canvas)
+    }
+
+    canvas.hidden = true
 
     return () => {
-      parent?.appendChild(canvas)
+      // On cleanup, if we have a stored parent, reattach
+      if (previousEngineCanvasParent.value) {
+        previousEngineCanvasParent.value.appendChild(canvas)
+        canvas.hidden = false
+      }
     }
   }, [])
 
