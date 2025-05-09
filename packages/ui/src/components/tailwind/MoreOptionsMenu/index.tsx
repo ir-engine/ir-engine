@@ -80,13 +80,13 @@ export default function MoreOptionsMenu({
     >
       <ul
         className={twMerge(
-          'min-w-[180px] max-w-[300px] divide-y divide-gray-300 rounded-lg border border-ui-tertiary',
+          'min-w-[180px] max-w-[300px] divide-y divide-gray-300 overflow-hidden rounded-lg border border-ui-tertiary',
           'bg-white dark:divide-none dark:border-none dark:bg-surface-4'
         )}
         data-testid="more-options-list"
       >
         {actionProps.map((actionProp, index) => (
-          <li className="h-8" key={index}>
+          <li className="h-8 overflow-hidden rounded-none first:rounded-t-lg last:rounded-b-lg" key={index}>
             <Button
               variant="tertiary"
               className="h-full w-full justify-start gap-2 whitespace-nowrap border-0 p-2 text-text-primary hover:bg-ui-hover-quadrary"
