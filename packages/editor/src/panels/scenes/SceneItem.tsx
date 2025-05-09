@@ -32,7 +32,7 @@ import config from '@ir-engine/common/src/config'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
 import RenameSceneModal from '@ir-engine/editor/src/panels/scenes/RenameSceneModal'
-import { useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import MoreOptionsMenu from '@ir-engine/ui/src/components/tailwind/MoreOptionsMenu'
@@ -41,7 +41,15 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { default as React } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
+import { UIAddonsState } from '../../services/UIAddonsState'
 import SceneCard from './SceneCard'
+
+export interface SceneItemMoreOtionData {
+  label: string
+  disabled?: boolean
+  icon?: React.ReactNode
+  onClick: (scene: StaticResourceType) => void
+}
 
 type SceneItemProps = {
   scene: StaticResourceType
@@ -79,6 +87,7 @@ export default function SceneItem({
   }
 
   const defaultThumbnail = theme?.value === 'dark' ? IRLogoModalLight : IRLogoModalDark
+  const sceneItemMoreOptions = useMutableState(UIAddonsState).editor.sceneItemMoreOptions.get(NO_PROXY)
 
   return (
     <SceneCard data-testid="scene-container" className="cursor-pointer items-start justify-start gap-3 bg-white p-3">
@@ -159,7 +168,17 @@ export default function SceneItem({
                   />
                 )
               }
-            }
+            },
+            ...Object.values(sceneItemMoreOptions).map((value, index) => {
+              return {
+                label: value.label,
+                disabled: value.disabled,
+                icon: value.icon,
+                onClick: () => {
+                  value.onClick(scene)
+                }
+              }
+            })
           ]}
         />
       </div>
