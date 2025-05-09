@@ -27,8 +27,9 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
 import { useFind } from '@ir-engine/common'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { clientSettingPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
+import { engineSettingPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
 import { cleanFileNameFile } from '@ir-engine/common/src/utils/cleanFileName'
 import { useComponent, useQuery } from '@ir-engine/ecs'
 import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
@@ -143,7 +144,14 @@ function ViewportContainer() {
   const { sceneName, rootEntity, canvasRef } = useMutableState(EditorState)
 
   const { t } = useTranslation()
-  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSettingQuery = useFind(engineSettingPath, {
+    query: {
+      category: 'client',
+      key: EngineSettings.Client.AppTitle,
+      paginate: false
+    }
+  })
+
   const clientSettings = clientSettingQuery.data[0]
 
   const ref = React.useRef<HTMLDivElement>(null)
@@ -177,7 +185,7 @@ function ViewportContainer() {
         ) : (
           <div className="relative z-20 flex h-full w-full justify-center">
             <div className="flex max-w-[40rem] flex-col justify-center gap-5 px-6">
-              <img src={clientSettings?.appTitle} className="block" />
+              <img src={clientSettings?.value} className="block" />
               <Text className="text-center dark:text-[#A3A3A3]">{t('editor:selectSceneMsg')}</Text>
             </div>
           </div>

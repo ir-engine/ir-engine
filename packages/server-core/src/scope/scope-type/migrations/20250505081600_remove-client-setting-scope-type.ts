@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { clientSettingPath } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
+import { scopeTypePath } from '@ir-engine/common/src/schemas/scope/scope-type.schema'
 import type { Knex } from 'knex'
 
 /**
@@ -31,15 +31,14 @@ import type { Knex } from 'knex'
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
+  const clientSettingPath = 'client-setting'
   await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const gaMeasurementIdColumnExists = await knex.schema.hasColumn(clientSettingPath, 'gaMeasurementId')
-
-  if (gaMeasurementIdColumnExists === true) {
-    await knex.schema.alterTable(clientSettingPath, async (table) => {
-      table.dropColumn('gaMeasurementId')
-    })
-  }
+  // Remove client-setting scope types from scope-type table
+  await knex(scopeTypePath)
+    .where('type', `${clientSettingPath}:read`)
+    .orWhere('type', `${clientSettingPath}:write`)
+    .del()
 
   await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
@@ -48,24 +47,4 @@ export async function up(knex: Knex): Promise<void> {
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-export async function down(knex: Knex): Promise<void> {
-  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
-
-  const gaMeasurementIdColumnExists = await knex.schema.hasColumn(clientSettingPath, 'gaMeasurementId')
-
-  if (gaMeasurementIdColumnExists === false) {
-    await knex.schema.alterTable(clientSettingPath, async (table) => {
-      table.string('gaMeasurementId').nullable()
-    })
-
-    const clientSettings = await knex.table(clientSettingPath).first()
-
-    if (clientSettings) {
-      await knex.table(clientSettingPath).update({
-        gaMeasurementId: process.env.GOOGLE_ANALYTICS_MEASUREMENT_ID
-      })
-    }
-  }
-
-  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
-}
+export async function down(knex: Knex): Promise<void> {}
