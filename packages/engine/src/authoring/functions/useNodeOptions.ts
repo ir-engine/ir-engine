@@ -30,12 +30,10 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
-  useComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { SourceComponent } from '../../scene/components/SourceComponent'
 
 export type CallbackOptionType = {
   callbacks: Array<{
@@ -58,8 +56,9 @@ export type NodeOptionsType = {
  * @returns
  */
 export const useCallbackQueryOptions = (entity: Entity) => {
-  const sourceEntity = useComponent(entity, SourceComponent).value
-  const query = SourceComponent.getEntitiesBySource(sourceEntity).filter(
+  const sourceEntity = UUIDComponent.getSourceEntity(entity)
+  const source = UUIDComponent.getAsSourceID(sourceEntity)
+  const query = UUIDComponent.getEntitiesBySource(source).filter(
     (e) => !!getAuthoringCounterpart(e) && hasComponent(e, CallbackComponent)
   )
   return query
@@ -93,8 +92,9 @@ export const useCallbackQueryOptions = (entity: Entity) => {
  * @returns
  */
 export const useNodeOptions = (entity: Entity) => {
-  const sourceEntity = useComponent(entity, SourceComponent).value
-  const query = SourceComponent.getEntitiesBySource(sourceEntity)
+  const sourceEntity = UUIDComponent.getSourceEntity(entity)
+  const source = UUIDComponent.getAsSourceID(sourceEntity)
+  const query = UUIDComponent.getEntitiesBySource(source)
   return query.map((entity) => {
     return {
       label: entity === entity ? 'Self' : getComponent(entity, NameComponent),

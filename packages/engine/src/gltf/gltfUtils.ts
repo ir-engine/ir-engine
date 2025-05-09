@@ -24,8 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
-import { EntityUUID } from '@ir-engine/ecs'
-import { NodeIDComponent } from './NodeIDComponent'
+import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 
 export function nodeIsChild(index: number, nodes: GLTF.INode[]) {
   for (const node of nodes) {
@@ -50,7 +49,7 @@ export function gltfReplaceUUIDReferences(gltf: GLTF.IGLTF, prevUUID: EntityUUID
     if (!node.extensions) continue
 
     for (const extKey in node.extensions) {
-      if (extKey === NodeIDComponent.jsonID) continue
+      if (extKey === UUIDComponent.jsonID) continue
 
       const ext = node.extensions[extKey]
       // If a component is just a reference to a uuid
@@ -386,7 +385,7 @@ export function gltfReplaceUUIDsReferences(gltf: GLTF.IGLTF, UUIDs: [EntityUUID,
     if (!node.extensions) continue
 
     for (const extKey in node.extensions) {
-      if (extKey === NodeIDComponent.jsonID) continue
+      if (extKey === UUIDComponent.jsonID) continue
 
       const ext = node.extensions[extKey]
       for (const [prevUUID, newUUID] of UUIDs) {

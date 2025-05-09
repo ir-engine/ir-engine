@@ -34,6 +34,7 @@ import {
   PortalPreviewTypes
 } from '@ir-engine/engine/src/scene/components/PortalComponent'
 
+import { UUIDComponent } from '@ir-engine/ecs'
 import {
   EditorComponentType,
   commitProperties,
@@ -42,7 +43,6 @@ import {
 } from '@ir-engine/editor/src/components/properties/Util'
 import { bakeEnvmapTexture, uploadCubemapBakeToServer } from '@ir-engine/editor/src/functions/uploadEnvMapBake'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { imageDataToBlob } from '@ir-engine/engine/src/scene/classes/ImageUtils'
 import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
@@ -96,13 +96,13 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         .push
         //...((await API.instance.client.service(portalPath).find({ query: { paginate: false } })) as PortalType[])
         ()
-      console.log('portalsDetail', portalsDetail, getComponent(props.entity, NodeIDComponent))
+      console.log('portalsDetail', portalsDetail, getComponent(props.entity, UUIDComponent).entityID)
     } catch (error) {
       throw new Error(error)
     }
     state.portals.set(
       portalsDetail
-        .filter((portal) => portal.portalEntityId !== getComponent(props.entity, NodeIDComponent))
+        .filter((portal) => portal.portalEntityId !== getComponent(props.entity, UUIDComponent).entityID)
         .map(({ portalEntityId, portalEntityName, sceneName }) => {
           return { value: portalEntityId, label: sceneName + ': ' + portalEntityName }
         })

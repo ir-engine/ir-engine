@@ -69,8 +69,7 @@ import {
   removeComponent,
   setComponent,
   useComponent,
-  useHasComponent,
-  useOptionalComponent
+  useHasComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
@@ -81,11 +80,11 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { getRendererEntity, useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useGLTFComponent, useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { mergeGeometries } from '../util/meshUtils'
-import { SourceComponent } from './SourceComponent'
 
 export type ParticleSystemRendererInstance = {
   renderer: BatchedRenderer
@@ -94,23 +93,23 @@ export type ParticleSystemRendererInstance = {
 }
 
 const createBatchedRenderer = (entity: Entity) => {
-  const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
+  const rendererEntity = getRendererEntity(entity)
   const particleState = getMutableState(ParticleState)
-  if (particleState.renderers[sceneEntity].value) {
-    const instance = particleState.renderers[sceneEntity].get(NO_PROXY) as ParticleSystemRendererInstance
+  if (particleState.renderers[rendererEntity].value) {
+    const instance = particleState.renderers[rendererEntity].get(NO_PROXY) as ParticleSystemRendererInstance
     instance.instanceCount++
     return instance
   } else {
     const renderer = new BatchedRenderer()
-    const rendererEntity = createEntity()
-    setComponent(rendererEntity, VisibleComponent)
-    setComponent(rendererEntity, NameComponent, 'Particle Renderer')
+    const particleRendererEntity = createEntity()
+    setComponent(particleRendererEntity, VisibleComponent)
+    setComponent(particleRendererEntity, NameComponent, 'Particle Renderer')
     const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
-    setComponent(rendererEntity, UUIDComponent, {
+    setComponent(particleRendererEntity, UUIDComponent, {
       entitySourceID: getComponent(sceneEntity, UUIDComponent).entitySourceID,
       entityID: UUIDComponent.generateUUID()
     })
-    setComponent(rendererEntity, EntityTreeComponent, { parentEntity: sceneEntity })
+    setComponent(particleRendererEntity, EntityTreeComponent, { parentEntity: sceneEntity })
     renderer.preserveChildren = true
     renderer.parent = {
       type: 'Scene',
@@ -120,17 +119,21 @@ const createBatchedRenderer = (entity: Entity) => {
       removeFromParent: () => {}
     } as Object3D
     renderer.matrixWorld = new Matrix4().identity()
-    setComponent(rendererEntity, ObjectComponent, renderer)
-    const instance: ParticleSystemRendererInstance = { renderer, rendererEntity, instanceCount: 1 }
-    particleState.renderers[sceneEntity].set(instance)
+    setComponent(particleRendererEntity, ObjectComponent, renderer)
+    const instance: ParticleSystemRendererInstance = {
+      renderer,
+      rendererEntity: particleRendererEntity,
+      instanceCount: 1
+    }
+    particleState.renderers[rendererEntity].set(instance)
     return instance
   }
 }
 
-const removeBatchedRenderer: (sceneEntity: Entity) => void = (sceneID) => {
+const removeBatchedRenderer = (rendererEntity: Entity) => {
   const particleState = getMutableState(ParticleState)
-  if (particleState.renderers[sceneID].value) {
-    const instance = particleState.renderers[sceneID].get(NO_PROXY) as ParticleSystemRendererInstance
+  if (particleState.renderers[rendererEntity].value) {
+    const instance = particleState.renderers[rendererEntity].get(NO_PROXY) as ParticleSystemRendererInstance
     if (instance.instanceCount <= 1) {
       removeComponent(instance.rendererEntity, ObjectComponent)
       for (const batch of instance.renderer.batches) {
@@ -138,7 +141,7 @@ const removeBatchedRenderer: (sceneEntity: Entity) => void = (sceneID) => {
         batch.dispose()
       }
       removeEntity(instance.rendererEntity)
-      particleState.renderers[sceneID].set(none)
+      particleState.renderers[rendererEntity].set(none)
     } else {
       instance.instanceCount--
     }
@@ -895,7 +898,7 @@ export const ParticleSystemComponent = defineComponent({
     const entity = useEntityContext()
     const componentState = useComponent(entity, ParticleSystemComponent)
     const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
-    const sceneID = useOptionalComponent(entity, SourceComponent)?.value
+    const sceneID = useRendererEntity(entity)
 
     //for particle meshes
     const geoDependencyEntity = useGLTFComponent(componentState.value.systemParameters.instancingGeometry, entity)

@@ -32,6 +32,7 @@ import {
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+
 import { useNodeOptions } from '@ir-engine/engine/src/authoring/functions/useNodeOptions'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import React from 'react'

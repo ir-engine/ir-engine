@@ -88,7 +88,7 @@ describe('TransformComponent', () => {
     })
 
     it('should initialize the *Component.jsonID field with the expected value', () => {
-      assert.equal(TransformComponent.jsonID, 'EE_transform')
+      assert.equal(TransformComponent.jsonID, 'IR_transform')
     })
 
     it('should initialize the *Component.schema field with the expected value', () => {

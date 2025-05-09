@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { cloneDeep, isEqual, uniqueId } from 'lodash'
 
 import { UUIDComponent, removeEntity } from '@ir-engine/ecs'
-import { ComponentMap, getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { ComponentMap, Layers, getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
@@ -34,7 +34,7 @@ import { SystemUUID, defineSystem, destroySystem } from '@ir-engine/ecs/src/Syst
 import { InputSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { teleportAvatar } from '@ir-engine/engine/src/avatar/functions/moveAvatar'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { copyTransformToRigidBody } from '@ir-engine/spatial/src/physics/systems/PhysicsPreTransformSystem'
@@ -58,7 +58,7 @@ const initialState = (): State => ({
   systemUUID: '' as SystemUUID
 })
 
-const sceneQuery = defineQuery([SourceComponent])
+const sceneQuery = defineQuery([UUIDComponent], Layers.Authoring)
 
 export const getEntity = makeFunctionNodeDefinition({
   typeName: 'logic/entity/get/entityInScene',
