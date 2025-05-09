@@ -138,7 +138,7 @@ export default function SceneItem({
               }
             },
             {
-              label: t('editor:hierarchy.lbl-copyEmbedded'),
+              label: t('editor:hierarchy.lbl-copyEmbedCode'),
               disabled: false,
               icon: <CodeSnippet01Sm fontSize={16} />,
               onClick: () => {

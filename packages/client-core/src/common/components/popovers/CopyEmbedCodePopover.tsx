@@ -58,7 +58,7 @@ export const CopyEmbedCodePopover = ({ url }: Props) => {
       id="copy-embed-code-modal"
       className="w-[50vw] max-w-2xl"
       submitButtonText={t('common:components.close')}
-      title={t('common:components.copyEmbedded')}
+      title={t('common:components.copyEmbedCode')}
       onClose={ModalState.closeModal}
       onSubmit={ModalState.closeModal}
       showCloseButton={false}

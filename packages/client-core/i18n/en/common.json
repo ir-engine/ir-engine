@@ -20,7 +20,7 @@
     "clear": "Clear",
     "embedCodeCopied": "Embedded code copied to clipboard!",
     "embed": "Embed",
-    "copyEmbed": "Copy Embed"
+    "copyEmbedCode": "Copy Embed Code"
   },
   "tooltip": {
     "pressKey": "Press {{tip}} to {{message}}"
