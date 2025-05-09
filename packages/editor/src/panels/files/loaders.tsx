@@ -168,7 +168,7 @@ export function FileUploadProgress() {
 function GeneratingThumbnailsProgress() {
   const { t } = useTranslation()
   const thumbnailJobs = useMutableState(FileThumbnailJobState).jobs
-  // if (!thumbnailJobs.length) return null
+
   const isLoading = useHookstate(false)
   useLoadingThumbnails(isLoading)
   let thumbnailjobCount = 0
@@ -201,7 +201,7 @@ function GeneratingThumbnailsProgress() {
 function FilesLoading() {
   const { t } = useTranslation()
   const { filesQuery } = useCurrentFiles()
-  // const isLoading = filesQuery?.status === 'pending'
+
   const isLoading = useHookstate(false)
   const debouncedStatusRef = useRef<ReturnType<typeof setTimeout>>()
 

@@ -400,15 +400,8 @@ function ResourceItems() {
     fileIconsLoaded.set(fileIconsLoaded.get() + 1)
   }
 
-  // const thumbnailJobState = useMutableState(FileThumbnailJobState)
-  // const debouncedRefetchResourcesRef = useRef<ReturnType<typeof setTimeout>>()
-
   const isLoading = useHookstate(false)
   useLoadingThumbnails(isLoading)
-
-  // useEffect(() => {
-  //   clearTimeout(debouncedRefetchResourcesRef.current)
-  // }, [])
 
   useEffect(() => {
     if (isLoading.value) return
