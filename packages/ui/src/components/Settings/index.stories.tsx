@@ -94,3 +94,25 @@ export const WithColorfulBackground: Story = {
     )
   }
 }
+
+export const WithGradientBackground: Story = {
+  render: (args) => {
+    const [open, setOpen] = useState(false)
+    return (
+      <div
+        className="flex h-screen w-screen items-center justify-center bg-cover bg-center"
+        style={{
+          background: 'linear-gradient(135deg, #FF9D6C 0%, #BB4E75 100%)'
+        }}
+      >
+        <button
+          className="rounded-xl bg-white/10 px-6 py-3 font-medium text-white shadow-lg backdrop-blur-sm transition-all hover:bg-white/20"
+          onClick={() => setOpen(!open)}
+        >
+          {open ? 'Close Settings' : 'Open Settings'}
+        </button>
+        {open && <SettingsMenu {...args} onClose={() => setOpen(false)} />}
+      </div>
+    )
+  }
+}
