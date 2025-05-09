@@ -121,7 +121,7 @@ export const VideoComponent = defineComponent({
     // internal
     videoMeshEntity: S.Entity({ serialized: false }),
     currentVideoSize: T.Vec2(Vector2_One, { serialized: false }),
-    texture: S.Type<VideoTexturePriorityQueue | null>()
+    texture: S.Type<VideoTexturePriorityQueue | null>({ serialized: false })
   }),
 
   onRemove: (entity, component) => {
