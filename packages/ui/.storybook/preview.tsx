@@ -28,6 +28,7 @@ import { ThemeState, useThemeProvider } from '@ir-engine/client-core/src/common/
 import Engine from '@ir-engine/client/src/engine'
 import { Description, Primary, Stories, Subtitle, Title } from '@storybook/addon-docs'
 import { Preview } from '@storybook/react'
+import { initialize, mswLoader } from 'msw-storybook-addon'
 import React, { useEffect } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -36,6 +37,8 @@ import '../../client/src/themes/base.css'
 import '../../client/src/themes/components.css'
 import '../../client/src/themes/utilities.css'
 import i18n from './i18n'
+
+initialize()
 
 const ThemeProvider = () => {
   useThemeProvider()
@@ -97,7 +100,8 @@ const preview: Preview = {
       )
     },
     actions: { argTypesRegex: '^on[A-Z].*' }
-  }
+  },
+  loaders: [mswLoader]
 }
 
 export default preview
