@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
+import useLoadingThumbnails from '@ir-engine/client-core/src/hooks/useLoadingThumbnails'
 import { useFind } from '@ir-engine/common'
 import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
@@ -65,6 +66,9 @@ export function Browser() {
 
   const [sortConfig, setSortConfig] = useState({ key: null as null | string, direction: 'asc' })
 
+  const isLoading = useHookstate(false)
+  useLoadingThumbnails(isLoading)
+
   const handleSort = (columnKey: string) => {
     setSortConfig((prevConfig) => {
       const newDirection = prevConfig.key === columnKey && prevConfig.direction === 'asc' ? 'desc' : 'asc'
@@ -73,8 +77,9 @@ export function Browser() {
   }
 
   useEffect(() => {
+    if (isLoading.value) return
     refreshDirectory()
-  }, [thumbnailJobState.jobs.length])
+  }, [isLoading.value])
 
   const staticResourceDataQuery = useFind(staticResourcePath, {
     query: {
