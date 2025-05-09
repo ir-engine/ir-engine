@@ -44,7 +44,7 @@ import { RendererComponent } from './renderer/WebGLRendererSystem'
 import { TransformComponent } from './transform/components/TransformComponent'
 
 export const initializeSpatialViewer = (canvas?: HTMLCanvasElement) => {
-  if (getState(ReferenceSpaceState).viewerEntity) return
+  if (getState(ReferenceSpaceState).viewerEntity) throw new Error('Viewer already exists')
 
   const viewerEntity = createEntity()
   setComponent(viewerEntity, NameComponent, 'viewer')
