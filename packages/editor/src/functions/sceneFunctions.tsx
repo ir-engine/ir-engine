@@ -53,7 +53,7 @@ const logger = multiLogger.child({ component: 'editor:sceneFunctions', modifier:
 const fileServer = config.client.fileServer
 
 export const confirmSceneExists = async (sceneFile: string) => {
-  const sceneName = cleanString(sceneFile!.replace('.scene.json', '').replace('.gltf', ''))
+  const sceneName = cleanString(sceneFile!.replace('.gltf', ''))
   const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
 
   const existingScene = await API.instance.service(staticResourcePath).find({
@@ -75,7 +75,7 @@ export const saveSceneGLTF = async (
 
   const { rootEntity } = getState(EditorState)
 
-  const sceneName = cleanString(sceneFile!.replace('.scene.json', '').replace('.gltf', '')) + '.gltf'
+  const sceneName = cleanString(sceneFile!.replace('.gltf', '')) + '.gltf'
   let currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
   if (savePath) {
     currentSceneDirectory = savePath

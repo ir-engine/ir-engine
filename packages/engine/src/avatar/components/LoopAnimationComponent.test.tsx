@@ -69,6 +69,33 @@ describe('LoopAnimationComponent', () => {
         () => {
           return GLTFComponent.isSceneLoaded(entity)
         },
+        { timeout: 20000, interval: 100 }
+      )
+
+      setComponent(entity, LoopAnimationComponent, {
+        activeClipIndex: 0
+      })
+
+      await act(() => render(null))
+
+      const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+      assert(!!loopAnimationComponent._action)
+      assert(loopAnimationComponent._action.isRunning())
+    })
+
+    it('Should stop animation when index is set to -1', async () => {
+      const entity = createTestGLTFEntity()
+
+      setComponent(entity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'test' as EntityID
+      })
+      setComponent(entity, GLTFComponent, { src: rings_gltf })
+
+      await vi.waitFor(
+        () => {
+          return GLTFComponent.isSceneLoaded(entity)
+        },
         { timeout: 20000 }
       )
 

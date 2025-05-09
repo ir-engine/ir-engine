@@ -29,6 +29,7 @@ import {
   getAncestorWithComponents,
   getComponent,
   hasComponent,
+  Layers,
   useAncestorWithComponents,
   useComponent,
   useQuery,
@@ -43,7 +44,6 @@ import {
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
-import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { TriggerCallbackComponent } from '@ir-engine/engine/src/scene/components/TriggerCallbackComponent'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
@@ -70,7 +70,7 @@ const TriggerProperties: EditorComponentType = (props) => {
   const triggerComponent = useComponent(props.entity, TriggerCallbackComponent)
   const hasRigidbody = useAncestorWithComponents(props.entity, [RigidBodyComponent])
 
-  const callbackQuery = useQuery([CallbackComponent, NameComponent, NodeIDComponent, EntityTreeComponent])
+  const callbackQuery = useQuery([CallbackComponent, NameComponent, EntityTreeComponent], Layers.Authoring)
 
   useEffect(() => {
     if (!hasComponent(props.entity, ColliderComponent)) {
