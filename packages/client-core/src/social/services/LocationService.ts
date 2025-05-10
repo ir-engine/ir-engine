@@ -139,12 +139,14 @@ export const LocationService = {
   getLocationByName: async (locationName: string) => {
     LocationState.fetchingCurrentSocialLocation()
     try {
+      console.log({ locationName })
       const locationResult = (await API.instance.service(locationPath).find({
         query: {
           action: 'viewer',
           slugifiedName: locationName
         }
       })) as Paginated<LocationType>
+      console.log({ locationResult })
 
       if (locationResult && locationResult.total > 0) {
         // if (
