@@ -1668,5 +1668,13 @@
   "unsupportedFile": {
     "title": "Unsupported File Type!",
     "okay": "Okay"
+  },
+  "prefab": {
+    "createTitle": "Create Prefab",
+    "createLookdevTitle": "Create Lookdev Prefab",
+    "defaultSaveFolder": "Default Save Folder",
+    "name": "Name",
+    "alreadyExistsTitle": "Overwrite Prefab",
+    "alreadyExists": "Prefab with this name already exists. You will overwrite it."
   }
 }

@@ -54,6 +54,7 @@ import { Button, Input } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { HiOutlineXMark } from 'react-icons/hi2'
 import { Quaternion, Scene, Vector3 } from 'three'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
@@ -61,6 +62,7 @@ import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 
 export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?: Entity; isExportLookDev?: boolean }) {
+  const isLoading = useHookstate(false)
   const defaultPrefabFolder = useHookstate<string>('assets/custom-prefabs')
   const prefabName = useHookstate<string>('prefab')
   const resultFileName = useHookstate(isValidFileName(prefabName.value))
@@ -177,6 +179,7 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
   }
 
   const onExportPrefab = async () => {
+    isLoading.set(true)
     const editorState = getState(EditorState)
     const fileName = isExportLookDev
       ? defaultPrefabFolder.value + '/' + prefabName.value + '.lookdev' + '.gltf'
@@ -201,6 +204,8 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
       }
     } catch (e) {
       console.error(e)
+    } finally {
+      isLoading.set(false)
     }
   }
 
@@ -208,85 +213,88 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
     <>
       {!isOverwriteModalVisible.value && !isOverwriteConfirmed.value && (
         <Modal
-          title={isExportLookDev ? 'Create Lookdev Prefab' : 'Create Prefab'}
+          title={isExportLookDev ? t('editor:prefab.createLookdevTitle') : t('editor:prefab.createTitle')}
           onSubmit={onExportPrefab}
           className="w-[50vw] max-w-2xl"
           onClose={ModalState.closeModal}
           submitButtonDisabled={!resultFileName.value.isValid}
+          submitLoading={isLoading.value}
         >
-          <Input
-            value={defaultPrefabFolder.value}
-            onChange={(event) => defaultPrefabFolder.set(event.target.value)}
-            labelProps={{
-              text: 'Default Save Folder',
-              position: 'top'
-            }}
-          />
-          <Input
-            value={prefabName.value}
-            onChange={(event) => {
-              resultFileName.set(isValidFileName(event.target.value))
-              prefabName.set(event.target.value)
-            }}
-            labelProps={{
-              text: 'Name',
-              position: 'top'
-            }}
-            minLength={4}
-            maxLength={64}
-            state={!resultFileName.value.isValid ? 'error' : undefined}
-            helperText={!resultFileName.value.isValid ? resultFileName.value.error : undefined}
-          />
-          {!isExportLookDev && (
-            <div>
-              <Button
-                size="sm"
-                variant="tertiary"
-                className="text-left text-xs"
-                onClick={() => {
-                  prefabTag.set([...(prefabTag.value ?? []), ''])
-                }}
-              >
-                {t('editor:layout.filebrowser.fileProperties.addTag')}
-              </Button>
-              <div>
+          <div className="flex flex-col gap-4">
+            <Input
+              fullWidth
+              value={defaultPrefabFolder.value}
+              onChange={(event) => defaultPrefabFolder.set(event.target.value)}
+              labelProps={{
+                text: t('editor:prefab.defaultSaveFolder'),
+                position: 'top'
+              }}
+            />
+            <Input
+              fullWidth
+              value={prefabName.value}
+              onChange={(event) => {
+                resultFileName.set(isValidFileName(event.target.value))
+                prefabName.set(event.target.value)
+              }}
+              labelProps={{
+                text: t('editor:prefab.name'),
+                position: 'top'
+              }}
+              minLength={4}
+              maxLength={64}
+              state={!resultFileName.value.isValid ? 'error' : undefined}
+              helperText={!resultFileName.value.isValid ? resultFileName.value.error : undefined}
+            />
+            {!isExportLookDev && (
+              <div className="flex flex-col gap-2">
+                <Button
+                  size="sm"
+                  variant="tertiary"
+                  className="text-left text-xs"
+                  onClick={() => {
+                    prefabTag.set([...(prefabTag.value ?? []), ''])
+                  }}
+                >
+                  {t('editor:layout.filebrowser.fileProperties.addTag')}
+                </Button>
                 {(prefabTag.value ?? []).map((tag, index) => (
-                  <div className="ml-4 flex items-end" key={tag + index}>
-                    <Input
-                      labelProps={{
-                        text: t('editor:layout.filebrowser.fileProperties.tag'),
-                        position: 'top'
-                      }}
-                      onChange={(event) => {
-                        const tags = [...prefabTag.value]
-                        tags[index] = event.target.value
-                        prefabTag.set(tags)
-                      }}
-                      value={prefabTag.value[index]}
-                      endComponent={
-                        <Button
-                          onClick={() => {
-                            prefabTag.set(prefabTag.value.filter((_, i) => i !== index))
-                          }}
-                          size="sm"
-                          variant="tertiary"
-                          className="text-left text-xs"
-                        >
-                          x
-                        </Button>
-                      }
-                    />
-                  </div>
+                  <Input
+                    fullWidth
+                    key={tag + index}
+                    labelProps={{
+                      text: t('editor:layout.filebrowser.fileProperties.tag'),
+                      position: 'top'
+                    }}
+                    onChange={(event) => {
+                      const tags = [...prefabTag.value]
+                      tags[index] = event.target.value
+                      prefabTag.set(tags)
+                    }}
+                    value={prefabTag.value[index]}
+                    endComponent={
+                      <Button
+                        onClick={() => {
+                          prefabTag.set(prefabTag.value.filter((_, i) => i !== index))
+                        }}
+                        size="sm"
+                        variant="tertiary"
+                        className="text-xs"
+                      >
+                        <HiOutlineXMark />
+                      </Button>
+                    }
+                  />
                 ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </Modal>
       )}
       {/* Overwrite Confirmation Modal */}
       {isOverwriteModalVisible.value && (
         <Modal
-          title="Overwrite Prefab"
+          title={t('editor:prefab.alreadyExistsTitle')}
           onSubmit={() => {
             isOverwriteConfirmed.set(true)
             isOverwriteModalVisible.set(false)
@@ -298,8 +306,8 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
           }}
           className="w-1/3 max-w-md p-4"
         >
-          <div className="flex justify-end">
-            <p>Prefab with this name already exists. You will overwrite it.</p>
+          <div className="flex justify-center">
+            <p>{t('editor:prefab.alreadyExists')}</p>
           </div>
         </Modal>
       )}
