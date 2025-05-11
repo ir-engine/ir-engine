@@ -170,6 +170,8 @@ export const UUIDComponent = defineComponent({
 
   /** Reactively gets an entity by UUID */
   useEntityByUUID(uuid: EntityUUID, layer = Layers.Simulation as LayerID) {
+    if (!uuid) return UndefinedEntity
+
     return useHookstate(UUIDComponentFunctions._getUUIDState(uuid, layer)).value
   },
 
@@ -186,7 +188,11 @@ export const UUIDComponent = defineComponent({
 
   /** Reactively gets an entity from the same source by ID */
   useEntityFromSameSourceByID(entity: Entity, id: EntityID, layer = Layers.Simulation as LayerID) {
+    if (!entity || entity === UndefinedEntity) return UndefinedEntity
+
     const entitySourceID = useComponent(entity, UUIDComponent).entitySourceID.value
+    if (!entitySourceID || !id) return UndefinedEntity
+
     return UUIDComponent.useEntityByUUID(UUIDComponent.join({ entitySourceID, entityID: id }), layer)
   },
 
@@ -203,8 +209,12 @@ export const UUIDComponent = defineComponent({
   },
 
   useSourceEntity(entity: Entity) {
+    if (!entity || entity === UndefinedEntity) return UndefinedEntity
+
     const layer = LayerComponent.get(entity)
     const entitySourceID = useComponent(entity, UUIDComponent).entitySourceID.value as any as EntityUUID
+    if (!entitySourceID) return UndefinedEntity
+
     return UUIDComponent.useEntityByUUID(entitySourceID, layer)
   },
 
