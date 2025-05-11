@@ -237,7 +237,11 @@ export const UUIDComponent = defineComponent({
   use: (entity: Entity) => UUIDComponent.join(useComponent(entity, UUIDComponent).value),
 
   /** Joins an EntityUUIDPair into a string */
-  join: (idPair: EntityUUIDPair) => `${idPair.entitySourceID}${idPair.entityID}` as EntityUUID,
+  join: (idPair: EntityUUIDPair) => {
+    if (!idPair) return '' as EntityUUID
+
+    return `${idPair.entitySourceID}${idPair.entityID}` as EntityUUID
+  },
 
   /** @deprecated use UUIDComponent.generate() instead */
   generateUUID() {
