@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
@@ -202,8 +203,10 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
           exportPrefab(entity, srcProject, fileName, fileURL)
         }
       }
+      NotificationService.dispatchNotify(t('editor:prefab.exportedSuccess'), { variant: 'success' })
     } catch (e) {
       console.error(e)
+      NotificationService.dispatchNotify(e.message, { variant: 'error' })
     } finally {
       isLoading.set(false)
     }
@@ -218,6 +221,7 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
           className="w-[50vw] max-w-2xl"
           onClose={ModalState.closeModal}
           submitButtonDisabled={!resultFileName.value.isValid}
+          closeButtonText={t('common:components.close')}
           submitLoading={isLoading.value}
         >
           <div className="flex flex-col gap-4">
