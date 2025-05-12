@@ -124,8 +124,10 @@ class TextureLoader extends Loader<Texture> {
     const onImage = (i: ImageBitmap | HTMLImageElement) => {
       if (signal?.aborted) return
 
-      const image = this.maxResolution && i instanceof ImageBitmap ? getScaledBitmap(i, this.maxResolution) : i
+      const isBitmap = i instanceof ImageBitmap
+      const image = this.maxResolution && isBitmap ? getScaledBitmap(i, this.maxResolution) : i
       const texture = new Texture(image)
+      if (!isBitmap) texture.flipY = this.flipped
       texture.userData.url = url
       texture.needsUpdate = true
       onLoad(texture)
