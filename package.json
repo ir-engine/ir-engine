@@ -128,7 +128,6 @@
     "deep-object-diff": "^1.1.9",
     "depcheck": "1.4.3",
     "eslint": "9.5.0",
-    "eslint-plugin-import": "^2.31.0",
     "globals": "15.6.0",
     "kill-port": "2.0.1",
     "lerna": "6.5.1",
