@@ -133,25 +133,11 @@ export const InteractiveModalView: React.FC = (props: {
 
   if (!isClient) return <></>
 
-  React.useLayoutEffect(() => {
-    if (rootElement.current) {
-      createBackground(
-        props.entity,
-        rootElement.current.clientWidth,
-        rootElement.current.clientHeight,
-        props.borderRadiusPx,
-        props.bgPaddingPx,
-        props.contentVerticalPadPx,
-        props.contentHorizontalPadPx
-      )
-    }
-  }, [rootElement.current]) //TODO this isn't firing, not calculating size to add BG
-
   return (
     <div className={'modal'} ref={rootElement}>
       {modalState.interactMessage.value && modalState.interactMessage.value !== ''
         ? modalState.interactMessage.value
-        : 'E'}
+        : ''}
       <link href="https://fonts.googleapis.com/css?family=Lato:400" rel="stylesheet" type="text/css" />
       <style>
         {`

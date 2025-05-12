@@ -38,12 +38,13 @@ import {
   traverseEntityNode,
   UndefinedEntity,
   useComponent,
-  useQuery
+  useQuery,
+  UUIDComponent
 } from '@ir-engine/ecs'
 import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+
+import { getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react'
@@ -134,7 +135,7 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
   const hierarchyTreeState = useMutableState(HierarchyTreeState)
   const renamingEntity = useHookstate<Entity | null>(null)
   const contextMenu = useHookstate({ entity: UndefinedEntity, anchorEvent: undefined as React.MouseEvent | undefined })
-  const entities = useQuery([SourceComponent], Layers.Authoring)
+  const entities = useQuery([UUIDComponent], Layers.Authoring)
   const showGlbChildren = useMutableState(EditorHelperState).showGlbChildren
 
   const childEntities = useQuery([EntityTreeComponent], Layers.Authoring)
@@ -374,26 +375,24 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
     }
 
     if ('type' in item && item.type === ItemTypes.Component) {
-      EditorControlFunctions.createObjectFromSceneElement(
+      const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
         [{ name: (item as any).componentJsonID }],
         parentNode,
         beforeNode
       )
-      AuthoringState.snapshotEntities([getState(EditorState).rootEntity])
+      const entities = [UUIDComponent.getEntityByUUID(entityUUID, Layers.Authoring)]
+      AuthoringState.snapshotEntities(entities)
       return
     }
 
     if (!parentNode) return
 
-    EditorControlFunctions.reparentObject(
-      Array.isArray((item as DragItemType).value)
-        ? ((item as DragItemType).value as Entity[])
-        : [(item as DragItemType).value as Entity],
-      beforeNode,
-      afterNode,
-      parentNode
-    )
-    AuthoringState.snapshotEntities([getState(EditorState).rootEntity])
+    const entities = Array.isArray((item as DragItemType).value)
+      ? ((item as DragItemType).value as Entity[])
+      : [(item as DragItemType).value as Entity]
+
+    EditorControlFunctions.reparentObject(entities, beforeNode, afterNode, parentNode)
+    AuthoringState.snapshotEntities(entities)
   }
 
   const [{ canDrop, isOver }, dropTarget] = useDrop({

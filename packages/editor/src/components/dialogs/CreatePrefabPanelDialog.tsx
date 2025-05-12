@@ -45,7 +45,6 @@ import PrefabConfirmationPanelDialog from '@ir-engine/editor/src/components/dial
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getMutableState, getState, startReactor, useHookstate } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -105,12 +104,10 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
     setComponent(prefabEntity, NameComponent, 'temp prefab')
     lookdevEntity.forEach((entity) => {
       setComponent(entity, EntityTreeComponent, { parentEntity: prefabEntity })
-      setComponent(entity, SourceComponent)
     })
 
     getMutableState(SelectionState).selectedEntities.set([])
 
-    setComponent(prefabEntity, SourceComponent)
     await exportRelativeGLTF(prefabEntity, srcProject, fileName)
 
     const resources = await API.instance.service(staticResourcePath).find({

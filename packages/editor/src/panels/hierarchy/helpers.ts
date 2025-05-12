@@ -23,20 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import {
-  Entity,
-  EntityTreeComponent,
-  getOptionalComponent,
-  hasComponent,
-  Layers,
-  removeEntity,
-  UUIDComponent
-} from '@ir-engine/ecs'
+import { Entity, EntityTreeComponent, getOptionalComponent, Layers, removeEntity, UUIDComponent } from '@ir-engine/ecs'
 import { AllFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
-import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { getState } from '@ir-engine/hyperflux'
 import { t } from 'i18next'
@@ -104,7 +94,7 @@ export const pasteNodes = (parentEntity?: Entity) => {
   const ProcessEntityData = (parentEntity: Entity | undefined, nodeEntitiesData: EntityCopyDataType[]) => {
     nodeEntitiesData.forEach((nodeEntityData) => {
       const components = nodeEntityData.components.map((c) => ({ name: c.name, props: c.json }) as ComponentJsonType)
-      delete components[NodeIDComponent.jsonID]
+      delete components[UUIDComponent.jsonID]
 
       const entityData = EditorControlFunctions.createObjectFromSceneElement(
         components,
@@ -145,11 +135,7 @@ export function ecsHierarchyTreeWalker(rootEntity: Entity, enableHideGlbChildren
     const { entity, depth, lastChild, isRendered: originalIsRendered } = frontier.pop()!
     const eTree = getOptionalComponent(entity, EntityTreeComponent)
 
-    const hasGLTFComponent = hasComponent(entity, GLTFComponent)
-    const hasSourceComponent = hasComponent(entity, SourceComponent)
-
-    const valid = hasGLTFComponent || hasSourceComponent
-    if (!eTree || !valid) continue
+    if (!eTree) continue
     const childIndex = eTree.childIndex ?? 0
     const children = eTree.children
 

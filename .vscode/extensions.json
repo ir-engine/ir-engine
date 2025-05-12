@@ -2,6 +2,7 @@
   "recommendations": [
     "dbaeumer.vscode-eslint",
     "lokalise.i18n-ally",
-    "esbenp.prettier-vscode"
+    "esbenp.prettier-vscode",
+    "cesium.gltf-vscode"
   ]
 }

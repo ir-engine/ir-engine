@@ -60,7 +60,7 @@ describe('UUIDComponent', () => {
       const testEntity = createEntity()
       setComponent(testEntity, UUIDComponent, Expected)
       const result = serializeComponent(testEntity, UUIDComponent)
-      expect(UUIDComponent.join(result)).toBe(UUIDComponent.join(Expected))
+      expect(result).toEqual({ entityID: 'id' })
     })
   })
 

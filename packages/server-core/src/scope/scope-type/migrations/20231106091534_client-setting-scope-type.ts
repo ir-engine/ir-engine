@@ -27,7 +27,6 @@ import type { Knex } from 'knex'
 
 import { scopeTypePath, ScopeTypeType } from '@ir-engine/common/src/schemas/scope/scope-type.schema'
 import { ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
-import { clientSettingPath } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 
 /**
@@ -35,6 +34,7 @@ import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
+  const clientSettingPath = 'client-setting'
   await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
   const tableExists = await knex.schema.hasTable(scopeTypePath)
