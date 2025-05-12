@@ -34,8 +34,8 @@ import { defineState, getMutableState, getState, useMutableState } from '@ir-eng
 
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { Vector3_Zero } from '../common/constants/MathConstants'
-import { RendererComponent } from '../renderer/WebGLRendererSystem'
 import { ObjectComponent } from '../renderer/components/ObjectComponent'
+import { RendererComponent } from '../renderer/components/RendererComponent'
 import { EnvironmentMapComponent } from '../renderer/components/SceneComponents'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { DirectionalLightComponent } from '../renderer/components/lights/DirectionalLightComponent'

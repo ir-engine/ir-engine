@@ -29,9 +29,9 @@ import { createHookableFunction, getMutableState, getState } from '@ir-engine/hy
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { Vector3_One, Vector3_Zero } from '../common/constants/MathConstants'
 import { isSafari } from '../common/functions/isMobile'
+import { RendererComponent } from '../renderer/components/RendererComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin } from '../transform/updateWorldOrigin'
-import { RendererComponent } from './../renderer/WebGLRendererSystem'
 import { ReferenceSpace, XRState } from './XRState'
 
 export const onSessionEnd = () => {

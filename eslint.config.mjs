@@ -1,5 +1,6 @@
 import { FlatCompat } from '@eslint/eslintrc'
 import js from '@eslint/js'
+import importPlugin from 'eslint-plugin-import'
 import typescriptEslint from '@typescript-eslint/eslint-plugin'
 import tsParser from '@typescript-eslint/parser'
 import globals from 'globals'
@@ -21,7 +22,8 @@ export default [
   ...compat.extends('eslint:recommended', 'plugin:@typescript-eslint/recommended'),
   {
     plugins: {
-      '@typescript-eslint': typescriptEslint
+      '@typescript-eslint': typescriptEslint,
+      'import': importPlugin
     },
 
     languageOptions: {
@@ -41,11 +43,19 @@ export default [
       '@typescript-eslint/no-var-requires': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-expressions': 'off',
+      '@typescript-eslint/no-require-imports': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/no-unsafe-function-type': 'warn',
+      'import/no-self-import': 'error',
+      'import/no-cycle': 'error',
       'prefer-const': 'warn',
+      'no-loss-of-precision': 'warn',
       'no-async-promise-executor': 'off',
       'no-useless-escape': 'off',
       '@typescript-eslint/no-extra-semi': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/ban-types': 'off',
       'no-fallthrough': 'off',
       "no-unexpected-multiline": "off"
     }

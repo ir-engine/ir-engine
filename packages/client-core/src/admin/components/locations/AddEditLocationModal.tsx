@@ -59,7 +59,6 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { Button, DropdownItem, Input, Select, Tooltip } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
@@ -269,7 +268,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
               exportParentEntity.push(meshRootEntity as Entity)
             }
 
-            computeTransformMatrix(entity)
+            TransformComponent.computeTransformMatrix(entity)
             const worldpos = new Vector3()
             const worldrot = new Quaternion()
             const getWorldScale = new Vector3()

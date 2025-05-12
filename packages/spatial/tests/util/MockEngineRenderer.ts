@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Entity, getComponent, setComponent } from '@ir-engine/ecs'
 import { EffectComposer, Pass, RenderPass } from 'postprocessing'
 import { WebGLCoordinateSystem, WebGLRenderTarget, WebGLRenderer, WebGLShadowMap } from 'three'
-import { RendererComponent } from '../../src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '../../src/renderer/components/RendererComponent'
 import { createWebXRManager } from '../../src/xr/WebXRManager'
 import { MockEventListener } from './MockEventListener'
 

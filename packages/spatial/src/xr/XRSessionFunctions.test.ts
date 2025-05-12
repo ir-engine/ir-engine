@@ -39,7 +39,7 @@ import { Quaternion, Vector3 } from 'three'
 import { ReferenceSpaceState, TransformComponent } from '../SpatialModule'
 import { Q_IDENTITY, Vector3_One, Vector3_Zero } from '../common/constants/MathConstants'
 import { destroySpatialEngine, destroySpatialViewer } from '../initializeEngine'
-import { RendererComponent } from '../renderer/WebGLRendererSystem'
+import { RendererComponent } from '../renderer/components/RendererComponent'
 import { endXRSession, getReferenceSpaces, onSessionEnd, requestXRSession, setupXRSession } from './XRSessionFunctions'
 import { ReferenceSpace, XRState } from './XRState'
 

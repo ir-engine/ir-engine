@@ -48,7 +48,7 @@ import {
 } from 'three'
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { CameraComponent } from '../camera/components/CameraComponent'
-import { RendererComponent } from '../renderer/WebGLRendererSystem'
+import { RendererComponent } from '../renderer/components/RendererComponent'
 import { WebXRManager, WebXRManagerFunctions, XRRendererState, createWebXRManager } from './WebXRManager'
 import { XRState } from './XRState'
 

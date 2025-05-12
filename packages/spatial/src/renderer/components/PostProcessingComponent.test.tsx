@@ -41,7 +41,6 @@ import {
 } from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { Effect } from 'postprocessing'
 import { useEffect } from 'react'
@@ -50,6 +49,7 @@ import { destroySpatialEngine, initializeSpatialEngine } from '../../initializeE
 import { RendererState } from '../RendererState'
 import { EffectReactorProps, PostProcessingEffectState } from '../effects/EffectRegistry'
 import { PostProcessingComponent } from './PostProcessingComponent'
+import { RendererComponent } from './RendererComponent'
 
 const effectKey = 'MockEffect'
 
