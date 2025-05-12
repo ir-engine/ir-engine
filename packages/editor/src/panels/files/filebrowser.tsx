@@ -70,9 +70,6 @@ export function Browser() {
     })
   }
 
-  const isLoading = useHookstate(false)
-  useLoadingThumbnails(isLoading)
-
   useEffect(() => {
     if (isLoading.value) return
     refreshDirectory()
