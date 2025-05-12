@@ -174,7 +174,8 @@ const buildComponentDependencies = (entity: Entity, json: GLTF.IGLTF) => {
   if (!json.nodes) return dependencies
   for (const node of json.nodes) {
     if (node.extensions && node.extensions[UUIDComponent.jsonID]) {
-      const nodeID = node.extensions[UUIDComponent.jsonID] as EntityID
+      const ext = node.extensions[UUIDComponent.jsonID] as EntityID | { entityID: EntityID }
+      const nodeID = typeof ext === 'string' ? ext : (ext!.entityID as EntityID)
       const sourceID = GLTFComponent.getSourceID(entity)
       const uuid = UUIDComponent.join({ entitySourceID: sourceID, entityID: nodeID })
       const extensions = Object.keys(node.extensions)

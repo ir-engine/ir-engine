@@ -108,7 +108,14 @@ export const UUIDComponent = defineComponent({
     required: true
   }),
 
+  toJSON(component) {
+    return { entityID: component.entityID }
+  },
+
   onSet(entity, component, idPair: EntityUUIDPair) {
+    if (!idPair.entitySourceID) throw new Error('UUID context cannot be empty')
+    if (!idPair.entityID) throw new Error('UUID id cannot be empty')
+
     const layer = LayerComponent.get(entity)
     const prev =
       component.value.entityID && component.value.entitySourceID ? UUIDComponent.join(component.value) : undefined
