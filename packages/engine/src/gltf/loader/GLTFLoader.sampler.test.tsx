@@ -25,58 +25,73 @@ Infinite Reality Engine. All Rights Reserved.
 
 /**
  * @fileoverview
- * Unit Test suite for loading the `glTF.samplers` root property and all its children.
+ * Unit Test suite for validating `glTF.samplers` indirectly through texture loading.
  * Based on glTF 2.0 specification requirements.
- * */
-import { describe, it } from 'vitest'
+ */
+import { describe, expect, it } from 'vitest'
+import { mockGLTF, mockGLTFOptions } from '../../../tests/util/mockGLTF'
+import { GLTFLoaderFunctions } from '../GLTFLoaderFunctions'
 
-describe('glTF.samplers Property', () => {
-  it.todo('MAY be undefined', () => {})
-  it.todo('MUST be an array of `sampler` objects when defined', () => {})
-  it.todo('MUST have a length in range [1..] when defined', () => {})
-}) //:: glTF.samplers
+describe('glTF.samplers Property (indirect validation)', () => {
+  it('MAY be undefined', async () => {
+    const options = mockGLTFOptions(mockGLTF())
+    delete options.document.samplers
+    const texture = await GLTFLoaderFunctions.loadTextureImage(options, 0, 0, {} as any)
+    expect(texture).toBeDefined()
+    expect(texture.wrapS).toBeDefined() // Default value
+    expect(texture.wrapT).toBeDefined() // Default value
+  })
 
-describe('glTF: Sampler Type', () => {
-  describe('magFilter', () => {
-    it.todo('MAY be undefined', () => {})
-    it.todo('MUST be an `integer` type when defined', () => {})
-    it.todo('MUST be one of the allowed values: 9728 NEAREST, 9729 LINEAR', () => {})
-  }) //:: magFilter
+  it('MUST be an array of `sampler` objects when defined', async () => {
+    const options = mockGLTFOptions(mockGLTF())
+    options.document.samplers = 42 as any // Invalid type
+    await expect(GLTFLoaderFunctions.loadTextureImage(options, 0, 0, {} as any)).rejects.toThrowError()
+  })
 
-  describe('minFilter', () => {
-    it.todo('MAY be undefined', () => {})
-    it.todo('MUST be an `integer` type when defined', () => {})
-    it.todo(
-      'MUST be one of the allowed values: 9728 NEAREST, 9729 LINEAR, 9984 NEAREST_MIPMAP_NEAREST, 9985 LINEAR_MIPMAP_NEAREST, 9986 NEAREST_MIPMAP_LINEAR, 9987 LINEAR_MIPMAP_LINEAR',
-      () => {}
-    )
-  }) //:: minFilter
+  it('MUST have a length in range [1..] when defined', async () => {
+    const options = mockGLTFOptions(mockGLTF())
+    options.document.samplers = [] // Empty array
+    await expect(GLTFLoaderFunctions.loadTextureImage(options, 0, 0, {} as any)).rejects.toThrowError()
+  })
+})
 
-  describe('wrapS', () => {
-    it.todo('MAY be undefined', () => {})
-    it.todo('SHOULD assign a default value of 10497 REPEAT', () => {})
-    it.todo('MUST be an `integer` type when defined', () => {})
-    it.todo('MUST be one of the allowed values: 33071 CLAMP_TO_EDGE, 33648 MIRRORED_REPEAT, 10497 REPEAT', () => {})
-  }) //:: wrapS
+describe('glTF: Sampler Type (indirect validation)', () => {
+  function mockGLTFWithSampler(sampler: any) {
+    const result = mockGLTF()
+    result.samplers = [sampler]
+    return result
+  }
 
-  describe('wrapT', () => {
-    it.todo('MAY be undefined', () => {})
-    it.todo('SHOULD assign a default value of 10497 REPEAT', () => {})
-    it.todo('MUST be an `integer` type when defined', () => {})
-    it.todo('MUST be one of the allowed values: 33071 CLAMP_TO_EDGE, 33648 MIRRORED_REPEAT, 10497 REPEAT', () => {})
-  }) //:: wrapT
+  it('MAY have undefined `magFilter`', async () => {
+    const options = mockGLTFOptions(mockGLTFWithSampler({}))
+    const texture = await GLTFLoaderFunctions.loadTextureImage(options, 0, 0, {} as any)
+    expect(texture.magFilter).toBeDefined() // Default value
+  })
 
-  describe('name', () => {
-    it.todo('MAY be undefined', () => {})
-    it.todo('MUST be a `string` type when defined', () => {})
-  }) //:: name
+  it('MUST have `magFilter` as an integer when defined', async () => {
+    const options = mockGLTFOptions(mockGLTFWithSampler({ magFilter: 9729.42 })) // Invalid type
+    await expect(GLTFLoaderFunctions.loadTextureImage(options, 0, 0, {} as any)).rejects.toThrowError()
+  })
 
-  describe('extensions', () => {
-    it.todo('MAY be undefined', () => {})
-    it.todo('MUST be a JSON object when defined', () => {})
-  }) //:: extensions
+  it('MUST have `magFilter` as one of the allowed values', async () => {
+    const options = mockGLTFOptions(mockGLTFWithSampler({ magFilter: 42 })) // Invalid value
+    await expect(GLTFLoaderFunctions.loadTextureImage(options, 0, 0, {} as any)).rejects.toThrowError()
+  })
 
-  describe('extras', () => {
-    it.todo('MAY be undefined', () => {})
-  }) //:: extras
-}) //:: glTF: Sampler
+  it('MAY have undefined `wrapS` and `wrapT`', async () => {
+    const options = mockGLTFOptions(mockGLTFWithSampler({}))
+    const texture = await GLTFLoaderFunctions.loadTextureImage(options, 0, 0, {} as any)
+    expect(texture.wrapS).toBeDefined() // Default value
+    expect(texture.wrapT).toBeDefined() // Default value
+  })
+
+  it('MUST have `wrapS` and `wrapT` as integers when defined', async () => {
+    const options = mockGLTFOptions(mockGLTFWithSampler({ wrapS: 10497.42, wrapT: 10497.42 })) // Invalid type
+    await expect(GLTFLoaderFunctions.loadTextureImage(options, 0, 0, {} as any)).rejects.toThrowError()
+  })
+
+  it('MUST have `wrapS` and `wrapT` as one of the allowed values', async () => {
+    const options = mockGLTFOptions(mockGLTFWithSampler({ wrapS: 42, wrapT: 42 })) // Invalid values
+    await expect(GLTFLoaderFunctions.loadTextureImage(options, 0, 0, {} as any)).rejects.toThrowError()
+  })
+})
