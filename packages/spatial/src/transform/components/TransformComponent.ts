@@ -333,7 +333,6 @@ export const TransformComponent = defineComponent({
     const transform = getComponent(entity, TransformComponent)
     getOptionalComponent(entity, ComputedTransformComponent)?.computeFunction()
     composeMatrix(entity)
-    TransformComponent.dirty[entity] = 0
 
     const entityTree = getOptionalComponent(entity, EntityTreeComponent)
     const parentEntity = entityTree?.parentEntity
