@@ -78,7 +78,6 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
     setComponent(helperEntity, VisibleComponent, true)
     helperEntityState.set(helperEntity)
     if (typeof helper.update === 'function') helper.update()
-
     return () => {
       if (helperMesh) {
         helperMesh.material.dispose()

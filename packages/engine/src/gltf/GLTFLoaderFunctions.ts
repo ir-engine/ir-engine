@@ -1538,8 +1538,8 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const overrides = json.extensions?.[OVERRIDE_EXTENSION_NAME]
   if (overrides) {
     for (const [id, ops] of Object.entries(overrides)) {
-      const rootUUID = UUIDComponent.get(rootEntity)
-      const overrideUUID = rootUUID + id
+      const rootUUID = UUIDComponent.getAsSourceID(rootEntity)
+      const overrideUUID = UUIDComponent.join({ entitySourceID: rootUUID, entityID: id as EntityID })
       dispatchAction(AuthoringActions.ops({ ops: { [overrideUUID]: ops }, $user: SceneUser }))
     }
   }
@@ -1667,8 +1667,16 @@ export const getDependency = <
   return dependency
 }
 
-export const getNodeID = (node: GLTF.INode, nodeIndex: number) =>
-  (node.extensions?.[UUIDComponent.jsonID] as EntityID) ?? (`${nodeIndex}` as EntityID)
+export const getNodeID = (node: GLTF.INode, nodeIndex: number) => {
+  if (node.extensions && UUIDComponent.jsonID in node.extensions) {
+    // backwards compat
+    if (typeof node.extensions[UUIDComponent.jsonID] === 'string')
+      return node.extensions[UUIDComponent.jsonID] as EntityID
+    const ext = node.extensions[UUIDComponent.jsonID] as { entityID: EntityID }
+    return ext.entityID as EntityID
+  }
+  return `${nodeIndex}` as EntityID
+}
 
 export type GLTFParserOptions = {
   url: string
