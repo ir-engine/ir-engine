@@ -26,4 +26,3 @@ import { engineSettingPath } from './engine-setting.schema'
 
 // Re-export with the old name
 export const clientSettingPath = engineSettingPath
-
