@@ -32,6 +32,57 @@ import { describe, expect, it } from 'vitest'
 import { mockGLTF, mockGLTFOptions } from '../../../tests/util/mockGLTF'
 import { GLTFLoaderFunctions } from '../GLTFLoaderFunctions'
 
+// describe('glTF.samplers Property', () => {
+//   it.todo('MAY be undefined', () => {})
+//   it.todo('MUST be an array of `sampler` objects when defined', () => {})
+//   it.todo('MUST have a length in range [1..] when defined', () => {})
+// }) //:: glTF.samplers
+
+// describe('glTF: Sampler Type', () => {
+//   describe('magFilter', () => {
+//     it.todo('MAY be undefined', () => {})
+//     it.todo('MUST be an `integer` type when defined', () => {})
+//     it.todo('MUST be one of the allowed values: 9728 NEAREST, 9729 LINEAR', () => {})
+//   }) //:: magFilter
+
+//   describe('minFilter', () => {
+//     it.todo('MAY be undefined', () => {})
+//     it.todo('MUST be an `integer` type when defined', () => {})
+//     it.todo(
+//       'MUST be one of the allowed values: 9728 NEAREST, 9729 LINEAR, 9984 NEAREST_MIPMAP_NEAREST, 9985 LINEAR_MIPMAP_NEAREST, 9986 NEAREST_MIPMAP_LINEAR, 9987 LINEAR_MIPMAP_LINEAR',
+//       () => {}
+//     )
+//   }) //:: minFilter
+
+//   describe('wrapS', () => {
+//     it.todo('MAY be undefined', () => {})
+//     it.todo('SHOULD assign a default value of 10497 REPEAT', () => {})
+//     it.todo('MUST be an `integer` type when defined', () => {})
+//     it.todo('MUST be one of the allowed values: 33071 CLAMP_TO_EDGE, 33648 MIRRORED_REPEAT, 10497 REPEAT', () => {})
+//   }) //:: wrapS
+
+//   describe('wrapT', () => {
+//     it.todo('MAY be undefined', () => {})
+//     it.todo('SHOULD assign a default value of 10497 REPEAT', () => {})
+//     it.todo('MUST be an `integer` type when defined', () => {})
+//     it.todo('MUST be one of the allowed values: 33071 CLAMP_TO_EDGE, 33648 MIRRORED_REPEAT, 10497 REPEAT', () => {})
+//   }) //:: wrapT
+
+//   describe('name', () => {
+//     it.todo('MAY be undefined', () => {})
+//     it.todo('MUST be a `string` type when defined', () => {})
+//   }) //:: name
+
+//   describe('extensions', () => {
+//     it.todo('MAY be undefined', () => {})
+//     it.todo('MUST be a JSON object when defined', () => {})
+//   }) //:: extensions
+
+//   describe('extras', () => {
+//     it.todo('MAY be undefined', () => {})
+//   }) //:: extras
+// }) //:: glTF: Sampler
+
 describe('glTF.samplers Property (indirect validation)', () => {
   it('MAY be undefined', async () => {
     const options = mockGLTFOptions(mockGLTF())
