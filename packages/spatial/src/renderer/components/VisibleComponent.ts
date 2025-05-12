@@ -30,14 +30,8 @@ export const VisibleComponent = defineComponent({
   name: 'VisibleComponent',
   jsonID: 'EE_visible',
 
-  onSet(entity, component, json) {
-    component.set(true)
-  },
-
   toJSON(component) {
-    return {
-      value: true
-    }
+    return {}
   }
 })
 

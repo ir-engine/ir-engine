@@ -292,7 +292,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
           false
         )
         EditorControlFunctions.modifyProperty([combinedMeshEntity], GLTFComponent, { src: srcURL })
-        EditorControlFunctions.modifyProperty([combinedMeshEntity], VisibleComponent, { value: true })
+        EditorControlFunctions.modifyProperty([combinedMeshEntity], VisibleComponent, { visible: true })
 
         for (const entity of exportParentEntity) {
           const url = getComponent(entity, GLTFComponent).src
