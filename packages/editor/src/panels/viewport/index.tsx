@@ -27,8 +27,9 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
 import { useFind } from '@ir-engine/common'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { clientSettingPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
+import { engineSettingPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
 import { cleanFileNameFile } from '@ir-engine/common/src/utils/cleanFileName'
 import { useComponent, useQuery } from '@ir-engine/ecs'
 import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
@@ -143,7 +144,14 @@ function ViewportContainer() {
   const { sceneName, rootEntity, canvasRef } = useMutableState(EditorState)
 
   const { t } = useTranslation()
-  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSettingQuery = useFind(engineSettingPath, {
+    query: {
+      category: 'client',
+      key: EngineSettings.Client.AppTitle,
+      paginate: false
+    }
+  })
+
   const clientSettings = clientSettingQuery.data[0]
 
   const ref = React.useRef<HTMLDivElement>(null)
@@ -154,7 +162,7 @@ function ViewportContainer() {
   return (
     <ViewportDnD>
       <div className="relative z-30 flex h-full w-full flex-col">
-        <div ref={toolbarRef} className="z-10 flex gap-1 bg-surface-4 px-1 py-1">
+        <div ref={toolbarRef} className="z-30 flex gap-1 bg-surface-4 px-1 py-1">
           <TransformSpaceTool />
           {transformPivotFeatureFlag && <TransformPivotTool />}
           <GridTool />
@@ -170,14 +178,16 @@ function ViewportContainer() {
         <div
           id="engine-renderer-canvas-container"
           ref={(ref) => canvasRef.set({ current: ref })}
-          className="absolute h-full w-full"
+          className="absolute z-10 h-full w-full"
         />
         {sceneName.value ? (
           <>{rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}</>
         ) : (
-          <div className="flex h-full w-full flex-col justify-center gap-2">
-            <img src={clientSettings?.appTitle} className="block scale-[.8]" />
-            <Text className="text-center">{t('editor:selectSceneMsg')}</Text>
+          <div className="relative z-20 flex h-full w-full justify-center">
+            <div className="flex max-w-[40rem] flex-col justify-center gap-5 px-6">
+              <img src={clientSettings?.value} className="block" />
+              <Text className="text-center dark:text-[#A3A3A3]">{t('editor:selectSceneMsg')}</Text>
+            </div>
           </div>
         )}
       </div>

@@ -22,11 +22,13 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
+import { CopyEmbedCodePopover } from '@ir-engine/client-core/src/common/components/popovers/CopyEmbedCodePopover'
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { ThemeState } from '@ir-engine/client-core/src/common/services/ThemeService'
 import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import IRLogoModalDark from '@ir-engine/client/public/iR-logo-Modal-dark.png'
 import IRLogoModalLight from '@ir-engine/client/public/iR-logo-Modal-light.png'
+import config from '@ir-engine/common/src/config'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
 import RenameSceneModal from '@ir-engine/editor/src/panels/scenes/RenameSceneModal'
@@ -34,7 +36,7 @@ import { useMutableState } from '@ir-engine/hyperflux'
 import { Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import MoreOptionsMenu from '@ir-engine/ui/src/components/tailwind/MoreOptionsMenu'
-import { Edit01Sm, Trash04Sm } from '@ir-engine/ui/src/icons'
+import { CodeSnippet01Sm, Edit01Sm, Trash04Sm } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { default as React } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -133,6 +135,15 @@ export default function SceneItem({
                     refetchProjectsData={refetchProjectsData}
                   />
                 )
+              }
+            },
+            {
+              label: t('editor:hierarchy.lbl-copyEmbedCode'),
+              disabled: false,
+              icon: <CodeSnippet01Sm fontSize={16} />,
+              onClick: () => {
+                const sceneName = scene.key.split('/').pop()!.replace('.gltf', '')
+                ModalState.openModal(<CopyEmbedCodePopover url={`${config.client.clientUrl}/location/${sceneName}`} />)
               }
             },
             {

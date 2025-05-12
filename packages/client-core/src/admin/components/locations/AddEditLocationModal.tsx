@@ -52,7 +52,7 @@ import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/M
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -257,7 +257,6 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
           entitySourceID: newSource,
           entityID: UUIDComponent.generateUUID()
         })
-        setComponent(combinedMeshEntity, SourceComponent, rootEntity)
         const srcURL = pathJoin(config.client.fileServer, saveScenePath.value + '/' + scenename + '/combined-mesh.gltf')
         iterateEntityNode(rootEntity, (entity) => {
           if (hasComponent(entity, MeshComponent)) {

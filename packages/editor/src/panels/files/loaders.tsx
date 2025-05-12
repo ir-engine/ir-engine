@@ -25,16 +25,17 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import useLoadingThumbnails from '@ir-engine/client-core/src/hooks/useLoadingThumbnails'
 import { useUploadingFiles } from '@ir-engine/client-core/src/util/upload'
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { archiverPath } from '@ir-engine/common/src/schema.type.module'
 import { bytesToSize } from '@ir-engine/common/src/utils/btyesToSize'
 import { downloadBlobAsZip } from '@ir-engine/editor/src/functions/assetFunctions'
-import { defineState, getMutableState, useMutableState } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Progress from '@ir-engine/ui/src/primitives/tailwind/Progress'
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useCurrentFiles } from './helpers'
 
@@ -167,7 +168,9 @@ export function FileUploadProgress() {
 function GeneratingThumbnailsProgress() {
   const { t } = useTranslation()
   const thumbnailJobs = useMutableState(FileThumbnailJobState).jobs
-  if (!thumbnailJobs.length) return null
+
+  const isLoading = useHookstate(false)
+  useLoadingThumbnails(isLoading)
   let thumbnailjobCount = 0
   let dimensionJobCount = 0
   for (const job of thumbnailJobs.value) {
@@ -177,7 +180,7 @@ function GeneratingThumbnailsProgress() {
       dimensionJobCount++
     }
   }
-  return (
+  return isLoading.value ? (
     <>
       <LoadingView
         titleClassname="mt-0"
@@ -192,15 +195,39 @@ function GeneratingThumbnailsProgress() {
         title={t('editor:layout.filebrowser.generatingDimension', { count: dimensionJobCount })}
       />
     </>
-  )
+  ) : null
 }
 
 function FilesLoading() {
   const { t } = useTranslation()
   const { filesQuery } = useCurrentFiles()
-  const isLoading = filesQuery?.status === 'pending'
 
-  return isLoading ? (
+  const isLoading = useHookstate(false)
+  const debouncedStatusRef = useRef<ReturnType<typeof setTimeout>>()
+
+  useEffect(() => {
+    clearTimeout(debouncedStatusRef.current)
+  }, [])
+
+  useEffect(() => {
+    if (debouncedStatusRef) {
+      clearTimeout(debouncedStatusRef.current)
+    }
+
+    const isFilesLoading = filesQuery?.status === 'pending'
+    if (isFilesLoading) {
+      isLoading.set(true)
+    } else {
+      debouncedStatusRef.current = setTimeout(() => {
+        isLoading.set(false)
+      }, 1000)
+    }
+    return () => {
+      clearTimeout(debouncedStatusRef.current)
+    }
+  }, [filesQuery?.status])
+
+  return isLoading.value ? (
     <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} fullSpace className="block h-12 w-12" />
   ) : null
 }
@@ -208,10 +235,10 @@ function FilesLoading() {
 export default function Loaders() {
   return (
     <>
+      <GeneratingThumbnailsProgress />
       <FileUploadProgress />
       <ProjectDownloadProgress />
       <FilesLoading />
-      <GeneratingThumbnailsProgress />
     </>
   )
 }

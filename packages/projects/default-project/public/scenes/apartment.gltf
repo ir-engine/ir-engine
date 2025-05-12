@@ -7,7 +7,9 @@
     {
       "name": "Settings",
       "extensions": {
-        "EE_uuid": "51d71835-68a8-430b-96f6-4c618b8ea407",
+        "EE_uuid": {
+          "entityID": "51d71835-68a8-430b-96f6-4c618b8ea407"
+        },
         "EE_envmapbake": {
           "bakePosition": {
             "x": 0,
@@ -200,25 +202,14 @@
     {
       "name": "scene preview camera",
       "matrix": [
-        0.998555430003531,
-        2.1684043449710081e-19,
-        -0.05373130568358265,
-        0,
-        0.0010012117547803867,
-        0.9998263779823392,
-        0.018606758603761108,
-        0,
-        0.053721976745878336,
-        -0.01863367625340068,
-        0.9983820587950281,
-        0,
-        -2.3184722251170213,
-        1.6898777584130713,
-        8.731049954361012,
-        1
+        0.9985554300035299, 1.517883041479704e-18, -0.05373130568358266, 0, 0.0010012117547803878, 0.9998263779823392,
+        0.01860675860376113, 0, 0.053721976745878385, -0.018633676253400695, 0.9983820587950276, 0, -2.3184722251170213,
+        1.6898777584130713, 8.731049954361012, 1
       ],
       "extensions": {
-        "EE_uuid": "a0a03866-c1d0-46d4-94ce-6f6bb0098c20",
+        "EE_uuid": {
+          "entityID": "a0a03866-c1d0-46d4-94ce-6f6bb0098c20"
+        },
         "EE_scene_preview_camera": {},
         "EE_visible": true
       }
@@ -226,7 +217,9 @@
     {
       "name": "Skybox",
       "extensions": {
-        "EE_uuid": "86bda8f8-a9bc-4447-b92a-6514815a5b22",
+        "EE_uuid": {
+          "entityID": "86bda8f8-a9bc-4447-b92a-6514815a5b22"
+        },
         "EE_visible": true,
         "EE_skybox": {
           "backgroundColor": 0,
@@ -247,26 +240,11 @@
     },
     {
       "name": "ground plane",
-      "matrix": [
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0.019999999552965164,
-        0,
-        1
-      ],
+      "matrix": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0.019999999552965164, 0, 1],
       "extensions": {
-        "EE_uuid": "45113aff-0bdb-4670-917a-dbf2a3b86bf0",
+        "EE_uuid": {
+          "entityID": "45113aff-0bdb-4670-917a-dbf2a3b86bf0"
+        },
         "EE_ground_plane": {
           "color": 3561699,
           "visible": true
@@ -275,11 +253,7 @@
           "type": "fixed",
           "ccd": false,
           "allowRolling": true,
-          "enabledRotations": [
-            true,
-            true,
-            true
-          ],
+          "enabledRotations": [true, true, true],
           "canSleep": true,
           "gravityScale": 1
         },
@@ -314,25 +288,13 @@
     {
       "name": "spawn point",
       "matrix": [
-        -4.599999904632568,
-        5.633375159286406e-16,
-        -5.633375159286405e-16,
-        0,
-        5.633375159286406e-16,
-        4.599999904632568,
-        5.633375159286406e-16,
-        0,
-        5.633375159286405e-16,
-        5.633375159286406e-16,
-        -4.599999904632568,
-        0,
-        -2.5,
-        0.5,
-        6,
-        1
+        -4.599999904632568, 5.633375159286406e-16, -5.633375159286405e-16, 0, 5.633375159286406e-16, 4.599999904632568,
+        5.633375159286406e-16, 0, 5.633375159286405e-16, 5.633375159286406e-16, -4.599999904632568, 0, -2.5, 0.5, 6, 1
       ],
       "extensions": {
-        "EE_uuid": "23816114-e405-47d7-bfff-0baa2339b773",
+        "EE_uuid": {
+          "entityID": "23816114-e405-47d7-bfff-0baa2339b773"
+        },
         "EE_visible": true,
         "EE_spawn_point": {
           "permissionedUsers": []
@@ -342,7 +304,9 @@
     {
       "name": "hemisphere light",
       "extensions": {
-        "EE_uuid": "1452a9a3-3271-4989-b341-90cf215325a3",
+        "EE_uuid": {
+          "entityID": "1452a9a3-3271-4989-b341-90cf215325a3"
+        },
         "EE_visible": true,
         "EE_hemisphere_light": {
           "skyColor": 16777215,
@@ -354,25 +318,13 @@
     {
       "name": "directional light",
       "matrix": [
-        0.8972583704807328,
-        0.4119044339805205,
-        0.15894072438946255,
-        0,
-        1.8100639154194912e-8,
-        0.35999683542667743,
-        -0.9329535242887386,
-        0,
-        -0.4415058511529147,
-        0.8371003618144985,
-        0.3230101664774275,
-        0,
-        0.5,
-        0,
-        0.5,
-        1
+        0.8972583704807328, 0.41190443398052057, 0.15894072438946266, 0, 1.8100639209706063e-8, 0.35999683542667743,
+        -0.9329535242887386, 0, -0.4415058511529147, 0.8371003618144984, 0.32301016647742736, 0, 0.5, 0, 0.5, 1
       ],
       "extensions": {
-        "EE_uuid": "c4e80371-a13b-42f1-b5e1-6d61f572bb34",
+        "EE_uuid": {
+          "entityID": "c4e80371-a13b-42f1-b5e1-6d61f572bb34"
+        },
         "EE_directional_light": {
           "color": 16777215,
           "intensity": 1,
@@ -386,26 +338,11 @@
     },
     {
       "name": "model",
-      "matrix": [
-        0.75,
-        0,
-        0,
-        0,
-        0,
-        0.75,
-        0,
-        0,
-        0,
-        0,
-        0.75,
-        0,
-        0,
-        0,
-        0,
-        1
-      ],
+      "matrix": [0.75, 0, 0, 0, 0, 0.75, 0, 0, 0, 0, 0.75, 0, 0, 0, 0, 1],
       "extensions": {
-        "EE_uuid": "b46b57c1-bd37-43cc-b000-8b4411fe728b",
+        "EE_uuid": {
+          "entityID": "b46b57c1-bd37-43cc-b000-8b4411fe728b"
+        },
         "EE_visible": true,
         "EE_model": {
           "src": "__$project$__/ir-engine/default-project/assets/apartment.glb",
@@ -445,34 +382,18 @@
     {
       "name": "Box Collider 25",
       "matrix": [
-        0.8799999952316284,
-        0,
-        0,
-        0,
-        0,
-        11.379999923706055,
-        0,
-        0,
-        0,
-        0,
-        28.25999984741211,
-        0,
-        8.400000381469727,
-        5.699999809265137,
-        2.499999999999999,
-        1
+        0.8799999952316284, 0, 0, 0, 0, 11.379999923706055, 0, 0, 0, 0, 28.25999984741211, 0, 8.400000381469727,
+        5.699999809265137, 2.499999999999999, 1
       ],
       "extensions": {
-        "EE_uuid": "46add0e6-cbc5-4caa-8845-03defdc40e29",
+        "EE_uuid": {
+          "entityID": "46add0e6-cbc5-4caa-8845-03defdc40e29"
+        },
         "EE_rigidbody": {
           "type": "fixed",
           "ccd": false,
           "allowRolling": true,
-          "enabledRotations": [
-            true,
-            true,
-            true
-          ],
+          "enabledRotations": [true, true, true],
           "canSleep": true,
           "gravityScale": 1
         },
@@ -508,34 +429,18 @@
     {
       "name": "Box Collider 26",
       "matrix": [
-        0.5799999952316284,
-        0,
-        0,
-        0,
-        0,
-        11.979999923706055,
-        0,
-        0,
-        0,
-        0,
-        27.85999984741211,
-        0,
-        -15.5,
-        5.699999809265137,
-        2.5,
-        1
+        0.5799999952316284, 0, 0, 0, 0, 11.979999923706055, 0, 0, 0, 0, 27.85999984741211, 0, -15.5, 5.699999809265137,
+        2.5, 1
       ],
       "extensions": {
-        "EE_uuid": "78a26534-fdd6-4a79-a7fe-97e83895640c",
+        "EE_uuid": {
+          "entityID": "78a26534-fdd6-4a79-a7fe-97e83895640c"
+        },
         "EE_rigidbody": {
           "type": "fixed",
           "ccd": false,
           "allowRolling": true,
-          "enabledRotations": [
-            true,
-            true,
-            true
-          ],
+          "enabledRotations": [true, true, true],
           "canSleep": true,
           "gravityScale": 1
         },
@@ -571,34 +476,18 @@
     {
       "name": "Box Collider 27",
       "matrix": [
-        0.3800000011920929,
-        0,
-        0,
-        0,
-        0,
-        11.579999923706055,
-        0,
-        0,
-        0,
-        0,
-        23.8600004196167,
-        0,
-        -9,
-        5.699999809265137,
-        5.5,
+        0.3800000011920929, 0, 0, 0, 0, 11.579999923706055, 0, 0, 0, 0, 23.8600004196167, 0, -9, 5.699999809265137, 5.5,
         1
       ],
       "extensions": {
-        "EE_uuid": "1052a07b-414f-4887-a7aa-c70c972598b1",
+        "EE_uuid": {
+          "entityID": "1052a07b-414f-4887-a7aa-c70c972598b1"
+        },
         "EE_rigidbody": {
           "type": "fixed",
           "ccd": false,
           "allowRolling": true,
-          "enabledRotations": [
-            true,
-            true,
-            true
-          ],
+          "enabledRotations": [true, true, true],
           "canSleep": true,
           "gravityScale": 1
         },
@@ -634,34 +523,18 @@
     {
       "name": "Box Collider 28",
       "matrix": [
-        24.179999923706056,
-        0,
-        0,
-        0,
-        0,
-        11.679999923706056,
-        0,
-        0,
-        0,
-        0,
-        0.639999994635582,
-        0,
-        -3.499999999999999,
-        5.699999809265137,
-        -10.4,
-        1
+        24.179999923706056, 0, 0, 0, 0, 11.679999923706056, 0, 0, 0, 0, 0.639999994635582, 0, -3.499999999999999,
+        5.699999809265137, -10.4, 1
       ],
       "extensions": {
-        "EE_uuid": "ab324600-7600-455f-a116-4ed957603b71",
+        "EE_uuid": {
+          "entityID": "ab324600-7600-455f-a116-4ed957603b71"
+        },
         "EE_rigidbody": {
           "type": "fixed",
           "ccd": false,
           "allowRolling": true,
-          "enabledRotations": [
-            true,
-            true,
-            true
-          ],
+          "enabledRotations": [true, true, true],
           "canSleep": true,
           "gravityScale": 1
         },
@@ -697,34 +570,18 @@
     {
       "name": "Box Collider 29",
       "matrix": [
-        24.179999923706056,
-        0,
-        0,
-        0,
-        0,
-        11.579999923706055,
-        0,
-        0,
-        0,
-        0,
-        0.43999999463558204,
-        0,
-        -3.5,
-        5.699999809265137,
-        16.5,
-        1
+        24.179999923706056, 0, 0, 0, 0, 11.579999923706055, 0, 0, 0, 0, 0.43999999463558204, 0, -3.5, 5.699999809265137,
+        16.5, 1
       ],
       "extensions": {
-        "EE_uuid": "c8992c75-4881-4186-a47f-614d2fa61c67",
+        "EE_uuid": {
+          "entityID": "c8992c75-4881-4186-a47f-614d2fa61c67"
+        },
         "EE_rigidbody": {
           "type": "fixed",
           "ccd": false,
           "allowRolling": true,
-          "enabledRotations": [
-            true,
-            true,
-            true
-          ],
+          "enabledRotations": [true, true, true],
           "canSleep": true,
           "gravityScale": 1
         },
@@ -760,34 +617,18 @@
     {
       "name": "Box Collider 30",
       "matrix": [
-        12.579999923706055,
-        0,
-        0,
-        0,
-        0,
-        11.479999923706055,
-        0,
-        0,
-        0,
-        0,
-        0.439999994635582,
-        0,
-        -3,
-        5.699999809265137,
-        11,
+        12.579999923706055, 0, 0, 0, 0, 11.479999923706055, 0, 0, 0, 0, 0.439999994635582, 0, -3, 5.699999809265137, 11,
         1
       ],
       "extensions": {
-        "EE_uuid": "9c073abf-9ce3-4cd7-be90-b0ace33aca5c",
+        "EE_uuid": {
+          "entityID": "9c073abf-9ce3-4cd7-be90-b0ace33aca5c"
+        },
         "EE_rigidbody": {
           "type": "fixed",
           "ccd": false,
           "allowRolling": true,
-          "enabledRotations": [
-            true,
-            true,
-            true
-          ],
+          "enabledRotations": [true, true, true],
           "canSleep": true,
           "gravityScale": 1
         },
@@ -823,34 +664,19 @@
     {
       "name": "Box Collider 31",
       "matrix": [
-        0.9983418166418103,
-        2.776182378447577e-16,
-        -0.05756402647774106,
-        0,
-        -3.3299198020319258e-16,
-        1.200000023841858,
-        1.2196394734588236e-17,
-        0,
-        0.09785884569837647,
-        9.905599949421534e-18,
-        1.6971811001922392,
-        0,
-        -3.4000000953674316,
-        0,
-        3,
-        1
+        0.9983418166418103, 2.776182378447577e-16, -0.05756402647774106, 0, -3.3299198020319258e-16, 1.200000023841858,
+        1.2196394734588236e-17, 0, 0.09785884569837647, 9.905599949421534e-18, 1.6971811001922392, 0,
+        -3.4000000953674316, 0, 3, 1
       ],
       "extensions": {
-        "EE_uuid": "ac0c4391-8394-4601-85d5-64bca9df30dc",
+        "EE_uuid": {
+          "entityID": "ac0c4391-8394-4601-85d5-64bca9df30dc"
+        },
         "EE_rigidbody": {
           "type": "fixed",
           "ccd": false,
           "allowRolling": true,
-          "enabledRotations": [
-            true,
-            true,
-            true
-          ],
+          "enabledRotations": [true, true, true],
           "canSleep": true,
           "gravityScale": 1
         },
@@ -886,34 +712,18 @@
     {
       "name": "Box Collider 32",
       "matrix": [
-        0.7940369210618097,
-        0,
-        0.09749547677036896,
-        0,
-        0,
-        1.2,
-        0,
-        0,
-        -0.09749547677036896,
-        0,
-        0.7940369210618097,
-        0,
-        -3.3722314834594727,
-        0,
-        -2.3505780696868896,
-        1
+        0.7940369210618097, 0, 0.09749547677036896, 0, 0, 1.2, 0, 0, -0.09749547677036896, 0, 0.7940369210618097, 0,
+        -3.3722314834594727, 0, -2.3505780696868896, 1
       ],
       "extensions": {
-        "EE_uuid": "aee1caa8-e502-489b-aca7-425b14da4cf6",
+        "EE_uuid": {
+          "entityID": "aee1caa8-e502-489b-aca7-425b14da4cf6"
+        },
         "EE_rigidbody": {
           "type": "fixed",
           "ccd": false,
           "allowRolling": true,
-          "enabledRotations": [
-            true,
-            true,
-            true
-          ],
+          "enabledRotations": [true, true, true],
           "canSleep": true,
           "gravityScale": 1
         },
@@ -948,26 +758,11 @@
     },
     {
       "name": "EE_portal",
-      "matrix": [
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        -12,
-        1,
-        14,
-        1
-      ],
+      "matrix": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -12, 1, 14, 1],
       "extensions": {
-        "EE_uuid": "da8a8f5a-7a72-4dae-acef-9ef013cb31b6",
+        "EE_uuid": {
+          "entityID": "da8a8f5a-7a72-4dae-acef-9ef013cb31b6"
+        },
         "EE_shadow": {
           "cast": true,
           "receive": true
@@ -1007,11 +802,7 @@
           "type": "fixed",
           "ccd": false,
           "allowRolling": true,
-          "enabledRotations": [
-            true,
-            true,
-            true
-          ],
+          "enabledRotations": [true, true, true],
           "canSleep": true,
           "gravityScale": 1
         },
@@ -1055,16 +846,14 @@
     {
       "name": "Trigger Volume",
       "extensions": {
-        "EE_uuid": "0f5b5b02-67f9-4682-b687-d8ef95448c16",
+        "EE_uuid": {
+          "entityID": "0f5b5b02-67f9-4682-b687-d8ef95448c16"
+        },
         "EE_rigidbody": {
           "type": "fixed",
           "ccd": false,
           "allowRolling": true,
-          "enabledRotations": [
-            true,
-            true,
-            true
-          ],
+          "enabledRotations": [true, true, true],
           "canSleep": true,
           "gravityScale": 1
         },
@@ -1108,35 +897,16 @@
     },
     {
       "name": "Door",
-      "matrix": [
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        -9,
-        1.5,
-        -8,
-        1
-      ],
+      "matrix": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -9, 1.5, -8, 1],
       "extensions": {
-        "EE_uuid": "d8a020bd-0795-44f2-b00a-97c6bc9984a7",
+        "EE_uuid": {
+          "entityID": "d8a020bd-0795-44f2-b00a-97c6bc9984a7"
+        },
         "EE_rigidbody": {
           "type": "fixed",
           "ccd": false,
           "allowRolling": true,
-          "enabledRotations": [
-            true,
-            true,
-            true
-          ],
+          "enabledRotations": [true, true, true],
           "canSleep": true,
           "gravityScale": 1
         },
@@ -1181,25 +951,12 @@
     {
       "name": "Model",
       "matrix": [
-        0.0010000000474974513,
-        0,
-        0,
-        0,
-        0,
-        0.0010000000474974513,
-        0,
-        0,
-        0,
-        0,
-        0.0010000000474974513,
-        0,
-        -1,
-        0.5,
-        4,
-        1
+        0.0010000000474974513, 0, 0, 0, 0, 0.0010000000474974513, 0, 0, 0, 0, 0.0010000000474974513, 0, -1, 0.5, 4, 1
       ],
       "extensions": {
-        "EE_uuid": "61304262-c00c-4f1f-80a2-e4163d97a007",
+        "EE_uuid": {
+          "entityID": "61304262-c00c-4f1f-80a2-e4163d97a007"
+        },
         "EE_visible": true,
         "EE_shadow": {
           "cast": true,
@@ -1238,35 +995,16 @@
     },
     {
       "name": "VCKey Trigger Volume",
-      "matrix": [
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        -1,
-        0,
-        4,
-        1
-      ],
+      "matrix": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -1, 0, 4, 1],
       "extensions": {
-        "EE_uuid": "9d06e7cb-bd8f-4537-80ad-d62dcc8b89c3",
+        "EE_uuid": {
+          "entityID": "9d06e7cb-bd8f-4537-80ad-d62dcc8b89c3"
+        },
         "EE_rigidbody": {
           "type": "fixed",
           "ccd": false,
           "allowRolling": true,
-          "enabledRotations": [
-            true,
-            true,
-            true
-          ],
+          "enabledRotations": [true, true, true],
           "canSleep": true,
           "gravityScale": 1
         },
@@ -1310,26 +1048,11 @@
     },
     {
       "name": "New EnvMap Bake",
-      "matrix": [
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        -0.6517807171857612,
-        3.1700513124390657,
-        1.5277829229407551,
-        1
-      ],
+      "matrix": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -0.6517807171857612, 3.1700513124390657, 1.5277829229407551, 1],
       "extensions": {
-        "EE_uuid": "1f374932-e649-4b30-b6e7-de990fdee2a1",
+        "EE_uuid": {
+          "entityID": "1f374932-e649-4b30-b6e7-de990fdee2a1"
+        },
         "EE_envmapbake": {
           "bakePosition": {
             "x": 0,
@@ -1357,26 +1080,11 @@
     },
     {
       "name": "EE_mount_point",
-      "matrix": [
-        2.220446049250313e-16,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        0,
-        -1,
-        0,
-        2.220446049250313e-16,
-        0,
-        -3.4,
-        0.5,
-        -2.4,
-        1
-      ],
+      "matrix": [2.220446049250313e-16, 0, 1, 0, 0, 1, 0, 0, -1, 0, 2.220446049250313e-16, 0, -3.4, 0.5, -2.4, 1],
       "extensions": {
-        "EE_uuid": "4e6a56be-a4d8-4091-a741-10fbefaea21d",
+        "EE_uuid": {
+          "entityID": "4e6a56be-a4d8-4091-a741-10fbefaea21d"
+        },
         "EE_mount_point": {
           "type": "seat",
           "dismountOffset": {
@@ -1393,31 +1101,7 @@
   "scene": 0,
   "scenes": [
     {
-      "nodes": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14,
-        15,
-        16,
-        17,
-        18,
-        19,
-        20,
-        21,
-        22
-      ]
+      "nodes": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
     }
   ],
   "extensionsUsed": [
@@ -1443,7 +1127,6 @@
     "EE_envmap",
     "EE_portal",
     "EE_trigger",
-    "EE_mount_point",
-    "IR_scene_delta"
+    "EE_mount_point"
   ]
 }

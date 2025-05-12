@@ -27,7 +27,7 @@ import knex from 'knex'
 
 import { engineSettingPath, EngineSettingType } from '../../common/src/schema.type.module'
 
-export const getEngineSetting = async (category: EngineSettingType['category'], keys: string[]) => {
+export const getEngineSetting = async (categories: EngineSettingType['category'][]) => {
   const knexClient = knex({
     client: 'mysql2',
     connection: {
@@ -43,10 +43,9 @@ export const getEngineSetting = async (category: EngineSettingType['category'], 
   const engineSetting = await knexClient
     .select()
     .from<EngineSettingType>(engineSettingPath)
-    .where('category', category)
-    .whereIn('key', keys)
+    .whereIn('category', categories)
     .catch((e) => {
-      console.warn(`[vite.config]: Failed to read engineSetting`, category, keys)
+      console.warn(`[vite.config]: Failed to read engineSetting`, categories)
       console.warn(e)
     })
 

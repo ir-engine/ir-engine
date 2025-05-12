@@ -36,12 +36,12 @@ import { ViteEjsPlugin } from 'vite-plugin-ejs'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import svgr from 'vite-plugin-svgr'
 
+import { EngineSettingType } from '@ir-engine/common/src/schema.type.module'
 import appRootPath from 'app-root-path'
 import { EngineSettings } from '../common/src/constants/EngineSettings'
 import manifest from './manifest.default.json'
 import packageJson from './package.json'
 import PWA from './pwa.config'
-import { getClientSetting } from './scripts/getClientSettings'
 import { getEngineSetting } from './scripts/getEngineSettings'
 
 const merge = (src, dest) =>
@@ -184,8 +184,9 @@ export default defineConfig(async () => {
   dotenv.config({
     path: packageRoot.path + '/.env.local'
   })
-  const clientSetting = await getClientSetting()
-  const coilSetting = await getEngineSetting('coil', [EngineSettings.Coil.PaymentPointer])
+  const engineSettings = await getEngineSetting(['coil', 'client'])
+  const paymentPointer = engineSettings?.find((item) => item.key === EngineSettings.Coil.PaymentPointer)?.value || ''
+  const clientSetting = getClientSetting(engineSettings as EngineSettingType[])
 
   resetSWFiles()
 
@@ -282,7 +283,7 @@ export default defineConfig(async () => {
               ? 'dev-sw.js?dev-sw'
               : 'service-worker.js'
             : '',
-        paymentPointer: coilSetting?.find((item) => item.key === EngineSettings.Coil.PaymentPointer)?.value || '',
+        paymentPointer: paymentPointer || '',
         rootCookieAccessor: `${clientSetting.url}/root-cookie-accessor.html`,
         gtmId: clientSetting.gtmContainerId,
         gtmEnvironent:
@@ -342,3 +343,24 @@ export default defineConfig(async () => {
 
   return await getProjectConfigExtensions(returned)
 })
+
+function getClientSetting(engineSettings: EngineSettingType[]) {
+  return {
+    title: engineSettings.find((setting) => setting.key === EngineSettings.Client.Title)?.value,
+    siteDescription: engineSettings.find((setting) => setting.key === EngineSettings.Client.AppDescription)?.value,
+    appleTouchIcon: engineSettings.find((setting) => setting.key == EngineSettings.Client.AppleTouchIcon)?.value,
+    favicon32px: engineSettings.find((setting) => setting.key == EngineSettings.Client.Favicon32px)?.value,
+    favicon16px: engineSettings.find((setting) => setting.key == EngineSettings.Client.Favicon16px)?.value,
+    icon192px: engineSettings.find((setting) => setting.key == EngineSettings.Client.Icon192px)?.value,
+    icon512px: engineSettings.find((setting) => setting.key == EngineSettings.Client.Icon512px)?.value,
+    webmanifestLink: engineSettings.find((setting) => setting.key == EngineSettings.Client.WebmanifestLink)?.value,
+    siteManifest: engineSettings.find((setting) => setting.key == EngineSettings.Client.SiteManifest)?.value,
+    safariPinnedTab: engineSettings.find((setting) => setting.key == EngineSettings.Client.SafariPinnedTab)?.value,
+    favicon: engineSettings.find((setting) => setting.key == EngineSettings.Client.Favicon)?.value,
+    swScriptLink: engineSettings.find((setting) => setting.key == EngineSettings.Client.SwScriptLink)?.value,
+    gtmContainerId: engineSettings.find((setting) => setting.key == EngineSettings.Client.GtmContainerId)?.value,
+    url: engineSettings.find((setting) => setting.key == EngineSettings.Client.Url)?.value,
+    gtmPreview: engineSettings.find((setting) => setting.key == EngineSettings.Client.GtmPreview)?.value,
+    gtmAuth: engineSettings.find((setting) => setting.key == EngineSettings.Client.GtmAuth)?.value
+  }
+}
