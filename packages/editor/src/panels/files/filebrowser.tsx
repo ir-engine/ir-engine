@@ -60,6 +60,9 @@ export function Browser() {
 
   const [sortConfig, setSortConfig] = useState({ key: null as null | string, direction: 'asc' })
 
+  const isLoading = useHookstate(false)
+  useLoadingThumbnails(isLoading)
+
   const handleSort = (columnKey: string) => {
     setSortConfig((prevConfig) => {
       const newDirection = prevConfig.key === columnKey && prevConfig.direction === 'asc' ? 'desc' : 'asc'

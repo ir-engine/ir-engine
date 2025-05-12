@@ -167,7 +167,9 @@ export function FileUploadProgress() {
 function GeneratingThumbnailsProgress() {
   const { t } = useTranslation()
   const thumbnailJobs = useMutableState(FileThumbnailJobState).jobs
-  if (!thumbnailJobs.length) return null
+
+  const isLoading = useHookstate(false)
+  useLoadingThumbnails(isLoading)
   let thumbnailjobCount = 0
   let dimensionJobCount = 0
   for (const job of thumbnailJobs.value) {
@@ -177,9 +179,6 @@ function GeneratingThumbnailsProgress() {
       dimensionJobCount++
     }
   }
-  const isLoading = useHookstate(false)
-  useLoadingThumbnails(isLoading)
-
   return isLoading.value ? (
     <>
       <LoadingView
@@ -201,6 +200,7 @@ function GeneratingThumbnailsProgress() {
 function FilesLoading() {
   const { t } = useTranslation()
   const { filesQuery } = useCurrentFiles()
+
   const isLoading = useHookstate(false)
   const debouncedStatusRef = useRef<ReturnType<typeof setTimeout>>()
 
@@ -220,6 +220,9 @@ function FilesLoading() {
       debouncedStatusRef.current = setTimeout(() => {
         isLoading.set(false)
       }, 1000)
+    }
+    return () => {
+      clearTimeout(debouncedStatusRef.current)
     }
   }, [filesQuery?.status])
 
