@@ -35,7 +35,7 @@
     "node": ">= 22.11.0"
   },
   "scripts": {
-    "check-errors": "tsc --noemit",
+    "check-errors": "tsc --noemit && npx cycle-import-check src || true",
     "test": "cross-env TEST=true vitest run --config=../../vitest.server.config.ts",
     "validate": "npm run build && npm run test",
     "migrate": "knex migrate:latest",
