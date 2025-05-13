@@ -25,7 +25,6 @@ import { getState } from '@ir-engine/hyperflux'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import {
   dockerHubRegex,
@@ -76,7 +75,6 @@ export class BuilderInfoService implements ServiceInterface<BuilderInfoType> {
       if (builderContainer) {
         const image = builderContainer.image
         if (image && typeof image === 'string') {
-          logger.debug(`builderContainer.image: ${image} `)
           const dockerHubRegexExec = dockerHubRegex.exec(image)
           const publicECRRegexExec = publicECRTagRegex.exec(image)
           const privateECRRegexExec = privateECRTagRegex.exec(image)
@@ -89,7 +87,7 @@ export class BuilderInfoService implements ServiceInterface<BuilderInfoType> {
               : privateECRRegexExec
               ? privateECRRegexExec[2]
               : gcpArtifactRegistryRegexExec
-              ? gcpArtifactRegistryRegexExec[5]
+              ? gcpArtifactRegistryRegexExec[6]
               : ''
         }
       }
