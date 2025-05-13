@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import MetaTags from '@ir-engine/client-core/src/common/components/MetaTags'
 import { ThemeState, useThemeProvider } from '@ir-engine/client-core/src/common/services/ThemeService'
-import Engine from '@ir-engine/client/src/engine'
 import { Description, Primary, Stories, Subtitle, Title } from '@storybook/addon-docs'
 import { Preview } from '@storybook/react'
 import { initialize, mswLoader } from 'msw-storybook-addon'
@@ -48,21 +47,18 @@ const ThemeProvider = () => {
 
 export const decorators = [
   (Story: any) => (
-    <Engine>
-      <I18nextProvider i18n={i18n}>
-        <DndProvider backend={HTML5Backend}>
-          <ThemeProvider />
-          <MetaTags>
-            <link
-              href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap"
-              rel="stylesheet"
-              type="text/css"
-            />
-          </MetaTags>
-          <Story />
-        </DndProvider>
-      </I18nextProvider>
-    </Engine>
+    <I18nextProvider i18n={i18n}>
+      <DndProvider backend={HTML5Backend}>
+        <MetaTags>
+          <link
+            href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap"
+            rel="stylesheet"
+            type="text/css"
+          />
+        </MetaTags>
+        <Story />
+      </DndProvider>
+    </I18nextProvider>
   )
 ]
 

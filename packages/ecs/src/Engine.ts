@@ -90,6 +90,7 @@ globalThis.Engine = Engine
 globalThis.Hyperflux = Hyperflux
 
 export function createEngine(hyperstore = createHyperStore()) {
+  console.trace('createEngine')
   if (Engine.instance) throw new Error('Store already exists')
   Engine.instance = new Engine()
   hyperstore.getCurrentReactorRoot = () =>

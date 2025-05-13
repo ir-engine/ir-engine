@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '@ir-engine/client/src/engine'
 import {
   createEntity,
   defineSystem,
@@ -34,19 +33,17 @@ import {
   UndefinedEntity
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
-import '@ir-engine/spatial'
 import { ReferenceSpaceState, TransformComponent, TransformSystem } from '@ir-engine/spatial'
 import { Vector3_Up, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { destroySpatialEngine, initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { useEngineCanvas } from '@ir-engine/spatial/src/renderer/functions/useEngineCanvas'
 import type { Meta, StoryObj } from '@storybook/react'
 import { http, HttpResponse } from 'msw'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { BoxGeometry, Matrix4, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 import SettingsMenu from '.'
+import EngineDecorator from '../../../.storybook/decorators/EngineDecorator'
 import mockSceneData from '../../../.storybook/mocks/scene'
 
 // Define types for our mock data
@@ -177,26 +174,6 @@ export const EngineCanvas: Story = {
   },
   render: (args) => {
     const [open, setOpen] = useState(false)
-    const [initialized, setInitialized] = useState(true)
-    const ref = useRef(document.body)
-
-    // useEffect(() => {
-    //   if (initialized) return
-    //   createHyperStore()
-
-    //   setInitialized(true)
-    // })
-
-    useEffect(() => {
-      if (!initialized) return
-      console.log(document.body)
-      initializeSpatialEngine()
-      return () => {
-        destroySpatialEngine()
-      }
-    }, [initialized])
-
-    useEngineCanvas(ref)
 
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-transparent">
@@ -206,7 +183,7 @@ export const EngineCanvas: Story = {
         >
           {open ? 'Close Settings' : 'Open Settings'}
         </button>
-        <canvas id="engine-renderer-canvas" className="absolute left-0 top-0 z-[-1] h-full w-full"></canvas>
+        <EngineDecorator />
         {open && <SettingsMenu {...args} onClose={() => setOpen(false)} />}
       </div>
     )
