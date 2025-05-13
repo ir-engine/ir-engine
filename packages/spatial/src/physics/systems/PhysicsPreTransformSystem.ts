@@ -107,7 +107,7 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
 
 export const copyTransformToRigidBody = (entity: Entity) => {
   const world = Physics.getWorld(entity)
-  if (!world || !world.Rigidbodies.has(entity)) return
+  if (!world) return
 
   // if the entity has a parent, we need to use the scene space
   computeTransformMatrix(entity)
@@ -153,7 +153,7 @@ export const copyTransformToRigidBody = (entity: Entity) => {
 
 const copyTransformToCollider = (entity: Entity) => {
   const world = Physics.getWorld(entity)
-  if (!world || !world.Rigidbodies.has(entity)) return
+  if (!world) return
   computeTransformMatrix(entity)
   const rigidbodyEntity = getAncestorWithComponents(entity, [RigidBodyComponent])
   if (!rigidbodyEntity) return
