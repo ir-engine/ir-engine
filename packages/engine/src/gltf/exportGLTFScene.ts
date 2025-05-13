@@ -107,7 +107,7 @@ import {
   MaterialTextureValue,
   MaterialValue
 } from './MaterialExtensionComponents'
-import { SceneDeltaExporterExtension } from './SceneDeltaExporterExtension'
+import { overrideExporterExtension } from './overrideExporterExtension'
 
 const WEBGL_CONSTANTS = {
   POINTS: 0x0000,
@@ -229,7 +229,7 @@ type GLTFSceneExportContext = {
 
 export type ExportExtension = GLTFSceneExportExtension
 
-export const defaultExportExtensionList = [SceneDeltaExporterExtension] as (() => ExportExtension)[]
+export const defaultExportExtensionList = [overrideExporterExtension] as (() => ExportExtension)[]
 
 type TypedArrayConstructor =
   | Int8ArrayConstructor
@@ -1241,6 +1241,9 @@ const exportEntity = async (
     //skip components that don't have a jsonID
     if (!component.jsonID) continue
 
+    // skip serializable components we already handle
+    if (component === NameComponent || component === EntityTreeComponent) continue
+
     if (entity === context.rootEntity && component === GLTFComponent) continue
 
     if (component === TransformComponent) {
@@ -1284,7 +1287,8 @@ const _trsScale = new Vector3()
 const exportAnimations = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFSceneExportContext) => {
   if (
     !hasComponent(entity, AnimationComponent) ||
-    getComponent(entity, UUIDComponent).entitySourceID !== context.sourceID
+    getComponent(entity, UUIDComponent).entitySourceID !== context.sourceID ||
+    (hasComponent(entity, AnimationComponent) && hasComponent(entity, GLTFComponent) && entity !== context.rootEntity)
   )
     return
 

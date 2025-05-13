@@ -39,8 +39,6 @@ import {
 } from 'react-icons/hi2'
 import { RiSendPlaneFill } from 'react-icons/ri'
 
-import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
-
 import { MdOutlineAdminPanelSettings } from 'react-icons/md'
 import { AdminRouteStateType } from './AllowedAdminRoutesState'
 
@@ -75,7 +73,7 @@ const Moderation = lazy(() => import('./components/moderation'))
 export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
   settings: {
     name: 'user:dashboard.setting',
-    scope: ['settings', clientSettingPath],
+    scope: ['settings'],
     component: Settings,
     access: false,
     icon: <HiOutlineCog6Tooth />

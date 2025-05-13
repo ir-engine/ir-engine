@@ -27,7 +27,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { defineQuery, Engine } from '@ir-engine/ecs'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { RenderInfoState } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
@@ -77,7 +77,7 @@ globalThis.__downloadStateSnapshot = downloadStateSnapshot
 export const StatsPanel = (props: { show: boolean }) => {
   const renderInfoState = useMutableState(RenderInfoState)
   const info = renderInfoState.visible.value && renderInfoState.info.value
-  const lightQuery = defineQuery([LightTagComponent, VisibleComponent, SourceComponent])
+  const lightQuery = defineQuery([LightTagComponent, VisibleComponent])
   const sceneTriangles = Math.floor(ResourceState.budgets.useVisibleVertexCount() / 3)
 
   const toggleStats = () => {

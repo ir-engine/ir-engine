@@ -36,7 +36,8 @@ import {
   hasComponent,
   useComponent,
   useOptionalComponent,
-  useQuery
+  useQuery,
+  UUIDComponent
 } from '@ir-engine/ecs'
 import {
   commitProperties,
@@ -49,7 +50,6 @@ import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorCo
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
-import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { MediaComponent, MediaElementComponent, setTime } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import { PlayMode } from '@ir-engine/engine/src/scene/constants/PlayMode'
@@ -174,7 +174,7 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
     .map((loopEntity) => {
       return {
         label: getComponent(loopEntity, NameComponent),
-        value: getComponent(loopEntity, NodeIDComponent)
+        value: getComponent(loopEntity, UUIDComponent).entityID
       }
     })
 

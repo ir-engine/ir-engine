@@ -33,12 +33,13 @@ import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { useQuery } from '@ir-engine/ecs'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { useChildrenWithComponents } from '@ir-engine/ecs'
+
 import { RenderInfoState, SceneComplexityParams } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { LightTagComponent } from '@ir-engine/spatial/src/renderer/components/lights/LightTagComponent'
 import { useTranslation } from 'react-i18next'
+import { EditorState } from '../services/EditorServices'
 
 function calculateSceneComplexity(params: SceneComplexityParams): number {
   const complexity =
@@ -59,7 +60,8 @@ export const RenderMonitorSystem = defineSystem({
     const { t } = useTranslation()
 
     const renderInfoState = useHookstate(getMutableState(RenderInfoState))
-    const lightQuery = useQuery([LightTagComponent, VisibleComponent, SourceComponent])
+    const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
+    const lightQuery = useChildrenWithComponents(rootEntity, [LightTagComponent, VisibleComponent])
     const [sceneComplexityNotif] = useFeatureFlags([FeatureFlags.Studio.UI.SceneComplexityNotification])
     const prevSceneComplexity = useHookstate(0)
 

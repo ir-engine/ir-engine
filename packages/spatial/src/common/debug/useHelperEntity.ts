@@ -72,7 +72,6 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
     const helperMesh = helper.children[0] as Mesh<any, any> | undefined
     helperEntityState.set(helperEntity)
     if (typeof helper.update === 'function') helper.update()
-
     return () => {
       if (helperMesh) {
         helperMesh.material.dispose()
