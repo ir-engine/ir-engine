@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   Entity,
   entityExists,
+  getAuthoringCounterpart,
   getTreeFromChildToAncestor,
   hasComponent,
   removeComponent,
@@ -64,7 +65,7 @@ export function useApplyCollidersToChildMeshesEffect(entity: Entity) {
   const rigidbodyEntity = useAncestorWithComponents(entity, [RigidBodyComponent])
   const rigidbodyComponent = useOptionalComponent(rigidbodyEntity, RigidBodyComponent)
   const component = useComponent(entity, GLTFComponent)
-  const loaded = GLTFComponent.useSceneLoaded(entity)
+  const loaded = GLTFComponent.useSceneLoaded(getAuthoringCounterpart(entity))
 
   useLayoutEffect(() => {
     if (
