@@ -68,7 +68,11 @@ export const SDFComponent = defineComponent({
     color: T.Color(0xffffff),
     scale: T.Vec3(new Vector3(0.25, 0.001, 0.25)),
     enable: S.Bool({ default: false }),
-    mode: S.Enum(SDFMode, { default: SDFMode.TORUS })
+    mode: S.Enum(SDFMode, {
+      $comment:
+        "Likely an indexed enum, ie. the numeric index of a value in the following sequence: 'TORUS', 'BOX', 'SPHERE', 'FOG'",
+      default: SDFMode.TORUS
+    })
   }),
 
   reactor: () => {

@@ -48,9 +48,15 @@ export const EnvMapBakeComponent = defineComponent({
     bakePosition: T.Vec3(),
     bakePositionOffset: T.Vec3(),
     bakeScale: T.Vec3(Vector3_One),
-    bakeType: S.Enum(EnvMapBakeTypes, { default: EnvMapBakeTypes.Baked }),
+    bakeType: S.Enum(EnvMapBakeTypes, {
+      $comment: "A string enum, ie. one of the following values: 'Realtime', 'Baked'",
+      default: EnvMapBakeTypes.Baked
+    }),
     resolution: S.Number({ default: 1024 }),
-    refreshMode: S.Enum(EnvMapBakeRefreshTypes, { default: EnvMapBakeRefreshTypes.OnAwake }),
+    refreshMode: S.Enum(EnvMapBakeRefreshTypes, {
+      $comment: "A string enum, ie. one of the following values: 'OnAwake', 'EveryFrame'",
+      default: EnvMapBakeRefreshTypes.OnAwake
+    }),
     envMapOrigin: S.String({ default: '' }),
     boxProjection: S.Bool({ default: true })
   }),
