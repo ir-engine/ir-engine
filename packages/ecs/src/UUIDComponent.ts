@@ -170,8 +170,6 @@ export const UUIDComponent = defineComponent({
 
   /** Reactively gets an entity by UUID */
   useEntityByUUID(uuid: EntityUUID, layer = Layers.Simulation as LayerID) {
-    if (!uuid) return UndefinedEntity
-
     return useHookstate(UUIDComponentFunctions._getUUIDState(uuid, layer)).value
   },
 
@@ -183,15 +181,13 @@ export const UUIDComponent = defineComponent({
   /** Gets an entity from the same source by ID */
   getEntityFromSameSourceByID(entity: Entity, id: EntityID, layer = Layers.Simulation as LayerID) {
     const entitySourceID = getComponent(entity, UUIDComponent).entitySourceID
+
     return UUIDComponent.getEntityByUUID(UUIDComponent.join({ entitySourceID, entityID: id }), layer)
   },
 
   /** Reactively gets an entity from the same source by ID */
   useEntityFromSameSourceByID(entity: Entity, id: EntityID, layer = Layers.Simulation as LayerID) {
-    if (!entity || entity === UndefinedEntity) return UndefinedEntity
-
     const entitySourceID = useComponent(entity, UUIDComponent).entitySourceID.value
-    if (!entitySourceID || !id) return UndefinedEntity
 
     return UUIDComponent.useEntityByUUID(UUIDComponent.join({ entitySourceID, entityID: id }), layer)
   },
@@ -205,15 +201,13 @@ export const UUIDComponent = defineComponent({
   getSourceEntity(entity: Entity) {
     const layer = LayerComponent.get(entity)
     const entitySourceID = getComponent(entity, UUIDComponent).entitySourceID as any as EntityUUID
+
     return UUIDComponent.getEntityByUUID(entitySourceID, layer)
   },
 
   useSourceEntity(entity: Entity) {
-    if (!entity || entity === UndefinedEntity) return UndefinedEntity
-
     const layer = LayerComponent.get(entity)
     const entitySourceID = useComponent(entity, UUIDComponent).entitySourceID.value as any as EntityUUID
-    if (!entitySourceID) return UndefinedEntity
 
     return UUIDComponent.useEntityByUUID(entitySourceID, layer)
   },
@@ -237,12 +231,7 @@ export const UUIDComponent = defineComponent({
   use: (entity: Entity) => UUIDComponent.join(useComponent(entity, UUIDComponent).value),
 
   /** Joins an EntityUUIDPair into a string */
-  join: (idPair: EntityUUIDPair) => {
-    if (!idPair) return '' as EntityUUID
-
-    return `${idPair.entitySourceID}${idPair.entityID}` as EntityUUID
-  },
-
+  join: (idPair: EntityUUIDPair) => `${idPair.entitySourceID}${idPair.entityID}` as EntityUUID,
   /** @deprecated use UUIDComponent.generate() instead */
   generateUUID() {
     return UUIDComponent.generate()
