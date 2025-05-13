@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { cloneDeep, isEqual, uniqueId } from 'lodash'
 
 import { UUIDComponent, removeEntity } from '@ir-engine/ecs'
-import { ComponentMap, getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { ComponentMap, Layers, getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
@@ -34,7 +34,7 @@ import { SystemUUID, defineSystem, destroySystem } from '@ir-engine/ecs/src/Syst
 import { InputSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { teleportAvatar } from '@ir-engine/engine/src/avatar/functions/moveAvatar'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { copyTransformToRigidBody } from '@ir-engine/spatial/src/physics/systems/PhysicsPreTransformSystem'
@@ -58,7 +58,7 @@ const initialState = (): State => ({
   systemUUID: '' as SystemUUID
 })
 
-const sceneQuery = defineQuery([SourceComponent])
+const sceneQuery = defineQuery([UUIDComponent], Layers.Authoring)
 
 export const getEntity = makeFunctionNodeDefinition({
   typeName: 'logic/entity/get/entityInScene',
@@ -68,7 +68,7 @@ export const getEntity = makeFunctionNodeDefinition({
     entity: (_) => {
       const choices = sceneQuery().map((entity) => ({
         text: getComponent(entity, NameComponent),
-        value: getComponent(entity, UUIDComponent) as string
+        value: UUIDComponent.get(entity)
       }))
       return {
         valueType: 'string',
@@ -140,7 +140,7 @@ export const entityExists = makeFlowNodeDefinition({
       write('rotation', transform.rotation)
       write('scale', transform.scale)
       write('matrix', transform.matrix)
-      write('uuid', getComponent(entity, UUIDComponent) as string)
+      write('uuid', UUIDComponent.get(entity))
     }
     commit('flow')
   }
@@ -155,7 +155,7 @@ export const addEntity = makeFlowNodeDefinition({
     parentEntity: (_) => {
       const choices = sceneQuery().map((entity) => ({
         text: getComponent(entity, NameComponent),
-        value: getComponent(entity, UUIDComponent) as string
+        value: UUIDComponent.get(entity)
       }))
       return {
         valueType: 'string',
@@ -200,9 +200,9 @@ export const deleteEntity = makeFlowNodeDefinition({
     entityUUID: (_) => {
       const choices = sceneQuery().map((entity) => ({
         text: getComponent(entity, NameComponent),
-        value: getComponent(entity, UUIDComponent) as string
+        value: UUIDComponent.get(entity)
       }))
-      choices.unshift({ text: 'none', value: '' })
+      choices.unshift({ text: 'none', value: '' as EntityUUID })
       return {
         valueType: 'string',
         choices: choices // no default beacause we dont want to acciedently delete the default, none is safer

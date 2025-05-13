@@ -24,8 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
-import { EntityUUID } from '@ir-engine/ecs'
-import { NodeIDComponent } from './NodeIDComponent'
+import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
+import { isClient } from '@ir-engine/hyperflux'
 
 export function nodeIsChild(index: number, nodes: GLTF.INode[]) {
   for (const node of nodes) {
@@ -50,7 +50,7 @@ export function gltfReplaceUUIDReferences(gltf: GLTF.IGLTF, prevUUID: EntityUUID
     if (!node.extensions) continue
 
     for (const extKey in node.extensions) {
-      if (extKey === NodeIDComponent.jsonID) continue
+      if (extKey === UUIDComponent.jsonID) continue
 
       const ext = node.extensions[extKey]
       // If a component is just a reference to a uuid
@@ -386,7 +386,7 @@ export function gltfReplaceUUIDsReferences(gltf: GLTF.IGLTF, UUIDs: [EntityUUID,
     if (!node.extensions) continue
 
     for (const extKey in node.extensions) {
-      if (extKey === NodeIDComponent.jsonID) continue
+      if (extKey === UUIDComponent.jsonID) continue
 
       const ext = node.extensions[extKey]
       for (const [prevUUID, newUUID] of UUIDs) {
@@ -398,4 +398,37 @@ export function gltfReplaceUUIDsReferences(gltf: GLTF.IGLTF, UUIDs: [EntityUUID,
       }
     }
   }
+}
+
+let maxAnisotropySupported: number | null = null
+
+export function getMaxAnisotropy(): number {
+  // Early return if not in client environment
+  if (!isClient) {
+    return 0
+  }
+
+  if (maxAnisotropySupported !== null) {
+    return maxAnisotropySupported
+  }
+
+  const canvas = document.createElement('canvas')
+  const gl = canvas.getContext('webgl')
+
+  if (!gl) {
+    maxAnisotropySupported = 0
+    return maxAnisotropySupported
+  }
+
+  const ext =
+    gl.getExtension('EXT_texture_filter_anisotropic') ||
+    gl.getExtension('MOZ_EXT_texture_filter_anisotropic') ||
+    gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic')
+
+  if (ext) {
+    maxAnisotropySupported = gl.getParameter(ext.MAX_TEXTURE_MAX_ANISOTROPY_EXT)
+  } else {
+    maxAnisotropySupported = 0
+  }
+  return maxAnisotropySupported || 0
 }

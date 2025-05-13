@@ -25,22 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import {
-  clientSettingDataSchema,
-  clientSettingPatchSchema,
-  clientSettingQuerySchema,
-  clientSettingSchema
-} from '@ir-engine/common/src/schemas/setting/client-setting.schema'
-
 export default createSwaggerServiceOptions({
-  schemas: {
-    clientSettingDataSchema,
-    clientSettingPatchSchema,
-    clientSettingQuerySchema,
-    clientSettingSchema
-  },
+  schemas: {},
   docs: {
-    description: 'Client setting service description',
+    description: 'Ffmpeg service',
     securities: ['all']
   }
 })

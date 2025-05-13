@@ -346,6 +346,7 @@ export const CanvasInputReactor = () => {
       axes[MouseScroll.HorizontalScroll] = normalizedValues.spinX
       axes[MouseScroll.VerticalScroll] = normalizedValues.spinY
       event.preventDefault()
+      event.stopPropagation()
     }
 
     canvas.addEventListener('dragstart', ClientInputFunctions.preventDefault, false)

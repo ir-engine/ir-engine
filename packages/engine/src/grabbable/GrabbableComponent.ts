@@ -88,8 +88,8 @@ export const GrabbableComponent = defineComponent({
     if (grabbedEntity) return
     dispatchAction(
       GrabbableNetworkAction.setGrabbedObject({
-        entityUUID: getComponent(grabbableEntity, UUIDComponent),
-        grabberEntityUUID: getComponent(grabberEntity, UUIDComponent),
+        entityUUID: UUIDComponent.get(grabbableEntity),
+        grabberEntityUUID: UUIDComponent.get(grabberEntity),
         grabbed: true,
         attachmentPoint: handedness
       })
@@ -106,8 +106,8 @@ export const GrabbableComponent = defineComponent({
 
     dispatchAction(
       GrabbableNetworkAction.setGrabbedObject({
-        entityUUID: getComponent(grabbableEntity, UUIDComponent),
-        grabberEntityUUID: getComponent(grabberEntity, UUIDComponent),
+        entityUUID: UUIDComponent.get(grabbableEntity),
+        grabberEntityUUID: UUIDComponent.get(grabberEntity),
         grabbed: false
       })
     )

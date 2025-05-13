@@ -23,33 +23,38 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Knex } from 'knex'
+import { State, useMutableState } from '@ir-engine/hyperflux'
+import { useEffect, useRef } from 'react'
+import { FileThumbnailJobState } from '../common/services/FileThumbnailJobState'
 
-import { clientSettingPath } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
+const useLoadingThumbnails = (isLoading: State<boolean>) => {
+  const thumbnailJobs = useMutableState(FileThumbnailJobState).jobs
+  const debouncedStatusRef = useRef<ReturnType<typeof setTimeout>>()
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function up(knex: Knex): Promise<void> {
-  const privacyPolicyColumnExists = await knex.schema.hasColumn(clientSettingPath, 'privacyPolicy')
-  if (!privacyPolicyColumnExists) {
-    await knex.schema.alterTable(clientSettingPath, async (table) => {
-      table.string('privacyPolicy')
-    })
-  }
+  useEffect(() => {
+    clearTimeout(debouncedStatusRef.current)
+  }, [])
+
+  useEffect(() => {
+    if (debouncedStatusRef) {
+      clearTimeout(debouncedStatusRef.current)
+    }
+
+    const isThumbnailsLoading = thumbnailJobs.length > 0
+    if (isThumbnailsLoading) {
+      isLoading.set(true)
+    } else {
+      debouncedStatusRef.current = setTimeout(() => {
+        isLoading.set(false)
+      }, 1000)
+    }
+
+    return () => {
+      clearTimeout(debouncedStatusRef.current)
+    }
+  }, [thumbnailJobs.length])
+
+  return
 }
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function down(knex: Knex): Promise<void> {
-  const privacyPolicyColumnExists = await knex.schema.hasColumn(clientSettingPath, 'privacyPolicy')
-
-  if (privacyPolicyColumnExists) {
-    await knex.schema.alterTable(clientSettingPath, async (table) => {
-      table.dropColumn('privacyPolicy')
-    })
-  }
-}
+export default useLoadingThumbnails

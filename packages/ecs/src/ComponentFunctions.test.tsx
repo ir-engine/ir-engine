@@ -33,6 +33,7 @@ import { proxySoAStore, removeEntity } from '@ir-engine/ecs'
 import { DirectionalLight, Vector3 } from 'three'
 import {
   ComponentMap,
+  createEntity,
   defineComponent,
   deserializeComponent,
   getAllComponents,
@@ -46,8 +47,7 @@ import {
   useOptionalComponent
 } from './ComponentFunctions'
 import { createEngine, destroyEngine } from './Engine'
-import { Entity, EntityUUID, UndefinedEntity } from './Entity'
-import { createEntity } from './EntityFunctions'
+import { Entity, EntityID, EntityUUID, EntityUUIDPair, SourceID, UndefinedEntity } from './Entity'
 import { UUIDComponent } from './UUIDComponent'
 import { createResizableTypeArray } from './bitecsLegacy'
 import {
@@ -1168,8 +1168,8 @@ describe('ComponentFunctions Hooks', async () => {
       // Initialize the dummy data
       type ResultType = EntityUUID | undefined
       const component = UUIDComponent
-      const TestUUID1 = 'TestUUID1' as EntityUUID
-      const TestUUID2 = 'TestUUID2' as EntityUUID
+      const TestUUID1 = { entitySourceID: 'source1' as SourceID, entityID: 'id1' as EntityID } as EntityUUIDPair
+      const TestUUID2 = { entitySourceID: 'source2' as SourceID, entityID: 'id2' as EntityID } as EntityUUIDPair
       const oneEntity = createEntity()
       const twoEntity = createEntity()
       let result: ResultType = undefined
@@ -1183,7 +1183,7 @@ describe('ComponentFunctions Hooks', async () => {
         // Call the hook to set the data
         const data = useComponent(props.entity, component)
         useEffect(() => {
-          result = data.value
+          result = UUIDComponent.join(data.value)
           ++counter
         }, [data])
         return null
@@ -1196,9 +1196,9 @@ describe('ComponentFunctions Hooks', async () => {
       await act(() => rerender(tag))
       assert.equal(counter, 1, `The reactor has run an incorrect number of times: ${counter}`)
       assert.notEqual(result, undefined, "The result data didn't get initialized")
-      assert.equal(result, TestUUID1)
+      assert.equal(result, UUIDComponent.join(TestUUID1))
       await act(() => rerender(<Reactor entity={twoEntity} />))
-      assert.equal(result, TestUUID2)
+      assert.equal(result, UUIDComponent.join(TestUUID2))
 
       // Terminate the Reactor and Isolated Test
       unmount()

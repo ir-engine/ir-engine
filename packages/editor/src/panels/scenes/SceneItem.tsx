@@ -22,11 +22,13 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
+import { CopyEmbedCodePopover } from '@ir-engine/client-core/src/common/components/popovers/CopyEmbedCodePopover'
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { ThemeState } from '@ir-engine/client-core/src/common/services/ThemeService'
 import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
-import IRLogoModalDark from '@ir-engine/client/public/iR-logo-Modal-dark.png'
-import IRLogoModalLight from '@ir-engine/client/public/iR-logo-Modal-light.png'
+import IRLogoModalDark from '@ir-engine/client/src/assets/iR-logo-Modal-dark.png'
+import IRLogoModalLight from '@ir-engine/client/src/assets/iR-logo-Modal-light.png'
+import config from '@ir-engine/common/src/config'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
 import RenameSceneModal from '@ir-engine/editor/src/panels/scenes/RenameSceneModal'
@@ -34,11 +36,12 @@ import { useMutableState } from '@ir-engine/hyperflux'
 import { Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import MoreOptionsMenu from '@ir-engine/ui/src/components/tailwind/MoreOptionsMenu'
-import { Edit01Sm, Trash04Sm } from '@ir-engine/ui/src/icons'
+import { CodeSnippet01Sm, Edit01Sm, Trash04Sm } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { default as React } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
+import SceneCard from './SceneCard'
 
 type SceneItemProps = {
   scene: StaticResourceType
@@ -78,10 +81,7 @@ export default function SceneItem({
   const defaultThumbnail = theme?.value === 'dark' ? IRLogoModalLight : IRLogoModalDark
 
   return (
-    <div
-      data-testid="scene-container"
-      className="col-span-2 inline-flex h-64 w-64 min-w-64 max-w-64 cursor-pointer flex-col items-start justify-start gap-3 rounded-lg border border-ui-outline bg-ui-background p-3 lg:col-span-1"
-    >
+    <SceneCard data-testid="scene-container" className="cursor-pointer items-start justify-start gap-3 bg-white p-3">
       <div className="flex max-h-40 shrink grow basis-0 items-center justify-center self-stretch rounded bg-surface-4">
         <img
           className={twMerge(
@@ -120,11 +120,12 @@ export default function SceneItem({
         </div>
 
         <MoreOptionsMenu
+          position="right top"
           actionProps={[
             {
               label: t('editor:hierarchy.lbl-rename'),
               disabled: false,
-              icon: <Edit01Sm />,
+              icon: <Edit01Sm fontSize={16} />,
               onClick: () => {
                 ModalState.openModal(
                   <RenameSceneModal
@@ -137,9 +138,18 @@ export default function SceneItem({
               }
             },
             {
+              label: t('editor:hierarchy.lbl-copyEmbedCode'),
+              disabled: false,
+              icon: <CodeSnippet01Sm fontSize={16} />,
+              onClick: () => {
+                const sceneName = scene.key.split('/').pop()!.replace('.gltf', '')
+                ModalState.openModal(<CopyEmbedCodePopover url={`${config.client.clientUrl}/location/${sceneName}`} />)
+              }
+            },
+            {
               label: t('editor:hierarchy.lbl-delete'),
               disabled: disableDeleteScene,
-              icon: <Trash04Sm />,
+              icon: <Trash04Sm fontSize={16} />,
               onClick: () => {
                 ModalState.openModal(
                   <ConfirmDialog
@@ -153,6 +163,6 @@ export default function SceneItem({
           ]}
         />
       </div>
-    </div>
+    </SceneCard>
   )
 }

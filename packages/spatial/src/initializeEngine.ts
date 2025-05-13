@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { BoxGeometry, Mesh, MeshNormalMaterial } from 'three'
 
 import { createEntity, getComponent, removeEntity, setComponent, UUIDComponent } from '@ir-engine/ecs'
-import { EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { EntityID, SourceID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 
 import { EntityTreeComponent } from '@ir-engine/ecs'
@@ -44,9 +44,14 @@ import { RendererComponent } from './renderer/WebGLRendererSystem'
 import { TransformComponent } from './transform/components/TransformComponent'
 
 export const initializeSpatialViewer = (canvas?: HTMLCanvasElement) => {
+  if (getState(ReferenceSpaceState).viewerEntity) throw new Error('Viewer already exists')
+
   const viewerEntity = createEntity()
   setComponent(viewerEntity, NameComponent, 'viewer')
-  setComponent(viewerEntity, UUIDComponent, 'ee.viewer' as EntityUUID)
+  setComponent(viewerEntity, UUIDComponent, {
+    entitySourceID: 'engine' as SourceID,
+    entityID: 'viewer' as EntityID
+  })
   setComponent(viewerEntity, CameraComponent)
   setComponent(viewerEntity, VisibleComponent, true)
   setComponent(viewerEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
@@ -95,14 +100,20 @@ export const useSpatialEngine = () => {
 export const initializeSpatialEngine = () => {
   const originEntity = createEntity()
   setComponent(originEntity, NameComponent, 'origin')
-  setComponent(originEntity, UUIDComponent, 'ee.origin' as EntityUUID)
+  setComponent(originEntity, UUIDComponent, {
+    entitySourceID: 'engine' as SourceID,
+    entityID: 'origin' as EntityID
+  })
   setComponent(originEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
   setComponent(originEntity, TransformComponent)
   setComponent(originEntity, VisibleComponent, true)
 
   const localFloorEntity = createEntity()
   setComponent(localFloorEntity, NameComponent, 'local floor')
-  setComponent(localFloorEntity, UUIDComponent, 'ee.local-floor' as EntityUUID)
+  setComponent(localFloorEntity, UUIDComponent, {
+    entitySourceID: 'engine' as SourceID,
+    entityID: 'local-floor' as EntityID
+  })
   setComponent(localFloorEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
   setComponent(localFloorEntity, TransformComponent)
   setComponent(localFloorEntity, VisibleComponent, true)

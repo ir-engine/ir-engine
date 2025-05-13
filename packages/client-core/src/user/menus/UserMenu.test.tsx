@@ -29,7 +29,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { API } from '@ir-engine/common'
 import {
   avatarPath,
-  clientSettingPath,
   engineSettingPath,
   identityProviderPath,
   projectSettingPath,
@@ -144,7 +143,6 @@ describe('SettingsMenu component', () => {
       [userApiKeyPath]: createService(userApiKeyPath),
       [projectSettingPath]: createService(projectSettingPath),
       [scopePath]: createService(scopePath),
-      [clientSettingPath]: createService(clientSettingPath),
       [identityProviderPath]: createService(identityProviderPath),
       [engineSettingPath]: createService(engineSettingPath)
     }

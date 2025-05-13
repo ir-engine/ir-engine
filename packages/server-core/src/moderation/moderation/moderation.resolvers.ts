@@ -27,6 +27,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
+import { userLoginPath } from '@ir-engine/common/src/schema.type.module'
 import {
   ModerationID,
   ModerationQuery,
@@ -47,6 +48,19 @@ const resolveUserEmail = async (userId: UserID | undefined, context: HookContext
     }
   })
   return identityProvider?.data[0]?.email || undefined
+}
+
+const resolveUserIp = async (userId: UserID | undefined, context: HookContext) => {
+  if (!userId) return undefined
+
+  const lastLogin = await context.app.service(userLoginPath)._find({
+    query: {
+      userId: userId,
+      $sort: { createdAt: -1 },
+      $limit: 1
+    }
+  })
+  return lastLogin?.data[0]?.ipAddress || undefined
 }
 
 export const moderationResolver = resolve<ModerationType, HookContext>({
@@ -70,6 +84,9 @@ export const moderationDataResolver = resolve<ModerationType, HookContext>({
   ipAddress: async (_, __, context) => {
     return context.params.forwarded?.ip || '::1'
   },
+  reportedUserIpAddress: virtual(async (moderation: ModerationType, context: HookContext) => {
+    return resolveUserIp(moderation.reportedUserId, context)
+  }),
   createdBy: async (_, __, context) => {
     return context.params?.user?.id || null
   },

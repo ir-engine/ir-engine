@@ -24,13 +24,16 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Quaternion, Vector3 } from 'three'
-import { v4 as uuidv4 } from 'uuid'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   Engine,
   Entity,
-  EntityUUID,
+  EntityID,
+  EntityTreeComponent,
+  EntityUUIDPair,
+  Layers,
+  SourceID,
   UUIDComponent,
   createEngine,
   createEntity,
@@ -45,9 +48,17 @@ import { initializeSpatialEngine, initializeSpatialViewer } from '@ir-engine/spa
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 
+import { GLTF } from '@gltf-transform/core'
 import { applyIncomingActions } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
+import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
+import { Cache } from 'three'
+import { startEngineReactor } from '../../../tests/startEngineReactor'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
+import { AssetState } from '../../gltf/GLTFState'
 import { definePrefab } from './definePrefab'
+
+const waitForScene = (entity: Entity) => vi.waitUntil(() => GLTFComponent.isSceneLoaded(entity), { timeout: 5000 })
 
 /**
  * Specification:
@@ -143,12 +154,17 @@ describe('definePrefab', () => {
     expect(TestPrefabComponent.spawn).toBeDefined()
     expect(typeof TestPrefabComponent.spawn).toBe('function')
 
-    const entityUUID = uuidv4() as EntityUUID
-    const parentUUID = getComponent(sceneEntity, UUIDComponent)
+    const entityUUIDPair = {
+      entitySourceID: 'spawned-source' as SourceID,
+      entityID: 'spawned-entity' as EntityID
+    } as EntityUUIDPair
+    const entityUUID = UUIDComponent.join(entityUUIDPair)
+    const parentUUID = UUIDComponent.get(sceneEntity)
 
     expect(() => {
       TestPrefabComponent.spawn({
-        entityUUID,
+        entityID: entityUUIDPair.entityID,
+        entitySourceID: entityUUIDPair.entitySourceID,
         parentUUID,
         position: new Vector3(1, 2, 3),
         rotation: new Quaternion(0, 0, 0, 1),
@@ -170,5 +186,64 @@ describe('definePrefab', () => {
       expect(getComponent(entity, TestPrefabComponent)).toBeDefined()
       expect(getComponent(entity, TransformComponent)).toBeDefined()
     })
+  })
+
+  it('should not dispatch a spawn action if loaded as part of a scene', async () => {
+    startEngineReactor()
+
+    const TestPrefabComponent = definePrefab({
+      name: 'TestPrefabSpawn2',
+      jsonID: 'test-prefab-spawn-2',
+      schema: S.Object({
+        health: S.Number({ default: 100 }),
+        name: S.String({ default: 'Default' })
+      }),
+      reactor: () => null
+    })
+
+    const gltf: GLTF.IGLTF = {
+      asset: {
+        version: '2.0'
+      },
+      scenes: [{ nodes: [0] }],
+      scene: 0,
+      nodes: [
+        {
+          name: 'node',
+          extensions: {
+            [TestPrefabComponent.jsonID]: {
+              health: 5,
+              name: 'Not Default'
+            }
+          }
+        }
+      ]
+    }
+
+    await Physics.load()
+    const physicsWorldEntity = createEntity()
+
+    setComponent(physicsWorldEntity, UUIDComponent, {
+      entityID: 'physicsWorld' as EntityID,
+      entitySourceID: 'source' as SourceID
+    })
+    setComponent(physicsWorldEntity, SceneComponent)
+    setComponent(physicsWorldEntity, TransformComponent)
+    setComponent(physicsWorldEntity, EntityTreeComponent)
+    const physicsWorld = Physics.createWorld(physicsWorldEntity)
+    physicsWorld.timestep = 1 / 60
+    Cache.add('/test.gltf', gltf)
+
+    const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
+
+    await waitForScene(rootEntity)
+
+    const entity = createEntity()
+    setComponent(entity, TestPrefabComponent, { health: 150, name: 'Spawned Entity' })
+
+    applyIncomingActions()
+
+    const actions = Engine.instance.store.actions.history
+    expect(actions.length).toBe(0)
   })
 })

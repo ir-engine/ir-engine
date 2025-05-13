@@ -24,18 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
-import {
-  EntityUUID,
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  LayerID,
-  Layers,
-  useQuery,
-  UUIDComponent
-} from '@ir-engine/ecs'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { getMaterialsFromScene } from '@ir-engine/engine/src/scene/materials/functions/materialSourcingFunctions'
+import { Entity, hasComponent, LayerID, Layers, useQuery, UUIDComponent } from '@ir-engine/ecs'
+
 import { ErrorBoundary, getMutableState } from '@ir-engine/hyperflux'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { Button, Input } from '@ir-engine/ui'
@@ -79,32 +69,29 @@ function MaterialsLibrary() {
   const { t } = useTranslation()
   const srcPath = useHookstate('/mat/material-test')
   const materialQuery = useQuery([MaterialStateComponent])
-  const nodes = useHookstate<EntityUUID[]>([])
+  const nodes = useHookstate<Entity[]>([])
   const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities)
   const showLayers = useHookstate(false)
 
   const layer = useHookstate<LayerID>(Layers.Authoring)
 
   useEffect(() => {
-    const materials =
-      selectedEntities.value.length && showLayers.value
-        ? getMaterialsFromScene(UUIDComponent.getEntityByUUID(selectedEntities.value[0], layer.value))
-        : materialQuery
-            .map((entity) => getComponent(entity, UUIDComponent))
-            .filter((uuid) => uuid !== MaterialStateComponent.fallbackMaterialUUID)
+    const materials = materialQuery
 
-    const materialsBySource = {} as Record<string, string[]>
-    for (const uuid of materials) {
-      const materialEntity = UUIDComponent.getEntityByUUID(uuid as EntityUUID, layer.value)
-      const source = getOptionalComponent(materialEntity, SourceComponent) ?? ''
+    const materialsBySource = {} as Record<string, Entity[]>
+    for (const materialEntity of materials) {
       if (!hasComponent(materialEntity, MaterialStateComponent)) continue
-      materialsBySource[source] = materialsBySource[source] ? [...materialsBySource[source], uuid] : [uuid]
+      const source = UUIDComponent.getSourceEntity(materialEntity)
+      if (!source) continue
+      materialsBySource[source] = materialsBySource[source]
+        ? [...materialsBySource[source], materialEntity]
+        : [materialEntity]
     }
     const materialsBySourceArray = Object.entries(materialsBySource)
     const flattenedMaterials = materialsBySourceArray.reduce(
-      (acc: (EntityUUID | string)[], [source, uuids]) => acc.concat([source], uuids),
+      (acc: (Entity | string)[], [source, uuids]) => acc.concat([source], uuids),
       []
-    ) as EntityUUID[]
+    ) as Entity[]
     nodes.set(flattenedMaterials)
   }, [materialQuery.length, selectedEntities, showLayers, layer])
 

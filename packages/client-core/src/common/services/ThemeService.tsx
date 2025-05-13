@@ -299,10 +299,16 @@ export const themes: Record<string, Partial<CSSClasses>> = {
   dark: darkTheme
 }
 
+export const checkDarkMode = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+
 export const ThemeState = defineState({
   name: 'ThemeState',
-  initial: {
-    theme: 'dark' as 'light' | 'dark'
+  initial: () => {
+    const initialDarkMode = checkDarkMode()
+
+    return {
+      theme: (initialDarkMode ? 'dark' : 'light') as 'light' | 'dark'
+    }
   },
 
   setTheme: (theme: 'light' | 'dark') => {
@@ -324,6 +330,21 @@ export const updateTheme = (themeClasses: Partial<CSSClasses>) => {
 export const useThemeProvider = () => {
   const themeState = useMutableState(ThemeState)
   const themeClasses = themes[themeState.theme.value]
+
+  useEffect(() => {
+    const matchMedia = window.matchMedia('(prefers-color-scheme: dark)')
+    const listener = (event) => {
+      const newColorScheme = event.matches ? 'dark' : 'light'
+
+      ThemeState.setTheme(newColorScheme)
+    }
+
+    matchMedia.addEventListener('change', listener)
+
+    return () => {
+      matchMedia.removeEventListener('change', listener)
+    }
+  }, [])
 
   useEffect(() => {
     updateTheme(themeClasses)

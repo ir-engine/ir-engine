@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Not } from '@ir-engine/ecs'
+import { Not, UUIDComponent } from '@ir-engine/ecs'
 
 import { hasComponent, removeComponent } from '@ir-engine/ecs'
 import { getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -39,7 +39,6 @@ import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/co
 import { TransformSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { NodeFunctions } from '../../gltf/NodeFunctions'
 import { InteractableComponent } from '../components/InteractableComponent'
 import {
   gatherAvailableInteractables,
@@ -135,8 +134,8 @@ const clickInteract = (entity: Entity) => {
   const interactable = getOptionalComponent(entity, InteractableComponent)
   if (!interactable) return
   for (const callback of interactable.callbacks) {
-    if (callback.target && !NodeFunctions.getEntityFromNodeID(entity, callback.target)) continue
-    const targetEntity = callback.target ? NodeFunctions.getEntityFromNodeID(entity, callback.target) : entity
+    if (callback.target && !UUIDComponent.getEntityFromSameSourceByID(entity, callback.target)) continue
+    const targetEntity = callback.target ? UUIDComponent.getEntityFromSameSourceByID(entity, callback.target) : entity
     if (targetEntity && callback.callbackID) {
       const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
       if (!callbacks) continue
@@ -151,9 +150,9 @@ const interactWithClosestInteractable = () => {
     const interactable = getOptionalComponent(interactableEntity, InteractableComponent)
     if (interactable) {
       for (const callback of interactable.callbacks) {
-        if (callback.target && !NodeFunctions.getEntityFromNodeID(interactableEntity, callback.target)) continue
+        if (callback.target && !UUIDComponent.getEntityFromSameSourceByID(interactableEntity, callback.target)) continue
         const targetEntity = callback.target
-          ? NodeFunctions.getEntityFromNodeID(interactableEntity, callback.target)
+          ? UUIDComponent.getEntityFromSameSourceByID(interactableEntity, callback.target)
           : interactableEntity
         if (targetEntity && callback.callbackID) {
           const callbacks = getOptionalComponent(targetEntity, CallbackComponent)

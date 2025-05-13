@@ -41,6 +41,8 @@ const NameComponentState = defineState({
 export const NameComponent = defineComponent({
   name: 'NameComponent',
 
+  jsonID: 'IR_name',
+
   schema: S.String({
     default: '',
     validate: NonEmptyString('NameComponent expects a non-empty string')

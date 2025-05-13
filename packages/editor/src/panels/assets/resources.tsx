@@ -22,11 +22,9 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import {
-  FileThumbnailJobState,
-  removeFromFileThumbnailsSeen
-} from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
+import { removeFromFileThumbnailsSeen } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
+import useLoadingThumbnails from '@ir-engine/client-core/src/hooks/useLoadingThumbnails'
 import ProgressBar from '@ir-engine/client-core/src/systems/ui/LoadingDetailView/SimpleProgressBar'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
@@ -179,7 +177,9 @@ export function FileCard({
         <div
           className={twMerge(
             `box-border h-20 w-16 rounded font-figtree text-sm`,
-            isSelected ? 'rounded border border-[#375DAF] bg-[#2C2E30]' : 'group-hover:bg-[#202225]'
+            isSelected
+              ? 'rounded border border-ui-primary bg-ui-select-background p-1'
+              : 'group-hover:bg-ui-hover-background'
           )}
           data-testid={dataTestIdJson?.fileIconId}
         >
@@ -402,21 +402,13 @@ function ResourceItems() {
     fileIconsLoaded.set(fileIconsLoaded.get() + 1)
   }
 
-  const thumbnailJobState = useMutableState(FileThumbnailJobState)
-  const debouncedRefetchResourcesRef = useRef<ReturnType<typeof setTimeout>>()
+  const isLoading = useHookstate(false)
+  useLoadingThumbnails(isLoading)
 
   useEffect(() => {
-    clearTimeout(debouncedRefetchResourcesRef.current)
-  }, [])
-
-  useEffect(() => {
-    if (debouncedRefetchResourcesRef) {
-      clearTimeout(debouncedRefetchResourcesRef.current)
-    }
-    debouncedRefetchResourcesRef.current = setTimeout(() => {
-      refetchResources()
-    }, 500)
-  }, [thumbnailJobState.jobs.length])
+    if (isLoading.value) return
+    refetchResources()
+  }, [isLoading.value])
 
   useEffect(() => {
     fileIconsToLoad.set(0)

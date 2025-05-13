@@ -23,23 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+export const ffmpegPath = 'ffmpeg'
 
-import {
-  ClientSettingData,
-  ClientSettingPatch,
-  ClientSettingQuery,
-  ClientSettingType
-} from '@ir-engine/common/src/schemas/setting/client-setting.schema'
-
-export interface ClientSettingParams extends KnexAdapterParams<ClientSettingQuery> {}
-
-/**
- * A class for ClientSetting service
- */
-
-export class ClientSettingService<
-  T = ClientSettingType,
-  ServiceParams extends Params = ClientSettingParams
-> extends KnexService<ClientSettingType, ClientSettingData, ClientSettingParams, ClientSettingPatch> {}
+export const ffmpegMethod = ['create'] as const

@@ -40,7 +40,7 @@ import {
 import { AssetExt, FileToAssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+
 import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
 import { NO_PROXY, defineState, getMutableState, getState, useHookstate, useState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
@@ -109,7 +109,7 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
     } else {
       if (!clickState.placementEntity.value) return
       const selectedEntities = getState(SelectionState).selectedEntities.filter(
-        (uuid) => uuid !== getComponent(clickState.placementEntity.value, UUIDComponent)
+        (uuid) => uuid !== UUIDComponent.get(clickState.placementEntity.value)
       )
       EditorControlFunctions.removeObject([clickState.placementEntity.value])
       clickState.placementEntity.set(UndefinedEntity)
@@ -178,7 +178,7 @@ const updatePlacementEntitySnapshot = (placementEntity: Entity) => {
   // const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
   // const uuid = getComponent(placementEntity, UUIDComponent)
   // const nodeIndex = snapshot.data.nodes!.findIndex(
-  //   (value) => value.extensions && value.extensions[NodeIDComponent.jsonID] === uuid
+  //   (value) => value.extensions && value.extensions[UUIDComponent.jsonID] === uuid
   // )
   // const entityJson = toEntityJson(placementEntity)
   // const entityGLTFNode = entityJSONToGLTFNode(entityJson, uuid)
@@ -204,8 +204,8 @@ const createPlacementEntitySnapshot = (placementEntity: Entity) => {
 const createPlacementEntity = (parentEntity: Entity) => {
   const placementEntity = createSceneEntity('Placement-' + placedCount, parentEntity)
 
-  const sceneID = getComponent(parentEntity, SourceComponent)
-  setComponent(placementEntity, SourceComponent, sceneID)
+  // const sceneID = getComponent(parentEntity, SourceComponent)
+  // setComponent(placementEntity, SourceComponent, sceneID)
   setComponent(placementEntity, EntityTreeComponent, { parentEntity })
   createPlacementEntitySnapshot(placementEntity)
 

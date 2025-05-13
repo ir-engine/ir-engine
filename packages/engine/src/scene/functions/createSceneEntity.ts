@@ -28,23 +28,22 @@ import {
   EntityTreeComponent,
   LayerComponent,
   Layers,
+  SourceID,
   UUIDComponent,
   UndefinedEntity,
   createEntity,
   setComponent
 } from '@ir-engine/ecs'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-import { Group } from 'three'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { NodeIDComponent } from '../../gltf/NodeIDComponent'
 
 export const createSceneEntity = (name: string, parentEntity: Entity = UndefinedEntity): Entity => {
-  const sourceID = GLTFComponent.getInstanceID(parentEntity)
+  const sourceID = GLTFComponent.getSourceID(parentEntity) || ('source' as SourceID)
   const layer = parentEntity ? LayerComponent.get(parentEntity) : Layers.Simulation
-  const entity = sourceID ? NodeIDComponent.create(sourceID, NodeIDComponent.generate(), layer) : createEntity(layer)
+  const entity = createEntity(layer)
+  setComponent(entity, UUIDComponent, { entitySourceID: sourceID, entityID: UUIDComponent.generate() })
   setComponent(entity, NameComponent, name)
   setComponent(entity, VisibleComponent)
   setComponent(entity, TransformComponent)
@@ -52,15 +51,5 @@ export const createSceneEntity = (name: string, parentEntity: Entity = Undefined
   if (parentEntity !== UndefinedEntity) {
     setComponent(entity, EntityTreeComponent, { parentEntity })
   }
-  if (!sourceID) {
-    setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
-  }
-
-  // These additional properties and relations are required for
-  // the current GLTF exporter to successfully generate a GLTF.
-  const obj3d = new Group()
-  obj3d.entity = entity
-  setComponent(entity, ObjectComponent, obj3d)
-
   return entity
 }

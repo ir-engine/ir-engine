@@ -36,7 +36,7 @@ import {
   removeEntityNodeRecursively,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   DefaultModelTransformParameters as defaultParams,
   ModelTransformParameters
@@ -51,7 +51,7 @@ import exportGLTF from '../../functions/exportGLTF'
 
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+
 import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
 import { Button } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
@@ -112,9 +112,7 @@ const createLODVariants = async (
     })
     const destinationPath = srcURL.replace(/\.[^.]*$/, `-integrated.gltf`)
     const gltfEntity = getAncestorWithComponents(result, [GLTFComponent])
-    const uuid = getComponent(gltfEntity, UUIDComponent)
-    const sourceID = SourceComponent.getSourceID(uuid, destinationPath)
-    iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, sourceID))
+    iterateEntityNode(result, (entity) => UUIDComponent.setSourceEntity(entity, gltfEntity))
     await exportGLTF(result, destinationPath)
     removeEntityNodeRecursively(result)
   }

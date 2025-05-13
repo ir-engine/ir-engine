@@ -44,6 +44,17 @@ export const NonEmptyString = (errMsg: string) => {
   }
 }
 
+export const NonEmptyArray = (errMsg: string) => {
+  return (arr: unknown[]): boolean => {
+    if (!arr || arr.length === 0) {
+      console.error(errMsg)
+      return false
+    }
+
+    return true
+  }
+}
+
 type Init<T> = T | ((entity: Entity) => T)
 
 export const T = {

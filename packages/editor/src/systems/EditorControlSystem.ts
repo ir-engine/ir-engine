@@ -46,7 +46,7 @@ import {
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+
 import { dispatchAction, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { FlyControlComponent } from '@ir-engine/spatial/src/camera/components/FlyControlComponent'
@@ -359,7 +359,10 @@ const execute = () => {
       let selectedParentEntity = getAncestorWithComponents(closestIntersection.entity, [GLTFComponent])
       // If selectedParentEntity has a parent in a different GLTF document use that as top most parent
       const parent = getOptionalComponent(selectedParentEntity, EntityTreeComponent)?.parentEntity
-      if (parent && GLTFComponent.getInstanceID(parent) !== getComponent(selectedParentEntity, SourceComponent)) {
+      if (
+        parent &&
+        UUIDComponent.getAsSourceID(parent) !== getComponent(selectedParentEntity, UUIDComponent).entitySourceID
+      ) {
         selectedParentEntity = parent
       }
 
@@ -388,11 +391,7 @@ const execute = () => {
 
   if (buttons.PrimaryClick?.up && !buttons.PrimaryClick?.dragging) {
     const editorHelperState = getState(EditorHelperState)
-    if (
-      hasComponent(clickStartEntity, SourceComponent) &&
-      !getState(ClickPlacementState).placementEntity &&
-      editorHelperState.gizmoEnabled
-    ) {
+    if (!getState(ClickPlacementState).placementEntity && editorHelperState.gizmoEnabled) {
       const selectedEntities = SelectionState.getSelectedEntities()
       const clickParentEntity = getAncestorWithComponents(clickStartEntity, [GLTFComponent])
 
@@ -426,14 +425,12 @@ const updateSelection = (clickedEntity: Entity, control: boolean, shift: boolean
   if (control) {
     if (selectedEntities.includes(clickedEntity)) {
       SelectionState.updateSelection(
-        selectedEntities
-          .filter((entity) => entity !== clickedEntity)
-          .map((entity) => getComponent(entity, UUIDComponent))
+        selectedEntities.filter((entity) => entity !== clickedEntity).map((entity) => UUIDComponent.get(entity))
       )
     } else {
       SelectionState.updateSelection([
-        ...selectedEntities.map((entity) => getComponent(entity, UUIDComponent)),
-        getComponent(clickedEntity, UUIDComponent)
+        ...selectedEntities.map((entity) => UUIDComponent.get(entity)),
+        UUIDComponent.get(clickedEntity)
       ])
     }
   }
@@ -458,7 +455,8 @@ const updateSelection = (clickedEntity: Entity, control: boolean, shift: boolean
   //   }
   // }
   else {
-    SelectionState.updateSelection([getComponent(clickedEntity, UUIDComponent)])
+    if (!clickedEntity || !hasComponent(clickedEntity, UUIDComponent)) return
+    SelectionState.updateSelection([UUIDComponent.get(clickedEntity)])
   }
 }
 

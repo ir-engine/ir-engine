@@ -30,7 +30,6 @@ import { API } from '@ir-engine/common'
 import {
   avatarPath,
   builderInfoPath,
-  clientSettingPath,
   engineSettingPath,
   identityProviderPath,
   projectPath,
@@ -147,7 +146,6 @@ describe('ProfileMenu component', () => {
       [userApiKeyPath]: createService(userApiKeyPath),
       [projectSettingPath]: createService(projectSettingPath),
       [scopePath]: createService(scopePath),
-      [clientSettingPath]: createService(clientSettingPath),
       [identityProviderPath]: createService(identityProviderPath),
       [engineSettingPath]: createService(engineSettingPath),
       [projectPath]: createService(projectPath),

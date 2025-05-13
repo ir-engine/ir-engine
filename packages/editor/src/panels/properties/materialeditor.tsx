@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
-  EntityUUID,
+  Entity,
   Layers,
   UUIDComponent,
   getComponent,
@@ -39,7 +39,7 @@ import styles from '@ir-engine/editor/src/components/layout/styles.module.scss'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { getTextureAsync } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { NO_PROXY, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -79,9 +79,9 @@ const toBlobs = (thumbnails: Record<string, ThumbnailData>): Record<string, stri
   return blobs
 }
 
-export function MaterialEditor(props: { materialUUID: EntityUUID }) {
+export function MaterialEditor(props: { entity: Entity }) {
   const { t } = useTranslation()
-  const entity = UUIDComponent.useEntityByUUID(props.materialUUID, Layers.Authoring)
+  const entity = props.entity
   const materialComponent = useComponent(entity, MaterialStateComponent)
   const material = materialComponent.material.get(NO_PROXY) as Material
 
@@ -244,7 +244,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           <div className="justify-cneter flex items-center align-middle">
             <label>{t('editor:properties.mesh.material.path')}</label>
           </div>
-          <div className="break-all">{getOptionalComponent(entity, SourceComponent) ?? 'None'}</div>
+          <div className="break-all">{UUIDComponent.getSourceEntity(entity) ?? 'None'}</div>
         </div>
       </InputGroup>
       <br />
@@ -260,7 +260,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
 
       {prototype && (
         <ParameterInput
-          entity={props.materialUUID}
+          entity={UUIDComponent.get(entity)}
           values={materialParameters.get(NO_PROXY)}
           onChange={(key) => async (value) => {
             const property = await shouldLoadTexture(value, key, prototype.arguments)
@@ -269,15 +269,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
               texture.flipY = false
               texture.needsUpdate = true
             }
-            EditorControlFunctions.modifyMaterial(
-              [materialComponent.material.value!.uuid],
-              currentSelectedMaterial.value!,
-              [{ [key]: texture?.isTexture ? value : property }]
-            )
-            const entity = UUIDComponent.getEntityByUUID(
-              materialComponent.material.value!.uuid as EntityUUID,
-              Layers.Authoring
-            )
+            EditorControlFunctions.modifyMaterial(entity, [{ [key]: texture?.isTexture ? value : property }])
             AuthoringState.snapshotEntities([entity])
             await checkThumbs()
           }}
@@ -306,7 +298,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
       {hasComponent(entity, MaterialPlugins[selectedPlugin.value]) && (
         <div className={styles.contentContainer}>
           <ParameterInput
-            entity={props.materialUUID}
+            entity={UUIDComponent.get(entity)}
             values={pluginValues.value}
             onChange={(key) => async (value) => {
               const property = await shouldLoadTexture(value, key, pluginParameters)
