@@ -239,6 +239,7 @@ export async function addMediaNode(
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [
+        { name: TransformComponent.jsonID },
         { name: VideoComponent.jsonID },
         { name: PositionalAudioComponent.jsonID },
         { name: MediaComponent.jsonID, props: { resources: [url] } },

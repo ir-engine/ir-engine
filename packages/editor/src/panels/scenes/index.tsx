@@ -83,6 +83,7 @@ function ScenesPanel() {
           size="sm"
           data-testid="scene-panel-add-scene-button"
           onClick={handleCreateScene}
+          variant="tertiary"
         >
           <PlusCircleSm />
           <span className="text-nowrap">{t('editor:newScene')}</span>

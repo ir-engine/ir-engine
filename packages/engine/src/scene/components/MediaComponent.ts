@@ -151,6 +151,7 @@ export const MediaComponent = defineComponent({
     // runtime props
     xruiEntity: S.Entity({ serialized: false }),
     paused: S.Bool({ default: true, serialized: false }),
+    muted: S.Bool({ default: false, serialized: false }),
     ended: S.Bool({ default: true, serialized: false }),
     waiting: S.Bool({ default: false, serialized: false }),
     track: S.Number({ default: -1, serialized: false }),
@@ -511,6 +512,12 @@ export function MediaReactor() {
     },
     [media.volume]
   )
+
+  useEffect(() => {
+    if (!mediaElement) return
+    const htmlMedia = mediaElement.element.get(NO_PROXY) as HTMLMediaElement
+    htmlMedia.muted = media.muted.value
+  }, [media.muted, mediaElement])
 
   useEffect(
     function updateMixbus() {

@@ -63,6 +63,7 @@ export const getLoader = (assetType: AssetExt): Loader => {
       return new TGALoader()
     case AssetExt.PNG:
     case AssetExt.JPEG:
+    case AssetExt.GIF:
     case AssetExt.WEBP:
       return new TextureLoader()
     case AssetExt.AAC:

@@ -150,7 +150,6 @@ export function ProjectDownloadProgress() {
 export function FileUploadProgress() {
   const { t } = useTranslation()
   const { completed, total, progress } = useUploadingFiles()
-
   return total ? (
     <div className="flex h-auto w-full justify-center pb-2 pt-2">
       <div className="flex w-1/2">

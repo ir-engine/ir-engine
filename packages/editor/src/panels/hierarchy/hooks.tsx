@@ -140,11 +140,13 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
 
   const childEntities = useQuery([EntityTreeComponent], Layers.Authoring)
   const reparentRefresh = useHookstate(0)
+  const childIndexRefresh = useHookstate(0)
 
   const ChildEntityReactor = (props: { entity: Entity }) => {
     const entity = props.entity
     const entityTreeComponent = useComponent(entity, EntityTreeComponent)
     const [parentEntity, setParentEntity] = useState(entityTreeComponent.value.parentEntity)
+    const [childIndex, setChildIndex] = useState(entityTreeComponent.value.childIndex)
 
     useEffect(() => {
       if (entityTreeComponent.value.parentEntity !== parentEntity) {
@@ -152,6 +154,13 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
         reparentRefresh.set((reparentRefresh.value + 1) % 1000)
       }
     }, [entityTreeComponent.parentEntity.value])
+
+    useEffect(() => {
+      if (entityTreeComponent.value.childIndex !== childIndex) {
+        setChildIndex(entityTreeComponent.value.childIndex)
+        childIndexRefresh.set((childIndexRefresh.value + 1) % 1000)
+      }
+    }, [entityTreeComponent.value.childIndex])
 
     return null
   }
@@ -164,7 +173,8 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
       showGlbChildren,
       entities,
       childEntities,
-      reparentRefresh
+      reparentRefresh,
+      childIndexRefresh
     ]
   )
 

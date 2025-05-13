@@ -87,8 +87,7 @@ import mime from 'mime-types'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
-const getFilename = (url) => {
-  const path = new URL(url).pathname // Get the path part of the URL
+const getFilename = (path) => {
   return path.substring(path.lastIndexOf('/') + 1) // Get the filename after the last "/"
 }
 
