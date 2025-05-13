@@ -189,21 +189,22 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
     const fileURL = pathJoin(config.client.fileServer, 'projects', srcProject, fileName)
 
     try {
-      const resourcesold = await API.instance.service(staticResourcePath).find({
+      const resourcesOld = await API.instance.service(staticResourcePath).find({
         query: { key: 'projects/' + srcProject + '/' + fileName }
       })
-      if (resourcesold.data.length !== 0 && !isOverwriteConfirmed.value) {
+      if (resourcesOld.data.length !== 0 && !isOverwriteConfirmed.value) {
         console.log('this name already exist, click confirm to overwrite the prefab')
         await isOverwriteModalVisible.set(true)
       } else {
         if (isExportLookDev) {
           exportLookDevPrefab(srcProject, fileName)
+          NotificationService.dispatchNotify(t('editor:prefab.exportedSuccess'), { variant: 'success' })
         } else {
           if (!entity) return
           exportPrefab(entity, srcProject, fileName, fileURL)
+          NotificationService.dispatchNotify(t('editor:prefab.exportedSuccess'), { variant: 'success' })
         }
       }
-      NotificationService.dispatchNotify(t('editor:prefab.exportedSuccess'), { variant: 'success' })
     } catch (e) {
       console.error(e)
       NotificationService.dispatchNotify(e.message, { variant: 'error' })

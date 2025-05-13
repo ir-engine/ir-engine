@@ -35,6 +35,7 @@ export const overrideExporterExtension: () => GLTFSceneExportExtension = () => (
   after: (rootEntity, gltf) => {
     const overrideState = getState(AuthoringState)
     let usedSceneDelta = false
+    if (!hasComponent(rootEntity, UUIDComponent)) return
     const rootUUID = UUIDComponent.get(rootEntity)
     iterateEntityNode(rootEntity, (entity) => {
       if (entity === rootEntity) return
