@@ -75,7 +75,9 @@ export const saveSceneGLTF = async (
 
   const { rootEntity } = getState(EditorState)
 
-  const sceneName = cleanString(sceneFile!.replace('.gltf', '')) + '.gltf'
+  const baseSceneName = cleanString(sceneFile!.replace('.gltf', '').trim())
+  const sceneName = baseSceneName.endsWith('.gltf') ? baseSceneName : `${baseSceneName}.gltf`
+
   let currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
   if (savePath) {
     currentSceneDirectory = savePath
@@ -94,7 +96,7 @@ export const saveSceneGLTF = async (
   }
 
   const blob = [new Blob([JSON.stringify(gltfData, null, 2)], { type: 'model/gltf+json' })]
-  const gltfFile = new File(blob, sceneFile, { type: 'model/gltf+json' })
+  const gltfFile = new File(blob, sceneName, { type: 'model/gltf+json' })
 
   const currentScene = await API.instance.service(staticResourcePath).get(sceneAssetID)
 

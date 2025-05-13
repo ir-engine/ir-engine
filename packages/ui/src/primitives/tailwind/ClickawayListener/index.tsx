@@ -28,7 +28,6 @@ import React from 'react'
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 
 import { getState } from '@ir-engine/hyperflux'
-import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { useEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
@@ -58,11 +57,10 @@ const ClickawayListener = (props: { children: React.ReactNode; onClickOutside: V
       }
     }
 
-    const eventName = isMobile ? 'pointerup' : 'mousedown'
-    document.addEventListener(eventName, handler)
+    document.addEventListener('pointerup', handler)
 
     return () => {
-      document.removeEventListener(eventName, handler)
+      document.removeEventListener('pointerup', handler)
     }
   }, [])
 

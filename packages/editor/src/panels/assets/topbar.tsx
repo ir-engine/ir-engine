@@ -161,7 +161,12 @@ export default function Topbar() {
         </Tooltip>
       }
       uploadButton={
-        <Button size="l" data-testid="assets-panel-upload-button" onClick={() => uploadFiles().then(handleRefresh)}>
+        <Button
+          variant="tertiary"
+          size="l"
+          data-testid="assets-panel-upload-button"
+          onClick={() => uploadFiles().then(handleRefresh)}
+        >
           <PlusCircleSm />
           <span className="text-nowrap">{t('editor:layout.filebrowser.uploadAssets')}</span>
         </Button>

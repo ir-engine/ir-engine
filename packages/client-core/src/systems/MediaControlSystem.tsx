@@ -58,7 +58,7 @@ let clicking = false
 const MediaFadeTransitions = new Map<Entity, ReturnType<typeof createTransitionState>>()
 const mediaQuery = defineQuery([MediaComponent])
 
-export const createMediaControlsUI = (entity: Entity) => {
+export const createMediaControlsUI = (entity: Entity, aspectRatio: number = 1) => {
   const ui = createMediaControlsView(entity)
 
   const mediaTransform = getComponent(entity, TransformComponent)
@@ -138,6 +138,21 @@ const onUpdate = (entity: Entity) => {
 
 const execute = () => {
   if (getState(EngineState).isEditing || !isClient) return
+
+  for (const entity of mediaQuery.enter()) {
+    const mediaComponent = getComponent(entity, MediaComponent)
+    if (!mediaComponent.controls) continue
+
+    const transition = createTransitionState(0.25, 'IN')
+    MediaFadeTransitions.set(entity, transition)
+
+    mediaComponent.xruiEntity = createMediaControlsUI(entity).entity
+    setComponent(mediaComponent.xruiEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+  }
+
+  for (const entity of mediaQuery.exit()) {
+    if (MediaFadeTransitions.has(entity)) MediaFadeTransitions.delete(entity)
+  }
 
   for (const entity of mediaQuery()) {
     onUpdate(entity)

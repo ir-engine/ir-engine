@@ -35,7 +35,7 @@ import {
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { CallbackOptionType, useCallbackQueryOptions } from '@ir-engine/engine/src/authoring/functions/useNodeOptions'
+import { useCallbackQueryOptions } from '@ir-engine/engine/src/authoring/functions/useNodeOptions'
 import {
   InteractableComponent,
   XRUIActivationType
@@ -139,6 +139,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
       <div id={`callback-list`}>
         {interactableComponent.callbacks.map((callback, index) => {
           const targetOption = callbackQuery.find((o) => o.value === callback.target.value)
+          if (!targetOption) return null
           const target = targetOption ? targetOption.value : 'Self'
           return (
             <div key={'callback' + index} className="space-y-2">
@@ -147,7 +148,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
                   key={props.entity}
                   value={callback.target.value ?? 'Self'}
                   onChange={commitProperty(InteractableComponent, `callbacks.${index}.target` as any)}
-                  options={callbackQuery as CallbackOptionType[]}
+                  options={callbackQuery.filter((o) => o.value !== undefined)}
                   disabled={props.multiEdit}
                 />
               </InputGroup>

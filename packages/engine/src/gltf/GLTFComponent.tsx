@@ -495,7 +495,6 @@ const useGLTFDocument = (entity: Entity) => {
   useEffect(() => {
     if (dynamicLoadAndNotEditing) return
     if (!url) {
-      addError(entity, GLTFComponent, 'INVALID_SOURCE', 'Invalid URL')
       return
     }
 
@@ -505,6 +504,8 @@ const useGLTFDocument = (entity: Entity) => {
     const onError = (error: ErrorEvent) => {
       addError(entity, GLTFComponent, 'LOADING_ERROR', 'Error loading model')
     }
+
+    removeError(entity, GLTFComponent, 'LOADING_ERROR')
 
     loadGLTFFile(
       url,

@@ -247,8 +247,10 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
     if (!previewVideo) return
     previewVideo.currentTime = sourceVideo.currentTime
     if (!sourceVideo.paused) {
+      previewVideo.muted = true
       previewVideo.play()
     } else {
+      previewVideo.muted = false
       previewVideo.pause()
     }
   }, [media?.currentTrackTime, showVideoPreview])
