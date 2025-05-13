@@ -19,6 +19,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
+import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { useFind, useMutation } from '@ir-engine/common'
 import { config } from '@ir-engine/common/src/config'
 import { ModelTransformStatus, transformModel } from '@ir-engine/common/src/model/ModelTransformFunctions'
@@ -71,8 +72,7 @@ import { useTranslation } from 'react-i18next'
 import { HiOutlineInformationCircle } from 'react-icons/hi2'
 import { Quaternion, Vector3 } from 'three'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { deleteScene } from '../../../world/SceneAPI'
-import CompressedPublishConfirmation from './CompressedPublishConfirmation'
+import { CompressedPublishConfirmation, ProgressState } from './CompressedPublishConfirmation'
 
 function formatPublishedDate(isoString) {
   const date = new Date(isoString)
@@ -156,6 +156,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
     progress: 0,
     caption: ''
   })
+  const progressState = useHookstate(getMutableState(ProgressState).progress)
   const lods = useHookstate<LODVariantDescriptor[]>([])
   useEffect(() => {
     if (location) {
