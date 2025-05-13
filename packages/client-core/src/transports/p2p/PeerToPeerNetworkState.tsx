@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -66,6 +66,7 @@ import {
   WebRTCTransportFunctions
 } from '@ir-engine/network/src/webrtc/WebRTCTransportFunctions'
 import React, { Suspense, useEffect } from 'react'
+import { CloudflareSignalingNetworkState } from './CloudflareSignalingNetworkState'
 
 type InstanceType = {
   id: InstanceID
@@ -107,7 +108,14 @@ export const PeerToPeerNetworkState = defineState({
 
 const ConnectionReactor = (props: { instanceID: InstanceID; topic: Topic }) => {
   const instanceID = props.instanceID
-  const joinResponse = useHookstate<null | { index: number; iceServers: IceServer[] }>(null)
+  const joinResponse = useHookstate<null | {
+    index: number
+    iceServers: IceServer[]
+    cloudflareSignaling?: {
+      enabled: boolean
+      workerUrl: string
+    }
+  }>(null)
 
   useEffect(() => {
     const abortController = new AbortController()
@@ -132,6 +140,23 @@ const ConnectionReactor = (props: { instanceID: InstanceID; topic: Topic }) => {
   useEffect(() => {
     if (!joinResponse.value) return
 
+    // Check if we should use Cloudflare signaling
+    if (joinResponse.value.cloudflareSignaling?.enabled) {
+      // Use Cloudflare signaling instead of the default P2P signaling
+      CloudflareSignalingNetworkState.connectToCloudflareInstance({
+        id: instanceID,
+        locationId: props.topic === NetworkTopics.world ? (instanceID as LocationID) : undefined,
+        channelId: props.topic === NetworkTopics.media ? (instanceID as ChannelID) : undefined,
+        workerUrl: joinResponse.value.cloudflareSignaling.workerUrl
+      })
+
+      return () => {
+        // This will be called when the component unmounts
+        // The CloudflareSignalingNetworkState will handle cleanup
+      }
+    }
+
+    // If not using Cloudflare signaling, continue with the regular P2P signaling
     const topic = props.topic
 
     getMutableState(NetworkState).hostIds[topic].set(instanceID)
@@ -174,6 +199,12 @@ const ConnectionReactor = (props: { instanceID: InstanceID; topic: Topic }) => {
   }, [joinResponse])
 
   if (!joinResponse.value) return null
+
+  // If using Cloudflare signaling, don't render the PeersReactor
+  // as CloudflareSignalingNetworkState will handle peer connections
+  if (joinResponse.value.cloudflareSignaling?.enabled) {
+    return null
+  }
 
   return <PeersReactor instanceID={props.instanceID} />
 }

@@ -1,0 +1,11 @@
+name = "ir-engine-signaling"
+main = "cloudflare-worker.js"
+compatibility_date = "2023-05-18"
+
+[[r2_buckets]]
+binding = "SIGNALING_BUCKET"
+bucket_name = "ir-engine-signaling"
+
+[vars]
+ALLOWED_ORIGINS = ""
+ORIGIN_QUOTA = "10000"

@@ -1,0 +1,8 @@
+{
+  "server": {
+    "cloudflareSignaling": {
+      "enabled": false,
+      "workerUrl": "https://ir-engine-signaling.workers.dev"
+    }
+  }
+}

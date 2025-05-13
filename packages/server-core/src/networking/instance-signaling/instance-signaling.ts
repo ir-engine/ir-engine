@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -50,6 +50,7 @@ import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { PeerID, getState } from '@ir-engine/hyperflux'
 import type { MessageTypes } from '@ir-engine/network/src/webrtc/WebRTCTransportFunctions'
+import config from '@ir-engine/server-core/src/appconfig'
 import crypto from 'crypto'
 import { Application } from '../../../declarations'
 import { ServerMode, ServerState } from '../../ServerState'
@@ -58,6 +59,7 @@ const logger = multiLogger.child({ component: 'instance-signaling' })
 
 type InstanceSignalingDataType = {
   instanceID: InstanceID
+  useCloudflareSignaling?: boolean
 }
 
 type SignalData = {
@@ -67,6 +69,11 @@ type SignalData = {
   message: MessageTypes
 }
 
+type CloudflareSignalingConfig = {
+  enabled: boolean
+  workerUrl: string
+}
+
 declare module '@ir-engine/common/declarations' {
   interface ServiceTypes {
     [instanceSignalingPath]: {
@@ -74,6 +81,20 @@ declare module '@ir-engine/common/declarations' {
       get: (data: InstanceSignalingDataType, params?: Params) => Promise<void>
       patch: (id: null, data: Omit<SignalData, 'fromPeerID'>, params?: Params) => Promise<InstanceSignalingDataType>
     }
+  }
+}
+
+// Get Cloudflare signaling configuration from environment or config
+const getCloudflareSignalingConfig = (): CloudflareSignalingConfig => {
+  return {
+    enabled:
+      process.env.CLOUDFLARE_SIGNALING_ENABLED === 'true' ||
+      config.server?.cloudflareSignaling?.enabled === true ||
+      false,
+    workerUrl:
+      process.env.CLOUDFLARE_SIGNALING_WORKER_URL ||
+      config.server?.cloudflareSignaling?.workerUrl ||
+      'https://ir-engine-signaling.workers.dev'
   }
 }
 
@@ -181,9 +202,19 @@ const peerJoin = async (app: Application, data: InstanceSignalingDataType, param
     })
   }
 
+  // Check if Cloudflare signaling should be used
+  const cloudflareConfig = getCloudflareSignalingConfig()
+  const useCloudflareSignaling = data.useCloudflareSignaling !== false && cloudflareConfig.enabled
+
   return {
     iceServers: iceServers as RTCIceServer[],
-    index: newInstanceAttendanceResult.peerIndex
+    index: newInstanceAttendanceResult.peerIndex,
+    cloudflareSignaling: useCloudflareSignaling
+      ? {
+          enabled: true,
+          workerUrl: cloudflareConfig.workerUrl
+        }
+      : undefined
   }
 }
 
@@ -234,6 +265,36 @@ export default (app: Application): void => {
       if (!peerID) throw new BadRequest('peerID required')
       if (!targetPeerID) throw new BadRequest('targetPeerID required')
       if (!instanceId) throw new BadRequest('instanceID required')
+
+      // Check if this is a WebRTC signaling message that should be handled by Cloudflare
+      const cloudflareConfig = getCloudflareSignalingConfig()
+      if (cloudflareConfig.enabled && data.message) {
+        const messageType = data.message.type
+        // These message types should be handled by Cloudflare signaling
+        // and not sent through the instance-signaling API
+        const cloudflareMessageTypes = [
+          'poll',
+          'description',
+          'candidate',
+          'start-track',
+          'stop-track',
+          'pause-track',
+          'video-quality'
+        ]
+
+        if (cloudflareMessageTypes.includes(messageType)) {
+          logger.debug(
+            `Ignoring WebRTC signaling message of type ${messageType} - should be handled by Cloudflare worker`
+          )
+          // Return a minimal response to avoid errors on the client
+          return {
+            instanceID: instanceId,
+            targetPeerID,
+            fromPeerID: peerID,
+            message: data.message
+          }
+        }
+      }
 
       /** @todo see if we need to actually verify data */
       // const [instanceAttendance, instance, targetInstanceAttendance] = await Promise.all([
