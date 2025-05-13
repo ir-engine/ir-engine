@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   Entity,
   entityExists,
-  getAuthoringCounterpart,
   getTreeFromChildToAncestor,
   hasComponent,
   removeComponent,
@@ -65,15 +64,9 @@ export function useApplyCollidersToChildMeshesEffect(entity: Entity) {
   const rigidbodyEntity = useAncestorWithComponents(entity, [RigidBodyComponent])
   const rigidbodyComponent = useOptionalComponent(rigidbodyEntity, RigidBodyComponent)
   const component = useComponent(entity, GLTFComponent)
-  const loaded = GLTFComponent.useSceneLoaded(getAuthoringCounterpart(entity))
 
   useLayoutEffect(() => {
-    if (
-      !loaded ||
-      !rigidbodyComponent?.initialized?.value ||
-      !physicsWorld ||
-      !physicsWorld.Rigidbodies.has(rigidbodyEntity)
-    )
+    if (!rigidbodyComponent?.initialized?.value || !physicsWorld || !physicsWorld.Rigidbodies.has(rigidbodyEntity))
       return
     forceUpdateMatrices(entity)
 
@@ -104,7 +97,6 @@ export function useApplyCollidersToChildMeshesEffect(entity: Entity) {
     !!rigidbodyComponent?.initialized?.value,
     component.applyColliders.value,
     // Work around, remove JSON.stringify after useChildrenWithComponents has been updated to return a reactive array again
-    JSON.stringify(childMeshEntities),
-    loaded
+    JSON.stringify(childMeshEntities)
   ])
 }
