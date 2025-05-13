@@ -100,7 +100,6 @@ function toValidHierarchyNodeName(entity: Entity, name: string): string {
 
 export default React.memo(function HierarchyTreeNode(props: ListChildComponentProps<undefined>) {
   const showGlbChildrenFeatureFlag = useMutableState(EditorHelperState).showGlbChildren.value
-
   const { t } = useTranslation()
   const nodes = useHierarchyNodes()
   const node = nodes[props.index]
@@ -359,6 +358,8 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   useEffect(() => {
     if (isModified) {
       checkIfUserCanSaveNodeChanges()
+    } else {
+      canSaveNodeChanges.set(false)
     }
   }, [isModified])
 
@@ -423,17 +424,22 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
           setMenu(event, entity)
         }}
         className={twMerge(
-          'inline-flex h-full min-w-full justify-between bg-inherit',
+          'flex w-full flex-col justify-between overflow-hidden bg-inherit',
           rootEntity === entity ? 'px-2' : 'pl-10 pr-2'
         )}
       >
         <div
-          className={twMerge('h-1', isOverBefore && canDropBefore && 'bg-white')}
-          style={{ marginLeft: `${node.depth * 0.75}rem` }}
+          className={twMerge('h-1', isOverBefore && canDropBefore && `bg-ui-hover-primary`)}
           ref={beforeDropTarget}
         />
-
-        <div className="flex w-full items-center justify-between gap-x-2 bg-inherit pr-2" ref={onDropTarget}>
+        <div
+          className={twMerge(
+            'flex w-full items-center justify-between gap-x-2 bg-inherit pr-2',
+            rootEntity === entity ? 'p-2' : 'py-1 pl-10 pr-2'
+          )}
+          style={{ marginLeft: `${node.depth * 0.75}rem` }}
+          ref={onDropTarget}
+        >
           {node.isLeaf ? (
             <div className="w-5 shrink-0" />
           ) : (
@@ -528,7 +534,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
               onClick={onLockUnlockNode}
             >
               {locked ? (
-                <PiLockBold className="font-small text-[#6B7280]" />
+                <PiLockBold className="font-small text-ui-primary" />
               ) : (
                 <PiLockOpenBold className="font-small text-[#42454d]" />
               )}

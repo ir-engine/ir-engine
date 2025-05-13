@@ -185,6 +185,8 @@ const TriggerProperties: EditorComponentType = (props) => {
                   onChange={commitProperty(TriggerCallbackComponent, `triggers.${index}.onEnter` as any)}
                   options={targetOption?.callbacks ? targetOption.callbacks.slice() : []}
                   disabled={props.multiEdit || !target}
+                  showClearButton
+                  width="full"
                 />
               ) : (
                 <StringInput
@@ -192,6 +194,7 @@ const TriggerProperties: EditorComponentType = (props) => {
                   onChange={updateProperty(TriggerCallbackComponent, `triggers.${index}.onEnter` as any)}
                   onRelease={commitProperty(TriggerCallbackComponent, `triggers.${index}.onEnter` as any)}
                   disabled={props.multiEdit || !target}
+                  fullWidth
                 />
               )}
             </InputGroup>
@@ -211,6 +214,8 @@ const TriggerProperties: EditorComponentType = (props) => {
                   onChange={commitProperty(TriggerCallbackComponent, `triggers.${index}.onExit` as any)}
                   options={targetOption?.callbacks ? targetOption.callbacks.slice() : []}
                   disabled={props.multiEdit || !target}
+                  showClearButton
+                  width="full"
                 />
               ) : (
                 <StringInput
@@ -218,6 +223,7 @@ const TriggerProperties: EditorComponentType = (props) => {
                   onRelease={updateProperty(TriggerCallbackComponent, `triggers.${index}.onExit` as any)}
                   onChange={commitProperty(TriggerCallbackComponent, `triggers.${index}.onExit` as any)}
                   disabled={props.multiEdit || !target}
+                  fullWidth
                 />
               )}
             </InputGroup>

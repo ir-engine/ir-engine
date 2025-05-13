@@ -52,6 +52,7 @@ export enum AssetExt {
   KTX2 = 'ktx2',
   DDS = 'dds',
   WEBP = 'webp',
+  GIF = 'gif',
 
   MP4 = 'mp4',
   AVI = 'avi',
@@ -90,6 +91,7 @@ export const AssetExtToAssetType = (assetExt: AssetExt | undefined): AssetType =
     case AssetExt.JPEG:
     case AssetExt.TGA:
     case AssetExt.KTX2:
+    case AssetExt.GIF:
     case AssetExt.DDS:
       return AssetType.Image
 

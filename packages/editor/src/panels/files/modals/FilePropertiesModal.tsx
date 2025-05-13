@@ -185,11 +185,12 @@ export default function FilePropertiesModal() {
   const author = useHookstate<UserType | null>(null)
 
   const handleAddTag = () => {
-    if (tagInput.value != '' && !resourceDigest.tags.value!.includes(tagInput.value)) {
+    const trimmedTagInput = tagInput.value.trim()
+    if (trimmedTagInput != '' && !resourceDigest.tags.value!.includes(trimmedTagInput)) {
       if (!modifiedFields.value.includes('tags')) {
         modifiedFields.set([...modifiedFields.value, 'tags'])
       }
-      resourceDigest.tags.set([...resourceDigest.tags.value!, tagInput.value])
+      resourceDigest.tags.set([...resourceDigest.tags.value!, trimmedTagInput])
     }
     tagInput.set('')
   }

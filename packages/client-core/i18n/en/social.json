@@ -1,14 +1,14 @@
 {
   "addComment": "Add Comment...",
   "share": "Share",
-  "suggestions": "Suggestions For You",
+  "suggestions": "Suggestions for You",
   "seeAll": "See All",
   "likes": "Likes",
-  "viewComments": "View all {{count}} comments",
+  "viewComments": "View All {{count}} Comments",
   "more": "more",
   "username": "username",
   "fullName": "Name Surname",
-  "reportInApporpriate": "Report Inappropriate",
+  "reportInApporpriate": "Report as Inappropriate",
   "unfollow": "Unfollow",
   "goToPost": "Go to Post",
   "shareModal": "Share",
@@ -22,11 +22,11 @@
   "follow": "Follow",
   "flames": "Flames",
   "continue": "Continue",
-  "partyInvitationSent": "Party invitation sent",
-  "selfLeftParty": "You have left the party",
-  "otherLeftParty": " has left the party",
-  "selfJoinedParty": "You have joined a party",
-  "otherJoinedParty": " has joined the party",
+  "partyInvitationSent": "Party Invitation Sent",
+  "selfLeftParty": "You have left the Party",
+  "otherLeftParty": " has left the Party",
+  "selfJoinedParty": "You have joined a Party",
+  "otherJoinedParty": " has joined the Party",
   "arMedia": {
     "back": "Back",
     "clip": "Clip",
@@ -41,9 +41,9 @@
     "scene": "Scene",
     "save": "Save",
     "manifest-file": "Manifest .manifest file",
-    "audio-file": "Mp4 file",
+    "audio-file": "MP4 File",
     "dracosis-file": "Dracosis .uvol file",
-    "preview-file": "Preview image file"
+    "preview-file": "Preview Image File"
   },
   "creator": {
     "myVideos": "My Videos",
@@ -51,7 +51,7 @@
     "back": "Back",
     "blocked-list": "Blocked List",
     "block-user": "Block User",
-    "dialog-content": "You will not see the user's profile and content"
+    "dialog-content": "You will no longer see this user's profile or content"
   },
   "creatorForm": {
     "back": "Back",
@@ -80,12 +80,12 @@
     "creator": "Creator"
   },
   "featured": {
-    "empty-list": "No feeds for now ..."
+    "empty-list": "No feeds available for now..."
   },
   "feed": {
     "back": "Back",
     "related": "Related feeds",
-    "is-repoted-message": "Feed is reported!"
+    "is-repoted-message": "This feed has been reported!"
   },
   "feedForm": {
     "back": "Back",
@@ -94,12 +94,12 @@
     "upload": "Upload Video",
     "ph-selectVideo": "Select Video",
     "preview": "Preview image",
-    "ph-selectPreview": "Select preview",
-    "createFeed": "In order to create a feed you must have a video and a preview image!!!",
+    "ph-selectPreview": "Select Preview",
+    "createFeed": "To create a feed, you must include a video and a preview image!",
     "ph-videoName": "The name of your video",
-    "ph-type": "Type what you want to share with the community ... ",
+    "ph-type": "Type what you want to share with the community...",
     "lbl-share": "Share",
-    "save": "Save and go Next"
+    "save": "Save and Go to Next"
   },
   "feedMenu": {
     "featured": "Featured",
@@ -123,7 +123,7 @@
   "notification": {
     "feedFire": " fired your feed",
     "feedBookmarked": " bookmarked your feed",
-    "comment": " commented your feed:",
+    "comment": " commented on your feed:",
     "commentFire": " fired your comment to feed",
     "follow": " started following you",
     "unfollow": " stopped following you",
@@ -132,10 +132,10 @@
   },
   "onBoarding": {
     "welcome": "Welcome!",
-    "description": "Biggest collection of 370+ layouts for iOS prototyping.",
+    "description": "The largest collection of 370+ layouts for iOS prototyping.",
     "next": "Next",
     "discover": "Discover articles,",
-    "news": "news & posts",
+    "news": "news and posts",
     "lines": "It is those feelings that drive our love of astronomy and our desire.",
     "getStarted": "Get Started",
     "meetUp": "Meet up with",
@@ -171,7 +171,7 @@
     "verticalMode": "Vertical mode has a 30 sec record time",
     "horizontalMode": "Horizontal mode has an unlimited record time",
     "start": "Start",
-    "not-show": "Do not show it again",
+    "not-show": "Do not show this again",
     "welcome": "Welcome to ARC!  Make personal videos with one of our holograms and post it to your social media channels!",
     "step": "STEP {{step}}",
     "text-step-1": "Choose a hologram from the library.",
@@ -179,8 +179,8 @@
     "text-step-3-part-1": "Tap screen once on location where you want the hologram anchored.",
     "text-step-3-part-2": "TIP!  Tap once elsewhere to move the hologram to another position.",
     "text-step-3-part-3": "TIP!  You can resize the hologram by pinching or expanding the screen with your thumb and index finger.",
-    "text-step-4-part-1": "Double tap red record button to START your video recording.",
-    "text-step-4-part-2": "Double tap red record button to STOP."
+    "text-step-4-part-1": "Double-tap the red record button to START your video recording.",
+    "text-step-4-part-2": "Double-tap the red record button to STOP."
   },
   "video": {
     "back": "Back"
