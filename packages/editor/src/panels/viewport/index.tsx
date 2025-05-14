@@ -38,6 +38,8 @@ import { ResourcePendingComponent } from '@ir-engine/engine/src/gltf/ResourcePen
 import { ErrorBoundary, getState, useMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
+import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
+import { DotsVerticalMd } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { TabData } from 'rc-dock'
@@ -61,6 +63,20 @@ import TransformGizmoTool from './tools/TransformGizmoTool'
 import TransformPivotTool from './tools/TransformPivotTool'
 import TransformSnapTool from './tools/TransformSnapTool'
 import TransformSpaceTool from './tools/TransformSpaceTool'
+
+const useIntersectionObserver = (ref, handleIntersection, handleObserve, options = {}) => {
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(handleIntersection, {
+      root: ref.current,
+      threshold: 1,
+      ...options
+    })
+
+    handleObserve(observer)
+
+    return () => observer.disconnect()
+  }, [ref.current, options])
+}
 
 const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
   const projectName = useMutableState(EditorState).projectName
@@ -156,21 +172,113 @@ function ViewportContainer() {
 
   const ref = React.useRef<HTMLDivElement>(null)
   const toolbarRef = React.useRef<HTMLDivElement>(null)
+  const itemsRef = React.useRef<HTMLDivElement>(null)
 
   const [transformPivotFeatureFlag] = useFeatureFlags([FeatureFlags.Studio.UI.TransformPivot])
+
+  const items = [
+    <TransformSpaceTool />,
+    transformPivotFeatureFlag && <TransformPivotTool />,
+    <GridTool />,
+    <TransformSnapTool />,
+    <SceneHelpersTool />,
+    <div className="flex-1" />,
+    <RenderModeTool />,
+    <PlayModeTool />
+  ]
+
+  const initialVisibleBarItems: boolean[] = items.map((element, index) => {
+    return true
+  })
+  const [visibleBarItems, setVisibleBarItems] = React.useState(initialVisibleBarItems)
+  const visibleMenuItems = React.useMemo(() => {
+    return items.map((element, index) => {
+      return !visibleBarItems[index]
+    })
+  }, [visibleBarItems])
+
+  const getItemsWithVisibility = (visibleItems, key) => {
+    return items.map((element, index) => {
+      const visible = visibleItems[index]
+
+      return (
+        <div
+          key={key + index}
+          className={twMerge(visible ? 'visible' : 'collapse', 'inline-flex')}
+          data-targetId={index}
+        >
+          {element}
+        </div>
+      )
+    })
+  }
+
+  const getItemsWithRender = (visibleItems, key) => {
+    return items
+      .map((element, index) => {
+        return (
+          <div key={key + index} data-targetId={index}>
+            {element}
+          </div>
+        )
+      })
+      .filter((element, index) => visibleItems[index])
+  }
+
+  const barItems = getItemsWithVisibility(visibleBarItems, 'bar')
+  const menuItems = getItemsWithRender(visibleMenuItems, 'menu')
+
+  const handleIntersection = (entries) => {
+    entries.map(({ target, isIntersecting }) => {
+      const targetid = target.dataset.targetid
+
+      setVisibleBarItems((current) => {
+        const next = [...current]
+
+        next[targetid] = isIntersecting
+
+        return next
+      })
+    })
+  }
+
+  const handleObserve = (observer) => {
+    if (!itemsRef.current) {
+      return
+    }
+
+    Array.from(itemsRef.current.children).map((element) => {
+      observer.observe(element)
+    })
+  }
+
+  useIntersectionObserver(itemsRef, handleIntersection, handleObserve, {
+    threshold: 0.8
+  })
 
   return (
     <ViewportDnD>
       <div className="relative z-30 flex h-full w-full flex-col">
-        <div ref={toolbarRef} className="z-30 flex gap-1 bg-surface-4 px-1 py-1">
-          <TransformSpaceTool />
-          {transformPivotFeatureFlag && <TransformPivotTool />}
-          <GridTool />
-          <TransformSnapTool />
-          <SceneHelpersTool />
-          <div className="flex-1" />
-          <RenderModeTool />
-          <PlayModeTool />
+        <div ref={toolbarRef} className="relative z-20 bg-surface-4 px-1 py-1 pr-7">
+          <div ref={itemsRef} className="flex gap-1">
+            {barItems}
+          </div>
+          {!!menuItems.length && (
+            <div className="absolute bottom-0 right-0 top-0 inline-grid">
+              <Popup
+                keepInside
+                trigger={
+                  <button className="relative flex h-full items-center border-none bg-surface-4 px-2 text-text-secondary outline-none">
+                    <div className="">
+                      <DotsVerticalMd />
+                    </div>
+                  </button>
+                }
+              >
+                <div className="inline-grid items-start gap-y-2 rounded-xl bg-surface-2 px-4 py-5">{menuItems}</div>
+              </Popup>
+            </div>
+          )}
         </div>
         {sceneName.value ? <SelectionBox viewportRef={ref} toolbarRef={toolbarRef} /> : null}
         {sceneName.value ? <TransformGizmoTool /> : null}
