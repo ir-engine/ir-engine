@@ -26,10 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   createEntity,
   defineSystem,
+  destroySystem,
   ECSState,
   EntityTreeComponent,
   getComponent,
   setComponent,
+  SystemDefinitions,
   UndefinedEntity
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
@@ -64,8 +66,16 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
-  render: (args) => {
+  render: (args, { globals }) => {
     const [open, setOpen] = useState(false)
+    useEffect(() => {
+      if (globals.IR_Engine) {
+        if (SystemDefinitions.get('ir.minimalist.UpdateSystem' as any)) {
+          destroySystem('ir.minimalist.UpdateSystem' as any)
+        }
+        mountSystem()
+      }
+    }, [])
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-transparent bg-center">
         <button
@@ -87,44 +97,46 @@ const SceneState = defineState({
   }
 })
 
-const UpdateSystem = defineSystem({
-  uuid: 'ir.minimalist.UpdateSystem',
-  insert: { before: TransformSystem },
-  execute: () => {
-    const entity = getState(SceneState).entity
-    if (!entity) return
+const mountSystem = () => {
+  const UpdateSystem = defineSystem({
+    uuid: 'ir.minimalist.UpdateSystem',
+    insert: { before: TransformSystem },
+    execute: () => {
+      const entity = getState(SceneState).entity
+      if (!entity) return
 
-    const elapsedSeconds = getState(ECSState).elapsedSeconds
-    const transformComponent = getComponent(entity, TransformComponent)
-    transformComponent.rotation.setFromAxisAngle(Vector3_Up, elapsedSeconds)
-  },
-  reactor: function () {
-    const { originEntity, viewerEntity } = useMutableState(ReferenceSpaceState).value
+      const elapsedSeconds = getState(ECSState).elapsedSeconds
+      const transformComponent = getComponent(entity, TransformComponent)
+      transformComponent.rotation.setFromAxisAngle(Vector3_Up, elapsedSeconds)
+    },
+    reactor: function () {
+      const { originEntity, viewerEntity } = useMutableState(ReferenceSpaceState).value
 
-    useEffect(() => {
-      if (!viewerEntity) return
+      useEffect(() => {
+        if (!viewerEntity) return
 
-      // Create a new entity
-      const entity = createEntity()
-      setComponent(entity, TransformComponent, { position: new Vector3(0, 0, 0) })
-      setComponent(entity, EntityTreeComponent, { parentEntity: originEntity })
+        // Create a new entity
+        const entity = createEntity()
+        setComponent(entity, TransformComponent, { position: new Vector3(0, 0, 0) })
+        setComponent(entity, EntityTreeComponent, { parentEntity: originEntity })
 
-      // Create a box at the origin
-      const mesh = new Mesh(new BoxGeometry(1, 1, 1), new MeshBasicMaterial({ color: 0x00ff00 }))
-      setComponent(entity, MeshComponent, mesh)
-      setComponent(entity, NameComponent, 'Box')
-      setComponent(entity, VisibleComponent)
+        // Create a box at the origin
+        const mesh = new Mesh(new BoxGeometry(1, 1, 1), new MeshBasicMaterial({ color: 0x00ff00 }))
+        setComponent(entity, MeshComponent, mesh)
+        setComponent(entity, NameComponent, 'Box')
+        setComponent(entity, VisibleComponent)
 
-      // Make the camera look at the box
-      setComponent(viewerEntity, TransformComponent, { position: new Vector3(5, 2, 0) })
-      const cameraTransform = getComponent(viewerEntity, TransformComponent)
-      cameraTransform.rotation.setFromRotationMatrix(
-        new Matrix4().lookAt(cameraTransform.position, Vector3_Zero, Vector3_Up)
-      )
+        // Make the camera look at the box
+        setComponent(viewerEntity, TransformComponent, { position: new Vector3(5, 2, 0) })
+        const cameraTransform = getComponent(viewerEntity, TransformComponent)
+        cameraTransform.rotation.setFromRotationMatrix(
+          new Matrix4().lookAt(cameraTransform.position, Vector3_Zero, Vector3_Up)
+        )
 
-      getMutableState(SceneState).entity.set(entity)
-    }, [viewerEntity])
+        getMutableState(SceneState).entity.set(entity)
+      }, [viewerEntity])
 
-    return null
-  }
-})
+      return null
+    }
+  })
+}

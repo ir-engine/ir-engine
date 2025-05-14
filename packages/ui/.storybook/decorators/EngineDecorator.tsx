@@ -51,7 +51,6 @@ export default function EngineDecorator({ children }) {
 
   useEffect(() => {
     if (engineInitialized) return
-    console.log('engine initialized')
     ECS.createEngine()
     startTimer()
     setEngineInitialized(true)
@@ -60,8 +59,6 @@ export default function EngineDecorator({ children }) {
   useEffect(() => {
     if (!engineInitialized) return
     initializeSpatialEngine()
-
-    // return destroySpatialEngine
   }, [engineInitialized])
 
   useEffect(() => {
