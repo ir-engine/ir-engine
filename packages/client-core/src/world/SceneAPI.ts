@@ -71,7 +71,6 @@ export const cloneScene = async (
         newPath,
         oldName,
         newName,
-        unique: true,
         isCopy: true
       },
       params
