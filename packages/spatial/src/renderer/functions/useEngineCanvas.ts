@@ -27,7 +27,7 @@ import { getComponent, getOptionalMutableComponent, hasComponent } from '@ir-eng
 import { getState, none, useMutableState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { destroySpatialViewer, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { useEffect } from 'react'
 
 export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {

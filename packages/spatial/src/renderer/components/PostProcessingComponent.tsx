@@ -29,9 +29,9 @@ import { ErrorBoundary, getState, useMutableState } from '@ir-engine/hyperflux'
 import { EffectComposer } from 'postprocessing'
 import React, { Suspense } from 'react'
 import { Scene } from 'three'
-import { EffectSchema, RendererComponent } from '../WebGLRendererSystem'
 import { PostProcessingEffectState } from '../effects/EffectRegistry'
 import { useRendererEntity } from '../functions/useRendererEntity'
+import { EffectSchema, RendererComponent } from './RendererComponent'
 
 export const PostProcessingComponent = defineComponent({
   name: 'PostProcessingComponent',

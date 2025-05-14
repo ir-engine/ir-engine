@@ -24,8 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import { Engine, getComponent, getOptionalComponent, serializeComponent, setComponent } from '@ir-engine/ecs'
 import { it } from '@ir-engine/engine/src/scene/util/testUtil'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
 import {
   CubeReflectionMapping,

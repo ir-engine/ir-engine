@@ -46,6 +46,7 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { getMutableState, getState, UserID } from '@ir-engine/hyperflux'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { Box3, BoxGeometry, Mesh, Vector3 } from 'three'
 import { assertFloat } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
@@ -53,7 +54,6 @@ import { destroySpatialEngine, destroySpatialViewer } from '../../initializeEngi
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
-import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'

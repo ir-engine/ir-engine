@@ -30,11 +30,11 @@ import { getComponent, getOptionalComponent } from '@ir-engine/ecs/src/Component
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getState, useMutableState } from '@ir-engine/hyperflux'
 
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { useEffect } from 'react'
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { Vector3_One } from '../common/constants/MathConstants'
-import { RendererComponent } from '../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRRendererState } from './WebXRManager'
 import { ReferenceSpace, XRState } from './XRState'

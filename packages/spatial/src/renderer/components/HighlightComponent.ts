@@ -27,8 +27,9 @@ import { defineQuery, defineSystem, Engine, Entity } from '@ir-engine/ecs'
 import { defineComponent, getComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
 import { OutlineEffect } from 'postprocessing'
-import { RendererComponent, WebGLRendererSystem } from '../WebGLRendererSystem'
+import { WebGLRendererSystem } from '../WebGLRendererSystem'
 import { MeshComponent } from './MeshComponent'
+import { RendererComponent } from './RendererComponent'
 import { VisibleComponent } from './VisibleComponent'
 
 export const HighlightComponent = defineComponent({ name: 'HighlightComponent' })

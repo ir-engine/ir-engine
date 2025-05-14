@@ -30,7 +30,7 @@ import { Entity, getComponent } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
 
 import { RendererState } from '../RendererState'
-import { RendererComponent } from '../WebGLRendererSystem'
+import { RendererComponent } from '../components/RendererComponent'
 import { RenderModes } from '../constants/RenderModes'
 
 /**

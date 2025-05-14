@@ -26,5 +26,5 @@
     "declaration": false,
     "types": ["@types/node"]
   },
-  "include": ["../../__global.d.ts", "./src", "./index.ts"]
+  "include": ["../../__global.d.ts", "./src", "./index.ts", "../projects/AidanCaruso/terrainGen/src/TerrainComponent.ts", "../projects/AidanCaruso/terrainGen/src/systems/TerrainSystem.tsx"]
 }

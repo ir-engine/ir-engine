@@ -30,7 +30,8 @@ import { defineState, getMutableState, getState, useHookstate } from '@ir-engine
 
 import { useEffect } from 'react'
 import { ResourceState, ResourceType } from '../resources/ResourceState'
-import { RendererComponent, WebGLRendererSystem } from './WebGLRendererSystem'
+import { RendererComponent } from './components/RendererComponent'
+import { WebGLRendererSystem } from './WebGLRendererSystem'
 
 export const RenderInfoState = defineState({
   name: 'RenderInfoState',

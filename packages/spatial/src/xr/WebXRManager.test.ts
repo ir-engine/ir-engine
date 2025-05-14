@@ -29,6 +29,7 @@ import { CustomWebXRPolyfill, XREmulatorHelper } from '../../tests/webxr/emulato
 
 import { ECSState, createEngine, destroyEngine, getComponent } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import {
   ClampToEdgeWrapping,
   DepthFormat,
@@ -48,7 +49,6 @@ import {
 } from 'three'
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { CameraComponent } from '../camera/components/CameraComponent'
-import { RendererComponent } from '../renderer/WebGLRendererSystem'
 import { WebXRManager, WebXRManagerFunctions, XRRendererState, createWebXRManager } from './WebXRManager'
 import { XRState } from './XRState'
 

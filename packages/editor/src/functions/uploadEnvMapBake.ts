@@ -38,13 +38,11 @@ import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvM
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import {
-  RendererComponent,
-  getNestedVisibleChildren,
-  getSceneParameters
-} from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
+import { getNestedVisibleChildren, getSceneParameters } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { EditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
 

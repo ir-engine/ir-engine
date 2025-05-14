@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { createEngine, createEntity, destroyEngine, Entity, EntityTreeComponent, setComponent } from '@ir-engine/ecs'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { Vector3 } from 'three'
 import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 import { createMockXRUI } from '../../../tests/util/MockXRUI'
@@ -31,7 +32,6 @@ import { assertFloat } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { destroySpatialEngine, destroySpatialViewer } from '../../initializeEngine'
 import { IntersectionData } from '../../input/functions/ClientInputHeuristics'
-import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { xruiInputHeuristic } from './XRUISystem'
 

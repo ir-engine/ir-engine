@@ -37,10 +37,10 @@ import { InputComponent } from './input/components/InputComponent'
 import { ReferenceSpaceState } from './ReferenceSpaceState'
 import { MeshComponent } from './renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from './renderer/components/ObjectLayerComponent'
+import { RendererComponent } from './renderer/components/RendererComponent'
 import { SceneComponent } from './renderer/components/SceneComponents'
 import { VisibleComponent } from './renderer/components/VisibleComponent'
 import { ObjectLayers } from './renderer/constants/ObjectLayers'
-import { RendererComponent } from './renderer/WebGLRendererSystem'
 import { TransformComponent } from './transform/components/TransformComponent'
 
 export const initializeSpatialViewer = (canvas?: HTMLCanvasElement) => {
