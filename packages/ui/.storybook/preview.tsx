@@ -24,11 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import MetaTags from '@ir-engine/client-core/src/common/components/MetaTags'
-import { ThemeState, useThemeProvider } from '@ir-engine/client-core/src/common/services/ThemeService'
 import { Description, Primary, Stories, Subtitle, Title } from '@storybook/addon-docs'
 import { Preview } from '@storybook/react'
 import { initialize, mswLoader } from 'msw-storybook-addon'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { I18nextProvider } from 'react-i18next'
@@ -38,12 +37,6 @@ import '../../client/src/themes/utilities.css'
 import i18n from './i18n'
 
 initialize()
-
-const ThemeProvider = () => {
-  useThemeProvider()
-  useEffect(() => ThemeState.setTheme('dark'), [])
-  return null
-}
 
 export const decorators = [
   (Story: any) => (
@@ -63,10 +56,19 @@ export const decorators = [
 ]
 
 const preview: Preview = {
+  decorators,
   globalTypes: {
-    eeEnabled: {
+    IR_Engine: {
       description: 'Infinite Reality Engine',
-      defaultValue: false
+      defaultValue: false,
+      toolbar: {
+        title: 'IR Engine',
+        icon: 'redux',
+        items: [
+          { value: true, title: 'Enabled' },
+          { value: false, title: 'Disabled' }
+        ]
+      }
     }
   },
   parameters: {

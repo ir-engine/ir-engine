@@ -46,24 +46,6 @@ import SettingsMenu from '.'
 import EngineDecorator from '../../../.storybook/decorators/EngineDecorator'
 import mockSceneData from '../../../.storybook/mocks/scene'
 
-// Define types for our mock data
-interface UserPreferences {
-  theme: string
-  notifications: boolean
-  spatialAudio: boolean
-  videoQuality: string
-  micVolume: number
-  audioVolume: number
-}
-
-interface WorldFeatures {
-  spatialAudio: boolean
-  videoChat: boolean
-  textChat: boolean
-  animations: boolean
-  vegetation: boolean
-}
-
 const meta = {
   title: 'UI/Settings Menu',
   component: SettingsMenu,
@@ -134,7 +116,6 @@ const UpdateSystem = defineSystem({
 
       // Create a new entity
       const entity = createEntity()
-      console.log({ entity })
       setComponent(entity, TransformComponent, { position: new Vector3(0, 0, 0) })
       setComponent(entity, EntityTreeComponent, { parentEntity: originEntity })
 
@@ -152,8 +133,6 @@ const UpdateSystem = defineSystem({
       )
 
       getMutableState(SceneState).entity.set(entity)
-
-      console.log('scene state set')
     }, [viewerEntity])
 
     return null
