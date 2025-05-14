@@ -52,7 +52,6 @@ import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbna
 import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/ModelTransform'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
@@ -123,7 +122,6 @@ type AddEditLocationModalProps = Readonly<{
 
 export default function AddEditLocationModal(props: AddEditLocationModalProps) {
   const { t } = useTranslation()
-  const compressionLoading = useHookstate(false)
   const locationID = useHookstate(props.location?.id || null)
   const params = {
     query: {
@@ -152,11 +150,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
   const audioEnabled = useHookstate<boolean>(location?.locationSetting.audioEnabled || true)
   const screenSharingEnabled = useHookstate<boolean>(location?.locationSetting.screenSharingEnabled || true)
   const locationType = useHookstate(location?.locationSetting.locationType || 'public')
-  const compressionProgress = useHookstate({
-    progress: 0,
-    caption: ''
-  })
-  const progressState = useHookstate(getMutableState(ProgressState).progress)
+  const progressState = useHookstate(getMutableState(ProgressState))
   const lods = useHookstate<LODVariantDescriptor[]>([])
   useEffect(() => {
     if (location) {
@@ -318,7 +312,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
           const lod = JSON.parse(JSON.stringify(defaultLOD)) as LODVariantDescriptor
           lod.params.dst = fileName + lod.suffix
           lod.params.modelFormat = srcURL.endsWith('.gltf') ? 'gltf' : srcURL.endsWith('.vrm') ? 'vrm' : 'glb'
-          lod.params.resourceUri = ''
+          ;(lod.params.resourceUri = ''), (lod.params.adaptiveSimplification = true)
           return lod
         })
         lods.set(defaults)
@@ -327,8 +321,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
         const lodVariantParams: ModelTransformParameters[] = fileLODs.map((lod) => ({
           ...lod.params
         }))
-        compressionLoading.set(true)
-        compressionProgress.set({
+        progressState.set({
           progress: 0,
           caption: 'start compression'
         })
@@ -344,13 +337,12 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
               numerator: numerator! + 1,
               denominator
             })
-            compressionProgress.set({ progress, caption })
+            progressState.set({ progress, caption })
           }
         )
 
         const compressedFilePath = srcURL.replace(/\.[^.]*$/, `-LOD2.gltf`)
         //update src from combined mesh to compressed mesh
-        compressionLoading.set(false)
         EditorControlFunctions.modifyProperty([combinedMeshEntity], GLTFComponent, { src: compressedFilePath })
 
         //save duplicated scene and publish that
@@ -362,13 +354,17 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
           true,
           saveScenePath.value + '/' + scenename
         )
+        throw new Error('test')
         await handlePublish(true)
         //re-open the original scene
         const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${scenePath}`
         window.open(studioUrl, '_blank')?.focus()
         ModalState.closeModal()
+        progressState.set({ progress: 0, caption: '' })
       }
     } catch (error) {
+      console.log
+      progressState.set({ progress: 0, caption: '' })
       ModalState.closeModal()
       ModalState.openModal(
         <ErrorDialog title={t('editor:savingError')} description={error?.message || t('editor:savingErrorMsg')} />
@@ -376,15 +372,15 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
 
       if (combinedMeshEntity) removeEntity(combinedMeshEntity)
 
-      getMutableState(AssetModifiedState).set({})
-      if (saveScenePath.value) {
-        getMutableState(EditorState).merge({
-          scenePath: `${saveScenePath.value}/${sceneName!.replace('.gltf', '')}/${sceneName!.replace(
-            '.gltf',
-            '-compressed.gltf'
-          )}`
-        })
-      }
+      // getMutableState(AssetModifiedState).set({})
+      // if (saveScenePath.value) {
+      //   getMutableState(EditorState).merge({
+      //     scenePath: `${saveScenePath.value}/${sceneName!.replace('.gltf', '')}/${sceneName!.replace(
+      //       '.gltf',
+      //       '-compressed.gltf'
+      //     )}`
+      //   })
+      // }
       // set timeout to allow EditorState to update for the compressed scene
       setTimeout(() => {
         getMutableState(EditorState).merge({
@@ -655,21 +651,6 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
             </Button>
           </div>
         </div>
-      </div>
-      <div className="flex justify-end justify-items-stretch px-8">
-        {compressionLoading.value ? (
-          <div className="flex w-full flex-col">
-            <div className="h-4 w-full overflow-hidden rounded bg-white">
-              <div
-                className="bg-blue-primary h-4 w-full origin-left transition-transform"
-                style={{
-                  transform: `scaleX(${compressionProgress.progress.value})`
-                }}
-              />
-            </div>
-            {compressionProgress.caption.value}
-          </div>
-        ) : null}
       </div>
 
       <ContextMenu
