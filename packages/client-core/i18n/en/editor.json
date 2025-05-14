@@ -144,6 +144,9 @@
     "transformSpace": {
       "description": "Sets your transform control to be oriented to the object (selection) or World",
       "lbl-world": "World",
+      "lbl-space": "Space",
+      "lbl-global": "[Z] Global",
+      "lbl-local": "[Z] Local",
       "info-world": "World Space relates to the entire Scene's orientation",
       "lbl-selection": "Object",
       "info-selection": "Object Space (your selection) relates to transforms made to a specific object in relation to the World Space.",
@@ -151,20 +154,27 @@
     },
     "transformPivot": {
       "toggleTransformPivot": "[X] Toggle Transform Pivot",
-      "lbl-selection": "Selection",
-      "info-selection": "The center pivot of the first entity you selected in the sequence.",
-      "lbl-center": "Center",
+      "lbl-pivot": "Pivot",
+      "lbl-singleOrigin": "Single Origin",
+      "info-singleOrigin": "The center pivot of the first entity you selected in the sequence.",
+      "lbl-center": "Bounding Box Center",
       "info-center": "A pivot that uses the center point of a bounding box containing all selected entities' positions.",
-      "lbl-bottom": "Bottom",
-      "info-bottom": "A pivot that sits at the center of the bottom face of a bounding box containing all selected entities' positions.",
-      "lbl-origin": "Origin",
-      "info-origin": "Sets the pivot mode to the world origin (0,0,0)."
+      "lbl-floor": "Bounding Box Floor Center",
+      "info-floor": "A pivot that sits at the center of the bottom face of a bounding box containing all selected entities' positions.",
+      "lbl-worldOrigin": "World Origin",
+      "info-worldOrigin": "Sets the pivot mode to the world origin (0,0,0)."
     },
     "transformSnapTool": {
+      "lbl-snaps": "Snaps",
+      "info-snaps": "Move, Scale, and Rotate snapping with adjustable increments",
+      "lbl-translate": "Translate",
+      "info-translate": "Snap translation size (meters)",
+      "lbl-scale": "Scale",
+      "info-scale": "Snap scale size",
+      "lbl-rotate": "Rotate",
+      "info-rotate": "Snap rotation angle",
       "toggleBBoxSnap": "[B] Toggle Bounding Box Snap",
-      "toggleSnapMode": "[C] Toggle Grid Snap",
-      "info-translate": "Grid and translation snap size (meters).",
-      "info-rotate": "Snap rotation angle"
+      "toggleSnapMode": "[C] Toggle Grid Snap"
     },
     "placement": {
       "click": "Point & Click Placement",
@@ -197,6 +207,7 @@
       "info-usePostProcessing": "Enables Post Processing",
       "lbl-shadowMapResolution": "Shadow Map Resolution",
       "info-shadowMapResolution": "Set Shadow Map resolution",
+      "lbl-shadows": "Shadows",
       "lbl-renderMode": "Render Mode",
       "info-renderMode": "Choose Render Mode"
     },
@@ -212,14 +223,18 @@
       "info": "Show stats about the Scene and provide an overview of how optimized your Scene is."
     },
     "helpersToggle": {
-      "lbl-helpers": "Toggle Helpers",
+      "lbl-helpers": "Helpers",
       "info-helpers": "View hidden information about your Scene, e.g., colliders.",
       "lbl-nodeHelpers": "Toggle Node Helpers",
       "info-nodeHelpers": "Helper geometry that helps components have visibility in the scene when inactive.",
       "lbl-nodeIcons": "Toggle Node Icons",
       "lbl-nodeVolume": "Toggle Node Volume",
-      "info-nodeVolume": "Helper geometry that helps visualize bounding box of assets in the scene"
-
+      "info-nodeVolume": "Helper geometry that helps visualize bounding box of assets in the scene",
+      "lbl-helperIcons": "Helpers Icons",
+      "lbl-helperVolumes": "Helpers Volumes",
+      "info-helperVolumes": "Helper geometry that helps components have visibility in the Scene when inactive.",
+      "lbl-axisHelpers": "Axis Helpers",
+      "lbl-directManipulation": "Direct Manipulation"
     },
     "sceneScreenshot": {
       "lbl": "Screenshot",
