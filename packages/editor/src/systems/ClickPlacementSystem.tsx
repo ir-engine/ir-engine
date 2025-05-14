@@ -65,7 +65,7 @@ let placedCount = 0
 
 type AssetTag = string
 
-interface AssetMetadataType {
+export interface AssetMetadataType {
   thumbnail: string
   name: string
   type: string

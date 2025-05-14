@@ -29,7 +29,7 @@ import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/edi
 import { TabData } from 'rc-dock'
 import React, { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
-import InspectorEditor from './inspectoreditor'
+import InspectorPanel from './inspectoreditor'
 
 const InspectorPanelTitle = () => {
   const { t } = useTranslation()
@@ -53,7 +53,7 @@ export const InspectorPanelTab: TabData = {
   content: (
     <ErrorBoundary fallback={<div>Error occured with the inspector tab</div>}>
       <Suspense>
-        <InspectorEditor />
+        <InspectorPanel />
       </Suspense>
     </ErrorBoundary>
   )
