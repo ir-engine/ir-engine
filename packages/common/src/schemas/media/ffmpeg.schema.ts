@@ -19,27 +19,10 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+export const ffmpegPath = 'ffmpeg'
 
-import {
-  ClientSettingData,
-  ClientSettingPatch,
-  ClientSettingQuery,
-  ClientSettingType
-} from '@ir-engine/common/src/schemas/setting/client-setting.schema'
-
-export interface ClientSettingParams extends KnexAdapterParams<ClientSettingQuery> {}
-
-/**
- * A class for ClientSetting service
- */
-
-export class ClientSettingService<
-  T = ClientSettingType,
-  ServiceParams extends Params = ClientSettingParams
-> extends KnexService<ClientSettingType, ClientSettingData, ClientSettingParams, ClientSettingPatch> {}
+export const ffmpegMethod = ['create'] as const

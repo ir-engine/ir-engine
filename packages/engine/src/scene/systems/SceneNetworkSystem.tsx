@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -41,7 +41,6 @@ import { NetworkState, ScenePeer, SceneUser, WorldNetworkAction } from '@ir-engi
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import React, { useEffect } from 'react'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { SourceComponent } from '../components/SourceComponent'
 
 /**
  * For p2p networking, entities need to be spawned deterministically for the scene to be consistent across peers, since there is no host.
@@ -83,8 +82,8 @@ const filterSpatialEntities = (entity: Entity) => hasComponent(entity, EntityTre
 
 const SourcedSceneReactor = () => {
   const entity = useEntityContext()
-  const sourceID = useComponent(entity, SourceComponent).value
-  const sourcedEntities = SourceComponent.useEntitiesBySource(sourceID)
+  const sourceID = UUIDComponent.getAsSourceID(entity)
+  const sourcedEntities = UUIDComponent.useEntitiesBySource(sourceID)
 
   return (
     <>
@@ -97,7 +96,8 @@ const SourcedSceneReactor = () => {
 
 const SceneReactor = () => {
   const entity = useEntityContext()
-  const sourcedEntities = SourceComponent.useEntitiesBySource(entity)
+  const sourceID = UUIDComponent.getAsSourceID(entity)
+  const sourcedEntities = UUIDComponent.useEntitiesBySource(sourceID)
 
   return (
     <>

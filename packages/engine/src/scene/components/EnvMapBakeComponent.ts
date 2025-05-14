@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -48,9 +48,15 @@ export const EnvMapBakeComponent = defineComponent({
     bakePosition: T.Vec3(),
     bakePositionOffset: T.Vec3(),
     bakeScale: T.Vec3(Vector3_One),
-    bakeType: S.Enum(EnvMapBakeTypes, { default: EnvMapBakeTypes.Baked }),
+    bakeType: S.Enum(EnvMapBakeTypes, {
+      $comment: "A string enum, ie. one of the following values: 'Realtime', 'Baked'",
+      default: EnvMapBakeTypes.Baked
+    }),
     resolution: S.Number({ default: 1024 }),
-    refreshMode: S.Enum(EnvMapBakeRefreshTypes, { default: EnvMapBakeRefreshTypes.OnAwake }),
+    refreshMode: S.Enum(EnvMapBakeRefreshTypes, {
+      $comment: "A string enum, ie. one of the following values: 'OnAwake', 'EveryFrame'",
+      default: EnvMapBakeRefreshTypes.OnAwake
+    }),
     envMapOrigin: S.String({ default: '' }),
     boxProjection: S.Bool({ default: true })
   }),

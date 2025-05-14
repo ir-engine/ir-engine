@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -52,6 +52,7 @@ export enum AssetExt {
   KTX2 = 'ktx2',
   DDS = 'dds',
   WEBP = 'webp',
+  GIF = 'gif',
 
   MP4 = 'mp4',
   AVI = 'avi',
@@ -90,6 +91,7 @@ export const AssetExtToAssetType = (assetExt: AssetExt | undefined): AssetType =
     case AssetExt.JPEG:
     case AssetExt.TGA:
     case AssetExt.KTX2:
+    case AssetExt.GIF:
     case AssetExt.DDS:
       return AssetType.Image
 

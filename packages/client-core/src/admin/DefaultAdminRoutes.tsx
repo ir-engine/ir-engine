@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -38,8 +38,6 @@ import {
   HiUserCircle
 } from 'react-icons/hi2'
 import { RiSendPlaneFill } from 'react-icons/ri'
-
-import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 
 import { MdOutlineAdminPanelSettings } from 'react-icons/md'
 import { AdminRouteStateType } from './AllowedAdminRoutesState'
@@ -75,7 +73,7 @@ const Moderation = lazy(() => import('./components/moderation'))
 export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
   settings: {
     name: 'user:dashboard.setting',
-    scope: ['settings', clientSettingPath],
+    scope: ['settings'],
     component: Settings,
     access: false,
     icon: <HiOutlineCog6Tooth />

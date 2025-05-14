@@ -19,16 +19,16 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import { EntityID, useQuery, UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, Layers, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { commitProperty, EditorComponentType, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { RenderSettingsComponent } from '@ir-engine/engine/src/scene/components/RenderSettingsComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+
 import { DirectionalLightComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Checkbox } from '@ir-engine/ui'
@@ -106,7 +106,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
   const { entity } = props
   const rendererSettingsState = useComponent(entity, RenderSettingsComponent)
 
-  const query = useQuery([DirectionalLightComponent, SourceComponent])
+  const query = useQuery([DirectionalLightComponent], Layers.Authoring)
 
   const directionalLightOptions = [
     {

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -72,7 +72,7 @@ export default (app: Application): void => {
           appConfig[setting.category][setting.key] = parseValue(setting.value, setting.dataType)
         }
       }
-      const categoriesToUnflatten = ['email', 'aws']
+      const categoriesToUnflatten = ['email', 'aws', 'authentication', 'client']
       if (categoriesToUnflatten.includes(setting.category)) {
         const categorySettings = await service.find({
           query: {

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -247,8 +247,17 @@ export const InteractableComponent = defineComponent({
     uiInteractable: S.Bool({ default: true, serialized: false }),
     uiEntity: S.Entity({ serialized: false }),
     label: S.String({ default: 'E' }),
-    uiVisibilityOverride: S.Enum(XRUIVisibilityOverride, { default: XRUIVisibilityOverride.none, serialized: false }),
-    uiActivationType: S.Enum(XRUIActivationType, { default: XRUIActivationType.proximity }),
+    uiVisibilityOverride: S.Enum(XRUIVisibilityOverride, {
+      $comment:
+        "Likely an indexed enum, ie. the numeric index of a value in the following sequence: 'none', 'on', 'off'",
+      default: XRUIVisibilityOverride.none,
+      serialized: false
+    }),
+    uiActivationType: S.Enum(XRUIActivationType, {
+      $comment:
+        "Likely an indexed enum, ie. the numeric index of a value in the following sequence: 'proximity', 'hover'",
+      default: XRUIActivationType.proximity
+    }),
     activationDistance: S.Number({ default: 2 }),
     clickInteract: S.Bool({ default: false }),
     highlighted: S.Bool({ default: false, serialized: false }),

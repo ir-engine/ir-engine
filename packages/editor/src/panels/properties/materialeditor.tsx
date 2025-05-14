@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -39,7 +39,7 @@ import styles from '@ir-engine/editor/src/components/layout/styles.module.scss'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { getTextureAsync } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { NO_PROXY, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -244,7 +244,7 @@ export function MaterialEditor(props: { entity: Entity }) {
           <div className="justify-cneter flex items-center align-middle">
             <label>{t('editor:properties.mesh.material.path')}</label>
           </div>
-          <div className="break-all">{getOptionalComponent(entity, SourceComponent) ?? 'None'}</div>
+          <div className="break-all">{UUIDComponent.getSourceEntity(entity) ?? 'None'}</div>
         </div>
       </InputGroup>
       <br />

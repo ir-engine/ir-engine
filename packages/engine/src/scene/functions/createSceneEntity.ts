@@ -19,13 +19,12 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
   Entity,
-  EntityID,
   EntityTreeComponent,
   LayerComponent,
   Layers,
@@ -41,7 +40,7 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 
 export const createSceneEntity = (name: string, parentEntity: Entity = UndefinedEntity): Entity => {
-  const sourceID = GLTFComponent.getSourceID(parentEntity)
+  const sourceID = GLTFComponent.getSourceID(parentEntity) || ('source' as SourceID)
   const layer = parentEntity ? LayerComponent.get(parentEntity) : Layers.Simulation
   const entity = createEntity(layer)
   setComponent(entity, UUIDComponent, { entitySourceID: sourceID, entityID: UUIDComponent.generate() })
@@ -52,9 +51,5 @@ export const createSceneEntity = (name: string, parentEntity: Entity = Undefined
   if (parentEntity !== UndefinedEntity) {
     setComponent(entity, EntityTreeComponent, { parentEntity })
   }
-  if (!sourceID) {
-    setComponent(entity, UUIDComponent, { entitySourceID: 'detatched' as SourceID, entityID: name as EntityID })
-  }
-
   return entity
 }

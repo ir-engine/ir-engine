@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -185,11 +185,12 @@ export default function FilePropertiesModal() {
   const author = useHookstate<UserType | null>(null)
 
   const handleAddTag = () => {
-    if (tagInput.value != '' && !resourceDigest.tags.value!.includes(tagInput.value)) {
+    const trimmedTagInput = tagInput.value.trim()
+    if (trimmedTagInput != '' && !resourceDigest.tags.value!.includes(trimmedTagInput)) {
       if (!modifiedFields.value.includes('tags')) {
         modifiedFields.set([...modifiedFields.value, 'tags'])
       }
-      resourceDigest.tags.set([...resourceDigest.tags.value!, tagInput.value])
+      resourceDigest.tags.set([...resourceDigest.tags.value!, trimmedTagInput])
     }
     tagInput.set('')
   }

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -72,7 +72,7 @@ describe.skip('GLTFState', () => {
   //       {
   //         name: 'node',
   //         extensions: {
-  //           [NodeIDComponent.jsonID]: nodeUUIDPair.entityID
+  //           [UUIDComponent.jsonID]: nodeUUIDPair.entityID
   //         }
   //       }
   //     ]
@@ -109,13 +109,13 @@ describe.skip('GLTFState', () => {
   //         name: 'node',
   //         children: [1],
   //         extensions: {
-  //           [NodeIDComponent.jsonID]: nodeUUID
+  //           [UUIDComponent.jsonID]: nodeUUID
   //         }
   //       },
   //       {
   //         name: 'child',
   //         extensions: {
-  //           [NodeIDComponent.jsonID]: childUUID
+  //           [UUIDComponent.jsonID]: childUUID
   //         }
   //       }
   //     ]
@@ -155,20 +155,20 @@ describe.skip('GLTFState', () => {
   //         name: 'node',
   //         children: [1],
   //         extensions: {
-  //           [NodeIDComponent.jsonID]: nodeUUID
+  //           [UUIDComponent.jsonID]: nodeUUID
   //         }
   //       },
   //       {
   //         name: 'child',
   //         children: [2],
   //         extensions: {
-  //           [NodeIDComponent.jsonID]: childUUID
+  //           [UUIDComponent.jsonID]: childUUID
   //         }
   //       },
   //       {
   //         name: 'grandchild',
   //         extensions: {
-  //           [NodeIDComponent.jsonID]: grandchildUUID
+  //           [UUIDComponent.jsonID]: grandchildUUID
   //         }
   //       }
   //     ]
@@ -222,14 +222,14 @@ describe.skip('GLTFState', () => {
   //         // non identity position, rotation and scale
   //         matrix: nodeMatrix,
   //         extensions: {
-  //           [NodeIDComponent.jsonID]: nodeUUID
+  //           [UUIDComponent.jsonID]: nodeUUID
   //         }
   //       },
   //       {
   //         name: 'child',
   //         matrix: childMatrix,
   //         extensions: {
-  //           [NodeIDComponent.jsonID]: childUUID
+  //           [UUIDComponent.jsonID]: childUUID
   //         }
   //       }
   //     ]
@@ -273,7 +273,7 @@ describe.skip('GLTFState', () => {
   //       {
   //         name: 'node',
   //         extensions: {
-  //           [NodeIDComponent.jsonID]: nodeUUID,
+  //           [UUIDComponent.jsonID]: nodeUUID,
   //           [VisibleComponent.jsonID]: true,
   //           [HemisphereLightComponent.jsonID!]: {
   //             skyColor: new Color('green').getHex(),

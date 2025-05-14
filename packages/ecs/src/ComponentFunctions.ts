@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright 2021-2025 
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -1214,7 +1214,13 @@ export const LayerComponents = Object.entries(Layers).map(([name, layer]) => {
   return defineComponent({
     name: `${name}LayerComponent`,
     schema: S.Object({
-      relations: S.Record(S.Enum(Layers), S.Entity())
+      relations: S.Record(
+        S.Enum(Layers, {
+          $comment:
+            "A numeric enum, ie. the value of one of the following key-value pairs: 'Simulation': 0, 'Authoring': 1"
+        }),
+        S.Entity()
+      )
     }),
 
     // backward references

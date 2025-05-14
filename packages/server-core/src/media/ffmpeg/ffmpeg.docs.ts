@@ -19,37 +19,16 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Knex } from 'knex'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import { clientSettingPath } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
-
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function up(knex: Knex): Promise<void> {
-  const privacyPolicyColumnExists = await knex.schema.hasColumn(clientSettingPath, 'privacyPolicy')
-  if (!privacyPolicyColumnExists) {
-    await knex.schema.alterTable(clientSettingPath, async (table) => {
-      table.string('privacyPolicy')
-    })
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Ffmpeg service',
+    securities: ['all']
   }
-}
-
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function down(knex: Knex): Promise<void> {
-  const privacyPolicyColumnExists = await knex.schema.hasColumn(clientSettingPath, 'privacyPolicy')
-
-  if (privacyPolicyColumnExists) {
-    await knex.schema.alterTable(clientSettingPath, async (table) => {
-      table.dropColumn('privacyPolicy')
-    })
-  }
-}
+})

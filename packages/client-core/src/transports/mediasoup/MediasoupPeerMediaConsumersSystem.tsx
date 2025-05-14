@@ -19,13 +19,13 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
 
-import { clientSettingPath, InstanceID } from '@ir-engine/common/src/schema.type.module'
+import { engineSettingPath, InstanceID } from '@ir-engine/common/src/schema.type.module'
 import {
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
@@ -41,6 +41,7 @@ import {
 } from '@ir-engine/network'
 
 import { useFind } from '@ir-engine/common'
+import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { defineSystem, PresentationSystemGroup } from '@ir-engine/ecs'
 import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
 import {
@@ -48,6 +49,7 @@ import {
   PeerMediaChannelState,
   removePeerMediaChannels
 } from '@ir-engine/network/src/media/PeerMediaChannelState'
+import { ClientEngineSettingType } from '@ir-engine/server-core/src/appconfig'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import { ConsumerExtension, ProducerExtension } from './MediasoupClientFunctions'
 
@@ -139,8 +141,15 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
   //   }
   // }, [producerState.paused?.value])
 
-  const clientSettingQuery = useFind(clientSettingPath)
-  const clientSetting = clientSettingQuery.data[0]
+  const clientSettingQuery = useFind(engineSettingPath, {
+    query: {
+      category: 'client',
+      paginate: false
+    }
+  })
+  const clientSetting = unflattenArrayToObject(
+    clientSettingQuery.data.map((setting) => ({ key: setting.key, value: setting.value, dataType: setting.dataType }))
+  ) as ClientEngineSettingType
 
   const isPiP = peerMediaChannelState.videoQuality.value === 'largest'
 

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -36,7 +36,8 @@ import {
   hasComponent,
   useComponent,
   useOptionalComponent,
-  useQuery
+  useQuery,
+  UUIDComponent
 } from '@ir-engine/ecs'
 import {
   commitProperties,
@@ -49,7 +50,6 @@ import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorCo
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
-import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { MediaComponent, MediaElementComponent, setTime } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import { PlayMode } from '@ir-engine/engine/src/scene/constants/PlayMode'
@@ -174,7 +174,7 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
     .map((loopEntity) => {
       return {
         label: getComponent(loopEntity, NameComponent),
-        value: getComponent(loopEntity, NodeIDComponent)
+        value: getComponent(loopEntity, UUIDComponent).entityID
       }
     })
 
@@ -247,8 +247,10 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
     if (!previewVideo) return
     previewVideo.currentTime = sourceVideo.currentTime
     if (!sourceVideo.paused) {
+      previewVideo.muted = true
       previewVideo.play()
     } else {
+      previewVideo.muted = false
       previewVideo.pause()
     }
   }, [media?.currentTrackTime, showVideoPreview])
