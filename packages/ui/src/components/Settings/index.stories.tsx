@@ -39,18 +39,15 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import type { Meta, StoryObj } from '@storybook/react'
-import { http, HttpResponse } from 'msw'
 import React, { useEffect, useState } from 'react'
 import { BoxGeometry, Matrix4, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 import SettingsMenu from '.'
-import EngineDecorator from '../../../.storybook/decorators/EngineDecorator'
-import mockSceneData from '../../../.storybook/mocks/scene'
 
 const meta = {
   title: 'UI/Settings Menu',
   component: SettingsMenu,
   parameters: {
-    layout: 'centered',
+    layout: 'fullscreen',
     docs: {
       description: {
         component: 'A settings menu component with iPhone-like slide transitions between screens.'
@@ -70,14 +67,7 @@ export const Default: Story = {
   render: (args) => {
     const [open, setOpen] = useState(false)
     return (
-      <div
-        className="flex h-screen w-screen items-center justify-center bg-cover bg-center"
-        style={{
-          backgroundImage:
-            'url(https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2070&auto=format&fit=crop)',
-          backgroundSize: 'cover'
-        }}
-      >
+      <div className="flex h-screen w-screen items-center justify-center bg-transparent bg-center">
         <button
           className="rounded-md bg-gradient-to-r from-pink-500 to-rose-500 px-6 py-3 font-bold text-white shadow-lg transition-all hover:scale-105"
           onClick={() => setOpen(!open)}
@@ -138,33 +128,3 @@ const UpdateSystem = defineSystem({
     return null
   }
 })
-
-export const EngineCanvas: Story = {
-  parameters: {
-    layout: 'fullscreen',
-    msw: {
-      handlers: [
-        http.get(/spawn-point/g, () => {
-          console.log('got request')
-          return HttpResponse.json(mockSceneData)
-        })
-      ]
-    }
-  },
-  render: (args) => {
-    const [open, setOpen] = useState(false)
-
-    return (
-      <div className="flex h-screen w-screen items-center justify-center bg-transparent">
-        <button
-          className="rounded-xl bg-white/10 px-6 py-3 font-medium text-white shadow-lg backdrop-blur-sm transition-all hover:bg-white/20"
-          onClick={() => setOpen(!open)}
-        >
-          {open ? 'Close Settings' : 'Open Settings'}
-        </button>
-        <EngineDecorator />
-        {open && <SettingsMenu {...args} onClose={() => setOpen(false)} />}
-      </div>
-    )
-  }
-}

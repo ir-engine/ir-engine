@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import MetaTags from '@ir-engine/client-core/src/common/components/MetaTags'
 import { Description, Primary, Stories, Subtitle, Title } from '@storybook/addon-docs'
-import { Preview } from '@storybook/react'
+import { Decorator, Preview } from '@storybook/react'
 import { initialize, mswLoader } from 'msw-storybook-addon'
 import React from 'react'
 import { DndProvider } from 'react-dnd'
@@ -34,25 +34,46 @@ import { I18nextProvider } from 'react-i18next'
 import '../../client/src/themes/base.css'
 import '../../client/src/themes/components.css'
 import '../../client/src/themes/utilities.css'
+import EngineDecorator from './decorators/EngineDecorator'
 import i18n from './i18n'
 
 initialize()
 
-export const decorators = [
-  (Story: any) => (
-    <I18nextProvider i18n={i18n}>
-      <DndProvider backend={HTML5Backend}>
-        <MetaTags>
-          <link
-            href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap"
-            rel="stylesheet"
-            type="text/css"
-          />
-        </MetaTags>
-        <Story />
-      </DndProvider>
-    </I18nextProvider>
-  )
+export const decorators: Decorator[] = [
+  (Story) => {
+    return (
+      <I18nextProvider i18n={i18n}>
+        <DndProvider backend={HTML5Backend}>
+          <MetaTags>
+            <link
+              href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap"
+              rel="stylesheet"
+              type="text/css"
+            />
+          </MetaTags>
+          <Story />
+        </DndProvider>
+      </I18nextProvider>
+    )
+  },
+  (Story, args) => {
+    if (args.globals.IR_Engine) {
+      return (
+        <>
+          <EngineDecorator>
+            <Story />
+          </EngineDecorator>
+          <canvas
+            id="engine-renderer-canvas"
+            style={{ zIndex: -1 }}
+            className="absolute left-0 top-0 h-full w-full"
+          ></canvas>
+        </>
+      )
+    } else {
+      return <Story />
+    }
+  }
 ]
 
 const preview: Preview = {

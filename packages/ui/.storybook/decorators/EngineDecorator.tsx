@@ -25,12 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { ThemeState, useThemeProvider } from '@ir-engine/client-core/src/common/services/ThemeService'
 import * as ECS from '@ir-engine/ecs'
-import { HyperFlux } from '@ir-engine/hyperflux'
 import '@ir-engine/spatial'
 import { destroySpatialEngine, initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { useEngineCanvas } from '@ir-engine/spatial/src/renderer/functions/useEngineCanvas'
 import { startTimer } from '@ir-engine/spatial/src/startTimer'
-
 import React, { useEffect, useRef, useState } from 'react'
 
 globalThis.ECS = ECS
@@ -42,34 +40,36 @@ const ThemeProvider = () => {
 }
 
 const CanvasEngine = () => {
-  const ref = useRef(document.body)
+  const ref = useRef(document.getElementById('storybook-root'))
   useEngineCanvas(ref)
 
-  return (
-    <>
-      <canvas id="engine-renderer-canvas" className="absolute left-0 top-0 z-[-1] h-full w-full"></canvas>
-    </>
-  )
+  return <></>
 }
 
-export default function EngineDecorator() {
+export default function EngineDecorator({ children }) {
   const [engineInitialized, setEngineInitialized] = useState(false)
 
   useEffect(() => {
     if (engineInitialized) return
-    ECS.createEngine(HyperFlux.store)
+    console.log('engine initialized')
+    ECS.createEngine()
     startTimer()
     setEngineInitialized(true)
-
-    return ECS.destroyEngine
   }, [])
 
   useEffect(() => {
     if (!engineInitialized) return
     initializeSpatialEngine()
 
-    return destroySpatialEngine
+    // return destroySpatialEngine
   }, [engineInitialized])
+
+  useEffect(() => {
+    return () => {
+      destroySpatialEngine()
+      ECS.destroyEngine()
+    }
+  }, [])
 
   if (!engineInitialized) return null
 
@@ -77,6 +77,7 @@ export default function EngineDecorator() {
     <>
       <ThemeProvider />
       <CanvasEngine />
+      {children}
     </>
   )
 }
