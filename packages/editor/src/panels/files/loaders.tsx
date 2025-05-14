@@ -187,6 +187,7 @@ function GeneratingThumbnailsProgress() {
         className="mx-2 my-auto h-6 w-6"
         title={t('editor:layout.filebrowser.generatingThumbnails', { count: thumbnailjobCount })}
       />
+      {/* commenting out instead of dealing for future use */}
       {/* <LoadingView
         titleClassname="mt-0"
         containerClassName="flex-row mt-1"
