@@ -19,22 +19,30 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { CatmullRomCurve3, Quaternion, Vector3 } from 'three'
+import { BufferAttribute, BufferGeometry, CatmullRomCurve3, Line, LineBasicMaterial, Quaternion, Vector3 } from 'three'
 
-import { useEntityContext } from '@ir-engine/ecs'
-import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
-
+import { EntityTreeComponent, useEntityContext } from '@ir-engine/ecs'
+import {
+  createEntity,
+  defineComponent,
+  getComponent,
+  removeEntity,
+  setComponent,
+  useComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
+import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
-import { SplineHelperComponent } from './debug/SplineHelperComponent'
 
 export const SplineComponent = defineComponent({
   name: 'SplineComponent',
@@ -92,14 +100,39 @@ export const SplineComponent = defineComponent({
     ])
 
     useEffect(() => {
-      if (debugEnabled.value) {
-        setComponent(entity, SplineHelperComponent)
+      if (!debugEnabled.value || elements.length < 3) return
+
+      const ARC_SEGMENTS = 200
+      const _point = new Vector3()
+      const lineMaterial = () => new LineBasicMaterial({ color: 'white', opacity: 0.35 })
+      const createLineGeom = () => {
+        const lineGeometry = new BufferGeometry()
+        lineGeometry.setAttribute('position', new BufferAttribute(new Float32Array(ARC_SEGMENTS * 3), 3))
+        return lineGeometry
       }
 
-      return () => {
-        removeComponent(entity, SplineHelperComponent)
+      const splineHelperEntity = createEntity()
+
+      setComponent(splineHelperEntity, TransformComponent)
+      setComponent(splineHelperEntity, EntityTreeComponent, { parentEntity: entity })
+      setComponent(splineHelperEntity, VisibleComponent)
+      setComponent(splineHelperEntity, ObjectComponent, new Line(createLineGeom(), lineMaterial()))
+
+      const line = getComponent(splineHelperEntity, ObjectComponent) as Line
+      const curve = component.curve.value
+
+      const positions = line.geometry.attributes.position
+      for (let i = 0; i < ARC_SEGMENTS; i++) {
+        const t = i / (ARC_SEGMENTS - 1)
+        curve.getPoint(t, _point)
+        positions.setXYZ(i, _point.x, _point.y, _point.z)
       }
-    }, [debugEnabled])
+      positions.needsUpdate = true
+
+      return () => {
+        removeEntity(splineHelperEntity)
+      }
+    }, [debugEnabled, component.curve])
 
     return null
   }

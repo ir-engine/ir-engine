@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -107,7 +107,7 @@ import {
   MaterialTextureValue,
   MaterialValue
 } from './MaterialExtensionComponents'
-import { SceneDeltaExporterExtension } from './SceneDeltaExporterExtension'
+import { overrideExporterExtension } from './overrideExporterExtension'
 
 const WEBGL_CONSTANTS = {
   POINTS: 0x0000,
@@ -229,7 +229,7 @@ type GLTFSceneExportContext = {
 
 export type ExportExtension = GLTFSceneExportExtension
 
-export const defaultExportExtensionList = [SceneDeltaExporterExtension] as (() => ExportExtension)[]
+export const defaultExportExtensionList = [overrideExporterExtension] as (() => ExportExtension)[]
 
 type TypedArrayConstructor =
   | Int8ArrayConstructor
@@ -1241,6 +1241,9 @@ const exportEntity = async (
     //skip components that don't have a jsonID
     if (!component.jsonID) continue
 
+    // skip serializable components we already handle
+    if (component === NameComponent || component === EntityTreeComponent) continue
+
     if (entity === context.rootEntity && component === GLTFComponent) continue
 
     if (component === TransformComponent) {
@@ -1257,7 +1260,8 @@ const exportEntity = async (
     } else {
       const compData = serializeComponent(entity, component)
       // Do we not want to serialize tag components?
-      if (!compData) continue
+      if (compData == null) continue
+
       extensions[component.jsonID] = compData
       context.extensionsUsed.add(component.jsonID)
     }

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
@@ -38,12 +38,13 @@ import {
   traverseEntityNode,
   UndefinedEntity,
   useComponent,
-  useQuery
+  useQuery,
+  UUIDComponent
 } from '@ir-engine/ecs'
 import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+
+import { getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react'
@@ -134,16 +135,18 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
   const hierarchyTreeState = useMutableState(HierarchyTreeState)
   const renamingEntity = useHookstate<Entity | null>(null)
   const contextMenu = useHookstate({ entity: UndefinedEntity, anchorEvent: undefined as React.MouseEvent | undefined })
-  const entities = useQuery([SourceComponent], Layers.Authoring)
+  const entities = useQuery([UUIDComponent], Layers.Authoring)
   const showGlbChildren = useMutableState(EditorHelperState).showGlbChildren
 
   const childEntities = useQuery([EntityTreeComponent], Layers.Authoring)
   const reparentRefresh = useHookstate(0)
+  const childIndexRefresh = useHookstate(0)
 
   const ChildEntityReactor = (props: { entity: Entity }) => {
     const entity = props.entity
     const entityTreeComponent = useComponent(entity, EntityTreeComponent)
     const [parentEntity, setParentEntity] = useState(entityTreeComponent.value.parentEntity)
+    const [childIndex, setChildIndex] = useState(entityTreeComponent.value.childIndex)
 
     useEffect(() => {
       if (entityTreeComponent.value.parentEntity !== parentEntity) {
@@ -151,6 +154,13 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
         reparentRefresh.set((reparentRefresh.value + 1) % 1000)
       }
     }, [entityTreeComponent.parentEntity.value])
+
+    useEffect(() => {
+      if (entityTreeComponent.value.childIndex !== childIndex) {
+        setChildIndex(entityTreeComponent.value.childIndex)
+        childIndexRefresh.set((childIndexRefresh.value + 1) % 1000)
+      }
+    }, [entityTreeComponent.value.childIndex])
 
     return null
   }
@@ -163,7 +173,8 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
       showGlbChildren,
       entities,
       childEntities,
-      reparentRefresh
+      reparentRefresh,
+      childIndexRefresh
     ]
   )
 
@@ -374,26 +385,24 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
     }
 
     if ('type' in item && item.type === ItemTypes.Component) {
-      EditorControlFunctions.createObjectFromSceneElement(
+      const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
         [{ name: (item as any).componentJsonID }],
         parentNode,
         beforeNode
       )
-      AuthoringState.snapshotEntities([getState(EditorState).rootEntity])
+      const entities = [UUIDComponent.getEntityByUUID(entityUUID, Layers.Authoring)]
+      AuthoringState.snapshotEntities(entities)
       return
     }
 
     if (!parentNode) return
 
-    EditorControlFunctions.reparentObject(
-      Array.isArray((item as DragItemType).value)
-        ? ((item as DragItemType).value as Entity[])
-        : [(item as DragItemType).value as Entity],
-      beforeNode,
-      afterNode,
-      parentNode
-    )
-    AuthoringState.snapshotEntities([getState(EditorState).rootEntity])
+    const entities = Array.isArray((item as DragItemType).value)
+      ? ((item as DragItemType).value as Entity[])
+      : [(item as DragItemType).value as Entity]
+
+    EditorControlFunctions.reparentObject(entities, beforeNode, afterNode, parentNode)
+    AuthoringState.snapshotEntities(entities)
   }
 
   const [{ canDrop, isOver }, dropTarget] = useDrop({

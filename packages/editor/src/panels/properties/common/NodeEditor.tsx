@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -73,6 +73,41 @@ class NodeEditorErrorBoundary extends React.Component<INodeErrorProps, INodeErro
   }
 }
 
+const documentationMap = {
+  GLTFComponent: 'ModelComponent',
+  RigidBodyComponent: 'RigidbodyComponent',
+  TriggerCallbackComponent: 'TriggerComponent'
+}
+
+const documentationList = [
+  'ModelComponent',
+  'AudioComponent',
+  'VideoComponent',
+  'ImageComponent',
+  'PrimitiveGeometryComponent',
+  'GroundPlaneComponent',
+  'VariantComponent',
+  'ColliderComponent',
+  'RigidbodyComponent',
+  'TriggerComponent',
+  'SpawnPointComponent',
+  'LinkComponent',
+  'MountPointComponent',
+  'InterableComponent',
+  'InputComponent',
+  'ScreenshareTargetComponent',
+  'AmbientLightComponent',
+  'PointLightComponent',
+  'SpotLightComponent',
+  'DirectionalLightComponent',
+  'HemisphereLightComponent',
+  'LoopAnimationComponent',
+  'ShadowComponent',
+  'ParticleSystemComponent',
+  'EnvMapComponent',
+  'PostprocessingComponent'
+]
+
 const NodeEditor = ({
   description,
   children,
@@ -98,10 +133,21 @@ const NodeEditor = ({
     }
   }, [])
 
+  const _type = component?.name || ''
+  const componentType = documentationMap[_type] || _type
+  const hasDocs = componentType && documentationList.includes(componentType)
+  const slug = hasDocs
+    ? componentType
+        .replace(/([A-Z])/g, '-$1')
+        .toLowerCase()
+        .replace(/^-/, '')
+    : ''
+
   return (
     <ComponentDropdown
       name={name}
       description={description}
+      slug={slug}
       Icon={Icon}
       onClose={
         component && hasComponent(entity, component)

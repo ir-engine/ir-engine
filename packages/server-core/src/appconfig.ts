@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -43,6 +43,7 @@ import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identit
 import { loginPath } from '@ir-engine/common/src/schemas/user/login.schema'
 
 import { HookContext } from '@feathersjs/feathers'
+import { MediaSettingsType } from '@ir-engine/common/src/config'
 import { defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
 import { EngineSettingType, instanceSignalingPath, projectsPath } from '@ir-engine/common/src/schema.type.module'
 import { jwtPublicKeyPath } from '@ir-engine/common/src/schemas/user/jwt-public-key.schema'
@@ -218,6 +219,7 @@ const instanceserver = {
   locationName: process.env.PRELOAD_LOCATION_NAME!,
   shutdownDelayMs: parseInt(process.env.INSTANCESERVER_SHUTDOWN_DELAY_MS!) || 0
 }
+
 const instanceServerWebRtc = {
   webRTCSettings: defaultWebRTCSettings
 }
@@ -516,3 +518,54 @@ export function updateNestedConfig(appConfig: Record<string, any>, setting: Engi
 }
 
 export default config
+
+export type ClientEngineSettingType = {
+  // Basic settings
+  logo: string
+  title: string
+  shortTitle: string
+  startPath: string
+  url: string
+  releaseName: string
+  siteDescription: string
+
+  // Icons and favicons
+  appleTouchIcon: string
+  favicon32px: string
+  favicon16px: string
+  icon192px: string
+  icon512px: string
+  siteManifest: string
+  safariPinnedTab: string
+  favicon: string
+  webmanifestLink: string
+  swScriptLink: string
+
+  // App appearance
+  appBackground: string
+  appTitle: string
+  appSubtitle: string
+  appDescription: string
+
+  // Google Tag Manager
+  gtmContainerId: string
+  gtmAuth?: string
+  gtmPreview?: string
+
+  // Social and legal
+  appSocialLinks: Array<{
+    link: string
+    icon: string
+  }>
+  privacyPolicy: string
+  termsOfService: string
+  assistanceLink: string
+
+  // Homepage settings
+  homepageLinkButtonEnabled: boolean
+  homepageLinkButtonRedirect: string
+  homepageLinkButtonText: string
+
+  // Media settings
+  mediaSettings: MediaSettingsType
+}

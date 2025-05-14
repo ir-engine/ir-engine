@@ -19,18 +19,17 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, EntityUUID, getComponent, hasComponent } from '@ir-engine/ecs'
+import { Entity, EntityUUID, getComponent, hasComponent, UUIDComponent } from '@ir-engine/ecs'
 import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-
-import { SourceComponent } from '../../components/SourceComponent'
 
 /**Gets all materials used by child and self entity */
 export const getMaterialsFromScene = (source: Entity) => {
-  const childEntities = SourceComponent.getEntitiesBySource(source)
+  const sourceID = UUIDComponent.getAsSourceID(source)
+  const childEntities = UUIDComponent.getEntitiesBySource(sourceID)
   childEntities.push(source)
   const materials = {} as Record<EntityUUID, Entity>
   for (const entity of childEntities) {

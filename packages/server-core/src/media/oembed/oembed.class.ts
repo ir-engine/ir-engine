@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -28,12 +28,13 @@ import { Paginated, Params, ServiceInterface } from '@feathersjs/feathers/lib/de
 
 import { OembedType } from '@ir-engine/common/src/schemas/media/oembed.schema'
 import { routePath, RouteType } from '@ir-engine/common/src/schemas/route/route.schema'
-import { clientSettingPath, ClientSettingType } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
 
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schema.type.module'
 import { projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
+import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { Application } from '../../../declarations'
+import { ClientEngineSettingType } from '../../appconfig'
 import { getProjectConfig, onProjectEvent } from '../../projects/project/project-helper'
 
 export class OembedService implements ServiceInterface<OembedType | BadRequest | undefined, Params> {
@@ -53,9 +54,22 @@ export class OembedService implements ServiceInterface<OembedType | BadRequest |
         category: 'server'
       }
     })) as Paginated<EngineSettingType>
-    const clientSettingsResult = (await this.app.service(clientSettingPath).find()) as Paginated<ClientSettingType>
+    const clientSettingsResult = await this.app.service(engineSettingPath).find({
+      query: {
+        category: 'client',
+        paginate: false
+      }
+    })
+
     if (serverSettingsResult.total > 0 && clientSettingsResult.total > 0) {
-      const clientSettings = clientSettingsResult.data[0]
+      const clientSettings = unflattenArrayToObject(
+        clientSettingsResult.data.map((setting) => ({
+          key: setting.key,
+          value: setting.value,
+          dataType: setting.dataType
+        }))
+      ) as ClientEngineSettingType
+
       const clientHost = serverSettingsResult.data.find((setting) => setting.key === EngineSettings.Server.ClientHost)
         ?.value
       if (clientHost !== url.origin.replace(/https:\/\//, ''))

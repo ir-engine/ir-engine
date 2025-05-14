@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -30,7 +30,12 @@ import {
   transformModel as clientSideTransformModel,
   ModelTransformStatus
 } from '@ir-engine/common/src/model/ModelTransformFunctions'
-import { getAncestorWithComponents, iterateEntityNode, removeEntityNodeRecursively } from '@ir-engine/ecs'
+import {
+  getAncestorWithComponents,
+  iterateEntityNode,
+  removeEntityNodeRecursively,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import { setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   DefaultModelTransformParameters as defaultParams,
@@ -46,7 +51,8 @@ import exportGLTF from '../../functions/exportGLTF'
 
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
 import { Button } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
@@ -107,7 +113,7 @@ const createLODVariants = async (
     })
     const destinationPath = srcURL.replace(/\.[^.]*$/, `-integrated.gltf`)
     const gltfEntity = getAncestorWithComponents(result, [GLTFComponent])
-    iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, gltfEntity))
+    iterateEntityNode(result, (entity) => UUIDComponent.setSourceEntity(entity, gltfEntity))
     await exportGLTF(result, destinationPath)
     removeEntityNodeRecursively(result)
   }
@@ -145,11 +151,26 @@ export default function ModelCompressionPanel({
       progress: 0,
       caption: ''
     })
-    for (const file of selectedFiles) {
-      await compressModel(file)
+    try {
+      for (const file of selectedFiles) {
+        await compressModel(file)
+      }
+      await refreshDirectory()
+      NotificationService.dispatchNotify(t('editor:properties.model.transform.compressionComplete'), {
+        variant: 'success',
+        autoHideDuration: 3000
+      })
+    } catch (error) {
+      // Notify user of error
+      NotificationService.dispatchNotify(t('editor:properties.model.transform.compressionError'), {
+        variant: 'error'
+      })
+      console.error('Error during model compression:', error)
+    } finally {
+      compressionLoading.set(false)
+      // Close the modal when compression is complete
+      ModalState.closeModal()
     }
-    await refreshDirectory()
-    compressionLoading.set(false)
   }
 
   const applyPreset = (preset: ModelTransformParameters) => {

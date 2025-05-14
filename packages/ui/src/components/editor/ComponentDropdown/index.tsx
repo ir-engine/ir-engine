@@ -19,12 +19,13 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Entity, UUIDComponent } from '@ir-engine/ecs'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { InfoCircleSm } from '@ir-engine/ui/src/icons'
 import React, { useEffect } from 'react'
 import { HiCube, HiMiniXMark, HiOutlineChevronRight } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
@@ -33,6 +34,7 @@ import { ComponentDropdownState } from './ComponentDropdownState'
 
 export interface ComponentDropdownProps {
   name?: string
+  slug?: string
   description?: string
   /**icon for this component (by default: a cube icon will be shown) */
   Icon?: ({ className }: { className?: string }) => JSX.Element
@@ -47,6 +49,7 @@ export default function ComponentDropdown({
   minimizedDefault,
   Icon = HiCube,
   name,
+  slug,
   description,
   children,
   onClose,
@@ -95,12 +98,24 @@ export default function ComponentDropdown({
             </button>
           </Tooltip>
 
-          <button className="ml-2 text-text-secondary group-hover/component-dropdown:text-text-primary group-focus/component-dropdown:text-text-primary">
-            <Icon className="h-5 w-5" />
-          </button>
-          <span className="ml-1 text-sm leading-6 text-text-secondary group-hover/component-dropdown:text-text-primary group-focus/component-dropdown:text-text-primary">
-            {name}
-          </span>
+          <div className="flex items-center gap-x-2">
+            <button className="ml-2 text-text-secondary group-hover/component-dropdown:text-text-primary group-focus/component-dropdown:text-text-primary">
+              <Icon className="h-5 w-5" />
+            </button>
+            <span className="text-sm leading-6 text-text-secondary group-hover/component-dropdown:text-text-primary group-focus/component-dropdown:text-text-primary">
+              {name}
+            </span>
+            {slug && (
+              <a
+                className="text-text-secondary hover:text-text-primary"
+                target="_blank"
+                href={`https://docs.ir.world/${slug}`}
+                onClick={(ev) => ev.stopPropagation()}
+              >
+                <InfoCircleSm />
+              </a>
+            )}
+          </div>
           {onClose && (
             <button className="ml-auto text-text-inactive" onClick={onClose}>
               <HiMiniXMark className="h-4 w-4" />
@@ -109,7 +124,7 @@ export default function ComponentDropdown({
         </div>
 
         {!isMinimized.value && (
-          <div className="col-span-1 ml-6 mt-2 w-full text-start text-xs text-text-secondary">{description}</div>
+          <div className="col-span-1 w-full pl-6 pt-2 text-start text-xs text-text-secondary">{description}</div>
         )}
       </div>
 

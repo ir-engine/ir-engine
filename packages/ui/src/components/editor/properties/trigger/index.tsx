@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -29,6 +29,7 @@ import {
   getAncestorWithComponents,
   getComponent,
   hasComponent,
+  Layers,
   useAncestorWithComponents,
   useComponent,
   useQuery,
@@ -43,7 +44,6 @@ import {
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
-import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { TriggerCallbackComponent } from '@ir-engine/engine/src/scene/components/TriggerCallbackComponent'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
@@ -70,7 +70,7 @@ const TriggerProperties: EditorComponentType = (props) => {
   const triggerComponent = useComponent(props.entity, TriggerCallbackComponent)
   const hasRigidbody = useAncestorWithComponents(props.entity, [RigidBodyComponent])
 
-  const callbackQuery = useQuery([CallbackComponent, NameComponent, NodeIDComponent, EntityTreeComponent])
+  const callbackQuery = useQuery([CallbackComponent, NameComponent, EntityTreeComponent], Layers.Authoring)
 
   useEffect(() => {
     if (!hasComponent(props.entity, ColliderComponent)) {
@@ -185,6 +185,8 @@ const TriggerProperties: EditorComponentType = (props) => {
                   onChange={commitProperty(TriggerCallbackComponent, `triggers.${index}.onEnter` as any)}
                   options={targetOption?.callbacks ? targetOption.callbacks.slice() : []}
                   disabled={props.multiEdit || !target}
+                  showClearButton
+                  width="full"
                 />
               ) : (
                 <StringInput
@@ -192,6 +194,7 @@ const TriggerProperties: EditorComponentType = (props) => {
                   onChange={updateProperty(TriggerCallbackComponent, `triggers.${index}.onEnter` as any)}
                   onRelease={commitProperty(TriggerCallbackComponent, `triggers.${index}.onEnter` as any)}
                   disabled={props.multiEdit || !target}
+                  fullWidth
                 />
               )}
             </InputGroup>
@@ -211,6 +214,8 @@ const TriggerProperties: EditorComponentType = (props) => {
                   onChange={commitProperty(TriggerCallbackComponent, `triggers.${index}.onExit` as any)}
                   options={targetOption?.callbacks ? targetOption.callbacks.slice() : []}
                   disabled={props.multiEdit || !target}
+                  showClearButton
+                  width="full"
                 />
               ) : (
                 <StringInput
@@ -218,6 +223,7 @@ const TriggerProperties: EditorComponentType = (props) => {
                   onRelease={updateProperty(TriggerCallbackComponent, `triggers.${index}.onExit` as any)}
                   onChange={commitProperty(TriggerCallbackComponent, `triggers.${index}.onExit` as any)}
                   disabled={props.multiEdit || !target}
+                  fullWidth
                 />
               )}
             </InputGroup>

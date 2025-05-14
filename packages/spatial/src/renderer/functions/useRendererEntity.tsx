@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -27,13 +27,17 @@ import {
   Entity,
   EntityTreeComponent,
   UndefinedEntity,
+  defineQuery,
+  getAncestorWithComponents,
   getComponent,
+  getOptionalComponent,
   useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
 import { startReactor, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import React, { useLayoutEffect } from 'react'
 import { RendererComponent } from '../WebGLRendererSystem'
+import { SceneComponent } from '../components/SceneComponents'
 
 /**
  * Returns the renderer entity that is rendering the specified entity
@@ -76,4 +80,15 @@ export function useRendererEntity(entity: Entity) {
   }, [entity])
 
   return result.value
+}
+
+const rendererQuery = defineQuery([RendererComponent])
+
+export const getRendererEntity = (entity: Entity) => {
+  const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
+  const renderers = rendererQuery()
+  const matchesQuery = renderers.find((r) => getComponent(r, RendererComponent).scenes.includes(sceneEntity))
+  const hasRenderer = !!getOptionalComponent(matchesQuery ?? UndefinedEntity, RendererComponent)?.renderer
+  if (matchesQuery && hasRenderer) return matchesQuery
+  return UndefinedEntity
 }
