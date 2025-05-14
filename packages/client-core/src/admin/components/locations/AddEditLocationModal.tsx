@@ -40,7 +40,6 @@ import {
   getComponent,
   hasComponent,
   iterateEntityNode,
-  removeEntity,
   setComponent
 } from '@ir-engine/ecs'
 import { LODVariantDescriptor, defaultLODs } from '@ir-engine/editor/src/constants/GLTFPresets'
@@ -52,7 +51,7 @@ import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbna
 import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/ModelTransform'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-
+import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -219,7 +218,6 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
     if (!isValid) {
       return
     }
-    let combinedMeshEntity: Entity | undefined
     ModalState.openModal(<CompressedPublishConfirmation />)
     const { projectName, sceneName, rootEntity, sceneAssetID, scenePath } = getState(EditorState)
     const abortController = new AbortController()
@@ -234,8 +232,12 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
 
         const scenename = getState(EditorState).sceneName?.split('.').shift()
         //add all mesh into one entity
-        combinedMeshEntity = createEntity(Layers.Authoring) //export entity need compress
-        const rootEntity = getState(EditorState).rootEntity
+        const combinedMeshEntity = createEntity(Layers.Authoring) //export entity need compress
+        const newSource = GLTFComponent.getSourceID(rootEntity)
+        setComponent(combinedMeshEntity, UUIDComponent, {
+          entitySourceID: newSource,
+          entityID: UUIDComponent.generateUUID()
+        })
         const meshEntity = [] as Entity[] //entity with mesh
         const exportParentEntity = [] as Entity[] //parent entity without mesh
         const findMeshRootEntity = (entity: Entity, rootEntity: Entity) => {
@@ -247,11 +249,6 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
         EditorControlFunctions.modifyProperty([combinedMeshEntity], EntityTreeComponent, { parentEntity: rootEntity })
         setComponent(combinedMeshEntity, NameComponent, 'combined mesh entity')
         setComponent(combinedMeshEntity, TransformComponent)
-        const newSource = GLTFComponent.getSourceID(rootEntity)
-        setComponent(combinedMeshEntity, UUIDComponent, {
-          entitySourceID: newSource,
-          entityID: UUIDComponent.generateUUID()
-        })
         const srcURL = pathJoin(config.client.fileServer, saveScenePath.value + '/' + scenename + '/combined-mesh.gltf')
         iterateEntityNode(rootEntity, (entity) => {
           if (hasComponent(entity, MeshComponent)) {
@@ -354,7 +351,6 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
           true,
           saveScenePath.value + '/' + scenename
         )
-        throw new Error('test')
         await handlePublish(true)
         //re-open the original scene
         const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${scenePath}`
@@ -363,24 +359,13 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
         progressState.set({ progress: 0, caption: '' })
       }
     } catch (error) {
-      console.log
       progressState.set({ progress: 0, caption: '' })
       ModalState.closeModal()
       ModalState.openModal(
         <ErrorDialog title={t('editor:savingError')} description={error?.message || t('editor:savingErrorMsg')} />
       )
 
-      if (combinedMeshEntity) removeEntity(combinedMeshEntity)
-
-      // getMutableState(AssetModifiedState).set({})
-      // if (saveScenePath.value) {
-      //   getMutableState(EditorState).merge({
-      //     scenePath: `${saveScenePath.value}/${sceneName!.replace('.gltf', '')}/${sceneName!.replace(
-      //       '.gltf',
-      //       '-compressed.gltf'
-      //     )}`
-      //   })
-      // }
+      getMutableState(AssetModifiedState).set({})
       // set timeout to allow EditorState to update for the compressed scene
       setTimeout(() => {
         getMutableState(EditorState).merge({

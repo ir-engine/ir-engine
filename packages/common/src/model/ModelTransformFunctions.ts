@@ -810,6 +810,23 @@ const writeFiles = async (
   return finalPath
 }
 
+// Add a function to preserve vertex colors
+const preserveVertexColors: Transform = (document: Document) => {
+  document
+    .getRoot()
+    .listMeshes()
+    .map((mesh) => mesh.listPrimitives())
+    .flat()
+    .forEach((prim) => {
+      // Ensure COLOR_0 attribute is preserved during transformations
+      const colorAttr = prim.getAttribute('COLOR_0')
+      if (colorAttr) {
+        // Mark it with extras to ensure it's not removed
+        colorAttr.setExtras({ preserve: true })
+      }
+    })
+}
+
 export const transformModel = async (
   srcURL: string,
   modelOperations: ModelTransformParameters[],
@@ -876,6 +893,9 @@ export const transformModel = async (
     const isGLBFormat = ['glb', 'vrm'].includes(params.modelFormat)
 
     const document = await cloneDocument(srcDocument)
+
+    // Preserve vertex colors before applying transformations
+    await document.transform(preserveVertexColors)
 
     // Apply basic optimizations
     await document.transform(unInstanceSingletons)
