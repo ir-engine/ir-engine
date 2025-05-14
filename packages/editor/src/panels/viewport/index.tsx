@@ -156,7 +156,7 @@ const SceneLoadingProgress = ({ rootEntity }) => {
   )
 }
 
-function ViewportContainer() {
+export function ViewportContainer() {
   const { sceneName, rootEntity, canvasRef } = useMutableState(EditorState)
 
   const { t } = useTranslation()
