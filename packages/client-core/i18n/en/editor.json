@@ -559,6 +559,8 @@
         "lodLevels": "LOD Levels",
         "lodLevelNumber": "LOD Level {{index}}",
         "compress": "Compress",
+        "compressionComplete": "Compress Complete",
+        "compressionError": "Error during compression",
         "compressImage": "Compress Image",
         "applyPresetConfirmation": "Would you like to apply this preset?",
         "savePreset": "Save Preset",
