@@ -325,6 +325,9 @@ export class FileBrowserService
     const oldFullPath = `${data.oldPath}${data.oldName}/`.replace(TRAILING_SLASH_REGEX, '')
     const newFullPath = data.newPath.replace(TRAILING_SLASH_REGEX, '')
 
+    const key = path.join(newFullPath, data.newName)
+    if (data.unique) data.newName = await (await ensureUniqueName(this.app, key)).split('/').pop()!
+
     if (oldFullPath === newFullPath || newFullPath.startsWith(oldFullPath + '/')) {
       throw new Error('Cannot move a folder into itself or its own subfolder')
     }

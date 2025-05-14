@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { CopyEmbedCodePopover } from '@ir-engine/client-core/src/common/components/popovers/CopyEmbedCodePopover'
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { ThemeState } from '@ir-engine/client-core/src/common/services/ThemeService'
-import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
+import { cloneScene, deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import IRLogoModalDark from '@ir-engine/client/src/assets/iR-logo-Modal-dark.png'
 import IRLogoModalLight from '@ir-engine/client/src/assets/iR-logo-Modal-light.png'
 import config from '@ir-engine/common/src/config'
@@ -36,10 +36,11 @@ import { useMutableState } from '@ir-engine/hyperflux'
 import { Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import MoreOptionsMenu from '@ir-engine/ui/src/components/tailwind/MoreOptionsMenu'
-import { CodeSnippet01Sm, Edit01Sm, Trash04Sm } from '@ir-engine/ui/src/icons'
+import { CodeSnippet01Sm, Copy02Sm, Edit01Sm, Trash04Sm } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { default as React } from 'react'
 import { useTranslation } from 'react-i18next'
+import { IoDuplicateOutline } from 'react-icons/io5'
 import { twMerge } from 'tailwind-merge'
 import SceneCard from './SceneCard'
 
@@ -47,6 +48,7 @@ type SceneItemProps = {
   scene: StaticResourceType
   handleOpenScene: () => void
   refetchProjectsData: () => void
+  onCopyToProject?: () => void
   onRenameScene?: (newName: string) => void
   onDeleteScene?: (scene: StaticResourceType) => void
   disableDeleteScene?: boolean
@@ -58,6 +60,7 @@ export default function SceneItem({
   refetchProjectsData,
   onRenameScene,
   onDeleteScene,
+  onCopyToProject,
   disableDeleteScene
 }: SceneItemProps) {
   const { t } = useTranslation()
@@ -79,6 +82,67 @@ export default function SceneItem({
   }
 
   const defaultThumbnail = theme?.value === 'dark' ? IRLogoModalLight : IRLogoModalDark
+
+  const actionProps = [
+    {
+      label: t('editor:hierarchy.lbl-rename'),
+      disabled: false,
+      icon: <Edit01Sm fontSize={16} />,
+      onClick: () => {
+        ModalState.openModal(
+          <RenameSceneModal
+            sceneName={sceneName}
+            scene={scene}
+            onRenameScene={onRenameScene}
+            refetchProjectsData={refetchProjectsData}
+          />
+        )
+      }
+    },
+    {
+      label: t('editor:hierarchy.lbl-copyEmbedCode'),
+      disabled: false,
+      icon: <CodeSnippet01Sm fontSize={16} />,
+      onClick: () => {
+        const sceneName = scene.key.split('/').pop()!.replace('.gltf', '')
+        ModalState.openModal(<CopyEmbedCodePopover url={`${config.client.clientUrl}/location/${sceneName}`} />)
+      }
+    },
+    {
+      label: t('editor:hierarchy.lbl-duplicateScene'),
+      disabled: false,
+      icon: <IoDuplicateOutline fontSize={16} />,
+      onClick: async () => {
+        await cloneScene(scene, scene.key, scene.project!, scene.project!)
+        refetchProjectsData()
+      }
+    },
+    {
+      label: t('editor:hierarchy.lbl-delete'),
+      disabled: disableDeleteScene,
+      icon: <Trash04Sm fontSize={16} />,
+      onClick: () => {
+        ModalState.openModal(
+          <ConfirmDialog
+            title={t('editor:hierarchy.lbl-deleteScene')}
+            text={t('editor:hierarchy.lbl-deleteSceneDescription', { sceneName })}
+            onSubmit={async () => deleteSelectedScene(scene)}
+          />
+        )
+      }
+    }
+  ]
+
+  if (onCopyToProject) {
+    actionProps.splice(actionProps.length - 1, 0, {
+      label: t('editor:hierarchy.lbl-copySceneToProject'),
+      disabled: false,
+      icon: <Copy02Sm fontSize={16} />,
+      onClick: () => {
+        onCopyToProject()
+      }
+    })
+  }
 
   return (
     <SceneCard data-testid="scene-container" className="cursor-pointer items-start justify-start gap-3 bg-white p-3">
@@ -119,49 +183,7 @@ export default function SceneItem({
           </Text>
         </div>
 
-        <MoreOptionsMenu
-          position="right top"
-          actionProps={[
-            {
-              label: t('editor:hierarchy.lbl-rename'),
-              disabled: false,
-              icon: <Edit01Sm fontSize={16} />,
-              onClick: () => {
-                ModalState.openModal(
-                  <RenameSceneModal
-                    sceneName={sceneName}
-                    scene={scene}
-                    onRenameScene={onRenameScene}
-                    refetchProjectsData={refetchProjectsData}
-                  />
-                )
-              }
-            },
-            {
-              label: t('editor:hierarchy.lbl-copyEmbedCode'),
-              disabled: false,
-              icon: <CodeSnippet01Sm fontSize={16} />,
-              onClick: () => {
-                const sceneName = scene.key.split('/').pop()!.replace('.gltf', '')
-                ModalState.openModal(<CopyEmbedCodePopover url={`${config.client.clientUrl}/location/${sceneName}`} />)
-              }
-            },
-            {
-              label: t('editor:hierarchy.lbl-delete'),
-              disabled: disableDeleteScene,
-              icon: <Trash04Sm fontSize={16} />,
-              onClick: () => {
-                ModalState.openModal(
-                  <ConfirmDialog
-                    title={t('editor:hierarchy.lbl-deleteScene')}
-                    text={t('editor:hierarchy.lbl-deleteSceneDescription', { sceneName })}
-                    onSubmit={async () => deleteSelectedScene(scene)}
-                  />
-                )
-              }
-            }
-          ]}
-        />
+        <MoreOptionsMenu position="right top" actionProps={actionProps} />
       </div>
     </SceneCard>
   )
