@@ -19,15 +19,15 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 import { CopyEmbedCodePopover } from '@ir-engine/client-core/src/common/components/popovers/CopyEmbedCodePopover'
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { ThemeState } from '@ir-engine/client-core/src/common/services/ThemeService'
 import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
-import IRLogoModalDark from '@ir-engine/client/public/iR-logo-Modal-dark.png'
-import IRLogoModalLight from '@ir-engine/client/public/iR-logo-Modal-light.png'
+import IRLogoModalDark from '@ir-engine/client/src/assets/iR-logo-Modal-dark.png'
+import IRLogoModalLight from '@ir-engine/client/src/assets/iR-logo-Modal-light.png'
 import config from '@ir-engine/common/src/config'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'

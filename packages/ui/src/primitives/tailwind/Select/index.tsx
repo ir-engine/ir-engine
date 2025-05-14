@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -434,53 +434,55 @@ const Select = ({
       >
         {filteredOptions.length > 0 &&
           !disabled &&
-          filteredOptions.map(({ value: currentValue, ...optionProps }, index) => (
-            <DropdownItem
-              key={index}
-              {...optionProps}
-              selected={localValue.value === currentValue}
-              active={index === activeIndex}
-              onMouseDown={(e) => {
-                e.stopPropagation()
-                e.preventDefault()
-                closePopup()
-                localValue.set(currentValue)
-                setSelectedOptionIndex(index)
-                setDisplayText(optionProps.label)
-                onChange(currentValue)
-              }}
-              onMouseEnter={() => {
-                setActiveIndex(index)
-              }}
-              onMouseLeave={() => {
-                setActiveIndex(-1)
-              }}
-              onTouchStart={(e) => {
-                e.stopPropagation()
-                e.preventDefault()
-              }}
-              onTouchMove={() => setTouchedMoved(true)}
-              onTouchEnd={() => {
-                if (!touchMoved) {
+          filteredOptions
+            .filter((option) => Boolean(option))
+            .map(({ value: currentValue, ...optionProps }, index) => (
+              <DropdownItem
+                key={index}
+                {...optionProps}
+                selected={localValue.value === currentValue}
+                active={index === activeIndex}
+                onMouseDown={(e) => {
+                  e.stopPropagation()
+                  e.preventDefault()
                   closePopup()
                   localValue.set(currentValue)
                   setSelectedOptionIndex(index)
                   setDisplayText(optionProps.label)
                   onChange(currentValue)
-                }
-                setTouchedMoved(false)
-              }}
-              onKeyUp={(e) => {
-                if (e.code === 'Enter') {
-                  closePopup()
-                  localValue.set(currentValue)
-                  setSelectedOptionIndex(index)
-                  setDisplayText(optionProps.label)
-                  onChange(currentValue)
-                }
-              }}
-            />
-          ))}
+                }}
+                onMouseEnter={() => {
+                  setActiveIndex(index)
+                }}
+                onMouseLeave={() => {
+                  setActiveIndex(-1)
+                }}
+                onTouchMove={() => setTouchedMoved(true)}
+                onTouchEnd={() => {
+                  if (!touchMoved) {
+                    closePopup()
+                    localValue.set(currentValue)
+                    setSelectedOptionIndex(index)
+                    setDisplayText(optionProps.label)
+                    onChange(currentValue)
+                  }
+                  setTouchedMoved(false)
+                }}
+                onPointerUp={(e) => {
+                  e.stopPropagation()
+                  e.preventDefault()
+                }}
+                onKeyUp={(e) => {
+                  if (e.code === 'Enter') {
+                    closePopup()
+                    localValue.set(currentValue)
+                    setSelectedOptionIndex(index)
+                    setDisplayText(optionProps.label)
+                    onChange(currentValue)
+                  }
+                }}
+              />
+            ))}
 
         {filteredOptions.length === 0 && !disabled && (
           <div className="flex h-12 items-center justify-center bg-ui-background text-text-secondary">

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -174,6 +174,11 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
           ? 'resource'
           : 'scene'
 
+      const objectName =
+        projectHistory.action === 'RESOURCE_CREATED' || projectHistory.action === 'RESOURCE_REMOVED'
+          ? t('admin:components.history.resource')
+          : t('admin:components.history.scene')
+
       const actionDetail = JSON.parse(projectHistory.actionDetail) as {
         url: string
       }
@@ -186,7 +191,7 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
             {projectHistory.action.endsWith('CREATED')
               ? t('admin:components.history.created')
               : t('admin:components.history.removed')}{' '}
-            {object}
+            {objectName}
           </Text>
 
           {projectHistory.action.endsWith('CREATED') ? (
@@ -232,6 +237,10 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
       )
     } else if (projectHistory.action === 'RESOURCE_MODIFIED' || projectHistory.action === 'SCENE_MODIFIED') {
       const object = projectHistory.action === 'RESOURCE_MODIFIED' ? 'resource' : 'scene'
+      const objectName =
+        projectHistory.action === 'RESOURCE_MODIFIED'
+          ? t('admin:components.history.resource')
+          : t('admin:components.history.scene')
       const actionDetail = JSON.parse(projectHistory.actionDetail) as {
         url: string
       }
@@ -241,7 +250,7 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
       return (
         <>
           <Text>
-            {t('admin:components.history.modified')} {object}
+            {t('admin:components.history.modified')} {objectName}
           </Text>
           <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
             {relativeURL}

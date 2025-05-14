@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -493,7 +493,6 @@ const useGLTFDocument = (entity: Entity) => {
   useEffect(() => {
     if (dynamicLoadAndNotEditing) return
     if (!url) {
-      addError(entity, GLTFComponent, 'INVALID_SOURCE', 'Invalid URL')
       return
     }
 
@@ -503,6 +502,8 @@ const useGLTFDocument = (entity: Entity) => {
     const onError = (error: ErrorEvent) => {
       addError(entity, GLTFComponent, 'LOADING_ERROR', 'Error loading model')
     }
+
+    removeError(entity, GLTFComponent, 'LOADING_ERROR')
 
     loadGLTFFile(
       url,

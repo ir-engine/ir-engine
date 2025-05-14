@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -75,7 +75,9 @@ export const saveSceneGLTF = async (
 
   const { rootEntity } = getState(EditorState)
 
-  const sceneName = cleanString(sceneFile!.replace('.gltf', '')) + '.gltf'
+  const baseSceneName = cleanString(sceneFile!.replace('.gltf', '').trim())
+  const sceneName = baseSceneName.endsWith('.gltf') ? baseSceneName : `${baseSceneName}.gltf`
+
   let currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
   if (savePath) {
     currentSceneDirectory = savePath
@@ -94,7 +96,7 @@ export const saveSceneGLTF = async (
   }
 
   const blob = [new Blob([JSON.stringify(gltfData, null, 2)], { type: 'model/gltf+json' })]
-  const gltfFile = new File(blob, sceneFile, { type: 'model/gltf+json' })
+  const gltfFile = new File(blob, sceneName, { type: 'model/gltf+json' })
 
   const currentScene = await API.instance.service(staticResourcePath).get(sceneAssetID)
 
