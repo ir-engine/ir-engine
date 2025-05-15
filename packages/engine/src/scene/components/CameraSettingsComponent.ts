@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -41,12 +41,24 @@ export const CameraSettingsComponent = defineComponent({
     fov: S.Number({ default: 60 }),
     cameraNearClip: S.Number({ default: 0.1 }),
     cameraFarClip: S.Number({ default: 1000 }),
-    projectionType: S.Enum(ProjectionType, { default: ProjectionType.Perspective }),
+    projectionType: S.Enum(ProjectionType, {
+      $comment:
+        "An indexed enum, ie. the numeric index of a value in the following sequence: 'Orthographic', 'Perspective'",
+      default: ProjectionType.Perspective
+    }),
     minCameraDistance: S.Number({ default: 1.5 }),
     maxCameraDistance: S.Number({ default: 50 }),
     startCameraDistance: S.Number({ default: 3 }),
-    cameraMode: S.Enum(FollowCameraMode, { default: FollowCameraMode.Dynamic }),
-    cameraModeDefault: S.Enum(FollowCameraMode, { default: FollowCameraMode.ThirdPerson }),
+    cameraMode: S.Enum(FollowCameraMode, {
+      $comment:
+        "An indexed enum, ie. the numeric index of a value in the following sequence: 'FirstPerson', 'ShoulderCam', 'ThirdPerson', 'TopDown', 'Strategic', 'Dynamic'",
+      default: FollowCameraMode.Dynamic
+    }),
+    cameraModeDefault: S.Enum(FollowCameraMode, {
+      $comment:
+        "An indexed enum, ie. the numeric index of a value in the following sequence: 'FirstPerson', 'ShoulderCam', 'ThirdPerson', 'TopDown', 'Strategic', 'Dynamic'",
+      default: FollowCameraMode.ThirdPerson
+    }),
     minPhi: S.Number({ default: -70 }),
     maxPhi: S.Number({ default: 85 })
   }),

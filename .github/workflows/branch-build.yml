@@ -175,12 +175,6 @@ jobs:
       - run: rm -rf packages/*
       - run: mv packages_moved/hyperflux packages/
       - run: cd packages/hyperflux && npm run test
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_hyperflux }}
-        with:
-          projectBaseDir: packages/hyperflux/
 
   test_ecs:
     needs: install-modules
@@ -217,12 +211,6 @@ jobs:
       - run: mv packages_moved/hyperflux packages/
       - run: mv packages_moved/ecs packages/
       - run: cd packages/ecs && npm run test
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_ecs }}
-        with:
-          projectBaseDir: packages/ecs/
 
   test_network:
     needs: install-modules
@@ -262,12 +250,6 @@ jobs:
       - run: mv packages_moved/ecs packages/
       - run: mv packages_moved/network packages/
       - run: cd packages/network && npm run test
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_network }}
-        with:
-          projectBaseDir: packages/network/
 
   test_spatial:
     needs: install-modules
@@ -313,12 +295,6 @@ jobs:
       - run: mv packages_moved/xrui packages/
       - run: mv packages_moved/spatial packages/
       - run: cd packages/spatial && npm run test
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_spatial }}
-        with:
-          projectBaseDir: packages/spatial/
 
   test_engine:
     needs: install-modules
@@ -373,12 +349,6 @@ jobs:
       - run: mv packages_moved/engine packages/
       - run: mv packages_moved/projects packages/
       - run: cd packages/engine && npm run test
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_engine }}
-        with:
-          projectBaseDir: packages/engine/
 
   test_visual_script:
     needs: install-modules
@@ -433,12 +403,6 @@ jobs:
       - run: mv packages_moved/engine packages/
       - run: mv packages_moved/projects packages/
       - run: cd packages/visual-script && npm run test
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_visual_script }}
-        with:
-          projectBaseDir: packages/visual-script/
 
   test_client:
     needs: install-modules
@@ -480,12 +444,6 @@ jobs:
       - run: rm -rf packages/server-core
       - run: rm -rf packages/taskserver
       - run: cd packages/${{ matrix.package }} && npm run test
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets[format('SONAR_TOKEN', matrix.package)] }}
-        with:
-          projectBaseDir: packages/${{ matrix.package }}/
 
   test_server:
     needs: install-modules
@@ -531,12 +489,6 @@ jobs:
       - run: git config --global user.email "you@example.com" && git config --global user.name "Your Name"
       - run: cd packages/${{ matrix.package }} && npm run test
         timeout-minutes: 20
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets[format('SONAR_TOKEN', matrix.package)] }}
-        with:
-          projectBaseDir: packages/${{ matrix.package }}/
 
   npm_builds:
     needs: install-modules

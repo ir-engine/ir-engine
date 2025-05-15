@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -86,7 +86,10 @@ export const distanceMetadataSchema = S.Object({
 })
 
 export const deviceMetadataSchema = S.Object({
-  device: S.Enum(Devices)
+  device: S.Enum(Devices, {
+    $comment: "Likely a string enum, ie. one of the following values: 'DESKTOP', 'MOBILE', 'XR'",
+    default: Devices.DESKTOP
+  })
 })
 
 export type VariantMetadata = Static<typeof distanceMetadataSchema> | Static<typeof deviceMetadataSchema>
@@ -102,7 +105,10 @@ export const VariantComponent = defineComponent({
         metadata: S.Union([distanceMetadataSchema, deviceMetadataSchema])
       })
     ),
-    heuristic: S.Enum(Heuristic, { default: Heuristic.MANUAL }),
+    heuristic: S.Enum(Heuristic, {
+      $comment: "Likely a string enum, ie. one of the following values: 'DISTANCE', 'MANUAL', 'DEVICE'",
+      default: Heuristic.MANUAL
+    }),
     currentLevel: S.Number({ default: 0, serialized: false })
   }),
 

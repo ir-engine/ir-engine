@@ -19,11 +19,12 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect, useState } from 'react'
+import { XCircleLg } from '../../../../icons'
 import Input, { InputProps } from '../../../../primitives/tailwind/Input'
 
 export interface StringInputProps extends Omit<InputProps, 'onChange'> {
@@ -47,6 +48,17 @@ const StringInput = ({ value, onChange, onRelease, inputRef, ...rest }: StringIn
         onRelease?.(e.target.value)
       }}
       ref={inputRef}
+      endComponent={
+        <button
+          className="h-4 w-4"
+          onClick={() => {
+            onChange?.('')
+            onRelease?.('')
+          }}
+        >
+          <XCircleLg className="h-full w-full" />
+        </button>
+      }
       {...rest}
     />
   )
@@ -93,6 +105,17 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
       placeholder={placeholder}
       type="text"
       fullWidth
+      endComponent={
+        <button
+          className="h-4 w-4"
+          onClick={() => {
+            onChangeValue('')
+          }}
+        >
+          <XCircleLg className="h-full w-full" />
+        </button>
+      }
+      {...rest}
     />
   )
 })

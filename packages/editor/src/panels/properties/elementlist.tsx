@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -205,9 +205,10 @@ const usePrefabShelfCategories = (search: string): [string, PrefabShelfItem[]][]
 
     shelves['Empty'] ??= [
       {
-        name: 'Create',
+        name: 'Create an Empty Entity',
         url: '',
-        category: 'Empty'
+        category: 'Empty',
+        detail: 'Inserts an empty object into the scene, ready for components and child entities.'
       }
     ]
     return shelves

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -150,7 +150,6 @@ export function ProjectDownloadProgress() {
 export function FileUploadProgress() {
   const { t } = useTranslation()
   const { completed, total, progress } = useUploadingFiles()
-
   return total ? (
     <div className="flex h-auto w-full justify-center pb-2 pt-2">
       <div className="flex w-1/2">
@@ -188,12 +187,13 @@ function GeneratingThumbnailsProgress() {
         className="mx-2 my-auto h-6 w-6"
         title={t('editor:layout.filebrowser.generatingThumbnails', { count: thumbnailjobCount })}
       />
-      <LoadingView
+      {/* commenting out instead of dealing for future use */}
+      {/* <LoadingView
         titleClassname="mt-0"
         containerClassName="flex-row mt-1"
         className="mx-2 my-auto h-6 w-6"
         title={t('editor:layout.filebrowser.generatingDimension', { count: dimensionJobCount })}
-      />
+      /> */}
     </>
   ) : null
 }
