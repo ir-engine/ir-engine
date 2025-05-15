@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the InfiniteReality team.
 
-All portions of the code written by the InfiniteReality team are Copyright © 2021-2023 
+All portions of the code written by the InfiniteReality team are Copyright © 2021-2025 
 InfiniteReality. All Rights Reserved.
 */
 
