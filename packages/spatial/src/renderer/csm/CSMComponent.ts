@@ -2,7 +2,6 @@ import { defineComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { DirectionalLight, Shader as ShaderType, Vector3 } from 'three'
 import { T } from '../../schema/schemaFunctions'
-import { CSMModes } from './CSM'
 import Frustum from './Frustum'
 
 export const CSMComponent = defineComponent({
@@ -12,7 +11,7 @@ export const CSMComponent = defineComponent({
     {
       cascades: S.Number({ default: 5 }),
       maxFar: S.Number({ default: 100 }),
-      mode: S.String({ default: CSMModes.PRACTICAL }),
+      mode: S.String({ default: 'PRACTICAL' }),
       shadowMapSize: S.Number({ default: 1024 }),
       shadowBias: S.Number({ default: 0 }),
       shadowNormalBias: S.Number({ default: 0 }),

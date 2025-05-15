@@ -50,7 +50,7 @@ export const CSMPluginComponent = defineComponent({
       }
 
       setPlugin(materialComponent.material as Material, callback)
-
+      material.needsUpdate = true
       return () => {
         removePlugin(materialComponent.material as Material, callback)
 
