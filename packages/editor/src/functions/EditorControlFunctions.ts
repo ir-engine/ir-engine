@@ -358,6 +358,7 @@ const duplicateObject = (entities: Entity[]) => {
 
   // Update selection to the new entities
   SelectionState.updateSelection(newEntities)
+  return newEntities
 }
 
 const positionObject = (
