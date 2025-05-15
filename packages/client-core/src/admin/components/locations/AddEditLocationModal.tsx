@@ -262,7 +262,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
             progress: progressState.value.progress,
             caption: `Compressing ${fileName}...`
           })
-
+          // transform each of them seperately
           await transformModel(
             pathJoin(config.client.fileServer, destPath),
             [lodParams],
