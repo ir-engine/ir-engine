@@ -35,11 +35,10 @@ import { I18nextProvider } from 'react-i18next'
 import '../../client/src/themes/base.css'
 import '../../client/src/themes/components.css'
 import '../../client/src/themes/utilities.css'
-import keycardGLB from '../../projects/default-project/assets/keycard.glb?raw'
+import keycardGLB from '../../projects/default-project/assets/keycard.glb?url'
 import apartmentGLTF from '../../projects/default-project/public/scenes/apartment.gltf?raw'
 import EngineDecorator from './decorators/EngineDecorator'
 import i18n from './i18n'
-
 initialize()
 
 export const decorators: Decorator[] = [
@@ -61,7 +60,6 @@ export const decorators: Decorator[] = [
   },
   (Story, args) => {
     if (args.globals.IR_Engine) {
-      console.log(args.globals)
       const sceneName = args.globals.Scene
       return (
         <>
@@ -98,7 +96,7 @@ const preview: Preview = {
     },
     Scene: {
       description: 'Scene',
-      defaultValue: 'public/scenes/default.gltf',
+      defaultValue: '/default.gltf',
       toolbar: {
         title: 'Location',
         icon: 'location',
@@ -123,21 +121,20 @@ const preview: Preview = {
     },
     msw: {
       handlers: [
-        http.get(/default.gltf/g, async (as) => {
+        http.get(/default.gltf/g, async () => {
           return HttpResponse.json(JSON.parse(apartmentGLTF))
         }),
         http.get(/apartment.glb/g, async () => {
-          // Parse the raw GLB data
+          //Two ways of returning assets. Fetch from the /public folder
           const glb = await fetch('/apartment.glb')
-          console.log(glb)
-          // Serialize the document back to GLB
           return glb
         }),
         http.get(/keycard.glb/g, async () => {
-          const encoder = new TextEncoder()
-          const uint8Array = encoder.encode(keycardGLB)
-          const arrayBuffer = uint8Array.buffer
-          return HttpResponse.arrayBuffer(arrayBuffer)
+          //Or fetch internaly using the <import_path?url>
+          const glbResponse = await fetch(keycardGLB)
+          const arrayBuffer = await glbResponse.arrayBuffer()
+
+          return HttpResponse.arrayBuffer(arrayBuffer, { headers: { 'Content-Type': 'model/gltf-binary' } })
         })
       ]
     },

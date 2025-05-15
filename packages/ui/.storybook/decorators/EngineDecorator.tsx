@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { API as ClientAPI } from '@ir-engine/client-core/src/API'
 import { ThemeState, useThemeProvider } from '@ir-engine/client-core/src/common/services/ThemeService'
 import * as ECS from '@ir-engine/ecs'
-import { useHookstate } from '@ir-engine/hyperflux'
 import '@ir-engine/spatial'
 import { destroySpatialEngine, initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { useEngineCanvas } from '@ir-engine/spatial/src/renderer/functions/useEngineCanvas'
@@ -51,11 +50,6 @@ const CanvasEngine = () => {
 
 export default function EngineDecorator({ children, sceneName }: React.PropsWithChildren<{ sceneName?: string }>) {
   const [engineInitialized, setEngineInitialized] = useState(false)
-  const inited = useHookstate(!!ECS.Engine.instance)
-
-  useEffect(() => {
-    console.log(inited.value)
-  }, [inited])
 
   useEffect(() => {
     if (engineInitialized) return

@@ -131,9 +131,9 @@ class MetaTags extends Component<Props> {
     }
   }
   componentWillUnmount() {
-    if (this.temporaryRoot) {
-      this.temporaryRoot.unmount()
-    }
+    // if (this.temporaryRoot) {
+    //   this.temporaryRoot.unmount()
+    // }
   }
   extractChildren() {
     const { extract } = this.context as MetaContextType
