@@ -19,44 +19,50 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { clientSettingMethods, clientSettingPath } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
+import Multer from '@koa/multer'
+
+import { ffmpegMethod, ffmpegPath } from '@ir-engine/common/src/schemas/media/ffmpeg.schema'
 
 import { Application } from '../../../declarations'
-import { updateAppConfig } from '../../updateAppConfig'
-import { ClientSettingService } from './client-setting.class'
-import clientSettingDocs from './client-setting.docs'
-import hooks from './client-setting.hooks'
+import { FfmpegService } from './ffmpeg.class'
+import ffmpegDocs from './ffmpeg.docs'
+import hooks from './ffmpeg.hooks'
 
 declare module '@ir-engine/common/declarations' {
   interface ServiceTypes {
-    [clientSettingPath]: ClientSettingService
+    [ffmpegPath]: FfmpegService
   }
 }
 
-export default (app: Application): void => {
-  const options = {
-    name: clientSettingPath,
-    paginate: app.get('paginate'),
-    Model: app.get('knexClient'),
-    multi: true
-  }
+const multipartMiddleware = Multer({ limits: { fieldSize: Infinity, files: 1 } })
 
-  app.use(clientSettingPath, new ClientSettingService(options), {
+export default (app: Application): void => {
+  app.use(ffmpegPath, new FfmpegService(app), {
     // A list of all methods this service exposes externally
-    methods: clientSettingMethods,
+    methods: ffmpegMethod,
     // You can add additional custom events to be sent to clients here
     events: [],
-    docs: clientSettingDocs
+    docs: ffmpegDocs,
+    koa: {
+      before: [
+        multipartMiddleware.any(),
+        async (ctx, next) => {
+          if (ctx?.feathers && ctx.method !== 'GET') {
+            ;(ctx as any).feathers.files = (ctx as any).request.files.media
+              ? (ctx as any).request.files.media
+              : ctx.request.files
+          }
+          await next()
+          return ctx.body
+        }
+      ]
+    }
   })
 
-  const service = app.service(clientSettingPath)
+  const service = app.service(ffmpegPath)
   service.hooks(hooks)
-
-  service.on('patched', () => {
-    updateAppConfig()
-  })
 }

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -108,7 +108,14 @@ export const UUIDComponent = defineComponent({
     required: true
   }),
 
+  toJSON(component) {
+    return { entityID: component.entityID }
+  },
+
   onSet(entity, component, idPair: EntityUUIDPair) {
+    if (!idPair.entitySourceID) throw new Error('UUID context cannot be empty')
+    if (!idPair.entityID) throw new Error('UUID id cannot be empty')
+
     const layer = LayerComponent.get(entity)
     const prev =
       component.value.entityID && component.value.entitySourceID ? UUIDComponent.join(component.value) : undefined

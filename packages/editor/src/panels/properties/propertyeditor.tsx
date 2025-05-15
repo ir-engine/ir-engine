@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -85,7 +85,6 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
             component.jsonID !== undefined
         )
         .map((component) => component.jsonID!)
-
       if (JSON.stringify(entityComponents) !== JSON.stringify(components.get(NO_PROXY))) {
         components.set(entityComponents)
       }
@@ -114,8 +113,8 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
   if (!entity) return null
 
   return (
-    <>
-      <div className="flex w-full justify-between gap-2 bg-surface-3 p-1 px-3" id="add-component-popover">
+    <div className="flex h-full flex-col">
+      <div className="flex w-full justify-between gap-2 bg-surface-3 p-2 px-3" id="add-component-popover">
         {hasName && (
           <div className="flex h-full w-1/2 flex-row items-center text-sm text-text-secondary group-hover/component-dropdown:text-text-primary group-focus/component-dropdown:text-text-primary">
             <IconComponent entity={entity} />
@@ -129,7 +128,7 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
           open={isAddComponentMenuOpen}
           onClose={() => setIsAddComponentMenuOpen(false)}
           trigger={
-            <Button size="sm" onClick={() => setIsAddComponentMenuOpen(true)}>
+            <Button variant="tertiary" size="sm" onClick={() => setIsAddComponentMenuOpen(true)}>
               <PlusCircleSm />
               {t('editor:properties.lbl-addComponent')}
             </Button>
@@ -141,27 +140,29 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
           </div>
         </Popup>
       </div>
-      {hasTransform && (
-        <ErrorBoundary fallback={<div>Error occured displaying transform properties</div>}>
-          <Suspense>
-            <TransformPropertyGroup entity={entity} />
-          </Suspense>
-        </ErrorBoundary>
-      )}
-      {components.get(NO_PROXY).map((c) => {
-        const component = ComponentJSONIDMap.get(c)
-        return component ? (
-          <ErrorBoundary
-            key={`${entityUUID + entity}-${component.name}`}
-            fallback={<div>Error occured displaying properties for {component.name}</div>}
-          >
+      <div className="overflow-y-auto">
+        {hasTransform && (
+          <ErrorBoundary fallback={<div>Error occured displaying transform properties</div>}>
             <Suspense>
-              <EntityComponentEditor multiEdit={multiEdit} entity={entity} component={component as Component} />
+              <TransformPropertyGroup entity={entity} />
             </Suspense>
           </ErrorBoundary>
-        ) : null
-      })}
-    </>
+        )}
+        {components.get(NO_PROXY).map((c) => {
+          const component = ComponentJSONIDMap.get(c)
+          return component ? (
+            <ErrorBoundary
+              key={`${entityUUID + entity}-${component.name}`}
+              fallback={<div>Error occured displaying properties for {component.name}</div>}
+            >
+              <Suspense>
+                <EntityComponentEditor multiEdit={multiEdit} entity={entity} component={component as Component} />
+              </Suspense>
+            </ErrorBoundary>
+          ) : null
+        })}
+      </div>
+    </div>
   )
 }
 

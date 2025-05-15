@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -35,16 +35,16 @@ import { useMutableState } from '@ir-engine/hyperflux'
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import ProfileMenu from '@ir-engine/client-core/src/user/menus/ProfileMenu'
 import { ViewerMenuState } from '@ir-engine/client-core/src/util/ViewerMenuState'
-import { useFind } from '@ir-engine/common'
-import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
+import useEngineSetting from '@ir-engine/common/src/hooks/useEngineSetting'
+import { ClientEngineSettingType } from '@ir-engine/server-core/src/appconfig'
 import './index.scss'
 
 const ROOT_REDIRECT = config.client.rootRedirect
 
 export const HomePage = (): any => {
   const { t } = useTranslation()
-  const clientSettingQuery = useFind(clientSettingPath)
-  const clientSetting = clientSettingQuery.data[0]
+  const clientSetting = useEngineSetting<ClientEngineSettingType>('client')
+
   const viewerMenuState = useMutableState(ViewerMenuState)
 
   useEffect(() => {
@@ -74,13 +74,13 @@ export const HomePage = (): any => {
         </style>
         <div className="main-background">
           <div className="img-container">
-            {clientSetting?.appBackground && (
+            {clientSetting?.data?.appBackground && (
               <img
                 style={{
                   height: 'auto',
                   maxWidth: '100%'
                 }}
-                src={clientSetting?.appBackground}
+                src={clientSetting?.data?.appBackground}
                 alt=""
                 crossOrigin="anonymous"
               />
@@ -89,28 +89,31 @@ export const HomePage = (): any => {
         </div>
         <nav className="navbar">
           <div className="logo-section">
-            {clientSetting?.appTitle && <object className="lander-logo" data={clientSetting?.appTitle} />}
+            {clientSetting?.data?.appTitle && <object className="lander-logo" data={clientSetting?.data?.appTitle} />}
             <div className="logo-bottom">
-              {clientSetting?.appSubtitle && <span className="white-txt">{clientSetting?.appSubtitle}</span>}
+              {clientSetting?.data?.appSubtitle && (
+                <span className="white-txt">{clientSetting?.data?.appSubtitle}</span>
+              )}
             </div>
           </div>
         </nav>
         <div className="main-section">
           <div className="desc">
-            {clientSetting?.appDescription && (
-              <Trans t={t} i18nKey={clientSetting?.appDescription}>
-                <span>{clientSetting?.appDescription}</span>
+            {clientSetting?.data?.appDescription && (
+              <Trans t={t} i18nKey={clientSetting?.data?.appDescription}>
+                <span>{clientSetting?.data?.appDescription}</span>
               </Trans>
             )}
-            {Boolean(clientSetting?.homepageLinkButtonEnabled) && (
-              <button
-                className="gradientButton"
-                autoFocus
-                onClick={() => (window.location.href = clientSetting?.homepageLinkButtonRedirect)}
-              >
-                {clientSetting?.homepageLinkButtonText}
-              </button>
-            )}
+            {Boolean(clientSetting?.data?.homepageLinkButtonEnabled) &&
+              clientSetting?.data?.homepageLinkButtonRedirect && (
+                <button
+                  className="gradientButton"
+                  autoFocus
+                  onClick={() => (window.location.href = clientSetting?.data?.homepageLinkButtonRedirect || '')}
+                >
+                  {clientSetting?.data?.homepageLinkButtonText}
+                </button>
+              )}
           </div>
           <div style={{ flexGrow: 1 }}>
             <style>
@@ -130,8 +133,9 @@ export const HomePage = (): any => {
         </div>
         <div className="link-container">
           <div className="link-block">
-            {clientSetting?.appSocialLinks?.length > 0 &&
-              clientSetting?.appSocialLinks.map((social, index) => (
+            {clientSetting?.data &&
+              clientSetting?.data?.appSocialLinks?.length > 0 &&
+              clientSetting?.data?.appSocialLinks.map((social, index) => (
                 <a key={index} target="_blank" className="icon" href={social.link}>
                   <img
                     style={{
@@ -145,7 +149,7 @@ export const HomePage = (): any => {
               ))}
           </div>
           <div className="logo-bottom">
-            {clientSetting?.appSubtitle && <span className="white-txt">{clientSetting?.appSubtitle}</span>}
+            {clientSetting?.data?.appSubtitle && <span className="white-txt">{clientSetting?.data?.appSubtitle}</span>}
           </div>
         </div>
       </div>

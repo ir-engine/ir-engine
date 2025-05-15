@@ -7,7 +7,9 @@
     {
       "name": "Settings",
       "extensions": {
-        "EE_uuid": "53705e73-f0b4-4923-89b7-0719e64865a0",
+        "EE_uuid": {
+          "entityID": "53705e73-f0b4-4923-89b7-0719e64865a0"
+        },
         "EE_envmapbake": {
           "bakePosition": {
             "x": 0,
@@ -218,14 +220,18 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "1e8b1451-a87f-4cd4-8556-d0732f328a3c",
+        "EE_uuid": {
+          "entityID": "1e8b1451-a87f-4cd4-8556-d0732f328a3c"
+        },
         "EE_scene_preview_camera": {}
       }
     },
     {
       "name": "Skybox",
       "extensions": {
-        "EE_uuid": "35621369-7e83-4878-953c-f30bf81dc775",
+        "EE_uuid": {
+          "entityID": "35621369-7e83-4878-953c-f30bf81dc775"
+        },
         "EE_skybox": {
           "backgroundColor": 0,
           "equirectangularPath": "__$project$__/ir-engine/default-project/assets/sky_skybox.jpg",
@@ -265,11 +271,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "2b68a123-8a48-4258-a985-69a36679b4ef",
+        "EE_uuid": {
+          "entityID": "2b68a123-8a48-4258-a985-69a36679b4ef"
+        },
         "EE_spawn_point": {
           "permissionedUsers": []
-        },
-        "EE_visible": true
+        }
       }
     },
     {
@@ -293,7 +300,9 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "5b63019e-418f-4318-9807-a00acb4912f4",
+        "EE_uuid": {
+          "entityID": "5b63019e-418f-4318-9807-a00acb4912f4"
+        },
         "EE_directional_light": {
           "color": 16777215,
           "intensity": 1,
@@ -308,7 +317,9 @@
     {
       "name": "Ambient Light",
       "extensions": {
-        "EE_uuid": "e29dce88-8f22-4f8d-ae5d-e7dd0d55c41a",
+        "EE_uuid": {
+          "entityID": "e29dce88-8f22-4f8d-ae5d-e7dd0d55c41a"
+        },
         "EE_ambient_light": {
           "color": 16777215,
           "intensity": 1
@@ -337,7 +348,9 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "bd83d58b-80e4-40a2-9a1d-d45aaee0c76a",
+        "EE_uuid": {
+          "entityID": "bd83d58b-80e4-40a2-9a1d-d45aaee0c76a"
+        },
         "EE_shadow": {
           "cast": true,
           "receive": true
@@ -395,7 +408,9 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "6a1cf0d6-ddfe-4058-b5ca-5bb18bc7efae",
+        "EE_uuid": {
+          "entityID": "6a1cf0d6-ddfe-4058-b5ca-5bb18bc7efae"
+        },
         "EE_shadow": {
           "cast": true,
           "receive": true
@@ -501,7 +516,9 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "dd1eafe4-dc87-4353-b3ae-567d4f81c032",
+        "EE_uuid": {
+          "entityID": "dd1eafe4-dc87-4353-b3ae-567d4f81c032"
+        },
         "EE_shadow": {
           "cast": true,
           "receive": true
@@ -607,7 +624,9 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "2d7f9f97-20a0-40e8-a504-682f650af501",
+        "EE_uuid": {
+          "entityID": "2d7f9f97-20a0-40e8-a504-682f650af501"
+        },
         "EE_shadow": {
           "cast": true,
           "receive": true

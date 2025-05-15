@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -31,7 +31,7 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getState } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { isMobile } from '../../common/functions/isMobile'
+import { isTouchAvailable } from '../../common/functions/DetectFeatures'
 import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { ButtonStateMap } from '../state/ButtonState'
@@ -75,7 +75,7 @@ export const InputSourceComponent = defineComponent({
             hapticActuators: [],
             id: 'emulated-gamepad-' + entity,
             index: 0,
-            mapping: isMobile ? 'xr-standard' : '',
+            mapping: isTouchAvailable ? 'xr-standard' : '',
             timestamp: performance.now(),
             vibrationActuator: null
           } as unknown as Gamepad),

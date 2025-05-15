@@ -19,13 +19,14 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
 import { Joystick } from 'react-joystick-component'
 
+import { config } from '@ir-engine/common/src/config'
 import { InteractableState } from '@ir-engine/engine/src/interaction/functions/interactableFunctions'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { isTouchAvailable } from '@ir-engine/spatial/src/common/functions/DetectFeatures'
@@ -108,8 +109,8 @@ export const TouchGamepad = () => {
     <>
       <div className="pointer-events-auto fixed bottom-[15%] left-[15%] select-none [&>div]:m-auto">
         <Joystick
-          baseImage="/static/stickypad.svg"
-          stickImage="/static/basepad.svg"
+          baseImage={`${config.client.clientUrl}/static/stickypad.svg`}
+          stickImage={`${config.client.clientUrl}/static/basepad.svg`}
           size={27}
           stickSize={80}
           throttle={100}

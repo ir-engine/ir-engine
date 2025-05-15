@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -28,7 +28,6 @@ import { HookContext } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import { clientSettingPath } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
 import {
   userSettingDataValidator,
   userSettingPatchValidator,
@@ -52,20 +51,6 @@ const ensureUserSettingsOwner = () => {
     const user = params.user
     const userSettings = await app.service(userSettingPath).get(id!)
     if (user.id !== userSettings.userId) throw new Forbidden(`You are not the owner of those ${userSettingPath}`)
-    return context
-  }
-}
-
-const ensureUserThemeModes = () => {
-  return async (context: HookContext): Promise<HookContext> => {
-    const { app, result } = context
-    const clientSettings = await app.service(clientSettingPath).find()
-    if (clientSettings && clientSettings.data.length > 0) {
-      context.result = await app
-        .service(userSettingPath)
-        .patch(result.id, { themeModes: clientSettings.data[0].themeModes })
-    }
-
     return context
   }
 }
@@ -97,7 +82,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [ensureUserThemeModes()],
+    create: [],
     update: [],
     patch: [],
     remove: []

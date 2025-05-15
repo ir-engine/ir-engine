@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -35,7 +35,7 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import { Entity, SourceID } from '@ir-engine/ecs/src/Entity'
 import { defineQuery, EntityArrayBoundary, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
@@ -119,7 +119,7 @@ const execute = () => {
 
 const ModelEntityReactor = (props: { entity: Entity }) => {
   const entity = props.entity
-  const sourceID = UUIDComponent.getAsSourceID(entity)
+  const sourceID = hasComponent(entity, UUIDComponent) ? UUIDComponent.getAsSourceID(entity) : ('' as SourceID)
   const childEntities = UUIDComponent.useEntitiesBySource(sourceID)
 
   return (
