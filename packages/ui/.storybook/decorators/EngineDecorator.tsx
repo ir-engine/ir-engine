@@ -25,16 +25,14 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { API as ClientAPI } from '@ir-engine/client-core/src/API'
 import { ThemeState, useThemeProvider } from '@ir-engine/client-core/src/common/services/ThemeService'
-import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import * as ECS from '@ir-engine/ecs'
-import { SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { useHookstate } from '@ir-engine/hyperflux'
 import '@ir-engine/spatial'
-import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { destroySpatialEngine, initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { useEngineCanvas } from '@ir-engine/spatial/src/renderer/functions/useEngineCanvas'
 import { startTimer } from '@ir-engine/spatial/src/startTimer'
 import React, { useEffect, useRef, useState } from 'react'
+import SceneDecorator from './SceneDecorator'
 
 globalThis.ECS = ECS
 
@@ -53,35 +51,20 @@ const CanvasEngine = () => {
 
 export default function EngineDecorator({ children, sceneName }: React.PropsWithChildren<{ sceneName?: string }>) {
   const [engineInitialized, setEngineInitialized] = useState(false)
-  console.log({ sceneName })
+  const inited = useHookstate(!!ECS.Engine.instance)
+
+  useEffect(() => {
+    console.log(inited.value)
+  }, [inited])
+
   useEffect(() => {
     if (engineInitialized) return
     ECS.createEngine()
     startTimer()
-    setEngineInitialized(true)
     ClientAPI.createAPI()
-  }, [])
-
-  useEffect(() => {
-    if (!engineInitialized) return
     initializeSpatialEngine()
-  }, [engineInitialized])
+    setEngineInitialized(true)
 
-  useEffect(() => {
-    if (!engineInitialized) return
-    getMutableState(LocationState).currentLocation.location.sceneId.set(1 as any)
-    getMutableState(LocationState).currentLocation.location.sceneURL.set('default.gltf')
-    const viewerEntity = getState(ReferenceSpaceState).viewerEntity
-    console.log('viewerEntity', viewerEntity)
-    const unload = SceneState.loadScene(sceneName as any, 1 as any, viewerEntity)
-    return () => {
-      getMutableState(LocationState).currentLocation.location.sceneId.set('')
-      getMutableState(LocationState).currentLocation.location.sceneURL.set('')
-      unload()
-    }
-  }, [engineInitialized])
-
-  useEffect(() => {
     return () => {
       destroySpatialEngine()
       ECS.destroyEngine()
@@ -94,6 +77,7 @@ export default function EngineDecorator({ children, sceneName }: React.PropsWith
     <>
       <ThemeProvider />
       <CanvasEngine />
+      {sceneName && <SceneDecorator sceneName={sceneName} />}
       {children}
     </>
   )

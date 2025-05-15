@@ -23,25 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useLoadScene } from '@ir-engine/client-core/src/components/World/LoadLocationScene'
-import {
-  createEntity,
-  defineSystem,
-  ECSState,
-  EntityTreeComponent,
-  getComponent,
-  setComponent,
-  UndefinedEntity
-} from '@ir-engine/ecs'
-import { defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
-import { ReferenceSpaceState, TransformComponent, TransformSystem } from '@ir-engine/spatial'
-import { Vector3_Up, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import type { Meta, StoryObj } from '@storybook/react'
-import React, { useEffect, useState } from 'react'
-import { BoxGeometry, Matrix4, Mesh, MeshBasicMaterial, Vector3 } from 'three'
+import React, { useState } from 'react'
 import SettingsMenu from '.'
 
 const meta = {
@@ -65,23 +48,8 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
-  globals: {
-    IR_Engine: {
-      value: true
-    }
-  },
-  render: (args, { globals }) => {
+  render: (args) => {
     const [open, setOpen] = useState(false)
-    useEffect(() => {
-      // if (globals.IR_Engine) {
-      //   if (SystemDefinitions.get('ir.minimalist.UpdateSystem' as any)) {
-      //     destroySystem('ir.minimalist.UpdateSystem' as any)
-      //   }
-      //   mountSystem()
-      // }
-    }, [])
-
-    useLoadScene({ projectName: 'ir-engine/default-project', sceneName: 'public/scenes/default.gltf' })
 
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-transparent bg-center">
@@ -95,55 +63,4 @@ export const Default: Story = {
       </div>
     )
   }
-}
-
-const SceneState = defineState({
-  name: 'ir.minimalist.SceneState',
-  initial: {
-    entity: UndefinedEntity
-  }
-})
-
-const mountSystem = () => {
-  const UpdateSystem = defineSystem({
-    uuid: 'ir.minimalist.UpdateSystem',
-    insert: { before: TransformSystem },
-    execute: () => {
-      const entity = getState(SceneState).entity
-      if (!entity) return
-
-      const elapsedSeconds = getState(ECSState).elapsedSeconds
-      const transformComponent = getComponent(entity, TransformComponent)
-      transformComponent.rotation.setFromAxisAngle(Vector3_Up, elapsedSeconds)
-    },
-    reactor: function () {
-      const { originEntity, viewerEntity } = useMutableState(ReferenceSpaceState).value
-
-      useEffect(() => {
-        if (!viewerEntity) return
-
-        // Create a new entity
-        const entity = createEntity()
-        setComponent(entity, TransformComponent, { position: new Vector3(0, 0, 0) })
-        setComponent(entity, EntityTreeComponent, { parentEntity: originEntity })
-
-        // Create a box at the origin
-        const mesh = new Mesh(new BoxGeometry(1, 1, 1), new MeshBasicMaterial({ color: 0x00ff00 }))
-        setComponent(entity, MeshComponent, mesh)
-        setComponent(entity, NameComponent, 'Box')
-        setComponent(entity, VisibleComponent)
-
-        // Make the camera look at the box
-        setComponent(viewerEntity, TransformComponent, { position: new Vector3(5, 2, 0) })
-        const cameraTransform = getComponent(viewerEntity, TransformComponent)
-        cameraTransform.rotation.setFromRotationMatrix(
-          new Matrix4().lookAt(cameraTransform.position, Vector3_Zero, Vector3_Up)
-        )
-
-        getMutableState(SceneState).entity.set(entity)
-      }, [viewerEntity])
-
-      return null
-    }
-  })
 }

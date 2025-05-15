@@ -129,7 +129,6 @@ export const initializeSpatialEngine = () => {
 }
 
 export const destroySpatialEngine = () => {
-  console.log('destroying engine')
   const { originEntity, localFloorEntity } = getState(ReferenceSpaceState)
 
   if (localFloorEntity) {
@@ -139,10 +138,8 @@ export const destroySpatialEngine = () => {
     removeEntity(originEntity)
   }
 
-  console.log('almost destroyed')
   getMutableState(ReferenceSpaceState).merge({
     originEntity: UndefinedEntity,
     localFloorEntity: UndefinedEntity
   })
-  console.log('destroyed')
 }

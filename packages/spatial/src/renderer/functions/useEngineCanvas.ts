@@ -51,7 +51,6 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
     return () => {
       observer.disconnect()
       const c = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
-      console.log(parent, c)
       if (!parent.contains(c)) return
       c.hidden = true
       parent.removeChild(c)

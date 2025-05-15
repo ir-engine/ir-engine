@@ -67,7 +67,6 @@ export const SceneState = defineState({
   initial: {} as Record<string, Entity>,
 
   loadScene: (sceneURL: string, uuid: string, viewerEntity?: Entity, layer?: LayerID) => {
-    console.log({ sceneURL })
     const gltfEntity = AssetState.load(sceneURL, uuid as string as EntityID, UndefinedEntity, layer)
     getMutableState(SceneState)[sceneURL].set(gltfEntity)
     setComponent(gltfEntity, SceneComponent)
