@@ -403,7 +403,6 @@ export async function exportGLTFScene(
     entityPromises: new Map<Entity, Promise<number | undefined>>(),
     cache
   }
-  console.log('Debug:exportGLTFScene', context)
 
   if (exportRoot) {
     context.entityPromises.set(entity, exportEntity(entity, gltf, context))
