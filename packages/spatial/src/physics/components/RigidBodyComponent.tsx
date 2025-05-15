@@ -61,7 +61,10 @@ export const RigidBodyComponent = defineComponent({
   name: 'RigidBodyComponent',
   jsonID: 'EE_rigidbody',
   schema: S.Object({
-    type: S.Enum(BodyTypes, { default: BodyTypes.Fixed }),
+    type: S.Enum(BodyTypes, {
+      $comment: "A string enum, ie. one of the following values: 'fixed', 'dynamic', 'kinematic'",
+      default: BodyTypes.Fixed
+    }),
     ccd: S.Bool({ default: false }),
     allowRolling: S.Bool({ default: true }),
     enabledRotations: S.Tuple([S.Bool(), S.Bool(), S.Bool()], { default: [true, true, true] }),

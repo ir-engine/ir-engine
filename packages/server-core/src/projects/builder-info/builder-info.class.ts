@@ -26,7 +26,13 @@ import { getState } from '@ir-engine/hyperflux'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { ServerState } from '../../ServerState'
-import { dockerHubRegex, engineVersion, privateECRTagRegex, publicECRTagRegex } from '../project/project-helper'
+import {
+  dockerHubRegex,
+  engineVersion,
+  gcpArtifactRegistryTagRegex,
+  privateECRTagRegex,
+  publicECRTagRegex
+} from '../project/project-helper'
 
 export class BuilderInfoService implements ServiceInterface<BuilderInfoType> {
   app: Application
@@ -72,6 +78,7 @@ export class BuilderInfoService implements ServiceInterface<BuilderInfoType> {
           const dockerHubRegexExec = dockerHubRegex.exec(image)
           const publicECRRegexExec = publicECRTagRegex.exec(image)
           const privateECRRegexExec = privateECRTagRegex.exec(image)
+          const gcpArtifactRegistryRegexExec = gcpArtifactRegistryTagRegex.exec(image)
           returned.engineCommit =
             dockerHubRegexExec && !publicECRRegexExec
               ? dockerHubRegexExec[1]
@@ -79,6 +86,8 @@ export class BuilderInfoService implements ServiceInterface<BuilderInfoType> {
               ? publicECRRegexExec[1]
               : privateECRRegexExec
               ? privateECRRegexExec[2]
+              : gcpArtifactRegistryRegexExec
+              ? gcpArtifactRegistryRegexExec[6]
               : ''
         }
       }
