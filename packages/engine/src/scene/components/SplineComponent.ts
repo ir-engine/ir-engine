@@ -33,17 +33,16 @@ import {
   getComponent,
   removeEntity,
   setComponent,
-  useComponent,
-  useOptionalComponent
+  useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
-import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
-import { SplineHelperComponent } from './debug/SplineHelperComponent'
 
 export const SplineComponent = defineComponent({
   name: 'SplineComponent',
@@ -79,12 +78,8 @@ export const SplineComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const component = useComponent(entity, SplineComponent)
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const elements = component.elements
-    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
-    const debugEnabled =
-      activeHelperComponent !== undefined &&
-      activeHelperComponent.enabled.value &&
-      (activeHelperComponent.selected.value || activeHelperComponent.hovered.value)
 
     useEffect(() => {
       if (elements.length < 3) {
@@ -105,8 +100,7 @@ export const SplineComponent = defineComponent({
     ])
 
     useEffect(() => {
-      if (debugEnabled) setComponent(entity, SplineHelperComponent)
-      if (elements.length < 3) return
+      if (!debugEnabled.value || elements.length < 3) return
 
       const ARC_SEGMENTS = 200
       const _point = new Vector3()
