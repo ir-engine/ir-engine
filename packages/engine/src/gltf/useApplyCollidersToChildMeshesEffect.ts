@@ -49,8 +49,8 @@ function forceUpdateMatrices(childEntity: Entity, ancestorEntity: Entity = Undef
   const entities = [] as Entity[]
   getTreeFromChildToAncestor(childEntity, entities, ancestorEntity)
   if (entities.length === 0) return
-  for (let i = entities.length - 1; i >= 0; i--) {
-    computeTransformMatrix(entities[i])
+  for (const entity of entities) {
+    computeTransformMatrix(entity)
   }
 }
 
@@ -66,12 +66,15 @@ export function useApplyCollidersToChildMeshesEffect(entity: Entity) {
   const component = useComponent(entity, GLTFComponent)
 
   useLayoutEffect(() => {
-    if (!rigidbodyComponent?.initialized?.value || !physicsWorld || !physicsWorld.Rigidbodies.has(rigidbodyEntity))
+    if (
+      !rigidbodyComponent?.initialized?.value ||
+      !physicsWorld ||
+      !physicsWorld.Rigidbodies.has(rigidbodyEntity) ||
+      !component.applyColliders.value
+    )
       return
+
     forceUpdateMatrices(entity)
-
-    if (!component.applyColliders.value) return
-
     const children = [...childMeshEntities]
     if (hasComponent(entity, MeshComponent)) children.push(entity)
 

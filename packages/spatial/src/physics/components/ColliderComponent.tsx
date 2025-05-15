@@ -90,6 +90,7 @@ const ColliderReactor = function () {
     hasCollider.set(true)
 
     return () => {
+      if (!physicsWorld) return
       Physics.removeCollider(physicsWorld, entity)
       hasCollider.set(false)
     }
@@ -103,14 +104,6 @@ const ColliderReactor = function () {
     component.radius,
     component.height
   ])
-
-  useEffect(() => {
-    return () => {
-      if (!physicsWorld) return
-      Physics.removeCollider(physicsWorld, entity)
-      hasCollider.set(false)
-    }
-  }, [])
 
   useLayoutEffect(() => {
     if (!physicsWorld) return
