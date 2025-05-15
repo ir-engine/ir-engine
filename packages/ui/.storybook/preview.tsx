@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import MetaTags from '@ir-engine/client-core/src/common/components/MetaTags'
 import { Description, Primary, Stories, Subtitle, Title } from '@storybook/addon-docs'
 import { Decorator, Preview } from '@storybook/react'
+import { http, HttpResponse } from 'msw'
 import { initialize, mswLoader } from 'msw-storybook-addon'
 import React from 'react'
 import { DndProvider } from 'react-dnd'
@@ -34,6 +35,8 @@ import { I18nextProvider } from 'react-i18next'
 import '../../client/src/themes/base.css'
 import '../../client/src/themes/components.css'
 import '../../client/src/themes/utilities.css'
+import keycardGLB from '../../projects/default-project/assets/keycard.glb?raw'
+import apartmentGLTF from '../../projects/default-project/public/scenes/apartment.gltf?raw'
 import EngineDecorator from './decorators/EngineDecorator'
 import i18n from './i18n'
 
@@ -58,9 +61,11 @@ export const decorators: Decorator[] = [
   },
   (Story, args) => {
     if (args.globals.IR_Engine) {
+      console.log(args.globals)
+      const sceneName = args.globals.Scene
       return (
         <>
-          <EngineDecorator>
+          <EngineDecorator sceneName={sceneName}>
             <Story />
           </EngineDecorator>
           <canvas
@@ -90,6 +95,18 @@ const preview: Preview = {
           { value: false, title: 'Disabled' }
         ]
       }
+    },
+    Scene: {
+      description: 'Scene',
+      defaultValue: 'public/scenes/default.gltf',
+      toolbar: {
+        title: 'Location',
+        icon: 'location',
+        items: [
+          { value: '', title: 'None' },
+          { value: 'public/scenes/default.gltf', title: 'Default' }
+        ]
+      }
     }
   },
   parameters: {
@@ -103,6 +120,26 @@ const preview: Preview = {
       storySort: {
         order: ['Pages', 'Admin', 'Components', 'Primitives', 'Addons', 'Expermiental']
       }
+    },
+    msw: {
+      handlers: [
+        http.get(/default.gltf/g, async (as) => {
+          return HttpResponse.json(JSON.parse(apartmentGLTF))
+        }),
+        http.get(/apartment.glb/g, async () => {
+          // Parse the raw GLB data
+          const glb = await fetch('/apartment.glb')
+          console.log(glb)
+          // Serialize the document back to GLB
+          return glb
+        }),
+        http.get(/keycard.glb/g, async () => {
+          const encoder = new TextEncoder()
+          const uint8Array = encoder.encode(keycardGLB)
+          const arrayBuffer = uint8Array.buffer
+          return HttpResponse.arrayBuffer(arrayBuffer)
+        })
+      ]
     },
     docs: {
       source: {

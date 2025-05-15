@@ -23,15 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useLoadScene } from '@ir-engine/client-core/src/components/World/LoadLocationScene'
 import {
   createEntity,
   defineSystem,
-  destroySystem,
   ECSState,
   EntityTreeComponent,
   getComponent,
   setComponent,
-  SystemDefinitions,
   UndefinedEntity
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
@@ -66,16 +65,24 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
+  globals: {
+    IR_Engine: {
+      value: true
+    }
+  },
   render: (args, { globals }) => {
     const [open, setOpen] = useState(false)
     useEffect(() => {
-      if (globals.IR_Engine) {
-        if (SystemDefinitions.get('ir.minimalist.UpdateSystem' as any)) {
-          destroySystem('ir.minimalist.UpdateSystem' as any)
-        }
-        mountSystem()
-      }
+      // if (globals.IR_Engine) {
+      //   if (SystemDefinitions.get('ir.minimalist.UpdateSystem' as any)) {
+      //     destroySystem('ir.minimalist.UpdateSystem' as any)
+      //   }
+      //   mountSystem()
+      // }
     }, [])
+
+    useLoadScene({ projectName: 'ir-engine/default-project', sceneName: 'public/scenes/default.gltf' })
+
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-transparent bg-center">
         <button
