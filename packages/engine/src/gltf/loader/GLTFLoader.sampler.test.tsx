@@ -220,8 +220,8 @@ describe('glTF.samplers Property INDIRECTLY', () => {
 
     const texture = await GLTFLoaderFunctions.loadTextureImage(options, 0, 0, {} as any)
     expect(texture).toBeDefined()
-    expect(texture.wrapS).toBe(RepeatWrapping) // Default value
-    expect(texture.wrapT).toBe(RepeatWrapping) // Default value
+    expect(texture?.wrapS).toBe(RepeatWrapping) // Default value
+    expect(texture?.wrapT).toBe(RepeatWrapping) // Default value
   })
 
   it('MUST be an array of `sampler` objects when defined', async () => {
@@ -272,7 +272,7 @@ describe('glTF: Sampler Type', () => {
     it('MAY be undefined', async () => {
       const options = mockGLTFOptions(createTexturedGLTF({}))
       const texture = await GLTFLoaderFunctions.loadTextureImage(options, 0, 0, {} as any)
-      expect(texture.magFilter).toBe(LinearFilter) // Default value
+      expect(texture?.magFilter).toBe(LinearFilter) // Default value
     })
 
     it('MUST be an `integer` type when defined', async () => {
@@ -286,7 +286,7 @@ describe('glTF: Sampler Type', () => {
       for (const filter of validFilters) {
         const options = mockGLTFOptions(createTexturedGLTF({ magFilter: filter }))
         const texture = await GLTFLoaderFunctions.loadTextureImage(options, 0, 0, {} as any)
-        expect(texture.magFilter).toBe(WEBGL_FILTERS[filter])
+        expect(texture?.magFilter).toBe(WEBGL_FILTERS[filter])
       }
 
       // Invalid value
@@ -299,7 +299,7 @@ describe('glTF: Sampler Type', () => {
     it('MAY be undefined', async () => {
       const options = mockGLTFOptions(createTexturedGLTF({}))
       const texture = await GLTFLoaderFunctions.loadTextureImage(options, 0, 0, {} as any)
-      expect(texture.minFilter).toBe(LinearMipmapLinearFilter) // Default value
+      expect(texture?.minFilter).toBe(LinearMipmapLinearFilter) // Default value
     })
 
     it('MUST be an `integer` type when defined', async () => {
@@ -313,7 +313,7 @@ describe('glTF: Sampler Type', () => {
       for (const filter of validFilters) {
         const options = mockGLTFOptions(createTexturedGLTF({ minFilter: filter }))
         const texture = await GLTFLoaderFunctions.loadTextureImage(options, 0, 0, {} as any)
-        expect(texture.minFilter).toBe(WEBGL_FILTERS[filter])
+        expect(texture?.minFilter).toBe(WEBGL_FILTERS[filter])
       }
 
       // Invalid value
@@ -326,13 +326,13 @@ describe('glTF: Sampler Type', () => {
     it('MAY be undefined', async () => {
       const options = mockGLTFOptions(createTexturedGLTF({}))
       const texture = await GLTFLoaderFunctions.loadTextureImage(options, 0, 0, {} as any)
-      expect(texture.wrapS).toBe(RepeatWrapping) // Default value
+      expect(texture?.wrapS).toBe(RepeatWrapping) // Default value
     })
 
     it('SHOULD assign a default value of 10497 REPEAT', async () => {
       const options = mockGLTFOptions(createTexturedGLTF({}))
       const texture = await GLTFLoaderFunctions.loadTextureImage(options, 0, 0, {} as any)
-      expect(texture.wrapS).toBe(RepeatWrapping) // THREE.RepeatWrapping
+      expect(texture?.wrapS).toBe(RepeatWrapping) // THREE.RepeatWrapping
     })
 
     it('MUST be an `integer` type when defined', async () => {
@@ -346,7 +346,7 @@ describe('glTF: Sampler Type', () => {
       for (const wrapping of validWrappings) {
         const options = mockGLTFOptions(createTexturedGLTF({ wrapS: wrapping }))
         const texture = await GLTFLoaderFunctions.loadTextureImage(options, 0, 0, {} as any)
-        expect(texture.wrapS).toBe(WEBGL_WRAPPINGS[wrapping])
+        expect(texture?.wrapS).toBe(WEBGL_WRAPPINGS[wrapping])
       }
 
       // Invalid value
@@ -359,13 +359,13 @@ describe('glTF: Sampler Type', () => {
     it('MAY be undefined', async () => {
       const options = mockGLTFOptions(createTexturedGLTF({}))
       const texture = await GLTFLoaderFunctions.loadTextureImage(options, 0, 0, {} as any)
-      expect(texture.wrapT).toBe(RepeatWrapping) // Default value
+      expect(texture?.wrapT).toBe(RepeatWrapping) // Default value
     })
 
     it('SHOULD assign a default value of 10497 REPEAT', async () => {
       const options = mockGLTFOptions(createTexturedGLTF({}))
       const texture = await GLTFLoaderFunctions.loadTextureImage(options, 0, 0, {} as any)
-      expect(texture.wrapT).toBe(RepeatWrapping) // THREE.RepeatWrapping
+      expect(texture?.wrapT).toBe(RepeatWrapping) // THREE.RepeatWrapping
     })
 
     it('MUST be an `integer` type when defined', async () => {
@@ -379,7 +379,7 @@ describe('glTF: Sampler Type', () => {
       for (const wrapping of validWrappings) {
         const options = mockGLTFOptions(createTexturedGLTF({ wrapT: wrapping }))
         const texture = await GLTFLoaderFunctions.loadTextureImage(options, 0, 0, {} as any)
-        expect(texture.wrapT).toBe(WEBGL_WRAPPINGS[wrapping])
+        expect(texture?.wrapT).toBe(WEBGL_WRAPPINGS[wrapping])
       }
 
       // Invalid value
