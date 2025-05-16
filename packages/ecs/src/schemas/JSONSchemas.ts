@@ -261,7 +261,7 @@ export const S = {
 
   /** Entity type schema helper, Entities will not be serialized, defaults to UndefinedEntity */
   Entity: (options?: TTypedSchema<Entity>['options']) =>
-    S.Number({ ...options, serialized: false, id: 'Entity' }) as unknown as TTypedSchema<Entity>,
+    S.Number({ serialized: true, id: 'Entity', ...options }) as unknown as TTypedSchema<Entity>,
 
   /** EntityUUID type schema helper, defaults to '' */
   EntityUUID: (options?: TTypedSchema<EntityUUID>['options']) =>

@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -55,7 +55,6 @@ import { DirectionalLightComponent, TransformComponent } from '@ir-engine/spatia
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import {
-  RendererComponent,
   getNestedVisibleChildren,
   getSceneParameters,
   render
@@ -66,7 +65,7 @@ import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/cre
 import {
   BoundingBoxComponent,
   updateBoundingBox
-} from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
+} from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import React, { Suspense, useEffect } from 'react'
 import { Color, Euler, Material, Mesh, Quaternion, SphereGeometry } from 'three'
 
@@ -80,6 +79,7 @@ import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowCo
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
 import { setCameraFocusOnBox } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { BackgroundComponent, SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { createHash } from 'crypto'
@@ -260,6 +260,23 @@ const useGenerateHelper = (
         }
       }
       const fileJobs = getMutableState(FileThumbnailJobState).jobs
+      if (jobType === 'dimension') {
+        // Get the file extension to check if it can have dimension
+        let ext = resource.key
+        if (ext.endsWith('.material.gltf')) {
+          ext = 'material.gltf'
+        } else if (ext.endsWith('.lookdev.gltf')) {
+          ext = 'lookdev.gltf'
+        } else {
+          ext = ext.split('.').pop() ?? ''
+        }
+
+        if (!extensionCanHaveDimension(ext)) {
+          //skip assets that cannot have dimension
+          continue
+        }
+      }
+
       if (fileJobs.value.filter((fj) => fj.key === resource.url && fj.jobType === jobType).length < 1) {
         fileJobs.merge([
           {
@@ -349,6 +366,12 @@ const stripSearchFromURL = (url: string): string => {
 }
 
 export const extensionCanHaveThumbnail = (ext: string): boolean => extensionThumbnailTypeMap.has(ext)
+
+export const extensionCanHaveDimension = (ext: string): boolean => {
+  const fileType = extensionThumbnailTypeMap.get(ext)
+  // Only model files can have dimensions, but exclude material and lookdev assets
+  return fileType === 'model' && ext !== 'material.gltf' && ext !== 'lookdev.gltf'
+}
 
 const tryCatch = (fn: (...args: any[]) => void, onError: (err) => void) => {
   try {
