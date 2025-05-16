@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import MetaTags from '@ir-engine/client-core/src/common/components/MetaTags'
 import { Description, Primary, Stories, Subtitle, Title } from '@storybook/addon-docs'
 import { Decorator, Preview } from '@storybook/react'
-import { http, HttpResponse } from 'msw'
+import { bypass, http, HttpResponse } from 'msw'
 import { initialize, mswLoader } from 'msw-storybook-addon'
 import React from 'react'
 import { DndProvider } from 'react-dnd'
@@ -35,8 +35,11 @@ import { I18nextProvider } from 'react-i18next'
 import '../../client/src/themes/base.css'
 import '../../client/src/themes/components.css'
 import '../../client/src/themes/utilities.css'
+//@ts-ignore
 import keycardGLB from '../../projects/default-project/assets/keycard.glb?url'
+//@ts-ignore
 import apartmentGLTF from '../../projects/default-project/public/scenes/apartment.gltf?raw'
+//@ts-ignore
 import EngineDecorator from './decorators/EngineDecorator'
 import i18n from './i18n'
 initialize()
@@ -96,13 +99,14 @@ const preview: Preview = {
     },
     Scene: {
       description: 'Scene',
-      defaultValue: '/default.gltf',
+      defaultValue: 'apartment.gltf',
       toolbar: {
         title: 'Location',
         icon: 'location',
         items: [
           { value: '', title: 'None' },
-          { value: 'public/scenes/default.gltf', title: 'Default' }
+          { value: 'default.gltf', title: 'Default' },
+          { value: 'apartment.gltf', title: 'Apartment' }
         ]
       }
     }
@@ -121,12 +125,12 @@ const preview: Preview = {
     },
     msw: {
       handlers: [
-        http.get(/default.gltf/g, async () => {
+        http.get(/apartment.gltf/g, async () => {
           return HttpResponse.json(JSON.parse(apartmentGLTF))
         }),
         http.get(/apartment.glb/g, async () => {
           //Two ways of returning assets. Fetch from the /public folder
-          const glb = await fetch('/apartment.glb')
+          const glb = await fetch(bypass('/apartment.glb'))
           return glb
         }),
         http.get(/keycard.glb/g, async () => {
@@ -135,6 +139,10 @@ const preview: Preview = {
           const arrayBuffer = await glbResponse.arrayBuffer()
 
           return HttpResponse.arrayBuffer(arrayBuffer, { headers: { 'Content-Type': 'model/gltf-binary' } })
+        }),
+        http.get(/platform.glb/g, async () => {
+          const glb = await fetch(bypass('/platform.glb'))
+          return glb
         })
       ]
     },
