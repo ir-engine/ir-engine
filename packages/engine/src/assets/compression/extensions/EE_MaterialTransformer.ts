@@ -300,7 +300,7 @@ export class EEMaterialExtension extends CopyableExtension {
           const matArgs = eeMaterial.args
           if (matArgs) {
             extensionDef.args = {}
-            const materialArgsInfo = this.materialInfoMap.get(matArgs.getExtras().uuid as string)!
+            const materialArgsInfo = this.materialInfoMap.get(matArgs.getExtras().uuid as string) || []
             materialArgsInfo.map((field) => {
               let argEntry: EEArgEntry
               try {

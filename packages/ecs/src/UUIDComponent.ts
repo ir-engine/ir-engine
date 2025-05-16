@@ -181,12 +181,14 @@ export const UUIDComponent = defineComponent({
   /** Gets an entity from the same source by ID */
   getEntityFromSameSourceByID(entity: Entity, id: EntityID, layer = Layers.Simulation as LayerID) {
     const entitySourceID = getComponent(entity, UUIDComponent).entitySourceID
+
     return UUIDComponent.getEntityByUUID(UUIDComponent.join({ entitySourceID, entityID: id }), layer)
   },
 
   /** Reactively gets an entity from the same source by ID */
   useEntityFromSameSourceByID(entity: Entity, id: EntityID, layer = Layers.Simulation as LayerID) {
     const entitySourceID = useComponent(entity, UUIDComponent).entitySourceID.value
+
     return UUIDComponent.useEntityByUUID(UUIDComponent.join({ entitySourceID, entityID: id }), layer)
   },
 
@@ -199,12 +201,14 @@ export const UUIDComponent = defineComponent({
   getSourceEntity(entity: Entity) {
     const layer = LayerComponent.get(entity)
     const entitySourceID = getComponent(entity, UUIDComponent).entitySourceID as any as EntityUUID
+
     return UUIDComponent.getEntityByUUID(entitySourceID, layer)
   },
 
   useSourceEntity(entity: Entity) {
     const layer = LayerComponent.get(entity)
     const entitySourceID = useComponent(entity, UUIDComponent).entitySourceID.value as any as EntityUUID
+
     return UUIDComponent.useEntityByUUID(entitySourceID, layer)
   },
 
@@ -228,7 +232,6 @@ export const UUIDComponent = defineComponent({
 
   /** Joins an EntityUUIDPair into a string */
   join: (idPair: EntityUUIDPair) => `${idPair.entitySourceID}${idPair.entityID}` as EntityUUID,
-
   /** @deprecated use UUIDComponent.generate() instead */
   generateUUID() {
     return UUIDComponent.generate()
