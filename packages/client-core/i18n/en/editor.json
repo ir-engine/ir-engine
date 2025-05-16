@@ -1490,6 +1490,9 @@
     "lbl-edited": "Edited",
     "lbl-duplicate": "Duplicate",
     "lbl-group": "Group",
+    "lbl-cloneScene": "Clone Scene",
+    "lbl-cloneSceneToProject": "Clone Scene to Project",
+    "lbl-cloneOptions": "Please select the clone action you want to perform",
     "lbl-copy": "Copy",
     "lbl-paste": "Paste",
     "lbl-copyEmbedCode": "Copy Embed code",
@@ -1711,5 +1714,14 @@
   "unsupportedFile": {
     "title": "Unsupported File Type!",
     "okay": "Okay"
+  },
+  "prefab": {
+    "createTitle": "Create Prefab",
+    "createLookdevTitle": "Create Lookdev Prefab",
+    "defaultSaveFolder": "Default Save Folder",
+    "name": "Name",
+    "alreadyExistsTitle": "Overwrite Prefab",
+    "alreadyExists": "Prefab with this name already exists. You will overwrite it.",
+    "exportedSuccess": "Prefab exported successfully"
   }
 }
