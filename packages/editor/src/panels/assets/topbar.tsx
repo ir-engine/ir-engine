@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -161,7 +161,12 @@ export default function Topbar() {
         </Tooltip>
       }
       uploadButton={
-        <Button size="l" data-testid="assets-panel-upload-button" onClick={() => uploadFiles().then(handleRefresh)}>
+        <Button
+          variant="tertiary"
+          size="l"
+          data-testid="assets-panel-upload-button"
+          onClick={() => uploadFiles().then(handleRefresh)}
+        >
           <PlusCircleSm />
           <span className="text-nowrap">{t('editor:layout.filebrowser.uploadAssets')}</span>
         </Button>

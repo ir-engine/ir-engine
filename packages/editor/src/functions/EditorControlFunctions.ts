@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -358,6 +358,7 @@ const duplicateObject = (entities: Entity[]) => {
 
   // Update selection to the new entities
   SelectionState.updateSelection(newEntities)
+  return newEntities
 }
 
 const positionObject = (
@@ -513,7 +514,21 @@ const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = fals
     EditorState.markModifiedScene(entity)
   }
 }
+const reparentObjectSub = (entity: Entity, parent: Entity, index: number | undefined) => {
+  const worldPosition = TransformComponent.getWorldPosition(entity, new Vector3())
+  const worldRotation = TransformComponent.getWorldRotation(entity, new Quaternion())
+  const worldScale = TransformComponent.getWorldScale(entity, new Vector3())
 
+  setComponent(entity, EntityTreeComponent, { parentEntity: parent, childIndex: index })
+
+  EditorControlFunctions.positionObject([entity], [worldPosition], TransformSpace.world)
+  EditorControlFunctions.rotateObject([entity], [worldRotation], TransformSpace.world)
+  worldScaleObject([entity], [worldScale])
+
+  UUIDComponent.setSourceEntity(entity, parent)
+
+  EditorState.markModifiedScene(entity)
+}
 const reparentObject = (
   entities: Entity[],
   beforeEntity?: Entity | null,
@@ -521,29 +536,34 @@ const reparentObject = (
   parent = getState(EditorState).rootEntity
 ) => {
   // todo - use index of beforeEntity and afterEntity to insert at correct position
+
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
     if (entity === parent) continue
-
-    const worldPosition = TransformComponent.getWorldPosition(entity, new Vector3())
-    const worldRotation = TransformComponent.getWorldRotation(entity, new Quaternion())
-    const worldScale = TransformComponent.getWorldScale(entity, new Vector3())
-
     const parentTree = getComponent(parent, EntityTreeComponent)
+    let oldIndex = beforeEntity ? parentTree.children.indexOf(entity) : undefined
     const index = afterEntity
       ? parentTree.children.indexOf(afterEntity) + 1
       : beforeEntity
       ? parentTree.children.indexOf(beforeEntity)
       : undefined
-    setComponent(entity, EntityTreeComponent, { parentEntity: parent, childIndex: index })
 
-    EditorControlFunctions.positionObject([entity], [worldPosition], TransformSpace.world)
-    EditorControlFunctions.rotateObject([entity], [worldRotation], TransformSpace.world)
-    worldScaleObject([entity], [worldScale])
-
-    UUIDComponent.setSourceEntity(entity, parent)
-
-    EditorState.markModifiedScene(entity)
+    reparentObjectSub(entity, parent, index)
+    const min = Math.min(oldIndex ?? 0, index ?? 0)
+    const max = Math.max(oldIndex ?? 0, index ?? 0)
+    if (oldIndex !== undefined && index !== undefined) {
+      if (oldIndex < index) {
+        for (let i = max - 1; i >= min; i--) {
+          if (!parentTree.children[i]) continue
+          reparentObjectSub(parentTree.children[i], parent, i)
+        }
+      } else if (oldIndex > index) {
+        for (let i = min + 1; i <= max; i++) {
+          if (!parentTree.children[i]) continue
+          reparentObjectSub(parentTree.children[i], parent, i)
+        }
+      }
+    }
   }
 }
 

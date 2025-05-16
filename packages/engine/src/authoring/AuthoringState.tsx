@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -62,6 +62,7 @@ import {
 } from '@ir-engine/hyperflux'
 import React, { Suspense, useEffect } from 'react'
 import { applyPatch, createPatch, Operation, Patch } from 'rfc6902'
+import { squashOperations } from './squashOperations'
 
 export type SourceData = Record<EntityID, object>
 
@@ -189,7 +190,8 @@ export const AuthoringState = defineState({
     const { doneStack } = computeCommands(authoredCommands, sourceID)
     if (!doneStack.length) return []
     const flatStack = doneStack.reduce((acc, command) => acc.concat(command[sourceID]), [] as Operation[])
-    return flatStack
+    const optimizedStack = squashOperations(flatStack)
+    return optimizedStack
   },
 
   canRedo: () => {

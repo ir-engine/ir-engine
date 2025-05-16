@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -133,7 +133,7 @@ export type ModelTransformParameters = ExtractedImageTransformParameters & {
 
   simplifyRatio: number
   simplifyErrorThreshold: number
-
+  adaptiveSimplification: boolean
   modelFormat: ModelFormat
 
   resources: ResourceTransforms
@@ -195,8 +195,9 @@ export const DefaultModelTransformParameters: ModelTransformParameters = {
   mipmap: true,
   textureCompressionQuality: 128,
   maxTextureSize: 1024,
-  simplifyRatio: 1.0,
-  simplifyErrorThreshold: 0.001,
+  simplifyRatio: 1,
+  simplifyErrorThreshold: 0.01,
+  adaptiveSimplification: false,
   resources: {
     geometries: [],
     images: []

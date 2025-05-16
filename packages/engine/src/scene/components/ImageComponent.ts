@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -32,22 +32,24 @@ import {
   DoubleSide,
   FrontSide,
   InterleavedBufferAttribute,
-  LinearMipmapLinearFilter,
-  Matrix4,
   Mesh,
-  MeshBasicMaterial,
   PlaneGeometry,
+  ShaderMaterial,
   Side,
   SphereGeometry,
-  SRGBColorSpace,
   Texture,
   TwoPassDoubleSide,
-  Vector2
+  Uniform,
+  Vector2,
+  Vector3
 } from 'three'
 
-import { useEntityContext } from '@ir-engine/ecs'
+import { Entity, UndefinedEntity, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
+  getComponent,
+  getMutableComponent,
+  getSimulationCounterpart,
   removeComponent,
   setComponent,
   useComponent,
@@ -57,7 +59,11 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
-import { State } from '@ir-engine/hyperflux'
+import { NO_PROXY, State, useState } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
+import { Vector2_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
+import { ContentFitTypeSchema } from '@ir-engine/spatial/src/transform/functions/ObjectFitFunctions'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { ImageAlphaMode, ImageProjection } from '../classes/ImageUtils'
@@ -78,10 +84,21 @@ export const ImageComponent = defineComponent({
 
   schema: S.Object({
     source: S.String({ default: '' }),
-    alphaMode: S.Enum(ImageAlphaMode, { default: ImageAlphaMode.Opaque }),
+    alphaMode: S.Enum(ImageAlphaMode, {
+      $comment: "A string enum, ie. one of the following values: 'Opaque', 'Blend', 'Mask'",
+      default: ImageAlphaMode.Opaque
+    }),
     alphaCutoff: S.Number({ default: 0.5 }),
-    projection: S.Enum(ImageProjection, { default: ImageProjection.Flat }),
-    side: SideSchema(DoubleSide)
+    projection: S.Enum(ImageProjection, {
+      $comment: "A string enum, ie. one of the following values: 'Flat', 'Equirectangular360'",
+      default: ImageProjection.Flat
+    }),
+    side: SideSchema(DoubleSide),
+    fit: ContentFitTypeSchema('stretch'),
+
+    //internal
+    uvOffset: T.Vec2(),
+    uvScale: T.Vec2(Vector2_One)
   }),
 
   errors: ['MISSING_TEXTURE_SOURCE', 'UNSUPPORTED_ASSET_CLASS', 'LOADING_ERROR', 'INVALID_URL'],
@@ -97,19 +114,30 @@ export function getTextureSize(texture: Texture | CompressedTexture | null, size
   return size.set(width, height)
 }
 
-const scaleMatrix = new Matrix4()
-export function resizeImageMesh(mesh: Mesh<any, MeshBasicMaterial>) {
-  if (!mesh.material.map) return
+export function getImageAspectRatio(entity: Entity) {
+  const simEntity = getSimulationCounterpart(entity)
+  if (simEntity === UndefinedEntity) return
 
-  const { width, height } = getTextureSize(mesh.material.map)
+  const mesh = getComponent(simEntity, MeshComponent) as Mesh<any, ShaderMaterial>
+  if (!mesh || !mesh.material.uniforms.map) return
+
+  const { width, height } = getTextureSize(mesh.material.uniforms.map.value as Texture | CompressedTexture)
 
   if (!width || !height) return
 
-  const ratio = (height || 1) / (width || 1)
-  const _width = Math.min(1.0, 1.0 / ratio)
-  const _height = Math.min(1.0, ratio)
-  scaleMatrix.makeScale(_width, _height, 1)
-  mesh.geometry.applyMatrix4(scaleMatrix)
+  const ratio = (width || 1) / (height || 1)
+  return ratio
+}
+
+export function resizeImage(entity: Entity) {
+  const imageRatio = getImageAspectRatio(entity) || 1
+  const transformComponent = getMutableComponent(entity, TransformComponent)
+  const scale = transformComponent.scale.value
+  const newX = scale.y * imageRatio
+  const newY = scale.y
+  const newZ = 1
+  const newScale = new Vector3(newX, newY, newZ)
+  transformComponent.scale.set(newScale)
 }
 
 function flipNormals<G extends BufferGeometry>(geometry: G) {
@@ -124,16 +152,84 @@ function flipNormals<G extends BufferGeometry>(geometry: G) {
 export function ImageReactor() {
   const entity = useEntityContext()
   const image = useComponent(entity, ImageComponent)
+  const transformComponent = useComponent(entity, TransformComponent)
+  const mesh = useOptionalComponent(entity, MeshComponent) as any as State<
+    Mesh<PlaneGeometry | SphereGeometry, ShaderMaterial>
+  >
+
   const [texture, error] = useTexture(image.source.value, entity)
+  const fitPlacementUvOffset = useState(new Vector2(0, 0))
+  const fitPlacementUvScale = useState(new Vector2(1, 1))
+
   useEffect(() => {
-    setComponent(entity, MeshComponent, new Mesh(PLANE_GEO(), new MeshBasicMaterial()))
+    setComponent(
+      entity,
+      MeshComponent,
+      new Mesh(
+        PLANE_GEO(),
+        new ShaderMaterial({
+          uniforms: {
+            map: { value: null },
+            alphaMap: { value: null },
+            uvOffset: { value: new Vector2(0, 0) },
+            uvScale: { value: new Vector2(1, 1) },
+            useAlpha: { value: false },
+            alphaThreshold: { value: 0.5 },
+            useAlphaInvert: { value: false },
+            alphaUVOffset: { value: new Vector2(0, 0) }
+          },
+          vertexShader: `
+            varying vec2 vUv;
+            void main() {
+              vUv = uv;
+              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+    
+          `,
+          fragmentShader: `
+          #ifdef USE_MAP
+            uniform sampler2D map;
+          #endif
+            uniform bool useAlpha;
+            uniform bool useAlphaInvert;
+            uniform float alphaThreshold;
+            uniform vec2 uvOffset;
+            uniform vec2 uvScale;
+            uniform vec2 alphaUVOffset;
+    
+            varying vec2 vUv;
+    
+            void main() {
+            #ifdef USE_MAP
+              vec2 adjustedUv = vUv * uvScale + uvOffset;
+              vec2 mapUv = adjustedUv;
+              vec4 color = texture2D(map, mapUv);
+              color.rgb = pow(color.rgb, vec3(2.2));
+              if (useAlpha) {
+                float intensity = 0.0;
+                intensity = color.r * 0.333  + color.g * 0.333 + color.b * 0.333;
+                if (useAlphaInvert) {
+                  intensity = 1.0 - intensity;
+                }
+                if (intensity < alphaThreshold) discard;
+              }          
+              if( adjustedUv.y < 0.0 || adjustedUv.y > 1.0 || adjustedUv.x < 0.0 || adjustedUv.x > 1.0) {
+                  discard;    
+              }          
+              gl_FragColor = color;
+            #else
+              gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+            #endif
+            }
+          `
+        })
+      )
+    )
+
     return () => {
       removeComponent(entity, MeshComponent)
     }
   }, [])
-  const mesh = useOptionalComponent(entity, MeshComponent) as any as State<
-    Mesh<PlaneGeometry | SphereGeometry, MeshBasicMaterial>
-  >
 
   useEffect(() => {
     if (!error) return
@@ -155,22 +251,29 @@ export function ImageReactor() {
   }, [image.source.value]) // runs on any image change rn
 
   useEffect(() => {
-    if (!texture || !mesh) return
+    if (!mesh) return
+
+    const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
+    const defines = mesh.material.defines.get(NO_PROXY) as Record<string, any>
 
     clearErrors(entity, ImageComponent)
 
-    texture.colorSpace = SRGBColorSpace
-    texture.minFilter = LinearMipmapLinearFilter
-
-    mesh.material.map.set(texture)
+    if (image.source.value && texture) {
+      defines.USE_MAP = ''
+      uniforms.map.value = texture
+    } else {
+      delete defines.USE_MAP
+      uniforms.map.value = null
+    }
     mesh.material.needsUpdate.set(true)
     mesh.visible.set(true)
-  }, [!!mesh?.value, texture])
+  }, [!!mesh?.value, texture, image.source])
 
   useEffect(() => {
-    if (!mesh || !texture || !mesh.material.map.value) return
+    if (!mesh || !texture || !mesh.material.uniforms.map.value) return
 
-    const flippedTexture = mesh.material.map.value.flipY
+    const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
+    const flippedTexture = uniforms.map.value.flipY
     switch (image.projection.value) {
       case ImageProjection.Equirectangular360:
         mesh.geometry.set(flippedTexture ? SPHERE_GEO() : SPHERE_GEO_FLIPPED())
@@ -179,7 +282,6 @@ export function ImageReactor() {
       case ImageProjection.Flat:
       default:
         mesh.geometry.set(flippedTexture ? PLANE_GEO() : PLANE_GEO_FLIPPED())
-        resizeImageMesh(mesh.value as Mesh<PlaneGeometry, MeshBasicMaterial>)
     }
   }, [!!mesh?.value, image.projection, !!texture])
 
@@ -189,6 +291,80 @@ export function ImageReactor() {
     mesh.material.alphaTest.set(image.alphaMode.value === 'Mask' ? image.alphaCutoff.value : 0)
     mesh.material.side.set(image.side.value)
   }, [!!mesh?.value, image.alphaMode, image.alphaCutoff, image.side])
+
+  useEffect(() => {
+    if (!mesh) return
+
+    const videoMesh = mesh.value as Mesh<PlaneGeometry | SphereGeometry, ShaderMaterial>
+
+    const uvOffset = new Vector2(0, 0)
+    const uvScale = new Vector2(1, 1)
+    let imageSize = new Vector2(1, 1)
+
+    const [containerWidth, containerHeight] = [transformComponent.value.scale.x, transformComponent.value.scale.y]
+    const containerRatio = containerWidth / containerHeight
+
+    if (texture) {
+      imageSize = getTextureSize(videoMesh.material.uniforms.map.value as Texture | CompressedTexture)
+      if (image.fit.value !== 'stretch') {
+        const imageRatio = imageSize.x / imageSize.y || 1
+
+        let isPlacementHorz = true
+        if (image.fit.value == 'horizontal') {
+          isPlacementHorz = true
+        }
+        if (image.fit.value == 'vertical') {
+          isPlacementHorz = false
+        }
+
+        if (image.fit.value == 'contain') {
+          if (imageRatio > containerRatio) {
+            isPlacementHorz = true
+          } else {
+            isPlacementHorz = false
+          }
+        }
+        if (image.fit.value == 'cover') {
+          if (imageRatio > containerRatio) {
+            isPlacementHorz = false
+          } else {
+            isPlacementHorz = true
+          }
+        }
+
+        if (isPlacementHorz) {
+          uvScale.y = imageRatio / containerRatio
+          uvScale.x = 1
+          uvOffset.y = (1 - uvScale.y) / 2
+        } else {
+          uvScale.x = 1 / imageRatio / (1 / containerRatio)
+          uvScale.y = 1
+          uvOffset.x = (1 - uvScale.x) / 2
+        }
+      }
+    }
+
+    fitPlacementUvOffset.set(uvOffset)
+    fitPlacementUvScale.set(uvScale)
+  }, [!!mesh, transformComponent.scale, image.fit, texture])
+
+  useEffect(() => {
+    if (!mesh) return
+    const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
+    uniforms.uvOffset.value = new Vector2(
+      image.uvOffset.x.value + fitPlacementUvOffset.x.value,
+      image.uvOffset.y.value + fitPlacementUvOffset.y.value
+    )
+  }, [!!mesh, image.uvOffset, fitPlacementUvOffset])
+
+  useEffect(() => {
+    if (!mesh) return
+    const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
+    uniforms.uvScale.value = new Vector2(
+      image.uvScale.x.value * fitPlacementUvScale.x.value,
+      image.uvScale.y.value * fitPlacementUvScale.y.value
+    )
+  }, [!!mesh, image.uvScale, fitPlacementUvScale])
 
   return null
 }

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -44,7 +44,10 @@ export const PlaylistComponent = defineComponent({
     currentTrackUUID: S.String(),
     currentTrackIndex: S.Number({ default: -1 }),
     paused: S.Bool({ default: true }),
-    playMode: S.Enum(PlayMode, { default: PlayMode.loop }),
+    playMode: S.Enum(PlayMode, {
+      $comment: "A string enum, ie. one of the following values: 'single', 'random', 'loop', 'singleloop'",
+      default: PlayMode.loop
+    }),
     autoplay: S.Bool({ default: true })
   }),
 

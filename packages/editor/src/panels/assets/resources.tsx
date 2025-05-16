@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 import { removeFromFileThumbnailsSeen } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
@@ -177,7 +177,9 @@ export function FileCard({
         <div
           className={twMerge(
             `box-border h-20 w-16 rounded font-figtree text-sm`,
-            isSelected ? 'rounded border border-[#375DAF] bg-[#2C2E30]' : 'group-hover:bg-[#202225]'
+            isSelected
+              ? 'rounded border border-ui-primary bg-ui-select-background p-1'
+              : 'group-hover:bg-ui-hover-background'
           )}
           data-testid={dataTestIdJson?.fileIconId}
         >
@@ -203,7 +205,7 @@ export function FileCard({
             {name}
           </Text>
         </Tooltip>
-        <span className="text-xs text-[#375DAF]">{info}</span>
+        <span className="w-24 overflow-hidden text-ellipsis whitespace-nowrap text-xs text-[#375DAF]">{info}</span>
       </div>
     </>
   )

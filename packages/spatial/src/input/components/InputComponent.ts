@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -85,10 +85,22 @@ export const DefaultAxisBindings = {
 } satisfies InputAxisBindings
 
 const ButtonSchema = S.Union([
-  S.Enum(KeyboardButton),
-  S.Enum(MouseButton),
-  S.Enum(StandardGamepadButton),
-  S.Enum(XRStandardGamepadButton)
+  S.Enum(KeyboardButton, {
+    $comment:
+      "Likely a string enum, ie. one of the following values: 'Backspace', 'Tab', 'Enter', 'ShiftLeft', 'ShiftRight', 'ControlLeft', 'ControlRight', 'AltLeft', 'AltRight', 'Pause', 'CapsLock', 'Escape', 'Space', 'PageUp', 'PageDown', 'End', 'Home', 'ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown', 'PrintScreen', 'Insert', 'Delete', 'Digit0', 'Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7', 'Digit8', 'Digit9', 'KeyA', 'KeyB', 'KeyC', 'KeyD', 'KeyE', 'KeyF', 'KeyG', 'KeyH', 'KeyI', 'KeyJ', 'KeyK', 'KeyL', 'KeyM', 'KeyN', 'KeyO', 'KeyP', 'KeyQ', 'KeyR', 'KeyS', 'KeyT', 'KeyU', 'KeyV', 'KeyW', 'KeyX', 'KeyY', 'KeyZ'"
+  }),
+  S.Enum(MouseButton, {
+    $comment:
+      "Likely a string enum, ie. one of the following values: 'PrimaryClick', 'AuxiliaryClick', 'SecondaryClick'"
+  }),
+  S.Enum(StandardGamepadButton, {
+    $comment:
+      "Likely an indexed enum, ie. the numeric index of a value in the following sequence: 'StandardGamepadButtonA', 'StandardGamepadButtonB', 'StandardGamepadButtonX', 'StandardGamepadButtonY', 'StandardGamepadLeft1', 'StandardGamepadRight1', 'StandardGamepadLeft2', 'StandardGamepadRight2', 'StandardGamepadButtonBack', 'StandardGamepadButtonStart', 'StandardGamepadLeftStick', 'StandardGamepadRightStick', 'StandardGamepadDPadUp', 'StandardGamepadDPadDown', 'StandardGamepadDPadLeft', 'StandardGamepadDPadRight', 'StandardGamepadButtonHome'"
+  }),
+  S.Enum(XRStandardGamepadButton, {
+    $comment:
+      "Likely an indexed enum, ie. the numeric index of a value in the following sequence: 'XRStandardGamepadTrigger', 'XRStandardGamepadSqueeze', 'XRStandardGamepadPad', 'XRStandardGamepadStick', 'XRStandardGamepadButtonA', 'XRStandardGamepadButtonB'"
+  })
 ])
 
 /**
