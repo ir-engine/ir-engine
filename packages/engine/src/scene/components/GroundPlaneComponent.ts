@@ -26,11 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect, useLayoutEffect } from 'react'
 import { Mesh, MeshLambertMaterial, MeshStandardMaterial, PlaneGeometry, ShadowMaterial } from 'three'
 
-import { EntityID, EntityTreeComponent, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
+import { EntityID, EntityTreeComponent, EntityUUID, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
 import {
   createEntity,
   defineComponent,
   removeComponent,
+  removeEntity,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -65,6 +66,9 @@ export const GroundPlaneComponent = defineComponent({
 
     const component = useComponent(entity, GroundPlaneComponent)
 
+    const source = UUIDComponent.getAsSourceID(entity)
+    const materialID = 'ground-plane-material' as EntityID
+
     useLayoutEffect(() => {
       setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Scene)
       setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed })
@@ -87,14 +91,14 @@ export const GroundPlaneComponent = defineComponent({
       materialObject.polygonOffset = true
       materialObject.polygonOffsetFactor = -0.01
       materialObject.polygonOffsetUnits = 1
+      setComponent(materialEntity, UUIDComponent, {
+        entitySourceID: source,
+        entityID: materialID
+      })
+      setComponent(materialEntity, EntityTreeComponent, { parentEntity: entity })
       setComponent(materialEntity, MaterialStateComponent, {
         material: materialObject
       })
-      setComponent(materialEntity, UUIDComponent, {
-        entitySourceID: UUIDComponent.getAsSourceID(entity),
-        entityID: 'ground-plane-material' as EntityID
-      })
-      setComponent(materialEntity, EntityTreeComponent, { parentEntity: entity })
 
       const mesh = new Mesh(new PlaneGeometry(10000, 10000))
       mesh.geometry.rotateX(-Math.PI / 2)
@@ -107,6 +111,7 @@ export const GroundPlaneComponent = defineComponent({
 
       return () => {
         removeComponent(entity, MeshComponent)
+        removeEntity(materialEntity)
       }
     }, [component.visible.value])
 
@@ -114,12 +119,17 @@ export const GroundPlaneComponent = defineComponent({
       Mesh<any, MeshLambertMaterial | ShadowMaterial>
     >
 
+    const material = useOptionalComponent(
+      UUIDComponent.useEntityByUUID((source + materialID) as EntityUUID),
+      MaterialStateComponent
+    )?.material
+
     useLayoutEffect(() => {
-      if (!meshComponent) return
+      if (!meshComponent || !material) return
       const color = component.color.value
       if (meshComponent.material.color.value == color) return
       meshComponent.material.color.value.set(component.color.value)
-    }, [component.color])
+    }, [component.color, material])
 
     return null
   }
