@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import CompressedPublishConfirmation from './CompressedPublishConfirmation'
+import { CompressedPublishConfirmation } from './CompressedPublishConfirmation'
 
 export default {
   title: 'admin/locations/CompressedPublishConfirmation',

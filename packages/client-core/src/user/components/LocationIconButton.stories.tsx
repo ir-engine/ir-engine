@@ -34,7 +34,8 @@ export default {
       type: 'figma',
       url: ''
     }
-  }
+  },
+  chromatic: { disable: true }
 }
 
 export const Default = {
