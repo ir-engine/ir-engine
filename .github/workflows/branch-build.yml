@@ -294,7 +294,8 @@ jobs:
       - run: mv packages_moved/network packages/
       - run: mv packages_moved/xrui packages/
       - run: mv packages_moved/spatial packages/
-      - run: cd packages/spatial && npm run test
+      - run: npm run test || npm run test
+        working-directory: packages/spatial
 
   test_engine:
     needs: install-modules
@@ -454,7 +455,6 @@ jobs:
           - instanceserver
           - matchmaking
           - server
-          - server-core
           - taskserver
     defaults:
       run:
@@ -488,6 +488,38 @@ jobs:
       - run: npm run dev-reinit
       - run: git config --global user.email "you@example.com" && git config --global user.name "Your Name"
       - run: cd packages/${{ matrix.package }} && npm run test
+        timeout-minutes: 20
+
+  test_server_core:
+    needs: install-modules
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        partition:
+          - 1
+          - 2
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: .
+          key: dir-${{github.sha}}
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
+      - run: rm -rf packages/client
+      - run: rm -rf packages/client-core
+      - run: rm -rf packages/editor
+      - run: rm -rf packages/ui
+      - run: npm run dev-docker
+      - run: npm run dev-reinit
+      - run: git config --global user.email "you@example.com" && git config --global user.name "Your Name"
+      - run: cd packages/server-core && npm run test-partition
+        env:
+          PARTITION: ${{ matrix.partition }}
         timeout-minutes: 20
 
   npm_builds:

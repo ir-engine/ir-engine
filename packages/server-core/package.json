@@ -36,6 +36,7 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
+    "test-partition": "cross-env TEST=true vitest run --config=./vitest.partition.config.ts",
     "test": "cross-env TEST=true vitest run --config=../../vitest.server.config.ts",
     "validate": "npm run build && npm run test",
     "migrate": "knex migrate:latest",
