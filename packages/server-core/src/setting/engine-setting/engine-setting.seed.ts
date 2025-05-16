@@ -817,7 +817,7 @@ export async function seed(knex: Knex): Promise<void> {
 }
 
 export async function generateSeedData(
-  items: { key: string; value: string; jsonKey?: string }[],
+  items: { key: string; value: string }[],
   category: EngineSettingType['category'],
   type: EngineSettingType['type'] = 'private'
 ): Promise<EngineSettingType[]> {
