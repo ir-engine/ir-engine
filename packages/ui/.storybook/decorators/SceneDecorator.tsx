@@ -46,6 +46,7 @@ export default function SceneDecorator({ sceneName }: { sceneName?: string }) {
       rotation: new Quaternion().setFromEuler(new Euler((Math.PI / 180) * 10, Math.PI, 0))
     })
 
+    // Store the unload function in a ref
     const unload = SceneState.loadScene(sceneName as any, 1 as any, viewerEntity)
     // @ts-ignore
     unloadRef.current = unload

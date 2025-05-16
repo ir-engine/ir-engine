@@ -131,6 +131,7 @@ class MetaTags extends Component<Props> {
     }
   }
   componentWillUnmount() {
+    // This causes an error
     // if (this.temporaryRoot) {
     //   this.temporaryRoot.unmount()
     // }

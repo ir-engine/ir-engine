@@ -467,8 +467,6 @@ export const loadGLTFFile = (
 
       onLoad(parseStorageProviderURLs(json), body)
     } catch (error) {
-      console.log(error.message)
-      console.error(error)
       if (onError) onError(error)
       return
     }

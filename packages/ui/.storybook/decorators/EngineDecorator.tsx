@@ -65,6 +65,7 @@ export default function EngineDecorator({ children, sceneName }: React.PropsWith
     }
   }, [])
 
+  // Don't render children components until the engine is initialized
   if (!engineInitialized) return null
 
   return (

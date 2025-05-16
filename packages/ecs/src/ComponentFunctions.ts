@@ -1515,7 +1515,6 @@ export const $EntityRemovalSystem = defineSystem({
 
 export const createEntity = (layerID: LayerID = Layers.Simulation): Entity => {
   if (!LayerComponents[layerID]) throw new Error('createEntity: argument layerID must be a valid LayerID value')
-  // console.log('making entity', { bitECS })
   const entity = bitECS.addEntity(HyperFlux.store) as Entity
   if ($RemovedComponent.exists.length <= entity) {
     const nextSize = nextPowerOf2(entity + 1)
