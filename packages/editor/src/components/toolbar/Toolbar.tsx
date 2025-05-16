@@ -140,7 +140,7 @@ const generateToolbarMenu = () => {
     },
     {
       name: t('editor:menubar.exportLookdev'),
-      action: () => ModalState.openModal(<CreatePrefabPanel isExportLookDev={true} />)
+      action: () => ModalState.openModal(<CreatePrefabPanel isExportLookDev={true} />, () => {})
     },
     {
       name: t('editor:menubar.documentation'),
