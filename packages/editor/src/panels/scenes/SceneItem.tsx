@@ -25,10 +25,12 @@ Infinite Reality Engine. All Rights Reserved.
 import { CopyEmbedCodePopover } from '@ir-engine/client-core/src/common/components/popovers/CopyEmbedCodePopover'
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { ThemeState } from '@ir-engine/client-core/src/common/services/ThemeService'
+import { clientContextParams } from '@ir-engine/client-core/src/util/ClientContextState'
 import { cloneScene, deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import IRLogoModalDark from '@ir-engine/client/src/assets/iR-logo-Modal-dark.png'
 import IRLogoModalLight from '@ir-engine/client/src/assets/iR-logo-Modal-light.png'
 import config from '@ir-engine/common/src/config'
+import multiLogger from '@ir-engine/common/src/logger'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
 import RenameSceneModal from '@ir-engine/editor/src/panels/scenes/RenameSceneModal'
@@ -44,11 +46,13 @@ import { IoDuplicateOutline } from 'react-icons/io5'
 import { twMerge } from 'tailwind-merge'
 import SceneCard from './SceneCard'
 
+const logger = multiLogger.child({ component: `editor:SceneItem`, modifier: clientContextParams })
+
 type SceneItemProps = {
   scene: StaticResourceType
   handleOpenScene: () => void
   refetchProjectsData: () => void
-  onCopyToProject?: () => void
+  onCloneToProject?: () => void
   onRenameScene?: (newName: string) => void
   onDeleteScene?: (scene: StaticResourceType) => void
   disableDeleteScene?: boolean
@@ -60,7 +64,7 @@ export default function SceneItem({
   refetchProjectsData,
   onRenameScene,
   onDeleteScene,
-  onCopyToProject,
+  onCloneToProject,
   disableDeleteScene
 }: SceneItemProps) {
   const { t } = useTranslation()
@@ -109,10 +113,11 @@ export default function SceneItem({
       }
     },
     {
-      label: t('editor:hierarchy.lbl-duplicateScene'),
+      label: t('editor:hierarchy.lbl-cloneScene'),
       disabled: false,
       icon: <IoDuplicateOutline fontSize={16} />,
       onClick: async () => {
+        logger.analytics({ event_name: 'clone_scene' })
         await cloneScene(scene, scene.key, scene.project!, scene.project!)
         refetchProjectsData()
       }
@@ -133,13 +138,14 @@ export default function SceneItem({
     }
   ]
 
-  if (onCopyToProject) {
+  if (onCloneToProject) {
     actionProps.splice(actionProps.length - 1, 0, {
-      label: t('editor:hierarchy.lbl-copySceneToProject'),
+      label: t('editor:hierarchy.lbl-cloneSceneToProject'),
       disabled: false,
       icon: <Copy02Sm fontSize={16} />,
       onClick: () => {
-        onCopyToProject()
+        logger.analytics({ event_name: 'clone_scene_to_project' })
+        onCloneToProject()
       }
     })
   }
