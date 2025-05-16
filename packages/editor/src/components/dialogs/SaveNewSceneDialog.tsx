@@ -54,7 +54,7 @@ export default function SaveNewSceneDialog(props: { onConfirm?: () => void; onCa
     try {
       if (sceneName || sceneModified) {
         if (inputSceneName.value && projectName) {
-          await saveSceneGLTF(sceneAssetID!, projectName, inputSceneName.value, abortController.signal, true)
+          await saveSceneGLTF(sceneAssetID!, projectName, `${inputSceneName.value}.gltf`, abortController.signal, true)
 
           const sourceID = GLTFComponent.getSourceID(rootEntity)
           getMutableState(AssetModifiedState)[sourceID].set(none)
