@@ -39,14 +39,7 @@ import {
   Vector3
 } from 'three'
 
-import {
-  AnimationSystemGroup,
-  createEntity,
-  Engine,
-  removeEntity,
-  useEntityContext,
-  UUIDComponent
-} from '@ir-engine/ecs'
+import { createEntity, Engine, removeEntity, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
 import {
   getComponent,
   getOptionalComponent,
@@ -476,12 +469,12 @@ const reactor = () => {
   )
 }
 
-export const ShadowSystem = defineSystem({
-  uuid: 'ee.engine.ShadowSystem',
-  insert: { with: AnimationSystemGroup },
-  execute,
-  reactor
-})
+// export const ShadowSystem = defineSystem({
+//   uuid: 'ee.engine.ShadowSystem',
+//   insert: { with: AnimationSystemGroup },
+//   execute,
+//   reactor
+// })
 
 export const DropShadowSystem = defineSystem({
   uuid: 'ee.engine.DropShadowSystem',

@@ -68,7 +68,7 @@ import { SceneKillHeightSystem } from './systems/SceneKillHeightSystem'
 import { SceneNetworkSystem } from './systems/SceneNetworkSystem'
 import { SceneObjectDynamicLoadSystem } from './systems/SceneObjectDynamicLoadSystem'
 import { SceneObjectSystem } from './systems/SceneObjectSystem'
-import { DropShadowSystem, ShadowSystem } from './systems/ShadowSystem'
+// import { DropShadowSystem, ShadowSystem } from './systems/ShadowSystem'
 import { TriggerCallbackSystem } from './systems/TriggerCallbackSystem'
 import { VariantSystem } from './systems/VariantSystem'
 
@@ -129,7 +129,7 @@ export {
   SceneNetworkSystem,
   SceneObjectDynamicLoadSystem,
   SceneObjectSystem,
-  ShadowSystem,
+  //ShadowSystem,
   TriggerCallbackSystem,
   VariantSystem
 }

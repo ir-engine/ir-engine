@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getComponent, getOptionalMutableComponent, hasComponent } from '@ir-engine/ecs'
+import { getComponent, getOptionalMutableComponent, hasComponent, useOptionalComponent } from '@ir-engine/ecs'
 import { getState, none, useMutableState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { destroySpatialViewer, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
@@ -31,8 +31,11 @@ import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRenderer
 import { useEffect } from 'react'
 
 export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
+  const rendererComponent = useOptionalComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)
+
   useEffect(() => {
-    if (!ref) return
+    if (!ref?.current) return
+    if (!rendererComponent) return
     const parent = ref.current as HTMLElement
 
     const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
@@ -54,7 +57,7 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
       originalParent.appendChild(canvas)
       canvas.hidden = true
     }
-  }, [ref?.current])
+  }, [ref?.current, rendererComponent])
 
   useEffect(() => {
     const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
