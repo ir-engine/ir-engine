@@ -23,13 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { API as ClientAPI } from '@ir-engine/client-core/src/API'
 import { ThemeState, useThemeProvider } from '@ir-engine/client-core/src/common/services/ThemeService'
 import * as ECS from '@ir-engine/ecs'
 import '@ir-engine/spatial'
 import { destroySpatialEngine, initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { useEngineCanvas } from '@ir-engine/spatial/src/renderer/functions/useEngineCanvas'
-import { startTimer } from '@ir-engine/spatial/src/startTimer'
 import React, { useEffect, useRef, useState } from 'react'
 import SceneDecorator from './SceneDecorator'
 
@@ -53,15 +51,11 @@ export default function EngineDecorator({ children, sceneName }: React.PropsWith
 
   useEffect(() => {
     if (engineInitialized) return
-    ECS.createEngine()
-    startTimer()
-    ClientAPI.createAPI()
     initializeSpatialEngine()
     setEngineInitialized(true)
 
     return () => {
       destroySpatialEngine()
-      ECS.destroyEngine()
     }
   }, [])
 
