@@ -42,8 +42,11 @@ import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/Obje
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { TransformComponent } from '@ir-engine/spatial/src/SpatialModule'
-import { Line, Raycaster, Sprite, SpriteMaterial, TextureLoader } from 'three'
+import { Line, Raycaster, Sprite, SpriteMaterial, TextureLoader, Vector3 } from 'three'
 import { getCameraFactor, intersectObjectWithRay } from './gizmoCommonFunctions'
+
+const minimumIconSize = new Vector3(1, 1, 1)
+const maximumIconSize = new Vector3(3, 3, 3)
 
 const _raycaster = new Raycaster() // for hover
 _raycaster.layers.set(ObjectLayers.NodeIcon)
@@ -105,6 +108,7 @@ export function gizmoIconUpdate(parentEntity: Entity) {
     .set(1, 1, 1)
     .divide(parentTransformScale)
     .multiplyScalar(getCameraFactor(transform.position, activeHelperComponent.sizeFactor))
+    .clamp(minimumIconSize, maximumIconSize)
 
   setComponent(activeHelperComponent.helperIconGizmo, TransformComponent, { scale: finalSize })
   for (const entity of activeHelperComponent.directionalEntities) {
