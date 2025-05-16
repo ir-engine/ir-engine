@@ -477,7 +477,12 @@ const toTransformedDocument = async (srcDocument: Document, args: ModelTransform
     //gltfTransform documentation recommends doing a weld before simply
     if (!args.weld.enabled) simplifyTransforms.push(weld())
     simplifyTransforms.push(
-      simplify({ simplifier: MeshoptSimplifier, ratio: args.simplifyRatio, error: args.simplifyErrorThreshold })
+      args.adaptiveSimplification
+        ? (doc) => {
+            adaptiveSimplify(doc, args)
+            return doc
+          }
+        : simplify({ simplifier: MeshoptSimplifier, ratio: args.simplifyRatio, error: args.simplifyErrorThreshold })
     )
     await document.transform(...simplifyTransforms)
   }
@@ -805,6 +810,23 @@ const writeFiles = async (
   return finalPath
 }
 
+// Add a function to preserve vertex colors
+const preserveVertexColors: Transform = (document: Document) => {
+  document
+    .getRoot()
+    .listMeshes()
+    .map((mesh) => mesh.listPrimitives())
+    .flat()
+    .forEach((prim) => {
+      // Ensure COLOR_0 attribute is preserved during transformations
+      const colorAttr = prim.getAttribute('COLOR_0')
+      if (colorAttr) {
+        // Mark it with extras to ensure it's not removed
+        colorAttr.setExtras({ preserve: true })
+      }
+    })
+}
+
 export const transformModel = async (
   srcURL: string,
   modelOperations: ModelTransformParameters[],
@@ -872,6 +894,9 @@ export const transformModel = async (
 
     const document = await cloneDocument(srcDocument)
 
+    // Preserve vertex colors before applying transformations
+    await document.transform(preserveVertexColors)
+
     // Apply basic optimizations
     await document.transform(unInstanceSingletons)
     params.split && (await document.transform(split))
@@ -885,7 +910,16 @@ export const transformModel = async (
       const simplifyTransforms = [] as Transform[]
       if (!params.weld.enabled) simplifyTransforms.push(weld())
       simplifyTransforms.push(
-        simplify({ simplifier: MeshoptSimplifier, ratio: params.simplifyRatio, error: params.simplifyErrorThreshold })
+        params.adaptiveSimplification
+          ? (doc) => {
+              adaptiveSimplify(doc, params)
+              return doc
+            }
+          : simplify({
+              simplifier: MeshoptSimplifier,
+              ratio: params.simplifyRatio,
+              error: params.simplifyErrorThreshold
+            })
       )
       await document.transform(...simplifyTransforms)
     }
@@ -938,7 +972,7 @@ export const transformModel = async (
         const matArgs = eeMaterial.args!
 
         const newTextures = document.getRoot().listTextures()
-        const materialArgsInfo = eeMaterialExtension.materialInfoMap.get(matArgs.getExtras().uuid as string)!
+        const materialArgsInfo = eeMaterialExtension.materialInfoMap.get(matArgs.getExtras().uuid as string) || []
         materialArgsInfo.map((field) => {
           let argEntry: EEArgEntry
           try {
@@ -987,4 +1021,153 @@ export const transformModel = async (
   onProgress?.(1, Status.Complete)
 
   return results
+}
+// Main function to calculate mesh importance
+const calculateMeshImportance = (
+  mesh: Mesh,
+  weights = { size: 0.35, material: 0.25, visibility: 0.2, vertexDensity: 0.2 },
+  sceneScale = 10.0
+): number => {
+  const size = getMeshSize(mesh)
+  const normalizedSize = Math.min(1.0, size / sceneScale)
+
+  const materialImportance = getMaterialImportance(mesh)
+  const visibilityImportance = getVisibilityImportance(mesh)
+  const vertexDensityImportance = getVertexDensityImportance(mesh)
+
+  return (
+    normalizedSize * weights.size +
+    materialImportance * weights.material +
+    visibilityImportance * weights.visibility +
+    vertexDensityImportance * weights.vertexDensity
+  )
+}
+
+// Helper: Calculate bounding box volume
+const getMeshSize = (mesh: Mesh): number => {
+  let totalVolume = 0
+  for (const prim of mesh.listPrimitives()) {
+    const positionAccessor = prim.getAttribute('POSITION')
+    if (positionAccessor) {
+      const min = [Infinity, Infinity, Infinity]
+      const max = [-Infinity, -Infinity, -Infinity]
+
+      for (let i = 0; i < positionAccessor.getCount(); i++) {
+        const position = positionAccessor.getElement(i, [])
+        for (let j = 0; j < 3; j++) {
+          min[j] = Math.min(min[j], position[j])
+          max[j] = Math.max(max[j], position[j])
+        }
+      }
+
+      const volume = Math.max(0, (max[0] - min[0]) * (max[1] - min[1]) * (max[2] - min[2]))
+      totalVolume += volume
+    }
+  }
+  return totalVolume
+}
+
+// Helper: Material importance based on texture or emissive use
+const getMaterialImportance = (mesh: Mesh): number => {
+  let importance = 0.5
+
+  for (const prim of mesh.listPrimitives()) {
+    const material = prim.getMaterial()
+    if (material) {
+      if (material.getBaseColorTexture() || material.getNormalTexture() || material.getEmissiveTexture()) {
+        importance = Math.max(importance, 0.8)
+      }
+
+      if (material.getEmissiveFactor().some((v) => v > 0)) {
+        importance = Math.max(importance, 0.9)
+      }
+    }
+  }
+
+  return importance
+}
+
+// uses visibility/occlusion as importance factor
+const getVisibilityImportance = (mesh: Mesh): number => {
+  // Check if mesh has any primitives with transparent materials
+  let isTransparent = false
+  let isVisible = true
+
+  for (const prim of mesh.listPrimitives()) {
+    const material = prim.getMaterial()
+    if (material) {
+      if (
+        material.getAlphaMode() === 'BLEND' ||
+        (material.getBaseColorFactor() && material.getBaseColorFactor()[3] < 1.0)
+      ) {
+        isTransparent = true
+      }
+
+      const extras = material.getExtras()
+      if (extras && extras.visible === false) {
+        isVisible = false
+      }
+    }
+  }
+
+  if (isTransparent) return 0.8
+
+  if (!isVisible) return 0.2
+
+  return 0.5
+}
+
+// Helper: Importance  based on vertex density (more dense = more important details)
+const getVertexDensityImportance = (mesh: Mesh): number => {
+  let totalVolume = 0
+  let totalVertices = 0
+
+  for (const prim of mesh.listPrimitives()) {
+    const positionAccessor = prim.getAttribute('POSITION')
+    if (positionAccessor) {
+      totalVertices += positionAccessor.getCount()
+
+      const min = [Infinity, Infinity, Infinity]
+      const max = [-Infinity, -Infinity, -Infinity]
+
+      for (let i = 0; i < positionAccessor.getCount(); i++) {
+        const position = positionAccessor.getElement(i, [])
+        for (let j = 0; j < 3; j++) {
+          min[j] = Math.min(min[j], position[j])
+          max[j] = Math.max(max[j], position[j])
+        }
+      }
+
+      const volume = Math.max(0.0001, (max[0] - min[0]) * (max[1] - min[1]) * (max[2] - min[2]))
+      totalVolume += volume
+    }
+  }
+
+  if (totalVolume === 0 || totalVertices === 0) return 0.5
+
+  const density = totalVertices / totalVolume
+
+  return Math.min(1.0, density / 1000)
+}
+
+// adaptiveSimplify function with inverted logic to increase simplification
+const adaptiveSimplify = (document: Document, args: ModelTransformParameters) => {
+  const meshes = document.getRoot().listMeshes()
+
+  for (const mesh of meshes) {
+    const importance = calculateMeshImportance(mesh)
+    const adaptiveRatio = args.simplifyRatio * importance
+
+    for (const prim of mesh.listPrimitives()) {
+      try {
+        simplify({
+          simplifier: MeshoptSimplifier,
+          ratio: adaptiveRatio,
+          error: args.simplifyErrorThreshold
+        })(document)
+      } catch (error) {
+        console.error(`Error simplifying mesh ${mesh.getName()}:`, error)
+      }
+    }
+  }
 }

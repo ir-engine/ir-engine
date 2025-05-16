@@ -19,7 +19,7 @@
     "url": "git+https://github.com/ir-engine/ir-engine.git"
   },
   "scripts": {
-    "check-errors": "tsc --noemit",
+    "check-errors": "tsc --noemit && npx cycle-import-check src || true",
     "cross-env": "7.0.3",
     "test": "exit 0",
     "validate": "npm run test",

@@ -30,11 +30,8 @@ import { Entity } from '@ir-engine/ecs'
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { getState } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import {
-  getNestedVisibleChildren,
-  getSceneParameters,
-  RendererComponent
-} from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { getNestedVisibleChildren, getSceneParameters } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'

@@ -55,7 +55,7 @@ import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { useVideoFrameCallback } from '@ir-engine/spatial/src/common/functions/useVideoFrameCallback'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'

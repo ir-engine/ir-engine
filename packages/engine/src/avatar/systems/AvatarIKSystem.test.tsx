@@ -42,7 +42,6 @@ import { applyIncomingActions, dispatchAction, startReactor } from '@ir-engine/h
 import { TransformComponent } from '@ir-engine/spatial'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import {
-  computeTransformMatrix,
   TransformDirtyCleanupSystem,
   TransformDirtyUpdateSystem,
   TransformSystem
@@ -219,7 +218,9 @@ describe('AvatarIKSystem', () => {
       SystemDefinitions.get(AnimationSystem)?.execute()
       SystemDefinitions.get(AvatarAnimationSystem)?.execute()
 
-      iterateEntityNode(avatarEntity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
+      iterateEntityNode(avatarEntity, TransformComponent.computeTransformMatrix, (e) =>
+        hasComponent(e, TransformComponent)
+      )
 
       const rightHandIkPos = TransformComponent.getWorldPosition(
         getComponent(avatarEntity, AvatarRigComponent).bonesToEntities.rightHand,
