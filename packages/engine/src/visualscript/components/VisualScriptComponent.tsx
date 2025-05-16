@@ -44,7 +44,10 @@ export const VisualScriptComponent = defineComponent({
   jsonID: 'EE_visual_script',
 
   schema: S.Object({
-    domain: S.Enum(VisualScriptDomain, { default: VisualScriptDomain.ECS }),
+    domain: S.Enum(VisualScriptDomain, {
+      $comment: "Likely a string enum, ie. one of the following values: 'ECS'",
+      default: VisualScriptDomain.ECS
+    }),
     visualScript: S.Type<GraphJSON | null>({
       default: () => parseStorageProviderURLs(defaultVisualScript),
       deserialize(curr, value) {

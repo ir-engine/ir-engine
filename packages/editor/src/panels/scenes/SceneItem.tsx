@@ -34,7 +34,7 @@ import multiLogger from '@ir-engine/common/src/logger'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
 import RenameSceneModal from '@ir-engine/editor/src/panels/scenes/RenameSceneModal'
-import { useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import MoreOptionsMenu from '@ir-engine/ui/src/components/tailwind/MoreOptionsMenu'
@@ -44,9 +44,16 @@ import { default as React } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoDuplicateOutline } from 'react-icons/io5'
 import { twMerge } from 'tailwind-merge'
+import { UIAddonsState } from '../../services/UIAddonsState'
 import SceneCard from './SceneCard'
 
 const logger = multiLogger.child({ component: `editor:SceneItem`, modifier: clientContextParams })
+export interface SceneItemMoreOtionData {
+  label: string
+  disabled?: boolean
+  icon?: React.ReactNode
+  onClick: (scene: StaticResourceType) => void
+}
 
 type SceneItemProps = {
   scene: StaticResourceType
@@ -86,6 +93,7 @@ export default function SceneItem({
   }
 
   const defaultThumbnail = theme?.value === 'dark' ? IRLogoModalLight : IRLogoModalDark
+  const sceneItemMoreOptions = useMutableState(UIAddonsState).editor.sceneItemMoreOptions.get(NO_PROXY)
 
   const actionProps = [
     {
@@ -135,11 +143,22 @@ export default function SceneItem({
           />
         )
       }
-    }
+    },
+    ...Object.values(sceneItemMoreOptions).map((value, index) => {
+      return {
+        label: value.label,
+        disabled: value.disabled,
+        icon: value.icon,
+        onClick: () => {
+          value.onClick(scene)
+        }
+      }
+    })
   ]
 
   if (onCloneToProject) {
-    actionProps.splice(actionProps.length - 1, 0, {
+    const cloneSceneIndex = actionProps.findIndex((item) => item.label === t('editor:hierarchy.lbl-cloneScene'))
+    actionProps.splice(cloneSceneIndex + 1, 0, {
       label: t('editor:hierarchy.lbl-cloneSceneToProject'),
       disabled: false,
       icon: <Copy02Sm fontSize={16} />,

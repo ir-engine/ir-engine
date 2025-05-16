@@ -97,7 +97,7 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
   useSearch(
     filesQuery,
     {
-      key: {
+      name: {
         $like: `%${filesState.searchText.value}%`
       }
     },

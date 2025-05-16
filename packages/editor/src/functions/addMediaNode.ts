@@ -194,7 +194,7 @@ export async function addMediaNode(
         (entity) => {
           const rootEntity = getState(EditorState).rootEntity
           const source = UUIDComponent.getAsSourceID(entity)
-          const entities = UUIDComponent.getEntitiesBySource(source)
+          const entities = UUIDComponent.getEntitiesBySource(source, Layers.Authoring)
           const newSource = GLTFComponent.getSourceID(rootEntity)
           for (const entity of entities) {
             requestedName = getIncreamentedName(requestedName, parent)
