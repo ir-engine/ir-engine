@@ -51,7 +51,12 @@ export function getSpawnPoint(spawnPointNodeId: string, userId: UserID): { posit
 }
 
 const randomPositionCentered = (area: Vector3) => {
-  return new Vector3((Math.random() - 0.5) * area.x, (Math.random() - 0.5) * area.y, (Math.random() - 0.5) * area.z)
+  const radius = 0.5
+  const x = (Math.random() - 0.5) * 2 * radius + area.x
+  const z = (Math.random() - 0.5) * 2 * radius + area.z
+  console.log('mbf', area)
+  console.log('mbf', x, area.y, z)
+  return new Vector3(x, area.y, z)
 }
 
 const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
@@ -64,10 +69,9 @@ export function getRandomSpawnPoint(userId: UserID): { position: Vector3; rotati
   const entity = spawnPointForUser ?? spawnPoints[Math.round(Math.random() * (spawnPoints.length - 1))]
   if (entity) {
     const spawnTransform = getComponent(entity, TransformComponent)
+    const worldPosition = TransformComponent.getWorldPosition(entity, new Vector3())
     return {
-      position: spawnTransform.position
-        .clone()
-        .add(randomPositionCentered(new Vector3(spawnTransform.scale.x, 0, spawnTransform.scale.z))),
+      position: randomPositionCentered(worldPosition),
       rotation: spawnTransform.rotation.clone()
     }
   }
