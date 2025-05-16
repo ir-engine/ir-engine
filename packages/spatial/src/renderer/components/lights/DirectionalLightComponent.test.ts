@@ -290,13 +290,11 @@ describe('DirectionalLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, DirectionalLightComponent, { color: Expected })
-      setComponent(testEntity, ActiveHelperComponent, { enabled: true, selected: false, hovered: false })
 
       await vi.waitFor(() => {
         // First check if the helper entity was created and added to children
-        const entityTree = getComponent(testEntity, EntityTreeComponent)
+        const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
 
-        const childEntity1 = entityTree.children[0]
         const result = getComponent(childEntity1, LineSegmentComponent).color
         assert.equal(new Color(result).getHex(), Expected.getHex())
       })
@@ -406,13 +404,13 @@ describe('DirectionalLightComponent', () => {
     it('should react when debugEnabled changes', async () => {
       const Initial = false
       const Expected = !Initial
-
+      const ExpectedColor = new Color(0x123456)
       // Set the data as expected
       assert.equal(getState(RendererState).nodeHelperVisibility, false)
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
 
       // Run and Check the Initial result
-      setComponent(testEntity, DirectionalLightComponent)
+      setComponent(testEntity, DirectionalLightComponent, { color: ExpectedColor })
 
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
@@ -426,6 +424,7 @@ describe('DirectionalLightComponent', () => {
         const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
         assert.equal(hasComponent(childEntity1, LineSegmentComponent), Expected)
         assert.equal(getComponent(childEntity1, LineSegmentComponent).name, 'directional-light-helper')
+        assert.equal(getComponent(childEntity1, LineSegmentComponent).color, ExpectedColor)
       })
 
       // Re-run and Check the unmount case
