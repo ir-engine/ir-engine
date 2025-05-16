@@ -28,7 +28,7 @@ import { EmbedCodeField } from '@ir-engine/client-core/src/common/components/Emb
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useHookstate } from '@ir-engine/hyperflux'
 
-import { useTranslation } from 'react-i18next'
+import { t } from 'i18next'
 import Input from '../../../primitives/tailwind/Input'
 import Label from '../../../primitives/tailwind/Label'
 import Modal, { ModalProps } from '../../../primitives/tailwind/Modal'
@@ -61,7 +61,6 @@ interface FieldOptions {
 export const InputDialog = ({ title, fields, onSubmit, onClose, modalProps }: InputDialogProps) => {
   const errorText = useHookstate('')
   const modalProcessing = useHookstate(false)
-  const { t } = useTranslation()
 
   // Check if all fields are of type 'codefield'
   const allFieldsAreCodefields = fields.every((field) => field.type === 'codefield')
