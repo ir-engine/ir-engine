@@ -260,6 +260,23 @@ const useGenerateHelper = (
         }
       }
       const fileJobs = getMutableState(FileThumbnailJobState).jobs
+      if (jobType === 'dimension') {
+        // Get the file extension to check if it can have dimension
+        let ext = resource.key
+        if (ext.endsWith('.material.gltf')) {
+          ext = 'material.gltf'
+        } else if (ext.endsWith('.lookdev.gltf')) {
+          ext = 'lookdev.gltf'
+        } else {
+          ext = ext.split('.').pop() ?? ''
+        }
+
+        if (!extensionCanHaveDimension(ext)) {
+          //skip assets that cannot have dimension
+          continue
+        }
+      }
+
       if (fileJobs.value.filter((fj) => fj.key === resource.url && fj.jobType === jobType).length < 1) {
         fileJobs.merge([
           {
@@ -349,6 +366,12 @@ const stripSearchFromURL = (url: string): string => {
 }
 
 export const extensionCanHaveThumbnail = (ext: string): boolean => extensionThumbnailTypeMap.has(ext)
+
+export const extensionCanHaveDimension = (ext: string): boolean => {
+  const fileType = extensionThumbnailTypeMap.get(ext)
+  // Only model files can have dimensions, but exclude material and lookdev assets
+  return fileType === 'model' && ext !== 'material.gltf' && ext !== 'lookdev.gltf'
+}
 
 const tryCatch = (fn: (...args: any[]) => void, onError: (err) => void) => {
   try {
