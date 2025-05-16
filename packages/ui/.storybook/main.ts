@@ -46,7 +46,8 @@ const config: StorybookConfig = {
     // '../src/icons/**/*.stories.@(js|jsx|ts|tsx)',
     // '../src/index.stories.tsx',
     // '../../client-core/src/**/*.stories.@(js|jsx|ts|tsx)'
-    '../../client-core/src/**/*.stories.tsx'
+    '../../client-core/src/**/*.stories.tsx',
+    '../../editor/src/**/*.stories.tsx'
   ],
   addons: [
     getAbsolutePath('@storybook/addon-links'),
@@ -78,9 +79,7 @@ const config: StorybookConfig = {
           ...userConfig?.resolve?.alias,
           path: require.resolve('path-browserify'),
           crypto: require.resolve('crypto-browserify'),
-          stream: require.resolve('stream-browserify'),
-
-          '@': require('path').resolve(__dirname, '../../client/public')
+          stream: require.resolve('stream-browserify')
         }
       },
       build: {
