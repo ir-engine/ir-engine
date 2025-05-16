@@ -23,23 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { API as ClientAPI } from '@ir-engine/client-core/src/API'
 import MetaTags from '@ir-engine/client-core/src/common/components/MetaTags'
+import { createEngine, destroyEngine } from '@ir-engine/ecs'
+import { startTimer } from '@ir-engine/spatial/src/startTimer'
 import { Description, Primary, Stories, Subtitle, Title } from '@storybook/addon-docs'
 import { Decorator, Preview } from '@storybook/react'
 import { bypass, http, HttpResponse } from 'msw'
 import { initialize, mswLoader } from 'msw-storybook-addon'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { I18nextProvider } from 'react-i18next'
 import '../../client/src/themes/base.css'
 import '../../client/src/themes/components.css'
 import '../../client/src/themes/utilities.css'
-//@ts-ignore
 import keycardGLB from '../../projects/default-project/assets/keycard.glb?url'
-//@ts-ignore
 import apartmentGLTF from '../../projects/default-project/public/scenes/apartment.gltf?raw'
-//@ts-ignore
 import EngineDecorator from './decorators/EngineDecorator'
 import i18n from './i18n'
 initialize()
@@ -62,8 +62,24 @@ export const decorators: Decorator[] = [
     )
   },
   (Story, args) => {
+    const [engineInitialized, setEngineInitialized] = React.useState(false)
+
+    useEffect(() => {
+      if (engineInitialized) return
+      createEngine()
+      startTimer()
+      ClientAPI.createAPI()
+      setEngineInitialized(true)
+      return () => {
+        destroyEngine()
+      }
+    }, [])
+
+    if (!engineInitialized) return null
+
     if (args.globals.IR_Engine) {
       const sceneName = args.globals.Scene
+
       return (
         <div className="h-screen w-screen">
           <EngineDecorator sceneName={sceneName}>
