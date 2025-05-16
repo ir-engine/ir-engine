@@ -29,13 +29,9 @@ import type { Knex } from 'knex'
 export async function up(knex: Knex): Promise<void> {
   await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  // Add reported user country column
+  // Add country columns for both reported and reporting users
   await knex.schema.alterTable(moderationPath, (table) => {
     table.string('reportedUserCountry', 100).nullable()
-  })
-
-  // Add reporting user country column
-  await knex.schema.alterTable(moderationPath, (table) => {
     table.string('reportingUserCountry', 100).nullable()
   })
 
