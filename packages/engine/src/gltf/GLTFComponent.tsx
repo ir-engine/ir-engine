@@ -452,7 +452,6 @@ export const loadGLTFFile = (
         json = JSON.parse(data)
       } else if ('byteLength' in data) {
         const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
-
         if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
           const { json: jsonContent, body: bodyContent } = parseBinaryData(data)
           body = bodyContent
@@ -500,7 +499,7 @@ const useGLTFDocument = (entity: Entity) => {
     const signal = abortController.signal
 
     const onError = (error: ErrorEvent) => {
-      addError(entity, GLTFComponent, 'LOADING_ERROR', 'Error loading model')
+      addError(entity, GLTFComponent, 'LOADING_ERROR', 'Error loading model ' + url)
     }
 
     removeError(entity, GLTFComponent, 'LOADING_ERROR')
