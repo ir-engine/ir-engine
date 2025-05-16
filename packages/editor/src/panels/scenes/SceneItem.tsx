@@ -28,9 +28,10 @@ import { clientContextParams } from '@ir-engine/client-core/src/util/ClientConte
 import { cloneScene, deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import IRLogoModalDark from '@ir-engine/client/src/assets/iR-logo-Modal-dark.png'
 import IRLogoModalLight from '@ir-engine/client/src/assets/iR-logo-Modal-light.png'
+import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import multiLogger from '@ir-engine/common/src/logger'
-import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
+import { locationPath, StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
 import RenameSceneModal from '@ir-engine/editor/src/panels/scenes/RenameSceneModal'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
@@ -115,9 +116,15 @@ export default function SceneItem({
       label: t('editor:hierarchy.lbl-copyEmbedCode'),
       disabled: false,
       icon: <CodeSnippet01Sm fontSize={16} />,
-      onClick: () => {
-        const sceneName = scene.key.split('/').pop()!.replace('.gltf', '')
-        const url = `${config.client.clientUrl}/location/${sceneName}`
+      onClick: async () => {
+        const location = await API.instance.service(locationPath).find({
+          query: {
+            sceneId: scene.id,
+            action: 'account',
+            $limit: 1
+          }
+        })
+        const url = `${config.client.clientUrl}/location/${location?.data[0]?.slugifiedName}`
         ModalState.openModal(
           <InputDialog
             title={t('editor:hierarchy.lbl-copyEmbedCode')}
