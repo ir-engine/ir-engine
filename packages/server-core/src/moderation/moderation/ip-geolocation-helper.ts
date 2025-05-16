@@ -23,8 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import multiLogger from '@ir-engine/common/src/logger'
 import fetch from 'node-fetch'
 import config from '../../appconfig'
+
+const logger = multiLogger.child({ component: 'server-core:ip-geolocation' })
 
 /**
  * Interface for ipinfo.io API response
@@ -60,7 +63,7 @@ export const getCountryFromIP = async (ipAddress: string | undefined): Promise<s
     const response = await fetch(`${apiUrl}/${ipAddress}?token=${apiToken}`)
 
     if (!response.ok) {
-      console.error(`Error fetching country from IP: ${response.statusText}`)
+      logger.error(`Error fetching country from IP: ${response.statusText}`)
       return undefined
     }
 
@@ -69,7 +72,7 @@ export const getCountryFromIP = async (ipAddress: string | undefined): Promise<s
     // ipinfo.io directly provides the full country name
     return data.country || undefined
   } catch (error) {
-    console.error('Error fetching country from IP:', error)
+    logger.error('Error fetching country from IP:', error)
     return undefined
   }
 }
