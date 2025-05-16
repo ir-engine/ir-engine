@@ -23,9 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { PlusLg } from '@ir-engine/ui/src/icons'
+import type { Meta } from '@storybook/react'
 import ActionButton from './ActionButton'
 
-export default {
+const meta: Meta<typeof ActionButton> = {
   title: 'admin/ActionButton',
   component: ActionButton,
   parameters: {
@@ -36,7 +38,12 @@ export default {
     }
   }
 }
+export default meta
 
 export const Default = {
-  args: {}
+  args: {
+    icon: PlusLg,
+    variant: 'default',
+    'aria-label': 'Add item'
+  }
 }

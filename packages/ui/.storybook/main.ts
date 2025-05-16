@@ -39,12 +39,14 @@ const config: StorybookConfig = {
     reactDocgen: false
   },
   stories: [
-    '../src/components/editor/properties/**/*.stories.@(js|jsx|ts|tsx)',
-    '../src/primitives/tailwind/!(TruncatedText)/*.stories.@(js|jsx|ts|tsx)',
-    '../src/components/editor/**/*.stories.@(js|jsx|ts|tsx)',
-    '../src/components/tailwind/**/*.stories.@(js|jsx|ts|tsx)',
-    '../src/icons/**/*.stories.@(js|jsx|ts|tsx)',
-    '../src/index.stories.tsx'
+    // '../src/components/editor/properties/**/*.stories.@(js|jsx|ts|tsx)',
+    // '../src/primitives/tailwind/!(TruncatedText)/*.stories.@(js|jsx|ts|tsx)',
+    // '../src/components/editor/**/*.stories.@(js|jsx|ts|tsx)',
+    // '../src/components/tailwind/**/*.stories.@(js|jsx|ts|tsx)',
+    // '../src/icons/**/*.stories.@(js|jsx|ts|tsx)',
+    // '../src/index.stories.tsx',
+    // '../../client-core/src/**/*.stories.@(js|jsx|ts|tsx)'
+    '../../client-core/src/**/*.stories.tsx'
   ],
   addons: [
     getAbsolutePath('@storybook/addon-links'),
