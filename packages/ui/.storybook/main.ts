@@ -43,7 +43,6 @@ const config: StorybookConfig = {
     '../src/components/editor/AudioVolumeVisualizer/index.stories.@(js|jsx|ts|tsx)',
     '../src/components/tailwind/**/*.stories.@(js|jsx|ts|tsx)',
     '../src/icons/**/*.stories.@(js|jsx|ts|tsx)',
-    '../src/components/Settings/index.stories.tsx',
     '../src/index.stories.tsx'
   ],
   addons: [
