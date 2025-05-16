@@ -261,7 +261,7 @@ export async function seed(knex: Knex): Promise<void> {
       },
       {
         key: EngineSettings.Server.IpGeolocation.ApiToken,
-        value: process.env.IP_GEOLOCATION_API_TOKEN || '5d7bca91e45e52'
+        value: process.env.IP_GEOLOCATION_API_TOKEN || ''
       },
       {
         key: EngineSettings.Server.PerformDryRun,
