@@ -170,7 +170,8 @@ export class GCSStorage implements StorageProviderInterface {
       Contents: files.map((file) => {
         return {
           Key: file.key!,
-          Size: file.size!
+          Size: file.size!,
+          Type: file.type!
         }
       })
     }
