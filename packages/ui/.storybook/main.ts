@@ -38,17 +38,7 @@ const config: StorybookConfig = {
   typescript: {
     reactDocgen: false
   },
-  stories: [
-    // '../src/components/editor/properties/**/*.stories.@(js|jsx|ts|tsx)',
-    // '../src/primitives/tailwind/!(TruncatedText)/*.stories.@(js|jsx|ts|tsx)',
-    // '../src/components/editor/**/*.stories.@(js|jsx|ts|tsx)',
-    // '../src/components/tailwind/**/*.stories.@(js|jsx|ts|tsx)',
-    // '../src/icons/**/*.stories.@(js|jsx|ts|tsx)',
-    // '../src/index.stories.tsx',
-    // '../../client-core/src/**/*.stories.@(js|jsx|ts|tsx)'
-    '../../client-core/src/**/*.stories.tsx',
-    '../../editor/src/**/*.stories.tsx'
-  ],
+  stories: ['../../client-core/src/**/*.stories.tsx', '../../editor/src/**/*.stories.tsx', '../src/**/*.stories.tsx'],
   addons: [
     getAbsolutePath('@storybook/addon-links'),
     getAbsolutePath('@storybook/addon-toolbars'),
