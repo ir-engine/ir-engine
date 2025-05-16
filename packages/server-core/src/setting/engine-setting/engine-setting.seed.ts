@@ -256,6 +256,14 @@ export async function seed(knex: Knex): Promise<void> {
         value: process.env.LOCAL_STORAGE_PROVIDER || ''
       },
       {
+        key: EngineSettings.Server.IpGeolocation.ApiUrl,
+        value: process.env.IP_GEOLOCATION_API_URL || 'https://api.ipinfo.io/lite'
+      },
+      {
+        key: EngineSettings.Server.IpGeolocation.ApiToken,
+        value: process.env.IP_GEOLOCATION_API_TOKEN || '5d7bca91e45e52'
+      },
+      {
         key: EngineSettings.Server.PerformDryRun,
         value: process.env.PERFORM_DRY_RUN || 'false'
       },
@@ -809,7 +817,7 @@ export async function seed(knex: Knex): Promise<void> {
 }
 
 export async function generateSeedData(
-  items: { key: string; value: string }[],
+  items: { key: string; value: string; jsonKey?: string }[],
   category: EngineSettingType['category'],
   type: EngineSettingType['type'] = 'private'
 ): Promise<EngineSettingType[]> {

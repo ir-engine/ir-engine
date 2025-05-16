@@ -64,6 +64,8 @@ export const moderationSchema = Type.Object(
     }),
     ipAddress: Type.Optional(Type.String({ maxLength: 255 })),
     reportedUserIpAddress: Type.Optional(Type.String({ maxLength: 255 })),
+    reportedUserCountry: Type.Optional(Type.String({ maxLength: 100 })),
+    reportingUserCountry: Type.Optional(Type.String({ maxLength: 100 })),
     reportDetails: Type.String({ maxLength: 1050 }),
     status: StringEnum(['open', 'resolved']),
     reportedAt: Type.String({ format: 'date-time' }),
@@ -86,7 +88,16 @@ export interface ModerationType extends Static<typeof moderationSchema> {}
 // Schema for creating new entries
 export const moderationDataSchema = Type.Pick(
   moderationSchema,
-  ['type', 'reportedUserId', 'reportedLocationId', 'ipAddress', 'abuseReason', 'reportDetails'],
+  [
+    'type',
+    'reportedUserId',
+    'reportedLocationId',
+    'ipAddress',
+    'abuseReason',
+    'reportDetails',
+    'reportedUserCountry',
+    'reportingUserCountry'
+  ],
   {
     $id: 'ModerationData'
   }
@@ -95,7 +106,13 @@ export interface ModerationData extends Static<typeof moderationDataSchema> {}
 
 // Schema for updating existing entries
 export const moderationPatchSchema = Type.Partial(
-  Type.Pick(moderationSchema, ['status', 'abuseReason', 'reportDetails']),
+  Type.Pick(moderationSchema, [
+    'status',
+    'abuseReason',
+    'reportDetails',
+    'reportedUserCountry',
+    'reportingUserCountry'
+  ]),
   {
     $id: 'ModerationPatch'
   }
@@ -110,7 +127,9 @@ export const moderationQueryProperties = Type.Pick(moderationSchema, [
   'reportedLocationId',
   'reportedUserId',
   'abuseReason',
-  'status'
+  'status',
+  'reportedUserCountry',
+  'reportingUserCountry'
 ])
 export const moderationQuerySchema = Type.Intersect(
   [

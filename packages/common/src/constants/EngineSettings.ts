@@ -171,7 +171,11 @@ export const EngineSettings = {
     ReleaseName: 'releaseName',
     InstanceserverUnreachableTimeoutSeconds: 'instanceserverUnreachableTimeoutSeconds',
     PerformDryRun: 'performDryRun',
-    Local: 'local'
+    Local: 'local',
+    IpGeolocation: {
+      ApiUrl: 'ipGeolocation.apiUrl',
+      ApiToken: 'ipGeolocation.apiToken'
+    }
   },
   Aws: {
     S3: {

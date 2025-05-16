@@ -37,6 +37,7 @@ import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identit
 import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import type { HookContext } from '@ir-engine/server-core/declarations'
+import { getCountryFromIP } from './ip-geolocation-helper'
 
 const resolveUserEmail = async (userId: UserID | undefined, context: HookContext) => {
   if (!userId) return undefined
@@ -86,6 +87,14 @@ export const moderationDataResolver = resolve<ModerationType, HookContext>({
   },
   reportedUserIpAddress: virtual(async (moderation: ModerationType, context: HookContext) => {
     return resolveUserIp(moderation.reportedUserId, context)
+  }),
+  reportingUserCountry: async (_, __, context) => {
+    const ipAddress = context.params.forwarded?.ip || '::1'
+    return await getCountryFromIP(ipAddress)
+  },
+  reportedUserCountry: virtual(async (moderation, context) => {
+    const reportedUserIp = await resolveUserIp(moderation.reportedUserId, context)
+    return await getCountryFromIP(reportedUserIp)
   }),
   createdBy: async (_, __, context) => {
     return context.params?.user?.id || null

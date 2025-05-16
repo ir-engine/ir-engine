@@ -225,6 +225,7 @@ export const ModerationDetail = ({
             <>
               <Text className="mb-4 text-text-primary">{t('admin:components.moderation.usernameBeingReported')}</Text>
               <UserInfo
+                country={moderation.reportedUserCountry}
                 userId={moderation.reportedUserId}
                 userEmail={moderation.reportedUserEmail}
                 usersQuery={usersQuery}
@@ -242,7 +243,12 @@ export const ModerationDetail = ({
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.dateReported')}</Text>
           <Text className="mb-4">{toDisplayDateTimeUtc(moderation?.reportedAt)} UTC</Text>
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.reporter')}</Text>
-          <UserInfo userId={moderation.createdBy} userEmail={moderation.createdByEmail} usersQuery={usersQuery} />
+          <UserInfo
+            country={moderation.reportingUserCountry}
+            userId={moderation.createdBy}
+            userEmail={moderation.createdByEmail}
+            usersQuery={usersQuery}
+          />
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.space')}</Text>
           <Text className="mb-4">
             {moderation.reportedLocationId && (

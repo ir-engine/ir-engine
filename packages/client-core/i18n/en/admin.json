@@ -507,6 +507,8 @@
       "githubWebhookSecret": "Github Webhook Secret",
       "githubPrivateKey": "Github Private Key",
       "instanceserverUnreachableTimeoutSeconds": "Seconds for instanceserver to be considered unreachable",
+      "ipGeolocationApiUrl": "IP Geolocation API URL",
+      "ipGeolocationApiToken": "IP Geolocation API Token",
       "patchInstanceserver": "Patch Instanceserver",
       "hub": "Hub",
       "placeholderText": "This is the input placeholder",
