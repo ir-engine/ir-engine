@@ -50,7 +50,7 @@ export interface IpInfoResponse {
  */
 export const getCountryFromIP = async (ipAddress: string | undefined): Promise<string | undefined> => {
   if (!ipAddress || ipAddress === '::1' || ipAddress === 'localhost') {
-    return undefined
+    return "Local System"
   }
 
   try {
