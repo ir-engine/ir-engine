@@ -16,6 +16,7 @@
     "strictNullChecks": true,
     "strictBindCallApply": true,
     "noImplicitAny": false,
+    "noUnusedLocals": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "sourceMap": true,

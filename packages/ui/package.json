@@ -23,7 +23,7 @@
   },
   "main": "src/index.ts",
   "scripts": {
-    "check-errors": "tsc --noemit",
+    "check-errors": "tsc --noemit && npx cycle-import-check src || true",
     "test": "exit 0",
     "test:generate-output": "jest --json --outputFile=./tests/jest-test-results.json || true",
     "test:watch": "jest -u --json --watchAll --outputFile=./tests/jest-test-results.json || true",

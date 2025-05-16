@@ -39,7 +39,8 @@ import {
 } from '@ir-engine/ecs'
 import { profile } from '@ir-engine/ecs/src/Timer'
 import { defineState, getMutableState, getState, State, useMutableState } from '@ir-engine/hyperflux'
-import { RendererComponent, RenderSettingsState } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
+import { RenderSettingsState } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 
 import { EngineState } from '@ir-engine/ecs'
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
