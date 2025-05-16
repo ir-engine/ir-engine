@@ -65,7 +65,7 @@ export const decorators: Decorator[] = [
     if (args.globals.IR_Engine) {
       const sceneName = args.globals.Scene
       return (
-        <>
+        <div className="h-screen w-screen">
           <EngineDecorator sceneName={sceneName}>
             <Story />
           </EngineDecorator>
@@ -74,7 +74,7 @@ export const decorators: Decorator[] = [
             style={{ zIndex: -1 }}
             className="absolute left-0 top-0 h-full w-full"
           ></canvas>
-        </>
+        </div>
       )
     } else {
       return <Story />
