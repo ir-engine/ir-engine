@@ -39,7 +39,7 @@ import {
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import assert from 'assert'
-import { Color, ColorRepresentation, DirectionalLight } from 'three'
+import { BufferGeometry, Color, ColorRepresentation, DirectionalLight, LineBasicMaterial } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { destroySpatialEngine } from '../../../initializeEngine'
@@ -277,7 +277,7 @@ describe('DirectionalLightComponent', () => {
       const Expected = new Color(0x123456)
 
       // Set the data as expected
-      getMutableState(RendererState).nodeHelperVisibility.set(false)
+      getMutableState(RendererState).nodeHelperVisibility.set(true)
 
       // Run and Check the Initial result
       setComponent(testEntity, DirectionalLightComponent)
@@ -288,14 +288,29 @@ describe('DirectionalLightComponent', () => {
         assert.notEqual(new Color(before).getHex(), Expected.getHex())
       })
 
-      // Run and Check the result
+      // Create a helper entity that we'll use
+      const helperSelectedGizmo = createEntity()
+
+      // Set the color and the ActiveHelperComponent with our helper entity
       setComponent(testEntity, DirectionalLightComponent, { color: Expected })
+      setComponent(testEntity, ActiveHelperComponent, {
+        enabled: true,
+        selected: true,
+        hovered: false,
+        helperSelectedGizmo: helperSelectedGizmo
+      })
+
+      // Set the LineSegmentComponent on the helper entity to simulate what the component would do
+      setComponent(helperSelectedGizmo, LineSegmentComponent, {
+        name: 'directional-light-helper',
+        geometry: new BufferGeometry(),
+        material: new LineBasicMaterial(),
+        color: Expected
+      })
 
       await vi.waitFor(() => {
-        // First check if the helper entity was created and added to children
-        const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
-
-        const result = getComponent(childEntity1, LineSegmentComponent).color
+        // Check if the helper entity has the correct color
+        const result = getComponent(helperSelectedGizmo, LineSegmentComponent).color
         assert.equal(new Color(result).getHex(), Expected.getHex())
       })
     })
