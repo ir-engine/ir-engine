@@ -37,6 +37,6 @@ const envDefined = typeof globalThis.process !== 'undefined' && typeof globalThi
 
 const isDev = envDefined ? globalThis.process.env.APP_ENV === 'development' : false
 
-const isTest = envDefined ? globalThis.process.env.APP_ENV === 'test' : false
+const isTest = envDefined ? globalThis.process.env.APP_ENV === 'test' || globalThis.process.env.TEST === 'true' : false
 
 export { isBrowser, isClient, isDev, isTest, isWebWorker }
