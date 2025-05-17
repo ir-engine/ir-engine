@@ -56,7 +56,7 @@ export const UnsupportedDevice = () => {
           {t('common:unsupportedDevice.description')}
         </Text>
         <div className="mt-10 flex justify-between">
-          <Button onClick={handleClose}>{t('common:unsupportedDevice.continue')}</Button>
+          <Button onClick={handleClose}>{t('common:unsupportedBrowser.continue')}</Button>
         </div>
       </div>
     </Modal>

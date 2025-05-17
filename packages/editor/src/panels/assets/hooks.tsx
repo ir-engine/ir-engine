@@ -121,7 +121,6 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
             : Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
         } as StaticResourceQuery
       }
-
       API.instance
         .service(staticResourcePath)
         .find({ query })

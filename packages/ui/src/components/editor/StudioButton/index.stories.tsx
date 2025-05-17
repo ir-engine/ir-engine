@@ -44,7 +44,7 @@ const argTypes: ArgTypes = {
     name: 'End Icon'
   },
   variant: {
-    table: { disable: true }
+    table: { disableSnapshot: true }
   },
   rounded: {
     control: 'boolean'

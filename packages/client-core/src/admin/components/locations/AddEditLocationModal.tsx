@@ -195,7 +195,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
 
     return !Object.values(errors.value).some((value) => value.length > 0)
   }
-
+  // these functions need the Editor State to be populated , break storybook for now
   const handlePublishFolder = async () => {
     const isValid = validate()
     if (!isValid) {

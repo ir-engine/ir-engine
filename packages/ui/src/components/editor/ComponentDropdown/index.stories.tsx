@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { createEntity, EntityID, EntityUUIDPair, setComponent, SourceID, UUIDComponent } from '@ir-engine/ecs'
 import { useArgs } from '@storybook/preview-api'
 import { ArgTypes } from '@storybook/react'
 import React from 'react'
@@ -63,6 +64,12 @@ export default {
 
 const ImageLinkRenderer = (args: ComponentDropdownProps) => {
   const [currentArgs, updateArgs] = useArgs<{ closed: boolean }>()
+  const entity = createEntity()
+  setComponent(entity, UUIDComponent, {
+    entitySourceID: 'storybook' as SourceID,
+    entityID: 'root' as EntityID
+  } as EntityUUIDPair)
+
   if (currentArgs.closed) {
     return <button onClick={() => updateArgs({ closed: false })}>click to show component again</button>
   }
@@ -71,6 +78,7 @@ const ImageLinkRenderer = (args: ComponentDropdownProps) => {
       {...args}
       children={<div className="h-20 bg-sky-800" />}
       onClose={() => updateArgs({ closed: true })}
+      entity={entity}
     />
   )
 }

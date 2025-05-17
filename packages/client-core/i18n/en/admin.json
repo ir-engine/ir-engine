@@ -627,6 +627,7 @@
       "avatarPreview": "Avatar Preview",
       "thumbnailPreview": "Thumbnail Preview",
       "avatarUrl": "Avatar URL",
+      "avatarName": "Avatar Name",
       "thumbnailUrl": "Thumbnail URL",
       "selectAvatar": "Select Avatar",
       "clearAvatar": "Clear Avatar",

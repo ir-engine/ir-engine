@@ -48,7 +48,7 @@ export const Default = {
     containerClassName: 'w-96',
     values: ['test name 1', 'test value 2', 'test 3', 'test 4'],
     inputLabel: 'Path',
-    onChange: () => {}
+    onChange: (values: string[]) => {}
   }
 }
 

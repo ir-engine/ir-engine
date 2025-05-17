@@ -23,6 +23,20 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import {
+  createEntity,
+  EntityID,
+  EntityUUIDPair,
+  removeEntity,
+  setComponent,
+  SourceID,
+  UUIDComponent
+} from '@ir-engine/ecs'
+import { AnimationComponent } from '@ir-engine/engine/src/avatar/components/AnimationComponent'
+import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
+import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import React, { useEffect } from 'react'
 import Component from './index'
 
 const argTypes = {}
@@ -36,8 +50,30 @@ export default {
     design: {
       type: 'figma',
       url: ''
-    }
+    },
+    chromatic: { disable: true }
   },
   argTypes
 }
-export const Default = { args: {} }
+
+const ComponentNodeEditorRenderer = () => {
+  const entity = createEntity()
+  setComponent(entity, LoopAnimationComponent)
+  setComponent(entity, GLTFComponent)
+  setComponent(entity, AvatarRigComponent)
+  setComponent(entity, AnimationComponent)
+  setComponent(entity, UUIDComponent, {
+    entitySourceID: 'storybook' as SourceID,
+    entityID: 'root' as EntityID
+  } as EntityUUIDPair)
+
+  useEffect(() => {
+    return () => {
+      removeEntity(entity)
+    }
+  }, [])
+
+  return <Component entity={entity} />
+}
+
+export const Default = { args: {}, render: ComponentNodeEditorRenderer }

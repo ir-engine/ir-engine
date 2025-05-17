@@ -29,10 +29,10 @@ import TruncatedText from './index'
 
 const argTypes: ArgTypes = {}
 
-const TruncatedTextStory = (id: string) => {
+const TruncatedTextStory = (args: any) => {
   return (
     <div className="flex h-screen items-center justify-center">
-      <TruncatedText text={id} />
+      <TruncatedText text={args.text} />
     </div>
   )
 }
@@ -52,6 +52,6 @@ export default {
 
 export const Default = {
   args: {
-    id: '60fc7eab-792a-483f-bbb9-f5b1ec7b98ea'
+    text: 'hello world'
   }
 }

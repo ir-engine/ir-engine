@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '@testing-library/jest-dom'
 import { cleanup, render, type RenderResult, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, type TestContext } from 'vitest'
 

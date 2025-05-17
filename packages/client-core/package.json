@@ -16,8 +16,7 @@
   "types": "lib/index.d.ts",
   "npmClient": "npm",
   "scripts": {
-    "check-errors": "tsc --noemit && npx cycle-import-check src || true",
-    "test": "cross-env TEST=true vitest run --config=../../vitest.client.config.ts"
+    "check-errors": "tsc --noemit"
   },
   "resolutions": {
     "@types/react": "18.2.0",

@@ -68,7 +68,7 @@ const progressCaptions: Record<ModelTransformStatus, string> = {
   [ModelTransformStatus.WritingFiles]: 'editor:properties.model.transform.status.writingfiles',
   [ModelTransformStatus.Complete]: 'editor:properties.model.transform.status.complete'
 }
-
+// this function causes a slice error in storybook, not sure why
 const createLODVariants = async (
   srcURL: string,
   lods: LODVariantDescriptor[],

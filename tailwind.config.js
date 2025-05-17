@@ -33,7 +33,8 @@ module.exports = {
     '../engine/**/*.{ts,tsx}',
     '../editor/**/*.{ts,tsx}',
     '../projects/projects/**/*.{ts,tsx}',
-    '../ui/**/*.{ts,tsx}'
+    '../ui/**/*.{ts,tsx}',
+    '!../**/node_modules/**'
   ],
   darkMode: ['class', '[data-theme="dark"]'],
   important: true, // important in prod is must be
@@ -160,13 +161,13 @@ module.exports = {
           '100%': { opacity: '0.6' }
         },
         slideIn: {
-          "0%": { opacity: 0, transform: "translateY(20px)" },
-          "100%": { opacity: 1, transform: "translateY(0)" },
-        },
+          '0%': { opacity: 0, transform: 'translateY(20px)' },
+          '100%': { opacity: 1, transform: 'translateY(0)' }
+        }
       },
       animation: {
         twinkling: 'twinkling 5s alternate infinite',
-        slideIn: "slideIn 0.3s ease-out forwards",
+        slideIn: 'slideIn 0.3s ease-out forwards'
       }
     }
   },

@@ -179,3 +179,5 @@ certs/tailscale
 
 **/credentials
 .aider*
+
+*storybook.log

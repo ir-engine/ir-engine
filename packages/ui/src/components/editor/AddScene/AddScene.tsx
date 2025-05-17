@@ -31,8 +31,8 @@ import { Button } from '@ir-engine/ui'
 import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FiCodepen, FiTool } from 'react-icons/fi'
-import Scene1 from '/static/editor/scene-1.png'
-import Scene2 from '/static/editor/scene-2.png'
+
+const SCENE_IMAGES = ['/static/editor/scene-1.png', '/static/editor/scene-2.png']
 
 const handleOpenSceneInStudio = async (projectName: string, sceneKey: string) => {
   const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${sceneKey}`
@@ -197,7 +197,7 @@ export const AddScene = ({ projectName }: AddNewSceneProps) => {
           </div>
 
           <div className="hidden h-[266px] w-[440px] max-w-[440px] rounded-[4px] lg:flex">
-            <ImageCarousel images={[Scene1, Scene2]} className="h-full w-full rounded-[4px]" />
+            <ImageCarousel images={SCENE_IMAGES} className="h-full w-full rounded-[4px]" />
           </div>
         </div>
 

@@ -23,12 +23,22 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import {
+  createEntity,
+  EntityID,
+  EntityUUIDPair,
+  removeEntity,
+  setComponent,
+  SourceID,
+  UUIDComponent
+} from '@ir-engine/ecs'
+import React, { useEffect } from 'react'
 import Component from './index'
 
 const argTypes = {}
 
 export default {
-  title: 'Editor/Properties/ScenePreviewCamera',
+  title: 'Editor/Properties/Scene/PreviewCamera',
   component: Component,
   parameters: {
     componentSubtitle: 'ScenePreviewCameraNodeEditor',
@@ -36,8 +46,26 @@ export default {
     design: {
       type: 'figma',
       url: ''
-    }
+    },
+    chromatic: { disable: true }
   },
   argTypes
 }
-export const Default = { args: {} }
+
+const ComponentNodeEditorRenderer = () => {
+  const entity = createEntity()
+  setComponent(entity, UUIDComponent, {
+    entitySourceID: 'storybook' as SourceID,
+    entityID: 'root' as EntityID
+  } as EntityUUIDPair)
+
+  useEffect(() => {
+    return () => {
+      removeEntity(entity)
+    }
+  }, [])
+
+  return <Component entity={entity} />
+}
+
+export const Default = { args: {}, render: ComponentNodeEditorRenderer }

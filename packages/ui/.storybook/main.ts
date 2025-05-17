@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import type { StorybookConfig } from '@storybook/react-vite'
 import { dirname, join } from 'path'
 import { mergeConfig } from 'vite'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 const config: StorybookConfig = {
   env: (config) => ({
@@ -38,12 +39,9 @@ const config: StorybookConfig = {
     reactDocgen: false
   },
   stories: [
-    '../src/primitives/tailwind/!(TruncatedText)/*.stories.@(js|jsx|ts|tsx)',
-    // '../src/components/editor/**/*.stories.@(js|jsx|ts|tsx)',
-    '../src/components/editor/AudioVolumeVisualizer/index.stories.@(js|jsx|ts|tsx)',
-    '../src/components/tailwind/**/*.stories.@(js|jsx|ts|tsx)',
-    '../src/icons/**/*.stories.@(js|jsx|ts|tsx)',
-    '../src/index.stories.tsx'
+    // '../../client-core/src/**/*.stories.tsx',
+    // '../../editor/src/**/*.stories.tsx',
+    '../src/**/*.stories.tsx'
   ],
   addons: [
     getAbsolutePath('@storybook/addon-links'),
@@ -75,15 +73,13 @@ const config: StorybookConfig = {
           ...userConfig?.resolve?.alias,
           path: require.resolve('path-browserify'),
           crypto: require.resolve('crypto-browserify'),
-          stream: require.resolve('stream-browserify'),
-          // alias public folder to root
-          '@': require('path').resolve(__dirname, '../../client/public')
+          stream: require.resolve('stream-browserify')
         }
       },
       build: {
         cssMinify: false
       },
-      plugins: []
+      plugins: [nodePolyfills()]
     })
   },
   docs: {
