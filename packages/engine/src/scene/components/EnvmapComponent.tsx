@@ -58,7 +58,7 @@ export const EnvMapComponent = defineComponent({
 })
 
 export const BoxProjectionPlugin = defineComponent({
-  name: 'BoxProjectionPlugin',
+  name: 'BoxProjectionPluginComponent',
 
   schema: S.Object({
     cubeMapSize: S.Class(() => new Uniform(new Vector3())),

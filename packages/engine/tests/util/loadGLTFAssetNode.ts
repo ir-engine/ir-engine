@@ -27,7 +27,7 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
-import { DataTexture, Texture } from 'three'
+import { CubeTexture, CubeTextureLoader, DataTexture, Texture } from 'three'
 import { afterEach, beforeEach } from 'vitest'
 import { FileLoader } from '../../src/assets/loaders/base/FileLoader'
 import { TextureLoader } from '../../src/assets/loaders/texture/TextureLoader'
@@ -94,3 +94,37 @@ export function overrideTextureLoaderLoad() {
 //   const modelBuffer = toArrayBuffer(await fs.promises.readFile(assetPathAbsolute))
 //   return new Promise((resolve, reject) => loader.parse(modelBuffer, appRootPath.path, resolve, reject))
 // }
+
+const cubemapOriginal = CubeTextureLoader.prototype.load
+
+export function overrideCubemapLoaderLoad() {
+  beforeEach(() => {
+    function overrideLoad(
+      urls: readonly string[],
+      onLoad?: (data: CubeTexture) => void,
+      onProgress?: (event: ProgressEvent) => void,
+      onError?: (err: unknown) => void
+    ): CubeTexture {
+      try {
+        const images = [] as any[]
+        for (const url of urls) {
+          const assetPathAbsolute = path.join(appRootPath.path, url)
+          const buffer = toArrayBuffer(fs.readFileSync(assetPathAbsolute))
+          const texture = new DataTexture(buffer)
+          images.push(texture.image)
+        }
+        const cubeTexture = new CubeTexture(images)
+        onLoad?.(cubeTexture)
+        return cubeTexture
+      } catch (e) {
+        onError?.(e)
+        return new CubeTexture()
+      }
+    }
+    //@ts-ignore
+    CubeTextureLoader.prototype.load = overrideLoad
+  })
+  afterEach(() => {
+    CubeTextureLoader.prototype.load = cubemapOriginal
+  })
+}

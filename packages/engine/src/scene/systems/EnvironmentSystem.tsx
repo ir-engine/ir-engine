@@ -75,7 +75,7 @@ const EnvMapReactor = () => {
         switch (envMapComponent) {
           case 'Skybox':
             return (
-              <EnvMapSkyboxReactor
+              <EnvironmentSystemReactors.EnvMapSkyboxReactor
                 key={envMapComponent + '-' + materialComponentEntity + '-' + index}
                 entity={materialComponentEntity}
                 rootEntity={entity}
@@ -83,7 +83,7 @@ const EnvMapReactor = () => {
             )
           case 'Cubemap':
             return (
-              <EnvMapCubemapReactor
+              <EnvironmentSystemReactors.EnvMapCubemapReactor
                 key={envMapComponent + '-' + materialComponentEntity + '-' + index}
                 entity={materialComponentEntity}
                 rootEntity={entity}
@@ -91,7 +91,7 @@ const EnvMapReactor = () => {
             )
           case 'Equirectangular':
             return (
-              <EnvMapEquirectangularReactor
+              <EnvironmentSystemReactors.EnvMapEquirectangularReactor
                 key={envMapComponent + '-' + materialComponentEntity + '-' + index}
                 entity={materialComponentEntity}
                 rootEntity={entity}
@@ -99,7 +99,7 @@ const EnvMapReactor = () => {
             )
           case 'Color':
             return (
-              <EnvMapColorReactor
+              <EnvironmentSystemReactors.EnvMapColorReactor
                 key={envMapComponent + '-' + materialComponentEntity + '-' + index}
                 entity={materialComponentEntity}
                 rootEntity={entity}
@@ -107,7 +107,7 @@ const EnvMapReactor = () => {
             )
           case 'Bake':
             return (
-              <EnvMapBakeReactor
+              <EnvironmentSystemReactors.EnvMapBakeReactor
                 key={envMapComponent + '-' + materialComponentEntity + '-' + index}
                 entity={materialComponentEntity}
                 rootEntity={entity}
@@ -115,7 +115,7 @@ const EnvMapReactor = () => {
             )
           case 'Probes':
             return (
-              <EnvmapProbesReactor
+              <EnvironmentSystemReactors.EnvmapProbesReactor
                 key={envMapComponent + '-' + materialComponentEntity + '-' + index}
                 entity={materialComponentEntity}
                 rootEntity={entity}
@@ -143,6 +143,13 @@ const IntensityReactor = (props: { rootEntity: Entity; entity: Entity }) => {
 // circumvent threejs bug with envmap uniforms
 const disallowedMaterials = new Set(['MeshMatcapMaterial', 'MeshToonMaterial'])
 
+const clearMaterialEnvMap = (entity: Entity): void => {
+  const materialState = getOptionalMutableComponent(entity, MaterialStateComponent)
+  if (materialState === undefined) return
+  const material = materialState!.material as State<MeshStandardMaterial, Identifiable>
+  if (material?.envMap?.value) material.envMap.set(null)
+}
+
 const EnvMapSkyboxReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   const { entity, rootEntity } = props
   const backgroundQuery = useQuery([BackgroundComponent])
@@ -150,17 +157,15 @@ const EnvMapSkyboxReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     MeshStandardMaterial,
     Identifiable
   >
+  const backgroundEntity = backgroundQuery.find((curr) => haveCommonAncestor(entity, curr))
+  const backgroundComponent = useOptionalComponent(backgroundEntity!, BackgroundComponent)
+
   useEffect(() => {
     return () => {
-      const materialComponent = getOptionalMutableComponent(entity, MaterialStateComponent) as
-        | State<MeshStandardMaterial>
-        | undefined
-      if (materialComponent?.envMap?.value) materialComponent.envMap.set(null)
+      EnvironmentSystemFunctions.clearMaterialEnvMap(entity)
     }
   }, [])
-  let i = 0
-  for (i; i < backgroundQuery.length; i++) if (haveCommonAncestor(entity, backgroundQuery[i])) break
-  const backgroundComponent = useOptionalComponent(backgroundQuery[i], BackgroundComponent)
+
   useEffect(() => {
     if (!materialComponent || !backgroundComponent) return
 
@@ -170,7 +175,7 @@ const EnvMapSkyboxReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     materialComponent.envMap.set(backgroundComponent.value as any)
   }, [backgroundComponent?.value, materialComponent?.uuid.value])
 
-  return <IntensityReactor entity={entity} rootEntity={rootEntity} />
+  return <EnvironmentSystemReactors.IntensityReactor entity={entity} rootEntity={rootEntity} />
 }
 
 const EnvMapCubemapReactor = (props: { entity: Entity; rootEntity: Entity }) => {
@@ -180,14 +185,13 @@ const EnvMapCubemapReactor = (props: { entity: Entity; rootEntity: Entity }) => 
     Identifiable
   >
   const envMapComponent = useComponent(rootEntity, EnvMapComponent)
+
   useEffect(() => {
     return () => {
-      const materialComponent = getOptionalMutableComponent(entity, MaterialStateComponent) as
-        | State<MeshStandardMaterial>
-        | undefined
-      if (materialComponent?.envMap?.value) materialComponent.envMap.set(null)
+      EnvironmentSystemFunctions.clearMaterialEnvMap(entity)
     }
   }, [])
+
   useEffect(() => {
     if (!materialComponent || disallowedMaterials.has(materialComponent.type.value)) return
     loadCubeMapTexture(
@@ -208,7 +212,7 @@ const EnvMapCubemapReactor = (props: { entity: Entity; rootEntity: Entity }) => 
     )
   }, [envMapComponent.envMapCubemapURL])
 
-  return <IntensityReactor entity={entity} rootEntity={rootEntity} />
+  return <EnvironmentSystemReactors.IntensityReactor entity={entity} rootEntity={rootEntity} />
 }
 
 const EnvmapProbesReactor = (props: { entity: Entity; rootEntity: Entity }) => {
@@ -222,10 +226,7 @@ const EnvmapProbesReactor = (props: { entity: Entity; rootEntity: Entity }) => {
 
   useEffect(() => {
     return () => {
-      const materialComponent = getOptionalMutableComponent(entity, MaterialStateComponent) as
-        | State<MeshStandardMaterial>
-        | undefined
-      if (materialComponent?.envMap?.value) materialComponent.envMap.set(null)
+      EnvironmentSystemFunctions.clearMaterialEnvMap(entity)
     }
   }, [])
 
@@ -239,7 +240,7 @@ const EnvmapProbesReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     }
   }, [probeQuery])
 
-  return <IntensityReactor entity={entity} rootEntity={rootEntity} />
+  return <EnvironmentSystemReactors.IntensityReactor entity={entity} rootEntity={rootEntity} />
 }
 
 const EnvMapEquirectangularReactor = (props: { entity: Entity; rootEntity: Entity }) => {
@@ -253,10 +254,7 @@ const EnvMapEquirectangularReactor = (props: { entity: Entity; rootEntity: Entit
 
   useEffect(() => {
     return () => {
-      const materialComponent = getOptionalMutableComponent(entity, MaterialStateComponent) as
-        | State<MeshStandardMaterial>
-        | undefined
-      if (materialComponent?.envMap?.value) materialComponent.envMap.set(null)
+      EnvironmentSystemFunctions.clearMaterialEnvMap(entity)
     }
   }, [])
 
@@ -274,7 +272,7 @@ const EnvMapEquirectangularReactor = (props: { entity: Entity; rootEntity: Entit
     addError(entity, EnvMapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
   }, [error])
 
-  return <IntensityReactor entity={entity} rootEntity={rootEntity} />
+  return <EnvironmentSystemReactors.IntensityReactor entity={entity} rootEntity={rootEntity} />
 }
 
 const EnvMapBakeReactor = (props: { entity: Entity; rootEntity: Entity }) => {
@@ -293,10 +291,7 @@ const EnvMapBakeReactor = (props: { entity: Entity; rootEntity: Entity }) => {
 
   useEffect(() => {
     return () => {
-      const materialComponent = getOptionalMutableComponent(entity, MaterialStateComponent) as
-        | State<MeshStandardMaterial>
-        | undefined
-      if (materialComponent?.envMap?.value) materialComponent.envMap.set(null)
+      EnvironmentSystemFunctions.clearMaterialEnvMap(entity)
     }
   }, [])
 
@@ -326,7 +321,7 @@ const EnvMapBakeReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     addError(bakeEntity, EnvMapComponent, 'MISSING_FILE', 'EnvMap bake texture not found!')
   }, [error])
 
-  return <IntensityReactor entity={entity} rootEntity={rootEntity} />
+  return <EnvironmentSystemReactors.IntensityReactor entity={entity} rootEntity={rootEntity} />
 }
 
 const tempColor = new Color(0, 0, 1)
@@ -340,10 +335,7 @@ const EnvMapColorReactor = (props: { entity: Entity; rootEntity: Entity }) => {
 
   useEffect(() => {
     return () => {
-      const materialComponent = getOptionalMutableComponent(entity, MaterialStateComponent) as
-        | State<MeshStandardMaterial>
-        | undefined
-      if (materialComponent?.envMap?.value) materialComponent.envMap.set(null)
+      EnvironmentSystemFunctions.clearMaterialEnvMap(entity)
     }
   }, [])
 
@@ -363,11 +355,29 @@ const EnvMapColorReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     }
   }, [envMapComponent.envMapSourceColor, materialComponent?.uuid.value, envMapComponent.type])
 
-  return <IntensityReactor entity={entity} rootEntity={rootEntity} />
+  return <EnvironmentSystemReactors.IntensityReactor entity={entity} rootEntity={rootEntity} />
 }
 
 export const EnvironmentSystem = defineSystem({
   uuid: 'ee.engine.EnvironmentSystem',
   insert: { after: PresentationSystemGroup },
-  reactor: () => <QueryReactor Components={[EnvMapComponent]} ChildEntityReactor={EnvMapReactor} />
+  reactor: () => (
+    <QueryReactor Components={[EnvMapComponent]} ChildEntityReactor={EnvironmentSystemReactors.EnvMapReactor} />
+  )
 })
+
+/** @private Exported for Unit Tests usage only */
+export const EnvironmentSystemReactors = {
+  EnvmapProbesReactor,
+  EnvMapBakeReactor,
+  EnvMapColorReactor,
+  EnvMapEquirectangularReactor,
+  EnvMapCubemapReactor,
+  EnvMapSkyboxReactor,
+  EnvMapReactor,
+  IntensityReactor
+}
+/** @private Exported for Unit Tests usage only */
+export const EnvironmentSystemFunctions = {
+  clearMaterialEnvMap
+}
