@@ -41,8 +41,8 @@ import { AnimationSystemGroup, defineSystem, ECSState, Entity, useEntityContext 
 import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { createSDFShader } from '@ir-engine/spatial/src/renderer/effects/sdf/SDFShader'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
