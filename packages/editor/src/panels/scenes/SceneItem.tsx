@@ -29,7 +29,6 @@ import { cloneScene, deleteScene } from '@ir-engine/client-core/src/world/SceneA
 import IRLogoModalDark from '@ir-engine/client/src/assets/iR-logo-Modal-dark.png'
 import IRLogoModalLight from '@ir-engine/client/src/assets/iR-logo-Modal-light.png'
 import { API } from '@ir-engine/common'
-import config from '@ir-engine/common/src/config'
 import multiLogger from '@ir-engine/common/src/logger'
 import { locationPath, StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
@@ -124,7 +123,6 @@ export default function SceneItem({
             $limit: 1
           }
         })
-        const url = `${config.client.clientUrl}/location/${location?.data[0]?.slugifiedName}`
         ModalState.openModal(
           <InputDialog
             title={t('editor:hierarchy.lbl-copyEmbedCode')}
@@ -133,7 +131,7 @@ export default function SceneItem({
                 id: 'embedCode',
                 label: t('common:components.embed'),
                 type: 'codefield',
-                url: url,
+                url: location.data[0]?.url,
                 readOnly: true
               }
             ]}
