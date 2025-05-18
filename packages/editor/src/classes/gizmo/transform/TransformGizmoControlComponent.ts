@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -57,13 +57,14 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+
 import {
-  gizmoUpdate,
   onPointerDown,
   onPointerDrag,
   onPointerHover,
-  onPointerUp
-} from '../../../functions/transformGizmoHelper'
+  onPointerUp,
+  transformGizmoUpdate
+} from '../../../functions/gizmos/transformGizmoHelper'
 import { EditorHelperState } from '../../../services/EditorHelperState'
 import { TransformGizmoVisualComponent } from './TransformGizmoVisualComponent'
 
@@ -111,7 +112,7 @@ export const TransformGizmoControlComponent = defineComponent({
 
       const gizmoVisualEntity = createEntity()
       setComponent(gizmoVisualEntity, EntityTreeComponent, { parentEntity: originEntity })
-      setComponent(gizmoVisualEntity, NameComponent, 'gizmoVisualEntity')
+      setComponent(gizmoVisualEntity, NameComponent, 'transformGizmoVisualEntity')
       setComponent(gizmoVisualEntity, TransformGizmoVisualComponent)
       setComponent(gizmoVisualEntity, TransformGizmoTagComponent)
       setComponent(gizmoVisualEntity, VisibleComponent)
@@ -121,7 +122,7 @@ export const TransformGizmoControlComponent = defineComponent({
 
       const gizmoPlaneEntity = createEntity()
       setComponent(gizmoPlaneEntity, EntityTreeComponent, { parentEntity: originEntity })
-      setComponent(gizmoPlaneEntity, NameComponent, 'gizmoPlaneEntity')
+      setComponent(gizmoPlaneEntity, NameComponent, 'transformGizmoPlaneEntity')
       setComponent(gizmoPlaneEntity, TransformComponent)
       setComponent(gizmoPlaneEntity, VisibleComponent)
 
@@ -142,7 +143,7 @@ export const TransformGizmoControlComponent = defineComponent({
       ObjectLayerMaskComponent.setLayer(gizmoPlaneEntity, ObjectLayers.TransformGizmo)
 
       const pivotEntity = createEntity()
-      setComponent(pivotEntity, NameComponent, 'gizmoPivotEntity')
+      setComponent(pivotEntity, NameComponent, 'transformGizmoPivotEntity')
       setComponent(pivotEntity, TransformComponent)
       setComponent(pivotEntity, VisibleComponent)
       setComponent(pivotEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
@@ -212,7 +213,7 @@ export const TransformGizmoControlComponent = defineComponent({
           }
         }
 
-        gizmoUpdate(gizmoControlEntity)
+        transformGizmoUpdate(gizmoControlEntity)
       },
       InputExecutionOrder.Before,
       true

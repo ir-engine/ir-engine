@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -42,7 +42,6 @@ import { applyIncomingActions, dispatchAction, startReactor } from '@ir-engine/h
 import { TransformComponent } from '@ir-engine/spatial'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import {
-  computeTransformMatrix,
   TransformDirtyCleanupSystem,
   TransformDirtyUpdateSystem,
   TransformSystem
@@ -219,7 +218,9 @@ describe('AvatarIKSystem', () => {
       SystemDefinitions.get(AnimationSystem)?.execute()
       SystemDefinitions.get(AvatarAnimationSystem)?.execute()
 
-      iterateEntityNode(avatarEntity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
+      iterateEntityNode(avatarEntity, TransformComponent.computeTransformMatrix, (e) =>
+        hasComponent(e, TransformComponent)
+      )
 
       const rightHandIkPos = TransformComponent.getWorldPosition(
         getComponent(avatarEntity, AvatarRigComponent).bonesToEntities.rightHand,

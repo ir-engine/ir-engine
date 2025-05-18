@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -43,7 +43,6 @@ import { getState } from '@ir-engine/hyperflux'
 
 import { ObjectDirection, Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
@@ -2570,7 +2569,7 @@ describe('Physics : Rapier->ECS API', () => {
           position: new Vector3(10, 0, 0),
           scale: new Vector3(10, 10, 10)
         })
-        computeTransformMatrix(testEntity)
+        TransformComponent.computeTransformMatrix(testEntity)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Fixed })
         setComponent(testEntity, ColliderComponent, {
           shape: Shapes.Box,
@@ -2629,7 +2628,7 @@ describe('Physics : Rapier->ECS API', () => {
           position: new Vector3(10, 0, 0),
           scale: new Vector3(10, 10, 10)
         })
-        computeTransformMatrix(testEntity)
+        TransformComponent.computeTransformMatrix(testEntity)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Fixed })
         setComponent(testEntity, ColliderComponent, {
           shape: Shapes.Box,

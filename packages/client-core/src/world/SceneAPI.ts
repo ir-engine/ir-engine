@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -45,6 +45,40 @@ export const deleteScene = async (sceneKey: string): Promise<any> => {
     throw error
   }
   return true
+}
+
+export const cloneScene = async (
+  resource: StaticResourceType,
+  newKey: string,
+  oldProject: string,
+  newProject: string,
+  params?: Params
+) => {
+  const oldKeySplit = resource.key.split('/')
+  const newKeySplit = newKey.split('/')
+  const oldName = oldKeySplit.splice(oldKeySplit.length - 1)[0]
+  const newName = newKeySplit.splice(newKeySplit.length - 1)[0]
+  const oldPath = oldKeySplit.join('/')
+  const newPath = newKeySplit.join('/')
+
+  try {
+    return await API.instance.service(fileBrowserPath).update(
+      null,
+      {
+        oldProject,
+        newProject,
+        oldPath,
+        newPath,
+        oldName,
+        newName,
+        isCopy: true
+      },
+      params
+    )
+  } catch (error) {
+    logger.error(error, 'Error in cloning project')
+    throw error
+  }
 }
 
 export const renameScene = async (

@@ -19,11 +19,11 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useLayoutEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { CameraHelper, PerspectiveCamera } from 'three'
 
 import { EngineState, useEntityContext, useExecute } from '@ir-engine/ecs'
@@ -58,7 +58,10 @@ export const ScenePreviewCameraComponent = defineComponent({
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
-    const debugEnabled = renderState.nodeHelperVisibility || activeHelperComponent !== undefined
+    const debugEnabled =
+      activeHelperComponent !== undefined &&
+      activeHelperComponent.enabled.value &&
+      (activeHelperComponent.selected.value || activeHelperComponent.hovered.value)
     const previewCamera = useComponent(entity, ScenePreviewCameraComponent)
     const previewCameraTransform = useComponent(entity, TransformComponent)
     const engineCameraTransform = useOptionalComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
@@ -73,6 +76,8 @@ export const ScenePreviewCameraComponent = defineComponent({
       cameraTransform.rotation.copy(transform.rotation)
       const camera = previewCamera.camera.value as PerspectiveCamera
       setComponent(entity, ObjectComponent, camera)
+      setComponent(entity, ActiveHelperComponent, { directional: true })
+
       return () => {
         removeComponent(entity, ObjectComponent)
       }
@@ -93,8 +98,15 @@ export const ScenePreviewCameraComponent = defineComponent({
       previewCamera.camera.value.quaternion.copy(previewCameraTransform.rotation.value)
     }, [previewCameraTransform])
 
-    useHelperEntity(entity, () => new CameraHelper(previewCamera.camera.value as PerspectiveCamera), debugEnabled.value)
+    const helperEntity = useHelperEntity(
+      entity,
+      () => new CameraHelper(previewCamera.camera.value as PerspectiveCamera),
+      debugEnabled
+    )
 
+    useEffect(() => {
+      activeHelperComponent?.helperSelectedGizmo.set(helperEntity)
+    }, [helperEntity])
     return null
   }
 })

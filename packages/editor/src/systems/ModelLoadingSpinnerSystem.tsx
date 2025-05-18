@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -29,28 +29,34 @@ import {
   PresentationSystemGroup,
   QueryReactor,
   defineSystem,
+  getAuthoringCounterpart,
   removeEntityNodeRecursively,
   useComponent,
-  useHasComponent
+  useHasComponent,
+  useOptionalComponent
 } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { createLoadingSpinner } from '@ir-engine/engine/src/scene/functions/spatialLoadingSpinner'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 
 const LoadingSpinnerReactor = (props: { entity: Entity }) => {
   const { entity } = props
-  const gltfComponent = useComponent(entity, GLTFComponent)
-  const loaded = GLTFComponent.useSceneLoaded(entity)
+  const authoringCounterpart = getAuthoringCounterpart(entity)
+  const gltfComponent = useComponent(authoringCounterpart, GLTFComponent)
+  const errors = !!useOptionalComponent(authoringCounterpart, ErrorComponent)?.value?.[GLTFComponent.name]
+  const loaded = GLTFComponent.useSceneLoaded(authoringCounterpart)
   const isScene = useHasComponent(entity, SceneComponent)
-
-  const shouldHaveSpinned = !isScene && !!gltfComponent.src.value && !loaded
+  const spinnerEntity = useRef<Entity | null>(null)
+  const shouldHaveSpinned = !isScene && !!gltfComponent.src.value && !errors && !loaded
 
   useEffect(() => {
     if (!shouldHaveSpinned) return
-    const spinnerEntity = createLoadingSpinner(`loading ${gltfComponent.src.value}`, entity)
+    spinnerEntity.current = createLoadingSpinner(`loading ${gltfComponent.src.value}`, entity)
     return () => {
-      removeEntityNodeRecursively(spinnerEntity)
+      removeEntityNodeRecursively(spinnerEntity?.current!)
+      spinnerEntity.current = null
     }
   }, [shouldHaveSpinned])
 
@@ -61,6 +67,6 @@ export const ModelLoadingSpinnerSystem = defineSystem({
   uuid: 'ee.editor.ModelLoadingSpinnerSystem',
   insert: { before: PresentationSystemGroup },
   reactor: () => (
-    <QueryReactor ChildEntityReactor={LoadingSpinnerReactor} Components={[GLTFComponent]} layer={Layers.Authoring} />
+    <QueryReactor ChildEntityReactor={LoadingSpinnerReactor} Components={[GLTFComponent]} layer={Layers.Simulation} />
   )
 })

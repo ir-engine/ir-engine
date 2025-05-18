@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import { State } from '@ir-engine/hyperflux'
 
-import { SearchSmSm } from '@ir-engine/ui/src/icons'
+import { SearchSmSm, XCircleLg } from '@ir-engine/ui/src/icons'
 import Input, { InputProps } from '@ir-engine/ui/src/primitives/tailwind/Input'
 
 export default function SearchBar({
@@ -66,6 +66,17 @@ export default function SearchBar({
         }, debounceTime)
       }}
       startComponent={<SearchSmSm className="h-20 text-text-secondary" />}
+      endComponent={
+        <button
+          className="h-4 w-4"
+          onClick={() => {
+            search.local.set('')
+            search.query.set('')
+          }}
+        >
+          <XCircleLg className="h-full w-full" />
+        </button>
+      }
       data-testid="search-input"
       height={size}
       {...inputProps}

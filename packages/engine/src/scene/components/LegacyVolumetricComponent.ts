@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -36,7 +36,7 @@ import {
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { getState, State } from '@ir-engine/hyperflux'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { AudioState } from '../../audio/AudioState'
@@ -97,7 +97,10 @@ export const LegacyVolumetricComponent = defineComponent({
     hasAudio: S.Bool({ default: false }),
     ended: S.Bool({ default: true }),
     volume: S.Number({ default: 1 }),
-    playMode: S.Enum(PlayMode, { default: PlayMode.loop }),
+    playMode: S.Enum(PlayMode, {
+      $comment: "A string enum, ie. one of the following values: 'single', 'random', 'loop', 'singleloop'",
+      default: PlayMode.loop
+    }),
     track: S.Number({ default: -1 }),
     forceChangeTrack: S.Bool({ default: false }),
     currentTrackInfo: S.Object({

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -59,6 +59,7 @@ import { getMutableState, getState, NO_PROXY_STEALTH, none, State, useHookstate 
 import { LayerComponent, useAncestorWithComponents } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformComponent } from '@ir-engine/spatial'
+import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { ShapeSchema } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -274,6 +275,7 @@ export const GLTFComponentReactor = () => {
   useEffect(() => {
     if (!sceneLoaded || !scene) return
     setComponent(entity, SceneComponent, { active: true })
+    setComponent(entity, ActiveHelperComponent, { volumeEnabled: true })
   }, [sceneLoaded, !!scene])
 
   const dependencies = gltfComponent.dependencies.get(NO_PROXY_STEALTH) as ComponentDependencies | undefined
@@ -493,7 +495,6 @@ const useGLTFDocument = (entity: Entity) => {
   useEffect(() => {
     if (dynamicLoadAndNotEditing) return
     if (!url) {
-      addError(entity, GLTFComponent, 'INVALID_SOURCE', 'Invalid URL')
       return
     }
 
@@ -503,6 +504,8 @@ const useGLTFDocument = (entity: Entity) => {
     const onError = (error: ErrorEvent) => {
       addError(entity, GLTFComponent, 'LOADING_ERROR', 'Error loading model')
     }
+
+    removeError(entity, GLTFComponent, 'LOADING_ERROR')
 
     loadGLTFFile(
       url,

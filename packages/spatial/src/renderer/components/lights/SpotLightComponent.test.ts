@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -40,6 +40,7 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import assert from 'assert'
 import { ColorRepresentation, SpotLight, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
@@ -527,6 +528,12 @@ describe('SpotLightComponent', () => {
 
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
+      // Explicitly set ActiveHelperComponent with the required properties
+      setComponent(testEntity, ActiveHelperComponent, {
+        enabled: true,
+        selected: true,
+        hovered: false
+      })
       await vi.waitFor(() => {
         const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
         assert.equal(hasComponent(childEntity1, ObjectComponent), Expected)
@@ -535,6 +542,12 @@ describe('SpotLightComponent', () => {
 
       // Re-run and Check the unmount case
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
+      // Explicitly set ActiveHelperComponent with the required properties
+      setComponent(testEntity, ActiveHelperComponent, {
+        enabled: false,
+        selected: false,
+        hovered: false
+      })
       await vi.waitFor(() => {
         const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
         assert.equal(hasComponent(childEntity1, ObjectComponent), Initial)

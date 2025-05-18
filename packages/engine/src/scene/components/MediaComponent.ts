@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -42,11 +42,11 @@ import { NO_PROXY, State, getState, isClient, useMutableState } from '@ir-engine
 import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
-import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
+import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import type Hls from 'hls.js'
 import { useEffect, useLayoutEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
@@ -143,7 +143,10 @@ export const MediaComponent = defineComponent({
     uiOffset: T.Vec3(),
     volume: S.Number({ default: 1 }),
     resources: S.Array(S.String()),
-    playMode: S.Enum(PlayMode, { default: PlayMode.loop }),
+    playMode: S.Enum(PlayMode, {
+      $comment: "A string enum, ie. one of the following values: 'single', 'random', 'loop', 'singleloop'",
+      default: PlayMode.loop
+    }),
     isMusic: S.Bool({ default: false }),
     seekTime: S.Number({ default: 0, serialized: false }),
     /**@deprecated */
@@ -151,6 +154,7 @@ export const MediaComponent = defineComponent({
     // runtime props
     xruiEntity: S.Entity({ serialized: false }),
     paused: S.Bool({ default: true, serialized: false }),
+    muted: S.Bool({ default: false, serialized: false }),
     ended: S.Bool({ default: true, serialized: false }),
     waiting: S.Bool({ default: false, serialized: false }),
     track: S.Number({ default: -1, serialized: false }),
@@ -511,6 +515,12 @@ export function MediaReactor() {
     },
     [media.volume]
   )
+
+  useEffect(() => {
+    if (!mediaElement) return
+    const htmlMedia = mediaElement.element.get(NO_PROXY) as HTMLMediaElement
+    htmlMedia.muted = media.muted.value
+  }, [media.muted, mediaElement])
 
   useEffect(
     function updateMixbus() {

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 import { PeerID, UserID } from '@ir-engine/hyperflux'
@@ -261,7 +261,7 @@ export const S = {
 
   /** Entity type schema helper, Entities will not be serialized, defaults to UndefinedEntity */
   Entity: (options?: TTypedSchema<Entity>['options']) =>
-    S.Number({ ...options, serialized: false, id: 'Entity' }) as unknown as TTypedSchema<Entity>,
+    S.Number({ serialized: true, id: 'Entity', ...options }) as unknown as TTypedSchema<Entity>,
 
   /** EntityUUID type schema helper, defaults to '' */
   EntityUUID: (options?: TTypedSchema<EntityUUID>['options']) =>

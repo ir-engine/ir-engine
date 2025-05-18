@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -170,7 +170,8 @@ export class GCSStorage implements StorageProviderInterface {
       Contents: files.map((file) => {
         return {
           Key: file.key!,
-          Size: file.size!
+          Size: file.size!,
+          Type: file.type!
         }
       })
     }
@@ -347,10 +348,13 @@ export class GCSStorage implements StorageProviderInterface {
     const prefix = folderName.endsWith('/') || !isDirectory ? folderName : folderName + '/'
     const response = await this.provider.bucket(this.bucket).getFiles({
       prefix,
-      delimiter: recursive ? undefined : '/'
+      delimiter: recursive ? undefined : '/',
+      includeFoldersAsPrefixes: !recursive
     })
 
     const promises: Promise<FileBrowserContentType>[] = []
+    // Track folders we've already added to avoid duplicates
+    const addedFolders = new Set<string>()
 
     const files = response[2] as {
       items?: { mediaLink: string; name: string; size: string }[]
@@ -359,22 +363,60 @@ export class GCSStorage implements StorageProviderInterface {
     if (!files.items) files.items = []
     if (!files.prefixes) files.prefixes = []
 
-    // Folders
-    for (let i = 0; i < files.prefixes!.length; i++) {
-      promises.push(
-        new Promise(async (resolve) => {
-          const key = files.prefixes![i].slice(0, -1)
-          const size = await this.getFolderSize(key)
-          const cont: FileBrowserContentType = {
-            key,
-            url: `${this.bucketAssetURL}/${key}`,
-            name: key.split('/').pop()!,
-            type: 'folder',
-            size
-          }
-          resolve(cont)
-        })
-      )
+    if (!recursive) {
+      // Folders
+      for (let i = 0; i < files.prefixes!.length; i++) {
+        promises.push(
+          new Promise(async (resolve) => {
+            const key = files.prefixes![i].slice(0, -1)
+            // Add to our tracking set
+            addedFolders.add(key)
+            const size = await this.getFolderSize(key)
+            const cont: FileBrowserContentType = {
+              key,
+              url: `${this.bucketAssetURL}/${key}`,
+              name: key.split('/').pop()!,
+              type: 'folder',
+              size
+            }
+            resolve(cont)
+          })
+        )
+      }
+    }
+
+    // When doing recursive search, we need an additional request to get folder prefixes at the current level
+    // since recursive search only returns files, not folder structures
+    if (recursive) {
+      const getFilesResponse = await this.provider.bucket(this.bucket).getFiles({
+        prefix,
+        delimiter: '/',
+        includeFoldersAsPrefixes: true
+      })
+      const filesResponse = getFilesResponse[2] as {
+        items?: { mediaLink: string; name: string; size: string }[]
+        prefixes?: string[]
+      }
+      if (filesResponse?.prefixes) {
+        for (let i = 0; i < filesResponse.prefixes!.length; i++) {
+          promises.push(
+            new Promise(async (resolve) => {
+              const key = filesResponse.prefixes![i].slice(0, -1)
+              // Add to our tracking set
+              addedFolders.add(key)
+              const size = await this.getFolderSize(key)
+              const cont: FileBrowserContentType = {
+                key,
+                url: `${this.bucketAssetURL}/${key}`,
+                name: key.split('/').pop()!,
+                type: 'folder',
+                size
+              }
+              resolve(cont)
+            })
+          )
+        }
+      }
     }
 
     // Files
@@ -395,6 +437,30 @@ export class GCSStorage implements StorageProviderInterface {
             resolve(cont)
           })
         )
+      } else if (recursive && !query && key !== folderName) {
+        // when doing recursive search, we need to add x-empty type files that represent folders
+        // these are tipically in subfolders and cannot be extracted from prefixes
+
+        // Normalize the key by removing trailing slash if present
+        const normalizedKey = key.endsWith('/') ? key.slice(0, -1) : key
+
+        // Only add if we haven't already added this folder
+        if (!addedFolders.has(normalizedKey)) {
+          // Add to our tracking set
+          addedFolders.add(normalizedKey)
+          promises.push(
+            new Promise(async (resolve) => {
+              const cont: FileBrowserContentType = {
+                key: normalizedKey,
+                url: `${this.bucketAssetURL}/${normalizedKey}`,
+                name: normalizedKey.split('/').filter(Boolean).pop()!,
+                type: 'folder',
+                size: await this.getFolderSize(normalizedKey)
+              }
+              resolve(cont)
+            })
+          )
+        }
       }
     }
 

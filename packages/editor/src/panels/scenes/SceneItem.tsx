@@ -19,34 +19,47 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 import { CopyEmbedCodePopover } from '@ir-engine/client-core/src/common/components/popovers/CopyEmbedCodePopover'
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { ThemeState } from '@ir-engine/client-core/src/common/services/ThemeService'
-import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
-import IRLogoModalDark from '@ir-engine/client/public/iR-logo-Modal-dark.png'
-import IRLogoModalLight from '@ir-engine/client/public/iR-logo-Modal-light.png'
+import { clientContextParams } from '@ir-engine/client-core/src/util/ClientContextState'
+import { cloneScene, deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
+import IRLogoModalDark from '@ir-engine/client/src/assets/iR-logo-Modal-dark.png'
+import IRLogoModalLight from '@ir-engine/client/src/assets/iR-logo-Modal-light.png'
 import config from '@ir-engine/common/src/config'
+import multiLogger from '@ir-engine/common/src/logger'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
 import RenameSceneModal from '@ir-engine/editor/src/panels/scenes/RenameSceneModal'
-import { useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import MoreOptionsMenu from '@ir-engine/ui/src/components/tailwind/MoreOptionsMenu'
-import { CodeSnippet01Sm, Edit01Sm, Trash04Sm } from '@ir-engine/ui/src/icons'
+import { CodeSnippet01Sm, Copy02Sm, Edit01Sm, Trash04Sm } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { default as React } from 'react'
 import { useTranslation } from 'react-i18next'
+import { IoDuplicateOutline } from 'react-icons/io5'
 import { twMerge } from 'tailwind-merge'
+import { UIAddonsState } from '../../services/UIAddonsState'
 import SceneCard from './SceneCard'
+
+const logger = multiLogger.child({ component: `editor:SceneItem`, modifier: clientContextParams })
+export interface SceneItemMoreOtionData {
+  label: string
+  disabled?: boolean
+  icon?: React.ReactNode
+  onClick: (scene: StaticResourceType) => void
+}
 
 type SceneItemProps = {
   scene: StaticResourceType
   handleOpenScene: () => void
   refetchProjectsData: () => void
+  onCloneToProject?: () => void
   onRenameScene?: (newName: string) => void
   onDeleteScene?: (scene: StaticResourceType) => void
   disableDeleteScene?: boolean
@@ -58,6 +71,7 @@ export default function SceneItem({
   refetchProjectsData,
   onRenameScene,
   onDeleteScene,
+  onCloneToProject,
   disableDeleteScene
 }: SceneItemProps) {
   const { t } = useTranslation()
@@ -79,6 +93,81 @@ export default function SceneItem({
   }
 
   const defaultThumbnail = theme?.value === 'dark' ? IRLogoModalLight : IRLogoModalDark
+  const sceneItemMoreOptions = useMutableState(UIAddonsState).editor.sceneItemMoreOptions.get(NO_PROXY)
+
+  const actionProps = [
+    {
+      label: t('editor:hierarchy.lbl-rename'),
+      disabled: false,
+      icon: <Edit01Sm fontSize={16} />,
+      onClick: () => {
+        ModalState.openModal(
+          <RenameSceneModal
+            sceneName={sceneName}
+            scene={scene}
+            onRenameScene={onRenameScene}
+            refetchProjectsData={refetchProjectsData}
+          />
+        )
+      }
+    },
+    {
+      label: t('editor:hierarchy.lbl-copyEmbedCode'),
+      disabled: false,
+      icon: <CodeSnippet01Sm fontSize={16} />,
+      onClick: () => {
+        const sceneName = scene.key.split('/').pop()!.replace('.gltf', '')
+        ModalState.openModal(<CopyEmbedCodePopover url={`${config.client.clientUrl}/location/${sceneName}`} />)
+      }
+    },
+    {
+      label: t('editor:hierarchy.lbl-cloneScene'),
+      disabled: false,
+      icon: <IoDuplicateOutline fontSize={16} />,
+      onClick: async () => {
+        logger.analytics({ event_name: 'clone_scene' })
+        await cloneScene(scene, scene.key, scene.project!, scene.project!)
+        refetchProjectsData()
+      }
+    },
+    {
+      label: t('editor:hierarchy.lbl-delete'),
+      disabled: disableDeleteScene,
+      icon: <Trash04Sm fontSize={16} />,
+      onClick: () => {
+        ModalState.openModal(
+          <ConfirmDialog
+            title={t('editor:hierarchy.lbl-deleteScene')}
+            text={t('editor:hierarchy.lbl-deleteSceneDescription', { sceneName })}
+            onSubmit={async () => deleteSelectedScene(scene)}
+          />
+        )
+      }
+    },
+    ...Object.values(sceneItemMoreOptions).map((value, index) => {
+      return {
+        label: value.label,
+        disabled: value.disabled,
+        icon: value.icon,
+        onClick: () => {
+          value.onClick(scene)
+        }
+      }
+    })
+  ]
+
+  if (onCloneToProject) {
+    const cloneSceneIndex = actionProps.findIndex((item) => item.label === t('editor:hierarchy.lbl-cloneScene'))
+    actionProps.splice(cloneSceneIndex + 1, 0, {
+      label: t('editor:hierarchy.lbl-cloneSceneToProject'),
+      disabled: false,
+      icon: <Copy02Sm fontSize={16} />,
+      onClick: () => {
+        logger.analytics({ event_name: 'clone_scene_to_project' })
+        onCloneToProject()
+      }
+    })
+  }
 
   return (
     <SceneCard data-testid="scene-container" className="cursor-pointer items-start justify-start gap-3 bg-white p-3">
@@ -119,49 +208,7 @@ export default function SceneItem({
           </Text>
         </div>
 
-        <MoreOptionsMenu
-          position="right top"
-          actionProps={[
-            {
-              label: t('editor:hierarchy.lbl-rename'),
-              disabled: false,
-              icon: <Edit01Sm fontSize={16} />,
-              onClick: () => {
-                ModalState.openModal(
-                  <RenameSceneModal
-                    sceneName={sceneName}
-                    scene={scene}
-                    onRenameScene={onRenameScene}
-                    refetchProjectsData={refetchProjectsData}
-                  />
-                )
-              }
-            },
-            {
-              label: t('editor:hierarchy.lbl-copyEmbedCode'),
-              disabled: false,
-              icon: <CodeSnippet01Sm fontSize={16} />,
-              onClick: () => {
-                const sceneName = scene.key.split('/').pop()!.replace('.gltf', '')
-                ModalState.openModal(<CopyEmbedCodePopover url={`${config.client.clientUrl}/location/${sceneName}`} />)
-              }
-            },
-            {
-              label: t('editor:hierarchy.lbl-delete'),
-              disabled: disableDeleteScene,
-              icon: <Trash04Sm fontSize={16} />,
-              onClick: () => {
-                ModalState.openModal(
-                  <ConfirmDialog
-                    title={t('editor:hierarchy.lbl-deleteScene')}
-                    text={t('editor:hierarchy.lbl-deleteSceneDescription', { sceneName })}
-                    onSubmit={async () => deleteSelectedScene(scene)}
-                  />
-                )
-              }
-            }
-          ]}
-        />
+        <MoreOptionsMenu position="right top" actionProps={actionProps} />
       </div>
     </SceneCard>
   )

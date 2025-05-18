@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -29,23 +29,23 @@ import { Mesh, Object3D } from 'three'
 import {
   createEntity,
   Entity,
-  EntityID,
   EntityTreeComponent,
   getComponent,
   getOptionalComponent,
   removeEntity,
   setComponent,
   UndefinedEntity,
-  useOptionalComponent,
-  UUIDComponent
+  useOptionalComponent
 } from '@ir-engine/ecs'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { InputComponent } from '../../input/components/InputComponent'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { ActiveHelperComponent } from '../ActiveHelperComponent'
 
 type DisposableObject3D = Object3D & { update?: () => void; dispose?: () => void }
 
@@ -53,29 +53,23 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
   parentEntity: Entity,
   helperFactory: () => TObject,
   enabled: boolean,
-  layerMask = ObjectLayerMasks.NodeHelper
+  layerMask = ObjectLayerMasks.NodeHelper,
+  nameSuffix = 'helper'
 ): Entity {
   const helperEntityState = useHookstate(UndefinedEntity)
   const nameComponent = useOptionalComponent(parentEntity, NameComponent)
   const transform = useOptionalComponent(helperEntityState.value, TransformComponent)
 
   useEffect(() => {
+    setComponent(parentEntity, ActiveHelperComponent)
+  }, [])
+
+  useEffect(() => {
     if (!enabled) return
 
-    const helperEntity = createEntity()
-    const helper = helperFactory()
-    helper.preserveChildren = true
-    // workaround for hemisphere light helper having child mesh internally
+    const helperEntity = createHelperEntity(parentEntity, helperFactory, layerMask)
+    const helper = getComponent(helperEntity, ObjectComponent) as TObject
     const helperMesh = helper.children[0] as Mesh<any, any> | undefined
-    setComponent(helperEntity, EntityTreeComponent, { parentEntity: parentEntity })
-    setComponent(helperEntity, TransformComponent)
-    setComponent(helperEntity, ObjectComponent, helper)
-    setComponent(helperEntity, UUIDComponent, {
-      entityID: 'helper-entity' as EntityID,
-      entitySourceID: getComponent(parentEntity, UUIDComponent).entitySourceID
-    })
-    setComponent(helperEntity, ObjectLayerMaskComponent, layerMask)
-    setComponent(helperEntity, VisibleComponent, true)
     helperEntityState.set(helperEntity)
     if (typeof helper.update === 'function') helper.update()
     return () => {
@@ -90,7 +84,7 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
 
   useEffect(() => {
     if (!helperEntityState.value) return
-    setComponent(helperEntityState.value, NameComponent, `${nameComponent?.value ?? parentEntity}-helper`)
+    setComponent(helperEntityState.value, NameComponent, `${nameComponent?.value ?? parentEntity}-${nameSuffix}`)
   }, [helperEntityState.value, nameComponent, enabled])
 
   useEffect(() => {
@@ -101,4 +95,26 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
   }, [transform, helperEntityState.value, enabled])
 
   return helperEntityState.value
+}
+
+export function createHelperEntity<TObject extends DisposableObject3D>(
+  parentEntity: Entity,
+  helperFactory: () => TObject,
+  layerMask = ObjectLayerMasks.NodeHelper,
+  nameSuffix = '-helper'
+): Entity {
+  const helperEntity = createEntity()
+  const name = getComponent(parentEntity, NameComponent)
+  const helper = helperFactory()
+  helper.preserveChildren = true
+
+  setComponent(helperEntity, EntityTreeComponent, { parentEntity: parentEntity })
+  setComponent(helperEntity, TransformComponent)
+  setComponent(helperEntity, ObjectComponent, helper)
+  setComponent(helperEntity, ObjectLayerMaskComponent, layerMask)
+  setComponent(helperEntity, VisibleComponent, true)
+
+  setComponent(helperEntity, NameComponent, `${name ?? parentEntity}-${nameSuffix}`)
+  setComponent(helperEntity, InputComponent, { grow: true })
+  return helperEntity
 }

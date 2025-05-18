@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -35,6 +35,7 @@ export const overrideExporterExtension: () => GLTFSceneExportExtension = () => (
   after: (rootEntity, gltf) => {
     const overrideState = getState(AuthoringState)
     let usedSceneDelta = false
+    if (!hasComponent(rootEntity, UUIDComponent)) return
     const rootUUID = UUIDComponent.get(rootEntity)
     iterateEntityNode(rootEntity, (entity) => {
       if (entity === rootEntity) return

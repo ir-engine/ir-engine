@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -44,15 +44,16 @@ import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { Vector3_Forward } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { CameraGizmoComponent } from '../classes/gizmo/camera/CameraGizmoComponent'
-import { CameraGizmoVisualComponent } from '../classes/gizmo/camera/CameraGizmoVisualComponent'
-import { cameraGizmo, GizmoMaterial, gizmoMaterialProperties } from '../constants/GizmoPresets'
+import { CameraGizmoComponent } from '../../classes/gizmo/camera/CameraGizmoComponent'
+import { CameraGizmoVisualComponent } from '../../classes/gizmo/camera/CameraGizmoVisualComponent'
+import { cameraGizmo, GizmoMaterial, gizmoMaterialProperties } from '../../constants/GizmoPresets'
+import { intersectObjectWithRay } from './gizmoCommonFunctions'
 
 const _raycaster = new Raycaster()
 _raycaster.layers.enable(ObjectLayers.Gizmos)
 _raycaster.firstHitOnly = true
 
-export function gizmoUpdate(gizmoEntity) {
+export function cameraGizmoUpdate(gizmoEntity) {
   const cameraGizmo = getComponent(gizmoEntity, CameraGizmoComponent)
   if (cameraGizmo === undefined) return
   if (cameraGizmo.visualEntity === UndefinedEntity) return
@@ -127,7 +128,7 @@ function pointerHover(gizmoEntity) {
   const gizmoVisual = getComponent(cameraGizmo.visualEntity.value, CameraGizmoVisualComponent)
   const intersect = intersectObjectWithRay(getComponent(gizmoVisual.picker, ObjectComponent), _raycaster, true)
 
-  cameraGizmo.axis.set(intersect?.object?.name ?? null)
+  cameraGizmo.axis.set(((intersect as any)?.object?.name as any) ?? null)
 }
 
 function pointerDown(gizmoEntity) {
@@ -241,18 +242,6 @@ export function onPointerUp(gizmoEntity) {
   if (!cameraGizmo.enabled) return
 
   pointerUp(gizmoEntity)
-}
-
-export function intersectObjectWithRay(object, raycaster, includeInvisible?) {
-  const allIntersections = raycaster.intersectObject(object, true)
-
-  for (let i = 0; i < allIntersections.length; i++) {
-    if (allIntersections[i].object.visible || includeInvisible) {
-      return allIntersections[i]
-    }
-  }
-
-  return false
 }
 
 export function onPointerLost(gizmoEntity: Entity) {

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -33,12 +33,13 @@ import {
   hasComponent,
   isAncestor,
   removeComponent,
-  setComponent
+  setComponent,
+  UndefinedEntity
 } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { Axis, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { Axis, Q_IDENTITY, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import {
   TransformAxis,
   TransformMode,
@@ -56,11 +57,14 @@ import { computeTransformPivot } from '@ir-engine/spatial/src/common/functions/T
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
-import { TransformGizmoVisualComponent } from '../classes/gizmo/transform/TransformGizmoVisualComponent'
-import { GizmoMaterial, gizmoMaterialProperties } from '../constants/GizmoPresets'
-import { ObjectGridSnapState } from '../systems/ObjectGridSnapSystem'
-import { EditorControlFunctions } from './EditorControlFunctions'
+
+import { TransformGizmoControlComponent } from '../../classes/gizmo/transform/TransformGizmoControlComponent'
+import { TransformGizmoVisualComponent } from '../../classes/gizmo/transform/TransformGizmoVisualComponent'
+import { GizmoMaterial, gizmoMaterialProperties } from '../../constants/GizmoPresets'
+import { ObjectGridSnapState } from '../../systems/ObjectGridSnapSystem'
+import { EditorControlFunctions } from '../EditorControlFunctions'
+import { getCameraFactor } from './gizmoCommonFunctions'
+import { gizmoIconHelperUpdate } from './studioIconGizmoHelper'
 
 const _raycaster = new Raycaster()
 _raycaster.layers.set(ObjectLayers.TransformGizmo)
@@ -89,7 +93,7 @@ const _v1 = new Vector3()
 const _v2 = new Vector3()
 const _v3 = new Vector3()
 
-export function gizmoUpdate(gizmoControlEntity) {
+export function transformGizmoUpdate(gizmoControlEntity) {
   const gizmoControl = getComponent(gizmoControlEntity, TransformGizmoControlComponent)
   if (!gizmoControl.visualEntity) return
   const viewerEntity = getState(ReferenceSpaceState).viewerEntity
@@ -118,9 +122,9 @@ export function gizmoUpdate(gizmoControlEntity) {
   const camera = getComponent(viewerEntity, CameraComponent)
   const eye = gizmoControl.eye.subVectors(camera.position, position).normalize()
 
-  const scaleFactor =
-    position.distanceTo(camera.position) * Math.min((1.9 * Math.tan((Math.PI * camera.fov) / 360)) / camera.zoom, 7)
+  if (gizmoVisual.gizmo === UndefinedEntity) return
 
+  const finalSize = getCameraFactor(position, gizmoControl.size, 0.3)
   setComponent(gizmoVisual.gizmo, TransformComponent, { position })
   setComponent(gizmoVisual.picker, TransformComponent, { position })
   setComponent(gizmoVisual.helper, TransformComponent, { position: Vector3_Zero })
@@ -129,7 +133,8 @@ export function gizmoUpdate(gizmoControlEntity) {
     removeComponent(helperEntity, VisibleComponent)
     const transform = getComponent(helperEntity, TransformComponent)
     transform.rotation.identity()
-    transform.scale.set(1, 1, 1).multiplyScalar((scaleFactor * gizmoControl.size) / 4)
+    transform.scale.set(1, 1, 1).multiplyScalar(finalSize)
+
     transform.position.set(0, 0, 0)
     const name = getComponent(helperEntity, NameComponent)
 
@@ -190,9 +195,12 @@ export function gizmoUpdate(gizmoControlEntity) {
       _tempVector.applyQuaternion(gizmoControl.pivotStartRotation.clone().invert())
       transform.scale.copy(_tempVector)
       if (gizmoControl.dragging) setComponent(helperEntity, VisibleComponent)
+    } else if (name.includes('DELTA') && name.length > 'DELTA'.length) {
+      gizmoIconHelperUpdate(helperEntity, gizmoControl.pivotStartPosition, position)
+      if (gizmoControl.dragging) setComponent(helperEntity, VisibleComponent)
     } else {
-      transform.rotation.copy(rotation)
-      transform.position.copy(position)
+      transform.rotation.copy(Q_IDENTITY)
+      transform.position.copy(gizmoControl.pivotStartPosition)
       if (gizmoControl.axis) {
         if (gizmoControl.axis.search(name) !== -1) setComponent(helperEntity, VisibleComponent)
       }
@@ -208,11 +216,14 @@ export function gizmoUpdate(gizmoControlEntity) {
     setComponent(handleEntity, VisibleComponent)
     const name = getComponent(handleEntity, NameComponent)
     const transform = getComponent(handleEntity, TransformComponent)
+    transform.rotation.identity()
+    transform.position.set(0, 0, 0)
+    transform.scale.set(1, 1, 1).multiplyScalar(finalSize)
 
     // Align handles to current local or world rotation
     transform.rotation.copy(rotation)
     transform.position.set(0, 0, 0)
-    transform.scale.set(1, 1, 1).multiplyScalar((scaleFactor * gizmoControl.size) / 4)
+    transform.scale.set(1, 1, 1).multiplyScalar(finalSize)
 
     if (gizmoControl.mode === TransformMode.translate || gizmoControl.mode === TransformMode.scale) {
       // Hide translate and scale axis facing the camera

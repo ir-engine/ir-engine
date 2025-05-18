@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -45,9 +45,9 @@ import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { Vector3_Up, Vector3_Zero } from '../../common/constants/MathConstants'
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp, smootherStep } from '../../common/functions/MathLerpFunctions'
-import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectLayerComponents } from '../../renderer/components/ObjectLayerComponent'
+import { RendererComponent } from '../../renderer/components/RendererComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { T } from '../../schema/schemaFunctions'
@@ -81,13 +81,19 @@ export const FollowCameraComponent = defineComponent({
     targetEntity: S.Entity(),
     currentTargetPosition: T.Vec3(),
     targetPositionSmoothness: S.Number({ default: 0 }),
-    mode: S.Enum(FollowCameraMode, { default: FollowCameraMode.ThirdPerson }),
-    allowedModes: S.Array(S.Enum(FollowCameraMode), [
-      FollowCameraMode.ThirdPerson,
-      FollowCameraMode.FirstPerson,
-      FollowCameraMode.TopDown,
-      FollowCameraMode.ShoulderCam
-    ]),
+    mode: S.Enum(FollowCameraMode, {
+      $comment: "A limited string enum, ie. one of the values listed in the 'allowedModes' property",
+      default: FollowCameraMode.ThirdPerson
+    }),
+    allowedModes: S.Array(
+      S.Enum(FollowCameraMode, { $comment: "A list of allowed string values for the 'mode' property" }),
+      [
+        FollowCameraMode.ThirdPerson,
+        FollowCameraMode.FirstPerson,
+        FollowCameraMode.TopDown,
+        FollowCameraMode.ShoulderCam
+      ]
+    ),
     distance: S.Number({ default: 0 }),
     targetDistance: S.Number({ default: 0 }),
     zoomVelocity: S.Object({
@@ -101,9 +107,14 @@ export const FollowCameraComponent = defineComponent({
     phi: S.Number({ default: 10 }),
     minPhi: S.Number({ default: 0 }),
     maxPhi: S.Number({ default: 0 }),
+    minTheta: S.Number({ default: 0 }),
+    maxTheta: S.Number({ default: 0 }),
     locked: S.Bool({ default: false }),
     enabled: S.Bool({ default: true }),
-    shoulderSide: S.Enum(FollowCameraShoulderSide, { default: FollowCameraShoulderSide.Left }),
+    shoulderSide: S.Enum(FollowCameraShoulderSide, {
+      $comment: "Likely a string enum, ie. one of the following values: 'Left', 'Right'",
+      default: FollowCameraShoulderSide.Left
+    }),
     raycastProps: S.Object({
       enabled: S.Bool({ default: true }),
       rayCount: S.Number({ default: 3 }),
@@ -449,6 +460,10 @@ const updateCameraTargetRotation = (cameraEntity: Entity) => {
   const epsilon = 0.001
 
   target.phi = Math.min(followCamera.maxPhi, Math.max(followCamera.minPhi, target.phi))
+
+  if (followCamera.maxTheta && followCamera.minTheta) {
+    target.theta = Math.min(followCamera.maxTheta, Math.max(followCamera.minTheta, target.theta))
+  }
 
   if (Math.abs(target.phi - followCamera.phi) < epsilon && Math.abs(target.theta - followCamera.theta) < epsilon) {
     removeComponent(followCamera.targetEntity, TargetCameraRotationComponent)

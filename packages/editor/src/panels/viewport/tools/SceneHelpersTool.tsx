@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -27,20 +27,31 @@ import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { downloadScreenshot } from '@ir-engine/editor/src/functions/takeScreenshot'
 import { EditorHelperState, PlacementMode } from '@ir-engine/editor/src/services/EditorHelperState'
-import { useMutableState } from '@ir-engine/hyperflux'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
-import { ColliderAtomsMd, RulerUnitsMd, ScreenshotMenuMd } from '@ir-engine/ui/src/icons'
-import React from 'react'
+import { CogLg, ColliderAtomsLg, CubeOutlineLg, ScreenshotMenuMd, SunMd } from '@ir-engine/ui/src/icons'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuMousePointerClick, LuMove3D } from 'react-icons/lu'
+import { setVolumeVisibility, VolumeVisibility } from '../../../functions/gizmos/studioIconGizmoHelper'
 
+const volumeVisbilityDescriptions = {
+  On: 'On : Show all volumes in scene',
+  Auto: 'Auto : Show volumes on hover in scene',
+  Off: 'Off : Hide all volumes in scene'
+}
 export default function SceneHelpersTool() {
   const { t } = useTranslation()
   const editorHelperState = useMutableState(EditorHelperState)
   const rendererState = useMutableState(RendererState)
   const [pointClickEnabled] = useFeatureFlags([FeatureFlags.Studio.UI.PointClick])
+  const volumeVisibilty = useHookstate(VolumeVisibility.Auto) as any
+
+  useEffect(() => {
+    setVolumeVisibility(volumeVisibilty)
+  }, [volumeVisibilty])
 
   return (
     <div className="flex items-center gap-1">
@@ -63,6 +74,45 @@ export default function SceneHelpersTool() {
         </>
       )}
       <Tooltip
+        title={t('editor:toolbar.helpersToggle.lbl-nodeIcons')}
+        content={t('editor:toolbar.helpersToggle.info-nodeHelpers')}
+        position="bottom"
+      >
+        <ViewportButton
+          onClick={() => rendererState.nodeIconVisibility.set(!rendererState.nodeIconVisibility.value)}
+          selected={rendererState.nodeIconVisibility.value}
+          icon={SunMd}
+        />
+      </Tooltip>
+      <Tooltip
+        title={t('editor:toolbar.helpersToggle.lbl-nodeVolume')}
+        content={volumeVisbilityDescriptions[volumeVisibilty.value]}
+        position="bottom"
+      >
+        <div className="relative inline-block">
+          <ViewportButton
+            onClick={() => {
+              switch (volumeVisibilty.value) {
+                case VolumeVisibility.Off:
+                  volumeVisibilty.set(VolumeVisibility.Auto)
+                  break
+                case VolumeVisibility.Auto:
+                  volumeVisibilty.set(VolumeVisibility.On)
+                  break
+                case VolumeVisibility.On:
+                  volumeVisibilty.set(VolumeVisibility.Off)
+                  break
+              }
+            }}
+            selected={volumeVisibilty.value === VolumeVisibility.On}
+            icon={CubeOutlineLg}
+          />
+          {volumeVisibilty.value === VolumeVisibility.Auto && (
+            <CogLg className="pointer-events-none absolute bottom-0.5 right-0.5 z-20 text-text-secondary" />
+          )}
+        </div>
+      </Tooltip>
+      <Tooltip
         title={t('editor:toolbar.helpersToggle.lbl-helpers')}
         content={t('editor:toolbar.helpersToggle.info-helpers')}
         position="bottom"
@@ -70,18 +120,7 @@ export default function SceneHelpersTool() {
         <ViewportButton
           onClick={() => rendererState.physicsDebug.set(!rendererState.physicsDebug.value)}
           selected={rendererState.physicsDebug.value}
-          icon={RulerUnitsMd}
-        />
-      </Tooltip>
-      <Tooltip
-        title={t('editor:toolbar.helpersToggle.lbl-nodeHelpers')}
-        content={t('editor:toolbar.helpersToggle.info-nodeHelpers')}
-        position="bottom"
-      >
-        <ViewportButton
-          onClick={() => rendererState.nodeHelperVisibility.set(!rendererState.nodeHelperVisibility.value)}
-          selected={rendererState.nodeHelperVisibility.value}
-          icon={ColliderAtomsMd}
+          icon={ColliderAtomsLg}
         />
       </Tooltip>
       <Tooltip

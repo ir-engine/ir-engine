@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -33,12 +33,14 @@ import {
   getOptionalComponent,
   hasComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { ActiveHelperComponent } from '../../common/ActiveHelperComponent'
 import { NameComponent } from '../../common/NameComponent'
 import { RendererState } from '../../renderer/RendererState'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
@@ -59,15 +61,25 @@ export const BoundingBoxComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility) // show all volumes
+    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const boundingBox = useComponent(entity, BoundingBoxComponent)
 
     useEffect(() => {
-      if (!debugEnabled.value) return
+      const helperEnabled =
+        activeHelperComponent !== undefined &&
+        activeHelperComponent.enabled.value &&
+        (activeHelperComponent.hovered.value || activeHelperComponent.selected.value)
+
+      const showVolume =
+        activeHelperComponent !== undefined && activeHelperComponent.volumeControlled.value
+          ? helperEnabled
+          : debugEnabled.value
+      if (!showVolume) return
 
       const helperEntity = createEntity()
 
-      const helper = new Box3Helper(boundingBox.box.value)
+      const helper = new Box3Helper(boundingBox.box.value, 'white')
       helper.name = `bounding-box-helper-${entity}`
 
       setComponent(helperEntity, NameComponent, helper.name)
@@ -87,7 +99,13 @@ export const BoundingBoxComponent = defineComponent({
         if (!hasComponent(entity, BoundingBoxComponent)) return
         boundingBox.helper.set(UndefinedEntity)
       }
-    }, [debugEnabled])
+    }, [
+      debugEnabled,
+      activeHelperComponent?.volumeControlled,
+      activeHelperComponent?.enabled,
+      activeHelperComponent?.hovered,
+      activeHelperComponent?.selected
+    ])
 
     return null
   }
@@ -118,6 +136,7 @@ export const updateBoundingBox = (entity: Entity) => {
 
   const helperObject = getComponent(helperEntity, ObjectComponent) as any as Box3Helper
   helperObject.updateMatrixWorld(true)
+  helperObject.position.set(0, 0, 0)
 }
 
 const _box = new Box3()
