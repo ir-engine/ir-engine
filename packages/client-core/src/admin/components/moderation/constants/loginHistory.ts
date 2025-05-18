@@ -23,38 +23,19 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useFind } from '@ir-engine/common'
-import { userLoginPath } from '@ir-engine/common/src/schema.type.module'
-import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
-import { Tooltip } from '@ir-engine/ui'
-import React from 'react'
-import { LuInfo } from 'react-icons/lu'
+import { ITableHeadCell } from '@ir-engine/client-core/src/admin/common/Table'
+import { t } from 'i18next'
 
-export const UserLastLoginInfo = ({ userId }) => {
-  const login = useFind(userLoginPath, {
-    query: {
-      userId: userId,
-      $sort: { createdAt: -1 },
-      $limit: 1
-    }
-  })
+type IdType = 'username' | 'loginTime' | 'userAgent'
 
-  return login.data.length > 0 ? (
-    <div className="flex">
-      {toDisplayDateTime(login.data[0].createdAt)}
-      <Tooltip
-        content={
-          <>
-            <span>IP Address: {login.data[0].ipAddress}</span>
-            <br />
-            <span>User Agent: {login.data[0].userAgent}</span>
-          </>
-        }
-      >
-        <LuInfo className="ml-2 h-5 w-5 bg-transparent" />
-      </Tooltip>
-    </div>
-  ) : (
-    <></>
-  )
+export type LoginHistoryRowType = Record<IdType, string | JSX.Element | undefined>
+
+interface ILoginHistoryColumn extends ITableHeadCell {
+  id: IdType
 }
+
+export const loginHistoryColumns: ILoginHistoryColumn[] = [
+  { id: 'username', label: t('admin:components.user.name') },
+  { id: 'loginTime', label: t('admin:components.moderation.loginTime') },
+  { id: 'userAgent', label: t('admin:components.moderation.userAgent') }
+]
