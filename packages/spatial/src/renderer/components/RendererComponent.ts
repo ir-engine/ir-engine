@@ -203,7 +203,8 @@ export const RendererComponent = defineComponent({
 
       const xrManager = createWebXRManager(renderer)
       renderer.xr = xrManager as any
-      rendererComponent.xrManager.set(xrManager)
+      rendererComponent.merge({ xrManager })
+      console.log('setting rendererComponent.xrManager', xrManager)
       xrManager.enabled = true
 
       const onResize = () => {
