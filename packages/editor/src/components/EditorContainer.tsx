@@ -34,7 +34,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import Toolbar from '../components/toolbar/Toolbar'
 import { cmdOrCtrlString } from '../functions/utils'
-import { EditorErrorState } from '../services/EditorErrorServices'
+import { EditorErrorState, activeLowerPanel } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { DndWrapper } from './dnd/DndWrapper'
@@ -108,7 +108,10 @@ const onEditorError = (error) => {
   )
 }
 
-const defaultLayout = (flags: { visualScriptPanelEnabled: boolean; activeLowerPanel: string }): LayoutData => {
+const defaultLayout = (flags: {
+  visualScriptPanelEnabled: boolean
+  activeLowerPanel: activeLowerPanel
+}): LayoutData => {
   const tabs = [AssetsPanelTab]
   flags.visualScriptPanelEnabled && tabs.push(VisualScriptPanelTab)
   const activeLowerPane = flags.activeLowerPanel
@@ -271,11 +274,11 @@ const EditorContainer = () => {
 
     if (dock && shouldActivateInspector) {
       const inspectorTab = dock.find('inspectorPanel')
-      if (inspectorTab && inspectorTab.parent) {
-        dock.dockMove(inspectorTab, 'inspectorPanel', inspectorTab.parent)
+      if (inspectorTab && 'id' in inspectorTab && inspectorTab.parent && 'tabs' in inspectorTab.parent) {
+        dock.dockMove(inspectorTab as any, 'inspectorPanel', inspectorTab.parent as any)
       }
     }
-  }, [metadata, activeLowerPanel.value])
+  }, [metadata.name, activeLowerPanel.value])
 
   return (
     <main className="pointer-events-auto">
