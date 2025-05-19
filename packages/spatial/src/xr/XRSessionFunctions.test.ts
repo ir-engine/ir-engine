@@ -35,11 +35,11 @@ import {
 
 import { createEngine, destroyEngine, getComponent, getMutableComponent } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { Quaternion, Vector3 } from 'three'
 import { ReferenceSpaceState, TransformComponent } from '../SpatialModule'
 import { Q_IDENTITY, Vector3_One, Vector3_Zero } from '../common/constants/MathConstants'
 import { destroySpatialEngine, destroySpatialViewer } from '../initializeEngine'
+import { RendererComponent } from '../renderer/components/RendererComponent'
 import { endXRSession, getReferenceSpaces, onSessionEnd, requestXRSession, setupXRSession } from './XRSessionFunctions'
 import { ReferenceSpace, XRState } from './XRState'
 

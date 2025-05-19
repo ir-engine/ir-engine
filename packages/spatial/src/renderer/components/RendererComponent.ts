@@ -199,12 +199,12 @@ export const RendererComponent = defineComponent({
       rendererComponent.renderPass.set(renderPass)
 
       // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
-      renderer.debug.checkShaderErrors = true
+      renderer.debug.checkShaderErrors = false
 
       const xrManager = createWebXRManager(renderer)
       renderer.xr = xrManager as any
       rendererComponent.merge({ xrManager })
-      console.log('setting rendererComponent.xrManager', xrManager)
+      xrManager.cameraAutoUpdate = false
       xrManager.enabled = true
 
       const onResize = () => {
@@ -336,3 +336,14 @@ export const RendererComponent = defineComponent({
     return null
   }
 })
+
+// Add the postprocessing module declarations
+declare module 'postprocessing' {
+  interface EffectComposer {
+    EffectPass: EffectPass
+    OutlineEffect: OutlineEffect
+  }
+  interface Effect {
+    isActive: boolean
+  }
+}

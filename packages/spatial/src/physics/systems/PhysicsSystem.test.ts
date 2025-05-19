@@ -49,7 +49,6 @@ import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { IntersectionData } from '../../input/functions/ClientInputHeuristics'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { PhysicsSerialization } from '../PhysicsSerialization'
 import { Physics, PhysicsWorld, RapierWorldState } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
@@ -347,7 +346,7 @@ describe('PhysicsSystem', () => {
         setComponent(testEntity, TransformComponent, {
           position: new Vector3(1, 0, 0)
         })
-        computeTransformMatrix(testEntity)
+        TransformComponent.computeTransformMatrix(testEntity)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Fixed })
         setComponent(testEntity, ColliderComponent, {
           shape: Shapes.Box,

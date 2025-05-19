@@ -33,8 +33,12 @@ export const getFileKeysRecursive = async (path: string, storageProviderName?: s
     const response = await storageProvider.listObjects(path, true)
     const entries = response.Contents
     if (entries.length) {
-      for (const { Key } of entries) {
-        files.push(Key)
+      for (const { Key, Size, Type } of entries) {
+        if (Type !== 'folder') {
+          files.push(Key)
+        } else {
+          logger.debug(`[getFileKeysRecursive] Skipping directory: ${Key}`)
+        }
       }
     }
   } catch (e) {

@@ -24,7 +24,7 @@ import { createEngine, createEntity, destroyEngine, setComponent } from '@ir-eng
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { useMutableState } from '@ir-engine/hyperflux'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
+import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import { act, render, waitFor } from '@testing-library/react'
 import { assert } from 'console'
 import React from 'react'
