@@ -426,10 +426,6 @@ const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: C
   )
 }
 
-const onProgress: (event: ProgressEvent) => void = (event) => {
-  // console.log(event)
-}
-
 /* BINARY EXTENSION */
 export const BINARY_EXTENSION_HEADER_MAGIC = 'glTF'
 export const BINARY_EXTENSION_HEADER_LENGTH = 12
@@ -519,7 +515,12 @@ const useGLTFDocument = (entity: Entity) => {
         const dependencies = buildComponentDependencies(entity, gltf)
         state.dependencies.set(dependencies)
       },
-      onProgress,
+      (progress: ProgressEvent) => {
+        if (progress.lengthComputable && progress.total > 0) {
+          const percentage = Math.floor((progress.loaded / progress.total) * 100)
+          state.progress.set(percentage)
+        }
+      },
       onError,
       signal
     )
