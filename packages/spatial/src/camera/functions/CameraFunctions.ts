@@ -148,7 +148,7 @@ export function setCameraFocusOnBoxFromAngle(
       direction = new Vector3(0, 1, 0)
       break
     case CameraViewAngle.PERSPECTIVE:
-    default:
+    default: {
       const angleY = 30 * (Math.PI / 180) // 30 degrees in radians
       const angleX = 15 * (Math.PI / 180) // 15 degrees in radians
       direction = new Vector3(
@@ -157,6 +157,7 @@ export function setCameraFocusOnBoxFromAngle(
         Math.cos(angleY) * Math.cos(angleX)
       )
       break
+    }
   }
 
   direction.normalize()
