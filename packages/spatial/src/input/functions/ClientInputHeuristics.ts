@@ -41,12 +41,12 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { Quaternion, Ray, Raycaster, Vector3 } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/MathConstants'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
+import { RendererComponent } from '../../renderer/components/RendererComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponent'

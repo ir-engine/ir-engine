@@ -42,10 +42,10 @@ import {
   useEntityContext
 } from '@ir-engine/ecs'
 import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { useEffect } from 'react'
 import { Vector2 } from 'three'
 import { NameComponent } from '../../common/NameComponent'
+import { RendererComponent } from '../../renderer/components/RendererComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
 import { DefaultButtonBindings, InputComponent } from '../components/InputComponent'

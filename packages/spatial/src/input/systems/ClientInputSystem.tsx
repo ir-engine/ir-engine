@@ -34,10 +34,10 @@ import { InputSystemGroup, PresentationSystemGroup } from '@ir-engine/ecs/src/Sy
 import { getMutableState, getState, isClient } from '@ir-engine/hyperflux'
 
 import { Not, entityExists, removeEntity } from '@ir-engine/ecs'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/MathConstants'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
+import { RendererComponent } from '../../renderer/components/RendererComponent'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'

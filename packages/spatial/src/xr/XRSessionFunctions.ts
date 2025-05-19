@@ -26,10 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createHookableFunction, getMutableState, getState } from '@ir-engine/hyperflux'
 
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { Vector3_One, Vector3_Zero } from '../common/constants/MathConstants'
 import { isSafari } from '../common/functions/isMobile'
+import { RendererComponent } from '../renderer/components/RendererComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin } from '../transform/updateWorldOrigin'
 import { ReferenceSpace, XRState } from './XRState'
