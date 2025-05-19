@@ -41,9 +41,11 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoArrowBack } from 'react-icons/io5'
+import { ModalState } from '../../../common/services/ModalState'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { LocationLabel } from './common/LocationLabel'
 import { UserInfo } from './common/UserInfo'
+import { UserLoginHistoryModal } from './UserLoginHistoryModal'
 
 export const ModerationDetail = ({
   report: moderation,
@@ -258,7 +260,20 @@ export const ModerationDetail = ({
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.ipAddress')}</Text>
           <Text className="mb-4">{moderation.ipAddress}</Text>
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.reportedUserIp')}</Text>
-          <Text className="mb-4">{moderation.reportedUserIpAddress}</Text>
+          <div className="mb-4 flex items-center">
+            <Text>{moderation.reportedUserIpAddress}</Text>
+            {moderation.reportedUserIpAddress && (
+              <Button
+                variant="secondary"
+                className="ml-2 text-sm"
+                onClick={() => {
+                  ModalState.openModal(<UserLoginHistoryModal ipAddress={moderation.reportedUserIpAddress!} />)
+                }}
+              >
+                {t('admin:components.moderation.viewLoginHistory')}
+              </Button>
+            )}
+          </div>
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.reportDetails')}</Text>
           <Text className="mb-4 mr-4 rounded-lg bg-[#f0f0f0] p-4 font-medium text-[#4a5568] dark:bg-surface-1 dark:text-text-primary">
             {moderation?.reportDetails}
