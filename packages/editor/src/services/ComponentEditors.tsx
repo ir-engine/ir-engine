@@ -139,7 +139,6 @@ export const ComponentEditorsState = defineState({
     return {
       [SceneSettingsComponent.name]: SceneSettingsEditor,
       [PostProcessingComponent.name]: PostProcessingSettingsEditor,
-      // [MediaSettingsComponent.name]: MediaSettingsEditor,
       [RenderSettingsComponent.name]: RenderSettingsEditor,
       [FogSettingsComponent.name]: FogSettingsEditor,
       [CameraSettingsComponent.name]: CameraPropertiesNodeEditor,

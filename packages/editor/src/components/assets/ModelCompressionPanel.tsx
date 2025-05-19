@@ -31,6 +31,7 @@ import {
   ModelTransformStatus
 } from '@ir-engine/common/src/model/ModelTransformFunctions'
 import {
+  Entity,
   getAncestorWithComponents,
   iterateEntityNode,
   removeEntityNodeRecursively,
@@ -42,7 +43,7 @@ import {
   ModelTransformParameters
 } from '@ir-engine/engine/src/assets/classes/ModelTransform'
 import { Heuristic, VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
-import { NO_PROXY, none, useHookstate } from '@ir-engine/hyperflux'
+import { getState, NO_PROXY, none, useHookstate } from '@ir-engine/hyperflux'
 
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useTranslation } from 'react-i18next'
@@ -60,6 +61,7 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { HiPlus, HiXMark } from 'react-icons/hi2'
 import { MdClose } from 'react-icons/md'
 import { FileDataType } from '../../constants/AssetTypes'
+import { EditorState } from '../../services/EditorServices'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 
 const progressCaptions: Record<ModelTransformStatus, string> = {
@@ -74,6 +76,7 @@ const createLODVariants = async (
   lods: LODVariantDescriptor[],
   heuristic: Heuristic,
   exportCombined = false,
+  parentEntity: Entity,
   onProgress: (
     progress: number,
     status: ModelTransformStatus,
@@ -98,8 +101,7 @@ const createLODVariants = async (
 
   if (exportCombined) {
     const firstLODParams = lods[0].params
-
-    const result = createSceneEntity('container')
+    const result = createSceneEntity('container', parentEntity)
     const variant = createSceneEntity('LOD Variant', result)
     setComponent(variant, VariantComponent, {
       levels: lods.map((lod, lodIndex) => ({
@@ -225,6 +227,7 @@ export default function ModelCompressionPanel({
       fileLODs,
       Heuristic.DISTANCE,
       exportCombined,
+      getState(EditorState).rootEntity,
       (progress, status, numerator, denominator) => {
         const caption = t(progressCaptions[status]!, {
           numerator: numerator + 1,

@@ -30,7 +30,7 @@ import { Tooltip } from '@ir-engine/ui'
 import React from 'react'
 import { LuInfo } from 'react-icons/lu'
 
-export const UserLastLoginInfo = (userId) => {
+export const UserLastLoginInfo = ({ userId }) => {
   const login = useFind(userLoginPath, {
     query: {
       userId: userId,

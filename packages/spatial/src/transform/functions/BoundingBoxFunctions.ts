@@ -27,7 +27,7 @@ import { Entity, getOptionalComponent, getSimulationCounterpart } from '@ir-engi
 import { useMemo } from 'react'
 import { Box3, Vector3 } from 'three'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
-import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
+import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 import { TransformComponent } from '../components/TransformComponent'
 
 /**

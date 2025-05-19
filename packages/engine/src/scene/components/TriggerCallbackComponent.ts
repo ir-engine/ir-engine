@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineComponent, removeComponent, setComponent, useEntityContext } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
 import { useEffect } from 'react'
 
@@ -56,6 +57,7 @@ export const TriggerCallbackComponent = defineComponent({
 
     useEffect(() => {
       setComponent(entity, TriggerComponent)
+      setComponent(entity, ActiveHelperComponent, { volumeEnabled: true })
       return () => {
         removeComponent(entity, TriggerComponent)
       }

@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and
-provide for limited attribution for the Original Developer. In addition,
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -33,13 +33,8 @@ export const getFileKeysRecursive = async (path: string, storageProviderName?: s
     const response = await storageProvider.listObjects(path, true)
     const entries = response.Contents
     if (entries.length) {
-      for (const { Key, Size } of entries) {
-        // Skip directories which can be identified by:
-        // 1. Keys ending with a slash '/'
-        // 2. Empty files (Size === 0) that don't have a file extension (likely directory placeholders)
-        const isDirectory = Key.endsWith('/') || (Size === 0 && !Key.includes('.') && Key !== path)
-
-        if (!isDirectory) {
+      for (const { Key, Size, Type } of entries) {
+        if (Type !== 'folder') {
           files.push(Key)
         } else {
           logger.debug(`[getFileKeysRecursive] Skipping directory: ${Key}`)
