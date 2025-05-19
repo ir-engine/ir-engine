@@ -30,12 +30,12 @@ import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { t } from 'i18next'
 import { DockLayout, DockMode, LayoutData } from 'rc-dock'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import Toolbar from '../components/toolbar/Toolbar'
 import { cmdOrCtrlString } from '../functions/utils'
-import { EditorErrorState, activeLowerPanel } from '../services/EditorErrorServices'
-import { EditorState } from '../services/EditorServices'
+import { EditorErrorState } from '../services/EditorErrorServices'
+import { EditorState, activeLowerPanel } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
@@ -156,7 +156,6 @@ const EditorContainer = () => {
   const { metadata } = useHookstate(getMutableState(ClickPlacementState)).value
   const editorUIAddon = useMutableState(UIAddonsState).editor
   const currentLoadedSceneURL = useHookstate(null as string | null)
-  const [activeLowerPane, setActiveLowerPane] = useState(activeLowerPanel)
 
   useEngineCanvas(canvasRef.value as React.RefObject<HTMLElement> | null)
 
@@ -225,7 +224,6 @@ const EditorContainer = () => {
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
   const warningState = useHookstate(getMutableState(EditorWarningState).warning)
-  const activePanel = useHookstate(getMutableState(EditorState).activeLowerPanel)
 
   const dockPanelRef = useRef<DockLayout>(null)
 
@@ -297,7 +295,10 @@ const EditorContainer = () => {
                   <DockContainer>
                     <DockLayout
                       ref={dockPanelRef}
-                      defaultLayout={defaultLayout({ visualScriptPanelEnabled, activeLowerPanel: activeLowerPane })}
+                      defaultLayout={defaultLayout({
+                        visualScriptPanelEnabled,
+                        activeLowerPanel: activeLowerPanel.value
+                      })}
                       style={{ position: 'absolute', left: 5, top: 50, right: 5, bottom: 5 }}
                     />
                   </DockContainer>
