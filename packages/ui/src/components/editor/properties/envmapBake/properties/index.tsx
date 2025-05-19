@@ -92,7 +92,6 @@ const bakeResolutionTypes = [
 export const EnvMapBakeProperties = (props: EnvMapBakePropertyEditorProps) => {
   const getPropertyValue = (option) => props.bakeComponent[option]
 
-  console.log('getPropertyValue', props.element, props.element.type)
   let renderVal = <></>
   const label = props.element.label
   const propertyName = props.element.propertyName
