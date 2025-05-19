@@ -24,7 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { createEntity, EntityTreeComponent, getComponent, setComponent, UndefinedEntity } from '@ir-engine/ecs'
-import { TransformComponent } from '@ir-engine/spatial'
+import { getState } from '@ir-engine/hyperflux'
+import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
@@ -32,12 +33,12 @@ import { TweenComponent } from '@ir-engine/spatial/src/transform/components/Twee
 import { Tween } from '@tweenjs/tween.js'
 import { DoubleSide, Euler, Mesh, MeshBasicMaterial, TorusGeometry } from 'three'
 
-export function createLoadingSpinner(name = 'loading spinner', parentEntity = UndefinedEntity) {
+export function createLoadingSpinner(name = 'loading spinner', loadingEntity = UndefinedEntity) {
   const sphereEntity = createEntity()
   setComponent(sphereEntity, NameComponent, name + ': helper')
   setComponent(sphereEntity, VisibleComponent)
-  setComponent(sphereEntity, TransformComponent)
-  setComponent(sphereEntity, EntityTreeComponent, { parentEntity })
+  setComponent(sphereEntity, TransformComponent, { position: getComponent(loadingEntity, TransformComponent).position })
+  setComponent(sphereEntity, EntityTreeComponent, { parentEntity: getState(ReferenceSpaceState).originEntity })
 
   const sphereMesh = new Mesh(
     new TorusGeometry(1, 0.2, 16, 100, Math.PI * 1.5),
