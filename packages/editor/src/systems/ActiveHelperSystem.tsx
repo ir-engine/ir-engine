@@ -106,6 +106,7 @@ const ActiveHelperReactor = () => {
   const componentStudioIcon = getState(ComponentStudioIconState)
   const engineState = useHookstate(getMutableState(EngineState))
   const selectedEntities = SelectionState.useSelectedEntities() // all authoring layer
+  const editorHelperState = useHookstate(getMutableState(EditorHelperState))
 
   const entityComponents = getAllComponents(entity)
   const targetComponent: any = entityComponents.find((component) =>
@@ -139,7 +140,7 @@ const ActiveHelperReactor = () => {
       }
       return iconGizmo
     },
-    activeHelperComponent.enabled.value,
+    editorHelperState.gizmoEnabled && activeHelperComponent.enabled.value,
     ObjectLayerMasks.NodeIcon,
     'icon-helper'
   )
@@ -199,8 +200,10 @@ const ActiveHelperReactor = () => {
       })
     }
 
-    setGizmoVisibility(engineState.isEditing.value && activeHelperComponent.enabled.value)
-  }, [engineState.isEditing, activeHelperComponent.enabled])
+    setGizmoVisibility(
+      engineState.isEditing.value && editorHelperState.gizmoEnabled.value && activeHelperComponent.enabled.value
+    )
+  }, [engineState.isEditing, editorHelperState.gizmoEnabled, activeHelperComponent.enabled])
   return null
 }
 
