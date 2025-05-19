@@ -198,8 +198,9 @@ const ActiveHelperReactor = () => {
         setVisibleComponent(entity, visible)
       })
     }
-    setGizmoVisibility(engineState.isEditing.value)
-  }, [engineState.isEditing])
+
+    setGizmoVisibility(engineState.isEditing.value && activeHelperComponent.enabled.value)
+  }, [engineState.isEditing, activeHelperComponent.enabled])
   return null
 }
 
