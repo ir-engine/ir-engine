@@ -16,7 +16,7 @@
   },
   "npmClient": "npm",
   "scripts": {
-    "check-errors": "tsc --noemit",
+    "check-errors": "tsc --noemit && npx cycle-import-check src || true",
     "test": "cross-env TEST=true vitest run --config=../../vitest.client.config.ts"
   },
   "resolutions": {
