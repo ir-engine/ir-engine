@@ -1262,6 +1262,7 @@
     }
   },
   "inspector": {
+    "switchInspector": "Switch to Inspector tab for asset selection",
     "title": "Inspector",
     "assetType": "Type",
     "assetAuthor": "Author",

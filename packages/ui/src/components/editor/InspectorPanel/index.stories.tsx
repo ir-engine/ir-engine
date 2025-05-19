@@ -39,7 +39,7 @@ export default {
 
 const InspectorRender = (args: AssetMetadataType) => {
   return (
-    <div className="h-[500px] w-[400px]">
+    <div className="min-h-[500px] w-[400px]">
       <InspectorPanel data={args} />
     </div>
   )
@@ -48,9 +48,9 @@ const InspectorRender = (args: AssetMetadataType) => {
 export const InspectorWithData: StoryObj = {
   name: 'Inspector with asset',
   args: {
-    thumbnail: 'hellworld.jpeg',
-    name: 'Hello World.jpeg',
-    type: 'jpeg',
+    thumbnail: './apartment_scene.png',
+    name: 'apartment_scene.png',
+    type: 'png',
     author: 'iR Studio',
     dateCreated: '2025-05-13T16:58:59.000Z',
     fileSize: '',

@@ -30,7 +30,7 @@ import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { t } from 'i18next'
 import { DockLayout, DockMode, LayoutData } from 'rc-dock'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import Toolbar from '../components/toolbar/Toolbar'
 import { cmdOrCtrlString } from '../functions/utils'
@@ -69,6 +69,7 @@ import { ViewportPanelTab } from '../panels/viewport'
 import { VisualScriptPanelTab } from '../panels/visualscript'
 import { EditorWarningState } from '../services/EditorWarningServices'
 import { UIAddonsState } from '../services/UIAddonsState'
+import { ClickPlacementState } from '../systems/ClickPlacementSystem'
 import './EditorContainer.css'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
@@ -107,9 +108,10 @@ const onEditorError = (error) => {
   )
 }
 
-const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData => {
+const defaultLayout = (flags: { visualScriptPanelEnabled: boolean; activeLowerPanel: string }): LayoutData => {
   const tabs = [AssetsPanelTab]
   flags.visualScriptPanelEnabled && tabs.push(VisualScriptPanelTab)
+  const activeLowerPane = flags.activeLowerPanel
 
   return {
     dockbox: {
@@ -135,7 +137,8 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
               tabs: [HierarchyPanelTab, ScenePanelTab, MaterialsPanelTab]
             },
             {
-              tabs: [PropertiesPanelTab, InspectorPanelTab]
+              tabs: [PropertiesPanelTab, InspectorPanelTab],
+              activeId: activeLowerPane
             }
           ]
         }
@@ -145,10 +148,12 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
 }
 
 const EditorContainer = () => {
-  const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, rootEntity, canvasRef } =
+  const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, rootEntity, canvasRef, activeLowerPanel } =
     useMutableState(EditorState)
+  const { metadata } = useHookstate(getMutableState(ClickPlacementState)).value
   const editorUIAddon = useMutableState(UIAddonsState).editor
   const currentLoadedSceneURL = useHookstate(null as string | null)
+  const [activeLowerPane, setActiveLowerPane] = useState(activeLowerPanel)
 
   useEngineCanvas(canvasRef.value as React.RefObject<HTMLElement> | null)
 
@@ -217,6 +222,7 @@ const EditorContainer = () => {
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
   const warningState = useHookstate(getMutableState(EditorWarningState).warning)
+  const activePanel = useHookstate(getMutableState(EditorState).activeLowerPanel)
 
   const dockPanelRef = useRef<DockLayout>(null)
 
@@ -258,6 +264,19 @@ const EditorContainer = () => {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [])
 
+  useEffect(() => {
+    // on click palcement select and if inspector switch is true, activate inspector panel
+    const dock = dockPanelRef.current
+    const shouldActivateInspector = activeLowerPanel.value === 'inspector'
+
+    if (dock && shouldActivateInspector) {
+      const inspectorTab = dock.find('inspectorPanel')
+      if (inspectorTab && inspectorTab.parent) {
+        dock.dockMove(inspectorTab, 'inspectorPanel', inspectorTab.parent)
+      }
+    }
+  }, [metadata, activeLowerPanel.value])
+
   return (
     <main className="pointer-events-auto">
       <CurrentFilesQueryProvider>
@@ -275,7 +294,7 @@ const EditorContainer = () => {
                   <DockContainer>
                     <DockLayout
                       ref={dockPanelRef}
-                      defaultLayout={defaultLayout({ visualScriptPanelEnabled })}
+                      defaultLayout={defaultLayout({ visualScriptPanelEnabled, activeLowerPanel: activeLowerPane })}
                       style={{ position: 'absolute', left: 5, top: 50, right: 5, bottom: 5 }}
                     />
                   </DockContainer>
