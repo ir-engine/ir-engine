@@ -256,6 +256,14 @@ export async function seed(knex: Knex): Promise<void> {
         value: process.env.LOCAL_STORAGE_PROVIDER || ''
       },
       {
+        key: EngineSettings.Server.IpGeolocation.ApiUrl,
+        value: process.env.IP_GEOLOCATION_API_URL || 'https://api.ipinfo.io/lite'
+      },
+      {
+        key: EngineSettings.Server.IpGeolocation.ApiToken,
+        value: process.env.IP_GEOLOCATION_API_TOKEN || ''
+      },
+      {
         key: EngineSettings.Server.PerformDryRun,
         value: process.env.PERFORM_DRY_RUN || 'false'
       },

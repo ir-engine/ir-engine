@@ -179,7 +179,11 @@ const server = {
     : 10,
   namespace: (process.env.NAMESPACE as string) || 'default',
   requireAgeVerification:
-    typeof process.env.REQUIRE_AGE_VERIFICATION === 'string' ? process.env.REQUIRE_AGE_VERIFICATION === 'true' : true
+    typeof process.env.REQUIRE_AGE_VERIFICATION === 'string' ? process.env.REQUIRE_AGE_VERIFICATION === 'true' : true,
+  ipGeolocation: {
+    apiUrl: process.env.IP_GEOLOCATION_API_URL || 'https://api.ipinfo.io/lite',
+    apiToken: process.env.IP_GEOLOCATION_API_TOKEN || ''
+  }
 }
 const obj = kubernetesEnabled ? { protocol: 'https', hostname: server.hostname } : { protocol: 'https', ...server }
 server.url = process.env.SERVER_URL || url.format(obj)

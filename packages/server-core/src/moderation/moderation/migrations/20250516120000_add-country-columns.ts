@@ -19,23 +19,32 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import React from 'react'
-import { UserLastLoginInfo } from './UserLastLoginInfo'
+import { moderationPath } from '@ir-engine/common/src/schemas/moderation/moderation.schema'
+import type { Knex } from 'knex'
 
-export const UserInfo = ({ userId, userEmail, country, usersQuery }) => {
-  const user = usersQuery.data.find((user) => user.id == userId)
-  return (
-    <Text>
-      {userId} <br />
-      {user?.name} <br />
-      {userEmail} <br />
-      {country}
-      <UserLastLoginInfo userId={userId} />
-    </Text>
-  )
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  // Add country columns for both reported and reporting users
+  await knex.schema.alterTable(moderationPath, (table) => {
+    table.string('reportedUserCountry', 100).nullable()
+    table.string('reportingUserCountry', 100).nullable()
+  })
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}
+
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  await knex.schema.alterTable(moderationPath, (table) => {
+    table.dropColumn('reportedUserCountry')
+    table.dropColumn('reportingUserCountry')
+  })
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
