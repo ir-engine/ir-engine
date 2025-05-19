@@ -72,9 +72,9 @@ import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { ErrorComponent } from '../scene/components/ErrorComponent'
 import { SceneDynamicLoadComponent } from '../scene/components/SceneDynamicLoadComponent'
 import { addError, removeError } from '../scene/functions/ErrorFunctions'
-import { SceneJsonType } from '../scene/types/SceneTypes'
 import { GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
 import { AssetState } from './GLTFState'
+import { migrateEEMaterial } from './migrateEEMaterial'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
 import { useApplyCollidersToChildMeshesEffect } from './useApplyCollidersToChildMeshesEffect'
 
@@ -446,7 +446,7 @@ export const loadGLTFFile = (
     if (signal && signal.aborted) return
 
     const textDecoder = new TextDecoder()
-    let json: GLTF.IGLTF | SceneJsonType
+    let json: GLTF.IGLTF
     let body: ArrayBuffer | null = null
 
     try {
@@ -466,7 +466,11 @@ export const loadGLTFFile = (
         json = data
       }
 
-      onLoad(parseStorageProviderURLs(JSON.parse(JSON.stringify(json))), body)
+      json = JSON.parse(JSON.stringify(json))
+
+      json = migrateEEMaterial(json)
+
+      onLoad(parseStorageProviderURLs(json), body)
     } catch (error) {
       if (onError) onError(error)
       return

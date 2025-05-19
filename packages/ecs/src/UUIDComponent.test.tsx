@@ -26,12 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createEntity } from '@ir-engine/ecs'
-import { hookstate, NO_PROXY_STEALTH, ReactorReconciler, startReactor } from '@ir-engine/hyperflux'
+import { getState, hookstate, NO_PROXY_STEALTH, ReactorReconciler, startReactor } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { hasComponent, Layers, removeComponent, serializeComponent, setComponent } from './ComponentFunctions'
 import { createEngine, destroyEngine } from './Engine'
 import { EntityID, EntityUUID, EntityUUIDPair, SourceID, UndefinedEntity } from './Entity'
-import { UUIDComponent, UUIDComponentFunctions } from './UUIDComponent'
+import { EntitiesByUUIDState, UUIDComponent, UUIDComponentFunctions } from './UUIDComponent'
 
 describe('UUIDComponent', () => {
   beforeEach(() => {
@@ -102,7 +102,7 @@ describe('UUIDComponent', () => {
       removeComponent(testEntity, UUIDComponent)
       expect(resultSpy).toHaveBeenCalled()
       expect(resultSpy).toHaveBeenCalledTimes(1)
-      expect(UUIDComponent.entitiesByUUIDState[layer][uuid]).toBeUndefined()
+      expect(getState(EntitiesByUUIDState)[layer][uuid]).toBeUndefined()
       const result = UUIDComponentFunctions._getUUIDState(uuid, layer).get()
       expect(result).not.toBe(testEntity)
       expect(result).toBe(Expected)
@@ -237,56 +237,59 @@ describe('UUIDComponent', () => {
   }) //:: getEntityByUUID
 
   describe('_getUUIDState', () => {
-    it('should set UUIDComponent.entitiesByUUIDState[layer] to a non-falsy value when it is falsy', () => {
+    it('should set getState(EntitiesByUUIDState)[layer] to a non-falsy value when it is falsy', () => {
       const Initial = undefined
       // Set the data as expected
       const layer = Layers.Authoring
       const uuid = 'uuid' as EntityUUID
       // @ts-expect-error Coerce undefined into the Record entry
-      UUIDComponent.entitiesByUUIDState[layer] = Initial
+      getState(EntitiesByUUIDState)[layer] = Initial
       // Sanity check before running
-      expect(UUIDComponent.entitiesByUUIDState[layer]).toBe(Initial)
+      expect(getState(EntitiesByUUIDState)[layer]).toBe(Initial)
       // Run and Check the result
       UUIDComponentFunctions._getUUIDState(uuid, layer)
-      expect(UUIDComponent.entitiesByUUIDState[layer]).not.toBe(Initial)
+      expect(getState(EntitiesByUUIDState)[layer]).not.toBe(Initial)
     })
 
-    it('should set UUIDComponent.entitiesByUUIDState[layer][uuid] to the result of hookstate(UndefinedEntity) when it is falsy', () => {
+    it('should set getState(EntitiesByUUIDState)[layer][uuid] to the result of hookstate(UndefinedEntity) when it is falsy', () => {
       const Initial = undefined
       const Expected = hookstate(UndefinedEntity)
       // Set the data as expected
       const layer = Layers.Authoring
+      getState(EntitiesByUUIDState)[layer] = {}
       const uuid = 'uuid' as EntityUUID
       // @ts-expect-error Coerce undefined into the Record entry
-      UUIDComponent.entitiesByUUIDState[layer][uuid] = Initial
+      getState(EntitiesByUUIDState)[layer][uuid] = Initial
       // Sanity check before running
-      expect(UUIDComponent.entitiesByUUIDState[layer][uuid]).toBe(Initial)
-      expect(UUIDComponent.entitiesByUUIDState[layer][uuid]).not.toEqual(Expected)
+      expect(getState(EntitiesByUUIDState)[layer][uuid]).toBe(Initial)
+      expect(getState(EntitiesByUUIDState)[layer][uuid]).not.toEqual(Expected)
       // Run and Check the result
       UUIDComponentFunctions._getUUIDState(uuid, layer)
-      expect(UUIDComponent.entitiesByUUIDState[layer][uuid]).not.toBe(Initial)
-      expect(UUIDComponent.entitiesByUUIDState[layer][uuid]).toEqual(Expected)
+      expect(getState(EntitiesByUUIDState)[layer][uuid]).not.toBe(Initial)
+      expect(getState(EntitiesByUUIDState)[layer][uuid]).toEqual(Expected)
     })
 
-    it('should return the value of UUIDComponent.entitiesByUUIDState[layer][uuid]', () => {
+    it('should return the value of getState(EntitiesByUUIDState)[layer][uuid]', () => {
       const Initial = undefined
       const Expected = { path: [], value: 0 }
       // Set the data as expected
       const layer = Layers.Authoring
+      getState(EntitiesByUUIDState)[layer] = {}
       const uuidPair = { entitySourceID: 'source' as SourceID, entityID: 'id' as EntityID } as EntityUUIDPair
       const uuid = UUIDComponent.join(uuidPair)
       // @ts-expect-error Coerce undefined into the Record entry
-      UUIDComponent.entitiesByUUIDState[layer][uuid] = Initial
+      getState(EntitiesByUUIDState)[layer][uuid] = Initial
       // Sanity check before running
-      expect(UUIDComponent.entitiesByUUIDState[layer][uuid]).toBe(Initial)
-      expect(UUIDComponent.entitiesByUUIDState[layer][uuid]).not.toEqual(Expected)
+      expect(getState(EntitiesByUUIDState)[layer][uuid]).toBe(Initial)
+      expect(getState(EntitiesByUUIDState)[layer][uuid]).not.toEqual(Expected)
       // Run and Check the result
       UUIDComponentFunctions._getUUIDState(uuid, layer)
-      expect(UUIDComponent.entitiesByUUIDState[layer][uuid]).not.toBe(Initial)
-      expect(UUIDComponent.entitiesByUUIDState[layer][uuid]).toEqual(Expected)
+      expect(getState(EntitiesByUUIDState)[layer][uuid]).not.toBe(Initial)
+      expect(getState(EntitiesByUUIDState)[layer][uuid]).toEqual(Expected)
       const testEntity = createEntity(layer)
+      expect(getState(EntitiesByUUIDState)[layer][uuid].value).toEqual(UndefinedEntity)
       setComponent(testEntity, UUIDComponent, uuidPair)
-      expect(UUIDComponent.entitiesByUUIDState[layer][uuid].get()).toEqual(testEntity)
+      expect(getState(EntitiesByUUIDState)[layer][uuid].value).toEqual(testEntity)
     })
   }) //:: _getUUIDState
 

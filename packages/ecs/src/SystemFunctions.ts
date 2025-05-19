@@ -207,9 +207,9 @@ export function defineSystem(systemConfig: SystemArgs) {
   return systemConfig.uuid as SystemUUID
 }
 
-export const useExecute = (execute: () => void, insert: InsertSystem) => {
+export const useExecute = (execute: () => void, insert: InsertSystem & { uuid?: SystemUUID }) => {
   useImmediateEffect(() => {
-    const handle = defineSystem({ uuid: uuidv4(), execute, insert })
+    const handle = defineSystem({ uuid: insert.uuid ?? uuidv4(), execute, insert })
     return () => {
       destroySystem(handle)
     }

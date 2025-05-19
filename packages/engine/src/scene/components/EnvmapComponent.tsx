@@ -23,15 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { Material, Uniform, Vector3 } from 'three'
+import { Shader } from 'three'
 
-import { useEntityContext } from '@ir-engine/ecs'
-import { defineComponent, getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { removePlugin, setPlugin } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { defineMaterialPlugin } from '@ir-engine/engine/src/material/defineMaterialPlugin'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import {
   envmapParsReplaceLambert,
@@ -57,53 +54,33 @@ export const EnvMapComponent = defineComponent({
   errors: ['MISSING_FILE']
 })
 
-export const BoxProjectionPlugin = defineComponent({
+export const BoxProjectionPlugin = defineMaterialPlugin({
   name: 'BoxProjectionPlugin',
 
-  schema: S.Object({
-    cubeMapSize: S.Class(() => new Uniform(new Vector3())),
-    cubeMapPos: S.Class(() => new Uniform(new Vector3()))
+  jsonID: 'IR_envmap_box_projection',
+
+  uniforms: S.Object({
+    cubeMapSize: T.Vec3(),
+    cubeMapPos: T.Vec3()
   }),
 
-  reactor: () => {
-    const entity = useEntityContext()
+  onApply: (shader: Shader) => {
+    const shaderType = shader.shaderType
+    const isPhysical = shaderType === 'MeshStandardMaterial' || shaderType === 'MeshPhysicalMaterial'
+    const isSupported = isPhysical || shaderType === 'MeshLambertMaterial' || shaderType === 'MeshPhongMaterial'
+    if (!isSupported) return
 
-    useEffect(() => {
-      const materialComponent = getComponent(entity, MaterialStateComponent)
-
-      const callback = (shader, renderer) => {
-        const plugin = getComponent(entity, BoxProjectionPlugin)
-
-        shader.uniforms.cubeMapSize = plugin.cubeMapSize
-        shader.uniforms.cubeMapPos = plugin.cubeMapPos
-
-        const shaderType = (shader as any).shaderType
-        const isPhysical = shaderType === 'MeshStandardMaterial' || shaderType === 'MeshPhysicalMaterial'
-        const isSupported = isPhysical || shaderType === 'MeshLambertMaterial' || shaderType === 'MeshPhongMaterial'
-        if (!isSupported) return
-
-        if (isPhysical) {
-          if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition'))
-            shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader
-          shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
-          shader.fragmentShader = shader.fragmentShader.replace(
-            '#include <envmap_physical_pars_fragment>',
-            envmapPhysicalParsReplace
-          )
-        } else {
-          shader.fragmentShader = shader.fragmentShader.replace(
-            '#include <envmap_pars_fragment>',
-            envmapParsReplaceLambert
-          )
-          shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_fragment>', envmapReplaceLambert)
-        }
-      }
-
-      setPlugin(materialComponent.material as Material, callback)
-
-      return () => {
-        removePlugin(materialComponent.material as Material, callback)
-      }
-    }, [])
+    if (isPhysical) {
+      if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition'))
+        shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader
+      shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <envmap_physical_pars_fragment>',
+        envmapPhysicalParsReplace
+      )
+    } else {
+      shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_pars_fragment>', envmapParsReplaceLambert)
+      shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_fragment>', envmapReplaceLambert)
+    }
   }
 })

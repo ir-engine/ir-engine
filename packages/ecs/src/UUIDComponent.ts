@@ -54,6 +54,14 @@ export const EntitiesBySourceState = defineState({
 })
 
 /**
+ * Internal global state
+ */
+export const EntitiesByUUIDState = defineState({
+  name: 'ir.ecs.EntitiesByUUIDState',
+  initial: {} as Record<LayerID, Record<EntityUUID, State<Entity>>>
+})
+
+/**
  * UUIDComponent provides a unique identifier for entities by combining a source ID and an entity ID.
  *
  * The component stores an {@link EntityUUIDPair} which consists of:
@@ -92,12 +100,12 @@ export const UUIDComponent = defineComponent({
       }
       const uuid = UUIDComponent.join(idPair)
       const layer = LayerComponent.get(entity)
-      if (!UUIDComponent.entitiesByUUIDState[layer]) {
-        UUIDComponent.entitiesByUUIDState[layer] = {}
+      if (!getState(EntitiesByUUIDState)[layer]) {
+        getState(EntitiesByUUIDState)[layer] = {}
         return true
       }
       // throw error if uuid is already in use
-      const currentEntity = UUIDComponent.entitiesByUUIDState[layer][uuid]?.value
+      const currentEntity = getState(EntitiesByUUIDState)[layer][uuid]?.value
       if (currentEntity && currentEntity !== entity) {
         console.error(`UUID ${uuid} is already in use`, currentEntity, entity)
         return false
@@ -144,8 +152,8 @@ export const UUIDComponent = defineComponent({
   onRemove: (entity, component) => {
     const uuid = UUIDComponent.join(component.value)
     const layer = LayerComponent.get(entity)
-    destroy(UUIDComponent.entitiesByUUIDState[layer][uuid])
-    delete UUIDComponent.entitiesByUUIDState[layer][uuid]
+    destroy(getState(EntitiesByUUIDState)[layer][uuid])
+    delete getState(EntitiesByUUIDState)[layer][uuid]
 
     const source = component.value.entitySourceID.toString()
     const entities = getState(EntitiesBySourceState)[layer][source].filter((currentEntity) => currentEntity !== entity)
@@ -244,10 +252,10 @@ export const UUIDComponent = defineComponent({
 })
 
 function _getUUIDState(uuid: EntityUUID, layer = Layers.Simulation as LayerID) {
-  let layerState = UUIDComponent.entitiesByUUIDState[layer]
+  let layerState = getState(EntitiesByUUIDState)[layer]
   if (!layerState) {
     layerState = {}
-    UUIDComponent.entitiesByUUIDState[layer] = layerState
+    getState(EntitiesByUUIDState)[layer] = layerState
   }
 
   let entityState = layerState[uuid]
