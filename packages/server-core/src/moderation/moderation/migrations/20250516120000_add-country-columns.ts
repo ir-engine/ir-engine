@@ -19,42 +19,32 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useFind } from '@ir-engine/common'
-import { userLoginPath } from '@ir-engine/common/src/schema.type.module'
-import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
-import { Tooltip } from '@ir-engine/ui'
-import React from 'react'
-import { LuInfo } from 'react-icons/lu'
+import { moderationPath } from '@ir-engine/common/src/schemas/moderation/moderation.schema'
+import type { Knex } from 'knex'
 
-export const UserLastLoginInfo = ({ userId }) => {
-  const login = useFind(userLoginPath, {
-    query: {
-      userId: userId,
-      $sort: { createdAt: -1 },
-      $limit: 1
-    }
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  // Add country columns for both reported and reporting users
+  await knex.schema.alterTable(moderationPath, (table) => {
+    table.string('reportedUserCountry', 100).nullable()
+    table.string('reportingUserCountry', 100).nullable()
   })
 
-  return login.data.length > 0 ? (
-    <div className="flex">
-      {toDisplayDateTime(login.data[0].createdAt)}
-      <Tooltip
-        content={
-          <>
-            <span>IP Address: {login.data[0].ipAddress}</span>
-            <br />
-            <span>User Agent: {login.data[0].userAgent}</span>
-          </>
-        }
-      >
-        <LuInfo className="ml-2 h-5 w-5 bg-transparent" />
-      </Tooltip>
-    </div>
-  ) : (
-    <></>
-  )
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}
+
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  await knex.schema.alterTable(moderationPath, (table) => {
+    table.dropColumn('reportedUserCountry')
+    table.dropColumn('reportingUserCountry')
+  })
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
