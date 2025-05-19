@@ -54,7 +54,7 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import {
   BoundingBoxComponent,
   updateBoundingBox
-} from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
+} from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 import { WebLayer3D } from '@ir-engine/xrui'

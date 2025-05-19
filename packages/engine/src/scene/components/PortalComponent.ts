@@ -32,10 +32,11 @@ import {
   defineComponent,
   hasComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Vector3_Right, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
@@ -44,10 +45,10 @@ import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/Ri
 import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
 import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -92,8 +93,12 @@ export const PortalComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const portalComponent = useComponent(entity, PortalComponent)
+    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
+    const debugEnabled =
+      activeHelperComponent !== undefined &&
+      activeHelperComponent.enabled.value &&
+      (activeHelperComponent.selected.value || activeHelperComponent.hovered.value)
 
     useEffect(() => {
       setCallback(entity, 'teleport', (triggerEntity: Entity, otherEntity: Entity) => {
@@ -121,9 +126,10 @@ export const PortalComponent = defineComponent({
           }
         ]
       })
+      setComponent(entity, ActiveHelperComponent, { directional: true })
     }, [])
 
-    useHelperEntity(entity, () => new ArrowHelper(Vector3_Right, Vector3_Zero, 1, 0x000000), debugEnabled.value)
+    useHelperEntity(entity, () => new ArrowHelper(Vector3_Right, Vector3_Zero, 1, 0x000000), debugEnabled)
 
     // const [portalGeometry] = useResource<SphereGeometry>(new SphereGeometry(1, 32, 32), entity)
     // const [portalMesh] = useDisposable(

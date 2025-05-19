@@ -23,6 +23,26 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { S, UndefinedEntity } from '@ir-engine/ecs'
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
-export const ActiveHelperComponent = defineComponent({ name: 'ActiveHelperComponent' })
+export const ActiveHelperComponent = defineComponent({
+  name: 'ActiveHelperComponent',
+  jsonID: 'EE_activeHelper',
+  schema: S.Object({
+    enabled: S.Bool({ default: true }),
+    helperIconGizmo: S.Entity(UndefinedEntity), // manages the icon and minor gizmo
+    hovered: S.Bool({ default: false }),
+    selected: S.Bool({ default: false }),
+    helperSelectedGizmo: S.Entity(UndefinedEntity), // manages the elaborate gizmo
+    directional: S.Bool({ default: false }),
+    directionalEntities: S.Array(S.Entity(UndefinedEntity)),
+    lineEntities: S.Array(S.Entity(UndefinedEntity)),
+    volumeEnabled: S.Bool({ default: false }),
+    volumeControlled: S.Bool({ default: true }),
+    sizeFactor: S.Number({ default: 0.25 })
+  }),
+  reactor: () => {
+    return null
+  }
+})
