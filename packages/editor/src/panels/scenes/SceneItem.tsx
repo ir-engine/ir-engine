@@ -129,13 +129,17 @@ export default function SceneItem({
             fields={[
               {
                 id: 'embedCode',
-                label: t('common:components.embed'),
+                label: location.data.length > 0 ? t('common:components.embed') : '',
                 type: 'codefield',
-                url: location.data[0]?.url,
-                readOnly: true
+                url: location.data[0]?.url || '',
+                readOnly: true,
+                showLabel: location.data.length > 0
               }
             ]}
             onSubmit={async () => {}}
+            modalProps={{
+              submitButtonText: t('common:components.close')
+            }}
           />
         )
       }

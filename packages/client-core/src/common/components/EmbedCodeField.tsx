@@ -46,7 +46,11 @@ export const EmbedCodeField = ({
 }: Props) => {
   const { t } = useTranslation()
 
-  const embedCode = `<iframe src="${url}" 
+  // Check if URL is provided
+  const isUrlProvided = url && url.trim() !== ''
+
+  // Create embed code only if URL is provided
+  const embedCode = `<iframe src="${url}"
     height="100%" width="100%" allow="camera 'src'; microphone 'src';xr-spatial-tracking" style="pointer-events:all;user-select:none;border:none;"></iframe>`
   const handleCopyEmbed = () => {
     navigator.clipboard
@@ -59,6 +63,17 @@ export const EmbedCodeField = ({
       .catch((err) => {
         NotificationService.dispatchNotify(`Failed to copy URL: ${err.message}`, { variant: 'error' })
       })
+  }
+
+  // If URL is not provided, show a simple message instead of the textarea
+  if (!isUrlProvided) {
+    return (
+      <div className="flex w-full items-center justify-center">
+        <div className="w-full rounded border border-ui-outline bg-surface-2 p-4 text-center text-text-secondary">
+          {t('common:components.publishSceneFirstMessage')}
+        </div>
+      </div>
+    )
   }
 
   return (
