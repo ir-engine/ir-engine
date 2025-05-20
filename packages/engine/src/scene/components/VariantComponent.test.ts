@@ -39,7 +39,6 @@ import {
 } from '@ir-engine/ecs'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { assertArray } from '@ir-engine/spatial/tests/util/assert'
-import { act, render } from '@testing-library/react'
 import { InstancedBufferAttribute, InstancedMesh, Matrix4, Quaternion } from 'three'
 import { afterEach, assert, beforeEach, describe, it, vi } from 'vitest'
 import { startEngineReactor } from '../../../tests/startEngineReactor'
@@ -146,7 +145,6 @@ describe('VariantComponent', () => {
       })
       setComponent(testEntity, InstancingComponent, { instanceMatrix: createInstanceMatrix() })
       setComponent(testEntity, VariantComponent)
-      await act(() => render(null))
     })
 
     afterEach(() => {
@@ -180,7 +178,9 @@ describe('VariantComponent', () => {
         })
       })
 
-      await act(() => render(null))
+      await vi.waitUntil(() => getChildrenWithComponents(testEntity, [GLTFComponent]).length > 0, {
+        timeout: 5000
+      })
 
       const childGLTFEntities = getChildrenWithComponents(testEntity, [GLTFComponent])
       assert.equal(childGLTFEntities.length, lods.length)
