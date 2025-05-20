@@ -37,6 +37,12 @@ if [ "$DESTINATION_REPO_PROVIDER" = "gcp" ]; then
     SUFFIX="-mt"
   elif [[ "$APP_HOST" =~ "qat" ]]; then
     SUFFIX="-qat"
+  elif [[ "$app_host" =~ "mt-nightly" ]]; then
+    suffix="-mt-nightly"
+  elif [[ "$app_host" =~ "mt-weekly" ]]; then
+    suffix="-mt-weekly"
+    elif [[ "$app_host" =~ "mt-prdmirr" ]]; then
+    suffix="-mt-prdmirr"
   else
     SUFFIX=""
   fi

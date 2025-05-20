@@ -20,7 +20,8 @@
     "clear": "Clear",
     "embedCodeCopied": "Embed code copied to clipboard!",
     "embed": "Embed",
-    "copyEmbedCode": "Copy Embed Code"
+    "copyEmbedCode": "Copy Embed Code",
+    "publishSceneFirstMessage": "You need to publish this scene first to get an embed code."
   },
   "tooltip": {
     "pressKey": "Press {{tip}} to {{message}}"

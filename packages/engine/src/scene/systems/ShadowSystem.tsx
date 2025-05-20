@@ -226,7 +226,7 @@ const EntityChildCSMReactor = (props: { rendererEntity: Entity }) => {
         csm.teardownMaterial(obj.material as any)
       }
     }
-  }, [shadowComponent.receive, csm])
+  }, [shadowComponent.receive, csm, obj.material])
 
   return null
 }

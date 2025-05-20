@@ -46,7 +46,7 @@ import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/Re
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
-import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
+import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import type Hls from 'hls.js'
 import { useEffect, useLayoutEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'

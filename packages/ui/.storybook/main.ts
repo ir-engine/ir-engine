@@ -41,6 +41,7 @@ const config: StorybookConfig = {
     '../src/primitives/tailwind/!(TruncatedText)/*.stories.@(js|jsx|ts|tsx)',
     // '../src/components/editor/**/*.stories.@(js|jsx|ts|tsx)',
     '../src/components/editor/AudioVolumeVisualizer/index.stories.@(js|jsx|ts|tsx)',
+    '../src/components/editor/InspectorPanel/index.stories.tsx',
     '../src/components/tailwind/**/*.stories.@(js|jsx|ts|tsx)',
     '../src/icons/**/*.stories.@(js|jsx|ts|tsx)',
     '../src/index.stories.tsx'
@@ -56,6 +57,7 @@ const config: StorybookConfig = {
     getAbsolutePath('storybook-addon-react-router-v6'),
     getAbsolutePath('storybook-addon-sass-postcss')
   ],
+  staticDirs: ['../public'],
   core: {},
   framework: {
     name: getAbsolutePath('@storybook/react-vite'),

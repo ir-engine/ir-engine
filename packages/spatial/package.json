@@ -11,7 +11,8 @@
     "test": "cross-env TEST=true vitest run --config=../../vitest.client.config.ts",
     "test-coverage": "npm run test-coverage-generate ; npm run test-coverage-launch",
     "test-coverage-generate": "npm run test -- --coverage --silent",
-    "test-coverage-launch": "vite preview --open --outDir coverage"
+    "test-coverage-launch": "vite preview --open --outDir coverage",
+     "test-spot": "cross-env TEST=true vitest ./src/renderer/components/lights/DirectionalLightComponent.test.ts --config=../../vitest.client.config.ts"
   },
   "repository": "http://github.com/ir-engine/ir-engine",
   "author": "Infinite Reality Engine",

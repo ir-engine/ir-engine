@@ -5,8 +5,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
@@ -18,6 +18,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { EmbedCodeField } from '@ir-engine/client-core/src/common/components/EmbedCodeField'
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { useFind, useMutation } from '@ir-engine/common'
@@ -439,7 +440,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
         </div>
 
         <div className="h-fit max-h-[60vh] w-full overflow-y-auto">
-          <div className="relative grid w-full gap-6">
+          <div className="relative grid w-full gap-4">
             {errors.serverError.value && <p className="mb-3 text-red-700">{errors.serverError.value}</p>}
             {
               <div className={location ? 'border-y border-y-ui-outline' : ''}>
@@ -538,6 +539,11 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
                 </div>
               </div>
             </div>
+            {location?.url && (
+              <div className="border-t border-t-ui-outline py-6">
+                <EmbedCodeField url={location.url} />
+              </div>
+            )}
           </div>
         </div>
 

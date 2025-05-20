@@ -38,32 +38,40 @@ export type MaterialDeltaEntry = Record<typeof MATERIAL_JSON_ID, any>
 export const migrateSceneDeltas = (entity: Entity, gltf: GLTF.IGLTF) => {
   if (!gltf.extensions) return
   const deltas = gltf.extensions?.[SCENE_DELTA_EXTENSION_NAME] as SceneDeltaRegistry
-  if (deltas) {
-    // migrate to override data format
-    const overrideData = {} as Record<EntityUUID, Patch>
-    for (const [uuid, nodeDeltas] of Object.entries(deltas)) {
-      overrideData[uuid] = []
-      for (const [nodeID, componentDeltas] of Object.entries(nodeDeltas)) {
-        for (const [componentID, delta] of Object.entries(componentDeltas)) {
-          if (Object.keys(delta).length === 0) {
+  if (!deltas) return
+
+  // migrate to override data format
+  const overrideData = {} as Record<EntityUUID, Patch>
+  for (const [uuid, nodeDeltas] of Object.entries(deltas)) {
+    overrideData[uuid] = []
+    for (const [nodeID, componentDeltas] of Object.entries(nodeDeltas)) {
+      // for (const [componentID, delta] of Object.entries(componentDeltas)) {
+      const generatePatchForObject = (path: string, key: string, value: any) => {
+        // we need an add here for if the object is not present in the authoring state
+        // add will fail gracefully if the value does already exist, so we just overwrite whatever is there with our partial
+        // this is an inherent limitation, and should have minimal impact
+        for (const [subKey, subValue] of Object.entries(value)) {
+          if (typeof subValue === 'object') {
             overrideData[uuid].push({
               op: 'add',
-              path: `/${nodeID}/${componentID}`,
-              value: {}
+              path: `${path}/${key}/${subKey}`,
+              value: 'MIGRATE_SYMBOL' // we don't care about the value here, it's just a placeholder
             })
+            generatePatchForObject(`${path}/${key}`, subKey, subValue)
             continue
           }
-          for (const [key, value] of Object.entries(delta)) {
-            overrideData[uuid].push({
-              op: 'replace', // we want either replace or add here, but it might throw in either case
-              path: `/${nodeID}/${componentID}/${key}`,
-              value: value
-            })
-          }
+          overrideData[uuid].push({
+            op: 'add', // we want either replace or add here, but it might throw in either case
+            path: `${path}/${key}/${subKey}`,
+            value: subValue
+          })
         }
       }
+
+      generatePatchForObject(``, nodeID, componentDeltas)
     }
-    gltf.extensions[OVERRIDE_EXTENSION_NAME] = overrideData
-    delete gltf.extensions[SCENE_DELTA_EXTENSION_NAME]
   }
+
+  gltf.extensions[OVERRIDE_EXTENSION_NAME] = overrideData
+  delete gltf.extensions[SCENE_DELTA_EXTENSION_NAME]
 }

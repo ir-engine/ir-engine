@@ -215,7 +215,11 @@
       "lbl-helpers": "Toggle Helpers",
       "info-helpers": "View hidden information about your Scene, e.g., colliders.",
       "lbl-nodeHelpers": "Toggle Node Helpers",
-      "info-nodeHelpers": "Helper geometry that helps components have visibility in the Scene when inactive."
+      "info-nodeHelpers": "Helper geometry that helps components have visibility in the scene when inactive.",
+      "lbl-nodeIcons": "Toggle Node Icons",
+      "lbl-nodeVolume": "Toggle Node Volume",
+      "info-nodeVolume": "Helper geometry that helps visualize bounding box of assets in the scene"
+
     },
     "sceneScreenshot": {
       "lbl": "Screenshot",
@@ -1256,6 +1260,20 @@
       "lbl-asset": "Asset",
       "assets": "Assets"
     }
+  },
+  "inspector": {
+    "switchInspector": "Switch to Inspector tab for asset selection",
+    "title": "Inspector",
+    "assetType": "Type",
+    "assetAuthor": "Author",
+    "assetDateCreated": "Date Created",
+    "assetFileSize": "File Size",
+    "assetDimensions": "Dimensions",
+    "assetMeshComplexity": "Mesh Complexity",
+    "assetResources": "Resources",
+    "assetTags": "Tags",
+    "addToScene": "Add to Scene",
+    "noAssetSelected": "No asset selected"
   },
   "projects": {
     "createProject": {

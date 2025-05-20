@@ -46,7 +46,7 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import {
   BoundingBoxComponent,
   updateBoundingBox
-} from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
+} from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import React from 'react'
 import { Box2, Frustum, Plane, Vector2, Vector3 } from 'three'
 import { EditorState } from '../../../services/EditorServices'

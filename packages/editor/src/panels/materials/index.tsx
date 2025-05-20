@@ -109,7 +109,7 @@ function MaterialsLibrary() {
             onChange={(e) => srcPath.set(e.target.value)}
             fullWidth
           />
-          <Button variant="secondary" onClick={() => saveMaterial(srcPath.value)}>
+          <Button variant="secondary" onClick={() => saveMaterial(srcPath.value, selectedEntities.value[0])}>
             {t('common:components.save')}
           </Button>
           <Button

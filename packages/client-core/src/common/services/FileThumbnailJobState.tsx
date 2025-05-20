@@ -65,7 +65,7 @@ import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/cre
 import {
   BoundingBoxComponent,
   updateBoundingBox
-} from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
+} from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import React, { Suspense, useEffect } from 'react'
 import { Color, Euler, Material, Mesh, Quaternion, SphereGeometry } from 'three'
 

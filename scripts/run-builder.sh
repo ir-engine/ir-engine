@@ -355,6 +355,12 @@ determine_gcp_suffix() {
     suffix="mt"
   elif [[ "$app_host" =~ "qat" ]]; then
     suffix="qat"
+  elif [[ "$app_host" =~ "mt-nightly" ]]; then
+    suffix="mt-nightly"
+  elif [[ "$app_host" =~ "mt-weekly" ]]; then
+    suffix="mt-weekly"
+  elif [[ "$app_host" =~ "mt-prdmirr" ]]; then
+    suffix="mt-prdmirr"
   else
     suffix=""
   fi

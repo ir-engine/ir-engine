@@ -28,7 +28,6 @@ import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { Entity, EntityUUID, Layers, UUIDComponent } from '@ir-engine/ecs'
 import exportMaterialsGLTF from '@ir-engine/engine/src/assets/functions/exportMaterialsGLTF'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
-import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
 import React, { useEffect, useRef } from 'react'
 import { FixedSizeList, ListProps } from 'react-window'
@@ -81,9 +80,8 @@ export function FixedSizeListWrapper({
   )
 }
 
-export async function saveMaterial(sourcePath: string) {
+export async function saveMaterial(sourcePath: string, materialUUID: EntityUUID) {
   const projectName = getState(EditorState).projectName!
-  const materialUUID = getState(MaterialSelectionState).selectedMaterial ?? ('' as EntityUUID)
   if (!sourcePath.endsWith('.material.gltf')) {
     sourcePath += '.material.gltf'
   }
