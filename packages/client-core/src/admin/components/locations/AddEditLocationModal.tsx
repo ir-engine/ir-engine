@@ -249,12 +249,15 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
             [ModelTransformStatus.WritingFiles]: 'editor:properties.model.transform.status.writingfiles',
             [ModelTransformStatus.Complete]: 'editor:properties.model.transform.status.complete'
           }
-
           // Create LOD parameters for this model
           const lodParams: ModelTransformParameters = {
             ...defaultLODs[2].params,
             dst: fileName + defaultLODs[2].suffix,
-            modelFormat: srcURL.endsWith('.gltf') ? 'gltf' : srcURL.endsWith('.vrm') ? 'vrm' : 'glb',
+            modelFormat: new URL(srcURL).pathname.endsWith('.gltf')
+              ? 'gltf'
+              : new URL(srcURL).pathname.endsWith('.vrm')
+              ? 'vrm'
+              : 'glb',
             resourceUri: '',
             adaptiveSimplification: true
           }
