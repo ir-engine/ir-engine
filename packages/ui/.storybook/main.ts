@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import type { StorybookConfig } from '@storybook/react-vite'
 import { dirname, join } from 'path'
 import { mergeConfig } from 'vite'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 const config: StorybookConfig = {
   env: (config) => ({
@@ -78,7 +79,7 @@ const config: StorybookConfig = {
       build: {
         cssMinify: false
       },
-      plugins: []
+      plugins: [nodePolyfills()]
     })
   },
   docs: {
