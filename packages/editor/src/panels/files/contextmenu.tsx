@@ -32,7 +32,7 @@ import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
-import { Vector3 } from 'three'
+import { Vector2, Vector3 } from 'three'
 import ImageCompressionPanel from '../../components/assets/ImageCompressionPanel'
 import ModelCompressionPanel from '../../components/assets/ModelCompressionPanel'
 import { addMediaNode } from '../../functions/addMediaNode'
@@ -203,9 +203,13 @@ export function FileContextMenu({
         selectedFiles
           .filter((file) => !file.isFolder.value)
           .map((file) => {
-            addMediaNode(file.url.value, undefined, undefined, [
-              { name: TransformComponent.jsonID, props: { position: vec3 } }
-            ])
+            addMediaNode(
+              file.url.value,
+              undefined,
+              undefined,
+              [{ name: TransformComponent.jsonID, props: { position: vec3 } }],
+              new Vector2()
+            )
           })
         setAnchorEvent(undefined)
       },
@@ -220,9 +224,13 @@ export function FileContextMenu({
         selectedFiles
           .filter((file) => !file.isFolder.value)
           .map((file) => {
-            addMediaNode(file.url.value, undefined, undefined, [
-              { name: TransformComponent.jsonID, props: { position: new Vector3() } }
-            ])
+            addMediaNode(
+              file.url.value,
+              undefined,
+              undefined,
+              [{ name: TransformComponent.jsonID, props: { position: new Vector3() } }],
+              new Vector2()
+            )
           })
         setAnchorEvent(undefined)
       },

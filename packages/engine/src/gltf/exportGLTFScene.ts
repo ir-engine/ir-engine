@@ -41,17 +41,15 @@ import {
   serializeComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, SourceID } from '@ir-engine/ecs/src/Entity'
-import { destroy, getState, hookstate, startReactor, State, useHookstate } from '@ir-engine/hyperflux'
+import { destroy, hookstate, startReactor, State, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import {
   MaterialInstanceComponent,
-  MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { injectMaterialDefaults } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { useEffect } from 'react'
 import {
@@ -913,34 +911,31 @@ const exportMaterial = async (
 
   if (material.side === DoubleSide) materialDef.doubleSided = true
 
-  const argData = injectMaterialDefaults(entity)
-  if (!argData) {
-    throw new Error('Unsupported material ' + JSON.stringify(material))
-  }
   const result: any = {}
-  for (const [field, value] of Object.entries(argData)) {
-    if (material[field] === null) {
-      delete argData[field]
-      continue
-    }
+  await Promise.all(
+    Object.entries(material).map(async ([field, value]) => {
+      if (value === undefined || value === null) return
+      if (typeof value === 'function') return
 
-    const argEntry = {
-      type: value.type,
-      contents: material[field]
-    }
-    if (value.type === 'texture' && material[field]) {
-      if (field === 'envMap') continue //for skipping environment maps which cause errors
-      if ((material[field] as CubeTexture).isCubeTexture) continue //for skipping environment maps which cause errors
-      const texture = material[field] as Texture
-      const textureIndex = await exportTexture(texture, gltf, context)
-      if (typeof textureIndex !== 'number') continue
-      argEntry.contents = {
-        index: textureIndex,
-        texCoord: texture.channel
+      const argEntry = {
+        type: value.type,
+        contents: value
       }
-    }
-    result[field] = argEntry
-  }
+      const texture = value as Texture
+
+      if (texture.isTexture) {
+        if (field === 'envMap') return //for skipping environment maps which cause errors
+        if ((texture as CubeTexture).isCubeTexture) return //for skipping environment maps which cause errors
+        const textureIndex = await exportTexture(texture, gltf, context)
+        if (typeof textureIndex !== 'number') return
+        argEntry.contents = {
+          index: textureIndex,
+          texCoord: texture.channel
+        }
+      }
+      result[field] = argEntry
+    })
+  )
 
   for (const key in _builtinMaterialDefs) {
     const resultValue = result[key]
@@ -960,15 +955,12 @@ const exportMaterial = async (
     }
   }
 
-  const materialComponent = getComponent(entity, MaterialStateComponent)
-  const prototype = getState(MaterialPrototypeDefinitions)[materialComponent.material.type]
-  //@todo: plugins
-  materialDef.extensions['EE_material'] = {
-    uuid: getComponent(entity, UUIDComponent).entityID,
-    name: getComponent(entity, NameComponent),
-    prototype: prototype.prototypeConstructor.name,
-    args: result,
-    plugins: []
+  const components = getAllComponents(entity)
+  for (const component of components) {
+    if (!component.jsonID) continue
+    if (component === UUIDComponent || component === NameComponent || component === EntityTreeComponent) continue
+    if (materialDef.extensions[component.jsonID]) continue
+    materialDef.extensions[component.jsonID] = serializeComponent(entity, component)
   }
 
   for (const ext in materialDef.extensions) {

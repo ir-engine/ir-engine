@@ -191,12 +191,6 @@
   @extend %container;
 }
 
-.loadingContainer {
-  @extend %container;
-
-  background: transparent;
-}
-
 .error {
   color: #c53a7d;
   font-weight: bold;
