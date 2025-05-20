@@ -217,7 +217,7 @@ const EntityChildCSMReactor = (props: { rendererEntity: Entity; entity: Entity }
     if (!csm) return
     CSM.setupMaterial(entity)
     return () => CSM.teardownMaterial(entity)
-  }, [csm, material])
+  }, [csm, material.value])
 
   return null
 }
