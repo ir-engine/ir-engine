@@ -37,6 +37,7 @@
     "@ir-engine/engine": "^1.6.0",
     "@ir-engine/hyperflux": "^1.6.0",
     "@ir-engine/ui": "^1.6.0",
+    "@storybook/react": "^8.6.14",
     "@uiw/react-color-sketch": "^2.1.1",
     "axios": "1.3.4",
     "comlink": "4.4.1",
