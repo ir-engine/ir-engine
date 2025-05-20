@@ -23,27 +23,78 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { FiEdit2 } from 'react-icons/fi'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 
 const InspectorEditor = () => {
   const { t } = useTranslation()
   const { metadata } = useHookstate(getMutableState(ClickPlacementState)).value
   const { thumbnail, name, type, author, dateCreated, fileSize, dimensions, mesh, resources, tags } = metadata
+  const leftTableCellCss = `table-cell w-2/5 text-left font-bold py-0.5`
+  const rightTableCellCss = `table-cell text-left py-0.5`
 
   return Object.keys(metadata).length > 0 ? (
-    <div className="flex h-full flex-col p-3 px-10 text-text-secondary">
+    <div className="flex h-full flex-col gap-6 overflow-y-auto bg-surface-3 p-3 px-10 text-text-secondary">
       <div className="align-center flex justify-center">
         <img src={thumbnail} alt={name} className="m-3 text-center" />
       </div>
-      <Text fontSize="xl">{name}</Text>
-      <div></div>
+      <div className="flex flex-row items-center justify-between">
+        <Text fontSize="xl">{name}</Text>
+        <div>
+          <FiEdit2 />
+        </div>
+      </div>
+      <div className="table">
+        <div className="table-row gap-4">
+          <div className={leftTableCellCss}>{t('editor:inspector.assetType')}</div>
+          <div className={rightTableCellCss}>{type}</div>
+        </div>
+        <div className="table-row">
+          <div className={leftTableCellCss}>{t('editor:inspector.assetAuthor')}</div>
+          <div className={rightTableCellCss}>{author || 'N/A'}</div>
+        </div>
+        <div className="table-row">
+          <div className={leftTableCellCss}>{t('editor:inspector.assetDateCreated')}</div>
+          <div className={rightTableCellCss}>{toDisplayDateTime(dateCreated) || 'N/A'}</div>
+        </div>
+        <div className="table-row">
+          <div className={leftTableCellCss}>{t('editor:inspector.assetFileSize')}</div>
+          <div className={rightTableCellCss}>{'N/A'}</div>
+        </div>
+        <div className="table-row">
+          <div className={leftTableCellCss}>{t('editor:inspector.assetDimensions')}</div>
+          <div className={rightTableCellCss}>{'N/A'}</div>
+        </div>
+        <div className="table-row">
+          <div className={leftTableCellCss}>{t('editor:inspector.assetMeshComplexity')}</div>
+          <div className={rightTableCellCss}>{'N/A'}</div>
+        </div>
+      </div>
+      <div className="flex flex-col gap-3">
+        <div className="font-bold">{t('editor:inspector.assetTags')}</div>
+        <div className="text-lg">
+          {tags.length > 0
+            ? tags.map((tag) => (
+                <span className="rounded-[30px] border border-[#42454D] bg-surface-2 px-3 py-1">{tag}</span>
+              ))
+            : ''}
+        </div>
+      </div>
+      <div>
+        <button className="rounded-md bg-ui-primary px-5 py-2 text-white">
+          {'+'} {t('editor:inspector.addToScene')}
+        </button>
+      </div>
     </div>
   ) : (
-    <div className="flex h-full items-center justify-center p-3 text-text-secondary">No asset selected</div>
+    <div className="flex h-full items-center justify-center bg-surface-3 p-3 text-text-secondary">
+      {t('editor:inspector.noAssetSelected')}
+    </div>
   )
 }
 

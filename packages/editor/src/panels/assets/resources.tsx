@@ -238,8 +238,8 @@ function ResourceFile({
   const metadata = {
     thumbnail: resource.thumbnailURL,
     name: resource.name,
-    type: resource.type,
-    author: resource.updatedBy,
+    type: assetType,
+    author: '',
     dateCreated: resource.createdAt,
     fileSize: '',
     dimensions: {

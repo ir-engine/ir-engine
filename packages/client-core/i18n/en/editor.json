@@ -1271,7 +1271,8 @@
     "assetMeshComplexity": "Mesh Complexity",
     "assetResources": "Resources",
     "assetTags": "Tags",
-    "addToScene": "Add to Scene"
+    "addToScene": "Add to Scene",
+    "noAssetSelected": "No asset selected"
   },
   "projects": {
     "createProject": {
