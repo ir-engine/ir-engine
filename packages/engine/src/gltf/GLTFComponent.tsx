@@ -516,7 +516,7 @@ const useGLTFDocument = (entity: Entity) => {
         state.dependencies.set(dependencies)
       },
       (progress: ProgressEvent) => {
-        //this the gtlf file loading progress, not to be confused with the GTLF Component property "progress" which tracks of the gtlf is loaded into the scene
+        //this is the gtlf file loading progress, not to be confused with the GTLF Component property "progress" which tracks of the gtlf is loaded into the scene
       },
       onError,
       signal
