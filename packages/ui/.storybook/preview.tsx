@@ -41,6 +41,8 @@ import '../../client/src/themes/utilities.css'
 // @ts-ignore
 import keycardGLB from '../../projects/default-project/assets/keycard.glb?url'
 // @ts-ignore
+import { destroySpatialEngine, initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
+// @ts-ignore
 import apartmentGLTF from '../../projects/default-project/public/scenes/apartment.gltf?raw'
 import EngineDecorator from './decorators/EngineDecorator'
 import i18n from './i18n'
@@ -71,53 +73,37 @@ export const decorators: Decorator[] = [
       createEngine()
       startTimer()
       ClientAPI.createAPI()
+      initializeSpatialEngine()
       setEngineInitialized(true)
       return () => {
+        destroySpatialEngine()
         destroyEngine()
       }
     }, [])
 
     if (!engineInitialized) return null
 
-    if (args.globals.IR_Engine) {
-      const sceneName = args.globals.Scene
-
-      return (
-        <div className="h-screen w-screen">
-          <EngineDecorator sceneName={sceneName}>
-            <Story />
-          </EngineDecorator>
-          <canvas
-            id="engine-renderer-canvas"
-            style={{ zIndex: -1 }}
-            className="absolute left-0 top-0 h-full w-full"
-          ></canvas>
-        </div>
-      )
-    } else {
-      return <Story />
-    }
+    return (
+      <div className="h-screen w-screen">
+        <EngineDecorator sceneName={args.globals.Scene}>
+          <Story />
+        </EngineDecorator>
+        <canvas
+          id="engine-renderer-canvas"
+          style={{ zIndex: -1 }}
+          className="absolute left-0 top-0 h-full w-full"
+        ></canvas>
+      </div>
+    )
   }
 ]
 
 const preview: Preview = {
   decorators,
   globalTypes: {
-    IR_Engine: {
-      description: 'Infinite Reality Engine',
-      defaultValue: false,
-      toolbar: {
-        title: 'IR Engine',
-        icon: 'redux',
-        items: [
-          { value: true, title: 'Enabled' },
-          { value: false, title: 'Disabled' }
-        ]
-      }
-    },
     Scene: {
       description: 'Scene',
-      defaultValue: 'apartment.gltf',
+      defaultValue: '',
       toolbar: {
         title: 'Location',
         icon: 'location',
@@ -130,6 +116,7 @@ const preview: Preview = {
     }
   },
   parameters: {
+    layout: 'fullscreen',
     controls: {
       matchers: {
         color: /(background|color)$/i,
