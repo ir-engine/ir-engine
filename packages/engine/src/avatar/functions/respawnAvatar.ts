@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -34,7 +34,7 @@ import { teleportAvatar } from './moveAvatar'
 
 export const respawnAvatar = (entity?: Entity) => {
   if (!entity) return
-  const { spawnPosition } = getState(SpawnPoseState)[getComponent(entity, UUIDComponent)]
+  const { spawnPosition } = getState(SpawnPoseState)[UUIDComponent.get(entity)]
   const controller = getComponent(entity, AvatarControllerComponent)
   controller.verticalVelocity = 0
   teleportAvatar(entity, spawnPosition)

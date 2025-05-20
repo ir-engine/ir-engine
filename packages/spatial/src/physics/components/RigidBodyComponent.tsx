@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -61,26 +61,29 @@ export const RigidBodyComponent = defineComponent({
   name: 'RigidBodyComponent',
   jsonID: 'EE_rigidbody',
   schema: S.Object({
-    type: S.Enum(BodyTypes, BodyTypes.Fixed),
-    ccd: S.Bool(false),
-    allowRolling: S.Bool(true),
-    enabledRotations: S.Tuple([S.Bool(), S.Bool(), S.Bool()], [true, true, true]),
+    type: S.Enum(BodyTypes, {
+      $comment: "A string enum, ie. one of the following values: 'fixed', 'dynamic', 'kinematic'",
+      default: BodyTypes.Fixed
+    }),
+    ccd: S.Bool({ default: false }),
+    allowRolling: S.Bool({ default: true }),
+    enabledRotations: S.Tuple([S.Bool(), S.Bool(), S.Bool()], { default: [true, true, true] }),
     // rigidbody desc values
-    canSleep: S.Bool(true),
-    gravityScale: S.Number(1),
+    canSleep: S.Bool({ default: true }),
+    gravityScale: S.Number({ default: 1 }),
     // internal
     /** @deprecated  @todo make the physics api properly reactive to remove this property  */
-    initialized: S.NonSerialized(S.Bool(false)),
-    previousPosition: S.NonSerialized(T.Vec3(assignVec3('previousPosition'))),
-    previousRotation: S.NonSerialized(T.Quaternion(assignQuat('previousRotation'))),
-    position: S.NonSerialized(T.Vec3(assignVec3('position'))),
-    rotation: S.NonSerialized(T.Quaternion(assignQuat('rotation'))),
-    targetKinematicPosition: S.NonSerialized(T.Vec3(assignVec3('targetKinematicPosition'))),
-    targetKinematicRotation: S.NonSerialized(T.Quaternion(assignQuat('targetKinematicRotation'))),
-    linearVelocity: S.NonSerialized(T.Vec3(assignVec3('linearVelocity'))),
-    angularVelocity: S.NonSerialized(T.Vec3(assignVec3('angularVelocity'))),
+    initialized: S.Bool({ default: false, serialized: false }),
+    previousPosition: T.Vec3(assignVec3('previousPosition'), { serialized: false }),
+    previousRotation: T.Quaternion(assignQuat('previousRotation'), { serialized: false }),
+    position: T.Vec3(assignVec3('position'), { serialized: false }),
+    rotation: T.Quaternion(assignQuat('rotation'), { serialized: false }),
+    targetKinematicPosition: T.Vec3(assignVec3('targetKinematicPosition'), { serialized: false }),
+    targetKinematicRotation: T.Quaternion(assignQuat('targetKinematicRotation'), { serialized: false }),
+    linearVelocity: T.Vec3(assignVec3('linearVelocity'), { serialized: false }),
+    angularVelocity: T.Vec3(assignVec3('angularVelocity'), { serialized: false }),
     /** If multiplier is 0, ridigbody moves immediately to target pose, linearly interpolating between substeps */
-    targetKinematicLerpMultiplier: S.NonSerialized(S.Number(0))
+    targetKinematicLerpMultiplier: S.Number({ default: 0, serialized: false })
   }),
 
   storage: {

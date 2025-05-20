@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -57,12 +57,13 @@ const gizmoPickerObjectsQuery = defineQuery([
   VisibleComponent,
   TransformGizmoTagComponent
 ])
+export const transformGizmoControllerQuery = defineQuery([TransformGizmoControlComponent])
 
 //prevent query from detecting CameraGizmoVisualEntity which has no ObjectComponent but has CameraGizmoTagComponent
 const cameraGizmoQuery = defineQuery([CameraGizmoTagComponent, InputComponent, VisibleComponent, ObjectComponent])
 
-const raycaster = new Raycaster()
-raycaster.layers.enable(ObjectLayers.Gizmos)
+const _raycaster = new Raycaster()
+_raycaster.layers.enable(ObjectLayers.Gizmos)
 
 export function editorInputHeuristic(
   viewerEntity: Entity,
@@ -76,7 +77,7 @@ export function editorInputHeuristic(
   const gizmoEnabled = getState(EditorHelperState).gizmoEnabled
   if (!gizmoEnabled) return
 
-  raycaster.set(position, direction)
+  _raycaster.set(position, direction)
 
   const pickerObj = gizmoPickerObjectsQuery() // gizmo heuristic
   const cameraGizmo = cameraGizmoQuery() //camera gizmo heuristic
@@ -94,10 +95,10 @@ export function editorInputHeuristic(
 
   //camera gizmos layer should always be active here, since it doesn't disable based on transformGizmo existing
   pickerObj.length > 0
-    ? raycaster.layers.enable(ObjectLayers.TransformGizmo)
-    : raycaster.layers.disable(ObjectLayers.TransformGizmo)
+    ? _raycaster.layers.enable(ObjectLayers.TransformGizmo)
+    : _raycaster.layers.disable(ObjectLayers.TransformGizmo)
 
-  const hits = raycaster.intersectObjects(objects, true)
+  const hits = _raycaster.intersectObjects(objects, true)
   for (const hit of hits) {
     intersectionData.add({ entity: hit.object.entity!, distance: hit.distance })
   }

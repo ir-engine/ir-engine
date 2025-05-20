@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -231,8 +231,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
       const scene = await app.service(staticResourcePath).get(sceneId, { headers })
       if (unload) unload()
       unload = SceneState.loadScene(scene.url, scene.id as EntityUUID)
-      const entity = UUIDComponent.getEntityByUUID(scene.id as EntityUUID)
-
+      const entity = UUIDComponent.getEntityByUUID(('root' + scene.id) as EntityUUID)
       /** @todo - quick hack to wait until scene has loaded */
       await new Promise<void>((resolve) => {
         const interval = setInterval(() => {

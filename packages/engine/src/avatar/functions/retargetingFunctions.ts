@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -58,7 +58,7 @@ export const normalizeAnimationClips = (gltfEntity: Entity) => {
       const track = clip.tracks[i]
       const trackSplitted = track.name.lastIndexOf('.')
       const rigNodeName = track.name.slice(0, trackSplitted)
-      const rigNodeEntity = UUIDComponent.getEntityByUUID(rigNodeName as EntityUUID)
+      const rigNodeEntity = UUIDComponent.getEntityByUUID((UUIDComponent.get(gltfEntity) + rigNodeName) as EntityUUID)
       if (!rigNodeEntity) continue
 
       // Store rotations of rest-pose
@@ -84,8 +84,7 @@ export const normalizeAnimationClips = (gltfEntity: Entity) => {
       } else if (track instanceof VectorKeyframeTrack) {
         const isPosition = track.name.includes('position')
         // quick dirty check for hips - we only want to keep hips position for root motion
-        const node = UUIDComponent.getEntityByUUID(track.name.slice(0, track.name.lastIndexOf('.')) as EntityUUID)
-        if (node !== hips || !isPosition) {
+        if (rigNodeEntity !== hips || !isPosition) {
           clip.tracks.splice(i, 1)
           i--
           continue
@@ -107,7 +106,7 @@ export const retargetAnimationClips = (sourceAnimationEntity) => {
     const newClip = new AnimationClip(clip.name, clip.duration, [], clip.blendMode)
     for (const track of clip.tracks) {
       const sourceEntity = UUIDComponent.getEntityByUUID(
-        track.name.substring(0, track.name.lastIndexOf('.')) as EntityUUID
+        (UUIDComponent.get(sourceAnimationEntity) + track.name.substring(0, track.name.lastIndexOf('.'))) as EntityUUID
       )
       if (!sourceEntity) continue
       const vrmBone = sourceRigMap[sourceEntity] as VRMHumanBoneName

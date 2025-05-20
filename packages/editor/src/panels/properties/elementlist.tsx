@@ -19,12 +19,12 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useQuery } from '@ir-engine/ecs'
-import { Component } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Component, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { PrefabIcon, PrefabShelfItem, PrefabShelfState } from '@ir-engine/editor/src/components/prefabs/PrefabEditors'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
@@ -32,6 +32,7 @@ import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
 import { ComponentEditorsState } from '@ir-engine/editor/src/services/ComponentEditors'
 import { ComponentShelfCategoriesState } from '@ir-engine/editor/src/services/ComponentShelfCategoriesState'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/CameraSettingsComponent'
 import { RenderSettingsComponent } from '@ir-engine/engine/src/scene/components/RenderSettingsComponent'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
@@ -45,7 +46,7 @@ import React, { useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GrStatusPlaceholder } from 'react-icons/gr'
 import { twMerge } from 'tailwind-merge'
-import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
+import { EditorState } from '../../services/EditorServices'
 
 type ElementsType = 'components' | 'prefabs'
 
@@ -74,7 +75,10 @@ const ComponentListItem = ({ item, onSelect }: { item: Component; onSelect: () =
       className="flex w-full items-center justify-center gap-1 rounded-md bg-ui-background p-2 text-text-secondary hover:bg-ui-hover-primary hover:text-text-primary-button"
       onClick={() => {
         const entities = SelectionState.getSelectedEntities()
-        EditorHistoryFunctions.setComponent(entities, item)
+        for (const entity of entities) {
+          setComponent(entity, item)
+        }
+        AuthoringState.snapshotEntities(entities)
         onSelect()
       }}
     >
@@ -102,7 +106,7 @@ const PrefabListItem = ({ item, onSelect }: { item: PrefabShelfItem; onSelect: (
               name: TransformComponent.jsonID
             }
           ])
-          EditorHistoryFunctions.snapshot()
+          AuthoringState.snapshotEntities([getState(EditorState).rootEntity])
         } else {
           addMediaNode(url)
         }
@@ -201,9 +205,10 @@ const usePrefabShelfCategories = (search: string): [string, PrefabShelfItem[]][]
 
     shelves['Empty'] ??= [
       {
-        name: 'Create',
+        name: 'Create an Empty Entity',
         url: '',
-        category: 'Empty'
+        category: 'Empty',
+        detail: 'Inserts an empty object into the scene, ready for components and child entities.'
       }
     ]
     return shelves

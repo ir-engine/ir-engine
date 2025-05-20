@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -147,7 +147,7 @@ export const VideoWindows = () => {
   const windows = useMediaWindows()
   return (
     <>
-      <div className="flex flex-col gap-y-2">
+      <div className="overflow-y scrollbar-hide flex h-[calc(100vh-48px)] flex-col gap-y-2 overflow-y-auto">
         {windows.map(({ peerID, type }) => (
           <SingleVideoWindow type={type} peerID={peerID} key={type + '-' + peerID} />
         ))}
@@ -275,7 +275,7 @@ export const VideoWindowsWidget = () => {
   }
 
   return (
-    <div className="flex flex-col gap-y-2">
+    <div className="overflow-y scrollbar-hide flex h-[calc(100vh-48px)] flex-col gap-y-2 overflow-y-auto">
       {windows
         .filter(({ peerID }) => peerMediaChannelState[peerID].value)
         .map(({ peerID, type }) => (

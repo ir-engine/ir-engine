@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -33,6 +33,7 @@ export interface SliderProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 
   label?: string
   info?: string
   description?: string
+  units?: string
   min?: number
   max?: number
   /**the size by which the slider should increment each step */
@@ -50,6 +51,7 @@ const Slider = ({
   label,
   info,
   description,
+  units,
   min = 0,
   max = 100,
   step = 1,
@@ -102,8 +104,11 @@ const Slider = ({
           id={id}
           min={min}
           max={max}
-          value={value}
-          onChange={(event) => handleInputChange(event.target.value)}
+          value={units ? `${value} ${units}` : value}
+          onChange={(event) => {
+            const rawValue = event.target.value.replace(/[^\d.-]/g, '')
+            handleInputChange(rawValue)
+          }}
           onKeyDown={(event) => {
             if (event.key === 'ArrowUp') {
               handleInputChange(value + step + '')

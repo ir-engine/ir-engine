@@ -19,14 +19,13 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityUUID, Layers, UUIDComponent, getOptionalComponent, hasComponent } from '@ir-engine/ecs'
+import { Entity, UUIDComponent, getComponent, hasComponent } from '@ir-engine/ecs'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
-import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
@@ -36,28 +35,17 @@ import { useDrag } from 'react-dnd'
 import { ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
 
-const getNodeDisplayName = (uuid: EntityUUID) => {
-  const entity = UUIDComponent.getEntityByUUID(uuid, Layers.Authoring)
-  return (
-    getOptionalComponent(entity, MaterialStateComponent)?.material?.name ||
-    getOptionalComponent(entity, NameComponent) ||
-    ''
-  )
-}
-
-export default function MaterialLayerNode(props: ListChildComponentProps<{ nodes: EntityUUID[] }>) {
+export default function MaterialLayerNode(props: ListChildComponentProps<{ nodes: Entity[] }>) {
   const data = props.data
-  const node = data.nodes[props.index]
-  const materialSelection = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
+  const entity = data.nodes[props.index]
+  const materialSelection = useHookstate(getMutableState(SelectionState).selectedEntities[0])
   const selectionState = useMutableState(SelectionState)
 
-  const materialEntity = UUIDComponent.getEntityByUUID(node, Layers.Authoring)
-  /**@todo use asset source decoupled from uuid to make this less brittle */
-  const source = !hasComponent(materialEntity, MaterialStateComponent)
-
+  const source = !hasComponent(entity, MaterialStateComponent)
+  const name = getComponent(entity, NameComponent)
   const onClickNode = () => {
     if (!source) {
-      materialSelection.set(node)
+      materialSelection.set(UUIDComponent.get(entity))
     }
   }
 
@@ -69,7 +57,7 @@ export default function MaterialLayerNode(props: ListChildComponentProps<{ nodes
       return {
         type: ItemTypes.Material,
         multiple,
-        value: node[0]
+        value: entity
       }
     },
     collect: (monitor) => ({
@@ -86,7 +74,7 @@ export default function MaterialLayerNode(props: ListChildComponentProps<{ nodes
             <Image05 className="text-base text-text-primary" />
             <div className="flex items-center">
               <div className="ml-2 min-w-0 text-nowrap rounded px-0.5 py-0 text-text-primary">
-                <span className="text-nowrap text-sm leading-4">{node.split('/')?.pop()?.split('?')[0]}</span>
+                <span className="text-nowrap text-sm leading-4">{name}</span>
               </div>
             </div>
           </div>
@@ -94,14 +82,14 @@ export default function MaterialLayerNode(props: ListChildComponentProps<{ nodes
           <div
             className={twMerge(
               'flex w-full cursor-pointer items-center justify-start bg-ui-background pl-9 pr-6 text-text-secondary hover:bg-ui-hover-background hover:text-text-primary',
-              materialSelection.value === node ? 'text-text-primary' : '',
-              materialSelection.value === node ? 'rounded border border-ui-select-primary' : 'border-none'
+              materialSelection.value === name ? 'text-text-primary' : '',
+              materialSelection.value === name ? 'rounded border border-ui-select-primary' : 'border-none'
             )}
           >
             <MaterialsLg className="text-base" />
             <div className="flex items-center">
               <div className="ml-2 min-w-0 text-nowrap rounded bg-transparent px-0.5 py-0">
-                <span className="text-nowrap text-sm leading-4">{getNodeDisplayName(node)}</span>
+                <span className="text-nowrap text-sm leading-4">{name}</span>
               </div>
             </div>
           </div>

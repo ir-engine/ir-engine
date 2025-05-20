@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -30,7 +30,7 @@ import {
   createEntity,
   Entity,
   entityExists,
-  generateEntityUUID,
+  getComponent,
   removeEntity,
   setComponent,
   UndefinedEntity,
@@ -191,7 +191,10 @@ export function useGLTFComponent(url: string, parentEntity: Entity): Entity | nu
     if (!url || !parentEntity) return
     const gltfEntity = createEntity()
     setComponent(gltfEntity, EntityTreeComponent, { parentEntity })
-    setComponent(gltfEntity, UUIDComponent, generateEntityUUID())
+    setComponent(gltfEntity, UUIDComponent, {
+      entitySourceID: getComponent(parentEntity, UUIDComponent).entitySourceID,
+      entityID: UUIDComponent.generate()
+    })
     setComponent(gltfEntity, GLTFComponent, { src: url })
     gltfEntityState.set(gltfEntity)
 

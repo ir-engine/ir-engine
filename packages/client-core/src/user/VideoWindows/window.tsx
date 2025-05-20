@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -32,6 +32,7 @@ import React, { useEffect, useRef } from 'react'
 
 import { useClickOutside, useTouchOutside } from '@ir-engine/common/src/utils/useClickOutside'
 import { useTranslation } from 'react-i18next'
+import { twMerge } from 'tailwind-merge'
 import { ReportUserState } from '../../util/ReportUserState'
 import { Props, useUserMediaWindowHook } from './hook'
 
@@ -87,9 +88,10 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
       <div
         tabIndex={0}
         id={peerID + '_' + type + '_container'}
-        className={`pointer-events-auto relative h-[80px] w-[80px] overflow-hidden rounded-[90px] lg:h-[131px] lg:w-[131px] ${
-          (!videoMediaStream || videoStreamPaused) && 'hidden lg:block'
-        }`}
+        className={twMerge(
+          'pointer-events-auto relative h-[80px] w-[80px] overflow-hidden rounded-[90px] lg:h-[120px] lg:w-[120px]',
+          `${(!videoMediaStream || videoStreamPaused) && 'hidden lg:block'}`
+        )}
         data-testid="video-window"
         onClick={() => {
           if (isScreen && isPiP) togglePiP()

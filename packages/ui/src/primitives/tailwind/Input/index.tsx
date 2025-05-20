@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -139,7 +139,8 @@ const Input = (
 
         <div
           className={twMerge(
-            'flex w-full items-center gap-x-2 rounded-md border-[0.5px] border-ui-outline bg-ui-background text-xs placeholder-text-tertiary transition-colors duration-300',
+            'flex w-full items-center gap-x-2 rounded-md border-[0.5px] border-ui-outline',
+            'text-xs placeholder-text-tertiary transition-colors duration-300 dark:bg-ui-background',
             heights[height],
             disabled
               ? 'border-ui-inactive-outline bg-ui-inactive-background text-text-inactive'
@@ -150,7 +151,11 @@ const Input = (
         >
           <input
             spellCheck={false}
-            className="peer order-2 h-full w-full bg-inherit outline-none autofill:bg-inherit"
+            className={twMerge(
+              'placeholder-text-[#616161] dark:placeholder-text-text-tertiary',
+              'text-[#616161] dark:text-text-tertiary',
+              'peer order-2 h-full w-full bg-inherit pt-0.5 outline-none autofill:bg-inherit'
+            )}
             ref={ref}
             id={inputId}
             disabled={disabled}

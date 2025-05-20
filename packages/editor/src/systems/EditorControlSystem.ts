@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -46,7 +46,7 @@ import {
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+
 import { dispatchAction, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { FlyControlComponent } from '@ir-engine/spatial/src/camera/components/FlyControlComponent'
@@ -70,26 +70,31 @@ import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
+import { AuthoringActions, AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState.tsx'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { InputButtonBindings } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { KeyboardButton } from '@ir-engine/spatial/src/input/state/ButtonState'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem.tsx'
-import { computeWorldBounds } from '@ir-engine/spatial/src/transform/functions/BoundingBoxFunctions.ts'
-import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent.ts'
-import { isEntityGlb } from '../functions/utils.ts'
-import { SelectionBoxState } from '../panels/viewport/tools/SelectionBoxTool.tsx'
-import { EditorHistoryActions, EditorHistoryFunctions, EditorHistoryState } from '../services/EditorHistoryState'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
+import { computeWorldBounds } from '@ir-engine/spatial/src/transform/functions/BoundingBoxFunctions'
+import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
+import { isEntityGlb } from '../functions/utils'
+import { SelectionBoxState } from '../panels/viewport/tools/SelectionBoxTool'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { ClickPlacementState } from './ClickPlacementSystem'
 import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 
 export const EditorButtonBindings = {
-  Undo: [[KeyboardButton.ControlLeft, KeyboardButton.KeyZ]],
+  Undo: [[usesCtrlKey() ? KeyboardButton.ControlLeft : KeyboardButton.MetaLeft, KeyboardButton.KeyZ]],
   Redo: [
-    [KeyboardButton.ControlLeft, KeyboardButton.ShiftLeft, KeyboardButton.KeyZ],
-    [KeyboardButton.ControlLeft, KeyboardButton.KeyY]
+    /** @todo this is bugged */
+    // [
+    //   usesCtrlKey() ? KeyboardButton.ControlLeft : KeyboardButton.MetaLeft,
+    //   KeyboardButton.ShiftLeft,
+    //   KeyboardButton.KeyZ
+    // ],
+    [usesCtrlKey() ? KeyboardButton.ControlLeft : KeyboardButton.MetaLeft, KeyboardButton.KeyY]
   ],
   ObjectGridSnap: [KeyboardButton.KeyB],
   TransformModeTranslate: [KeyboardButton.KeyW],
@@ -157,15 +162,13 @@ const onToggleTransformSpace = () => {
 const onUndo = () => {
   const rootEntity = getState(EditorState).rootEntity
   if (!rootEntity) return
-  const sourceID = GLTFComponent.getInstanceID(rootEntity)
-  if (EditorHistoryState.canUndo(sourceID)) dispatchAction(EditorHistoryActions.undo({ sourceID }))
+  if (AuthoringState.canUndo()) dispatchAction(AuthoringActions.undo({}))
 }
 
 const onRedo = () => {
   const rootEntity = getState(EditorState).rootEntity
   if (!rootEntity) return
-  const sourceID = GLTFComponent.getInstanceID(rootEntity)
-  if (EditorHistoryState.canRedo(sourceID)) dispatchAction(EditorHistoryActions.redo({ sourceID }))
+  if (AuthoringState.canRedo()) dispatchAction(AuthoringActions.redo({}))
 }
 
 const onIncreaseGridHeight = () => {
@@ -179,8 +182,9 @@ const onDecreaseGridHeight = () => {
 }
 
 const onDeleteSelection = () => {
-  EditorControlFunctions.removeObject(SelectionState.getSelectedEntities())
-  EditorHistoryFunctions.snapshot()
+  const entities = SelectionState.getSelectedEntities()
+  EditorControlFunctions.removeObject(entities)
+  AuthoringState.snapshotEntities(entities)
 }
 
 let lastDistanceToCenter = 10
@@ -355,7 +359,10 @@ const execute = () => {
       let selectedParentEntity = getAncestorWithComponents(closestIntersection.entity, [GLTFComponent])
       // If selectedParentEntity has a parent in a different GLTF document use that as top most parent
       const parent = getOptionalComponent(selectedParentEntity, EntityTreeComponent)?.parentEntity
-      if (parent && GLTFComponent.getInstanceID(parent) !== getComponent(selectedParentEntity, SourceComponent)) {
+      if (
+        parent &&
+        UUIDComponent.getAsSourceID(parent) !== getComponent(selectedParentEntity, UUIDComponent).entitySourceID
+      ) {
         selectedParentEntity = parent
       }
 
@@ -384,11 +391,7 @@ const execute = () => {
 
   if (buttons.PrimaryClick?.up && !buttons.PrimaryClick?.dragging) {
     const editorHelperState = getState(EditorHelperState)
-    if (
-      hasComponent(clickStartEntity, SourceComponent) &&
-      !getState(ClickPlacementState).placementEntity &&
-      editorHelperState.gizmoEnabled
-    ) {
+    if (!getState(ClickPlacementState).placementEntity && editorHelperState.gizmoEnabled) {
       const selectedEntities = SelectionState.getSelectedEntities()
       const clickParentEntity = getAncestorWithComponents(clickStartEntity, [GLTFComponent])
 
@@ -422,14 +425,12 @@ const updateSelection = (clickedEntity: Entity, control: boolean, shift: boolean
   if (control) {
     if (selectedEntities.includes(clickedEntity)) {
       SelectionState.updateSelection(
-        selectedEntities
-          .filter((entity) => entity !== clickedEntity)
-          .map((entity) => getComponent(entity, UUIDComponent))
+        selectedEntities.filter((entity) => entity !== clickedEntity).map((entity) => UUIDComponent.get(entity))
       )
     } else {
       SelectionState.updateSelection([
-        ...selectedEntities.map((entity) => getComponent(entity, UUIDComponent)),
-        getComponent(clickedEntity, UUIDComponent)
+        ...selectedEntities.map((entity) => UUIDComponent.get(entity)),
+        UUIDComponent.get(clickedEntity)
       ])
     }
   }
@@ -454,7 +455,8 @@ const updateSelection = (clickedEntity: Entity, control: boolean, shift: boolean
   //   }
   // }
   else {
-    SelectionState.updateSelection([getComponent(clickedEntity, UUIDComponent)])
+    if (!clickedEntity || !hasComponent(clickedEntity, UUIDComponent)) return
+    SelectionState.updateSelection([UUIDComponent.get(clickedEntity)])
   }
 }
 

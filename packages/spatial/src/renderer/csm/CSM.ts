@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -38,10 +38,10 @@ import {
   Vector3
 } from 'three'
 
-import { createEntity, removeEntity } from '@ir-engine/ecs'
+import { createEntity, removeEntity, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import { Entity, EntityID, SourceID } from '@ir-engine/ecs/src/Entity'
 
 import { EntityTreeComponent } from '@ir-engine/ecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
@@ -181,6 +181,10 @@ export class CSM {
     light.intensity = this.lightIntensity
 
     const entity = createEntity()
+    setComponent(entity, UUIDComponent, {
+      entitySourceID: 'csm' as SourceID,
+      entityID: ('light-' + i) as EntityID
+    })
     setComponent(entity, NameComponent, 'CSM light ' + i)
     setComponent(entity, VisibleComponent)
     setComponent(entity, TransformComponent)

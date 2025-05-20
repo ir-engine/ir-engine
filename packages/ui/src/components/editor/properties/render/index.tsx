@@ -19,18 +19,16 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useQuery } from '@ir-engine/ecs'
-import { getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import { EntityID, useQuery, UUIDComponent } from '@ir-engine/ecs'
+import { getComponent, Layers, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { commitProperty, EditorComponentType, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { NodeFunctions } from '@ir-engine/engine/src/gltf/NodeFunctions'
-import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { RenderSettingsComponent } from '@ir-engine/engine/src/scene/components/RenderSettingsComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+
 import { DirectionalLightComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Checkbox } from '@ir-engine/ui'
@@ -108,27 +106,32 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
   const { entity } = props
   const rendererSettingsState = useComponent(entity, RenderSettingsComponent)
 
-  const query = useQuery([DirectionalLightComponent, SourceComponent])
+  const query = useQuery([DirectionalLightComponent], Layers.Authoring)
 
   const directionalLightOptions = [
     {
       label: 'None',
-      value: '' as NodeID
+      value: '' as EntityID
     }
   ].concat(
     query.map((entity) => {
       return {
         label: getComponent(entity, NameComponent),
-        value: getComponent(entity, NodeIDComponent)
+        value: getComponent(entity, UUIDComponent).entityID
       }
     })
   )
 
   useEffect(() => {
-    if (!NodeFunctions.getEntityFromNodeID(entity, rendererSettingsState.primaryLight.value)) {
+    console.log(
+      entity,
+      rendererSettingsState.primaryLight.value,
+      UUIDComponent.getEntityFromSameSourceByID(entity, rendererSettingsState.primaryLight.value)
+    )
+    if (!UUIDComponent.getEntityFromSameSourceByID(entity, rendererSettingsState.primaryLight.value)) {
       setComponent(entity, RenderSettingsComponent, {
         csm: false,
-        primaryLight: '' as NodeID
+        primaryLight: '' as EntityID
       })
     }
   }, [rendererSettingsState.primaryLight])

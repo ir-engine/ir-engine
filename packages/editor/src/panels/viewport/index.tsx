@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -27,15 +27,19 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
 import { useFind } from '@ir-engine/common'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { clientSettingPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
+import { engineSettingPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
 import { cleanFileNameFile } from '@ir-engine/common/src/utils/cleanFileName'
 import { useComponent, useQuery } from '@ir-engine/ecs'
+import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ResourcePendingComponent } from '@ir-engine/engine/src/gltf/ResourcePendingComponent'
-import { ErrorBoundary, useMutableState } from '@ir-engine/hyperflux'
+import { ErrorBoundary, getState, useMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
+import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
+import { DotsVerticalMd } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { TabData } from 'rc-dock'
@@ -47,8 +51,7 @@ import { Vector2, Vector3 } from 'three'
 import { DnDFileType, FileDataType, ItemTypes, SceneElementType, SupportedFileTypes } from '../../constants/AssetTypes'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { addMediaNode } from '../../functions/addMediaNode'
-import { getCursorSpawnPosition } from '../../functions/screenSpaceFunctions'
-import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
+import { getCursorPositionNormalized, getScreenSpacePosition } from '../../functions/screenSpaceFunctions'
 import { EditorState } from '../../services/EditorServices'
 import CameraGizmoTool from './tools/CameraGizmoTool'
 import GridTool from './tools/GridTool'
@@ -61,6 +64,20 @@ import TransformPivotTool from './tools/TransformPivotTool'
 import TransformSnapTool from './tools/TransformSnapTool'
 import TransformSpaceTool from './tools/TransformSpaceTool'
 
+const useIntersectionObserver = (ref, handleIntersection, handleObserve, options = {}) => {
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(handleIntersection, {
+      root: ref.current,
+      threshold: 1,
+      ...options
+    })
+
+    handleObserve(observer)
+
+    return () => observer.disconnect()
+  }, [ref.current, options])
+}
+
 const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
   const projectName = useMutableState(EditorState).projectName
 
@@ -71,15 +88,22 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
     }),
     drop(item: SceneElementType | FileDataType | DnDFileType, monitor) {
       const vec3 = new Vector3()
-      getCursorSpawnPosition(monitor.getClientOffset() as Vector2, vec3)
+      const screenPosition = getCursorPositionNormalized(new Vector2().copy(monitor.getClientOffset() as Vector2))
+      getScreenSpacePosition(screenPosition, vec3)
       if ('componentJsonID' in item) {
         EditorControlFunctions.createObjectFromSceneElement([
           { name: item.componentJsonID },
           { name: TransformComponent.jsonID, props: { position: vec3 } }
         ])
-        EditorHistoryFunctions.snapshot()
+        AuthoringState.snapshotEntities([getState(EditorState).rootEntity])
       } else if ('url' in item) {
-        addMediaNode(item.url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+        addMediaNode(
+          item.url,
+          undefined,
+          undefined,
+          [{ name: TransformComponent.jsonID, props: { position: vec3 } }],
+          screenPosition
+        )
       } else if ('files' in item) {
         const dropDataTransfer: DataTransfer = monitor.getItem()
 
@@ -104,7 +128,13 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
           const vec3 = new Vector3()
           urls.forEach((url) => {
             if (!url || url.length < 1 || !url[0] || url[0] === '') return
-            addMediaNode(url[0], undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+            addMediaNode(
+              url[0],
+              undefined,
+              undefined,
+              [{ name: TransformComponent.jsonID, props: { position: vec3 } }],
+              screenPosition
+            )
           })
         })
       }
@@ -112,10 +142,7 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
   })
 
   return (
-    <div
-      ref={dropRef}
-      className={twMerge('h-full w-full border border-white', isDragging ? 'border-4' : 'border-none')}
-    >
+    <div ref={dropRef} className={twMerge('h-full w-full border border-white', 'border-none')}>
       {children}
     </div>
   )
@@ -139,30 +166,129 @@ const SceneLoadingProgress = ({ rootEntity }) => {
   )
 }
 
-function ViewportContainer() {
+export function ViewportContainer() {
   const { sceneName, rootEntity, canvasRef } = useMutableState(EditorState)
 
   const { t } = useTranslation()
-  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSettingQuery = useFind(engineSettingPath, {
+    query: {
+      category: 'client',
+      key: EngineSettings.Client.AppTitle,
+      paginate: false
+    }
+  })
+
   const clientSettings = clientSettingQuery.data[0]
 
   const ref = React.useRef<HTMLDivElement>(null)
   const toolbarRef = React.useRef<HTMLDivElement>(null)
+  const itemsRef = React.useRef<HTMLDivElement>(null)
 
   const [transformPivotFeatureFlag] = useFeatureFlags([FeatureFlags.Studio.UI.TransformPivot])
+
+  const items = [
+    <TransformSpaceTool />,
+    transformPivotFeatureFlag && <TransformPivotTool />,
+    <GridTool />,
+    <TransformSnapTool />,
+    <SceneHelpersTool />,
+    <div className="flex-1" />,
+    <RenderModeTool />,
+    <PlayModeTool />
+  ]
+
+  const initialVisibleBarItems: boolean[] = items.map((element, index) => {
+    return true
+  })
+  const [visibleBarItems, setVisibleBarItems] = React.useState(initialVisibleBarItems)
+  const visibleMenuItems = React.useMemo(() => {
+    return items.map((element, index) => {
+      return !visibleBarItems[index]
+    })
+  }, [visibleBarItems])
+
+  const getItemsWithVisibility = (visibleItems, key) => {
+    return items.map((element, index) => {
+      const visible = visibleItems[index]
+
+      return (
+        <div
+          key={key + index}
+          className={twMerge(visible ? 'visible' : 'collapse', 'inline-flex')}
+          data-targetId={index}
+        >
+          {element}
+        </div>
+      )
+    })
+  }
+
+  const getItemsWithRender = (visibleItems, key) => {
+    return items
+      .map((element, index) => {
+        return (
+          <div key={key + index} data-targetId={index}>
+            {element}
+          </div>
+        )
+      })
+      .filter((element, index) => visibleItems[index])
+  }
+
+  const barItems = getItemsWithVisibility(visibleBarItems, 'bar')
+  const menuItems = getItemsWithRender(visibleMenuItems, 'menu')
+
+  const handleIntersection = (entries) => {
+    entries.map(({ target, isIntersecting }) => {
+      const targetid = target.dataset.targetid
+
+      setVisibleBarItems((current) => {
+        const next = [...current]
+
+        next[targetid] = isIntersecting
+
+        return next
+      })
+    })
+  }
+
+  const handleObserve = (observer) => {
+    if (!itemsRef.current) {
+      return
+    }
+
+    Array.from(itemsRef.current.children).map((element) => {
+      observer.observe(element)
+    })
+  }
+
+  useIntersectionObserver(itemsRef, handleIntersection, handleObserve, {
+    threshold: 0.8
+  })
 
   return (
     <ViewportDnD>
       <div className="relative z-30 flex h-full w-full flex-col">
-        <div ref={toolbarRef} className="z-10 flex gap-1 bg-surface-4 px-1 py-0.5">
-          <TransformSpaceTool />
-          {transformPivotFeatureFlag && <TransformPivotTool />}
-          <GridTool />
-          <TransformSnapTool />
-          <SceneHelpersTool />
-          <div className="flex-1" />
-          <RenderModeTool />
-          <PlayModeTool />
+        <div ref={toolbarRef} className="relative z-20 bg-surface-4 px-1 py-1 pr-7">
+          <div ref={itemsRef} className="flex gap-1">
+            {barItems}
+          </div>
+          {!!menuItems.length && (
+            <div className="absolute bottom-0 right-0 top-0 inline-grid">
+              <Popup
+                keepInside
+                trigger={
+                  <button className="relative flex h-full items-center border-none bg-surface-4 px-2 text-text-secondary outline-none">
+                    <div className="">
+                      <DotsVerticalMd />
+                    </div>
+                  </button>
+                }
+              >
+                <div className="inline-grid items-start gap-y-2 rounded-xl bg-surface-2 px-4 py-5">{menuItems}</div>
+              </Popup>
+            </div>
+          )}
         </div>
         {sceneName.value ? <SelectionBox viewportRef={ref} toolbarRef={toolbarRef} /> : null}
         {sceneName.value ? <TransformGizmoTool /> : null}
@@ -170,14 +296,16 @@ function ViewportContainer() {
         <div
           id="engine-renderer-canvas-container"
           ref={(ref) => canvasRef.set({ current: ref })}
-          className="absolute h-full w-full"
+          className="absolute z-10 h-full w-full"
         />
         {sceneName.value ? (
           <>{rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}</>
         ) : (
-          <div className="flex h-full w-full flex-col justify-center gap-2">
-            <img src={clientSettings?.appTitle} className="block scale-[.8]" />
-            <Text className="text-center">{t('editor:selectSceneMsg')}</Text>
+          <div className="relative z-20 flex h-full w-full justify-center">
+            <div className="flex max-w-[40rem] flex-col justify-center gap-5 px-6">
+              <img src={clientSettings?.value} className="block" />
+              <Text className="text-center dark:text-[#A3A3A3]">{t('editor:selectSceneMsg')}</Text>
+            </div>
           </div>
         )}
       </div>

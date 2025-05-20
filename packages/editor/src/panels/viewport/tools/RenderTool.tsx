@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -74,10 +74,13 @@ const RenderModeTool = () => {
   }
 
   return (
-    <div className="flex h-full items-center gap-1 rounded bg-surface-1">
+    <div className="flex h-full items-center rounded">
       {renderModes.map((mode) => (
         <Tooltip key={mode.name} content={mode.name} position="bottom">
-          <button onClick={() => rendererState.renderMode.set(mode.name)} className="px-3.5 py-1.5">
+          <button
+            onClick={() => rendererState.renderMode.set(mode.name)}
+            className="rounded-lg bg-ui-secondary px-2 px-3.5 py-1.5"
+          >
             {mode.icon}
           </button>
         </Tooltip>
@@ -85,7 +88,7 @@ const RenderModeTool = () => {
       <Popup
         keepInside
         trigger={
-          <button className="p-2 text-[#9CA0AA]">
+          <button className="rounded-lg bg-ui-secondary px-2 px-3.5 py-1.5 text-[#9CA0AA]">
             <ChevronDownMd />
           </button>
         }

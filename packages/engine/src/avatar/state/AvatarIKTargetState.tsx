@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -47,7 +47,9 @@ export const AvatarIKTargetState = defineState({
 
   receptors: {
     onSpawn: AvatarNetworkAction.spawnIKTarget.receive((action) => {
-      getMutableState(AvatarIKTargetState)[action.entityUUID].merge({ name: action.name })
+      getMutableState(AvatarIKTargetState)[
+        UUIDComponent.join({ entitySourceID: action.entitySourceID!, entityID: action.entityID })
+      ].merge({ name: action.name })
     }),
     onDestroyObject: WorldNetworkAction.destroyEntity.receive((action) => {
       getMutableState(AvatarIKTargetState)[action.entityUUID].set(none)

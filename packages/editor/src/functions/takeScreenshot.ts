@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -28,18 +28,11 @@ import { PerspectiveCamera, Vector2 } from 'three'
 import { getCanvasBlob } from '@ir-engine/client-core/src/common/utils'
 import { Entity } from '@ir-engine/ecs'
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
-import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import {
-  getNestedVisibleChildren,
-  getSceneParameters,
-  RendererComponent
-} from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
-import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
+import { getNestedVisibleChildren, getSceneParameters } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
@@ -53,10 +46,6 @@ function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: numb
   if (ctx) ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, width, height)
   return tmpCanvas
 }
-
-const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraComponent, SourceComponent])
-
-const ktx2Encoder = new KTX2Encoder()
 
 /**
  * Function takeScreenshot used for taking screenshots.

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -35,7 +35,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import Toolbar from '../components/toolbar/Toolbar'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
-import { EditorState } from '../services/EditorServices'
+import { EditorState, activeLowerPanel } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
@@ -47,6 +47,7 @@ import { LocationState } from '@ir-engine/client-core/src/social/services/Locati
 import { API } from '@ir-engine/common'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { EngineState, EntityUUID, getComponent } from '@ir-engine/ecs'
+import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { useSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
@@ -58,15 +59,17 @@ import { IoHelpCircleOutline } from 'react-icons/io5'
 import { onSaveScene, setCurrentEditorScene } from '../functions/sceneFunctions'
 import { AssetsPanelTab } from '../panels/assets'
 import { AssetsQueryProvider } from '../panels/assets/hooks'
+import { CurrentFilesQueryProvider } from '../panels/files/helpers'
 import { HierarchyPanelTab } from '../panels/hierarchy'
+import { InspectorPanelTab } from '../panels/inspector'
 import { MaterialsPanelTab } from '../panels/materials'
 import { PropertiesPanelTab } from '../panels/properties'
 import { ScenePanelTab } from '../panels/scenes'
 import { ViewportPanelTab } from '../panels/viewport'
 import { VisualScriptPanelTab } from '../panels/visualscript'
-import { EditorHistoryState } from '../services/EditorHistoryState'
 import { EditorWarningState } from '../services/EditorWarningServices'
 import { UIAddonsState } from '../services/UIAddonsState'
+import { ClickPlacementState } from '../systems/ClickPlacementSystem'
 import './EditorContainer.css'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
@@ -105,9 +108,13 @@ const onEditorError = (error) => {
   )
 }
 
-const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData => {
+const defaultLayout = (flags: {
+  visualScriptPanelEnabled: boolean
+  activeLowerPanel: activeLowerPanel
+}): LayoutData => {
   const tabs = [AssetsPanelTab]
   flags.visualScriptPanelEnabled && tabs.push(VisualScriptPanelTab)
+  const activeLowerPane = flags.activeLowerPanel
 
   return {
     dockbox: {
@@ -133,7 +140,8 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
               tabs: [HierarchyPanelTab, ScenePanelTab, MaterialsPanelTab]
             },
             {
-              tabs: [PropertiesPanelTab]
+              tabs: [PropertiesPanelTab, InspectorPanelTab],
+              activeId: activeLowerPane
             }
           ]
         }
@@ -143,8 +151,9 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
 }
 
 const EditorContainer = () => {
-  const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, rootEntity, canvasRef } =
+  const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, rootEntity, canvasRef, activeLowerPanel } =
     useMutableState(EditorState)
+  const { metadata } = useHookstate(getMutableState(ClickPlacementState)).value
   const editorUIAddon = useMutableState(UIAddonsState).editor
   const currentLoadedSceneURL = useHookstate(null as string | null)
 
@@ -192,7 +201,7 @@ const EditorContainer = () => {
   useSpatialEngine()
 
   /** Call get state since it needs to be created */
-  getState(EditorHistoryState)
+  getState(AuthoringState)
 
   const engineState = useHookstate(getMutableState(EngineState))
 
@@ -256,44 +265,62 @@ const EditorContainer = () => {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [])
 
+  useEffect(() => {
+    // on click palcement select and if inspector switch is true, activate inspector panel
+    const dock = dockPanelRef.current
+    const shouldActivateInspector = activeLowerPanel.value === 'inspector'
+
+    if (dock && shouldActivateInspector) {
+      const inspectorTab = dock.find('inspectorPanel')
+      if (inspectorTab && 'id' in inspectorTab && inspectorTab.parent && 'tabs' in inspectorTab.parent) {
+        dock.dockMove(inspectorTab as any, 'inspectorPanel', inspectorTab.parent as any)
+      }
+    }
+  }, [metadata.name, activeLowerPanel.value])
+
   return (
     <main className="pointer-events-auto">
-      <AssetsQueryProvider>
-        <div
-          id="editor-container"
-          className="flex flex-col"
-          style={scenePath.value ? { background: 'transparent' } : {}}
-        >
-          {uiEnabled.value && typeof visualScriptPanelEnabled !== 'undefined' && (
-            <DndWrapper id="editor-container">
-              <DragLayer />
-              <Toolbar />
-              <div className="mt-1 flex overflow-hidden">
-                <DockContainer>
-                  <DockLayout
-                    ref={dockPanelRef}
-                    defaultLayout={defaultLayout({ visualScriptPanelEnabled })}
-                    style={{ position: 'absolute', left: 5, top: 50, right: 5, bottom: 5 }}
-                  />
-                </DockContainer>
-              </div>
-            </DndWrapper>
-          )}
-          {Object.entries(editorUIAddon.container.get(NO_PROXY)).map(([key, value]) => {
-            return value
-          })}
-        </div>
-        <PopupMenu />
-        {!isWidgetVisible && initialized && (
-          <div className="absolute bottom-3 right-4">
-            <Tooltip position="left" key={t('editor:help')} content={t('editor:help')}>
-              <Button size="sm" className="h-8 w-8 p-0" onClick={openChat}>
-                <IoHelpCircleOutline fontSize={24} />
-              </Button>
-            </Tooltip>
+      <CurrentFilesQueryProvider>
+        <AssetsQueryProvider>
+          <div
+            id="editor-container"
+            className="flex flex-col"
+            style={scenePath.value ? { background: 'transparent' } : {}}
+          >
+            {uiEnabled.value && typeof visualScriptPanelEnabled !== 'undefined' && (
+              <DndWrapper id="editor-container">
+                <DragLayer />
+                <Toolbar />
+                <div className="mt-1 flex overflow-hidden">
+                  <DockContainer>
+                    <DockLayout
+                      ref={dockPanelRef}
+                      defaultLayout={defaultLayout({
+                        visualScriptPanelEnabled,
+                        activeLowerPanel: activeLowerPanel.value
+                      })}
+                      style={{ position: 'absolute', left: 5, top: 50, right: 5, bottom: 5 }}
+                    />
+                  </DockContainer>
+                </div>
+              </DndWrapper>
+            )}
+            {Object.entries(editorUIAddon.container.get(NO_PROXY)).map(([key, value]) => {
+              return value
+            })}
           </div>
-        )}
-      </AssetsQueryProvider>
+          <PopupMenu />
+          {!isWidgetVisible && initialized && (
+            <div className="absolute bottom-3 right-4">
+              <Tooltip position="left" key={t('editor:help')} content={t('editor:help')}>
+                <Button size="sm" className="h-8 w-8 p-0" onClick={openChat}>
+                  <IoHelpCircleOutline fontSize={24} />
+                </Button>
+              </Tooltip>
+            </div>
+          )}
+        </AssetsQueryProvider>
+      </CurrentFilesQueryProvider>
     </main>
   )
 }

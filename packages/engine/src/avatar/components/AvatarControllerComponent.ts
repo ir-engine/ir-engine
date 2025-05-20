@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -62,13 +62,13 @@ export const AvatarControllerComponent = defineComponent({
     /** The camera entity that should be updated by this controller */
     cameraEntity: S.Entity(),
     movementCaptured: S.Array(S.Entity()),
-    isJumping: S.Bool(false),
-    isWalking: S.Bool(false),
-    isInAir: S.Bool(false),
+    isJumping: S.Bool(),
+    isWalking: S.Bool(),
+    isInAir: S.Bool(),
     /** velocity along the Y axis */
-    verticalVelocity: S.Number(0),
+    verticalVelocity: S.Number(),
     /** Is the gamepad-driven jump active */
-    gamepadJumpActive: S.Bool(false),
+    gamepadJumpActive: S.Bool(),
     /** gamepad-driven input, in the local XZ plane */
     gamepadLocalInput: T.Vec3(),
     /** gamepad-driven movement, in the world XZ plane */

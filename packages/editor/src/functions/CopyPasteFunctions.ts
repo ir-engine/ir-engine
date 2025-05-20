@@ -19,14 +19,13 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityTreeComponent, getAllComponents, getComponent, serializeComponent } from '@ir-engine/ecs'
+import { EntityTreeComponent, getAllComponents, getComponent, serializeComponent, UUIDComponent } from '@ir-engine/ecs'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { EditorState } from '../services/EditorServices'
@@ -45,8 +44,8 @@ export const CopyPasteFunctions = {
     entities
       .map((entity) => {
         const rootEntity = getState(EditorState).rootEntity
-        const sourceId = getComponent(entity, SourceComponent)
-        if (sourceId !== GLTFComponent.getInstanceID(rootEntity)) {
+        const sourceId = getComponent(entity, UUIDComponent).entitySourceID
+        if (sourceId !== GLTFComponent.getSourceID(rootEntity)) {
           return
         }
         const name = getComponent(entity, NameComponent)

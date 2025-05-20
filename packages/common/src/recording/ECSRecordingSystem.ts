@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -36,15 +36,7 @@ import {
   userPath
 } from '@ir-engine/common/src/schema.type.module'
 import { checkScope } from '@ir-engine/common/src/utils/checkScope'
-import {
-  defineSystem,
-  ECSState,
-  Engine,
-  EntityUUID,
-  getComponent,
-  PresentationSystemGroup,
-  UUIDComponent
-} from '@ir-engine/ecs'
+import { defineSystem, ECSState, Engine, EntityUUID, PresentationSystemGroup, UUIDComponent } from '@ir-engine/ecs'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import {
   defineAction,
@@ -84,6 +76,7 @@ import { PhysicsSerialization } from '@ir-engine/spatial/src/physics/PhysicsSeri
 
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { mocapDataChannelType } from '@ir-engine/engine/src/mocap/MotionCaptureSystem'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 
 export class ECSRecordingActions {
   static startRecording = defineAction({
@@ -652,11 +645,12 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
                 .then((userAvatars) => {
                   dispatchAction(
                     AvatarNetworkAction.spawn({
-                      parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+                      parentUUID: UUIDComponent.get(getState(ReferenceSpaceState).originEntity),
                       ownerID: entityID,
-                      entityUUID: (entityID + '_avatar') as EntityUUID,
                       avatarURL: userAvatars.data[0].avatar.modelResource!.url!,
-                      name: user.name + "'s Clone"
+                      name: user.name + "'s Clone",
+                      entityID: AvatarComponent.entityID,
+                      entitySourceID: entityID
                     })
                   )
                   entitiesSpawned.push(entityID)

@@ -19,21 +19,21 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { Suspense, useEffect } from 'react'
 
-import { hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { hasComponent, removeComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorPropType } from '@ir-engine/editor/src/components/properties/Util'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import ComponentDropdown, { ComponentDropdownProps } from '@ir-engine/ui/src/components/editor/ComponentDropdown'
 import { ComponentDropdownState } from '@ir-engine/ui/src/components/editor/ComponentDropdown/ComponentDropdownState'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
-import { EditorHistoryFunctions } from '../../../services/EditorHistoryState'
 
 interface INodeErrorProps {
   name?: string
@@ -73,6 +73,41 @@ class NodeEditorErrorBoundary extends React.Component<INodeErrorProps, INodeErro
   }
 }
 
+const documentationMap = {
+  GLTFComponent: 'ModelComponent',
+  RigidBodyComponent: 'RigidbodyComponent',
+  TriggerCallbackComponent: 'TriggerComponent'
+}
+
+const documentationList = [
+  'ModelComponent',
+  'AudioComponent',
+  'VideoComponent',
+  'ImageComponent',
+  'PrimitiveGeometryComponent',
+  'GroundPlaneComponent',
+  'VariantComponent',
+  'ColliderComponent',
+  'RigidbodyComponent',
+  'TriggerComponent',
+  'SpawnPointComponent',
+  'LinkComponent',
+  'MountPointComponent',
+  'InterableComponent',
+  'InputComponent',
+  'ScreenshareTargetComponent',
+  'AmbientLightComponent',
+  'PointLightComponent',
+  'SpotLightComponent',
+  'DirectionalLightComponent',
+  'HemisphereLightComponent',
+  'LoopAnimationComponent',
+  'ShadowComponent',
+  'ParticleSystemComponent',
+  'EnvMapComponent',
+  'PostprocessingComponent'
+]
+
 const NodeEditor = ({
   description,
   children,
@@ -98,18 +133,28 @@ const NodeEditor = ({
     }
   }, [])
 
+  const _type = component?.name || ''
+  const componentType = documentationMap[_type] || _type
+  const hasDocs = componentType && documentationList.includes(componentType)
+  const slug = hasDocs
+    ? componentType
+        .replace(/([A-Z])/g, '-$1')
+        .toLowerCase()
+        .replace(/^-/, '')
+    : ''
+
   return (
     <ComponentDropdown
       name={name}
       description={description}
+      slug={slug}
       Icon={Icon}
       onClose={
         component && hasComponent(entity, component)
           ? () => {
               const entities = SelectionState.getSelectedEntities()
-              //remove the component from the entities
-
-              EditorHistoryFunctions.removeComponent(entities, component)
+              for (const entity of entities) removeComponent(entity, component)
+              AuthoringState.snapshotEntities(entities)
             }
           : undefined
       }

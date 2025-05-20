@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -45,7 +45,7 @@ Quaternion.prototype.toJSON = function () {
   return { x: this._x, y: this._y, z: this._z, w: this._w }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-loss-of-precision
+// eslint-disable-next-line
 const opmu = 1.90110745351730037
 const u = new Float32Array(8)
 const v = new Float32Array(8)

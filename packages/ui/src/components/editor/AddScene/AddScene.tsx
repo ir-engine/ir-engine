@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -166,7 +166,7 @@ export const AddScene = ({ projectName }: AddNewSceneProps) => {
   }
 
   return (
-    <div className="absolute z-50 w-fit max-w-5xl rounded-xl border-2 border-surface-outline-1-1 bg-surface-2">
+    <div className="absolute z-50 w-fit max-w-5xl rounded-xl border-2 border-surface-outline-1-1 bg-white dark:bg-surface-1">
       <div className="flex flex-col items-center px-6">
         <h1
           className="w-full border-b border-surface-outline-4-1 py-5 text-center text-2xl font-semibold leading-[1.3rem] text-text-primary"

@@ -19,11 +19,11 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, EntityUUID, UUIDComponent, getOptionalComponent } from '@ir-engine/ecs'
+import { Entity, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { defineState, getMutableState, none } from '@ir-engine/hyperflux'
 
 export const TransformUniformScaleState = defineState({
@@ -33,7 +33,7 @@ export const TransformUniformScaleState = defineState({
   }),
 
   getEntityState: (entity: Entity): boolean => {
-    const entityUUID = getOptionalComponent(entity, UUIDComponent)
+    const entityUUID = UUIDComponent.get(entity)
     if (entityUUID) {
       const componentStates = getMutableState(TransformUniformScaleState).uniformScaleState
       return componentStates.value[entityUUID] ?? false
@@ -43,7 +43,7 @@ export const TransformUniformScaleState = defineState({
   },
 
   addOrUpdateEntity: (entity: Entity) => {
-    const entityUUID = getOptionalComponent(entity, UUIDComponent)
+    const entityUUID = UUIDComponent.get(entity)
     if (!entityUUID) return
 
     const componentStates = getMutableState(TransformUniformScaleState).uniformScaleState
@@ -54,7 +54,7 @@ export const TransformUniformScaleState = defineState({
   },
 
   removeEntry: (entity: Entity) => {
-    const entityUUID = getOptionalComponent(entity, UUIDComponent)
+    const entityUUID = UUIDComponent.get(entity)
     if (!entityUUID) return
 
     const componentStates = getMutableState(TransformUniformScaleState).uniformScaleState

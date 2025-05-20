@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -27,10 +27,17 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { HyperFlux } from '@ir-engine/hyperflux'
 import * as bitECS from 'bitecs'
-import { LayerComponent, LayerID, Layers, _removeMarkedEntity } from './ComponentFunctions'
+import {
+  LayerComponent,
+  LayerID,
+  Layers,
+  _removeMarkedEntity,
+  createEntity,
+  entityExists,
+  removeEntity
+} from './ComponentFunctions'
 import { createEngine, destroyEngine } from './Engine'
 import { Entity, UndefinedEntity } from './Entity'
-import { createEntity, entityExists, removeEntity } from './EntityFunctions'
 
 describe('createEntity', () => {
   beforeEach(() => {

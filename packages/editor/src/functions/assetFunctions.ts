@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -34,6 +34,7 @@ import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import {
   assetLibraryPath,
+  ffmpegPath,
   fileBrowserPath,
   fileBrowserUploadPath,
   staticResourcePath
@@ -47,7 +48,7 @@ import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathR
 import { getMutableState } from '@ir-engine/hyperflux'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 import i18n from 'i18next'
-import { showMultipleFileModal } from '../panels/files/toolbar'
+import { showGifFileConfimation, showMultipleFileModal } from '../panels/files/toolbar'
 import { ImportSettingsState } from '../services/ImportSettingsState'
 
 enum FileType {
@@ -55,20 +56,21 @@ enum FileType {
   IMAGE = 'Image',
   AUDIO = 'Audio',
   VIDEO = 'Video',
-  UNKNOWN = 'Unknown'
+  UNKNOWN = 'Unknown',
+  GIF = 'GIF'
 }
 
 const unsupportedFileMessage = {
-  [FileType.THREE_D]: 'Please upload either a .gltf or a .glb.',
-  [FileType.IMAGE]: 'Please upload a .png, .tiff, .jpg, .jpeg, .gif, or .ktx2.',
-  [FileType.AUDIO]: 'Please upload a .mp3, .mpeg, .m4a, or .wav.',
-  [FileType.VIDEO]: 'Please upload a .mp4, .mkv, or .avi.',
-  [FileType.UNKNOWN]: 'Please upload a valid 3D, Image, Audio, or Video file.'
+  [FileType.THREE_D]: 'editor:errors.unsupported-3D-file',
+  [FileType.IMAGE]: 'editor:errors.unsupported-image-file',
+  [FileType.AUDIO]: 'editor:errors.unsupported-audio-file',
+  [FileType.VIDEO]: 'editor:errors.unsupported-video-file',
+  [FileType.UNKNOWN]: 'editor:errors.unsupported-unknown-file'
 }
 
 const supportedFiles = {
   [FileType.THREE_D]: new Set(['.gltf', '.glb', '.bin']),
-  [FileType.IMAGE]: new Set(['.png', '.tiff', '.jpg', '.jpeg', '.gif', '.ktx2']),
+  [FileType.IMAGE]: new Set(['.png', '.jpg', '.jpeg', '.ktx2', '.gif']),
   [FileType.AUDIO]: new Set(['.mp3', '.mpeg', '.m4a', '.wav']),
   [FileType.VIDEO]: new Set(['.mp4', '.mkv', '.avi'])
 }
@@ -76,7 +78,11 @@ const supportedFiles = {
 function findMimeType(file: File): FileType {
   let fileType = FileType.UNKNOWN
   if (file.type.startsWith('image/')) {
-    fileType = FileType.IMAGE
+    if (file.type.includes('gif')) {
+      fileType = FileType.GIF
+    } else {
+      fileType = FileType.IMAGE
+    }
   } else if (file.type.startsWith('audio/')) {
     fileType = FileType.AUDIO
   } else if (file.type.startsWith('video/')) {
@@ -88,11 +94,17 @@ function findMimeType(file: File): FileType {
   return fileType
 }
 
-function isValidFileType(file): { isValid: boolean; errorMessage?: string } {
+function isValidFileType(file, acceptedFileTypes?: string | undefined): { isValid: boolean; errorMessage?: string } {
   const mimeType: FileType = findMimeType(file)
+  // check for the mimetype of file
+  if (acceptedFileTypes && !acceptedFileTypes?.toLocaleLowerCase().includes(mimeType.toLocaleLowerCase())) {
+    return {
+      isValid: false,
+      errorMessage: i18n.t(unsupportedFileMessage[mimeType])
+    }
+  }
   const fileName = file.name
   const extension = fileName.slice(fileName.lastIndexOf('.')).toLowerCase()
-
   for (const [type, extensions] of Object.entries(supportedFiles)) {
     if (extensions.has(extension)) {
       return {
@@ -103,13 +115,14 @@ function isValidFileType(file): { isValid: boolean; errorMessage?: string } {
 
   return {
     isValid: false,
-    errorMessage: unsupportedFileMessage[mimeType]
+    errorMessage: i18n.t(unsupportedFileMessage[mimeType])
   }
 }
 
-export function validatedFiles(files: FileList | File[]): File[] {
+export function validatedFiles(files: FileList | File[], acceptedFileTypes?: string | undefined): File[] {
   const { maxFileSizeToUpload } = config.client
   const invalidSizeFiles: string[] = []
+  const invalidNameErrors: string[] = []
   const newFiles: File[] = []
 
   for (const file of files) {
@@ -120,7 +133,7 @@ export function validatedFiles(files: FileList | File[]): File[] {
     }
 
     // Check file type
-    const { isValid: isValidType, errorMessage } = isValidFileType(file)
+    const { isValid: isValidType, errorMessage } = isValidFileType(file, acceptedFileTypes)
     if (!isValidType) {
       NotificationService.dispatchNotify(
         i18n.t('editor:errors.fileNotSupported', { file: file.name, errorMessage: errorMessage || '' }) as string,
@@ -132,8 +145,8 @@ export function validatedFiles(files: FileList | File[]): File[] {
     // Check filename
     const fileNameWithOutExtension = file.name.replace(/\.[^/.]+$/, '')
     const resultFileNameValid = isValidFileName(fileNameWithOutExtension)
-    if (!resultFileNameValid.isValid) {
-      NotificationService.dispatchNotify(resultFileNameValid.error, { variant: 'warning', autoHideDuration: 20000 })
+    if (!resultFileNameValid.isValid && resultFileNameValid.error) {
+      invalidNameErrors.push(resultFileNameValid.error)
       continue
     }
     newFiles.push(file)
@@ -147,6 +160,19 @@ export function validatedFiles(files: FileList | File[]): File[] {
       }) as string,
       { variant: 'warning' }
     )
+  }
+
+  if (invalidNameErrors.length) {
+    if (invalidNameErrors.length > 3) {
+      NotificationService.dispatchNotify(
+        i18n.t('editor:errors.fileNameInvalidMultiple', { reason: invalidNameErrors[0] }) as string,
+        { variant: 'warning', autoHideDuration: 20000 }
+      )
+    } else {
+      invalidNameErrors.map((error) => {
+        NotificationService.dispatchNotify(error, { variant: 'warning', autoHideDuration: 20000 })
+      })
+    }
   }
 
   return newFiles
@@ -215,16 +241,77 @@ export const filterExistingFiles = async (projectName: string, directoryPath: st
 
   return uniqueFiles
 }
+export const filterGifFiles = async (projectName: string, directoryPath: string, files: File[]) => {
+  if (!files.length) {
+    return files
+  }
+
+  const { gifFiles, notGifFiles } = files.reduce(
+    (result, file) => {
+      const mimeType: FileType = findMimeType(file)
+      if (mimeType === FileType.GIF) {
+        result.gifFiles.push(file)
+      } else {
+        result.notGifFiles.push(file)
+      }
+      return result
+    },
+    { gifFiles: [], notGifFiles: [] } as { gifFiles: File[]; notGifFiles: File[] }
+  )
+
+  if (gifFiles.length > 0) {
+    showGifFileConfimation(projectName, directoryPath, gifFiles)
+  }
+  return notGifFiles
+}
+
+// upload gif files and convert them to video and upload them returning the urls
+export const handleConvertGifFileToVideoAndUpload = (
+  projectName: string,
+  directoryPath: string,
+  files: FileList | File[],
+  updateThumbnail = true
+): Promise<string[]> => {
+  return Promise.all(
+    Array.from(files).map(async (file) => {
+      file = cleanFileNameFile(file)
+
+      const fileDirectory = file.webkitRelativePath || file.name
+      return uploadToFeathersService(ffmpegPath, [file], {
+        args: [
+          {
+            project: projectName,
+            path: directoryPath.replace('projects/' + projectName + '/', '') + fileDirectory,
+            type: 'asset',
+            contentType: file.type
+          }
+        ]
+      })
+        .promise.then((response) => {
+          return response[0]
+        })
+        .catch((e) => {
+          NotificationService.dispatchNotify(i18n.t('editor:errors.fileUploadFailed', { reason: e }) as string, {
+            variant: 'error',
+            autoHideDuration: 20000
+          })
+        })
+    })
+  )
+}
 
 // uploads files and returns an array of uploaded urls
 export const handleUploadFiles = (
   projectName: string,
   directoryPath: string,
   files: FileList | File[],
-  updateThumbnail = true
+  updateThumbnail = true,
+  updateDimension = true
 ): Promise<string[]> => {
   const { ktx2: compressedImage } = CommonKnownContentTypes
   const importSettingsState = getMutableState(ImportSettingsState)
+  const errors: Error[] = []
+
   return Promise.all(
     Array.from(files).map(async (file) => {
       file = cleanFileNameFile(file)
@@ -255,7 +342,7 @@ export const handleUploadFiles = (
         ]
       })
         .promise.then((response) => {
-          if (!updateThumbnail) return response[0]
+          if (!updateThumbnail && !updateDimension) return response[0]
           //get the static resource record for this file, so we can make it's thumbnail null, since it was oerwritten
           const checkStaticResourceThumbnail = async (path) => {
             await API.instance
@@ -277,21 +364,64 @@ export const handleUploadFiles = (
               .catch((e) => console.error(e))
             return path
           }
+          const checkStaticResourceDimension = async (path) => {
+            await API.instance
+              .service(staticResourcePath)
+              .find({
+                query: { key: { $in: [path] } }
+              })
+              .then((reponse) => {
+                if (reponse.data.length > 0) {
+                  const staticResourceId = reponse.data[0].id
+                  const updateStaticResourceDimension = async (id: string) => {
+                    await API.instance.service(staticResourcePath).patch(id, { width: null, height: null, depth: null })
+                  }
+                  updateStaticResourceDimension(staticResourceId)
+                }
+              })
+              .catch((e) => console.error(e))
+            return path
+          }
           const fileURL = new URL(response[0])
           fileURL.search = ''
           fileURL.hash = ''
           const file = fileURL.href.replace(config.client.fileServer + '/', '')
-          removeFromFileThumbnailsSeen([file])
-          return checkStaticResourceThumbnail(file)
+          if (!updateDimension && updateThumbnail) {
+            removeFromFileThumbnailsSeen([file])
+            return checkStaticResourceThumbnail(file)
+          } else if (updateDimension && !updateThumbnail) {
+            removeFromFileThumbnailsSeen([file], 'dimension')
+            return checkStaticResourceDimension(file)
+          } else if (updateDimension && updateThumbnail) {
+            removeFromFileThumbnailsSeen([file], 'dimension')
+            checkStaticResourceDimension(file)
+            removeFromFileThumbnailsSeen([file])
+            return checkStaticResourceThumbnail(file)
+          }
         })
-        .catch((e) => {
+        .catch((e: Error) => {
+          errors.push(e)
+        })
+    })
+  ).then((promise) => {
+    if (errors.length) {
+      if (errors.length > 3) {
+        NotificationService.dispatchNotify(
+          i18n.t('editor:errors.fileUploadFailedMultiple', { reason: errors[0] }) as string,
+          { variant: 'error', autoHideDuration: 20000 }
+        )
+      } else {
+        errors.map((e) => {
           NotificationService.dispatchNotify(i18n.t('editor:errors.fileUploadFailed', { reason: e }) as string, {
             variant: 'error',
             autoHideDuration: 20000
           })
         })
-    })
-  )
+      }
+    }
+
+    return promise
+  })
 }
 
 /**
@@ -302,8 +432,7 @@ export const handleUploadFiles = (
 export const inputFileWithAddToScene = ({
   projectName,
   directoryPath,
-  preserveDirectory,
-  updateThumbnail = true
+  preserveDirectory
 }: {
   projectName: string
   directoryPath: string
@@ -323,7 +452,8 @@ export const inputFileWithAddToScene = ({
       try {
         if (el.files?.length) {
           const newFiles = validatedFiles(el.files)
-          const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
+          const nonGifFiles = await filterGifFiles(projectName, directoryPath, newFiles)
+          const uniqueFiles = await filterExistingFiles(projectName, directoryPath, nonGifFiles)
           await handleUploadFiles(projectName, directoryPath, uniqueFiles)
         }
         resolve(null)
@@ -344,13 +474,15 @@ const createFileUploader = ({
   directoryPath,
   preserveDirectory,
   acceptedFileTypes,
-  updateThumbnail = true
+  updateThumbnail = true,
+  updateDimension = true
 }: {
   projectName: string
   directoryPath: string
   preserveDirectory?: boolean
   acceptedFileTypes: string
   updateThumbnail?: boolean
+  updateDimension?: boolean
 }): Promise<string> =>
   new Promise((resolve, reject) => {
     const el = document.createElement('input')
@@ -365,9 +497,16 @@ const createFileUploader = ({
     el.onchange = async () => {
       try {
         if (el.files?.length) {
-          const newFiles = validatedFiles(el.files)
-          const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
-          const [uploadedFileUrl] = await handleUploadFiles(projectName, directoryPath, uniqueFiles, updateThumbnail)
+          const newFiles = validatedFiles(el.files, acceptedFileTypes)
+          const nonGifFiles = await filterGifFiles(projectName, directoryPath, newFiles)
+          const uniqueFiles = await filterExistingFiles(projectName, directoryPath, nonGifFiles)
+          const [uploadedFileUrl] = await handleUploadFiles(
+            projectName,
+            directoryPath,
+            uniqueFiles,
+            updateThumbnail,
+            updateDimension
+          )
 
           if (uploadedFileUrl) {
             resolve(uploadedFileUrl)
@@ -397,7 +536,8 @@ export const uploadImageFile = (params: {
   createFileUploader({
     ...params,
     acceptedFileTypes: params.acceptedFileTypes ?? 'image/*',
-    updateThumbnail: false
+    updateThumbnail: false,
+    updateDimension: false
   })
 
 // currently only supporting mp4
@@ -409,7 +549,8 @@ export const uploadVideoFile = (params: {
   createFileUploader({
     ...params,
     acceptedFileTypes: 'video/mp4,.mp4',
-    updateThumbnail: false
+    updateThumbnail: false,
+    updateDimension: false
   })
 
 export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], args?: object[]) => {

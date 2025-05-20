@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -50,15 +50,16 @@ export const ObjectLayers = {
   PhysicsHelper: 6 as ObjectLayer,
   AvatarHelper: 7 as ObjectLayer,
   NodeHelper: 8 as ObjectLayer,
+  NodeIcon: 9 as ObjectLayer,
 
   // custom threejs scene in a UI panel
-  Panel: 9 as ObjectLayer,
+  Panel: 10 as ObjectLayer,
 
   // transform gizmo
-  TransformGizmo: 10 as ObjectLayer,
+  TransformGizmo: 11 as ObjectLayer,
 
   // transform gizmo
-  HighlightEffect: 11 as ObjectLayer,
+  HighlightEffect: 12 as ObjectLayer,
 
   UVOL: 30 as ObjectLayer
 }
@@ -74,6 +75,7 @@ export const ObjectLayerMasks = {
   PhysicsHelper: (1 << ObjectLayers.PhysicsHelper) as ObjectLayerMask,
   AvatarHelper: (1 << ObjectLayers.AvatarHelper) as ObjectLayerMask,
   NodeHelper: (1 << ObjectLayers.NodeHelper) as ObjectLayerMask,
+  NodeIcon: (1 << ObjectLayers.NodeIcon) as ObjectLayerMask,
   Panel: (1 << ObjectLayers.Panel) as ObjectLayerMask,
   TransformGizmo: (1 << ObjectLayers.TransformGizmo) as ObjectLayerMask,
   HighlightEffect: (1 << ObjectLayers.HighlightEffect) as ObjectLayerMask,

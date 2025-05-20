@@ -19,14 +19,13 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
 import { Light, Material, Mesh, Object3D, SkinnedMesh, Texture } from 'three'
 
-import { UUIDComponent } from '@ir-engine/ecs'
 import {
   getComponent,
   hasComponent,
@@ -36,7 +35,7 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import { Entity, SourceID } from '@ir-engine/ecs/src/Entity'
 import { defineQuery, EntityArrayBoundary, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
@@ -54,8 +53,8 @@ import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { KHRUnlitExtensionComponent } from '../../gltf/MaterialExtensionComponents'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 
+import { UUIDComponent } from '@ir-engine/ecs'
 import { ShadowComponent } from '../components/ShadowComponent'
-import { SourceComponent } from '../components/SourceComponent'
 
 const disposeMaterial = (material: Material) => {
   for (const [key, val] of Object.entries(material) as [string, Texture][]) {
@@ -120,8 +119,8 @@ const execute = () => {
 
 const ModelEntityReactor = (props: { entity: Entity }) => {
   const entity = props.entity
-  const modelInstanceID = GLTFComponent.useInstanceID(entity)
-  const childEntities = SourceComponent.useEntitiesBySource(modelInstanceID)
+  const sourceID = hasComponent(entity, UUIDComponent) ? UUIDComponent.getAsSourceID(entity) : ('' as SourceID)
+  const childEntities = UUIDComponent.useEntitiesBySource(sourceID)
 
   return (
     <EntityArrayBoundary entities={childEntities} ChildEntityReactor={ChildReactor} props={{ parentEntity: entity }} />
@@ -130,11 +129,10 @@ const ModelEntityReactor = (props: { entity: Entity }) => {
 
 const useIsUnlit = (entity: Entity) => {
   let isUnlit = useHasComponent(entity, KHRUnlitExtensionComponent)
-  const materialInstanceUUIDs = useOptionalComponent(entity, MaterialInstanceComponent)?.uuid.value
+  const materialInstanceUUIDs = useOptionalComponent(entity, MaterialInstanceComponent)?.entities.value
 
   if (materialInstanceUUIDs) {
-    for (const uuid of materialInstanceUUIDs) {
-      const matEntity = UUIDComponent.getEntityByUUID(uuid)
+    for (const matEntity of materialInstanceUUIDs) {
       if (matEntity && hasComponent(matEntity, KHRUnlitExtensionComponent)) {
         isUnlit = true
         break

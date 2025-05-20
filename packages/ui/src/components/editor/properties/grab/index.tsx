@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 /*
 CPAL-1.0 License
@@ -29,11 +29,10 @@ CPAL-1.0 License
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent, hasComponent } from '@ir-engine/ecs'
+import { getComponent, hasComponent, UUIDComponent } from '@ir-engine/ecs'
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { GrabbableComponent } from '@ir-engine/engine/src/grabbable/GrabbableComponent'
 import { InteractableComponent } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
 import { GiGrab } from 'react-icons/gi'
@@ -50,7 +49,7 @@ export const GrabbableComponentNodeEditor: EditorComponentType = (props) => {
         callbacks: [
           {
             callbackID: GrabbableComponent.grabbableCallbackName,
-            target: getComponent(props.entity, NodeIDComponent)
+            target: getComponent(props.entity, UUIDComponent).entityID
           }
         ]
       })

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -33,7 +33,6 @@ import multiLogger from '@ir-engine/common/src/logger'
 import {
   ScopeType,
   UserName,
-  clientSettingPath,
   engineSettingPath,
   identityProviderPath,
   projectSettingPath,
@@ -52,8 +51,10 @@ import {
 
 import { API } from '@ir-engine/common'
 import { USERNAME_MAX_LENGTH } from '@ir-engine/common/src/constants/UserConstants'
+import useEngineSetting from '@ir-engine/common/src/hooks/useEngineSetting'
 import { INVALID_USER_NAME_REGEX } from '@ir-engine/common/src/regex'
 import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
+import { ClientEngineSettingType } from '@ir-engine/server-core/src/appconfig'
 import { iOS, isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
@@ -82,6 +83,7 @@ import { twMerge } from 'tailwind-merge'
 import { initialAuthState, initialOAuthConnectedState } from '../../common/initialAuthState'
 import { ModalState } from '../../common/services/ModalState'
 import { NotificationService } from '../../common/services/NotificationService'
+import { ProjectState } from '../../common/services/ProjectService'
 import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { useZendesk } from '../../hooks/useZendesk'
 import { LocationState } from '../../social/services/LocationService'
@@ -126,6 +128,8 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     )
   }, [engineSettingData.status])
 
+  const clientSetting = useEngineSetting<ClientEngineSettingType>('client')
+
   const { t } = useTranslation()
   const location = useLocation()
 
@@ -142,7 +146,6 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   /** Login Link feature that was needed for multi cam mocap that is not currently necessary. Keeping code around for now if we return to it*/
   //const loginLink = useHookstate('')
 
-  const clientSetting = useFind(clientSettingPath).data.at(0)
   const loading = useHookstate(getMutableState(AuthState).isProcessing)
   const userId = selfUser.id.value
   const apiKey = useFind(userApiKeyPath).data[0]
@@ -156,6 +159,8 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const originallyAgeVerified = useHookstate(checked18OrOver)
   const originallyAcceptedTOS = useHookstate(acceptedTOS).value
   const currentLocation = getState(LocationState).currentLocation.location
+
+  const projectState = useMutableState(ProjectState)
 
   const projectSettings = useFind(projectSettingPath, {
     query: {
@@ -532,7 +537,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
                 />
                 <a
                   className="inline text-sm text-text-primary underline-offset-4 hover:text-ui-hover-primary hover:underline"
-                  href={clientSetting?.termsOfService}
+                  href={clientSetting?.data?.termsOfService}
                   target="_blank"
                 >
                   {t('user:usermenu.profile.termsOfService')}
@@ -877,24 +882,32 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
         </div>
       )}
 
-      <div className="mt-1 flex w-full items-center justify-center gap-x-2 smh:mt-5">
-        <a href={clientSetting?.privacyPolicy} data-testid="profile-menu-privacy-policy-link" target="_blank">
-          <Text className="text-center text-text-primary" fontSize="sm">
-            {t('user:usermenu.profile.privacyPolicy')}
-          </Text>
-        </a>
-        {creatorPrivacyPolicyUrl?.value && (
-          <>
+      <div className="mt-1 flex w-full items-center justify-evenly gap-x-2 smh:mt-5">
+        <div className="flex-1"></div>
+        <div className="flex-1">
+          <a href={clientSetting?.data?.privacyPolicy} data-testid="profile-menu-privacy-policy-link" target="_blank">
             <Text className="text-center text-text-primary" fontSize="sm">
-              |
+              {t('user:usermenu.profile.privacyPolicy')}
             </Text>
-            <a href={creatorPrivacyPolicyUrl.value} target="_blank">
+          </a>
+          {creatorPrivacyPolicyUrl?.value && (
+            <>
               <Text className="text-center text-text-primary" fontSize="sm">
-                {t('user:usermenu.profile.creatorPrivacyPolicy')}
+                |
               </Text>
-            </a>
-          </>
-        )}
+              <a href={creatorPrivacyPolicyUrl.value} target="_blank">
+                <Text className="text-center text-text-primary" fontSize="sm">
+                  {t('user:usermenu.profile.creatorPrivacyPolicy')}
+                </Text>
+              </a>
+            </>
+          )}
+        </div>
+        <div className="flex-1 text-right">
+          <Text className="text-sm">
+            {t('admin:components.setting.releaseVersion')}: {projectState.builderInfo.engineVersion.value}
+          </Text>
+        </div>
       </div>
     </div>
   )

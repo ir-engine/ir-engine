@@ -19,17 +19,18 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
   createEntity,
+  EntityID,
   EntityTreeComponent,
-  generateEntityUUID,
   getComponent,
   getOptionalComponent,
   setComponent,
+  SourceID,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -46,7 +47,10 @@ import { GLTFComponent } from '../../src/gltf/GLTFComponent'
 export const createTestGLTFEntity = () => {
   const parent = createEntity()
   setComponent(parent, EntityTreeComponent)
-  setComponent(parent, UUIDComponent, generateEntityUUID())
+  setComponent(parent, UUIDComponent, {
+    entitySourceID: 'source' as SourceID,
+    entityID: 'test-gltf-entity' as EntityID
+  })
   const entity = createEntity()
   setComponent(entity, EntityTreeComponent, { parentEntity: parent })
   return entity
@@ -61,13 +65,16 @@ export const vrm = default_url + '/avatars/irRobot.vrm'
 export const mockAnimatedAvatar = async () => {
   const animationPackEntity = createTestGLTFEntity()
 
-  setComponent(animationPackEntity, UUIDComponent, generateEntityUUID())
+  setComponent(animationPackEntity, UUIDComponent, {
+    entitySourceID: 'source' as SourceID,
+    entityID: 'animation-pack' as EntityID
+  })
   setComponent(animationPackEntity, GLTFComponent, { src: animation_pack })
   setComponent(animationPackEntity, NameComponent, 'animationPack')
 
   const vrmEntity = createTestGLTFEntity()
 
-  setComponent(vrmEntity, UUIDComponent, generateEntityUUID())
+  setComponent(vrmEntity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'vrm' as EntityID })
   setComponent(vrmEntity, GLTFComponent, { src: vrm })
   setComponent(vrmEntity, AvatarRigComponent)
   setComponent(vrmEntity, AvatarAnimationComponent)

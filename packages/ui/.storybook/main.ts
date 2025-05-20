@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -40,6 +40,8 @@ const config: StorybookConfig = {
   stories: [
     '../src/primitives/tailwind/!(TruncatedText)/*.stories.@(js|jsx|ts|tsx)',
     // '../src/components/editor/**/*.stories.@(js|jsx|ts|tsx)',
+    '../src/components/editor/AudioVolumeVisualizer/index.stories.@(js|jsx|ts|tsx)',
+    '../src/components/editor/InspectorPanel/index.stories.tsx',
     '../src/components/tailwind/**/*.stories.@(js|jsx|ts|tsx)',
     '../src/icons/**/*.stories.@(js|jsx|ts|tsx)'
   ],
@@ -54,6 +56,7 @@ const config: StorybookConfig = {
     getAbsolutePath('storybook-addon-react-router-v6'),
     getAbsolutePath('storybook-addon-sass-postcss')
   ],
+  staticDirs: ['../public'],
   core: {},
   framework: {
     name: getAbsolutePath('@storybook/react-vite'),

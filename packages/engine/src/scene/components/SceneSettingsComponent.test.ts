@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -27,13 +27,13 @@ import {
   createEngine,
   createEntity,
   destroyEngine,
-  EntityUUID,
+  EntityID,
   getComponent,
   setComponent,
+  SourceID,
   UndefinedEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { v4 } from 'uuid'
 import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 import { SceneSettingsComponent } from './SceneSettingsComponent'
 
@@ -43,7 +43,7 @@ describe('SceneSettingsComponent', () => {
   beforeEach(() => {
     createEngine()
     entity = createEntity()
-    setComponent(entity, UUIDComponent, v4() as EntityUUID)
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as string as SourceID, entityID: 'id' as EntityID })
   })
 
   afterEach(() => {
@@ -65,7 +65,7 @@ describe('SceneSettingsComponent', () => {
     }
 
     setComponent(entity, SceneSettingsComponent)
-    const entityUUID = getComponent(entity, UUIDComponent)
+    const entityUUID = getComponent(entity, UUIDComponent).entityID
     const initialData = {
       thumbnailURL: '',
       loadingScreenURL: '',
@@ -86,7 +86,7 @@ describe('SceneSettingsComponent', () => {
       backgroundColor: '#FFFFFG',
       alternativeColor: '#000001',
       sceneKillHeight: -1,
-      spectateEntity: entityUUID as EntityUUID
+      spectateEntity: entityUUID
     }
     setComponent(entity, SceneSettingsComponent, changedData)
     const changedComponent = getComponent(entity, SceneSettingsComponent)

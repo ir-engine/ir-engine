@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -165,7 +165,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
           clipName: 'Fall',
           loop: true,
           layer: 1,
-          entityUUID: getComponent(entity, UUIDComponent)
+          entityUUID: UUIDComponent.get(entity)
         })
       )
       beganFalling = true
@@ -179,7 +179,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
             loop: true,
             layer: 1,
             needsSkip: true,
-            entityUUID: getComponent(entity, UUIDComponent)
+            entityUUID: UUIDComponent.get(entity)
           })
         )
       }
@@ -498,9 +498,7 @@ const _slerpBodyTowardsVelocity = (entity: Entity, alpha: number) => {
 
   let prevVector = prevVectors.get(entity)!
   if (!prevVector) {
-    prevVector = new Vector3(0, 0, 1).applyQuaternion(
-      getState(SpawnPoseState)[getComponent(entity, UUIDComponent)].spawnRotation
-    )
+    prevVector = new Vector3(0, 0, 1).applyQuaternion(getState(SpawnPoseState)[UUIDComponent.get(entity)].spawnRotation)
     prevVectors.set(entity, prevVector)
   }
 

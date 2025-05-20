@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -40,7 +40,7 @@ const PlayModeTool: React.FC = () => {
   }
 
   return (
-    <div id="preview" className="flex items-center">
+    <div id="preview" className="ml-2 flex items-center">
       <Tooltip
         title={
           engineState.isEditing.value
@@ -54,7 +54,7 @@ const PlayModeTool: React.FC = () => {
         }
         position="bottom"
       >
-        <button className="p-0" onClick={onTogglePlayMode}>
+        <button className="rounded-lg bg-ui-secondary px-3.5 py-1.5" onClick={onTogglePlayMode}>
           {engineState.isEditing.value ? (
             <PlayLg className="text-[#9CA0AA]" />
           ) : (

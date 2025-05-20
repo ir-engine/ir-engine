@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,43 +19,106 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { clientSettingPath, ClientSettingType } from '@ir-engine/common/src/schema.type.module'
-import { NO_PROXY, State, useHookstate } from '@ir-engine/hyperflux'
+import { useFind, useMutation } from '@ir-engine/common'
+import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schema.type.module'
+import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
+import { flattenObjectToArray, unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
+import { State, useHookstate } from '@ir-engine/hyperflux'
+import { ClientEngineSettingType } from '@ir-engine/server-core/src/appconfig'
 import { Button, Input, Select } from '@ir-engine/ui'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 
-import { API, useFind } from '@ir-engine/common'
+// Initial state for client settings
+const initialClientState: Partial<ClientEngineSettingType> = {
+  logo: '',
+  title: '',
+  shortTitle: '',
+  startPath: '/',
+  url: '',
+  releaseName: '',
+  siteDescription: '',
+  appleTouchIcon: '',
+  favicon32px: '',
+  favicon16px: '',
+  icon192px: '',
+  icon512px: '',
+  webmanifestLink: '',
+  swScriptLink: '',
+  appBackground: '',
+  appTitle: '',
+  appSubtitle: '',
+  appDescription: '',
+  appSocialLinks: [],
+  gtmContainerId: '',
+  gtmAuth: '',
+  gtmPreview: '',
+  privacyPolicy: '',
+  termsOfService: '',
+  assistanceLink: '',
+  homepageLinkButtonEnabled: false,
+  homepageLinkButtonRedirect: '',
+  homepageLinkButtonText: '',
+  mediaSettings: {
+    audio: {
+      maxBitrate: 128
+    },
+    video: {
+      codec: 'VP9',
+      maxResolution: 'hd',
+      lowResMaxBitrate: 300,
+      midResMaxBitrate: 600,
+      highResMaxBitrate: 1500
+    },
+    screenshare: {
+      codec: 'VP9',
+      maxResolution: 'hd',
+      lowResMaxBitrate: 1000,
+      midResMaxBitrate: 2500,
+      highResMaxBitrate: 4000
+    }
+  }
+}
 
 const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
 
-  const state = useHookstate({
+  const loadingState = useHookstate({
     loading: false,
     errorMessage: ''
   })
 
-  const clientSettingQuery = useFind(clientSettingPath)
-  const clientSettings = clientSettingQuery.data[0] ?? null
-  const id = clientSettings?.id
+  const engineSettingData = useFind(engineSettingPath, {
+    query: {
+      category: 'client',
+      paginate: false
+    }
+  })
 
-  const settingsState = useHookstate(null as null | ClientSettingType)
+  const clientSettings = unflattenArrayToObject(
+    engineSettingData.data.map((el) => ({ key: el.key, value: el.value, dataType: el.dataType }))
+  ) as ClientEngineSettingType
+
+  const settingsState = useHookstate(initialClientState as ClientEngineSettingType)
+  const originalSettings = useHookstate(initialClientState as ClientEngineSettingType)
+  const engineSettingMutation = useMutation(engineSettingPath)
 
   useEffect(() => {
-    if (clientSettings) {
-      settingsState.set(clientSettings)
-      state.set({ loading: false, errorMessage: '' })
+    if (engineSettingData.status === 'success' && engineSettingData.data.length > 0) {
+      settingsState.set({ ...initialClientState, ...clientSettings } as ClientEngineSettingType)
+      originalSettings.set({ ...initialClientState, ...clientSettings } as ClientEngineSettingType)
+      loadingState.set({ loading: false, errorMessage: '' })
     }
-  }, [clientSettings])
+  }, [engineSettingData.status, engineSettingData.data])
 
   const codecMenu = [
     {
@@ -91,36 +154,63 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
     }
   ]
 
-  const handleSubmit = (event) => {
-    state.loading.set(true)
+  const handleSubmit = (event: React.FormEvent) => {
+    loadingState.loading.set(true)
     event.preventDefault()
-    const newSettings = {
-      ...settingsState.get(NO_PROXY),
-      homepageLinkButtonEnabled: Boolean(settingsState.value!.homepageLinkButtonEnabled),
-      createdAt: undefined!,
-      updatedAt: undefined!
-    } as any as ClientSettingType
 
-    API.instance
-      .service(clientSettingPath)
-      .patch(id, newSettings)
+    const newSettings = { ...settingsState.get() }
+
+    // Flatten the object for engine-setting
+    const flattenedSettings = flattenObjectToArray(newSettings)
+
+    // Create promises array for all operations
+    const clientOperationPromises: Promise<EngineSettingType | EngineSettingType[]>[] = []
+
+    flattenedSettings.forEach((setting) => {
+      const settingInDb = engineSettingData.data.find((el) => el.key === setting.key)
+      if (!settingInDb) {
+        // Create new setting
+        clientOperationPromises.push(
+          engineSettingMutation.create({
+            key: setting.key,
+            category: 'client',
+            dataType: getDataType(setting.value),
+            value: `${setting.value}`,
+            type: 'public'
+          })
+        )
+      } else if (settingInDb.value != setting.value) {
+        // Update existing setting
+        clientOperationPromises.push(
+          engineSettingMutation.patch(settingInDb.id, {
+            key: setting.key,
+            category: 'client',
+            dataType: getDataType(setting.value),
+            value: `${setting.value}`,
+            type: 'public'
+          })
+        )
+      }
+    })
+
+    Promise.all(clientOperationPromises)
       .then(() => {
-        state.set({ loading: false, errorMessage: '' })
-        clientSettingQuery.refetch()
+        loadingState.set({ loading: false, errorMessage: '' })
+        engineSettingData.refetch()
       })
-      .catch((e) => {
-        state.set({ loading: false, errorMessage: e.message })
+      .catch((e: Error) => {
+        loadingState.set({ loading: false, errorMessage: e.message })
       })
   }
 
   const handleCancel = () => {
-    settingsState.set(clientSettings)
+    settingsState.set(originalSettings.get())
   }
 
   if (!settingsState.value)
     return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loading')} />
 
-  const settings = settingsState as State<ClientSettingType>
+  const settings = settingsState as State<ClientEngineSettingType>
 
   return (
     <Accordion
@@ -384,16 +474,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           onChange={(e) => settings.assistanceLink.set(e.target.value)}
         />
 
-        <Input
-          fullWidth
-          labelProps={{
-            text: t('admin:components.setting.key8thWall'),
-            position: 'top'
-          }}
-          value={settings.key8thWall.value || ''}
-          onChange={(e) => settings.key8thWall.set(e.target.value)}
-        />
-
         <Text component="h3" fontSize="xl" fontWeight="semibold" className="col-span-full my-4">
           {t('admin:components.setting.client.media')}
         </Text>
@@ -521,7 +601,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           {t('admin:components.common.reset')}
         </Button>
         <Button size="sm" variant="primary" className="col-span-1" onClick={handleSubmit} fullWidth>
-          {state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
+          {loadingState.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
           {t('admin:components.common.save')}
         </Button>
       </div>

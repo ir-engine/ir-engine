@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,12 +19,13 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
   Entity,
+  entityExists,
   getTreeFromChildToAncestor,
   hasComponent,
   removeComponent,
@@ -33,15 +34,15 @@ import {
   useAncestorWithComponents,
   useChildrenWithComponents,
   useComponent,
-  useOptionalComponent
+  useOptionalComponent,
+  UUIDComponent
 } from '@ir-engine/ecs'
-import { useHookstate } from '@ir-engine/hyperflux'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
-import { useEffect, useLayoutEffect } from 'react'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { useLayoutEffect } from 'react'
 import { GLTFComponent } from './GLTFComponent'
 
 function forceUpdateMatrices(childEntity: Entity, ancestorEntity: Entity = UndefinedEntity) {
@@ -49,7 +50,7 @@ function forceUpdateMatrices(childEntity: Entity, ancestorEntity: Entity = Undef
   getTreeFromChildToAncestor(childEntity, entities, ancestorEntity)
   if (entities.length === 0) return
   for (let i = entities.length - 1; i >= 0; i--) {
-    computeTransformMatrix(entities[i])
+    TransformComponent.computeTransformMatrix(entities[i])
   }
 }
 
@@ -63,45 +64,42 @@ export function useApplyCollidersToChildMeshesEffect(entity: Entity) {
   const rigidbodyEntity = useAncestorWithComponents(entity, [RigidBodyComponent])
   const rigidbodyComponent = useOptionalComponent(rigidbodyEntity, RigidBodyComponent)
   const component = useComponent(entity, GLTFComponent)
-  const meshesToApplyColliders = useHookstate([] as Entity[])
 
-  useEffect(() => {
-    if (meshesToApplyColliders.length === 0) {
-      const entitiesArray =
-        !childMeshEntities.includes(entity) && hasComponent(entity, MeshComponent)
-          ? ([...childMeshEntities, entity] as Entity[])
-          : childMeshEntities
-      meshesToApplyColliders.set(entitiesArray.filter((entity) => !hasComponent(entity, ColliderComponent)))
-    }
-  }, [childMeshEntities.length])
-
-  //populate/update collider state
   useLayoutEffect(() => {
-    if (meshesToApplyColliders.length === 0 || !rigidbodyComponent?.initialized?.value || !physicsWorld) return
+    if (
+      !rigidbodyComponent?.initialized?.value ||
+      !physicsWorld ||
+      !physicsWorld.Rigidbodies.has(rigidbodyEntity) ||
+      !component.applyColliders.value
+    )
+      return
 
     forceUpdateMatrices(entity)
-    for (const childMeshEntity of meshesToApplyColliders.value) {
-      if (component.applyColliders.value) {
-        setComponent(childMeshEntity, ColliderComponent, { shape: component.shape.value, matchMesh: true })
-        forceUpdateMatrices(childMeshEntity)
-      } else {
-        removeComponent(childMeshEntity, ColliderComponent)
+    const children = [...childMeshEntities]
+    if (hasComponent(entity, MeshComponent)) children.push(entity)
+
+    const added = [] as Entity[]
+    for (const child of children) {
+      // Don't add colliders to meshes with colliders baked in or helper meshes
+      if (entityExists(child) && !hasComponent(child, ColliderComponent) && hasComponent(child, UUIDComponent)) {
+        setComponent(child, ColliderComponent, { shape: component.shape.value, matchMesh: true })
+        forceUpdateMatrices(child)
+        added.push(child)
+      }
+    }
+
+    return () => {
+      for (const addedEntity of added) {
+        if (entityExists(addedEntity)) removeComponent(addedEntity, ColliderComponent)
       }
     }
   }, [
+    entity,
     physicsWorld,
     component.shape,
-    meshesToApplyColliders.value.length,
     !!rigidbodyComponent?.initialized?.value,
-    component.applyColliders
+    component.applyColliders.value,
+    // Work around, remove JSON.stringify after useChildrenWithComponents has been updated to return a reactive array again
+    JSON.stringify(childMeshEntities)
   ])
-
-  useEffect(() => {
-    return () => {
-      const entities = [...childMeshEntities, entity] as Entity[]
-      for (const childMeshEntity of entities) {
-        removeComponent(childMeshEntity, ColliderComponent)
-      }
-    }
-  }, [])
 }

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -29,6 +29,7 @@ import {
   LayerComponents,
   Layers,
   SerializedComponentType,
+  setComponent,
   useAncestorWithComponents,
   useComponent,
   useOptionalComponent,
@@ -36,8 +37,8 @@ import {
 } from '@ir-engine/ecs'
 import { commitProperty, EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { EditorHistoryFunctions } from '@ir-engine/editor/src/services/EditorHistoryState'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import { ColliderComponent, supportedColliderShapes } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
@@ -109,9 +110,11 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
             title={t('editor:properties.collider.lbl-addRigidBody')}
             className="text-sm text-[#FFFFFF]"
             onClick={() => {
-              const nodes = SelectionState.getSelectedEntities()
-              EditorHistoryFunctions.setComponent(nodes, RigidBodyComponent, { type: 'fixed' })
-              SelectionState.updateSelection(nodes.flatMap((node) => getComponent(node, UUIDComponent))) // to trigger the rerender for the editor panel
+              const entities = SelectionState.getSelectedEntities()
+              for (const entity of entities) setComponent(entity, RigidBodyComponent, { type: 'fixed' })
+              AuthoringState.snapshotEntities(entities)
+              // trigger the rerender for the editor panel
+              SelectionState.updateSelection(entities.map((node) => UUIDComponent.get(node)))
             }}
           >
             <HiPlus />

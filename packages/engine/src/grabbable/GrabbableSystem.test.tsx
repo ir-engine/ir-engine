@@ -19,14 +19,14 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 
-import { Entity, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
+import { Entity, EntityUUIDPair, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine, createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { PeerID, UserID, applyIncomingActions, dispatchAction, getMutableState, getState } from '@ir-engine/hyperflux'
@@ -97,36 +97,40 @@ describe('GrabbableSystem', () => {
       })
     )
 
-    const avatarEntityUUID = 'avatar' as EntityUUID
+    const avatarEntityUUIDPair = { entitySourceID: 'user-id', entityID: 'avatar' } as EntityUUIDPair
+    const avatarEntityUUID = UUIDComponent.join(avatarEntityUUIDPair)
 
     dispatchAction(
       AvatarNetworkAction.spawn({
-        parentUUID: getComponent(sceneEntity, UUIDComponent),
-        entityUUID: avatarEntityUUID,
+        parentUUID: UUIDComponent.get(sceneEntity),
+        entityID: avatarEntityUUIDPair.entityID,
+        entitySourceID: avatarEntityUUIDPair.entitySourceID,
         avatarURL: '',
         name: ''
       })
     )
 
-    const grabbableEntityUUID = 'grabbable' as EntityUUID
+    const grabbableEntityUUIDPair = { entitySourceID: 'grabbable-id', entityID: 'grabbable' } as EntityUUIDPair
+    const grabbableEntityUUID = UUIDComponent.join(grabbableEntityUUIDPair)
 
     dispatchAction(
       SpawnObjectActions.spawnObject({
-        parentUUID: getComponent(sceneEntity, UUIDComponent),
+        parentUUID: UUIDComponent.get(sceneEntity),
+        entityID: grabbableEntityUUIDPair.entityID,
+        entitySourceID: grabbableEntityUUIDPair.entitySourceID,
         ownerID: network.hostUserID!,
         $topic: NetworkTopics.world,
         $peer: hostPeerID,
-        $user: hostUserID,
-        entityUUID: grabbableEntityUUID
+        $user: hostUserID
       })
     )
 
     applyIncomingActions()
 
-    const grabbableEntity = UUIDComponent.getEntityByUUID(grabbableEntityUUID)
+    const grabbableEntity = UUIDComponent.getEntityByUUID(UUIDComponent.join(grabbableEntityUUIDPair))
     setComponent(grabbableEntity, GrabbableComponent)
 
-    const playerEntity = UUIDComponent.getEntityByUUID(avatarEntityUUID)
+    const playerEntity = UUIDComponent.getEntityByUUID(UUIDComponent.join(avatarEntityUUIDPair))
     assert.ok(hasComponent(playerEntity, GrabberComponent))
 
     assert.equal(Object.keys(getState(GrabbableState)).length, 0)
@@ -215,27 +219,31 @@ describe('GrabbableSystem', () => {
       })
     )
 
-    const avatarEntityUUID = 'avatar' as EntityUUID
+    const avatarEntityUUIDPair = { entitySourceID: 'user-id', entityID: 'avatar' } as EntityUUIDPair
+    const avatarEntityUUID = UUIDComponent.join(avatarEntityUUIDPair)
 
     dispatchAction(
       AvatarNetworkAction.spawn({
-        parentUUID: getComponent(sceneEntity, UUIDComponent),
-        entityUUID: avatarEntityUUID,
+        parentUUID: UUIDComponent.get(sceneEntity),
+        entityID: avatarEntityUUIDPair.entityID,
+        entitySourceID: avatarEntityUUIDPair.entitySourceID,
         avatarURL: '',
         name: ''
       })
     )
 
-    const grabbableEntityUUID = 'grabbable' as EntityUUID
+    const grabbableEntityUUIDPair = { entitySourceID: 'grabbable-id', entityID: 'grabbable' } as EntityUUIDPair
+    const grabbableEntityUUID = UUIDComponent.join(grabbableEntityUUIDPair)
 
     dispatchAction(
       SpawnObjectActions.spawnObject({
-        parentUUID: getComponent(sceneEntity, UUIDComponent),
+        parentUUID: UUIDComponent.get(sceneEntity),
+        entityID: grabbableEntityUUIDPair.entityID,
+        entitySourceID: grabbableEntityUUIDPair.entitySourceID,
         ownerID: SceneUser,
         $peer: ScenePeer,
         $user: SceneUser,
-        $topic: NetworkTopics.world,
-        entityUUID: grabbableEntityUUID
+        $topic: NetworkTopics.world
       })
     )
 

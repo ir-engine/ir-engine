@@ -80,14 +80,27 @@ wait_for_builds_finished() {
   INSTANCESERVER_SLICE=($(kubectl get pods | grep ir-engine-kaniko-instanceserver))
   INSTANCESERVER_STATUS=${INSTANCESERVER_SLICE[2]}
 
-  if [[ "$API_STATUS" != "Running" && "$API_STATUS" != "Pending" && "$CLIENT_STATUS" != "Running" && "$CLIENT_STATUS" != "Pending" && "$INSTANCESERVER_STATUS" != "Running" && "$INSTANCESERVER_STATUS" != "Pending" ]]
+  if [[ "$API_STATUS" == "Running" ]] || [[ "$API_STATUS" == "Failed" ]]
   then
     API_KANIKO_POD=$(kubectl get pods | grep ir-engine-kaniko-api | tail -n 1 | cut -d ' ' -f 1)
-    CLIENT_KANIKO_POD=$(kubectl get pods | grep ir-engine-kaniko-client | tail -n 1 | cut -d ' ' -f 1)
-    INSTANCESERVER_KANIKO_POD=$(kubectl get pods | grep ir-engine-kaniko-instanceserver | tail -n 1 | cut -d ' ' -f 1)
     kubectl logs $API_KANIKO_POD >api-build-error.txt
+  fi
+
+  if [[ "$CLIENT_STATUS" == "Running" ]] || [[ "$CLIENT_STATUS" == "Failed" ]]
+  then
+    CLIENT_KANIKO_POD=$(kubectl get pods | grep ir-engine-kaniko-client | tail -n 1 | cut -d ' ' -f 1)
     kubectl logs $CLIENT_KANIKO_POD >client-build-error.txt
+  fi
+
+  if [[ "$INSTANCESERVER_STATUS" == "Running" ]] || [[ "$INSTANCESERVER_STATUS" == "Failed" ]]
+  then
+    INSTANCESERVER_KANIKO_POD=$(kubectl get pods | grep ir-engine-kaniko-instanceserver | tail -n 1 | cut -d ' ' -f 1)
     kubectl logs $INSTANCESERVER_KANIKO_POD >instanceserver-build-error.txt
+  fi
+
+  if [[ "$API_STATUS" != "Running" && "$API_STATUS" != "Pending" && "$CLIENT_STATUS" != "Running" && "$CLIENT_STATUS" != "Pending" && "$INSTANCESERVER_STATUS" != "Running" && "$INSTANCESERVER_STATUS" != "Pending" ]]
+  then
+    return 0
   else
     wait_for_builds_finished
   fi
@@ -188,6 +201,23 @@ setup_package_environment() {
     mv package.jsonmoved package.json
     return 1
   }
+  
+  # Determine suffix based on APP_HOST
+  if [[ "$APP_HOST" =~ "studio" ]] || [[ "$APP_HOST" =~ "mt-stg" ]]; then
+    SUFFIX="mt"
+  elif [[ "$APP_HOST" =~ "mt-rc" ]]; then
+    SUFFIX="-mt-rc"
+  elif [[ "$APP_HOST" =~ "mt-int" ]]; then
+    SUFFIX="-mt-int"
+  elif [[ "$APP_HOST" =~ "mt-qat" ]]; then
+    SUFFIX="-mt-qat"
+  elif [[ "$APP_HOST" =~ "mt" ]]; then
+    SUFFIX="-mt"
+  elif [[ "$APP_HOST" =~ "qat" ]]; then
+    SUFFIX="-qat"
+  else
+    SUFFIX=""
+  fi
 
   # Restore original package.json
   rm -f package.json
@@ -325,6 +355,12 @@ determine_gcp_suffix() {
     suffix="mt"
   elif [[ "$app_host" =~ "qat" ]]; then
     suffix="qat"
+  elif [[ "$app_host" =~ "mt-nightly" ]]; then
+    suffix="mt-nightly"
+  elif [[ "$app_host" =~ "mt-weekly" ]]; then
+    suffix="mt-weekly"
+  elif [[ "$app_host" =~ "mt-prdmirr" ]]; then
+    suffix="mt-prdmirr"
   else
     suffix=""
   fi

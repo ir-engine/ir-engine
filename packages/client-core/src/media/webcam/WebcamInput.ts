@@ -2,17 +2,13 @@ import * as Comlink from 'comlink'
 
 import { isDev } from '@ir-engine/common/src/config'
 import logger from '@ir-engine/common/src/logger'
-import { UUIDComponent, iterateEntityNode } from '@ir-engine/ecs'
-import { getOptionalComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { iterateEntityNode } from '@ir-engine/ecs'
+import { getOptionalComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
-import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
-import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
-import { defineActionQueue, getMutableState } from '@ir-engine/hyperflux'
+import { getMutableState } from '@ir-engine/hyperflux'
 import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
 import { createWorkerFromCrossOriginURL } from '@ir-engine/spatial/src/common/functions/createWorkerFromCrossOriginURL'
-import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { WebcamInputComponent } from './WebcamInputComponent'
 
@@ -37,7 +33,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -298,21 +294,3 @@ const setAvatarExpression = (entity: Entity): void => {
     }
   })
 }
-const webcamQuery = defineQuery([ObjectComponent, AvatarRigComponent, WebcamInputComponent])
-const avatarSpawnQueue = defineActionQueue(AvatarNetworkAction.spawn.matches)
-
-const execute = () => {
-  /** @todo replace this with a reactor reacting to AvatarNetworkState */
-  for (const action of avatarSpawnQueue()) {
-    const entity = UUIDComponent.getEntityByUUID(action.entityUUID)
-    setComponent(entity, WebcamInputComponent)
-  }
-  for (const entity of webcamQuery()) setAvatarExpression(entity)
-}
-
-/** @todo - this system currently is not used and has been replaced by the /capture route */
-// export const WebcamInputSystem = defineSystem({
-//   uuid: 'ee.client.WebcamInputSystem',
-//   insert: { with: AnimationSystem },
-//   execute
-// })

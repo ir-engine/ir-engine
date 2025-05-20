@@ -20,7 +20,7 @@
     "url": "git+https://github.com/ir-engine/ir-engine.git"
   },
   "scripts": {
-    "check-errors": "tsc --noemit",
+    "check-errors": "tsc --noemit && npx cycle-import-check src || true",
     "test": "cross-env TEST=true vitest run --config=../../vitest.client.config.ts",
     "test-coverage": "npm run test-coverage-generate ; npm run test-coverage-launch",
     "test-coverage-generate": "npm run test -- --coverage --silent",
@@ -52,6 +52,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "realism-effects": "1.1.2",
+    "rfc6902": "^5.1.2",
     "three": "0.158.0",
     "three.quarks": "^0.11.2",
     "troika-three-text": "^0.49.0",

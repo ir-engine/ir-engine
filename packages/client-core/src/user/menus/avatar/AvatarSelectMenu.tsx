@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -164,7 +164,9 @@ const AvatarSelectMenu = forwardRef(({ showBackButton, previewEnabled = true }: 
     <div
       id="select-avatar-modal"
       className={twMerge(
-        'pointer-events-auto absolute z-50 m-auto flex h-[90dvh] max-w-[90vw] overflow-y-auto rounded-xl bg-surface-4 lg:h-[95dvh] lg:w-[70vw] lg:max-w-6xl ',
+        'pointer-events-auto absolute z-50 m-auto flex bg-white dark:bg-surface-1',
+        'h-[90dvh] max-w-[90vw] border border-surface-1',
+        'overflow-y-auto rounded-xl lg:h-[95dvh] lg:w-[70vw] lg:max-w-6xl ',
         previewEnabled ? 'lg:w-auto lg:max-w-6xl' : 'w-full lg:w-[24rem] lg:max-w-96'
       )}
     >

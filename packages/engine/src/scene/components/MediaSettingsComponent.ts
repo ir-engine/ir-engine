@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -31,21 +31,21 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 
-const DistanceModelTypeSchema = S.LiteralUnion(['exponential', 'inverse', 'linear'], 'linear')
+const DistanceModelTypeSchema = S.LiteralUnion(['exponential', 'inverse', 'linear'], { default: 'linear' })
 
 export const MediaSettingsComponent = defineComponent({
   name: 'MediaSettingsComponent',
   jsonID: 'EE_media_settings',
 
   schema: S.Object({
-    immersiveMedia: S.Bool(false),
-    refDistance: S.Number(20),
-    rolloffFactor: S.Number(1),
-    maxDistance: S.Number(10000),
+    immersiveMedia: S.Bool(),
+    refDistance: S.Number({ default: 20 }),
+    rolloffFactor: S.Number({ default: 1 }),
+    maxDistance: S.Number({ default: 10000 }),
     distanceModel: DistanceModelTypeSchema,
-    coneInnerAngle: S.Number(360),
-    coneOuterAngle: S.Number(0),
-    coneOuterGain: S.Number(0)
+    coneInnerAngle: S.Number({ default: 360 }),
+    coneOuterAngle: S.Number(),
+    coneOuterGain: S.Number()
   }),
 
   reactor: () => {
