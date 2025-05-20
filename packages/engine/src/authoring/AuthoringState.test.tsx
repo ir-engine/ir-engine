@@ -30,23 +30,33 @@ import {
   destroyEngine,
   Engine,
   EngineState,
+  Entity,
   entityExists,
   EntityID,
   EntityTreeComponent,
   EntityUUID,
   getComponent,
   Layers,
+  S,
   setComponent,
   SourceID,
   UndefinedEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { getMutableState, getState, UserID } from '@ir-engine/hyperflux'
+import { applyIncomingActions, getMutableState, getState, UserID } from '@ir-engine/hyperflux'
+import { flushAll } from '@ir-engine/hyperflux/tests/utils/flushAll'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
 import { AddOperation } from 'rfc6902/diff'
-import { Quaternion, Vector3 } from 'three'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { Cache, Quaternion, Vector3 } from 'three'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { startEngineReactor } from '../../tests/startEngineReactor'
+import { GLTFComponent } from '../gltf/GLTFComponent'
+import { AssetState } from '../gltf/GLTFState'
 import {
   applyCommandsToECS,
   AuthoringActions,
@@ -824,6 +834,132 @@ describe('AuthoringState', () => {
       expect(action.ops[sourceID1]).toHaveLength(1)
       expect(action.ops[sourceID2]).toBeDefined()
       expect(action.ops[sourceID2]).toHaveLength(1)
+    })
+  })
+
+  describe('should successfully migrate scene deltas to override format using operations', () => {
+    let physicsWorldEntity: Entity
+
+    beforeEach(async () => {
+      Cache.enabled = true
+      createEngine()
+      mockSpatialEngine()
+      await Physics.load()
+      physicsWorldEntity = createEntity()
+
+      setComponent(physicsWorldEntity, UUIDComponent, {
+        entityID: 'physicsWorld' as EntityID,
+        entitySourceID: 'source' as SourceID
+      })
+      setComponent(physicsWorldEntity, SceneComponent)
+      setComponent(physicsWorldEntity, TransformComponent)
+      setComponent(physicsWorldEntity, EntityTreeComponent)
+      const physicsWorld = Physics.createWorld(physicsWorldEntity)
+      physicsWorld.timestep = 1 / 60
+
+      startEngineReactor()
+    })
+
+    afterEach(() => {
+      Cache.enabled = false
+      return destroyEngine()
+    })
+
+    it('should migrate scene deltas to override format using operations', async () => {
+      const MaterialCustomPlugin = defineComponent({
+        name: 'MaterialCustomPlugin',
+        jsonID: 'IR_material_custom',
+        schema: S.Object({
+          customMap: S.String()
+        })
+      })
+
+      const sceneGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'node',
+            extensions: {
+              [UUIDComponent.jsonID]: 'node' as any,
+              [GLTFComponent.jsonID]: {
+                src: 'https://fake.com/child.gltf'
+              },
+              [VisibleComponent.jsonID]: true
+            }
+          }
+        ],
+        extensions: {
+          IR_scene_delta: {
+            node: {
+              'material-0': {
+                IR_material_custom: {
+                  customMap: '/custom-map.png'
+                }
+              },
+              nested: {
+                IR_transform: {
+                  position: {
+                    x: 0,
+                    y: 5
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      const childGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'nested',
+            extensions: {
+              [UUIDComponent.jsonID]: 'nested'
+            }
+          }
+        ],
+        materials: [
+          {
+            name: 'material'
+          }
+        ],
+        extensionsUsed: [UUIDComponent.jsonID]
+      }
+
+      // invoke state initially to make sure it's reactor starts
+      getState(AuthoringState)
+
+      Cache.add('/test.gltf', sceneGLTF)
+      Cache.add('https://fake.com/child.gltf', childGLTF)
+      const rootEntity = AssetState.load('/test.gltf', 'test' as EntityID, physicsWorldEntity, Layers.Authoring)
+
+      await vi.waitUntil(() => GLTFComponent.isSceneLoaded(rootEntity), { timeout: 5000 })
+      await flushAll()
+      applyIncomingActions()
+      await vi.waitUntil(() => getState(AssetState)[GLTFComponent.getSourceID(rootEntity)])
+
+      await flushAll()
+      applyIncomingActions()
+
+      const nodeEntity = GLTFComponent.getEntityBySourceAndID(rootEntity, 'node' as EntityID, Layers.Authoring)!
+      const nestedEntity = GLTFComponent.getEntityBySourceAndID(nodeEntity, 'nested' as EntityID, Layers.Authoring)!
+      const materialEntity = GLTFComponent.getEntityBySourceAndID(
+        nodeEntity,
+        'material-0' as EntityID,
+        Layers.Authoring
+      )!
+
+      expect(getComponent(nestedEntity, TransformComponent).position.y).toBe(5)
+      expect(getComponent(materialEntity, MaterialCustomPlugin).customMap).toBe('/custom-map.png')
     })
   })
 })

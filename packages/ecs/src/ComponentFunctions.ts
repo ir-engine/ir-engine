@@ -900,7 +900,7 @@ function createPropagationArgsClass<C extends Component>(
   component: C
 ) {
   if (!obj) return undefined
-  if ('clone' in obj && typeof obj.clone === 'function') {
+  if (typeof obj === 'object' && 'clone' in obj && typeof obj.clone === 'function') {
     return obj.clone()
   } else {
     try {
@@ -927,7 +927,7 @@ function createPropagationArgsObject<C extends Component>(
   entity: Entity,
   component: C
 ) {
-  if (!obj) return undefined
+  if (!obj || typeof obj !== 'object') return undefined
   const props = schema.properties as any
   const args = {} as any
   for (const k in props) {

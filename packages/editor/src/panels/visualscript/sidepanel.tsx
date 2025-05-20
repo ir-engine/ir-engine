@@ -208,7 +208,7 @@ export const SidePanel = ({
                     }}
                   />
                   <ParameterInput
-                    entity={`${UndefinedEntity}`}
+                    path={`${UndefinedEntity}`}
                     values={[NodetoEnginetype(variable.initialValue, variable.valueTypeName)]}
                     onChange={(key) => (e) => {
                       let value = e

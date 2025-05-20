@@ -24,23 +24,27 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
-  Entity,
-  UndefinedEntity,
   createEngine,
   createEntity,
   createInitialComponentValue,
   destroyEngine,
+  Entity,
+  EntityID,
   getComponent,
   hasComponent,
   removeEntity,
-  setComponent
+  setComponent,
+  SourceID,
+  UndefinedEntity,
+  UUIDComponent
 } from '@ir-engine/ecs'
+import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { assertArray } from '@ir-engine/spatial/tests/util/assert'
 import assert from 'assert'
-import { Material, Uniform } from 'three'
+import { Material, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
-import { assertArray } from '../../../../../tests/util/assert'
-import { MaterialStateComponent } from '../../MaterialComponent'
 import {
+  DitherCalculationType,
   TransparencyDitheringPluginComponent,
   TransparencyDitheringRootComponent
 } from './TransparencyDitheringComponent'
@@ -102,10 +106,10 @@ describe('TransparencyDitheringRootComponent', () => {
 })
 
 type TransparencyDitheringPluginComponentData = {
-  centers: Uniform
-  exponents: Uniform
-  distances: Uniform
-  useWorldCalculation: Uniform
+  centers: Vector3[]
+  exponents: number[]
+  distances: number[]
+  useWorldCalculation: DitherCalculationType[]
 }
 
 const TransparencyDitheringPluginComponentDefaults: TransparencyDitheringPluginComponentData =
@@ -154,6 +158,10 @@ describe('TransparencyDitheringPluginComponent', () => {
     beforeEach(async () => {
       createEngine()
       testEntity = createEntity()
+      setComponent(testEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'id' as EntityID
+      })
     })
 
     afterEach(() => {

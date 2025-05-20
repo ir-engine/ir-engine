@@ -23,65 +23,31 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Material, Uniform, Vector3 } from 'three'
-
-import {
-  defineComponent,
-  defineQuery,
-  getComponent,
-  getOptionalComponent,
-  PresentationSystemGroup,
-  useEntityContext
-} from '@ir-engine/ecs'
-import { ECSState } from '@ir-engine/ecs/src/ECSState'
-import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { getState } from '@ir-engine/hyperflux'
 import { generateNoiseTexture } from '@ir-engine/spatial/src/renderer/functions/generateNoiseTexture'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { useEffect } from 'react'
-import { MaterialStateComponent } from '../../MaterialComponent'
-import { setPlugin } from '../../materialFunctions'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
+import { Vector3 } from 'three'
+import { defineMaterialPlugin } from '../defineMaterialPlugin'
 
-export type NoiseOffsetParameters = {
-  textureSize: Uniform
-  frequency: Uniform
-  noiseTexture: Uniform
-  time: Uniform
-  offsetAxis: Uniform
-}
-
-export const NoiseOffsetPluginComponent = defineComponent({
+export const NoiseOffsetPluginComponent = defineMaterialPlugin({
   name: 'NoiseOffsetPluginComponent',
 
-  schema: S.Object({
-    textureSize: S.Class(() => new Uniform(64)),
-    frequency: S.Class(() => new Uniform(0.00025)),
-    amplitude: S.Class(() => new Uniform(0.005)),
-    noiseTexture: S.Class(() => new Uniform(generateNoiseTexture(64))),
-    offsetAxis: S.Class(() => new Uniform(new Vector3(0, 1, 0))),
-    time: S.Class(() => new Uniform(0))
+  jsonID: 'IR_material_noise_offset',
+
+  uniforms: S.Object({
+    textureSize: S.Number({ default: 64 }),
+    frequency: S.Number({ default: 0.00025 }),
+    amplitude: S.Number({ default: 0.005 }),
+    noiseTexture: S.Class(() => generateNoiseTexture(64), { serialized: false }),
+    offsetAxis: T.Vec3(new Vector3(0, 1, 0)),
+    time: S.Number({ default: 0 })
   }),
 
-  reactor: () => {
-    const entity = useEntityContext()
-    useEffect(() => {
-      const materialComponent = getOptionalComponent(entity, MaterialStateComponent)
-      if (!materialComponent) return
-      const callback = (shader) => {
-        const plugin = getComponent(entity, NoiseOffsetPluginComponent)
-
-        shader.uniforms.textureSize = plugin.textureSize
-        shader.uniforms.frequency = plugin.frequency
-        shader.uniforms.amplitude = plugin.amplitude
-        plugin.noiseTexture.value = generateNoiseTexture(64)
-        shader.uniforms.noiseTexture = plugin.noiseTexture
-        shader.uniforms.offsetAxis = plugin.offsetAxis
-        shader.uniforms.time = plugin.time
-
-        shader.vertexShader = shader.vertexShader.replace(
-          'void main() {',
-          `
+  onApply: (shader) => {
+    shader.vertexShader = shader.vertexShader.replace(
+      'void main() {',
+      `
             uniform sampler2D noiseTexture;
             uniform float textureSize; // The width of a slice
             uniform float frequency;
@@ -115,15 +81,15 @@ export const NoiseOffsetPluginComponent = defineComponent({
 
             void main() {
           `
-        )
-        shader.vertexShader = shader.vertexShader.replace(
-          'void main() {',
-          `uniform vec3 offsetAxis;
+    )
+    shader.vertexShader = shader.vertexShader.replace(
+      'void main() {',
+      `uniform vec3 offsetAxis;
         void main() {`
-        )
-        shader.vertexShader = shader.vertexShader.replace(
-          '#include <begin_vertex>',
-          `
+    )
+    shader.vertexShader = shader.vertexShader.replace(
+      '#include <begin_vertex>',
+      `
             #include <begin_vertex>
             vec4 noiseWorldPosition = vec4(transformed, 1.0);
             noiseWorldPosition = modelMatrix * noiseWorldPosition;
@@ -133,26 +99,10 @@ export const NoiseOffsetPluginComponent = defineComponent({
             vec3 offset = turbulence(noiseWorldPosition.xyz) * offsetAxis;
             transformed += offset;
           `
-        )
-      }
-      setPlugin(materialComponent.material as Material, callback)
-    }, [])
-    return null
-  }
-})
+    )
+  },
 
-const noisePluginQuery = defineQuery([NoiseOffsetPluginComponent])
-const execute = () => {
-  for (const entity of noisePluginQuery()) {
-    const noisePlugin = getOptionalComponent(entity, NoiseOffsetPluginComponent)
-    if (!noisePlugin) continue
-    const elapsedSeconds = getState(ECSState).elapsedSeconds
-    noisePlugin.time.value = elapsedSeconds
+  update: (component, deltaSeconds) => {
+    component.time += deltaSeconds
   }
-}
-
-export const NoiseOffsetSystem = defineSystem({
-  uuid: 'ee.spatial.material.NoiseOffsetSystem',
-  insert: { before: PresentationSystemGroup },
-  execute
 })
