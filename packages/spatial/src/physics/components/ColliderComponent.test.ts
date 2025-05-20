@@ -123,6 +123,11 @@ describe('ColliderComponent', () => {
       const body = physicsWorld.Rigidbodies.get(entity)!
       const collider = physicsWorld.Colliders.get(entity)!
 
+      await vi.waitFor(() => {
+        const collider = physicsWorld.colliders.get(entity)
+        expect(collider).toBeDefined()
+      })
+
       assert.equal(body.numColliders(), 1)
       assert(collider)
       assert.equal(collider, body.collider(0))

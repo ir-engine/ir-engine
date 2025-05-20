@@ -34,9 +34,9 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ComponentEditorsState } from '@ir-engine/editor/src/services/ComponentEditors'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
-import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { ErrorBoundary, NO_PROXY, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { Button } from '@ir-engine/ui'
 import TransformPropertyGroup from '@ir-engine/ui/src/components/editor/properties/transform'
@@ -108,6 +108,7 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
   const [isAddComponentMenuOpen, setIsAddComponentMenuOpen] = useState(false)
 
   const hasTransform = useHasComponent(entity, TransformComponent)
+  const hasMaterial = useHasComponent(entity, MaterialStateComponent)
   const hasName = useHasComponent(entity, NameComponent)
 
   if (!entity) return null
@@ -148,6 +149,13 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
             </Suspense>
           </ErrorBoundary>
         )}
+        {hasMaterial && (
+          <ErrorBoundary fallback={<div>Error occured displaying material properties</div>}>
+            <Suspense>
+              <MaterialEditor entity={entity} />
+            </Suspense>
+          </ErrorBoundary>
+        )}
         {components.get(NO_PROXY).map((c) => {
           const component = ComponentJSONIDMap.get(c)
           return component ? (
@@ -169,20 +177,12 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
 const PropertiesEditor = () => {
   const { t } = useTranslation()
   const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities).value
-  const materialUUID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial).value
-  const materialEntity = UUIDComponent.useEntityByUUID(materialUUID!, Layers.Authoring)
   const multiEdit = selectedEntities.length > 1
   const uuid = selectedEntities[selectedEntities.length - 1]
 
   return (
     <div className="flex h-full flex-col gap-0.5 overflow-y-auto bg-surface-1">
-      {materialUUID && materialEntity ? (
-        <ErrorBoundary fallback={<div>Error occured displaying material properties</div>}>
-          <Suspense>
-            <MaterialEditor entity={materialEntity} />
-          </Suspense>
-        </ErrorBoundary>
-      ) : uuid ? (
+      {uuid ? (
         <ErrorBoundary key={uuid} fallback={<div>Error occured displaying entity properties</div>}>
           <Suspense>
             <EntityEditor entityUUID={uuid} multiEdit={multiEdit} />
