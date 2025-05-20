@@ -37,7 +37,6 @@ import {
   UndefinedEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { Vector3_Left, Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { assertArray } from '@ir-engine/spatial/tests/util/assert'
 import { act, render } from '@testing-library/react'
@@ -124,9 +123,7 @@ describe('VariantComponent', () => {
       const count = 10
 
       for (let i = 0; i < count; i++) {
-        const rot = new Quaternion()
-          .setFromAxisAngle(Vector3_Up, Math.random() * 2 * Math.PI)
-          .multiply(new Quaternion().setFromAxisAngle(Vector3_Left, Math.PI * 0.5)) //rotate x by 90 degrees because the grass is facing the wrong way
+        const rot = new Quaternion().identity()
         mat4.makeRotationFromQuaternion(rot)
         mat4.elements[12] = (Math.random() - 0.5) * areaSize
         mat4.elements[13] = 0
