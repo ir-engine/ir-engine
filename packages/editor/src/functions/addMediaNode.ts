@@ -23,10 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Intersection, Raycaster, Vector2 } from 'three'
+import { Intersection, Mesh, Raycaster, Vector2 } from 'three'
 
 import { getContentType } from '@ir-engine/common/src/utils/getContentType'
 import {
+  defineQuery,
   EntityTreeComponent,
   getAncestorWithComponents,
   getChildrenWithComponents,
@@ -35,12 +36,15 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import {
+  deserializeComponent,
+  getAllComponents,
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
-  LayerFunctions,
   LayerID,
   Layers,
+  serializeComponent,
   setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
@@ -60,11 +64,12 @@ import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 
 import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import { getState } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
+import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import {
   MaterialInstanceComponent,
   MaterialStateComponent
@@ -73,6 +78,93 @@ import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 import { getIncreamentedName } from './utils'
+
+/**
+ * Returns the entity and material index from the intersection
+ */
+export const getEntityAndMaterialFromIntersection = (intersections: Intersection[]) => {
+  const result = {
+    entity: UndefinedEntity,
+    materialIndex: 0
+  }
+  for (const intersection of intersections) {
+    if (!hasComponent(intersection.object.entity, VisibleComponent)) continue
+    iterateEntityNode(intersection.object.entity, (entity: Entity) => {
+      if (result.entity) return
+      const mesh = getOptionalComponent(entity, MeshComponent)
+      if (!mesh || !hasComponent(entity, MaterialInstanceComponent)) return
+      let materialIndex = 0
+      for (const g of mesh.geometry.groups) {
+        if (intersection.faceIndex! * 3 >= g.start && intersection.faceIndex! * 3 < g.start + g.count) {
+          materialIndex = g.materialIndex!
+          break
+        }
+      }
+      result.entity = entity
+      result.materialIndex = materialIndex
+    })
+  }
+  return result
+}
+
+/**
+ * Replaces the material index on the target entity with the material index from the asset entity
+ * @todo this is a placeholder for https://github.com/ir-engine/ir-engine/pull/1912
+ */
+export const replaceMaterialIndex = (assetEntity: Entity, targetEntity: Entity, materialIndex: number) => {
+  const [newMaterialEntity] = getChildrenWithComponents(assetEntity, [MaterialStateComponent])
+
+  /** Reparent the material to the target source */
+  const sourceEntity = getAncestorWithComponents(targetEntity, [GLTFComponent])
+
+  const newSourceID = GLTFComponent.getSourceID(sourceEntity)
+  setComponent(newMaterialEntity, EntityTreeComponent, { parentEntity: sourceEntity })
+
+  /** Generate a new ID for this entity such that it doesn't collider with others */
+  const entityID = UUIDComponent.generate()
+
+  /** Sync UUID */
+  setComponent(newMaterialEntity, UUIDComponent, { entitySourceID: newSourceID, entityID: entityID })
+
+  /** Update the material instance component to point to the new material */
+  getMutableComponent(targetEntity, MaterialInstanceComponent).entities[materialIndex].set(newMaterialEntity)
+
+  removeEntity(assetEntity)
+
+  AuthoringState.snapshotEntities([targetEntity])
+}
+
+const updateMaterial = (assetEntity: Entity, targetEntity: Entity, materialIndex: number) => {
+  const [newMaterialEntity] = getChildrenWithComponents(assetEntity, [MaterialStateComponent])
+
+  const newMaterialComponent = getComponent(newMaterialEntity, MaterialStateComponent)
+
+  const materialInstanceComponent = getComponent(targetEntity, MaterialInstanceComponent)
+  const materialEntity = materialInstanceComponent.entities[materialIndex]
+
+  /** Update the material parameters (will be applied to material via authoring state) */
+  setComponent(materialEntity, MaterialStateComponent, {
+    parameters: newMaterialComponent.parameters
+  })
+
+  const materialPluginComponents = getAllComponents(newMaterialEntity).filter(
+    (c) =>
+      c.jsonID &&
+      c !== UUIDComponent &&
+      c !== MaterialStateComponent &&
+      c !== EntityTreeComponent &&
+      c !== NameComponent
+  )
+  for (const component of materialPluginComponents) {
+    deserializeComponent(materialEntity, component, serializeComponent(newMaterialEntity, component))
+  }
+
+  removeEntity(assetEntity)
+
+  AuthoringState.snapshotEntities([targetEntity])
+}
+
+const allMeshes = defineQuery([VisibleComponent, MeshComponent], Layers.Authoring)
 
 /**
  * Adds media node from passed url. Type of the media will be detected automatically
@@ -86,7 +178,8 @@ export async function addMediaNode(
   url: string,
   parent?: Entity,
   before?: Entity,
-  extraComponentJson: ComponentJsonType[] = []
+  extraComponentJson: ComponentJsonType[] = [],
+  screenPosition?: Vector2
 ): Promise<EntityUUID | null> {
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
@@ -98,79 +191,26 @@ export async function addMediaNode(
 
   if (contentType.startsWith('model/')) {
     if (contentType.startsWith('model/material')) {
-      // find current intersected object
-      // const objectLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Scene]])
-      // const sceneObjects = objectLayerQuery().flatMap((entity) => getComponent(entity, ObjectComponent))
-      //const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Scene] || [])
-      const mouse = new Vector2()
-      const mouseEvent = event as MouseEvent // Type assertion
-      const element = mouseEvent.target as HTMLElement
-      const rect = element.getBoundingClientRect()
-      mouse.x = ((mouseEvent.clientX - rect.left) / rect.width) * 2 - 1
-      mouse.y = -((mouseEvent.clientY - rect.top) / rect.height) * 2 + 1
-      // const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+      const [inputPointerEntity] = InputPointerComponent.getPointersForCamera(
+        getState(ReferenceSpaceState).viewerEntity
+      )
+      const pointer = getComponent(inputPointerEntity, InputPointerComponent)
+      const pointerPosition = screenPosition ?? pointer.position
       const raycaster = new Raycaster()
-      raycaster.layers.set(ObjectLayerMasks[ObjectLayers.Scene])
       const intersections = [] as Intersection[]
-      getIntersectingNodeOnScreen(raycaster, mouse, intersections)
-      // debug code for visualizing ray casts:
-      // const rayEntity = createSceneEntity("ray helper", getState(EditorState).rootEntity)
-      // const lineStart = raycaster.ray.origin
-      // const lineEnd = raycaster.ray.origin.clone().add(raycaster.ray.direction.clone().multiplyScalar(1000))
-      // const lineGeometry = new BufferGeometry().setFromPoints([lineStart, lineEnd])
+      raycaster.setFromCamera(pointerPosition, getComponent(pointer.cameraEntity, CameraComponent))
+      raycaster.intersectObjects(allMeshes().map((e) => getComponent(e, MeshComponent)) as Mesh[], true, intersections)
+      if (!intersections.length) return null
 
-      // setComponent(rayEntity, LineSegmentComponent, { geometry: lineGeometry })
+      getIntersectingNodeOnScreen(raycaster, pointerPosition, intersections)
+
+      const { entity: targetEntity, materialIndex } = getEntityAndMaterialFromIntersection(intersections)
 
       AssetState.loadAsync(url, false, UUIDComponent.generateUUID(), UndefinedEntity, Layers.Authoring as LayerID).then(
-        (assetEntity) => {
-          const [materialEntity] = getChildrenWithComponents(assetEntity, [MaterialStateComponent])
-          let foundTarget = false
-          const affectedEntities = [] as Entity[]
-          for (const intersection of intersections) {
-            if (!hasComponent(intersection.object.entity, VisibleComponent)) continue
-
-            iterateEntityNode(intersection.object.entity, (entity: Entity) => {
-              const mesh = getOptionalComponent(entity, MeshComponent)
-              if (!mesh) return
-              let materialIndex = 0
-              for (const g of mesh.geometry.groups) {
-                if (intersection.faceIndex! * 3 >= g.start && intersection.faceIndex! * 3 < g.start + g.count) {
-                  materialIndex = g.materialIndex!
-                  break
-                }
-              }
-              const materialEntities = getComponent(entity, MaterialInstanceComponent).entities
-
-              /**@todo we should be setting the uuid of the material instance component to the uuid of the new material */
-              //const materialUUID = getComponent(material, UUIDComponent)
-              //uuids[materialIndex] = materialUUID,
-              //setComponent(entity, MaterialInstanceComponent, { uuid: uuids })
-              /**scene deltas do not yet support this, so a temporary hackfix is to modify existing materials to match */
-              const materialComponent = getComponent(materialEntity, MaterialStateComponent)
-              const materialToMutate = LayerFunctions.getAuthoringCounterpart(materialEntities[materialIndex])
-              // wipe out any existing deltas for this material
-              // if (existingDelta) {
-              //   //another hack
-              //   const mat = getComponent(materialToMutate, MaterialStateComponent).material
-              //   const constructor =
-              //     getState(MaterialPrototypeDefinitions)[mat.userData?.type || mat.type].prototypeConstructor
-              //   getMutableComponent(materialToMutate, MaterialStateComponent).material.set(new constructor())
-              // }
-              EditorControlFunctions.updateMaterialPrototype(
-                materialToMutate,
-                materialComponent.material.userData?.type ?? materialComponent.material.type
-              )
-              EditorControlFunctions.modifyMaterial(materialEntities[materialIndex], [
-                getComponent(materialEntity, MaterialStateComponent).parameters
-              ])
-              removeEntity(assetEntity)
-              foundTarget = true
-            })
-            if (foundTarget) break
-          }
-          AuthoringState.snapshotEntities(affectedEntities)
-        }
+        (entity) => updateMaterial(entity, targetEntity, materialIndex)
       )
+
+      return UUIDComponent.get(targetEntity)
     } else if (contentType.startsWith('model/lookdev')) {
       /**
        * Load the lookdev object and override or attach it to the current scene
@@ -228,12 +268,9 @@ export async function addMediaNode(
         requestedName
       )
 
-      console.log('LOADING MODEL', { entityUUID })
-
       const rootEntity = getState(EditorState).rootEntity
       const newSource = UUIDComponent.getAsSourceID(rootEntity)
       AuthoringState.snapshot(newSource)
-      console.log('SNAPSHOTTED', { newSource })
       return entityUUID
     }
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {

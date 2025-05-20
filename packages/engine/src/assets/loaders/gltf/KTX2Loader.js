@@ -283,7 +283,10 @@ class KTX2Loader extends Loader {
 			}
 
 			this._createTexture( buffer )
-				.then( ( texture ) => onLoad ? onLoad( texture ) : null )
+				.then( ( texture ) => {
+					texture.userData.url = url;
+					if (onLoad)  onLoad( texture ) 
+				})
 				.catch( onError );
 
 		}, onProgress, onError, signal );

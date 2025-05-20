@@ -30,7 +30,6 @@ import { LayerID, Layers, removeComponent, setComponent } from '@ir-engine/ecs/s
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { SelectTagComponent } from '@ir-engine/engine/src/scene/components/SelectTagComponent'
-import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 
 export const SelectionState = defineState({
@@ -39,7 +38,6 @@ export const SelectionState = defineState({
     selectedEntities: [] as EntityUUID[]
   },
   updateSelection: (selectedEntities: EntityUUID[]) => {
-    getMutableState(MaterialSelectionState).selectedMaterial.set(null)
     getMutableState(SelectionState).selectedEntities.set(selectedEntities)
   },
   getSelectedEntities: (layer: LayerID = Layers.Authoring) => {

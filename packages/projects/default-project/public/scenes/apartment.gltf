@@ -223,7 +223,7 @@
         "EE_visible": true,
         "EE_skybox": {
           "backgroundColor": 0,
-          "equirectangularPath": "__$project$__/ir-engine/default-project/assets/apartment_skybox.jpg",
+          "equirectangularPath": "__$project$__/ir-engine/default-project/assets/apartment_skybox.ktx2?hash=6d6fe4",
           "cubemapPath": "",
           "backgroundType": 2,
           "skyboxProps": {

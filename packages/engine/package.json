@@ -55,6 +55,7 @@
     "three": "0.176.0",
     "three.quarks": "^0.16.0",
     "troika-three-text": "^0.52.4",
+    "rfc6902": "^5.1.2",
     "ts-matches": "5.3.0",
     "uuid": "9.0.0",
     "web-worker": "1.2.0"

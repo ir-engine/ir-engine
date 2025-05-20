@@ -51,7 +51,7 @@ import { Vector2, Vector3 } from 'three'
 import { DnDFileType, FileDataType, ItemTypes, SceneElementType, SupportedFileTypes } from '../../constants/AssetTypes'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { addMediaNode } from '../../functions/addMediaNode'
-import { getCursorSpawnPosition } from '../../functions/screenSpaceFunctions'
+import { getCursorPositionNormalized, getScreenSpacePosition } from '../../functions/screenSpaceFunctions'
 import { EditorState } from '../../services/EditorServices'
 import CameraGizmoTool from './tools/CameraGizmoTool'
 import GridTool from './tools/GridTool'
@@ -88,7 +88,8 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
     }),
     drop(item: SceneElementType | FileDataType | DnDFileType, monitor) {
       const vec3 = new Vector3()
-      getCursorSpawnPosition(monitor.getClientOffset() as Vector2, vec3)
+      const screenPosition = getCursorPositionNormalized(new Vector2().copy(monitor.getClientOffset() as Vector2))
+      getScreenSpacePosition(screenPosition, vec3)
       if ('componentJsonID' in item) {
         EditorControlFunctions.createObjectFromSceneElement([
           { name: item.componentJsonID },
@@ -96,7 +97,13 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
         ])
         AuthoringState.snapshotEntities([getState(EditorState).rootEntity])
       } else if ('url' in item) {
-        addMediaNode(item.url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+        addMediaNode(
+          item.url,
+          undefined,
+          undefined,
+          [{ name: TransformComponent.jsonID, props: { position: vec3 } }],
+          screenPosition
+        )
       } else if ('files' in item) {
         const dropDataTransfer: DataTransfer = monitor.getItem()
 
@@ -121,7 +128,13 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
           const vec3 = new Vector3()
           urls.forEach((url) => {
             if (!url || url.length < 1 || !url[0] || url[0] === '') return
-            addMediaNode(url[0], undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+            addMediaNode(
+              url[0],
+              undefined,
+              undefined,
+              [{ name: TransformComponent.jsonID, props: { position: vec3 } }],
+              screenPosition
+            )
           })
         })
       }
@@ -129,10 +142,7 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
   })
 
   return (
-    <div
-      ref={dropRef}
-      className={twMerge('h-full w-full border border-white', isDragging ? 'border-4' : 'border-none')}
-    >
+    <div ref={dropRef} className={twMerge('h-full w-full border border-white', 'border-none')}>
       {children}
     </div>
   )
