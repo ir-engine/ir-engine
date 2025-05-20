@@ -235,6 +235,23 @@ function ResourceFile({
     multiple: false
   }))
 
+  const metadata = {
+    thumbnail: resource.thumbnailURL,
+    name: resource.name,
+    type: assetType,
+    author: '',
+    dateCreated: resource.createdAt,
+    fileSize: '',
+    dimensions: {
+      height: resource.height,
+      width: resource.width,
+      depth: resource.depth
+    },
+    mesh: '',
+    resources: '',
+    tags: resource.tags
+  }
+
   useEffect(() => {
     if (preview) preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
@@ -256,7 +273,10 @@ function ResourceFile({
         <FileCard
           item={resource}
           name={name}
-          onClick={() => ClickPlacementState.setSelectedAsset(resource.url)}
+          onClick={() => {
+            ClickPlacementState.setSelectedAsset(resource.url)
+            ClickPlacementState.setSelectedAssetData(metadata)
+          }}
           onContextMenu={(event) => {
             event.preventDefault()
             event.stopPropagation()

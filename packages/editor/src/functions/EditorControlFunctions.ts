@@ -239,7 +239,6 @@ const duplicateObject = (entities: Entity[]) => {
       setComponent(newEntity, EntityTreeComponent, { parentEntity: parentEntity })
 
       for (const component of entityData) {
-        if (component.name === TransformComponent.jsonID) continue
         if (component.name === NameComponent.jsonID) continue
         if (component.name === EntityTreeComponent.jsonID) continue
         deserializeComponent(newEntity, ComponentJSONIDMap.get(component.name)!, component.props)

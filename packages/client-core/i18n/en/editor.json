@@ -1261,6 +1261,20 @@
       "assets": "Assets"
     }
   },
+  "inspector": {
+    "switchInspector": "Switch to Inspector tab for asset selection",
+    "title": "Inspector",
+    "assetType": "Type",
+    "assetAuthor": "Author",
+    "assetDateCreated": "Date Created",
+    "assetFileSize": "File Size",
+    "assetDimensions": "Dimensions",
+    "assetMeshComplexity": "Mesh Complexity",
+    "assetResources": "Resources",
+    "assetTags": "Tags",
+    "addToScene": "Add to Scene",
+    "noAssetSelected": "No asset selected"
+  },
   "projects": {
     "createProject": {
       "header": "New Project",
