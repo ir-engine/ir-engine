@@ -27,17 +27,25 @@ import {
   createEngine,
   createEntity,
   destroyEngine,
+  EntityID,
   getChildrenWithComponents,
   getComponent,
   getOptionalComponent,
-  removeEntity,
+  removeEntityNodeRecursively,
   setComponent,
-  UndefinedEntity
+  SourceID,
+  UndefinedEntity,
+  UUIDComponent
 } from '@ir-engine/ecs'
+import { Vector3_Left, Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { assertArray } from '@ir-engine/spatial/tests/util/assert'
+import { act, render } from '@testing-library/react'
+import { InstancedBufferAttribute, Matrix4, Quaternion } from 'three'
 import { afterEach, assert, beforeEach, describe, it } from 'vitest'
+import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { deviceMetadataSchema, distanceMetadataSchema, VariantComponent } from './VariantComponent'
+import { InstancingComponent } from './InstancingComponent'
+import { deviceMetadataSchema, distanceMetadataSchema, Heuristic, VariantComponent } from './VariantComponent'
 
 const VariantComponentDefaults = {
   levels: [] as Array<{
@@ -62,7 +70,7 @@ describe('VariantComponent', () => {
     })
 
     afterEach(() => {
-      removeEntity(testEntity)
+      removeEntityNodeRecursively(testEntity)
       return destroyEngine()
     })
 
@@ -82,7 +90,7 @@ describe('VariantComponent', () => {
     })
 
     afterEach(() => {
-      removeEntity(testEntity)
+      removeEntityNodeRecursively(testEntity)
       return destroyEngine()
     })
 
@@ -96,4 +104,85 @@ describe('VariantComponent', () => {
       assert.equal(gltfComponent, undefined)
     })
   }) // << reactor
+
+  describe('VariantComponent with InstancingComponent', () => {
+    overrideFileLoaderLoad()
+
+    const base_url = 'packages/engine/tests/assets/LOD/'
+    const lods = [base_url + 'Test_LOD0.glb', base_url + 'Test_LOD1.glb', base_url + 'Test_LOD2.glb']
+
+    let testEntity = UndefinedEntity
+
+    const createInstanceMatrix = () => {
+      // create random instance matrix
+      const matrices = [] as number[]
+      const mat4 = new Matrix4()
+
+      const areaSize = 100
+      const count = 10
+
+      for (let i = 0; i < count; i++) {
+        const rot = new Quaternion()
+          .setFromAxisAngle(Vector3_Up, Math.random() * 2 * Math.PI)
+          .multiply(new Quaternion().setFromAxisAngle(Vector3_Left, Math.PI * 0.5)) //rotate x by 90 degrees because the grass is facing the wrong way
+        mat4.makeRotationFromQuaternion(rot)
+        mat4.elements[12] = (Math.random() - 0.5) * areaSize
+        mat4.elements[13] = 0
+        mat4.elements[14] = (Math.random() - 0.5) * areaSize
+        matrices.push(...mat4.elements)
+      }
+
+      const instanceMatrix = new InstancedBufferAttribute(new Float32Array(matrices), 16)
+      return instanceMatrix
+    }
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'test' as EntityID
+      })
+      setComponent(testEntity, InstancingComponent, { instanceMatrix: createInstanceMatrix() })
+      setComponent(testEntity, VariantComponent)
+      await act(() => render(null))
+    })
+
+    afterEach(() => {
+      removeEntityNodeRecursively(testEntity)
+      return destroyEngine()
+    })
+
+    it('should not create a variant child entity when InstancingComponent is present', () => {
+      const childEntities = getChildrenWithComponents(testEntity, [GLTFComponent]).filter((entity) => {
+        const uuid = getComponent(entity, UUIDComponent)
+        return uuid && uuid.entityID === 'variant-child'
+      })
+
+      assert.equal(childEntities.length, 0, 'Should not create the variant-child entity')
+    })
+
+    it('should render variant levels as instances when InstancingComponent is present', async () => {
+      let distance = 0
+      setComponent(testEntity, VariantComponent, {
+        heuristic: 'DISTANCE' as Heuristic,
+        levels: lods.map((src) => {
+          const start = distance
+          distance += 20
+          return {
+            src,
+            metadata: {
+              minDistance: start,
+              maxDistance: distance
+            }
+          }
+        })
+      })
+
+      await act(() => render(null))
+
+      const childGLTFEntities = getChildrenWithComponents(testEntity, [GLTFComponent])
+      assert.equal(childGLTFEntities.length, lods.length)
+    })
+  })
 })
