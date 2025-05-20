@@ -26,9 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { ThemeState, useThemeProvider } from '@ir-engine/client-core/src/common/services/ThemeService'
 import * as ECS from '@ir-engine/ecs'
 import '@ir-engine/spatial'
-import { destroySpatialEngine, initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { useEngineCanvas } from '@ir-engine/spatial/src/renderer/functions/useEngineCanvas'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import SceneDecorator from './SceneDecorator'
 
 globalThis.ECS = ECS
@@ -47,21 +46,6 @@ const CanvasEngine = () => {
 }
 
 export default function EngineDecorator({ children, sceneName }: React.PropsWithChildren<{ sceneName?: string }>) {
-  const [engineInitialized, setEngineInitialized] = useState(false)
-
-  useEffect(() => {
-    if (engineInitialized) return
-    initializeSpatialEngine()
-    setEngineInitialized(true)
-
-    return () => {
-      destroySpatialEngine()
-    }
-  }, [])
-
-  // Don't render children components until the engine is initialized
-  if (!engineInitialized) return null
-
   return (
     <>
       <ThemeProvider />
