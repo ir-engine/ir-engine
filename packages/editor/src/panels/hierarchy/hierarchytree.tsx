@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { Button } from '@ir-engine/ui'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import SearchBar from '@ir-engine/ui/src/components/tailwind/SearchBar'
@@ -76,6 +76,7 @@ export function Contents() {
   })
   const nodes = useHierarchyNodes()
   const ref = useRef<HTMLDivElement>(null)
+  const { firstSelectedEntity } = useMutableState(HierarchyTreeState)
 
   const { canDrop, isOver, dropTarget: treeContainerDropTarget } = useHierarchyTreeDrop(nodes?.[0], 'On')
 
@@ -98,6 +99,18 @@ export function Contents() {
   }, [])
 
   useHierarchyTreeHotkeys()
+  const listRef = useRef<FixedSizeList>(null)
+
+  useEffect(() => {
+    // if(firstSelectedEntity.value) {
+    // const selectedNode = nodes.findIndex(node => node.entity === firstSelectedEntity.value);
+
+    console.log('selectedNode')
+    // if (selectedNode >= 0 && listRef.current) {
+    listRef?.current?.scrollToItem(12, 'center')
+    // }
+    // }
+  }, [nodes])
 
   return (
     <div
@@ -106,6 +119,7 @@ export function Contents() {
       data-testid="hierarchy-panel-scene-item-list"
     >
       <FixedSizeList
+        ref={listRef}
         height={listDimensions.height.value}
         width={listDimensions.width.value}
         itemSize={40}

@@ -563,6 +563,8 @@ const addToSelection = (entities: EntityUUID[]) => {
     selectedEntities.push(object)
   }
 
+  console.log('addToSelection', entities)
+
   SelectionState.updateSelection(entities)
 }
 
