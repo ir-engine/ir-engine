@@ -38,10 +38,12 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { Vector3_Left, Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { assertArray } from '@ir-engine/spatial/tests/util/assert'
 import { act, render } from '@testing-library/react'
-import { InstancedBufferAttribute, Matrix4, Quaternion } from 'three'
-import { afterEach, assert, beforeEach, describe, it } from 'vitest'
+import { InstancedBufferAttribute, InstancedMesh, Matrix4, Quaternion } from 'three'
+import { afterEach, assert, beforeEach, describe, it, vi } from 'vitest'
+import { startEngineReactor } from '../../../tests/startEngineReactor'
 import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { InstancingComponent } from './InstancingComponent'
@@ -138,6 +140,8 @@ describe('VariantComponent', () => {
 
     beforeEach(async () => {
       createEngine()
+      startEngineReactor()
+
       testEntity = createEntity()
       setComponent(testEntity, UUIDComponent, {
         entitySourceID: 'source' as SourceID,
@@ -183,6 +187,17 @@ describe('VariantComponent', () => {
 
       const childGLTFEntities = getChildrenWithComponents(testEntity, [GLTFComponent])
       assert.equal(childGLTFEntities.length, lods.length)
+
+      await vi.waitUntil(() => childGLTFEntities.every((entity) => GLTFComponent.isSceneLoaded(entity)), {
+        timeout: 5000
+      })
+
+      const childMeshEntities = getChildrenWithComponents(testEntity, [MeshComponent])
+      assert(childMeshEntities.length > 0)
+      for (const meshEntity of childMeshEntities) {
+        const mesh = getComponent(meshEntity, MeshComponent)
+        assert(mesh instanceof InstancedMesh)
+      }
     })
   })
 })
