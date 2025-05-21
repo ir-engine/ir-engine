@@ -51,13 +51,6 @@ import {
   textureCompress,
   weld
 } from '@gltf-transform/functions'
-import { createHash } from 'crypto'
-import { MeshoptEncoder, MeshoptSimplifier } from 'meshoptimizer'
-import { getPixels } from 'ndarray-pixels'
-import { $attributes } from 'property-graph'
-import { LoaderUtils } from 'three'
-import { v4 as uuidv4 } from 'uuid'
-
 import {
   ExtractedImageTransformParameters,
   extractParameters,
@@ -68,6 +61,12 @@ import {
 import { baseName, dropRoot, pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { getMutableState, NO_PROXY } from '@ir-engine/hyperflux'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
+import { createHash } from 'crypto'
+import { MeshoptEncoder, MeshoptSimplifier } from 'meshoptimizer'
+import { getPixels } from 'ndarray-pixels'
+import { $attributes } from 'property-graph'
+import { LoaderUtils } from 'three'
+import { v4 as uuidv4 } from 'uuid'
 
 import {
   EEArgEntry,
@@ -722,6 +721,38 @@ const writeFiles = async (
 
   if (['glb', 'vrm'].includes(modelFormat)) {
     // For GLB/VRM, we keep textures embedded and don't process them separately
+
+    for (const texture of root.listTextures()) {
+      const image = texture.getImage()
+      // Remove if image is missing or broken
+      if (
+        !image ||
+        image.byteLength === 0 ||
+        !['image/png', 'image/jpeg', 'image/webp'].includes(texture.getMimeType())
+      ) {
+        console.warn(`Removing broken texture: ${texture.getName() || '[unnamed]'}`)
+
+        // Unlink texture from all materials
+        for (const material of root.listMaterials()) {
+          for (const slot of [
+            'baseColorTexture',
+            'normalTexture',
+            'emissiveTexture',
+            'occlusionTexture',
+            'metallicRoughnessTexture'
+          ]) {
+            if (material.getNormalTexture() === texture) {
+              material.setNormalTexture(null)
+            }
+          }
+        }
+
+        // Dispose the texture
+        texture.dispose()
+      }
+    }
+
+    await document.transform(prune())
     const data = await io.writeBinary(document)
     await doUpload(...toProjectAndFileName(finalPath, srcBaseURL), data, path)
   } else if (modelFormat === 'gltf') {
