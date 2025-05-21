@@ -86,7 +86,6 @@ describe('glTF Extras Property', () => {
       const gltf = mockGLTFWithExtras(testCase.value)
       const options = mockGLTFOptions(gltf)
 
-      // Should not throw for any valid JSON value
       await expect(GLTFLoaderFunctions.loadScene(options, 0)).resolves.not.toThrow()
     }
   })
