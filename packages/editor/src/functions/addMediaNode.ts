@@ -239,7 +239,11 @@ export async function addMediaNode(
           for (const entity of entities) {
             requestedName = getIncreamentedName(requestedName, parent)
             setComponent(entity, NameComponent, requestedName)
-            UUIDComponent.setSourceEntity(entity, rootEntity)
+
+            const sourceID = GLTFComponent.getSourceID(rootEntity)
+            const entityID = getComponent(entity, UUIDComponent).entityID
+            setComponent(entity, UUIDComponent, { entitySourceID: sourceID, entityID })
+
             for (const comp of extraComponentJson) {
               if (comp.name === TransformComponent.jsonID) {
                 setComponent(entity, TransformComponent, comp.props)
