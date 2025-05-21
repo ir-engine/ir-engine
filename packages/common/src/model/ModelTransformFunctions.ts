@@ -721,36 +721,37 @@ const writeFiles = async (
 
   if (['glb', 'vrm'].includes(modelFormat)) {
     // For GLB/VRM, we keep textures embedded and don't process them separately
+    await Promise.all(
+      root.listTextures().map(async (texture) => {
+        const image = texture.getImage()
+        // Remove if image is missing or broken
+        if (
+          !image ||
+          image.byteLength === 0 ||
+          !['image/png', 'image/jpeg', 'image/webp'].includes(texture.getMimeType())
+        ) {
+          console.warn(`Removing broken texture: ${texture.getName() || '[unnamed]'}`)
 
-    for (const texture of root.listTextures()) {
-      const image = texture.getImage()
-      // Remove if image is missing or broken
-      if (
-        !image ||
-        image.byteLength === 0 ||
-        !['image/png', 'image/jpeg', 'image/webp'].includes(texture.getMimeType())
-      ) {
-        console.warn(`Removing broken texture: ${texture.getName() || '[unnamed]'}`)
-
-        // Unlink texture from all materials
-        for (const material of root.listMaterials()) {
-          for (const slot of [
-            'baseColorTexture',
-            'normalTexture',
-            'emissiveTexture',
-            'occlusionTexture',
-            'metallicRoughnessTexture'
-          ]) {
-            if (material.getNormalTexture() === texture) {
-              material.setNormalTexture(null)
+          // Unlink texture from all materials
+          for (const material of root.listMaterials()) {
+            for (const slot of [
+              'baseColorTexture',
+              'normalTexture',
+              'emissiveTexture',
+              'occlusionTexture',
+              'metallicRoughnessTexture'
+            ]) {
+              if (material.getNormalTexture() === texture) {
+                material.setNormalTexture(null)
+              }
             }
           }
-        }
 
-        // Dispose the texture
-        texture.dispose()
-      }
-    }
+          // Dispose the texture
+          texture.dispose()
+        }
+      })
+    )
 
     await document.transform(prune())
     const data = await io.writeBinary(document)
