@@ -155,7 +155,12 @@ export default function ModelCompressionPanel({
     })
     try {
       for (const file of selectedFiles) {
-        await compressModel(file)
+        try {
+          await compressModel(file)
+        } catch (error) {
+          console.error('Error during model compression:', error)
+          throw new Error(file.name)
+        }
       }
       await refreshDirectory()
       NotificationService.dispatchNotify(t('editor:properties.model.transform.compressionComplete'), {
@@ -164,9 +169,12 @@ export default function ModelCompressionPanel({
       })
     } catch (error) {
       // Notify user of error
-      NotificationService.dispatchNotify(t('editor:properties.model.transform.compressionError'), {
-        variant: 'error'
-      })
+      NotificationService.dispatchNotify(
+        t('editor:properties.model.transform.compressionError', { file: error.message }),
+        {
+          variant: 'error'
+        }
+      )
       console.error('Error during model compression:', error)
     } finally {
       compressionLoading.set(false)
