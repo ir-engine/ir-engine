@@ -253,20 +253,6 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
 
   const primaryLightVisibleComponent = useHasComponent(activeLightEntity, VisibleComponent)
 
-  //const rendererState = useMutableState(RendererState)
-
-  // useEffect(() => {
-  //   if (!rendererComponent) return
-  //   if (!rendererComponent.csm.value || !rendererState.nodeHelperVisibility.value) return
-
-  //   const helper = new CSMHelper()
-  //   rendererComponent.csmHelper.set(helper)
-  //   return () => {
-  //     helper.remove()
-  //     rendererComponent.csmHelper.set(null)
-  //   }
-  // }, [rendererComponent, renderSettingsComponent.csm, rendererState.nodeHelperVisibility])
-
   useEffect(() => {
     if (rendererEntity === getState(ReferenceSpaceState).viewerEntity && xrLightProbeEntity.value) {
       activeLightEntityState.set(xrLightProbeEntity.value)
