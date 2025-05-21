@@ -23,7 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { extend, ExtensionFactory, hookstate, SetInitialStateAction, State, useHookstate } from '@hookstate/core'
+import {
+  extend,
+  ExtensionFactory,
+  hookstate,
+  SetInitialStateAction,
+  SetPartialStateAction,
+  State,
+  useHookstate
+} from '@hookstate/core'
 import { Identifiable, identifiable } from '@hookstate/identifiable'
 import type { Object as _Object, Function, String } from 'ts-toolbelt'
 
@@ -214,25 +222,24 @@ export function syncStateWithLocalStorage<S, E extends Identifiable>(
   return () => {
     if (!isClient) return {}
 
-    let rootState: State<S, E>
-
     return {
       onInit: (state) => {
-        rootState = state
+        const newVals = {} as SetPartialStateAction<S>
         for (const key of keys) {
           const storedValue = localStorage.getItem(`${stateNamespaceKey}.${state.identifier}.${key}`)
-          if (storedValue !== null && storedValue !== 'undefined') state[key].set(JSON.parse(storedValue))
+          if (storedValue !== null && storedValue !== 'undefined') newVals[key] = JSON.parse(storedValue)
         }
+        state.merge(newVals)
       },
-      onSet: (state, desc) => {
-        for (const key of keys) {
-          const storageKey = `${stateNamespaceKey}.${rootState.identifier}.${key}`
-          const value = rootState[key]?.get(NO_PROXY)
-          // We should still store flags that have been set to false or null
-          if (value === undefined) localStorage.removeItem(storageKey)
-          else localStorage.setItem(storageKey, JSON.stringify(value))
-        }
+      onSet: (state, { path }, rootState) => {
+        if (!path.length || path.length > 1) return
+        const [key] = path
+        const storageKey = `${stateNamespaceKey}.${rootState.identifier}.${key}`
+        const value = rootState[key]?.get(NO_PROXY)
+        // We should still store flags that have been set to false or null
+        if (value === undefined) localStorage.removeItem(storageKey)
+        else localStorage.setItem(storageKey, JSON.stringify(value))
       }
-    } as any
+    }
   }
 }
