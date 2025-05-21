@@ -154,13 +154,26 @@ export default function ModelCompressionPanel({
       caption: ''
     })
     try {
+      const failedFiles: string[] = []
       for (const file of selectedFiles) {
         try {
           await compressModel(file)
         } catch (error) {
           console.error('Error during model compression:', error)
-          throw new Error(file.name)
+          // Notify user of error
+          failedFiles.push(file.name)
+          continue
         }
+      }
+      if (failedFiles.length === selectedFiles.length) {
+        throw new Error(failedFiles.join(', '))
+      } else if (failedFiles.length > 0) {
+        NotificationService.dispatchNotify(
+          t('editor:properties.model.transform.compressionError', { file: failedFiles.join(', ') }),
+          {
+            variant: 'error'
+          }
+        )
       }
       await refreshDirectory()
       NotificationService.dispatchNotify(t('editor:properties.model.transform.compressionComplete'), {
