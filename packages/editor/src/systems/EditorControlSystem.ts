@@ -237,7 +237,6 @@ const onFocusCamera = (cameraEntity: Entity) => {
 
 function copy(event) {
   if (isInputSelected()) return
-  event.preventDefault()
 
   // TODO: Prevent copying objects with a disabled transform
   if (getState(SelectionState).selectedEntities.length > 0) {
@@ -255,8 +254,6 @@ function paste(event) {
 
   const isMiddleClick = inputSourceQuery().find((e) => getComponent(e, InputSourceComponent).buttons.AuxiliaryClick)
   if (isMiddleClick) return
-
-  event.preventDefault()
 
   let data
 

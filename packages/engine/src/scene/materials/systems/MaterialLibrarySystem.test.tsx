@@ -35,6 +35,7 @@ import {
   getComponent,
   setComponent
 } from '@ir-engine/ecs'
+import { getMutableState } from '@ir-engine/hyperflux'
 import { flushAll } from '@ir-engine/hyperflux/tests/utils/flushAll'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -42,17 +43,17 @@ import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
 import { Mesh, MeshLambertMaterial, MeshPhysicalMaterial } from 'three'
 import { afterEach, assert, beforeEach, describe, it } from 'vitest'
-import { convertMaterials } from './MaterialLibrarySystem'
 
 describe('MaterialLibrarySystem', () => {
   describe('convertMaterials', () => {
     let instanceEntity = UndefinedEntity
     let materialEntity = UndefinedEntity
-    const materialInstanceID = 'materialUuid' as SourceID
-    const materialID = 'id' as EntityID
+    const materialInstanceID = 'materialInstanceID' as SourceID
+    const materialID = 'materialID' as EntityID
 
     beforeEach(async () => {
       createEngine()
@@ -63,8 +64,12 @@ describe('MaterialLibrarySystem', () => {
       setComponent(materialEntity, MaterialStateComponent, { material: new MeshPhysicalMaterial() })
 
       instanceEntity = createEntity()
+      setComponent(instanceEntity, UUIDComponent, {
+        entitySourceID: materialInstanceID,
+        entityID: 'meshID' as EntityID
+      })
       setComponent(instanceEntity, MaterialInstanceComponent, {
-        entities: [materialEntity]
+        entities: [getComponent(materialEntity, UUIDComponent).entityID]
       })
       setComponent(instanceEntity, MeshComponent, new Mesh())
 
@@ -75,8 +80,9 @@ describe('MaterialLibrarySystem', () => {
       return destroyEngine()
     })
 
-    it('should convert a physical material to a basic material and update the instance', () => {
-      convertMaterials(materialEntity, true)
+    it('should convert a physical material to a basic material and update the instance', async () => {
+      getMutableState(RendererState).forceBasicMaterials.set(true)
+      await flushAll()
 
       const basicUuid = { entitySourceID: 'basic-' + materialInstanceID, entityID: materialID } as EntityUUIDPair
       const basicMaterialEntity = UUIDComponent.getEntityByUUID(UUIDComponent.join(basicUuid))
@@ -92,11 +98,14 @@ describe('MaterialLibrarySystem', () => {
       assert.equal(basicMaterial.uuid, UUIDComponent.join(basicUuid))
       assert.equal(basicMaterial.alphaTest, originalMaterial.alphaTest)
       assert.equal(basicMaterial.side, originalMaterial.side)
-      assert.equal(getComponent(instanceEntity, MaterialInstanceComponent).entities[0], basicMaterialEntity)
+      assert.equal(
+        getComponent(instanceEntity, MaterialInstanceComponent).entities[0],
+        getComponent(basicMaterialEntity, UUIDComponent).entityID
+      )
     })
 
     it('should switch the instance back to physical when disabling basic materials', async () => {
-      convertMaterials(materialEntity, true)
+      getMutableState(RendererState).forceBasicMaterials.set(true)
       await flushAll()
 
       const basicMaterialEntity = UUIDComponent.getEntityByUUID(
@@ -110,11 +119,12 @@ describe('MaterialLibrarySystem', () => {
 
       const instanceComponent = getComponent(instanceEntity, MaterialInstanceComponent)
 
-      assert.equal(instanceComponent.entities[0], basicMaterialEntity)
+      assert.equal(instanceComponent.entities[0], getComponent(basicMaterialEntity, UUIDComponent).entityID)
 
-      convertMaterials(basicMaterialEntity, false)
+      getMutableState(RendererState).forceBasicMaterials.set(false)
+      await flushAll()
 
-      assert.equal(instanceComponent.entities[0], materialEntity)
+      assert.equal(instanceComponent.entities[0], getComponent(materialEntity, UUIDComponent).entityID)
     })
   })
 })

@@ -132,7 +132,8 @@ const useIsUnlit = (entity: Entity) => {
   const materialInstanceUUIDs = useOptionalComponent(entity, MaterialInstanceComponent)?.entities.value
 
   if (materialInstanceUUIDs) {
-    for (const matEntity of materialInstanceUUIDs) {
+    for (const matEntityID of materialInstanceUUIDs) {
+      const matEntity = UUIDComponent.getEntityFromSameSourceByID(entity, matEntityID)
       if (matEntity && hasComponent(matEntity, KHRUnlitExtensionComponent)) {
         isUnlit = true
         break

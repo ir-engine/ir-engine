@@ -309,7 +309,7 @@ describe('GLTF Loader', async () => {
       const matInstance = getComponent(matEntity, MaterialInstanceComponent)
       for (const entity of matInstance.entities) entities.add(entity)
       return entities
-    }, new Set<Entity>())
+    }, new Set<EntityID>())
     const matUUIDs = [...uniqueMatUUIDs].filter(Boolean)
 
     assert(materials.length === matUUIDs.length)

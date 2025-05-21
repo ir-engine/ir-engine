@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, LayerFunctions, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
@@ -55,11 +56,11 @@ const MeshNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
       <Accordion title={t('editor:properties.mesh.geometryEditor')}>
         <GeometryEditor geometry={meshComponent?.geometry ?? null} />
       </Accordion>
-      {materialInstanceComponent.value.entities.map((entity) => {
-        if (!materialIsInAuthoringLayer(entity)) return null
+      {materialInstanceComponent.value.entities.map((entityID) => {
+        if (!materialIsInAuthoringLayer(UUIDComponent.getEntityFromSameSourceByID(entity, entityID))) return null
         return (
-          <Accordion title={t('editor:properties.mesh.materialEditor')} key={entity}>
-            <MaterialEditor entity={entity} />
+          <Accordion title={t('editor:properties.mesh.materialEditor')} key={entityID}>
+            <MaterialEditor entity={UUIDComponent.getEntityFromSameSourceByID(entity, entityID)} />
           </Accordion>
         )
       })}

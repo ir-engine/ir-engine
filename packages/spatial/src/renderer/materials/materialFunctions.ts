@@ -29,12 +29,7 @@ import { Entity, getComponent, getMutableComponent, hasComponent, UUIDComponent 
 
 import { getState } from '@ir-engine/hyperflux'
 import { MeshComponent } from '../components/MeshComponent'
-import {
-  MaterialInstanceComponent,
-  MaterialPrototypeDefinitions,
-  MaterialStateComponent,
-  PrototypeArgument
-} from './MaterialComponent'
+import { MaterialPrototypeDefinitions, MaterialStateComponent, PrototypeArgument } from './MaterialComponent'
 
 export const formatMaterialArgs = (args: any, defaultArgs?: PrototypeArgument) => {
   if (!args) return args
@@ -90,14 +85,6 @@ export const hasPlugin = (material: Material, callback: MaterialCallback) =>
 export const removePlugin = (material: Material, callback: MaterialCallback) => {
   const pluginIndex = material.plugins?.findIndex((plugin) => plugin === callback)
   if (pluginIndex !== undefined && pluginIndex >= 0) material.plugins?.splice(pluginIndex, 1)
-}
-
-export const getMaterialIndices = (entity: Entity, materialEntity: Entity): number[] => {
-  if (!hasComponent(entity, MaterialInstanceComponent)) return [] as number[]
-  const materialEntities = getComponent(entity, MaterialInstanceComponent).entities
-  return materialEntities
-    .map((currentEntity, index) => (currentEntity === materialEntity ? index : undefined))
-    .filter((x) => x !== undefined) as number[]
 }
 
 export const setupMaterialParameters = (entity: Entity, type: string, properties: { [_: string]: any }) => {

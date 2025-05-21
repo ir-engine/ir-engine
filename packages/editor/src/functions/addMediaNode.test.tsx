@@ -334,10 +334,15 @@ describe('addMediaNode', () => {
     expect(entityUUID).toBe(meshUUID)
 
     await vi.waitFor(() => {
-      expect(getComponent(meshEntity, MaterialInstanceComponent).entities[0]).not.toBe(materialEntity)
+      expect(getComponent(meshEntity, MaterialInstanceComponent).entities[0]).not.toBe(
+        getComponent(materialEntity, UUIDComponent).entityID
+      )
     })
 
-    const newMaterialEntity = getComponent(meshEntity, MaterialInstanceComponent).entities[0]
+    const newMaterialEntity = UUIDComponent.getEntityFromSameSourceByID(
+      meshEntity,
+      getComponent(meshEntity, MaterialInstanceComponent).entities[0]
+    )
     const material = getComponent(newMaterialEntity, MaterialStateComponent).material as MeshStandardMaterial
 
     // assert material properties have updated

@@ -55,6 +55,7 @@ import {
   defineComponent,
   EntityID,
   EntityTreeComponent,
+  getComponent,
   S,
   SerializedComponentType,
   setComponent,
@@ -152,7 +153,7 @@ describe('exportGLTFScene', () => {
       entityID: 'mesh' as EntityID
     })
     setComponent(meshEntity, MaterialInstanceComponent, {
-      entities: [materialEntity]
+      entities: [getComponent(materialEntity, UUIDComponent).entityID]
     })
     setComponent(meshEntity, NameComponent, 'mesh')
     setComponent(meshEntity, EntityTreeComponent, { parentEntity: baseEntity })
@@ -234,7 +235,10 @@ describe('exportGLTFScene', () => {
     setComponent(meshEntity, MeshComponent, new Mesh(geometry, [material1, material2]))
     // Create a mesh with the multi-materials by passing an array.
     setComponent(meshEntity, MaterialInstanceComponent, {
-      entities: [materialEntity1, materialEntity2]
+      entities: [
+        getComponent(materialEntity1, UUIDComponent).entityID,
+        getComponent(materialEntity2, UUIDComponent).entityID
+      ]
     })
 
     // Export the scene as a GLTF document.
@@ -316,7 +320,7 @@ describe('exportGLTFScene', () => {
     // Create a mesh using the geometry and material.
     const mesh = new Mesh(geometry, material)
     setComponent(meshEntity, MaterialInstanceComponent, {
-      entities: [materialEntity]
+      entities: [getComponent(materialEntity, UUIDComponent).entityID]
     })
     setComponent(meshEntity, MeshComponent, mesh)
     return { baseEntity, meshEntity, materialEntity }

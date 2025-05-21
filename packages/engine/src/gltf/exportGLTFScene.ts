@@ -576,7 +576,7 @@ const exportMesh = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFSceneEx
   const materialInstances = getOptionalComponent(entity, MaterialInstanceComponent)
   if (materialInstances) {
     for (let i = 0; i < materialInstances.entities.length; i++) {
-      const materialEntity = materialInstances.entities[i]
+      const materialEntity = UUIDComponent.getEntityFromSameSourceByID(entity, materialInstances.entities[i])
       materialPromises.push(
         new Promise<void>((resolve) => {
           awaitMaterial(materialEntity, context).then((materialIndex) => {
@@ -958,7 +958,7 @@ const exportMaterial = async (
   const components = getAllComponents(entity)
   for (const component of components) {
     if (!component.jsonID) continue
-    if (component === UUIDComponent || component === NameComponent || component === EntityTreeComponent) continue
+    if (JSONIDsGLTFExtensionToIgnore.includes(component.jsonID)) continue
     if (materialDef.extensions[component.jsonID]) continue
     materialDef.extensions[component.jsonID] = serializeComponent(entity, component)
   }
@@ -1391,3 +1391,11 @@ const matrixEqualsIdentity = (matrix: number[]) => {
     matrix[15] === 1
   )
 }
+
+export const JSONIDsGLTFExtensionToIgnore = [
+  UUIDComponent.jsonID,
+  NameComponent.jsonID,
+  EntityTreeComponent.jsonID,
+  MaterialStateComponent.jsonID,
+  MaterialInstanceComponent.jsonID
+]

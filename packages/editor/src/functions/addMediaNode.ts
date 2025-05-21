@@ -127,7 +127,11 @@ export const replaceMaterialIndex = (assetEntity: Entity, targetEntity: Entity, 
   setComponent(newMaterialEntity, UUIDComponent, { entitySourceID: newSourceID, entityID: entityID })
 
   /** Update the material instance component to point to the new material */
-  getMutableComponent(targetEntity, MaterialInstanceComponent).entities[materialIndex].set(newMaterialEntity)
+  getMutableComponent(targetEntity, MaterialInstanceComponent).entities[materialIndex].set(
+    getComponent(newMaterialEntity, UUIDComponent).entityID
+  )
+
+  /** @todo get material reference state, and if there are no references, remove the entity */
 
   removeEntity(assetEntity)
 

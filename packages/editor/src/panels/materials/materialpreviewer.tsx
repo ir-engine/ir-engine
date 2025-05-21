@@ -68,7 +68,9 @@ function MaterialPreviewCanvas() {
     sphereMesh.geometry.attributes['uv1'] = sphereMesh.geometry.attributes['uv']
     setComponent(sceneEntity, MeshComponent, sphereMesh)
     const selectedMaterialEntity = UUIDComponent.getEntityByUUID(selectedMaterial.value, Layers.Authoring)
-    setComponent(sceneEntity, MaterialInstanceComponent, { entities: [selectedMaterialEntity] })
+    setComponent(sceneEntity, MaterialInstanceComponent, {
+      entities: [getComponent(selectedMaterialEntity, UUIDComponent).entityID]
+    })
 
     const pivot = computeTransformPivot([sceneEntity])
     if (pivot.position) {

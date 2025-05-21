@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   Engine,
-  Entity,
   EntityID,
   SourceID,
   UUIDComponent,
@@ -149,11 +148,11 @@ describe('MaterialStateComponent', () => {
 }) //:: MaterialStateComponent
 
 type MaterialInstanceComponentData = {
-  entities: Entity[]
+  entities: EntityID[]
 }
 
 const MaterialInstanceComponentDefaults: MaterialInstanceComponentData = {
-  entities: [] as Entity[]
+  entities: [] as EntityID[]
 }
 
 function assertMaterialInstanceComponentEq(A: MaterialInstanceComponentData, B: MaterialInstanceComponentData) {
@@ -215,7 +214,7 @@ describe('MaterialInstanceComponent', () => {
         entityID: 'id2' as EntityID
       })
       const Expected: MaterialInstanceComponentData = {
-        entities: [entity1, entity2] as Entity[]
+        entities: [entity1, entity2].map((entity) => getComponent(entity, UUIDComponent).entityID)
       }
       setComponent(testEntity, MaterialInstanceComponent, Expected)
       const result = getComponent(testEntity, MaterialInstanceComponent)

@@ -1316,7 +1316,7 @@ const loadMesh = async (options: GLTFParserOptions, entity: Entity, nodeIndex: n
   setComponent(entity, NameComponent, node.name ?? meshDef.name ?? `Mesh-${meshIndex}`)
 
   setComponent(entity, MaterialInstanceComponent, {
-    entities: materialEntities
+    entities: materialEntities.map((entity) => getComponent(entity, UUIDComponent).entityID)
   })
 
   if (Object.keys(mesh.geometry.morphAttributes).length > 0) {

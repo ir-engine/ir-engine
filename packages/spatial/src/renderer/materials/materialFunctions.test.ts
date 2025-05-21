@@ -42,19 +42,11 @@ import assert from 'assert'
 import sinon from 'sinon'
 import { BoxGeometry, Color, Material, Mesh, Texture } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { assertArray } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { TransformComponent } from '../RendererModule'
 import { MeshComponent } from '../components/MeshComponent'
-import { MaterialInstanceComponent, MaterialStateComponent, PrototypeArgumentValue } from './MaterialComponent'
-import {
-  formatMaterialArgs,
-  getMaterialIndices,
-  hasPlugin,
-  removePlugin,
-  setMeshMaterial,
-  setPlugin
-} from './materialFunctions'
+import { MaterialStateComponent, PrototypeArgumentValue } from './MaterialComponent'
+import { formatMaterialArgs, hasPlugin, removePlugin, setMeshMaterial, setPlugin } from './materialFunctions'
 
 const prototypeDefaultArgs: PrototypeArgumentValue = {
   type: 'defaultType',
@@ -395,59 +387,6 @@ describe('materialFunctions', () => {
       assert.equal(result, Expected)
     })
   }) //:: removePlugin
-
-  describe('getMaterialIndices', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(() => {
-      createEngine()
-      mockSpatialEngine()
-      testEntity = createEntity()
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should return an empty array if `@param entity` does not have a MaterialInstanceComponent', () => {
-      // Set the data as expected
-      const materialEntity = createEntity()
-      // setComponent(testEntity, MaterialInstanceComponent)
-      // Sanity check before running
-      assert.equal(hasComponent(testEntity, MaterialInstanceComponent), false)
-      // Run and Check the result
-      const result = getMaterialIndices(testEntity, materialEntity)
-      assert.equal(result.length, 0)
-    })
-
-    it('should return an array that contains the indices of MaterialInstanceComponent.uuid that matched the `@param materialEntity`. None of them should be undefined', () => {
-      // Set the data as expected
-      const dummyEntity1 = createEntity()
-      const dummyEntity2 = createEntity()
-      const dummyEntity3 = createEntity()
-      const materialEntity = createEntity()
-      const materialEntities = [
-        materialEntity,
-        dummyEntity1,
-        materialEntity,
-        dummyEntity2,
-        materialEntity,
-        dummyEntity3
-      ] as Entity[]
-      const Expected = [0, 2, 4]
-      setComponent(testEntity, MaterialInstanceComponent, { entities: materialEntities })
-
-      // Sanity check before running
-      assert.equal(hasComponent(testEntity, MaterialInstanceComponent), true)
-      for (const id of Expected) assert.equal(materialEntities[id], materialEntity)
-
-      // Run and Check the result
-      const result = getMaterialIndices(testEntity, materialEntity)
-      assert.equal(result.length, Expected.length)
-      assertArray.eq(result, Expected)
-    })
-  }) //:: getMaterialIndices
 
   describe('formatMaterialArgs', () => {
     it('should return `@param args` if it is falsy', () => {

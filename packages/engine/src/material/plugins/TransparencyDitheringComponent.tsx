@@ -47,7 +47,7 @@ export const MAX_DITHER_POINTS = 2 //should be equal to the length of the vec3 a
 
 export const TransparencyDitheringRootComponent = defineComponent({
   name: 'TransparencyDitheringRootComponent',
-  schema: S.Object({ materials: S.Array(S.Entity()) })
+  schema: S.Object({ materials: S.Array(S.EntityID()) })
 })
 
 export const TransparencyDitheringPluginComponent = defineMaterialPlugin({

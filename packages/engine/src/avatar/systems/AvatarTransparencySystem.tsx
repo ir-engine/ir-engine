@@ -70,7 +70,8 @@ const execute = () => {
     const cameraComponent = getOptionalComponent(getState(ReferenceSpaceState).viewerEntity, FollowCameraComponent)
 
     if (!materials?.length) continue
-    for (const materialEntity of materials) {
+    for (const materialEntityID of materials) {
+      const materialEntity = UUIDComponent.getEntityFromSameSourceByID(avatarEntity, materialEntityID)
       const pluginComponent = getOptionalComponent(materialEntity, TransparencyDitheringPluginComponent)
       if (!pluginComponent) continue
       const viewerPosition = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent).position
@@ -119,10 +120,12 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
 
   useEffect(() => {
     if (!materialComponentEntities?.length || !rootDitheringComponent) return
-    for (const entity of materialComponentEntities.value) {
+    for (const entityID of materialComponentEntities.value) {
+      if (!entityID) continue
+      if (!rootDitheringComponent.materials.value.includes(entityID))
+        rootDitheringComponent.materials.set([...rootDitheringComponent.materials.value, entityID])
+      const entity = UUIDComponent.getEntityFromSameSourceByID(props.rootEntity, entityID)
       if (!entity) continue
-      if (!rootDitheringComponent.materials.value.includes(entity))
-        rootDitheringComponent.materials.set([...rootDitheringComponent.materials.value, entity])
       setComponent(entity, TransparencyDitheringPluginComponent)
     }
   }, [materialComponentEntities, !!rootDitheringComponent])

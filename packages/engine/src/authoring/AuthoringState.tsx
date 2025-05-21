@@ -258,6 +258,8 @@ export const AuthoringState = defineState({
   }
 })
 
+globalThis.AuthoringState = AuthoringState
+
 const SourceReactor = (props: { entity: Entity }) => {
   const loaded = GLTFComponent.useSceneLoaded(props.entity)
 
@@ -424,6 +426,8 @@ export const applyCommandsToECS = (sourceID: SourceID, currentState: SourceData,
         if (Component === MaterialStateComponent) {
           const materialComponent = getMutableComponent(entity, MaterialStateComponent)
           const { material, parameters } = materialComponent.get(NO_PROXY)
+          console.log({ nodeID, entity, material, parameters })
+          if (!material) continue
           const args = getState(MaterialPrototypeDefinitions)[material.type].arguments
           for (const [key, val] of Object.entries(parameters)) {
             if (typeof val === 'undefined' || typeof material[key] === 'undefined') continue
