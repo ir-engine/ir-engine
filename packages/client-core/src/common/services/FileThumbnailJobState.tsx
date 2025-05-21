@@ -72,12 +72,17 @@ import { Color, Euler, Material, Mesh, Quaternion, SphereGeometry } from 'three'
 import { useFind } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { getChildrenWithComponents } from '@ir-engine/ecs'
+import { uploadProjectFiles } from '@ir-engine/editor/src/functions/assetFunctions'
 import { useGLTFComponent, useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowComponent'
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
-import { setCameraFocusOnBox } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
+import {
+  CameraViewAngle,
+  setCameraFocusOnBox,
+  setCameraFocusOnBoxFromAngle
+} from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { BackgroundComponent, SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
@@ -103,7 +108,7 @@ export function generateThumbnailKey(src: string, projectName: string): string {
 type ThumbnailJob = {
   key: string
   project: string // the project name
-  jobType: 'thumbnail' | 'dimension'
+  jobType: 'thumbnail' | 'dimension' | 'cv processing'
 }
 
 const seekVideo = (video: HTMLVideoElement, time: number): Promise<void> =>
@@ -166,7 +171,9 @@ export const uploadDimension = async (modelEntity: Entity, src: string, projectN
     console.error('error in uploadDimension', e)
   }
 }
-
+const uploadToCVProcessor = async (src: string, projectName: string, blob: Blob | null) => {
+  //TODO upload to database
+}
 const uploadThumbnail = async (src: string, projectName: string, blob: Blob | null) => {
   if (!blob) return
   const thumbnailMode = 'automatic'
@@ -225,7 +232,7 @@ const useGenerateHelper = (
   files: readonly FileBrowserContentType[],
   filterKey: (file: FileBrowserContentType) => string | undefined,
   queryConditions: Record<string, any>,
-  jobType: 'thumbnail' | 'dimension' = 'thumbnail'
+  jobType: 'thumbnail' | 'dimension' | 'cv processing' = 'thumbnail'
 ) => {
   const jobState = useMutableState(FileThumbnailJobState)
   const seenResources = jobState.seenResources[jobType]
@@ -306,6 +313,10 @@ export const removeFromFileThumbnailsSeen = (
   jobState.seenResources[jobType].set(seenResources)
 }
 
+export const generateMultiViewThumbnails = (url: string, projectName: string) => {
+  FileThumbnailJobState.generateMultiViewThumbnails(url, projectName)
+}
+
 export const FileThumbnailJobState = defineState({
   name: 'FileThumbnailJobState',
   initial: {
@@ -338,6 +349,23 @@ export const FileThumbnailJobState = defineState({
       },
       'dimension'
     )
+  },
+  generateMultiViewThumbnails: (url: string, projectName: string) => {
+    const jobState = getMutableState(FileThumbnailJobState)
+    const fileJobs = jobState.jobs
+
+    // Check if this job is already in the queue
+    if (fileJobs.value.filter((fj) => fj.key === url && fj.jobType === 'cv processing').length < 1) {
+      fileJobs.merge([
+        {
+          key: url,
+          project: projectName,
+          jobType: 'cv processing'
+        }
+      ])
+    } else {
+      console.log(`Multi-view thumbnail job for ${url} already in queue`)
+    }
   }
 })
 
@@ -453,7 +481,156 @@ type RenderThumbnailProps = {
   src: string
   project: string
   onError: (err) => void
-  jobType?: 'thumbnail' | 'dimension'
+  jobType?: 'thumbnail' | 'dimension' | 'cv processing'
+}
+
+const renderThumbnailFromAngle = (
+  entity: Entity,
+  lightEntity: Entity,
+  skyboxEntity: Entity,
+  cameraEntity: Entity,
+  viewAngle: CameraViewAngle
+): Promise<Blob> => {
+  return new Promise((resolve, reject) => {
+    try {
+      // Set camera position based on the view angle
+      setCameraFocusOnBoxFromAngle(entity, cameraEntity, viewAngle)
+
+      const camera = getComponent(cameraEntity, CameraComponent)
+      const viewCamera = camera.cameras[0]
+
+      viewCamera.layers.mask = ObjectLayerMaskComponent.mask[cameraEntity]
+      setComponent(cameraEntity, RendererComponent, { scenes: [entity, lightEntity, skyboxEntity] })
+
+      const renderer = getComponent(cameraEntity, RendererComponent)
+      const { scene, canvas, scenes } = renderer
+      const entitiesToRender = scenes.map(getNestedVisibleChildren).flat()
+      const { background, children } = getSceneParameters(entitiesToRender, cameraEntity)
+      scene.children = children
+      scene.background = background
+      render(renderer, renderer.scene, getComponent(cameraEntity, CameraComponent), 0, false)
+
+      canvas!.toBlob((blob: Blob) => {
+        if (blob) {
+          resolve(blob)
+        } else {
+          reject(new Error('Failed to create blob from canvas'))
+        }
+      })
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+const renderMultiViewImages = async (
+  entity: Entity,
+  lightEntity: Entity,
+  skyboxEntity: Entity,
+  cameraEntity: Entity,
+  props: RenderThumbnailProps
+): Promise<void> => {
+  const { src, onError } = props
+
+  try {
+    // Define the six standard view angles
+    const viewAngles = [
+      CameraViewAngle.FRONT,
+      CameraViewAngle.BACK,
+      CameraViewAngle.LEFT,
+      CameraViewAngle.RIGHT,
+      CameraViewAngle.TOP,
+      CameraViewAngle.BOTTOM
+    ]
+
+    // Create a combined canvas for all six views
+    // Each thumbnail is 256x256, create a 3x2 grid (768x512)
+    const combinedCanvas = document.createElement('canvas')
+    combinedCanvas.width = 768 // 3 thumbnails wide
+    combinedCanvas.height = 512 // 2 thumbnails tall
+    const ctx = combinedCanvas.getContext('2d')
+
+    if (!ctx) {
+      throw new Error('Failed to get canvas context')
+    }
+
+    // Fill with a light gray background
+    ctx.fillStyle = '#ffffff'
+    ctx.fillRect(0, 0, combinedCanvas.width, combinedCanvas.height)
+
+    // Render each view and add it to the combined canvas
+    const thumbnailSize = 256
+    const blobs: Blob[] = []
+
+    for (let i = 0; i < viewAngles.length; i++) {
+      const angle = viewAngles[i]
+      // Get a readable label from the enum value
+      const label = angle.charAt(0).toUpperCase() + angle.slice(1)
+
+      const blob = await renderThumbnailFromAngle(entity, lightEntity, skyboxEntity, cameraEntity, angle)
+      blobs.push(blob)
+
+      // Convert blob to image
+      const img = await createImageFromBlob(blob)
+
+      // Calculate position in the grid (0,0 is top-left)
+      const col = i % 3
+      const row = Math.floor(i / 3)
+      const x = col * thumbnailSize
+      const y = row * thumbnailSize
+
+      // Draw the image
+      ctx.drawImage(img, x, y, thumbnailSize, thumbnailSize)
+
+      // // Add a label
+      // ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'
+      // ctx.fillRect(x, y + thumbnailSize - 30, thumbnailSize, 30)
+      // ctx.fillStyle = 'white'
+      // ctx.font = 'bold 16px Arial'
+      // ctx.textAlign = 'center'
+      // ctx.textBaseline = 'middle'
+      // ctx.fillText(label, x + thumbnailSize / 2, y + thumbnailSize - 15)
+    }
+
+    // Convert the combined canvas to a blob and save it to the project
+    const combinedBlob = await new Promise<Blob | null>((resolve) => {
+      combinedCanvas.toBlob(resolve, 'image/png')
+    })
+
+    if (combinedBlob) {
+      try {
+        // save combined views image to the project/public/multi-view folder
+        const fileName =
+          src
+            .split('/')
+            .pop()
+            ?.replace(/\.[^.]+$/, '') || 'model'
+        const multiViewFileName = `${fileName}_multiview.png`
+        const imageFile = new File([combinedBlob], multiViewFileName, { type: 'image/png' })
+        const projectName = props.project
+        const multiViewFolder = `projects/${projectName}/public/multi-view`
+        await uploadProjectFiles(projectName, [imageFile], [multiViewFolder]).promises[0]
+        console.log(`Saved multi-view image to ${multiViewFolder}/${imageFile.name}`)
+      } catch (error) {
+        console.error('Error saving multi-view image:', error)
+        onError(error)
+      }
+    }
+    // TODO: Add functionality to process these images for computer vision tasks
+    uploadToCVProcessor(src, props.project, combinedBlob)
+    //job completed
+    FileThumbnailJobState.removeCurrentJob()
+  } catch (error) {
+    onError(error)
+  }
+}
+
+const createImageFromBlob = (blob: Blob): Promise<HTMLImageElement> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => resolve(img)
+    img.onerror = reject
+    img.src = URL.createObjectURL(blob)
+  })
 }
 
 const renderThumbnail = (
@@ -562,6 +739,9 @@ const RenderModelThumbnail = (props: RenderThumbnailProps) => {
     } else if (jobType === 'thumbnail') {
       console.log('upload thumbnail')
       renderThumbnail(entity, lightEntity, skyboxEntity, cameraEntity, props)
+    } else if (jobType === 'cv processing') {
+      console.log('rendering multi-view images')
+      renderMultiViewImages(entity, lightEntity, skyboxEntity, cameraEntity, props)
     }
   }, [loaded, jobType])
 
