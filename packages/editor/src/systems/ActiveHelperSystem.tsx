@@ -140,7 +140,7 @@ const ActiveHelperReactor = () => {
       }
       return iconGizmo
     },
-    editorHelperState.gizmoEnabled && activeHelperComponent.enabled.value,
+    editorHelperState.gizmoEnabled.value && activeHelperComponent.enabled.value,
     ObjectLayerMasks.NodeIcon,
     'icon-helper'
   )
