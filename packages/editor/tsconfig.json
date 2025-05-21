@@ -26,6 +26,6 @@
     "declaration": false,
     "types": ["@types/node"]
   },
-  "exclude": ["./src/**/*.test.tsx"],
-  "include": ["../../__global.d.ts", "../server-core/src", "../client-core/src", "./src", "./index.ts"]
+  "exclude": ["**/node_modules/**", "./src/**/*.test.tsx"],
+  "include": ["../../__global.d.ts", "../client-core/src", "../server-core/src", "./src", "./index.ts"]
 }

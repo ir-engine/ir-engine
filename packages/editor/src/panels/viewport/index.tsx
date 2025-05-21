@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
+import { ShadowMapResolutionOptions } from '@ir-engine/client-core/src/user/menus/SettingsMenu'
 import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
 import { useFind } from '@ir-engine/common'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
@@ -37,9 +38,13 @@ import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ResourcePendingComponent } from '@ir-engine/engine/src/gltf/ResourcePendingComponent'
 import { ErrorBoundary, getState, useMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
+import { RenderModes } from '@ir-engine/spatial/src/renderer/constants/RenderModes'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { Checkbox, Select } from '@ir-engine/ui'
+import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
-import { DotsVerticalMd } from '@ir-engine/ui/src/icons'
+import { ChevronDownMd } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { TabData } from 'rc-dock'
@@ -49,15 +54,14 @@ import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import { Vector2, Vector3 } from 'three'
 import { DnDFileType, FileDataType, ItemTypes, SceneElementType, SupportedFileTypes } from '../../constants/AssetTypes'
-import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { addMediaNode } from '../../functions/addMediaNode'
-import { getCursorSpawnPosition } from '../../functions/screenSpaceFunctions'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { getCursorPositionNormalized, getScreenSpacePosition } from '../../functions/screenSpaceFunctions'
 import { EditorState } from '../../services/EditorServices'
 import CameraGizmoTool from './tools/CameraGizmoTool'
-import GridTool from './tools/GridTool'
-import PlayModeTool from './tools/PlayModeTool'
 import RenderModeTool from './tools/RenderTool'
 import SceneHelpersTool from './tools/SceneHelpersTool'
+import ScenePlaybackTool from './tools/ScenePlaybackTool'
 import SelectionBox from './tools/SelectionBoxTool'
 import TransformGizmoTool from './tools/TransformGizmoTool'
 import TransformPivotTool from './tools/TransformPivotTool'
@@ -78,6 +82,14 @@ const useIntersectionObserver = (ref, handleIntersection, handleObserve, options
   }, [ref.current, options])
 }
 
+const useVisibleByIndex = (items) => {
+  return React.useState(
+    items.map((element, index) => {
+      return true
+    })
+  )
+}
+
 const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
   const projectName = useMutableState(EditorState).projectName
 
@@ -88,7 +100,8 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
     }),
     drop(item: SceneElementType | FileDataType | DnDFileType, monitor) {
       const vec3 = new Vector3()
-      getCursorSpawnPosition(monitor.getClientOffset() as Vector2, vec3)
+      const screenPosition = getCursorPositionNormalized(new Vector2().copy(monitor.getClientOffset() as Vector2))
+      getScreenSpacePosition(screenPosition, vec3)
       if ('componentJsonID' in item) {
         EditorControlFunctions.createObjectFromSceneElement([
           { name: item.componentJsonID },
@@ -96,7 +109,13 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
         ])
         AuthoringState.snapshotEntities([getState(EditorState).rootEntity])
       } else if ('url' in item) {
-        addMediaNode(item.url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+        addMediaNode(
+          item.url,
+          undefined,
+          undefined,
+          [{ name: TransformComponent.jsonID, props: { position: vec3 } }],
+          screenPosition
+        )
       } else if ('files' in item) {
         const dropDataTransfer: DataTransfer = monitor.getItem()
 
@@ -121,7 +140,13 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
           const vec3 = new Vector3()
           urls.forEach((url) => {
             if (!url || url.length < 1 || !url[0] || url[0] === '') return
-            addMediaNode(url[0], undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+            addMediaNode(
+              url[0],
+              undefined,
+              undefined,
+              [{ name: TransformComponent.jsonID, props: { position: vec3 } }],
+              screenPosition
+            )
           })
         })
       }
@@ -129,10 +154,7 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
   })
 
   return (
-    <div
-      ref={dropRef}
-      className={twMerge('h-full w-full border border-white', isDragging ? 'border-4' : 'border-none')}
-    >
+    <div ref={dropRef} className={twMerge('h-full w-full border border-white', 'border-none')}>
       {children}
     </div>
   )
@@ -176,36 +198,45 @@ export function ViewportContainer() {
 
   const [transformPivotFeatureFlag] = useFeatureFlags([FeatureFlags.Studio.UI.TransformPivot])
 
-  const items = [
+  const leftItems = [
     <TransformSpaceTool />,
-    transformPivotFeatureFlag && <TransformPivotTool />,
-    <GridTool />,
-    <TransformSnapTool />,
-    <SceneHelpersTool />,
-    <div className="flex-1" />,
-    <RenderModeTool />,
-    <PlayModeTool />
+    ...(transformPivotFeatureFlag ? [<TransformPivotTool />] : []),
+    <TransformSnapTool />
   ]
+  const rightItems = [<SceneHelpersTool />, <RenderModeTool />, <ScenePlaybackTool />]
 
-  const initialVisibleBarItems: boolean[] = items.map((element, index) => {
-    return true
-  })
-  const [visibleBarItems, setVisibleBarItems] = React.useState(initialVisibleBarItems)
-  const visibleMenuItems = React.useMemo(() => {
-    return items.map((element, index) => {
-      return !visibleBarItems[index]
+  const getItemsByVisible = (items, visibleByIndex) => {
+    return items.filter((element, index) => {
+      return visibleByIndex[index]
     })
-  }, [visibleBarItems])
+  }
 
-  const getItemsWithVisibility = (visibleItems, key) => {
-    return items.map((element, index) => {
-      const visible = visibleItems[index]
+  const getItemsByInvisible = (items, visibleByIndex) => {
+    return items.filter((element, index) => {
+      return !visibleByIndex[index]
+    })
+  }
+
+  const [leftBarVisible, setLeftBarVisible] = useVisibleByIndex(leftItems)
+  const [rightBarVisible, setRightBarVisible] = useVisibleByIndex(rightItems)
+
+  const menuItems = React.useMemo(() => {
+    const left = getItemsByInvisible(leftItems, leftBarVisible)
+    const right = getItemsByInvisible(rightItems, rightBarVisible)
+
+    return [...left, ...right]
+  }, [leftBarVisible, rightBarVisible])
+
+  const getItemsWithStyling = (items, visibleByIndex, key, side) => {
+    return items.map((element: JSX.Element, index) => {
+      const visible = visibleByIndex[index]
 
       return (
         <div
           key={key + index}
           className={twMerge(visible ? 'visible' : 'collapse', 'inline-flex')}
           data-targetId={index}
+          data-side={side}
         >
           {element}
         </div>
@@ -213,24 +244,38 @@ export function ViewportContainer() {
     })
   }
 
-  const getItemsWithRender = (visibleItems, key) => {
-    return items
-      .map((element, index) => {
-        return (
-          <div key={key + index} data-targetId={index}>
-            {element}
-          </div>
-        )
-      })
-      .filter((element, index) => visibleItems[index])
+  const leftBarItems = getItemsWithStyling(leftItems, leftBarVisible, 'bar', 'left')
+  const rightBarItems = getItemsWithStyling(rightItems, rightBarVisible, 'bar', 'right')
+
+  const addDividersToItems = (items, visibleByIndex) => {
+    const withDividers: JSX.Element[] = []
+
+    items.forEach((item, index) => {
+      const isNextVisible = visibleByIndex[index + 1]
+
+      withDividers.push(item)
+      withDividers.push(
+        <div className={twMerge('h-full w-px bg-text-inactive', isNextVisible ? 'opacity-1' : 'opacity-0')} />
+      )
+    })
+
+    return withDividers
   }
 
-  const barItems = getItemsWithVisibility(visibleBarItems, 'bar')
-  const menuItems = getItemsWithRender(visibleMenuItems, 'menu')
+  const leftBarItemsWithDividers = addDividersToItems(leftBarItems, leftBarVisible)
+  const rightBarItemsWithDividers = addDividersToItems(rightBarItems, rightBarVisible)
+
+  const setVisibilityBySide = {
+    left: setLeftBarVisible,
+    right: setRightBarVisible
+  }
 
   const handleIntersection = (entries) => {
     entries.map(({ target, isIntersecting }) => {
       const targetid = target.dataset.targetid
+      const side = target.dataset.side
+
+      const setVisibleBarItems = setVisibilityBySide[side]
 
       setVisibleBarItems((current) => {
         const next = [...current]
@@ -247,38 +292,83 @@ export function ViewportContainer() {
       return
     }
 
-    Array.from(itemsRef.current.children).map((element) => {
-      observer.observe(element)
-    })
+    const [left, right] = itemsRef.current.children as HTMLCollection
+
+    const observeChildren = (element) =>
+      Array.from(element.children as HTMLCollection).map((element: HTMLElement) => {
+        if (element.dataset.side) {
+          observer.observe(element)
+        }
+      })
+
+    observeChildren(left)
+    observeChildren(right)
   }
 
   useIntersectionObserver(itemsRef, handleIntersection, handleObserve, {
-    threshold: 0.8
+    threshold: 1
   })
+
+  const rendererState = useMutableState(RendererState)
+
+  const handlePostProcessingChange = () => {
+    rendererState.usePostProcessing.set(!rendererState.usePostProcessing.value)
+    rendererState.automatic.set(false)
+  }
+
+  const hasMenuItems = !!menuItems.length
 
   return (
     <ViewportDnD>
       <div className="relative z-30 flex h-full w-full flex-col">
-        <div ref={toolbarRef} className="relative z-20 bg-surface-4 px-1 py-1 pr-7">
-          <div ref={itemsRef} className="flex gap-1">
-            {barItems}
+        <div ref={toolbarRef} className="relative z-20 bg-surface-4 px-5 py-3 pr-7">
+          <div ref={itemsRef} className="flex justify-between gap-1">
+            <div className={'flex justify-start gap-x-5'}>{leftBarItemsWithDividers}</div>
+            <div className={'flex justify-start gap-x-5'}>{rightBarItemsWithDividers}</div>
           </div>
-          {!!menuItems.length && (
+          {
             <div className="absolute bottom-0 right-0 top-0 inline-grid">
               <Popup
                 keepInside
                 trigger={
-                  <button className="relative flex h-full items-center border-none bg-surface-4 px-2 text-text-secondary outline-none">
-                    <div className="">
-                      <DotsVerticalMd />
-                    </div>
+                  <button className="relative flex h-full w-10 items-center border-none bg-surface-4 px-2 text-2xl text-text-secondary outline-none">
+                    <ChevronDownMd />
                   </button>
                 }
               >
-                <div className="inline-grid items-start gap-y-2 rounded-xl bg-surface-2 px-4 py-5">{menuItems}</div>
+                <div className="inline-grid items-start gap-y-4 rounded-lg bg-surface-2 px-5 py-6">
+                  {hasMenuItems &&
+                    menuItems.map((element, index) => {
+                      return <div key={index}>{element}</div>
+                    })}
+                  {hasMenuItems && <div className={'h-px w-full rounded-full bg-surface-3'} />}
+                  <InputGroup
+                    name="Use Post Processing"
+                    label={t('editor:toolbar.render-settings.lbl-usePostProcessing')}
+                    info={t('editor:toolbar.render-settings.info-usePostProcessing')}
+                    containerClassName="justify-between p-0"
+                    className="w-8"
+                  >
+                    <Checkbox checked={rendererState.usePostProcessing.value} onChange={handlePostProcessingChange} />
+                  </InputGroup>
+                  <InputGroup
+                    name="Shadow Map Resolution"
+                    label={t('editor:toolbar.render-settings.lbl-shadowMapResolution')}
+                    info={t('editor:toolbar.render-settings.info-shadowMapResolution')}
+                    containerClassName="justify-between gap-y-3 p-0"
+                  >
+                    <Select
+                      options={ShadowMapResolutionOptions as { value: string; label: string }[]}
+                      value={rendererState.shadowMapResolution.value}
+                      onChange={(resolution: number) => rendererState.shadowMapResolution.set(resolution)}
+                      disabled={rendererState.renderMode.value !== RenderModes.SHADOW}
+                      width="full"
+                    />
+                  </InputGroup>
+                </div>
               </Popup>
             </div>
-          )}
+          }
         </div>
         {sceneName.value ? <SelectionBox viewportRef={ref} toolbarRef={toolbarRef} /> : null}
         {sceneName.value ? <TransformGizmoTool /> : null}

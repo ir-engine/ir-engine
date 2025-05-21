@@ -234,7 +234,7 @@
         },
         "EE_skybox": {
           "backgroundColor": 0,
-          "equirectangularPath": "__$project$__/ir-engine/default-project/assets/sky_skybox.jpg",
+          "equirectangularPath": "__$project$__/ir-engine/default-project/assets/sky_skybox.ktx2?hash=93b6d8",
           "cubemapPath": "",
           "backgroundType": 2,
           "skyboxProps": {

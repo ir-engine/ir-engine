@@ -28,7 +28,6 @@ import { BufferAttribute, Mesh, SphereGeometry } from 'three'
 
 import { useRender3DPanelSystem } from '@ir-engine/client-core/src/hooks/useRender3DPanelSystem'
 import { EntityID, getComponent, Layers, setComponent, SourceID, UUIDComponent } from '@ir-engine/ecs'
-import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
@@ -38,12 +37,13 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { SelectionState } from '../../services/SelectionServices'
 import { MATERIALS_PANEL_ID } from './helpers'
 
 function MaterialPreviewCanvas() {
   const panelRef = useRef() as React.MutableRefObject<HTMLCanvasElement>
   const renderPanel = useRender3DPanelSystem(panelRef)
-  const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
+  const selectedMaterial = useHookstate(getMutableState(SelectionState).selectedEntities[0])
   const panel = document.getElementById(MATERIALS_PANEL_ID)
   useEffect(() => {
     const { sceneEntity, cameraEntity } = renderPanel
@@ -104,7 +104,7 @@ function MaterialPreviewCanvas() {
 }
 
 export const MaterialPreviewer = () => {
-  const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
+  const selectedMaterial = useHookstate(getMutableState(SelectionState).selectedEntities[0])
   const panel = document.getElementById(MATERIALS_PANEL_ID)!
   const disableScroll = (event: Event) => {
     event.stopPropagation()

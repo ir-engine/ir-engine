@@ -43,7 +43,7 @@ import {
 import { BoolArg, ColorArg, FloatArg, NormalizedFloatArg, SelectArg, TextureArg, Vec2Arg } from './DefaultArgs'
 
 export const BasicArgs = {
-  alphaTest: NormalizedFloatArg,
+  alphaTest: { ...NormalizedFloatArg, default: 0 },
   alphaMap: TextureArg,
   map: TextureArg,
   color: { ...ColorArg, default: new Color(1, 1, 1) },
@@ -70,9 +70,9 @@ export const BasicArgs = {
       { label: 'Both', value: DoubleSide }
     ]
   },
-  toneMapped: BoolArg,
-  transparent: BoolArg,
-  vertexColors: BoolArg
+  toneMapped: { default: true, type: 'boolean' },
+  transparent: { default: false, type: 'boolean' },
+  vertexColors: { default: false, type: 'boolean' }
 }
 
 export const BumpMapArgs = {
@@ -82,19 +82,19 @@ export const BumpMapArgs = {
 
 export const LightMapArgs = {
   lightMap: TextureArg,
-  lightMapIntensity: FloatArg
+  lightMapIntensity: { default: 1.0, type: 'float' }
 }
 
 export const DisplacementMapArgs = {
   displacementMap: TextureArg,
   displacementScale: { ...FloatArg, default: 1 },
-  displacementBias: FloatArg
+  displacementBias: { ...FloatArg, default: 0 }
 }
 
 export const EmissiveMapArgs = {
-  emissive: ColorArg,
+  emissive: { ...ColorArg, default: new Color(0, 0, 0) },
   emissiveMap: TextureArg,
-  emissiveIntensity: { ...FloatArg, default: 0 }
+  emissiveIntensity: { ...FloatArg, default: 1.0 }
 }
 
 export const EnvMapArgs = {
@@ -109,17 +109,17 @@ export const EnvMapArgs = {
   },
   envMap: TextureArg,
   envMapIntensity: { ...FloatArg, default: 1.0 },
-  reflectivity: FloatArg,
+  reflectivity: { ...FloatArg, default: 1 },
   refractionRatio: { ...FloatArg, default: 0.98 }
 }
 
 export const AoMapArgs = {
   aoMap: TextureArg,
-  aoMapIntensity: NormalizedFloatArg
+  aoMapIntensity: { ...NormalizedFloatArg, default: 1 }
 }
 
 export const MetalnessMapArgs = {
-  metalness: FloatArg,
+  metalness: { ...FloatArg, default: 0 },
   metalnessMap: TextureArg
 }
 

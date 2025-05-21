@@ -24,9 +24,9 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
+  AnimationSystemGroup,
   Entity,
   EntityArrayBoundary,
-  PresentationSystemGroup,
   QueryReactor,
   UUIDComponent,
   defineQuery,
@@ -43,12 +43,12 @@ import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import {
-  TransparencyDitheringPluginComponent,
-  TransparencyDitheringRootComponent,
-  ditherCalculationType
-} from '@ir-engine/spatial/src/renderer/materials/constants/plugins/TransparencyDitheringComponent'
 import React, { useEffect } from 'react'
+import {
+  DitherCalculationType,
+  TransparencyDitheringPluginComponent,
+  TransparencyDitheringRootComponent
+} from '../../material/plugins/TransparencyDitheringComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 
 const headDithering = 0
@@ -74,26 +74,26 @@ const execute = () => {
       const pluginComponent = getOptionalComponent(materialEntity, TransparencyDitheringPluginComponent)
       if (!pluginComponent) continue
       const viewerPosition = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent).position
-      pluginComponent.centers.value[cameraDithering].set(viewerPosition.x, viewerPosition.y, viewerPosition.z)
-      pluginComponent.distances.value[cameraDithering] = cameraAttached ? 8 : 3
-      pluginComponent.exponents.value[cameraDithering] = cameraAttached ? 10 : 6
-      pluginComponent.useWorldCalculation.value[cameraDithering] = ditherCalculationType.worldTransformed
+      pluginComponent.centers[cameraDithering].set(viewerPosition.x, viewerPosition.y, viewerPosition.z)
+      pluginComponent.distances[cameraDithering] = cameraAttached ? 8 : 3
+      pluginComponent.exponents[cameraDithering] = cameraAttached ? 10 : 6
+      pluginComponent.useWorldCalculation[cameraDithering] = DitherCalculationType.worldTransformed
       if (avatarEntity !== selfEntity) {
-        pluginComponent.distances.value[headDithering] = 10
+        pluginComponent.distances[headDithering] = 10
         continue
       }
-      pluginComponent.centers.value[headDithering].setY(avatarComponent.eyeHeight)
-      pluginComponent.distances.value[headDithering] =
+      pluginComponent.centers[headDithering].setY(avatarComponent.eyeHeight)
+      pluginComponent.distances[headDithering] =
         cameraComponent && !cameraAttached ? Math.max(Math.pow(cameraComponent.distance * 5, 2.5), 3) : 3.5
-      pluginComponent.exponents.value[headDithering] = cameraAttached ? 12 : 8
-      pluginComponent.useWorldCalculation.value[headDithering] = ditherCalculationType.localPosition
+      pluginComponent.exponents[headDithering] = cameraAttached ? 12 : 8
+      pluginComponent.useWorldCalculation[headDithering] = DitherCalculationType.localPosition
     }
   }
 }
 
 export const AvatarTransparencySystem = defineSystem({
   uuid: 'AvatarTransparencySystem',
-  insert: { with: PresentationSystemGroup },
+  insert: { with: AnimationSystemGroup },
   execute,
   reactor: () => <QueryReactor Components={[AvatarComponent]} ChildEntityReactor={AvatarReactor} />
 })
