@@ -47,11 +47,6 @@ export default [
       '@typescript-eslint/no-unsafe-function-type': 'warn',
       '@typescript-eslint/naming-convention': ['error',
         {
-          selector: "variableLike",
-          format: ["camelCase", "PascalCase"],
-          leadingUnderscore: "allow"
-        },
-        {
           selector: "typeLike",
           format: ["PascalCase"]
         }
