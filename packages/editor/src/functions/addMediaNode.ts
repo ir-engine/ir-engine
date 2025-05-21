@@ -248,6 +248,7 @@ export async function addMediaNode(
           }
           for (const childEntity of getComponent(entity, EntityTreeComponent).children) {
             setComponent(childEntity, EntityTreeComponent, { parentEntity: parent ?? rootEntity })
+            if (hasComponent(childEntity, TransformComponent)) TransformComponent.computeTransformMatrix(childEntity)
           }
           removeEntity(entity)
           const gltfEntity = getAncestorWithComponents(parent ?? rootEntity, [GLTFComponent])

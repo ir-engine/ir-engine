@@ -119,7 +119,7 @@
       "calls": "Calls",
       "sceneTriangles": "Scene Triangles",
       "triangles": "Render Triangles",
-      "trianglesTooltip": "Number of triangles currently being rendered, post processing effects will affect this number.",
+      "trianglesTooltip": "Number of triangles currently being rendered. Shadows and post processing effects will affect this number.",
       "points": "Points",
       "lines": "Lines",
       "shaderComplexity": "Shader Complexity",
@@ -1260,6 +1260,20 @@
       "lbl-asset": "Asset",
       "assets": "Assets"
     }
+  },
+  "inspector": {
+    "switchInspector": "Switch to Inspector tab for asset selection",
+    "title": "Inspector",
+    "assetType": "Type",
+    "assetAuthor": "Author",
+    "assetDateCreated": "Date Created",
+    "assetFileSize": "File Size",
+    "assetDimensions": "Dimensions",
+    "assetMeshComplexity": "Mesh Complexity",
+    "assetResources": "Resources",
+    "assetTags": "Tags",
+    "addToScene": "Add to Scene",
+    "noAssetSelected": "No asset selected"
   },
   "projects": {
     "createProject": {
