@@ -201,7 +201,7 @@ export const startMediaRecordingPair = async (
   }
 }
 
-type onUploadPartArgs = {
+type OnUploadPartArgs = {
   recordingID: RecordingID
   key: string
   body: PassThrough
