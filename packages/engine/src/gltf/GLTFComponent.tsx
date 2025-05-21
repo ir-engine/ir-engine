@@ -516,10 +516,7 @@ const useGLTFDocument = (entity: Entity) => {
         state.dependencies.set(dependencies)
       },
       (progress: ProgressEvent) => {
-        if (progress.lengthComputable && progress.total > 0) {
-          const percentage = Math.floor((progress.loaded / progress.total) * 100)
-          state.progress.set(percentage)
-        }
+        //this is the gtlf file loading progress, not to be confused with the GTLF Component property "progress" which tracks if the gtlf is loaded into the scene
       },
       onError,
       signal

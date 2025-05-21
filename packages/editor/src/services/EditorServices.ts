@@ -40,6 +40,8 @@ export enum UIMode {
   ADVANCED = 'ADVANCED'
 }
 
+export type activeLowerPanel = 'properties' | 'inspector'
+
 export const EditorState = defineState({
   name: 'EditorState',
   initial: () => ({
@@ -53,8 +55,12 @@ export const EditorState = defineState({
     rootEntity: UndefinedEntity,
     uiEnabled: true,
     uiMode: UIMode.ADVANCED,
-    canvasRef: null as React.RefObject<HTMLElement> | null
+    canvasRef: null as React.RefObject<HTMLElement> | null,
+    activeLowerPanel: 'properties' as activeLowerPanel
   }),
+  setActiveLowerPanel: (panel: activeLowerPanel) => {
+    getMutableState(EditorState).activeLowerPanel.set(panel)
+  },
   useIsModified: () => {
     const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
     const modifiedState = useMutableState(AssetModifiedState)
