@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { SMAAPreset } from 'postprocessing'
 import React, { useEffect } from 'react'
-import { ArrayCamera, Color, CubeTexture, Fog as FogBase, Object3D, Scene, Texture } from 'three'
+import { ArrayCamera, Color, CubeTexture, Fog, FogExp2, Object3D, Scene, Texture } from 'three'
 
 import {
   ComponentType,
@@ -151,7 +151,7 @@ export const getSceneParameters = (entities: Entity[], cameraEntity: Entity) => 
   const vals = {
     background: null as Color | Texture | CubeTexture | null,
     environment: null as Texture | null,
-    fog: null as FogBase | null,
+    fog: null as Fog | FogExp2 | null,
     children: [] as Object3D[]
   }
 
