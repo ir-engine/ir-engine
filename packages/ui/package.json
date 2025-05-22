@@ -89,6 +89,8 @@
     "jest": "^29.4.1",
     "jest-enzyme": "^7.1.2",
     "jest-scss-transform": "^1.0.3",
+    "msw": "^2.8.2",
+    "msw-storybook-addon": "^2.0.4",
     "path-browserify": "^1.0.1",
     "postcss": "^8.4.23",
     "react": "18.2.0",
@@ -101,5 +103,10 @@
     "ts-jest": "^29.0.5"
   },
   "license": "CPAL",
-  "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
+  "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851",
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
+  }
 }
