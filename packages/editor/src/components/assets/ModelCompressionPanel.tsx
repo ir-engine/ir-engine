@@ -229,19 +229,18 @@ export default function ModelCompressionPanel({
 
     const url = new URL(file.url)
     const srcURL = pathJoin(url.origin, url.pathname)
+    const fileName = srcURL.split('/').pop()!.split('.').shift()!
     const modelFormat = srcURL.endsWith('.gltf') ? 'gltf' : srcURL.endsWith('.vrm') ? 'vrm' : 'glb'
 
-    if (selectedFiles.length > 1) {
-      fileLODs = fileLODs.map((lod) => {
-        const fileName = srcURL.split('/').pop()!.split('.').shift()!
-        const dst = fileName + lod.suffix
-        return {
-          ...lod,
-          dst,
-          modelFormat
-        }
-      })
-    }
+    // Create a copy of LODs with file-specific destination names
+    fileLODs = fileLODs.map((lod) => {
+      // Create a deep copy to avoid modifying the original LOD
+      const newLod = JSON.parse(JSON.stringify(lod)) as LODVariantDescriptor
+      // Set the destination filename based on the current file being processed
+      newLod.params.dst = fileName + newLod.suffix
+      newLod.params.modelFormat = modelFormat
+      return newLod
+    })
 
     await createLODVariants(
       srcURL,
