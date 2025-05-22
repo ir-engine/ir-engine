@@ -242,8 +242,9 @@ export const GLTFComponentReactor = () => {
     removeComponent(entity, AnimationComponent)
 
     GLTFLoaderFunctions.loadScene(options, sceneIndex).then(() => {
-      documentLoaded.set(true)
+      if (abortController.signal.aborted) return
 
+      documentLoaded.set(true)
       // force transform update for all entities in the model.
       // required to propagate dirty update auth to sim layers
       TransformComponent.dirty[entity] = 1
