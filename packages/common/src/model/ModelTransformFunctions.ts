@@ -721,39 +721,20 @@ const writeFiles = async (
 
   if (['glb', 'vrm'].includes(modelFormat)) {
     // For GLB/VRM, we keep textures embedded and don't process them separately
-    await Promise.all(
-      root.listTextures().map(async (texture) => {
-        const image = texture.getImage()
-        // Remove if image is missing or broken
-        if (
-          !image ||
-          image.byteLength === 0 ||
-          !['image/png', 'image/jpeg', 'image/webp'].includes(texture.getMimeType())
-        ) {
-          console.warn(`Removing broken texture: ${texture.getName() || '[unnamed]'}`)
+    for (const mesh of document.getRoot().listMeshes()) {
+      for (const primitive of mesh.listPrimitives()) {
+        const posAccessor = primitive.getAttribute('POSITION')
+        const indexAccessor = primitive.getIndices()
 
-          // Unlink texture from all materials
-          for (const material of root.listMaterials()) {
-            for (const slot of [
-              'baseColorTexture',
-              'normalTexture',
-              'emissiveTexture',
-              'occlusionTexture',
-              'metallicRoughnessTexture'
-            ]) {
-              if (material.getNormalTexture() === texture) {
-                material.setNormalTexture(null)
-              }
-            }
-          }
-
-          // Dispose the texture
-          texture.dispose()
-        }
-      })
-    )
-
-    await document.transform(prune())
+        if (!posAccessor || !indexAccessor) continue
+        // Need to check the correct simplify function signature and implementation
+        simplify({
+          simplifier: MeshoptSimplifier,
+          ratio: 0.5,
+          error: 0.01
+        })(document)
+      }
+    }
     const data = await io.writeBinary(document)
     await doUpload(...toProjectAndFileName(finalPath, srcBaseURL), data, path)
   } else if (modelFormat === 'gltf') {
