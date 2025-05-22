@@ -720,20 +720,7 @@ const writeFiles = async (
   const path = match ? match[1] : undefined
 
   if (['glb', 'vrm'].includes(modelFormat)) {
-    // For GLB/VRM, we keep textures embedded and don't process them separately
-    for (const mesh of document.getRoot().listMeshes()) {
-      for (const primitive of mesh.listPrimitives()) {
-        const posAccessor = primitive.getAttribute('POSITION')
-        const indexAccessor = primitive.getIndices()
-
-        if (!posAccessor || !indexAccessor) continue
-        simplify({
-          simplifier: MeshoptSimplifier,
-          ratio: 0.5,
-          error: 0.01
-        })(document)
-      }
-    }
+    // For GLB/VRM, we need to apply mesh simplification directly
     const data = await io.writeBinary(document)
     await doUpload(...toProjectAndFileName(finalPath, srcBaseURL), data, path)
   } else if (modelFormat === 'gltf') {
