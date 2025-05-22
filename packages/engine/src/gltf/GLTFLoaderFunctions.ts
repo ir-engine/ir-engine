@@ -41,6 +41,7 @@ import {
   hasComponent,
   iterateEntityNode,
   removeComponent,
+  removeEntity,
   setComponent,
   traverseEntityNode
 } from '@ir-engine/ecs'
@@ -540,7 +541,7 @@ const loadBuffer = async (options: GLTFParserOptions, bufferIndex: number): Prom
       (err) => {
         reject(new Error('GLTFLoaderFunctions: Failed to load buffer "' + bufferDef.uri + '".'))
       },
-      null!, // controller.signal,
+      options.signal,
       loader
     )
   })
@@ -1047,7 +1048,7 @@ const loadImageSource = async (options: GLTFParserOptions, sourceIndex: number, 
       (err) => {
         reject(err as Error)
       },
-      null!, // controller.signal,
+      options.signal,
       loader
     )
   })
@@ -1540,78 +1541,106 @@ const loadGLTFDependencies = (options: GLTFParserOptions) => {
 }
 
 const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
-  const json = options.document
-  const rootEntity = options.entity
+  return new Promise(async (resolve, reject) => {
+    const json = options.document
+    const rootEntity = options.entity
 
-  // Create a new dependency cache for this URL if it doesn't exist
-  if (!DependencyCache.has(options.url)) {
-    DependencyCache.set(options.url, new Map<string, Promise<any>>())
-  }
-
-  migrateSceneDeltas(options.entity, options.document)
-
-  const overrides = json.extensions?.[OVERRIDE_EXTENSION_NAME]
-  if (overrides) {
-    for (const [id, ops] of Object.entries(overrides)) {
-      const rootUUID = UUIDComponent.getAsSourceID(rootEntity)
-      const overrideUUID = UUIDComponent.join({ entitySourceID: rootUUID, entityID: id as EntityID })
-      dispatchAction(AuthoringActions.ops({ ops: { [overrideUUID]: ops }, $user: SceneUser }))
+    // Create a new dependency cache for this URL if it doesn't exist
+    if (!DependencyCache.has(options.url)) {
+      DependencyCache.set(options.url, new Map<string, Promise<any>>())
     }
-  }
 
-  const sceneDef = json.scenes?.[sceneIndex] ?? ({} as GLTF.IScene)
-  const nodeIds = sceneDef.nodes || []
+    migrateSceneDeltas(options.entity, options.document)
 
-  const pending = [] as Promise<Entity>[]
+    const overrides = json.extensions?.[OVERRIDE_EXTENSION_NAME]
+    if (overrides) {
+      for (const [id, ops] of Object.entries(overrides)) {
+        const rootUUID = UUIDComponent.getAsSourceID(rootEntity)
+        const overrideUUID = UUIDComponent.join({ entitySourceID: rootUUID, entityID: id as EntityID })
+        dispatchAction(AuthoringActions.ops({ ops: { [overrideUUID]: ops }, $user: SceneUser }))
+      }
+    }
 
-  for (let i = 0, il = nodeIds.length; i < il; i++) {
-    pending.push(getDependency(options, 'node', nodeIds[i]))
-  }
+    const sceneDef = json.scenes?.[sceneIndex] ?? ({} as GLTF.IScene)
+    const nodeIds = sceneDef.nodes || []
 
-  const animationPromises = [] as Promise<AnimationClip>[]
+    const pending = [] as Promise<Entity>[]
+    const animationPromises = [] as Promise<AnimationClip>[]
+    let dependencyPromises = [] as Promise<any>[]
+    let aborted = false
 
-  const animations = json.animations || []
-  for (let i = 0, il = animations.length; i < il; i++) {
-    const animation = getDependency(options, 'animation', i)
-    animationPromises.push(animation)
-  }
+    const abortEvent = async (errorEvent: ErrorEvent) => {
+      aborted = true
 
-  try {
-    const loadedNodeEntities = await Promise.all(pending)
-    await Promise.all(loadGLTFDependencies(options))
+      try {
+        await Promise.all(pending)
+        await Promise.all(animationPromises)
+        await Promise.all(dependencyPromises)
+      } finally {
+        unloadScene(options.url, rootEntity)
+        unloadEntities(rootEntity)
+        reject(errorEvent.error as Error)
+      }
+    }
 
-    for (const entity of loadedNodeEntities) {
-      setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity })
-      iterateEntityNode(entity, (e) => {
-        if (hasComponent(e, TransformComponent)) {
-          TransformComponent.computeTransformMatrix(e)
-          TransformComponent.dirty[e] = 1
+    options.signal.addEventListener('abort', abortEvent)
+
+    try {
+      for (let i = 0, il = nodeIds.length; i < il; i++) {
+        pending.push(getDependency(options, 'node', nodeIds[i]))
+        if (aborted) return
+      }
+
+      const animations = json.animations || []
+      for (let i = 0, il = animations.length; i < il; i++) {
+        const animation = getDependency(options, 'animation', i)
+        animationPromises.push(animation)
+        if (aborted) return
+      }
+
+      const loadedNodeEntities = await Promise.all(pending)
+      dependencyPromises = loadGLTFDependencies(options)
+      await Promise.all(dependencyPromises)
+      if (aborted) return
+
+      for (const entity of loadedNodeEntities) {
+        setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity })
+        iterateEntityNode(entity, (e) => {
+          if (hasComponent(e, TransformComponent)) {
+            TransformComponent.computeTransformMatrix(e)
+            TransformComponent.dirty[e] = 1
+          }
+        })
+      }
+
+      /** @todo this is a temporary hack */
+      if (!hasComponent(rootEntity, ObjectComponent)) {
+        const obj3d = new Object3D()
+        setComponent(rootEntity, ObjectComponent, obj3d)
+      }
+
+      const animationClips = await Promise.all(animationPromises)
+      setAnimationClips(rootEntity, animationClips)
+    } finally {
+      options.signal.removeEventListener('abort', abortEvent)
+      if (!aborted) {
+        // dereference body non-reactively if it exists
+        getComponent(options.entity, GLTFComponent).body = null
+
+        // Mark the scene as loaded by setting progress to 100
+        // This is important for tests that wait for scene loading
+        if (hasComponent(options.entity, GLTFComponent)) {
+          const gltfComponent = getMutableComponent(options.entity, GLTFComponent)
+          gltfComponent.progress.set(100)
         }
-      })
-    }
 
-    /** @todo this is a temporary hack */
-    if (!hasComponent(rootEntity, ObjectComponent)) {
-      const obj3d = new Object3D()
-      setComponent(rootEntity, ObjectComponent, obj3d)
+        resolve(undefined)
+      }
     }
-
-    const animationClips = await Promise.all(animationPromises)
-    setAnimationClips(rootEntity, animationClips)
-  } finally {
-    // dereference body non-reactively if it exists
-    getComponent(options.entity, GLTFComponent).body = null
-
-    // Mark the scene as loaded by setting progress to 100
-    // This is important for tests that wait for scene loading
-    if (hasComponent(options.entity, GLTFComponent)) {
-      const gltfComponent = getMutableComponent(options.entity, GLTFComponent)
-      gltfComponent.progress.set(100)
-    }
-  }
+  })
 }
 
-const unloadScene = async (url: string, entity: Entity) => {
+const unloadScene = (url: string, entity: Entity) => {
   // handle reference counting
   unloadResourcesForEntity(entity)
 
@@ -1621,6 +1650,13 @@ const unloadScene = async (url: string, entity: Entity) => {
     delete interleavedBufferCache[url]
     DependencyCache.delete(url)
   }
+}
+
+const unloadEntities = (entity: Entity) => {
+  const sourceID = GLTFComponent.getSourceID(entity)
+  const layer = LayerComponent.get(entity)
+  const loadedEntities = UUIDComponent.getEntitiesBySource(sourceID, layer)
+  for (const entity of loadedEntities) removeEntity(entity)
 }
 
 export const GLTFLoaderFunctions = {
@@ -1710,6 +1746,7 @@ export type GLTFParserOptions = {
   manager: LoadingManager
   path: string
   requestHeader: Record<string, string>
+  signal: AbortSignal
 }
 
 const validateVersionFormat = (vers: string): boolean => /^[0-9]{1,10}.[0-9]{1,10}$/.test(vers)
