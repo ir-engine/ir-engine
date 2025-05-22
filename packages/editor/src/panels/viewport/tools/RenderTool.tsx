@@ -26,99 +26,79 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { ShadowMapResolutionOptions } from '@ir-engine/client-core/src/user/menus/SettingsMenu'
 import { useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { RenderModes, RenderModesType } from '@ir-engine/spatial/src/renderer/constants/RenderModes'
-import { Checkbox, Select, Tooltip } from '@ir-engine/ui'
-import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
-import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
-import { ChevronDownMd, GlobeWireframesMd, LitMd, NormalRenderMd, ShadowMd, UnlitMd } from '@ir-engine/ui/src/icons'
+import { Tooltip } from '@ir-engine/ui'
+import { ViewportButton } from '@ir-engine/ui/editor'
+import { GlobeWireframesMd, LitMd, NormalRenderMd, ShadowMd, UnlitMd } from '@ir-engine/ui/src/icons'
+import { OptionType } from '@ir-engine/ui/src/primitives/tailwind/Select'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import ToolbarDropdown from './ToolbarDropdown'
 
-const renderModes: { name: RenderModesType; icon: JSX.Element }[] = [
+const renderModes: OptionType[] = [
   {
-    name: 'Unlit',
-    icon: <UnlitMd className="text-[#9CA0AA]" />
+    label: 'Unlit',
+    Icon: UnlitMd as OptionType['Icon'],
+    value: RenderModes.UNLIT
   },
   {
-    name: 'Lit',
-    icon: <LitMd className="text-[#9CA0AA]" />
-  },
-  { name: 'Normals', icon: <NormalRenderMd className="text-[#9CA0AA]" /> },
-  {
-    name: 'Wireframe',
-    icon: <GlobeWireframesMd className="text-[#9CA0AA]" />
+    label: 'Lit',
+    Icon: LitMd as OptionType['Icon'],
+    value: RenderModes.LIT
   },
   {
-    name: 'Shadows',
-    icon: <ShadowMd className="text-[#9CA0AA]" />
+    label: 'Normals',
+    Icon: NormalRenderMd as OptionType['Icon'],
+    value: RenderModes.NORMALS
+  },
+  {
+    label: 'Wireframe',
+    Icon: GlobeWireframesMd as OptionType['Icon'],
+    value: RenderModes.WIREFRAME
   }
 ]
+
+const renderModeIcons = {
+  [RenderModes.UNLIT]: UnlitMd,
+  [RenderModes.LIT]: LitMd,
+  [RenderModes.NORMALS]: NormalRenderMd,
+  [RenderModes.WIREFRAME]: GlobeWireframesMd,
+  [RenderModes.SHADOW]: ShadowMd
+}
 
 const RenderModeTool = () => {
   const { t } = useTranslation()
 
   const rendererState = useMutableState(RendererState)
-  const options = [] as { label: string; value: string }[]
 
-  for (let key of Object.keys(RenderModes)) {
-    options.push({
-      label: RenderModes[key],
-      value: RenderModes[key]
-    })
-  }
-
-  const handlePostProcessingChange = () => {
-    rendererState.usePostProcessing.set(!rendererState.usePostProcessing.value)
-    rendererState.automatic.set(false)
-  }
-
+  const dropdownValue =
+    rendererState.renderMode.value === RenderModes.SHADOW ? RenderModes.LIT : rendererState.renderMode.value
   return (
-    <div className="flex h-full items-center rounded">
-      {renderModes.map((mode) => (
-        <Tooltip key={mode.name} content={mode.name} position="bottom">
-          <button
-            onClick={() => rendererState.renderMode.set(mode.name)}
-            className="rounded-lg bg-ui-secondary px-2 px-3.5 py-1.5"
-          >
-            {mode.icon}
-          </button>
-        </Tooltip>
-      ))}
-      <Popup
-        keepInside
-        trigger={
-          <button className="rounded-lg bg-ui-secondary px-2 px-3.5 py-1.5 text-[#9CA0AA]">
-            <ChevronDownMd />
-          </button>
-        }
-      >
-        <div className="w-52 rounded-md bg-surface-0 p-2">
-          <InputGroup
-            name="Use Post Processing"
-            label={t('editor:toolbar.render-settings.lbl-usePostProcessing')}
-            info={t('editor:toolbar.render-settings.info-usePostProcessing')}
-            containerClassName="justify-between"
-            className="w-8"
-          >
-            <Checkbox checked={rendererState.usePostProcessing.value} onChange={handlePostProcessingChange} />
-          </InputGroup>
-          <InputGroup
-            name="Shadow Map Resolution"
-            label={t('editor:toolbar.render-settings.lbl-shadowMapResolution')}
-            info={t('editor:toolbar.render-settings.info-shadowMapResolution')}
-            containerClassName="justify-between gap-2"
-          >
-            <Select
-              options={ShadowMapResolutionOptions as { value: string; label: string }[]}
-              value={rendererState.shadowMapResolution.value}
-              onChange={(resolution: number) => rendererState.shadowMapResolution.set(resolution)}
-              disabled={rendererState.renderMode.value !== RenderModes.SHADOW}
-              width="full"
-            />
-          </InputGroup>
-        </div>
-      </Popup>
+    <div className="flex items-center gap-x-3">
+      <Tooltip position={'right'} content={t('editor:toolbar.render-settings.info-renderMode')}>
+        <Text className={'text-nowrap dark:text-[#A3A3A3]'} fontSize={'sm'}>
+          {t('editor:toolbar.render-settings.lbl-renderMode')}
+        </Text>
+      </Tooltip>
+      <ToolbarDropdown
+        tooltipContent={t('editor:toolbar.render-settings.lbl-renderMode')}
+        tooltipPosition="right"
+        onChange={(value: RenderModesType) => rendererState.renderMode.set(value)}
+        options={renderModes}
+        value={dropdownValue}
+        width="full"
+        inputHeight="xs"
+        dropdownParentClassName="w-[8rem]"
+      />
+      <Tooltip content={t('editor:toolbar.render-settings.lbl-shadows')} position="bottom">
+        <ViewportButton
+          lean={true}
+          selected={rendererState.renderMode.value === RenderModes.SHADOW}
+          onClick={() => rendererState.renderMode.set(RenderModes.SHADOW)}
+          icon={ShadowMd}
+        />
+      </Tooltip>
     </div>
   )
 }

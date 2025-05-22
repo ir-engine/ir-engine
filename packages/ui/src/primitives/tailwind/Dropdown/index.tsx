@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { HiCheck } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
+import { InputProps } from '../Input'
 
 export interface DropdownItemProps extends Omit<React.HTMLAttributes<HTMLDivElement | HTMLAnchorElement>, 'className'> {
   /**text shown on the left end */
@@ -37,6 +38,7 @@ export interface DropdownItemProps extends Omit<React.HTMLAttributes<HTMLDivElem
   selected?: boolean
   className?: string
   href?: string
+  height?: InputProps['height']
 
   /**
    * Whether the item is hovered (or navigated through arrow keys)
@@ -56,12 +58,13 @@ export function DropdownItem({
   className,
   truncate = true,
   href,
+  height = 'l',
   ...rest
 }: DropdownItemProps) {
   const children = (
     <>
       <span className="flex min-w-0 flex-1 items-center gap-2">
-        {Icon && <Icon className="h-3 w-3" />}
+        {Icon && <Icon className="h-4 w-4" />}
         <span className={truncate ? 'truncate' : ''}>{label}</span>
       </span>
       {secondaryText && <span className="ml-auto">{secondaryText}</span>}
@@ -69,9 +72,16 @@ export function DropdownItem({
     </>
   )
 
+  const heights = {
+    xl: 'h-[3.5rem]',
+    l: 'h-[2.5rem]',
+    xs: 'h-[2rem]'
+  }
+
   const props = {
     className: twMerge(
-      'h-[38px] w-full cursor-pointer bg-ui-background px-4 py-2.5 text-sm text-text-tertiary outline-none',
+      heights[height] || heights['l'],
+      'w-full cursor-pointer bg-ui-background px-4 py-2.5 text-sm text-text-tertiary outline-none',
       'flex items-center',
       active ? 'bg-ui-hover-background' : '',
       selected ? 'bg-ui-select-background text-text-primary' : '',
