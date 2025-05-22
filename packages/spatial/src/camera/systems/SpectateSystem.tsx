@@ -34,19 +34,21 @@ import {
   matchesEntityID,
   removeComponent,
   setComponent,
-  UUIDComponent
+  UUIDComponent,
+  WorldNetworkAction
 } from '@ir-engine/ecs'
 import {
   defineAction,
   defineState,
   getMutableState,
   getState,
+  matchesUserID,
+  NetworkTopics,
   none,
   useHookstate,
   useMutableState,
   UserID
 } from '@ir-engine/hyperflux'
-import { matchesUserID, NetworkTopics, WorldNetworkAction } from '@ir-engine/network'
 
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'

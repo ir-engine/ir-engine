@@ -35,7 +35,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import Toolbar from '../components/toolbar/Toolbar'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
-import { EditorState } from '../services/EditorServices'
+import { ActiveLowerPanel, EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
@@ -61,6 +61,7 @@ import { AssetsPanelTab } from '../panels/assets'
 import { AssetsQueryProvider } from '../panels/assets/hooks'
 import { CurrentFilesQueryProvider } from '../panels/files/helpers'
 import { HierarchyPanelTab } from '../panels/hierarchy'
+import { InspectorPanelTab } from '../panels/inspector'
 import { MaterialsPanelTab } from '../panels/materials'
 import { PropertiesPanelTab } from '../panels/properties'
 import { ScenePanelTab } from '../panels/scenes'
@@ -68,6 +69,7 @@ import { ViewportPanelTab } from '../panels/viewport'
 import { VisualScriptPanelTab } from '../panels/visualscript'
 import { EditorWarningState } from '../services/EditorWarningServices'
 import { UIAddonsState } from '../services/UIAddonsState'
+import { ClickPlacementState } from '../systems/ClickPlacementSystem'
 import './EditorContainer.css'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
@@ -106,9 +108,13 @@ const onEditorError = (error) => {
   )
 }
 
-const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData => {
+const defaultLayout = (flags: {
+  visualScriptPanelEnabled: boolean
+  activeLowerPanel: ActiveLowerPanel
+}): LayoutData => {
   const tabs = [AssetsPanelTab]
   flags.visualScriptPanelEnabled && tabs.push(VisualScriptPanelTab)
+  const activeLowerPane = flags.activeLowerPanel
 
   return {
     dockbox: {
@@ -134,7 +140,8 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
               tabs: [HierarchyPanelTab, ScenePanelTab, MaterialsPanelTab]
             },
             {
-              tabs: [PropertiesPanelTab]
+              tabs: [PropertiesPanelTab, InspectorPanelTab],
+              activeId: activeLowerPane
             }
           ]
         }
@@ -144,8 +151,9 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
 }
 
 const EditorContainer = () => {
-  const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, rootEntity, canvasRef } =
+  const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, rootEntity, canvasRef, activeLowerPanel } =
     useMutableState(EditorState)
+  const { metadata } = useHookstate(getMutableState(ClickPlacementState)).value
   const editorUIAddon = useMutableState(UIAddonsState).editor
   const currentLoadedSceneURL = useHookstate(null as string | null)
 
@@ -257,6 +265,19 @@ const EditorContainer = () => {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [])
 
+  useEffect(() => {
+    // on click palcement select and if inspector switch is true, activate inspector panel
+    const dock = dockPanelRef.current
+    const shouldActivateInspector = activeLowerPanel.value === 'inspector'
+
+    if (dock && shouldActivateInspector) {
+      const inspectorTab = dock.find('inspectorPanel')
+      if (inspectorTab && 'id' in inspectorTab && inspectorTab.parent && 'tabs' in inspectorTab.parent) {
+        dock.dockMove(inspectorTab as any, 'inspectorPanel', inspectorTab.parent as any)
+      }
+    }
+  }, [metadata.name, activeLowerPanel.value])
+
   return (
     <main className="pointer-events-auto">
       <CurrentFilesQueryProvider>
@@ -274,7 +295,10 @@ const EditorContainer = () => {
                   <DockContainer>
                     <DockLayout
                       ref={dockPanelRef}
-                      defaultLayout={defaultLayout({ visualScriptPanelEnabled })}
+                      defaultLayout={defaultLayout({
+                        visualScriptPanelEnabled,
+                        activeLowerPanel: activeLowerPanel.value
+                      })}
                       style={{ position: 'absolute', left: 5, top: 50, right: 5, bottom: 5 }}
                     />
                   </DockContainer>

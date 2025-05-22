@@ -34,7 +34,7 @@ import '@ir-engine/common/src/transports/mediasoup/MediasoupDataProducerConsumer
 import '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
 
-import { NetworkState } from '@ir-engine/network'
+import { NetworkState } from '@ir-engine/hyperflux'
 
 import {
   MediasoupTransportObjectsState,

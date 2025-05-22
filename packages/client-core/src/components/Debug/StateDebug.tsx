@@ -26,13 +26,13 @@ import { Engine } from '@ir-engine/ecs/src/Engine'
 import {
   defineState,
   getMutableState,
+  NetworkState,
   NO_PROXY,
   NO_PROXY_STEALTH,
   StateDefinitions,
   syncStateWithLocalStorage,
   useHookstate
 } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
 import { Input } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useFrameUpdate } from './useFrameUpdate'

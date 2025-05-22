@@ -36,7 +36,6 @@ export type Kinds =
   | 'Number'
   | 'Bool'
   | 'String'
-  | 'Enum'
   | 'Literal'
   | 'Object'
   | 'Record'
@@ -68,7 +67,8 @@ export interface Options<V = unknown> {
   deserialize?: (curr: V, value: V) => V
   validate?: (value: V, prev: V, entity: Entity) => boolean
   required?: boolean
-  [prop: string]: any
+  $comment?: string
+  metadata?: Record<string, any>
 }
 
 export interface TNullSchema extends Schema {
@@ -115,13 +115,6 @@ export interface TStringSchema extends Schema {
     minLength?: number
     maxLength?: number
   }
-}
-
-export interface TEnumSchema<T extends object> extends Schema {
-  [Kind]: 'Enum'
-  static: T[keyof T]
-  properties: T
-  options: Options<this['static']>
 }
 
 export type TLiteralValue = boolean | number | string
@@ -184,8 +177,8 @@ export interface TArraySchema<T extends Schema> extends Schema {
   [Kind]: 'Array'
   static: ArrayStatic<T>
   options: Options<this['static']> & {
-    minItem?: number
-    maxItem?: number
+    minItems?: number
+    maxItems?: number
     minContains?: number
     maxContains?: number
     uniqueItems?: boolean

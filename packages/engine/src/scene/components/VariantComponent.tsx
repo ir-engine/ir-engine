@@ -68,16 +68,18 @@ export type VariantLevel = {
   metadata: Record<string, any>
 }
 
-export enum Heuristic {
-  DISTANCE = 'DISTANCE',
-  MANUAL = 'MANUAL',
-  DEVICE = 'DEVICE'
+export const Heuristic = {
+  DISTANCE: 'DISTANCE' as const,
+  MANUAL: 'MANUAL' as const,
+  DEVICE: 'DEVICE' as const
 }
 
-export enum Devices {
-  DESKTOP = 'DESKTOP',
-  MOBILE = 'MOBILE',
-  XR = 'XR'
+export type Heuristic = (typeof Heuristic)[keyof typeof Heuristic]
+
+export const Devices = {
+  DESKTOP: 'DESKTOP' as const,
+  MOBILE: 'MOBILE' as const,
+  XR: 'XR' as const
 }
 
 export const distanceMetadataSchema = S.Object({
@@ -87,7 +89,7 @@ export const distanceMetadataSchema = S.Object({
 
 export const deviceMetadataSchema = S.Object({
   device: S.Enum(Devices, {
-    $comment: "Likely a string enum, ie. one of the following values: 'DESKTOP', 'MOBILE', 'XR'",
+    $comment: "A string enum, ie. one of the following values: 'DESKTOP', 'MOBILE', 'XR'",
     default: Devices.DESKTOP
   })
 })
@@ -106,7 +108,7 @@ export const VariantComponent = defineComponent({
       })
     ),
     heuristic: S.Enum(Heuristic, {
-      $comment: "Likely a string enum, ie. one of the following values: 'DISTANCE', 'MANUAL', 'DEVICE'",
+      $comment: "A string enum, ie. one of the following values: 'DISTANCE', 'MANUAL', 'DEVICE'",
       default: Heuristic.MANUAL
     }),
     currentLevel: S.Number({ default: 0, serialized: false })

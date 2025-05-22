@@ -166,7 +166,7 @@ describe('RigidBodyComponent', () => {
 
     it('should not change values of an initialized RigidBodyComponent when deserialized incorrect types', () => {
       const Incorrect = {
-        type: 1,
+        type: BodyTypes.Fixed,
         ccd: 'ccd',
         allowRolling: 2,
         canSleep: 3,

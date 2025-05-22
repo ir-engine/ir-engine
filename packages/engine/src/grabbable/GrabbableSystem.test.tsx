@@ -26,24 +26,33 @@ Infinite Reality Engine. All Rights Reserved.
 import assert from 'assert'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 
-import { Entity, EntityUUIDPair, UUIDComponent } from '@ir-engine/ecs'
+import {
+  Entity,
+  EntityNetworkState,
+  EntityUUIDPair,
+  NetworkObjectComponent,
+  UUIDComponent,
+  WorldNetworkAction
+} from '@ir-engine/ecs'
 import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine, createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { PeerID, UserID, applyIncomingActions, dispatchAction, getMutableState, getState } from '@ir-engine/hyperflux'
 import {
-  EntityNetworkState,
   Network,
   NetworkActions,
-  NetworkObjectComponent,
   NetworkState,
   NetworkTopics,
+  PeerID,
   ScenePeer,
   SceneUser,
-  WorldNetworkAction
-} from '@ir-engine/network'
+  UserID,
+  applyIncomingActions,
+  dispatchAction,
+  getMutableState,
+  getState
+} from '@ir-engine/hyperflux'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 
-import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
+import { createMockNetwork } from '@ir-engine/hyperflux/tests/createMockNetwork'
 import { initializeSpatialEngine, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { SpawnObjectActions } from '@ir-engine/spatial/src/transform/SpawnObjectActions'

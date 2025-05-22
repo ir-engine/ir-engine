@@ -281,3 +281,7 @@ export async function getTextureCacheSize(): Promise<number> {
     return 0
   }
 }
+
+Texture.prototype.offloadTextureData = function () {
+  return offloadTextureData(this)
+}

@@ -1073,7 +1073,6 @@ function createPropagationArgsInner<C extends Component>(
     case 'Void':
     case 'Bool':
     case 'String':
-    case 'Enum':
     case 'Literal': {
       return obj
     }

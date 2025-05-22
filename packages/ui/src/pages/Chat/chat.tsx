@@ -39,8 +39,7 @@ import { useEngineInjection } from '@ir-engine/client-core/src/components/World/
 import { LocationService } from '@ir-engine/client-core/src/social/services/LocationService'
 import { clientContextParams } from '@ir-engine/client-core/src/util/ClientContextState'
 import multiLogger from '@ir-engine/common/src/logger'
-import { getMutableState } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
+import { getMutableState, NetworkState } from '@ir-engine/hyperflux'
 
 const logger = multiLogger.child({ component: 'ui:chat:chat', modifier: clientContextParams })
 

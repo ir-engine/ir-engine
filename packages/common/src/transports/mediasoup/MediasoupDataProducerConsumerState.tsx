@@ -26,13 +26,16 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 
 import {
+  DataChannelType,
   defineAction,
   defineState,
   getMutableState,
   getState,
   matches,
   matchesPeerID,
+  NetworkActions,
   NetworkID,
+  NetworkState,
   NO_PROXY_STEALTH,
   none,
   useHookstate,
@@ -40,7 +43,6 @@ import {
   Validator
 } from '@ir-engine/hyperflux'
 
-import { DataChannelType, NetworkActions, NetworkState } from '@ir-engine/network'
 import {
   MediasoupTransportActions,
   MediasoupTransportObjectsState,

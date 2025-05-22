@@ -550,7 +550,6 @@ const createTextureOperations = (
 
   if (args.textureFormat !== 'default') {
     for (const texture of textures) {
-      console.log('considering texture ' + texture.getURI())
       if (texture.getMimeType() === 'image/ktx2') continue
       const oldSize = texture.getSize()
       if (!oldSize) continue

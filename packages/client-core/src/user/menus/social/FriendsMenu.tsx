@@ -37,8 +37,7 @@ import {
   userPath
 } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
+import { NetworkState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
 import { Tooltip } from '@ir-engine/ui'
 import { CheckCircleLg, CheckLg, MessageTextSquare01Lg, User01Lg, XCloseLg } from '@ir-engine/ui/src/icons'

@@ -54,7 +54,6 @@ import {
 import { NO_PROXY, State, defineState, getMutableState, getState, none, useMutableState } from '@ir-engine/hyperflux'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 
-import { offloadTextureData } from '@ir-engine/engine/src/assets/loaders/texture/TextureMemoryManager'
 import React, { useEffect } from 'react'
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { Geometry } from '../common/constants/Geometry'
@@ -63,6 +62,15 @@ import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { PerformanceState } from '../renderer/PerformanceState'
 import { RendererComponent } from '../renderer/components/RendererComponent'
 import { VisibleComponent } from '../renderer/components/VisibleComponent'
+
+// offloadTextureData implemented in engine package, but needs to be called and typed here
+
+declare module 'three/src/textures/Texture.js' {
+  export interface Texture {
+    offloadTextureData: () => Promise<boolean>
+  }
+}
+
 export interface DisposableObject {
   uuid: string
   id: number
@@ -296,7 +304,8 @@ const resourceCallbacks = {
                 setTimeout(checkSync)
               } else {
                 gl.deleteSync(sync)
-                offloadTextureData(asset)
+                asset
+                  .offloadTextureData()
                   .then(() => {
                     resource.metadata.merge({ onGPU: true, discarded: true })
                   })

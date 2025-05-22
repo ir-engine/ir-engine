@@ -34,6 +34,7 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
+  NetworkObjectComponent,
   removeComponent,
   removeEntity,
   S,
@@ -45,7 +46,6 @@ import {
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { createUI } from '@ir-engine/engine/src/interaction/functions/createUI'
 import { getState } from '@ir-engine/hyperflux'
-import { NetworkObjectComponent } from '@ir-engine/network'
 import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { inFrustum } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
