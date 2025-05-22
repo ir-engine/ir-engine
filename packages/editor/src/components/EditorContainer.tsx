@@ -35,7 +35,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import Toolbar from '../components/toolbar/Toolbar'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
-import { EditorState, activeLowerPanel } from '../services/EditorServices'
+import { ActiveLowerPanel, EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
@@ -110,7 +110,7 @@ const onEditorError = (error) => {
 
 const defaultLayout = (flags: {
   visualScriptPanelEnabled: boolean
-  activeLowerPanel: activeLowerPanel
+  activeLowerPanel: ActiveLowerPanel
 }): LayoutData => {
   const tabs = [AssetsPanelTab]
   flags.visualScriptPanelEnabled && tabs.push(VisualScriptPanelTab)

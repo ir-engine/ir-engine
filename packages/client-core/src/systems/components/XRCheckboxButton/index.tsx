@@ -28,7 +28,7 @@ import React from 'react'
 import { CheckLg } from '@ir-engine/ui/src/icons'
 import styleString from './index.scss?inline'
 
-type labelPositionVariant = 'start' | 'end' | 'none'
+type LabelPositionVariant = 'start' | 'end' | 'none'
 
 const XRCheckboxButton = (props) => {
   const {
@@ -36,7 +36,7 @@ const XRCheckboxButton = (props) => {
     labelContent,
     checked,
     ...inputProps
-  }: { labelPosition: labelPositionVariant; labelContent: any; checked: boolean; inputProps: any } = props
+  }: { labelPosition: LabelPositionVariant; labelContent: any; checked: boolean; inputProps: any } = props
 
   return (
     <>

@@ -176,7 +176,7 @@ function removeDepthOBCPlugin(material: Material) {
 }
 
 /** frame.getDepthInformation has no type currently */
-type getDepthInformationType = {
+type GetDepthInformationType = {
   getDepthInformation: (view: XRView) => XRCPUDepthInformation
 }
 
@@ -186,7 +186,7 @@ type getDepthInformationType = {
  * @returns
  */
 function updateDepthMaterials(
-  frame: XRFrame & getDepthInformationType,
+  frame: XRFrame & GetDepthInformationType,
   referenceSpace: XRReferenceSpace,
   depthTexture?: DepthCanvasTexture
 ) {
@@ -270,7 +270,7 @@ function DepthOcclusionReactor({ obj }) {
 
 const execute = () => {
   const xrFrame = getState(XRState).xrFrame
-  const xrFrameD = xrFrame as XRFrame & getDepthInformationType
+  const xrFrameD = xrFrame as XRFrame & GetDepthInformationType
   depthSupported = typeof xrFrameD?.getDepthInformation === 'function'
   if (!depthSupported) return
   XRDepthOcclusion.updateDepthMaterials(xrFrame as any, ReferenceSpace.origin!, depthTexture)

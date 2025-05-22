@@ -46,7 +46,7 @@ interface User {
   id: string
 }
 
-interface ticketsTestData {
+interface TicketsTestData {
   id: string
   ticket: MatchTicketType
   connection: string
@@ -57,7 +57,7 @@ describe.skip('matchmaking match-instance service', () => {
   let scope: nock.Scope
   const ticketsNumber = 3
   const users: User[] = []
-  const tickets: ticketsTestData[] = []
+  const tickets: TicketsTestData[] = []
   const gameMode = 'test-private-test'
   const tier = 'bronze'
 
