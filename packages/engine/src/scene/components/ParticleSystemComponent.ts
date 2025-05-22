@@ -1017,7 +1017,7 @@ export const ParticleSystemComponent = defineComponent({
       const nuSystem = ParticleSystem.fromJSON(systemParameters, metadata.value as ParticleSystemMetadata, {})
       renderer.addSystem(nuSystem)
       const behaviors = component.behaviorParameters.map((behaviorJSON) => {
-        const behavior = BehaviorFromJSON(behaviorJSON, nuSystem)
+        const behavior = BehaviorFromJSON(behaviorJSON, nuSystem)!
         nuSystem.addBehavior(behavior)
         return behavior
       })

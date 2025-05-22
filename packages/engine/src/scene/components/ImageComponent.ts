@@ -38,7 +38,9 @@ import {
   Side,
   SphereGeometry,
   Texture,
-  Vector2
+  Uniform,
+  Vector2,
+  Vector3
 } from 'three'
 
 import { Entity, UndefinedEntity, useEntityContext } from '@ir-engine/ecs'
