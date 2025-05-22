@@ -23,10 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { ECSState } from '@ir-engine/ecs/src/ECSState'
-import { Entity } from '@ir-engine/ecs/src/Entity'
-import { getState } from '@ir-engine/hyperflux'
 import {
   checkBitflag,
   NetworkObjectSendPeriodicUpdatesTag,
@@ -36,7 +32,11 @@ import {
   spaceUint8,
   ViewCursor,
   writePropIfChanged
-} from '@ir-engine/network'
+} from '@ir-engine/ecs'
+import { hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { ECSState } from '@ir-engine/ecs/src/ECSState'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { getState } from '@ir-engine/hyperflux'
 
 import { AvatarIKTargetComponent } from './components/AvatarIKComponents'
 

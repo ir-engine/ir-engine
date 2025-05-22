@@ -33,13 +33,16 @@ import { RecordingAPIState } from '@ir-engine/common/src/recording/ECSRecordingS
 import { RecordingID, recordingResourceUploadPath, RecordingSchemaType } from '@ir-engine/common/src/schema.type.module'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getMutableState, getState, none, PeerID } from '@ir-engine/hyperflux'
 import {
+  getMutableState,
+  getState,
   NetworkState,
-  screenshareAudioDataChannelType,
-  webcamAudioDataChannelType,
-  webcamVideoDataChannelType
-} from '@ir-engine/network'
+  none,
+  PeerID,
+  screenshareAudioMediaChannelType,
+  webcamAudioMediaChannelType,
+  webcamVideoMediaChannelType
+} from '@ir-engine/hyperflux'
 import { config } from '@ir-engine/server-core/src/config'
 import serverLogger from '@ir-engine/server-core/src/ServerLogger'
 
@@ -225,11 +228,11 @@ export const startMediaRecording = async (recordingID: RecordingID, schema: Reco
       const dataChannelType = producer.mediaTag
       if (!mediaStreams[peerID]) mediaStreams[peerID] = {}
       const mediaType =
-        dataChannelType === webcamAudioDataChannelType || dataChannelType === webcamVideoDataChannelType
+        dataChannelType === webcamAudioMediaChannelType || dataChannelType === webcamVideoMediaChannelType
           ? 'webcam'
           : 'screenshare'
       const trackType =
-        dataChannelType === webcamAudioDataChannelType || dataChannelType === screenshareAudioDataChannelType
+        dataChannelType === webcamAudioMediaChannelType || dataChannelType === screenshareAudioMediaChannelType
           ? 'audio'
           : 'video'
       if (!mediaStreams[peerID][mediaType]) mediaStreams[peerID][mediaType] = {}

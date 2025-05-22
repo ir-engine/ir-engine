@@ -38,33 +38,28 @@ import { Engine } from '@ir-engine/ecs'
 import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
 import {
   ErrorBoundary,
+  MediaStreamState,
+  MessageTypes,
+  NetworkActions,
+  NetworkState,
+  NetworkTopics,
   PeerID,
+  SendMessageType,
+  StunServerState,
   Topic,
   UserID,
+  WebRTCPeerConnection,
+  WebRTCTransportFunctions,
   defineState,
   dispatchAction,
   getMutableState,
   getState,
+  joinNetwork,
+  leaveNetwork,
   none,
   useHookstate,
   useMutableState
 } from '@ir-engine/hyperflux'
-import {
-  NetworkActions,
-  NetworkState,
-  NetworkTopics,
-  WebRTCPeerConnection,
-  addNetwork,
-  createNetwork,
-  removeNetwork
-} from '@ir-engine/network'
-import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
-import {
-  MessageTypes,
-  SendMessageType,
-  StunServerState,
-  WebRTCTransportFunctions
-} from '@ir-engine/network/src/webrtc/WebRTCTransportFunctions'
 import React, { Suspense, useEffect } from 'react'
 
 type InstanceType = {
@@ -136,8 +131,7 @@ const ConnectionReactor = (props: { instanceID: InstanceID; topic: Topic }) => {
 
     getMutableState(NetworkState).hostIds[topic].set(instanceID)
 
-    const network = createNetwork(instanceID, null, topic, {})
-    addNetwork(network)
+    const network = joinNetwork(instanceID, null, topic, {})
 
     network.ready = true
 
@@ -168,7 +162,7 @@ const ConnectionReactor = (props: { instanceID: InstanceID; topic: Topic }) => {
           userID: Engine.instance.userID
         })
       )
-      removeNetwork(network)
+      leaveNetwork(network)
       getMutableState(NetworkState).hostIds[topic].set(none)
     }
   }, [joinResponse])

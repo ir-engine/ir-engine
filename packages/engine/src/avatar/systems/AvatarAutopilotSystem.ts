@@ -23,9 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineQuery } from '@ir-engine/ecs'
+import { defineQuery, NetworkObjectAuthorityTag } from '@ir-engine/ecs'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { NetworkObjectAuthorityTag } from '@ir-engine/network'
 
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { applyAutopilotInput } from '../functions/moveAvatar'

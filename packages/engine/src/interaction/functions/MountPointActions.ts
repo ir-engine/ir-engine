@@ -25,9 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import matches from 'ts-matches'
 
-import { EntityUUID, matchesEntityUUID } from '@ir-engine/ecs'
-import { defineAction, defineState, getMutableState, none } from '@ir-engine/hyperflux'
-import { NetworkTopics, WorldNetworkAction } from '@ir-engine/network'
+import { EntityUUID, matchesEntityUUID, WorldNetworkAction } from '@ir-engine/ecs'
+import { defineAction, defineState, getMutableState, NetworkTopics, none } from '@ir-engine/hyperflux'
 
 export class MountPointActions {
   static mountInteraction = defineAction({

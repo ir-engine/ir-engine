@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { WorldNetworkAction } from '@ir-engine/ecs'
 import { defineAction } from '@ir-engine/hyperflux'
-import { WorldNetworkAction } from '@ir-engine/network'
 
 import { matchesQuaternion, matchesVector3 } from '../common/functions/MatchesUtils'
 
