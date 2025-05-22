@@ -1349,7 +1349,7 @@ const exportAnimations = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFS
       samplerDef.input = input
       samplerDef.output = output
 
-      const interpolantFunc = track.createInterpolant as (any) => any
+      const interpolantFunc = (track as any).createInterpolant as (any) => any
       if (interpolantFunc === track.InterpolantFactoryMethodDiscrete) {
         samplerDef.interpolation = 'STEP'
       } else if ((interpolantFunc as any).isInterpolantFactoryMethodGLTFCubicSpline) {

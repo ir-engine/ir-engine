@@ -76,11 +76,11 @@ declare module 'postprocessing' {
  */
 export const render = (
   renderer: ComponentType<typeof RendererComponent>,
-  csm: ComponentType<typeof CSMComponent> | undefined,
   scene: Scene,
   camera: ArrayCamera,
   delta: number,
-  effectComposer = true
+  effectComposer = true,
+  csm?: ComponentType<typeof CSMComponent> | undefined
 ) => {
   if (!renderer.renderer) return
 
@@ -201,7 +201,7 @@ const execute = () => {
 
     _scene.fog = fog
 
-    render(renderer, csm, _scene, camera, deltaSeconds)
+    render(renderer, _scene, camera, deltaSeconds, undefined, csm)
   }
   onRenderEnd()
 }

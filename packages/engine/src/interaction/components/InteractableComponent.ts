@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { MathUtils, Vector3 } from 'three'
+import { MathUtils, MeshBasicMaterial, Vector3 } from 'three'
 
 import {
   ECSState,
@@ -200,7 +200,7 @@ export const updateInteractableUI = (entity: Entity) => {
       removeComponent(interactable.uiEntity, VisibleComponent)
     }
     xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-      const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
+      const mat = layer.contentMesh.material as MeshBasicMaterial
       mat.opacity = opacity
     })
   })

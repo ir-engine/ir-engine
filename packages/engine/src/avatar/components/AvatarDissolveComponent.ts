@@ -138,7 +138,7 @@ export const AvatarDissolveComponent = defineComponent({
       time: {
         value: -200
       }
-    }
+    } as Record<string, any>
 
     let fragmentShader = ''
     let vertexShader = ''
