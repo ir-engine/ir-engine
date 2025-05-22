@@ -141,6 +141,10 @@ export async function seed(knex: Knex): Promise<void> {
       {
         key: EngineSettings.InstanceServer.ShutdownDelayMs,
         value: process.env.INSTANCESERVER_SHUTDOWN_DELAY_MS || '0'
+      },
+      {
+        key: EngineSettings.InstanceServer.MaxUsersPerInstance,
+        value: process.env.INSTANCESERVER_MAX_USERS_PER_INSTANCE || '10'
       }
     ],
     'instance-server'

@@ -92,6 +92,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
   const portValue = getSettingValue(EngineSettings.InstanceServer.Port)
   const modeValue = getSettingValue(EngineSettings.InstanceServer.Mode)
   const locationNameValue = getSettingValue(EngineSettings.InstanceServer.LocationName)
+  const maxUsersPerInstanceValue = getSettingValue(EngineSettings.InstanceServer.MaxUsersPerInstance)
   const webRTCSettingsValue =
     instanceWebRTCSettings?.data.length === 0
       ? defaultWebRTCSettings
@@ -293,6 +294,18 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             position: 'top'
           }}
           value={locationNameValue || ''}
+          disabled
+        />
+        <Input
+          fullWidth
+          type="number"
+          min={1}
+          max={100}
+          labelProps={{
+            text: t('admin:components.setting.maxUsersPerInstance'),
+            position: 'top'
+          }}
+          value={maxUsersPerInstanceValue || 5}
           disabled
         />
 

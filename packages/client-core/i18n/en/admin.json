@@ -482,6 +482,7 @@
       "identifierDigits": "Identifier Digits",
       "mode": "Mode",
       "locationName": "Published Space Name",
+      "maxUsersPerInstance": "Max Users Per Instance",
       "settings": "Settings",
       "redis": {
         "header": "Redis",
