@@ -35,8 +35,7 @@ import { NotificationState } from '@ir-engine/client-core/src/common/services/No
 import { ProjectService, ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { AuthService, AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
-import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
+import { getMutableState, NetworkState, useMutableState } from '@ir-engine/hyperflux'
 import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
 
 import Component from './index'

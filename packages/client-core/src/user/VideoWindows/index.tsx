@@ -25,15 +25,24 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useRef } from 'react'
 
-import { UserID, userPath } from '@ir-engine/common/src/schema.type.module'
-import { Engine } from '@ir-engine/ecs/src/Engine'
-import { getMutableState, getState, NO_PROXY, PeerID, useMutableState } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
-
 import { useGet } from '@ir-engine/common'
+import { UserID, userPath } from '@ir-engine/common/src/schema.type.module'
 import { EngineState } from '@ir-engine/ecs'
-import { PeerMediaChannelState, PeerMediaStreamInterface } from '@ir-engine/network/src/media/PeerMediaChannelState'
-import { NetworkPeerState } from '@ir-engine/network/src/NetworkPeerState'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import {
+  getState,
+  MediaChannelState,
+  MediaChannelType,
+  MediaStreamInterface,
+  NetworkPeerState,
+  NetworkState,
+  NO_PROXY,
+  PeerID,
+  screenshareVideoMediaChannelType,
+  useMutableState,
+  webcamAudioMediaChannelType,
+  webcamVideoMediaChannelType
+} from '@ir-engine/hyperflux'
 import {
   ArrowTopRightOnSquareLg,
   Microphone01Md,
@@ -67,7 +76,7 @@ const sortScreensBeforeCameras = (a: WindowType, b: WindowType) => {
 }
 
 export const useMediaWindows = () => {
-  const peerMediaChannelState = useMutableState(PeerMediaChannelState)
+  const mediaChannelState = useMutableState(MediaChannelState)
   const mediaNetworkInstanceState = useMediaNetwork()
   const mediaNetwork = NetworkState.mediaNetwork
   const networkPeerState = useMutableState(NetworkPeerState).value
@@ -75,15 +84,13 @@ export const useMediaWindows = () => {
   const selfUser = useMutableState(AuthState).user
   const mediaNetworkConnected = mediaNetwork && mediaNetworkInstanceState?.ready?.value
 
-  const consumers = Object.entries(peerMediaChannelState.get(NO_PROXY)) as [
+  const consumers = Object.entries(mediaChannelState.get(NO_PROXY)) as [
     PeerID,
-    { cam: PeerMediaStreamInterface; screen: PeerMediaStreamInterface }
+    { [channelType: MediaChannelType]: MediaStreamInterface }
   ][]
 
   const selfPeerID = Engine.instance.store.peerID
   const selfUserID = useMutableState(EngineState).userID.value
-
-  const camActive = (cam: PeerMediaStreamInterface) => cam.videoMediaStream || cam.audioMediaStream
 
   const userPeers: Array<[UserID, PeerID[]]> =
     mediaNetworkConnected && mediaNetworkUsers
@@ -95,13 +102,18 @@ export const useMediaWindows = () => {
     .reduce((acc, [userID, peerIDs]) => {
       const isSelfWindows = userID === selfUser.id.value
       const userCams = consumers
-        .filter(([peerID, { cam, screen }]) => peerIDs.includes(peerID) && cam && camActive(cam))
+        .filter(
+          ([peerID, streams]) =>
+            peerIDs.includes(peerID) &&
+            (webcamAudioMediaChannelType in streams || webcamVideoMediaChannelType in streams) &&
+            Object.entries(streams).find(([, c]) => c.stream)
+        )
         .map(([peerID]) => {
           return { peerID, type: 'cam' as const }
         })
 
       const userScreens = consumers
-        .filter(([peerID, { cam, screen }]) => peerIDs.includes(peerID) && screen?.videoMediaStream)
+        .filter(([peerID, streams]) => peerIDs.includes(peerID) && streams[screenshareVideoMediaChannelType]?.stream)
         .map(([peerID]) => {
           return { peerID, type: 'screen' as const }
         })
@@ -117,7 +129,7 @@ export const useMediaWindows = () => {
       return acc
     }, [] as WindowType[])
     .sort(sortScreensBeforeCameras)
-    .filter(({ peerID }) => peerMediaChannelState[peerID].value)
+    .filter(({ peerID }) => mediaChannelState[peerID].value)
 
   // if window doesnt exist for self, add it
   if (
@@ -139,11 +151,12 @@ export const useMediaWindows = () => {
       (peerID === Engine.instance.store.peerID ||
         mediaNetwork?.peers?.[peerID].userId === selfUserID ||
         nearbyPeers.includes(peerID)) &&
-      peerMediaChannelState.value[peerID]
+      mediaChannelState.value[peerID]
   )
 }
 
 export const VideoWindows = () => {
+  const { reportedPeerId } = useMutableState(ReportUserState).value
   const windows = useMediaWindows()
   return (
     <>
@@ -152,16 +165,9 @@ export const VideoWindows = () => {
           <SingleVideoWindow type={type} peerID={peerID} key={type + '-' + peerID} />
         ))}
       </div>
-      <ReportUserWindowWrapper />
+      {reportedPeerId && <ReportUserWindow />}
     </>
   )
-}
-
-const ReportUserWindowWrapper = () => {
-  const { reportedPeerId } = useMutableState(ReportUserState)
-  if (reportedPeerId.value && getMutableState(PeerMediaChannelState)[reportedPeerId.value]['cam'])
-    return <ReportUserWindow />
-  return null
 }
 
 const ReportUserWindow = () => {
@@ -242,45 +248,13 @@ const ReportUserWindow = () => {
 }
 
 export const VideoWindowsWidget = () => {
-  const peerMediaChannelState = useMutableState(PeerMediaChannelState)
-
-  const consumers = Object.entries(peerMediaChannelState.get({ noproxy: true })) as [
-    PeerID,
-    { cam: PeerMediaStreamInterface; screen: PeerMediaStreamInterface }
-  ][]
-
-  const windows = [] as { peerID: PeerID; type: 'cam' | 'screen' }[]
-
-  const screens = consumers
-    .filter(([peerID, { cam, screen }]) => screen?.videoMediaStream)
-    .map(([peerID]) => {
-      return { peerID, type: 'screen' as const }
-    })
-
-  const cams = consumers
-    .filter(([peerID, { cam, screen }]) => cam && (cam.videoMediaStream || cam.audioMediaStream))
-    .map(([peerID]) => {
-      return { peerID, type: 'cam' as const }
-    })
-
-  windows.push(...screens, ...cams)
-
-  const selfPeerID = Engine.instance.store.peerID
-  const selfUserID = useMutableState(EngineState).userID.value
-  const mediaNetwork = NetworkState.mediaNetwork
-
-  // if window doesnt exist for self, add it
-  if (!mediaNetwork || !windows.find(({ peerID }) => mediaNetwork.peers[peerID]?.userId === selfUserID)) {
-    windows.unshift({ peerID: selfPeerID, type: 'cam' })
-  }
+  const windows = useMediaWindows()
 
   return (
     <div className="overflow-y scrollbar-hide flex h-[calc(100vh-48px)] flex-col gap-y-2 overflow-y-auto">
-      {windows
-        .filter(({ peerID }) => peerMediaChannelState[peerID].value)
-        .map(({ peerID, type }) => (
-          <SingleVideoWindowWidget type={type} peerID={peerID} key={type + '-' + peerID} />
-        ))}
+      {windows.map(({ peerID, type }) => (
+        <SingleVideoWindowWidget type={type} peerID={peerID} key={type + '-' + peerID} />
+      ))}
     </div>
   )
 }

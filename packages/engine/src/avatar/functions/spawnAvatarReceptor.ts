@@ -33,10 +33,11 @@ import {
   EntityUUID,
   getComponent,
   getOptionalComponent,
+  NetworkObjectComponent,
+  NetworkObjectSendPeriodicUpdatesTag,
   setComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { NetworkObjectComponent, NetworkObjectSendPeriodicUpdatesTag } from '@ir-engine/network'
 import { setTargetCameraRotation } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'

@@ -25,11 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AxesHelper, Quaternion, Vector3 } from 'three'
 
-import { S, UUIDComponent, useEntityContext } from '@ir-engine/ecs'
+import { NetworkObjectComponent, S, UUIDComponent, useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityID, SourceID } from '@ir-engine/ecs/src/Entity'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { NetworkObjectComponent } from '@ir-engine/network'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'

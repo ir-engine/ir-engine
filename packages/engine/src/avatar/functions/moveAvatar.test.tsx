@@ -34,9 +34,15 @@ import { Entity, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Engine, createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { UserID, applyIncomingActions, dispatchAction, getMutableState, getState } from '@ir-engine/hyperflux'
-import { NetworkTopics } from '@ir-engine/network'
-import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
+import {
+  NetworkTopics,
+  UserID,
+  applyIncomingActions,
+  dispatchAction,
+  getMutableState,
+  getState
+} from '@ir-engine/hyperflux'
+import { createMockNetwork } from '@ir-engine/hyperflux/tests/createMockNetwork'
 import { initializeSpatialEngine, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { Physics, PhysicsWorld } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'

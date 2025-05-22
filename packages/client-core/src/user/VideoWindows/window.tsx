@@ -23,14 +23,20 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { PeerMediaChannelState, PeerMediaStreamInterface } from '@ir-engine/network/src/media/PeerMediaChannelState'
+import { useClickOutside, useTouchOutside } from '@ir-engine/common/src/utils/useClickOutside'
+import {
+  getMutableState,
+  MediaChannelState,
+  screenshareAudioMediaChannelType,
+  screenshareVideoMediaChannelType,
+  useHookstate,
+  webcamAudioMediaChannelType,
+  webcamVideoMediaChannelType
+} from '@ir-engine/hyperflux'
 import { ArrowTopRightOnSquareSm, Microphone01Lg, MicrophoneOff, VolumeMaxLg, VolumeXLg } from '@ir-engine/ui/src/icons'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 import React, { useEffect, useRef } from 'react'
-
-import { useClickOutside, useTouchOutside } from '@ir-engine/common/src/utils/useClickOutside'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import { ReportUserState } from '../../util/ReportUserState'
@@ -44,11 +50,14 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
     })
 
   const { t } = useTranslation()
-  const peerMediaChannelState = useHookstate(
-    getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
-  )
 
-  const { videoElement, audioElement } = peerMediaChannelState.value as PeerMediaStreamInterface
+  const audioChannelType = type === 'screen' ? screenshareAudioMediaChannelType : webcamAudioMediaChannelType
+  const videoChannelType = type === 'screen' ? screenshareVideoMediaChannelType : webcamVideoMediaChannelType
+
+  const audioElement = useHookstate(getMutableState(MediaChannelState)[peerID][audioChannelType]).element
+    .value as HTMLAudioElement
+  const videoElement = useHookstate(getMutableState(MediaChannelState)[peerID][videoChannelType]).element
+    .value as HTMLVideoElement
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasCtxRef = useRef<CanvasRenderingContext2D>()

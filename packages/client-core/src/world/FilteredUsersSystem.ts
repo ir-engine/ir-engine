@@ -31,8 +31,7 @@ import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getNearbyUsers } from '@ir-engine/engine/src/avatar/functions/getNearbyUsers'
-import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
+import { defineState, getMutableState, getState, NetworkState } from '@ir-engine/hyperflux'
 
 import { useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
 

@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { NetworkID, PeerID } from '@ir-engine/hyperflux'
-import { MediaTagType } from '@ir-engine/network'
+import { MediaChannelType, NetworkID, PeerID } from '@ir-engine/hyperflux'
 import { ChannelID, LocationID, RoomCode } from '../schema.type.module'
 
 export type NetworkConnectionParams = {
@@ -42,7 +41,7 @@ export type NetworkConnectionParams = {
 export type TransportDirection = 'send' | 'receive'
 
 export type MediaStreamAppData = {
-  mediaTag: MediaTagType
+  mediaTag: MediaChannelType
   peerID: PeerID
   direction: TransportDirection
   channelId: ChannelID

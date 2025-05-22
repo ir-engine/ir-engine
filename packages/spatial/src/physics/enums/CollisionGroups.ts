@@ -23,12 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export enum CollisionGroups {
-  None = 0,
-  Default = 1 << 0,
-  Avatars = 1 << 1,
-  Ground = 1 << 2,
-  Trigger = 1 << 3
+export const CollisionGroups = {
+  None: 0 as const,
+  Default: 1 as const,
+  Avatars: 2 as const,
+  Ground: 4 as const,
+  Trigger: 8 as const
 }
 
 /** Default | Avatars | Ground */

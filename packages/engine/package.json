@@ -36,7 +36,6 @@
     "@gltf-transform/functions": "4.0.10",
     "@ir-engine/ecs": "^1.6.0",
     "@ir-engine/hyperflux": "^1.6.0",
-    "@ir-engine/network": "^1.6.0",
     "@ir-engine/spatial": "^1.6.0",
     "@ir-engine/xrui": "^1.6.0",
     "@mediapipe/tasks-vision": "0.10.12",

@@ -38,9 +38,9 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { Geometry } from '@ir-engine/spatial/src/common/constants/Geometry'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { DoubleSide } from 'three'
-import { GeometryTypeEnum, GeometryTypeToFactory } from '../constants/GeometryTypeEnum'
+import { GeometryType, GeometryTypeToFactory } from '../constants/GeometryTypeEnum'
 
-const createGeometry = (geometryType: GeometryTypeEnum, geometryParams: Record<string, any>): Geometry => {
+const createGeometry = (geometryType: GeometryType, geometryParams: Record<string, any>): Geometry => {
   const factory = GeometryTypeToFactory[geometryType]
   const geometry = factory(geometryParams)
   return geometry
@@ -51,10 +51,10 @@ export const PrimitiveGeometryComponent = defineComponent({
   jsonID: 'EE_primitive_geometry',
 
   schema: S.Object({
-    geometryType: S.Enum(GeometryTypeEnum, {
+    geometryType: S.Enum(GeometryType, {
       $comment:
-        "An indexed enum, ie. the numeric index of a value in the following sequence: 'BoxGeometry', 'SphereGeometry', 'CylinderGeometry', 'CapsuleGeometry', 'PlaneGeometry', 'CircleGeometry', 'RingGeometry', 'TorusGeometry', 'DodecahedronGeometry', 'IcosahedronGeometry', 'OctahedronGeometry', 'TetrahedronGeometry', 'TorusKnotGeometry'",
-      default: GeometryTypeEnum.BoxGeometry
+        "A string enum, ie. one of the following values: 'BoxGeometry', 'SphereGeometry', 'CylinderGeometry', 'CapsuleGeometry', 'PlaneGeometry', 'CircleGeometry', 'RingGeometry', 'TorusGeometry', 'DodecahedronGeometry', 'IcosahedronGeometry', 'OctahedronGeometry', 'TetrahedronGeometry', 'TorusKnotGeometry'",
+      default: GeometryType.BoxGeometry
     }),
     geometryParams: S.Record(S.String(), S.Any())
   }),

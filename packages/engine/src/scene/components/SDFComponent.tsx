@@ -50,11 +50,11 @@ import { getState } from '@ir-engine/hyperflux'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 
-export enum SDFMode {
-  TORUS,
-  BOX,
-  SPHERE,
-  FOG
+export const SDFMode = {
+  TORUS: 0 as const,
+  BOX: 1 as const,
+  SPHERE: 2 as const,
+  FOG: 3 as const
 }
 
 // lazy load the shader to avoid generating a noise texture
@@ -70,7 +70,7 @@ export const SDFComponent = defineComponent({
     enable: S.Bool({ default: false }),
     mode: S.Enum(SDFMode, {
       $comment:
-        "Likely an indexed enum, ie. the numeric index of a value in the following sequence: 'TORUS', 'BOX', 'SPHERE', 'FOG'",
+        "A number enum, where: 0 represents 'TORUS', 1 represents 'BOX', 2 represents 'SPHERE', 3 represents 'FOG'",
       default: SDFMode.TORUS
     })
   }),

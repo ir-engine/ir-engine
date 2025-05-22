@@ -24,16 +24,18 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 /** Camera Modes. */
-export enum FollowCameraMode {
-  FirstPerson = 'FirstPerson',
-  ShoulderCam = 'ShoulderCam',
-  ThirdPerson = 'ThirdPerson',
-  TopDown = 'TopDown',
-  Strategic = 'Strategic',
-  Dynamic = 'Dynamic'
+export const FollowCameraMode = {
+  FirstPerson: 'FirstPerson' as const,
+  ShoulderCam: 'ShoulderCam' as const,
+  ThirdPerson: 'ThirdPerson' as const,
+  TopDown: 'TopDown' as const,
+  Strategic: 'Strategic' as const,
+  Dynamic: 'Dynamic' as const
 }
 
-export enum FollowCameraShoulderSide {
-  Left = 'Left',
-  Right = 'Right'
+export type FollowCameraMode = (typeof FollowCameraMode)[keyof typeof FollowCameraMode]
+
+export const FollowCameraShoulderSide = {
+  Left: 'Left' as const,
+  Right: 'Right' as const
 }
