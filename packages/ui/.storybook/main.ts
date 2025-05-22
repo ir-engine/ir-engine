@@ -82,7 +82,7 @@ const config: StorybookConfig = {
     getAbsolutePath('storybook-addon-react-router-v6'),
     getAbsolutePath('storybook-addon-sass-postcss')
   ],
-  staticDirs: ['../public'],
+  staticDirs: ['../public', '../../client/public'],
   core: {},
   framework: {
     name: getAbsolutePath('@storybook/react-vite'),
