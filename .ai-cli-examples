@@ -13,9 +13,7 @@ ComponentMap.get('NameComponent').valueMap[entity] !== undefined
 # Get all entities with a component
 Object.keys(ComponentMap.get('NameComponent').valueMap).map(Number)
 # Get entity by UUID
-ComponentMap.get('UUIDComponent').getEntityByUUID('some-uuid-string')
-# Get current scene entities
-ECS.defineQuery([ComponentMap.get('SourceComponent')])().length
+ComponentMap.get('UUIDComponent').getEntityByUUID('entityContextID' + 'entityID')
 # Simple Scene Analysis
 (() => {
   // 1. Get camera information
