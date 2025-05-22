@@ -37,7 +37,7 @@ const config: StorybookConfig = {
   typescript: {
     reactDocgen: false
   },
-  stories: ['../src/**/*.stories.tsx', '../../client-core/src/**/*.stories.tsx'],
+  stories: ['../src/**/*.stories.tsx'],
   addons: [
     getAbsolutePath('@storybook/addon-links'),
     getAbsolutePath('@storybook/addon-toolbars'),
