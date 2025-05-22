@@ -45,9 +45,6 @@ export const CSMComponent = defineComponent({
       lightColor: T.Color(),
       lightIntensity: S.Number({ default: 1 }),
       lightMargin: S.Number({ default: 200 }),
-      customSplitsCallback: S.Type<
-        ((amount: number, near: number, far: number, target: number[]) => void) | undefined
-      >(),
       fade: S.Bool({ default: true }),
       mainFrustum: S.Type<Frustum>({ default: new Frustum() }),
       frustums: S.Array(S.Type<Frustum>()),

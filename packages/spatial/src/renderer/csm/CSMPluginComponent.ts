@@ -32,7 +32,7 @@ import { CameraComponent } from '../../camera/components/CameraComponent'
 import { getRendererEntity } from '../functions/useRendererEntity'
 import { MaterialStateComponent } from '../materials/MaterialComponent'
 import { removePlugin, setPlugin } from '../materials/materialFunctions'
-import { getExtendedBreaks } from './CSM'
+import { CSM } from './CSM'
 import { CSMComponent } from './CSMComponent'
 
 export const CSMPluginComponent = defineComponent({
@@ -67,7 +67,7 @@ export const CSMPluginComponent = defineComponent({
         const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
         const far = Math.min(camera.far, csm.maxFar)
         const near = Math.min(csm.maxFar, camera.near)
-        getExtendedBreaks(breaksVec2, rendererEntity)
+        CSM.getExtendedBreaks(breaksVec2, rendererEntity)
 
         shader.uniforms.CSM_cascades = { value: breaksVec2 }
         shader.uniforms.cameraNear = { value: near }

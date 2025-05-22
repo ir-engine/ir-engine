@@ -92,11 +92,10 @@ export type CSMParams = {
   lightNear?: number
   lightFar?: number
   lightMargin?: number
-  customSplitsCallback?: (amount: number, near: number, far: number, target: number[]) => void
   fade?: boolean
 }
 
-export function uniformSplit(amount: number, near: number, far: number, target: number[]): void {
+function uniformSplit(amount: number, near: number, far: number, target: number[]): void {
   for (let i = 1; i < amount; i++) {
     target.push((near + ((far - near) * i) / amount) / far)
   }
@@ -104,7 +103,7 @@ export function uniformSplit(amount: number, near: number, far: number, target: 
   target.push(1)
 }
 
-export function logarithmicSplit(amount: number, near: number, far: number, target: number[]): void {
+function logarithmicSplit(amount: number, near: number, far: number, target: number[]): void {
   for (let i = 1; i < amount; i++) {
     target.push((near * (far / near) ** (i / amount)) / far)
   }
@@ -112,7 +111,7 @@ export function logarithmicSplit(amount: number, near: number, far: number, targ
   target.push(1)
 }
 
-export function practicalSplit(amount: number, near: number, far: number, lambda: number, target: number[]): void {
+function practicalSplit(amount: number, near: number, far: number, lambda: number, target: number[]): void {
   _uniformArray.length = 0
   _logArray.length = 0
   logarithmicSplit(amount, near, far, _logArray)
@@ -125,9 +124,8 @@ export function practicalSplit(amount: number, near: number, far: number, lambda
   target.push(1)
 }
 
-export function createLight(i: number, rendererEntity?: Entity): void {
-  const entity = rendererEntity || Engine.instance.viewerEntity
-  const csm = getMutableComponent(entity, CSMComponent)
+function createLight(i: number, rendererEntity: Entity): void {
+  const csm = getMutableComponent(rendererEntity, CSMComponent)
 
   const light = new DirectionalLight(csm.lightColor.value, csm.lightIntensity.value)
   light.castShadow = true
@@ -141,8 +139,8 @@ export function createLight(i: number, rendererEntity?: Entity): void {
 
   const lightEntity = createEntity()
   setComponent(lightEntity, UUIDComponent, {
-    entitySourceID: 'csm' as SourceID,
-    entityID: ('light-' + i) as EntityID
+    entitySourceID: (UUIDComponent.get(rendererEntity) + 'csm') as SourceID,
+    entityID: ('light-' + UUIDComponent.generate()) as EntityID
   })
   setComponent(lightEntity, NameComponent, 'CSM light ' + i)
   setComponent(lightEntity, VisibleComponent)
@@ -157,7 +155,7 @@ export function createLight(i: number, rendererEntity?: Entity): void {
   light.target.name = 'CSM_' + light.target.name
 }
 
-export function createLights(sourceLight?: DirectionalLight, rendererEntity?: Entity): void {
+function createLights(sourceLight?: DirectionalLight, rendererEntity?: Entity): void {
   const entity = rendererEntity || Engine.instance.viewerEntity
   const csm = getMutableComponent(entity, CSMComponent)
 
@@ -180,7 +178,7 @@ export function createLights(sourceLight?: DirectionalLight, rendererEntity?: En
   }
 }
 
-export function initCascades(rendererEntity?: Entity): void {
+function initCascades(rendererEntity?: Entity): void {
   const entity = rendererEntity || Engine.instance.viewerEntity
   const csm = getMutableComponent(entity, CSMComponent)
 
@@ -200,7 +198,7 @@ export function initCascades(rendererEntity?: Entity): void {
   })
 }
 
-export function updateShadowBounds(rendererEntity?: Entity): void {
+function updateShadowBounds(rendererEntity?: Entity): void {
   const entity = rendererEntity || Engine.instance.viewerEntity
   const csm = getComponent(entity, CSMComponent)
   const frustums = csm.frustums
@@ -249,7 +247,7 @@ export function updateShadowBounds(rendererEntity?: Entity): void {
   }
 }
 
-export function getBreaks(rendererEntity?: Entity): void {
+function getBreaks(rendererEntity?: Entity): void {
   const entity = rendererEntity || Engine.instance.viewerEntity
   const csm = getComponent(entity, CSMComponent)
   const mutableCsm = getMutableComponent(entity, CSMComponent)
@@ -270,18 +268,18 @@ export function getBreaks(rendererEntity?: Entity): void {
     case CSMModes.PRACTICAL:
       practicalSplit(csm.cascades, camera.near, far, 0.5, breaks)
       break
-    case CSMModes.CUSTOM:
-      if (csm.customSplitsCallback === undefined) console.error('CSM: Custom split scheme callback not defined.')
-      csm.customSplitsCallback!(csm.cascades, camera.near, far, breaks)
-      break
+    // case CSMModes.CUSTOM:
+    //   if (csm.customSplitsCallback === undefined) console.error('CSM: Custom split scheme callback not defined.')
+    //   csm.customSplitsCallback!(csm.cascades, camera.near, far, breaks)
+    //   break
   }
 
   // Update the component
   mutableCsm.breaks.set(breaks)
 }
 
-export function updateCSM(rendererEntity?: Entity): void {
-  const entity = rendererEntity || Engine.instance.viewerEntity
+function updateCSM(rendererEntity: Entity): void {
+  const entity = rendererEntity
   const csm = getComponent(entity, CSMComponent)
   const mutableCsm = getMutableComponent(entity, CSMComponent)
 
@@ -348,28 +346,27 @@ export function updateCSM(rendererEntity?: Entity): void {
   }
 }
 
-export function injectInclude(): void {
+function injectInclude(): void {
   ShaderChunk.lights_fragment_begin = Shader.lights_fragment_begin
   ShaderChunk.lights_pars_begin = Shader.lights_pars_begin
 }
 
-export function removeInclude(): void {
+function removeInclude(): void {
   ShaderChunk.lights_fragment_begin = originalLightsFragmentBegin
   ShaderChunk.lights_pars_begin = originalLightsParsBegin
 }
 
-export function setupMaterial(materialEntity: Entity): void {
-  console.log('setupMaterial', materialEntity)
+function setupMaterial(materialEntity: Entity): void {
   if (!hasComponent(materialEntity, MaterialStateComponent) || hasComponent(materialEntity, CSMPluginComponent)) return
   setComponent(materialEntity, CSMPluginComponent)
 }
 
-export function teardownMaterial(materialEntity: Entity): void {
+function teardownMaterial(materialEntity: Entity): void {
   if (!hasComponent(materialEntity, MaterialStateComponent) || !hasComponent(materialEntity, CSMPluginComponent)) return
   removeComponent(materialEntity, CSMPluginComponent)
 }
 
-export function updateUniforms(rendererEntity?: Entity): void {
+function updateUniforms(rendererEntity?: Entity): void {
   const entity = rendererEntity || Engine.instance.viewerEntity
   const csm = getMutableComponent(entity, CSMComponent)
 
@@ -411,7 +408,7 @@ export function updateUniforms(rendererEntity?: Entity): void {
   }
 }
 
-export function getExtendedBreaks(target: Vector2[], rendererEntity?: Entity): Vector2[] {
+function getExtendedBreaks(target: Vector2[], rendererEntity?: Entity): Vector2[] {
   const entity = rendererEntity || Engine.instance.viewerEntity
   const csm = getComponent(entity, CSMComponent)
 
@@ -431,22 +428,22 @@ export function getExtendedBreaks(target: Vector2[], rendererEntity?: Entity): V
   return target
 }
 
-export function updateFrustums(rendererEntity?: Entity): void {
+function updateFrustums(rendererEntity?: Entity): void {
   getBreaks(rendererEntity)
   initCascades(rendererEntity)
   updateShadowBounds(rendererEntity)
   updateUniforms(rendererEntity)
 }
 
-export function removeCSMLights(rendererEntity?: Entity): void {
-  const entity = rendererEntity || Engine.instance.viewerEntity
+function removeCSMLights(rendererEntity: Entity): void {
+  const entity = rendererEntity
   const csm = getMutableComponent(entity, CSMComponent)
 
-  csm.lightEntities.value.forEach((entity) => {
-    removeEntity(entity)
-  })
   csm.lights.value.forEach((light) => {
     light.dispose()
+  })
+  csm.lightEntities.value.forEach((entity) => {
+    removeEntity(entity)
   })
 
   csm.lightEntities.set([])
@@ -455,10 +452,7 @@ export function removeCSMLights(rendererEntity?: Entity): void {
 
 const csmPluginQuery = defineQuery([CSMPluginComponent])
 
-export function disposeCSM(rendererEntity?: Entity): void {
-  const entity = rendererEntity || Engine.instance.viewerEntity
-  const csm = getMutableComponent(entity, CSMComponent)
-
+function disposeCSM(rendererEntity: Entity): void {
   const materialEntities = csmPluginQuery()
 
   for (const materialEntity of materialEntities) {
@@ -466,14 +460,33 @@ export function disposeCSM(rendererEntity?: Entity): void {
       teardownMaterial(materialEntity)
     }
   }
-
-  csm.shaders.set({})
-
-  removeCSMLights(entity)
-  removeInclude()
+  if (hasComponent(rendererEntity, CSMComponent)) removeCSMLights(rendererEntity)
+  removeComponent(rendererEntity, CSMComponent)
 }
 
-export function initCSM(params: CSMParams = {}, rendererEntity?: Entity): void {
+const CSMDefaults = Object.freeze({
+  cascades: 5,
+  maxFar: 100,
+  mode: CSMModes.PRACTICAL,
+  shadowMapSize: 1024,
+  shadowBias: 0,
+  shadowNormalBias: 0,
+  lightDirection: new Vector3(1, -1, 1).normalize(),
+  lightDirectionUp: Object3D.DEFAULT_UP.clone(),
+  lightColor: 0xffffff,
+  lightIntensity: 1,
+  lightMargin: 200,
+  fade: true,
+  mainFrustum: new Frustum(),
+  frustums: [],
+  breaks: [],
+  lights: [],
+  lightEntities: [],
+  shaders: {},
+  needsUpdate: true
+})
+
+function initCSM(params: CSMParams = {}, rendererEntity?: Entity): void {
   const entity = rendererEntity || Engine.instance.viewerEntity
 
   // Ensure the entity has a CSMComponent
@@ -484,26 +497,25 @@ export function initCSM(params: CSMParams = {}, rendererEntity?: Entity): void {
   const csm = getMutableComponent(entity, CSMComponent)
 
   csm.set({
-    cascades: params.cascades ?? 5,
-    maxFar: params.maxFar ?? 100,
-    mode: params.mode ?? CSMModes.PRACTICAL,
-    shadowMapSize: params.shadowMapSize ?? 1024,
-    shadowBias: params.shadowBias ?? 0,
-    shadowNormalBias: 0,
-    lightDirection: params.lightDirection ?? new Vector3(1, -1, 1).normalize(),
-    lightDirectionUp: params.lightDirectionUp ?? Object3D.DEFAULT_UP.clone(),
-    lightColor: params.lightColor ?? 0xffffff,
-    lightIntensity: params.lightIntensity ?? 1,
-    lightMargin: params.lightMargin ?? 200,
-    customSplitsCallback: params.customSplitsCallback,
-    fade: params.fade ?? true,
-    mainFrustum: new Frustum(),
-    frustums: [],
-    breaks: [],
-    lights: [],
-    lightEntities: [],
-    shaders: {},
-    needsUpdate: true
+    cascades: params.cascades ?? CSMDefaults.cascades,
+    maxFar: params.maxFar ?? CSMDefaults.maxFar,
+    mode: params.mode ?? CSMDefaults.mode,
+    shadowMapSize: params.shadowMapSize ?? CSMDefaults.shadowMapSize,
+    shadowBias: params.shadowBias ?? CSMDefaults.shadowBias,
+    shadowNormalBias: CSMDefaults.shadowNormalBias,
+    lightDirection: params.lightDirection ?? CSMDefaults.lightDirection,
+    lightDirectionUp: params.lightDirectionUp ?? CSMDefaults.lightDirectionUp,
+    lightColor: params.lightColor ?? CSMDefaults.lightColor,
+    lightIntensity: params.lightIntensity ?? CSMDefaults.lightIntensity,
+    lightMargin: params.lightMargin ?? CSMDefaults.lightMargin,
+    fade: params.fade ?? CSMDefaults.fade,
+    mainFrustum: CSMDefaults.mainFrustum,
+    frustums: CSMDefaults.frustums,
+    breaks: CSMDefaults.breaks,
+    lights: CSMDefaults.lights,
+    lightEntities: CSMDefaults.lightEntities,
+    shaders: CSMDefaults.shaders,
+    needsUpdate: CSMDefaults.needsUpdate
   })
 
   createLights(params.light, entity)
@@ -511,17 +523,7 @@ export function initCSM(params: CSMParams = {}, rendererEntity?: Entity): void {
   injectInclude()
 }
 
-export function changeLights(light?: DirectionalLight, rendererEntity?: Entity): void {
-  const entity = rendererEntity || Engine.instance.viewerEntity
-  const csm = getComponent(entity, CSMComponent)
-
-  if (light === csm.sourceLight) return
-  removeCSMLights(entity)
-  createLights(light, entity)
-  updateShadowBounds(entity)
-}
-
-export function updateProperty(key: string, value: any, rendererEntity?: Entity): void {
+function updateProperty(key: string, value: any, rendererEntity?: Entity): void {
   const entity = rendererEntity || Engine.instance.viewerEntity
   const csm = getComponent(entity, CSMComponent)
 
@@ -545,7 +547,6 @@ export function updateProperty(key: string, value: any, rendererEntity?: Entity)
 export const CSM = {
   initCSM,
   update: updateCSM,
-  changeLights,
   updateProperty,
   injectInclude,
   removeInclude,

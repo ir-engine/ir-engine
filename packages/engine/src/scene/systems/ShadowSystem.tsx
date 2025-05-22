@@ -151,7 +151,7 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
     return () => {
       CSM.dispose(rendererEntity)
     }
-  }, [directionalLight, directionalLightComponent?.castShadow.value, renderSettingsComponent.cascades])
+  }, [directionalLightComponent?.castShadow.value, renderSettingsComponent.cascades.value])
 
   /** Must run after scene object system to ensure source light is not lit */
   useExecute(
@@ -212,7 +212,6 @@ const EntityChildCSMReactor = (props: { rendererEntity: Entity; entity: Entity }
   const { rendererEntity, entity } = props
   const material = useComponent(entity, MaterialStateComponent).material
   const csm = useComponent(rendererEntity, CSMComponent)
-
   useEffect(() => {
     if (!csm) return
     CSM.setupMaterial(entity)
