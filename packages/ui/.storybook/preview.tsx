@@ -39,7 +39,9 @@ import { I18nextProvider } from 'react-i18next'
 import '../../client/src/themes/base.css'
 import '../../client/src/themes/components.css'
 import '../../client/src/themes/utilities.css'
+// @ts-ignore
 import keycardGLB from '../../projects/default-project/assets/keycard.glb?url'
+// @ts-ignore
 import apartmentGLTF from '../../projects/default-project/public/scenes/apartment.gltf?raw'
 import EngineDecorator from './decorators/EngineDecorator'
 import i18n from './i18n'
