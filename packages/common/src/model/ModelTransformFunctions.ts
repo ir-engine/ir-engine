@@ -727,7 +727,6 @@ const writeFiles = async (
         const indexAccessor = primitive.getIndices()
 
         if (!posAccessor || !indexAccessor) continue
-        // Need to check the correct simplify function signature and implementation
         simplify({
           simplifier: MeshoptSimplifier,
           ratio: 0.5,
