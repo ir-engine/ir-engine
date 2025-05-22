@@ -23,10 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getOptionalComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { ECSState } from '@ir-engine/ecs/src/ECSState'
-import { Entity } from '@ir-engine/ecs/src/Entity'
-import { getState } from '@ir-engine/hyperflux'
 import {
   NetworkObjectSendPeriodicUpdatesTag,
   ViewCursor,
@@ -38,7 +34,11 @@ import {
   spaceUint8,
   writeVector3,
   writeVector4
-} from '@ir-engine/network'
+} from '@ir-engine/ecs'
+import { getOptionalComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { ECSState } from '@ir-engine/ecs/src/ECSState'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { getState } from '@ir-engine/hyperflux'
 
 import { Physics } from './classes/Physics'
 import { RigidBodyComponent, RigidBodyDynamicTagComponent } from './components/RigidBodyComponent'

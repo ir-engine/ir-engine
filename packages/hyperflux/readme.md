@@ -3,10 +3,11 @@
 **Hyperflux** is a reactive state management library designed for both local and agent-centric networked applications. It builds on Hookstate and provides utilities to define and manage state, create and dispatch type-safe and validated actions, and integrate with React via reactors. It lets you:
 
 - **Create an agent store:** Initialize a store with `createHyperStore`.
-- **Define state slices:** Use `defineState` to create strongly typed state definitions.
+- **Define networked state:** Use `defineState` to create strongly typed state definitions.
 - **Access state data:** Retrieve immutable read-only state with `getState` or mutable state using `getMutableState`.
-- **Define actions:** Create strongly typed actions with `defineAction` and dispatch them with `dispatchAction`.
+- **Define networked actions:** Create strongly typed actions with `defineAction` and dispatch them with `dispatchAction`.
 - **Start reactors:** Start an isolated detatched React tree for purely reactive logic operations with `startReactor`.
+- **Join networks and send media and data:** Use realtime communication to send data between peers.
 
 ---
 

@@ -297,7 +297,7 @@ export const ClickPlacementSystem = defineSystem({
     const buttons = InputComponent.getButtons(viewerEntity)
     const axes = InputComponent.getAxes(viewerEntity)
 
-    const zoom = axes[MouseScroll.VerticalScroll]
+    const zoom = axes[MouseScroll.VerticalScroll]!
 
     if (buttons.SecondaryClick?.pressed) {
       clickState.maxDistance.set(clickState.maxDistance.value - zoom)

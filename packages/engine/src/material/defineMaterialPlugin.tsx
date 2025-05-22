@@ -51,9 +51,9 @@ import { useTexture } from '../assets/functions/resourceLoaderHooks'
  * - `null` for no texture
  */
 export const TextureSchema = () =>
-  S.Union([S.String(), S.Null(), S.Type<Texture>()], { default: null, $isTexture: true })
+  S.Union([S.String(), S.Null(), S.Type<Texture>()], { default: null, metadata: { $isTexture: true } })
 
-const isTextureUniform = (uniformSchema: Schema) => !!uniformSchema.options?.$isTexture
+const isTextureUniform = (uniformSchema: Schema) => !!uniformSchema.options?.metadata?.$isTexture
 
 /**
  *

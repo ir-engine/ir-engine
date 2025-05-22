@@ -27,14 +27,14 @@ import React from 'react'
 
 import styleString from './index.scss?inline'
 
-type labelPositionVariant = 'start' | 'end' | 'none'
+type LabelPositionVariant = 'start' | 'end' | 'none'
 
 const XRSlider = (props) => {
   const {
     labelPosition = 'start',
     labelContent,
     ...inputProps
-  }: { labelPosition: labelPositionVariant; labelContent: any; inputProps: any } = props
+  }: { labelPosition: LabelPositionVariant; labelContent: any; inputProps: any } = props
 
   return (
     <>

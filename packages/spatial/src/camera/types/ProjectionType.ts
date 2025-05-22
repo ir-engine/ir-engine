@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 /** Projection Types. */
-export enum ProjectionType {
-  Orthographic,
-  Perspective
+export const ProjectionType = {
+  Orthographic: 0 as const,
+  Perspective: 1 as const
 }

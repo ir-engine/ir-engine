@@ -33,7 +33,8 @@ import {
   getOptionalComponent,
   PresentationSystemGroup,
   useHasComponent,
-  UUIDComponent
+  UUIDComponent,
+  WorldNetworkAction
 } from '@ir-engine/ecs'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { getRandomSpawnPoint } from '@ir-engine/engine/src/avatar/functions/getSpawnPoint'
@@ -43,11 +44,11 @@ import {
   dispatchAction,
   getMutableState,
   getState,
+  NetworkState,
   useHookstate,
   useImmediateEffect,
   useMutableState
 } from '@ir-engine/hyperflux'
-import { NetworkState, WorldNetworkAction } from '@ir-engine/network'
 import { SpectateActions } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
 
 import { useFind, useMutation } from '@ir-engine/common'
