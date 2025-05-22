@@ -19,39 +19,47 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { AssetMetadataType } from '@ir-engine/editor/src/systems/ClickPlacementSystem'
+import { ArgTypes, StoryObj } from '@storybook/react'
 import React from 'react'
-import { twMerge } from 'tailwind-merge'
+import InspectorPanel from './index'
 
-export interface ViewportButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
-  icon: (({ className }: { className?: string }) => JSX.Element) | React.ElementType
-  selected?: boolean
-  lean?: boolean
+const argTypes: ArgTypes = {}
+
+export default {
+  title: 'Components/Editor/Inspector',
+  component: InspectorPanel,
+  parameters: {},
+  argTypes
 }
 
-function ViewportButton(
-  { selected, className, icon: Icon, lean, ...props }: ViewportButtonProps,
-  ref: React.ForwardedRef<HTMLButtonElement>
-) {
+const InspectorRender = (args: AssetMetadataType) => {
   return (
-    <button
-      ref={ref}
-      className={twMerge(
-        'flex items-center justify-center',
-        'text-text-secondary',
-        !selected && 'hover:text-text-primary',
-        selected ? 'text-ui-primary' : '',
-        lean ? '-m-2 p-2' : 'h-8 w-8',
-        className
-      )}
-      {...props}
-    >
-      <Icon className="h-5 w-5" />
-    </button>
+    <div className="min-h-[500px] w-[400px]">
+      <InspectorPanel data={args} />
+    </div>
   )
 }
 
-export default React.forwardRef(ViewportButton)
+export const InspectorWithData: StoryObj = {
+  name: 'Inspector with asset',
+  args: {
+    thumbnail: './apartment_scene.png',
+    name: 'apartment_scene.png',
+    type: 'png',
+    author: 'iR Studio',
+    dateCreated: '2025-05-13T16:58:59.000Z',
+    fileSize: '',
+    dimensions: {},
+    mesh: '',
+    resources: '',
+    tags: ['Image']
+  },
+  render: InspectorRender
+}
+
+export const Default = { name: 'Default', render: InspectorRender }

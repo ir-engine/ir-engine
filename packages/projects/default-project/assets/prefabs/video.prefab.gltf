@@ -13,10 +13,11 @@
     {
       "name": "video",
       "extensions": {
-        "EE_uuid": "fba0b72f-f097-47e3-be6f-d809dfa660b3",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "fba0b72f-f097-47e3-be6f-d809dfa660b3"
+        },
+        "EE_visible": {},
         "EE_video": {
-          "mediaUUID": "",
           "side": 2,
           "uvOffset": {
             "x": 0,
@@ -30,39 +31,39 @@
             "x": 0,
             "y": 0
           },
-          "alphaUVScale": {
-            "x": 1,
-            "y": 1
-          },
           "wrapS": 1001,
           "wrapT": 1001,
           "useAlpha": false,
-          "useAlphaUVTransform": false,
+          "useAlphaInvert": false,
           "alphaThreshold": 0.5,
           "fit": "stretch",
-          "projection": "Flat"
+          "projection": "Flat",
+          "mediaUUID": ""
         },
         "EE_media": {
           "controls": false,
-          "autoplay": true,
-          "resources": [],
-          "volume": 1,
+          "synchronize": true,
+          "autoplay": false,
+          "muteEditor": false,
           "uiOffset": {
             "x": 0,
             "y": 0,
             "z": 0
           },
-          "synchronize": true,
+          "volume": 1,
+          "resources": [],
           "playMode": "loop",
           "isMusic": false,
-          "seekTime": 0
-        },
-        "EE_input": {
-          "inputSinks": ["Self"],
-          "activationDistance": 2
+          "paths": [],
+          "externalMediaNodeID": ""
         }
       }
     }
   ],
-  "extensionsUsed": ["EE_uuid", "EE_visible", "EE_video", "EE_media", "EE_input", "EE_ecs"]
+  "extensionsUsed": [
+    "EE_uuid",
+    "EE_visible",
+    "EE_video",
+    "EE_media"
+  ]
 }

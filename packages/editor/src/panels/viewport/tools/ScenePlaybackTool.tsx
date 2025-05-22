@@ -26,11 +26,13 @@ Infinite Reality Engine. All Rights Reserved.
 import { EngineState } from '@ir-engine/ecs'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { Tooltip } from '@ir-engine/ui'
-import { PauseSquareLg, PlayLg } from '@ir-engine/ui/src/icons'
+import { ViewportButton } from '@ir-engine/ui/editor'
+import { PauseSquareMd, PlayMd, ScreenshotMenuMd } from '@ir-engine/ui/src/icons'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { downloadScreenshot } from '../../../functions/takeScreenshot'
 
-const PlayModeTool: React.FC = () => {
+const ScenePlaybackTool: React.FC = () => {
   const { t } = useTranslation()
 
   const engineState = useHookstate(getMutableState(EngineState))
@@ -40,7 +42,14 @@ const PlayModeTool: React.FC = () => {
   }
 
   return (
-    <div id="preview" className="ml-2 flex items-center">
+    <div id="preview" className="flex items-center gap-x-3">
+      <Tooltip
+        title={t('editor:toolbar.sceneScreenshot.lbl')}
+        content={t('editor:toolbar.sceneScreenshot.info')}
+        position="bottom"
+      >
+        <ViewportButton lean={true} onClick={downloadScreenshot} icon={ScreenshotMenuMd} />
+      </Tooltip>
       <Tooltip
         title={
           engineState.isEditing.value
@@ -54,16 +63,14 @@ const PlayModeTool: React.FC = () => {
         }
         position="bottom"
       >
-        <button className="rounded-lg bg-ui-secondary px-3.5 py-1.5" onClick={onTogglePlayMode}>
-          {engineState.isEditing.value ? (
-            <PlayLg className="text-[#9CA0AA]" />
-          ) : (
-            <PauseSquareLg className="text-[#9CA0AA]" />
-          )}
-        </button>
+        <ViewportButton
+          lean={true}
+          onClick={onTogglePlayMode}
+          icon={engineState.isEditing.value ? PlayMd : PauseSquareMd}
+        />
       </Tooltip>
     </div>
   )
 }
 
-export default PlayModeTool
+export default ScenePlaybackTool

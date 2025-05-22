@@ -22,12 +22,13 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
-import { t } from 'i18next'
 import React from 'react'
 
+import { EmbedCodeField } from '@ir-engine/client-core/src/common/components/EmbedCodeField'
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useHookstate } from '@ir-engine/hyperflux'
 
+import { t } from 'i18next'
 import Input from '../../../primitives/tailwind/Input'
 import Label from '../../../primitives/tailwind/Label'
 import Modal, { ModalProps } from '../../../primitives/tailwind/Modal'
@@ -36,7 +37,7 @@ import RadioGroup, { OptionType } from '../../../primitives/tailwind/Radio'
 interface InputDialogProps {
   title?: string
   fields: FieldOptions[]
-  onSubmit: (fieldValues) => Promise<void> | void
+  onSubmit: (fieldValues: Record<string, string>) => Promise<void> | void
   onClose?: () => void
   modalProps?: Partial<ModalProps>
 }
@@ -44,16 +45,25 @@ interface InputDialogProps {
 interface FieldOptions {
   id: string
   label: string
-  type?: 'radio' | 'text'
+  type?: 'radio' | 'text' | 'codefield'
   defaultValue?: string
   options?: OptionType[]
   placeholder?: string
   validate?: (input: string) => void
+  url?: string
+  readOnly?: boolean
+  containerClassName?: string
+  className?: string
+  labelClassname?: string
+  showLabel?: boolean
 }
 
 export const InputDialog = ({ title, fields, onSubmit, onClose, modalProps }: InputDialogProps) => {
   const errorText = useHookstate('')
   const modalProcessing = useHookstate(false)
+
+  // Check if all fields are of type 'codefield'
+  const allFieldsAreCodefields = fields.every((field) => field.type === 'codefield')
 
   const defaultValues = {}
   fields.forEach((field) => {
@@ -78,6 +88,14 @@ export const InputDialog = ({ title, fields, onSubmit, onClose, modalProps }: In
     fieldValues[name].set(value)
   }
 
+  // For codefields, we want to hide the cancel button by default
+  const defaultModalProps = allFieldsAreCodefields
+    ? {
+        showCloseButton: false,
+        submitButtonText: t('common:components.close')
+      }
+    : {}
+
   return (
     <Modal
       title={title || t('admin:components.common.confirmation')}
@@ -88,6 +106,7 @@ export const InputDialog = ({ title, fields, onSubmit, onClose, modalProps }: In
       }}
       className="w-[50vw] max-w-2xl"
       submitLoading={modalProcessing.value}
+      {...defaultModalProps}
       {...modalProps}
     >
       <div className="flex gap-4">
@@ -102,6 +121,17 @@ export const InputDialog = ({ title, fields, onSubmit, onClose, modalProps }: In
                   onChange={(value) => handleChange(value, field.id, index)}
                 />
               </div>
+            )
+          } else if (field.type === 'codefield') {
+            return (
+              <EmbedCodeField
+                key={field.id}
+                url={field.url || ''}
+                containerClassName={field.containerClassName}
+                className={field.className}
+                labelClassname={field.labelClassname}
+                showLabel={field.showLabel}
+              />
             )
           } else {
             return (

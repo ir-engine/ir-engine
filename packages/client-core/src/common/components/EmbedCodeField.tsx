@@ -23,9 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import TextArea from '@ir-engine/ui/src/primitives/tailwind/TextArea'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -33,13 +31,27 @@ import { HiOutlineDocumentDuplicate } from 'react-icons/hi2'
 
 type Props = Readonly<{
   url: string
+  containerClassName?: string
+  className?: string
+  labelClassname?: string
+  showLabel?: boolean
 }>
 
-export const CopyEmbedCodePopover = ({ url }: Props) => {
+export const EmbedCodeField = ({
+  url,
+  containerClassName = 'text-text-secondary',
+  className = 'h-20 border-ui-tertiary bg-[#F6F8FA] dark:border-ui-outline dark:bg-surface-2',
+  labelClassname = 'text-xs text-text-secondary',
+  showLabel = true
+}: Props) => {
   const { t } = useTranslation()
 
-  const embedCode = `<iframe style="border: 1px solid rgba (0, 0, 0, 0.1);" width="375" height="687" src="${url}" allowfullscreen></iframe>`
+  // Check if URL is provided
+  const isUrlProvided = url && url.trim() !== ''
 
+  // Create embed code only if URL is provided
+  const embedCode = `<iframe src="${url}"
+    height="100%" width="100%" allow="camera 'src'; microphone 'src';xr-spatial-tracking" style="pointer-events:all;user-select:none;border:none;"></iframe>`
   const handleCopyEmbed = () => {
     navigator.clipboard
       .writeText(embedCode)
@@ -53,29 +65,30 @@ export const CopyEmbedCodePopover = ({ url }: Props) => {
       })
   }
 
+  // If URL is not provided, show a simple message instead of the textarea
+  if (!isUrlProvided) {
+    return (
+      <div className="flex w-full items-center justify-center">
+        <div className="w-full rounded border border-ui-outline bg-surface-2 p-4 text-center text-text-secondary">
+          {t('common:components.publishSceneFirstMessage')}
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <Modal
-      id="copy-embed-code-modal"
-      className="w-[50vw] max-w-2xl"
-      submitButtonText={t('common:components.close')}
-      title={t('common:components.copyEmbedCode')}
-      onClose={ModalState.closeModal}
-      onSubmit={ModalState.closeModal}
-      showCloseButton={false}
-    >
-      <TextArea
-        containerClassName="text-text-secondary"
-        className="h-20 border-ui-tertiary bg-[#F6F8FA] dark:border-ui-outline dark:bg-surface-2"
-        labelClassname="text-xs text-text-secondary"
-        label={t('common:components.embed')}
-        value={embedCode}
-        readOnly
-        endComponent={
-          <div className="mr-6 hover:cursor-pointer" onClick={handleCopyEmbed}>
-            <HiOutlineDocumentDuplicate className="text-xl text-text-tertiary" />
-          </div>
-        }
-      />
-    </Modal>
+    <TextArea
+      containerClassName={containerClassName}
+      className={className}
+      labelClassname={labelClassname}
+      label={showLabel ? t('common:components.embed') : undefined}
+      value={embedCode}
+      readOnly
+      endComponent={
+        <div className="mr-6 hover:cursor-pointer" onClick={handleCopyEmbed}>
+          <HiOutlineDocumentDuplicate className="text-xl text-text-tertiary" />
+        </div>
+      }
+    />
   )
 }
