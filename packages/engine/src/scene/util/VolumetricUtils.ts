@@ -408,12 +408,12 @@ interface GetResourceURLBasicProps {
 
 interface GetResourceURLCortoGeometryProps extends GetResourceURLBasicProps {
   type: 'geometry'
-  geometryType: GeometryType.Corto
+  geometryType: typeof GeometryType.Corto
 }
 
 interface GetResourceURLNewGeometryProps extends GetResourceURLBasicProps {
   type: 'geometry'
-  geometryType: GeometryType.Draco | GeometryType.Unify
+  geometryType: typeof GeometryType.Draco | typeof GeometryType.Unify
   path: string
   target: string
   index: number
@@ -519,16 +519,16 @@ interface GetGeometryModernProps extends GetGeometryBaseProps {
 }
 
 interface GetGeometryUnifyProps extends GetGeometryModernProps {
-  geometryType: GeometryType.Unify
+  geometryType: typeof GeometryType.Unify
   keyframeName: 'keyframeA' | 'keyframeB'
 }
 
 interface GetGeometryNonUnifyProps extends GetGeometryModernProps {
-  geometryType: GeometryType.Draco
+  geometryType: typeof GeometryType.Draco
 }
 
 interface GetGeometryCortoProps extends GetGeometryBaseProps {
-  geometryType: GeometryType.Corto
+  geometryType: typeof GeometryType.Corto
   frameRate: number
 }
 

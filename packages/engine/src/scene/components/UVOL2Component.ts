@@ -300,7 +300,7 @@ export const UVOL2Component = defineComponent({
   schema: S.Object({
     canPlay: S.Bool({ default: false }),
     manifestPath: S.String({ default: '' }),
-    data: S.Type<PlayerManifest>({} as PlayerManifest),
+    data: S.Type<PlayerManifest>({ default: {} as PlayerManifest }),
     useVideoTexture: S.Bool({ default: true }),
     hasAudio: S.Bool({ default: false }),
     bufferedUntil: S.Number({ default: 0 }),

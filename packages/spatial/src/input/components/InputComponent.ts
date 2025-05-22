@@ -95,11 +95,11 @@ const ButtonSchema = S.Union([
   }),
   S.Enum(StandardGamepadButton, {
     $comment:
-      "Likely an indexed enum, ie. the numeric index of a value in the following sequence: 'StandardGamepadButtonA', 'StandardGamepadButtonB', 'StandardGamepadButtonX', 'StandardGamepadButtonY', 'StandardGamepadLeft1', 'StandardGamepadRight1', 'StandardGamepadLeft2', 'StandardGamepadRight2', 'StandardGamepadButtonBack', 'StandardGamepadButtonStart', 'StandardGamepadLeftStick', 'StandardGamepadRightStick', 'StandardGamepadDPadUp', 'StandardGamepadDPadDown', 'StandardGamepadDPadLeft', 'StandardGamepadDPadRight', 'StandardGamepadButtonHome'"
+      "A number enum, where: 0 represents 'StandardGamepadButtonA', 1 represents 'StandardGamepadButtonB', 2 represents 'StandardGamepadButtonX', 3 represents 'StandardGamepadButtonY', 4 represents 'StandardGamepadLeft1', 5 represents 'StandardGamepadRight1', 6 represents 'StandardGamepadLeft2', 7 represents 'StandardGamepadRight2', 8 represents 'StandardGamepadButtonBack', 9 represents 'StandardGamepadButtonStart', 10 represents 'StandardGamepadLeftStick', 11 represents 'StandardGamepadRightStick', 12 represents 'StandardGamepadDPadUp', 13 represents 'StandardGamepadDPadDown', 14 represents 'StandardGamepadDPadLeft', 15 represents 'StandardGamepadDPadRight', 16 represents 'StandardGamepadButtonHome'"
   }),
   S.Enum(XRStandardGamepadButton, {
     $comment:
-      "Likely an indexed enum, ie. the numeric index of a value in the following sequence: 'XRStandardGamepadTrigger', 'XRStandardGamepadSqueeze', 'XRStandardGamepadPad', 'XRStandardGamepadStick', 'XRStandardGamepadButtonA', 'XRStandardGamepadButtonB'"
+      "A number enum, where: 0 represents 'XRStandardGamepadTrigger', 1 represents 'XRStandardGamepadSqueeze', 2 represents 'XRStandardGamepadPad', 3 represents 'XRStandardGamepadStick', 4 represents 'XRStandardGamepadButtonA', 5 represents 'XRStandardGamepadButtonB'"
   })
 ])
 
@@ -163,7 +163,7 @@ export const InputComponent = defineComponent({
     highlight: S.Bool({ default: false }),
     grow: S.Bool({ default: false }),
     buttonBindings: S.Record(S.String(), S.Array(S.Union([ButtonSchema, S.Array(ButtonSchema)])), {
-      ...DefaultButtonBindings
+      default: { ...DefaultButtonBindings }
     }),
     //internal
     /** populated automatically by ClientInputSystem */
@@ -334,7 +334,7 @@ export const InputComponent = defineComponent({
         for (let i = 0; i < 4; i++) {
           const newAxis = inputSource.source.gamepad.axes[i] ?? 0
           axes[i] = getLargestMagnitudeNumber(axes[i] ?? 0, newAxis)
-          axes[mapping[i]] = axes[i]
+          axes[Object.keys(mapping)[i]] = axes[i]
         }
       }
     }

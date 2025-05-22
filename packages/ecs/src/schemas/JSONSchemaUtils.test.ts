@@ -28,7 +28,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createEntity, removeEntity } from '../ComponentFunctions'
 import { createEngine, destroyEngine } from '../Engine'
 import { Entity, UndefinedEntity } from '../Entity'
-import { Kind, NonSerializable, Schema, TArraySchema, TEnumSchema } from './JSONSchemaTypes'
+import { Kind, NonSerializable, Schema, TArraySchema } from './JSONSchemaTypes'
 import {
   CheckSchemaValue,
   CloneSerializable,
@@ -263,38 +263,12 @@ describe('DeserializeSchemaValue', () => {
     })
   }) //:: Kind.String
 
-  describe('case: Kind.Enum', () => {
-    const TestSchemaKind = 'Enum'
-
-    it('should return `@param value` when it is null', () => {
-      const Expected = null
-
-      const schema = { [Kind]: TestSchemaKind, options: { deserialize: undefined } } as Schema
-      const curr = {}
-      const value = Expected
-
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
-
-      expect(result).toBe(Expected)
-    })
-
-    it('should return `@param value` when it is undefined', () => {
-      const Expected = undefined
-
-      const schema = { [Kind]: TestSchemaKind, options: { deserialize: undefined } } as Schema
-      const curr = {}
-      const value = Expected
-
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
-
-      expect(result).toBe(Expected)
-    })
-
+  describe('case: S.Enum', () => {
     it("should return undefined when `@param value` is not contained in the enum's schema", () => {
       const Expected = undefined
 
-      const properties = {} as TEnumSchema<Record<string, string | number>>['properties']
-      const schema = { [Kind]: TestSchemaKind, options: { deserialize: undefined }, properties: properties } as Schema
+      const properties = {}
+      const schema = S.Enum(properties, { deserialize: undefined })
       const curr = {}
       const value = 42
 
@@ -306,8 +280,8 @@ describe('DeserializeSchemaValue', () => {
     it("should return `@param value` when its value is contained in the enum's schema", () => {
       const Expected = 42
 
-      const properties = { one: 1, two: Expected } as TEnumSchema<Record<string, string | number>>['properties']
-      const schema = { [Kind]: TestSchemaKind, options: { deserialize: undefined }, properties: properties } as Schema
+      const properties = { one: 1, two: Expected }
+      const schema = S.Enum(properties, { deserialize: undefined })
       const curr = {}
       const value = Expected
 
@@ -1058,7 +1032,6 @@ describe('IsSingleValueSchema', () => {
     'Number',
     'Bool',
     'String',
-    'Enum',
     'Literal',
     'Class',
     'Array',
@@ -1393,12 +1366,11 @@ describe('CreateSchemaValue', () => {
     expect(result).toEqual(Expected)
   })
 
-  it("should return the first value that can be represented by the `@param schema`.properties enum when schema[Kind] is 'Enum'", () => {
+  it("should return the first value that can be represented by the `@param schema`.properties enum when schema[Kind] is 'Const'", () => {
     const Expected = 42
 
-    const kind = 'Enum'
     const properties = { expectedValue: Expected, One: 1, Two: 2 }
-    const schema = { [Kind]: kind, properties: properties } as Schema
+    const schema = S.Enum(properties)
     const testEntity = 12345 as Entity
 
     const result = CreateSchemaValue(testEntity, schema)
@@ -1598,14 +1570,12 @@ describe('CheckSchemaValue', () => {
   }) //:: Kind.Number
 
   describe('case Kind.Enum', () => {
-    const TestSchemaKind = 'Enum'
-
     it('should return true if `@param schema`.properties includes `@param value`', () => {
       const Expected = true
 
       const value = 42
       const properties = { expectedValue: value, One: 1, Two: 2 }
-      const schema = { [Kind]: TestSchemaKind, properties: properties } as Schema
+      const schema = S.Enum(properties)
 
       const result = CheckSchemaValue(schema, value)
 
@@ -1617,7 +1587,7 @@ describe('CheckSchemaValue', () => {
 
       const value = 42
       const properties = { One: 1, Two: 2 }
-      const schema = { [Kind]: TestSchemaKind, properties: properties } as Schema
+      const schema = S.Enum(properties)
 
       const result = CheckSchemaValue(schema, value)
 
@@ -2121,7 +2091,7 @@ describe('ConvertToSchema', () => {
   })
 
   describe('when `@param schema`.options.serialize is falsy ..', () => {
-    it.todo.each(['Null', 'Undefined', 'Void', 'Number', 'Bool', 'String', 'Enum', 'Literal', 'Any'])(
+    it.todo.each(['Null', 'Undefined', 'Void', 'Number', 'Bool', 'String', 'Literal', 'Any'])(
       "should return `@param value` when `@param schema`[Kind] is '%s'",
       (kind) => {
         const Expected = { one: 42 }
@@ -2463,11 +2433,14 @@ describe('GenerateJSONSchema', () => {
     expect(jsonSchema).toEqual({ type: 'string' })
   })
 
-  it('should generate schema for Enum type', () => {
+  it('should generate schema for Const type', () => {
     const schema = S.Enum({ A: 'a', B: 'b' })
     const jsonSchema = GenerateJSONSchema(schema)
     expect(jsonSchema).toEqual({
-      enum: ['a', 'b']
+      enum: ['a', 'b'],
+      metadata: {
+        enumKeys: ['A', 'B']
+      }
     })
   })
 
@@ -2543,7 +2516,7 @@ describe('GenerateJSONSchema', () => {
   })
 
   it('should generate schema for Array type', () => {
-    const schema = S.Array(S.Number(), { minItem: 1, maxItem: 10 })
+    const schema = S.Array(S.Number(), { minItems: 1, maxItems: 10 })
     const jsonSchema = GenerateJSONSchema(schema)
     expect(jsonSchema).toEqual({
       type: 'array',

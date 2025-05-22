@@ -440,11 +440,13 @@ export interface FrameTargetInfo {
   userTarget: number
 }
 
-export enum GeometryType {
-  Corto, // legacy
-  Draco,
-  Unify
+export const GeometryType = {
+  Corto: 0 as const, // legacy
+  Draco: 1 as const,
+  Unify: 2 as const
 }
+
+export type GeometryType = (typeof GeometryType)[keyof typeof GeometryType]
 
 export const GeometryFormatToType = {
   draco: GeometryType.Draco,
