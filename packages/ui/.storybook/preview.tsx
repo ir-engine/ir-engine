@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { API as ClientAPI } from '@ir-engine/client-core/src/API'
 import MetaTags from '@ir-engine/client-core/src/common/components/MetaTags'
 import { createEngine, destroyEngine } from '@ir-engine/ecs'
+import { destroySpatialEngine, initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { startTimer } from '@ir-engine/spatial/src/startTimer'
 import { Description, Primary, Stories, Subtitle, Title } from '@storybook/addon-docs'
 import { Decorator, Preview } from '@storybook/react'
@@ -38,11 +39,7 @@ import { I18nextProvider } from 'react-i18next'
 import '../../client/src/themes/base.css'
 import '../../client/src/themes/components.css'
 import '../../client/src/themes/utilities.css'
-// @ts-ignore
 import keycardGLB from '../../projects/default-project/assets/keycard.glb?url'
-// @ts-ignore
-import { destroySpatialEngine, initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
-// @ts-ignore
 import apartmentGLTF from '../../projects/default-project/public/scenes/apartment.gltf?raw'
 import EngineDecorator from './decorators/EngineDecorator'
 import i18n from './i18n'
