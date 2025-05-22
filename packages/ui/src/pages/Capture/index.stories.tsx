@@ -121,6 +121,7 @@ export default {
   component: Component,
   decorators,
   parameters: {
+    chromatic: { disable: true },
     reactRouter: {
       routePath: '/capture/:locationName',
       routeParams: { locationName: 'default' }
