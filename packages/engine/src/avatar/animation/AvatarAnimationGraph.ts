@@ -35,10 +35,10 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { defineActionQueue, getState } from '@ir-engine/hyperflux'
+import { defineActionQueue, getState, NetworkState } from '@ir-engine/hyperflux'
 import { lerp } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
 
-import { NetworkObjectComponent, NetworkState } from '@ir-engine/network'
+import { NetworkObjectComponent } from '@ir-engine/ecs'
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'

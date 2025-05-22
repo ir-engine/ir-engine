@@ -29,10 +29,10 @@ import {
   EngineState,
   getComponent,
   getOptionalComponent,
+  NetworkObjectAuthorityTag,
   SimulationSystemGroup
 } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
-import { NetworkObjectAuthorityTag } from '@ir-engine/network'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { ClientInputSystem } from '@ir-engine/spatial/src/input/systems/ClientInputSystem'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'

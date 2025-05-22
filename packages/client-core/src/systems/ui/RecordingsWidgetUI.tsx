@@ -30,13 +30,21 @@ import { useFind, useGet } from '@ir-engine/common'
 import { ECSRecordingActions, PlaybackState, RecordingState } from '@ir-engine/common/src/recording/ECSRecordingSystem'
 import { RecordingType, recordingPath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { PeerID, defineState, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
+import {
+  MediaChannelState,
+  NetworkState,
+  PeerID,
+  defineState,
+  getMutableState,
+  getState,
+  useHookstate,
+  useMutableState,
+  webcamVideoMediaChannelType
+} from '@ir-engine/hyperflux'
 import { startPlayback } from '@ir-engine/ui/src/pages/Capture'
-import { WidgetAppService } from '../WidgetAppService'
 
-import { PeerMediaChannelState } from '@ir-engine/network/src/media/PeerMediaChannelState'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
+import { WidgetAppService } from '../WidgetAppService'
 
 // TODO replace these templates with our generalised ones for XRUI
 const Checkbox = (props: { label: string; disabled?: boolean; checked: boolean; onChange: () => void }) => {
@@ -78,28 +86,28 @@ const Button = (props: { label: string | JSX.Element; onClick: () => void }) => 
 const VideoPreview = (props: { peerID: PeerID }) => {
   const { peerID } = props
 
-  const peerMediaChannelState = useMutableState(PeerMediaChannelState)[peerID]['cam']
+  const peerMediaChannelState = useMutableState(MediaChannelState)[peerID][webcamVideoMediaChannelType]
 
-  const { videoMediaStream } = peerMediaChannelState
+  const { stream } = peerMediaChannelState
 
   const ref = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
-    if (!ref.current || ref.current.srcObject || !videoMediaStream?.value) return
+    if (!ref.current || ref.current.srcObject || !stream?.value) return
 
     ref.current.id = `${peerID}_video_xrui`
     ref.current.autoplay = true
     ref.current.muted = true
     ref.current.setAttribute('playsinline', 'true')
 
-    const newVideoTrack = videoMediaStream.value.getVideoTracks()[0].clone()
+    const newVideoTrack = stream.value.getVideoTracks()[0].clone()
     ref.current.srcObject = new MediaStream([newVideoTrack])
     ref.current.play()
-  }, [ref.current, videoMediaStream])
+  }, [ref.current, stream])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {videoMediaStream.value && (
+      {stream.value && (
         <video
           xr-layer="true"
           style={{ maxWidth: '100px', width: '100%', height: 'auto' }}
@@ -175,7 +183,7 @@ export const RecordingPeer = (props: { peerID: PeerID }) => {
 
 export const RecordingPeerList = () => {
   const mediaNetworkState = useMediaNetwork()
-  const peerMediaChannelState = useMutableState(PeerMediaChannelState)
+  const peerMediaChannelState = useMutableState(MediaChannelState)
   const recordingSchemaState = useMutableState(RecordingSchemaState)
 
   const recordingState = useMutableState(RecordingState)

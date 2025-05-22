@@ -46,7 +46,6 @@
     "@ir-engine/ecs": "^1.6.0",
     "@ir-engine/engine": "^1.6.0",
     "@ir-engine/hyperflux": "^1.6.0",
-    "@ir-engine/network": "^1.6.0",
     "@ir-engine/projects": "^1.6.0",
     "@ir-engine/server-core": "^1.6.0",
     "@ir-engine/spatial": "^1.6.0",
