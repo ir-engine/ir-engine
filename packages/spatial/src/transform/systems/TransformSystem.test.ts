@@ -27,6 +27,7 @@ import {
   AnimationSystemGroup,
   Entity,
   EntityTreeComponent,
+  NetworkSchemaState,
   SystemDefinitions,
   SystemUUID,
   UndefinedEntity,
@@ -40,7 +41,6 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getMutableState, getState, startReactor } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import sinon from 'sinon'
@@ -506,27 +506,27 @@ describe('TransformSystem', () => {
 
       const systemReactor = System.reactor!
 
-      it('should set NetworkState.networkSchema[TransformSerialization.ID] when it mounts', async () => {
-        const before = getState(NetworkState).networkSchema[TransformSerialization.ID]
+      it('should set NetworkSchemaState[TransformSerialization.ID] when it mounts', async () => {
+        const before = getState(NetworkSchemaState)[TransformSerialization.ID]
         assert.equal(before, undefined)
         // Run and Check the result
         const root = startReactor(systemReactor)
         await act(() => render(null))
-        const after = getState(NetworkState).networkSchema[TransformSerialization.ID]
+        const after = getState(NetworkSchemaState)[TransformSerialization.ID]
         assert.notEqual(after, undefined)
       })
 
-      it('should set NetworkState.networkSchema[TransformSerialization.ID] to none when it unmounts', async () => {
-        const before = getState(NetworkState).networkSchema[TransformSerialization.ID]
+      it('should set NetworkSchemaState[TransformSerialization.ID] to none when it unmounts', async () => {
+        const before = getState(NetworkSchemaState)[TransformSerialization.ID]
         assert.equal(before, undefined)
         // Run and Check the result
         const root = startReactor(systemReactor)
         await act(() => render(null))
-        const after = getState(NetworkState).networkSchema[TransformSerialization.ID]
+        const after = getState(NetworkSchemaState)[TransformSerialization.ID]
         assert.notEqual(after, undefined)
         root.stop()
         await act(() => render(null))
-        const result = getState(NetworkState).networkSchema[TransformSerialization.ID]
+        const result = getState(NetworkSchemaState)[TransformSerialization.ID]
         assert.equal(result, undefined)
       })
     }) //:: mount/unmount

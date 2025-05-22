@@ -124,7 +124,7 @@ export type CameraPipelineModule = {
   onRender?: () => void
   onResume?: () => void
   onStart?: () => void
-  onUpdate?: (props: onUpdate) => void
+  onUpdate?: (props: OnUpdate) => void
   onVideoSizeChange?: () => void
   requiredPermission?: () => void
   listeners?: Array<CameraPipelineModuleListeners>
@@ -256,7 +256,7 @@ type GPUResult = {
   }
 }
 
-export type onUpdate = {
+export type OnUpdate = {
   framework: {
     dispatchEvent: (event: any) => void
   }

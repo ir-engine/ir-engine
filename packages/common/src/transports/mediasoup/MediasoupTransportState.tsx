@@ -33,14 +33,16 @@ import {
   isClient,
   matches,
   matchesPeerID,
+  Network,
+  NetworkActions,
   NetworkID,
+  NetworkState,
   none,
   PeerID,
   useHookstate,
   useMutableState,
   Validator
 } from '@ir-engine/hyperflux'
-import { Network, NetworkActions, NetworkState } from '@ir-engine/network'
 
 export class MediasoupTransportActions {
   static requestTransport = defineAction({

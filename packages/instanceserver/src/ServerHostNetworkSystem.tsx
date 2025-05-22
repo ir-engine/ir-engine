@@ -30,8 +30,15 @@ import { RecordingID, recordingResourceUploadPath } from '@ir-engine/common/src/
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { PeerID, dispatchAction, getMutableState, none } from '@ir-engine/hyperflux'
-import { NetworkActions, NetworkPeer, NetworkState } from '@ir-engine/network'
+import {
+  NetworkActions,
+  NetworkPeer,
+  NetworkState,
+  PeerID,
+  dispatchAction,
+  getMutableState,
+  none
+} from '@ir-engine/hyperflux'
 
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 

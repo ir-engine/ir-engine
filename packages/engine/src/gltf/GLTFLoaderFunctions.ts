@@ -44,8 +44,8 @@ import {
   setComponent,
   traverseEntityNode
 } from '@ir-engine/ecs'
-import { dispatchAction, getState, isClient } from '@ir-engine/hyperflux'
-import { SceneUser } from '@ir-engine/network'
+import { SceneUser, dispatchAction, getState, isClient } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -61,7 +61,6 @@ import {
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { setupMaterialParameters } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import {
   AnimationClip,
   AnimationMixer,
@@ -807,7 +806,6 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   if (EE_materialExtensionParams?.args) {
     for (const prop in EE_materialExtensionParams.args) {
       const contents = EE_materialExtensionParams.args[prop].contents
-      console.log(prop, EE_materialExtensionParams.args, contents)
       if (!!contents && typeof contents === 'object' && typeof contents.index === 'number') {
         extensionPromises.push(
           GLTFLoaderFunctions.assignTexture(options, contents).then((map) => {

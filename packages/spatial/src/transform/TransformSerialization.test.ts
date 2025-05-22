@@ -25,15 +25,19 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   UndefinedEntity,
+  ViewCursor,
   createEngine,
   createEntity,
+  createViewCursor,
   destroyEngine,
   getComponent,
   hasComponent,
+  readFloat64,
+  readUint8,
   removeEntity,
-  setComponent
+  setComponent,
+  writeComponent
 } from '@ir-engine/ecs'
-import { ViewCursor, createViewCursor, readFloat64, readUint8, writeComponent } from '@ir-engine/network'
 import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'

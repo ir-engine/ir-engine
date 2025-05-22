@@ -45,7 +45,7 @@ import {
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import { MediasoupTransportState } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
 import { Engine, PresentationSystemGroup } from '@ir-engine/ecs'
-import { NetworkState } from '@ir-engine/network'
+import { NetworkState } from '@ir-engine/hyperflux'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import { ConsumerExtension, SocketWebRTCClientNetwork, WebRTCTransportExtension } from './MediasoupClientFunctions'
 

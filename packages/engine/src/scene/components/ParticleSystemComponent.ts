@@ -850,7 +850,7 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS = S.Object({
   }),
   renderMode: S.Enum(RenderMode, {
     $comment:
-      "Likely an indexed enum, ie. the numeric index of a value in the following sequence: 'BillBoard', 'StretchedBillBoard', 'Mesh', 'Trail'",
+      "A number enum, where: 0 represents 'BillBoard', 1 represents 'StretchedBillBoard', 2 represents 'Mesh', 3 represents 'Trail'",
     default: RenderMode.BillBoard
   }),
   texture: S.String({ default: '' }),

@@ -95,7 +95,24 @@ export function computeCameraDistanceAndCenterFromBox(camera: PerspectiveCamera,
   const points = getBoundingBoxVertices(box)
   return computeCameraDistanceAndCenter(camera, points, padding)
 }
-export function setCameraFocusOnBox(modelEntity: Entity, cameraEntity: Entity) {
+/**
+ * Camera view angles enum
+ */
+export enum CameraViewAngle {
+  FRONT = 'front',
+  BACK = 'back',
+  LEFT = 'left',
+  RIGHT = 'right',
+  TOP = 'top',
+  BOTTOM = 'bottom',
+  PERSPECTIVE = 'perspective' // Default perspective view for thumbnail
+}
+
+export function setCameraFocusOnBoxFromAngle(
+  modelEntity: Entity,
+  cameraEntity: Entity,
+  viewAngle: CameraViewAngle = CameraViewAngle.PERSPECTIVE
+) {
   updateBoundingBox(modelEntity)
 
   const bbox = getComponent(modelEntity, BoundingBoxComponent).box
@@ -108,15 +125,42 @@ export function setCameraFocusOnBox(modelEntity: Entity, cameraEntity: Entity) {
   const camera = getComponent(cameraEntity, CameraComponent)
   const fov = camera.fov * (Math.PI / 180) // convert vertical fov to radians
 
-  // Calculate the camera direction vector with the desired angle offsets
-  const angleY = 30 * (Math.PI / 180) // 30 degrees in radians
-  const angleX = 15 * (Math.PI / 180) // 15 degrees in radians
+  // Calculate the direction vector based on the view angle
+  let direction = new Vector3()
 
-  const direction = new Vector3(
-    Math.sin(angleY) * Math.cos(angleX),
-    Math.sin(angleX),
-    Math.cos(angleY) * Math.cos(angleX)
-  ).normalize()
+  switch (viewAngle) {
+    case CameraViewAngle.FRONT:
+      direction = new Vector3(0, 0, 1)
+      break
+    case CameraViewAngle.BACK:
+      direction = new Vector3(0, 0, -1)
+      break
+    case CameraViewAngle.LEFT:
+      direction = new Vector3(1, 0, 0)
+      break
+    case CameraViewAngle.RIGHT:
+      direction = new Vector3(-1, 0, 0)
+      break
+    case CameraViewAngle.TOP:
+      direction = new Vector3(0, -1, 0)
+      break
+    case CameraViewAngle.BOTTOM:
+      direction = new Vector3(0, 1, 0)
+      break
+    case CameraViewAngle.PERSPECTIVE:
+    default: {
+      const angleY = 30 * (Math.PI / 180) // 30 degrees in radians
+      const angleX = 15 * (Math.PI / 180) // 15 degrees in radians
+      direction = new Vector3(
+        Math.sin(angleY) * Math.cos(angleX),
+        Math.sin(angleX),
+        Math.cos(angleY) * Math.cos(angleX)
+      )
+      break
+    }
+  }
+
+  direction.normalize()
 
   // Calculate the distance from the camera to the bounding sphere such that it fully frames the content
   const distance = radius / Math.sin(fov / 2)
@@ -133,7 +177,7 @@ export function setCameraFocusOnBox(modelEntity: Entity, cameraEntity: Entity) {
   lookAtMatrix.lookAt(cameraPosition, center, new Vector3(0, 1, 0))
   const targetRotation = new Quaternion().setFromRotationMatrix(lookAtMatrix)
 
-  // Apply the rotation to the camera's TransfortexturemComponent
+  // Apply the rotation to the camera's TransformComponent
   setComponent(cameraEntity, TransformComponent, { rotation: targetRotation })
   TransformComponent.computeTransformMatrix(cameraEntity)
   camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
@@ -144,6 +188,9 @@ export function setCameraFocusOnBox(modelEntity: Entity, cameraEntity: Entity) {
   viewCamera.matrixWorldInverse.copy(camera.matrixWorldInverse)
   viewCamera.projectionMatrix.copy(camera.projectionMatrix)
   viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
+}
+export function setCameraFocusOnBox(modelEntity: Entity, cameraEntity: Entity) {
+  setCameraFocusOnBoxFromAngle(modelEntity, cameraEntity, CameraViewAngle.PERSPECTIVE)
 }
 
 const mat4 = new Matrix4()
