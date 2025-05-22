@@ -305,8 +305,17 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             text: t('admin:components.setting.maxUsersPerInstance'),
             position: 'top'
           }}
-          value={maxUsersPerInstanceValue || 5}
-          disabled
+          value={maxUsersPerInstanceValue}
+          onChange={(e) => {
+            const value = parseInt(e.target.value)
+            const settingInDb = engineSettings.data.find(
+              (el) => el.key === EngineSettings.InstanceServer.MaxUsersPerInstance
+            )
+            if (!settingInDb) return
+            engineSettingMutation.patch(settingInDb.id, {
+              value: value.toString()
+            })
+          }}
         />
 
         <Toggle

@@ -144,7 +144,7 @@ export async function seed(knex: Knex): Promise<void> {
       },
       {
         key: EngineSettings.InstanceServer.MaxUsersPerInstance,
-        value: process.env.INSTANCESERVER_MAX_USERS_PER_INSTANCE || '10'
+        value: process.env.INSTANCESERVER_MAX_USERS_PER_INSTANCE || '5'
       }
     ],
     'instance-server'
