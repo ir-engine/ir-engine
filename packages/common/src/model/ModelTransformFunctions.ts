@@ -720,7 +720,7 @@ const writeFiles = async (
   const path = match ? match[1] : undefined
 
   if (['glb', 'vrm'].includes(modelFormat)) {
-    // For GLB/VRM, we need to apply mesh simplification directly
+    // For GLB/VRM, we keep textures embedded and don't process them separately
     const data = await io.writeBinary(document)
     await doUpload(...toProjectAndFileName(finalPath, srcBaseURL), data, path)
   } else if (modelFormat === 'gltf') {
