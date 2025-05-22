@@ -644,13 +644,13 @@ export const getTexture = ({
   return false
 }
 
-interface handleAutoplayProps {
+interface HandleAutoplayProps {
   audioContext: AudioContext
   media: HTMLMediaElement
   paused: State<boolean>
 }
 
-export const handleMediaAutoplay = ({ audioContext, media, paused }: handleAutoplayProps) => {
+export const handleMediaAutoplay = ({ audioContext, media, paused }: HandleAutoplayProps) => {
   const attachEventListeners = () => {
     const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).canvas!
     const playMedia = () => {

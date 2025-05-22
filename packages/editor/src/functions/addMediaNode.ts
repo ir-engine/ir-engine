@@ -230,7 +230,7 @@ export async function addMediaNode(
       /**
        * Load all entities from the prefab and attach them to the current scene
        */
-      AssetState.loadAsync(url, false, UUIDComponent.generateUUID(), UndefinedEntity, Layers.Authoring as LayerID).then(
+      AssetState.loadAsync(url, false, UUIDComponent.generate(), UndefinedEntity, Layers.Authoring as LayerID).then(
         (entity) => {
           const rootEntity = getState(EditorState).rootEntity
           const source = UUIDComponent.getAsSourceID(entity)
@@ -239,7 +239,11 @@ export async function addMediaNode(
           for (const entity of entities) {
             requestedName = getIncreamentedName(requestedName, parent)
             setComponent(entity, NameComponent, requestedName)
-            UUIDComponent.setSourceEntity(entity, rootEntity)
+
+            const sourceID = GLTFComponent.getSourceID(rootEntity)
+            const entityID = UUIDComponent.generate()
+            setComponent(entity, UUIDComponent, { entitySourceID: sourceID, entityID })
+
             for (const comp of extraComponentJson) {
               if (comp.name === TransformComponent.jsonID) {
                 setComponent(entity, TransformComponent, comp.props)
