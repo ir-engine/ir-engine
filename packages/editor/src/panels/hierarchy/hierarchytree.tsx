@@ -130,8 +130,8 @@ export function Contents() {
   const visibleNodes = getVisibleNodes([...allNodes])
 
   /**
-   * for the entity click scroll to item on hierarchy list, we need
-   * two useEffect because of race/render issue
+   * for the entity click function to expand + scroll to the item (scrollToItem) on
+   * hierarchy list, we need two useEffect because of race/render issue
    */
   const shouldScroll = useRef(false)
 
