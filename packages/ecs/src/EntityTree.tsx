@@ -142,6 +142,7 @@ export const EntityTreeComponent = defineComponent({
 
   onRemove: (entity, component) => {
     const parentEntity = component.parentEntity.value
+
     if (parentEntity && entityExists(parentEntity)) {
       if (hasComponent(parentEntity, EntityTreeComponent)) {
         const parentState = getMutableComponent(parentEntity, EntityTreeComponent)

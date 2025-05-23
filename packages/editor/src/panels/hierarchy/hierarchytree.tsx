@@ -23,6 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { Layers, UUIDComponent } from '@ir-engine/ecs'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { Button } from '@ir-engine/ui'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
@@ -32,10 +34,13 @@ import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FixedSizeList, ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
+import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
+import { SelectionState } from '../../services/SelectionServices'
 import ElementList from '../properties/elementlist'
+import { HierarchyTreeNodeType } from './helpers'
 import HierarchyTreeNode from './hierarchynode'
-import { useHierarchyNodes, useHierarchyTreeDrop, useHierarchyTreeHotkeys } from './hooks'
+import { useAllHierarchyNodes, useHierarchyNodes, useHierarchyTreeDrop, useHierarchyTreeHotkeys } from './hooks'
 
 export function Topbar() {
   const { t } = useTranslation()
@@ -75,8 +80,12 @@ export function Contents() {
     width: 0
   })
   const nodes = useHierarchyNodes()
+  const allNodes = useAllHierarchyNodes()
   const ref = useRef<HTMLDivElement>(null)
-  const { firstSelectedEntity } = useMutableState(HierarchyTreeState)
+  const { selectedEntities } = useHookstate(getMutableState(SelectionState)).value
+  const rootEntity = useMutableState(EditorState).rootEntity.value
+  const expandedNodes = useMutableState(HierarchyTreeState).expandedNodes
+  const sourceID = GLTFComponent.useSourceID(rootEntity)
 
   const { canDrop, isOver, dropTarget: treeContainerDropTarget } = useHierarchyTreeDrop(nodes?.[0], 'On')
 
@@ -101,16 +110,67 @@ export function Contents() {
   useHierarchyTreeHotkeys()
   const listRef = useRef<FixedSizeList>(null)
 
-  useEffect(() => {
-    // if(firstSelectedEntity.value) {
-    // const selectedNode = nodes.findIndex(node => node.entity === firstSelectedEntity.value);
+  const getVisibleNodes = (all: HierarchyTreeNodeType[]) => {
+    const result: HierarchyTreeNodeType[] = []
 
-    console.log('selectedNode')
-    // if (selectedNode >= 0 && listRef.current) {
-    listRef?.current?.scrollToItem(12, 'center')
-    // }
-    // }
-  }, [nodes])
+    const isNodeVisible = (node: HierarchyTreeNodeType) => {
+      if (!node.parentEntity) return true
+      const parent = all.find((n) => n.entity === node.parentEntity)
+      if (!parent) return true
+      return expandedNodes[sourceID][parent.entity].value && isNodeVisible(parent)
+    }
+
+    for (const node of all) {
+      if (isNodeVisible(node)) result.push(node)
+    }
+
+    return result
+  }
+
+  const visibleNodes = getVisibleNodes([...allNodes])
+
+  /**
+   * for the entity click scroll to item on hierarchy list, we need
+   * two useEffect because of race/render issue
+   */
+  const shouldScroll = useRef(false)
+
+  useEffect(() => {
+    const selectedEntity = selectedEntities[0]
+    if (!selectedEntity || !sourceID) return
+
+    const selectedEid = UUIDComponent.getEntityByUUID(selectedEntity, Layers.Authoring)
+    const selectedNode = allNodes.find((n) => n.entity === selectedEid)
+    if (!selectedNode) return
+
+    // expanding collapsed parents
+    let current = selectedNode
+    while (current?.parentEntity !== undefined) {
+      const parentNode = allNodes.find((n) => n.entity === current.parentEntity)
+      if (!parentNode) break
+
+      if (!expandedNodes[sourceID]?.[parentNode.entity]?.value) {
+        expandedNodes[sourceID][parentNode.entity].set(true)
+      }
+
+      current = parentNode
+    }
+    shouldScroll.current = true
+  }, [selectedEntities, sourceID, allNodes])
+
+  useEffect(() => {
+    if (!shouldScroll.current || !sourceID || !listRef.current) return
+
+    const selectedEntity = selectedEntities[0]
+    const selectedEid = UUIDComponent.getEntityByUUID(selectedEntity, Layers.Authoring)
+    const visibleNodes = getVisibleNodes([...allNodes])
+    const index = visibleNodes.findIndex((n) => n.entity === selectedEid)
+
+    if (index >= 0) {
+      listRef.current.scrollToItem(index, 'center')
+      shouldScroll.current = false
+    }
+  }, [allNodes, expandedNodes[sourceID]])
 
   return (
     <div
@@ -123,8 +183,8 @@ export function Contents() {
         height={listDimensions.height.value}
         width={listDimensions.width.value}
         itemSize={40}
-        itemData={{ nodes }}
-        itemCount={nodes.length}
+        itemData={{ nodes: visibleNodes }}
+        itemCount={visibleNodes.length}
         itemKey={(index: number) => index}
         outerRef={treeContainerDropTarget}
         innerElementType="ul"

@@ -116,15 +116,10 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const currentRenameNode = useHookstate(getComponent(entity, NameComponent))
   const { setMenu } = useHierarchyTreeContextMenu()
   const renameRef = useRef<HTMLInputElement>(null)
-  const itemRef = useRef(null)
   const isRenameOpen = useState(false)
   const canSaveNodeChanges = useState(false)
   const permissionToChangeNodeVerified = useState(false)
-
-  // console.log("fixedSizeListStyles", fixedSizeListStyles)
-
-  // console.log("nodes", nodes)
-  // console.log("uuid", uuid)
+  const selectedEntities = SelectionState.getSelectedEntities()
 
   const handleRenameOpen = () => {
     if (!isRenameOpen.value) {
@@ -276,7 +271,6 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   }
 
   const onClickNode = (event: React.MouseEvent) => {
-    console.log('onClickNode')
     if (renamingNode.entity !== entity) {
       renamingNode.clear()
     }
@@ -310,9 +304,8 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     }
   }
 
-  const onCollapseExpandNode = (event: React.MouseEvent) => {
-    console.log('onCollapseExpandNode')
-    event.stopPropagation()
+  const onCollapseExpandNode = (event?: React.MouseEvent) => {
+    event?.stopPropagation()
     if (expandedNodes.value[sourceID][entity]) collapseNode(entity)
     else expandNode(entity)
   }
@@ -401,48 +394,6 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     }
     canSaveNodeChanges.set(userHasProjectPermission(permission, ['owner', 'editor']))
   }
-
-  const scrollToNode = (event: MouseEvent) => {
-    console.log('scrollToNode', event.target)
-    const target = event.target as HTMLElement
-
-    if (target.tagName === 'LI') {
-      target.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-      })
-    }
-  }
-
-  // useEffect(() => {
-  //   console.log("selected", selected, itemRef)
-  //   if(selected && itemRef.current) {
-
-  //     (itemRef.current as HTMLEmbedElement).scrollIntoView({
-  //       behavior: "smooth",
-  //       block: "nearest"
-  //     })
-  //     console.log("and we're scrolling?")
-  //   }
-  // }, [selected])
-
-  useEffect(() => {
-    if (selected && itemRef.current) {
-      // const el = itemRef.current
-      // const container = el.offsetParent as HTMLElement | null
-      // if (container) {
-      //   const elTop = el.offsetTop;
-      //   const elBottom = elTop + el.offsetHeight;
-      //   const containerTop = container.scrollTop;
-      //   const containerBottom = containerTop + container.clientHeight;
-      //   if (elTop < containerTop) {
-      //     container.scrollTop = elTop;
-      //   } else if (elBottom > containerBottom) {
-      //     container.scrollTop = elBottom - container.clientHeight;
-      //   }
-      // }
-    }
-  }, [selected])
 
   return (
     <li
@@ -572,7 +523,6 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
                 </Button>
               </div>
             )}
-            {/* <div ref={itemRef}></div> */}
             <button
               type="button"
               className="m-0 h-5 w-5 flex-shrink-0 border-none p-0 hover:opacity-80"
@@ -600,7 +550,6 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
           </div>
         </div>
       </div>
-      <div ref={itemRef}></div>
     </li>
   )
 })

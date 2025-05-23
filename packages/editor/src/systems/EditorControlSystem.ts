@@ -323,7 +323,7 @@ const execute = () => {
 
   if (buttons.SecondaryClick?.down) onCameraFlyControlModeBegin()
   if (buttons.SecondaryClick?.up) onCameraOrbitControlBegin()
-  if (buttons.FocusCamera?.down) viewerEntity
+  if (buttons.FocusCamera?.down) onFocusCamera(viewerEntity)
 
   if (hasComponent(viewerEntity, FlyControlComponent)) return
 
@@ -515,7 +515,6 @@ const reactor = () => {
 
   /** On scene load ensure the camera isn't stuck at the origin */
   useEffect(() => {
-    console.log('sceneLoaded useEffect')
     if (!sceneLoaded) return
     onFocusCamera(viewerEntity)
   }, [sceneLoaded])
