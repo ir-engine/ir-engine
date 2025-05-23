@@ -340,7 +340,9 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
     }
     publishLoading.set(true)
 
-    const updateSceneID = getState(EditorState).sceneAssetID
+    let updateSceneID = getState(EditorState).sceneAssetID
+
+    if (scene.value !== location?.sceneId) updateSceneID = scene.value
 
     try {
       if (updateSceneID) {
