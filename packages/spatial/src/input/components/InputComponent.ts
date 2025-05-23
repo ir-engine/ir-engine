@@ -25,7 +25,15 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useLayoutEffect } from 'react'
 
-import { defineSystem, EngineState, getComponent, InputSystemGroup, UndefinedEntity, useExecute } from '@ir-engine/ecs'
+import {
+  defineSystem,
+  EngineState,
+  getComponent,
+  InputSystemGroup,
+  UndefinedEntity,
+  useEntityContext,
+  useExecute
+} from '@ir-engine/ecs'
 import {
   defineComponent,
   getMutableComponent,
@@ -97,35 +105,25 @@ const ButtonSchema = S.Union([
 
 /**
  * Execute a function based on input with configurable order and edit mode behavior
- * @param entity The entity to use for input context
  * @param executeOnInput Function to execute
  * @param order Order of execution relative to the input system group
  * @param executeWhenEditing Whether to execute when in edit mode
  */
-function useExecuteWithInput(
-  entity: Entity,
-  executeOnInput: () => void,
-  order?: InputExecutionOrder,
-  executeWhenEditing?: boolean
-)
+function useExecuteWithInput(executeOnInput: () => void, order?: InputExecutionOrder, executeWhenEditing?: boolean)
 
 /**
- * @deprecated Use the new parameter order: (entity, executeOnInput, order, executeWhenEditing)
+ * @deprecated Use the new parameter order: (executeOnInput, order, executeWhenEditing)
  */
-function useExecuteWithInput(
-  entity: Entity,
-  executeOnInput: () => void,
-  executeWhenEditing: boolean,
-  order: InputExecutionOrder
-)
+function useExecuteWithInput(executeOnInput: () => void, executeWhenEditing: boolean, order: InputExecutionOrder)
 
 // Implementation
 function useExecuteWithInput(
-  entity: Entity,
   executeOnInput: () => void,
   orderOrExecuteWhenEditing?: InputExecutionOrder | boolean,
   executeWhenEditingOrOrder?: boolean | InputExecutionOrder
 ) {
+  const entity = useEntityContext()
+
   // Determine if we're using the deprecated parameter order
   let order: InputExecutionOrder = InputExecutionOrder.With
   let executeWhenEditing = false
@@ -369,7 +367,8 @@ export const InputComponent = defineComponent({
 
   useExecuteWithInput,
 
-  useHasFocus(entity: Entity) {
+  useHasFocus() {
+    const entity = useEntityContext()
     const hasFocus = useHookstate(() => {
       return InputComponent.getInputSourceEntities(entity).length > 0
     })
@@ -385,7 +384,8 @@ export const InputComponent = defineComponent({
     return hasFocus
   },
 
-  reactor: ({ entity }: { entity: Entity }) => {
+  reactor: () => {
+    const entity = useEntityContext()
     const input = useComponent(entity, InputComponent)
 
     useLayoutEffect(() => {
