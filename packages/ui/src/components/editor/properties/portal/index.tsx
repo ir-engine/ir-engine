@@ -41,7 +41,7 @@ import {
   commitProperty,
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
-import { bakeEnvmapTexture, uploadCubemapBakeToServer } from '@ir-engine/editor/src/functions/uploadEnvMapBake'
+import { generateEnvmapBake, uploadCubemapBakeToServer } from '@ir-engine/editor/src/functions/uploadEnvMapBake'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { imageDataToBlob } from '@ir-engine/engine/src/scene/classes/ImageUtils'
 import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
@@ -81,9 +81,11 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   const updateCubeMapBake = async () => {
-    const imageData = await bakeEnvmapTexture(
-      transformComponent.value.position.clone().add(new Vector3(0, 2, 0).multiply(transformComponent.scale.value))
-    )
+    const imageData = await generateEnvmapBake({
+      position: transformComponent.value.position
+        .clone()
+        .add(new Vector3(0, 2, 0).multiply(transformComponent.scale.value))
+    })
     const blob = await imageDataToBlob(imageData)
     state.previewImageData.set(imageData)
     state.previewImageURL.set(URL.createObjectURL(blob!))

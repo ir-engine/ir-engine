@@ -51,13 +51,6 @@ import {
   textureCompress,
   weld
 } from '@gltf-transform/functions'
-import { createHash } from 'crypto'
-import { MeshoptEncoder, MeshoptSimplifier } from 'meshoptimizer'
-import { getPixels } from 'ndarray-pixels'
-import { $attributes } from 'property-graph'
-import { LoaderUtils } from 'three'
-import { v4 as uuidv4 } from 'uuid'
-
 import {
   ExtractedImageTransformParameters,
   extractParameters,
@@ -68,6 +61,12 @@ import {
 import { baseName, dropRoot, pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { getMutableState, NO_PROXY } from '@ir-engine/hyperflux'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
+import { createHash } from 'crypto'
+import { MeshoptEncoder, MeshoptSimplifier } from 'meshoptimizer'
+import { getPixels } from 'ndarray-pixels'
+import { $attributes } from 'property-graph'
+import { LoaderUtils } from 'three'
+import { v4 as uuidv4 } from 'uuid'
 
 import {
   EEArgEntry,
