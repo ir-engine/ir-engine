@@ -23,10 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { NetworkObjectAuthorityTag } from '@ir-engine/ecs'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { NetworkObjectAuthorityTag } from '@ir-engine/network'
 
 import { applyGamepadInput } from '.././functions/moveAvatar'
 import { AvatarComponent } from '../components/AvatarComponent'

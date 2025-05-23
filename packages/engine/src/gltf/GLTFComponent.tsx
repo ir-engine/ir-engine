@@ -477,7 +477,6 @@ export const loadGLTFFile = (
         json = JSON.parse(data)
       } else if ('byteLength' in data) {
         const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
-
         if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
           const { json: jsonContent, body: bodyContent } = parseBinaryData(data)
           body = bodyContent
@@ -529,7 +528,7 @@ const useGLTFDocument = (entity: Entity) => {
     const signal = abortController.signal
 
     const onError = (error: ErrorEvent) => {
-      addError(entity, GLTFComponent, 'LOADING_ERROR', 'Error loading model')
+      addError(entity, GLTFComponent, 'LOADING_ERROR', 'Error loading model ' + url)
     }
 
     removeError(entity, GLTFComponent, 'LOADING_ERROR')
@@ -543,10 +542,7 @@ const useGLTFDocument = (entity: Entity) => {
         state.dependencies.set(dependencies)
       },
       (progress: ProgressEvent) => {
-        if (progress.lengthComputable && progress.total > 0) {
-          const percentage = Math.floor((progress.loaded / progress.total) * 100)
-          state.progress.set(percentage)
-        }
+        //this is the gtlf file loading progress, not to be confused with the GTLF Component property "progress" which tracks if the gtlf is loaded into the scene
       },
       onError,
       signal

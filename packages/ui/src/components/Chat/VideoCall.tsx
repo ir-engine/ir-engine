@@ -33,10 +33,18 @@ import { useMediaWindows } from '@ir-engine/client-core/src/user/VideoWindows'
 import { useGet } from '@ir-engine/common'
 import { UserName, userPath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { PeerID, State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
-import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
-import { PeerMediaChannelState, PeerMediaStreamInterface } from '@ir-engine/network/src/media/PeerMediaChannelState'
+import {
+  MediaChannelState,
+  MediaStreamState,
+  NetworkState,
+  PeerID,
+  getMutableState,
+  screenshareAudioMediaChannelType,
+  screenshareVideoMediaChannelType,
+  useHookstate,
+  webcamAudioMediaChannelType,
+  webcamVideoMediaChannelType
+} from '@ir-engine/hyperflux'
 
 export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => {
   const { peerID, type } = props
@@ -64,12 +72,15 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
     return username
   }
 
-  const peerMediaChannelState = useHookstate(
-    getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
-  )
-  const { videoMediaStream, audioMediaStream, videoStreamPaused, audioStreamPaused } = peerMediaChannelState.get({
-    noproxy: true
-  })
+  const audioChannelType = type === 'screen' ? screenshareAudioMediaChannelType : webcamAudioMediaChannelType
+  const videoChannelType = type === 'screen' ? screenshareVideoMediaChannelType : webcamVideoMediaChannelType
+
+  const audioStreamState = useHookstate(getMutableState(MediaChannelState)[peerID][audioChannelType])
+  const videoStreamState = useHookstate(getMutableState(MediaChannelState)[peerID][videoChannelType])
+
+  const videoMediaStream = videoStreamState.stream.value
+  const videoStreamPaused = videoStreamState.paused.value
+  const audioStreamPaused = audioStreamState.paused.value
 
   const username = getUsername() as UserName
 
@@ -95,7 +106,7 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
     } else if (isSelf && isScreen) {
       MediaStreamState.toggleScreenshareVideoPaused()
     } else {
-      peerMediaChannelState.videoStreamPaused.set((val) => !val)
+      videoStreamState.paused.set((val) => !val)
     }
   }
 
@@ -106,7 +117,7 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
     } else if (isSelf && isScreen) {
       MediaStreamState.toggleScreenshareAudioPaused()
     } else {
-      peerMediaChannelState.audioStreamPaused.set((val) => !val)
+      audioStreamState.paused.set((val) => !val)
     }
   }
 

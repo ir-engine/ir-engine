@@ -28,7 +28,7 @@ import { HiMiniRocketLaunch } from 'react-icons/hi2'
 import { DropdownItem, DropdownItemProps } from './index'
 
 export default {
-  title: 'Components/Editor/DropdownList',
+  title: 'Primitives/Tailwind/Dropdown Item',
   parameters: {
     componentSubtitle: 'Dropdown',
     design: {
@@ -48,7 +48,6 @@ const DropdownItemRenderer = (args: DropdownItemProps) => {
 }
 
 export const DropdownItemStory = {
-  name: 'Dropdown Item',
   render: DropdownItemRenderer,
   args: {
     label: 'Account settings',

@@ -45,6 +45,12 @@ export default [
       '@typescript-eslint/no-require-imports': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
       '@typescript-eslint/no-unsafe-function-type': 'warn',
+      '@typescript-eslint/naming-convention': ['error',
+        {
+          selector: "typeLike",
+          format: ["PascalCase"]
+        }
+      ],
       'prefer-const': 'warn',
       'no-loss-of-precision': 'warn',
       'no-async-promise-executor': 'off',

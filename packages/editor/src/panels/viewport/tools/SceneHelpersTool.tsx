@@ -25,13 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { downloadScreenshot } from '@ir-engine/editor/src/functions/takeScreenshot'
 import { EditorHelperState, PlacementMode } from '@ir-engine/editor/src/services/EditorHelperState'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
-import { CogLg, ColliderAtomsLg, CubeOutlineLg, ScreenshotMenuMd, SunMd } from '@ir-engine/ui/src/icons'
+import { CubeOutlineLg, Cursor03Lg, Edit01Md, GridDotsMd, RulerUnitsMd, SunMd } from '@ir-engine/ui/src/icons'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuMousePointerClick, LuMove3D } from 'react-icons/lu'
@@ -47,18 +47,45 @@ export default function SceneHelpersTool() {
   const editorHelperState = useMutableState(EditorHelperState)
   const rendererState = useMutableState(RendererState)
   const [pointClickEnabled] = useFeatureFlags([FeatureFlags.Studio.UI.PointClick])
-  const volumeVisibilty = useHookstate(VolumeVisibility.Auto) as any
+  const volumeVisibility = useHookstate(VolumeVisibility.Auto) as any
 
   useEffect(() => {
-    setVolumeVisibility(volumeVisibilty)
-  }, [volumeVisibilty])
+    setVolumeVisibility(volumeVisibility)
+  }, [volumeVisibility])
+
+  const onVolumeVisibilityClick = () => {
+    switch (volumeVisibility.value) {
+      case VolumeVisibility.Off:
+        volumeVisibility.set(VolumeVisibility.Auto)
+        break
+      case VolumeVisibility.Auto:
+        volumeVisibility.set(VolumeVisibility.On)
+        break
+      case VolumeVisibility.On:
+        volumeVisibility.set(VolumeVisibility.Off)
+        break
+    }
+  }
+
+  const isVolumeVisibilityAuto = volumeVisibility.value === VolumeVisibility.Auto
+  const isVolumeVisibilityOn = volumeVisibility.value === VolumeVisibility.On
+
+  const onToggleGridVisible = () => {
+    editorHelperState.gridVisibility.set(!editorHelperState.gridVisibility.value)
+  }
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-x-3">
+      <Tooltip position={'auto'} content={t('editor:toolbar.helpersToggle.info-helpers')}>
+        <Text className={'dark:text-[#A3A3A3]'} fontSize={'sm'}>
+          {t('editor:toolbar.helpersToggle.lbl-helpers')}
+        </Text>
+      </Tooltip>
       {pointClickEnabled && (
         <>
           <Tooltip content={t('editor:toolbar.placement.click')} position="bottom">
             <ViewportButton
+              lean={true}
               onClick={() => editorHelperState.placementMode.set(PlacementMode.CLICK)}
               selected={editorHelperState.placementMode.value === PlacementMode.CLICK}
               icon={LuMousePointerClick}
@@ -66,6 +93,7 @@ export default function SceneHelpersTool() {
           </Tooltip>
           <Tooltip content={t('editor:toolbar.placement.drag')} position="bottom">
             <ViewportButton
+              lean={true}
               onClick={() => editorHelperState.placementMode.set(PlacementMode.DRAG)}
               selected={editorHelperState.placementMode.value === PlacementMode.DRAG}
               icon={LuMove3D}
@@ -79,6 +107,7 @@ export default function SceneHelpersTool() {
         position="bottom"
       >
         <ViewportButton
+          lean={true}
           onClick={() => rendererState.nodeIconVisibility.set(!rendererState.nodeIconVisibility.value)}
           selected={rendererState.nodeIconVisibility.value}
           icon={SunMd}
@@ -86,49 +115,34 @@ export default function SceneHelpersTool() {
       </Tooltip>
       <Tooltip
         title={t('editor:toolbar.helpersToggle.lbl-nodeVolume')}
-        content={volumeVisbilityDescriptions[volumeVisibilty.value]}
+        content={volumeVisbilityDescriptions[volumeVisibility.value]}
         position="bottom"
       >
-        <div className="relative inline-block">
+        <div className="relative z-10 inline-grid">
           <ViewportButton
-            onClick={() => {
-              switch (volumeVisibilty.value) {
-                case VolumeVisibility.Off:
-                  volumeVisibilty.set(VolumeVisibility.Auto)
-                  break
-                case VolumeVisibility.Auto:
-                  volumeVisibilty.set(VolumeVisibility.On)
-                  break
-                case VolumeVisibility.On:
-                  volumeVisibilty.set(VolumeVisibility.Off)
-                  break
-              }
-            }}
-            selected={volumeVisibilty.value === VolumeVisibility.On}
+            lean={true}
+            onClick={onVolumeVisibilityClick}
+            selected={isVolumeVisibilityOn}
             icon={CubeOutlineLg}
           />
-          {volumeVisibilty.value === VolumeVisibility.Auto && (
-            <CogLg className="pointer-events-none absolute bottom-0.5 right-0.5 z-20 text-text-secondary" />
+          {isVolumeVisibilityAuto && (
+            <Cursor03Lg className="pointer-events-none absolute -bottom-[0.4em] -right-[0.25em] z-20 text-xs text-text-secondary" />
           )}
         </div>
       </Tooltip>
-      <Tooltip
-        title={t('editor:toolbar.helpersToggle.lbl-helpers')}
-        content={t('editor:toolbar.helpersToggle.info-helpers')}
-        position="bottom"
-      >
+      <Tooltip content={t('editor:toolbar.grid.info-toggleGridVisibility')} position="bottom">
         <ViewportButton
-          onClick={() => rendererState.physicsDebug.set(!rendererState.physicsDebug.value)}
-          selected={rendererState.physicsDebug.value}
-          icon={ColliderAtomsLg}
+          lean={true}
+          onClick={onToggleGridVisible}
+          icon={GridDotsMd}
+          selected={editorHelperState.gridVisibility.value}
         />
       </Tooltip>
-      <Tooltip
-        title={t('editor:toolbar.sceneScreenshot.lbl')}
-        content={t('editor:toolbar.sceneScreenshot.info')}
-        position="bottom"
-      >
-        <ViewportButton onClick={() => downloadScreenshot()} icon={ScreenshotMenuMd} />
+      <Tooltip content={t('editor:toolbar.helpersToggle.lbl-axisHelpers')} position="bottom">
+        <ViewportButton lean={true} onClick={() => {}} disabled={true} selected={false} icon={RulerUnitsMd} />
+      </Tooltip>
+      <Tooltip content={t('editor:toolbar.helpersToggle.lbl-directManipulation')} position="bottom">
+        <ViewportButton lean={true} onClick={() => {}} disabled={true} selected={false} icon={Edit01Md} />
       </Tooltip>
     </div>
   )

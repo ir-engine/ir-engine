@@ -57,12 +57,12 @@ import { getInteractionGroups } from '../functions/getInteractionGroups'
 import {
   Entity,
   EntityTreeComponent,
+  NetworkObjectComponent,
   SystemDefinitions,
   UUIDComponent,
   UndefinedEntity,
   removeEntity
 } from '@ir-engine/ecs'
-import { NetworkObjectComponent } from '@ir-engine/network'
 import { act, render } from '@testing-library/react'
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry'
 import { Epsilon, assertFloat, assertVec } from '../../../tests/util/assert'

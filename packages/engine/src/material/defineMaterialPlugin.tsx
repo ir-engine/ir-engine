@@ -27,7 +27,7 @@ import {
   defineComponent,
   ECSState,
   Entity,
-  getComponent,
+  getOptionalComponent,
   PresentationSystemGroup,
   S,
   Schema,
@@ -51,9 +51,9 @@ import { useTexture } from '../assets/functions/resourceLoaderHooks'
  * - `null` for no texture
  */
 export const TextureSchema = () =>
-  S.Union([S.String(), S.Null(), S.Type<Texture>()], { default: null, $isTexture: true })
+  S.Union([S.String(), S.Null(), S.Type<Texture>()], { default: null, metadata: { $isTexture: true } })
 
-const isTextureUniform = (uniformSchema: Schema) => !!uniformSchema.options?.$isTexture
+const isTextureUniform = (uniformSchema: Schema) => !!uniformSchema.options?.metadata?.$isTexture
 
 /**
  *
@@ -158,7 +158,8 @@ export const defineMaterialPlugin = <T extends Schema>({
 
       useExecute(
         () => {
-          const uniformValues = getComponent(entity, PluginComponent)
+          const uniformValues = getOptionalComponent(entity, PluginComponent)
+          if (!uniformValues) return
           if (update) update(uniformValues, getState(ECSState).deltaSeconds)
           for (const key in uniforms) {
             uniforms[key].value = key in textureUniforms ? textureUniforms[key].value : uniformValues[key]

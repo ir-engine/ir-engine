@@ -45,6 +45,10 @@ export interface HyperStore {
    */
   peerID: PeerID
   /**
+   * The peer index
+   */
+  peerIndex: number
+  /**
    * A function which returns the current dispatch time (units are arbitrary)
    */
   getDispatchTime: () => number
@@ -116,6 +120,8 @@ export function createHyperStore(options?: {
   getCurrentReactorRoot?: () => ReactorRoot | undefined
   getAgentID?: () => UserID
 }) {
+  const peerID = uuidv4() as PeerID
+  const peerIndex = uuidToUint32(peerID)
   const store: HyperStore = {
     defaultTopic: 'default' as Topic,
     forwardingTopics: new Set<Topic>(),
@@ -123,7 +129,8 @@ export function createHyperStore(options?: {
     defaultDispatchDelay: options?.defaultDispatchDelay ?? (() => 0),
     getCurrentReactorRoot: options?.getCurrentReactorRoot ?? (() => undefined),
     getAgentID: () => 'default' as UserID,
-    peerID: uuidv4() as PeerID,
+    peerID,
+    peerIndex,
     stateMap: {},
     stateReactors: {},
     actions: {
@@ -146,4 +153,17 @@ export function createHyperStore(options?: {
   }
   HyperFlux.store = store
   return store
+}
+
+/**
+ * Converts a UUID string to a 32-bit unsigned integer.
+ */
+function uuidToUint32(uuid) {
+  let hash = 0
+  for (let i = 0; i < uuid.length; i++) {
+    const char = uuid.charCodeAt(i)
+    hash = (hash << 5) - hash + char
+    hash = hash >>> 0 // Force to unsigned 32-bit integer
+  }
+  return hash
 }
