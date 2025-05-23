@@ -29,6 +29,7 @@ import { useParams } from 'react-router-dom'
 import { useLoadLocation, useLoadScene } from '@ir-engine/client-core/src/components/World/LoadLocationScene'
 import { AuthService, AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { ViewerInteractions as GlassViewerInteractions } from '../components/Glass'
 import { ViewerInteractions } from '../components/ViewerInteractions'
 
 import '@ir-engine/client-core/src/util/GlobalStyle.css'
@@ -45,6 +46,9 @@ import { LocationService } from '../social/services/LocationService'
 import { LoadingUISystemState } from '../systems/LoadingUISystem'
 import { clientContextParams } from '../util/ClientContextState'
 
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
+
 const logger = multiLogger.child({ component: 'system:location', modifier: clientContextParams })
 
 type Props = {
@@ -55,6 +59,8 @@ const LocationPage = ({ online }: Props) => {
   const { t } = useTranslation()
   const params = useParams()
   const ready = useMutableState(LoadingUISystemState).ready
+
+  const [glassEnabled] = useFeatureFlags([FeatureFlags.Client.Glass])
 
   useNetwork({ online })
 
@@ -93,7 +99,7 @@ const LocationPage = ({ online }: Props) => {
 
   return (
     <>
-      <ViewerInteractions />
+      {glassEnabled ? <GlassViewerInteractions /> : <ViewerInteractions />}
       {isAuthenticated && <CheckBanned />}
     </>
   )
