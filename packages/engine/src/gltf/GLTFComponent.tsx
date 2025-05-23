@@ -33,11 +33,13 @@ import {
   Entity,
   EntityID,
   EntityUUID,
+  getAncestorWithComponents,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   getSimulationCounterpart,
   hasComponent,
+  LayerComponent,
   LayerID,
   Layers,
   removeComponent,
@@ -45,6 +47,7 @@ import {
   setComponent,
   SourceID,
   UndefinedEntity,
+  useAncestorWithComponents,
   useComponent,
   useEntityContext,
   useHasComponent,
@@ -53,13 +56,14 @@ import {
   useQuery,
   UUIDComponent
 } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 import { getMutableState, getState, NO_PROXY_STEALTH, none, State, useHookstate } from '@ir-engine/hyperflux'
-
-import { LayerComponent, useAncestorWithComponents } from '@ir-engine/ecs'
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformComponent } from '@ir-engine/spatial'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
+import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidbodyComponent'
 import { ShapeSchema } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -147,28 +151,42 @@ export const GLTFComponent = defineComponent({
 
 type DependencyEval = {
   key: string
-  eval: (val: unknown) => boolean
+  eval: (val: unknown, entity: Entity) => boolean
 }
 
 type ComponentDependencies = {
   componentDependencies: Record<EntityUUID, Component[]>
 }
 
-const componentDependenciesLoaded = (dependencies?: ComponentDependencies) => {
+const componentDependenciesLoaded = (dependencies?: ComponentDependencies, entity?: Entity) => {
   return !!dependencies && Object.keys(dependencies.componentDependencies).length === 0
 }
 
+const checkRigidbodyAncestor = (entity: Entity) => {
+  const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
+  const physicsWorld = Physics.getWorld(sceneEntity)
+  console.log('physicsWorld', physicsWorld)
+  return getAncestorWithComponents(entity, [RigidBodyComponent]) !== undefined
+}
+
 const loadDependencies = {
-  ['EE_model']: [
+  [GLTFComponent.jsonID]: [
     {
       key: 'dependencies',
       eval: (dependencies?: ComponentDependencies) => componentDependenciesLoaded(dependencies)
     }
   ],
-  ['EE_collider']: [
+  [ColliderComponent.jsonID]: [
     {
       key: 'shape',
-      eval: (shape) => !!shape
+      eval: (shape, entity?: Entity) => {
+        if (entity) {
+          console.log('physicsWorld', Physics.getWorld(entity))
+          if (!shape) return false
+          return checkRigidbodyAncestor(entity)
+        }
+        return false
+      }
     }
   ]
 } as Record<string, DependencyEval[]>
@@ -177,7 +195,7 @@ const buildComponentDependencies = (entity: Entity, json: GLTF.IGLTF) => {
   const dependencies = {
     componentDependencies: {}
   } as ComponentDependencies
-
+  console.log('physicsWorld', Physics.getWorld(entity))
   if (!json.nodes) return dependencies
   for (const node of json.nodes) {
     if (node.extensions && node.extensions[UUIDComponent.jsonID]) {
@@ -302,7 +320,6 @@ const ResourceReactor = (props: { documentID: SourceID; entity: Entity; document
 
   const simulationEntity = getSimulationCounterpart(props.entity)
   useApplyCollidersToChildMeshesEffect(simulationEntity)
-
   useEffect(() => {
     if (!hasComponent(props.entity, GLTFComponent) || !props.documentLoaded) return
     if (getComponent(props.entity, GLTFComponent).progress === 100) return
@@ -361,7 +378,7 @@ const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; 
   useEffect(() => {
     const compValue = comp.value
     for (const dep of dependencies) {
-      if (!dep.eval(compValue[dep.key])) return
+      if (!dep.eval(compValue[dep.key], gltfComponentEntity)) return
     }
 
     removeGLTFDependency()
@@ -384,7 +401,7 @@ const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; 
 const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: EntityUUID; components: Component[] }) => {
   const { gltfComponentEntity, uuid, components } = props
   const layer = LayerComponent.get(gltfComponentEntity)
-  const entity = UUIDComponent.useEntityByUUID(uuid as EntityUUID, layer) as Entity | undefined
+  const entity = UUIDComponent.useEntityByUUID(uuid as EntityUUID, layer) as Entity
   const hasComponents = useHasComponents(entity ?? UndefinedEntity, components)
   const dynamicLoad = useHasComponent(entity ?? UndefinedEntity, SceneDynamicLoadComponent)
   return entity && !dynamicLoad && hasComponents ? (
@@ -405,8 +422,12 @@ const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: Enti
   ) : null
 }
 
-const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: ComponentDependencies }) => {
-  const { gltfComponentEntity, dependencies } = props
+const DependencyReactor = (props: {
+  key: Entity
+  gltfComponentEntity: Entity
+  dependencies: ComponentDependencies
+}) => {
+  const { key, gltfComponentEntity, dependencies } = props
   const componentDependencies = Object.entries(dependencies.componentDependencies)
 
   useEffect(() => {
@@ -530,6 +551,9 @@ const useGLTFDocument = (entity: Entity) => {
       onError,
       signal
     )
+
+    const hasColliders = Physics.getWorld(entity)
+    console.log('hasColliders', hasColliders)
 
     return () => {
       abortController.abort()
