@@ -72,7 +72,7 @@ export const TransformGizmoControlComponent = defineComponent({
   name: 'TransformGizmoControlComponent',
 
   schema: S.Object({
-    controlledEntities: S.Array(S.Entity(), []),
+    controlledEntities: S.Array(S.Entity()),
     visualEntity: S.Entity(),
     planeEntity: S.Entity(),
     pivotEntity: S.Entity(),

@@ -34,9 +34,7 @@ import { ChannelService, ChannelState } from '@ir-engine/client-core/src/social/
 import { useFind, useGet, useMutation } from '@ir-engine/common'
 import { ChannelID, channelPath, ChannelType, messagePath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
-import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
+import { getMutableState, MediaStreamState, NetworkState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
 import { useUserAvatarThumbnail } from '@ir-engine/client-core/src/hooks/useUserAvatarThumbnail'
 import AttachFileIcon from './assets/attach-file2.svg'

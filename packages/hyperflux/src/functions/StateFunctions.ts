@@ -39,14 +39,11 @@ import { DeepReadonly } from '../types/DeepReadonly'
 import { ActionQueueHandle, ActionReceptor } from './ActionFunctions'
 import { isClient } from './EnvironmentConstants'
 import { startReactor } from './ReactorFunctions'
-import { HyperFlux, HyperStore } from './StoreFunctions'
+import { HyperFlux } from './StoreFunctions'
 
 export * from '@hookstate/core'
 export { useHookstate as useState } from '@hookstate/core'
 export * from '@hookstate/identifiable'
-
-/** @deprecated */
-export const createState = hookstate
 
 export const NO_PROXY = { noproxy: true }
 export const NO_PROXY_STEALTH = { noproxy: true, stealth: true }
@@ -60,8 +57,6 @@ export type StateDefinition<S, I, E, Receptors extends ReceptorMap> = {
   receptors?: Receptors
   receptorActionQueue?: ActionQueueHandle
   reactor?: any // why does React.FC break types?
-  /** @deprecated use `extension` */
-  onCreate?: (store: HyperStore, state: State<S, I & E>) => void
 }
 
 export const StateDefinitions = new Map<string, StateDefinition<any, any, any, any>>()
@@ -71,11 +66,7 @@ export const setInitialState = (def: StateDefinition<any, any, any, any>) => {
   if (HyperFlux.store.stateMap[def.name]) {
     HyperFlux.store.stateMap[def.name].set(initial)
   } else {
-    const state = (HyperFlux.store.stateMap[def.name] = hookstate(
-      initial,
-      extend(identifiable(def.name), def.extension)
-    ))
-    if (def.onCreate) def.onCreate(HyperFlux.store, state)
+    HyperFlux.store.stateMap[def.name] = hookstate(initial, extend(identifiable(def.name), def.extension))
     if (def.reactor) {
       const reactor = startReactor(def.reactor)
       HyperFlux.store.stateReactors[def.name] = reactor

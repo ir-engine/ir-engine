@@ -36,8 +36,15 @@ import {
   LocationID,
   RoomCode
 } from '@ir-engine/common/src/schema.type.module'
-import { defineState, getMutableState, getState, Identifiable, State, useState } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
+import {
+  defineState,
+  getMutableState,
+  getState,
+  Identifiable,
+  NetworkState,
+  State,
+  useState
+} from '@ir-engine/hyperflux'
 
 import { SocketWebRTCClientNetwork } from '../../transports/mediasoup/MediasoupClientFunctions'
 import { AuthState } from '../../user/services/AuthService'

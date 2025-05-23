@@ -31,7 +31,11 @@ import logger from '@ir-engine/common/src/logger'
 import { InstanceID } from '@ir-engine/common/src/schema.type.module'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import {
+  DataChannelRegistryState,
+  DataChannelType,
   NetworkID,
+  NetworkState,
+  NetworkTopics,
   dispatchAction,
   getMutableState,
   getState,
@@ -39,7 +43,6 @@ import {
   useHookstate,
   useMutableState
 } from '@ir-engine/hyperflux'
-import { DataChannelRegistryState, DataChannelType, NetworkState, NetworkTopics } from '@ir-engine/network'
 
 import {
   DataConsumerType,

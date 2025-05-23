@@ -32,12 +32,14 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
+  NetworkObjectAuthorityTag,
+  NetworkObjectOwnedTag,
   removeComponent,
   setComponent,
-  UUIDComponent
+  UUIDComponent,
+  WorldNetworkAction
 } from '@ir-engine/ecs'
-import { dispatchAction, useMutableState } from '@ir-engine/hyperflux'
-import { NetworkObjectAuthorityTag, NetworkObjectOwnedTag, NetworkState, WorldNetworkAction } from '@ir-engine/network'
+import { dispatchAction, NetworkState, useMutableState } from '@ir-engine/hyperflux'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import { DistanceFromLocalClientComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { getDistanceSquaredFromTarget, TransformSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'

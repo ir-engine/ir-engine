@@ -165,9 +165,9 @@ type TextMesh = Mesh & {
  * - `Basic`: Maps to THREE.MeshBasicMaterial
  * - `Standard`: Maps to THREE.MeshStandardMaterial
  */
-export enum FontMaterialKind {
-  Basic,
-  Standard
+export const FontMaterialKind = {
+  Basic: 0 as const,
+  Standard: 1 as const
 }
 
 /**
@@ -217,7 +217,7 @@ export const TextComponent = defineComponent({
     fontSize: S.Number({ default: 0.2 }),
     fontColor: T.Color(0xffffff),
     fontMaterial: S.Enum(FontMaterialKind, {
-      $comment: "An indexed enum, ie. the numeric index of a value in the following sequence: 'Basic', 'Standard'",
+      $comment: "A number enum, where: 0 represents 'Basic', 1 represents 'Standard'",
       default: FontMaterialKind.Basic
     }), // Default to whatever value is marked at id=0 in FontMaterialKind
     // Font Outline Properties

@@ -28,19 +28,20 @@ import { decode, encode } from 'msgpackr'
 import { useEffect } from 'react'
 import { Quaternion } from 'three'
 
-import { ECSState } from '@ir-engine/ecs'
+import { ECSState, RingBuffer } from '@ir-engine/ecs'
 import { getComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { PeerID, getState, isClient } from '@ir-engine/hyperflux'
 import {
   DataChannelType,
   Network,
   NetworkState,
+  PeerID,
   addDataChannelHandler,
+  getState,
+  isClient,
   removeDataChannelHandler
-} from '@ir-engine/network'
-import { RingBuffer } from '@ir-engine/network/src/functions/RingBuffer'
+} from '@ir-engine/hyperflux'
 
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
