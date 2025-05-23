@@ -141,13 +141,20 @@ export async function seed(knex: Knex): Promise<void> {
       {
         key: EngineSettings.InstanceServer.ShutdownDelayMs,
         value: process.env.INSTANCESERVER_SHUTDOWN_DELAY_MS || '0'
-      },
+      }
+    ],
+    'instance-server'
+  )
+
+  const instanceServerPublicSeedData = await generateSeedData(
+    [
       {
         key: EngineSettings.InstanceServer.MaxUsersPerInstance,
         value: process.env.INSTANCESERVER_MAX_USERS_PER_INSTANCE || '5'
       }
     ],
-    'instance-server'
+    'instance-server',
+    'public'
   )
 
   const instanceServerWebRtc: EngineSettingType[] = await Promise.all(
@@ -792,6 +799,7 @@ export async function seed(knex: Knex): Promise<void> {
     ...coilSeedData,
     ...instanceServerWebRtc,
     ...instanceServerSeedData,
+    ...instanceServerPublicSeedData,
     ...serverSeedData,
     ...metabaseSeedData,
     ...redisSeedData,
