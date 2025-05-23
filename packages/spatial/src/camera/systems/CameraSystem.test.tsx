@@ -37,9 +37,17 @@ import {
   hasComponent
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { UserID, applyIncomingActions, dispatchAction, getMutableState, getState } from '@ir-engine/hyperflux'
-import { Network, NetworkState, NetworkTopics } from '@ir-engine/network'
-import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
+import {
+  Network,
+  NetworkState,
+  NetworkTopics,
+  UserID,
+  applyIncomingActions,
+  dispatchAction,
+  getMutableState,
+  getState
+} from '@ir-engine/hyperflux'
+import { createMockNetwork } from '@ir-engine/hyperflux/tests/createMockNetwork'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { initializeSpatialViewer } from '../../initializeEngine'
 import { CameraActions } from '../CameraState'

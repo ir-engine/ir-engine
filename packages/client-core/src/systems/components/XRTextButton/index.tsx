@@ -27,7 +27,7 @@ import React from 'react'
 
 import styleString from './index.scss?inline'
 
-type textButtonVariant = 'filled' | 'outlined' | 'gradient'
+type TextButtonVariant = 'filled' | 'outlined' | 'gradient'
 
 const XRTextButton = (props) => {
   const {
@@ -35,7 +35,7 @@ const XRTextButton = (props) => {
     className,
     children,
     ...buttonProps
-  }: { variant: textButtonVariant; className: any; content: any; children: React.ReactNode; buttonProps: any } = props
+  }: { variant: TextButtonVariant; className: any; content: any; children: React.ReactNode; buttonProps: any } = props
 
   return (
     <>

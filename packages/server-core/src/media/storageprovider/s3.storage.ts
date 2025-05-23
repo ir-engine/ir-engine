@@ -679,14 +679,12 @@ export class S3Provider implements StorageProviderInterface {
 
     const promises: Promise<FileBrowserContentType>[] = []
 
-    if (recursive) {
-      // When doing recursive search, we need an additional request to get folder prefixes at the current level
-      // since recursive search only returns files, not folder structures
-      const listObjectsResponse = await this.listObjects(folderName, false)
-      for (let i = 0; i < listObjectsResponse.CommonPrefixes!.length; i++) {
+    // Folders
+    if (!recursive) {
+      for (let i = 0; i < folderContent.CommonPrefixes!.length; i++) {
         promises.push(
           new Promise(async (resolve) => {
-            const key = listObjectsResponse.CommonPrefixes![i].Prefix.slice(0, -1)
+            const key = folderContent.CommonPrefixes![i].Prefix.slice(0, -1)
             const size = await this.getFolderSize(key)
             const cont: FileBrowserContentType = {
               key,
@@ -701,12 +699,12 @@ export class S3Provider implements StorageProviderInterface {
       }
     }
 
-    // Folders
-    if (!recursive) {
-      for (let i = 0; i < folderContent.CommonPrefixes!.length; i++) {
+    if (recursive) {
+      const folders = this.getUniqueFolderPathsFromFiles(folderContent.Contents, folderName)
+      for (let i = 0; i < folders.length; i++) {
         promises.push(
           new Promise(async (resolve) => {
-            const key = folderContent.CommonPrefixes![i].Prefix.slice(0, -1)
+            const key = folders[i].endsWith('/') ? folders[i].slice(0, -1) : folders[i]
             const size = await this.getFolderSize(key)
             const cont: FileBrowserContentType = {
               key,
@@ -739,23 +737,37 @@ export class S3Provider implements StorageProviderInterface {
             resolve(cont)
           })
         )
-      } else if (recursive && !query && key !== folderName) {
-        promises.push(
-          new Promise(async (resolve) => {
-            const cont: FileBrowserContentType = {
-              key,
-              url: `${this.bucketAssetURL}/${key}`,
-              name: key.split('/').filter(Boolean).pop()!,
-              type: 'folder',
-              size: await this.getFolderSize(key)
-            }
-            resolve(cont)
-          })
-        )
       }
     }
 
     return await Promise.all(promises)
+  }
+
+  private getUniqueFolderPathsFromFiles(folderObjects: { Key: string }[], prefix: string): string[] {
+    prefix = prefix.startsWith('/') ? prefix.substring(1) : prefix
+
+    if (!prefix.endsWith('/')) {
+      prefix = prefix + '/'
+    }
+
+    const folders = new Set<string>()
+
+    folderObjects.forEach((item) => {
+      const key = item.Key
+      if (key.startsWith(prefix)) {
+        const relativePath = key.substring(prefix.length)
+
+        const parts = relativePath.split('/')
+        let currentPath = prefix
+
+        for (let i = 0; i < parts.length - 1; i++) {
+          currentPath += parts[i] + '/'
+          folders.add(currentPath)
+        }
+      }
+    })
+
+    return Array.from(folders).sort()
   }
 
   async getFolderSize(folderName: string): Promise<number> {
