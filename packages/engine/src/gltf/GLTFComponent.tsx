@@ -163,9 +163,6 @@ const componentDependenciesLoaded = (dependencies?: ComponentDependencies, entit
 }
 
 const checkRigidbodyAncestor = (entity: Entity) => {
-  const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
-  const physicsWorld = Physics.getWorld(sceneEntity)
-  console.log('physicsWorld', physicsWorld)
   return getAncestorWithComponents(entity, [RigidBodyComponent]) !== undefined
 }
 
@@ -180,12 +177,8 @@ const loadDependencies = {
     {
       key: 'shape',
       eval: (shape, entity?: Entity) => {
-        if (entity) {
-          console.log('physicsWorld', Physics.getWorld(entity))
-          if (!shape) return false
-          return checkRigidbodyAncestor(entity)
-        }
-        return false
+        if (!entity || !shape) return false
+        return checkRigidbodyAncestor(entity)
       }
     }
   ]
@@ -195,7 +188,7 @@ const buildComponentDependencies = (entity: Entity, json: GLTF.IGLTF) => {
   const dependencies = {
     componentDependencies: {}
   } as ComponentDependencies
-  console.log('physicsWorld', Physics.getWorld(entity))
+
   if (!json.nodes) return dependencies
   for (const node of json.nodes) {
     if (node.extensions && node.extensions[UUIDComponent.jsonID]) {
@@ -378,7 +371,7 @@ const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; 
   useEffect(() => {
     const compValue = comp.value
     for (const dep of dependencies) {
-      if (!dep.eval(compValue[dep.key], gltfComponentEntity)) return
+      if (!dep.eval(compValue[dep.key], entity)) return
     }
 
     removeGLTFDependency()
