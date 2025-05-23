@@ -119,7 +119,6 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const isRenameOpen = useState(false)
   const canSaveNodeChanges = useState(false)
   const permissionToChangeNodeVerified = useState(false)
-  const selectedEntities = SelectionState.getSelectedEntities()
 
   const handleRenameOpen = () => {
     if (!isRenameOpen.value) {
@@ -304,8 +303,8 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     }
   }
 
-  const onCollapseExpandNode = (event?: React.MouseEvent) => {
-    event?.stopPropagation()
+  const onCollapseExpandNode = (event: React.MouseEvent) => {
+    event.stopPropagation()
     if (expandedNodes.value[sourceID][entity]) collapseNode(entity)
     else expandNode(entity)
   }
