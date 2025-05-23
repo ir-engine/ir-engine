@@ -61,7 +61,6 @@ import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions
 import { getMutableState, getState, NO_PROXY_STEALTH, none, State, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
-import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidbodyComponent'
 import { ShapeSchema } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
@@ -158,7 +157,7 @@ type ComponentDependencies = {
   componentDependencies: Record<EntityUUID, Component[]>
 }
 
-const componentDependenciesLoaded = (dependencies?: ComponentDependencies, entity?: Entity) => {
+const componentDependenciesLoaded = (dependencies?: ComponentDependencies) => {
   return !!dependencies && Object.keys(dependencies.componentDependencies).length === 0
 }
 
@@ -222,7 +221,7 @@ export const GLTFComponentReactor = () => {
     const occlusion = gltfComponent.cameraOcclusion.value
     const source = UUIDComponent.getAsSourceID(entity)
     const entities = UUIDComponent.getEntitiesBySource(source)
-
+    console.log(entities)
     if (!occlusion) {
       ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
       for (const curr of entities) {
@@ -415,12 +414,8 @@ const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: Enti
   ) : null
 }
 
-const DependencyReactor = (props: {
-  key: Entity
-  gltfComponentEntity: Entity
-  dependencies: ComponentDependencies
-}) => {
-  const { key, gltfComponentEntity, dependencies } = props
+const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: ComponentDependencies }) => {
+  const { gltfComponentEntity, dependencies } = props
   const componentDependencies = Object.entries(dependencies.componentDependencies)
 
   useEffect(() => {
@@ -540,9 +535,6 @@ const useGLTFDocument = (entity: Entity) => {
       onError,
       signal
     )
-
-    const hasColliders = Physics.getWorld(entity)
-    console.log('hasColliders', hasColliders)
 
     return () => {
       abortController.abort()
