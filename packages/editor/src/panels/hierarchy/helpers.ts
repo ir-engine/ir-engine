@@ -27,7 +27,6 @@ import { Entity, EntityTreeComponent, getOptionalComponent, Layers, removeEntity
 import { AllFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 
-import { getComponent } from '@ir-engine/ecs'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { getState } from '@ir-engine/hyperflux'
 import { t } from 'i18next'
@@ -132,13 +131,11 @@ type WalkerEntry = {
 
 export function ecsHierarchyTreeWalker(rootEntity: Entity, enableHideGlbChildren: boolean): HierarchyTreeNodeType[] {
   const result: HierarchyTreeNodeType[] = []
-  const allResult: HierarchyTreeNodeType[] = []
   const frontier: WalkerEntry[] = [{ entity: rootEntity, depth: 0, lastChild: true, isRendered: true }]
   while (frontier.length > 0) {
     const { entity, depth, lastChild, isRendered: originalIsRendered } = frontier.pop()!
     const eTree = getOptionalComponent(entity, EntityTreeComponent)
-    const entityTreeComponent = getComponent(entity, EntityTreeComponent)
-    const parentEntity = entityTreeComponent.parentEntity
+    const parentEntity = eTree?.parentEntity
 
     if (!eTree) continue
     const childIndex = eTree.childIndex ?? 0
