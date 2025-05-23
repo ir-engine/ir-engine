@@ -36,6 +36,7 @@ import {
   removeEntity,
   setComponent,
   UndefinedEntity,
+  useEntityContext,
   UUIDComponent
 } from '@ir-engine/ecs'
 import {
@@ -272,8 +273,9 @@ export const InteractableComponent = defineComponent({
     )
   }),
 
-  reactor: ({ entity }: { entity: Entity }) => {
+  reactor: () => {
     if (!isClient) return null
+    const entity = useEntityContext()
     const interactableComponent = useComponent(entity, InteractableComponent)
     const isEditing = useMutableState(EngineState).isEditing
     const modalState = useXRUIState<InteractiveModalState>()
@@ -292,7 +294,6 @@ export const InteractableComponent = defineComponent({
     }, [])
 
     InputComponent.useExecuteWithInput(
-      entity,
       () => {
         const buttons = InputComponent.getButtons(entity)
         if (!interactableComponent.clickInteract.value) return

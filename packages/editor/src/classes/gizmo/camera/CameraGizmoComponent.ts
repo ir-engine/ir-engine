@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { Entity, EntityTreeComponent, createEntity, removeEntity } from '@ir-engine/ecs'
+import { EntityTreeComponent, createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -68,7 +68,8 @@ export const CameraGizmoComponent = defineComponent({
     showZ: S.Bool({ default: true })
   }),
 
-  reactor: function ({ entity }: { entity: Entity }) {
+  reactor: function (props) {
+    const entity = useEntityContext()
     const cameraGizmoComponent = useComponent(entity, CameraGizmoComponent)
     const inputPointerEntities = InputPointerComponent.usePointersForCamera(cameraGizmoComponent.cameraEntity.value)
 
@@ -108,7 +109,6 @@ export const CameraGizmoComponent = defineComponent({
     }, [inputPointerEntities])
 
     InputComponent.useExecuteWithInput(
-      entity,
       () => {
         if (!cameraGizmoComponent.enabled.value || !cameraGizmoComponent.visualEntity.value) return
         if (!cameraGizmoComponent.cameraEntity.value || !getState(ReferenceSpaceState).viewerEntity) return
@@ -129,8 +129,8 @@ export const CameraGizmoComponent = defineComponent({
           onPointerLost(entity)
         }
       },
-      InputExecutionOrder.Before,
-      true
+      true,
+      InputExecutionOrder.Before
     )
 
     return null

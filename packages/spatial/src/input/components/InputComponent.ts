@@ -105,9 +105,41 @@ const ButtonSchema = S.Union([
 function useExecuteWithInput(
   entity: Entity,
   executeOnInput: () => void,
-  order: InputExecutionOrder = InputExecutionOrder.With,
-  executeWhenEditing: boolean = false
+  order?: InputExecutionOrder,
+  executeWhenEditing?: boolean
+)
+
+/**
+ * @deprecated Use the new parameter order: (entity, executeOnInput, order, executeWhenEditing)
+ */
+function useExecuteWithInput(
+  entity: Entity,
+  executeOnInput: () => void,
+  executeWhenEditing: boolean,
+  order: InputExecutionOrder
+)
+
+// Implementation
+function useExecuteWithInput(
+  entity: Entity,
+  executeOnInput: () => void,
+  orderOrExecuteWhenEditing?: InputExecutionOrder | boolean,
+  executeWhenEditingOrOrder?: boolean | InputExecutionOrder
 ) {
+  // Determine if we're using the deprecated parameter order
+  let order: InputExecutionOrder = InputExecutionOrder.With
+  let executeWhenEditing = false
+
+  if (typeof orderOrExecuteWhenEditing === 'boolean') {
+    // Old parameter order
+    executeWhenEditing = orderOrExecuteWhenEditing
+    order = executeWhenEditingOrOrder as InputExecutionOrder
+  } else {
+    // New parameter order
+    order = (orderOrExecuteWhenEditing as InputExecutionOrder) ?? InputExecutionOrder.With
+    executeWhenEditing = (executeWhenEditingOrOrder as boolean) ?? false
+  }
+
   useExecute(() => {
     const isEditing = getState(EngineState).isEditing
     const capturingEntity = getState(InputState).capturingEntity

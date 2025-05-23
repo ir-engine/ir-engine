@@ -36,7 +36,8 @@ import {
   hasComponent,
   removeEntity,
   setComponent,
-  UndefinedEntity
+  UndefinedEntity,
+  useEntityContext
 } from '@ir-engine/ecs'
 import { getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import {
@@ -179,11 +180,10 @@ export const TransformGizmoControlComponent = defineComponent({
     return gizmoEntity.value
   },
 
-  reactor: ({ entity }: { entity: Entity }) => {
-    const gizmoControlEntity = entity
+  reactor: () => {
+    const gizmoControlEntity = useEntityContext()
 
     InputComponent.useExecuteWithInput(
-      gizmoControlEntity,
       () => {
         const gizmoControlComponent = getOptionalComponent(gizmoControlEntity, TransformGizmoControlComponent)
         if (!gizmoControlComponent) return
