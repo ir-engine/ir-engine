@@ -221,7 +221,6 @@ export const GLTFComponentReactor = () => {
     const occlusion = gltfComponent.cameraOcclusion.value
     const source = UUIDComponent.getAsSourceID(entity)
     const entities = UUIDComponent.getEntitiesBySource(source)
-    console.log(entities)
     if (!occlusion) {
       ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
       for (const curr of entities) {
@@ -393,7 +392,7 @@ const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; 
 const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: EntityUUID; components: Component[] }) => {
   const { gltfComponentEntity, uuid, components } = props
   const layer = LayerComponent.get(gltfComponentEntity)
-  const entity = UUIDComponent.useEntityByUUID(uuid as EntityUUID, layer) as Entity
+  const entity = UUIDComponent.useEntityByUUID(uuid as EntityUUID, layer) as Entity | undefined
   const hasComponents = useHasComponents(entity ?? UndefinedEntity, components)
   const dynamicLoad = useHasComponent(entity ?? UndefinedEntity, SceneDynamicLoadComponent)
   return entity && !dynamicLoad && hasComponents ? (
