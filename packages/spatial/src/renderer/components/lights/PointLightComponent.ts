@@ -38,7 +38,7 @@ import {
 import { NO_PROXY, useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
 import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
-import { useHelperEntity } from '../../../common/debug/useHelperEntity'
+import { useHelperEntity } from '../../../helper/functions/useHelperEntity'
 import { T } from '../../../schema/schemaFunctions'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { RendererState } from '../../RendererState'

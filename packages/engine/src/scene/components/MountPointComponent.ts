@@ -43,7 +43,7 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
-import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
+import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'

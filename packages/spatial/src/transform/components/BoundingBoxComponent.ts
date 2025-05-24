@@ -33,16 +33,12 @@ import {
   getOptionalComponent,
   hasComponent,
   setComponent,
-  useComponent,
-  useOptionalComponent
+  useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { ActiveHelperComponent } from '../../common/ActiveHelperComponent'
 import { NameComponent } from '../../common/NameComponent'
-import { RendererState } from '../../renderer/RendererState'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { ObjectLayerMaskComponent } from '../../renderer/components/ObjectLayerComponent'
@@ -61,22 +57,9 @@ export const BoundingBoxComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility) // show all volumes
-    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const boundingBox = useComponent(entity, BoundingBoxComponent)
 
     useEffect(() => {
-      const helperEnabled =
-        activeHelperComponent !== undefined &&
-        activeHelperComponent.enabled.value &&
-        (activeHelperComponent.hovered.value || activeHelperComponent.selected.value)
-
-      const showVolume =
-        activeHelperComponent !== undefined && activeHelperComponent.volumeControlled.value
-          ? helperEnabled
-          : debugEnabled.value
-      if (!showVolume) return
-
       const helperEntity = createEntity()
 
       const helper = new Box3Helper(boundingBox.box.value, 'white')
@@ -99,13 +82,7 @@ export const BoundingBoxComponent = defineComponent({
         if (!hasComponent(entity, BoundingBoxComponent)) return
         boundingBox.helper.set(UndefinedEntity)
       }
-    }, [
-      debugEnabled,
-      activeHelperComponent?.volumeControlled,
-      activeHelperComponent?.enabled,
-      activeHelperComponent?.hovered,
-      activeHelperComponent?.selected
-    ])
+    }, [])
 
     return null
   }

@@ -32,7 +32,7 @@ import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelpe
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { Vector3_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
-import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
+import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { useEffect } from 'react'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'

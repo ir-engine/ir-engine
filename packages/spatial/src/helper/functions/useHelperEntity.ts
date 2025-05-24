@@ -42,10 +42,10 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { ActiveHelperComponent } from '../../common/ActiveHelperComponent'
 import { InputComponent } from '../../input/components/InputComponent'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { ActiveHelperComponent } from '../ActiveHelperComponent'
 
 type DisposableObject3D = Object3D & { update?: () => void; dispose?: () => void }
 
