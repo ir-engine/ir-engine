@@ -1625,6 +1625,7 @@ describe('ShadowSystem', async () => {
 
     describe('for every entity that has a RendererComponent', async () => {
       it('should call CSM.update if entity.CSMComponent is truthy', async () => {
+        getMutableState(RendererState).useShadows.set(true)
         const resultSpy = vi.fn()
 
         CSM.initCSM({}, rendererEntity)
