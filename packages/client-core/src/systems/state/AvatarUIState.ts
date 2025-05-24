@@ -24,8 +24,16 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Engine } from '@ir-engine/ecs'
-import { defineAction, defineState, getMutableState, matches, matchesWithDefault, none } from '@ir-engine/hyperflux'
-import { NetworkTopics, matchesUserID } from '@ir-engine/network'
+import {
+  NetworkTopics,
+  defineAction,
+  defineState,
+  getMutableState,
+  matches,
+  matchesUserID,
+  matchesWithDefault,
+  none
+} from '@ir-engine/hyperflux'
 
 export class AvatarUIActions {
   static setUserTyping = defineAction({

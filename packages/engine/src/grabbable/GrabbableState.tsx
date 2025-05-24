@@ -27,13 +27,15 @@ import React, { useEffect } from 'react'
 
 import {
   entityExists,
+  EntityNetworkState,
   EntityUUID,
   getMutableComponent,
   hasComponent,
   removeComponent,
   setComponent,
   UndefinedEntity,
-  UUIDComponent
+  UUIDComponent,
+  WorldNetworkAction
 } from '@ir-engine/ecs'
 import {
   defineState,
@@ -41,10 +43,10 @@ import {
   getMutableState,
   HyperFlux,
   none,
+  SceneUser,
   useHookstate,
   useMutableState
 } from '@ir-engine/hyperflux'
-import { EntityNetworkState, SceneUser, WorldNetworkAction } from '@ir-engine/network'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { BodyTypes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 

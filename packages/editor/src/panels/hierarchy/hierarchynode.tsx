@@ -49,7 +49,6 @@ import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFLoaderFunctions } from '@ir-engine/engine/src/gltf/GLTFLoaderFunctions'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, none, useHookstate, useMutableState, useState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
@@ -277,9 +276,6 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     if (event.detail === 1) {
       // Exit click placement mode when anything in the hierarchy is selected
       getMutableState(EditorHelperState).placementMode.set(PlacementMode.DRAG)
-      // Deselect material entity since we've just clicked on a hierarchy node
-      getMutableState(MaterialSelectionState).selectedMaterial.set(null)
-      const uuid = UUIDComponent.get(entity)
       if (usesCtrlKey() ? event.ctrlKey : event.metaKey) {
         if (entity === rootEntity) return
         EditorControlFunctions.toggleSelection([uuid])
@@ -434,8 +430,8 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
         />
         <div
           className={twMerge(
-            'flex w-full items-center justify-between gap-x-2 bg-inherit pr-2',
-            rootEntity === entity ? 'p-2' : 'py-1 pl-10 pr-2'
+            'flex items-center justify-between gap-x-2 bg-inherit pr-2',
+            rootEntity === entity ? 'p-2' : 'py-1 pr-2'
           )}
           style={{ marginLeft: `${node.depth * 0.75}rem` }}
           ref={onDropTarget}
@@ -480,7 +476,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
             ) : (
               <div className="grid min-w-0 text-nowrap rounded bg-transparent px-0.5 py-0 ">
                 <span
-                  className="overflow-x-auto text-nowrap text-sm"
+                  className="overflow-x-auto truncate text-nowrap text-sm"
                   style={{ scrollbarWidth: `none` }}
                   data-testid="hierarchy-panel-scene-item-name"
                 >

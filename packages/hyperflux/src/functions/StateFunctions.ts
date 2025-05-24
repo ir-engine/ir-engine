@@ -23,22 +23,26 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { extend, ExtensionFactory, hookstate, SetInitialStateAction, State, useHookstate } from '@hookstate/core'
+import {
+  extend,
+  ExtensionFactory,
+  hookstate,
+  SetInitialStateAction,
+  SetPartialStateAction,
+  State,
+  useHookstate
+} from '@hookstate/core'
 import { Identifiable, identifiable } from '@hookstate/identifiable'
 import type { Object as _Object, Function, String } from 'ts-toolbelt'
 
 import { DeepReadonly } from '../types/DeepReadonly'
 import { ActionQueueHandle, ActionReceptor } from './ActionFunctions'
-import { isClient } from './EnvironmentConstants'
 import { startReactor } from './ReactorFunctions'
-import { HyperFlux, HyperStore } from './StoreFunctions'
+import { HyperFlux } from './StoreFunctions'
 
 export * from '@hookstate/core'
 export { useHookstate as useState } from '@hookstate/core'
 export * from '@hookstate/identifiable'
-
-/** @deprecated */
-export const createState = hookstate
 
 export const NO_PROXY = { noproxy: true }
 export const NO_PROXY_STEALTH = { noproxy: true, stealth: true }
@@ -52,8 +56,6 @@ export type StateDefinition<S, I, E, Receptors extends ReceptorMap> = {
   receptors?: Receptors
   receptorActionQueue?: ActionQueueHandle
   reactor?: any // why does React.FC break types?
-  /** @deprecated use `extension` */
-  onCreate?: (store: HyperStore, state: State<S, I & E>) => void
 }
 
 export const StateDefinitions = new Map<string, StateDefinition<any, any, any, any>>()
@@ -63,11 +65,7 @@ export const setInitialState = (def: StateDefinition<any, any, any, any>) => {
   if (HyperFlux.store.stateMap[def.name]) {
     HyperFlux.store.stateMap[def.name].set(initial)
   } else {
-    const state = (HyperFlux.store.stateMap[def.name] = hookstate(
-      initial,
-      extend(identifiable(def.name), def.extension)
-    ))
-    if (def.onCreate) def.onCreate(HyperFlux.store, state)
+    HyperFlux.store.stateMap[def.name] = hookstate(initial, extend(identifiable(def.name), def.extension))
     if (def.reactor) {
       const reactor = startReactor(def.reactor)
       HyperFlux.store.stateReactors[def.name] = reactor
@@ -212,20 +210,22 @@ export function syncStateWithLocalStorage<S, E extends Identifiable>(
   keys: string[]
 ): ExtensionFactory<S, E, SyncStateWithLocalAPI> {
   return () => {
-    if (!isClient) return {}
-
-    let rootState: State<S, E>
+    if (!globalThis.localStorage) return {}
 
     return {
       onInit: (state) => {
-        rootState = state
+        const newVals = {} as SetPartialStateAction<S>
         for (const key of keys) {
           const storedValue = localStorage.getItem(`${stateNamespaceKey}.${state.identifier}.${key}`)
-          if (storedValue !== null && storedValue !== 'undefined') state[key].set(JSON.parse(storedValue))
+          if (storedValue !== null && storedValue !== 'undefined') newVals[key] = JSON.parse(storedValue)
         }
+        state.merge(newVals)
       },
-      onSet: (state, desc) => {
-        for (const key of keys) {
+      onSet: (state, { path }, rootState) => {
+        if (path.length > 1) return
+        const keysToUpdate = path.length ? [(path as string[])[0]] : keys
+        for (const key of keysToUpdate) {
+          if (!keys.includes(key)) return
           const storageKey = `${stateNamespaceKey}.${rootState.identifier}.${key}`
           const value = rootState[key]?.get(NO_PROXY)
           // We should still store flags that have been set to false or null
@@ -233,6 +233,6 @@ export function syncStateWithLocalStorage<S, E extends Identifiable>(
           else localStorage.setItem(storageKey, JSON.stringify(value))
         }
       }
-    } as any
+    }
   }
 }

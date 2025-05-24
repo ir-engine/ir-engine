@@ -27,8 +27,17 @@ import React, { useEffect } from 'react'
 import { InstanceID } from '@ir-engine/common/src/schema.type.module'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { defineActionQueue, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { DataChannelRegistryState, DataChannelType, NetworkState, NetworkTopics } from '@ir-engine/network'
+import {
+  DataChannelRegistryState,
+  DataChannelType,
+  defineActionQueue,
+  getMutableState,
+  getState,
+  NetworkState,
+  NetworkTopics,
+  useHookstate,
+  useMutableState
+} from '@ir-engine/hyperflux'
 
 import {
   MediasoupDataConsumerActions,

@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -38,8 +38,8 @@ export const channelResolver = resolve<ChannelType, HookContext>({
 })
 
 export const channelExternalResolver = resolve<ChannelType, HookContext>({
-  channelUsers: virtual(async (channel, context) => {
-    if ((context.method === 'find' || context.method === 'get') && !context.params.query.instanceId) {
+  channelUsers: virtual(async (channel: ChannelType, context: HookContext) => {
+    if ((context.method === 'find' || context.method === 'get') && !context.params.query?.instanceId) {
       return (await context.app.service(channelUserPath).find({
         query: {
           channelId: channel.id
@@ -47,6 +47,25 @@ export const channelExternalResolver = resolve<ChannelType, HookContext>({
         paginate: false
       })) as ChannelUserType[]
     }
+  }),
+
+  // Add latest message to each channel
+  lastMessage: virtual(async (channel: ChannelType, context: HookContext) => {
+    if (context.method === 'find' || context.method === 'get') {
+      // Get the latest message for this channel
+      const messages = await context.app.service('message').find({
+        query: {
+          channelId: channel.id,
+          $limit: 1,
+          $sort: { createdAt: -1 }
+        },
+        paginate: false
+      })
+
+      // Return the first message if available, otherwise undefined
+      return messages.length > 0 ? messages[0] : undefined
+    }
+    return undefined
   })
 })
 

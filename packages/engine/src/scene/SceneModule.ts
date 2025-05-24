@@ -25,8 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
 import { FogSystem } from '@ir-engine/spatial/src/renderer/FogSystem'
-import { NoiseOffsetSystem } from '@ir-engine/spatial/src/renderer/materials/constants/plugins/NoiseOffsetPlugin'
-
 import { PositionalAudioComponent } from '../audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '../avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '../grabbable/GrabbableComponent'
@@ -122,7 +120,6 @@ export {
   LookAtSystem,
   MaterialLibrarySystem,
   MountPointSystem,
-  NoiseOffsetSystem,
   ParticleSystem,
   PortalSystem,
   SceneKillHeightSystem,

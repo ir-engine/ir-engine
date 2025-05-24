@@ -54,9 +54,13 @@ import {
 import { getComponent, getOptionalComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 
-import { getAncestorWithComponents, useAncestorWithComponents } from '@ir-engine/ecs'
+import {
+  NetworkObjectAuthorityTag,
+  NetworkObjectComponent,
+  getAncestorWithComponents,
+  useAncestorWithComponents
+} from '@ir-engine/ecs'
 import { NO_PROXY, defineState, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
-import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '@ir-engine/network'
 import { Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
 import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'

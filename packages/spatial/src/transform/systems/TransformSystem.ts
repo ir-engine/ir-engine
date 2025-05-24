@@ -35,10 +35,10 @@ import {
   getOptionalComponent,
   hasComponent,
   LayerComponents,
-  Layers
+  Layers,
+  NetworkSchemaState
 } from '@ir-engine/ecs'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
 
 import { EntityTreeComponent } from '@ir-engine/ecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
@@ -196,15 +196,15 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
-    const networkState = getMutableState(NetworkState)
+    const networkState = getMutableState(NetworkSchemaState)
 
-    networkState.networkSchema[TransformSerialization.ID].set({
+    networkState[TransformSerialization.ID].set({
       read: TransformSerialization.readTransform,
       write: TransformSerialization.writeTransform
     })
 
     return () => {
-      networkState.networkSchema[TransformSerialization.ID].set(none)
+      networkState[TransformSerialization.ID].set(none)
       _sortedTransformEntities.length = 0
       _transformDepths.clear()
     }

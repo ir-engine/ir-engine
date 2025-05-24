@@ -90,7 +90,7 @@ const fetchManifest = async () => {
   }
 }
 
-interface PackageManifest_V_1_0_0 {
+interface PackageManifestV100 {
   version: string // semver
   name: string
   packages: Array<string>
@@ -98,7 +98,7 @@ interface PackageManifest_V_1_0_0 {
 
 const installManifest = async () => {
   const { branch, singleBranch } = options // ?? 'main' -> unnecessary coalescing operator, leveraging default value from cli settings instead
-  const manifest = (await fetchManifest()) as PackageManifest_V_1_0_0
+  const manifest = (await fetchManifest()) as PackageManifestV100
   const replacing = options.replace?.toLowerCase() === 'yes' || options.replace?.toLowerCase() === 'y'
   if (!manifest) throw new Error('No manifest found')
   if (!manifest.version) throw new Error('No version found in manifest')

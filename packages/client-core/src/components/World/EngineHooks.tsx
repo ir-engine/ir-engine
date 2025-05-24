@@ -29,23 +29,20 @@ import multiLogger from '@ir-engine/common/src/logger'
 import { InstanceID, projectsPath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs'
 import {
+  Network,
+  NetworkActions,
+  NetworkState,
+  NetworkTopics,
   addOutgoingTopicIfNecessary,
   dispatchAction,
   getMutableState,
+  joinNetwork,
+  leaveNetwork,
   none,
   useHookstate,
   useImmediateEffect,
   useMutableState
 } from '@ir-engine/hyperflux'
-import {
-  Network,
-  NetworkActions,
-  NetworkState,
-  NetworkTopics,
-  addNetwork,
-  createNetwork,
-  removeNetwork
-} from '@ir-engine/network'
 import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
 
 import { useFind } from '@ir-engine/common'
@@ -95,7 +92,7 @@ export const useNetwork = (props: { online?: boolean }) => {
 
     const networkState = getMutableState(NetworkState)
     networkState.hostIds.world.set(networkID)
-    addNetwork(createNetwork(networkID, peerID, NetworkTopics.world))
+    joinNetwork(networkID, peerID, NetworkTopics.world)
     addOutgoingTopicIfNecessary(NetworkTopics.world)
 
     NetworkState.worldNetworkState.ready.set(true)
@@ -123,7 +120,7 @@ export const useNetwork = (props: { online?: boolean }) => {
           userID
         })
       )
-      removeNetwork(network)
+      leaveNetwork(network)
       networkState.hostIds.world.set(none)
     }
   }, [props.online, userID])
