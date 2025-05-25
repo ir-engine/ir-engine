@@ -203,16 +203,13 @@ export const MediaInstanceProvisioning = () => {
 
   const channelState = useMutableState(ChannelState)
 
-  const worldNetworkId = NetworkState.worldNetwork?.id
-  const worldNetwork = useWorldNetwork()
-
   MediaInstanceConnectionService.useAPIListeners()
   const mediaInstanceState = useHookstate(getMutableState(MediaInstanceState).instances)
   // const instance = useMediaInstance()
 
   // Once we have the world server, provision the media server
   useEffect(() => {
-    if (mediaInstanceState.keys.length || !worldNetwork?.ready?.value) return
+    if (mediaInstanceState.keys.length) return
 
     const currentChannel = channelState.targetChannelId.value
     if (!currentChannel) return
@@ -229,7 +226,7 @@ export const MediaInstanceProvisioning = () => {
     //     mediaInstanceState[id].set(none)
     //   }
     // }
-  }, [worldNetwork?.ready?.value, mediaInstanceState.keys.length, channelState.targetChannelId.value])
+  }, [mediaInstanceState.keys.length, channelState.targetChannelId.value])
 
   return (
     <>
