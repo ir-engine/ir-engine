@@ -143,7 +143,8 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
       maxFar: directionalLightComponent.cameraFar.value,
       lightIntensity: directionalLightComponent.intensity.value,
       lightColor: directionalLightComponent.color.value,
-      cascades: renderSettingsComponent.cascades.value
+      cascades: renderSettingsComponent.cascades.value,
+      lightMargin: directionalLightComponent.cameraFar.value
     } as CSMParams
 
     CSM.initCSM(params, rendererEntity)

@@ -641,13 +641,14 @@ const addEntityResource = (
       break
     }
     case ResourceType.Geometry: {
-      const geometry = asset as Geometry
-      const indices = geometry.getIndex()
-      if (indices) addEntityResource(entity, indices, returnedResources)
-      const attributes = geometry.attributes
-      for (const key in attributes) {
-        addEntityResource(entity, attributes[key], returnedResources)
-      }
+      /** @todo this causes issues */
+      // const geometry = asset as Geometry
+      // const indices = geometry.getIndex()
+      // if (indices) addEntityResource(entity, indices, returnedResources)
+      // const attributes = geometry.attributes
+      // for (const key in attributes) {
+      //   addEntityResource(entity, attributes[key], returnedResources)
+      // }
       break
     }
 
