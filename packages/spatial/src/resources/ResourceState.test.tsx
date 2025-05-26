@@ -71,12 +71,13 @@ describe('ResourceState', () => {
         assert(meshAssetEntry.asset === mesh)
         assert(meshAssetEntry.type === 'Mesh')
 
-        // @ts-expect-error
-        const geometryResourceID = mesh.geometry.resourceID
-        const geometryAssetEntry = getState(ResourceState).resources[geometryResourceID]
-        assert(geometryAssetEntry.entity === testEntity)
-        assert(geometryAssetEntry.asset === mesh.geometry)
-        assert(geometryAssetEntry.type === 'Geometry')
+        /** @todo buffers have been disabled for now */
+
+        // const geometryResourceID = mesh.geometry.resourceID
+        // const geometryAssetEntry = getState(ResourceState).resources[geometryResourceID]
+        // assert(geometryAssetEntry.entity === testEntity)
+        // assert(geometryAssetEntry.asset === mesh.geometry)
+        // assert(geometryAssetEntry.type === 'Geometry')
 
         // @ts-expect-error
         const materialResourceID = mesh.material.resourceID
@@ -85,34 +86,30 @@ describe('ResourceState', () => {
         assert(materialAssetEntry.asset === mesh.material)
         assert(materialAssetEntry.type === 'Material')
 
-        const index = mesh.geometry.index
-        // @ts-expect-error
-        const indexResourceID = index.resourceID
-        const indexAssetEntry = getState(ResourceState).resources[indexResourceID]
-        assert(indexAssetEntry.entity === testEntity)
-        assert(indexAssetEntry.asset === index)
-        assert(indexAssetEntry.type === 'BufferAttribute')
+        // const index = mesh.geometry.index
+        // const indexResourceID = index.resourceID
+        // const indexAssetEntry = getState(ResourceState).resources[indexResourceID]
+        // assert(indexAssetEntry.entity === testEntity)
+        // assert(indexAssetEntry.asset === index)
+        // assert(indexAssetEntry.type === 'BufferAttribute')
 
-        const attributes = mesh.geometry.attributes
+        // const attributes = mesh.geometry.attributes
 
-        // @ts-expect-error
-        const positionResourceID = attributes.position.resourceID
-        const positionAssetEntry = getState(ResourceState).resources[positionResourceID]
-        assert(positionAssetEntry.entity === testEntity)
-        assert(positionAssetEntry.asset === attributes.position)
-        assert(positionAssetEntry.type === 'BufferAttribute')
+        // const positionResourceID = attributes.position.resourceID
+        // const positionAssetEntry = getState(ResourceState).resources[positionResourceID]
+        // assert(positionAssetEntry.entity === testEntity)
+        // assert(positionAssetEntry.asset === attributes.position)
+        // assert(positionAssetEntry.type === 'BufferAttribute')
 
-        // @ts-expect-error
-        const normalResourceID = attributes.normal.resourceID
-        const normalAssetEntry = getState(ResourceState).resources[normalResourceID]
-        assert(normalAssetEntry.entity === testEntity)
-        assert(normalAssetEntry.asset === attributes.normal)
-        assert(normalAssetEntry.type === 'BufferAttribute')
+        // const normalResourceID = attributes.normal.resourceID
+        // const normalAssetEntry = getState(ResourceState).resources[normalResourceID]
+        // assert(normalAssetEntry.entity === testEntity)
+        // assert(normalAssetEntry.asset === attributes.normal)
+        // assert(normalAssetEntry.type === 'BufferAttribute')
 
-        // @ts-expect-error
-        const uvResourceID = attributes.uv.resourceID
-        const uvAssetEntry = getState(ResourceState).resources[uvResourceID]
-        assert(uvAssetEntry.entity === testEntity)
+        // const uvResourceID = attributes.uv.resourceID
+        // const uvAssetEntry = getState(ResourceState).resources[uvResourceID]
+        // assert(uvAssetEntry.entity === testEntity)
       })
 
       it('should dispose when component unmounts', async () => {
