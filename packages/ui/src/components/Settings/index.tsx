@@ -231,6 +231,7 @@ const PlaceholderScreen: React.FC<ScreenProps & { title: string }> = ({ title })
 )
 
 // Import the new ShareSpaceScreen component
+import PermissionsScreen from './PermissionsScreen'
 import ShareSpaceScreen from './ShareSpaceScreen'
 
 // Define all screens
@@ -264,7 +265,7 @@ const screens: Record<string, ScreenDefinition> = {
     title: 'User ID'
   },
   permissions: {
-    component: (props) => <PlaceholderScreen {...props} title="Permissions" />,
+    component: PermissionsScreen,
     title: 'Permissions'
   },
   shadowMapResolution: {
