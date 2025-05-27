@@ -25,9 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useState } from 'react'
 
-interface SSOScreenProps {
-  navigateTo: (screen: string) => void
-}
+interface SSOScreenProps {}
 
 interface SSOProvider {
   id: string
@@ -37,7 +35,7 @@ interface SSOProvider {
   color: string
 }
 
-const SSOScreen: React.FC<SSOScreenProps> = ({ navigateTo }) => {
+const SSOScreen: React.FC<SSOScreenProps> = () => {
   const [providers, setProviders] = useState<SSOProvider[]>([
     {
       id: 'google',

@@ -231,9 +231,11 @@ const PlaceholderScreen: React.FC<ScreenProps & { title: string }> = ({ title })
 )
 
 // Import the new ShareSpaceScreen component
+import DisplayNameScreen from './DisplayNameScreen'
 import PermissionsScreen from './PermissionsScreen'
 import ShareSpaceScreen from './ShareSpaceScreen'
 import SSOScreen from './SSOScreen'
+import UsernamePasswordScreen from './UsernamePasswordScreen'
 
 // Define all screens
 const screens: Record<string, ScreenDefinition> = {
@@ -258,7 +260,7 @@ const screens: Record<string, ScreenDefinition> = {
     title: 'Call Title'
   },
   usernamePassword: {
-    component: (props) => <PlaceholderScreen {...props} title="Username & Password" />,
+    component: UsernamePasswordScreen,
     title: 'Username & Password'
   },
   userId: {
@@ -276,6 +278,10 @@ const screens: Record<string, ScreenDefinition> = {
   sso: {
     component: SSOScreen,
     title: 'Single Sign On'
+  },
+  displayName: {
+    component: DisplayNameScreen,
+    title: 'Display Name'
   }
 }
 
