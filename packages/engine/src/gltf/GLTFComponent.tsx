@@ -236,7 +236,6 @@ export const GLTFComponentReactor = () => {
     const abortController = new AbortController()
 
     const options = getGLTFOptions(entity, abortController.signal)
-    const url = options.url
 
     const sceneIndex = options.document.scene || 0
     removeComponent(entity, AnimationComponent)

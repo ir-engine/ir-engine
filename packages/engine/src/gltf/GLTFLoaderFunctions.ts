@@ -33,7 +33,9 @@ import {
   EntityTreeComponent,
   LayerComponent,
   LayerFunctions,
+  LayerID,
   Layers,
+  SourceID,
   UUIDComponent,
   deserializeComponent,
   getComponent,
@@ -1541,6 +1543,8 @@ const loadGLTFDependencies = (options: GLTFParserOptions) => {
 const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const json = options.document
   const rootEntity = options.entity
+  const sourceID = GLTFComponent.getSourceID(rootEntity)
+  const layer = LayerComponent.get(rootEntity)
 
   // Create a new dependency cache for this URL if it doesn't exist
   if (!DependencyCache.has(options.url)) {
@@ -1567,7 +1571,7 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
 
   const abortEvent = () => {
     unloadScene(options.url, rootEntity)
-    unloadEntities(rootEntity)
+    unloadEntities(sourceID, layer)
   }
 
   const signal = options.signal
@@ -1637,9 +1641,7 @@ const unloadScene = (url: string, entity: Entity) => {
   }
 }
 
-const unloadEntities = (entity: Entity) => {
-  const sourceID = GLTFComponent.getSourceID(entity)
-  const layer = LayerComponent.get(entity)
+const unloadEntities = (sourceID: SourceID, layer: LayerID) => {
   const loadedEntities = UUIDComponent.getEntitiesBySource(sourceID, layer)
   for (const entity of loadedEntities) removeEntity(entity)
 }
