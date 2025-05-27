@@ -50,7 +50,6 @@
     "property-graph": "^2.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "realism-effects": "1.1.2",
     "three": "0.176.0",
     "three.quarks": "^0.16.0",
     "troika-three-text": "^0.52.4",
