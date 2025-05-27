@@ -36,6 +36,7 @@ import { smsPath } from '@ir-engine/common/src/schemas/user/sms.schema'
 
 import { BadRequest } from '@feathersjs/errors'
 import { EMAIL_REGEX } from '@ir-engine/common/src/regex'
+import { SendMailOptions } from 'feathers-mailer'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
@@ -78,14 +79,13 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
     })
 
     const mailSender = config.email.from
-    const email = {
+    const email: SendMailOptions = {
       from: mailSender,
       to: toEmail,
       subject: config.email.subject.login,
-      html: compiledHTML
+      html: compiledHTML.replace(/&amp;/g, '&')
     }
 
-    email.html = email.html.replace(/&amp;/g, '&')
     await this.app.service(emailPath).create(email)
   }
 

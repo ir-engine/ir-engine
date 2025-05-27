@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Mailer from 'feathers-mailer'
+import { Service } from 'feathers-mailer'
 import smtpTransport from 'nodemailer-smtp-transport'
 
 import { emailPath } from '@ir-engine/common/src/schemas/user/email.schema'
@@ -34,12 +34,12 @@ import hooks from './email.hooks'
 
 declare module '@ir-engine/common/declarations' {
   interface ServiceTypes {
-    [emailPath]: Mailer
+    [emailPath]: Service
   }
 }
 
 export default (app: Application): void => {
-  app.use(emailPath, Mailer(smtpTransport({ ...config.email.smtp })))
+  app.use(emailPath, new Service(smtpTransport({ ...config.email.smtp })))
 
   const service = app.service(emailPath)
   service.hooks(hooks)

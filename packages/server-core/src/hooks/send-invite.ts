@@ -33,12 +33,13 @@ import { ChannelID, channelPath } from '@ir-engine/common/src/schemas/social/cha
 import { InviteType } from '@ir-engine/common/src/schemas/social/invite.schema'
 import { locationPath } from '@ir-engine/common/src/schemas/social/location.schema'
 import { acceptInvitePath } from '@ir-engine/common/src/schemas/user/accept-invite.schema'
-import { EmailData, emailPath } from '@ir-engine/common/src/schemas/user/email.schema'
+import { emailPath } from '@ir-engine/common/src/schemas/user/email.schema'
 import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { SmsData, smsPath } from '@ir-engine/common/src/schemas/user/sms.schema'
 import { userRelationshipPath } from '@ir-engine/common/src/schemas/user/user-relationship.schema'
 import { UserID, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 
+import { SendMailOptions } from 'feathers-mailer'
 import { Application, HookContext } from '../../declarations'
 import config from '../appconfig'
 import logger from '../ServerLogger'
@@ -105,14 +106,13 @@ async function generateEmail({
     hashLink
   })
   const mailSender = config.email.from
-  const email: EmailData = {
+  const email: SendMailOptions = {
     from: mailSender,
     to: toEmail,
     subject: config.client.title + ' ' + (config.email.subject[inviteType] || 'Invitation'),
-    html: compiledHTML
+    html: compiledHTML!.replace(/&amp;/g, '&')
   }
 
-  email.html = email.html.replace(/&amp;/g, '&')
   await app.service(emailPath).create(email)
 }
 

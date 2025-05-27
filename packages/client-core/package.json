@@ -28,10 +28,10 @@
     "react": "18.2.0"
   },
   "dependencies": {
-    "@feathersjs/authentication-client": "5.0.5",
-    "@feathersjs/client": "5.0.5",
+    "@feathersjs/authentication-client": "^5.0.33",
+    "@feathersjs/client": "^5.0.33",
     "@feathersjs/primus-client": "4.5.15",
-    "@feathersjs/rest-client": "5.0.5",
+    "@feathersjs/rest-client": "^5.0.33",
     "@hookstate/core": "^4.0.0",
     "@ir-engine/common": "^1.6.0",
     "@ir-engine/engine": "^1.6.0",
