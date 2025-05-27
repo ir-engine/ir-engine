@@ -80,26 +80,41 @@ const SliderItem: React.FC<SliderItemProps> = ({ label, defaultValue = 50 }) => 
   const [value, setValue] = useState(defaultValue)
 
   return (
-    <div className="relative px-4 py-3.5 text-white/90">
-      <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between px-4 py-3.5 text-white/90">
+      <span className="flex-1">
         <span className="font-medium">{label}</span>
-        <span className="text-sm text-white/70">{value}%</span>
+      </span>
+      <div className="flex w-full flex-1 items-center space-x-3">
+        <div className="relative w-full">
+          <div
+            className="relative h-4 w-full rounded-full"
+            style={{
+              background: 'rgba(0, 0, 0, 0.14)',
+              boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.25) inset'
+            }}
+          >
+            <div
+              className="absolute left-0 top-0 h-4 rounded-full"
+              style={{
+                width: `${value}%`,
+                backgroundColor: 'hsla(211, 47%, 53%, 1)'
+              }}
+            />
+            <div
+              className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-lg"
+              style={{ left: `${value}%` }}
+            />
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={value}
+            onChange={(e) => setValue(parseInt(e.target.value))}
+            className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+          />
+        </div>
       </div>
-      <div className="relative mt-3 h-1.5 w-full rounded-full bg-white/20">
-        <div className="absolute left-0 top-0 h-1.5 rounded-full bg-blue-500" style={{ width: `${value}%` }} />
-        <div
-          className="absolute h-4 w-4 -translate-x-1/2 rounded-full bg-white shadow-md"
-          style={{ left: `${value}%`, top: '-5px' }}
-        />
-      </div>
-      <input
-        type="range"
-        min="0"
-        max="100"
-        value={value}
-        onChange={(e) => setValue(parseInt(e.target.value))}
-        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-      />
     </div>
   )
 }
