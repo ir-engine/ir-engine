@@ -28,19 +28,15 @@ import React, { useState } from 'react'
 
 // Import icons from the icons module
 import { ArrowLeftSm, ChevronRightSm, XCloseSm } from '../../icons'
-// Import the SliderItem component
+// Import the SliderItem and ToggleItem components
 import SliderItem from './SliderItem'
+import ToggleItem from './ToggleItem'
 
 // Define types for our components
 interface MenuItemProps {
   label: string
   onClick: () => void
   hasChevron?: boolean
-}
-
-interface ToggleItemProps {
-  label: string
-  defaultChecked?: boolean
 }
 
 // Define reusable UI components
@@ -50,28 +46,6 @@ const MenuItem: React.FC<MenuItemProps> = ({ label, onClick, hasChevron = false 
     {hasChevron && <ChevronRightSm className="text-white/70" />}
   </div>
 )
-
-const ToggleItem: React.FC<ToggleItemProps> = ({ label, defaultChecked = false }) => {
-  const [isChecked, setIsChecked] = useState(defaultChecked)
-
-  return (
-    <div className="flex items-center justify-between px-4 py-3.5 text-white/90">
-      <span className="font-medium">{label}</span>
-      <button
-        className={`relative h-7 w-12 rounded-full transition-colors ${isChecked ? 'bg-blue-500' : 'bg-white/20'}`}
-        onClick={() => setIsChecked(!isChecked)}
-        aria-checked={isChecked}
-        role="switch"
-      >
-        <span
-          className={`absolute top-1 block h-5 w-5 rounded-full bg-white shadow-md transition-transform ${
-            isChecked ? 'left-6' : 'left-1'
-          }`}
-        />
-      </button>
-    </div>
-  )
-}
 
 // Define types for screen components
 interface ScreenProps {

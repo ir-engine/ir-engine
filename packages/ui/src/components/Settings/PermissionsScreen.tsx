@@ -57,7 +57,7 @@ const PermissionsScreen: React.FC<PermissionsScreenProps> = () => {
     }
   }
 
-  const ToggleItem: React.FC<{ label: string; checked: boolean; onChange: (checked: boolean) => void }> = ({
+  const PermissionToggleItem: React.FC<{ label: string; checked: boolean; onChange: (checked: boolean) => void }> = ({
     label,
     checked,
     onChange
@@ -65,10 +65,14 @@ const PermissionsScreen: React.FC<PermissionsScreenProps> = () => {
     <div className="flex items-center justify-between px-4 py-3.5 text-white/90">
       <span className="font-medium">{label}</span>
       <button
-        className={`relative h-7 w-12 rounded-full transition-colors ${checked ? 'bg-blue-500' : 'bg-white/20'}`}
+        className="relative h-7 w-12 rounded-full transition-colors"
         onClick={() => onChange(!checked)}
         aria-checked={checked}
         role="switch"
+        style={{
+          backgroundColor: checked ? 'hsla(211, 47%, 53%, 1)' : 'rgba(0, 0, 0, 0.14)',
+          boxShadow: checked ? 'none' : '0px 4px 4px 0px rgba(0, 0, 0, 0.25) inset'
+        }}
       >
         <span
           className={`absolute top-1 block h-5 w-5 rounded-full bg-white shadow-md transition-transform ${
@@ -98,9 +102,9 @@ const PermissionsScreen: React.FC<PermissionsScreenProps> = () => {
       {/* Permissions Section */}
       <div className="space-y-4">
         <Section>
-          <ToggleItem label="Camera" checked={cameraPermission} onChange={setCameraPermission} />
+          <PermissionToggleItem label="Camera" checked={cameraPermission} onChange={setCameraPermission} />
           <Divider />
-          <ToggleItem label="Microphone" checked={microphonePermission} onChange={setMicrophonePermission} />
+          <PermissionToggleItem label="Microphone" checked={microphonePermission} onChange={setMicrophonePermission} />
         </Section>
       </div>
 
