@@ -47,7 +47,6 @@ const AvatarContextMenu = ({ userId }: { userId: UserID }): JSX.Element => {
 
   const authState = useMutableState(AuthState)
   const selfId = authState.user.id?.value ?? ''
-  userId = selfId!
   const user = useGet(userPath, userId)
 
   const isFriend = friendState.relationships
