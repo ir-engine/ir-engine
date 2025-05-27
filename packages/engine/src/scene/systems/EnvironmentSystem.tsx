@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -29,6 +29,7 @@ import {
   defineSystem,
   Entity,
   getOptionalMutableComponent,
+  hasComponent,
   haveCommonAncestor,
   PresentationSystemGroup,
   QueryReactor,
@@ -37,7 +38,6 @@ import {
   UndefinedEntity,
   useChildrenWithComponents,
   useComponent,
-  useEntityContext,
   useOptionalComponent,
   useQuery,
   UUIDComponent
@@ -46,6 +46,7 @@ import {
 import { Identifiable, State } from '@ir-engine/hyperflux'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import {
   Color,
   CubeReflectionMapping,
@@ -54,7 +55,8 @@ import {
   EquirectangularReflectionMapping,
   MeshStandardMaterial,
   RGBAFormat,
-  SRGBColorSpace
+  SRGBColorSpace,
+  Vector3
 } from 'three'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { EnvMapBakeComponent } from '../components/EnvMapBakeComponent'
@@ -64,8 +66,8 @@ import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { createReflectionProbeRenderTarget } from '../functions/reflectionProbeFunctions'
 
-const EnvMapReactor = () => {
-  const entity = useEntityContext()
+const EnvMapReactor = (props: { entity: Entity }) => {
+  const { entity } = props
   const envMapComponent = useComponent(entity, EnvMapComponent).type.value
   const materialComponentEntities = useChildrenWithComponents(entity, [MaterialStateComponent])
   return (
@@ -306,6 +308,7 @@ const EnvMapBakeReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     UUIDComponent.useEntityFromSameSourceByID(props.rootEntity, envMapComponent.envMapSourceEntityUUID.value) ??
     UndefinedEntity
   const bakeComponent = useOptionalComponent(bakeEntity, EnvMapBakeComponent)
+  const transformComponent = useOptionalComponent(bakeEntity, TransformComponent)
 
   const [envMaptexture, error] = useTexture(bakeComponent?.envMapOrigin.value ?? '', bakeEntity)
 
@@ -332,16 +335,29 @@ const EnvMapBakeReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   }, [envMaptexture, envMapComponent.type, materialState])
 
   useEffect(() => {
-    if (!bakeComponent || !bakeComponent.boxProjection.value) return
+    if (!bakeComponent) return
+
+    if (!bakeComponent.boxProjection.value) {
+      if (hasComponent(entity, BoxProjectionPlugin)) {
+        removeComponent(entity, BoxProjectionPlugin)
+      }
+      return
+    }
+
+    const entityPosition = transformComponent?.position.value.clone() || new Vector3(0, 0, 0)
+    const bakePosition = bakeComponent.bakePosition.value
+      ? bakeComponent.bakePosition.value.clone()
+      : entityPosition.add(bakeComponent.bakePositionOffset.value)
+
     setComponent(entity, BoxProjectionPlugin, {
-      cubeMapPos: bakeComponent.bakePositionOffset.value,
+      cubeMapPos: bakePosition,
       cubeMapSize: bakeComponent.bakeScale.value
     })
 
     return () => {
       removeComponent(entity, BoxProjectionPlugin)
     }
-  }, [bakeComponent?.boxProjection])
+  }, [bakeComponent?.boxProjection, bakeComponent?.envMapOrigin])
 
   useEffect(() => {
     if (!error) return

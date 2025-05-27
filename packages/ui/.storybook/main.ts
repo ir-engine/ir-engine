@@ -24,8 +24,41 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import type { StorybookConfig } from '@storybook/react-vite'
-import { dirname, join } from 'path'
+import globby from 'globby'
+import { dirname, join, resolve } from 'path'
 import { mergeConfig } from 'vite'
+
+const stories = globby.sync(['../src/**/*.stories.tsx'], {
+  ignore: [
+    '../src/primitives/tailwind/TruncatedText/**/*.stories.tsx',
+    '../src/components/tailwind/Header/**/*.stories.tsx',
+    '../src/pages/Capture/index.stories.tsx',
+    '../src/components/editor/ComponentDropdown/index.stories.tsx',
+    '../src/primitives/tailwind/AvatarImage/*.stories.tsx',
+    '../src/components/editor/input/Folder/index.stories.tsx',
+    '../src/components/editor/input/FileBrowser/index.stories.tsx',
+    '../src/components/editor/input/Model/*.stories.tsx',
+    '../src/components/editor/input/Prefab/*.stories.tsx',
+    '../src/components/editor/input/Texture/*.stories.tsx',
+    '../src/components/editor/properties/animation/*.stories.tsx',
+    '../src/components/editor/properties/envMapBake/**/*.stories.tsx',
+    '../src/components/editor/properties/envmap/*.stories.tsx',
+    '../src/components/editor/properties/gallery/*.stories.tsx',
+    '../src/components/editor/properties/image/**/*.stories.tsx',
+    '../src/components/editor/properties/imageGrid/*.stories.tsx',
+    '../src/components/editor/properties/particle/*.stories.tsx',
+    '../src/components/editor/properties/portal/*.stories.tsx',
+    '../src/components/editor/properties/reflectionProbe/*.stories.tsx',
+    '../src/components/editor/properties/skybox/*.stories.tsx',
+    '../src/components/editor/properties/light/**/*.stories.tsx',
+    '../src/components/editor/properties/media/*.stories.tsx',
+    '../src/components/editor/properties/video/*.stories.tsx',
+    '../src/components/editor/properties/xruiPlayback/*.stories.tsx',
+    '../src/components/editor/properties/scene/**/*.stories.tsx',
+    '../src/components/editor/input/Audio/*.stories.tsx'
+  ],
+  cwd: resolve(__dirname)
+})
 
 const config: StorybookConfig = {
   env: (config) => ({
@@ -37,14 +70,7 @@ const config: StorybookConfig = {
   typescript: {
     reactDocgen: false
   },
-  stories: [
-    '../src/primitives/tailwind/!(TruncatedText)/*.stories.@(js|jsx|ts|tsx)',
-    // '../src/components/editor/**/*.stories.@(js|jsx|ts|tsx)',
-    '../src/components/editor/AudioVolumeVisualizer/index.stories.@(js|jsx|ts|tsx)',
-    '../src/components/editor/InspectorPanel/index.stories.tsx',
-    '../src/components/tailwind/**/*.stories.@(js|jsx|ts|tsx)',
-    '../src/icons/**/*.stories.@(js|jsx|ts|tsx)'
-  ],
+  stories,
   addons: [
     getAbsolutePath('@storybook/addon-links'),
     getAbsolutePath('@storybook/addon-toolbars'),
@@ -56,7 +82,7 @@ const config: StorybookConfig = {
     getAbsolutePath('storybook-addon-react-router-v6'),
     getAbsolutePath('storybook-addon-sass-postcss')
   ],
-  staticDirs: ['../public'],
+  staticDirs: ['../public', '../../client/public'],
   core: {},
   framework: {
     name: getAbsolutePath('@storybook/react-vite'),

@@ -37,7 +37,6 @@ import type { Object as _Object, Function, String } from 'ts-toolbelt'
 
 import { DeepReadonly } from '../types/DeepReadonly'
 import { ActionQueueHandle, ActionReceptor } from './ActionFunctions'
-import { isClient } from './EnvironmentConstants'
 import { startReactor } from './ReactorFunctions'
 import { HyperFlux } from './StoreFunctions'
 
@@ -211,7 +210,7 @@ export function syncStateWithLocalStorage<S, E extends Identifiable>(
   keys: string[]
 ): ExtensionFactory<S, E, SyncStateWithLocalAPI> {
   return () => {
-    if (!isClient) return {}
+    if (!globalThis.localStorage) return {}
 
     return {
       onInit: (state) => {
@@ -223,13 +222,16 @@ export function syncStateWithLocalStorage<S, E extends Identifiable>(
         state.merge(newVals)
       },
       onSet: (state, { path }, rootState) => {
-        if (!path.length || path.length > 1) return
-        const [key] = path
-        const storageKey = `${stateNamespaceKey}.${rootState.identifier}.${key}`
-        const value = rootState[key]?.get(NO_PROXY)
-        // We should still store flags that have been set to false or null
-        if (value === undefined) localStorage.removeItem(storageKey)
-        else localStorage.setItem(storageKey, JSON.stringify(value))
+        if (path.length > 1) return
+        const keysToUpdate = path.length ? [(path as string[])[0]] : keys
+        for (const key of keysToUpdate) {
+          if (!keys.includes(key)) return
+          const storageKey = `${stateNamespaceKey}.${rootState.identifier}.${key}`
+          const value = rootState[key]?.get(NO_PROXY)
+          // We should still store flags that have been set to false or null
+          if (value === undefined) localStorage.removeItem(storageKey)
+          else localStorage.setItem(storageKey, JSON.stringify(value))
+        }
       }
     }
   }

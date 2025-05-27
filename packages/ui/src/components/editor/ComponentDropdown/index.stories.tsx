@@ -51,7 +51,8 @@ export default {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=2975-8101&node-type=frame&t=dEsGEixZxXD7JCWh-0'
-    }
+    },
+    chromatic: { disable: true }
   },
   argTypes,
   args: {

@@ -53,7 +53,7 @@ import { AuthState } from '../../services/AuthService'
 import MessagesMenu from './MessagesMenu'
 import AvatarContextMenu from './RelationMenu'
 
-const TabNames = ['friends', 'blocked', 'find', 'messages'] as const
+const TabNames = ['friends', 'find', 'messages', 'blocked'] as const
 
 interface Props {
   defaultSelectedTab?: (typeof TabNames)[number]
@@ -83,9 +83,7 @@ const getChannelName = (channel: ChannelType) => {
  * */
 const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
   const { t } = useTranslation()
-  const selectedTabIndex = useHookstate(
-    defaultSelectedTab && TabNames.includes(defaultSelectedTab) ? TabNames.indexOf(defaultSelectedTab) : 0
-  )
+  const selectedTabName = useHookstate(defaultSelectedTab ?? 'friends')
 
   const channels = useFind(channelPath)
 
@@ -107,7 +105,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
   }, [])
 
   const handleTabChange = (index: number) => {
-    selectedTabIndex.set(index)
+    selectedTabName.set(TabNames[index])
   }
 
   const handleProfile = (user: DisplayedUserInterface) => {
@@ -115,7 +113,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
   }
 
   const handleOpenChat = (id: string) => {
-    if (TabNames[selectedTabIndex.value] === 'messages') {
+    if (selectedTabName.value === 'messages') {
       ModalState.openModal(<MessagesMenu channelID={id as ChannelID} name="" />)
     } else {
       const channelWithFriend = privateChannels.find(
@@ -142,10 +140,10 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
     .filter((item) => item.userRelationshipType === 'friend')
     .map((item) => ({ id: item.relatedUserId, name: item.relatedUser.name, relationType: 'friend' as const }))
 
-  if (TabNames[selectedTabIndex.value] === 'friends') {
+  if (selectedTabName.value === 'friends') {
     displayList.push(...pendingList)
     displayList.push(...friendList)
-  } else if (TabNames[selectedTabIndex.value] === 'messages') {
+  } else if (selectedTabName.value === 'messages') {
     displayList.push(
       ...privateChannels.map((channel) => ({
         id: channel.id.toString() as UserID,
@@ -153,12 +151,12 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
         relationType: 'friend' as const
       }))
     )
-  } else if (TabNames[selectedTabIndex.value] === 'blocked') {
+  } else if (selectedTabName.value === 'blocked') {
     const blockingList: Array<DisplayedUserInterface> = friendState.relationships.value
       .filter((item) => item.userRelationshipType === 'blocking')
       .map((item) => ({ id: item.relatedUserId, name: item.relatedUser.name, relationType: 'blocking' as const }))
     displayList.push(...blockingList)
-  } else if (TabNames[selectedTabIndex.value] === 'find') {
+  } else if (selectedTabName.value === 'find') {
     const layerPeers = NetworkState.worldNetwork
       ? Object.values(NetworkState.worldNetwork.peers).filter(
           (peer) =>
@@ -237,7 +235,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
           </Tooltip>
         )}
 
-        {TabNames[selectedTabIndex.value] === 'messages' ? (
+        {selectedTabName.value === 'messages' ? (
           <Tooltip content={t('user:friends.call')}>
             <button onClick={() => startMediaCall(user.id.toString() as ChannelID)}>
               <IoIosCall />
@@ -268,7 +266,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
   return (
     <div className="absolute z-50 h-fit max-h-[90vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-1 p-6 mdh:max-h-[60vh] mdh:px-10 mdh:py-6">
       <Tabs
-        currentTabIndex={selectedTabIndex.value}
+        currentTabIndex={TabNames.indexOf(selectedTabName.value)}
         onTabChange={handleTabChange}
         tabsData={[
           {
