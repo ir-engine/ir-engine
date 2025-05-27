@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { AnimatePresence, motion } from 'motion/react'
+import { AnimatePresence, motion, Variant } from 'motion/react'
 import React, { useState } from 'react'
 
 // Import icons from the icons module
@@ -230,6 +230,9 @@ const PlaceholderScreen: React.FC<ScreenProps & { title: string }> = ({ title })
   <div className="p-2">{title} Settings</div>
 )
 
+// Import the new ShareSpaceScreen component
+import ShareSpaceScreen from './ShareSpaceScreen'
+
 // Define all screens
 const screens: Record<string, ScreenDefinition> = {
   main: { component: MainMenu, title: 'Settings' },
@@ -237,7 +240,7 @@ const screens: Record<string, ScreenDefinition> = {
   account: { component: AccountSettings, title: 'Account' },
   graphics: { component: GraphicsSettings, title: 'Graphics' },
   shareSpace: {
-    component: (props) => <PlaceholderScreen {...props} title="Share Space" />,
+    component: ShareSpaceScreen,
     title: 'Share Space'
   },
   avatar: {
@@ -297,7 +300,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose }) => {
   }
 
   // Animation variants for slide transitions
-  const variants = {
+  const variants: Record<string, Variant> = {
     enter: (direction: number) => ({
       x: direction > 0 ? '100%' : '-100%',
       opacity: 0
@@ -313,13 +316,13 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/20 pt-10 backdrop-blur-md md:items-center md:pt-0">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/20  backdrop-blur-md md:items-center md:pt-0">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.2 }}
-        className="flex w-full max-w-sm flex-col rounded-3xl p-5 text-white shadow-xl backdrop-blur-md"
+        className="flex h-full w-full max-w-sm flex-col rounded-3xl p-5 text-white shadow-xl backdrop-blur-md"
         style={{
           maxHeight: '90vh',
           background: 'linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05))',
@@ -351,8 +354,8 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose }) => {
         </div>
 
         {/* Screen Content with AnimatePresence for transitions */}
-        <div className="relative overflow-hidden">
-          <AnimatePresence initial={false} custom={direction} mode="wait">
+        <div className="relative h-full overflow-hidden">
+          <AnimatePresence initial={false} mode="popLayout" custom={direction}>
             <motion.div
               key={activeScreenKey}
               custom={direction}
@@ -361,10 +364,10 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose }) => {
               animate="center"
               exit="exit"
               transition={{
-                x: { type: 'spring', stiffness: 300, damping: 30 },
+                x: { type: 'tween', duration: 0.2 },
                 opacity: { duration: 0.2 }
               }}
-              className="max-h-[70vh] space-y-4 overflow-y-auto pb-4"
+              className="h-full max-h-full space-y-4 overflow-y-auto pb-4"
             >
               <ActiveComponent navigateTo={navigateTo} />
             </motion.div>
