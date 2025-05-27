@@ -232,6 +232,7 @@ const PlaceholderScreen: React.FC<ScreenProps & { title: string }> = ({ title })
 )
 
 // Import the new ShareSpaceScreen component
+import AvatarScreen from './AvatarScreen'
 import DeleteAccountScreen from './DeleteAccountScreen'
 import DisplayNameScreen from './DisplayNameScreen'
 import PermissionsScreen from './PermissionsScreen'
@@ -250,7 +251,7 @@ const screens: Record<string, ScreenDefinition> = {
     title: 'Share Space'
   },
   avatar: {
-    component: (props) => <PlaceholderScreen {...props} title="Avatar" />,
+    component: AvatarScreen,
     title: 'Avatar'
   },
   controls: {
