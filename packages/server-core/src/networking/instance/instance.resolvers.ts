@@ -99,7 +99,7 @@ export const instanceDataResolver = resolve<InstanceType, HookContext>({
           const channelInstance = await context.app.service(instancePath).get(channelData.instanceId)
           return channelInstance.projectId
         }
-        return ''
+        return
       }
     } catch (error) {
       throw new BadRequest('Error populating projectId into instance')

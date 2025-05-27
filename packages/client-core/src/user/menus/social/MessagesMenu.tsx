@@ -41,14 +41,6 @@ import { ChannelService, ChannelState } from '../../../social/services/ChannelSe
 import XRIconButton from '../../../systems/components/XRIconButton'
 import FriendsMenu from './FriendsMenu'
 
-// This file is a raw css copy of packages/ui/src/components/Chat/Message.tsx
-// Once location is migrated to tailwind, this file can use that tailwind code instead
-
-/**
- * @todo
- *
- */
-
 const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Element => {
   const { t } = useTranslation()
 

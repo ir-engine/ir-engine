@@ -1,0 +1,23 @@
+{
+  "mediaSession": {
+    "title": "Media Session Controls",
+    "yourControls": "Your Controls",
+    "otherParticipants": "Other Participants",
+    "muteYourself": "Mute Yourself",
+    "unmuteYourself": "Unmute Yourself",
+    "muteOthers": "Mute Others",
+    "unmuteOthers": "Unmute Others",
+    "enableVideo": "Enable Video",
+    "disableVideo": "Disable Video",
+    "enableOtherVideo": "Enable Their Video",
+    "disableOtherVideo": "Disable Their Video",
+    "microphoneVolume": "Microphone Volume",
+    "participantVolume": "Participant Volume",
+    "startScreenshare": "Start Screenshare",
+    "stopScreenshare": "Stop Screenshare",
+    "enterFullscreen": "Enter Fullscreen",
+    "exitFullscreen": "Exit Fullscreen",
+    "expandView": "Expand View",
+    "collapseView": "Collapse View"
+  }
+}
