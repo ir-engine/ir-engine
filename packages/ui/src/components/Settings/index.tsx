@@ -107,6 +107,7 @@ const SliderItem: React.FC<SliderItemProps> = ({ label, defaultValue = 50 }) => 
 // Define types for screen components
 interface ScreenProps {
   navigateTo: (screen: string) => void
+  onClose?: () => void
 }
 
 // Define a Section component for grouping related settings
@@ -200,7 +201,7 @@ const AccountSettings: React.FC<ScreenProps> = ({ navigateTo }) => (
     <Section>
       <MenuItem label="Single Sign On" onClick={() => navigateTo('sso')} hasChevron />
       <Divider />
-      <ToggleItem label="Delete My Account" />
+      <MenuItem label="Delete My Account" onClick={() => navigateTo('deleteAccount')} hasChevron />
     </Section>
   </div>
 )
@@ -231,6 +232,7 @@ const PlaceholderScreen: React.FC<ScreenProps & { title: string }> = ({ title })
 )
 
 // Import the new ShareSpaceScreen component
+import DeleteAccountScreen from './DeleteAccountScreen'
 import DisplayNameScreen from './DisplayNameScreen'
 import PermissionsScreen from './PermissionsScreen'
 import ShareSpaceScreen from './ShareSpaceScreen'
@@ -282,6 +284,10 @@ const screens: Record<string, ScreenDefinition> = {
   displayName: {
     component: DisplayNameScreen,
     title: 'Display Name'
+  },
+  deleteAccount: {
+    component: DeleteAccountScreen,
+    title: 'Delete My Account'
   }
 }
 
@@ -381,7 +387,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose }) => {
               }}
               className="h-full max-h-full space-y-4 overflow-y-auto pb-4"
             >
-              <ActiveComponent navigateTo={navigateTo} />
+              <ActiveComponent navigateTo={navigateTo} onClose={onClose} />
             </motion.div>
           </AnimatePresence>
         </div>
