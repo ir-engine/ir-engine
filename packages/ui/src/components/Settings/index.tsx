@@ -322,7 +322,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose }) => {
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.2 }}
-        className="flex h-full w-full max-w-sm flex-col rounded-3xl p-5 text-white shadow-xl backdrop-blur-md"
+        className="flex h-full w-full max-w-sm flex-col rounded-3xl p-5 text-white shadow-xl backdrop-blur-md md:max-w-screen-md"
         style={{
           maxHeight: '90vh',
           background: 'linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05))',

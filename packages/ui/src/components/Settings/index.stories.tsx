@@ -52,7 +52,7 @@ export const Default: Story = {
     const [open, setOpen] = useState(false)
 
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-transparent bg-center">
+      <div className="flex h-screen w-screen items-center justify-center bg-slate-900 bg-center">
         <button
           className="rounded-md bg-gradient-to-r from-pink-500 to-rose-500 px-6 py-3 font-bold text-white shadow-lg transition-all hover:scale-105"
           onClick={() => setOpen(!open)}

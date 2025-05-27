@@ -58,14 +58,16 @@ const ShareSpaceScreen: React.FC<ShareSpaceScreenProps> = () => {
   }
 
   return (
-    <div className="flex h-full flex-col items-center space-y-6 p-4">
+    <div className="xs:gap-6 flex h-full flex-col items-center justify-between p-4 md:flex-row md:items-start md:justify-center md:gap-5">
       {/* QR Code */}
-      <div className="rounded-lg bg-white p-4">
-        <QRCodeSVG className="h-[130px] w-[130px]" value={shareLink} />
+      <div className={' flex flex-1 flex-col justify-center'}>
+        <div className="rounded-lg bg-white p-4">
+          <QRCodeSVG className="h-[130px] w-[130px]" value={shareLink} />
+        </div>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex w-full flex-col space-y-3">
+      <div className="flex w-full flex-col gap-3">
         <button
           onClick={copyLinkToClipboard}
           className="w-full rounded-full bg-white/20 py-3 text-center text-white hover:bg-white/30"
