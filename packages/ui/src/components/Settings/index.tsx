@@ -198,7 +198,7 @@ const AccountSettings: React.FC<ScreenProps> = ({ navigateTo }) => (
     </Section>
 
     <Section>
-      <ToggleItem label="Single Sign On" />
+      <MenuItem label="Single Sign On" onClick={() => navigateTo('sso')} hasChevron />
       <Divider />
       <ToggleItem label="Delete My Account" />
     </Section>
@@ -233,6 +233,7 @@ const PlaceholderScreen: React.FC<ScreenProps & { title: string }> = ({ title })
 // Import the new ShareSpaceScreen component
 import PermissionsScreen from './PermissionsScreen'
 import ShareSpaceScreen from './ShareSpaceScreen'
+import SSOScreen from './SSOScreen'
 
 // Define all screens
 const screens: Record<string, ScreenDefinition> = {
@@ -271,6 +272,10 @@ const screens: Record<string, ScreenDefinition> = {
   shadowMapResolution: {
     component: (props) => <PlaceholderScreen {...props} title="Shadow Map Resolution" />,
     title: 'Shadow Map Resolution'
+  },
+  sso: {
+    component: SSOScreen,
+    title: 'Single Sign On'
   }
 }
 
