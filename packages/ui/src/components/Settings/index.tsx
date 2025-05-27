@@ -28,6 +28,8 @@ import React, { useState } from 'react'
 
 // Import icons from the icons module
 import { ArrowLeftSm, ChevronRightSm, XCloseSm } from '../../icons'
+// Import the SliderItem component
+import SliderItem from './SliderItem'
 
 // Define types for our components
 interface MenuItemProps {
@@ -39,11 +41,6 @@ interface MenuItemProps {
 interface ToggleItemProps {
   label: string
   defaultChecked?: boolean
-}
-
-interface SliderItemProps {
-  label: string
-  defaultValue?: number
 }
 
 // Define reusable UI components
@@ -72,49 +69,6 @@ const ToggleItem: React.FC<ToggleItemProps> = ({ label, defaultChecked = false }
           }`}
         />
       </button>
-    </div>
-  )
-}
-
-const SliderItem: React.FC<SliderItemProps> = ({ label, defaultValue = 50 }) => {
-  const [value, setValue] = useState(defaultValue)
-
-  return (
-    <div className="flex items-center justify-between px-4 py-3.5 text-white/90">
-      <span className="flex-1">
-        <span className="font-medium">{label}</span>
-      </span>
-      <div className="flex w-full flex-1 items-center space-x-3">
-        <div className="relative w-full">
-          <div
-            className="relative h-4 w-full rounded-full"
-            style={{
-              background: 'rgba(0, 0, 0, 0.14)',
-              boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.25) inset'
-            }}
-          >
-            <div
-              className="absolute left-0 top-0 h-4 rounded-full"
-              style={{
-                width: `${value}%`,
-                backgroundColor: 'hsla(211, 47%, 53%, 1)'
-              }}
-            />
-            <div
-              className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-lg"
-              style={{ left: `${value}%` }}
-            />
-          </div>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={value}
-            onChange={(e) => setValue(parseInt(e.target.value))}
-            className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-          />
-        </div>
-      </div>
     </div>
   )
 }
