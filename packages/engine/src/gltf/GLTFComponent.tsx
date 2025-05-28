@@ -159,14 +159,23 @@ const componentDependenciesLoaded = (dependencies?: ComponentDependencies) => {
   return !!dependencies && Object.keys(dependencies.componentDependencies).length === 0
 }
 
+//const loadDependencies = {
+//  ['EE_model']: [
+//    {
+//      key: 'dependencies',
+//      eval: (dependencies?: ComponentDependencies) => componentDependenciesLoaded(dependencies)
+//    }
+//  ]
+//} as Record<Exclude<Component['jsonID'], undefined>, DependencyEval[]>
+
 const loadDependencies = {
   ['EE_model']: [
     {
-      key: 'dependencies',
-      eval: (dependencies?: ComponentDependencies) => componentDependenciesLoaded(dependencies)
+      key: 'progress',
+      eval: (progress: number) => progress === 100
     }
   ]
-} as Record<string, DependencyEval[]>
+} as Record<Exclude<Component['jsonID'], undefined>, DependencyEval[]>
 
 const buildComponentDependencies = (entity: Entity, json: GLTF.IGLTF) => {
   const dependencies = {
@@ -292,19 +301,33 @@ export const GLTFComponentReactor = () => {
 }
 
 const ResourceReactor = (props: { documentID: SourceID; entity: Entity; documentLoaded: boolean }) => {
-  const dependenciesLoaded = GLTFComponent.useDependenciesLoaded(props.entity)
-  const resourceProgress = ResourceProgressComponent.useResourcesProgress(props.entity)
+  const { documentID, entity, documentLoaded } = props
+  const gltfComponent = useComponent(entity, GLTFComponent)
+  const sourceEntities = UUIDComponent.useEntitiesBySource(documentID) as Entity[]
 
-  const simulationEntity = getSimulationCounterpart(props.entity)
+  const simulationEntity = getSimulationCounterpart(entity)
   useApplyCollidersToChildMeshesEffect(simulationEntity)
 
-  useEffect(() => {
-    if (!hasComponent(props.entity, GLTFComponent) || !props.documentLoaded) return
-    if (getComponent(props.entity, GLTFComponent).progress === 100) return
+  if (!documentLoaded || gltfComponent.progress.value === 100) return null
 
+  return (
+    <ChildResourceReactor
+      rootEntity={entity}
+      sourceEntities={sourceEntities}
+      key={JSON.stringify([entity, ...sourceEntities])}
+    />
+  )
+}
+
+const ChildResourceReactor = (props: { rootEntity: Entity; sourceEntities: Entity[] }) => {
+  const { rootEntity, sourceEntities } = props
+  const resourceProgress = ResourceProgressComponent.useResourcesProgressArray([rootEntity, ...sourceEntities])
+  const dependenciesLoaded = GLTFComponent.useDependenciesLoaded(rootEntity)
+
+  useEffect(() => {
     const percentage = Math.floor(Math.min(resourceProgress, dependenciesLoaded ? 100 : 99))
-    getMutableComponent(props.entity, GLTFComponent).progress.set(percentage)
-  }, [resourceProgress, dependenciesLoaded, props.documentLoaded])
+    getMutableComponent(rootEntity, GLTFComponent).progress.set(percentage)
+  }, [resourceProgress, dependenciesLoaded])
 
   return null
 }

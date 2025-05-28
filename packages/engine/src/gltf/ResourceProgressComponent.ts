@@ -35,7 +35,7 @@ import {
   useQuery
 } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { NO_PROXY, none } from '@ir-engine/hyperflux'
+import { NO_PROXY, none, State } from '@ir-engine/hyperflux'
 
 export const ResourceProgressComponent = defineComponent({
   name: 'ResourceProgressComponent',
@@ -50,8 +50,9 @@ export const ResourceProgressComponent = defineComponent({
   setResource(entity: Entity, url: string, progress: number, total: number) {
     setComponent(entity, ResourceProgressComponent)
 
+    const percentage = total ? Math.floor((progress / total) * 100) : 0
     const component = getMutableComponent(entity, ResourceProgressComponent)
-    component[url].set({ progress: (progress / total) * 100 })
+    component.merge({ [url]: { progress: percentage } })
   },
 
   removeResource(entity: Entity, url: string) {
@@ -89,7 +90,7 @@ export const ResourceProgressComponent = defineComponent({
     const total = resources.length
     if (!total) return 0
 
-    return (progress / total) * 100
+    return progress / total
   },
 
   useResourcesProgress(entity: Entity) {
@@ -101,7 +102,27 @@ export const ResourceProgressComponent = defineComponent({
     const total = resources.length
     if (!total) return 0
 
-    return (progress / total) * 100
+    return progress / total
+  },
+
+  // Only call this in contexts where the array of entities never changes or the component calling this is remounted every time this array changes
+  useResourcesProgressArray(entities: Entity[]) {
+    const components = entities
+      .map((entity) => useOptionalComponent(entity, ResourceProgressComponent))
+      .filter(Boolean) as State<Record<string, { progress: number }>>[]
+    if (!components.length) return 100
+
+    const progress = components.reduce((acc, component) => {
+      const resources = Object.values(component.get(NO_PROXY))
+      const progress = resources.reduce((acc, resource) => acc + resource.progress, 0)
+      const total = resources.length
+      if (!total) return acc
+      return acc + progress / total
+    }, 0)
+    const total = components.length
+    if (!total) return 0
+
+    return progress / total
   },
 
   getPendingResources(entity: Entity) {
