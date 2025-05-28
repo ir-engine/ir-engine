@@ -27,141 +27,24 @@ import { AnimatePresence, motion, Variant } from 'motion/react'
 import React, { useState } from 'react'
 
 // Import icons from the icons module
-import { ArrowLeftSm, ChevronRightSm, XCloseSm } from '@ir-engine/ui/src/icons'
-// Import the SliderItem and ToggleItem components
-import SliderItem from './SliderItem'
-import ToggleItem from './ToggleItem'
+import { ArrowLeftSm, XCloseSm } from '@ir-engine/ui/src/icons'
+// Import shared components and types
+import { type ScreenProps } from './shared'
 
-// Define types for our components
-interface MenuItemProps {
-  label: string
-  onClick: () => void
-  hasChevron?: boolean
-}
+// Import main screen components
+import AccountSettings from './AccountSettings'
+import GraphicsSettings from './GraphicsSettings'
+import MainMenu from './MainMenu'
+import WorldSettings from './WorldSettings'
 
-// Define reusable UI components
-const MenuItem: React.FC<MenuItemProps> = ({ label, onClick, hasChevron = false }) => (
-  <div className="flex cursor-pointer items-center justify-between px-4 py-3.5 text-white/90" onClick={onClick}>
-    <span className="font-medium">{label}</span>
-    {hasChevron && <ChevronRightSm className="text-white/70" />}
-  </div>
-)
-
-// Define types for screen components
-interface ScreenProps {
-  navigateTo: (screen: string) => void
-  onClose?: () => void
-}
-
-// Define a Section component for grouping related settings
-interface SectionProps {
-  children: React.ReactNode
-  className?: string
-}
-
-const Section: React.FC<SectionProps> = ({ children, className = '' }) => (
-  <div
-    className={`overflow-hidden rounded-xl shadow-sm ${className}`}
-    style={{
-      background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-      border: '1px solid rgba(255, 255, 255, 0.05)'
-    }}
-  >
-    <div className="divide-y divide-white/10">{children}</div>
-  </div>
-)
-
-// Define a divider component for items within a section
-const Divider = () => <div className="h-px bg-white/10"></div>
-
-// Define screen components
-const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => (
-  <div className="space-y-4">
-    {/* Communication Section */}
-    <Section>
-      <MenuItem label="Share Space" onClick={() => navigateTo('shareSpace')} hasChevron />
-      <Divider />
-      <ToggleItem label="Video Communication" defaultChecked />
-      <Divider />
-      <ToggleItem label="Spatial Audio" />
-      <Divider />
-      <SliderItem label="Mic Volume" defaultValue={30} />
-      <Divider />
-      <SliderItem label="Audio Volume" defaultValue={70} />
-    </Section>
-
-    {/* World & Account Section */}
-    <Section>
-      <MenuItem label="World" onClick={() => navigateTo('world')} hasChevron />
-      <Divider />
-      <ToggleItem label="Multiplayer" />
-      <Divider />
-      <MenuItem label="Account" onClick={() => navigateTo('account')} hasChevron />
-      <Divider />
-      <MenuItem label="Avatar" onClick={() => navigateTo('avatar')} hasChevron />
-    </Section>
-
-    {/* System Section */}
-    <Section>
-      <MenuItem label="Controls" onClick={() => navigateTo('controls')} hasChevron />
-      <Divider />
-      <MenuItem label="Call Title" onClick={() => navigateTo('callTitle')} hasChevron />
-      <Divider />
-      <MenuItem label="Graphics" onClick={() => navigateTo('graphics')} hasChevron />
-    </Section>
-
-    {/* Logout Section */}
-    <Section className="overflow-hidden">
-      <button className="w-full py-3.5 font-medium text-white">Log Out</button>
-    </Section>
-  </div>
-)
-
-const WorldSettings: React.FC<ScreenProps> = () => (
-  <div className="space-y-4">
-    <Section>
-      <SliderItem label="Audio Volume" defaultValue={50} />
-      <Divider />
-      <ToggleItem label="Animation" defaultChecked />
-      <Divider />
-      <ToggleItem label="Vegetation" />
-      <Divider />
-      <ToggleItem label="Multiplayer" />
-    </Section>
-  </div>
-)
-
-const AccountSettings: React.FC<ScreenProps> = ({ navigateTo }) => (
-  <div className="space-y-4">
-    <Section>
-      <MenuItem label="Username & Password" onClick={() => navigateTo('usernamePassword')} hasChevron />
-      <Divider />
-      <MenuItem label="User ID" onClick={() => navigateTo('userId')} hasChevron />
-      <Divider />
-      <MenuItem label="Permissions" onClick={() => navigateTo('permissions')} hasChevron />
-    </Section>
-
-    <Section>
-      <MenuItem label="Single Sign On" onClick={() => navigateTo('sso')} hasChevron />
-      <Divider />
-      <MenuItem label="Delete My Account" onClick={() => navigateTo('deleteAccount')} hasChevron />
-    </Section>
-  </div>
-)
-
-const GraphicsSettings: React.FC<ScreenProps> = ({ navigateTo }) => (
-  <div className="space-y-4">
-    <Section>
-      <SliderItem label="Quality Preset" defaultValue={60} />
-      <Divider />
-      <ToggleItem label="Post Processing" defaultChecked />
-      <Divider />
-      <ToggleItem label="Shadows" defaultChecked />
-      <Divider />
-      <MenuItem label="Shadow Map Resolution" onClick={() => navigateTo('shadowMapResolution')} hasChevron />
-    </Section>
-  </div>
-)
+// Import other screen components
+import AvatarScreen from './AvatarScreen'
+import DeleteAccountScreen from './DeleteAccountScreen'
+import DisplayNameScreen from './DisplayNameScreen'
+import PermissionsScreen from './PermissionsScreen'
+import ShareSpaceScreen from './ShareSpaceScreen'
+import SSOScreen from './SSOScreen'
+import UsernamePasswordScreen from './UsernamePasswordScreen'
 
 // Define screen structure type
 interface ScreenDefinition {
@@ -173,15 +56,6 @@ interface ScreenDefinition {
 const PlaceholderScreen: React.FC<ScreenProps & { title: string }> = ({ title }) => (
   <div className="p-2">{title} Settings</div>
 )
-
-// Import the new ShareSpaceScreen component
-import AvatarScreen from './AvatarScreen'
-import DeleteAccountScreen from './DeleteAccountScreen'
-import DisplayNameScreen from './DisplayNameScreen'
-import PermissionsScreen from './PermissionsScreen'
-import ShareSpaceScreen from './ShareSpaceScreen'
-import SSOScreen from './SSOScreen'
-import UsernamePasswordScreen from './UsernamePasswordScreen'
 
 // Define all screens
 const screens: Record<string, ScreenDefinition> = {
@@ -316,7 +190,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose }) => {
         </div>
 
         {/* Screen Content with AnimatePresence for transitions */}
-        <div className="relative h-full overflow-hidden">
+        <div className="relative h-full overflow-hidden rounded-md">
           <AnimatePresence initial={false} mode="popLayout" custom={direction}>
             <motion.div
               key={activeScreenKey}
