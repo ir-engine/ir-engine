@@ -90,7 +90,7 @@ export const ResourceProgressComponent = defineComponent({
     const total = resources.length
     if (!total) return 0
 
-    return progress / total
+    return Math.floor(progress / total)
   },
 
   useResourcesProgress(entity: Entity) {
@@ -102,7 +102,7 @@ export const ResourceProgressComponent = defineComponent({
     const total = resources.length
     if (!total) return 0
 
-    return progress / total
+    return Math.floor(progress / total)
   },
 
   // Only call this in contexts where the array of entities never changes or the component calling this is remounted every time this array changes
@@ -122,7 +122,7 @@ export const ResourceProgressComponent = defineComponent({
     const total = components.length
     if (!total) return 0
 
-    return progress / total
+    return Math.floor(progress / total)
   },
 
   getPendingResources(entity: Entity) {
