@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { ChevronRightSm, Upload01Sm } from '@ir-engine/ui/src/icons'
 import React from 'react'
-import { ChevronRightSm, Upload01Sm } from '../../icons'
 
 interface AvatarScreenProps {
   navigateTo: (screen: string) => void

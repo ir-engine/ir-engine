@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { ChevronRightSm } from '@ir-engine/ui/src/icons'
 import React, { useState } from 'react'
-import { ChevronRightSm } from '../../icons'
 
 interface UsernamePasswordScreenProps {
   navigateTo: (screen: string) => void

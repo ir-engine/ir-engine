@@ -28,7 +28,7 @@ import globby from 'globby'
 import { dirname, join, resolve } from 'path'
 import { mergeConfig } from 'vite'
 
-const stories = globby.sync(['../src/**/*.stories.tsx'], {
+const stories = globby.sync(['../src/**/*.stories.tsx', '../../client-core/src/components/Settings/*.stories.tsx'], {
   ignore: [
     '../src/primitives/tailwind/TruncatedText/**/*.stories.tsx',
     '../src/components/tailwind/Header/**/*.stories.tsx',

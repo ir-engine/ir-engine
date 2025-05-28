@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { CheckSm } from '@ir-engine/ui/src/icons'
 import { motion } from 'motion/react'
 import React, { useState } from 'react'
-import { CheckSm } from '../../icons'
 
 interface DeleteAccountScreenProps {
   navigateTo: (screen: string) => void

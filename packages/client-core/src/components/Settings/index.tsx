@@ -27,7 +27,7 @@ import { AnimatePresence, motion, Variant } from 'motion/react'
 import React, { useState } from 'react'
 
 // Import icons from the icons module
-import { ArrowLeftSm, ChevronRightSm, XCloseSm } from '../../icons'
+import { ArrowLeftSm, ChevronRightSm, XCloseSm } from '@ir-engine/ui/src/icons'
 // Import the SliderItem and ToggleItem components
 import SliderItem from './SliderItem'
 import ToggleItem from './ToggleItem'
