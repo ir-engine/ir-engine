@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useState } from 'react'
+import Divider from './Divider'
 
 interface SSOScreenProps {}
 
@@ -104,8 +105,6 @@ const SSOScreen: React.FC<SSOScreenProps> = () => {
       <div className="divide-y divide-white/10">{children}</div>
     </div>
   )
-
-  const Divider = () => <div className="h-px bg-white/10"></div>
 
   const ProviderItem: React.FC<{ provider: SSOProvider }> = ({ provider }) => (
     <div

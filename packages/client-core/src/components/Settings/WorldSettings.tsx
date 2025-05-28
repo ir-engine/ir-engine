@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
+import Divider from './Divider'
 import SliderItem from './SliderItem'
 import ToggleItem from './ToggleItem'
 
@@ -51,9 +52,6 @@ const Section: React.FC<SectionProps> = ({ children, className = '' }) => (
     <div className="divide-y divide-white/10">{children}</div>
   </div>
 )
-
-// Define a divider component for items within a section
-const Divider = () => <div className="h-px bg-white/10"></div>
 
 const WorldSettings: React.FC<ScreenProps> = () => (
   <div className="space-y-4">
