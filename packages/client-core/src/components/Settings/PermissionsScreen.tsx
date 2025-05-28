@@ -24,6 +24,9 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useState } from 'react'
+import Divider from './Divider'
+import { Section } from './Section'
+import ToggleItem from './ToggleItem'
 
 interface PermissionsScreenProps {
   navigateTo: (screen: string) => void
@@ -57,54 +60,14 @@ const PermissionsScreen: React.FC<PermissionsScreenProps> = () => {
     }
   }
 
-  const PermissionToggleItem: React.FC<{ label: string; checked: boolean; onChange: (checked: boolean) => void }> = ({
-    label,
-    checked,
-    onChange
-  }) => (
-    <div className="flex items-center justify-between px-4 py-3.5 text-white/90">
-      <span className="font-medium">{label}</span>
-      <button
-        className="relative h-7 w-12 rounded-full transition-colors"
-        onClick={() => onChange(!checked)}
-        aria-checked={checked}
-        role="switch"
-        style={{
-          backgroundColor: checked ? 'hsla(211, 47%, 53%, 1)' : 'rgba(0, 0, 0, 0.14)',
-          boxShadow: checked ? 'none' : '0px 4px 4px 0px rgba(0, 0, 0, 0.25) inset'
-        }}
-      >
-        <span
-          className={`absolute top-1 block h-5 w-5 rounded-full bg-white shadow-md transition-transform ${
-            checked ? 'left-6' : 'left-1'
-          }`}
-        />
-      </button>
-    </div>
-  )
-
-  const Section: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-    <div
-      className={`overflow-hidden rounded-xl shadow-sm ${className}`}
-      style={{
-        background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-        border: '1px solid rgba(255, 255, 255, 0.05)'
-      }}
-    >
-      <div className="divide-y divide-white/10">{children}</div>
-    </div>
-  )
-
-  const Divider = () => <div className="h-px bg-white/10"></div>
-
   return (
     <div className="flex h-full flex-col justify-between space-y-6">
       {/* Permissions Section */}
       <div className="space-y-4">
         <Section>
-          <PermissionToggleItem label="Camera" checked={cameraPermission} onChange={setCameraPermission} />
+          <ToggleItem label="Camera" defaultChecked={cameraPermission} onChange={setCameraPermission} />
           <Divider />
-          <PermissionToggleItem label="Microphone" checked={microphonePermission} onChange={setMicrophonePermission} />
+          <ToggleItem label="Microphone" defaultChecked={microphonePermission} onChange={setMicrophonePermission} />
         </Section>
       </div>
 

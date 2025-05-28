@@ -24,9 +24,14 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import { SectionProps } from './MainMenu'
 
-export const Section: React.FC<SectionProps> = ({ children, className = '' }) => (
+export interface SectionProps {
+  children: React.ReactNode
+  className?: string
+  withDivider?: boolean
+}
+
+export const Section: React.FC<SectionProps> = ({ children, className = '', withDivider = false }) => (
   <div
     className={`overflow-hidden rounded-xl shadow-sm ${className}`}
     style={{
@@ -34,6 +39,6 @@ export const Section: React.FC<SectionProps> = ({ children, className = '' }) =>
       border: '1px solid rgba(255, 255, 255, 0.05)'
     }}
   >
-    <div className="">{children}</div>
+    {withDivider ? <div className="divide-y divide-white/10">{children}</div> : <div className="">{children}</div>}
   </div>
 )

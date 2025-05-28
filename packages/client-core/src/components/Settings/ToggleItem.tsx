@@ -29,6 +29,7 @@ import React, { useState } from 'react'
 interface ToggleItemProps {
   label: string
   defaultChecked?: boolean
+  onChange?: (checked: boolean) => void
 }
 
 const ToggleItem: React.FC<ToggleItemProps> = ({ label, defaultChecked = false }) => {

@@ -27,6 +27,7 @@ import { ChevronRightSm, Upload01Sm } from '@ir-engine/ui/src/icons'
 import React from 'react'
 
 import { MenuItem } from './MenuItem'
+import { Section } from './Section'
 
 interface AvatarScreenProps {
   navigateTo: (screen: string) => void
@@ -34,18 +35,6 @@ interface AvatarScreenProps {
 }
 
 const AvatarScreen: React.FC<AvatarScreenProps> = ({ navigateTo }) => {
-  const Section: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-    <div
-      className={`overflow-hidden rounded-xl shadow-sm ${className}`}
-      style={{
-        background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-        border: '1px solid rgba(255, 255, 255, 0.05)'
-      }}
-    >
-      {children}
-    </div>
-  )
-
   return (
     <div className="space-y-4">
       {/* Avatar Display Section */}

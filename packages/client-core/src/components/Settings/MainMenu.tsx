@@ -37,12 +37,6 @@ interface ScreenProps {
   onClose?: () => void
 }
 
-// Define a Section component for grouping related settings
-export interface SectionProps {
-  children: React.ReactNode
-  className?: string
-}
-
 const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => (
   <div className="space-y-4">
     {/* Communication Section */}

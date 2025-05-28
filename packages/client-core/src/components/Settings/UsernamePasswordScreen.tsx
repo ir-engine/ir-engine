@@ -25,6 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { ChevronRightSm } from '@ir-engine/ui/src/icons'
 import React, { useState } from 'react'
+import Divider from './Divider'
+import { Section } from './Section'
 
 interface UsernamePasswordScreenProps {
   navigateTo: (screen: string) => void
@@ -34,20 +36,6 @@ const UsernamePasswordScreen: React.FC<UsernamePasswordScreenProps> = ({ navigat
   const [displayName, setDisplayName] = useState('Dan')
   const [userId, setUserId] = useState('chatterbox_885')
   const [password, setPassword] = useState('••••••••••••')
-
-  const Section: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-    <div
-      className={`overflow-hidden rounded-xl shadow-sm ${className}`}
-      style={{
-        background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-        border: '1px solid rgba(255, 255, 255, 0.05)'
-      }}
-    >
-      <div className="divide-y divide-white/10">{children}</div>
-    </div>
-  )
-
-  const Divider = () => <div className="h-px bg-white/10"></div>
 
   const FieldItem: React.FC<{
     label: string

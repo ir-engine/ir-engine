@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useState } from 'react'
 import Divider from './Divider'
+import { Section } from './Section'
 
 interface SSOScreenProps {}
 
@@ -93,18 +94,6 @@ const SSOScreen: React.FC<SSOScreenProps> = () => {
       }, 3000)
     }
   }
-
-  const Section: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-    <div
-      className={`overflow-hidden rounded-xl shadow-sm ${className}`}
-      style={{
-        background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-        border: '1px solid rgba(255, 255, 255, 0.05)'
-      }}
-    >
-      <div className="divide-y divide-white/10">{children}</div>
-    </div>
-  )
 
   const ProviderItem: React.FC<{ provider: SSOProvider }> = ({ provider }) => (
     <div
