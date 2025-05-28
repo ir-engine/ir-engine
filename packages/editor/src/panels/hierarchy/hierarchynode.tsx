@@ -111,7 +111,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const { rootEntity } = useMutableState(EditorState).value
   const { collapseChildren, expandChildren, collapseNode, expandNode } = useNodeCollapseExpand()
   const renamingNode = useRenamingNode()
-  const { expandedNodes, firstSelectedEntity } = useMutableState(HierarchyTreeState)
+  const { expandedNodes, firstSelectedEntity, manualCollapseExpand } = useMutableState(HierarchyTreeState)
   const sourceID = GLTFComponent.useSourceID(rootEntity)
   const currentRenameNode = useHookstate(getComponent(entity, NameComponent))
   const { setMenu } = useHierarchyTreeContextMenu()
@@ -305,6 +305,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
 
   const onCollapseExpandNode = (event: React.MouseEvent) => {
     event.stopPropagation()
+    getMutableState(HierarchyTreeState).manualCollapseExpand.set(true)
     if (expandedNodes.value[sourceID][entity]) collapseNode(entity)
     else expandNode(entity)
   }

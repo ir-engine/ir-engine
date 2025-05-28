@@ -85,6 +85,7 @@ export function Contents() {
   const { selectedEntities } = useHookstate(getMutableState(SelectionState)).value
   const rootEntity = useMutableState(EditorState).rootEntity.value
   const expandedNodes = useMutableState(HierarchyTreeState).expandedNodes
+  const manualCollapseExpand = useMutableState(HierarchyTreeState).manualCollapseExpand
   const sourceID = GLTFComponent.useSourceID(rootEntity)
 
   const { canDrop, isOver, dropTarget: treeContainerDropTarget } = useHierarchyTreeDrop(nodes?.[0], 'On')
@@ -136,6 +137,8 @@ export function Contents() {
   const shouldScroll = useRef(false)
 
   useEffect(() => {
+    if (manualCollapseExpand.value) return
+
     const selectedEntity = selectedEntities[0]
     if (!selectedEntity || !sourceID) return
 
@@ -156,7 +159,7 @@ export function Contents() {
       current = parentNode
     }
     shouldScroll.current = true
-  }, [selectedEntities, sourceID, allNodes])
+  }, [selectedEntities, sourceID, allNodes, manualCollapseExpand.value, expandedNodes])
 
   useEffect(() => {
     if (!shouldScroll.current || !sourceID || !listRef.current) return
@@ -169,6 +172,7 @@ export function Contents() {
     if (index >= 0) {
       listRef.current.scrollToItem(index, 'center')
       shouldScroll.current = false
+      getMutableState(HierarchyTreeState).manualCollapseExpand.set(false)
     }
   }, [allNodes, expandedNodes[sourceID]])
 
