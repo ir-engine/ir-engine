@@ -64,12 +64,12 @@ const Section: React.FC<SectionProps> = ({ children, className = '' }) => (
       border: '1px solid rgba(255, 255, 255, 0.05)'
     }}
   >
-    <div className="divide-y divide-white/10">{children}</div>
+    {children}
   </div>
 )
 
 // Define a divider component for items within a section
-const Divider = () => <div className="h-px bg-white/10"></div>
+const Divider = () => <div className="mx-auto h-px w-[80%] rounded-full  bg-white/10 "></div>
 
 const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => (
   <div className="space-y-4">
