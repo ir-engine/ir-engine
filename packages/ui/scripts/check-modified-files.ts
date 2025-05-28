@@ -29,6 +29,8 @@ import path from 'node:path'
 
 const isGithubAction = process.env.GITHUB_ACTIONS === 'true'
 
+const whiteList = ['packages/ui/src/components', 'packages/client-core/src/components']
+
 function log(...args: any[]) {
   if (!isGithubAction) {
     console.log(...args)
@@ -56,7 +58,7 @@ try {
     const filename = path.basename(file)
 
     if ((status === 'M' || status === 'A') && filename.endsWith('.tsx')) {
-      if (file.startsWith('packages/ui/src/components') || file.startsWith('packages/client-core/src/components')) {
+      if (whiteList.some((path) => file.startsWith(path))) {
         tsxFiles.push(file)
       }
     }
