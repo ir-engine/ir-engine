@@ -106,7 +106,7 @@ export const ResourceProgressComponent = defineComponent({
   },
 
   // Only call this in contexts where the array of entities never changes or the component calling this is remounted every time this array changes
-  useResourcesProgressArray(entities: Entity[]) {
+  useResourcesProgressForEntities(entities: Entity[]) {
     const components = entities
       .map((entity) => useOptionalComponent(entity, ResourceProgressComponent))
       .filter(Boolean) as State<Record<string, { progress: number }>>[]

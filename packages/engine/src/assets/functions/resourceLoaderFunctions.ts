@@ -146,6 +146,7 @@ export const loadResource = <T extends ResourceAssetType>(
       if (resource && resource.value) {
         resource.status.set(ResourceStatus.Error)
       }
+      if (entity) ResourceProgressComponent.removeResource(entity, url)
       onError(error)
     },
     signal,

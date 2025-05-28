@@ -159,15 +159,6 @@ const componentDependenciesLoaded = (dependencies?: ComponentDependencies) => {
   return !!dependencies && Object.keys(dependencies.componentDependencies).length === 0
 }
 
-//const loadDependencies = {
-//  ['EE_model']: [
-//    {
-//      key: 'dependencies',
-//      eval: (dependencies?: ComponentDependencies) => componentDependenciesLoaded(dependencies)
-//    }
-//  ]
-//} as Record<Exclude<Component['jsonID'], undefined>, DependencyEval[]>
-
 const loadDependencies = {
   ['EE_model']: [
     {
@@ -321,7 +312,7 @@ const ResourceReactor = (props: { documentID: SourceID; entity: Entity; document
 
 const ChildResourceReactor = (props: { rootEntity: Entity; sourceEntities: Entity[] }) => {
   const { rootEntity, sourceEntities } = props
-  const resourceProgress = ResourceProgressComponent.useResourcesProgressArray([rootEntity, ...sourceEntities])
+  const resourceProgress = ResourceProgressComponent.useResourcesProgressForEntities([rootEntity, ...sourceEntities])
   const dependenciesLoaded = GLTFComponent.useDependenciesLoaded(rootEntity)
 
   useEffect(() => {
