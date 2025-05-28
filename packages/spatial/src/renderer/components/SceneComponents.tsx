@@ -29,8 +29,7 @@ import { defineComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
 export const SceneComponent = defineComponent({
-  name: 'SceneComponent',
-  schema: S.Object({ active: S.Bool() })
+  name: 'SceneComponent'
 })
 
 export const BackgroundComponent = defineComponent({

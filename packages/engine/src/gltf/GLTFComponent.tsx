@@ -33,7 +33,6 @@ import {
   Entity,
   EntityID,
   EntityUUID,
-  getAncestorWithComponents,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -62,7 +61,6 @@ import { getMutableState, getState, NO_PROXY_STEALTH, none, State, useHookstate 
 import { TransformComponent } from '@ir-engine/spatial'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
-import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { ShapeSchema } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -79,7 +77,7 @@ import { GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
 import { AssetState } from './GLTFState'
 import { migrateEEMaterial } from './migrateEEMaterial'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
-import { useApplyCollidersToChildMeshesEffect, useCheckLoadedColliders } from './useColliderEffects'
+import { useApplyCollidersToChildMeshesEffect } from './useApplyCollidersToChildMeshesEffect'
 
 export const GLTFComponent = defineComponent({
   name: 'GLTFComponent',
@@ -93,7 +91,6 @@ export const GLTFComponent = defineComponent({
 
     //collision info
     applyColliders: S.Bool(),
-    collidersLoaded: S.Bool({ default: false }),
     shape: ShapeSchema('box'),
 
     // internals
@@ -151,7 +148,7 @@ export const GLTFComponent = defineComponent({
 
 type DependencyEval = {
   key: string
-  eval: (val: unknown, entity?: Entity) => boolean
+  eval: (val: unknown) => boolean
 }
 
 type ComponentDependencies = {
@@ -160,10 +157,6 @@ type ComponentDependencies = {
 
 const componentDependenciesLoaded = (dependencies?: ComponentDependencies) => {
   return !!dependencies && Object.keys(dependencies.componentDependencies).length === 0
-}
-
-const checkRigidbodyAncestor = (entity: Entity) => {
-  return getAncestorWithComponents(entity, [RigidBodyComponent]) !== undefined
 }
 
 const loadDependencies = {
@@ -175,11 +168,9 @@ const loadDependencies = {
   ],
   [ColliderComponent.jsonID]: [
     {
-      key: 'shape',
-      eval: (shape, entity?: Entity) => {
-        if (shape && entity) {
-          if (!!shape && checkRigidbodyAncestor(entity)) return true
-        }
+      key: 'hasCollider',
+      eval: (hasCollider: boolean) => {
+        return hasCollider
       }
     }
   ]
@@ -283,7 +274,6 @@ export const GLTFComponentReactor = () => {
       unloadEntities()
       if (hasComponent(entity, GLTFComponent)) {
         getMutableComponent(entity, GLTFComponent).progress.set(0)
-        getMutableComponent(entity, GLTFComponent).collidersLoaded.set(false)
       }
     }
   }, [gltfComponent.document])
@@ -292,7 +282,7 @@ export const GLTFComponentReactor = () => {
 
   useEffect(() => {
     if (!sceneLoaded || !scene) return
-    setComponent(entity, SceneComponent, { active: true })
+    setComponent(entity, SceneComponent)
     setComponent(entity, ActiveHelperComponent, { volumeEnabled: true })
   }, [sceneLoaded, !!scene])
 
@@ -310,16 +300,13 @@ export const GLTFComponentReactor = () => {
 
 const ResourceReactor = (props: { documentID: SourceID; entity: Entity; documentLoaded: boolean }) => {
   const dependenciesLoaded = GLTFComponent.useDependenciesLoaded(props.entity)
-  const collidersLoaded = getComponent(props.entity, GLTFComponent).collidersLoaded
   const resourceQuery = useQuery([ResourcePendingComponent])
 
   const simulationEntity = getSimulationCounterpart(props.entity)
   useApplyCollidersToChildMeshesEffect(simulationEntity)
-  useCheckLoadedColliders(props.entity)
   useEffect(() => {
     if (!hasComponent(props.entity, GLTFComponent) || !props.documentLoaded) return
     if (getComponent(props.entity, GLTFComponent).progress === 100) return
-    if (!collidersLoaded) return
     const entities = resourceQuery.filter((e) => UUIDComponent.getSourceEntity(e) === props.entity)
     if (!entities.length) {
       if (dependenciesLoaded) getMutableComponent(props.entity, GLTFComponent).progress.set(100)
@@ -346,7 +333,7 @@ const ResourceReactor = (props: { documentID: SourceID; entity: Entity; document
 
     const percentage = Math.floor(Math.min((progress / total) * 100, dependenciesLoaded ? 100 : 99))
     getMutableComponent(props.entity, GLTFComponent).progress.set(percentage)
-  }, [resourceQuery, dependenciesLoaded, props.documentLoaded, collidersLoaded])
+  }, [resourceQuery, dependenciesLoaded, props.documentLoaded])
 
   return null
 }
@@ -375,7 +362,7 @@ const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; 
   useEffect(() => {
     const compValue = comp.value
     for (const dep of dependencies) {
-      if (!dep.eval(compValue[dep.key], entity)) return
+      if (!dep.eval(compValue[dep.key])) return
     }
 
     removeGLTFDependency()

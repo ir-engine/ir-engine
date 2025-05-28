@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   Entity,
   entityExists,
-  getComponent,
   getTreeFromChildToAncestor,
   hasComponent,
   removeComponent,
@@ -43,7 +42,7 @@ import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/Col
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-import { useEffect, useLayoutEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import { GLTFComponent } from './GLTFComponent'
 
 function forceUpdateMatrices(childEntity: Entity, ancestorEntity: Entity = UndefinedEntity) {
@@ -53,25 +52,6 @@ function forceUpdateMatrices(childEntity: Entity, ancestorEntity: Entity = Undef
   for (let i = entities.length - 1; i >= 0; i--) {
     TransformComponent.computeTransformMatrix(entities[i])
   }
-}
-
-/**
- * Checks if all colliders have been added
- * @param entity
- */
-export function useCheckLoadedColliders(entity: Entity) {
-  const component = useComponent(entity, GLTFComponent)
-
-  useEffect(() => {
-    const entities = UUIDComponent.getEntitiesBySource(UUIDComponent.getAsSourceID(entity))
-    for (const entity of entities) {
-      if (hasComponent(entity, ColliderComponent)) {
-        if (!getComponent(entity, ColliderComponent).hasCollider) component.collidersLoaded.set(false)
-        return
-      }
-    }
-    component.collidersLoaded.set(true)
-  }, [])
 }
 
 /**
@@ -102,7 +82,7 @@ export function useApplyCollidersToChildMeshesEffect(entity: Entity) {
     for (const child of children) {
       // Don't add colliders to meshes with colliders baked in or helper meshes
       if (entityExists(child) && !hasComponent(child, ColliderComponent) && hasComponent(child, UUIDComponent)) {
-        setComponent(child, ColliderComponent, { shape: component.shape.value, matchMesh: true, hasCollider: true })
+        setComponent(child, ColliderComponent, { shape: component.shape.value, matchMesh: true })
         forceUpdateMatrices(child)
         added.push(child)
       }
