@@ -102,7 +102,8 @@ export const EngineSettings = {
     Mode: 'mode',
     LocationName: 'locationName',
     WebRTCSettings: 'webRTCSettings',
-    ShutdownDelayMs: 'shutdownDelayMs'
+    ShutdownDelayMs: 'shutdownDelayMs',
+    MaxUsersPerInstance: 'maxUsersPerInstance'
   },
   Metabase: {
     SiteUrl: 'siteUrl',

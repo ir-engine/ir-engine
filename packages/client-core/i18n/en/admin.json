@@ -27,7 +27,7 @@
       "selectScene": "Select a Scene",
       "sceneCantEmpty": "Scene cannot be empty",
       "maxUserCantEmpty": "Max users cannot be empty",
-      "maxUserExceeded": "The number of users entered exceeds the allowed maximum. Please enter a number between 1 and 5.",
+      "maxUserExceeded": "The number of users entered exceeds the allowed maximum. Please enter a number between 1 and {{maxUsers}}.",
       "nameCantEmpty": "Name cannot be empty",
       "typeCantEmpty": "Type cannot be empty",
       "nameRequired": "Name is required",
@@ -482,6 +482,7 @@
       "identifierDigits": "Identifier Digits",
       "mode": "Mode",
       "locationName": "Published Space Name",
+      "maxUsersPerInstance": "Max Users Per Instance",
       "settings": "Settings",
       "redis": {
         "header": "Redis",
