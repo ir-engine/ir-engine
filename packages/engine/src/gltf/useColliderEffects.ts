@@ -43,7 +43,7 @@ import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/Col
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { GLTFComponent } from './GLTFComponent'
 
 function forceUpdateMatrices(childEntity: Entity, ancestorEntity: Entity = UndefinedEntity) {
@@ -85,7 +85,7 @@ export function useApplyCollidersToChildMeshesEffect(entity: Entity) {
   const rigidbodyComponent = useOptionalComponent(rigidbodyEntity, RigidBodyComponent)
   const component = useComponent(entity, GLTFComponent)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (
       !rigidbodyComponent?.initialized?.value ||
       !physicsWorld ||
@@ -94,7 +94,6 @@ export function useApplyCollidersToChildMeshesEffect(entity: Entity) {
     )
       return
 
-    console.log('here')
     forceUpdateMatrices(entity)
     const children = [...childMeshEntities]
     if (hasComponent(entity, MeshComponent)) children.push(entity)
