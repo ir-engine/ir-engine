@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { ChevronRightSm } from '@ir-engine/ui/src/icons'
 import Divider from './Divider'
+import { MenuItem } from './MenuItem'
 import { Section } from './Section'
 import SliderItem from './SliderItem'
 import ToggleItem from './ToggleItem'
@@ -36,21 +36,6 @@ interface ScreenProps {
   navigateTo: (screen: string) => void
   onClose?: () => void
 }
-
-// Define types for our components
-interface MenuItemProps {
-  label: string
-  onClick: () => void
-  hasChevron?: boolean
-}
-
-// Define reusable UI components
-const MenuItem: React.FC<MenuItemProps> = ({ label, onClick, hasChevron = false }) => (
-  <div className="flex cursor-pointer items-center justify-between px-4 py-3.5 text-white/90" onClick={onClick}>
-    <span className="font-medium">{label}</span>
-    {hasChevron && <ChevronRightSm className="text-white/70" />}
-  </div>
-)
 
 const GraphicsSettings: React.FC<ScreenProps> = ({ navigateTo }) => (
   <div className="space-y-4">

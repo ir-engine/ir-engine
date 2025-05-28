@@ -26,6 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { ChevronRightSm, Upload01Sm } from '@ir-engine/ui/src/icons'
 import React from 'react'
 
+import { MenuItem } from './MenuItem'
+
 interface AvatarScreenProps {
   navigateTo: (screen: string) => void
   onClose?: () => void
@@ -41,20 +43,6 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({ navigateTo }) => {
       }}
     >
       {children}
-    </div>
-  )
-
-  const MenuItem: React.FC<{ label: string; onClick?: () => void; icon?: React.ReactNode }> = ({
-    label,
-    onClick,
-    icon
-  }) => (
-    <div
-      className="flex cursor-pointer items-center justify-between px-4 py-3.5 text-white/90 transition-colors hover:bg-white/5"
-      onClick={onClick}
-    >
-      <span className="font-medium">{label}</span>
-      {icon && <div className="text-white/70">{icon}</div>}
     </div>
   )
 
