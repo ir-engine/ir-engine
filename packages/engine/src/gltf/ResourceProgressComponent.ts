@@ -31,76 +31,95 @@ import {
   getOptionalMutableComponent,
   removeComponent,
   setComponent,
-  useOptionalComponent
+  useOptionalComponent,
+  useQuery
 } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, none } from '@ir-engine/hyperflux'
 
-export const ResourcePendingComponent = defineComponent({
-  name: 'ResourcePendingComponent',
+export const ResourceProgressComponent = defineComponent({
+  name: 'ResourceProgressComponent',
 
   schema: S.Record(
     S.String(),
     S.Object({
-      progress: S.Number(),
-      total: S.Number()
+      progress: S.Number()
     })
   ),
 
   setResource(entity: Entity, url: string, progress: number, total: number) {
-    setComponent(entity, ResourcePendingComponent)
+    setComponent(entity, ResourceProgressComponent)
 
-    const component = getMutableComponent(entity, ResourcePendingComponent)
-    component[url].set({ progress, total })
+    const component = getMutableComponent(entity, ResourceProgressComponent)
+    component[url].set({ progress: (progress / total) * 100 })
   },
 
   removeResource(entity: Entity, url: string) {
-    const component = getOptionalMutableComponent(entity, ResourcePendingComponent)
+    const component = getOptionalMutableComponent(entity, ResourceProgressComponent)
     if (!component) return
     if (!component[url].value) return
 
     component[url].set(none)
 
     if (!component.keys.length) {
-      removeComponent(entity, ResourcePendingComponent)
+      removeComponent(entity, ResourceProgressComponent)
     }
   },
 
   getResourcesLoaded(entity: Entity) {
-    const component = getOptionalComponent(entity, ResourcePendingComponent)
+    const component = getOptionalComponent(entity, ResourceProgressComponent)
     if (!component) return true
 
     return Object.values(component).every((resource) => resource.progress === 100)
   },
 
   useResourcesLoaded(entity: Entity) {
-    const component = useOptionalComponent(entity, ResourcePendingComponent)
+    const component = useOptionalComponent(entity, ResourceProgressComponent)
     if (!component) return true
 
     return Object.values(component.get(NO_PROXY)).every((resource) => resource.progress === 100)
   },
 
   getResourcesProgress(entity: Entity) {
-    const component = getOptionalComponent(entity, ResourcePendingComponent)
+    const component = getOptionalComponent(entity, ResourceProgressComponent)
     if (!component) return 100
 
     const resources = Object.values(component)
     const progress = resources.reduce((acc, resource) => acc + resource.progress, 0)
-    const total = resources.reduce((acc, resource) => acc + resource.total, 0)
+    const total = resources.length
     if (!total) return 0
 
     return (progress / total) * 100
   },
 
   useResourcesProgress(entity: Entity) {
-    const component = useOptionalComponent(entity, ResourcePendingComponent)
+    const component = useOptionalComponent(entity, ResourceProgressComponent)
     if (!component) return 100
 
     const resources = Object.values(component.get(NO_PROXY))
     const progress = resources.reduce((acc, resource) => acc + resource.progress, 0)
-    const total = resources.reduce((acc, resource) => acc + resource.total, 0)
+    const total = resources.length
     if (!total) return 0
 
     return (progress / total) * 100
+  },
+
+  getPendingResources(entity: Entity) {
+    const component = getOptionalComponent(entity, ResourceProgressComponent)
+    if (!component) return 0
+
+    return Object.values(component).filter((resource) => resource.progress < 100).length
+  },
+
+  usePendingResources(entity: Entity) {
+    const component = useOptionalComponent(entity, ResourceProgressComponent)
+    if (!component) return 0
+
+    return Object.values(component.get(NO_PROXY)).filter((resource) => resource.progress < 100).length
+  },
+
+  useAllPendingResources() {
+    const query = useQuery([ResourceProgressComponent])
+    return query.reduce((acc, entity) => acc + ResourceProgressComponent.getPendingResources(entity), 0)
   }
 })

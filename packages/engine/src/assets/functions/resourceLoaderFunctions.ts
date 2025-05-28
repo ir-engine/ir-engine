@@ -27,7 +27,7 @@ import { Entity } from '@ir-engine/ecs'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { ResourceAssetType, ResourceState, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 
-import { ResourcePendingComponent } from '../../gltf/ResourcePendingComponent'
+import { ResourceProgressComponent } from '../../gltf/ResourceProgressComponent'
 import { AssetLoader } from '../classes/AssetLoader'
 import { Loader } from '../loaders/base/Loader'
 import { ResourceCacheState, ResourceStatus } from '../state/ResourceCacheState'
@@ -99,10 +99,10 @@ export const loadResource = <T extends ResourceAssetType>(
   }
 
   if (entity) {
-    ResourcePendingComponent.setResource(entity, url, 0, 0)
+    ResourceProgressComponent.setResource(entity, url, 0, 0)
     if (signal) {
       signal.addEventListener('abort', () => {
-        ResourcePendingComponent.setResource(entity, url, 0, 0)
+        ResourceProgressComponent.setResource(entity, url, 0, 0)
       })
     }
   }
@@ -120,7 +120,7 @@ export const loadResource = <T extends ResourceAssetType>(
       resource.status.set(ResourceStatus.Loaded)
       ResourceState.debugLog(`ResourceState:load Loaded resource: ${url} for entity: ${entity}`)
       ResourceState.checkBudgets()
-      if (entity) ResourcePendingComponent.setResource(entity, url, 100, 100)
+      if (entity) ResourceProgressComponent.setResource(entity, url, 100, 100)
       onLoad(response)
 
       if (pending[url]) {
@@ -130,7 +130,7 @@ export const loadResource = <T extends ResourceAssetType>(
           if (!cloneAsset(response as Cloneable<T>, pendingOnLoad))
             console.warn(`ResourceState:load unable to clone asset for pending response: ${url}`)
           else {
-            if (entity) ResourcePendingComponent.setResource(entity, url, 100, 100)
+            if (entity) ResourceProgressComponent.setResource(entity, url, 100, 100)
             ResourceState.debugLog(`ResourceState:load cloning pending asset: ${url}`)
           }
         }
@@ -138,7 +138,7 @@ export const loadResource = <T extends ResourceAssetType>(
       }
     },
     (request) => {
-      if (entity) ResourcePendingComponent.setResource(entity, url, request.loaded, request.total)
+      if (entity) ResourceProgressComponent.setResource(entity, url, request.loaded, request.total)
       onProgress(request)
     },
     (error) => {

@@ -64,7 +64,9 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 import { LoaderUtils } from 'three'
+import { loadResource } from '../assets/functions/resourceLoaderFunctions'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
@@ -74,7 +76,7 @@ import { addError, removeError } from '../scene/functions/ErrorFunctions'
 import { GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
 import { AssetState } from './GLTFState'
 import { migrateEEMaterial } from './migrateEEMaterial'
-import { ResourcePendingComponent } from './ResourcePendingComponent'
+import { ResourceProgressComponent } from './ResourceProgressComponent'
 import { useApplyCollidersToChildMeshesEffect } from './useApplyCollidersToChildMeshesEffect'
 
 export const GLTFComponent = defineComponent({
@@ -291,7 +293,7 @@ export const GLTFComponentReactor = () => {
 
 const ResourceReactor = (props: { documentID: SourceID; entity: Entity; documentLoaded: boolean }) => {
   const dependenciesLoaded = GLTFComponent.useDependenciesLoaded(props.entity)
-  const resourceProgress = ResourcePendingComponent.useResourcesProgress(props.entity)
+  const resourceProgress = ResourceProgressComponent.useResourcesProgress(props.entity)
 
   const simulationEntity = getSimulationCounterpart(props.entity)
   useApplyCollidersToChildMeshesEffect(simulationEntity)
@@ -407,55 +409,40 @@ export const BINARY_EXTENSION_HEADER_MAGIC = 'glTF'
 export const BINARY_EXTENSION_HEADER_LENGTH = 12
 export const BINARY_EXTENSION_CHUNK_TYPES = { JSON: 0x4e4f534a, BIN: 0x004e4942 }
 
-export const loadGLTFFile = (
-  url: string,
-  onLoad: (gltf: GLTF.IGLTF, body: ArrayBuffer | null) => void,
-  onProgress?: (event: ProgressEvent) => void,
-  onError?: (error: ErrorEvent) => void,
-  signal?: AbortSignal
-) => {
-  const onSuccess = (data: string | ArrayBuffer | GLTF.IGLTF) => {
-    if (signal && signal.aborted) return
+export const parseGLTFFile = (
+  data: string | ArrayBuffer | GLTF.IGLTF,
+  onError: (error: ErrorEvent) => void
+): [GLTF.IGLTF | null, ArrayBuffer | null] => {
+  const textDecoder = new TextDecoder()
+  let json: GLTF.IGLTF
+  let body: ArrayBuffer | null = null
 
-    const textDecoder = new TextDecoder()
-    let json: GLTF.IGLTF
-    let body: ArrayBuffer | null = null
+  try {
+    if (typeof data === 'string') {
+      json = JSON.parse(data)
+    } else if ('byteLength' in data) {
+      const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
 
-    try {
-      if (typeof data === 'string') {
-        json = JSON.parse(data)
-      } else if ('byteLength' in data) {
-        const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
-
-        if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
-          const { json: jsonContent, body: bodyContent } = parseBinaryData(data)
-          body = bodyContent
-          json = jsonContent
-        } else {
-          json = JSON.parse(textDecoder.decode(data))
-        }
+      if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
+        const { json: jsonContent, body: bodyContent } = parseBinaryData(data)
+        body = bodyContent
+        json = jsonContent
       } else {
-        json = data
+        json = JSON.parse(textDecoder.decode(data))
       }
-
-      json = JSON.parse(JSON.stringify(json))
-
-      json = migrateEEMaterial(json)
-
-      onLoad(parseStorageProviderURLs(json), body)
-    } catch (error) {
-      if (onError) onError(error)
-      return
+    } else {
+      json = data
     }
+
+    json = JSON.parse(JSON.stringify(json))
+
+    json = migrateEEMaterial(json)
+
+    return [parseStorageProviderURLs(json), body]
+  } catch (error) {
+    if (onError) onError(error)
+    return [null, null]
   }
-
-  const loader = new FileLoader()
-
-  loader.setResponseType('arraybuffer')
-  loader.setRequestHeader({})
-  loader.setWithCredentials(false)
-
-  loader.load(url, onSuccess, onProgress, onError, signal)
 }
 
 const useGLTFDocument = (entity: Entity) => {
@@ -483,19 +470,33 @@ const useGLTFDocument = (entity: Entity) => {
 
     removeError(entity, GLTFComponent, 'LOADING_ERROR')
 
-    loadGLTFFile(
+    const loader = new FileLoader()
+
+    loader.setResponseType('arraybuffer')
+    loader.setRequestHeader({})
+    loader.setWithCredentials(false)
+
+    loadResource<ArrayBuffer>(
       url,
-      (gltf, body) => {
-        if (body) state.body.set(body)
-        state.document.set(gltf)
-        const dependencies = buildComponentDependencies(entity, gltf)
-        state.dependencies.set(dependencies)
+      ResourceType.ArrayBuffer,
+      entity,
+      (response) => {
+        if (signal.aborted) return
+        const [gltf, body] = parseGLTFFile(response, onError)
+
+        if (gltf) {
+          state.document.set(gltf)
+          state.body.set(body)
+          const dependencies = buildComponentDependencies(entity, gltf)
+          state.dependencies.set(dependencies)
+        }
       },
-      (progress: ProgressEvent) => {
+      (request) => {
         //this is the gtlf file loading progress, not to be confused with the GTLF Component property "progress" which tracks if the gtlf is loaded into the scene
       },
       onError,
-      signal
+      signal,
+      loader
     )
 
     return () => {
