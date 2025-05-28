@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 
 import Divider from './Divider'
+import { Section } from './Section'
 import SliderItem from './SliderItem'
 import ToggleItem from './ToggleItem'
 
@@ -34,24 +35,6 @@ interface ScreenProps {
   navigateTo: (screen: string) => void
   onClose?: () => void
 }
-
-// Define a Section component for grouping related settings
-interface SectionProps {
-  children: React.ReactNode
-  className?: string
-}
-
-const Section: React.FC<SectionProps> = ({ children, className = '' }) => (
-  <div
-    className={`overflow-hidden rounded-xl shadow-sm ${className}`}
-    style={{
-      background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-      border: '1px solid rgba(255, 255, 255, 0.05)'
-    }}
-  >
-    <div className="divide-y divide-white/10">{children}</div>
-  </div>
-)
 
 const WorldSettings: React.FC<ScreenProps> = () => (
   <div className="space-y-4">

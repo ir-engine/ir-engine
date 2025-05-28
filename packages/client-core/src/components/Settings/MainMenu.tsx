@@ -25,8 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { ChevronRightSm } from '@ir-engine/ui/src/icons'
 import Divider from './Divider'
+import { MenuItem } from './MenuItem'
+import { Section } from './Section'
 import SliderItem from './SliderItem'
 import ToggleItem from './ToggleItem'
 
@@ -36,38 +37,11 @@ interface ScreenProps {
   onClose?: () => void
 }
 
-// Define types for our components
-interface MenuItemProps {
-  label: string
-  onClick: () => void
-  hasChevron?: boolean
-}
-
 // Define a Section component for grouping related settings
-interface SectionProps {
+export interface SectionProps {
   children: React.ReactNode
   className?: string
 }
-
-// Define reusable UI components
-const MenuItem: React.FC<MenuItemProps> = ({ label, onClick, hasChevron = false }) => (
-  <div className="flex cursor-pointer items-center justify-between px-4 py-3.5 text-white/90" onClick={onClick}>
-    <span className="font-medium">{label}</span>
-    {hasChevron && <ChevronRightSm className="text-white/70" />}
-  </div>
-)
-
-const Section: React.FC<SectionProps> = ({ children, className = '' }) => (
-  <div
-    className={`overflow-hidden rounded-xl shadow-sm ${className}`}
-    style={{
-      background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-      border: '1px solid rgba(255, 255, 255, 0.05)'
-    }}
-  >
-    {children}
-  </div>
-)
 
 const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => (
   <div className="space-y-4">
