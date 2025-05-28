@@ -176,8 +176,10 @@ const loadDependencies = {
   [ColliderComponent.jsonID]: [
     {
       key: 'shape',
-      eval: (shape, entity: Entity) => {
-        if (!!shape && checkRigidbodyAncestor(entity)) return true
+      eval: (shape, entity?: Entity) => {
+        if (shape && entity) {
+          if (!!shape && checkRigidbodyAncestor(entity)) return true
+        }
       }
     }
   ]
@@ -281,6 +283,7 @@ export const GLTFComponentReactor = () => {
       unloadEntities()
       if (hasComponent(entity, GLTFComponent)) {
         getMutableComponent(entity, GLTFComponent).progress.set(0)
+        getMutableComponent(entity, GLTFComponent).collidersLoaded.set(false)
       }
     }
   }, [gltfComponent.document])
