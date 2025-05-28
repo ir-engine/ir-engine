@@ -32,14 +32,17 @@ import {
   createEntity,
   Engine,
   Entity,
+  EntityID,
   EntityTreeComponent,
   getComponent,
   getOptionalComponent,
   removeEntity,
   setComponent,
+  SourceID,
   useAncestorWithComponents,
   useComponent,
-  useEntityContext
+  useEntityContext,
+  UUIDComponent
 } from '@ir-engine/ecs'
 import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
@@ -132,11 +135,17 @@ export const useGamepadInputSources = () => {
       console.log('[ClientInputSystem] found gamepad', e.gamepad)
       const eid = createEntity()
       setComponent(eid, InputSourceComponent, { gamepad: e.gamepad })
-      setComponent(eid, NameComponent, 'InputSource-gamepad-' + e.gamepad.id)
+      setComponent(eid, UUIDComponent, {
+        entitySourceID: 'InputSource-gamepad' as SourceID,
+        entityID: e.gamepad.id as EntityID
+      })
     }
     const removeGamepad = (e: GamepadEvent) => {
       console.log('[ClientInputSystem] lost gamepad', e.gamepad)
-      NameComponent.getEntitiesByName('InputSource-gamepad-' + e.gamepad.id).forEach(removeEntity)
+      const entity = UUIDComponent.getEntityByUUID(
+        UUIDComponent.join({ entitySourceID: 'InputSource-gamepad' as SourceID, entityID: e.gamepad.id as EntityID })
+      )
+      removeEntity(entity)
     }
     window.addEventListener('gamepadconnected', addGamepad)
     window.addEventListener('gamepaddisconnected', removeGamepad)
