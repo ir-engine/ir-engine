@@ -23,12 +23,14 @@ import { ModalState } from '@ir-engine/client-core/src/common/services/ModalStat
 import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { useFind, useMutation } from '@ir-engine/common'
 import { config } from '@ir-engine/common/src/config'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { ModelTransformStatus, transformModel } from '@ir-engine/common/src/model/ModelTransformFunctions'
 import {
   LocationData,
   LocationID,
   LocationPatch,
   LocationType,
+  engineSettingPath,
   locationPath,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
@@ -118,6 +120,14 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
 
   const locationMutation = useMutation(locationPath)
 
+  const instanceEngineSettings = useFind(engineSettingPath, {
+    query: {
+      category: 'instance-server',
+      key: EngineSettings.InstanceServer.MaxUsersPerInstance,
+      paginate: false
+    }
+  })
+
   const publishLoading = useHookstate(false)
   const unPublishLoading = useHookstate(false)
   const isNewPublished = useHookstate(false)
@@ -187,8 +197,10 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
     if (!maxUsers.value) {
       errors.maxUsers.set(t('admin:components.location.maxUserCantEmpty'))
     }
-    if (maxUsers.value > LOCATION_MAX) {
-      errors.maxUsers.set(t('admin:components.location.maxUserExceeded'))
+    if (maxUsers.value > parseInt(instanceEngineSettings.data[0].value)) {
+      errors.maxUsers.set(
+        t('admin:components.location.maxUserExceeded', { maxUsers: instanceEngineSettings?.data[0].value })
+      )
     }
     if (!scene.value) {
       errors.scene.set(t('admin:components.location.sceneCantEmpty'))
@@ -521,7 +533,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
                     fullWidth
                     height="xl"
                     placeholder="5 - Default"
-                    max={LOCATION_MAX}
+                    max={parseInt(instanceEngineSettings?.data[0]?.value)}
                   />
                   <Toggle
                     label={t('admin:components.location.lbl-ve')}

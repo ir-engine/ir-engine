@@ -423,25 +423,12 @@ export const InputComponent = defineComponent({
     //   // collider.collisionLayer.set(collider.collisionLayer.value | CollisionGroups.Input)
     // }, [])
 
-    /** @todo - fix */
-    // useLayoutEffect(() => {
-    //   if (!input.inputSources.length || !input.grow.value) return
-    //   setComponent(entity, AnimateScaleComponent)
-    //   return () => {
-    //     removeComponent(entity, AnimateScaleComponent)
-    //   }
-    // }, [input.inputSources, input.grow])
-
     return null
   }
 })
 
 function getLargestMagnitudeNumber(a: number, b: number) {
   return Math.abs(a) > Math.abs(b) ? a : b
-}
-
-function filterInputEntities(entity: Entity, index: number, arr: Entity[]) {
-  return arr.indexOf(entity) === index && entity !== UndefinedEntity
 }
 
 export const enum InputExecutionOrder {
@@ -466,13 +453,3 @@ export const InputExecutionSystemGroup = defineSystem({
   uuid: 'ee.engine.InputExecutionSystemGroup',
   insert: { with: InputSystemGroup }
 })
-
-const mapInputButtons = (eid: Entity) => getComponent(eid, InputSourceComponent).buttons
-
-const inputSinkComponentQueryComponents = [InputSinkComponent]
-const inputComponentQueryComponents = [InputComponent]
-
-const reduceInputEntities = (prev: Entity[], eid: Entity) => {
-  prev.push(...getComponent(eid, InputComponent).inputSources)
-  return prev
-}

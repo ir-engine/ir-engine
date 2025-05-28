@@ -1,0 +1,533 @@
+{
+  "asset": {
+    "generator": "IREngine.SceneExporter",
+    "version": "2.0"
+  },
+  "nodes": [
+    {
+      "name": "Settings",
+      "extensions": {
+        "EE_uuid": {
+          "entityID": "0d5a20e1-abe2-455e-9963-d5e1e19fca19"
+        },
+        "EE_envmapbake": {
+          "bakePosition": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "bakePositionOffset": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "bakeScale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          },
+          "bakeType": "Baked",
+          "resolution": 2048,
+          "refreshMode": "OnAwake",
+          "envMapOrigin": "__$project$__/ir-engine/default-project/public/scenes/default.envmap.ktx2",
+          "boxProjection": true
+        },
+        "EE_fog": {
+          "type": "disabled",
+          "color": "#FFFFFF",
+          "density": 0.005,
+          "near": 1,
+          "far": 1000,
+          "timeScale": 1,
+          "height": 0.05
+        },
+        "EE_camera_settings": {
+          "fov": 50,
+          "cameraNearClip": 0.1,
+          "cameraFarClip": 1000,
+          "projectionType": 1,
+          "minCameraDistance": 1,
+          "maxCameraDistance": 50,
+          "startCameraDistance": 3,
+          "cameraMode": "Dynamic",
+          "cameraModeDefault": "ThirdPerson",
+          "minPhi": -70,
+          "maxPhi": 85
+        },
+        "EE_postprocessing": {
+          "enabled": false,
+          "effects": {
+            "SSREffect": {
+              "isActive": false,
+              "distance": 10,
+              "thickness": 10,
+              "autoThickness": false,
+              "maxRoughness": 1,
+              "blend": 0.9,
+              "denoiseIterations": 1,
+              "denoiseKernel": 2,
+              "denoiseDiffuse": 10,
+              "denoiseSpecular": 10,
+              "depthPhi": 2,
+              "normalPhi": 50,
+              "roughnessPhi": 1,
+              "envBlur": 0.5,
+              "importanceSampling": true,
+              "directLightMultiplier": 1,
+              "steps": 20,
+              "refineSteps": 5,
+              "spp": 1,
+              "resolutionScale": 1,
+              "missedRays": false
+            },
+            "DepthOfFieldEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "focusDistance": 0.02,
+              "focalLength": 0.5,
+              "bokehScale": 1
+            },
+            "BloomEffect": {
+              "isActive": true,
+              "blendFunction": 28,
+              "kernelSize": 2,
+              "luminanceThreshold": 1,
+              "luminanceSmoothing": 0.1,
+              "intensity": 0.2
+            },
+            "ToneMappingEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "adaptive": true,
+              "resolution": 512,
+              "middleGrey": 0.6,
+              "maxLuminance": 32,
+              "averageLuminance": 1,
+              "adaptationRate": 2
+            },
+            "BrightnessContrastEffect": {
+              "isActive": false,
+              "brightness": 0.05,
+              "contrast": 0.1
+            },
+            "HueSaturationEffect": {
+              "isActive": false,
+              "hue": 0,
+              "saturation": -0.15
+            },
+            "ColorDepthEffect": {
+              "isActive": false,
+              "bits": 16
+            },
+            "LinearTosRGBEffect": {
+              "isActive": false
+            },
+            "SSGIEffect": {
+              "isActive": false,
+              "distance": 10,
+              "thickness": 10,
+              "autoThickness": false,
+              "maxRoughness": 1,
+              "blend": 0.9,
+              "denoiseIterations": 1,
+              "denoiseKernel": 2,
+              "denoiseDiffuse": 10,
+              "denoiseSpecular": 10,
+              "depthPhi": 2,
+              "normalPhi": 50,
+              "roughnessPhi": 1,
+              "envBlur": 0.5,
+              "importanceSampling": true,
+              "directLightMultiplier": 1,
+              "steps": 20,
+              "refineSteps": 5,
+              "spp": 1,
+              "resolutionScale": 1,
+              "missedRays": false
+            },
+            "TRAAEffect": {
+              "isActive": false,
+              "blend": 0.8,
+              "constantBlend": true,
+              "dilation": true,
+              "blockySampling": false,
+              "logTransform": false,
+              "depthDistance": 10,
+              "worldDistance": 5,
+              "neighborhoodClamping": true
+            },
+            "MotionBlurEffect": {
+              "isActive": false,
+              "intensity": 1,
+              "jitter": 1,
+              "samples": 16
+            },
+            "ChromaticAberrationEffect": {
+              "isActive": false,
+              "offset": {
+                "x": 0.001,
+                "y": 0.0005
+              },
+              "radialModulation": false,
+              "modulationOffset": 0.15
+            },
+            "ColorAverageEffect": {
+              "isActive": false,
+              "blendFunction": 23
+            },
+            "DotScreenEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "angle": 1.5707963267948966,
+              "scale": 1
+            },
+            "FXAAEffect": {
+              "isActive": false,
+              "blendFunction": 30
+            },
+            "GlitchEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "delay": {
+                "x": 1.5,
+                "y": 3.5
+              },
+              "duration": {
+                "x": 0.6,
+                "y": 1
+              },
+              "strength": {
+                "x": 0.3,
+                "y": 1
+              },
+              "dtSize": 64,
+              "columns": 0.05,
+              "ratio": 0.85
+            },
+            "GridEffect": {
+              "isActive": false,
+              "blendFunction": 24,
+              "scale": 1,
+              "lineWidth": 0
+            },
+            "LensDistortionEffect": {
+              "isActive": false,
+              "distortion": {
+                "x": 0,
+                "y": 0
+              },
+              "principalPoint": {
+                "x": 0,
+                "y": 0
+              },
+              "focalLength": {
+                "x": 1,
+                "y": 1
+              },
+              "skew": 0
+            },
+            "LUT1DEffect": {
+              "isActive": false,
+              "blendFunction": 30
+            },
+            "LUT3DEffect": {
+              "isActive": false,
+              "blendFunction": 30
+            },
+            "NoiseEffect": {
+              "isActive": false,
+              "blendFunction": 28,
+              "premultiply": false
+            },
+            "PixelationEffect": {
+              "isActive": false,
+              "granularity": 30
+            },
+            "ScanlineEffect": {
+              "isActive": false,
+              "blendFunction": 24,
+              "density": 1.25,
+              "scrollSpeed": 0
+            },
+            "ShockWaveEffect": {
+              "isActive": false,
+              "position": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "speed": 2,
+              "maxRadius": 1,
+              "waveSize": 0.2,
+              "amplitude": 0.05
+            },
+            "TextureEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "aspectCorrection": false
+            },
+            "TiltShiftEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "offset": 0,
+              "rotation": 0,
+              "focusArea": 0.4,
+              "feather": 0.3,
+              "kernelSize": 2,
+              "resolutionScale": 0.5,
+              "resolutionX": -1,
+              "resolutionY": -1
+            },
+            "VignetteEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "technique": 0,
+              "eskil": false,
+              "offset": 0.5,
+              "darkness": 0.5
+            },
+            "SMAAEffect": {
+              "isActive": false,
+              "preset": 1,
+              "edgeDetectionMode": 2,
+              "predicationMode": 0
+            },
+            "SSAOEffect": {
+              "isActive": true,
+              "blendFunction": 21,
+              "distanceScaling": true,
+              "depthAwareUpsampling": true,
+              "samples": 9,
+              "rings": 7,
+              "distanceThreshold": 0.97,
+              "distanceFalloff": 0.03,
+              "rangeThreshold": 0.0005,
+              "rangeFalloff": 0.001,
+              "minRadiusScale": 0.1,
+              "luminanceInfluence": 0.7,
+              "bias": 0.025,
+              "radius": 0.1825,
+              "intensity": 1,
+              "fade": 0.01,
+              "resolutionScale": 1,
+              "resolutionX": -1,
+              "resolutionY": -1,
+              "width": -1,
+              "height": -1,
+              "blur": false,
+              "kernelSize": 1
+            }
+          }
+        },
+        "EE_render_settings": {
+          "primaryLight": "cb045cfd-8daf-4a2b-b764-35625be54a11",
+          "csm": true,
+          "cascades": 3,
+          "toneMapping": 1,
+          "toneMappingExposure": 0.8,
+          "shadowMapType": 2
+        },
+        "EE_scene_settings": {
+          "thumbnailURL": "__$project$__/ir-engine/default-project/public/scenes/default.thumbnail.jpg",
+          "loadingScreenURL": "__$project$__/ir-engine/default-project/public/scenes/default.loadingscreen.ktx2",
+          "primaryColor": "#B3B3B3",
+          "backgroundColor": "#2C2C2C",
+          "alternativeColor": "#A1A1A1",
+          "sceneKillHeight": -10,
+          "spectateEntity": ""
+        },
+        "EE_visible": true
+      }
+    },
+    {
+      "name": "scene preview camera",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        2.5,
+        5,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": {
+          "entityID": "bb362197-f14d-4da7-9c3c-1ed834386423"
+        },
+        "EE_scene_preview_camera": {},
+        "EE_visible": true
+      }
+    },
+    {
+      "name": "Skybox",
+      "extensions": {
+        "EE_uuid": {
+          "entityID": "e7d6bfb1-6390-4a8b-b744-da83b059c2d3"
+        },
+        "EE_visible": true,
+        "EE_skybox": {
+          "backgroundColor": 3026478,
+          "equirectangularPath": "__$project$__/ir-engine/default-project/assets/generic_midday_02.ktx2?hash=19535b",
+          "cubemapPath": "__$project$__/ir-engine/default-project/assets/skyboxsun25deg/",
+          "backgroundType": 2,
+          "skyboxProps": {
+            "turbidity": 10,
+            "rayleigh": 1,
+            "luminance": 1,
+            "mieCoefficient": 0.004999999999999893,
+            "mieDirectionalG": 0.99,
+            "inclination": 0.10471975511965978,
+            "azimuth": 0.20833333333333334
+          }
+        }
+      }
+    },
+    {
+      "name": "spawn point",
+      "matrix": [
+        -1,
+        1.0106430996148606e-15,
+        -1.224646852585167e-16,
+        0,
+        1.0106430996148606e-15,
+        1,
+        1.2246467991473547e-16,
+        0,
+        1.2246468525851686e-16,
+        1.2246467991473532e-16,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": {
+          "entityID": "3e8a430e-9dcf-440e-990c-44ecb8051762"
+        },
+        "EE_visible": true,
+        "EE_spawn_point": {
+          "permissionedUsers": []
+        }
+      }
+    },
+    {
+      "name": "hemisphere light",
+      "extensions": {
+        "EE_uuid": {
+          "entityID": "f77dc4c6-c9a6-433d-8102-4a9a8e1c0ce9"
+        },
+        "EE_visible": true,
+        "EE_hemisphere_light": {
+          "skyColor": 16777215,
+          "groundColor": 16777215,
+          "intensity": 1
+        }
+      }
+    },
+    {
+      "name": "directional light",
+      "matrix": [
+        0.8201518642540717,
+        0.2860729507918132,
+        -0.49549287218469207,
+        0,
+        -2.135677357184562e-9,
+        0.866025399522099,
+        0.5000000073825887,
+        0,
+        0.5721458901019657,
+        -0.41007593712366663,
+        0.7102723465203862,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": {
+          "entityID": "cb045cfd-8daf-4a2b-b764-35625be54a11"
+        },
+        "EE_directional_light": {
+          "color": 16777215,
+          "intensity": 1,
+          "castShadow": true,
+          "shadowBias": -0.00001,
+          "shadowRadius": 1,
+          "cameraFar": 50
+        },
+        "EE_visible": true
+      }
+    },
+    {
+      "name": "platform",
+      "extensions": {
+        "EE_uuid": {
+          "entityID": "685c48da-e2a0-4a9a-af7c-c5a3c187c99a"
+        },
+        "EE_model": {
+          "src": "__$project$__/ir-engine/default-project/assets/platform.glb",
+          "cameraOcclusion": true,
+          "applyColliders": false,
+          "shape": "box"
+        },
+        "EE_visible": true,
+        "EE_shadow": {
+          "cast": true,
+          "receive": true
+        },
+        "EE_envmap": {
+          "type": "Skybox",
+          "envMapSourceColor": 4095,
+          "envMapSourceURL": "",
+          "envMapCubemapURL": "",
+          "envMapSourceEntityUUID": "",
+          "envMapIntensity": 1
+        }
+      }
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "nodes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "extensionsUsed": [
+    "EE_uuid",
+    "EE_envmapbake",
+    "EE_fog",
+    "EE_camera_settings",
+    "EE_postprocessing",
+    "EE_render_settings",
+    "EE_scene_settings",
+    "EE_visible",
+    "EE_scene_preview_camera",
+    "EE_skybox",
+    "EE_spawn_point",
+    "EE_hemisphere_light",
+    "EE_directional_light",
+    "EE_model",
+    "EE_shadow",
+    "EE_envmap"
+  ]
+}

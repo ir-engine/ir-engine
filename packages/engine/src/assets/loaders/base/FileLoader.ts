@@ -125,6 +125,7 @@ class FileLoader<TData = unknown> extends Loader<TData> {
       responsePromise = ResourceCache.get(req.url).then((response) => {
         if (!response) return fetch(req, { signal })
         fromCache = true
+        console.log(`Loaded from cache: ${req.url}`)
         return response
       })
     } else {

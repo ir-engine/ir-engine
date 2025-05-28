@@ -53,6 +53,8 @@ export async function offloadTextureData(texture: Texture): Promise<boolean> {
   const url = texture.userData?.url
   if (!url) return false
 
+  console.info(`Offloading texture data: ${url}`)
+
   const mipmaps = texture.mipmaps
   const data = texture.source.data
   texture.mipmaps = []
@@ -62,6 +64,8 @@ export async function offloadTextureData(texture: Texture): Promise<boolean> {
   if (cachePromise) return cachePromise
 
   if (await ResourceCache.has(`${TEXTURE_CACHE_PREFIX}${url}`)) return false
+
+  console.log(`Caching texture data: ${url}`)
 
   const promise = new Promise<boolean>(async (resolve, reject) => {
     // For compressed textures, store mipmaps
@@ -130,6 +134,10 @@ export async function offloadTextureData(texture: Texture): Promise<boolean> {
  * @returns A promise that resolves when the texture is restored
  */
 export async function restoreTextureData(texture: Texture): Promise<boolean> {
+  // Get the URL from the texture
+  const url = texture.userData?.url
+  if (!url) return false
+
   // Skip if texture already has meaningful data
   if (
     texture.source.data &&
@@ -137,12 +145,10 @@ export async function restoreTextureData(texture: Texture): Promise<boolean> {
     Object.keys(texture.source.data).length > 0 &&
     !(texture.source.data instanceof Object && Object.keys(texture.source.data).length === 0)
   ) {
-    return true
+    return false
   }
 
-  // Get the URL from the texture
-  const url = texture.userData?.url
-  if (!url) return false
+  console.info(`Restoring texture data: ${url}`)
 
   // Skip if ResourceCache is not available
   if (!ResourceCache) return false
@@ -174,13 +180,18 @@ export async function restoreTextureData(texture: Texture): Promise<boolean> {
             data: new Uint8Array(mip.data).buffer
           }))
 
-          // Restore mipmaps and dimensions
+          // Restore data
           compressedTexture.mipmaps = mipmaps
-          if (textureData.width) compressedTexture.source.data.width = textureData.width
-          if (textureData.height) compressedTexture.source.data.height = textureData.height
+          compressedTexture.source.data.width = textureData.width
+          compressedTexture.source.data.height = textureData.height
+          compressedTexture.format = textureData.format
+          compressedTexture.type = textureData.type
+          compressedTexture.needsUpdate = true
+          console.info(`Restored texture data: ${url}`)
           return true
         }
       } catch (e) {
+        console.error(`Error parsing texture data: ${e}`)
         // If parsing fails, try to load from URL
         return await loadFromURL(texture)
       }

@@ -300,7 +300,7 @@ const resourceCallbacks = {
             let count = 0
             const checkSync = () => {
               const status = gl.clientWaitSync(sync, 0, 0)
-              if (status === gl.TIMEOUT_EXPIRED && count++ < 10) {
+              if (status === gl.TIMEOUT_EXPIRED && count++ < 100) {
                 setTimeout(checkSync)
               } else {
                 gl.deleteSync(sync)
