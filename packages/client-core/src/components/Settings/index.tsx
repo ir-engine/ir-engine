@@ -155,13 +155,13 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/20  backdrop-blur-md md:items-center md:pt-0">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/20 backdrop-blur-md md:items-center md:pt-0">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.2 }}
-        className="flex h-full w-full max-w-sm flex-col rounded-3xl p-5 text-white shadow-xl backdrop-blur-md md:max-w-screen-md"
+        className="flex h-full w-full max-w-sm flex-col rounded-3xl p-5 font-dm-sans text-white shadow-xl backdrop-blur-md md:max-w-screen-md"
         style={{
           maxHeight: '90vh',
           background: 'linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05))',
@@ -182,7 +182,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose }) => {
           ) : (
             <div className="w-8"></div> // Placeholder for spacing
           )}
-          <h2 className="font-dm-sans text-xl font-semibold text-white/90">{currentTitle}</h2>
+          <h2 className=" text-xl font-semibold text-white/90">{currentTitle}</h2>
           <button
             onClick={onClose}
             className="-mr-1 rounded-full p-2 transition-colors hover:bg-white/10"
