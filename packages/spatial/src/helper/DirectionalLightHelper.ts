@@ -98,9 +98,7 @@ export const DirectionalLightHelperReactor: React.FC<ActiveHelperReactorProps> =
   const { entity, selected, hovered } = props
   const helper = getState(ActiveHelperRegistryState)
 
-  const directionalLight = useComponent(entity, helper[helperKey].component)
-
-  console.log('DEBUG DirectionalLightHelperReactor', entity, selected, hovered)
+  const directionalLight = useComponent(entity, helper[helperKey].component as typeof DirectionalLightComponent)
 
   useEffect(() => {
     if (!(selected || hovered)) return
@@ -111,7 +109,7 @@ export const DirectionalLightHelperReactor: React.FC<ActiveHelperReactorProps> =
       name: 'directional-light-helper',
       // Clone geometry because LineSegmentComponent disposes it when removed
       geometry: mergedGeometry?.clone(),
-      color: directionalLight.value.color
+      color: directionalLight.color.value
     })
 
     return () => {

@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { SpotLight, SpotLightHelper } from 'three'
+import { SpotLight } from 'three'
 
 import { S, useEntityContext } from '@ir-engine/ecs'
 import {
@@ -34,10 +34,9 @@ import {
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { NO_PROXY, useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
 import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
-import { useHelperEntity } from '../../../helper/functions/useHelperEntity'
 import { T } from '../../../schema/schemaFunctions'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { RendererState } from '../../RendererState'
@@ -91,14 +90,6 @@ export const SpotLightComponent = defineComponent({
         removeComponent(entity, ObjectComponent)
       }
     }, [])
-
-    const helperEntity = useHelperEntity(entity, () => new SpotLightHelper(light), debugEnabled)
-    const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as SpotLightHelper | undefined
-
-    useEffect(() => {
-      light.color.set(spotLightComponent.color.value)
-      if (helper) helper.color = spotLightComponent.color.value
-    }, [!!helper, spotLightComponent.color])
 
     useEffect(() => {
       light.intensity = spotLightComponent.intensity.value

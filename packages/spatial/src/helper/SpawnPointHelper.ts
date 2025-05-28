@@ -23,75 +23,66 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useComponent } from '@ir-engine/ecs'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
-import { BufferGeometry, Float32BufferAttribute } from 'three'
+import {
+  createEntity,
+  entityExists,
+  EntityTreeComponent,
+  getComponent,
+  removeEntity,
+  setComponent
+} from '@ir-engine/ecs'
+import { useGLTFComponent } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
+import { getMutableState } from '@ir-engine/hyperflux'
+import { useEffect } from 'react'
+import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
 import { SpawnPointComponent } from '../../../engine/src/scene/components/SpawnPointComponent'
-import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
+import { ObjectComponent } from '../renderer/components/ObjectComponent'
+import { setVisibleComponent, VisibleComponent } from '../renderer/components/VisibleComponent'
+import { TransformComponent } from '../SpatialModule'
+import { ComputedTransformComponent } from '../transform/components/ComputedTransformComponent'
 import { ActiveHelperReactorProps, ActiveHelperRegistryState } from './HelperRegistry'
 
 const helperKey = SpawnPointComponent.jsonID
-
-const size = 1
-const lightPlaneGeometry = new BufferGeometry()
-lightPlaneGeometry.setAttribute(
-  'position',
-  new Float32BufferAttribute(
-    [
-      -size,
-      size,
-      0,
-      size,
-      size,
-      0,
-      size,
-      size,
-      0,
-      size,
-      -size,
-      0,
-      size,
-      -size,
-      0,
-      -size,
-      -size,
-      0,
-      -size,
-      -size,
-      0,
-      -size,
-      size,
-      0,
-      -size,
-      size,
-      0,
-      size,
-      -size,
-      0,
-      size,
-      size,
-      0,
-      -size,
-      -size,
-      0
-    ],
-    3
-  )
-)
-
-const targetLineGeometry = new BufferGeometry()
-const t = size * 0.1
-targetLineGeometry.setAttribute(
-  'position',
-  new Float32BufferAttribute([-t, t, 0, 0, 0, 1, t, t, 0, 0, 0, 1, t, -t, 0, 0, 0, 1, -t, -t, 0, 0, 0, 1], 3)
-)
-
-const mergedGeometry = mergeBufferGeometries([targetLineGeometry, lightPlaneGeometry])
+const GLTF_PATH = '/static/editor/spawn-point.glb'
 
 export const SpawnPointHelperReactor: React.FC<ActiveHelperReactorProps> = (props: { entity; selected; hovered }) => {
   const { entity, selected, hovered } = props
-  const helper = getState(ActiveHelperRegistryState)
-  const directionalLight = useComponent(entity, helper[helperKey].component)
+  const debugEnabled = selected || hovered
+
+  const debugGLTF = useGLTFComponent(debugEnabled ? GLTF_PATH : '', entity)
+
+  useEffect(() => {
+    if (!debugGLTF || !debugEnabled) return
+
+    const boundsHelperEntity = createEntity()
+    setComponent(boundsHelperEntity, TransformComponent)
+    setComponent(boundsHelperEntity, EntityTreeComponent, { parentEntity: entity })
+    setComponent(boundsHelperEntity, VisibleComponent)
+    const buffer = new BufferGeometry()
+    const positions = new Float32Array([-0.5, 0, -0.5, 0.5, 0, -0.5, 0.5, 0, 0.5, -0.5, 0, 0.5])
+    const indices = new Uint16Array([0, 1, 1, 2, 2, 3, 3, 0])
+    buffer.setIndex(new BufferAttribute(indices, 1))
+    buffer.setAttribute('position', new BufferAttribute(positions, 3))
+    setComponent(
+      boundsHelperEntity,
+      ObjectComponent,
+      new LineSegments(buffer, new LineBasicMaterial({ color: 'white' }))
+    )
+
+    setVisibleComponent(debugGLTF, true)
+    setComponent(debugGLTF, ComputedTransformComponent, {
+      referenceEntities: [entity],
+      computeFunction: () => {
+        const scale = getComponent(entity, TransformComponent).scale
+        getComponent(debugGLTF, TransformComponent).scale.set(1 / scale.x, 1 / scale.y, 1 / scale.z)
+      }
+    })
+
+    return () => {
+      removeEntity(boundsHelperEntity)
+      if (entityExists(debugGLTF)) setVisibleComponent(debugGLTF, false)
+    }
+  }, [debugGLTF, debugEnabled])
 
   return null
 }

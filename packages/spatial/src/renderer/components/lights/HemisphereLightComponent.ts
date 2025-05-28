@@ -77,15 +77,6 @@ export const HemisphereLightComponent = defineComponent({
       light.groundColor.set(hemisphereLightComponent.groundColor.value)
     }, [hemisphereLightComponent.groundColor])
 
-    const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as
-      | HemisphereLightHelper
-      | undefined
-
-    useEffect(() => {
-      light.color.set(hemisphereLightComponent.skyColor.value)
-      if (helper) helper.color = hemisphereLightComponent.skyColor.value
-    }, [!!helper, hemisphereLightComponent.skyColor])
-
     useEffect(() => {
       light.intensity = hemisphereLightComponent.intensity.value
     }, [hemisphereLightComponent.intensity])

@@ -23,70 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useComponent } from '@ir-engine/ecs'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
-import { BufferGeometry, Float32BufferAttribute } from 'three'
-import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
+import { useComponent, useOptionalComponent } from '@ir-engine/ecs'
+import { getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { useEffect } from 'react'
+import { HemisphereLight, HemisphereLightHelper } from 'three'
+import { ObjectComponent } from '../renderer/components/ObjectComponent'
 import { HemisphereLightComponent } from '../SpatialModule'
+import { useHelperEntity } from './functions/useHelperEntity'
 import { ActiveHelperReactorProps, ActiveHelperRegistryState } from './HelperRegistry'
 
 const helperKey = HemisphereLightComponent.jsonID
-
-const size = 1
-const lightPlaneGeometry = new BufferGeometry()
-lightPlaneGeometry.setAttribute(
-  'position',
-  new Float32BufferAttribute(
-    [
-      -size,
-      size,
-      0,
-      size,
-      size,
-      0,
-      size,
-      size,
-      0,
-      size,
-      -size,
-      0,
-      size,
-      -size,
-      0,
-      -size,
-      -size,
-      0,
-      -size,
-      -size,
-      0,
-      -size,
-      size,
-      0,
-      -size,
-      size,
-      0,
-      size,
-      -size,
-      0,
-      size,
-      size,
-      0,
-      -size,
-      -size,
-      0
-    ],
-    3
-  )
-)
-
-const targetLineGeometry = new BufferGeometry()
-const t = size * 0.1
-targetLineGeometry.setAttribute(
-  'position',
-  new Float32BufferAttribute([-t, t, 0, 0, 0, 1, t, t, 0, 0, 0, 1, t, -t, 0, 0, 0, 1, -t, -t, 0, 0, 0, 1], 3)
-)
-
-const mergedGeometry = mergeBufferGeometries([targetLineGeometry, lightPlaneGeometry])
 
 export const HemiSphereLightHelperReactor: React.FC<ActiveHelperReactorProps> = (props: {
   entity
@@ -95,7 +41,19 @@ export const HemiSphereLightHelperReactor: React.FC<ActiveHelperReactorProps> = 
 }) => {
   const { entity, selected, hovered } = props
   const helper = getState(ActiveHelperRegistryState)
-  const directionalLight = useComponent(entity, helper[helperKey].component)
+  const hemisphereLightComponent = useComponent(entity, helper[helperKey].component as typeof HemisphereLightComponent)
+
+  const debugEnabled = selected || hovered
+  const light = useHookstate(() => new HemisphereLight()).get(NO_PROXY) as HemisphereLight
+  const helperEntity = useHelperEntity(entity, () => new HemisphereLightHelper(light, 10), debugEnabled)
+  const helperObject = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as
+    | HemisphereLightHelper
+    | undefined
+
+  useEffect(() => {
+    light.color.set(hemisphereLightComponent.skyColor.value)
+    if (helperObject) helperObject.color = hemisphereLightComponent.skyColor.value
+  }, [!!helperObject, hemisphereLightComponent.skyColor])
 
   return null
 }

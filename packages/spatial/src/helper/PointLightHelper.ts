@@ -23,75 +23,32 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useComponent } from '@ir-engine/ecs'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
-import { BufferGeometry, Float32BufferAttribute } from 'three'
-import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
+import { useComponent, useOptionalComponent } from '@ir-engine/ecs'
+import { getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { useEffect } from 'react'
+import { PointLight, PointLightHelper } from 'three'
+import { ObjectComponent } from '../renderer/components/ObjectComponent'
 import { PointLightComponent } from '../SpatialModule'
+import { useHelperEntity } from './functions/useHelperEntity'
 import { ActiveHelperReactorProps, ActiveHelperRegistryState } from './HelperRegistry'
 
 const helperKey = PointLightComponent.jsonID
 
-const size = 1
-const lightPlaneGeometry = new BufferGeometry()
-lightPlaneGeometry.setAttribute(
-  'position',
-  new Float32BufferAttribute(
-    [
-      -size,
-      size,
-      0,
-      size,
-      size,
-      0,
-      size,
-      size,
-      0,
-      size,
-      -size,
-      0,
-      size,
-      -size,
-      0,
-      -size,
-      -size,
-      0,
-      -size,
-      -size,
-      0,
-      -size,
-      size,
-      0,
-      -size,
-      size,
-      0,
-      size,
-      -size,
-      0,
-      size,
-      size,
-      0,
-      -size,
-      -size,
-      0
-    ],
-    3
-  )
-)
-
-const targetLineGeometry = new BufferGeometry()
-const t = size * 0.1
-targetLineGeometry.setAttribute(
-  'position',
-  new Float32BufferAttribute([-t, t, 0, 0, 0, 1, t, t, 0, 0, 0, 1, t, -t, 0, 0, 0, 1, -t, -t, 0, 0, 0, 1], 3)
-)
-
-const mergedGeometry = mergeBufferGeometries([targetLineGeometry, lightPlaneGeometry])
-
 export const PointLightHelperReactor: React.FC<ActiveHelperReactorProps> = (props: { entity; selected; hovered }) => {
   const { entity, selected, hovered } = props
   const helper = getState(ActiveHelperRegistryState)
-  const directionalLight = useComponent(entity, helper[helperKey].component)
+  const pointLightComponent = useComponent(entity, helper[helperKey].component as typeof PointLightComponent)
+  const debugEnabled = selected || hovered
+  const light = useHookstate(() => new PointLight()).value as PointLight
+  const helperEntity = useHelperEntity(entity, () => new PointLightHelper(light), debugEnabled)
+  const helperObject = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as
+    | PointLightHelper
+    | undefined
+
+  useEffect(() => {
+    light.color.set(pointLightComponent.color.value)
+    if (helperObject) helperObject.color = pointLightComponent.color.value
+  }, [!!helperObject, pointLightComponent.color])
 
   return null
 }

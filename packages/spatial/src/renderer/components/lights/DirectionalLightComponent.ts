@@ -27,14 +27,10 @@ import { useEffect } from 'react'
 import { BufferGeometry, DirectionalLight, Float32BufferAttribute } from 'three'
 
 import {
-  EntityTreeComponent,
   S,
-  UndefinedEntity,
-  createEntity,
   defineComponent,
   getMutableComponent,
   removeComponent,
-  removeEntity,
   setComponent,
   useComponent,
   useEntityContext,
@@ -131,7 +127,6 @@ export const DirectionalLightComponent = defineComponent({
       setComponent(entity, LightTagComponent)
       getMutableComponent(entity, DirectionalLightComponent).light.set(light)
       setComponent(entity, ObjectComponent, light)
-      setComponent(entity, ActiveHelperComponent, { directional: true })
 
       return () => {
         removeComponent(entity, ObjectComponent)
@@ -174,31 +169,6 @@ export const DirectionalLightComponent = defineComponent({
         light.shadow.needsUpdate = true
       }
     }, [renderState.shadowMapResolution])
-
-    useEffect(() => {
-      if (activeHelperComponent === undefined) return
-      if (
-        !(
-          activeHelperComponent.enabled.value &&
-          (activeHelperComponent.selected.value || activeHelperComponent.hovered.value)
-        )
-      )
-        return
-
-      activeHelperComponent.helperSelectedGizmo.set(createEntity())
-      setComponent(activeHelperComponent.helperSelectedGizmo.value, EntityTreeComponent, { parentEntity: entity })
-      setComponent(activeHelperComponent.helperSelectedGizmo.value, LineSegmentComponent, {
-        name: 'directional-light-helper',
-        // Clone geometry because LineSegmentComponent disposes it when removed
-        geometry: mergedGeometry?.clone(),
-        color: directionalLightComponent.color.value
-      })
-
-      return () => {
-        removeEntity(activeHelperComponent!.helperSelectedGizmo.value)
-        activeHelperComponent!.helperSelectedGizmo.set(UndefinedEntity)
-      }
-    }, [activeHelperComponent?.enabled, activeHelperComponent?.selected, activeHelperComponent?.hovered])
 
     return null
   }

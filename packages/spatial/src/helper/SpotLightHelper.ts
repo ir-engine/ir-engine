@@ -23,75 +23,30 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useComponent } from '@ir-engine/ecs'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
-import { BufferGeometry, Float32BufferAttribute } from 'three'
-import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
-import { SpotLightComponent } from '../SpatialModule'
+import { useComponent, useOptionalComponent } from '@ir-engine/ecs'
+import { getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { useEffect } from 'react'
+import { SpotLight, SpotLightHelper } from 'three'
+import { ObjectComponent } from '../renderer/components/ObjectComponent'
+import { SpotLightComponent } from '../renderer/components/lights/SpotLightComponent'
 import { ActiveHelperReactorProps, ActiveHelperRegistryState } from './HelperRegistry'
+import { useHelperEntity } from './functions/useHelperEntity'
 
 const helperKey = SpotLightComponent.jsonID
-
-const size = 1
-const lightPlaneGeometry = new BufferGeometry()
-lightPlaneGeometry.setAttribute(
-  'position',
-  new Float32BufferAttribute(
-    [
-      -size,
-      size,
-      0,
-      size,
-      size,
-      0,
-      size,
-      size,
-      0,
-      size,
-      -size,
-      0,
-      size,
-      -size,
-      0,
-      -size,
-      -size,
-      0,
-      -size,
-      -size,
-      0,
-      -size,
-      size,
-      0,
-      -size,
-      size,
-      0,
-      size,
-      -size,
-      0,
-      size,
-      size,
-      0,
-      -size,
-      -size,
-      0
-    ],
-    3
-  )
-)
-
-const targetLineGeometry = new BufferGeometry()
-const t = size * 0.1
-targetLineGeometry.setAttribute(
-  'position',
-  new Float32BufferAttribute([-t, t, 0, 0, 0, 1, t, t, 0, 0, 0, 1, t, -t, 0, 0, 0, 1, -t, -t, 0, 0, 0, 1], 3)
-)
-
-const mergedGeometry = mergeBufferGeometries([targetLineGeometry, lightPlaneGeometry])
 
 export const SpotLightHelperReactor: React.FC<ActiveHelperReactorProps> = (props: { entity; selected; hovered }) => {
   const { entity, selected, hovered } = props
   const helper = getState(ActiveHelperRegistryState)
-  const directionalLight = useComponent(entity, helper[helperKey].component)
+  const spotLightComponent = useComponent(entity, helper[helperKey].component as typeof SpotLightComponent)
+  const debugEnabled = selected || hovered
+  const light = useHookstate(() => new SpotLight()).value as SpotLight
+  const helperEntity = useHelperEntity(entity, () => new SpotLightHelper(light), debugEnabled)
+  const helperObject = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as SpotLightHelper | undefined
+
+  useEffect(() => {
+    light.color.set(spotLightComponent.color.value)
+    if (helperObject) helperObject.color = spotLightComponent.color.value
+  }, [!!helperObject, spotLightComponent.color])
 
   return null
 }

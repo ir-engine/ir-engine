@@ -206,8 +206,8 @@ const ActiveHelperReactor = ({ helper }) => {
         setVisibleComponent(entity, visible)
       })
     }
-    setGizmoVisibility(engineState.isEditing.value)
-  }, [engineState.isEditing])
+    setGizmoVisibility(engineState.isEditing.value && editorHelperState.gizmoEnabled.value)
+  }, [engineState.isEditing, editorHelperState.gizmoEnabled])
 
   return <helper.reactor entity={entity} selected={selected.value} hovered={hovered.value} />
 }
