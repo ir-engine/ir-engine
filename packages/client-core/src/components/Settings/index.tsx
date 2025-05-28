@@ -182,7 +182,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose }) => {
           ) : (
             <div className="w-8"></div> // Placeholder for spacing
           )}
-          <h2 className="text-xl font-semibold text-white/90">{currentTitle}</h2>
+          <h2 className="font-dm-sans text-xl font-semibold text-white/90">{currentTitle}</h2>
           <button
             onClick={onClose}
             className="-mr-1 rounded-full p-2 transition-colors hover:bg-white/10"

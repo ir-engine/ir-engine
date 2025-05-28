@@ -151,7 +151,8 @@ module.exports = {
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
         figtree: ['Figtree', 'sans-serif'],
-        campton: ['Campton', 'sans-serif']
+        campton: ['Campton', 'sans-serif'],
+        'dm-sans': ['DM Sans', 'sans-serif']
       },
       keyframes: {
         twinkling: {
@@ -160,13 +161,13 @@ module.exports = {
           '100%': { opacity: '0.6' }
         },
         slideIn: {
-          "0%": { opacity: 0, transform: "translateY(20px)" },
-          "100%": { opacity: 1, transform: "translateY(0)" },
-        },
+          '0%': { opacity: 0, transform: 'translateY(20px)' },
+          '100%': { opacity: 1, transform: 'translateY(0)' }
+        }
       },
       animation: {
         twinkling: 'twinkling 5s alternate infinite',
-        slideIn: "slideIn 0.3s ease-out forwards",
+        slideIn: 'slideIn 0.3s ease-out forwards'
       }
     }
   },
