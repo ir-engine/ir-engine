@@ -90,7 +90,6 @@ const ColliderReactor = function () {
     return () => {
       if (!physicsWorld) return
       Physics.removeCollider(physicsWorld, entity)
-      component.hasCollider.set(false)
     }
   }, [
     physicsWorld,
@@ -133,7 +132,6 @@ const ColliderReactor = function () {
   }, [physicsWorld, component.collisionMask])
 
   useLayoutEffect(() => {
-    // if (!physicsWorld || !triggerComponent?.value || !hasCollider.value) return
     if (!physicsWorld || !triggerComponent?.value || !component.hasCollider.value) return
 
     Physics.setTrigger(physicsWorld, entity, true)
