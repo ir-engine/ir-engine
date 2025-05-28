@@ -25,9 +25,35 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { Divider, Section, type ScreenProps } from './shared'
 import SliderItem from './SliderItem'
 import ToggleItem from './ToggleItem'
+
+// Define types for screen components
+interface ScreenProps {
+  navigateTo: (screen: string) => void
+  onClose?: () => void
+}
+
+// Define a Section component for grouping related settings
+interface SectionProps {
+  children: React.ReactNode
+  className?: string
+}
+
+const Section: React.FC<SectionProps> = ({ children, className = '' }) => (
+  <div
+    className={`overflow-hidden rounded-xl shadow-sm ${className}`}
+    style={{
+      background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
+      border: '1px solid rgba(255, 255, 255, 0.05)'
+    }}
+  >
+    <div className="divide-y divide-white/10">{children}</div>
+  </div>
+)
+
+// Define a divider component for items within a section
+const Divider = () => <div className="h-px bg-white/10"></div>
 
 const WorldSettings: React.FC<ScreenProps> = () => (
   <div className="space-y-4">

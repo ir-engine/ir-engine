@@ -28,8 +28,11 @@ import React, { useState } from 'react'
 
 // Import icons from the icons module
 import { ArrowLeftSm, XCloseSm } from '@ir-engine/ui/src/icons'
-// Import shared components and types
-import { type ScreenProps } from './shared'
+// Define types for screen components
+interface ScreenProps {
+  navigateTo: (screen: string) => void
+  onClose?: () => void
+}
 
 // Import main screen components
 import AccountSettings from './AccountSettings'
