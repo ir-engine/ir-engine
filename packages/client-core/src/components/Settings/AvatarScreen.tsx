@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ChevronRightSm, Upload01Sm } from '@ir-engine/ui/src/icons'
 import React from 'react'
 
 import { MenuItem } from './MenuItem'
@@ -117,7 +116,7 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({ navigateTo }) => {
             // Navigate to edit avatar screen (placeholder)
             console.log('Navigate to Edit Avatar')
           }}
-          icon={<ChevronRightSm />}
+          hasChevron
         />
         <div className="h-px bg-white/10"></div>
         <MenuItem
@@ -126,7 +125,7 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({ navigateTo }) => {
             // Handle upload action (placeholder)
             console.log('Upload New Avatar')
           }}
-          icon={<Upload01Sm />}
+          hasChevron
         />
       </Section>
     </div>

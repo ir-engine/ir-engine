@@ -30,16 +30,22 @@ interface MenuItemProps {
   label: string
   onClick: () => void
   hasChevron?: boolean
-  icon?: React.ReactNode
+  leftIcon?: React.ReactNode
+  rightIcon?: React.ReactNode
 }
 
-export const MenuItem: React.FC<MenuItemProps> = ({ label, onClick, hasChevron = false, icon }) => (
+export const MenuItem: React.FC<MenuItemProps> = ({ label, onClick, hasChevron = false, leftIcon, rightIcon }) => (
   <div
     className="flex cursor-pointer items-center justify-between px-4 py-3.5 text-white/90 transition-colors hover:bg-white/5"
     onClick={onClick}
   >
-    <span className="font-medium">{label}</span>
-    {icon && <div className="text-white/70">{icon}</div>}
-    {hasChevron && <ChevronRightSm className="text-white/70" />}
+    <span className="flex items-center gap-3">
+      {leftIcon && <span className="text-white/70">{leftIcon}</span>}
+      <span className="font-medium">{label}</span>
+    </span>
+    <span className="flex items-center gap-3">
+      {rightIcon && <span className="text-white/70">{rightIcon}</span>}
+      {hasChevron && <ChevronRightSm className="text-white/70" />}
+    </span>
   </div>
 )

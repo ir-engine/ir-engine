@@ -23,8 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { GithubOriginalFalse, GoogleOriginalTrue, PlusCircleMd } from '@ir-engine/ui/src/icons'
 import React, { useState } from 'react'
+import { FaApple, FaMinusCircle } from 'react-icons/fa'
+import { SiMicrosoft } from 'react-icons/si'
 import Divider from './Divider'
+import { MenuItem } from './MenuItem'
 import { Section } from './Section'
 
 interface SSOScreenProps {}
@@ -32,9 +36,8 @@ interface SSOScreenProps {}
 interface SSOProvider {
   id: string
   name: string
-  icon: string
+  icon: React.ReactNode
   connected: boolean
-  color: string
 }
 
 const SSOScreen: React.FC<SSOScreenProps> = () => {
@@ -42,135 +45,89 @@ const SSOScreen: React.FC<SSOScreenProps> = () => {
     {
       id: 'google',
       name: 'Google',
-      icon: '🔍',
-      connected: true,
-      color: 'bg-red-500'
+      icon: <GoogleOriginalTrue className="h-6 w-6" />,
+      connected: true
     },
     {
       id: 'microsoft',
       name: 'Microsoft',
-      icon: '🪟',
-      connected: false,
-      color: 'bg-blue-500'
+      icon: <SiMicrosoft className="h-6 w-6 text-[#00A4EF]" />,
+      connected: false
     },
     {
       id: 'github',
       name: 'Github',
-      icon: '🐙',
-      connected: false,
-      color: 'bg-gray-800'
+      icon: <GithubOriginalFalse className="h-6 w-6" />,
+      connected: false
     },
     {
       id: 'apple',
       name: 'Apple',
-      icon: '🍎',
-      connected: false,
-      color: 'bg-gray-900'
+      icon: <FaApple className="h-6 w-6" />,
+      connected: false
     }
   ])
 
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
-  const [selectedProvider, setSelectedProvider] = useState<SSOProvider | null>(null)
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false)
-
   const handleProviderClick = (provider: SSOProvider) => {
     if (provider.connected) {
-      setSelectedProvider(provider)
-      setShowConfirmDialog(true)
+      // Handle disconnection logic here
+      console.log(`Disconnecting from ${provider.name}`)
+      setProviders((prev) => prev.map((p) => (p.id === provider.id ? { ...p, connected: false } : p)))
     } else {
       // Handle connection logic here
       console.log(`Connecting to ${provider.name}`)
-      // You would implement the actual SSO connection logic here
+      setProviders((prev) => prev.map((p) => (p.id === provider.id ? { ...p, connected: true } : p)))
     }
   }
 
-  const handleRemoveProvider = () => {
-    if (selectedProvider) {
-      setProviders((prev) => prev.map((p) => (p.id === selectedProvider.id ? { ...p, connected: false } : p)))
-      setShowConfirmDialog(false)
-      setShowSuccessMessage(true)
-      setTimeout(() => {
-        setShowSuccessMessage(false)
-      }, 3000)
-    }
-  }
-
-  const ProviderItem: React.FC<{ provider: SSOProvider }> = ({ provider }) => (
-    <div
-      className="flex cursor-pointer items-center justify-between px-4 py-3.5 text-white/90 transition-colors hover:bg-white/5"
-      onClick={() => handleProviderClick(provider)}
-    >
-      <div className="flex items-center space-x-3">
-        <div className={`flex h-6 w-6 items-center justify-center rounded text-sm ${provider.color}`}>
-          {provider.icon}
-        </div>
-        <span className="font-medium">{provider.name}</span>
-      </div>
-      <div className="flex items-center space-x-2">
-        {provider.connected && <span className="text-xs font-medium text-green-400">Connected</span>}
-        <button
-          className={`relative h-7 w-12 rounded-full transition-colors ${
-            provider.connected ? 'bg-blue-500' : 'bg-white/20'
-          }`}
-          aria-checked={provider.connected}
-          role="switch"
-        >
-          <span
-            className={`absolute top-1 block h-5 w-5 rounded-full bg-white shadow-md transition-transform ${
-              provider.connected ? 'left-6' : 'left-1'
-            }`}
-          />
-        </button>
-      </div>
-    </div>
-  )
-
-  if (showConfirmDialog && selectedProvider) {
-    return (
-      <div className="flex h-full flex-col items-center justify-center space-y-6 p-6 text-center">
-        <div className="space-y-4">
-          <p className="text-lg text-white/90">Are you sure you want to remove social login from</p>
-          <p className="text-xl font-semibold text-white">{selectedProvider.name}?</p>
-        </div>
-
-        <div className="flex w-full max-w-xs space-x-4">
-          <button
-            onClick={handleRemoveProvider}
-            className="flex-1 rounded-full bg-red-500/80 py-3 text-center font-medium text-white transition-colors hover:bg-red-500"
-          >
-            Remove
-          </button>
-          <button
-            onClick={() => setShowConfirmDialog(false)}
-            className="flex-1 rounded-full bg-white/20 py-3 text-center font-medium text-white transition-colors hover:bg-white/30"
-          >
-            Nevermind
-          </button>
-        </div>
-      </div>
-    )
-  }
+  const connectedProviders = providers.filter((p) => p.connected)
+  const disconnectedProviders = providers.filter((p) => !p.connected)
 
   return (
     <div className="space-y-4">
-      <div className="mb-4">
-        <p className="mb-4 text-sm text-white/70">Connect to:</p>
-      </div>
+      {/* Connected Section */}
+      {connectedProviders.length > 0 && (
+        <>
+          <div className="mb-2">
+            <p className="text-sm text-white/70">Connected:</p>
+          </div>
+          <Section>
+            {connectedProviders.map((provider, index) => (
+              <React.Fragment key={provider.id}>
+                <MenuItem
+                  label={provider.name}
+                  onClick={() => handleProviderClick(provider)}
+                  leftIcon={provider.icon}
+                  rightIcon={<FaMinusCircle />}
+                />
+                {index < connectedProviders.length - 1 && <Divider />}
+              </React.Fragment>
+            ))}
+          </Section>
+        </>
+      )}
 
-      <Section>
-        {providers.map((provider, index) => (
-          <React.Fragment key={provider.id}>
-            <ProviderItem provider={provider} />
-            {index < providers.length - 1 && <Divider />}
-          </React.Fragment>
-        ))}
-      </Section>
-
-      {/* Success Message */}
-      {showSuccessMessage && (
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 rounded-full bg-gray-800/90 px-6 py-3 text-white">
-          Social Login Removed Successfully.
-        </div>
+      {/* Connect to Section */}
+      {disconnectedProviders.length > 0 && (
+        <>
+          <div className="mb-2">
+            <p className="text-sm text-white/70">Connect to:</p>
+          </div>
+          <Section>
+            {disconnectedProviders.map((provider, index) => (
+              <React.Fragment key={provider.id}>
+                <MenuItem
+                  label={provider.name}
+                  onClick={() => handleProviderClick(provider)}
+                  leftIcon={provider.icon}
+                  rightIcon={<PlusCircleMd />}
+                  hasChevron
+                />
+                {index < disconnectedProviders.length - 1 && <Divider />}
+              </React.Fragment>
+            ))}
+          </Section>
+        </>
       )}
     </div>
   )
