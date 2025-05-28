@@ -320,6 +320,15 @@ const ChildResourceReactor = (props: { rootEntity: Entity; sourceEntities: Entit
     getMutableComponent(rootEntity, GLTFComponent).progress.set(percentage)
   }, [resourceProgress, dependenciesLoaded])
 
+  useEffect(() => {
+    if (resourceProgress !== 100) return
+
+    removeComponent(rootEntity, ResourceProgressComponent)
+    for (const entity of sourceEntities) {
+      removeComponent(entity, ResourceProgressComponent)
+    }
+  }, [resourceProgress])
+
   return null
 }
 
