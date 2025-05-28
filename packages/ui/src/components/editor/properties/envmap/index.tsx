@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -40,7 +40,6 @@ import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { Slider } from '@ir-engine/ui/editor'
 import { IoMapOutline } from 'react-icons/io5'
-import Button from '../../../../primitives/tailwind/Button'
 import ColorInput from '../../../../primitives/tailwind/Color'
 import FolderInput from '../../input/Folder'
 import InputGroup from '../../input/Group'
@@ -127,18 +126,6 @@ export const EnvMapEditor: EditorComponentType = (props) => {
             )}
           </InputGroup>
         </div>
-      )}
-      {envmapComponent.type.value === EnvMapSourceType.Probes && (
-        <Button
-          onClick={() => {
-            commitProperty(EnvMapComponent, 'type')(EnvMapSourceType.None)
-            setTimeout(() => {
-              commitProperty(EnvMapComponent, 'type')(EnvMapSourceType.Probes)
-            }, 1000)
-          }}
-        >
-          {t('editor:properties.envmap.bake-reflection-probes')}
-        </Button>
       )}
       <div className="w-full py-1.5 pl-8 pr-3.5">
         {envmapComponent.type.value !== EnvMapSourceType.None && (
