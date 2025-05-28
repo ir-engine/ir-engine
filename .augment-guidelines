@@ -1,3 +1,7 @@
+# Standards & Best Practices
+
+- Always choose to use Hookstate `useHookstate` instead of React `useState`
+
 # Run dev environment
 
 - Client runs on port 3000, API server on 3030, file server on 8642

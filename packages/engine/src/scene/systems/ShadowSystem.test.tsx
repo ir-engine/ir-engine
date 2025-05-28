@@ -1484,6 +1484,8 @@ describe('RenderSettingsQueryReactor', async () => {
   })
 
   it('should call CSMReactor with rendererEntity and renderSettingsEntity otherwise', async () => {
+    getMutableState(RendererState).renderMode.set(RenderModes.SHADOW)
+
     const rendererEntity = defineQuery([RendererComponent])()[0]
     getMutableComponent(rendererEntity, RendererComponent).csm.set(new CSM({}))
 
@@ -1523,6 +1525,7 @@ describe('RendererShadowReactor', async () => {
     createEngine()
     mockSpatialEngine()
     testEntity = createEntity()
+    getMutableState(RendererState).set(RendererState.initial())
   })
 
   afterEach(() => {
@@ -1649,6 +1652,8 @@ describe('ShadowSystem', async () => {
 
     describe('for every entity that has a RendererComponent', async () => {
       it('should call entity.RendererComponent.csm.update if entity.RendererComponent.csm is truthy', async () => {
+        getMutableState(RendererState).useShadows.set(true)
+
         const resultSpy = vi.fn()
         setComponent(testEntity, RendererComponent)
         const csm = { update: resultSpy as any } as CSM
@@ -1826,6 +1831,8 @@ describe('ShadowSystem', async () => {
     })
 
     it('should call RendererShadowReactor once for every entity that has a RendererComponent', async () => {
+      getMutableState(RendererState).useShadows.set(true)
+
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       const rendererEntity = defineQuery([RendererComponent])()[0]
@@ -1886,6 +1893,8 @@ describe('DropShadowSystem', async () => {
     })
 
     it('should not call ShadowSystemFunctions.updateDropShadowTransforms when the result of getShadowsEnabled is truthy', async () => {
+      getMutableState(RendererState).useShadows.set(true)
+
       const resultSpy = vi.spyOn(ShadowSystemFunctions, 'updateDropShadowTransforms')
       System.execute()
       expect(resultSpy).not.toHaveBeenCalled()

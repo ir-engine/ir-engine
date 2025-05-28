@@ -140,10 +140,10 @@ describe('exportGLTFScene', () => {
       entitySourceID: sourceID,
       entityID: 'test-material' as EntityID
     })
+    setComponent(materialEntity, NameComponent, originalMaterial.name)
     setComponent(materialEntity, MaterialStateComponent, {
       material: originalMaterial
     })
-    setComponent(materialEntity, NameComponent, originalMaterial.name)
     setComponent(materialEntity, EntityTreeComponent, { parentEntity: baseEntity })
 
     const meshEntity = createEntity()
@@ -204,11 +204,11 @@ describe('exportGLTFScene', () => {
       entitySourceID: sourceID,
       entityID: 'material1' as EntityID
     })
+    setComponent(materialEntity1, NameComponent, material1.name)
     setComponent(materialEntity1, MaterialStateComponent, {
       material: material1
     })
     setComponent(materialEntity1, EntityTreeComponent, { parentEntity: baseEntity })
-    setComponent(materialEntity1, NameComponent, material1.name)
 
     // Create the second material instance with its own material entity.
     const color2 = new Color(Math.random(), Math.random(), Math.random())
@@ -218,10 +218,10 @@ describe('exportGLTFScene', () => {
       entitySourceID: sourceID,
       entityID: 'material2' as EntityID
     })
+    setComponent(materialEntity2, NameComponent, material2.name)
     setComponent(materialEntity2, MaterialStateComponent, {
       material: material2
     })
-    setComponent(materialEntity2, NameComponent, material2.name)
     setComponent(materialEntity2, EntityTreeComponent, { parentEntity: baseEntity })
 
     const meshEntity = createEntity()
@@ -410,11 +410,11 @@ describe('exportGLTFScene', () => {
       entitySourceID: sourceID,
       entityID: 'test-material' as EntityID
     })
+    setComponent(materialEntity, NameComponent, originalMaterial.name)
     setComponent(materialEntity, MaterialStateComponent, {
       material: originalMaterial
     })
     setComponent(materialEntity, EntityTreeComponent, { parentEntity: baseEntity })
-    setComponent(materialEntity, NameComponent, originalMaterial.name)
 
     const [gltf] = (await exportGLTFScene(baseEntity, 'dud', 'test/path')) as [GLTF.IGLTF]
 
