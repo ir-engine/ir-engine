@@ -322,7 +322,7 @@
         "EE_render_settings": {
           "primaryLight": "cb045cfd-8daf-4a2b-b764-35625be54a11",
           "csm": true,
-          "cascades": 3,
+          "cascades": 1,
           "toneMapping": 1,
           "toneMappingExposure": 0.8,
           "shadowMapType": 2
