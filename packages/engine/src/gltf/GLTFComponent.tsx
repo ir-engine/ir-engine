@@ -319,7 +319,7 @@ const ResourceReactor = (props: { documentID: SourceID; entity: Entity; document
   useEffect(() => {
     if (!hasComponent(props.entity, GLTFComponent) || !props.documentLoaded) return
     if (getComponent(props.entity, GLTFComponent).progress === 100) return
-    if (!getComponent(props.entity, GLTFComponent).collidersLoaded) return
+    if (!collidersLoaded) return
     const entities = resourceQuery.filter((e) => UUIDComponent.getSourceEntity(e) === props.entity)
     if (!entities.length) {
       if (dependenciesLoaded) getMutableComponent(props.entity, GLTFComponent).progress.set(100)

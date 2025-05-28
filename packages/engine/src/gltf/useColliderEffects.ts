@@ -71,7 +71,7 @@ export function useCheckLoadedColliders(entity: Entity) {
       }
     }
     component.collidersLoaded.set(true)
-  }, [component.collidersLoaded.value])
+  }, [])
 }
 
 /**
