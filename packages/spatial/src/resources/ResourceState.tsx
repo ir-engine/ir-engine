@@ -289,7 +289,8 @@ const resourceCallbacks = {
 
       resource.metadata.merge({ onGPU: false, discarded: false })
       asset.onUpdate = () => {
-        resource.metadata.merge({ onGPU: true, discarded: discardUponUpload })
+        console.log(`Texture updated: ${asset.userData.url}`)
+        resource.metadata.merge({ onGPU: true, discarded: false })
         const viewer = getState(ReferenceSpaceState).viewerEntity
         const renderer = getComponent(viewer, RendererComponent)
         const gl = renderer.renderContext as WebGL2RenderingContext
@@ -300,7 +301,7 @@ const resourceCallbacks = {
             let count = 0
             const checkSync = () => {
               const status = gl.clientWaitSync(sync, 0, 0)
-              if (status === gl.TIMEOUT_EXPIRED && count++ < 100) {
+              if (status === gl.TIMEOUT_EXPIRED && count++ < 10) {
                 setTimeout(checkSync)
               } else {
                 gl.deleteSync(sync)
@@ -373,7 +374,8 @@ const resourceCallbacks = {
 
       asset.index?.onUpload(function () {
         if (discardUponUpload) {
-          this.array = new this.array.constructor(1)
+          /** @todo re-enable discard */
+          // this.array = new this.array.constructor(1)
         }
         needsUploaded -= 1
         checkUploaded()

@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { getState } from '@ir-engine/hyperflux'
-import { CompressedTexture, Texture } from 'three'
+import { CompressedPixelFormat, CompressedTexture, Texture } from 'three'
 import { AssetLoaderState } from '../../state/AssetLoaderState'
 import { ResourceCache } from '../base/ResourceCache'
 import { TextureLoader } from './TextureLoader'
@@ -43,15 +43,24 @@ const cachePromises = {} as Record<string, Promise<boolean>>
  * @returns True if the texture was offloaded, false otherwise
  */
 export async function offloadTextureData(texture: Texture): Promise<boolean> {
-  // Skip if ResourceCache is not available
-  if (!ResourceCache) return false
-
-  // Skip if texture is already offloaded or doesn't have data
-  if (!texture || (!texture.mipmaps && isEmpty(texture.source.data))) return false
-
   // We need a URL to be able to restore the texture later
   const url = texture.userData?.url
-  if (!url) return false
+  if (!url) {
+    console.warn(`Texture does not have a URL, cannot offload: ${url}`)
+    return false
+  }
+
+  // Skip if ResourceCache is not available
+  if (!ResourceCache) {
+    console.warn(`ResourceCache not available, cannot offload texture data: ${url}`)
+    return false
+  }
+
+  // Skip if texture is already offloaded or doesn't have data
+  if (!texture || (!texture.mipmaps && isEmpty(texture.source.data))) {
+    console.warn(`Texture is already offloaded or does not have data, cannot offload: ${url}`)
+    return false
+  }
 
   console.info(`Offloading texture data: ${url}`)
 
@@ -63,7 +72,7 @@ export async function offloadTextureData(texture: Texture): Promise<boolean> {
   const cachePromise = cachePromises[url]
   if (cachePromise) return cachePromise
 
-  if (await ResourceCache.has(`${TEXTURE_CACHE_PREFIX}${url}`)) return false
+  if (await ResourceCache.hasTexture(url)) return false
 
   console.log(`Caching texture data: ${url}`)
 
@@ -76,20 +85,14 @@ export async function offloadTextureData(texture: Texture): Promise<boolean> {
       if (mipmaps?.length > 0) {
         // Create a serializable object with all the texture data
         const textureData = {
-          mipmaps: mipmaps.map((mip) => ({
-            width: mip.width,
-            height: mip.height,
-            data: Array.from(new Uint8Array(mip.data)) // Convert to regular array for serialization
-          })),
-          width: data.width,
-          height: data.height,
+          data: mipmaps,
+          width: data.width as number,
+          height: data.height as number,
           format: compressedTexture.format,
           type: compressedTexture.type
         }
-
         // Store in ResourceCache
-        const encoded = new TextEncoder().encode(JSON.stringify(textureData))
-        await ResourceCache!.put(`${TEXTURE_CACHE_PREFIX}${url}`, encoded.buffer as ArrayBuffer).catch((err) => {
+        await ResourceCache!.putTexture(url, textureData).catch((err) => {
           console.error(`Error storing texture data: ${err}`)
           reject(err)
         })
@@ -103,7 +106,13 @@ export async function offloadTextureData(texture: Texture): Promise<boolean> {
         const blob = await canvas.convertToBlob({ type: 'image/png' })
         const buffer = await blob.arrayBuffer()
         // Store in ResourceCache
-        await ResourceCache!.put(`${TEXTURE_CACHE_PREFIX}${url}`, buffer)
+        await ResourceCache!.putTexture(url, {
+          data: buffer,
+          width: data.width,
+          height: data.height,
+          format: texture.format,
+          type: texture.type
+        })
         // Close the ImageBitmap to free memory
         data.close()
       }
@@ -155,36 +164,27 @@ export async function restoreTextureData(texture: Texture): Promise<boolean> {
 
   try {
     // Try to get cached data from ResourceCache
-    const response = await ResourceCache.get(`${TEXTURE_CACHE_PREFIX}${url}`)
-    if (!response) {
+    const textureData = await ResourceCache.getTexture(url)
+    if (!textureData) {
       // If no cached data, reload from URL
       return await loadFromURL(texture)
     }
 
-    const buffer = await response.arrayBuffer()
-
     // For compressed textures
     if ((texture as CompressedTexture).isCompressedTexture) {
       try {
-        // Try to parse the buffer as JSON (for compressed textures)
-        const textDataString = new TextDecoder().decode(buffer)
-        const textureData = JSON.parse(textDataString)
-
-        if (textureData.mipmaps) {
+        if (textureData.data) {
           const compressedTexture = texture as CompressedTexture
 
-          // Convert the array data back to typed arrays
-          const mipmaps = textureData.mipmaps.map((mip: any) => ({
-            width: mip.width,
-            height: mip.height,
-            data: new Uint8Array(mip.data).buffer
-          }))
-
           // Restore data
-          compressedTexture.mipmaps = mipmaps
+          compressedTexture.mipmaps = textureData.data as any //(textureData.data as Array<any>).map((mip) => ({
+          //   width: mip.width,
+          //   height: mip.height,
+          //   data: new Uint8Array(mip.data)
+          // })) as any
           compressedTexture.source.data.width = textureData.width
           compressedTexture.source.data.height = textureData.height
-          compressedTexture.format = textureData.format
+          compressedTexture.format = textureData.format as CompressedPixelFormat
           compressedTexture.type = textureData.type
           compressedTexture.needsUpdate = true
           console.info(`Restored texture data: ${url}`)
@@ -198,6 +198,7 @@ export async function restoreTextureData(texture: Texture): Promise<boolean> {
     } else {
       // For regular textures, create an ImageBitmap from the buffer
       try {
+        const buffer = textureData.data as ArrayBuffer // new Uint8Array(textureData.data as ArrayBuffer).buffer
         const blob = new Blob([buffer], { type: 'image/png' })
         const imageBitmap = await createImageBitmap(blob)
 
@@ -283,10 +284,9 @@ export async function getTextureCacheSize(): Promise<number> {
 
   try {
     // Get all keys from ResourceCache
-    const resources = await ResourceCache.resources.toArray()
-
+    const textures = await ResourceCache.textures.toArray()
     // Count texture data entries
-    return resources.filter((resource) => resource.key.startsWith(TEXTURE_CACHE_PREFIX)).length
+    return textures.length
   } catch (error) {
     console.error(`Error getting texture cache size: ${error}`)
     return 0

@@ -46,6 +46,7 @@ import {
 import { Identifiable, State } from '@ir-engine/hyperflux'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { ResourceState } from '@ir-engine/spatial/src/resources/ResourceState'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import {
   Color,
@@ -174,6 +175,7 @@ const EnvMapSkyboxReactor = (props: { entity: Entity; rootEntity: Entity }) => {
 
     const material = materialState.value as MeshStandardMaterial
     material.envMap = backgroundComponent.value.clone() as any
+    ResourceState.addEntityResource(entity, material.envMap!)
   }, [!!backgroundComponent?.value, !!materialState])
 
   return <IntensityReactor entity={entity} rootEntity={rootEntity} />

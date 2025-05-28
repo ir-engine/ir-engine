@@ -24,18 +24,29 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import Dexie from 'dexie'
+import { CompressedPixelFormat, PixelFormat, TextureDataType } from 'three'
+
+interface TextureData {
+  data: Array<any> | ArrayBuffer
+  width: number
+  height: number
+  format: PixelFormat | CompressedPixelFormat
+  type: TextureDataType
+}
 
 /**
  * ResourceCache using IndexedDB via Dexie
  * Provides storage for assets and resources
  */
 class ResourceCacheDatabase extends Dexie {
-  resources: Dexie.Table<{ key: string; value: any; timestamp: number }, string>
+  resources: Dexie.Table<{ key: string; value: ArrayBuffer; timestamp: number }, string>
+  textures: Dexie.Table<{ key: string; value: TextureData; timestamp: number }, string>
 
   constructor() {
-    super('ir-engine-cache')
+    super('ir-engine-cache', { cache: 'disabled' })
     this.version(1).stores({
-      resources: 'key'
+      resources: 'key',
+      textures: 'key'
     })
   }
 
@@ -44,7 +55,7 @@ class ResourceCacheDatabase extends Dexie {
    * @param key The resource key
    * @param value The resource value
    */
-  async put(key: string, value: ArrayBuffer): Promise<void> {
+  async putResource(key: string, value: ArrayBuffer): Promise<void> {
     await this.resources.put({
       key,
       value,
@@ -57,7 +68,7 @@ class ResourceCacheDatabase extends Dexie {
    * @param key The resource key
    * @returns The resource value or null if not found
    */
-  async get(key: string): Promise<Response | null> {
+  async getResource(key: string): Promise<Response | null> {
     const resource = await this.resources.get(key)
     return resource ? new Response(resource.value) : null
   }
@@ -67,7 +78,7 @@ class ResourceCacheDatabase extends Dexie {
    * @param key The resource key
    * @returns True if the resource exists
    */
-  async has(key: string): Promise<boolean> {
+  async hasResource(key: string): Promise<boolean> {
     return (await this.resources.get(key)) !== undefined
   }
 
@@ -82,8 +93,32 @@ class ResourceCacheDatabase extends Dexie {
   /**
    * Clear all resources from the cache
    */
-  async clear(): Promise<void> {
+  async clearResources(): Promise<void> {
     await this.resources.clear()
+  }
+
+  async putTexture(key: string, value: TextureData): Promise<void> {
+    await this.textures.put({
+      key,
+      value,
+      timestamp: Date.now()
+    })
+  }
+
+  async getTexture(key: string): Promise<TextureData | undefined> {
+    return (await this.textures.get(key))?.value
+  }
+
+  async hasTexture(key: string): Promise<boolean> {
+    return (await this.textures.get(key)) !== undefined
+  }
+
+  async deleteTexture(key: string): Promise<void> {
+    await this.textures.delete(key)
+  }
+
+  async clearTextures(): Promise<void> {
+    await this.textures.clear()
   }
 }
 

@@ -1012,7 +1012,7 @@ const loadImageSource = async (options: GLTFParserOptions, sourceIndex: number, 
 
   const url = LoaderUtils.resolveURL(sourceDef.uri || options.url + '?image=' + sourceIndex, options.path)
 
-  const hasResource = await ResourceCache?.has(url)
+  const hasResource = await ResourceCache?.hasResource(url)
 
   if (sourceDef.bufferView !== undefined) {
     if (!isClient) {
@@ -1023,7 +1023,7 @@ const loadImageSource = async (options: GLTFParserOptions, sourceIndex: number, 
     if (!hasResource) {
       // Load binary image data from bufferView, if provided.
       await GLTFLoaderFunctions.loadBufferView(options, sourceDef.bufferView).then(function (bufferView) {
-        return ResourceCache?.put(url, bufferView!)
+        return ResourceCache?.putResource(url, bufferView!)
       })
     }
   } else if (sourceDef.uri === undefined) {

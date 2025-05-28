@@ -69,16 +69,6 @@ export function applyTexturePatch() {
     })
   }
 
-  // Add a dispose method override to clean up textures properly
-  const originalDispose = Texture.prototype.dispose
-  Texture.prototype.dispose = function () {
-    // Call the original dispose method
-    originalDispose.call(this)
-
-    // We intentionally don't clear texture data from the cache when disposing
-    // This allows the texture to be loaded from the cache on subsequent page loads
-  }
-
   // Override PMREMGenerator's _fromTexture method to ensure textures are updated
   const _fromTexture = PMREMGenerator.prototype['_fromTexture']
   PMREMGenerator.prototype['_fromTexture'] = function (texture: Texture, renderTarget: any) {
