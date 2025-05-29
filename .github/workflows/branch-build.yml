@@ -440,6 +440,7 @@ jobs:
       - run: npm run dev-docker
       - run: npm run dev-reinit
       - run: git config --global user.email "you@example.com" && git config --global user.name "Your Name"
+      - run: docker ps
       - run: cd packages/${{ matrix.package }} && npm run test
         timeout-minutes: 20
 
