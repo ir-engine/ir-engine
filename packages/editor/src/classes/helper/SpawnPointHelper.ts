@@ -32,20 +32,16 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { useGLTFComponent } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
-import { SpawnPointComponent } from '@ir-engine/engine/src/scene/components/SpawnPointComponent'
-import { getMutableState } from '@ir-engine/hyperflux'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/SpatialModule'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
-import { ActiveHelperReactorProps, ActiveHelperRegistryState } from './HelperRegistry'
 
-const helperKey = SpawnPointComponent.jsonID
 const GLTF_PATH = '/static/editor/spawn-point.glb'
 
-export const SpawnPointHelperReactor: React.FC<ActiveHelperReactorProps> = (props: { entity; selected; hovered }) => {
+export const SpawnPointHelperReactor: React.FC = (props: { entity; selected; hovered }) => {
   const { entity, selected, hovered } = props
   const debugEnabled = selected || hovered
 
@@ -85,18 +81,4 @@ export const SpawnPointHelperReactor: React.FC<ActiveHelperReactorProps> = (prop
   }, [debugGLTF, debugEnabled])
 
   return null
-}
-
-export const SpawnPointaddtoHelperRegistry = (icon) => {
-  // registers the effect
-
-  getMutableState(ActiveHelperRegistryState).merge({
-    [helperKey]: {
-      reactor: SpawnPointHelperReactor,
-      icon: icon,
-      component: SpawnPointComponent,
-      directional: true,
-      volume: true
-    }
-  })
 }

@@ -55,12 +55,12 @@ import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/
 import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import { Raycaster, Vector3 } from 'three'
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
+import { ComponentHelperState } from '../classes/helper/ComponentHelperState'
 import { iconGizmoArrow, iconGizmoYHelper, setupGizmo } from '../constants/GizmoPresets'
 import {
   getIconGizmo,
   gizmoIconHelperYAxisUpdate,
   gizmoIconUpdate,
-  onPointerHover,
   setIconSize,
   VolumeVisibility
 } from '../functions/gizmos/studioIconGizmoHelper'
@@ -98,17 +98,15 @@ export const studioIconGizmoInputHeuristic = (
   }
 }
 
-const ActiveHelperReactor = ({ helper }) => {
+const ActiveHelperReactor = (helper) => {
   const entity = useEntityContext()
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
   const engineState = useHookstate(getMutableState(EngineState))
   const selectedEntities = SelectionState.useSelectedEntities() // all authoring layer
-  const hovered = useHookstate<boolean>(false)
   const selected = useHookstate<boolean>(false)
   const lineEntitiesState = useHookstate<Entity[]>([])
   const directionalEntitiesState = useHookstate<Entity[]>([])
   const iconSize = useHookstate<number>(getState(EditorHelperState).editorIconMinSize)
-
   const studioIcon = useHelperEntity(
     entity,
     () => {
@@ -135,18 +133,16 @@ const ActiveHelperReactor = ({ helper }) => {
     ObjectLayerMasks.NodeIcon,
     'icon-helper'
   )
+  const hovered = InputComponent.useHasFocus(studioIcon)
 
   InputComponent.useExecuteWithInput(
     () => {
       gizmoIconUpdate(entity, studioIcon, [...directionalEntitiesState.get(NO_PROXY_STEALTH)], iconSize.value)
 
-      const intersect = onPointerHover(studioIcon)
-      hovered.set(intersect !== false)
-
-      iconSize.set((currentSize) => setIconSize(intersect, currentSize))
+      iconSize.set((currentSize) => setIconSize(hovered.value, currentSize))
 
       for (const lineEntity of lineEntitiesState.value) {
-        setVisibleComponent(lineEntity, intersect && getState(EngineState).isEditing ? true : false)
+        setVisibleComponent(lineEntity, hovered.value && getState(EngineState).isEditing ? true : false)
         gizmoIconHelperYAxisUpdate(lineEntity, getComponent(entity, TransformComponent).position)
       }
 
@@ -217,16 +213,17 @@ const reactor = () => {
   }, [])
 
   // use registry to add helper reactors
-  const HelperRegistry = useMutableState(ActiveHelperRegistryState).keys
+  const HelperRegistry = useMutableState(ComponentHelperState).keys
 
+  console.log('DEBUG ActiveHelperSystem reactor with HelperRegistry = ', HelperRegistry)
   return (
     <>
-      {HelperRegistry.map((key) => {
-        const helper = getState(ActiveHelperRegistryState)[key] // get effect registry entry
-        if (!helper) return null
-        return (
-          <QueryReactor Components={[helper.component]} ChildEntityReactor={ActiveHelperReactor} props={{ helper }} />
-        )
+      {HelperRegistry.map((componentJsonId) => {
+        const component = globalThis.ComponentJSONIDMap.get(componentJsonId)
+        if (!component) return null
+        const helper = getState(ComponentHelperState)[componentJsonId]
+        if (!helper || !helper.reactor) return null
+        return <QueryReactor Components={[component]} ChildEntityReactor={ActiveHelperReactor} props={helper} />
       })}
     </>
   )

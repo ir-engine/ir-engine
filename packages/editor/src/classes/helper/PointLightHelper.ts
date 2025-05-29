@@ -24,20 +24,16 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useComponent, useOptionalComponent } from '@ir-engine/ecs'
-import { getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { PointLightComponent } from '@ir-engine/spatial/src/SpatialModule'
 import { useEffect } from 'react'
 import { PointLight, PointLightHelper } from 'three'
-import { ActiveHelperReactorProps, ActiveHelperRegistryState } from './HelperRegistry'
 
-const helperKey = PointLightComponent.jsonID
-
-export const PointLightHelperReactor: React.FC<ActiveHelperReactorProps> = (props: { entity; selected; hovered }) => {
+export const PointLightHelperReactor: React.FC = (props: { entity; selected; hovered }) => {
   const { entity, selected, hovered } = props
-  const helper = getState(ActiveHelperRegistryState)
-  const pointLightComponent = useComponent(entity, helper[helperKey].component as typeof PointLightComponent)
+  const pointLightComponent = useComponent(entity, PointLightComponent)
   const debugEnabled = selected || hovered
   const light = useHookstate(() => new PointLight()).value as PointLight
   const helperEntity = useHelperEntity(entity, () => new PointLightHelper(light), debugEnabled)
@@ -51,15 +47,4 @@ export const PointLightHelperReactor: React.FC<ActiveHelperReactorProps> = (prop
   }, [!!helperObject, pointLightComponent.color])
 
   return null
-}
-
-export const PointLightaddtoHelperRegistry = (icon) => {
-  // registers the effect
-  getMutableState(ActiveHelperRegistryState).merge({
-    [helperKey]: {
-      reactor: PointLightHelperReactor,
-      icon: icon,
-      component: PointLightComponent
-    }
-  })
 }

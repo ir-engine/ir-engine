@@ -24,15 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { createEntity, EntityTreeComponent, removeEntity, setComponent, useComponent } from '@ir-engine/ecs'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 import { LineSegmentComponent } from '@ir-engine/spatial/src/renderer/components/LineSegmentComponent'
 import { DirectionalLightComponent } from '@ir-engine/spatial/src/SpatialModule'
 import { useEffect } from 'react'
 import { BufferGeometry, Float32BufferAttribute } from 'three'
-import { ActiveHelperReactorProps, ActiveHelperRegistryState } from './HelperRegistry'
-
-const helperKey = DirectionalLightComponent.jsonID
 
 const size = 1
 const lightPlaneGeometry = new BufferGeometry()
@@ -90,15 +86,10 @@ targetLineGeometry.setAttribute(
 
 const mergedGeometry = mergeBufferGeometries([targetLineGeometry, lightPlaneGeometry])
 
-export const DirectionalLightHelperReactor: React.FC<ActiveHelperReactorProps> = (props: {
-  entity
-  selected
-  hovered
-}) => {
+export const DirectionalLightHelperReactor: React.FC = (props: { entity; selected; hovered }) => {
   const { entity, selected, hovered } = props
-  const helper = getState(ActiveHelperRegistryState)
 
-  const directionalLight = useComponent(entity, helper[helperKey].component as typeof DirectionalLightComponent)
+  const directionalLight = useComponent(entity, DirectionalLightComponent)
 
   useEffect(() => {
     if (!(selected || hovered)) return
@@ -118,17 +109,4 @@ export const DirectionalLightHelperReactor: React.FC<ActiveHelperReactorProps> =
   }, [selected, hovered])
 
   return null
-}
-
-export const DirectionalLightaddtoHelperRegistry = (icon) => {
-  // registers the effect
-
-  getMutableState(ActiveHelperRegistryState).merge({
-    [helperKey]: {
-      reactor: DirectionalLightHelperReactor,
-      icon: icon,
-      component: DirectionalLightComponent,
-      directional: true
-    }
-  })
 }

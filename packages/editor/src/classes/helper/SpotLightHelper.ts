@@ -24,20 +24,16 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useComponent, useOptionalComponent } from '@ir-engine/ecs'
-import { getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { SpotLightComponent } from '@ir-engine/spatial/src/renderer/components/lights/SpotLightComponent'
 import { useEffect } from 'react'
 import { SpotLight, SpotLightHelper } from 'three'
-import { ActiveHelperReactorProps, ActiveHelperRegistryState } from './HelperRegistry'
 
-const helperKey = SpotLightComponent.jsonID
-
-export const SpotLightHelperReactor: React.FC<ActiveHelperReactorProps> = (props: { entity; selected; hovered }) => {
+export const SpotLightHelperReactor: React.FC = (props: { entity; selected; hovered }) => {
   const { entity, selected, hovered } = props
-  const helper = getState(ActiveHelperRegistryState)
-  const spotLightComponent = useComponent(entity, helper[helperKey].component as typeof SpotLightComponent)
+  const spotLightComponent = useComponent(entity, SpotLightComponent)
   const debugEnabled = selected || hovered
   const light = useHookstate(() => new SpotLight()).value as SpotLight
   const helperEntity = useHelperEntity(entity, () => new SpotLightHelper(light), debugEnabled)
@@ -49,17 +45,4 @@ export const SpotLightHelperReactor: React.FC<ActiveHelperReactorProps> = (props
   }, [!!helperObject, spotLightComponent.color])
 
   return null
-}
-
-export const SpotLightaddtoHelperRegistry = (icon) => {
-  // registers the effect
-
-  getMutableState(ActiveHelperRegistryState).merge({
-    [helperKey]: {
-      reactor: SpotLightHelperReactor,
-      icon: icon,
-      component: SpotLightComponent,
-      directional: true
-    }
-  })
 }

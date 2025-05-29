@@ -24,24 +24,16 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useComponent, useOptionalComponent } from '@ir-engine/ecs'
-import { getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { HemisphereLightComponent } from '@ir-engine/spatial/src/SpatialModule'
 import { useEffect } from 'react'
 import { HemisphereLight, HemisphereLightHelper } from 'three'
-import { ActiveHelperReactorProps, ActiveHelperRegistryState } from './HelperRegistry'
 
-const helperKey = HemisphereLightComponent.jsonID
-
-export const HemiSphereLightHelperReactor: React.FC<ActiveHelperReactorProps> = (props: {
-  entity
-  selected
-  hovered
-}) => {
+export const HemiSphereLightHelperReactor: React.FC = (props: { entity; selected; hovered }) => {
   const { entity, selected, hovered } = props
-  const helper = getState(ActiveHelperRegistryState)
-  const hemisphereLightComponent = useComponent(entity, helper[helperKey].component as typeof HemisphereLightComponent)
+  const hemisphereLightComponent = useComponent(entity, HemisphereLightComponent)
 
   const debugEnabled = selected || hovered
   const light = useHookstate(() => new HemisphereLight()).get(NO_PROXY) as HemisphereLight
@@ -56,16 +48,4 @@ export const HemiSphereLightHelperReactor: React.FC<ActiveHelperReactorProps> = 
   }, [!!helperObject, hemisphereLightComponent.skyColor])
 
   return null
-}
-
-export const HemisphereLightaddtoHelperRegistry = (icon) => {
-  // registers the effect
-
-  getMutableState(ActiveHelperRegistryState).merge({
-    [helperKey]: {
-      reactor: HemiSphereLightHelperReactor,
-      icon: icon,
-      component: HemisphereLightComponent
-    }
-  })
 }

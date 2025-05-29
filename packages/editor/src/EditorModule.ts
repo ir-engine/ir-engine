@@ -29,7 +29,6 @@ import { UserUISystem } from '@ir-engine/client-core/src/user/UserUISystem'
 import { RenderInfoSystem } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
 // import { EditorInstanceNetworkingSystem } from './components/realtime/EditorInstanceNetworkingSystem'
 import { PositionalAudioSystem } from '@ir-engine/client-core/src/systems/PositionalAudioSystem'
-import { ActiveHelperRegisterSystem } from './systems/ActiveHelperRegisterSystem'
 import { ActiveHelperSystem } from './systems/ActiveHelperSystem'
 import { CameraGizmoSystem } from './systems/CameraGizmoSystem'
 import { ClickPlacementSystem } from './systems/ClickPlacementSystem'
@@ -43,7 +42,6 @@ import { TransformGizmoSystem } from './systems/TransformGizmoSystem'
 import { UploadRequestSystem } from './systems/UploadRequestSystem'
 
 export {
-  ActiveHelperRegisterSystem,
   ActiveHelperSystem,
   AvatarSpawnSystem,
   CameraGizmoSystem,
