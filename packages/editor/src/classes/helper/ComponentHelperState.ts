@@ -58,6 +58,7 @@ import SphereColiderIcon from '@ir-engine/ui/src/components/editor/assets/sphere
 import SpotLightIcon from '@ir-engine/ui/src/components/editor/assets/spot.png'
 import TriggerIcon from '@ir-engine/ui/src/components/editor/assets/trigger.png'
 import { DirectionalLightHelperReactor } from './DirectionalLightHelper'
+import { EnvmapBakeHelperReactor } from './EnvmapBakeHelper'
 import { HemiSphereLightHelperReactor } from './HemiSphereLightHelper'
 import { PointLightHelperReactor } from './PointLightHelper'
 import { SpawnPointHelperReactor } from './SpawnPointHelper'
@@ -81,7 +82,7 @@ export const ComponentHelperState = defineState({
       },
       [EnvMapBakeComponent.jsonID]: {
         icon: EnvMapBakeIcon,
-        reactor: undefined
+        reactor: EnvmapBakeHelperReactor
       },
       [MediaComponent.jsonID]: {
         icon: MediaIcon,
