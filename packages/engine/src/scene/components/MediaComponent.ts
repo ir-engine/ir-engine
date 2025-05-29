@@ -547,7 +547,7 @@ export function MediaReactor() {
 
   useHelperEntity(
     entity,
-    () => new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide })),
+    () => new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide, opacity: 0 })),
     rendererState.nodeHelperVisibility.value && !!audioHelperTexture
   )
 
