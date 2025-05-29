@@ -20,6 +20,8 @@
       "lbl-ae": "Audio Enabled",
       "lbl-se": "Screen Sharing Enabled",
       "lbl-fe": "Face Streaming Enabled",
+      "lbl-je": "Jump Control Enabled",
+      "lbl-vre": "VR Functionality Enabled",
       "createLocation": "Create Space",
       "updateLocation": "Update Space",
       "removeLocation": "Remove Space",

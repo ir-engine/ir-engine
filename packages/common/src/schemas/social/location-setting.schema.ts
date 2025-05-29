@@ -49,6 +49,8 @@ export const locationSettingSchema = Type.Object(
     /** @todo review */
     faceStreamingEnabled: Type.Boolean(),
     videoEnabled: Type.Boolean(),
+    jumpControlEnabled: Type.Boolean(),
+    vrEnabled: Type.Boolean(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -76,7 +78,9 @@ export const locationSettingQueryProperties = Type.Pick(locationSettingSchema, [
   'audioEnabled',
   'screenSharingEnabled',
   'faceStreamingEnabled',
-  'videoEnabled'
+  'videoEnabled',
+  'jumpControlEnabled',
+  'vrEnabled'
 ])
 export const locationSettingQuerySchema = Type.Intersect(
   [

@@ -151,6 +151,8 @@ const patchLocationSetting = async (context: HookContext<LocationService>) => {
         audioEnabled: data.locationSetting.audioEnabled,
         faceStreamingEnabled: data.locationSetting.faceStreamingEnabled,
         screenSharingEnabled: data.locationSetting.screenSharingEnabled,
+        jumpControlEnabled: data.locationSetting.jumpControlEnabled,
+        vrEnabled: data.locationSetting.vrEnabled,
         locationType: data.locationSetting.locationType || 'public'
       },
       { query: { locationId: result.id } }

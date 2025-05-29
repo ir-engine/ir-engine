@@ -23,14 +23,13 @@ import { ModalState } from '@ir-engine/client-core/src/common/services/ModalStat
 import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { useFind, useMutation } from '@ir-engine/common'
 import { config } from '@ir-engine/common/src/config'
-import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { ModelTransformStatus, transformModel } from '@ir-engine/common/src/model/ModelTransformFunctions'
 import {
   LocationData,
   LocationID,
   LocationPatch,
   LocationType,
-  engineSettingPath,
   locationPath,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
@@ -56,6 +55,7 @@ import React, { lazy, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineInformationCircle } from 'react-icons/hi2'
 import { NotificationService } from '../../../common/services/NotificationService'
+import useFeatureFlags from '../../../hooks/useFeatureFlags'
 import { CompressedPublishConfirmation, ProgressState } from './CompressedPublishConfirmation'
 
 function formatPublishedDate(isoString) {
@@ -120,14 +120,6 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
 
   const locationMutation = useMutation(locationPath)
 
-  const instanceEngineSettings = useFind(engineSettingPath, {
-    query: {
-      category: 'instance-server',
-      key: EngineSettings.InstanceServer.MaxUsersPerInstance,
-      paginate: false
-    }
-  })
-
   const publishLoading = useHookstate(false)
   const unPublishLoading = useHookstate(false)
   const isNewPublished = useHookstate(false)
@@ -141,10 +133,13 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
   const scene = useHookstate((location ? location.sceneId : props.sceneID) || '')
   const videoEnabled = useHookstate<boolean>(location?.locationSetting.videoEnabled || true)
   const audioEnabled = useHookstate<boolean>(location?.locationSetting.audioEnabled || true)
+  const jumpControlEnabled = useHookstate<boolean>(location?.locationSetting.jumpControlEnabled || true)
+  const vrEnabled = useHookstate<boolean>(location?.locationSetting.vrEnabled || true)
   const screenSharingEnabled = useHookstate<boolean>(location?.locationSetting.screenSharingEnabled || true)
   const locationType = useHookstate(location?.locationSetting.locationType || 'public')
   const progressState = useHookstate(getMutableState(ProgressState))
   const lods = useHookstate<LODVariantDescriptor[]>([])
+  const [xrEnabled] = useFeatureFlags([FeatureFlags.Client.Menu.XR])
   useEffect(() => {
     if (location) {
       name.set(location.name)
@@ -153,6 +148,8 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
       audioEnabled.set(location.locationSetting.audioEnabled)
       screenSharingEnabled.set(location.locationSetting.screenSharingEnabled)
       locationType.set(location.locationSetting.locationType)
+      jumpControlEnabled.set(location.locationSetting.jumpControlEnabled)
+      vrEnabled.set(location.locationSetting.vrEnabled)
 
       if (!props.sceneID) scene.set(location.sceneId)
     }
@@ -197,10 +194,8 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
     if (!maxUsers.value) {
       errors.maxUsers.set(t('admin:components.location.maxUserCantEmpty'))
     }
-    if (maxUsers.value > parseInt(instanceEngineSettings.data[0].value)) {
-      errors.maxUsers.set(
-        t('admin:components.location.maxUserExceeded', { maxUsers: instanceEngineSettings?.data[0].value })
-      )
+    if (maxUsers.value > LOCATION_MAX) {
+      errors.maxUsers.set(t('admin:components.location.maxUserExceeded'))
     }
     if (!scene.value) {
       errors.scene.set(t('admin:components.location.sceneCantEmpty'))
@@ -385,7 +380,9 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
         audioEnabled: Boolean(audioEnabled.value),
         screenSharingEnabled: Boolean(screenSharingEnabled.value),
         faceStreamingEnabled: false,
-        videoEnabled: Boolean(videoEnabled.value)
+        videoEnabled: Boolean(videoEnabled.value),
+        jumpControlEnabled: Boolean(jumpControlEnabled.value),
+        vrEnabled: Boolean(vrEnabled.value)
       },
       isLobby: false,
       isFeatured: false
@@ -429,6 +426,14 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
       props.onPublishSuccess(location)
     }
   }, [location, props.onPublishSuccess, isNewPublished.value])
+
+  const setMaxUsers = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const maxU = parseInt(event.currentTarget.value, 0)
+    maxUsers.set(Math.max(maxU, 0))
+    if (maxU < 2) {
+      videoEnabled.set(false)
+    }
+  }
 
   return (
     <div
@@ -515,6 +520,44 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
               )}
 
               <div className="grid h-full grid-rows-[auto,1fr] gap-5">
+                {xrEnabled ? (
+                  <>
+                    <div className="flex h-auto flex-col self-start">
+                      <h5>{t('editor:toolbar.publishLocation.jumpControlFeature')}</h5>
+                      <span className="text-xs">{t('editor:toolbar.publishLocation.jumpControlFeatureDesc')}</span>
+                    </div>
+                    <div className="flex flex-col gap-5">
+                      <Toggle
+                        label={t('admin:components.location.lbl-je')}
+                        value={jumpControlEnabled.value}
+                        onChange={jumpControlEnabled.set}
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  ''
+                )}
+
+                {xrEnabled ? (
+                  <>
+                    <div className="flex h-auto flex-col self-start">
+                      <h5>{t('editor:toolbar.publishLocation.vrCapabilitiesFeature')}</h5>
+                      <span className="text-xs">{t('editor:toolbar.publishLocation.vrCapabilitiesFeatureDesc')}</span>
+                    </div>
+                    <div className="flex flex-col gap-5">
+                      <Toggle
+                        label={t('admin:components.location.lbl-vre')}
+                        value={vrEnabled.value}
+                        onChange={vrEnabled.set}
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  ''
+                )}
+
                 <div className="flex h-auto flex-col self-start">
                   <h5>{t('editor:toolbar.publishLocation.multiplayerFeatures')}</h5>
                   <span className="text-xs">{t('editor:toolbar.publishLocation.multiplayerDescription')}</span>
@@ -526,33 +569,40 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
                     labelProps={{ text: t('admin:components.location.lbl-maxuser'), position: 'top' }}
                     value={maxUsers.value}
                     data-testid="publish-panel-location-max-users"
-                    onChange={(event) => maxUsers.set(Math.max(parseInt(event.target.value, 0), 0))}
+                    onChange={setMaxUsers}
                     state={errors.maxUsers.value ? 'error' : undefined}
                     helperText={errors.maxUsers.value}
                     disabled={isLoading}
                     fullWidth
                     height="xl"
                     placeholder="5 - Default"
-                    max={parseInt(instanceEngineSettings?.data[0]?.value)}
+                    max={LOCATION_MAX}
                   />
                   <Toggle
                     label={t('admin:components.location.lbl-ve')}
                     value={videoEnabled.value}
                     onChange={videoEnabled.set}
-                    disabled={isLoading}
+                    disabled={isLoading || maxUsers.value < 2}
                   />
-                  <Toggle
-                    label={t('admin:components.location.lbl-ae')}
-                    value={audioEnabled.value}
-                    onChange={audioEnabled.set}
-                    disabled={isLoading}
-                  />
-                  <Toggle
-                    label={t('admin:components.location.lbl-se')}
-                    value={screenSharingEnabled.value}
-                    onChange={screenSharingEnabled.set}
-                    disabled={isLoading}
-                  />
+                  {videoEnabled.value && (
+                    <>
+                      <div className="pl-4">
+                        <Toggle
+                          label={t('admin:components.location.lbl-se')}
+                          value={screenSharingEnabled.value}
+                          onChange={screenSharingEnabled.set}
+                          disabled={isLoading}
+                          className="pl-4"
+                        />
+                      </div>
+                      <Toggle
+                        label={t('admin:components.location.lbl-ae')}
+                        value={audioEnabled.value}
+                        onChange={audioEnabled.set}
+                        disabled={isLoading}
+                      />
+                    </>
+                  )}
                 </div>
               </div>
             </div>

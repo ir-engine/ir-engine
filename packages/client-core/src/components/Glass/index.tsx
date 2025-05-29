@@ -38,6 +38,7 @@ import { XRLoading } from '../XRLoading'
 import { ToolbarAndSidebar } from './ToolbarAndSidebar'
 
 import { ChatMenu } from './ChatMenu'
+import ShoppingCart from './ShoppingCart'
 import { ToolbarMenu } from './ToolbarMenu'
 
 const useIsPortrait = () => {
@@ -123,6 +124,7 @@ export const ViewerInteractions = () => {
 
   const onMessageClick = createToggleSidebarKey(`Chat`)
   const onShareClick = createToggleSidebarKey(`Share`)
+  const onShoppingCartClick = createToggleSidebarKey(`Cart`)
 
   const toolbar = <ToolbarMenu onMessageClick={onMessageClick} onShareClick={onShareClick} />
 
@@ -137,6 +139,8 @@ export const ViewerInteractions = () => {
       <div className={`pointer-events-auto absolute left-6 top-6 select-none`}>
         <VideoWindows />
       </div>
+
+      <ShoppingCart />
 
       <ToolbarAndSidebar
         handleSidebarClose={closeSidebar}

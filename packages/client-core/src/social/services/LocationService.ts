@@ -57,6 +57,8 @@ export const LocationSeed: LocationType = {
     audioEnabled: false,
     screenSharingEnabled: false,
     faceStreamingEnabled: false,
+    jumpControlEnabled: false,
+    vrEnabled: false,
     locationType: 'private',
     videoEnabled: false,
     createdAt: '',
