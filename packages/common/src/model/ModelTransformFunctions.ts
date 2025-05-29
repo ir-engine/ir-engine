@@ -643,6 +643,7 @@ const transformTexture = async (resultCache: Map<string, Texture>, operation: Te
     nuTexture.setExtras(texture.getExtras())
     nuTexture.setImage(oldImage)
     nuTexture.setMimeType(texture.getMimeType())
+    console.log('Resizing: ', params.maxTextureSize)
     await imgDoc.transform(
       textureCompress({
         resize: [params.maxTextureSize, params.maxTextureSize]
@@ -672,6 +673,7 @@ const transformTexture = async (resultCache: Map<string, Texture>, operation: Te
     texture.setMimeType('image/ktx2')
     //reset URI to the valid file name
     texture.setURI(validTextureFileName(texture.getURI().replace(/\.[^.]+$/, '.ktx2')))
+    console.log('Converted to KTX2: ', texture.getURI())
   }
 
   if ((shouldResize || shouldConvertToKTX) && texture.getURI() !== '') {

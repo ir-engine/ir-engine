@@ -26,16 +26,26 @@ import { config } from '@ir-engine/common/src/config'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { ModelTransformStatus, transformModel } from '@ir-engine/common/src/model/ModelTransformFunctions'
 import {
+  engineSettingPath,
   LocationData,
   LocationID,
   LocationPatch,
-  LocationType,
-  engineSettingPath,
   locationPath,
+  LocationType,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
-import { Entity, getComponent, hasComponent, iterateEntityNode } from '@ir-engine/ecs'
-import { LODVariantDescriptor, defaultLODs } from '@ir-engine/editor/src/constants/GLTFPresets'
+import {
+  createEntity,
+  Entity,
+  EntityTreeComponent,
+  getComponent,
+  hasComponent,
+  iterateEntityNode,
+  Layers,
+  setComponent,
+  UUIDComponent
+} from '@ir-engine/ecs'
+import { defaultLODs, LODVariantDescriptor } from '@ir-engine/editor/src/constants/GLTFPresets'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
@@ -46,6 +56,9 @@ import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { Button, DropdownItem, Input, Select, Tooltip } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
@@ -243,6 +256,22 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
 
           // Set up compression for this entity
           const fileName = srcURL.split('/').pop()!.split('.').shift()!
+          const compressedEntity = createEntity(Layers.Authoring) //export entity need compress
+          const rootEntity = getState(EditorState).rootEntity
+          const findMeshRootEntity = (entity: Entity, rootEntity: Entity) => {
+            const parentEntity = getComponent(entity, EntityTreeComponent)?.parentEntity
+            if (!parentEntity) return null
+            if (parentEntity === rootEntity) return entity
+            return findMeshRootEntity(parentEntity, rootEntity)
+          }
+          const newSource = UUIDComponent.getAsSourceID(rootEntity)
+          setComponent(compressedEntity, UUIDComponent, {
+            entityID: UUIDComponent.generate(),
+            entitySourceID: newSource
+          })
+          EditorControlFunctions.modifyProperty([compressedEntity], EntityTreeComponent, { parentEntity: rootEntity })
+          setComponent(compressedEntity, TransformComponent)
+          setComponent(compressedEntity, NameComponent, fileName + '-compressed')
           const destPath = `${saveScenePath.value}/${scenename}/${fileName}-compressed.gltf`
 
           // Export the entity to the publish folder
@@ -297,11 +326,13 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
               })
             }
           )
-
-          // Update the entity to use the compressed version
-          EditorControlFunctions.modifyProperty([gltfEntity], GLTFComponent, {
+          // Create a new entity with the compressed GLT
+          EditorControlFunctions.modifyProperty([compressedEntity], GLTFComponent, {
             src: pathJoin(config.client.fileServer, destPath)
           })
+          EditorControlFunctions.modifyProperty([compressedEntity], VisibleComponent, { visible: true })
+          // Remove the old entity
+          // removeEntityNodeRecursively(gltfEntity)
         }
         //save duplicated scene and publish that
         await saveSceneGLTF(
@@ -320,6 +351,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
         progressState.set({ progress: 0, caption: '' })
       }
     } catch (error) {
+      console.log(error)
       progressState.set({ progress: 0, caption: '' })
       ModalState.closeModal()
       ModalState.openModal(
