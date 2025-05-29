@@ -86,7 +86,7 @@ export function getMutableState<S, I, E, R extends ReceptorMap>(StateDefinition:
   return HyperFlux.store.stateMap[StateDefinition.name] as State<S, I & E & Identifiable>
 }
 
-export function getState<S>(StateDefinition: StateDefinition<S, any, any, any>) {
+export function getState<S, I, E, R extends ReceptorMap>(StateDefinition: StateDefinition<S, I, E, R>) {
   if (!HyperFlux.store.stateMap[StateDefinition.name]) setInitialState(StateDefinition)
   return HyperFlux.store.stateMap[StateDefinition.name].get(NO_PROXY_STEALTH) as DeepReadonly<S>
 }
@@ -194,7 +194,7 @@ export function useMutableState<S, I, E, R extends ReceptorMap, P extends string
 
 export const stateNamespaceKey = 'ir.hyperflux'
 
-export interface SyncStateWithLocalAPI {}
+export type SyncStateWithLocalAPI = object
 
 /**
  * Automatically synchronises specific root paths of a hyperflux state definition with the localStorage.

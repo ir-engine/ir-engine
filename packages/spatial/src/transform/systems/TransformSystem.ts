@@ -31,6 +31,7 @@ import {
   defineQuery,
   defineSystem,
   Entity,
+  EntityTreeComponent,
   getComponent,
   getOptionalComponent,
   hasComponent,
@@ -39,8 +40,6 @@ import {
   NetworkSchemaState
 } from '@ir-engine/ecs'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
-
-import { EntityTreeComponent } from '@ir-engine/ecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { insertionSort } from '../../common/functions/insertionSort'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'

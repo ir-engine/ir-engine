@@ -29,8 +29,7 @@ import { ResourceAssetType, ResourceState, ResourceType } from '@ir-engine/spati
 
 import { AssetLoader } from '../classes/AssetLoader'
 import { Loader } from '../loaders/base/Loader'
-import { AssetCacheState, ResourceStatus } from '../state/AssetCacheState'
-
+import { ResourceCacheState, ResourceStatus } from '../state/ResourceCacheState'
 interface Cloneable<T> {
   clone?: () => T
 }
@@ -44,7 +43,8 @@ const isCloneable = (resourceType: ResourceType): boolean => {
 
 const cloneAsset = <T>(asset: Cloneable<T> | undefined, onLoad: (T) => void): boolean => {
   if (asset && typeof asset.clone === 'function') {
-    onLoad(asset.clone())
+    const clone = asset.clone()
+    onLoad(clone)
     return true
   }
 
@@ -61,9 +61,9 @@ export const loadResource = <T extends ResourceAssetType>(
   signal: AbortSignal,
   loader?: Loader
 ) => {
-  const assetCacheState = getMutableState(AssetCacheState)
-  if (!assetCacheState[url].value) {
-    assetCacheState.merge({
+  const resourceCacheState = getMutableState(ResourceCacheState)
+  if (!resourceCacheState[url].value) {
+    resourceCacheState.merge({
       [url]: {
         id: url,
         status: ResourceStatus.Unloaded,
@@ -74,8 +74,8 @@ export const loadResource = <T extends ResourceAssetType>(
       }
     })
   } else {
-    getMutableState(AssetCacheState)[url].references.merge([entity])
-    const resource = getState(AssetCacheState)[url]
+    getMutableState(ResourceCacheState)[url].references.merge([entity])
+    const resource = getState(ResourceCacheState)[url]
     const asset = resource.asset as Cloneable<T> | undefined
     if (
       (resource.status === ResourceStatus.Unloaded || resource.status === ResourceStatus.Loading) &&
@@ -92,7 +92,7 @@ export const loadResource = <T extends ResourceAssetType>(
     }
   }
 
-  const resource = assetCacheState[url]
+  const resource = resourceCacheState[url]
   ResourceState.debugLog(`ResourceState:load Loading resource: ${url} for entity: ${entity}`)
   AssetLoader.loadAsset<T>(
     url,
@@ -132,8 +132,8 @@ export const loadResource = <T extends ResourceAssetType>(
 }
 
 export const unloadResource = (url: string, entity: Entity) => {
-  const assetCacheState = getMutableState(AssetCacheState)
-  const resource = assetCacheState[url]
+  const resourceCacheState = getMutableState(ResourceCacheState)
+  const resource = resourceCacheState[url]
   if (!resource.value) {
     console.warn(`ResourceState:unload No resource found to unload for url: ${url}`)
     return
@@ -151,8 +151,8 @@ export const unloadResource = (url: string, entity: Entity) => {
 }
 
 export const unloadResourcesForEntity = (entity: Entity) => {
-  const assetCacheState = getState(AssetCacheState)
-  for (const [url, resource] of Object.entries(assetCacheState)) {
+  const resourceCacheState = getState(ResourceCacheState)
+  for (const [url, resource] of Object.entries(resourceCacheState)) {
     if (resource.references.includes(entity)) {
       unloadResource(url, entity)
     }

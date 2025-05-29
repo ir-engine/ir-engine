@@ -5,8 +5,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
@@ -83,7 +83,7 @@ export function ReactorDebug() {
 
   useFrameUpdate()
 
-  const averageEnabled = useHookstate(true)
+  const averageEnabled = useHookstate(false)
 
   useEffect(() => {
     open = true
@@ -95,28 +95,30 @@ export function ReactorDebug() {
   const reactorProfileState = useHookstate(ReactorRenderCounterState)
 
   // sort by most frequently rendered
-  const state = Object.fromEntries(
-    Object.entries(reactorProfileState.get(NO_PROXY))
-      .filter(([key, val]) => (averageEnabled.value ? RenderFrequencyAverage.has(key) : true))
-      .sort(([keyA, valA], [keyB, valB]) =>
-        averageEnabled.value
-          ? RenderFrequencyAverage.get(keyB)!.average - RenderFrequencyAverage.get(keyA)!.average
-          : valB.count - valA.count
-      )
-      .filter((x, i) => i < 20)
-      .map(([key, val]) => {
-        return [
-          val.name,
-          {
-            uuid: key,
-            count: val.count,
-            time: val.time,
-            average: RenderFrequencyAverage.get(key)?.average ?? 0,
-            stack: val.stack
-          }
-        ]
-      })
-  )
+  const state = Object.entries(reactorProfileState.get(NO_PROXY))
+    .filter(([key, val]) => (averageEnabled.value ? RenderFrequencyAverage.has(key) : true))
+    .sort(([keyA, valA], [keyB, valB]) =>
+      averageEnabled.value
+        ? RenderFrequencyAverage.get(keyB)!.average - RenderFrequencyAverage.get(keyA)!.average
+        : valB.count - valA.count
+    )
+    .filter((val, i) => i < 20)
+    .map(([key, val]) => {
+      return [
+        val.name,
+        {
+          uuid: key,
+          count: val.count,
+          time: val.time,
+          average: RenderFrequencyAverage.get(key)?.average ?? 0,
+          stack: val.stack
+        }
+      ] as const
+    })
+    .reduce((acc, [key, val]) => {
+      acc[key] = val
+      return acc
+    }, {})
 
   return (
     <div className="mx-1 my-0.5 bg-neutral-600 p-1">
@@ -130,7 +132,20 @@ export function ReactorDebug() {
           Average
         </Text>
       </div>
-      <JSONTree data={state} shouldExpandNodeInitially={shouldExpandNodeInitially} />
+      <JSONTree
+        data={state}
+        shouldExpandNodeInitially={shouldExpandNodeInitially}
+        sortObjectKeys={(a: string, b: string) => {
+          const valA = state[a as keyof typeof state] as { average?: number; count?: number } | undefined
+          const valB = state[b as keyof typeof state] as { average?: number; count?: number } | undefined
+
+          if (!valA || !valB) return a.localeCompare(b)
+
+          return averageEnabled.value
+            ? (valB.average || 0) - (valA.average || 0)
+            : (valB.count || 0) - (valA.count || 0)
+        }}
+      />
     </div>
   )
 }

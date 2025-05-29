@@ -27,6 +27,17 @@ import { Entity } from '@ir-engine/ecs'
 import { defineState } from '@ir-engine/hyperflux'
 import { ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 
+// Apply texture memory management patch
+import { applyTexturePatch } from '@ir-engine/engine/src/assets/loaders/texture/TexturePatch'
+
+try {
+  // Apply the texture patch directly - simpler and more direct
+  applyTexturePatch()
+  // console.log('Texture memory management patch applied')
+} catch (e) {
+  console.error('Error applying texture memory patch:', e)
+}
+
 export enum ResourceStatus {
   Unloaded,
   Loading,
@@ -34,8 +45,8 @@ export enum ResourceStatus {
   Error
 }
 
-export const AssetCacheState = defineState({
-  name: 'AssetCacheState',
+export const ResourceCacheState = defineState({
+  name: 'ResourceCacheState',
   initial: {} as Record<
     string,
     {

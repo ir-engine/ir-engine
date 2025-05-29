@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -25,16 +25,16 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { isClient } from '@ir-engine/hyperflux'
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
-import { ImageBitmapLoader, LoadingManager, Texture } from 'three'
+import { LoadingManager, Texture } from 'three'
 import { Loader } from '../base/Loader'
+import { ImageBitmapLoader } from '../image/ImageBitmapLoader'
 
-const noop = () => {}
+// import resource state such that we have type override
+import '@ir-engine/spatial/src/resources/ResourceState'
 
-// Do we still need this check if we're now reliant on a browser that's new enough to have ArrayBuffer.resize?
 const iOSMaxResolution = 1024
 
 const getScaledBitmap = (img: ImageBitmap, maxResolution: number) => {
-  // Set width and height
   const originalWidth = img.width
   const originalHeight = img.height
 
@@ -77,23 +77,27 @@ class TextureLoader extends Loader<Texture> {
     onError?: (err: unknown) => void,
     signal?: AbortSignal
   ) {
-    const onImage = (i: ImageBitmap) => {
-      if (signal?.aborted) return
+    const texture = new Texture()
 
-      const image = this.maxResolution ? getScaledBitmap(i, this.maxResolution) : i
-      const texture = new Texture(image)
-      texture.userData.url = url
-      texture.needsUpdate = true
-      onLoad(texture)
-    }
+    texture.userData = { url }
 
     if (!isClient) {
-      onLoad(new Texture())
+      onLoad(texture)
       return
     }
 
     const loader = new ImageBitmapLoader(this.manager).setCrossOrigin(this.crossOrigin).setPath(this.path)
+
     if (this.flipped) loader.setOptions({ imageOrientation: 'flipY' })
+
+    const onImage = (i: ImageBitmap) => {
+      if (signal?.aborted) return
+      const image = this.maxResolution ? getScaledBitmap(i, this.maxResolution) : i
+      texture.source.data = image
+      texture.needsUpdate = true
+      onLoad(texture)
+    }
+
     loader.load(url, onImage, onProgress, onError)
   }
 }

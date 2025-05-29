@@ -49,7 +49,6 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { HelpIconLg, MouseLeftClickMd, MouseMd, MouseRightClickMd } from '@ir-engine/ui/src/icons'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 
-import { useHookstate } from '@hookstate/core'
 import config from '@ir-engine/common/src/config'
 import { AnimationComponent } from '@ir-engine/engine/src/avatar/components/AnimationComponent'
 import {
@@ -59,6 +58,7 @@ import {
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
+import { useHookstate } from '@ir-engine/hyperflux'
 import { AnimationClip } from 'three'
 import { useRender3DPanelSystem } from '../../../hooks/useRender3DPanelSystem'
 import styles from './index.module.scss'
