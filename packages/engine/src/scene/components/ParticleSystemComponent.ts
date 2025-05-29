@@ -54,7 +54,6 @@ import {
 import {
   Entity,
   EntityTreeComponent,
-  TLiteralValue,
   UUIDComponent,
   createEntity,
   getAncestorWithComponents,
@@ -147,18 +146,6 @@ const removeBatchedRenderer = (rendererEntity: Entity) => {
       instance.instanceCount--
     }
   }
-}
-
-const buildRecordFromRenderModeEnum = (RenderMode): Record<string, TLiteralValue> => {
-  return Object.keys(RenderMode)
-    .filter((key) => isNaN(Number(key)))
-    .reduce(
-      (acc, key) => {
-        acc[key] = RenderMode[key as keyof typeof RenderMode]
-        return acc
-      },
-      {} as Record<string, TLiteralValue>
-    )
 }
 
 export const ParticleState = defineState({
@@ -861,7 +848,7 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS = S.Object({
     }),
     followLocalOrigin: S.Bool({ default: true })
   }),
-  renderMode: S.Enum(buildRecordFromRenderModeEnum(RenderMode), {
+  renderMode: S.LiteralUnion(Object.values(RenderMode), {
     $comment:
       "A number enum, where: 0 represents 'BillBoard', 1 represents 'StretchedBillBoard', 2 represents 'Mesh', 3 represents 'Trail'",
     default: RenderMode.BillBoard
