@@ -25,47 +25,41 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useComponent, useOptionalComponent } from '@ir-engine/ecs'
 import { getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { SpotLightComponent } from '@ir-engine/spatial/src/renderer/components/lights/SpotLightComponent'
 import { useEffect } from 'react'
-import { HemisphereLight, HemisphereLightHelper } from 'three'
-import { ObjectComponent } from '../renderer/components/ObjectComponent'
-import { HemisphereLightComponent } from '../SpatialModule'
-import { useHelperEntity } from './functions/useHelperEntity'
+import { SpotLight, SpotLightHelper } from 'three'
 import { ActiveHelperReactorProps, ActiveHelperRegistryState } from './HelperRegistry'
 
-const helperKey = HemisphereLightComponent.jsonID
+const helperKey = SpotLightComponent.jsonID
 
-export const HemiSphereLightHelperReactor: React.FC<ActiveHelperReactorProps> = (props: {
-  entity
-  selected
-  hovered
-}) => {
+export const SpotLightHelperReactor: React.FC<ActiveHelperReactorProps> = (props: { entity; selected; hovered }) => {
   const { entity, selected, hovered } = props
   const helper = getState(ActiveHelperRegistryState)
-  const hemisphereLightComponent = useComponent(entity, helper[helperKey].component as typeof HemisphereLightComponent)
-
+  const spotLightComponent = useComponent(entity, helper[helperKey].component as typeof SpotLightComponent)
   const debugEnabled = selected || hovered
-  const light = useHookstate(() => new HemisphereLight()).get(NO_PROXY) as HemisphereLight
-  const helperEntity = useHelperEntity(entity, () => new HemisphereLightHelper(light, 10), debugEnabled)
-  const helperObject = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as
-    | HemisphereLightHelper
-    | undefined
+  const light = useHookstate(() => new SpotLight()).value as SpotLight
+  const helperEntity = useHelperEntity(entity, () => new SpotLightHelper(light), debugEnabled)
+  const helperObject = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as SpotLightHelper | undefined
 
   useEffect(() => {
-    light.color.set(hemisphereLightComponent.skyColor.value)
-    if (helperObject) helperObject.color = hemisphereLightComponent.skyColor.value
-  }, [!!helperObject, hemisphereLightComponent.skyColor])
+    light.color.set(spotLightComponent.color.value)
+    if (helperObject) helperObject.color = spotLightComponent.color.value
+  }, [!!helperObject, spotLightComponent.color])
 
   return null
 }
 
-export const HemisphereLightaddtoHelperRegistry = (icon) => {
+export const SpotLightaddtoHelperRegistry = (icon) => {
   // registers the effect
 
   getMutableState(ActiveHelperRegistryState).merge({
     [helperKey]: {
-      reactor: HemiSphereLightHelperReactor,
+      reactor: SpotLightHelperReactor,
       icon: icon,
-      component: HemisphereLightComponent
+      component: SpotLightComponent,
+      directional: true
     }
   })
 }

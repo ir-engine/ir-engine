@@ -32,14 +32,14 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { useGLTFComponent } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
+import { SpawnPointComponent } from '@ir-engine/engine/src/scene/components/SpawnPointComponent'
 import { getMutableState } from '@ir-engine/hyperflux'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { TransformComponent } from '@ir-engine/spatial/src/SpatialModule'
+import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
-import { SpawnPointComponent } from '../../../engine/src/scene/components/SpawnPointComponent'
-import { ObjectComponent } from '../renderer/components/ObjectComponent'
-import { setVisibleComponent, VisibleComponent } from '../renderer/components/VisibleComponent'
-import { TransformComponent } from '../SpatialModule'
-import { ComputedTransformComponent } from '../transform/components/ComputedTransformComponent'
 import { ActiveHelperReactorProps, ActiveHelperRegistryState } from './HelperRegistry'
 
 const helperKey = SpawnPointComponent.jsonID

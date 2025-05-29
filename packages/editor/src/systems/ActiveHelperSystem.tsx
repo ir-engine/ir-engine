@@ -43,7 +43,6 @@ import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelp
 import React from 'react'
 
 import { QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
-import { ActiveHelperRegistryState } from '@ir-engine/spatial/src/helper/HelperRegistry'
 import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
 import {
   HeuristicFunctions,

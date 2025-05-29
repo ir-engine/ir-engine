@@ -25,11 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { createEntity, EntityTreeComponent, removeEntity, setComponent, useComponent } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
+import { LineSegmentComponent } from '@ir-engine/spatial/src/renderer/components/LineSegmentComponent'
+import { DirectionalLightComponent } from '@ir-engine/spatial/src/SpatialModule'
 import { useEffect } from 'react'
 import { BufferGeometry, Float32BufferAttribute } from 'three'
-import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
-import { LineSegmentComponent } from '../renderer/components/LineSegmentComponent'
-import { DirectionalLightComponent } from '../SpatialModule'
 import { ActiveHelperReactorProps, ActiveHelperRegistryState } from './HelperRegistry'
 
 const helperKey = DirectionalLightComponent.jsonID

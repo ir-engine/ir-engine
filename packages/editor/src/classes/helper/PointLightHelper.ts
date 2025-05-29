@@ -25,11 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useComponent, useOptionalComponent } from '@ir-engine/ecs'
 import { getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { PointLightComponent } from '@ir-engine/spatial/src/SpatialModule'
 import { useEffect } from 'react'
 import { PointLight, PointLightHelper } from 'three'
-import { ObjectComponent } from '../renderer/components/ObjectComponent'
-import { PointLightComponent } from '../SpatialModule'
-import { useHelperEntity } from './functions/useHelperEntity'
 import { ActiveHelperReactorProps, ActiveHelperRegistryState } from './HelperRegistry'
 
 const helperKey = PointLightComponent.jsonID
