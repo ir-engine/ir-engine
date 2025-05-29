@@ -105,6 +105,7 @@ jobs:
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: npm run dev-docker
       - run: npm run dev-reinit
+      - run: docker ps
       - run: npx lerna run --scope '@ir-engine/*' check-errors
         timeout-minutes: 20
 
