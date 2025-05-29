@@ -445,6 +445,9 @@ jobs:
       - run: curl -k https://127.0.0.1:9000
       - run: cd packages/${{ matrix.package }} && npm run test
         timeout-minutes: 20
+      - name: final docker
+        if: always()
+        run: docker ps && docker container ls --all
       - name: final curl
         if: always()
         run: curl -k https://127.0.0.1:9000
