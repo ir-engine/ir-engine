@@ -169,9 +169,7 @@ const loadDependencies = {
   [ColliderComponent.jsonID]: [
     {
       key: 'hasCollider',
-      eval: (hasCollider: boolean) => {
-        return hasCollider
-      }
+      eval: (hasCollider: boolean) => hasCollider
     }
   ]
 } as Record<string, DependencyEval[]>
