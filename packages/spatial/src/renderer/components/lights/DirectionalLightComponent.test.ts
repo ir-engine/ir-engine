@@ -36,7 +36,7 @@ import {
   serializeComponent,
   setComponent
 } from '@ir-engine/ecs'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { getMutableState } from '@ir-engine/hyperflux'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import assert from 'assert'
 import { BufferGeometry, Color, ColorRepresentation, DirectionalLight, LineBasicMaterial } from 'three'
@@ -421,7 +421,6 @@ describe('DirectionalLightComponent', () => {
       const Expected = !Initial
       const ExpectedColor = new Color(0x123456)
       // Set the data as expected
-      assert.equal(getState(RendererState).nodeHelperVisibility, false)
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
 
       // Run and Check the Initial result

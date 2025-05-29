@@ -27,7 +27,7 @@ import {
   defineComponent,
   ECSState,
   Entity,
-  getComponent,
+  getOptionalComponent,
   PresentationSystemGroup,
   S,
   Schema,
@@ -158,7 +158,8 @@ export const defineMaterialPlugin = <T extends Schema>({
 
       useExecute(
         () => {
-          const uniformValues = getComponent(entity, PluginComponent)
+          const uniformValues = getOptionalComponent(entity, PluginComponent)
+          if (!uniformValues) return
           if (update) update(uniformValues, getState(ECSState).deltaSeconds)
           for (const key in uniforms) {
             uniforms[key].value = key in textureUniforms ? textureUniforms[key].value : uniformValues[key]

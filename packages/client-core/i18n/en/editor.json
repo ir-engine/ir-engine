@@ -285,8 +285,7 @@
       "lbl-textureType": "Texture Type",
       "lbl-textureUrl": "Texture URL",
       "lbl-intensity": "Envmap Intensity",
-      "info-intensity": "Visual intensity may vary depending on material, shader, and environment map type configuration.",
-      "bake-reflection-probes": "Bake Probes"
+      "info-intensity": "Visual intensity may vary depending on material, shader, and environment map type configuration."
     },
     "trigger": {
       "name": "Trigger",
@@ -579,7 +578,7 @@
         "lodLevelNumber": "LOD Level {{index}}",
         "compress": "Compress",
         "compressionComplete": "Compress Complete",
-        "compressionError": "Error during compression",
+        "compressionError": "Compression failed on {{file}}",
         "compressImage": "Compress Image",
         "applyPresetConfirmation": "Would you like to apply this preset?",
         "savePreset": "Save Preset",
@@ -958,11 +957,6 @@
       "lbl-bassMultiplier": "Bass Multiplier",
       "lbl-trebleMultiplier": "Treble Multiplier",
       "lbl-midMultiplier": "Mid Multiplier"
-    },
-    "reflectionProbe": {
-      "name": "Reflection Probe",
-      "description": "A reflection probe that captures the environment and uses it for reflection.",
-      "src": "Source"
     },
     "renderSettings": {
       "name": "Render Settings",
@@ -1395,7 +1389,6 @@
         "loop-animation": "Configures the animation associated with your 3D model, loaded from a glTF URL of file.",
         "shadow": "Allows your object to cast and receive shadows in the scene.",
         "lookAt": "Makes an entity face the user or another entity in the scene.",
-        "reflectionProbe": "Captures the environment and uses it for reflection.",
         "fog": "Adds fog to the entity.",
         "ecommerce-product": "Adds a product to the entity from a preconfigured store provider.",
         "text-spatial": "Adds spatial 3D text to the entity.",
