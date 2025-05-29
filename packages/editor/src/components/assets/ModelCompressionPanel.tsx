@@ -77,6 +77,7 @@ const createLODVariants = async (
   heuristic: Heuristic,
   exportCombined = false,
   parentEntity: Entity,
+  bypassTransformations = false,
   onProgress: (
     progress: number,
     status: ModelTransformStatus,
@@ -96,7 +97,8 @@ const createLODVariants = async (
       if (!transformMetadata[i]) transformMetadata[i] = {}
       transformMetadata[i][key] = data
     },
-    onProgress
+    onProgress,
+    bypassTransformations
   )
 
   if (exportCombined) {
@@ -137,6 +139,7 @@ export default function ModelCompressionPanel({
   const selectedLODIndex = useHookstate(0)
   const selectedPreset = useHookstate(defaultParams)
   const presetList = useHookstate(structuredClone(LODList))
+  const bypassTransformations = useHookstate(false)
 
   useEffect(() => {
     const presets = localStorage.getItem('presets')
@@ -248,6 +251,7 @@ export default function ModelCompressionPanel({
       Heuristic.DISTANCE,
       exportCombined,
       getState(EditorState).rootEntity,
+      bypassTransformations.value,
       (progress, status, numerator, denominator) => {
         const caption = t(progressCaptions[status]!, {
           numerator: numerator + 1,
@@ -376,6 +380,18 @@ export default function ModelCompressionPanel({
             transformParms={lods[selectedLODIndex.value].params}
             itemCount={selectedFiles.length}
           />
+        </div>
+
+        <div className="mb-4 flex items-center justify-center px-8">
+          <label className="flex items-center gap-2 text-sm font-medium text-white">
+            <input
+              type="checkbox"
+              checked={bypassTransformations.value}
+              onChange={(e) => bypassTransformations.set(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500"
+            />
+            Bypass Transformations (Debug Mode)
+          </label>
         </div>
 
         <div className="flex justify-end justify-items-stretch px-8">
