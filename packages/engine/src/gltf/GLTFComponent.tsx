@@ -44,6 +44,7 @@ import {
   Layers,
   removeComponent,
   setComponent,
+  SimulationLayerComponent,
   SourceID,
   UndefinedEntity,
   useAncestorWithComponents,
@@ -161,7 +162,11 @@ const componentDependenciesLoaded = (dependencies?: ComponentDependencies) => {
 }
 
 const checkCollider = (hasCollider: boolean, entity: Entity) => {
-  if (getAncestorWithComponents(entity, [RigidBodyComponent]) === undefined) return true
+  if (
+    getAncestorWithComponents(entity, [RigidBodyComponent]) === undefined ||
+    !hasComponent(entity, SimulationLayerComponent)
+  )
+    return true
   return hasCollider
 }
 
