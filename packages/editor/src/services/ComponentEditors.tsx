@@ -40,7 +40,6 @@ import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/
 import { PlaylistComponent } from '@ir-engine/engine/src/scene/components/PlaylistComponent'
 import { PortalComponent } from '@ir-engine/engine/src/scene/components/PortalComponent'
 import { PrimitiveGeometryComponent } from '@ir-engine/engine/src/scene/components/PrimitiveGeometryComponent'
-import { ReflectionProbeComponent } from '@ir-engine/engine/src/scene/components/ReflectionProbeComponent'
 import { RenderSettingsComponent } from '@ir-engine/engine/src/scene/components/RenderSettingsComponent'
 import { SDFComponent } from '@ir-engine/engine/src/scene/components/SDFComponent'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
@@ -103,7 +102,6 @@ import OverlayNodeEditor from '@ir-engine/ui/src/components/editor/properties/ov
 import ParticleSystemNodeEditor from '@ir-engine/ui/src/components/editor/properties/particle'
 import PortalNodeEditor from '@ir-engine/ui/src/components/editor/properties/portal'
 import PostProcessingSettingsEditor from '@ir-engine/ui/src/components/editor/properties/postProcessing'
-import ReflectionProbeNodeEditor from '@ir-engine/ui/src/components/editor/properties/reflectionProbe'
 import RenderSettingsEditor from '@ir-engine/ui/src/components/editor/properties/render'
 import RigidBodyComponentEditor from '@ir-engine/ui/src/components/editor/properties/rigidBody'
 import ScenePreviewCameraNodeEditor from '@ir-engine/ui/src/components/editor/properties/scene/previewCamera'
@@ -186,7 +184,6 @@ export const ComponentEditorsState = defineState({
       [ScreenshareTargetComponent.name]: ScreenshareTargetNodeEditor,
       [TextComponent.name]: TextNodeEditor,
       [LookAtComponent.name]: LookAtNodeEditor,
-      [ReflectionProbeComponent.name]: ReflectionProbeNodeEditor,
       [MediaComponent.name]: MediaNodeEditor
     } as Record<string, EditorComponentType>
   }
