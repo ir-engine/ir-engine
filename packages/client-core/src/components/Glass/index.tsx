@@ -37,6 +37,7 @@ import { XRLoading } from '../XRLoading'
 
 import { ToolbarAndSidebar } from './ToolbarAndSidebar'
 
+import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { ChatMenu } from './ChatMenu'
 import { ToolbarMenu } from './ToolbarMenu'
 
@@ -151,6 +152,7 @@ export const ViewerInteractions = () => {
       <XRLoading />
 
       <TouchGamepad />
+      <PopupMenu />
     </div>
   )
 }

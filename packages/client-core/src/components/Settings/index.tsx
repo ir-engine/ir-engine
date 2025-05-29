@@ -161,7 +161,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose }) => {
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.2 }}
-        className="flex h-full w-full max-w-sm flex-col rounded-3xl p-5 font-dm-sans text-white shadow-xl backdrop-blur-md md:max-w-screen-md"
+        className="pointer-events-auto flex h-full w-full max-w-sm flex-col rounded-3xl p-5 font-dm-sans text-white shadow-xl backdrop-blur-md md:max-w-screen-md"
         style={{
           maxHeight: '90vh',
           background: 'linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05))',
@@ -206,7 +206,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose }) => {
                 x: { type: 'tween', duration: 0.2 },
                 opacity: { duration: 0.2 }
               }}
-              className="h-full max-h-full space-y-4 overflow-y-auto pb-4"
+              className="scrollbar-hide h-full max-h-full space-y-4 overflow-y-auto pb-4"
             >
               <ActiveComponent navigateTo={navigateTo} onClose={onClose} />
             </motion.div>
