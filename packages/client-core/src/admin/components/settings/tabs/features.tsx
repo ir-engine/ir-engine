@@ -28,12 +28,12 @@ import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiUser } from 'react-icons/hi2'
 
-import { useHookstate } from '@hookstate/core'
 import { useFind, useMutation } from '@ir-engine/common'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { FeatureFlagSettingType, featureFlagSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { getAllStringValueNodes } from '@ir-engine/common/src/utils/getAllStringValueNodes'
+import { useHookstate } from '@ir-engine/hyperflux'
 import { Tooltip } from '@ir-engine/ui'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 

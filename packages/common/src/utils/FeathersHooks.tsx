@@ -91,6 +91,8 @@ export const FeathersState = defineState({
           response: unknown
           status: 'pending' | 'success' | 'error'
           error: string
+          requestTime: number
+          resolvedTime: number | null
           $stack?: string[]
         }
       >
@@ -140,6 +142,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
     }
     state.merge({
       status: 'pending',
+      requestTime: Date.now(),
       error: ''
     })
     if (isDev) {
@@ -156,14 +159,16 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
         state.merge({
           response: res,
           status: 'success',
-          error: ''
+          error: '',
+          resolvedTime: Date.now()
         })
       })
       .catch((error) => {
         console.error(`Error in service: ${serviceName}, method: ${method}, args: ${JSON.stringify(args)}`, error)
         state.merge({
           status: 'error',
-          error: error.message
+          error: error.message,
+          resolvedTime: Date.now()
         })
       })
   }
@@ -190,6 +195,8 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
         refs: 0,
         response: null,
         status: 'pending',
+        requestTime: 0,
+        resolvedTime: null,
         error: ''
       }
     })

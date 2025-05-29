@@ -35,7 +35,8 @@ export const FeatureFlags = {
       MotionCapture: 'ir.client.location.menu.motionCapture',
       XR: 'ir.client.menu.xr',
       ShareToQuest: 'ir.client.menu.shareToQuest'
-    }
+    },
+    Glass: 'ir.client.glass'
   },
   Studio: {
     Model: {

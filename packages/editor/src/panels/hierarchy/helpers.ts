@@ -44,6 +44,7 @@ export type HierarchyTreeNodeType = {
   isLeaf?: boolean
   isCollapsed?: boolean
   isRendered?: boolean
+  parentEntity?: Entity
 }
 
 /* COMMON */
@@ -134,6 +135,7 @@ export function ecsHierarchyTreeWalker(rootEntity: Entity, enableHideGlbChildren
   while (frontier.length > 0) {
     const { entity, depth, lastChild, isRendered: originalIsRendered } = frontier.pop()!
     const eTree = getOptionalComponent(entity, EntityTreeComponent)
+    const parentEntity = eTree?.parentEntity
 
     if (!eTree) continue
     const childIndex = eTree.childIndex ?? 0
@@ -152,7 +154,8 @@ export function ecsHierarchyTreeWalker(rootEntity: Entity, enableHideGlbChildren
       lastChild,
       isLeaf,
       isCollapsed,
-      isRendered: originalIsRendered
+      isRendered: originalIsRendered,
+      parentEntity
     })
     if (children && !hideChildren) {
       //do not push children of glb

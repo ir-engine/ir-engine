@@ -38,6 +38,7 @@ import {
   getOptionalComponent,
   getSimulationCounterpart,
   hasComponent,
+  LayerComponent,
   LayerID,
   Layers,
   removeComponent,
@@ -45,6 +46,7 @@ import {
   setComponent,
   SourceID,
   UndefinedEntity,
+  useAncestorWithComponents,
   useComponent,
   useEntityContext,
   useHasComponent,
@@ -53,13 +55,12 @@ import {
   useQuery,
   UUIDComponent
 } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 import { getMutableState, getState, NO_PROXY_STEALTH, none, State, useHookstate } from '@ir-engine/hyperflux'
-
-import { LayerComponent, useAncestorWithComponents } from '@ir-engine/ecs'
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformComponent } from '@ir-engine/spatial'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { ShapeSchema } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -159,10 +160,16 @@ const componentDependenciesLoaded = (dependencies?: ComponentDependencies) => {
 }
 
 const loadDependencies = {
-  ['EE_model']: [
+  [GLTFComponent.jsonID]: [
     {
       key: 'dependencies',
       eval: (dependencies?: ComponentDependencies) => componentDependenciesLoaded(dependencies)
+    }
+  ],
+  [ColliderComponent.jsonID]: [
+    {
+      key: 'hasCollider',
+      eval: (hasCollider: boolean) => hasCollider
     }
   ]
 } as Record<string, DependencyEval[]>
@@ -205,7 +212,6 @@ export const GLTFComponentReactor = () => {
     const occlusion = gltfComponent.cameraOcclusion.value
     const source = UUIDComponent.getAsSourceID(entity)
     const entities = UUIDComponent.getEntitiesBySource(source)
-
     if (!occlusion) {
       ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
       for (const curr of entities) {
@@ -274,7 +280,7 @@ export const GLTFComponentReactor = () => {
 
   useEffect(() => {
     if (!sceneLoaded || !scene) return
-    setComponent(entity, SceneComponent, { active: true })
+    setComponent(entity, SceneComponent)
     setComponent(entity, ActiveHelperComponent, { volumeEnabled: true })
   }, [sceneLoaded, !!scene])
 
@@ -296,7 +302,6 @@ const ResourceReactor = (props: { documentID: SourceID; entity: Entity; document
 
   const simulationEntity = getSimulationCounterpart(props.entity)
   useApplyCollidersToChildMeshesEffect(simulationEntity)
-
   useEffect(() => {
     if (!hasComponent(props.entity, GLTFComponent) || !props.documentLoaded) return
     if (getComponent(props.entity, GLTFComponent).progress === 100) return
@@ -402,7 +407,6 @@ const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: Enti
 const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: ComponentDependencies }) => {
   const { gltfComponentEntity, dependencies } = props
   const componentDependencies = Object.entries(dependencies.componentDependencies)
-
   useEffect(() => {
     return () => {
       removeError(gltfComponentEntity, GLTFComponent, 'LOADING_ERROR')
