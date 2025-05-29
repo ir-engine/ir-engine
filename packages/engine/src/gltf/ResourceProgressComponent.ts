@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   defineComponent,
   Entity,
+  entityExists,
   getMutableComponent,
   getOptionalComponent,
   getOptionalMutableComponent,
@@ -48,6 +49,7 @@ export const ResourceProgressComponent = defineComponent({
   ),
 
   setResource(entity: Entity, url: string, progress: number, total: number) {
+    if (entityExists(entity)) return
     setComponent(entity, ResourceProgressComponent)
 
     const percentage = total ? Math.floor((progress / total) * 100) : 0
