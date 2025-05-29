@@ -42,7 +42,6 @@ import {
   LayerID,
   Layers,
   removeComponent,
-  removeEntity,
   setComponent,
   SourceID,
   UndefinedEntity,
@@ -240,36 +239,25 @@ export const GLTFComponentReactor = () => {
     const gltfComponent = getComponent(entity, GLTFComponent)
     if (!gltfComponent.document) return
 
-    const options = getGLTFOptions(entity)
-    const url = options.url
+    const abortController = new AbortController()
+
+    const options = getGLTFOptions(entity, abortController.signal)
 
     const sceneIndex = options.document.scene || 0
-    let aborted = false
     removeComponent(entity, AnimationComponent)
 
-    const layer = LayerComponent.get(entity)
-    const unloadEntities = () => {
-      const loadedEntities = UUIDComponent.getEntitiesBySource(sourceID, layer)
-      for (const entity of loadedEntities) removeEntity(entity)
-    }
-
     GLTFLoaderFunctions.loadScene(options, sceneIndex).then(() => {
-      documentLoaded.set(true)
+      if (abortController.signal.aborted) return
 
+      documentLoaded.set(true)
       // force transform update for all entities in the model.
       // required to propagate dirty update auth to sim layers
       TransformComponent.dirty[entity] = 1
-
-      if (aborted) {
-        unloadEntities()
-      }
     })
 
     return () => {
+      abortController.abort()
       documentLoaded.set(false)
-      GLTFLoaderFunctions.unloadScene(url, entity)
-      aborted = true
-      unloadEntities()
       if (hasComponent(entity, GLTFComponent)) {
         getMutableComponent(entity, GLTFComponent).progress.set(0)
       }
@@ -598,7 +586,7 @@ export const useHasModelOrIndependentMesh = (entity: Entity) => {
   return hasModel || (hasMesh && !isChildOfModel)
 }
 
-export const getGLTFOptions = (entity: Entity): GLTFParserOptions => {
+export const getGLTFOptions = (entity: Entity, signal: AbortSignal): GLTFParserOptions => {
   const gltfComponent = getComponent(entity, GLTFComponent)
   const document = gltfComponent.document!
   const manager = getState(AssetLoaderState).manager
@@ -610,6 +598,7 @@ export const getGLTFOptions = (entity: Entity): GLTFParserOptions => {
     path: LoaderUtils.extractUrlBase(gltfComponent.src),
     body: gltfComponent.body,
     requestHeader: {},
-    manager
+    manager,
+    signal
   }
 }

@@ -33,7 +33,9 @@ import {
   EntityTreeComponent,
   LayerComponent,
   LayerFunctions,
+  LayerID,
   Layers,
+  SourceID,
   UUIDComponent,
   deserializeComponent,
   getComponent,
@@ -41,6 +43,7 @@ import {
   hasComponent,
   iterateEntityNode,
   removeComponent,
+  removeEntity,
   setComponent,
   traverseEntityNode
 } from '@ir-engine/ecs'
@@ -539,7 +542,7 @@ const loadBuffer = async (options: GLTFParserOptions, bufferIndex: number): Prom
       (err) => {
         reject(new Error('GLTFLoaderFunctions: Failed to load buffer "' + bufferDef.uri + '".'))
       },
-      null!, // controller.signal,
+      options.signal,
       loader
     )
   })
@@ -1045,7 +1048,7 @@ const loadImageSource = async (options: GLTFParserOptions, sourceIndex: number, 
       (err) => {
         reject(err as Error)
       },
-      null!, // controller.signal,
+      options.signal,
       loader
     )
   })
@@ -1540,6 +1543,8 @@ const loadGLTFDependencies = (options: GLTFParserOptions) => {
 const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const json = options.document
   const rootEntity = options.entity
+  const sourceID = GLTFComponent.getSourceID(rootEntity)
+  const layer = LayerComponent.get(rootEntity)
 
   // Create a new dependency cache for this URL if it doesn't exist
   if (!DependencyCache.has(options.url)) {
@@ -1560,14 +1565,20 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const sceneDef = json.scenes?.[sceneIndex] ?? ({} as GLTF.IScene)
   const nodeIds = sceneDef.nodes || []
 
-  const pending = [] as Promise<Entity>[]
+  const abortEvent = () => {
+    unloadScene(options.url, rootEntity)
+    unloadEntities(sourceID, layer)
+  }
 
+  const signal = options.signal
+  signal.addEventListener('abort', abortEvent, { once: true })
+
+  const pending = [] as Promise<Entity>[]
   for (let i = 0, il = nodeIds.length; i < il; i++) {
     pending.push(getDependency(options, 'node', nodeIds[i]))
   }
 
   const animationPromises = [] as Promise<AnimationClip>[]
-
   const animations = json.animations || []
   for (let i = 0, il = animations.length; i < il; i++) {
     const animation = getDependency(options, 'animation', i)
@@ -1577,6 +1588,7 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   try {
     const loadedNodeEntities = await Promise.all(pending)
     await Promise.all(loadGLTFDependencies(options))
+    if (signal.aborted) return
 
     for (const entity of loadedNodeEntities) {
       setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity })
@@ -1595,6 +1607,8 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
     }
 
     const animationClips = await Promise.all(animationPromises)
+    if (signal.aborted) return
+
     setAnimationClips(rootEntity, animationClips)
   } finally {
     // dereference body non-reactively if it exists
@@ -1609,7 +1623,7 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   }
 }
 
-const unloadScene = async (url: string, entity: Entity) => {
+const unloadScene = (url: string, entity: Entity) => {
   // handle reference counting
   unloadResourcesForEntity(entity)
 
@@ -1619,6 +1633,11 @@ const unloadScene = async (url: string, entity: Entity) => {
     delete interleavedBufferCache[url]
     DependencyCache.delete(url)
   }
+}
+
+const unloadEntities = (sourceID: SourceID, layer: LayerID) => {
+  const loadedEntities = UUIDComponent.getEntitiesBySource(sourceID, layer)
+  for (const entity of loadedEntities) removeEntity(entity)
 }
 
 export const GLTFLoaderFunctions = {
@@ -1709,6 +1728,7 @@ export type GLTFParserOptions = {
   manager: LoadingManager
   path: string
   requestHeader: Record<string, string>
+  signal: AbortSignal
 }
 
 const validateVersionFormat = (vers: string): boolean => /^[0-9]{1,10}.[0-9]{1,10}$/.test(vers)
