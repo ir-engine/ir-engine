@@ -267,8 +267,8 @@ export const RendererComponent = defineComponent({
       if (!rendererComponent.effectComposer.value) return
 
       const scene = rendererComponent.scene.value as Scene
+
       const outlineEffect = new OutlineEffect(scene, camera, getState(HighlightState))
-      outlineEffect.selectionLayer = ObjectLayers.HighlightEffect
       rendererComponent.effectInstances.OutlineEffect.set(outlineEffect)
 
       return () => {
@@ -328,7 +328,7 @@ export const RendererComponent = defineComponent({
       }
     }, [
       rendererComponent.effects,
-      // rendererComponent.effectComposer.value,
+      rendererComponent.effectComposer.value,
       rendererComponent?.effectInstances?.OutlineEffect.value,
       renderSettings.usePostProcessing.value
     ])
