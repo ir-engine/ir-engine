@@ -443,6 +443,7 @@ jobs:
       - run: docker ps
       - run: curl -k https://127.0.0.1:9000
       - run: cd packages/${{ matrix.package }} && npm run test
+      - run: curl -k https://127.0.0.1:9000
         timeout-minutes: 20
 
   npm_builds:
