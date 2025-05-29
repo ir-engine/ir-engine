@@ -86,12 +86,6 @@ class ImageBitmapLoader extends Loader<ImageBitmap> {
 
     function onFile(blob: Blob) {
       try {
-        // Log detailed information about the blob
-        console.log(`Processing blob for ${url}:`, {
-          size: blob.size,
-          type: blob.type
-        })
-
         createImageBitmap(blob, {
           ...options,
           colorSpaceConversion: 'none' as ColorSpaceConversion,
@@ -99,12 +93,6 @@ class ImageBitmapLoader extends Loader<ImageBitmap> {
           imageOrientation: 'none' // Try without orientation
         })
           .then(function (imageBitmap) {
-            // Log success information
-            console.log(`Successfully created ImageBitmap for ${url}:`, {
-              width: imageBitmap.width,
-              height: imageBitmap.height
-            })
-
             Cache.add(url, imageBitmap)
             if (onLoad) onLoad(imageBitmap)
             manager.itemEnd(url)
@@ -124,7 +112,7 @@ class ImageBitmapLoader extends Loader<ImageBitmap> {
             reader.onload = function () {
               const text = reader.result as string
               // Only log the first 200 characters to avoid flooding the console
-              console.log(`Blob content preview for ${url}:`, text.substring(0, 200))
+              // console.log(`Blob content preview for ${url}:`, text.substring(0, 200))
             }
             reader.onerror = function () {
               console.log(`Could not read blob content for ${url}`)

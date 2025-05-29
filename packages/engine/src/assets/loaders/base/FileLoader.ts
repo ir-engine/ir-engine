@@ -29,7 +29,6 @@ import { parseStorageProviderURLs } from '../../functions/parseSceneJSON'
 import { Loader } from './Loader'
 import { ResourceCache } from './ResourceCache'
 
-// Track in-progress requests
 export const loading = {}
 class HttpError extends Error {
   response: Response
@@ -61,7 +60,6 @@ class FileLoader<TData = unknown> extends Loader<TData> {
 
     url = this.manager.resolveURL(url)
 
-    // Create a cache key
     const cacheKey = JSON.stringify({
       url,
       responseType: this.responseType,
@@ -84,8 +82,6 @@ class FileLoader<TData = unknown> extends Loader<TData> {
       return cached
     }
 
-    // Check if request is duplicate
-
     if (loading[cacheKey] !== undefined) {
       loading[cacheKey].push({
         onLoad: onLoad,
@@ -96,7 +92,6 @@ class FileLoader<TData = unknown> extends Loader<TData> {
       return
     }
 
-    // Initialise array for duplicate requests
     loading[cacheKey] = []
 
     loading[cacheKey].push({
@@ -107,25 +102,21 @@ class FileLoader<TData = unknown> extends Loader<TData> {
 
     const isBlob = url.startsWith('blob:')
 
-    // create request
     const req = new Request(url, {
       headers: new Headers(this.requestHeader),
       credentials: this.withCredentials ? 'include' : 'same-origin'
     })
 
-    // record states ( avoid data race )
     const mimeType = this.mimeType
     const responseType = this.responseType
     const manager = this.manager
 
-    // use native cache if available
     let fromCache = false
     let responsePromise: Promise<Response>
     if (!isBlob && ResourceCache) {
       responsePromise = ResourceCache.getResource(req.url).then((response) => {
         if (!response) return fetch(req, { signal })
         fromCache = true
-        console.log(`Loaded from cache: ${req.url}`)
         return response
       })
     } else {
@@ -139,7 +130,6 @@ class FileLoader<TData = unknown> extends Loader<TData> {
           // Some browsers return HTTP Status 0 when using non-http protocol
           // e.g. 'file://' or 'data://'. Handle as success.
 
-          // If the response is already loaded (e.g. blob: URLs), or streaming is not supported, return the response
           if (
             typeof ReadableStream === 'undefined' ||
             response.body == undefined ||
@@ -160,7 +150,6 @@ class FileLoader<TData = unknown> extends Loader<TData> {
           const lengthComputable = total !== 0
           let loaded = 0
 
-          // periodically read data into the new stream tracking while download progress
           const stream = new ReadableStream({
             start(controller) {
               readData()
@@ -192,7 +181,6 @@ class FileLoader<TData = unknown> extends Loader<TData> {
                       if (callback.onError) callback.onError(err)
                     }
 
-                    // Clean up reader and controller
                     reader.cancel().catch(() => {})
                     controller.error(err)
 
@@ -246,7 +234,6 @@ class FileLoader<TData = unknown> extends Loader<TData> {
             if (mimeType === undefined) {
               return response.text()
             } else {
-              // sniff encoding
               const re = /charset="?([^;"\s]*)"?/i
               const exec = re.exec(mimeType)
               const label = exec && exec[1] ? exec[1].toLowerCase() : undefined
@@ -257,60 +244,48 @@ class FileLoader<TData = unknown> extends Loader<TData> {
       })
       .then((data) => {
         if (!data) throw new Error('No data returned from fetch')
-        // Add to cache with response type in the key
         Cache.add(cacheKey, data)
 
         const callbacks = loading[cacheKey]
         delete loading[cacheKey]
 
-        // Make a local copy of the data to avoid reference issues
         const processedData = data
 
-        // Call all callbacks with the processed data
         for (let i = 0, il = callbacks ? callbacks.length : 0; i < il; i++) {
           const callback = callbacks[i]
           if (callback.onLoad) callback.onLoad(processedData)
         }
 
-        // Clear references to help garbage collection
         callbacks.length = 0
       })
       .catch((err) => {
-        // Abort errors and other errors are handled the same
         const callbacks = loading[cacheKey]
 
         if (callbacks === undefined) {
-          // When onLoad was called and url was deleted in `loading`
           this.manager.itemError(url)
           throw err
         }
 
         delete loading[cacheKey]
 
-        // Make a local copy of the error to avoid reference issues
         const processedError = err instanceof Error ? err : new Error(String(err))
 
-        // Call all error callbacks
         for (let i = 0, il = callbacks.length; i < il; i++) {
           const callback = callbacks[i]
           if (callback.onError) callback.onError(processedError)
         }
 
-        // Clear references to help garbage collection
         callbacks.length = 0
 
         this.manager.itemError(url)
       })
       .finally(() => {
-        // Ensure loading object is cleaned up to prevent memory leaks
         if (loading[cacheKey] !== undefined) {
-          // Clear any callbacks to help garbage collection
           const callbacks = loading[cacheKey]
           if (callbacks && Array.isArray(callbacks)) {
             callbacks.length = 0
           }
 
-          // Remove the entry from the loading object
           delete loading[cacheKey]
         }
 

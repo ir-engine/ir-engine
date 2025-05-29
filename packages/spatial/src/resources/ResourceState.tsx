@@ -289,7 +289,6 @@ const resourceCallbacks = {
 
       resource.metadata.merge({ onGPU: false, discarded: false })
       asset.onUpdate = () => {
-        console.log(`Texture updated: ${asset.userData.url}`)
         resource.metadata.merge({ onGPU: true, discarded: false })
         const viewer = getState(ReferenceSpaceState).viewerEntity
         const renderer = getComponent(viewer, RendererComponent)

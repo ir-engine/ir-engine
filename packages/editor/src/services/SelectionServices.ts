@@ -31,6 +31,7 @@ import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { SelectTagComponent } from '@ir-engine/engine/src/scene/components/SelectTagComponent'
 import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { HierarchyTreeState } from './HierarchyNodeState'
 
 export const SelectionState = defineState({
   name: 'SelectionState',
@@ -38,6 +39,7 @@ export const SelectionState = defineState({
     selectedEntities: [] as EntityUUID[]
   },
   updateSelection: (selectedEntities: EntityUUID[]) => {
+    getMutableState(HierarchyTreeState).manualCollapseExpand.set(false)
     getMutableState(SelectionState).selectedEntities.set(selectedEntities)
   },
   getSelectedEntities: (layer: LayerID = Layers.Authoring) => {

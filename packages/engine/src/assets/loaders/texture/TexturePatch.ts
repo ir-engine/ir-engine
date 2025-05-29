@@ -31,37 +31,29 @@ import { getTextureCacheSize, restoreTextureData, textureNeedsRestoration } from
  * This adds the necessary functionality without requiring custom subclasses
  */
 export function applyTexturePatch() {
-  // Log the current cache size
   getTextureCacheSize().then((size) => {
     console.log(`Texture cache contains ${size} entries`)
   })
 
-  // Store the original needsUpdate setter
   const originalNeedsUpdateSetter = Object.getOwnPropertyDescriptor(Texture.prototype, 'needsUpdate')?.set
 
   if (originalNeedsUpdateSetter) {
-    // Override the needsUpdate setter to check for missing data
     Object.defineProperty(Texture.prototype, 'needsUpdate', {
       set: function (value) {
         if (value && textureNeedsRestoration(this)) {
-          // If the texture needs restoration, try to restore it
           restoreTextureData(this)
             .then((success) => {
               if (success) {
-                // If restoration was successful, call the original setter
                 originalNeedsUpdateSetter.call(this, value)
               } else {
-                // If restoration failed but we still want to update, call the original setter
                 originalNeedsUpdateSetter.call(this, value)
               }
             })
             .catch((error) => {
               console.error('Error restoring texture:', error)
-              // Call the original setter anyway
               originalNeedsUpdateSetter.call(this, value)
             })
         } else {
-          // If the texture doesn't need restoration, call the original setter
           originalNeedsUpdateSetter.call(this, value)
         }
       },
@@ -69,17 +61,14 @@ export function applyTexturePatch() {
     })
   }
 
-  // Override PMREMGenerator's _fromTexture method to ensure textures are updated
   const _fromTexture = PMREMGenerator.prototype['_fromTexture']
   PMREMGenerator.prototype['_fromTexture'] = function (texture: Texture, renderTarget: any) {
-    // If the texture needs restoration, restore it first
     if (textureNeedsRestoration(texture)) {
       restoreTextureData(texture).catch((error) => {
         console.error('Error restoring texture for PMREM:', error)
       })
     }
 
-    // Force texture update to ensure it's properly loaded
     texture.needsUpdate = true
     return _fromTexture.call(this, texture, renderTarget)
   }

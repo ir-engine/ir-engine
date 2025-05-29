@@ -35,7 +35,6 @@ import '@ir-engine/spatial/src/resources/ResourceState'
 const iOSMaxResolution = 1024
 
 const getScaledBitmap = (img: ImageBitmap, maxResolution: number) => {
-  // Set width and height
   const originalWidth = img.width
   const originalHeight = img.height
 
@@ -80,7 +79,6 @@ class TextureLoader extends Loader<Texture> {
   ) {
     const texture = new Texture()
 
-    // Store the URL in userData for texture memory management
     texture.userData = { url }
 
     if (!isClient) {
@@ -88,7 +86,6 @@ class TextureLoader extends Loader<Texture> {
       return
     }
 
-    // Load the texture directly
     const loader = new ImageBitmapLoader(this.manager).setCrossOrigin(this.crossOrigin).setPath(this.path)
 
     if (this.flipped) loader.setOptions({ imageOrientation: 'flipY' })

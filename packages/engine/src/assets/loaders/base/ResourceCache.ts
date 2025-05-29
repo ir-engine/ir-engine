@@ -123,3 +123,7 @@ class ResourceCacheDatabase extends Dexie {
 }
 
 export const ResourceCache = 'indexedDB' in self ? new ResourceCacheDatabase() : null
+
+if (!ResourceCache) {
+  console.warn(`ResourceCache not available, cannot offload texture data`)
+}

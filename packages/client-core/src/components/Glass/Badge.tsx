@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -23,21 +23,43 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import React from 'react'
+import { ClassNameValue, twMerge } from 'tailwind-merge'
 
-const argTypes = {}
-
-export default {
-  title: 'Editor/Properties/ReflectionProbe',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'ReflectionProbeNodeEditor',
-    jest: 'reflectionProbeNodeEditor.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
+export type BaseBadgeProps = {
+  number?: number
+  position?: 'top' | 'bottom'
 }
-export const Default = { args: {} }
+
+type BadgeProps = BaseBadgeProps & {
+  show?: boolean
+  className?: string
+}
+
+const containerStyles = `
+  absolute z-40
+  right-0
+  
+  flex items-center justify-center 
+  h-4 w-4
+
+  rounded-full
+  
+  text-xs text-white
+  bg-blue-500
+`
+
+export const Badge = ({ number, position, show, className = '' }: BadgeProps) => {
+  return (
+    <div
+      className={twMerge(
+        containerStyles,
+        show ? `` : `collapse`,
+        position === `bottom` ? `bottom-0` : `top-0`,
+        className as ClassNameValue
+      )}
+    >
+      <span className={'relative top-[0.025rem]'}>{number}</span>
+    </div>
+  )
+}

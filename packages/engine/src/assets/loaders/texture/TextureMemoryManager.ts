@@ -29,12 +29,6 @@ import { AssetLoaderState } from '../../state/AssetLoaderState'
 import { ResourceCache } from '../base/ResourceCache'
 import { TextureLoader } from './TextureLoader'
 
-/**
- * Prefix for texture data stored in ResourceCache
- * Using URLs directly as keys since they're already content-hashed
- */
-const TEXTURE_CACHE_PREFIX = 'texture_'
-
 const cachePromises = {} as Record<string, Promise<boolean>>
 
 /**
@@ -43,26 +37,18 @@ const cachePromises = {} as Record<string, Promise<boolean>>
  * @returns True if the texture was offloaded, false otherwise
  */
 export async function offloadTextureData(texture: Texture): Promise<boolean> {
-  // We need a URL to be able to restore the texture later
   const url = texture.userData?.url
   if (!url) {
-    console.warn(`Texture does not have a URL, cannot offload: ${url}`)
+    console.warn(`Texture id ${(texture as any).resourceID} does not have a URL, cannot offload`)
     return false
   }
 
-  // Skip if ResourceCache is not available
-  if (!ResourceCache) {
-    console.warn(`ResourceCache not available, cannot offload texture data: ${url}`)
-    return false
-  }
+  if (!ResourceCache) return false
 
-  // Skip if texture is already offloaded or doesn't have data
   if (!texture || (!texture.mipmaps && isEmpty(texture.source.data))) {
     console.warn(`Texture is already offloaded or does not have data, cannot offload: ${url}`)
     return false
   }
-
-  console.info(`Offloading texture data: ${url}`)
 
   const mipmaps = texture.mipmaps
   const data = texture.source.data
@@ -74,16 +60,11 @@ export async function offloadTextureData(texture: Texture): Promise<boolean> {
 
   if (await ResourceCache.hasTexture(url)) return false
 
-  console.log(`Caching texture data: ${url}`)
-
   const promise = new Promise<boolean>(async (resolve, reject) => {
-    // For compressed textures, store mipmaps
     if ((texture as CompressedTexture).isCompressedTexture) {
       const compressedTexture = texture as CompressedTexture
 
-      // Only cache if we have mipmaps
       if (mipmaps?.length > 0) {
-        // Create a serializable object with all the texture data
         const textureData = {
           data: mipmaps,
           width: data.width as number,
@@ -91,21 +72,18 @@ export async function offloadTextureData(texture: Texture): Promise<boolean> {
           format: compressedTexture.format,
           type: compressedTexture.type
         }
-        // Store in ResourceCache
         await ResourceCache!.putTexture(url, textureData).catch((err) => {
           console.error(`Error storing texture data: ${err}`)
           reject(err)
         })
       }
     } else if (data instanceof ImageBitmap) {
-      // For regular textures with ImageBitmap, convert to PNG and store
       const canvas = new OffscreenCanvas(data.width, data.height)
       const ctx = canvas.getContext('2d')
       if (ctx) {
         ctx.drawImage(data, 0, 0)
         const blob = await canvas.convertToBlob({ type: 'image/png' })
         const buffer = await blob.arrayBuffer()
-        // Store in ResourceCache
         await ResourceCache!.putTexture(url, {
           data: buffer,
           width: data.width,
@@ -113,7 +91,6 @@ export async function offloadTextureData(texture: Texture): Promise<boolean> {
           format: texture.format,
           type: texture.type
         })
-        // Close the ImageBitmap to free memory
         data.close()
       }
     } else {
@@ -143,11 +120,9 @@ export async function offloadTextureData(texture: Texture): Promise<boolean> {
  * @returns A promise that resolves when the texture is restored
  */
 export async function restoreTextureData(texture: Texture): Promise<boolean> {
-  // Get the URL from the texture
   const url = texture.userData?.url
   if (!url) return false
 
-  // Skip if texture already has meaningful data
   if (
     texture.source.data &&
     typeof texture.source.data === 'object' &&
@@ -157,67 +132,48 @@ export async function restoreTextureData(texture: Texture): Promise<boolean> {
     return false
   }
 
-  console.info(`Restoring texture data: ${url}`)
-
-  // Skip if ResourceCache is not available
   if (!ResourceCache) return false
 
   try {
-    // Try to get cached data from ResourceCache
     const textureData = await ResourceCache.getTexture(url)
     if (!textureData) {
-      // If no cached data, reload from URL
       return await loadFromURL(texture)
     }
 
-    // For compressed textures
     if ((texture as CompressedTexture).isCompressedTexture) {
       try {
         if (textureData.data) {
           const compressedTexture = texture as CompressedTexture
-
-          // Restore data
-          compressedTexture.mipmaps = textureData.data as any //(textureData.data as Array<any>).map((mip) => ({
-          //   width: mip.width,
-          //   height: mip.height,
-          //   data: new Uint8Array(mip.data)
-          // })) as any
+          compressedTexture.mipmaps = textureData.data as any
           compressedTexture.source.data.width = textureData.width
           compressedTexture.source.data.height = textureData.height
           compressedTexture.format = textureData.format as CompressedPixelFormat
           compressedTexture.type = textureData.type
           compressedTexture.needsUpdate = true
-          console.info(`Restored texture data: ${url}`)
           return true
         }
       } catch (e) {
         console.error(`Error parsing texture data: ${e}`)
-        // If parsing fails, try to load from URL
         return await loadFromURL(texture)
       }
     } else {
-      // For regular textures, create an ImageBitmap from the buffer
       try {
-        const buffer = textureData.data as ArrayBuffer // new Uint8Array(textureData.data as ArrayBuffer).buffer
+        const buffer = textureData.data as ArrayBuffer
         const blob = new Blob([buffer], { type: 'image/png' })
         const imageBitmap = await createImageBitmap(blob)
 
-        // Set the texture's source data
         texture.source.data = imageBitmap
         texture.needsUpdate = true
         return true
       } catch (e) {
-        // If creating ImageBitmap fails, try to load from URL
         return await loadFromURL(texture)
       }
     }
   } catch (error) {
     console.error(`Error restoring texture data: ${error}`)
-    // If any error occurs, try to load from URL
     return await loadFromURL(texture)
   }
 
-  // If we get here, something went wrong
   return false
 }
 
@@ -231,23 +187,18 @@ async function loadFromURL(texture: Texture | CompressedTexture): Promise<boolea
   if (!url) return false
 
   try {
-    // Create a new TextureLoader instance
     const loader = 'isCompressedTexture' in texture ? getState(AssetLoaderState).ktx2Loader : new TextureLoader()
 
     return new Promise<boolean>((resolve) => {
       loader.load(
         url,
-        // onLoad
         (newTexture: Texture | CompressedTexture) => {
-          // Copy the new texture's source data to our texture
           texture.source.data = newTexture.source.data
           texture.mipmaps = newTexture.mipmaps
           texture.needsUpdate = true
           resolve(true)
         },
-        // onProgress
         undefined,
-        // onError
         () => {
           console.error(`Failed to restore texture from URL: ${url}`)
           resolve(false)
@@ -283,9 +234,7 @@ export async function getTextureCacheSize(): Promise<number> {
   if (!ResourceCache) return 0
 
   try {
-    // Get all keys from ResourceCache
     const textures = await ResourceCache.textures.toArray()
-    // Count texture data entries
     return textures.length
   } catch (error) {
     console.error(`Error getting texture cache size: ${error}`)

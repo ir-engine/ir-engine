@@ -36,6 +36,8 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
+  LayerComponent,
+  removeComponent,
   setComponent,
   SourceID,
   UUIDComponent
@@ -51,11 +53,12 @@ import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { InstancedMesh, MathUtils, MeshStandardMaterial } from 'three'
+import { InstancedMesh, LoaderUtils, LoadingManager, MathUtils, MeshStandardMaterial } from 'three'
 import { startEngineReactor } from '../../tests/startEngineReactor'
 import { overrideFileLoaderLoad } from '../../tests/util/loadGLTFAssetNode'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { GLTFComponent } from './GLTFComponent'
+import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
 import { KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
 import { EXTMeshGPUInstancingComponent, KHRLightsPunctualComponent, KHRPunctualLight } from './MeshExtensionComponents'
 
@@ -620,5 +623,115 @@ describe('GLTF Loader', async () => {
     assert(materials.length === 1)
     const materialState = getComponent(materials[0], MaterialStateComponent)
     assert((materialState.material as MeshStandardMaterial).map?.isTexture)
+  })
+
+  it('can abort loading when component is unmounted while loading', async () => {
+    const entity = setupEntity()
+
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
+    setComponent(entity, GLTFComponent, { src: duck_gltf })
+
+    await vi.waitUntil(() => !!GLTFComponent.getSourceID(entity), { timeout: 10000 })
+
+    const sourceID = GLTFComponent.getSourceID(entity)
+    const layer = LayerComponent.get(entity)
+
+    removeComponent(entity, GLTFComponent)
+
+    assert(!hasComponent(entity, GLTFComponent))
+    assert(UUIDComponent.getEntitiesBySource(sourceID, layer).length === 0)
+  })
+
+  it('can abort loading when component is unmounted after loading', async () => {
+    const entity = setupEntity()
+
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
+    setComponent(entity, GLTFComponent, { src: duck_gltf })
+
+    await vi.waitUntil(() => !!GLTFComponent.getSourceID(entity), { timeout: 10000 })
+
+    const sourceID = GLTFComponent.getSourceID(entity)
+    const layer = LayerComponent.get(entity)
+
+    await waitForScene(entity)
+
+    removeComponent(entity, GLTFComponent)
+
+    await vi.waitUntil(() => UUIDComponent.getEntitiesBySource(sourceID, layer).length === 0, { timeout: 10000 })
+
+    assert(!hasComponent(entity, GLTFComponent))
+    assert(UUIDComponent.getEntitiesBySource(sourceID, layer).length === 0)
+  })
+
+  it('can abort loading when src changes', async () => {
+    const entity = setupEntity()
+
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
+    setComponent(entity, GLTFComponent, { src: duck_gltf })
+
+    const initialLoadPromise = waitForScene(entity)
+
+    setComponent(entity, GLTFComponent, { src: textured_gltf })
+
+    await waitForScene(entity)
+
+    const document = getComponent(entity, GLTFComponent).document
+
+    const hasMaterialsWithTextures = document!.materials?.some(
+      (material) => material.pbrMetallicRoughness?.baseColorTexture !== undefined
+    )
+
+    assert(hasMaterialsWithTextures)
+    await initialLoadPromise
+
+    assert(getComponent(entity, GLTFComponent).src === textured_gltf)
+  })
+
+  it('can abort loading in GLTFLoaderFunctions directly', async () => {
+    const entity = setupEntity()
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
+
+    const abortController = new AbortController()
+
+    const options = {
+      entity,
+      url: duck_gltf,
+      signal: abortController.signal,
+      document: {
+        asset: { version: '2.0' },
+        scenes: [{ nodes: [0] }],
+        nodes: [{ mesh: 0 }],
+        meshes: [{ primitives: [{ attributes: { POSITION: 0 } }] }],
+        accessors: [{ componentType: 5126 as GLTF.AccessorComponentType, count: 1, type: 'VEC3' as GLTF.AccessorType }]
+      },
+      body: null,
+      manager: new LoadingManager(),
+      path: LoaderUtils.extractUrlBase(duck_gltf),
+      requestHeader: {}
+    }
+
+    abortController.abort()
+    await GLTFLoaderFunctions.loadScene(options, 0)
+    assert(getChildrenWithComponents(entity, [MeshComponent]).length == 0)
+  })
+
+  it('handles abort during async operations in GLTFLoaderFunctions', async () => {
+    const entity = setupEntity()
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
+
+    const abortController = new AbortController()
+    setComponent(entity, GLTFComponent, { src: duck_gltf })
+    const loadPromise = waitForScene(entity)
+
+    await new Promise((resolve) =>
+      setTimeout(() => {
+        abortController.abort()
+        removeComponent(entity, GLTFComponent)
+        resolve(undefined)
+      }, 50)
+    )
+    await loadPromise
+
+    assert(!hasComponent(entity, GLTFComponent))
   })
 })
