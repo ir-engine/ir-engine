@@ -147,7 +147,7 @@ const ActiveHelperReactor = (helper) => {
       }
 
       const transformGizmoControllerEntity = transformGizmoControllerQuery()
-      if (!(selectedEntities.find((e) => e === entity) === undefined))
+      if (selected.value)
         if (
           transformGizmoControllerEntity.length > 0 &&
           getComponent(transformGizmoControllerEntity[0], TransformGizmoControlComponent).dragging
