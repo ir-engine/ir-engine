@@ -442,7 +442,9 @@ jobs:
       - run: docker ps && docker network ls && docker network inspect bridge
       - run: curl -k https://127.0.0.1:9000
       - run: cd packages/${{ matrix.package }} && npm run test
-      - run: curl -k https://127.0.0.1:9000
+      - name: final curl
+        if: always()
+        run: curl -k https://127.0.0.1:9000
         timeout-minutes: 20
 
   npm_builds:
