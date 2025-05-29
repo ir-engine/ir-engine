@@ -41,7 +41,7 @@ const WorldSettings: React.FC<ScreenProps> = () => (
     <Section>
       <SliderItem label="Audio Volume" defaultValue={50} />
       <Divider />
-      <ToggleItem label="Animation" defaultChecked />
+      <ToggleItem label="Animation" checked />
       <Divider />
       <ToggleItem label="Vegetation" />
       <Divider />

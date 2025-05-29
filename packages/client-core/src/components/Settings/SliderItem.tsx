@@ -24,14 +24,30 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useState } from 'react'
+import { useDebouncedCallback } from 'use-debounce'
 
 interface SliderItemProps {
   label: string
   defaultValue?: number
+  min?: number
+  max?: number
+  step?: number
+  onChange?: (value: number) => void
 }
 
-const SliderItem: React.FC<SliderItemProps> = ({ label, defaultValue = 50 }) => {
+const SliderItem: React.FC<SliderItemProps> = ({
+  label,
+  defaultValue = 50,
+  onChange,
+  min = 0,
+  max = 100,
+  step = 1
+}) => {
   const [value, setValue] = useState(defaultValue)
+  const debounced = useDebouncedCallback((value) => {
+    onChange?.(value)
+    setValue(value)
+  }, 100)
 
   return (
     <div className="flex items-center justify-between px-4 py-3.5 text-white/90">
@@ -59,10 +75,11 @@ const SliderItem: React.FC<SliderItemProps> = ({ label, defaultValue = 50 }) => 
           </div>
           <input
             type="range"
-            min="0"
-            max="100"
+            min={min}
+            max={max}
+            step={step}
             value={value}
-            onChange={(e) => setValue(parseInt(e.target.value))}
+            onChange={(e) => debounced(parseInt(e.target.value))}
             className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
           />
         </div>

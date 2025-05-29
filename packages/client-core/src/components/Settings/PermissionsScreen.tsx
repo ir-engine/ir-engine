@@ -65,9 +65,9 @@ const PermissionsScreen: React.FC<PermissionsScreenProps> = () => {
       {/* Permissions Section */}
       <div className="space-y-4">
         <Section>
-          <ToggleItem label="Camera" defaultChecked={cameraPermission} onChange={setCameraPermission} />
+          <ToggleItem label="Camera" checked={cameraPermission} onChange={setCameraPermission} />
           <Divider />
-          <ToggleItem label="Microphone" defaultChecked={microphonePermission} onChange={setMicrophonePermission} />
+          <ToggleItem label="Microphone" checked={microphonePermission} onChange={setMicrophonePermission} />
         </Section>
       </div>
 

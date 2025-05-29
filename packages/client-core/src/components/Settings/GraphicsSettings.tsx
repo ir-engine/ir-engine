@@ -25,6 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
+import { useMutableState } from '@ir-engine/hyperflux'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import Divider from './Divider'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
@@ -37,18 +39,35 @@ interface ScreenProps {
   onClose?: () => void
 }
 
-const GraphicsSettings: React.FC<ScreenProps> = ({ navigateTo }) => (
-  <div className="space-y-4">
-    <Section>
-      <SliderItem label="Quality Preset" defaultValue={60} />
-      <Divider />
-      <ToggleItem label="Post Processing" defaultChecked />
-      <Divider />
-      <ToggleItem label="Shadows" defaultChecked />
-      <Divider />
-      <MenuItem label="Shadow Map Resolution" onClick={() => navigateTo('shadowMapResolution')} hasChevron />
-    </Section>
-  </div>
-)
+const GraphicsSettings: React.FC<ScreenProps> = ({ navigateTo }) => {
+  const { qualityLevel, usePostProcessing, useShadows } = useMutableState(RendererState)
+  const onQualityChange = (v: number) => qualityLevel.set(v)
+  const onPostProcessingToggle = () => {
+    usePostProcessing.set(!usePostProcessing.value)
+  }
+  const onShadowToggle = () => {
+    useShadows.set(!useShadows.value)
+  }
+
+  return (
+    <div className="space-y-4">
+      <Section>
+        <SliderItem
+          label="Quality Preset"
+          min={0}
+          max={5}
+          defaultValue={qualityLevel.value}
+          onChange={onQualityChange}
+        />
+        <Divider />
+        <ToggleItem label="Post Processing" checked={usePostProcessing.value} onClick={onPostProcessingToggle} />
+        <Divider />
+        <ToggleItem label="Shadows" checked={useShadows.value} onClick={onShadowToggle} />
+        <Divider />
+        <MenuItem label="Shadow Map Resolution" onClick={() => navigateTo('shadowMapResolution')} hasChevron />
+      </Section>
+    </div>
+  )
+}
 
 export default GraphicsSettings

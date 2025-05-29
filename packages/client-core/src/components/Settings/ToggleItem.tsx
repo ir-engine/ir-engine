@@ -24,34 +24,32 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { motion } from 'motion/react'
-import React, { useState } from 'react'
+import React from 'react'
 
 interface ToggleItemProps {
   label: string
-  defaultChecked?: boolean
-  onChange?: (checked: boolean) => void
+  checked?: boolean
+  onClick?: () => void
 }
 
-const ToggleItem: React.FC<ToggleItemProps> = ({ label, defaultChecked = false }) => {
-  const [isChecked, setIsChecked] = useState(defaultChecked)
-
+const ToggleItem: React.FC<ToggleItemProps> = ({ label, checked = false, onClick }) => {
   return (
     <div className="flex items-center justify-between px-4 py-3.5 text-white/90">
       <span className="font-medium">{label}</span>
       <div className="relative h-7 w-12">
         <button
           className="absolute left-0 top-0 h-7 w-12 rounded-full shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)]"
-          onClick={() => setIsChecked(!isChecked)}
-          aria-checked={isChecked}
+          onClick={onClick}
+          aria-checked={checked}
           role="switch"
           style={{
-            backgroundColor: isChecked ? 'hsla(211, 47%, 53%, 1)' : 'rgba(0, 0, 0, 0.14)'
+            backgroundColor: checked ? 'hsla(211, 47%, 53%, 1)' : 'rgba(0, 0, 0, 0.14)'
           }}
         />
         <motion.div
           className="shadow-0px_3px_8px_0px_rgba(0,0,0,0.15) pointer-events-none absolute top-[2px] size-6 rounded-full bg-white"
           animate={{
-            left: isChecked ? '22px' : '4px'
+            left: checked ? '22px' : '4px'
           }}
           transition={{
             type: 'tween',

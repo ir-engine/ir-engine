@@ -43,7 +43,7 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => (
     <Section>
       <MenuItem label="Share Space" onClick={() => navigateTo('shareSpace')} hasChevron />
       <Divider />
-      <ToggleItem label="Video Communication" defaultChecked />
+      <ToggleItem label="Video Communication" checked />
       <Divider />
       <ToggleItem label="Spatial Audio" />
       <Divider />
