@@ -59,7 +59,6 @@ import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions
 import { getMutableState, getState, NO_PROXY_STEALTH, none, State, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
-import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { ShapeSchema } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -163,12 +162,6 @@ const loadDependencies = {
     {
       key: 'dependencies',
       eval: (dependencies?: ComponentDependencies) => componentDependenciesLoaded(dependencies)
-    }
-  ],
-  [ColliderComponent.jsonID]: [
-    {
-      key: 'hasCollider',
-      eval: (hasCollider: boolean) => hasCollider
     }
   ]
 } as Record<string, DependencyEval[]>
