@@ -76,7 +76,7 @@ const TransformPivotTool = () => {
       </Tooltip>
       {options.map(({ label, description, value, icon }) => {
         return (
-          <Tooltip position="bottom" content={t(label)}>
+          <Tooltip position="bottom" content={t(label)} key={value}>
             <ViewportButton
               selected={transformPivot.value === value}
               lean={true}
