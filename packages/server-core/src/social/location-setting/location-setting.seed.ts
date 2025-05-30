@@ -63,9 +63,9 @@ export const locationSettingSeedData = [
     audioEnabled: true,
     screenSharingEnabled: true,
     /** @todo: Re-enable this when the engine has a working jump control/vr capabilities */
-    // faceStreamingEnabled: true,
+    faceStreamingEnabled: true
     // jumpControlEnabled: true,
-    vrEnabled: true
+    // vrEnabled: true
   }
 ]
 
