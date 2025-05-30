@@ -22,9 +22,19 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
+import type { Knex } from 'knex'
 
-import { KnexSeed } from '@ir-engine/common/src/interfaces/KnexSeed'
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const analyticsPath = 'analytics'
+  await knex.schema.dropTableIfExists(analyticsPath)
+}
 
-import * as analyticsSeed from './analytics/analytics.seed'
-
-export const analyticsSeeds: Array<KnexSeed> = [analyticsSeed]
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {}
