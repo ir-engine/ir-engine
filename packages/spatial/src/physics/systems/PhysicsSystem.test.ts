@@ -312,7 +312,7 @@ describe('PhysicsSystem', () => {
         assert.equal(hasComponent(physicsWorldEntity, SceneComponent), false)
         assert.throws(() => Physics.destroyWorld(physicsWorldEntity))
         // Run and Check the result
-        setComponent(physicsWorldEntity, SceneComponent, { active: true })
+        setComponent(physicsWorldEntity, SceneComponent)
         await act(() => render(null))
 
         await vi.waitFor(

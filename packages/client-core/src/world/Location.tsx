@@ -60,7 +60,7 @@ const LocationPage = ({ online }: Props) => {
   const params = useParams()
   const ready = useMutableState(LoadingUISystemState).ready
 
-  const [glassEnabled] = useFeatureFlags([FeatureFlags.Client.Glass])
+  const [glassDisabled] = useFeatureFlags([FeatureFlags.Client.Glass])
 
   useNetwork({ online })
 
@@ -99,7 +99,7 @@ const LocationPage = ({ online }: Props) => {
 
   return (
     <>
-      {glassEnabled ? <GlassViewerInteractions /> : <ViewerInteractions />}
+      {glassDisabled ? <ViewerInteractions /> : <GlassViewerInteractions />}
       {isAuthenticated && <CheckBanned />}
     </>
   )
