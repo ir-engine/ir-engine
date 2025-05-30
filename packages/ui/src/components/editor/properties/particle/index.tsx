@@ -305,7 +305,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Render Mode" label={t('editor:properties.particle-system.render-mode')}>
         <SelectInput
-          value={particleSystem.systemParameters.renderMode}
+          value={RenderMode[particleSystem.systemParameters.renderMode]}
           onChange={onSetSystemParm('renderMode')}
           options={[
             { label: t('editor:properties.particle-system.render-mode-type.billboard'), value: RenderMode.BillBoard },
@@ -386,7 +386,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Mesh" label={t('editor:properties.particle-system.mesh')}>
         <ModelInput
           value={particleSystem.systemParameters.instancingGeometry}
-          onRelease={onSetState('instancingGeometry')}
+          onRelease={onSetSystemParm('instancingGeometry')}
         />
       </InputGroup>
       <InputGroup name="Blending" label={t('editor:properties.particle-system.blending')}>

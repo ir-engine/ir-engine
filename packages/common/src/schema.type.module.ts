@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export type * from './schemas/analytics/analytics.schema'
 export type * from './schemas/assets/asset-library.schema'
 export type * from './schemas/bot/bot-command.schema'
 export type * from './schemas/bot/bot.schema'
@@ -215,8 +214,6 @@ export const featureFlagSettingPath = 'feature-flag-setting'
 export const matchUserPath = 'match-user'
 
 export const matchInstancePath = 'match-instance'
-
-export const analyticsPath = 'analytics'
 
 export const serverSettingPath = 'server-setting'
 
