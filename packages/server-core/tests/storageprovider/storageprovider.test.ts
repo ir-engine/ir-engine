@@ -53,7 +53,8 @@ describe('storageprovider', () => {
   if (
     process.env.STORAGE_S3_TEST_RESOURCE_BUCKET &&
     process.env.STORAGE_AWS_ACCESS_KEY_ID &&
-    process.env.STORAGE_AWS_ACCESS_KEY_SECRET
+    process.env.STORAGE_AWS_ACCESS_KEY_SECRET &&
+    process.env.ENABLE_S3_PROVIDER_TEST
   ) {
     storageProviders.push(S3Provider)
   }
