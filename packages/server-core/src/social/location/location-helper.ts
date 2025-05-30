@@ -58,9 +58,9 @@ export const createLocations = async (app: Application, projectName: string, sce
         audioEnabled: true,
         videoEnabled: true,
         screenSharingEnabled: true,
-        faceStreamingEnabled: true,
-        jumpControlEnabled: true,
-        vrEnabled: true
+        faceStreamingEnabled: true
+        // jumpControlEnabled: true,
+        // vrEnabled: true
       } as LocationSettingType
 
       const location = {

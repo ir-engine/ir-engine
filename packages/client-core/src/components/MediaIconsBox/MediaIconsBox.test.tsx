@@ -130,6 +130,8 @@ describe('MediaIconsBox component', () => {
       screenSharingEnabled: true,
       faceStreamingEnabled: false,
       videoEnabled: true,
+      jumpControlEnabled: true,
+      vrEnabled: true,
       createdAt: '',
       updatedAt: ''
     })
