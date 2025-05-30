@@ -34,6 +34,7 @@ interface LocationIconButtonProps extends React.HTMLAttributes<HTMLButtonElement
   icon: SVGIconType | IconType
   iconProps?: React.SVGProps<SVGSVGElement>
   loadingState?: boolean
+  [key: string]: any
 }
 
 function LocationIconButton({
@@ -46,20 +47,49 @@ function LocationIconButton({
 }: LocationIconButtonProps) {
   const Button = () => {
     const { ref, className, ...restIconProps } = iconProps || {}
+    /** @todo arbitrary flag for now */
+    const { glassMorphismDisabled } = props
+    const glassStyles = `
+      flex items-center justify-center
+
+      inline-grid
+      text-white
+      w-[4rem]
+      h-[4rem]
+      p-0
+      
+      transition-transform
+      hover:scale-[1.03]
+      rounded-full
+      border-t-2 border-white/5
+      bg-black/[0.05]
+      
+      border-l-1
+      border-white/10
+      shadow-[0_0.1rem_2.3rem_-0.5rem_hsla(0,0%,0%,0.1)]
+      backdrop-blur-3xl
+    `
+    const defaultStyles = `
+      flex h-[50px] w-[50px]
+      select-none items-center justify-center
+      rounded-full
+      bg-white
+      mdh:h-16
+      mdh:w-16
+    `
+    /** @todo this will probably need some editing and moving around depending on which feature flag is on */
+    const buttonStyles = glassMorphismDisabled || glassMorphismDisabled === undefined ? defaultStyles : glassStyles
 
     return (
       <button
-        className={twMerge(
-          'flex h-[50px] w-[50px] select-none items-center justify-center rounded-full bg-white mdh:h-16 mdh:w-16',
-          className
-        )}
+        className={twMerge(buttonStyles, className)}
         onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         {...props}
       >
         {(loadingState && <LoadingView className="h-6 w-6" />) || (
           <Icon
             ref={() => ref}
-            className={twMerge('h-[20px] w-[20px] text-[#080808] lg:h-[24px] lg:w-[24px]', className)}
+            className={twMerge('h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]', className)}
             {...restIconProps}
           />
         )}

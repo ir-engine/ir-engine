@@ -27,12 +27,14 @@ import React, { useLayoutEffect, useRef } from 'react'
 
 import { TouchGamepad } from '@ir-engine/client-core/src/common/components/TouchGamepad'
 import UserMenus from '@ir-engine/client-core/src/user/menus'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { EngineState } from '@ir-engine/ecs'
 import { getMutableState, NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import { ModalState } from '../../common/services/ModalState'
+import useFeatureFlags from '../../hooks/useFeatureFlags'
 import { LoadingSystemState } from '../../systems/state/LoadingState'
 import LocationIconButton from '../../user/components/LocationIconButton'
 import InstanceChat from '../../user/InstanceChat'
@@ -51,6 +53,8 @@ export const ViewerInteractions = () => {
   const { t } = useTranslation()
   const externalInjectedMenus = useMutableState(ViewerMenuState).externalInjectedMenus.get(NO_PROXY)
   const locationContainer = useRef<HTMLDivElement>(null)
+
+  const [glassDisabled] = useFeatureFlags([FeatureFlags.Client.Glass])
 
   useLayoutEffect(() => {
     if (locationContainer.current) locationContainer.current.style.opacity = '0'
@@ -117,6 +121,8 @@ export const ViewerInteractions = () => {
             title={props.title}
             icon={props.icon}
             onClick={() => ModalState.openModal(props.component as JSX.Element)}
+            /** @todo arbitrary flag for now */
+            glassMorphismDisabled={glassDisabled}
           />
         ))}
       </div>
