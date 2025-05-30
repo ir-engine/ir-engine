@@ -162,10 +162,7 @@ const componentDependenciesLoaded = (dependencies?: ComponentDependencies) => {
 }
 
 const checkCollider = (hasCollider: boolean, entity: Entity) => {
-  if (
-    getAncestorWithComponents(entity, [RigidBodyComponent]) === undefined ||
-    !hasComponent(entity, SimulationLayerComponent)
-  )
+  if (!getAncestorWithComponents(entity, [RigidBodyComponent]) || !hasComponent(entity, SimulationLayerComponent))
     return true
   return hasCollider
 }
