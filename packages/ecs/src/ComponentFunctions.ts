@@ -509,7 +509,7 @@ const _getComponentState = <C extends Component>(entity: Entity, component: C) =
           LayerFunctions.propagateLayer(entity, component)
         }
       }))
-    )
+    ) as State<ComponentType<C>, Identifiable>
   }
   return component.stateMap[entity]
 }

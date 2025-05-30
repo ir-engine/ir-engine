@@ -37,7 +37,8 @@ export const HierarchyTreeState = defineState({
   initial: {
     expandedNodes: {} as IExpandedNodes,
     search: { local: '', query: '' },
-    firstSelectedEntity: null as Entity | null
+    firstSelectedEntity: null as Entity | null,
+    manualCollapseExpand: false
   },
   extension: syncStateWithLocalStorage(['expandedNodes'])
 })

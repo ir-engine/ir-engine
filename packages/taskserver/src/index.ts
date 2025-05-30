@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 // required for hookstate to override react properly work - see https://github.com/avkonst/hookstate/issues/412
-import '@hookstate/core'
+import '@ir-engine/hyperflux'
 
 import { updateAppConfig } from '@ir-engine/server-core/src/updateAppConfig'
 

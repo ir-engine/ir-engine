@@ -23,21 +23,39 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import { Entity } from '@ir-engine/ecs'
+import { defineState } from '@ir-engine/hyperflux'
+import { ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 
-const argTypes = {}
+// Apply texture memory management patch
+import { applyTexturePatch } from '@ir-engine/engine/src/assets/loaders/texture/TexturePatch'
 
-export default {
-  title: 'Editor/Properties/ReflectionProbe',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'ReflectionProbeNodeEditor',
-    jest: 'reflectionProbeNodeEditor.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
+try {
+  // Apply the texture patch directly - simpler and more direct
+  applyTexturePatch()
+  // console.log('Texture memory management patch applied')
+} catch (e) {
+  console.error('Error applying texture memory patch:', e)
 }
-export const Default = { args: {} }
+
+export enum ResourceStatus {
+  Unloaded,
+  Loading,
+  Loaded,
+  Error
+}
+
+export const ResourceCacheState = defineState({
+  name: 'ResourceCacheState',
+  initial: {} as Record<
+    string,
+    {
+      id: string
+      asset: unknown
+      status: ResourceStatus
+      type: ResourceType
+      references: Entity[]
+      metadata: Record<string, any>
+    }
+  >
+})
