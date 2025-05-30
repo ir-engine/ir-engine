@@ -78,16 +78,12 @@ const SSOScreen: React.FC<SSOScreenProps> = () => {
           temp[strategyName] = strategy
         })
       })
-      const currentAuthState = authState.get({ noproxy: true })
-      if (JSON.stringify(currentAuthState) !== JSON.stringify(temp)) {
-        authState.set(temp)
-      }
+      authState.set(temp)
     }
   }, [authSetting])
 
   useEffect(() => {
     const { data } = identityProvidersQuery
-    console.log(data)
     if (!data) return
 
     for (const ip of data) {
@@ -109,11 +105,15 @@ const SSOScreen: React.FC<SSOScreenProps> = () => {
     AuthService.loginUserByOAuth(client, location, false, '/')
   }
 
-  const connectedProviders = Socials.filter((p) => oauthConnectedState[p.client].value)
-  const disconnectedProviders = Socials.filter((p) => !oauthConnectedState[p.client].value)
+  const disableProvider = (client: string) => {
+    AuthService.removeUserOAuth(client)
+  }
+
+  const connectedProviders = Socials.filter((p) => oauthConnectedState[p.client].value && authState.value[p.client])
+  const disconnectedProviders = Socials.filter((p) => !oauthConnectedState[p.client].value && authState.value[p.client])
 
   return (
-    <div className="space-y-4">
+    <div className="h-full space-y-4">
       {/* Connected Section */}
       {connectedProviders.length > 0 && (
         <>
@@ -121,11 +121,11 @@ const SSOScreen: React.FC<SSOScreenProps> = () => {
             <p className="text-sm text-white/70">Connected:</p>
           </div>
           <Section>
-            {Socials.map((provider, index) => (
+            {connectedProviders.map((provider, index) => (
               <React.Fragment key={provider.client}>
                 <MenuItem
                   label={provider.label}
-                  onClick={() => handleProviderClick(provider.client)}
+                  onClick={() => disableProvider(provider.client)}
                   leftIcon={provider.icon}
                   rightIcon={<FaMinusCircle />}
                 />
