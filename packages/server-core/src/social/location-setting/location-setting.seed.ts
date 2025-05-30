@@ -38,9 +38,10 @@ export const locationSettingSeedData = [
     videoEnabled: true,
     audioEnabled: true,
     screenSharingEnabled: true,
-    faceStreamingEnabled: true,
-    jumpControlEnabled: true,
-    vrEnabled: true
+    faceStreamingEnabled: true
+    /** @todo: Re-enable this when the engine has a working jump control/vr capabilities */
+    // jumpControlEnabled: true,
+    // vrEnabled: true
   },
   {
     id: '37ce32f0-208d-11eb-b02f-37cfdadfe58d',
@@ -49,9 +50,10 @@ export const locationSettingSeedData = [
     videoEnabled: true,
     audioEnabled: true,
     screenSharingEnabled: true,
-    faceStreamingEnabled: true,
-    jumpControlEnabled: true,
-    vrEnabled: true
+    faceStreamingEnabled: true
+    /** @todo: Re-enable this when the engine has a working jump control/vr capabilities */
+    // jumpControlEnabled: true,
+    // vrEnabled: true
   },
   {
     id: '37ce32f0-208d-11eb-b02f-37cfdadfe58e',
@@ -60,8 +62,9 @@ export const locationSettingSeedData = [
     videoEnabled: true,
     audioEnabled: true,
     screenSharingEnabled: true,
-    faceStreamingEnabled: true,
-    jumpControlEnabled: true,
+    /** @todo: Re-enable this when the engine has a working jump control/vr capabilities */
+    // faceStreamingEnabled: true,
+    // jumpControlEnabled: true,
     vrEnabled: true
   }
 ]

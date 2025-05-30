@@ -57,8 +57,9 @@ export const LocationSeed: LocationType = {
     audioEnabled: false,
     screenSharingEnabled: false,
     faceStreamingEnabled: false,
-    jumpControlEnabled: false,
-    vrEnabled: false,
+    /** @todo: Re-enable this when the engine has a working jump control/vr capabilities */
+    // jumpControlEnabled: false,
+    // vrEnabled: false,
     locationType: 'private',
     videoEnabled: false,
     createdAt: '',

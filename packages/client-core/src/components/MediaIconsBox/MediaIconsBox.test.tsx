@@ -130,8 +130,9 @@ describe('MediaIconsBox component', () => {
       screenSharingEnabled: true,
       faceStreamingEnabled: false,
       videoEnabled: true,
-      jumpControlEnabled: true,
-      vrEnabled: true,
+      /** @todo: Re-enable this when the engine has a working jump control/vr capabilities */
+      // jumpControlEnabled: true,
+      // vrEnabled: true,
       createdAt: '',
       updatedAt: ''
     })
