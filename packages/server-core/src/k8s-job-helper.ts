@@ -122,7 +122,15 @@ export async function getJobBody(
               command,
               env: Object.entries(process.env).map(([key, value]) => {
                 return { name: key, value: value }
-              })
+              }),
+              resources: {
+                requests: {
+                  'ephemeral-storage': '8Gi'
+                },
+                limits: {
+                  'ephemeral-storage': '8Gi'
+                }
+              }
             }
           ]
         }
