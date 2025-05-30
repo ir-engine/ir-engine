@@ -67,6 +67,7 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { RenderModes } from '@ir-engine/spatial/src/renderer/constants/RenderModes'
 import { CSM } from '@ir-engine/spatial/src/renderer/csm/CSM'
 import { CSMComponent } from '@ir-engine/spatial/src/renderer/csm/CSMComponent'
+import { CSMPluginComponent } from '@ir-engine/spatial/src/renderer/csm/CSMPluginComponent'
 import { getShadowsEnabled } from '@ir-engine/spatial/src/renderer/functions/RenderSettingsFunction'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
@@ -181,9 +182,8 @@ describe('EntityChildCSMReactor', async () => {
   })
 
   describe('on change [shadowComponent.receive, csm]', async () => {
-    it('should not do anything (return early) if `@param props.rendererEntity`.RendererComponent.csm is falsy', async () => {
+    it('should not do anything (return early) if `@param props.rendererEntity`CSMComponent is falsy', async () => {
       const resultSpy = vi.fn()
-      CSM.setupMaterial = resultSpy
 
       CSM.initCSM({}, rendererEntity)
       removeComponent(rendererEntity, CSMComponent)
@@ -207,11 +207,9 @@ describe('EntityChildCSMReactor', async () => {
     })
 
     it('should not do anything (return early) if entityContext.ShadowComponent.receive is falsy', async () => {
-      const resultSpy = vi.fn()
       CSM.initCSM({}, rendererEntity)
-      CSM.setupMaterial = resultSpy
       setComponent(testEntity, ShadowComponent, { receive: false })
-      setComponent(testEntity, ObjectComponent, new Mesh(new BoxGeometry()))
+      setComponent(testEntity, MaterialStateComponent, { material: new MeshStandardMaterial() })
       const Reactor = () => {
         return React.createElement(
           EntityContext.Provider,
@@ -226,14 +224,11 @@ describe('EntityChildCSMReactor', async () => {
       const root = startReactor(Reactor) as ReactorRoot
 
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      expect(resultSpy).not.toHaveBeenCalled()
+      expect(hasComponent(testEntity, CSMPluginComponent)).toBeFalsy()
     })
 
-    it('should call `@param props.rendererEntity`.RendererComponent.csm.setupMaterial if entityContext.MaterialStateComponent.material is truthy', async () => {
-      const resultSpy = vi.fn()
-
+    it('should set CSMPluginComponent if entityContext.MaterialStateComponent.material is truthy', async () => {
       CSM.initCSM({}, rendererEntity)
-      CSM.setupMaterial = resultSpy
       setComponent(testEntity, ShadowComponent)
       setComponent(testEntity, MaterialStateComponent, { material: new MeshStandardMaterial() })
       const Reactor = () => {
@@ -251,19 +246,16 @@ describe('EntityChildCSMReactor', async () => {
       await act(() => render(null))
       await vi.waitFor(() => {
         expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-        expect(resultSpy).toHaveBeenCalledTimes(1)
+        expect(hasComponent(testEntity, CSMPluginComponent)).toBeTruthy()
       })
     })
 
     describe('on cleanup ..', async () => {
-      it('.. should call `@param props.rendererEntity`.RendererComponent.csm.teardownMaterial if entityContext.MaterialStateComponent.material is truthy', async () => {
-        const resultSpy = vi.fn()
-        CSM.teardownMaterial = resultSpy
-
+      it('.. should remove CSMPluginComponent if entityContext.MaterialStateComponent.material is truthy', async () => {
         CSM.initCSM({}, rendererEntity)
         setComponent(testEntity, ShadowComponent)
         setComponent(testEntity, MaterialStateComponent, { material: new MeshStandardMaterial() })
-
+        setComponent(testEntity, CSMPluginComponent)
         const Reactor = () => {
           return React.createElement(
             EntityContext.Provider,
@@ -280,7 +272,7 @@ describe('EntityChildCSMReactor', async () => {
         await vi.waitFor(() => {
           root.stop()
           expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-          expect(resultSpy).toHaveBeenCalledTimes(1)
+          expect(hasComponent(testEntity, CSMPluginComponent)).toBeFalsy()
         })
       })
     })
@@ -1092,11 +1084,9 @@ describe('EntityCSMReactor', async () => {
   })
 
   describe('on cleanup ..', async () => {
-    it('should call EntityChildCSMReactor for every entity with components [ShadowComponent, ObjectComponent] and `@param props.rendererEntity` as a props argument', async () => {
-      const resultSpy = vi.fn()
-
+    it('should call EntityChildCSMReactor for every entity with components [MaterialStateComponent] and `@param props.rendererEntity` as a props argument', async () => {
       CSM.initCSM({}, rendererEntity)
-      CSM.setupMaterial = resultSpy
+      setComponent(testEntity, CSMPluginComponent)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
