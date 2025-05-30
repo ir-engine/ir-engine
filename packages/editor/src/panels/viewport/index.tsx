@@ -241,7 +241,7 @@ export function ViewportContainer() {
         <div
           key={key + index}
           className={twMerge(visible ? 'visible' : 'collapse', 'inline-flex')}
-          data-targetId={index}
+          data-targetid={index}
           data-side={side}
         >
           {element}
@@ -261,7 +261,10 @@ export function ViewportContainer() {
 
       withDividers.push(item)
       withDividers.push(
-        <div className={twMerge('h-full w-px bg-text-inactive', isNextVisible ? 'opacity-1' : 'opacity-0')} />
+        <div
+          className={twMerge('h-full w-px bg-text-inactive', isNextVisible ? 'opacity-1' : 'opacity-0')}
+          key={index + 'divider'}
+        />
       )
     })
 
