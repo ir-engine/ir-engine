@@ -43,10 +43,6 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { CameraComponent } from '../components/CameraComponent'
 import { CameraOrbitComponent } from '../components/CameraOrbitComponent'
 
-const ZOOM_SPEED = 0.1
-const PAN_SPEED = 1
-const ORBIT_SPEED = 5
-
 const delta = new Vector3()
 const normalMatrix = new Matrix3()
 const spherical = new Spherical()
@@ -71,14 +67,23 @@ const execute = () => {
 
     const transform = getComponent(cameraEid, TransformComponent)
     const editorCameraCenter = cameraOrbit.cameraOrbitCenter.value
-    const distance = Math.max(cameraOrbit.minimumZoom.value, transform.position.distanceTo(editorCameraCenter))
+    const distance = transform.position.distanceTo(editorCameraCenter)
     const camera = getComponent(cameraEid, CameraComponent)
-
+    // distance <= cameraOrbit.maximumZoomDistance.value && distance >= cameraOrbit.minimumZoomDistance.value
     if (zoom) {
-      delta.set(0, 0, zoom * distance * ZOOM_SPEED)
+      delta.set(0, 0, zoom * distance * cameraOrbit.zoomSpeed.value)
       if (delta.length() < distance) {
         delta.applyMatrix3(normalMatrix.getNormalMatrix(camera.matrixWorld))
-        transform.position.add(delta)
+
+        const newPosition = transform.position.clone().add(delta)
+        const newDistance = newPosition.distanceTo(editorCameraCenter)
+
+        if (
+          newDistance >= cameraOrbit.minimumZoomDistance.value &&
+          newDistance <= cameraOrbit.maximumZoomDistance.value
+        ) {
+          transform.position.copy(newPosition)
+        }
       }
     }
 
@@ -89,7 +94,7 @@ const execute = () => {
         const distance = transform.position.distanceTo(editorCameraCenter)
         delta
           .set(-movement.x, -movement.y, 0)
-          .multiplyScalar(Math.max(distance, 1) * PAN_SPEED)
+          .multiplyScalar(Math.max(distance, 1) * cameraOrbit.panSpeed.value)
           .applyMatrix3(normalMatrix.getNormalMatrix(camera.matrix))
         transform.position.add(delta)
         editorCameraCenter.add(delta)
@@ -102,8 +107,8 @@ const execute = () => {
       if (movement) {
         delta.copy(transform.position).sub(editorCameraCenter)
         spherical.setFromVector3(delta)
-        spherical.theta -= movement.x * ORBIT_SPEED
-        spherical.phi += movement.y * ORBIT_SPEED
+        spherical.theta -= movement.x * cameraOrbit.orbitSpeed.value
+        spherical.phi += movement.y * cameraOrbit.orbitSpeed.value
         spherical.makeSafe()
         delta.setFromSpherical(spherical)
         transform.position.copy(editorCameraCenter).add(delta)
