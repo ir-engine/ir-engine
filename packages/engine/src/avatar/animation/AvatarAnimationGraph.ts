@@ -55,7 +55,7 @@ export const getAnimationAction = (name: string, mixer: AnimationMixer, animatio
       getComponent(manager.loadedAnimations[preloadedAnimations.locomotion]!, AnimationComponent).animations,
     name
   )
-  return mixer.clipAction(clip)
+  return mixer.clipAction(clip!)
 }
 
 const currentActionBlendSpeed = 7

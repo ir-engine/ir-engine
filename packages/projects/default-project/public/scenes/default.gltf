@@ -336,7 +336,7 @@
           "sceneKillHeight": -10,
           "spectateEntity": ""
         },
-        "EE_visible": true
+        "EE_visible": {}
       }
     },
     {
@@ -364,7 +364,7 @@
           "entityID": "bb362197-f14d-4da7-9c3c-1ed834386423"
         },
         "EE_scene_preview_camera": {},
-        "EE_visible": true
+        "EE_visible": {}
       }
     },
     {
@@ -373,7 +373,7 @@
         "EE_uuid": {
           "entityID": "e7d6bfb1-6390-4a8b-b744-da83b059c2d3"
         },
-        "EE_visible": true,
+        "EE_visible": {},
         "EE_skybox": {
           "backgroundColor": 3026478,
           "equirectangularPath": "__$project$__/ir-engine/default-project/assets/generic_midday_02.ktx2?hash=19535b",
@@ -415,23 +415,9 @@
         "EE_uuid": {
           "entityID": "3e8a430e-9dcf-440e-990c-44ecb8051762"
         },
-        "EE_visible": true,
+        "EE_visible": {},
         "EE_spawn_point": {
           "permissionedUsers": []
-        }
-      }
-    },
-    {
-      "name": "hemisphere light",
-      "extensions": {
-        "EE_uuid": {
-          "entityID": "f77dc4c6-c9a6-433d-8102-4a9a8e1c0ce9"
-        },
-        "EE_visible": true,
-        "EE_hemisphere_light": {
-          "skyColor": 16777215,
-          "groundColor": 16777215,
-          "intensity": 1
         }
       }
     },
@@ -461,13 +447,13 @@
         },
         "EE_directional_light": {
           "color": 16777215,
-          "intensity": 1,
+          "intensity": 4,
           "castShadow": true,
           "shadowBias": -0.00001,
           "shadowRadius": 1,
           "cameraFar": 50
         },
-        "EE_visible": true
+        "EE_visible": {}
       }
     },
     {
@@ -482,7 +468,7 @@
           "applyColliders": false,
           "shape": "box"
         },
-        "EE_visible": true,
+        "EE_visible": {},
         "EE_shadow": {
           "cast": true,
           "receive": true
@@ -507,8 +493,7 @@
         2,
         3,
         4,
-        5,
-        6
+        5
       ]
     }
   ],
@@ -524,7 +509,6 @@
     "EE_scene_preview_camera",
     "EE_skybox",
     "EE_spawn_point",
-    "EE_hemisphere_light",
     "EE_directional_light",
     "EE_model",
     "EE_shadow",

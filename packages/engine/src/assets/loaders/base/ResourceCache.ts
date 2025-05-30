@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import Dexie from 'dexie'
 import { CompressedPixelFormat, PixelFormat, TextureDataType } from 'three'
 
-interface TextureData {
+export interface TextureData {
   data: Array<any> | ArrayBuffer
   width: number
   height: number

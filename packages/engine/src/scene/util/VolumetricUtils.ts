@@ -84,7 +84,7 @@ export const getGLTFGeometrySize = (mesh: Mesh) => {
 export const getKTX2TextureSize = (texture: CompressedTexture) => {
   let size = 0
   if (texture.image) {
-    texture.mipmaps.map((mipmap) => {
+    texture.mipmaps!.map((mipmap) => {
       size += mipmap.data.byteLength
     })
   }

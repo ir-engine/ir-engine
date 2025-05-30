@@ -34,14 +34,14 @@ import {
   query
 } from '@ir-engine/ecs'
 import { isClient } from '@ir-engine/hyperflux'
-import { Vector3_Up } from '../../common/constants/MathConstants'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
+import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputPointerComponent } from '../../input/components/InputPointerComponent'
 import { MouseScroll } from '../../input/state/ButtonState'
 import { RendererComponent } from '../../renderer/components/RendererComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { CameraComponent } from '../components/CameraComponent'
-import { CameraOrbitComponent } from '../components/CameraOrbitComponent'
 
 const delta = new Vector3()
 const normalMatrix = new Matrix3()
