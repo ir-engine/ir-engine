@@ -28,6 +28,7 @@ import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import { MutableRefObject } from 'react'
 import {
+  BufferAttribute,
   BufferGeometry,
   CompressedTexture,
   InterleavedBufferAttribute,
@@ -333,7 +334,7 @@ export const fetchGeometry = ({
               mesh.geometry.index.needsUpdate = true
             }
 
-            mesh.geometry.morphAttributes = {}
+            mesh.geometry.morphAttributes = {} as Record<string, (BufferAttribute | InterleavedBufferAttribute)[]>
             mesh.morphTargetDictionary = undefined
             mesh.morphTargetInfluences = undefined
           }

@@ -168,10 +168,10 @@ export const InfiniteGridComponent = defineComponent({
             fragmentShader: fragmentShaderGrid,
             polygonOffset: true,
             polygonOffsetFactor: -1,
-            polygonOffsetUnits: 0.01,
-            extensions: {
-              derivatives: true
-            }
+            polygonOffsetUnits: 0.01
+            // extensions: {
+            //   derivatives: true
+            // }
           })
         )
       )
