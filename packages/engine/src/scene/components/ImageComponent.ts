@@ -38,7 +38,6 @@ import {
   Side,
   SphereGeometry,
   Texture,
-  TwoPassDoubleSide,
   Uniform,
   Vector2,
   Vector3
@@ -75,8 +74,7 @@ export const SPHERE_GEO = () => new SphereGeometry(1, 64, 32)
 export const PLANE_GEO_FLIPPED = () => flipNormals(new PlaneGeometry(1, 1, 1, 1))
 export const SPHERE_GEO_FLIPPED = () => flipNormals(new SphereGeometry(1, 64, 32))
 
-export const SideSchema = (init: Side) =>
-  S.LiteralUnion([FrontSide, BackSide, DoubleSide, TwoPassDoubleSide], { default: init })
+export const SideSchema = (init: Side) => S.LiteralUnion([FrontSide, BackSide, DoubleSide], { default: init })
 
 export const ImageComponent = defineComponent({
   name: 'EE_image',

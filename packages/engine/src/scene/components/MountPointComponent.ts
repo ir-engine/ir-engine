@@ -169,7 +169,7 @@ export const MountPointComponent = defineComponent({
 
     useEffect(() => {
       // manually hide interactable's XRUI when mounted through visibleComponent - (as interactable uses opacity to toggle visibility)
-      const interactableComponent = getComponent(entity, InteractableComponent)
+      const interactableComponent = getOptionalComponent(entity, InteractableComponent)
       if (interactableComponent) {
         interactableComponent.uiVisibilityOverride =
           UUIDComponent.get(entity) in mountedEntities.mountsToMountedEntities.value

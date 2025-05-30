@@ -29,7 +29,6 @@ import path from 'path'
 import { KnexSeed } from '@ir-engine/common/src/interfaces/KnexSeed'
 import { ProjectConfigInterface } from '@ir-engine/projects/ProjectConfigInterface'
 
-import { analyticsSeeds } from './analytics/seeder-config'
 import { integrationsSeeds } from './integrations/seeder-config'
 import { mediaSeeds } from './media/seeder-config'
 import { networkingSeeds } from './networking/seeder-config'
@@ -78,7 +77,6 @@ export const knexSeeds = (): Promise<Array<KnexSeed>> => {
   return installedProjects().then((installedProjectSeeds: KnexSeed[]) => {
     return [
       ...routeSeeds,
-      ...analyticsSeeds,
       ...settingSeeds,
       ...scopeSeeds,
       ...userSeeds,

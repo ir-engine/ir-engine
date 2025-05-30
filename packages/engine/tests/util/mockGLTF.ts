@@ -69,6 +69,7 @@ export function mockGLTFOptions(gltf: GLTF.IGLTF, url = 'test.gltf'): GLTFParser
     body: null,
     manager: new LoadingManager(),
     path: '',
-    requestHeader: {}
+    requestHeader: {},
+    signal: new AbortController().signal
   }
 }

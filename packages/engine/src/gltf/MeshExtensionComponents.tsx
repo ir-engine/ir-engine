@@ -38,6 +38,7 @@ import {
   useEntityContext,
   UUIDComponent
 } from '@ir-engine/ecs'
+import { useHookstate } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } from '@ir-engine/spatial'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { useEffect } from 'react'
@@ -71,14 +72,21 @@ export const KHRLightsPunctualComponent = defineComponent({
     useComponent(entity, EntityTreeComponent)
     const component = useComponent(entity, KHRLightsPunctualComponent)
 
+    const abortController = useHookstate(() => new AbortController())
     const gltfEntity = getAncestorWithComponents(entity, [GLTFComponent])
-    const options = getGLTFOptions(gltfEntity)
+    const options = getGLTFOptions(gltfEntity, abortController.value.signal)
     const json = options.document
     const extensions: {
       lights?: KHRPunctualLight[]
     } = (json.extensions && json.extensions[KHRLightsPunctualComponent.jsonID]) || {}
     const lightDefs = extensions.lights
     const lightDef = lightDefs && component.light.value !== undefined ? lightDefs[component.light.value] : undefined
+
+    useEffect(() => {
+      return () => {
+        abortController.value.abort()
+      }
+    }, [])
 
     useEffect(() => {
       return () => {

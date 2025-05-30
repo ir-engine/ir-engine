@@ -22,6 +22,7 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
+const defaultTheme = require('tailwindcss/defaultTheme')
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -44,7 +45,13 @@ module.exports = {
         smh: { raw: '(min-height: 700px)' },
         mdh: { raw: '(min-height: 900px)' },
         lgh: { raw: '(min-height: 1100px)' },
-        xlh: { raw: '(min-height: 1300px)' }
+        xlh: { raw: '(min-height: 1300px)' },
+
+        'max-sm': { raw: `not all and (min-width: ${defaultTheme.screens.sm})` },
+        'max-md': { raw: `not all and (min-width: ${defaultTheme.screens.md})` },
+        'max-lg': { raw: `not all and (min-width: ${defaultTheme.screens.lg})` },
+        'max-xl': { raw: `not all and (min-width: ${defaultTheme.screens.xl})` },
+        'max-2xl': { raw: `not all and (min-width: ${defaultTheme.screens['2xl']})` }
       },
       height: {
         'table-size-xs': 'calc(100vh - 436px)',

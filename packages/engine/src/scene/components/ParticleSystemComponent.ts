@@ -59,7 +59,6 @@ import {
   getAncestorWithComponents,
   getChildrenWithComponents,
   removeEntity,
-  useAncestorWithComponents,
   useEntityContext
 } from '@ir-engine/ecs'
 import {
@@ -95,7 +94,7 @@ export type ParticleSystemRendererInstance = {
 const createBatchedRenderer = (entity: Entity) => {
   const rendererEntity = getRendererEntity(entity)
   const particleState = getMutableState(ParticleState)
-  if (particleState.renderers[rendererEntity].value) {
+  if (particleState.renderers.value[rendererEntity]) {
     const instance = particleState.renderers[rendererEntity].get(NO_PROXY) as ParticleSystemRendererInstance
     instance.instanceCount++
     return instance
@@ -848,7 +847,7 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS = S.Object({
     }),
     followLocalOrigin: S.Bool({ default: true })
   }),
-  renderMode: S.Enum(RenderMode, {
+  renderMode: S.LiteralUnion(Object.values(RenderMode), {
     $comment:
       "A number enum, where: 0 represents 'BillBoard', 1 represents 'StretchedBillBoard', 2 represents 'Mesh', 3 represents 'Trail'",
     default: RenderMode.BillBoard
@@ -902,7 +901,6 @@ export const ParticleSystemComponent = defineComponent({
     const entity = useEntityContext()
     const componentState = useComponent(entity, ParticleSystemComponent)
     const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
-    const sceneID = useRendererEntity(entity)
 
     //for particle meshes
     const geoDependencyEntity = useGLTFComponent(componentState.value.systemParameters.instancingGeometry, entity)
@@ -1003,27 +1001,27 @@ export const ParticleSystemComponent = defineComponent({
 
     const dependenciesLoaded = loadedEmissionGeo && loadedInstanceGeo && loadedTexture
 
-    const sceneEntity = useAncestorWithComponents(entity, [SceneComponent])
+    const rendererEntity = useRendererEntity(entity)
     const visible = useHasComponent(entity, VisibleComponent)
 
     useEffect(() => {
-      if (!dependenciesLoaded || !sceneEntity || !visible) return
+      if (!dependenciesLoaded || !rendererEntity || !visible) return
 
       const component = componentState.get(NO_PROXY)
       const rendererInstance = createBatchedRenderer(entity)
       const renderer = rendererInstance.renderer
 
       const systemParameters = JSON.parse(JSON.stringify(component.systemParameters)) as ExpandedSystemJSON
-      const nuSystem = ParticleSystem.fromJSON(systemParameters, metadata.value as ParticleSystemMetadata, {})
-      renderer.addSystem(nuSystem)
+      const system = ParticleSystem.fromJSON(systemParameters, metadata.value as ParticleSystemMetadata, {})
+      renderer.addSystem(system)
       const behaviors = component.behaviorParameters.map((behaviorJSON) => {
-        const behavior = BehaviorFromJSON(behaviorJSON, nuSystem)
-        nuSystem.addBehavior(behavior)
+        const behavior = BehaviorFromJSON(behaviorJSON, system)!
+        system.addBehavior(behavior)
         return behavior
       })
       componentState.behaviors.set(behaviors)
 
-      const emitterAsObj3D = nuSystem.emitter
+      const emitterAsObj3D = system.emitter
       emitterAsObj3D.parent = renderer
       setComponent(entity, EntityTreeComponent, { parentEntity: renderer.entity })
       setComponent(entity, ObjectComponent, emitterAsObj3D)
@@ -1041,12 +1039,12 @@ export const ParticleSystemComponent = defineComponent({
       })
       const transformComponent = getComponent(entity, TransformComponent)
       emitterAsObj3D.matrix = transformComponent.matrix
-      componentState.system.set(nuSystem)
+      componentState.system.set(system)
 
       return () => {
-        const index = renderer.systemToBatchIndex.get(nuSystem)
+        const index = renderer.systemToBatchIndex.get(system)
         if (typeof index !== 'undefined') {
-          renderer.deleteSystem(nuSystem)
+          renderer.deleteSystem(system)
           renderer.children.splice(index, 1)
           const [batch] = renderer.batches.splice(index, 1)
           batch.dispose()
@@ -1060,11 +1058,17 @@ export const ParticleSystemComponent = defineComponent({
         removeComponent(entity, ObjectComponent)
         if (entityExists(entity)) setComponent(entity, ObjectComponent, new Object3D())
 
-        nuSystem.dispose()
+        system.dispose()
         emitterAsObj3D.dispose()
-        removeBatchedRenderer(sceneID!)
+        removeBatchedRenderer(rendererEntity!)
       }
-    }, [componentState.systemParameters, componentState.behaviorParameters, dependenciesLoaded, sceneEntity, visible])
+    }, [
+      componentState.systemParameters,
+      componentState.behaviorParameters,
+      dependenciesLoaded,
+      rendererEntity,
+      visible
+    ])
 
     return null
   }

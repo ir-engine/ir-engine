@@ -23,10 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import { Entity, hasComponent, LayerID, Layers, useQuery, UUIDComponent } from '@ir-engine/ecs'
-
-import { ErrorBoundary, getMutableState } from '@ir-engine/hyperflux'
+import { ErrorBoundary, getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { Button, Input } from '@ir-engine/ui'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'

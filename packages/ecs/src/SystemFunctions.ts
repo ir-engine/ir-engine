@@ -28,7 +28,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { FC } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
-import { getState, HyperFlux, OpaqueType, startReactor, useImmediateEffect } from '@ir-engine/hyperflux'
+import { getState, HyperFlux, OpaqueType, startReactor, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 
 import { SystemState } from './SystemState'
 import { nowMilliseconds } from './Timer'
@@ -208,8 +208,10 @@ export function defineSystem(systemConfig: SystemArgs) {
 }
 
 export const useExecute = (execute: () => void, insert: InsertSystem & { uuid?: SystemUUID }) => {
+  const uuid = useHookstate(() => insert.uuid ?? uuidv4())
+
   useImmediateEffect(() => {
-    const handle = defineSystem({ uuid: insert.uuid ?? uuidv4(), execute, insert })
+    const handle = defineSystem({ uuid: uuid.value, execute, insert })
     return () => {
       destroySystem(handle)
     }

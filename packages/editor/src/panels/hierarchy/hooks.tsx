@@ -26,7 +26,6 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import { VALID_HEIRARCHY_SEARCH_REGEX } from '@ir-engine/common/src/regex'
 import {
   Entity,
-  entityExists,
   EntityTreeComponent,
   getAncestorWithComponents,
   getChildrenWithComponents,
@@ -121,6 +120,7 @@ const didHierarchyChange = (prev: HierarchyTreeNodeType[], curr: HierarchyTreeNo
 
 const HierarchyTreeContext = createContext({
   nodes: [] as readonly HierarchyTreeNodeType[],
+  allNodes: [] as readonly HierarchyTreeNodeType[],
   renamingNode: { entity: null as Entity | null, clear: () => {}, set: (_entity: Entity) => {} },
   contextMenu: {
     entity: UndefinedEntity as Entity,
@@ -209,7 +209,8 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
       ))}
       <HierarchyTreeContext.Provider
         value={{
-          nodes: displayedNodes.filter((node) => entityExists(node.entity)),
+          nodes: displayedNodes,
+          allNodes: hierarchyNodes,
           renamingNode: {
             entity: renamingEntity.value,
             clear: () => renamingEntity.set(null),
@@ -237,6 +238,7 @@ export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) =
 }
 
 export const useHierarchyNodes = () => useContext(HierarchyTreeContext).nodes
+export const useAllHierarchyNodes = () => useContext(HierarchyTreeContext).allNodes
 export const useRenamingNode = () => useContext(HierarchyTreeContext).renamingNode
 export const useHierarchyTreeContextMenu = () => useContext(HierarchyTreeContext).contextMenu
 
