@@ -81,6 +81,7 @@ export function APIDebug() {
                   response: query.response,
                   status: query.status,
                   error: query.error,
+                  time: query.resolvedTime ? `${query.resolvedTime - query.requestTime}ms` : null,
                   stack: query.$stack
                 }
               ] as const

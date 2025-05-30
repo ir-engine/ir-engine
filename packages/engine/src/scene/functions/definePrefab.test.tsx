@@ -27,29 +27,29 @@ import { Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
+  createEngine,
+  createEntity,
+  destroyEngine,
   Engine,
   Entity,
   EntityID,
   EntityTreeComponent,
   EntityUUIDPair,
-  Layers,
-  SourceID,
-  UUIDComponent,
-  createEngine,
-  createEntity,
-  destroyEngine,
   getComponent,
-  setComponent
+  Layers,
+  NetworkObjectComponent,
+  setComponent,
+  SourceID,
+  UUIDComponent
 } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { NetworkObjectComponent, NetworkTopics } from '@ir-engine/network'
-import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
 import { initializeSpatialEngine, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 
 import { GLTF } from '@gltf-transform/core'
-import { applyIncomingActions } from '@ir-engine/hyperflux'
+import { applyIncomingActions, NetworkTopics } from '@ir-engine/hyperflux'
+import { createMockNetwork } from '@ir-engine/hyperflux/tests/createMockNetwork'
 import { TransformComponent } from '@ir-engine/spatial'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { Cache } from 'three'

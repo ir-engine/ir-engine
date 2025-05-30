@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '@hookstate/core'
+import '@ir-engine/hyperflux'
 import assert from 'assert'
 import React, { useEffect } from 'react'
 import sinon from 'sinon'
@@ -59,7 +59,7 @@ import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { initializeSpatialEngine, initializeSpatialViewer } from '../../initializeEngine'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import ClientInputFunctions from '../functions/ClientInputFunctions'
-import { KeyboardButton, MouseButton, MouseScroll, createInitialButtonState } from '../state/ButtonState'
+import { AnyAxis, KeyboardButton, MouseButton, MouseScroll, createInitialButtonState } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 import { InputButtonBindings, InputComponent, InputExecutionOrder, InputExecutionSystemGroup } from './InputComponent'
 import { InputSinkComponent } from './InputSinkComponent'
@@ -406,8 +406,8 @@ describe('InputComponent', () => {
 
       // Create the `@param inputAlias` object
       const SomeAliasList = {
-        SomeAxisOne: [MouseScroll.HorizontalScroll, MouseScroll.VerticalScroll],
-        SomeWrongAxis: [10]
+        SomeAxisOne: [MouseScroll.HorizontalScroll, MouseScroll.VerticalScroll] as AnyAxis[],
+        SomeWrongAxis: [10 as AnyAxis]
       }
       // Set the low and high values
       const OtherX = 2.0

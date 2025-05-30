@@ -23,12 +23,14 @@ import { ModalState } from '@ir-engine/client-core/src/common/services/ModalStat
 import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { useFind, useMutation } from '@ir-engine/common'
 import { config } from '@ir-engine/common/src/config'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { ModelTransformStatus, transformModel } from '@ir-engine/common/src/model/ModelTransformFunctions'
 import {
   LocationData,
   LocationID,
   LocationPatch,
   LocationType,
+  engineSettingPath,
   locationPath,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
@@ -118,6 +120,14 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
 
   const locationMutation = useMutation(locationPath)
 
+  const instanceEngineSettings = useFind(engineSettingPath, {
+    query: {
+      category: 'instance-server',
+      key: EngineSettings.InstanceServer.MaxUsersPerInstance,
+      paginate: false
+    }
+  })
+
   const publishLoading = useHookstate(false)
   const unPublishLoading = useHookstate(false)
   const isNewPublished = useHookstate(false)
@@ -187,8 +197,10 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
     if (!maxUsers.value) {
       errors.maxUsers.set(t('admin:components.location.maxUserCantEmpty'))
     }
-    if (maxUsers.value > LOCATION_MAX) {
-      errors.maxUsers.set(t('admin:components.location.maxUserExceeded'))
+    if (maxUsers.value > parseInt(instanceEngineSettings.data[0].value)) {
+      errors.maxUsers.set(
+        t('admin:components.location.maxUserExceeded', { maxUsers: instanceEngineSettings?.data[0].value })
+      )
     }
     if (!scene.value) {
       errors.scene.set(t('admin:components.location.sceneCantEmpty'))
@@ -249,12 +261,15 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
             [ModelTransformStatus.WritingFiles]: 'editor:properties.model.transform.status.writingfiles',
             [ModelTransformStatus.Complete]: 'editor:properties.model.transform.status.complete'
           }
-
           // Create LOD parameters for this model
           const lodParams: ModelTransformParameters = {
             ...defaultLODs[2].params,
             dst: fileName + defaultLODs[2].suffix,
-            modelFormat: srcURL.endsWith('.gltf') ? 'gltf' : srcURL.endsWith('.vrm') ? 'vrm' : 'glb',
+            modelFormat: new URL(srcURL).pathname.endsWith('.gltf')
+              ? 'gltf'
+              : new URL(srcURL).pathname.endsWith('.vrm')
+              ? 'vrm'
+              : 'glb',
             resourceUri: '',
             adaptiveSimplification: true
           }
@@ -337,7 +352,9 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
     }
     publishLoading.set(true)
 
-    const updateSceneID = getState(EditorState).sceneAssetID
+    let updateSceneID = getState(EditorState).sceneAssetID
+
+    if (scene.value !== location?.sceneId) updateSceneID = scene.value
 
     try {
       if (updateSceneID) {
@@ -516,7 +533,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
                     fullWidth
                     height="xl"
                     placeholder="5 - Default"
-                    max={LOCATION_MAX}
+                    max={parseInt(instanceEngineSettings?.data[0]?.value)}
                   />
                   <Toggle
                     label={t('admin:components.location.lbl-ve')}

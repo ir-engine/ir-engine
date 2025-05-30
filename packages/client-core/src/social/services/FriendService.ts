@@ -55,7 +55,15 @@ export const FriendService = {
 
       const relationships = (await API.instance.service(userRelationshipPath).find({
         query: {
-          userId,
+          $or: [
+            {
+              userId
+            },
+            {
+              relatedUserId: userId,
+              userRelationshipType: 'requested'
+            }
+          ],
           $limit: 100
         }
       })) as Paginated<UserRelationshipType>
@@ -138,6 +146,7 @@ export const FriendService = {
 }
 
 async function createRelation(userId: UserID, relatedUserId: UserID, type: 'requested' | 'blocking') {
+  console.log('createRelation', { userId, relatedUserId, type })
   try {
     await API.instance.service(userRelationshipPath).create({
       relatedUserId,

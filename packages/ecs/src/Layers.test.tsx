@@ -385,7 +385,7 @@ describe('CreatePropagationArgs', () => {
       expect(result).toEqual(Expected)
     })
 
-    describe.each(['Null', 'Undefined', 'Void', 'Bool', 'String', 'Enum', 'Literal'])('case: Kind.%s', (kind) => {
+    describe.each(['Null', 'Undefined', 'Void', 'Bool', 'String', 'Literal'])('case: Kind.%s', (kind) => {
       const TestSchemaKind = kind
 
       it("should return `@param data` if `@param key` is '' and data is not undefined", () => {

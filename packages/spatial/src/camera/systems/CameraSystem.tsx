@@ -33,14 +33,16 @@ import {
   EntityUUID,
   getComponent,
   getOptionalMutableComponent,
+  NetworkObjectOwnedTag,
+  NetworkObjectSendPeriodicUpdatesTag,
   QueryReactor,
   removeComponent,
   setComponent,
   useEntityContext,
-  UUIDComponent
+  UUIDComponent,
+  WorldNetworkAction
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, none, useMutableState } from '@ir-engine/hyperflux'
-import { NetworkObjectOwnedTag, NetworkObjectSendPeriodicUpdatesTag, WorldNetworkAction } from '@ir-engine/network'
 
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'

@@ -27,8 +27,8 @@ import React from 'react'
 
 import styleString from './index.scss?inline'
 
-type iconButtonVariant = 'filled' | 'iconOnly'
-type iconButtonSize = 'small' | 'medium' | 'large'
+type IconButtonVariant = 'filled' | 'iconOnly'
+type IconButtonSize = 'small' | 'medium' | 'large'
 
 const XRIconButton = (props) => {
   const {
@@ -42,8 +42,8 @@ const XRIconButton = (props) => {
     content: any
     className: any
     backgroundColor: string
-    size: iconButtonSize
-    variant: iconButtonVariant
+    size: IconButtonSize
+    variant: IconButtonVariant
     buttonProps: any
   } = props
 

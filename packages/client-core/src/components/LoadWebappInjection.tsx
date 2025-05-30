@@ -23,10 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import { useFind } from '@ir-engine/common'
 import { projectsPath } from '@ir-engine/common/src/schema.type.module'
-import { NO_PROXY } from '@ir-engine/hyperflux'
+import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { loadWebappInjection } from '@ir-engine/projects/loadWebappInjection'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import React, { Suspense, useEffect } from 'react'

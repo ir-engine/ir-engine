@@ -509,7 +509,7 @@ const _getComponentState = <C extends Component>(entity: Entity, component: C) =
           LayerFunctions.propagateLayer(entity, component)
         }
       }))
-    )
+    ) as State<ComponentType<C>, Identifiable>
   }
   return component.stateMap[entity]
 }
@@ -1073,7 +1073,6 @@ function createPropagationArgsInner<C extends Component>(
     case 'Void':
     case 'Bool':
     case 'String':
-    case 'Enum':
     case 'Literal': {
       return obj
     }

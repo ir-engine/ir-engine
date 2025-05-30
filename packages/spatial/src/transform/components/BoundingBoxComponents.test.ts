@@ -140,6 +140,7 @@ describe('BoundingBoxComponent', () => {
     beforeEach(async () => {
       createEngine()
       testEntity = createEntity()
+      getMutableState(RendererState).nodeHelperVisibility.set(false)
     })
 
     afterEach(() => {

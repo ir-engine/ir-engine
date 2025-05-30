@@ -24,6 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 // ensure dependency modules are imported
-import '@ir-engine/network'
+import '@ir-engine/ecs'
 
 export * from './src/SpatialModule'

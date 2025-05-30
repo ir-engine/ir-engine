@@ -37,7 +37,7 @@ import {
 } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { PrimitiveGeometryComponent } from '@ir-engine/engine/src/scene/components/PrimitiveGeometryComponent'
-import { GeometryTypeEnum, GeometryTypeParamsEnum } from '@ir-engine/engine/src/scene/constants/GeometryTypeEnum'
+import { GeometryType, GeometryTypeParamsEnum } from '@ir-engine/engine/src/scene/constants/GeometryTypeEnum'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 import SelectInput from '../../../input/Select'
@@ -50,55 +50,55 @@ import SelectInput from '../../../input/Select'
 const GeometryOption = [
   {
     label: 'Box',
-    value: GeometryTypeEnum.BoxGeometry
+    value: GeometryType.BoxGeometry
   },
   {
     label: 'Sphere',
-    value: GeometryTypeEnum.SphereGeometry
+    value: GeometryType.SphereGeometry
   },
   {
     label: 'Cylinder',
-    value: GeometryTypeEnum.CylinderGeometry
+    value: GeometryType.CylinderGeometry
   },
   {
     label: 'Capsule',
-    value: GeometryTypeEnum.CapsuleGeometry
+    value: GeometryType.CapsuleGeometry
   },
   {
     label: 'Plane',
-    value: GeometryTypeEnum.PlaneGeometry
+    value: GeometryType.PlaneGeometry
   },
   {
     label: 'Circle',
-    value: GeometryTypeEnum.CircleGeometry
+    value: GeometryType.CircleGeometry
   },
   {
     label: 'Ring',
-    value: GeometryTypeEnum.RingGeometry
+    value: GeometryType.RingGeometry
   },
   {
     label: 'Torus',
-    value: GeometryTypeEnum.TorusGeometry
+    value: GeometryType.TorusGeometry
   },
   {
     label: 'Dodecahedron',
-    value: GeometryTypeEnum.DodecahedronGeometry
+    value: GeometryType.DodecahedronGeometry
   },
   {
     label: 'Icosahedron',
-    value: GeometryTypeEnum.IcosahedronGeometry
+    value: GeometryType.IcosahedronGeometry
   },
   {
     label: 'Octahedron',
-    value: GeometryTypeEnum.OctahedronGeometry
+    value: GeometryType.OctahedronGeometry
   },
   {
     label: 'Tetrahedron',
-    value: GeometryTypeEnum.TetrahedronGeometry
+    value: GeometryType.TetrahedronGeometry
   },
   {
     label: 'TorusKnot',
-    value: GeometryTypeEnum.TorusKnotGeometry
+    value: GeometryType.TorusKnotGeometry
   }
 ]
 
@@ -130,7 +130,7 @@ export const PrimitiveGeometryNodeEditor: EditorComponentType = (props) => {
           key={props.entity}
           options={GeometryOption}
           value={primitiveGeometry.geometryType.value}
-          onChange={(value: GeometryTypeEnum) => {
+          onChange={(value: GeometryType) => {
             commitProperties(PrimitiveGeometryComponent, {
               geometryType: value,
               geometryParams: Object.fromEntries(
