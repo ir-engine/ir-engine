@@ -445,9 +445,6 @@ jobs:
       - run: curl -k https://127.0.0.1:9000
       - run: cd packages/${{ matrix.package }} && npm run test
         timeout-minutes: 20
-      - name: final docker
-        if: always()
-        run: docker container ls --all && docker container logs ir-engine_minio_s3
 
   npm_builds:
     needs: install-modules
