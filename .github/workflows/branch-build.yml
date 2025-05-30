@@ -448,9 +448,6 @@ jobs:
       - name: final docker
         if: always()
         run: docker container ls --all && docker container logs ir-engine_minio_s3
-      - name: final curl
-        if: always()
-        run: curl -k https://127.0.0.1:9000
 
   npm_builds:
     needs: install-modules
