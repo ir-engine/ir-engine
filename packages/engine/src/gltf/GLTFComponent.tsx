@@ -276,8 +276,6 @@ export const GLTFComponentReactor = () => {
     }
   }, [gltfComponent.document])
 
-  const scene = useOptionalComponent(entity, SceneComponent)
-
   useEffect(() => {
     if (!sceneLoaded) return
     setComponent(entity, ActiveHelperComponent, { volumeEnabled: true })
