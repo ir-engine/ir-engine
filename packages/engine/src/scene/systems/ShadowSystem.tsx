@@ -55,7 +55,8 @@ import {
   removeComponent,
   setComponent,
   useComponent,
-  useHasComponent
+  useHasComponent,
+  useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
@@ -91,6 +92,7 @@ import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { RenderModes } from '@ir-engine/spatial/src/renderer/constants/RenderModes'
+import { CSMPluginComponent } from '@ir-engine/spatial/src/renderer/csm/CSMPluginComponent'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { TransformSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
@@ -127,14 +129,14 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
   const { entity, rendererEntity, renderSettingsEntity } = props
   const renderSettingsComponent = useComponent(renderSettingsEntity, RenderSettingsComponent)
 
-  const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
+  const directionalLightComponent = useOptionalComponent(entity, DirectionalLightComponent)
 
   const shadowMapResolution = useHookstate(getMutableState(RendererState).shadowMapResolution)
 
-  const directionalLight = directionalLightComponent.light.get(NO_PROXY) as DirectionalLight
+  const directionalLight = directionalLightComponent?.light.get(NO_PROXY) as DirectionalLight
 
   useEffect(() => {
-    if (!directionalLight) return
+    if (!directionalLightComponent || !directionalLight) return
     if (!directionalLightComponent.castShadow.value) return
     const params = {
       light: directionalLight as DirectionalLight,
@@ -152,7 +154,7 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
     return () => {
       CSM.dispose(rendererEntity)
     }
-  }, [directionalLightComponent?.castShadow.value, renderSettingsComponent.cascades.value])
+  }, [directionalLightComponent?.castShadow.value, renderSettingsComponent.cascades.value, !!directionalLight])
 
   /** Must run after scene object system to ensure source light is not lit */
   useExecute(
@@ -167,8 +169,7 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
   useEffect(() => {
     setComponent(rendererEntity, CSMComponent)
     const csmComponent = getMutableComponent(rendererEntity, CSMComponent)
-    if (!directionalLight) return
-    if (!directionalLightComponent.castShadow.value) return
+    if (!directionalLightComponent?.castShadow.value || !directionalLight) return
 
     csmComponent.shadowBias.set(directionalLight.shadow.bias)
     csmComponent.maxFar.set(directionalLightComponent.cameraFar.value)
@@ -184,12 +185,12 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
   }, [
     shadowMapResolution,
     directionalLight,
-    directionalLightComponent.shadowBias,
-    directionalLightComponent.intensity,
-    directionalLightComponent.color,
-    directionalLightComponent.castShadow,
-    directionalLightComponent.shadowRadius,
-    directionalLightComponent.cameraFar
+    directionalLightComponent?.shadowBias,
+    directionalLightComponent?.intensity,
+    directionalLightComponent?.color,
+    directionalLightComponent?.castShadow,
+    directionalLightComponent?.shadowRadius,
+    directionalLightComponent?.cameraFar
   ])
 
   useEffect(() => {
@@ -215,8 +216,8 @@ const EntityChildCSMReactor = (props: { rendererEntity: Entity; entity: Entity }
   const csm = useComponent(rendererEntity, CSMComponent)
   useEffect(() => {
     if (!csm) return
-    CSM.setupMaterial(entity)
-    return () => CSM.teardownMaterial(entity)
+    setComponent(entity, CSMPluginComponent)
+    return () => removeComponent(entity, CSMPluginComponent)
   }, [csm, material.value])
 
   return null

@@ -159,6 +159,10 @@ function createLights(sourceLight?: DirectionalLight, rendererEntity?: Entity): 
   const entity = rendererEntity || Engine.instance.viewerEntity
   const csm = getMutableComponent(entity, CSMComponent)
 
+  /**@todo why aren't these being cleared after the component is ostensibly removed and reset??? */
+  csm.lights.set([])
+  csm.lightEntities.set([])
+
   if (sourceLight) {
     csm.merge({
       sourceLight: sourceLight,
@@ -356,16 +360,6 @@ function removeInclude(): void {
   ShaderChunk.lights_pars_begin = originalLightsParsBegin
 }
 
-function setupMaterial(materialEntity: Entity): void {
-  if (!hasComponent(materialEntity, MaterialStateComponent) || hasComponent(materialEntity, CSMPluginComponent)) return
-  setComponent(materialEntity, CSMPluginComponent)
-}
-
-function teardownMaterial(materialEntity: Entity): void {
-  if (!hasComponent(materialEntity, MaterialStateComponent) || !hasComponent(materialEntity, CSMPluginComponent)) return
-  removeComponent(materialEntity, CSMPluginComponent)
-}
-
 function updateUniforms(rendererEntity?: Entity): void {
   const entity = rendererEntity || Engine.instance.viewerEntity
   const csm = getMutableComponent(entity, CSMComponent)
@@ -457,7 +451,7 @@ function disposeCSM(rendererEntity: Entity): void {
 
   for (const materialEntity of materialEntities) {
     if (hasComponent(materialEntity, CSMPluginComponent)) {
-      teardownMaterial(materialEntity)
+      removeComponent(materialEntity, CSMPluginComponent)
     }
   }
   if (hasComponent(rendererEntity, CSMComponent)) removeCSMLights(rendererEntity)
@@ -550,8 +544,6 @@ export const CSM = {
   updateProperty,
   injectInclude,
   removeInclude,
-  setupMaterial,
-  teardownMaterial,
   updateUniforms,
   getExtendedBreaks,
   updateFrustums,
