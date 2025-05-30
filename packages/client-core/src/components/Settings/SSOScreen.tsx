@@ -23,10 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { GithubOriginalFalse, GoogleOriginalTrue, PlusCircleMd } from '@ir-engine/ui/src/icons'
-import React, { useState } from 'react'
-import { FaApple, FaMinusCircle } from 'react-icons/fa'
-import { SiMicrosoft } from 'react-icons/si'
+import { useHookstate } from '@hookstate/core'
+import { useFind } from '@ir-engine/common'
+import useEngineSetting from '@ir-engine/common/src/hooks/useEngineSetting'
+import { identityProviderPath } from '@ir-engine/common/src/schema.type.module'
+import { AuthenticationConfig } from '@ir-engine/server-core/src/appconfig'
+import { PlusCircleMd } from '@ir-engine/ui/src/icons'
+import React, { useEffect } from 'react'
+import { FaApple, FaGithub, FaGoogle, FaMinusCircle } from 'react-icons/fa'
+import { initialAuthState, initialOAuthConnectedState } from '../../common/initialAuthState'
+import { AuthService } from '../../user/services/AuthService'
 import Divider from './Divider'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
@@ -40,48 +46,71 @@ interface SSOProvider {
   connected: boolean
 }
 
-const SSOScreen: React.FC<SSOScreenProps> = () => {
-  const [providers, setProviders] = useState<SSOProvider[]>([
-    {
-      id: 'google',
-      name: 'Google',
-      icon: <GoogleOriginalTrue className="h-6 w-6" />,
-      connected: true
-    },
-    {
-      id: 'microsoft',
-      name: 'Microsoft',
-      icon: <SiMicrosoft className="h-6 w-6 text-[#00A4EF]" />,
-      connected: false
-    },
-    {
-      id: 'github',
-      name: 'Github',
-      icon: <GithubOriginalFalse className="h-6 w-6" />,
-      connected: false
-    },
-    {
-      id: 'apple',
-      name: 'Apple',
-      icon: <FaApple className="h-6 w-6" />,
-      connected: false
-    }
-  ])
+const Socials = [
+  {
+    client: 'google',
+    label: 'Google',
+    icon: <FaGoogle className="h-6 w-6" />
+  },
+  {
+    client: 'apple',
+    label: 'Apple',
+    icon: <FaApple className="h-6 w-6" />
+  },
+  {
+    client: 'github',
+    label: 'GitHub',
+    icon: <FaGithub className="h-6 w-6" />
+  }
+]
 
-  const handleProviderClick = (provider: SSOProvider) => {
-    if (provider.connected) {
-      // Handle disconnection logic here
-      console.log(`Disconnecting from ${provider.name}`)
-      setProviders((prev) => prev.map((p) => (p.id === provider.id ? { ...p, connected: false } : p)))
-    } else {
-      // Handle connection logic here
-      console.log(`Connecting to ${provider.name}`)
-      setProviders((prev) => prev.map((p) => (p.id === provider.id ? { ...p, connected: true } : p)))
+const SSOScreen: React.FC<SSOScreenProps> = () => {
+  const identityProvidersQuery = useFind(identityProviderPath)
+  const oauthConnectedState = useHookstate(Object.assign({}, initialOAuthConnectedState))
+  const authState = useHookstate(initialAuthState)
+  const { data: authSetting } = useEngineSetting<AuthenticationConfig>('authentication')
+
+  useEffect(() => {
+    if (authSetting) {
+      const temp = { ...initialAuthState }
+      authSetting?.authStrategies?.forEach((el) => {
+        Object.entries(el).forEach(([strategyName, strategy]) => {
+          temp[strategyName] = strategy
+        })
+      })
+      const currentAuthState = authState.get({ noproxy: true })
+      if (JSON.stringify(currentAuthState) !== JSON.stringify(temp)) {
+        authState.set(temp)
+      }
     }
+  }, [authSetting])
+
+  useEffect(() => {
+    const { data } = identityProvidersQuery
+    console.log(data)
+    if (!data) return
+
+    for (const ip of data) {
+      switch (ip.type) {
+        case 'apple':
+          oauthConnectedState.merge({ apple: true })
+          break
+        case 'google':
+          oauthConnectedState.merge({ google: true })
+          break
+        case 'github':
+          oauthConnectedState.merge({ github: true })
+          break
+      }
+    }
+  }, [identityProvidersQuery.data])
+
+  const handleProviderClick = (client: string) => {
+    AuthService.loginUserByOAuth(client, location, false, '/')
   }
 
-  const connectedProviders = providers.filter((p) => p.connected)
-  const disconnectedProviders = providers.filter((p) => !p.connected)
+  const connectedProviders = Socials.filter((p) => oauthConnectedState[p.client].value)
+  const disconnectedProviders = Socials.filter((p) => !oauthConnectedState[p.client].value)
 
   return (
     <div className="space-y-4">
@@ -92,11 +121,11 @@ const SSOScreen: React.FC<SSOScreenProps> = () => {
             <p className="text-sm text-white/70">Connected:</p>
           </div>
           <Section>
-            {connectedProviders.map((provider, index) => (
-              <React.Fragment key={provider.id}>
+            {Socials.map((provider, index) => (
+              <React.Fragment key={provider.client}>
                 <MenuItem
-                  label={provider.name}
-                  onClick={() => handleProviderClick(provider)}
+                  label={provider.label}
+                  onClick={() => handleProviderClick(provider.client)}
                   leftIcon={provider.icon}
                   rightIcon={<FaMinusCircle />}
                 />
@@ -115,10 +144,10 @@ const SSOScreen: React.FC<SSOScreenProps> = () => {
           </div>
           <Section>
             {disconnectedProviders.map((provider, index) => (
-              <React.Fragment key={provider.id}>
+              <React.Fragment key={provider.client}>
                 <MenuItem
-                  label={provider.name}
-                  onClick={() => handleProviderClick(provider)}
+                  label={provider.label}
+                  onClick={() => handleProviderClick(provider.client)}
                   leftIcon={provider.icon}
                   rightIcon={<PlusCircleMd />}
                   hasChevron
