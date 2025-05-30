@@ -673,7 +673,6 @@ const transformTexture = async (resultCache: Map<string, Texture>, operation: Te
     texture.setMimeType('image/ktx2')
     //reset URI to the valid file name
     texture.setURI(validTextureFileName(texture.getURI().replace(/\.[^.]+$/, '.ktx2')))
-    console.log('Converted to KTX2: ', texture.getURI())
   }
 
   if ((shouldResize || shouldConvertToKTX) && texture.getURI() !== '') {
