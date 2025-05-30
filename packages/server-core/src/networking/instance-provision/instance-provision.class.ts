@@ -374,7 +374,6 @@ export async function checkForDuplicatedAssignments({
         const integerizedAssignResultId = parseInt(assignResult.id.replace(/-/g, ''), 16)
         if (integerizedAssignResultId < integerizedInstanceId) {
           isFirstAssignment = false
-          // Safety check for ipAddress (should not be null in this context, but adding for robustness)
           if (!instance.ipAddress) {
             logger.warn(`Instance ${instance.id} has null ipAddress in checkForDuplicatedAssignments`)
             continue
@@ -785,9 +784,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
               })
           }
           const actualInstance = channelInstance.data[0]
-          // Check if instance has a valid ipAddress (P2P instances have null ipAddress)
           if (!actualInstance.ipAddress) {
-            // If P2P is disabled but we have a P2P instance, redirect to get a new server instance
             return getFreeInstanceserver({
               app: this.app,
               headers: params.headers || {},
@@ -886,9 +883,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
                   userId
                 })
             }
-            // Check if instance has a valid ipAddress (P2P instances have null ipAddress)
             if (!instance.ipAddress) {
-              // If P2P is disabled but we have a P2P instance, redirect to get a new server instance
               return getFreeInstanceserver({
                 app: this.app,
                 headers: params.headers || {},
