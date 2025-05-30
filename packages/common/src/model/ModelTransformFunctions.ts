@@ -643,7 +643,7 @@ const transformTexture = async (resultCache: Map<string, Texture>, operation: Te
     nuTexture.setExtras(texture.getExtras())
     nuTexture.setImage(oldImage)
     nuTexture.setMimeType(texture.getMimeType())
-    console.log('Resizing: ', params.maxTextureSize)
+
     await imgDoc.transform(
       textureCompress({
         resize: [params.maxTextureSize, params.maxTextureSize]
