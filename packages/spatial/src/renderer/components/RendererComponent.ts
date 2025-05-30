@@ -28,7 +28,7 @@ import { ArrayCamera, Scene, SRGBColorSpace, WebGLRenderer, WebGLRendererParamet
 
 import { defineComponent, Entity, getComponent, hasComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { getState, isDev, NO_PROXY, none, State, useMutableState } from '@ir-engine/hyperflux'
+import { getState, NO_PROXY, none, State, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
@@ -217,7 +217,7 @@ export const RendererComponent = defineComponent({
       rendererComponent.renderPass.set(renderPass)
 
       // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
-      renderer.debug.checkShaderErrors = isDev
+      // renderer.debug.checkShaderErrors = isDev
 
       const xrManager = createWebXRManager(renderer)
       renderer.xr = xrManager as any

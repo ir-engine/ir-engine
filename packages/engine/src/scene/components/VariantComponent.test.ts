@@ -189,12 +189,19 @@ describe('VariantComponent', () => {
         timeout: 5000
       })
 
-      const childMeshEntities = getChildrenWithComponents(testEntity, [MeshComponent])
-      assert(childMeshEntities.length > 0)
-      for (const meshEntity of childMeshEntities) {
-        const mesh = getComponent(meshEntity, MeshComponent)
-        assert(mesh instanceof InstancedMesh)
-      }
+      await vi.waitFor(
+        () => {
+          const childMeshEntities = getChildrenWithComponents(testEntity, [MeshComponent])
+          assert(childMeshEntities.length > 0)
+          for (const meshEntity of childMeshEntities) {
+            const mesh = getComponent(meshEntity, MeshComponent)
+            assert(mesh instanceof InstancedMesh)
+          }
+        },
+        {
+          timeout: 5000
+        }
+      )
     })
   })
 })

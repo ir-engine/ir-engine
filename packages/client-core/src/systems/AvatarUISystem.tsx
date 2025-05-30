@@ -36,6 +36,7 @@ import {
 } from '@ir-engine/ecs'
 import {
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -89,7 +90,9 @@ export const renderAvatarContextMenu = (userId: UserID, contextMenuEntity: Entit
   const contextMenuXRUI = getComponent(contextMenuEntity, XRUIComponent)
   if (!contextMenuXRUI) return
 
-  const userTransform = getComponent(userEntity, TransformComponent)
+  const userTransform = getOptionalComponent(userEntity, TransformComponent)
+  if (!userTransform) return
+
   const cameraPosition = getComponent(Engine.instance.cameraEntity, TransformComponent).position
   const { avatarHeight } = getComponent(userEntity, AvatarComponent)
 
@@ -158,7 +161,8 @@ const execute = () => {
   videoPreviewTimer += ecsState.deltaSeconds
   if (videoPreviewTimer > 1) videoPreviewTimer = 0
 
-  const cameraTransform = getComponent(viewerEntity, TransformComponent)
+  const cameraTransform = getOptionalComponent(viewerEntity, TransformComponent)
+  if (!cameraTransform) return
 
   const immersiveMedia = getState(MediaSettingsState).immersiveMedia
   const mediaNetwork = NetworkState.mediaNetwork

@@ -35,11 +35,11 @@ import {
   useComponent,
   useHasComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { FogComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { FogShaders } from '../FogSystem'
 import { initBrownianMotionFogShader, initHeightFogShader, removeFogShader } from './FogShaders'
+import { FogComponent } from './SceneComponents'
 import { VisibleComponent } from './VisibleComponent'
 
 export const FogType = {
