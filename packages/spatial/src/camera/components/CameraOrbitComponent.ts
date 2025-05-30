@@ -39,13 +39,17 @@ export const CameraOrbitComponent = defineComponent({
   jsonID: 'IR_camera_orbit',
 
   schema: S.Object({
-    minimumZoom: S.Number({ default: 0.5 }),
+    minimumZoomDistance: S.Number({ default: 0.5 }),
+    maximumZoomDistance: S.Number({ default: Infinity }),
+    zoomSpeed: S.Number({ default: 0.1 }),
+    panSpeed: S.Number({ default: 1 }),
+    orbitSpeed: S.Number({ default: 5 }),
     cameraOrbitCenter: T.Vec3()
   }),
 
   setFocus: (cameraEntity: Entity, center: Vector3, bounds?: Box3) => {
     const cameraOrbit = getMutableComponent(cameraEntity, CameraOrbitComponent)
-    const zoom = Math.max(cameraOrbit.minimumZoom.value * 10, bounds?.getSize(focusSize).length() ?? 0)
+    const zoom = Math.max(cameraOrbit.minimumZoomDistance.value * 10, bounds?.getSize(focusSize).length() ?? 0)
     const transform = getMutableComponent(cameraEntity, TransformComponent)
     // cameraOrbit.cameraOrbitCenter.set(center.clone())
     // transform.position.set(center.clone().add(delta))

@@ -32,7 +32,9 @@ import { isValidFileName } from '@ir-engine/common/src/utils/validateFileName'
 import {
   Component,
   Entity,
+  EntityID,
   EntityTreeComponent,
+  SourceID,
   UUIDComponent,
   createEntity,
   getComponent,
@@ -92,6 +94,10 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
     ]
     const prefabEntity = createEntity()
     const obj = new Scene()
+    setComponent(prefabEntity, UUIDComponent, {
+      entitySourceID: UUIDComponent.generate() as string as SourceID,
+      entityID: 'temp-prefab' as EntityID
+    })
     setComponent(prefabEntity, ObjectComponent, obj)
     const rootEntity = getState(EditorState).rootEntity
     iterateEntityNode(rootEntity, (entity) => {

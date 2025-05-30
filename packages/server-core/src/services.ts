@@ -29,7 +29,6 @@ import path from 'path'
 import { ProjectConfigInterface } from '@ir-engine/projects/ProjectConfigInterface'
 
 import { Application } from '../declarations'
-import AnalyticsServices from './analytics/services'
 import AssetServices from './assets/services'
 import BotService from './bot/services'
 import ClusterServices from './cluster/services'
@@ -87,7 +86,6 @@ const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/
 
 const services = [
   ...ClusterServices,
-  ...AnalyticsServices,
   ...UserServices,
   ...ModerationServices,
   ...AssetServices,
