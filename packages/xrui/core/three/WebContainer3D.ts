@@ -23,14 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Object3D, Raycaster, Vector3 } from 'three'
+import { Mesh, Object3D, Ray, Raycaster, Vector3 } from 'three'
 
+import { Intersection } from 'three/src/core/Raycaster'
 import { Bounds, downloadBlob, getBounds, toDOM, traverseChildElements } from '../dom-utils'
 import { WebLayerOptions, WebRenderer } from '../WebRenderer'
 import { ON_BEFORE_UPDATE, WebLayer3D } from './WebLayer3D'
 import { WebLayerManager } from './WebLayerManager'
 
-type Intersection = THREE.Intersection & { groupOrder: number }
+//type Intersection = Intersection & { groupOrder: number }
 
 const scratchVector = new Vector3()
 const scratchVector2 = new Vector3()
@@ -68,12 +69,12 @@ export interface WebContainer3DOptions extends WebLayerOptions {
  */
 export class WebContainer3D extends Object3D {
   // static computeNaturalDistance(
-  //   projection: THREE.Matrix4 | THREE.Camera,
-  //   renderer: THREE.WebGLRenderer
+  //   projection: Matrix4 | Camera,
+  //   renderer: WebGLRenderer
   // ) {
-  //   let projectionMatrix = projection as  THREE.Matrix4
-  //   if ((projection as THREE.Camera).isCamera) {
-  //     projectionMatrix = (projection as THREE.Camera).projectionMatrix
+  //   let projectionMatrix = projection as  Matrix4
+  //   if ((projection as Camera).isCamera) {
+  //     projectionMatrix = (projection as Camera).projectionMatrix
   //   }
   //   const pixelRatio = renderer.getPixelRatio()
   //   const widthPixels = renderer.domElement.width / pixelRatio
@@ -91,7 +92,7 @@ export class WebContainer3D extends Object3D {
 
   public raycaster = new Raycaster()
 
-  private _interactionRays = [] as Array<THREE.Ray | THREE.Object3D>
+  private _interactionRays = [] as Array<Ray | Object3D>
   private _hitIntersections = [] as Intersection[]
 
   constructor(elementOrHTML: Element | string, options: Partial<WebContainer3DOptions> = {}) {
@@ -139,7 +140,7 @@ export class WebContainer3D extends Object3D {
   get interactionRays() {
     return this._interactionRays
   }
-  set interactionRays(rays: Array<THREE.Ray | THREE.Object3D>) {
+  set interactionRays(rays: Array<Ray | Object3D>) {
     this._interactionRays = rays
   }
 
@@ -188,7 +189,7 @@ export class WebContainer3D extends Object3D {
   }
 
   private _previousHoverLayers = new Set<WebLayer3D>()
-  private _contentMeshes = [] as THREE.Mesh[]
+  private _contentMeshes = [] as Mesh[]
 
   private _prepareHitTest = (layer: WebLayer3D) => {
     if (layer.desiredPseudoStates.hover) this._previousHoverLayers.add(layer)
@@ -198,9 +199,9 @@ export class WebContainer3D extends Object3D {
   }
 
   // private _intersectionGetGroupOrder(i:Intersection) {
-  //   let o = i.object as THREE.Group&THREE.Object3D
+  //   let o = i.object as Group&Object3D
   //   while (o.parent && !o.isGroup) {
-  //     o = o.parent as THREE.Group&THREE.Object3D
+  //     o = o.parent as Group&Object3D
   //   }
   //   i.groupOrder = o.renderOrder
   // }
@@ -225,7 +226,7 @@ export class WebContainer3D extends Object3D {
     for (const ray of this._interactionRays) {
       if ('isObject3D' in ray && ray.isObject3D) {
         this.raycaster.ray.set(ray.getWorldPosition(scratchVector), ray.getWorldDirection(scratchVector2).negate())
-      } else this.raycaster.ray.copy(ray as THREE.Ray)
+      } else this.raycaster.ray.copy(ray as Ray)
       this._hitIntersections.length = 0
       const intersections = this.raycaster.intersectObjects(
         this._contentMeshes,
@@ -257,14 +258,14 @@ export class WebContainer3D extends Object3D {
    * Perform hit test with ray, or with -Z direction of an Object3D
    * @param ray
    */
-  hitTest(ray: THREE.Ray | THREE.Object3D) {
+  hitTest(ray: Ray | Object3D) {
     const raycaster = this.raycaster
     const intersections = this._hitIntersections
     const meshMap = this.options.manager.layersByMesh
     if ('isObject3D' in ray && ray.isObject3D) {
       this.raycaster.ray.set(ray.getWorldPosition(scratchVector), ray.getWorldDirection(scratchVector2).negate())
     } else {
-      this.raycaster.ray.copy(ray as THREE.Ray)
+      this.raycaster.ray.copy(ray as Ray)
     }
     intersections.length = 0
     raycaster.intersectObject(this, true, intersections)
