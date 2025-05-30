@@ -37,7 +37,7 @@ interface ScreenProps {
 }
 
 const WorldSettings: React.FC<ScreenProps> = () => (
-  <div className="space-y-4">
+  <div className="h-full space-y-4">
     <Section>
       <SliderItem label="Audio Volume" defaultValue={50} />
       <Divider />

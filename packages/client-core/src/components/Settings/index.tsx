@@ -78,9 +78,9 @@ const screens: Record<string, ScreenDefinition> = {
     component: (props) => <PlaceholderScreen {...props} title="Controls" />,
     title: 'Controls'
   },
-  callTitle: {
-    component: (props) => <PlaceholderScreen {...props} title="Call Title" />,
-    title: 'Call Title'
+  logout: {
+    component: (props) => <PlaceholderScreen {...props} title="Log Out" />,
+    title: 'Log Out'
   },
   usernamePassword: {
     component: UsernamePasswordScreen,
@@ -155,22 +155,28 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/20 backdrop-blur-md md:items-center md:pt-0">
+    <div
+      data-testid="settings-menu-backdrop"
+      id="settings-menu-backdrop"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose?.()
+        }
+      }}
+      className="fixed inset-0 z-50 mx-auto flex items-start justify-center overflow-y-auto "
+    >
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.2 }}
-        className="pointer-events-auto flex h-full w-full max-w-sm flex-col rounded-3xl p-5 font-dm-sans text-white shadow-xl backdrop-blur-md md:max-w-screen-md"
+        className="pointer-events-auto flex h-full w-full max-w-sm flex-1 flex-col rounded-3xl p-5 font-dm-sans text-white md:mt-5 md:max-w-screen-md md:pt-0"
         style={{
-          maxHeight: '90vh',
-          background: 'linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05))',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
-          border: '1px solid rgba(255, 255, 255, 0.08)'
+          maxHeight: '90vh'
         }}
       >
         {/* Header */}
-        <div className="mb-4 flex h-10 items-center justify-between">
+        <div className="text-shadow-md mb-4 flex h-10 items-center justify-between justify-self-start">
           {history.length > 1 ? (
             <button
               onClick={navigateBack}
@@ -188,12 +194,12 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose }) => {
             className="-mr-1 rounded-full p-2 transition-colors hover:bg-white/10"
             aria-label="Close settings"
           >
-            <XCloseSm className="text-white/90" />
+            <XCloseSm className="h-5 w-5 text-white/90" />
           </button>
         </div>
 
         {/* Screen Content with AnimatePresence for transitions */}
-        <div className="relative h-full overflow-hidden rounded-md">
+        <div className="relative my-auto h-full overflow-hidden rounded-md">
           <AnimatePresence initial={false} mode="popLayout" custom={direction}>
             <motion.div
               key={activeScreenKey}
@@ -206,7 +212,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose }) => {
                 x: { type: 'tween', duration: 0.2 },
                 opacity: { duration: 0.2 }
               }}
-              className="scrollbar-hide h-full max-h-full space-y-4 overflow-y-auto pb-4"
+              className="scrollbar-hide ju flex h-full max-h-full flex-col justify-center space-y-4  overflow-y-auto"
             >
               <ActiveComponent navigateTo={navigateTo} onClose={onClose} />
             </motion.div>

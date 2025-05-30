@@ -44,7 +44,8 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => (
       <MenuItem label="Share Space" onClick={() => navigateTo('shareSpace')} hasChevron />
       <Divider />
       <ToggleItem label="Video Communication" checked />
-      <Divider />
+    </Section>
+    <Section>
       <ToggleItem label="Spatial Audio" />
       <Divider />
       <SliderItem label="Mic Volume" defaultValue={30} />
@@ -67,14 +68,8 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => (
     <Section>
       <MenuItem label="Controls" onClick={() => navigateTo('controls')} hasChevron />
       <Divider />
-      <MenuItem label="Call Title" onClick={() => navigateTo('callTitle')} hasChevron />
-      <Divider />
       <MenuItem label="Graphics" onClick={() => navigateTo('graphics')} hasChevron />
-    </Section>
-
-    {/* Logout Section */}
-    <Section className="overflow-hidden">
-      <button className="w-full py-3.5 font-medium text-white">Log Out</button>
+      <MenuItem label="Log Out" onClick={() => navigateTo('logout')} />
     </Section>
   </div>
 )

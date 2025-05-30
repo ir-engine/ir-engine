@@ -33,7 +33,7 @@ export interface SectionProps {
 
 export const Section: React.FC<SectionProps> = ({ children, className = '', withDivider = false }) => (
   <div
-    className={`overflow-hidden rounded-xl shadow-sm ${className}`}
+    className={`overflow-hidden rounded-xl shadow-sm ${className} `}
     style={{
       background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
       border: '1px solid rgba(255, 255, 255, 0.05)'
