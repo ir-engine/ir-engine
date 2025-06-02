@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Material, Shader } from 'three'
+import { IUniform, Material, Shader } from 'three'
 
 import {
   ComponentType,
@@ -247,5 +247,8 @@ declare module 'three/src/renderers/shaders/ShaderLib.js' {
   export interface Shader {
     uuid?: EntityUUID
     shaderType: string
+    uniforms: { [uniform: string]: IUniform }
+    vertexShader: string
+    fragmentShader: string
   }
 }

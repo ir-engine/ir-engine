@@ -436,7 +436,9 @@ jobs:
       - run: rm -rf packages/client-core
       - run: rm -rf packages/editor
       - run: rm -rf packages/ui
-      - run: npm run dev-docker
+      - name: Start Docker
+        run: npm run dev-docker
+        timeout-minutes: 20
       - run: npm run dev-reinit
       - run: git config --global user.email "you@example.com" && git config --global user.name "Your Name"
       - run: cd packages/${{ matrix.package }} && npm run test

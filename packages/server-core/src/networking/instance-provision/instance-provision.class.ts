@@ -347,6 +347,11 @@ export async function checkForDuplicatedAssignments({
         new Date(instance.assignedAt).getTime() < new Date(assignResult.assignedAt).getTime()
       ) {
         isFirstAssignment = false
+        // Safety check for ipAddress (should not be null in this context, but adding for robustness)
+        if (!instance.ipAddress) {
+          logger.warn(`Instance ${instance.id} has null ipAddress in checkForDuplicatedAssignments`)
+          continue
+        }
         const ipSplit = instance.ipAddress.split(':')
         earlierInstance = {
           id: instance.id,
@@ -369,6 +374,10 @@ export async function checkForDuplicatedAssignments({
         const integerizedAssignResultId = parseInt(assignResult.id.replace(/-/g, ''), 16)
         if (integerizedAssignResultId < integerizedInstanceId) {
           isFirstAssignment = false
+          if (!instance.ipAddress) {
+            logger.warn(`Instance ${instance.id} has null ipAddress in checkForDuplicatedAssignments`)
+            continue
+          }
           const ipSplit = instance.ipAddress.split(':')
           earlierInstance = {
             id: instance.id,
@@ -628,7 +637,21 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         })
     }
     logger.info('IS existed, using it %o', instance)
-    const ipAddressSplit = instance.ipAddress!.split(':')
+    // Check if instance has a valid ipAddress (P2P instances have null ipAddress)
+    if (!instance.ipAddress) {
+      // If P2P is disabled but we have a P2P instance, redirect to get a new server instance
+      return getFreeInstanceserver({
+        app: this.app,
+        headers,
+        iteration: 0,
+        locationId,
+        channelId,
+        roomCode,
+        userId,
+        provisionConstraints
+      })
+    }
+    const ipAddressSplit = instance.ipAddress.split(':')
     return {
       id: instance.id,
       ipAddress: ipAddressSplit[0],
@@ -761,7 +784,18 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
               })
           }
           const actualInstance = channelInstance.data[0]
-          const ipAddressSplit = actualInstance.ipAddress!.split(':')
+          if (!actualInstance.ipAddress) {
+            return getFreeInstanceserver({
+              app: this.app,
+              headers: params.headers || {},
+              iteration: 0,
+              channelId,
+              roomCode,
+              userId,
+              provisionConstraints
+            })
+          }
+          const ipAddressSplit = actualInstance.ipAddress.split(':')
           return {
             id: actualInstance.id,
             ipAddress: ipAddressSplit[0],
@@ -849,7 +883,18 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
                   userId
                 })
             }
-            const ipAddressSplit = instance.ipAddress!.split(':')
+            if (!instance.ipAddress) {
+              return getFreeInstanceserver({
+                app: this.app,
+                headers: params.headers || {},
+                iteration: 0,
+                locationId,
+                roomCode,
+                userId,
+                provisionConstraints
+              })
+            }
+            const ipAddressSplit = instance.ipAddress.split(':')
             return {
               id: instance.id,
               ipAddress: ipAddressSplit[0],

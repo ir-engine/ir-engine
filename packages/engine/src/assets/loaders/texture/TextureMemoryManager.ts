@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { getState } from '@ir-engine/hyperflux'
 import { CompressedPixelFormat, CompressedTexture, Texture } from 'three'
 import { AssetLoaderState } from '../../state/AssetLoaderState'
-import { ResourceCache } from '../base/ResourceCache'
+import { ResourceCache, TextureData } from '../base/ResourceCache'
 import { TextureLoader } from './TextureLoader'
 
 const cachePromises = {} as Record<string, Promise<boolean>>
@@ -64,14 +64,14 @@ export async function offloadTextureData(texture: Texture): Promise<boolean> {
     if ((texture as CompressedTexture).isCompressedTexture) {
       const compressedTexture = texture as CompressedTexture
 
-      if (mipmaps?.length > 0) {
+      if (mipmaps && mipmaps.length > 0) {
         const textureData = {
           data: mipmaps,
           width: data.width as number,
           height: data.height as number,
           format: compressedTexture.format,
           type: compressedTexture.type
-        }
+        } as TextureData
         await ResourceCache!.putTexture(url, textureData).catch((err) => {
           console.error(`Error storing texture data: ${err}`)
           reject(err)

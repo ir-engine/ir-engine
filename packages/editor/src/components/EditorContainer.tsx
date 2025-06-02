@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { NO_PROXY, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { t } from 'i18next'
@@ -153,11 +153,44 @@ const defaultLayout = (flags: {
 const EditorContainer = () => {
   const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, rootEntity, canvasRef, activeLowerPanel } =
     useMutableState(EditorState)
-  const { metadata } = useHookstate(getMutableState(ClickPlacementState)).value
+  const { metadata } = useMutableState(ClickPlacementState).value
   const editorUIAddon = useMutableState(UIAddonsState).editor
   const currentLoadedSceneURL = useHookstate(null as string | null)
 
-  useEngineCanvas(canvasRef.value as React.RefObject<HTMLElement> | null)
+  useEngineCanvas(canvasRef.get(NO_PROXY) as React.RefObject<HTMLElement> | null)
+
+  useSpatialEngine()
+
+  /** Call get state since it needs to be created */
+  getState(AuthoringState)
+
+  const engineState = useMutableState(EngineState)
+
+  const errorState = useMutableState(EditorErrorState).error
+  const warningState = useMutableState(EditorWarningState).warning
+
+  const dockPanelRef = useRef<DockLayout>(null)
+
+  useHotkeys(`${cmdOrCtrlString}+s`, (e) => {
+    e.preventDefault()
+    onSaveScene()
+  })
+
+  const { initialized, isWidgetVisible, openChat } = useZendesk()
+  const { t } = useTranslation()
+
+  const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
+
+  const originEntity = useMutableState(ReferenceSpaceState).originEntity.value
+
+  const memoizedDefaultLayout = React.useMemo(
+    () =>
+      defaultLayout({
+        visualScriptPanelEnabled,
+        activeLowerPanel: activeLowerPanel.value
+      }),
+    [visualScriptPanelEnabled, activeLowerPanel.value]
+  )
 
   /**
    * what is our source of truth for which scene is loaded?
@@ -198,13 +231,6 @@ const EditorContainer = () => {
     }
   }, [scenePath.value])
 
-  useSpatialEngine()
-
-  /** Call get state since it needs to be created */
-  getState(AuthoringState)
-
-  const engineState = useHookstate(getMutableState(EngineState))
-
   useEffect(() => {
     if (engineState.isEditing.value || !rootEntity.value) return
     /** @todo upon saving the scene, the GLTFComponent src is not with the new hash, so we need to get the old src */
@@ -215,27 +241,10 @@ const EditorContainer = () => {
     }
   }, [engineState.isEditing.value, rootEntity.value])
 
-  const originEntity = useMutableState(ReferenceSpaceState).originEntity.value
-
   useEffect(() => {
     if (!sceneAssetID.value || !currentLoadedSceneURL.value || !originEntity) return
     return setCurrentEditorScene(currentLoadedSceneURL.value, sceneAssetID.value as EntityUUID)
   }, [originEntity, currentLoadedSceneURL.value])
-
-  const errorState = useHookstate(getMutableState(EditorErrorState).error)
-  const warningState = useHookstate(getMutableState(EditorWarningState).warning)
-
-  const dockPanelRef = useRef<DockLayout>(null)
-
-  useHotkeys(`${cmdOrCtrlString}+s`, (e) => {
-    e.preventDefault()
-    onSaveScene()
-  })
-
-  const { initialized, isWidgetVisible, openChat } = useZendesk()
-  const { t } = useTranslation()
-
-  const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
 
   useEffect(() => {
     return () => {
@@ -244,13 +253,13 @@ const EditorContainer = () => {
   }, [scenePath])
 
   useEffect(() => {
-    if (errorState.value) {
+    if (errorState && errorState.value) {
       onEditorError(errorState.value)
     }
   }, [errorState])
 
   useEffect(() => {
-    if (warningState.value) {
+    if (warningState && warningState.value) {
       onEditorWarning(warningState.value)
     }
   }, [warningState])
@@ -295,10 +304,7 @@ const EditorContainer = () => {
                   <DockContainer>
                     <DockLayout
                       ref={dockPanelRef}
-                      defaultLayout={defaultLayout({
-                        visualScriptPanelEnabled,
-                        activeLowerPanel: activeLowerPanel.value
-                      })}
+                      defaultLayout={memoizedDefaultLayout}
                       style={{ position: 'absolute', left: 5, top: 50, right: 5, bottom: 5 }}
                     />
                   </DockContainer>
