@@ -87,17 +87,7 @@ const SSOScreen: React.FC<SSOScreenProps> = () => {
     if (!data) return
 
     for (const ip of data) {
-      switch (ip.type) {
-        case 'apple':
-          oauthConnectedState.merge({ apple: true })
-          break
-        case 'google':
-          oauthConnectedState.merge({ google: true })
-          break
-        case 'github':
-          oauthConnectedState.merge({ github: true })
-          break
-      }
+      oauthConnectedState.merge({ [ip.type]: true })
     }
   }, [identityProvidersQuery.data])
 

@@ -48,7 +48,7 @@ const UsernamePasswordScreen: React.FC<UsernamePasswordScreenProps> = ({ navigat
       onClick={onClick}
     >
       <span className="text-sm font-medium">{label}</span>
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center gap-2">
         <span className={`text-white/70 ${isPassword ? 'font-mono' : ''}`}>{value}</span>
         <ChevronRightSm className="text-white/70" />
       </div>
