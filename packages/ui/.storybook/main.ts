@@ -79,8 +79,8 @@ const config: StorybookConfig = {
     getAbsolutePath('@storybook/addon-interactions'),
     getAbsolutePath('@storybook/addon-a11y'),
     getAbsolutePath('@storybook/addon-jest'),
-    getAbsolutePath('storybook-addon-react-router-v6'),
-    getAbsolutePath('storybook-addon-sass-postcss')
+    getAbsolutePath('storybook-addon-sass-postcss'),
+    'storybook-addon-rmeix-react-router'
   ],
   staticDirs: ['../public', '../../client/public'],
   core: {},

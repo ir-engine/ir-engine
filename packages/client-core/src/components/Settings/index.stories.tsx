@@ -39,8 +39,17 @@ const meta = {
     }
   },
   tags: ['autodocs'],
+  globals: {
+    screen: 'main'
+  },
+  args: {
+    initScreen: 'main'
+  },
   argTypes: {
-    onClose: { action: 'closed' }
+    onClose: { action: 'closed' },
+    initScreen: {
+      control: 'text'
+    }
   }
 } satisfies Meta<typeof SettingsMenu>
 
@@ -48,8 +57,16 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
-  render: (args) => {
-    const [open, setOpen] = useState(false)
+  args: {
+    initScreen: 'main'
+  },
+
+  parameters: {
+    screen: 'main'
+  },
+
+  render: (args, context) => {
+    const [open, setOpen] = useState(!!context.args.initScreen)
 
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-slate-700 bg-center">
@@ -60,7 +77,7 @@ export const Default: Story = {
         >
           {open ? 'Close Settings' : 'Open Settings'}
         </button>
-        {open && <SettingsMenu {...args} onClose={() => setOpen(false)} />}
+        {open && <SettingsMenu initScreen={context.args.initScreen} {...args} onClose={() => setOpen(false)} />}
       </div>
     )
   }

@@ -56,7 +56,7 @@ const UsernamePasswordScreen: React.FC<UsernamePasswordScreenProps> = ({ navigat
   )
 
   return (
-    <div className="space-y-4">
+    <div className="flex h-full flex-col gap-4">
       <Section>
         <FieldItem label="Display Name" value={displayName} onClick={() => navigateTo('displayName')} />
         <Divider />

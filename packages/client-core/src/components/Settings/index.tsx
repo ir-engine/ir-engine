@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { AnimatePresence, motion, Variant } from 'motion/react'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 // Import icons from the icons module
 import { ArrowLeftSm, XCloseSm } from '@ir-engine/ui/src/icons'
@@ -41,7 +41,6 @@ import MainMenu from './MainMenu'
 import WorldSettings from './WorldSettings'
 
 // Import other screen components
-import { getSearchParamFromURL } from '@ir-engine/common/src/utils/getSearchParamFromURL'
 import AvatarScreen from './AvatarScreen'
 import DeleteAccountScreen from './DeleteAccountScreen'
 import DisplayNameScreen from './DisplayNameScreen'
@@ -115,19 +114,13 @@ const screens: Record<string, ScreenDefinition> = {
 
 interface SettingsMenuProps {
   onClose?: () => void
+  initScreen?: string
 }
 
-const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose }) => {
-  const [history, setHistory] = useState<string[]>(['main']) // Stack to keep track of navigation
+const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose, initScreen = 'main' }) => {
+  const [history, setHistory] = useState<string[]>([initScreen]) // Stack to keep track of navigation
   const [direction, setDirection] = useState<number>(1) // 1 for forward, -1 for backward
 
-  useEffect(() => {
-    const screen = getSearchParamFromURL(location.search)
-    console.log({ screen })
-    if (screen && screens[screen]) {
-      setHistory([screen])
-    }
-  }, [])
   const activeScreenKey = history[history.length - 1]
   const ActiveComponent = screens[activeScreenKey].component
   const currentTitle = screens[activeScreenKey].title
@@ -185,7 +178,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose }) => {
       >
         {/* Header */}
         <div className="text-shadow-md mb-4 flex h-10 items-center justify-between justify-self-start">
-          {history.length > 1 ? (
+          {activeScreenKey !== 'main' ? (
             <button
               onClick={navigateBack}
               className="-ml-1 rounded-full p-2 transition-colors hover:bg-white/10"
