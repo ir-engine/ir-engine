@@ -23,17 +23,19 @@ import { ModalState } from '@ir-engine/client-core/src/common/services/ModalStat
 import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { useFind, useMutation } from '@ir-engine/common'
 import { config } from '@ir-engine/common/src/config'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { ModelTransformStatus, transformModel } from '@ir-engine/common/src/model/ModelTransformFunctions'
 import {
   LocationData,
   LocationID,
   LocationPatch,
-  locationPath,
   LocationType,
+  engineSettingPath,
+  locationPath,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
 import { Entity, getComponent, hasComponent, iterateEntityNode, setComponent } from '@ir-engine/ecs'
-import { defaultLODs, LODVariantDescriptor } from '@ir-engine/editor/src/constants/GLTFPresets'
+import { LODVariantDescriptor, defaultLODs } from '@ir-engine/editor/src/constants/GLTFPresets'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
@@ -119,6 +121,14 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
 
   const locationMutation = useMutation(locationPath)
 
+  const instanceEngineSettings = useFind(engineSettingPath, {
+    query: {
+      category: 'instance-server',
+      key: EngineSettings.InstanceServer.MaxUsersPerInstance,
+      paginate: false
+    }
+  })
+
   const publishLoading = useHookstate(false)
   const unPublishLoading = useHookstate(false)
   const isNewPublished = useHookstate(false)
@@ -188,8 +198,10 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
     if (!maxUsers.value) {
       errors.maxUsers.set(t('admin:components.location.maxUserCantEmpty'))
     }
-    if (maxUsers.value > LOCATION_MAX) {
-      errors.maxUsers.set(t('admin:components.location.maxUserExceeded'))
+    if (maxUsers.value > parseInt(instanceEngineSettings.data[0].value)) {
+      errors.maxUsers.set(
+        t('admin:components.location.maxUserExceeded', { maxUsers: instanceEngineSettings?.data[0].value })
+      )
     }
     if (!scene.value) {
       errors.scene.set(t('admin:components.location.sceneCantEmpty'))
@@ -223,8 +235,6 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
             entitiesToCompress.push(entity)
           }
         })
-
-        // Process each GLTF entity
         // Process each GLTF entity
         for (const gltfEntity of entitiesToCompress) {
           const gltfComponent = getComponent(gltfEntity, GLTFComponent)
@@ -233,78 +243,66 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
 
           // Set up compression for this entity
           const fileName = srcURL.split('/').pop()!.split('.').shift()!
-          try {
-            const destPath = `${saveScenePath.value}/${scenename}/${fileName}-compressed.gltf`
-            // Export the entity to the publish folder
-            await exportRelativeGLTF(
-              gltfEntity,
-              projectName,
-              'public/publish/' + scenename + '/' + fileName + '-compressed.gltf',
-              false
-            )
-            // Apply model transformation/compression
-            const transformMetadata: Record<string, any>[] = []
-            const progressCaptions: Record<ModelTransformStatus, string> = {
-              [ModelTransformStatus.TransformingModels]: 'editor:properties.model.transform.status.transformingmodels',
-              [ModelTransformStatus.ProcessingTexture]: 'editor:properties.model.transform.status.processingtexture',
-              [ModelTransformStatus.WritingFiles]: 'editor:properties.model.transform.status.writingfiles',
-              [ModelTransformStatus.Complete]: 'editor:properties.model.transform.status.complete'
-            }
-            // Create LOD parameters for this model
-            const lodParams: ModelTransformParameters = {
-              ...defaultLODs[2].params,
-              dst: fileName + '-compressed',
-              modelFormat: new URL(srcURL).pathname.endsWith('.gltf')
-                ? 'gltf'
-                : new URL(srcURL).pathname.endsWith('.vrm')
-                ? 'vrm'
-                : 'glb',
-              resourceUri: '',
-              adaptiveSimplification: true,
-              textureCompressionType: 'uastc'
-            }
+          const destPath = `${saveScenePath.value}/${scenename}/${fileName}-compressed.gltf`
 
-            progressState.set({
-              progress: progressState.value.progress,
-              caption: `Compressing ${fileName}...`
-            })
-            // transform each of them seperately
-            await transformModel(
-              gltfComponent.src,
-              [lodParams],
-              (i, key, data) => {
-                if (!transformMetadata[i]) transformMetadata[i] = {}
-                transformMetadata[i][key] = data
-              },
-              (progress, status, numerator, denominator) => {
-                const caption = t(progressCaptions[status]!, {
-                  numerator: numerator! + 1,
-                  denominator
-                })
-                progressState.set({
-                  progress: progressState.value.progress + progress / entitiesToCompress.length,
-                  caption
-                })
-              }
-            )
-            // continue if it is scene itself
-            if (fileName == scenename) {
-              EditorControlFunctions.modifyProperty([gltfEntity], GLTFComponent, {
-                src: pathJoin(config.client.fileServer, destPath)
-              })
-              continue
-            }
-            setComponent(gltfEntity, NameComponent, fileName + '-compressed')
-            // Create a new entity with the compressed GLT
-            EditorControlFunctions.modifyProperty([gltfEntity], GLTFComponent, {
-              src: pathJoin(config.client.fileServer, destPath)
-            })
-          } catch (error) {
-            if (fileName == scenename) continue
-            EditorControlFunctions.modifyProperty([gltfEntity], GLTFComponent, {
-              src: gltfComponent.src
-            })
+          // Export the entity to the publish folder
+          await exportRelativeGLTF(
+            gltfEntity,
+            projectName,
+            'public/publish/' + scenename + '/' + fileName + '-compressed.gltf',
+            false
+          )
+
+          // Apply model transformation/compression
+          const transformMetadata: Record<string, any>[] = []
+          const progressCaptions: Record<ModelTransformStatus, string> = {
+            [ModelTransformStatus.TransformingModels]: 'editor:properties.model.transform.status.transformingmodels',
+            [ModelTransformStatus.ProcessingTexture]: 'editor:properties.model.transform.status.processingtexture',
+            [ModelTransformStatus.WritingFiles]: 'editor:properties.model.transform.status.writingfiles',
+            [ModelTransformStatus.Complete]: 'editor:properties.model.transform.status.complete'
           }
+          // Create LOD parameters for this model
+          const lodParams: ModelTransformParameters = {
+            ...defaultLODs[2].params,
+            dst: fileName + '-compressed',
+            modelFormat: new URL(srcURL).pathname.endsWith('.gltf')
+              ? 'gltf'
+              : new URL(srcURL).pathname.endsWith('.vrm')
+              ? 'vrm'
+              : 'glb',
+            resourceUri: '',
+            adaptiveSimplification: true,
+            textureCompressionType: 'uastc'
+          }
+
+          progressState.set({
+            progress: progressState.value.progress,
+            caption: `Compressing ${fileName}...`
+          })
+          // transform each of them seperately
+          await transformModel(
+            pathJoin(config.client.fileServer, destPath),
+            [lodParams],
+            (i, key, data) => {
+              if (!transformMetadata[i]) transformMetadata[i] = {}
+              transformMetadata[i][key] = data
+            },
+            (progress, status, numerator, denominator) => {
+              const caption = t(progressCaptions[status]!, {
+                numerator: numerator! + 1,
+                denominator
+              })
+              progressState.set({
+                progress: progressState.value.progress + progress / entitiesToCompress.length,
+                caption
+              })
+            }
+          )
+          setComponent(gltfEntity, NameComponent, getComponent(gltfEntity, NameComponent) + '-compressed')
+          // Update the entity to use the compressed version
+          EditorControlFunctions.modifyProperty([gltfEntity], GLTFComponent, {
+            src: pathJoin(config.client.fileServer, destPath)
+          })
         }
         //save duplicated scene and publish that
         await saveSceneGLTF(
@@ -315,10 +313,10 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
           true,
           saveScenePath.value + '/' + scenename
         )
-        // await handlePublish(true)
-        // //re-open the original scene
-        // const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${scenePath}`
-        // window.open(studioUrl, '_blank')?.focus()
+        await handlePublish(true)
+        //re-open the original scene
+        const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${scenePath}`
+        window.open(studioUrl, '_blank')?.focus()
         ModalState.closeModal()
         progressState.set({ progress: 0, caption: '' })
       }
