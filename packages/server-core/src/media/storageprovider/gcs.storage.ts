@@ -44,12 +44,15 @@ import { NetworkServicesClient } from '@google-cloud/networkservices'
 import { GetSignedUrlConfig, Storage } from '@google-cloud/storage'
 
 import logger from '../../ServerLogger'
+import { BaseStorageProvider } from './base.storage'
 
 /**
  * Storage provide class to communicate with GCP Cloud Storage API.
  */
-export class GCSStorage implements StorageProviderInterface {
-  constructor() {}
+export class GCSStorage extends BaseStorageProvider implements StorageProviderInterface {
+  constructor() {
+    super()
+  }
   /**
    * Name of GCS bucket.
    */
@@ -346,6 +349,10 @@ export class GCSStorage implements StorageProviderInterface {
     isDirectory = true
   ): Promise<FileBrowserContentType[]> {
     const prefix = folderName.endsWith('/') || !isDirectory ? folderName : folderName + '/'
+
+    // Check if prefix is blacklisted
+    this.checkBlacklistedPrefix(prefix)
+
     const response = await this.provider.bucket(this.bucket).getFiles({
       prefix,
       delimiter: recursive ? undefined : '/',
