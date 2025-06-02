@@ -219,11 +219,21 @@ export async function addMediaNode(
         (entity) => {
           const firstChild = getComponent(entity, EntityTreeComponent).children[0]
           const json = serializeEntity(firstChild)
+
+          const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
+            [...json, ...extraComponentJson],
+            parent!,
+            before,
+            requestedName
+          )
+
           EditorControlFunctions.overwriteLookdevObject([...json, ...extraComponentJson], parent!, before)
           removeEntity(entity)
           const rootEntity = getState(EditorState).rootEntity
           const newSource = GLTFComponent.getSourceID(rootEntity)
           AuthoringState.snapshot(newSource)
+
+          return entityUUID
         }
       )
     } else if (contentType.startsWith('model/prefab')) {

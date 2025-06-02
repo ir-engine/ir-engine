@@ -27,6 +27,7 @@ import {
   AnimationClip,
   BufferAttribute,
   CompressedTexture,
+  CompressedTextureMipmap,
   InterleavedBufferAttribute,
   Light,
   Line,
@@ -319,9 +320,9 @@ const resourceCallbacks = {
         }
       }
       //Compressed texture size
-      if (asset.mipmaps[0]) {
+      if (asset.mipmaps![0]) {
         let size = 0
-        for (const mip of asset.mipmaps) {
+        for (const mip of asset.mipmaps as CompressedTextureMipmap[]) {
           size += mip.data.byteLength
         }
         resource.metadata.size.set(size)

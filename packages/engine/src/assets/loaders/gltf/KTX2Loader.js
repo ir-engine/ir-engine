@@ -41,13 +41,11 @@ Infinite Reality Engine. All Rights Reserved.
 import {
 	Data3DTexture,
 	DataTexture,
-	DisplayP3ColorSpace,
 	FloatType,
 	HalfFloatType,
 	NoColorSpace,
 	LinearFilter,
 	LinearMipmapLinearFilter,
-	LinearDisplayP3ColorSpace,
 	LinearSRGBColorSpace,
 	RedFormat,
 	RGB_ETC1_Format,
@@ -97,6 +95,8 @@ import { FileLoader } from '../base/FileLoader';
 import { Loader } from '../base/Loader';
 import { isClient } from '@ir-engine/hyperflux'
 import { CompressedTexture, CompressedArrayTexture } from 'three';
+
+import { DisplayP3ColorSpace, LinearDisplayP3ColorSpace } from '@ir-engine/spatial/src/threejsPatches'
 
 const _taskCache = new WeakMap();
 

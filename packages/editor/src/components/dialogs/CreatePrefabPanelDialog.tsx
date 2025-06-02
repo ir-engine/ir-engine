@@ -32,7 +32,9 @@ import { isValidFileName } from '@ir-engine/common/src/utils/validateFileName'
 import {
   Component,
   Entity,
+  EntityID,
   EntityTreeComponent,
+  SourceID,
   UUIDComponent,
   createEntity,
   getComponent,
@@ -46,13 +48,14 @@ import PrefabConfirmationPanelDialog from '@ir-engine/editor/src/components/dial
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
-import { getMutableState, getState, startReactor, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, getState, none, startReactor, useHookstate } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
 import { Button, Input } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
+import { uniqueId } from 'lodash'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineXMark } from 'react-icons/hi2'
@@ -62,12 +65,17 @@ import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 
+type PrefabTagType = Readonly<{
+  id: string
+  value: string
+}>
+
 export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?: Entity; isExportLookDev?: boolean }) {
   const isLoading = useHookstate(false)
   const defaultPrefabFolder = useHookstate<string>('assets/custom-prefabs')
   const prefabName = useHookstate<string>('prefab')
   const resultFileName = useHookstate(isValidFileName(prefabName.value))
-  const prefabTag = useHookstate<string[]>(['prefab'])
+  const prefabTag = useHookstate<PrefabTagType[]>([{ id: uniqueId('tag-'), value: 'prefab' }])
   const { t } = useTranslation()
   const isOverwriteModalVisible = useHookstate(false)
   const isOverwriteConfirmed = useHookstate(false)
@@ -92,6 +100,10 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
     ]
     const prefabEntity = createEntity()
     const obj = new Scene()
+    setComponent(prefabEntity, UUIDComponent, {
+      entitySourceID: UUIDComponent.generate() as string as SourceID,
+      entityID: 'temp-prefab' as EntityID
+    })
     setComponent(prefabEntity, ObjectComponent, obj)
     const rootEntity = getState(EditorState).rootEntity
     iterateEntityNode(rootEntity, (entity) => {
@@ -120,7 +132,7 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
       throw new Error('User not found')
     }
     const resource = resources.data[0]
-    const tags = [...prefabTag.value]
+    const tags = prefabTag.value.map(({ value }) => value)
     tags.push('Lookdev')
     await API.instance.service(staticResourcePath).patch(resource.id, { tags: tags, project: srcProject })
     setComponent(prefabEntity, NameComponent, 'temp prefab')
@@ -151,7 +163,7 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
       throw new Error('User not found')
     }
     const resource = resources.data[0]
-    const tags = [...prefabTag.value]
+    const tags = prefabTag.value.map(({ value }) => value)
     await API.instance.service(staticResourcePath).patch(resource.id, { tags: tags, project: srcProject })
 
     EditorControlFunctions.removeObject([entity])
@@ -258,7 +270,7 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
                   variant="tertiary"
                   className="text-left text-xs"
                   onClick={() => {
-                    prefabTag.set([...(prefabTag.value ?? []), ''])
+                    prefabTag.merge([{ id: uniqueId('tag-'), value: '' }])
                   }}
                 >
                   {t('editor:layout.filebrowser.fileProperties.addTag')}
@@ -266,21 +278,19 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
                 {(prefabTag.value ?? []).map((tag, index) => (
                   <Input
                     fullWidth
-                    key={tag + index}
+                    key={tag.id}
                     labelProps={{
                       text: t('editor:layout.filebrowser.fileProperties.tag'),
                       position: 'top'
                     }}
                     onChange={(event) => {
-                      const tags = [...prefabTag.value]
-                      tags[index] = event.target.value
-                      prefabTag.set(tags)
+                      prefabTag[index].set({ id: tag.id, value: event.target.value })
                     }}
-                    value={prefabTag.value[index]}
+                    value={tag.value}
                     endComponent={
                       <Button
                         onClick={() => {
-                          prefabTag.set(prefabTag.value.filter((_, i) => i !== index))
+                          prefabTag[index].set(none)
                         }}
                         size="sm"
                         variant="tertiary"

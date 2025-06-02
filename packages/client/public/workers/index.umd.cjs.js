@@ -27,26 +27,7 @@ Infinite Reality Engine. All Rights Reserved.
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('three')) :
 	typeof define === 'function' && define.amd ? define(['exports', 'three'], factory) :
 	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.MeshBVHLib = global.MeshBVHLib || {}, global.THREE));
-})(this, (function (exports, THREE) { 'use strict';
-
-	function _interopNamespaceDefault(e) {
-		var n = Object.create(null);
-		if (e) {
-			Object.keys(e).forEach(function (k) {
-				if (k !== 'default') {
-					var d = Object.getOwnPropertyDescriptor(e, k);
-					Object.defineProperty(n, k, d.get ? d : {
-						enumerable: true,
-						get: function () { return e[k]; }
-					});
-				}
-			});
-		}
-		n.default = e;
-		return Object.freeze(n);
-	}
-
-	var THREE__namespace = /*#__PURE__*/_interopNamespaceDefault(THREE);
+})(this, (function (exports, three) { 'use strict';
 
 	// Split strategy constants
 	const CENTER = 0;
@@ -110,7 +91,7 @@ Infinite Reality Engine. All Rights Reserved.
 			const vertexCount = geo.attributes.position.count;
 			const BufferConstructor = options.useSharedArrayBuffer ? SharedArrayBuffer : ArrayBuffer;
 			const index = getIndexArray( vertexCount, BufferConstructor );
-			geo.setIndex( new THREE.BufferAttribute( index, 1 ) );
+			geo.setIndex( new three.BufferAttribute( index, 1 ) );
 
 			for ( let i = 0; i < vertexCount; i ++ ) {
 
@@ -287,7 +268,7 @@ Infinite Reality Engine. All Rights Reserved.
 		let triangleBounds;
 		if ( target === null ) {
 
-			triangleBounds = new Float32Array( triCount * 6 * 4 );
+			triangleBounds = new Float32Array( triCount * 6 );
 			offset = 0;
 			count = triCount;
 
@@ -1305,7 +1286,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 	SeparatingAxisBounds.prototype.setFromBox = ( function () {
 
-		const p = new THREE.Vector3();
+		const p = new three.Vector3();
 		return function setFromBox( axis, box ) {
 
 			const boxMin = box.min;
@@ -1379,9 +1360,9 @@ Infinite Reality Engine. All Rights Reserved.
 	const closestPointLineToLine = ( function () {
 
 		// https://github.com/juj/MathGeoLib/blob/master/src/Geometry/Line.cpp#L56
-		const dir1 = new THREE.Vector3();
-		const dir2 = new THREE.Vector3();
-		const v02 = new THREE.Vector3();
+		const dir1 = new three.Vector3();
+		const dir2 = new three.Vector3();
+		const v02 = new three.Vector3();
 		return function closestPointLineToLine( l1, l2, result ) {
 
 			const v0 = l1.start;
@@ -1434,9 +1415,9 @@ Infinite Reality Engine. All Rights Reserved.
 	const closestPointsSegmentToSegment = ( function () {
 
 		// https://github.com/juj/MathGeoLib/blob/master/src/Geometry/LineSegment.cpp#L187
-		const paramResult = new THREE.Vector2();
-		const temp1 = new THREE.Vector3();
-		const temp2 = new THREE.Vector3();
+		const paramResult = new three.Vector2();
+		const temp1 = new three.Vector3();
+		const temp2 = new three.Vector3();
 		return function closestPointsSegmentToSegment( l1, l2, target1, target2 ) {
 
 			closestPointLineToLine( l1, l2, paramResult );
@@ -1536,10 +1517,10 @@ Infinite Reality Engine. All Rights Reserved.
 	const sphereIntersectTriangle = ( function () {
 
 		// https://stackoverflow.com/questions/34043955/detect-collision-between-sphere-and-triangle-in-three-js
-		const closestPointTemp = new THREE.Vector3();
-		const projectedPointTemp = new THREE.Vector3();
-		const planeTemp = new THREE.Plane();
-		const lineTemp = new THREE.Line3();
+		const closestPointTemp = new three.Vector3();
+		const projectedPointTemp = new three.Vector3();
+		const planeTemp = new three.Plane();
+		const lineTemp = new three.Line3();
 		return function sphereIntersectTriangle( sphere, triangle ) {
 
 			const { radius, center } = sphere;
@@ -1585,18 +1566,18 @@ Infinite Reality Engine. All Rights Reserved.
 
 	}
 
-	class ExtendedTriangle extends THREE.Triangle {
+	class ExtendedTriangle extends three.Triangle {
 
 		constructor( ...args ) {
 
 			super( ...args );
 
 			this.isExtendedTriangle = true;
-			this.satAxes = new Array( 4 ).fill().map( () => new THREE.Vector3() );
+			this.satAxes = new Array( 4 ).fill().map( () => new three.Vector3() );
 			this.satBounds = new Array( 4 ).fill().map( () => new SeparatingAxisBounds() );
 			this.points = [ this.a, this.b, this.c ];
-			this.sphere = new THREE.Sphere();
-			this.plane = new THREE.Plane();
+			this.sphere = new three.Sphere();
+			this.plane = new three.Plane();
 			this.needsUpdate = true;
 
 		}
@@ -1647,9 +1628,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 	ExtendedTriangle.prototype.closestPointToSegment = ( function () {
 
-		const point1 = new THREE.Vector3();
-		const point2 = new THREE.Vector3();
-		const edge = new THREE.Line3();
+		const point1 = new three.Vector3();
+		const point2 = new three.Vector3();
+		const edge = new three.Line3();
 
 		return function distanceToSegment( segment, target1 = null, target2 = null ) {
 
@@ -1712,15 +1693,15 @@ Infinite Reality Engine. All Rights Reserved.
 		const arr2 = new Array( 3 );
 		const cachedSatBounds = new SeparatingAxisBounds();
 		const cachedSatBounds2 = new SeparatingAxisBounds();
-		const cachedAxis = new THREE.Vector3();
-		const dir = new THREE.Vector3();
-		const dir1 = new THREE.Vector3();
-		const dir2 = new THREE.Vector3();
-		const tempDir = new THREE.Vector3();
-		const edge = new THREE.Line3();
-		const edge1 = new THREE.Line3();
-		const edge2 = new THREE.Line3();
-		const tempPoint = new THREE.Vector3();
+		const cachedAxis = new three.Vector3();
+		const dir = new three.Vector3();
+		const dir1 = new three.Vector3();
+		const dir2 = new three.Vector3();
+		const tempDir = new three.Vector3();
+		const edge = new three.Line3();
+		const edge1 = new three.Line3();
+		const edge2 = new three.Line3();
+		const tempPoint = new three.Vector3();
 
 		function triIntersectPlane( tri, plane, targetEdge ) {
 
@@ -1986,7 +1967,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 	ExtendedTriangle.prototype.distanceToPoint = ( function () {
 
-		const target = new THREE.Vector3();
+		const target = new three.Vector3();
 		return function distanceToPoint( point ) {
 
 			this.closestPointToPoint( point, target );
@@ -1999,11 +1980,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 	ExtendedTriangle.prototype.distanceToTriangle = ( function () {
 
-		const point = new THREE.Vector3();
-		const point2 = new THREE.Vector3();
+		const point = new three.Vector3();
+		const point2 = new three.Vector3();
 		const cornerFields = [ 'a', 'b', 'c' ];
-		const line1 = new THREE.Line3();
-		const line2 = new THREE.Line3();
+		const line1 = new three.Line3();
+		const line2 = new three.Line3();
 
 		return function distanceToTriangle( other, target1 = null, target2 = null ) {
 
@@ -2094,12 +2075,12 @@ Infinite Reality Engine. All Rights Reserved.
 		constructor( min, max, matrix ) {
 
 			this.isOrientedBox = true;
-			this.min = new THREE.Vector3();
-			this.max = new THREE.Vector3();
-			this.matrix = new THREE.Matrix4();
-			this.invMatrix = new THREE.Matrix4();
-			this.points = new Array( 8 ).fill().map( () => new THREE.Vector3() );
-			this.satAxes = new Array( 3 ).fill().map( () => new THREE.Vector3() );
+			this.min = new three.Vector3();
+			this.max = new three.Vector3();
+			this.matrix = new three.Matrix4();
+			this.invMatrix = new three.Matrix4();
+			this.points = new Array( 8 ).fill().map( () => new three.Vector3() );
+			this.satAxes = new Array( 3 ).fill().map( () => new three.Vector3() );
 			this.satBounds = new Array( 3 ).fill().map( () => new SeparatingAxisBounds() );
 			this.alignedSatBounds = new Array( 3 ).fill().map( () => new SeparatingAxisBounds() );
 			this.needsUpdate = false;
@@ -2237,7 +2218,7 @@ Infinite Reality Engine. All Rights Reserved.
 		const pointsArr = new Array( 3 );
 		const cachedSatBounds = new SeparatingAxisBounds();
 		const cachedSatBounds2 = new SeparatingAxisBounds();
-		const cachedAxis = new THREE.Vector3();
+		const cachedAxis = new three.Vector3();
 		return function intersectsTriangle( triangle ) {
 
 			if ( this.needsUpdate ) {
@@ -2332,7 +2313,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 	OrientedBox.prototype.distanceToPoint = ( function () {
 
-		const target = new THREE.Vector3();
+		const target = new three.Vector3();
 		return function distanceToPoint( point ) {
 
 			this.closestPointToPoint( point, target );
@@ -2345,11 +2326,11 @@ Infinite Reality Engine. All Rights Reserved.
 	OrientedBox.prototype.distanceToBox = ( function () {
 
 		const xyzFields = [ 'x', 'y', 'z' ];
-		const segments1 = new Array( 12 ).fill().map( () => new THREE.Line3() );
-		const segments2 = new Array( 12 ).fill().map( () => new THREE.Line3() );
+		const segments1 = new Array( 12 ).fill().map( () => new three.Line3() );
+		const segments2 = new Array( 12 ).fill().map( () => new three.Line3() );
 
-		const point1 = new THREE.Vector3();
-		const point2 = new THREE.Vector3();
+		const point1 = new three.Vector3();
+		const point2 = new three.Vector3();
 
 		// early out if we find a value below threshold
 		return function distanceToBox( box, threshold = 0, target1 = null, target2 = null ) {
@@ -2598,7 +2579,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 	let _box1$1, _box2$1;
 	const boxStack = [];
-	const boxPool = /* @__PURE__ */ new PrimitivePool( () => new THREE.Box3() );
+	const boxPool = /* @__PURE__ */ new PrimitivePool( () => new three.Box3() );
 
 	function shapecast( bvh, root, intersectsBounds, intersectsRange, boundsTraverseOrder, byteOffset ) {
 
@@ -2804,8 +2785,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 	}
 
-	const temp = /* @__PURE__ */ new THREE.Vector3();
-	const temp1$2 = /* @__PURE__ */ new THREE.Vector3();
+	const temp = /* @__PURE__ */ new three.Vector3();
+	const temp1$2 = /* @__PURE__ */ new three.Vector3();
 
 	function closestPointToPoint(
 		bvh,
@@ -2881,31 +2862,33 @@ Infinite Reality Engine. All Rights Reserved.
 
 	}
 
+	const IS_GT_REVISION_169 = parseInt( three.REVISION ) >= 169;
+
 	// Ripped and modified From THREE.js Mesh raycast
 	// https://github.com/mrdoob/three.js/blob/0aa87c999fe61e216c1133fba7a95772b503eddf/src/objects/Mesh.js#L115
-	const _vA = /* @__PURE__ */ new THREE.Vector3();
-	const _vB = /* @__PURE__ */ new THREE.Vector3();
-	const _vC = /* @__PURE__ */ new THREE.Vector3();
+	const _vA = /* @__PURE__ */ new three.Vector3();
+	const _vB = /* @__PURE__ */ new three.Vector3();
+	const _vC = /* @__PURE__ */ new three.Vector3();
 
-	const _uvA = /* @__PURE__ */ new THREE.Vector2();
-	const _uvB = /* @__PURE__ */ new THREE.Vector2();
-	const _uvC = /* @__PURE__ */ new THREE.Vector2();
+	const _uvA = /* @__PURE__ */ new three.Vector2();
+	const _uvB = /* @__PURE__ */ new three.Vector2();
+	const _uvC = /* @__PURE__ */ new three.Vector2();
 
-	const _normalA = /* @__PURE__ */ new THREE.Vector3();
-	const _normalB = /* @__PURE__ */ new THREE.Vector3();
-	const _normalC = /* @__PURE__ */ new THREE.Vector3();
+	const _normalA = /* @__PURE__ */ new three.Vector3();
+	const _normalB = /* @__PURE__ */ new three.Vector3();
+	const _normalC = /* @__PURE__ */ new three.Vector3();
 
-	const _intersectionPoint = /* @__PURE__ */ new THREE.Vector3();
+	const _intersectionPoint = /* @__PURE__ */ new three.Vector3();
 	function checkIntersection( ray, pA, pB, pC, point, side, near, far ) {
 
 		let intersect;
-		if ( side === THREE.BackSide ) {
+		if ( side === three.BackSide ) {
 
 			intersect = ray.intersectTriangle( pC, pB, pA, true, point );
 
 		} else {
 
-			intersect = ray.intersectTriangle( pA, pB, pC, side !== THREE.DoubleSide, point );
+			intersect = ray.intersectTriangle( pA, pB, pC, side !== three.DoubleSide, point );
 
 		}
 
@@ -2934,13 +2917,16 @@ Infinite Reality Engine. All Rights Reserved.
 
 		if ( intersection ) {
 
+			const barycoord = new three.Vector3();
+			three.Triangle.getBarycoord( _intersectionPoint, _vA, _vB, _vC, barycoord );
+
 			if ( uv ) {
 
 				_uvA.fromBufferAttribute( uv, a );
 				_uvB.fromBufferAttribute( uv, b );
 				_uvC.fromBufferAttribute( uv, c );
 
-				intersection.uv = THREE.Triangle.getInterpolation( _intersectionPoint, _vA, _vB, _vC, _uvA, _uvB, _uvC, new THREE.Vector2() );
+				intersection.uv = three.Triangle.getInterpolation( _intersectionPoint, _vA, _vB, _vC, _uvA, _uvB, _uvC, new three.Vector2() );
 
 			}
 
@@ -2950,7 +2936,7 @@ Infinite Reality Engine. All Rights Reserved.
 				_uvB.fromBufferAttribute( uv1, b );
 				_uvC.fromBufferAttribute( uv1, c );
 
-				intersection.uv1 = THREE.Triangle.getInterpolation( _intersectionPoint, _vA, _vB, _vC, _uvA, _uvB, _uvC, new THREE.Vector2() );
+				intersection.uv1 = three.Triangle.getInterpolation( _intersectionPoint, _vA, _vB, _vC, _uvA, _uvB, _uvC, new three.Vector2() );
 
 			}
 
@@ -2960,7 +2946,7 @@ Infinite Reality Engine. All Rights Reserved.
 				_normalB.fromBufferAttribute( normal, b );
 				_normalC.fromBufferAttribute( normal, c );
 
-				intersection.normal = THREE.Triangle.getInterpolation( _intersectionPoint, _vA, _vB, _vC, _normalA, _normalB, _normalC, new THREE.Vector3() );
+				intersection.normal = three.Triangle.getInterpolation( _intersectionPoint, _vA, _vB, _vC, _normalA, _normalB, _normalC, new three.Vector3() );
 				if ( intersection.normal.dot( ray.direction ) > 0 ) {
 
 					intersection.normal.multiplyScalar( - 1 );
@@ -2973,14 +2959,20 @@ Infinite Reality Engine. All Rights Reserved.
 				a: a,
 				b: b,
 				c: c,
-				normal: new THREE.Vector3(),
+				normal: new three.Vector3(),
 				materialIndex: 0
 			};
 
-			THREE.Triangle.getNormal( _vA, _vB, _vC, face.normal );
+			three.Triangle.getNormal( _vA, _vB, _vC, face.normal );
 
 			intersection.face = face;
 			intersection.faceIndex = a;
+
+			if ( IS_GT_REVISION_169 ) {
+
+				intersection.barycoord = barycoord;
+
+			}
 
 		}
 
@@ -3052,12 +3044,12 @@ Infinite Reality Engine. All Rights Reserved.
 
 	}
 
-	const tempV1 = /* @__PURE__ */ new THREE.Vector3();
-	const tempV2 = /* @__PURE__ */ new THREE.Vector3();
-	const tempV3 = /* @__PURE__ */ new THREE.Vector3();
-	const tempUV1 = /* @__PURE__ */ new THREE.Vector2();
-	const tempUV2 = /* @__PURE__ */ new THREE.Vector2();
-	const tempUV3 = /* @__PURE__ */ new THREE.Vector2();
+	const tempV1 = /* @__PURE__ */ new three.Vector3();
+	const tempV2 = /* @__PURE__ */ new three.Vector3();
+	const tempV3 = /* @__PURE__ */ new three.Vector3();
+	const tempUV1 = /* @__PURE__ */ new three.Vector2();
+	const tempUV2 = /* @__PURE__ */ new three.Vector2();
+	const tempUV3 = /* @__PURE__ */ new three.Vector2();
 
 	function getTriangleHitPointInfo( point, geometry, triangleIndex, target ) {
 
@@ -3090,6 +3082,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 		}
 
+		// extract barycoord
+		const barycoord = target && target.barycoord ? target.barycoord : new three.Vector3();
+		three.Triangle.getBarycoord( point, tempV1, tempV2, tempV3, barycoord );
+
 		// extract uvs
 		let uv = null;
 		if ( uvs ) {
@@ -3099,9 +3095,9 @@ Infinite Reality Engine. All Rights Reserved.
 			tempUV3.fromBufferAttribute( uvs, c );
 
 			if ( target && target.uv ) uv = target.uv;
-			else uv = new THREE.Vector2();
+			else uv = new three.Vector2();
 
-			THREE.Triangle.getInterpolation( point, tempV1, tempV2, tempV3, tempUV1, tempUV2, tempUV3, uv );
+			three.Triangle.getInterpolation( point, tempV1, tempV2, tempV3, tempUV1, tempUV2, tempUV3, uv );
 
 		}
 
@@ -3113,10 +3109,11 @@ Infinite Reality Engine. All Rights Reserved.
 			target.face.b = b;
 			target.face.c = c;
 			target.face.materialIndex = materialIndex;
-			if ( ! target.face.normal ) target.face.normal = new THREE.Vector3();
-			THREE.Triangle.getNormal( tempV1, tempV2, tempV3, target.face.normal );
+			if ( ! target.face.normal ) target.face.normal = new three.Vector3();
+			three.Triangle.getNormal( tempV1, tempV2, tempV3, target.face.normal );
 
 			if ( uv ) target.uv = uv;
+			target.barycoord = barycoord;
 
 			return target;
 
@@ -3128,9 +3125,10 @@ Infinite Reality Engine. All Rights Reserved.
 					b: b,
 					c: c,
 					materialIndex: materialIndex,
-					normal: THREE.Triangle.getNormal( tempV1, tempV2, tempV3, new THREE.Vector3() )
+					normal: three.Triangle.getNormal( tempV1, tempV2, tempV3, new three.Vector3() )
 				},
-				uv: uv
+				uv: uv,
+				barycoord: barycoord,
 			};
 
 		}
@@ -3684,10 +3682,10 @@ Infinite Reality Engine. All Rights Reserved.
 	/*****************************************************************/
 	/* eslint-disable indent */
 
-	const boundingBox$2 = /* @__PURE__ */ new THREE.Box3();
+	const boundingBox$2 = /* @__PURE__ */ new three.Box3();
 	const triangle$1 = /* @__PURE__ */ new ExtendedTriangle();
 	const triangle2$1 = /* @__PURE__ */ new ExtendedTriangle();
-	const invertedMat$1 = /* @__PURE__ */ new THREE.Matrix4();
+	const invertedMat$1 = /* @__PURE__ */ new three.Matrix4();
 
 	const obb$4 = /* @__PURE__ */ new OrientedBox();
 	const obb2$3 = /* @__PURE__ */ new OrientedBox();
@@ -3843,13 +3841,13 @@ Infinite Reality Engine. All Rights Reserved.
 	/* This file is generated from "closestPointToGeometry.template.js". */
 	/*********************************************************************/
 
-	const tempMatrix$1 = /* @__PURE__ */ new THREE.Matrix4();
+	const tempMatrix$1 = /* @__PURE__ */ new three.Matrix4();
 	const obb$3 = /* @__PURE__ */ new OrientedBox();
 	const obb2$2 = /* @__PURE__ */ new OrientedBox();
-	const temp1$1 = /* @__PURE__ */ new THREE.Vector3();
-	const temp2$1 = /* @__PURE__ */ new THREE.Vector3();
-	const temp3$1 = /* @__PURE__ */ new THREE.Vector3();
-	const temp4$1 = /* @__PURE__ */ new THREE.Vector3();
+	const temp1$1 = /* @__PURE__ */ new three.Vector3();
+	const temp2$1 = /* @__PURE__ */ new three.Vector3();
+	const temp3$1 = /* @__PURE__ */ new three.Vector3();
+	const temp4$1 = /* @__PURE__ */ new three.Vector3();
 
 	function closestPointToGeometry(
 		bvh,
@@ -4408,10 +4406,10 @@ Infinite Reality Engine. All Rights Reserved.
 	/*****************************************************************/
 	/* eslint-disable indent */
 
-	const boundingBox$1 = /* @__PURE__ */ new THREE.Box3();
+	const boundingBox$1 = /* @__PURE__ */ new three.Box3();
 	const triangle = /* @__PURE__ */ new ExtendedTriangle();
 	const triangle2 = /* @__PURE__ */ new ExtendedTriangle();
-	const invertedMat = /* @__PURE__ */ new THREE.Matrix4();
+	const invertedMat = /* @__PURE__ */ new three.Matrix4();
 
 	const obb$2 = /* @__PURE__ */ new OrientedBox();
 	const obb2$1 = /* @__PURE__ */ new OrientedBox();
@@ -4565,13 +4563,13 @@ Infinite Reality Engine. All Rights Reserved.
 	/* This file is generated from "closestPointToGeometry.template.js". */
 	/*********************************************************************/
 
-	const tempMatrix = /* @__PURE__ */ new THREE.Matrix4();
+	const tempMatrix = /* @__PURE__ */ new three.Matrix4();
 	const obb$1 = /* @__PURE__ */ new OrientedBox();
 	const obb2 = /* @__PURE__ */ new OrientedBox();
-	const temp1 = /* @__PURE__ */ new THREE.Vector3();
-	const temp2 = /* @__PURE__ */ new THREE.Vector3();
-	const temp3 = /* @__PURE__ */ new THREE.Vector3();
-	const temp4 = /* @__PURE__ */ new THREE.Vector3();
+	const temp1 = /* @__PURE__ */ new three.Vector3();
+	const temp2 = /* @__PURE__ */ new three.Vector3();
+	const temp3 = /* @__PURE__ */ new three.Vector3();
+	const temp4 = /* @__PURE__ */ new three.Vector3();
 
 	function closestPointToGeometry_indirect(
 		bvh,
@@ -4854,12 +4852,12 @@ Infinite Reality Engine. All Rights Reserved.
 
 	const _bufferStack1 = new BufferStack.constructor();
 	const _bufferStack2 = new BufferStack.constructor();
-	const _boxPool = new PrimitivePool( () => new THREE.Box3() );
-	const _leftBox1 = new THREE.Box3();
-	const _rightBox1 = new THREE.Box3();
+	const _boxPool = new PrimitivePool( () => new three.Box3() );
+	const _leftBox1 = new three.Box3();
+	const _rightBox1 = new three.Box3();
 
-	const _leftBox2 = new THREE.Box3();
-	const _rightBox2 = new THREE.Box3();
+	const _leftBox2 = new three.Box3();
+	const _rightBox2 = new three.Box3();
 
 	let _active = false;
 
@@ -4878,7 +4876,7 @@ Infinite Reality Engine. All Rights Reserved.
 		let result;
 		let offset1 = 0;
 		let offset2 = 0;
-		const invMat = new THREE.Matrix4().copy( matrixToLocal ).invert();
+		const invMat = new three.Matrix4().copy( matrixToLocal ).invert();
 
 		// iterate over the first set of roots
 		for ( let i = 0, il = roots.length; i < il; i ++ ) {
@@ -5161,7 +5159,7 @@ Infinite Reality Engine. All Rights Reserved.
 	}
 
 	const obb = /* @__PURE__ */ new OrientedBox();
-	const tempBox = /* @__PURE__ */ new THREE.Box3();
+	const tempBox = /* @__PURE__ */ new three.Box3();
 	const DEFAULT_OPTIONS = {
 		strategy: CENTER,
 		maxDepth: 40,
@@ -5228,7 +5226,7 @@ Infinite Reality Engine. All Rights Reserved.
 				const indexAttribute = geometry.getIndex();
 				if ( indexAttribute === null ) {
 
-					const newIndex = new THREE.BufferAttribute( data.index, 1, false );
+					const newIndex = new three.BufferAttribute( data.index, 1, false );
 					geometry.setIndex( newIndex );
 
 				} else if ( indexAttribute.array !== index ) {
@@ -5291,7 +5289,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 				if ( ! geometry.boundingBox && options.setBoundingBox ) {
 
-					geometry.boundingBox = this.getBoundingBox( new THREE.Box3() );
+					geometry.boundingBox = this.getBoundingBox( new three.Box3() );
 
 				}
 
@@ -5347,7 +5345,7 @@ Infinite Reality Engine. All Rights Reserved.
 		}
 
 		/* Core Cast Functions */
-		raycast( ray, materialOrSide = THREE.FrontSide, near = 0, far = Infinity ) {
+		raycast( ray, materialOrSide = three.FrontSide, near = 0, far = Infinity ) {
 
 			const roots = this._roots;
 			const geometry = this.geometry;
@@ -5382,7 +5380,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 		}
 
-		raycastFirst( ray, materialOrSide = THREE.FrontSide, near = 0, far = Infinity ) {
+		raycastFirst( ray, materialOrSide = three.FrontSide, near = 0, far = Infinity ) {
 
 			const roots = this._roots;
 			const geometry = this.geometry;
@@ -5683,10 +5681,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 	}
 
-	const boundingBox = /* @__PURE__ */ new THREE.Box3();
-	const matrix = /* @__PURE__ */ new THREE.Matrix4();
+	const boundingBox = /* @__PURE__ */ new three.Box3();
+	const matrix = /* @__PURE__ */ new three.Matrix4();
 
-	class MeshBVHRootHelper extends THREE.Object3D {
+	class MeshBVHRootHelper extends three.Object3D {
 
 		get isMesh() {
 
@@ -5709,7 +5707,7 @@ Infinite Reality Engine. All Rights Reserved.
 		getVertexPosition( ...args ) {
 
 			// implement this function so it works with Box3.setFromObject
-			return THREE.Mesh.prototype.getVertexPosition.call( this, ...args );
+			return three.Mesh.prototype.getVertexPosition.call( this, ...args );
 
 		}
 
@@ -5718,7 +5716,7 @@ Infinite Reality Engine. All Rights Reserved.
 			super();
 
 			this.material = material;
-			this.geometry = new THREE.BufferGeometry();
+			this.geometry = new three.BufferGeometry();
 			this.name = 'MeshBVHRootHelper';
 			this.depth = depth;
 			this.displayParents = false;
@@ -5875,11 +5873,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 				// update the geometry
 				geometry.setIndex(
-					new THREE.BufferAttribute( indexArray, 1, false ),
+					new three.BufferAttribute( indexArray, 1, false ),
 				);
 				geometry.setAttribute(
 					'position',
-					new THREE.BufferAttribute( positionArray, 3, false ),
+					new three.BufferAttribute( positionArray, 3, false ),
 				);
 				this.visible = true;
 
@@ -5889,7 +5887,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 	}
 
-	class MeshBVHHelper extends THREE.Group {
+	class MeshBVHHelper extends three.Group {
 
 		get color() {
 
@@ -5940,14 +5938,14 @@ Infinite Reality Engine. All Rights Reserved.
 			this.objectIndex = 0;
 			this._roots = [];
 
-			const edgeMaterial = new THREE.LineBasicMaterial( {
+			const edgeMaterial = new three.LineBasicMaterial( {
 				color: 0x00FF88,
 				transparent: true,
 				opacity: 0.3,
 				depthWrite: false,
 			} );
 
-			const meshMaterial = new THREE.MeshBasicMaterial( {
+			const meshMaterial = new three.MeshBasicMaterial( {
 				color: 0x00FF88,
 				transparent: true,
 				opacity: 0.3,
@@ -6100,9 +6098,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 	}
 
-	const _box1 = /* @__PURE__ */ new THREE.Box3();
-	const _box2 = /* @__PURE__ */ new THREE.Box3();
-	const _vec = /* @__PURE__ */ new THREE.Vector3();
+	const _box1 = /* @__PURE__ */ new three.Box3();
+	const _box2 = /* @__PURE__ */ new three.Box3();
+	const _vec = /* @__PURE__ */ new three.Vector3();
 
 	// https://stackoverflow.com/questions/1248302/how-to-get-the-size-of-a-javascript-object
 	function getPrimitiveSize( el ) {
@@ -6347,7 +6345,7 @@ Infinite Reality Engine. All Rights Reserved.
 		bvh.traverse( ( depth, isLeaf, boundingData, offset, count ) => {
 
 			const info = {
-				bounds: arrayToBox( 0, boundingData, new THREE.Box3() ),
+				bounds: arrayToBox( 0, boundingData, new three.Box3() ),
 			};
 
 			if ( isLeaf ) {
@@ -6404,15 +6402,14 @@ Infinite Reality Engine. All Rights Reserved.
 
 	}
 
-	const BatchedMesh = THREE__namespace.BatchedMesh || null; // this is necessary to not break three.js r157-
-	const IS_REVISION_166 = parseInt( THREE.REVISION ) >= 166;
-	const ray = /* @__PURE__ */ new THREE.Ray();
-	const direction = /* @__PURE__ */ new THREE.Vector3();
-	const tmpInverseMatrix = /* @__PURE__ */ new THREE.Matrix4();
-	const origMeshRaycastFunc = THREE.Mesh.prototype.raycast;
-	const origBatchedRaycastFunc = BatchedMesh !== null ? BatchedMesh.prototype.raycast : null;
-	const _worldScale = /* @__PURE__ */ new THREE.Vector3();
-	const _mesh = /* @__PURE__ */ new THREE.Mesh();
+	const IS_REVISION_166 = parseInt( three.REVISION ) >= 166;
+	const ray = /* @__PURE__ */ new three.Ray();
+	const direction = /* @__PURE__ */ new three.Vector3();
+	const tmpInverseMatrix = /* @__PURE__ */ new three.Matrix4();
+	const origMeshRaycastFunc = three.Mesh.prototype.raycast;
+	const origBatchedRaycastFunc = three.BatchedMesh.prototype.raycast;
+	const _worldScale = /* @__PURE__ */ new three.Vector3();
+	const _mesh = /* @__PURE__ */ new three.Mesh();
 	const _batchIntersects = [];
 
 	function acceleratedRaycast( raycaster, intersects ) {
@@ -6433,9 +6430,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 		if ( this.boundsTrees ) {
 
+			// TODO: remove use of geometry info, instance info when r170 is minimum version
 			const boundsTrees = this.boundsTrees;
-			const drawInfo = this._drawInfo;
-			const drawRanges = this._drawRanges;
+			const drawInfo = this._drawInfo || this._instanceInfo;
+			const drawRanges = this._drawRanges || this._geometryInfo;
 			const matrixWorld = this.matrixWorld;
 
 			_mesh.material = this.material;
@@ -6446,7 +6444,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 			if ( _mesh.geometry.boundingSphere === null ) {
 
-				_mesh.geometry.boundingSphere = new THREE.Sphere();
+				_mesh.geometry.boundingSphere = new three.Sphere();
 
 			}
 
@@ -6587,7 +6585,7 @@ Infinite Reality Engine. All Rights Reserved.
 			range: null
 		};
 
-		const drawRanges = this._drawRanges;
+		const drawRanges = this._drawRanges || this._geometryInfo;
 		const geometryCount = this._geometryCount;
 		if ( ! this.boundsTrees ) {
 
@@ -6665,10 +6663,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 		switch ( count ) {
 
-			case 1: return THREE.RedFormat;
-			case 2: return THREE.RGFormat;
-			case 3: return THREE.RGBAFormat;
-			case 4: return THREE.RGBAFormat;
+			case 1: return three.RedFormat;
+			case 2: return three.RGFormat;
+			case 3: return three.RGBAFormat;
+			case 4: return three.RGBAFormat;
 
 		}
 
@@ -6678,22 +6676,22 @@ Infinite Reality Engine. All Rights Reserved.
 
 		switch ( count ) {
 
-			case 1: return THREE.RedIntegerFormat;
-			case 2: return THREE.RGIntegerFormat;
-			case 3: return THREE.RGBAIntegerFormat;
-			case 4: return THREE.RGBAIntegerFormat;
+			case 1: return three.RedIntegerFormat;
+			case 2: return three.RGIntegerFormat;
+			case 3: return three.RGBAIntegerFormat;
+			case 4: return three.RGBAIntegerFormat;
 
 		}
 
 	}
 
-	class VertexAttributeTexture extends THREE.DataTexture {
+	class VertexAttributeTexture extends three.DataTexture {
 
 		constructor() {
 
 			super();
-			this.minFilter = THREE.NearestFilter;
-			this.magFilter = THREE.NearestFilter;
+			this.minFilter = three.NearestFilter;
+			this.magFilter = three.NearestFilter;
 			this.generateMipmaps = false;
 			this.overrideItemSize = null;
 			this._forcedType = null;
@@ -6732,19 +6730,19 @@ Infinite Reality Engine. All Rights Reserved.
 				switch ( originalBufferCons ) {
 
 					case Float32Array:
-						targetType = THREE.FloatType;
+						targetType = three.FloatType;
 						break;
 
 					case Uint8Array:
 					case Uint16Array:
 					case Uint32Array:
-						targetType = THREE.UnsignedIntType;
+						targetType = three.UnsignedIntType;
 						break;
 
 					case Int8Array:
 					case Int16Array:
 					case Int32Array:
-						targetType = THREE.IntType;
+						targetType = three.IntType;
 						break;
 
 				}
@@ -6756,7 +6754,7 @@ Infinite Reality Engine. All Rights Reserved.
 			let internalFormat = countToStringFormat( itemSize );
 			switch ( targetType ) {
 
-				case THREE.FloatType:
+				case three.FloatType:
 					normalizeValue = 1.0;
 					format = countToFormat( itemSize );
 
@@ -6767,11 +6765,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 						if ( originalBufferCons === Uint8Array ) {
 
-							type = THREE.UnsignedByteType;
+							type = three.UnsignedByteType;
 
 						} else {
 
-							type = THREE.ByteType;
+							type = three.ByteType;
 							internalFormat += '_SNORM';
 
 						}
@@ -6780,13 +6778,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 						targetBufferCons = Float32Array;
 						internalFormat += '32F';
-						type = THREE.FloatType;
+						type = three.FloatType;
 
 					}
 
 					break;
 
-				case THREE.IntType:
+				case three.IntType:
 					internalFormat += byteCount * 8 + 'I';
 					normalizeValue = normalized ? Math.pow( 2, originalBufferCons.BYTES_PER_ELEMENT * 8 - 1 ) : 1.0;
 					format = countToIntFormat( itemSize );
@@ -6794,23 +6792,23 @@ Infinite Reality Engine. All Rights Reserved.
 					if ( byteCount === 1 ) {
 
 						targetBufferCons = Int8Array;
-						type = THREE.ByteType;
+						type = three.ByteType;
 
 					} else if ( byteCount === 2 ) {
 
 						targetBufferCons = Int16Array;
-						type = THREE.ShortType;
+						type = three.ShortType;
 
 					} else {
 
 						targetBufferCons = Int32Array;
-						type = THREE.IntType;
+						type = three.IntType;
 
 					}
 
 					break;
 
-				case THREE.UnsignedIntType:
+				case three.UnsignedIntType:
 					internalFormat += byteCount * 8 + 'UI';
 					normalizeValue = normalized ? Math.pow( 2, originalBufferCons.BYTES_PER_ELEMENT * 8 - 1 ) : 1.0;
 					format = countToIntFormat( itemSize );
@@ -6818,17 +6816,17 @@ Infinite Reality Engine. All Rights Reserved.
 					if ( byteCount === 1 ) {
 
 						targetBufferCons = Uint8Array;
-						type = THREE.UnsignedByteType;
+						type = three.UnsignedByteType;
 
 					} else if ( byteCount === 2 ) {
 
 						targetBufferCons = Uint16Array;
-						type = THREE.UnsignedShortType;
+						type = three.UnsignedShortType;
 
 					} else {
 
 						targetBufferCons = Uint32Array;
-						type = THREE.UnsignedIntType;
+						type = three.UnsignedIntType;
 
 					}
 
@@ -6838,7 +6836,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 			// there will be a mismatch between format length and final length because
 			// RGBFormat and RGBIntegerFormat was removed
-			if ( finalStride === 3 && ( format === THREE.RGBAFormat || format === THREE.RGBAIntegerFormat ) ) {
+			if ( finalStride === 3 && ( format === three.RGBAFormat || format === three.RGBAIntegerFormat ) ) {
 
 				finalStride = 4;
 
@@ -6906,7 +6904,7 @@ Infinite Reality Engine. All Rights Reserved.
 		constructor() {
 
 			super();
-			this._forcedType = THREE.UnsignedIntType;
+			this._forcedType = three.UnsignedIntType;
 
 		}
 
@@ -6917,7 +6915,7 @@ Infinite Reality Engine. All Rights Reserved.
 		constructor() {
 
 			super();
-			this._forcedType = THREE.IntType;
+			this._forcedType = three.IntType;
 
 		}
 
@@ -6929,7 +6927,7 @@ Infinite Reality Engine. All Rights Reserved.
 		constructor() {
 
 			super();
-			this._forcedType = THREE.FloatType;
+			this._forcedType = three.FloatType;
 
 		}
 
@@ -6941,8 +6939,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 			this.index = new UIntVertexAttributeTexture();
 			this.position = new FloatVertexAttributeTexture();
-			this.bvhBounds = new THREE.DataTexture();
-			this.bvhContents = new THREE.DataTexture();
+			this.bvhBounds = new three.DataTexture();
+			this.bvhContents = new three.DataTexture();
 			this._cachedIndexAttr = null;
 
 			this.index.overrideItemSize = 3;
@@ -6972,7 +6970,7 @@ Infinite Reality Engine. All Rights Reserved.
 					} else {
 
 						const array = getIndexArray( getVertexCount( geometry ) );
-						this._cachedIndexAttr = new THREE.BufferAttribute( array, 1, false );
+						this._cachedIndexAttr = new three.BufferAttribute( array, 1, false );
 
 					}
 
@@ -7080,11 +7078,11 @@ Infinite Reality Engine. All Rights Reserved.
 		boundsTexture.image.data = boundsArray;
 		boundsTexture.image.width = boundsDimension;
 		boundsTexture.image.height = boundsDimension;
-		boundsTexture.format = THREE.RGBAFormat;
-		boundsTexture.type = THREE.FloatType;
+		boundsTexture.format = three.RGBAFormat;
+		boundsTexture.type = three.FloatType;
 		boundsTexture.internalFormat = 'RGBA32F';
-		boundsTexture.minFilter = THREE.NearestFilter;
-		boundsTexture.magFilter = THREE.NearestFilter;
+		boundsTexture.minFilter = three.NearestFilter;
+		boundsTexture.magFilter = three.NearestFilter;
 		boundsTexture.generateMipmaps = false;
 		boundsTexture.needsUpdate = true;
 		boundsTexture.dispose();
@@ -7092,29 +7090,29 @@ Infinite Reality Engine. All Rights Reserved.
 		contentsTexture.image.data = contentsArray;
 		contentsTexture.image.width = contentsDimension;
 		contentsTexture.image.height = contentsDimension;
-		contentsTexture.format = THREE.RGIntegerFormat;
-		contentsTexture.type = THREE.UnsignedIntType;
+		contentsTexture.format = three.RGIntegerFormat;
+		contentsTexture.type = three.UnsignedIntType;
 		contentsTexture.internalFormat = 'RG32UI';
-		contentsTexture.minFilter = THREE.NearestFilter;
-		contentsTexture.magFilter = THREE.NearestFilter;
+		contentsTexture.minFilter = three.NearestFilter;
+		contentsTexture.magFilter = three.NearestFilter;
 		contentsTexture.generateMipmaps = false;
 		contentsTexture.needsUpdate = true;
 		contentsTexture.dispose();
 
 	}
 
-	const _positionVector = /*@__PURE__*/ new THREE.Vector3();
-	const _normalVector = /*@__PURE__*/ new THREE.Vector3();
-	const _tangentVector = /*@__PURE__*/ new THREE.Vector3();
-	const _tangentVector4 = /*@__PURE__*/ new THREE.Vector4();
+	const _positionVector = /*@__PURE__*/ new three.Vector3();
+	const _normalVector = /*@__PURE__*/ new three.Vector3();
+	const _tangentVector = /*@__PURE__*/ new three.Vector3();
+	const _tangentVector4 = /*@__PURE__*/ new three.Vector4();
 
-	const _morphVector = /*@__PURE__*/ new THREE.Vector3();
-	const _temp = /*@__PURE__*/ new THREE.Vector3();
+	const _morphVector = /*@__PURE__*/ new three.Vector3();
+	const _temp = /*@__PURE__*/ new three.Vector3();
 
-	const _skinIndex = /*@__PURE__*/ new THREE.Vector4();
-	const _skinWeight = /*@__PURE__*/ new THREE.Vector4();
-	const _matrix = /*@__PURE__*/ new THREE.Matrix4();
-	const _boneMatrix = /*@__PURE__*/ new THREE.Matrix4();
+	const _skinIndex = /*@__PURE__*/ new three.Vector4();
+	const _skinWeight = /*@__PURE__*/ new three.Vector4();
+	const _matrix = /*@__PURE__*/ new three.Matrix4();
+	const _boneMatrix = /*@__PURE__*/ new three.Matrix4();
 
 	// Confirms that the two provided attributes are compatible
 	function validateAttributes( attr1, attr2 ) {
@@ -7146,7 +7144,7 @@ Infinite Reality Engine. All Rights Reserved.
 		const itemSize = attr.itemSize;
 		const count = countOverride === null ? attr.count : countOverride;
 
-		return new THREE.BufferAttribute( new cons( itemSize * count ), itemSize, normalized );
+		return new three.BufferAttribute( new cons( itemSize * count ), itemSize, normalized );
 
 	}
 
@@ -7257,7 +7255,7 @@ Infinite Reality Engine. All Rights Reserved.
 	}
 
 	// Modified version of BufferGeometryUtils.mergeBufferGeometries that ignores morph targets and updates a attributes in place
-	function mergeBufferGeometries( geometries, options = { useGroups: false, updateIndex: false, skipAttributes: [] }, targetGeometry = new THREE.BufferGeometry() ) {
+	function mergeBufferGeometries( geometries, options = { useGroups: false, updateIndex: false, skipAttributes: [] }, targetGeometry = new three.BufferGeometry() ) {
 
 		const isIndexed = geometries[ 0 ].index !== null;
 		const { useGroups = false, updateIndex = false, skipAttributes = [] } = options;
@@ -7344,7 +7342,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 				}
 
-				targetGeometry.setIndex( new THREE.BufferAttribute( new Uint32Array( indexCount ), 1, false ) );
+				targetGeometry.setIndex( new three.BufferAttribute( new Uint32Array( indexCount ), 1, false ) );
 				forceUpdateIndex = true;
 
 			}
@@ -7490,7 +7488,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 		constructor( mesh ) {
 
-			this.matrixWorld = new THREE.Matrix4();
+			this.matrixWorld = new three.Matrix4();
 			this.geometryHash = null;
 			this.boneMatrices = null;
 			this.primitiveCount = - 1;
@@ -7587,7 +7585,7 @@ Infinite Reality Engine. All Rights Reserved.
 			this.useGroups = true;
 			this.applyWorldTransforms = true;
 			this.attributes = [ 'position', 'normal', 'color', 'tangent', 'uv', 'uv2' ];
-			this._intermediateGeometry = new Array( finalMeshes.length ).fill().map( () => new THREE.BufferGeometry() );
+			this._intermediateGeometry = new Array( finalMeshes.length ).fill().map( () => new three.BufferGeometry() );
 			this._diffMap = new WeakMap();
 
 		}
@@ -7612,7 +7610,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 		}
 
-		generate( targetGeometry = new THREE.BufferGeometry() ) {
+		generate( targetGeometry = new three.BufferGeometry() ) {
 
 			// track which attributes have been updated and which to skip to avoid unnecessary attribute copies
 			let skipAttributes = [];
@@ -7661,7 +7659,7 @@ Infinite Reality Engine. All Rights Reserved.
 				// create dummy attributes
 				for ( const key in this.attributes ) {
 
-					targetGeometry.setAttribute( this.attributes[ key ], new THREE.BufferAttribute( new Float32Array( 0 ), 4, false ) );
+					targetGeometry.setAttribute( this.attributes[ key ], new three.BufferAttribute( new Float32Array( 0 ), 4, false ) );
 
 				}
 
@@ -7681,7 +7679,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 		}
 
-		_convertToStaticGeometry( mesh, targetGeometry = new THREE.BufferGeometry() ) {
+		_convertToStaticGeometry( mesh, targetGeometry = new three.BufferGeometry() ) {
 
 			const geometry = mesh.geometry;
 			const applyWorldTransforms = this.applyWorldTransforms;
@@ -7740,7 +7738,7 @@ Infinite Reality Engine. All Rights Reserved.
 			const morphTangent = geometry.morphAttributes.tangent;
 			const morphTargetsRelative = geometry.morphTargetsRelative;
 			const morphInfluences = mesh.morphTargetInfluences;
-			const normalMatrix = new THREE.Matrix3();
+			const normalMatrix = new three.Matrix3();
 			normalMatrix.getNormalMatrix( mesh.matrixWorld );
 
 			// copy the index
@@ -8077,11 +8075,11 @@ float distanceSqToBVHNodeBoundsPoint( vec3 point, sampler2D bvhBounds, uint curr
 #define\
 	bvhClosestPointToPoint(\
 		bvh,\
-		point, faceIndices, faceNormal, barycoord, side, outPoint\
+		point, maxDistance, faceIndices, faceNormal, barycoord, side, outPoint\
 	)\
 	_bvhClosestPointToPoint(\
 		bvh.position, bvh.index, bvh.bvhBounds, bvh.bvhContents,\
-		point, faceIndices, faceNormal, barycoord, side, outPoint\
+		point, maxDistance, faceIndices, faceNormal, barycoord, side, outPoint\
 	)
 
 float _bvhClosestPointToPoint(
@@ -8089,7 +8087,7 @@ float _bvhClosestPointToPoint(
 	sampler2D bvh_position, usampler2D bvh_index, sampler2D bvh_bvhBounds, usampler2D bvh_bvhContents,
 
 	// point to check
-	vec3 point,
+	vec3 point, float maxDistance,
 
 	// output variables
 	inout uvec4 faceIndices, inout vec3 faceNormal, inout vec3 barycoord,
@@ -8102,7 +8100,7 @@ float _bvhClosestPointToPoint(
 	uint stack[ BVH_STACK_DEPTH ];
 	stack[ 0 ] = 0u;
 
-	float closestDistanceSquared = pow( 100000.0, 2.0 );
+	float closestDistanceSquared = maxDistance * maxDistance;
 	bool found = false;
 	while ( ptr > - 1 && ptr < BVH_STACK_DEPTH ) {
 
