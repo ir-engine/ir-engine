@@ -243,13 +243,13 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
 
           // Set up compression for this entity
           const fileName = srcURL.split('/').pop()!.split('.').shift()!
-          const destPath = `${saveScenePath.value}/${scenename}/${fileName}-compressed.gltf`
+          const destPath = `${saveScenePath.value}/${scenename}/${fileName}-compressed-published.gltf`
 
           // Export the entity to the publish folder
           await exportRelativeGLTF(
             gltfEntity,
             projectName,
-            'public/publish/' + scenename + '/' + fileName + '-compressed.gltf',
+            'public/publish/' + scenename + '/' + fileName + '-compressed-published.gltf',
             false
           )
 
@@ -264,7 +264,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
           // Create LOD parameters for this model
           const lodParams: ModelTransformParameters = {
             ...defaultLODs[2].params,
-            dst: fileName + '-compressed',
+            dst: fileName + '-compressed-published',
             modelFormat: new URL(srcURL).pathname.endsWith('.gltf')
               ? 'gltf'
               : new URL(srcURL).pathname.endsWith('.vrm')
@@ -298,7 +298,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
               })
             }
           )
-          setComponent(gltfEntity, NameComponent, getComponent(gltfEntity, NameComponent) + '-compressed')
+          setComponent(gltfEntity, NameComponent, getComponent(gltfEntity, NameComponent) + '-compressed-published')
           // Update the entity to use the compressed version
           EditorControlFunctions.modifyProperty([gltfEntity], GLTFComponent, {
             src: pathJoin(config.client.fileServer, destPath)
