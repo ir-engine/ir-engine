@@ -1,116 +1,26 @@
 @import 'tailwindcss/utilities';
 
-@layer utilities {
-  /* WebKit/Blink (Chrome, Safari, Edge) */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
+/* WebKit/Blink (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
 
-  ::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-  }
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+}
 
-  /* Firefox */
-  html {
-    scrollbar-width: thin;
-  }
+/* Firefox */
+html {
+  scrollbar-width: thin;
+}
 
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
 
-  /* For IE, Edge and Firefox */
-  .scrollbar-hide {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-  }
-
-  /* Text Shadow Utilities */
-  .text-shadow-none {
-    text-shadow: none;
-  }
-
-  .text-shadow-sm {
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  }
-
-  .text-shadow {
-    text-shadow:
-      0 1px 3px rgba(0, 0, 0, 0.1),
-      0 1px 2px rgba(0, 0, 0, 0.06);
-  }
-
-  .text-shadow-md {
-    text-shadow:
-      0 4px 6px rgba(0, 0, 0, 0.07),
-      0 2px 4px rgba(0, 0, 0, 0.06);
-  }
-
-  .text-shadow-lg {
-    text-shadow:
-      0 10px 15px rgba(0, 0, 0, 0.1),
-      0 4px 6px rgba(0, 0, 0, 0.05);
-  }
-
-  .text-shadow-xl {
-    text-shadow:
-      0 20px 25px rgba(0, 0, 0, 0.1),
-      0 10px 10px rgba(0, 0, 0, 0.04);
-  }
-
-  .text-shadow-2xl {
-    text-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-  }
-
-  /* Colored Text Shadows */
-  .text-shadow-white {
-    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.5);
-  }
-
-  .text-shadow-black {
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-  }
-
-  .text-shadow-gray {
-    text-shadow: 0 1px 3px rgba(107, 114, 128, 0.5);
-  }
-
-  /* Glow Effects */
-  .text-glow-sm {
-    text-shadow: 0 0 5px currentColor;
-  }
-
-  .text-glow {
-    text-shadow: 0 0 10px currentColor;
-  }
-
-  .text-glow-lg {
-    text-shadow: 0 0 20px currentColor;
-  }
-
-  /* Outline Effects */
-  .text-outline-sm {
-    text-shadow:
-      -1px -1px 0 rgba(0, 0, 0, 0.5),
-      1px -1px 0 rgba(0, 0, 0, 0.5),
-      -1px 1px 0 rgba(0, 0, 0, 0.5),
-      1px 1px 0 rgba(0, 0, 0, 0.5);
-  }
-
-  .text-outline {
-    text-shadow:
-      -2px -2px 0 rgba(0, 0, 0, 0.5),
-      2px -2px 0 rgba(0, 0, 0, 0.5),
-      -2px 2px 0 rgba(0, 0, 0, 0.5),
-      2px 2px 0 rgba(0, 0, 0, 0.5);
-  }
-
-  .text-outline-white {
-    text-shadow:
-      -1px -1px 0 rgba(255, 255, 255, 0.8),
-      1px -1px 0 rgba(255, 255, 255, 0.8),
-      -1px 1px 0 rgba(255, 255, 255, 0.8),
-      1px 1px 0 rgba(255, 255, 255, 0.8);
-  }
+/* For IE, Edge and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }

@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useState } from 'react'
-import { useDebouncedCallback } from 'use-debounce'
 
 interface SliderItemProps {
   label: string
@@ -44,10 +43,6 @@ const SliderItem: React.FC<SliderItemProps> = ({
   step = 1
 }) => {
   const [value, setValue] = useState(defaultValue)
-  const debounced = useDebouncedCallback((value) => {
-    onChange?.(value)
-    setValue(value)
-  }, 100)
 
   return (
     <div className="flex items-center justify-between px-4 py-3.5 text-white/90">
@@ -79,7 +74,10 @@ const SliderItem: React.FC<SliderItemProps> = ({
             max={max}
             step={step}
             value={value}
-            onChange={(e) => debounced(parseInt(e.target.value))}
+            onChange={(e) => {
+              setValue(parseInt(e.target.value))
+              onChange?.(parseInt(e.target.value))
+            }}
             className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
           />
         </div>

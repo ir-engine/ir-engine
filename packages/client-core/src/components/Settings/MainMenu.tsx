@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useState } from 'react'
 
 import Divider from './Divider'
 import { MenuItem } from './MenuItem'
@@ -37,41 +37,50 @@ interface ScreenProps {
   onClose?: () => void
 }
 
-const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => (
-  <div className="space-y-4">
-    {/* Communication Section */}
-    <Section>
-      <MenuItem label="Share Space" onClick={() => navigateTo('shareSpace')} hasChevron />
-      <Divider />
-      <ToggleItem label="Video Communication" checked />
-    </Section>
-    <Section>
-      <ToggleItem label="Spatial Audio" />
-      <Divider />
-      <SliderItem label="Mic Volume" defaultValue={30} />
-      <Divider />
-      <SliderItem label="Audio Volume" defaultValue={70} />
-    </Section>
+const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
+  const [videoCommunication, setVideoCommunication] = useState(false)
+  const [spatialAudio, setSpatialAudio] = useState(false)
+  const [multiplayer, setMultiplayer] = useState(false)
+  return (
+    <div className="space-y-4">
+      {/* Communication Section */}
+      <Section>
+        <MenuItem label="Share Space" onClick={() => navigateTo('shareSpace')} hasChevron />
+        <Divider />
+        <ToggleItem
+          label="Video Communication"
+          checked={videoCommunication}
+          onClick={() => setVideoCommunication(!videoCommunication)}
+        />
+      </Section>
+      <Section>
+        <ToggleItem label="Spatial Audio" checked={spatialAudio} onClick={() => setSpatialAudio(!spatialAudio)} />
+        <Divider />
+        <SliderItem label="Mic Volume" defaultValue={30} />
+        <Divider />
+        <SliderItem label="Audio Volume" defaultValue={70} />
+      </Section>
 
-    {/* World & Account Section */}
-    <Section>
-      <MenuItem label="World" onClick={() => navigateTo('world')} hasChevron />
-      <Divider />
-      <ToggleItem label="Multiplayer" />
-      <Divider />
-      <MenuItem label="Account" onClick={() => navigateTo('account')} hasChevron />
-      <Divider />
-      <MenuItem label="Avatar" onClick={() => navigateTo('avatar')} hasChevron />
-    </Section>
+      {/* World & Account Section */}
+      <Section>
+        <MenuItem label="World" onClick={() => navigateTo('world')} hasChevron />
+        <Divider />
+        <ToggleItem label="Multiplayer" checked={multiplayer} onClick={() => setMultiplayer(!multiplayer)} />
+        <Divider />
+        <MenuItem label="Account" onClick={() => navigateTo('account')} hasChevron />
+        <Divider />
+        <MenuItem label="Avatar" onClick={() => navigateTo('avatar')} hasChevron />
+      </Section>
 
-    {/* System Section */}
-    <Section>
-      <MenuItem label="Controls" onClick={() => navigateTo('controls')} hasChevron />
-      <Divider />
-      <MenuItem label="Graphics" onClick={() => navigateTo('graphics')} hasChevron />
-      <MenuItem label="Log Out" onClick={() => navigateTo('logout')} />
-    </Section>
-  </div>
-)
+      {/* System Section */}
+      <Section>
+        <MenuItem label="Controls" onClick={() => navigateTo('controls')} hasChevron />
+        <Divider />
+        <MenuItem label="Graphics" onClick={() => navigateTo('graphics')} hasChevron />
+        <MenuItem label="Log Out" onClick={() => navigateTo('logout')} />
+      </Section>
+    </div>
+  )
+}
 
 export default MainMenu
