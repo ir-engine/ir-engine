@@ -170,7 +170,7 @@ const containerStyles = `
   hover:scale-[1.03]
 `
 
-const gridStyles = `
+export const gridStyles = `
   relative
   flex flex-col items-center py-4
   text-[1.8rem] text-white

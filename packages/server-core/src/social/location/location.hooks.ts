@@ -151,6 +151,9 @@ const patchLocationSetting = async (context: HookContext<LocationService>) => {
         audioEnabled: data.locationSetting.audioEnabled,
         faceStreamingEnabled: data.locationSetting.faceStreamingEnabled,
         screenSharingEnabled: data.locationSetting.screenSharingEnabled,
+        /** @todo: Re-enable this when the engine has a working jump control/vr capabilities */
+        // jumpControlEnabled: data.locationSetting.jumpControlEnabled,
+        // vrEnabled: data.locationSetting.vrEnabled,
         locationType: data.locationSetting.locationType || 'public'
       },
       { query: { locationId: result.id } }
