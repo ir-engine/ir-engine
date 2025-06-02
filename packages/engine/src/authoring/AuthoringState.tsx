@@ -220,8 +220,11 @@ export const AuthoringState = defineState({
 
   snapshot: (sourceID: SourceID) => {
     const newData = getSourceSnapshot(sourceID)
-    const patch = createPatch(getState(AuthoringState).sources[sourceID].latest, newData)
-    dispatchAction(AuthoringActions.ops({ ops: { [sourceID]: patch } }))
+    const source = getState(AuthoringState).sources[sourceID]
+    if (source) {
+      const patch = createPatch(source.latest, newData)
+      dispatchAction(AuthoringActions.ops({ ops: { [sourceID]: patch } }))
+    }
   },
 
   snapshotEntities: (entities: Entity[]) => {

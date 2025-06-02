@@ -52,6 +52,7 @@ export const initializeSpatialViewer = (canvas?: HTMLCanvasElement) => {
     entitySourceID: 'engine' as SourceID,
     entityID: 'viewer' as EntityID
   })
+  setComponent(viewerEntity, TransformComponent)
   setComponent(viewerEntity, CameraComponent)
   setComponent(viewerEntity, VisibleComponent, true)
   setComponent(viewerEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })

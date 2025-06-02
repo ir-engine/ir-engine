@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { Entity, EntityTreeComponent, getOptionalComponent, Layers, removeEntity, UUIDComponent } from '@ir-engine/ecs'
+import { Entity, EntityTreeComponent, getOptionalComponent, Layers, UUIDComponent } from '@ir-engine/ecs'
 import { AllFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 
@@ -66,7 +66,7 @@ const getSelectedEntities = (entity?: Entity) => {
 
 export const deleteNode = (entity: Entity) => {
   const entities = getSelectedEntities(entity)
-  entities.map(removeEntity)
+  EditorControlFunctions.removeObject(entities)
   AuthoringState.snapshotEntities(entities)
 }
 

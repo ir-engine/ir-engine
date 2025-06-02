@@ -43,8 +43,16 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } from '@ir-engine/spatial'
+import {
+  DirectionalLightComponent,
+  PointLightComponent,
+  SpotLightComponent,
+  TransformComponent
+} from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
@@ -77,6 +85,8 @@ const instanced_gltf = base_url + '/instanced/SimpleInstancing.gltf'
 const default_url = 'packages/projects/default-project/assets'
 const animation_pack = default_url + '/animations/emotes.glb'
 const rings_gltf = default_url + '/rings.glb'
+const collider_and_rigidbody_gltf = base_url + '/physics/ColliderAndRigidbody.gltf'
+const collider_gltf = base_url + '/physics/ColliderOnly.gltf'
 
 const waitForScene = (entity: Entity) => vi.waitUntil(() => GLTFComponent.isSceneLoaded(entity), { timeout: 10000 })
 
@@ -92,12 +102,26 @@ const setupEntity = () => {
   return entity
 }
 
+const setupPhysicsEntity = () => {
+  const parent = createEntity()
+  setComponent(parent, SceneComponent)
+  setComponent(parent, EntityTreeComponent)
+  const uuid = 'source' as SourceID
+  setComponent(parent, UUIDComponent, { entitySourceID: uuid, entityID: 'test' as EntityID })
+  setComponent(parent, TransformComponent)
+  Physics.createWorld(parent)
+  const entity = createEntity()
+  setComponent(entity, EntityTreeComponent, { parentEntity: parent })
+  return entity
+}
+
 describe('GLTF Loader', async () => {
   overrideFileLoaderLoad()
 
   beforeEach(async () => {
     createEngine()
     startEngineReactor()
+    await Physics.load()
 
     await act(() => render(null))
   })
@@ -733,5 +757,50 @@ describe('GLTF Loader', async () => {
     await loadPromise
 
     assert(!hasComponent(entity, GLTFComponent))
+  })
+
+  it('loads a GLTF with a collider and a rigidbody creates a dependency', async () => {
+    const entity = setupPhysicsEntity()
+
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
+    setComponent(entity, GLTFComponent, { src: collider_and_rigidbody_gltf })
+
+    await waitForScene(entity)
+
+    const colliderEntities = getChildrenWithComponents(entity, [ColliderComponent])
+    expect(colliderEntities.length).toBeGreaterThan(0)
+
+    const colliderWithoutRigidbody = colliderEntities.find((e) => !hasComponent(e, RigidBodyComponent))
+    expect(colliderWithoutRigidbody).toBeDefined()
+
+    const colliderEntity = getChildrenWithComponents(entity, [ColliderComponent])[0]
+    assert(getComponent(colliderEntity, ColliderComponent).hasCollider === true)
+
+    const dependencies = getComponent(entity, GLTFComponent).dependencies
+    expect(dependencies).toBeDefined()
+
+    const uuid = UUIDComponent.get(colliderWithoutRigidbody!)
+    expect(dependencies?.componentDependencies[uuid]).toBeUndefined()
+  })
+
+  it('loads a GLTF with Detached collider', async () => {
+    const entity = setupPhysicsEntity()
+
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
+    setComponent(entity, GLTFComponent, { src: collider_gltf })
+
+    await waitForScene(entity)
+
+    const colliderEntities = getChildrenWithComponents(entity, [ColliderComponent])
+    expect(colliderEntities.length).toBeGreaterThan(0)
+
+    const colliderEntity = getChildrenWithComponents(entity, [ColliderComponent])[0]
+    assert(getComponent(colliderEntity, ColliderComponent).hasCollider === false)
+
+    const colliderWithoutRigidbody = colliderEntities.find((e) => !hasComponent(e, RigidBodyComponent))
+    expect(colliderWithoutRigidbody).toBeDefined()
+
+    const rigidbodyEntities = getChildrenWithComponents(entity, [RigidBodyComponent])
+    expect(rigidbodyEntities.length).toBe(0)
   })
 })

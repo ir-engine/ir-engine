@@ -31,6 +31,9 @@ import { Entity } from '@ir-engine/ecs'
 import { overrideOnBeforeCompile } from './common/functions/OnBeforeCompilePlugin'
 import { Object3DUtils } from './transform/Object3DUtils'
 
+export const DisplayP3ColorSpace = 'display-p3'
+export const LinearDisplayP3ColorSpace = 'linear-display-p3'
+
 //@ts-ignore
 Vector3.prototype.toJSON = function () {
   return { x: this.x, y: this.y, z: this.z }
