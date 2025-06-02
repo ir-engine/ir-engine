@@ -965,7 +965,9 @@ export const ParticleSystemComponent = defineComponent({
         metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(mergedGeometry)
 
         return () => {
-          metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(none)
+          if (componentState.value.systemParameters.shape.mesh) {
+            metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(none)
+          }
         }
       }
     }, [shapeMeshEntity])
