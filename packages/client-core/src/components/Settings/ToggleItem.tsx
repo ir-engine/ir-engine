@@ -38,13 +38,12 @@ const ToggleItem: React.FC<ToggleItemProps> = ({ label, checked = false, onClick
       <span className="font-medium">{label}</span>
       <div className="relative h-7 w-12">
         <button
-          className="absolute left-0 top-0 h-7 w-12 rounded-full shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)]"
+          className={`absolute left-0 top-0 h-7 w-12 rounded-full shadow-md ${
+            checked ? 'bg-primary-blue' : 'bg-disabled-input'
+          }`}
           onClick={onClick}
           aria-checked={checked}
           role="switch"
-          style={{
-            backgroundColor: checked ? 'hsla(211, 47%, 53%, 1)' : 'rgba(0, 0, 0, 0.14)'
-          }}
         />
         <motion.div
           className="shadow-0px_3px_8px_0px_rgba(0,0,0,0.15) pointer-events-none absolute top-[2px] size-6 rounded-full bg-white"

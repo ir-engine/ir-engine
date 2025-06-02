@@ -125,16 +125,7 @@ const DisplayNameScreen: React.FC<DisplayNameScreenProps> = ({ navigateTo }) => 
           transition={{ duration: 0.2 }}
           className="fixed inset-0 z-50 flex items-center justify-center"
         >
-          <div
-            className="rounded-xl px-6 py-4 font-medium text-white shadow-lg"
-            style={{
-              background: 'linear-gradient(145deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1))',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
-              backdropFilter: 'blur(20px)'
-            }}
-          >
-            Display Name Updated Successfully
-          </div>
+          <div className="rounded-xl px-6 py-4 font-medium text-white shadow-lg">Display Name Updated Successfully</div>
         </motion.div>
       )}
     </div>

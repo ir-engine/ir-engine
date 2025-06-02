@@ -58,10 +58,6 @@ const DeleteAccountScreen: React.FC<DeleteAccountScreenProps> = ({ navigateTo, o
           animate={{ scale: 1 }}
           transition={{ duration: 0.3, delay: 0.2 }}
           className="flex h-16 w-16 items-center justify-center rounded-full"
-          style={{
-            background: 'linear-gradient(145deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1))',
-            border: '1px solid rgba(255, 255, 255, 0.15)'
-          }}
         >
           <CheckSm className="h-8 w-8 text-white" />
         </motion.div>
@@ -71,7 +67,7 @@ const DeleteAccountScreen: React.FC<DeleteAccountScreenProps> = ({ navigateTo, o
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.4 }}
-          className="space-y-2"
+          className="flex flex-col gap-2"
         >
           <p className="text-lg font-medium text-white/90">Your account has been</p>
           <p className="text-lg font-medium text-white/90">successfully deleted.</p>
