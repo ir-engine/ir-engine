@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Color, CubeTexture, FogBase, Texture } from 'three'
+import { Color, CubeTexture, Fog, FogExp2, Texture } from 'three'
 
 import { defineComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -44,5 +44,5 @@ export const EnvironmentMapComponent = defineComponent({
 
 export const FogComponent = defineComponent({
   name: 'FogComponent',
-  schema: S.Type<FogBase>()
+  schema: S.Type<Fog | FogExp2>()
 })

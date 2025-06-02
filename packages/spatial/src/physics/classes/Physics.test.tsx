@@ -2076,25 +2076,8 @@ describe('Physics : Rapier->ECS API', () => {
       })
 
       it('should offset box collider position to match mesh center-point', () => {
-        const boxGeometry = new BoxGeometry()
-        // Define the min and max points
-        const min = new Vector3(0, 0, 0)
-        const max = new Vector3(4, 4, 4)
-
-        // Create the corner points of the box
-        const points = [
-          new Vector3(min.x, min.y, min.z), // (0, 0, 0)
-          new Vector3(max.x, min.y, min.z), // (4, 0, 0)
-          new Vector3(min.x, max.y, min.z), // (0, 4, 0)
-          new Vector3(max.x, max.y, min.z), // (4, 4, 0)
-          new Vector3(min.x, min.y, max.z), // (0, 0, 4)
-          new Vector3(max.x, min.y, max.z), // (4, 0, 4)
-          new Vector3(min.x, max.y, max.z), // (0, 4, 4)
-          new Vector3(max.x, max.y, max.z) // (4, 4, 4)
-        ]
-
-        boxGeometry.setFromPoints(points)
-        const mesh = new Mesh(boxGeometry)
+        const mesh = new Mesh(new BoxGeometry(4, 4, 4))
+        mesh.geometry.translate(2, 2, 2)
         setComponent(testEntity, MeshComponent, mesh)
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Box, matchMesh: true })
         const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
@@ -2103,52 +2086,18 @@ describe('Physics : Rapier->ECS API', () => {
       })
 
       it('should offset sphere collider position to match mesh center-point', () => {
-        const boxGeometry = new BoxGeometry()
-        // Define the min and max points
-        const min = new Vector3(0, 0, 0)
-        const max = new Vector3(4, 4, 4)
-
-        // Create the corner points of the box
-        const points = [
-          new Vector3(min.x, min.y, min.z), // (0, 0, 0)
-          new Vector3(max.x, min.y, min.z), // (4, 0, 0)
-          new Vector3(min.x, max.y, min.z), // (0, 4, 0)
-          new Vector3(max.x, max.y, min.z), // (4, 4, 0)
-          new Vector3(min.x, min.y, max.z), // (0, 0, 4)
-          new Vector3(max.x, min.y, max.z), // (4, 0, 4)
-          new Vector3(min.x, max.y, max.z), // (0, 4, 4)
-          new Vector3(max.x, max.y, max.z) // (4, 4, 4)
-        ]
-
-        boxGeometry.setFromPoints(points)
-        const mesh = new Mesh(boxGeometry)
+        const mesh = new Mesh(new BoxGeometry(4, 4, 4))
+        mesh.geometry.translate(2, 2, 2)
         setComponent(testEntity, MeshComponent, mesh)
-        setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere, matchMesh: true })
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Box, matchMesh: true })
         const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
-        assert.equal(result.shape.type, ShapeType.Ball)
+        assert.equal(result.shape.type, ShapeType.Cuboid)
         assert.deepEqual(result.translation, new Vector3(2, 2, 2))
       })
 
       it('should offset capsule collider position to match mesh center-point', () => {
-        const boxGeometry = new BoxGeometry()
-        // Define the min and max points
-        const min = new Vector3(0, 0, 0)
-        const max = new Vector3(4, 4, 4)
-
-        // Create the corner points of the box
-        const points = [
-          new Vector3(min.x, min.y, min.z), // (0, 0, 0)
-          new Vector3(max.x, min.y, min.z), // (4, 0, 0)
-          new Vector3(min.x, max.y, min.z), // (0, 4, 0)
-          new Vector3(max.x, max.y, min.z), // (4, 4, 0)
-          new Vector3(min.x, min.y, max.z), // (0, 0, 4)
-          new Vector3(max.x, min.y, max.z), // (4, 0, 4)
-          new Vector3(min.x, max.y, max.z), // (0, 4, 4)
-          new Vector3(max.x, max.y, max.z) // (4, 4, 4)
-        ]
-
-        boxGeometry.setFromPoints(points)
-        const mesh = new Mesh(boxGeometry)
+        const mesh = new Mesh(new BoxGeometry(4, 4, 4))
+        mesh.geometry.translate(2, 2, 2)
         setComponent(testEntity, MeshComponent, mesh)
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Capsule, matchMesh: true })
         const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
@@ -2157,25 +2106,8 @@ describe('Physics : Rapier->ECS API', () => {
       })
 
       it('should offset cylinder collider position to match mesh center-point', () => {
-        const boxGeometry = new BoxGeometry()
-        // Define the min and max points
-        const min = new Vector3(0, 0, 0)
-        const max = new Vector3(4, 4, 4)
-
-        // Create the corner points of the box
-        const points = [
-          new Vector3(min.x, min.y, min.z), // (0, 0, 0)
-          new Vector3(max.x, min.y, min.z), // (4, 0, 0)
-          new Vector3(min.x, max.y, min.z), // (0, 4, 0)
-          new Vector3(max.x, max.y, min.z), // (4, 4, 0)
-          new Vector3(min.x, min.y, max.z), // (0, 0, 4)
-          new Vector3(max.x, min.y, max.z), // (4, 0, 4)
-          new Vector3(min.x, max.y, max.z), // (0, 4, 4)
-          new Vector3(max.x, max.y, max.z) // (4, 4, 4)
-        ]
-
-        boxGeometry.setFromPoints(points)
-        const mesh = new Mesh(boxGeometry)
+        const mesh = new Mesh(new BoxGeometry(4, 4, 4))
+        mesh.geometry.translate(2, 2, 2)
         setComponent(testEntity, MeshComponent, mesh)
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Cylinder, matchMesh: true })
         const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)

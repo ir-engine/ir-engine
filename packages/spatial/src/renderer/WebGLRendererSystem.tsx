@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { SMAAPreset } from 'postprocessing'
 import React, { useEffect } from 'react'
-import { ArrayCamera, Color, CubeTexture, FogBase, Object3D, Scene, Texture } from 'three'
+import { ArrayCamera, Color, CubeTexture, Fog, FogExp2, Object3D, Scene, Texture } from 'three'
 
 import {
   ComponentType,
@@ -34,6 +34,7 @@ import {
   ECSState,
   Entity,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   PresentationSystemGroup,
   QueryReactor,
@@ -43,8 +44,7 @@ import {
 import { defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 
 import { getNestedChildren } from '@ir-engine/ecs'
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { Effect, Pass } from 'postprocessing'
+import { EffectPass, OutlineEffect } from 'postprocessing'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { XRState } from '../xr/XRState'
 import { ObjectComponent } from './components/ObjectComponent'
@@ -54,6 +54,8 @@ import { BackgroundComponent, EnvironmentMapComponent, FogComponent } from './co
 import { VisibleComponent } from './components/VisibleComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
 import { RenderModes } from './constants/RenderModes'
+import { CSM } from './csm/CSM'
+import { CSMComponent } from './csm/CSMComponent'
 import { changeRenderMode } from './functions/changeRenderMode'
 import { PerformanceManager, PerformanceState } from './PerformanceState'
 import { RendererState } from './RendererState'
@@ -68,13 +70,6 @@ declare module 'postprocessing' {
   }
 }
 
-type PassCount = {
-  pass: Pass
-  count: number
-}
-
-export const EffectSchema = S.Union([S.Any(), S.Type<Effect>(undefined, { isActive: S.Bool() })])
-
 /**
  * Executes the system. Called each frame by default from the Engine.instance.
  * @param delta Time since last frame.
@@ -84,7 +79,8 @@ export const render = (
   scene: Scene,
   camera: ArrayCamera,
   delta: number,
-  effectComposer = true
+  effectComposer = true,
+  csm?: ComponentType<typeof CSMComponent> | undefined
 ) => {
   if (!renderer.renderer) return
 
@@ -109,7 +105,10 @@ export const render = (
       camera.updateProjectionMatrix()
     }
 
-    state.useShadows && renderer.csm?.updateFrustums()
+    if (state.useShadows && csm) {
+      // Call the CSM updateFrustums function
+      CSM.updateFrustums()
+    }
 
     if (renderer.effectComposer) {
       renderer.effectComposer.setSize(width, height, true)
@@ -152,7 +151,7 @@ export const getSceneParameters = (entities: Entity[], cameraEntity: Entity) => 
   const vals = {
     background: null as Color | Texture | CubeTexture | null,
     environment: null as Texture | null,
-    fog: null as FogBase | null,
+    fog: null as Fog | FogExp2 | null,
     children: [] as Object3D[]
   }
 
@@ -185,6 +184,7 @@ const execute = () => {
   for (const entity of rendererQuery()) {
     const camera = getComponent(entity, CameraComponent)
     const renderer = getComponent(entity, RendererComponent)
+    const csm = getOptionalComponent(entity, CSMComponent)
     const _scene = renderer.scene!
 
     const entitiesToRender = renderer.scenes.map(getNestedVisibleChildren).flat()
@@ -201,7 +201,7 @@ const execute = () => {
 
     _scene.fog = fog
 
-    render(renderer, _scene, camera, deltaSeconds)
+    render(renderer, _scene, camera, deltaSeconds, undefined, csm)
   }
   onRenderEnd()
 }
