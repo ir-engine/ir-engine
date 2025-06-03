@@ -34,7 +34,7 @@ import {
   locationPath,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
-import { Entity, getComponent, hasComponent, iterateEntityNode, setComponent } from '@ir-engine/ecs'
+import { Entity, getComponent, hasComponent, iterateEntityNode, removeComponent, setComponent } from '@ir-engine/ecs'
 import { LODVariantDescriptor, defaultLODs } from '@ir-engine/editor/src/constants/GLTFPresets'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
@@ -47,6 +47,7 @@ import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { Button, DropdownItem, Input, Select, Tooltip } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
@@ -272,13 +273,30 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
               : 'glb',
             resourceUri: '',
             adaptiveSimplification: true,
-            textureCompressionType: 'uastc'
+            textureCompressionType: 'uastc',
+            palette: {
+              enabled: true,
+              options: {
+                blockSize: 4,
+                min: 2
+              }
+            }
           }
 
           progressState.set({
             progress: progressState.value.progress,
             caption: `Compressing ${fileName}...`
           })
+
+          // for (const entity of exportParentEntity) {
+          //   const url = getComponent(entity, GLTFComponent).src
+          //   const saveName = url.split('/').pop()?.split('.').shift()
+          //   await exportRelativeGLTF(entity, projectName, 'public/publish/' + scenename + '/' + saveName + '.gltf', false)
+          //   EditorControlFunctions.modifyProperty([entity], GLTFComponent, {
+          //     src: srcURL.replace('combined-mesh', saveName as string)
+          //   })
+          //   setComponent(entity, VisibleComponent, true)
+          // }
           // transform each of them seperately
           await transformModel(
             pathJoin(config.client.fileServer, destPath),
@@ -298,6 +316,12 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
               })
             }
           )
+          // remove all mesh components
+          iterateEntityNode(gltfEntity, (entity) => {
+            if (hasComponent(entity, MeshComponent)) {
+              removeComponent(entity, MeshComponent)
+            }
+          })
           setComponent(gltfEntity, NameComponent, getComponent(gltfEntity, NameComponent) + '-compressed-published')
           // Update the entity to use the compressed version
           EditorControlFunctions.modifyProperty([gltfEntity], GLTFComponent, {
