@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { startTransition, useEffect, useMemo, useRef } from 'react'
 import {
+  BufferAttribute,
   BufferGeometry,
   CompressedTexture,
   Group,
@@ -889,7 +890,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
             }
           }
 
-          segmentMesh.geometry.morphAttributes = {}
+          segmentMesh.geometry.morphAttributes = {} as Record<string, (BufferAttribute | InterleavedBufferAttribute)[]>
           if (!component.firstGeometryFrameLoaded.value) {
             // @ts-ignore
             mesh.copy(segmentMesh)

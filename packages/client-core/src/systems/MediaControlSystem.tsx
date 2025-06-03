@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Vector3 } from 'three'
+import { MeshBasicMaterial, Vector3 } from 'three'
 
 import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import {
@@ -67,7 +67,7 @@ export const createMediaControlsUI = (entity: Entity, aspectRatio: number = 1) =
   setComponent(ui.entity, TransformComponent, { rotation: mediaTransform.rotation })
 
   ui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-    const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
+    const mat = layer.contentMesh.material as MeshBasicMaterial
     mat.transparent = true
   })
 
@@ -130,7 +130,7 @@ const onUpdate = (entity: Entity) => {
   transition.update(deltaSeconds, (opacity) => {
     buttonLayer?.scale.setScalar(0.9 + 0.1 * opacity * opacity)
     xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-      const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
+      const mat = layer.contentMesh.material as MeshBasicMaterial
       mat.opacity = opacity
     })
   })
