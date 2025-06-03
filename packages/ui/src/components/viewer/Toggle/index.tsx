@@ -23,22 +23,44 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Toggle from '@ir-engine/ui/src/components/viewer/Toggle'
+import { motion } from 'motion/react'
 import React from 'react'
 
-interface ToggleItemProps {
-  label: string
-  checked?: boolean
-  onClick?: () => void
+export interface ToggleProps {
+  checked: boolean
+  onChange?: () => void
+  className?: string
+  disabled?: boolean
 }
 
-const ToggleItem: React.FC<ToggleItemProps> = ({ label, checked = false, onClick }) => {
+/**
+ * A reusable toggle component with motion animation and custom styling
+ */
+const Toggle: React.FC<ToggleProps> = ({ checked, onChange, className = '', disabled = false }) => {
   return (
-    <div className="flex items-center justify-between px-4 py-3.5 text-white/90">
-      <span className="font-medium">{label}</span>
-      <Toggle checked={checked} onChange={onClick} />
+    <div className={`relative h-7 w-12 ${className}`}>
+      <button
+        className={`absolute left-0 top-0 h-7 w-12 rounded-full shadow-md ${
+          checked ? 'bg-primary-blue' : 'bg-inactive-input'
+        } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
+        onClick={disabled ? undefined : onChange}
+        aria-checked={checked}
+        role="switch"
+        disabled={disabled}
+      />
+      <motion.div
+        className="shadow-0px_3px_8px_0px_rgba(0,0,0,0.15) pointer-events-none absolute top-[2px] size-6 rounded-full bg-white"
+        animate={{
+          left: checked ? '22px' : '4px'
+        }}
+        transition={{
+          type: 'tween',
+          ease: 'circOut',
+          duration: 0.2
+        }}
+      />
     </div>
   )
 }
 
-export default ToggleItem
+export default Toggle
