@@ -29,6 +29,7 @@ import { defineQuery, EngineState, Entity, UndefinedEntity, UUIDComponent } from
 import {
   getAuthoringCounterpart,
   getComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useEntityContext,
@@ -52,7 +53,10 @@ import {
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
+import {
+  BoundingBoxComponent,
+  updateBoundingBox
+} from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import { Raycaster, Vector3 } from 'three'
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
 import { ComponentHelperState } from '../classes/helper/ComponentHelperState'
@@ -173,20 +177,26 @@ const ActiveHelperReactor = (helper) => {
     if (helper?.volume === undefined) return
     switch (editorHelperState.volumeVisibility.value) {
       case VolumeVisibility.On:
-        setComponent(entity, BoundingBoxComponent)
+        !hasComponent(entity, BoundingBoxComponent)
+          ? setComponent(entity, BoundingBoxComponent)
+          : updateBoundingBox(entity)
         break
       case VolumeVisibility.Off:
         return
       case VolumeVisibility.Auto:
         console.log('Auto volume visibility for', entity, 'selected:', selected.value, 'hovered:', hovered.value)
         if (selected.value || hovered.value) {
-          setComponent(entity, BoundingBoxComponent)
+          console.log('add volume', entity)
+          !hasComponent(entity, BoundingBoxComponent)
+            ? setComponent(entity, BoundingBoxComponent)
+            : updateBoundingBox(entity)
         } else {
           return
         }
         break
     }
     return () => {
+      console.log('remove volume', entity)
       removeComponent(entity, BoundingBoxComponent)
     }
   }, [selected, hovered, helper?.volume, visibility, editorHelperState.volumeVisibility])
@@ -228,7 +238,6 @@ const reactor = () => {
   // use registry to add helper reactors
   const HelperRegistry = useMutableState(ComponentHelperState).keys
 
-  console.log('DEBUG ActiveHelperSystem reactor with HelperRegistry = ', HelperRegistry)
   return (
     <>
       {HelperRegistry.map((componentJsonId) => {
