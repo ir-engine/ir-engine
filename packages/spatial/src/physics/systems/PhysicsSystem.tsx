@@ -114,12 +114,11 @@ const PhysicsSceneReactor = () => {
   const scene = useComponent(entity, SceneComponent)
 
   useEffect(() => {
-    if (!scene.active.value) return
     Physics.createWorld(entity)
     return () => {
       Physics.destroyWorld(entity)
     }
-  }, [scene.active.value])
+  }, [])
   return null
 }
 

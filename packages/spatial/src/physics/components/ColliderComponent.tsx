@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { defineComponent, useComponent, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
-import { useState } from '@ir-engine/hyperflux'
 
 import { useAncestorWithComponents } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -55,7 +54,7 @@ export const ColliderComponent = defineComponent({
       default: CollisionGroups.Default
     }),
     collisionMask: S.Number({ default: DefaultCollisionMask }),
-
+    hasCollider: S.Bool({ default: false, serialized: false }),
     //shape specific parameters
     matchMesh: S.Bool({ default: true }),
     centerOffset: T.Vec3(),
@@ -77,7 +76,6 @@ const ColliderReactor = function () {
   const rigidbodyComponent = useOptionalComponent(rigidbodyEntity, RigidBodyComponent)
   const physicsWorld = Physics.useWorld(entity)
   const triggerComponent = useOptionalComponent(entity, TriggerComponent)
-  const hasCollider = useState(false)
 
   useLayoutEffect(() => {
     if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return
@@ -87,12 +85,11 @@ const ColliderReactor = function () {
     if (!colliderDesc) return
 
     Physics.attachCollider(physicsWorld, colliderDesc, rigidbodyEntity, entity)
-    hasCollider.set(true)
+    component.hasCollider.set(true)
 
     return () => {
       if (!physicsWorld) return
       Physics.removeCollider(physicsWorld, entity)
-      hasCollider.set(false)
     }
   }, [
     physicsWorld,
@@ -135,14 +132,14 @@ const ColliderReactor = function () {
   }, [physicsWorld, component.collisionMask])
 
   useLayoutEffect(() => {
-    if (!physicsWorld || !triggerComponent?.value || !hasCollider.value) return
+    if (!physicsWorld || !triggerComponent?.value || !component.hasCollider.value) return
 
     Physics.setTrigger(physicsWorld, entity, true)
 
     return () => {
       Physics.setTrigger(physicsWorld, entity, false)
     }
-  }, [physicsWorld, triggerComponent, hasCollider])
+  }, [physicsWorld, triggerComponent, component.hasCollider.value])
 
   useEffect(() => {
     if (!physicsWorld) return
