@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useState } from 'react'
 
+import { useHookstate } from '@hookstate/core'
 import { AuthService } from '../../user/services/AuthService'
 import Divider from './Divider'
 import { MenuItem } from './MenuItem'
@@ -42,6 +43,9 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
   const [videoCommunication, setVideoCommunication] = useState(false)
   const [spatialAudio, setSpatialAudio] = useState(false)
   const [multiplayer, setMultiplayer] = useState(false)
+  const micVolume = useHookstate(30)
+  const audioVolume = useHookstate(70)
+
   return (
     <div className="space-y-4">
       {/* Communication Section */}
@@ -57,9 +61,13 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
       <Section>
         <ToggleItem label="Spatial Audio" checked={spatialAudio} onClick={() => setSpatialAudio(!spatialAudio)} />
         <Divider />
-        <SliderItem label="Mic Volume" defaultValue={30} />
+        <SliderItem label="Mic Volume" defaultValue={micVolume.get()} onChange={(value) => micVolume.set(value)} />
         <Divider />
-        <SliderItem label="Audio Volume" defaultValue={70} />
+        <SliderItem
+          label="Audio Volume"
+          defaultValue={audioVolume.get()}
+          onChange={(value) => audioVolume.set(value)}
+        />
       </Section>
 
       {/* World & Account Section */}
