@@ -45,8 +45,8 @@ import AvatarScreen from './AvatarScreen'
 import DeleteAccountScreen from './DeleteAccountScreen'
 import DisplayNameScreen from './DisplayNameScreen'
 import PermissionsScreen from './PermissionsScreen'
-import SetupScreen from './SetupScreen'
 import ShareSpaceScreen from './ShareSpaceScreen'
+import SignUpScreen from './SignUpScreen'
 import SSOScreen from './SSOScreen'
 import UsernamePasswordScreen from './UsernamePasswordScreen'
 
@@ -69,7 +69,7 @@ export const screens: Record<string, ScreenDefinition> = {
   graphics: { component: GraphicsSettings, title: 'Graphics' },
   signup: {
     title: 'Sign Up',
-    component: SetupScreen
+    component: SignUpScreen
   },
   shareSpace: {
     component: ShareSpaceScreen,
