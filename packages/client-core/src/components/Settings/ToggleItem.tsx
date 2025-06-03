@@ -39,7 +39,7 @@ const ToggleItem: React.FC<ToggleItemProps> = ({ label, checked = false, onClick
       <div className="relative h-7 w-12">
         <button
           className={`absolute left-0 top-0 h-7 w-12 rounded-full shadow-md ${
-            checked ? 'bg-primary-blue' : 'bg-disabled-input'
+            checked ? 'bg-primary-blue' : 'bg-inactive-input'
           }`}
           onClick={onClick}
           aria-checked={checked}

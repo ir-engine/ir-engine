@@ -156,7 +156,7 @@ module.exports = {
         'chart-1300': 'var(--chart-1300)',
 
         'primary-blue': 'hsla(211, 47%, 53%, 1)',
-        'disabled-input': 'rgba(0, 0, 0, 0.14)'
+        'inactive-input': 'rgba(0, 0, 0, 0.14)'
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

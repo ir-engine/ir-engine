@@ -23,45 +23,57 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Slider from '@ir-engine/ui/src/components/viewer/Slider'
-import React, { useState } from 'react'
+import React from 'react'
 
-interface SliderItemProps {
-  label: string
-  defaultValue?: number
+export interface SliderProps {
+  value: number
   min?: number
   max?: number
   step?: number
   onChange?: (value: number) => void
+  className?: string
 }
 
-const SliderItem: React.FC<SliderItemProps> = ({
-  label,
-  defaultValue = 50,
-  onChange,
-  min = 0,
-  max = 100,
-  step = 1
-}) => {
-  const [value, setValue] = useState(defaultValue)
+/**
+ * A reusable slider component with custom styling
+ */
+const Slider: React.FC<SliderProps> = ({ value, min = 0, max = 100, step = 1, onChange, className = '' }) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = parseInt(e.target.value)
+    onChange?.(newValue)
+  }
 
   return (
-    <div className="flex items-center justify-between px-4 py-3.5 text-white/90">
-      <span className="flex-1 font-medium">{label}</span>
-      <div className="flex flex-1 items-center space-x-3">
-        <Slider
-          value={value}
-          min={min}
-          max={max}
-          step={step}
-          onChange={(newValue) => {
-            setValue(newValue)
-            onChange?.(newValue)
+    <div className={`relative w-full ${className}`}>
+      <div
+        className="relative h-4 w-full rounded-full bg-inactive-input"
+        style={{
+          boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.25) inset'
+        }}
+      >
+        <div
+          className="absolute left-0 top-0 h-4 rounded-full"
+          style={{
+            width: `${value}%`,
+            backgroundColor: 'hsla(211, 47%, 53%, 1)'
           }}
         />
+        <div
+          className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-lg"
+          style={{ left: `${value}%` }}
+        />
       </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={handleChange}
+        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+      />
     </div>
   )
 }
 
-export default SliderItem
+export default Slider
