@@ -157,17 +157,11 @@ export function getImageURIMimeType(uri) {
 
 const assignFinalMaterial = (primitiveDef: GLTF.IMeshPrimitive, entity: Entity) => {
   const material = getComponent(entity, MaterialStateComponent).material as MeshPhysicalMaterial
-  const useDerivativeTangents = primitiveDef.attributes.TANGENT === undefined
   const useVertexColors = primitiveDef.attributes.COLOR_0 !== undefined
   const useFlatShading = primitiveDef.attributes.NORMAL === undefined
 
   if (useVertexColors) material.vertexColors = true
   if (useFlatShading) material.flatShading = true
-
-  if (useDerivativeTangents) {
-    if (material.normalScale) material.normalScale.y *= -1
-    if (material.clearcoatNormalScale) material.clearcoatNormalScale.y *= -1
-  }
 
   material.needsUpdate = true
 }
@@ -279,6 +273,7 @@ const loadPrimitive = async (
     assignExtrasToUserData(geometry, primitiveDef)
     const [material] = await Promise.all([materialPromise, Promise.all(promises)])
     assignFinalMaterial(primitiveDef, material)
+    console.log(getComponent(material, MaterialStateComponent).material as MeshPhysicalMaterial)
     if (primitiveDef.targets) await addMorphTargets(options, geometry, primitiveDef.targets)
     return [geometry, material]
   }
@@ -748,7 +743,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
     const scale = materialDef.normalTexture.scale
     materialConstructorParameters.normalScale = new Vector2(scale, scale)
   } else {
-    materialConstructorParameters.normalScale = new Vector2(1, 1)
+    materialConstructorParameters.normalScale = new Vector2(1, -1)
   }
 
   if (typeof materialDef.occlusionTexture !== 'undefined') {
