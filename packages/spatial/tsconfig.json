@@ -32,7 +32,7 @@
       "@types/node"
     ]
   },
-  "include": ["../../__global.d.ts", "./src", "./tests", "./index.ts", "../editor/src/classes/helper/DirectionalLightHelper.ts", "../editor/src/classes/helper/HelperRegistry.ts", "../editor/src/classes/helper/HemiSphereLightHelper.ts", "../editor/src/classes/helper/PointLightHelper.ts", "../editor/src/classes/helper/SpawnPointHelper.ts", "../editor/src/classes/helper/SpotLightHelper.ts"],
+  "include": ["../../__global.d.ts", "./src", "./tests", "./index.ts"],
   "exclude": [
     "./tests/webxr/emulator/**",
     "./tests/webxr/devtool/**",
