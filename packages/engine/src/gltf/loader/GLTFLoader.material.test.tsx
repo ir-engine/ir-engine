@@ -30,8 +30,8 @@ Infinite Reality Engine. All Rights Reserved.
  * */
 import { GLTF } from '@gltf-transform/core'
 import { createEngine, destroyEngine, Entity, getComponent, hasComponent } from '@ir-engine/ecs'
+import { flushAll } from '@ir-engine/hyperflux/tests/utils/flushAll'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { act, render } from '@testing-library/react'
 import { DoubleSide, FrontSide, MeshStandardMaterial, SRGBColorSpace } from 'three'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { startEngineReactor } from '../../../tests/startEngineReactor'
@@ -43,11 +43,11 @@ import { KHRUnlitExtensionComponent } from '../MaterialExtensionComponents'
 const MINIMAL_PNG =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
 
-beforeEach(() => {
+beforeEach(async () => {
   DependencyCache.clear()
   createEngine()
   startEngineReactor()
-  return act(() => render(null))
+  await flushAll()
 })
 
 afterEach(() => {
