@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import type { Meta, StoryObj } from '@storybook/react'
 import React, { useState } from 'react'
-import SettingsMenu from '.'
+import SettingsMenu, { screens } from '.'
 
 const meta = {
   title: 'UI/Settings Menu',
@@ -48,7 +48,8 @@ const meta = {
   argTypes: {
     onClose: { action: 'closed' },
     initScreen: {
-      control: 'text'
+      control: 'select',
+      options: Object.keys(screens)
     }
   }
 } satisfies Meta<typeof SettingsMenu>

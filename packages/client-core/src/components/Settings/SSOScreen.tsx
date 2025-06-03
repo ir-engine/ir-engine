@@ -68,6 +68,7 @@ const SSOScreen: React.FC<SSOScreenProps> = () => {
   const identityProvidersQuery = useFind(identityProviderPath)
   const oauthConnectedState = useHookstate(Object.assign({}, initialOAuthConnectedState))
   const authState = useHookstate(initialAuthState)
+
   const { data: authSetting } = useEngineSetting<AuthenticationConfig>('authentication')
 
   useEffect(() => {
@@ -92,7 +93,7 @@ const SSOScreen: React.FC<SSOScreenProps> = () => {
   }, [identityProvidersQuery.data])
 
   const handleProviderClick = (client: string) => {
-    AuthService.loginUserByOAuth(client, location, false, '/')
+    AuthService.loginUserByOAuth(client, location, true, location.href)
   }
 
   const disableProvider = (client: string) => {

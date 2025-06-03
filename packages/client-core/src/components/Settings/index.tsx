@@ -45,6 +45,7 @@ import AvatarScreen from './AvatarScreen'
 import DeleteAccountScreen from './DeleteAccountScreen'
 import DisplayNameScreen from './DisplayNameScreen'
 import PermissionsScreen from './PermissionsScreen'
+import SetupScreen from './SetupScreen'
 import ShareSpaceScreen from './ShareSpaceScreen'
 import SSOScreen from './SSOScreen'
 import UsernamePasswordScreen from './UsernamePasswordScreen'
@@ -61,11 +62,15 @@ const PlaceholderScreen: React.FC<ScreenProps & { title: string }> = ({ title })
 )
 
 // Define all screens
-const screens: Record<string, ScreenDefinition> = {
+export const screens: Record<string, ScreenDefinition> = {
   main: { component: MainMenu, title: 'Settings' },
   world: { component: WorldSettings, title: 'World' },
   account: { component: AccountSettings, title: 'Account' },
   graphics: { component: GraphicsSettings, title: 'Graphics' },
+  signup: {
+    title: 'Sign Up',
+    component: SetupScreen
+  },
   shareSpace: {
     component: ShareSpaceScreen,
     title: 'Share Space'
@@ -77,10 +82,6 @@ const screens: Record<string, ScreenDefinition> = {
   controls: {
     component: (props) => <PlaceholderScreen {...props} title="Controls" />,
     title: 'Controls'
-  },
-  logout: {
-    component: (props) => <PlaceholderScreen {...props} title="Log Out" />,
-    title: 'Log Out'
   },
   usernamePassword: {
     component: UsernamePasswordScreen,
@@ -178,7 +179,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose, initScreen = 'main
       >
         {/* Header */}
         <div className="text-shadow-md mb-4 flex h-10 items-center justify-between justify-self-start">
-          {activeScreenKey !== 'main' ? (
+          {history.length > 1 ? (
             <button
               onClick={navigateBack}
               className="-ml-1 rounded-full p-2 transition-colors hover:bg-white/10"

@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useState } from 'react'
 
+import { AuthService } from '../../user/services/AuthService'
 import Divider from './Divider'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
@@ -77,7 +78,7 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
         <MenuItem label="Controls" onClick={() => navigateTo('controls')} hasChevron />
         <Divider />
         <MenuItem label="Graphics" onClick={() => navigateTo('graphics')} hasChevron />
-        <MenuItem label="Log Out" onClick={() => navigateTo('logout')} />
+        <MenuItem label="Log Out" onClick={AuthService.logoutUser} />
       </Section>
     </div>
   )
