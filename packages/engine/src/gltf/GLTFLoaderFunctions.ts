@@ -273,7 +273,6 @@ const loadPrimitive = async (
     assignExtrasToUserData(geometry, primitiveDef)
     const [material] = await Promise.all([materialPromise, Promise.all(promises)])
     assignFinalMaterial(primitiveDef, material)
-    console.log(getComponent(material, MaterialStateComponent).material as MeshPhysicalMaterial)
     if (primitiveDef.targets) await addMorphTargets(options, geometry, primitiveDef.targets)
     return [geometry, material]
   }
@@ -858,7 +857,6 @@ const mergeMorphTargets = async (options: GLTFParserOptions, nodeIndex: number) 
     const newAttributesLength = morphAttributes[name].length / morphTargets.length
     for (let j = newAttributesLength; j < morphAttributes[name].length; j++) {
       const mergeIntoIndex = j % newAttributesLength
-      // console.log(j + ' goes into ' + mergeIntoIndex)
       const newArray = new Float32Array(
         morphAttributes[name][j].array.length + morphAttributes[name][mergeIntoIndex].array.length
       )
