@@ -72,6 +72,7 @@ import { ASSETS_REGEX, PROJECT_PUBLIC_REGEX, PROJECT_REGEX, PROJECT_THUMBNAIL_RE
 import { FileBrowserContentType } from '@ir-engine/common/src/schemas/media/file-browser.schema'
 
 import config from '../../appconfig'
+import { BaseStorageProvider } from './base.storage'
 import {
   PutObjectParams,
   SignedURLResponse,
@@ -124,8 +125,9 @@ export const getACL = (key: string) =>
 /**
  * Storage provide class to communicate with AWS S3 API.
  */
-export class S3Provider implements StorageProviderInterface {
+export class S3Provider extends BaseStorageProvider implements StorageProviderInterface {
   constructor() {
+    super()
     if (!this.minioClient) this.getOriginURLs().then((result) => (this.originURLs = result))
     const awsCredentials = `[default]\naws_access_key_id=${config.aws.s3.accessKeyId}\naws_secret_access_key=${config.aws.s3.secretAccessKey}\n[role]\nrole_arn = ${config.aws.s3.roleArn}\nsource_profile = default`
 
@@ -675,6 +677,7 @@ export class S3Provider implements StorageProviderInterface {
    */
   async listFolderContent(folderName: string, recursive = false): Promise<FileBrowserContentType[]> {
     folderName = folderName.endsWith('/') ? folderName : folderName + '/'
+    this.checkBlacklistedPrefix(folderName)
     const folderContent = await this.listObjects(folderName, recursive)
 
     const promises: Promise<FileBrowserContentType>[] = []

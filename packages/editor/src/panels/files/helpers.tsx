@@ -78,11 +78,10 @@ const FilesQueryContext = createContext({
 
 export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }) => {
   const filesState = useMutableState(FilesState)
+  const projectName = useMutableState(EditorState).projectName.value
   const categories = useHookstate<any>([])
   const directory = (
-    filesState.selectedDirectory.value !== ''
-      ? filesState.selectedDirectory.value
-      : '/projects/' + filesState.projectName.value
+    filesState.selectedDirectory.value !== '' ? filesState.selectedDirectory.value : '/projects/' + projectName
   ).replace(/^\/+/, '')
 
   const filesQuery = useFind(fileBrowserPath, {
@@ -90,6 +89,13 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
       $limit: FILES_PAGE_LIMIT,
       directory,
       recursive: !!filesState.searchText.value
+    }
+  })
+
+  const foldersQuery = useFind(fileBrowserPath, {
+    query: {
+      $limit: FILES_PAGE_LIMIT,
+      directory: `/projects/${projectName}/public/`
     }
   })
 
@@ -141,8 +147,6 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
   useRealtime(staticResourcePath, filesQuery.refetch)
   FileThumbnailJobState.useGenerateThumbnails(filesQuery.data)
 
-  const projectName = useMutableState(EditorState).projectName.value
-
   function buildHierarchy(paths: { key: string; name: string }[]): AssetCategoryNode[] {
     const map = new Map<string, AssetCategoryNode>()
     const roots: AssetCategoryNode[] = []
@@ -180,13 +184,6 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
 
     return roots
   }
-
-  const foldersQuery = useFind(fileBrowserPath, {
-    query: {
-      $limit: FILES_PAGE_LIMIT,
-      directory: `/projects/${projectName}/public/**`
-    }
-  })
 
   const folders = React.useMemo(() => foldersQuery.data.filter((file) => file.type === 'folder'), [foldersQuery.data])
 
