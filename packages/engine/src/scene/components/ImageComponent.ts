@@ -274,12 +274,12 @@ export function ImageReactor() {
     const flippedTexture = uniforms.map.value.flipY
     switch (image.projection.value) {
       case ImageProjection.Equirectangular360:
-        mesh.geometry.set(flippedTexture ? SPHERE_GEO_FLIPPED() : SPHERE_GEO())
+        mesh.geometry.set(flippedTexture ? SPHERE_GEO() : SPHERE_GEO_FLIPPED())
         mesh.scale.value.set(-1, 1, 1)
         break
       case ImageProjection.Flat:
       default:
-        mesh.geometry.set(flippedTexture ? PLANE_GEO_FLIPPED() : PLANE_GEO())
+        mesh.geometry.set(flippedTexture ? PLANE_GEO() : PLANE_GEO_FLIPPED())
     }
   }, [!!mesh?.value, image.projection, !!texture])
 
