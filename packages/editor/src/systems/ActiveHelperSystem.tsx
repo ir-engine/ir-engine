@@ -184,9 +184,7 @@ const ActiveHelperReactor = (helper) => {
       case VolumeVisibility.Off:
         return
       case VolumeVisibility.Auto:
-        console.log('Auto volume visibility for', entity, 'selected:', selected.value, 'hovered:', hovered.value)
         if (selected.value || hovered.value) {
-          console.log('add volume', entity)
           !hasComponent(entity, BoundingBoxComponent)
             ? setComponent(entity, BoundingBoxComponent)
             : updateBoundingBox(entity)
@@ -196,7 +194,6 @@ const ActiveHelperReactor = (helper) => {
         break
     }
     return () => {
-      console.log('remove volume', entity)
       removeComponent(entity, BoundingBoxComponent)
     }
   }, [selected, hovered, helper?.volume, visibility, editorHelperState.volumeVisibility])
