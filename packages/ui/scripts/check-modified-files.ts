@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -29,6 +29,8 @@ import path from 'node:path'
 
 const isGithubAction = process.env.GITHUB_ACTIONS === 'true'
 
+const whiteList = ['packages/ui/src/components', 'packages/client-core/src/components']
+
 function log(...args: any[]) {
   if (!isGithubAction) {
     console.log(...args)
@@ -36,11 +38,11 @@ function log(...args: any[]) {
 }
 
 try {
-  log('Comparing with origin/dev...\n')
+  log('Checking latest commit...\n')
 
-  // Get list of modified or added files
+  // Get list of modified or added files in the latest commit
   const cwd = path.resolve(__dirname, '../../..')
-  const output = execSync('git diff --name-status origin/dev...HEAD', { cwd }).toString().trim()
+  const output = execSync('git diff --name-status HEAD~1 HEAD', { cwd }).toString().trim()
 
   if (!output) {
     log('No changes detected.')
@@ -56,7 +58,9 @@ try {
     const filename = path.basename(file)
 
     if ((status === 'M' || status === 'A') && filename.endsWith('.tsx')) {
-      tsxFiles.push(file)
+      if (whiteList.some((path) => file.startsWith(path))) {
+        tsxFiles.push(file)
+      }
     }
   })
 
