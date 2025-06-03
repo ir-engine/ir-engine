@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { defineQuery, EngineState, Entity, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
+import { defineQuery, EngineState, Entity, entityExists, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
 import {
   getAuthoringCounterpart,
   getComponent,
@@ -143,7 +143,8 @@ const ActiveHelperReactor = (helper) => {
 
   InputComponent.useExecuteWithInput(
     () => {
-      if (studioIconEntity === UndefinedEntity) return
+      if (studioIconEntity === UndefinedEntity || !entityExists(studioIconEntity)) return
+      if (entity === UndefinedEntity || !entityExists(entity)) return
       if (!engineState.isEditing.value || !editorHelperState.gizmoEnabled.value) return
 
       gizmoIconUpdate(entity, studioIconEntity, [...directionalEntitiesState.get(NO_PROXY_STEALTH)], iconSize.value)
@@ -180,6 +181,15 @@ const ActiveHelperReactor = (helper) => {
         !hasComponent(entity, BoundingBoxComponent)
           ? setComponent(entity, BoundingBoxComponent)
           : updateBoundingBox(entity)
+        if (selected.value) {
+          setComponent(entity, BoundingBoxComponent, {
+            color: 'white'
+          })
+        } else if (hovered.value) {
+          setComponent(entity, BoundingBoxComponent, {
+            color: '#F3A2FF'
+          })
+        }
         break
       case VolumeVisibility.Off:
         return
@@ -188,11 +198,21 @@ const ActiveHelperReactor = (helper) => {
           !hasComponent(entity, BoundingBoxComponent)
             ? setComponent(entity, BoundingBoxComponent)
             : updateBoundingBox(entity)
+          if (selected.value) {
+            setComponent(entity, BoundingBoxComponent, {
+              color: 'white'
+            })
+          } else if (hovered.value) {
+            setComponent(entity, BoundingBoxComponent, {
+              color: '#F3A2FF'
+            })
+          }
         } else {
           return
         }
         break
     }
+
     return () => {
       removeComponent(entity, BoundingBoxComponent)
     }

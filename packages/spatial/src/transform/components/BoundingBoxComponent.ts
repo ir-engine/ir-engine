@@ -37,6 +37,7 @@ import {
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { UndefinedEntity } from '../../../../ecs/src/Entity'
 import { NameComponent } from '../../common/NameComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
@@ -51,7 +52,8 @@ export const BoundingBoxComponent = defineComponent({
 
   schema: S.Object({
     box: T.Box3(),
-    helper: S.Entity()
+    helper: S.Entity(),
+    color: T.Color('white')
   }),
 
   reactor: function () {
@@ -61,7 +63,7 @@ export const BoundingBoxComponent = defineComponent({
     useEffect(() => {
       const helperEntity = createEntity()
 
-      const helper = new Box3Helper(boundingBox.box.value, 'white')
+      const helper = new Box3Helper(boundingBox.box.value, boundingBox.color.value)
       helper.name = `bounding-box-helper-${entity}`
 
       setComponent(helperEntity, NameComponent, helper.name)
@@ -80,6 +82,14 @@ export const BoundingBoxComponent = defineComponent({
         removeEntity(helperEntity)
       }
     }, [])
+
+    useEffect(() => {
+      const helperEntity = boundingBox.helper.value
+      if (helperEntity === UndefinedEntity) return
+
+      const helperObject = getComponent(helperEntity, ObjectComponent) as any as Box3Helper
+      ;(helperObject.material as any).color.set(boundingBox.color.value)
+    }, [boundingBox.helper, boundingBox.color])
 
     return null
   }
