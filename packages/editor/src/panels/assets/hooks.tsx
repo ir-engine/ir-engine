@@ -36,10 +36,12 @@ import { ASSETS_PAGE_LIMIT, calculateItemsToFetch, convertToHierarchy, iterative
 export const AssetsRefreshState = defineState({
   name: 'AssetsRefreshState',
   initial: () => ({
-    refreshCounter: 0
+    refreshCounter: 0,
+    forceRefresh: false
   }),
-  triggerRefresh: () => {
+  triggerRefresh: (forceRefresh: boolean = true) => {
     getMutableState(AssetsRefreshState).refreshCounter.set((prev) => prev + 1)
+    getMutableState(AssetsRefreshState).forceRefresh.set(forceRefresh)
   }
 })
 
@@ -146,7 +148,7 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
             resources.set(fetchedResources.data)
           }
 
-          staticResourcesPagination.merge({ total: resources.length })
+          staticResourcesPagination.merge({ total: fetchedResources.total })
 
           resourcesLoading.set(false)
         })
@@ -165,7 +167,7 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
   }, [])
   useEffect(() => {
     if (refreshState.refreshCounter.value > 0) {
-      staticResourcesFindApi(true)
+      staticResourcesFindApi(refreshState.forceRefresh.value)
     }
   }, [refreshState.refreshCounter.value])
 
