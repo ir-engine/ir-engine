@@ -31,11 +31,10 @@ import {
   defineComponent,
   getComponent,
   getOptionalComponent,
-  hasComponent,
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { Entity } from '@ir-engine/ecs/src/Entity'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
@@ -79,8 +78,6 @@ export const BoundingBoxComponent = defineComponent({
 
       return () => {
         removeEntity(helperEntity)
-        if (!hasComponent(entity, BoundingBoxComponent)) return
-        boundingBox.helper.set(UndefinedEntity)
       }
     }, [])
 
