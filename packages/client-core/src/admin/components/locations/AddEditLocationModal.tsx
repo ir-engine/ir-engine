@@ -616,7 +616,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
                     fullWidth
                     height="xl"
                     placeholder="5 - Default"
-                    max={LOCATION_MAX}
+                    max={parseInt(instanceEngineSettings?.data[0]?.value)}
                   />
                   <Toggle
                     label={t('admin:components.location.lbl-ve')}
