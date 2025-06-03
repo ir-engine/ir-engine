@@ -23,27 +23,45 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Forbidden } from '@feathersjs/errors'
+import Slider from '@ir-engine/ui/src/components/viewer/Slider'
+import React, { useState } from 'react'
 
-/**
- * Base storage provider class with common functionality
- */
-export abstract class BaseStorageProvider {
-  /**
-   * Checks if a prefix is blacklisted
-   * @param prefix The prefix to check
-   * @throws {Forbidden} If the prefix is blacklisted
-   */
-  protected checkBlacklistedPrefix(prefix: string): void {
-    // Define blacklisted prefixes
-    const blacklistedPrefixes = ['projects/']
-
-    const normalizedPrefix = prefix.endsWith('/') ? prefix : prefix + '/'
-
-    for (const blacklistedPrefix of blacklistedPrefixes) {
-      if (normalizedPrefix === blacklistedPrefix) {
-        throw new Forbidden(`Access to '${prefix}' is restricted`)
-      }
-    }
-  }
+interface SliderItemProps {
+  label: string
+  defaultValue?: number
+  min?: number
+  max?: number
+  step?: number
+  onChange?: (value: number) => void
 }
+
+const SliderItem: React.FC<SliderItemProps> = ({
+  label,
+  defaultValue = 50,
+  onChange,
+  min = 0,
+  max = 100,
+  step = 1
+}) => {
+  const [value, setValue] = useState(defaultValue)
+
+  return (
+    <div className="flex items-center justify-between px-4 py-3.5 text-white/90">
+      <span className="flex-1 font-medium">{label}</span>
+      <div className="flex flex-1 items-center space-x-3">
+        <Slider
+          value={value}
+          min={min}
+          max={max}
+          step={step}
+          onChange={(newValue) => {
+            setValue(newValue)
+            onChange?.(newValue)
+          }}
+        />
+      </div>
+    </div>
+  )
+}
+
+export default SliderItem

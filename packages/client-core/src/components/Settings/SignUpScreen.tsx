@@ -23,27 +23,29 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Forbidden } from '@feathersjs/errors'
+import React from 'react'
+import { Section } from './Section'
+import ToggleItem from './ToggleItem'
 
-/**
- * Base storage provider class with common functionality
- */
-export abstract class BaseStorageProvider {
-  /**
-   * Checks if a prefix is blacklisted
-   * @param prefix The prefix to check
-   * @throws {Forbidden} If the prefix is blacklisted
-   */
-  protected checkBlacklistedPrefix(prefix: string): void {
-    // Define blacklisted prefixes
-    const blacklistedPrefixes = ['projects/']
+export default function SetupScreen() {
+  const [tosAgreed, setTosAgreed] = React.useState(false)
+  const [ageAgreed, setAgeAgreed] = React.useState(false)
 
-    const normalizedPrefix = prefix.endsWith('/') ? prefix : prefix + '/'
-
-    for (const blacklistedPrefix of blacklistedPrefixes) {
-      if (normalizedPrefix === blacklistedPrefix) {
-        throw new Forbidden(`Access to '${prefix}' is restricted`)
-      }
-    }
-  }
+  return (
+    <div className="flex h-full flex-col gap-4">
+      <div>By signing up, you agree to the following:</div>
+      <Section>
+        <ToggleItem
+          checked={tosAgreed}
+          onClick={() => setTosAgreed(!tosAgreed)}
+          label="I agree to the Infinite Reality Terms of Service"
+        />
+        <ToggleItem
+          checked={ageAgreed}
+          onClick={() => setAgeAgreed(!ageAgreed)}
+          label="I am 18 years of age or older"
+        />
+      </Section>
+    </div>
+  )
 }

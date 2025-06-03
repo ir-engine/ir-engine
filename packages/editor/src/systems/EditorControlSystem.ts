@@ -32,6 +32,7 @@ import {
   EntityTreeComponent,
   getAncestorWithComponents,
   InputSystemGroup,
+  SourceID,
   UndefinedEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
@@ -183,8 +184,13 @@ const onDecreaseGridHeight = () => {
 
 const onDeleteSelection = () => {
   const entities = SelectionState.getSelectedEntities()
+  const sources = new Set<SourceID>(
+    entities
+      .filter((entity) => hasComponent(entity, UUIDComponent))
+      .map((entity) => getComponent(entity, UUIDComponent).entitySourceID)
+  )
   EditorControlFunctions.removeObject(entities)
-  AuthoringState.snapshotEntities(entities)
+  AuthoringState.snapshotSources(sources)
 }
 
 let lastDistanceToCenter = 10
