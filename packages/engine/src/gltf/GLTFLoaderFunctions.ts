@@ -633,23 +633,6 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   const layer = LayerComponent.get(entity)
   const materialDef = json.materials![materialIndex]
 
-  let hasTangents = false
-  if (json.meshes) {
-    for (const mesh of json.meshes) {
-      for (const primitive of mesh.primitives) {
-        if (
-          primitive.material === materialIndex &&
-          primitive.attributes &&
-          primitive.attributes.TANGENT !== undefined
-        ) {
-          hasTangents = true
-          break
-        }
-      }
-      if (hasTangents) break
-    }
-  }
-
   const nodeID = ('material-' + materialIndex) as EntityID
   const materialEntity = UUIDComponent.create(entity, nodeID, layer)
   setComponent(materialEntity, EntityTreeComponent, { parentEntity: entity, childIndex: materialIndex })
@@ -752,7 +735,8 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
     const scale = materialDef.normalTexture.scale
     materialConstructorParameters.normalScale = new Vector2(scale, scale)
   } else {
-    materialConstructorParameters.normalScale = new Vector2(1, hasTangents ? 1 : -1)
+    /** @todo Once we have a solution for mergedBuffers, check for tangents on the geometry*/
+    materialConstructorParameters.normalScale = new Vector2(1, -1)
   }
 
   if (typeof materialDef.occlusionTexture !== 'undefined') {
