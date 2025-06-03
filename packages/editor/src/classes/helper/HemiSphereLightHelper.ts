@@ -31,13 +31,13 @@ import { HemisphereLightComponent } from '@ir-engine/spatial/src/SpatialModule'
 import { useEffect } from 'react'
 import { HemisphereLight, HemisphereLightHelper } from 'three'
 
-export const HemiSphereLightHelperReactor: React.FC = (props: { entity; selected; hovered }) => {
-  const { entity, selected, hovered } = props
-  const hemisphereLightComponent = useComponent(entity, HemisphereLightComponent)
+export const HemiSphereLightHelperReactor: React.FC = (props: { parentEntity; iconEntity; selected; hovered }) => {
+  const { parentEntity, iconEntity, selected, hovered } = props
+  const hemisphereLightComponent = useComponent(parentEntity, HemisphereLightComponent)
 
   const debugEnabled = selected || hovered
   const light = useHookstate(() => new HemisphereLight()).get(NO_PROXY) as HemisphereLight
-  const helperEntity = useHelperEntity(entity, () => new HemisphereLightHelper(light, 10), debugEnabled)
+  const helperEntity = useHelperEntity(parentEntity, () => new HemisphereLightHelper(light, 10), debugEnabled)
   const helperObject = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as
     | HemisphereLightHelper
     | undefined

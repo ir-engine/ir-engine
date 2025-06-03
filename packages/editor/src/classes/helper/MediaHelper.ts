@@ -23,16 +23,22 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
-import { Mesh, MeshPhysicalMaterial, SphereGeometry } from 'three'
+import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-const sphereGeometry = new SphereGeometry(0.75)
-const helperMeshMaterial = new MeshPhysicalMaterial({ roughness: 0, metalness: 1 })
+const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png'
 
-export const EnvmapBakeHelperReactor: React.FC = (props: { parentEntity; iconEntity; selected; hovered }) => {
+export const MediaHelperReactor: React.FC = (props: { parentEntity; iconEntity; selected; hovered }) => {
   const { parentEntity, iconEntity, selected, hovered } = props
 
   const debugEnabled = selected || hovered
-  useHelperEntity(parentEntity, () => new Mesh(sphereGeometry, helperMeshMaterial), debugEnabled)
+  const [audioHelperTexture] = useTexture(debugEnabled ? AUDIO_TEXTURE_PATH : '', parentEntity)
+
+  useHelperEntity(
+    parentEntity,
+    () => new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide })),
+    debugEnabled && !!audioHelperTexture
+  )
   return null
 }

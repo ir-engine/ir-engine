@@ -23,16 +23,18 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useComponent } from '@ir-engine/ecs'
+import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
 import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
-import { Mesh, MeshPhysicalMaterial, SphereGeometry } from 'three'
+import { CameraHelper, PerspectiveCamera } from 'three'
 
-const sphereGeometry = new SphereGeometry(0.75)
-const helperMeshMaterial = new MeshPhysicalMaterial({ roughness: 0, metalness: 1 })
-
-export const EnvmapBakeHelperReactor: React.FC = (props: { parentEntity; iconEntity; selected; hovered }) => {
+export const ScenePreviewCameraHelperReactor: React.FC = (props: { parentEntity; iconEntity; selected; hovered }) => {
   const { parentEntity, iconEntity, selected, hovered } = props
 
   const debugEnabled = selected || hovered
-  useHelperEntity(parentEntity, () => new Mesh(sphereGeometry, helperMeshMaterial), debugEnabled)
+  const previewCamera = useComponent(parentEntity, ScenePreviewCameraComponent)
+
+  useHelperEntity(parentEntity, () => new CameraHelper(previewCamera.camera.value as PerspectiveCamera), debugEnabled)
+
   return null
 }

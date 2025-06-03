@@ -31,14 +31,14 @@ import {
   getComponent,
   removeComponent,
   setComponent,
-  useEntityContext
+  useEntityContext,
+  useHasComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, getState, NO_PROXY_STEALTH, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
 import React from 'react'
 
@@ -107,7 +107,8 @@ const ActiveHelperReactor = (helper) => {
   const lineEntitiesState = useHookstate<Entity[]>([])
   const directionalEntitiesState = useHookstate<Entity[]>([])
   const iconSize = useHookstate<number>(getState(EditorHelperState).editorIconMinSize)
-  const studioIcon = useHelperEntity(
+  const visibility = useHasComponent(entity, VisibleComponent)
+  const studioIconEntity = useHelperEntity(
     entity,
     () => {
       const iconGizmo = getIconGizmo(helper.icon)
@@ -129,15 +130,18 @@ const ActiveHelperReactor = (helper) => {
       }
       return iconGizmo
     },
-    editorHelperState.gizmoEnabled.value,
+    editorHelperState.gizmoEnabled.value && visibility && engineState.isEditing.value,
     ObjectLayerMasks.NodeIcon,
     'icon-helper'
   )
-  const hovered = InputComponent.useHasFocus(studioIcon)
+  const hovered = InputComponent.useHasFocus(studioIconEntity)
 
   InputComponent.useExecuteWithInput(
     () => {
-      gizmoIconUpdate(entity, studioIcon, [...directionalEntitiesState.get(NO_PROXY_STEALTH)], iconSize.value)
+      if (studioIconEntity === UndefinedEntity) return
+      if (!engineState.isEditing.value || !editorHelperState.gizmoEnabled.value) return
+
+      gizmoIconUpdate(entity, studioIconEntity, [...directionalEntitiesState.get(NO_PROXY_STEALTH)], iconSize.value)
 
       iconSize.set((currentSize) => setIconSize(hovered.value, currentSize))
 
@@ -154,7 +158,7 @@ const ActiveHelperReactor = (helper) => {
         )
           return
 
-      const defaultGizmoButtons = InputComponent.getButtons(studioIcon)
+      const defaultGizmoButtons = InputComponent.getButtons(studioIconEntity)
 
       if (defaultGizmoButtons.PrimaryClick?.down) {
         SelectionState.updateSelection([UUIDComponent.get(entity)])
@@ -183,7 +187,7 @@ const ActiveHelperReactor = (helper) => {
     return () => {
       removeComponent(entity, BoundingBoxComponent)
     }
-  }, [selected, hovered, helper?.volume])
+  }, [selected, hovered, helper?.volume, visibility, editorHelperState.volumeVisibility])
 
   useEffect(() => {
     const authoringEntity = getAuthoringCounterpart(entity)
@@ -192,8 +196,8 @@ const ActiveHelperReactor = (helper) => {
 
   useEffect(() => {
     const setGizmoVisibility = (visible: boolean) => {
-      if (studioIcon === UndefinedEntity) return
-      setVisibleComponent(getComponent(entity, ActiveHelperComponent).helperIconGizmo, visible)
+      if (studioIconEntity === UndefinedEntity) return
+      setVisibleComponent(studioIconEntity, visible)
       directionalEntitiesState.value.forEach((entity) => {
         setVisibleComponent(entity, visible)
       })
@@ -204,7 +208,14 @@ const ActiveHelperReactor = (helper) => {
     setGizmoVisibility(engineState.isEditing.value && editorHelperState.gizmoEnabled.value)
   }, [engineState.isEditing, editorHelperState.gizmoEnabled])
 
-  return <helper.reactor entity={entity} selected={selected.value} hovered={hovered.value} />
+  return (
+    <helper.reactor
+      parentEntity={entity}
+      iconEntity={studioIconEntity}
+      selected={selected.value}
+      hovered={hovered.value}
+    />
+  )
 }
 
 const reactor = () => {

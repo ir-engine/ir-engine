@@ -31,12 +31,12 @@ import { PointLightComponent } from '@ir-engine/spatial/src/SpatialModule'
 import { useEffect } from 'react'
 import { PointLight, PointLightHelper } from 'three'
 
-export const PointLightHelperReactor: React.FC = (props: { entity; selected; hovered }) => {
-  const { entity, selected, hovered } = props
-  const pointLightComponent = useComponent(entity, PointLightComponent)
+export const PointLightHelperReactor: React.FC = (props: { parentEntity; iconEntity; selected; hovered }) => {
+  const { parentEntity, iconEntity, selected, hovered } = props
+  const pointLightComponent = useComponent(parentEntity, PointLightComponent)
   const debugEnabled = selected || hovered
   const light = useHookstate(() => new PointLight()).value as PointLight
-  const helperEntity = useHelperEntity(entity, () => new PointLightHelper(light), debugEnabled)
+  const helperEntity = useHelperEntity(parentEntity, () => new PointLightHelper(light), debugEnabled)
   const helperObject = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as
     | PointLightHelper
     | undefined

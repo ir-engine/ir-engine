@@ -86,16 +86,16 @@ targetLineGeometry.setAttribute(
 
 const mergedGeometry = mergeBufferGeometries([targetLineGeometry, lightPlaneGeometry])
 
-export const DirectionalLightHelperReactor: React.FC = (props: { entity; selected; hovered }) => {
-  const { entity, selected, hovered } = props
+export const DirectionalLightHelperReactor: React.FC = (props: { parentEntity; iconEntity; selected; hovered }) => {
+  const { parentEntity, iconEntity, selected, hovered } = props
 
-  const directionalLight = useComponent(entity, DirectionalLightComponent)
+  const directionalLight = useComponent(parentEntity, DirectionalLightComponent)
 
   useEffect(() => {
     if (!(selected || hovered)) return
 
     const helperEntity = createEntity()
-    setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
+    setComponent(helperEntity, EntityTreeComponent, { parentEntity })
     setComponent(helperEntity, LineSegmentComponent, {
       name: 'directional-light-helper',
       // Clone geometry because LineSegmentComponent disposes it when removed

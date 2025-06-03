@@ -31,12 +31,12 @@ import { SpotLightComponent } from '@ir-engine/spatial/src/renderer/components/l
 import { useEffect } from 'react'
 import { SpotLight, SpotLightHelper } from 'three'
 
-export const SpotLightHelperReactor: React.FC = (props: { entity; selected; hovered }) => {
-  const { entity, selected, hovered } = props
-  const spotLightComponent = useComponent(entity, SpotLightComponent)
+export const SpotLightHelperReactor: React.FC = (props: { parentEntity; iconEntity; selected; hovered }) => {
+  const { parentEntity, iconEntity, selected, hovered } = props
+  const spotLightComponent = useComponent(parentEntity, SpotLightComponent)
   const debugEnabled = selected || hovered
   const light = useHookstate(() => new SpotLight()).value as SpotLight
-  const helperEntity = useHelperEntity(entity, () => new SpotLightHelper(light), debugEnabled)
+  const helperEntity = useHelperEntity(parentEntity, () => new SpotLightHelper(light), debugEnabled)
   const helperObject = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as SpotLightHelper | undefined
 
   useEffect(() => {

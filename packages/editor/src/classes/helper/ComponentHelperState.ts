@@ -40,10 +40,8 @@ import {
 } from '@ir-engine/spatial'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
-import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import BoxColliderIcon from '@ir-engine/ui/src/components/editor/assets/boxCollider.png'
 import CameraIcon from '@ir-engine/ui/src/components/editor/assets/camera.png'
-import CylinderColliderIcon from '@ir-engine/ui/src/components/editor/assets/cylinderCollider.png'
 import DirectionalLightIcon from '@ir-engine/ui/src/components/editor/assets/directional.png'
 import EnvMapBakeIcon from '@ir-engine/ui/src/components/editor/assets/envMap.png'
 import HemisphereLightIcon from '@ir-engine/ui/src/components/editor/assets/hemisphere.png'
@@ -54,13 +52,18 @@ import PortalIcon from '@ir-engine/ui/src/components/editor/assets/portal.png'
 import PositionalAudioIcon from '@ir-engine/ui/src/components/editor/assets/positionalAudio.png'
 import RigidBodyIcon from '@ir-engine/ui/src/components/editor/assets/rigidBody.png'
 import SpawnPointIcon from '@ir-engine/ui/src/components/editor/assets/spawnPoint.png'
-import SphereColiderIcon from '@ir-engine/ui/src/components/editor/assets/sphereCollider.png'
 import SpotLightIcon from '@ir-engine/ui/src/components/editor/assets/spot.png'
 import TriggerIcon from '@ir-engine/ui/src/components/editor/assets/trigger.png'
+import { ColliderHelperReactor } from './ColliderHelper'
 import { DirectionalLightHelperReactor } from './DirectionalLightHelper'
 import { EnvmapBakeHelperReactor } from './EnvmapBakeHelper'
 import { HemiSphereLightHelperReactor } from './HemiSphereLightHelper'
+import { MediaHelperReactor } from './MediaHelper'
+import { MountPointHelperReactor } from './MountPointHelper'
 import { PointLightHelperReactor } from './PointLightHelper'
+import { PortalHelperReactor } from './PortalHelper'
+import { PositionalAudioHelperReactor } from './PositionalAudioHelper'
+import { ScenePreviewCameraHelperReactor } from './ScenePreviewCameraHelper'
 import { SpawnPointHelperReactor } from './SpawnPointHelper'
 import { SpotLightHelperReactor } from './SpotLightHelper'
 
@@ -86,7 +89,7 @@ export const ComponentHelperState = defineState({
       },
       [MediaComponent.jsonID]: {
         icon: MediaIcon,
-        reactor: undefined
+        reactor: MediaHelperReactor
       },
       [HemisphereLightComponent.jsonID]: {
         icon: HemisphereLightIcon,
@@ -94,7 +97,7 @@ export const ComponentHelperState = defineState({
       },
       [MountPointComponent.jsonID]: {
         icon: MountPointIcon,
-        reactor: undefined,
+        reactor: MountPointHelperReactor,
         volume: true
       },
       [PointLightComponent.jsonID]: {
@@ -103,15 +106,16 @@ export const ComponentHelperState = defineState({
       },
       [PositionalAudioComponent.jsonID]: {
         icon: PositionalAudioIcon,
-        reactor: undefined
+        reactor: PositionalAudioHelperReactor,
+        directional: true
       },
       [PortalComponent.jsonID]: {
         icon: PortalIcon,
-        reactor: undefined
+        reactor: PortalHelperReactor
       },
       [ScenePreviewCameraComponent.jsonID]: {
         icon: CameraIcon,
-        reactor: undefined
+        reactor: ScenePreviewCameraHelperReactor
       },
       [SpotLightComponent.jsonID]: {
         icon: SpotLightIcon,
@@ -136,20 +140,8 @@ export const ComponentHelperState = defineState({
       },
       [ColliderComponent.jsonID]: {
         // special case for collider shapes
-        icon: (shape = 'box') => {
-          switch (shape) {
-            case Shapes.Sphere:
-            case Shapes.Capsule:
-              return SphereColiderIcon
-            case Shapes.Cylinder:
-              return CylinderColliderIcon
-            case Shapes.Box: /* fall-through */
-            case Shapes.Plane:
-            default:
-              return BoxColliderIcon
-          }
-        },
-        reactor: undefined,
+        icon: BoxColliderIcon,
+        reactor: ColliderHelperReactor,
         volume: true
       }
     } as Record<string, ComponentHelperEntry>

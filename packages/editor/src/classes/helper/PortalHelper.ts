@@ -23,16 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { Vector3_Right, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
-import { Mesh, MeshPhysicalMaterial, SphereGeometry } from 'three'
+import { ArrowHelper } from 'three'
 
-const sphereGeometry = new SphereGeometry(0.75)
-const helperMeshMaterial = new MeshPhysicalMaterial({ roughness: 0, metalness: 1 })
-
-export const EnvmapBakeHelperReactor: React.FC = (props: { parentEntity; iconEntity; selected; hovered }) => {
+export const PortalHelperReactor: React.FC = (props: { parentEntity; iconEntity; selected; hovered }) => {
   const { parentEntity, iconEntity, selected, hovered } = props
 
   const debugEnabled = selected || hovered
-  useHelperEntity(parentEntity, () => new Mesh(sphereGeometry, helperMeshMaterial), debugEnabled)
+
+  useHelperEntity(parentEntity, () => new ArrowHelper(Vector3_Right, Vector3_Zero, 1, 0x000000), debugEnabled)
+
   return null
 }

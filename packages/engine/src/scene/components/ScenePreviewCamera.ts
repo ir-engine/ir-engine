@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEffect, useLayoutEffect } from 'react'
-import { CameraHelper, PerspectiveCamera } from 'three'
+import { useLayoutEffect } from 'react'
+import { PerspectiveCamera } from 'three'
 
 import { EngineState, useEntityContext, useExecute } from '@ir-engine/ecs'
 import {
@@ -36,11 +36,9 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { getMutableState, getState, isClient, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, isClient, useHookstate } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
-import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { TransformDirtyCleanupSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
@@ -56,12 +54,6 @@ export const ScenePreviewCameraComponent = defineComponent({
   reactor: function () {
     if (!isClient) return null
     const entity = useEntityContext()
-    const renderState = useMutableState(RendererState)
-    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
-    const debugEnabled =
-      activeHelperComponent !== undefined &&
-      activeHelperComponent.enabled.value &&
-      (activeHelperComponent.selected.value || activeHelperComponent.hovered.value)
     const previewCamera = useComponent(entity, ScenePreviewCameraComponent)
     const previewCameraTransform = useComponent(entity, TransformComponent)
     const engineCameraTransform = useOptionalComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
@@ -98,15 +90,6 @@ export const ScenePreviewCameraComponent = defineComponent({
       previewCamera.camera.value.quaternion.copy(previewCameraTransform.rotation.value)
     }, [previewCameraTransform])
 
-    const helperEntity = useHelperEntity(
-      entity,
-      () => new CameraHelper(previewCamera.camera.value as PerspectiveCamera),
-      debugEnabled
-    )
-
-    useEffect(() => {
-      activeHelperComponent?.helperSelectedGizmo.set(helperEntity)
-    }, [helperEntity])
     return null
   }
 })

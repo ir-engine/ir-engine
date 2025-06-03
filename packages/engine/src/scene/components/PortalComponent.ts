@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { ArrowHelper, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
+import { Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
 import { EntityTreeComponent, createEntity, useEntityContext } from '@ir-engine/ecs'
 import {
@@ -39,7 +39,6 @@ import { Entity, EntityID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { Vector3_Right, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
@@ -49,7 +48,6 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
-import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
@@ -128,8 +126,6 @@ export const PortalComponent = defineComponent({
       })
       setComponent(entity, ActiveHelperComponent, { directional: true })
     }, [])
-
-    useHelperEntity(entity, () => new ArrowHelper(Vector3_Right, Vector3_Zero, 1, 0x000000), debugEnabled)
 
     // const [portalGeometry] = useResource<SphereGeometry>(new SphereGeometry(1, 32, 32), entity)
     // const [portalMesh] = useDisposable(

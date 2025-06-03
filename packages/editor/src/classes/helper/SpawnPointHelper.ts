@@ -41,18 +41,18 @@ import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from
 
 const GLTF_PATH = '/static/editor/spawn-point.glb'
 
-export const SpawnPointHelperReactor: React.FC = (props: { entity; selected; hovered }) => {
-  const { entity, selected, hovered } = props
+export const SpawnPointHelperReactor: React.FC = (props: { parentEntity; iconEntity; selected; hovered }) => {
+  const { parentEntity, iconEntity, selected, hovered } = props
   const debugEnabled = selected || hovered
 
-  const debugGLTF = useGLTFComponent(debugEnabled ? GLTF_PATH : '', entity)
+  const debugGLTF = useGLTFComponent(debugEnabled ? GLTF_PATH : '', parentEntity)
 
   useEffect(() => {
     if (!debugGLTF || !debugEnabled) return
 
     const boundsHelperEntity = createEntity()
     setComponent(boundsHelperEntity, TransformComponent)
-    setComponent(boundsHelperEntity, EntityTreeComponent, { parentEntity: entity })
+    setComponent(boundsHelperEntity, EntityTreeComponent, { parentEntity: parentEntity })
     setComponent(boundsHelperEntity, VisibleComponent)
     const buffer = new BufferGeometry()
     const positions = new Float32Array([-0.5, 0, -0.5, 0.5, 0, -0.5, 0.5, 0, 0.5, -0.5, 0, 0.5])
@@ -67,9 +67,9 @@ export const SpawnPointHelperReactor: React.FC = (props: { entity; selected; hov
 
     setVisibleComponent(debugGLTF, true)
     setComponent(debugGLTF, ComputedTransformComponent, {
-      referenceEntities: [entity],
+      referenceEntities: [parentEntity],
       computeFunction: () => {
-        const scale = getComponent(entity, TransformComponent).scale
+        const scale = getComponent(parentEntity, TransformComponent).scale
         getComponent(debugGLTF, TransformComponent).scale.set(1 / scale.x, 1 / scale.y, 1 / scale.z)
       }
     })
