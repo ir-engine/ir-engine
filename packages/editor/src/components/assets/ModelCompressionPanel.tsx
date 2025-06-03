@@ -31,6 +31,7 @@ import {
   ModelTransformStatus
 } from '@ir-engine/common/src/model/ModelTransformFunctions'
 import {
+  Entity,
   getAncestorWithComponents,
   iterateEntityNode,
   removeEntityNodeRecursively,
@@ -42,7 +43,7 @@ import {
   ModelTransformParameters
 } from '@ir-engine/engine/src/assets/classes/ModelTransform'
 import { Heuristic, VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
-import { NO_PROXY, none, useHookstate } from '@ir-engine/hyperflux'
+import { getState, NO_PROXY, none, useHookstate } from '@ir-engine/hyperflux'
 
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { useTranslation } from 'react-i18next'
@@ -60,6 +61,7 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { HiPlus, HiXMark } from 'react-icons/hi2'
 import { MdClose } from 'react-icons/md'
 import { FileDataType } from '../../constants/AssetTypes'
+import { EditorState } from '../../services/EditorServices'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 
 const progressCaptions: Record<ModelTransformStatus, string> = {
@@ -74,6 +76,7 @@ const createLODVariants = async (
   lods: LODVariantDescriptor[],
   heuristic: Heuristic,
   exportCombined = false,
+  parentEntity: Entity,
   onProgress: (
     progress: number,
     status: ModelTransformStatus,
@@ -98,8 +101,7 @@ const createLODVariants = async (
 
   if (exportCombined) {
     const firstLODParams = lods[0].params
-
-    const result = createSceneEntity('container')
+    const result = createSceneEntity('container', parentEntity)
     const variant = createSceneEntity('LOD Variant', result)
     setComponent(variant, VariantComponent, {
       levels: lods.map((lod, lodIndex) => ({
@@ -152,8 +154,26 @@ export default function ModelCompressionPanel({
       caption: ''
     })
     try {
+      const failedFiles: string[] = []
       for (const file of selectedFiles) {
-        await compressModel(file)
+        try {
+          await compressModel(file)
+        } catch (error) {
+          console.error('Error during model compression:', error)
+          // Notify user of error
+          failedFiles.push(file.name)
+          continue
+        }
+      }
+      if (failedFiles.length === selectedFiles.length) {
+        throw new Error(failedFiles.join(', '))
+      } else if (failedFiles.length > 0) {
+        NotificationService.dispatchNotify(
+          t('editor:properties.model.transform.compressionError', { file: failedFiles.join(', ') }),
+          {
+            variant: 'error'
+          }
+        )
       }
       await refreshDirectory()
       NotificationService.dispatchNotify(t('editor:properties.model.transform.compressionComplete'), {
@@ -162,9 +182,12 @@ export default function ModelCompressionPanel({
       })
     } catch (error) {
       // Notify user of error
-      NotificationService.dispatchNotify(t('editor:properties.model.transform.compressionError'), {
-        variant: 'error'
-      })
+      NotificationService.dispatchNotify(
+        t('editor:properties.model.transform.compressionError', { file: error.message }),
+        {
+          variant: 'error'
+        }
+      )
       console.error('Error during model compression:', error)
     } finally {
       compressionLoading.set(false)
@@ -206,25 +229,25 @@ export default function ModelCompressionPanel({
 
     const url = new URL(file.url)
     const srcURL = pathJoin(url.origin, url.pathname)
+    const fileName = srcURL.split('/').pop()!.split('.').shift()!
     const modelFormat = srcURL.endsWith('.gltf') ? 'gltf' : srcURL.endsWith('.vrm') ? 'vrm' : 'glb'
 
-    if (selectedFiles.length > 1) {
-      fileLODs = fileLODs.map((lod) => {
-        const fileName = srcURL.split('/').pop()!.split('.').shift()!
-        const dst = fileName + lod.suffix
-        return {
-          ...lod,
-          dst,
-          modelFormat
-        }
-      })
-    }
+    // Create a copy of LODs with file-specific destination names
+    fileLODs = fileLODs.map((lod) => {
+      // Create a deep copy to avoid modifying the original LOD
+      const newLod = JSON.parse(JSON.stringify(lod)) as LODVariantDescriptor
+      // Set the destination filename based on the current file being processed
+      newLod.params.dst = fileName + newLod.suffix
+      newLod.params.modelFormat = modelFormat
+      return newLod
+    })
 
     await createLODVariants(
       srcURL,
       fileLODs,
       Heuristic.DISTANCE,
       exportCombined,
+      getState(EditorState).rootEntity,
       (progress, status, numerator, denominator) => {
         const caption = t(progressCaptions[status]!, {
           numerator: numerator + 1,

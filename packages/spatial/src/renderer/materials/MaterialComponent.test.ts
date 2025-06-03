@@ -24,53 +24,24 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
+  Engine,
   Entity,
+  EntityID,
+  SourceID,
+  UUIDComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
   destroyEngine,
   getComponent,
-  hasComponent,
-  removeComponent,
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
 import assert from 'assert'
-import { BoxGeometry, Material, Mesh } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { Material } from 'three'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { assertArray } from '../../../tests/util/assert'
-import { MeshComponent } from '../components/MeshComponent'
-import {
-  MaterialInstanceComponent,
-  MaterialPrototypeObjectConstructor,
-  MaterialStateComponent,
-  PrototypeArgument,
-  PrototypeArgumentValue
-} from './MaterialComponent'
-
-type MaterialStateComponentData = {
-  material: Material
-  parameters: { [key: string]: any }
-  instances: Entity[]
-}
-
-const MaterialStateComponentDefaults: MaterialStateComponentData = {
-  material: {} as Material,
-  parameters: {} as { [key: string]: any },
-  instances: [] as Entity[]
-}
-
-function assertMaterialStateComponentEq(A: MaterialStateComponentData, B: MaterialStateComponentData) {
-  assert.equal(A.material.uuid, B.material.uuid)
-  assert.deepEqual(A.parameters, B.parameters)
-  assertArray.eq(A.instances, B.instances)
-}
-
-function assertMaterialStateComponentNotEq(A: MaterialStateComponentData, B: MaterialStateComponentData) {
-  assert.notEqual(A.material.uuid, B.material.uuid)
-  assert.notDeepEqual(A.parameters, B.parameters)
-  assertArray.eq(A.instances, B.instances)
-}
+import { MaterialInstanceComponent, MaterialStateComponent } from './MaterialComponent'
 
 describe('MaterialStateComponent', () => {
   describe('IDs', () => {
@@ -83,19 +54,28 @@ describe('MaterialStateComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
-      createEngine()
+      if (!Engine.instance) createEngine()
       testEntity = createEntity()
+      setComponent(testEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'id' as EntityID
+      })
       setComponent(testEntity, MaterialStateComponent)
     })
 
     afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
+      if (testEntity !== UndefinedEntity) {
+        removeEntity(testEntity)
+      }
+      destroyEngine()
     })
 
     it('should initialize the component with the expected default values', () => {
       const data = getComponent(testEntity, MaterialStateComponent)
-      assertMaterialStateComponentEq(data, MaterialStateComponentDefaults)
+      expect(data).toEqual({
+        material: undefined,
+        parameters: {}
+      })
     })
   }) //:: onInit
 
@@ -103,25 +83,30 @@ describe('MaterialStateComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
-      createEngine()
+      if (!Engine.instance) createEngine()
       testEntity = createEntity()
-      setComponent(testEntity, MaterialStateComponent)
+      setComponent(testEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'id' as EntityID
+      })
+      setComponent(testEntity, MaterialStateComponent, { material: new Material() })
     })
 
     afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
+      if (testEntity !== UndefinedEntity) {
+        removeEntity(testEntity)
+      }
+      destroyEngine()
     })
 
     it('should change the values of an initialized MaterialStateComponent', () => {
-      const Expected: MaterialStateComponentData = {
+      const Expected = {
         material: new Material(),
-        parameters: [],
-        instances: []
+        parameters: {}
       }
       setComponent(testEntity, MaterialStateComponent, Expected)
       const result = getComponent(testEntity, MaterialStateComponent)
-      assertMaterialStateComponentEq(result, Expected)
+      expect(result).toEqual(Expected)
     })
 
     it('should not change values of an initialized MaterialStateComponent when the data passed had incorrect types', () => {
@@ -134,7 +119,7 @@ describe('MaterialStateComponent', () => {
       // @ts-ignore Coerce an incorrect type into the component's data
       setComponent(testEntity, MaterialStateComponent, Incorrect)
       const after = getComponent(testEntity, MaterialStateComponent)
-      assertMaterialStateComponentEq(before, after)
+      expect(before).toEqual(after)
     })
   }) //:: onSet
 
@@ -142,110 +127,24 @@ describe('MaterialStateComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
-      createEngine()
+      if (!Engine.instance) createEngine()
       testEntity = createEntity()
       setComponent(testEntity, MaterialStateComponent)
     })
 
     afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
+      if (testEntity !== UndefinedEntity) {
+        removeEntity(testEntity)
+      }
+      destroyEngine()
     })
 
-    it("should call setMeshMaterial for every entity in the  `@param entity`.MaterialStateComponent.instances list, using that instanceEntity's material entities", () => {
-      // Set the data as expected
-      const instance1 = createEntity()
-      const instance2 = createEntity()
-      const instances = [instance1, instance2] as Entity[]
+    it.todo(
+      "should call setMeshMaterial for every entity in the  `@param entity`.MaterialStateComponent.instances list, using that instanceEntity's material entities",
+      () => {}
+    )
 
-      const mesh1 = new Mesh(new BoxGeometry(), [new Material(), new Material()])
-      const mesh2 = new Mesh(new BoxGeometry(), [new Material(), new Material()])
-      const meshes = [mesh1, mesh2] as Mesh[]
-
-      const materialEntity1 = createEntity()
-      const materialEntity2 = createEntity()
-      const materialEntities = [materialEntity1, materialEntity2]
-
-      const material1 = new Material()
-      const material2 = new Material()
-
-      setComponent(materialEntity1, MaterialStateComponent, { instances: instances, material: material1 })
-      setComponent(materialEntity2, MaterialStateComponent, { instances: instances, material: material2 })
-
-      for (const id in instances) {
-        setComponent(instances[id], MaterialInstanceComponent, { entities: materialEntities })
-        setComponent(instances[id], MeshComponent, meshes[id])
-      }
-
-      // Sanity check before running
-      assert.equal(hasComponent(materialEntity1, MaterialStateComponent), true)
-      for (const entity of getComponent(materialEntity1, MaterialStateComponent).instances) {
-        assert.equal(hasComponent(entity, MaterialInstanceComponent), true)
-        assert.equal(hasComponent(entity, MeshComponent), true)
-        assert.notEqual(
-          (getComponent(entity, MeshComponent).material as Material).uuid,
-          getComponent(materialEntity1, MaterialStateComponent).material.uuid
-        )
-      }
-
-      // Run and Check the result
-      removeComponent(materialEntity1, MaterialStateComponent)
-      for (const instance of instances) {
-        const instanceMaterialEntities = getComponent(instance, MaterialInstanceComponent).entities
-        const meshMaterials = getComponent(instance, MeshComponent).material as Material[]
-        for (const id in instanceMaterialEntities) {
-          const materialEntity = instanceMaterialEntities[id]
-          if (materialEntity === materialEntity1) continue // Skip the removed entity
-          if (hasComponent(materialEntity, MaterialStateComponent)) {
-            assert.equal(meshMaterials[id].uuid, getComponent(materialEntity, MaterialStateComponent).material.uuid)
-          }
-        }
-      }
-    })
-
-    it('should not do anything if the entity does not have a MaterialStateComponent', () => {
-      // Set the data as expected
-      const instance1 = createEntity()
-      const instance2 = createEntity()
-      const instances = [instance1, instance2] as Entity[]
-
-      const mesh1 = new Mesh(new BoxGeometry(), [new Material(), new Material()])
-      const mesh2 = new Mesh(new BoxGeometry(), [new Material(), new Material()])
-      const meshes = [mesh1, mesh2] as Mesh[]
-
-      const materialEntity1 = createEntity()
-      const materialEntity2 = createEntity()
-      const materialEntities = [materialEntity1, materialEntity2]
-
-      const material1 = new Material()
-      const material2 = new Material()
-
-      // Don't set MaterialStateComponent on materialEntity1
-      setComponent(materialEntity2, MaterialStateComponent, { instances: instances, material: material2 })
-
-      for (const id in instances) {
-        setComponent(instances[id], MaterialInstanceComponent, { entities: materialEntities })
-        setComponent(instances[id], MeshComponent, meshes[id])
-      }
-
-      // Sanity check before running
-      assert.equal(hasComponent(materialEntity1, MaterialStateComponent), false)
-      assert.equal(hasComponent(materialEntity2, MaterialStateComponent), true)
-
-      // Run and Check the result
-      removeComponent(materialEntity1, MaterialStateComponent) // This should do nothing
-      for (const instance of instances) {
-        const instanceMaterialEntities = getComponent(instance, MaterialInstanceComponent).entities
-        const meshMaterials = getComponent(instance, MeshComponent).material as Material[]
-        // Verify that the materials haven't been changed
-        for (const id in instanceMaterialEntities) {
-          const materialEntity = instanceMaterialEntities[id]
-          if (materialEntity === materialEntity2) {
-            assert.notEqual(meshMaterials[id].uuid, getComponent(materialEntity, MaterialStateComponent).material.uuid)
-          }
-        }
-      }
-    })
+    it.todo('should not do anything if the entity does not have a MaterialStateComponent', () => {})
   }) //:: onRemove
 }) //:: MaterialStateComponent
 
@@ -261,10 +160,6 @@ function assertMaterialInstanceComponentEq(A: MaterialInstanceComponentData, B: 
   assertArray.eq(A.entities, B.entities)
 }
 
-function assertMaterialInstanceComponentNotEq(A: MaterialInstanceComponentData, B: MaterialInstanceComponentData) {
-  assertArray.anyNotEq(A.entities, B.entities)
-}
-
 describe('MaterialInstanceComponent', () => {
   describe('IDs', () => {
     it('should initialize the MaterialInstanceComponent.name field with the expected value', () => {
@@ -276,14 +171,13 @@ describe('MaterialInstanceComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
-      createEngine()
+      if (!Engine.instance) createEngine()
       testEntity = createEntity()
       setComponent(testEntity, MaterialInstanceComponent)
     })
 
     afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
+      destroyEngine()
     })
 
     it('should initialize the component with the expected default values', () => {
@@ -296,19 +190,30 @@ describe('MaterialInstanceComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
-      createEngine()
+      if (!Engine.instance) createEngine()
       testEntity = createEntity()
+      setComponent(testEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'id' as EntityID
+      })
       setComponent(testEntity, MaterialInstanceComponent)
     })
 
     afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
+      destroyEngine()
     })
 
     it('should change the values of an initialized MaterialInstanceComponent', () => {
       const entity1 = createEntity()
       const entity2 = createEntity()
+      setComponent(entity1, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'id1' as EntityID
+      })
+      setComponent(entity2, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'id2' as EntityID
+      })
       const Expected: MaterialInstanceComponentData = {
         entities: [entity1, entity2] as Entity[]
       }
@@ -331,68 +236,22 @@ describe('MaterialInstanceComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
-      createEngine()
+      if (!Engine.instance) createEngine()
       testEntity = createEntity()
     })
 
     afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
+      if (testEntity !== UndefinedEntity) {
+        removeEntity(testEntity)
+      }
+      destroyEngine()
     })
 
     describe("for every materialEntity in the testEntity's MaterialInstanceComponent.uuid list", () => {
-      it("... should remove the testEntity from each materialEntity's MaterialStateComponent.instances list", () => {
-        const otherEntity1 = createEntity()
-        const otherEntity2 = createEntity()
-        const materialEntities = [otherEntity1, otherEntity2]
-
-        setComponent(otherEntity1, MaterialStateComponent, { instances: [testEntity], material: new Material() })
-        setComponent(otherEntity2, MaterialStateComponent, { instances: [testEntity], material: new Material() })
-
-        // Set the data as expected
-        setComponent(testEntity, MaterialInstanceComponent, { entities: materialEntities })
-
-        // Sanity check before running
-        assert.equal(hasComponent(testEntity, MaterialInstanceComponent), true)
-        for (const entity of materialEntities) {
-          assert.equal(getComponent(entity, MaterialStateComponent).instances.includes(testEntity), true)
-        }
-
-        // Run and Check the result
-        removeComponent(testEntity, MaterialInstanceComponent)
-        for (const entity of materialEntities) {
-          assert.equal(getComponent(entity, MaterialStateComponent).instances.includes(testEntity), false)
-        }
-      })
+      it.todo(
+        "... should remove the testEntity from each materialEntity's MaterialStateComponent.instances list",
+        () => {}
+      )
     })
   }) //:: onRemove
 }) //:: MaterialInstanceComponent
-
-function assertPrototypeArgumentsEq(A: PrototypeArgumentValue, B: PrototypeArgumentValue) {
-  assert.equal(A.type, B.type)
-  assert.deepEqual(A.default, B.default)
-  assert.equal(A.min, B.min)
-  assert.equal(A.max, B.max)
-  if (!A.options || !B.options) {
-    assert.equal(true, false)
-    return
-  }
-  assert.equal(A.options.length, B.options?.length)
-  for (const opt in A.options) assert.deepEqual(A.options[opt], B.options[opt])
-}
-
-type MaterialPrototypeComponentData = {
-  prototypeArguments: PrototypeArgument
-  prototypeConstructor: MaterialPrototypeObjectConstructor
-}
-
-const MaterialPrototypeComponentDefaults: MaterialPrototypeComponentData = {
-  prototypeArguments: {} as PrototypeArgument,
-  prototypeConstructor: {} as MaterialPrototypeObjectConstructor
-}
-
-function assertMaterialPrototypeComponentEq(A: MaterialPrototypeComponentData, B: MaterialPrototypeComponentData) {
-  for (const arg in A.prototypeArguments)
-    assertPrototypeArgumentsEq(A.prototypeArguments[arg], B.prototypeArguments[arg])
-  assert.deepEqual(A.prototypeConstructor, B.prototypeConstructor)
-}

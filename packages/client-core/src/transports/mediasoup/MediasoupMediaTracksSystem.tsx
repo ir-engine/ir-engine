@@ -31,24 +31,22 @@ import {
   MediasoupMediaProducersConsumersObjectsState
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import { MediasoupTransportState } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
-import { PresentationSystemGroup, defineSystem } from '@ir-engine/ecs'
+import { defineSystem, PresentationSystemGroup } from '@ir-engine/ecs'
 import {
   defineState,
   dispatchAction,
   getMutableState,
   getState,
-  useHookstate,
-  useMutableState
-} from '@ir-engine/hyperflux'
-import {
+  MediaStreamState,
   NetworkState,
+  screenshareAudioMediaChannelType,
+  screenshareVideoMediaChannelType,
+  useHookstate,
+  useMutableState,
   VideoConstants,
-  screenshareAudioDataChannelType,
-  screenshareVideoDataChannelType,
-  webcamAudioDataChannelType,
-  webcamVideoDataChannelType
-} from '@ir-engine/network'
-import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
+  webcamAudioMediaChannelType,
+  webcamVideoMediaChannelType
+} from '@ir-engine/hyperflux'
 import React, { useEffect } from 'react'
 import { MediaInstanceState, useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import { clientContextParams } from '../../util/ClientContextState'
@@ -102,7 +100,7 @@ const MicrophoneReactor = () => {
       .produce({
         track: mediaStreamState.microphoneDestinationNode.value!.stream!.getAudioTracks()[0],
         codecOptions,
-        appData: { mediaTag: webcamAudioDataChannelType, channelId: channelId }
+        appData: { mediaTag: webcamAudioMediaChannelType, channelId: channelId }
       })
       .then((prod) => {
         if (abortController.signal.aborted) return
@@ -205,7 +203,7 @@ const WebcamReactor = () => {
         encodings,
         codecOptions: VideoConstants.CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
         codec,
-        appData: { mediaTag: webcamVideoDataChannelType, channelId: channelId }
+        appData: { mediaTag: webcamVideoMediaChannelType, channelId: channelId }
       })
       .then((prod) => {
         if (abortController.signal.aborted) return
@@ -279,7 +277,7 @@ const ScreenshareReactor = () => {
         encodings,
         codecOptions: VideoConstants.CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
         codec,
-        appData: { mediaTag: screenshareVideoDataChannelType, channelId }
+        appData: { mediaTag: screenshareVideoMediaChannelType, channelId }
       })
       .then((producer) => {
         if (abortController.signal.aborted) {
@@ -305,7 +303,7 @@ const ScreenshareReactor = () => {
       transport
         .produce({
           track: audioTracks[0],
-          appData: { mediaTag: screenshareAudioDataChannelType, channelId }
+          appData: { mediaTag: screenshareAudioMediaChannelType, channelId }
         })
         .then((producer) => {
           if (abortController.signal.aborted) {

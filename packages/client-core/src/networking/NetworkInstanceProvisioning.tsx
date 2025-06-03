@@ -43,9 +43,15 @@ import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import useEngineSetting from '@ir-engine/common/src/hooks/useEngineSetting'
 import { InstanceID, LocationID, RoomCode } from '@ir-engine/common/src/schema.type.module'
 import { defineSystem, PresentationSystemGroup } from '@ir-engine/ecs'
-import { getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
-import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
+import {
+  getMutableState,
+  getState,
+  MediaStreamState,
+  NetworkState,
+  none,
+  useHookstate,
+  useMutableState
+} from '@ir-engine/hyperflux'
 import { ClientEngineSettingType } from '@ir-engine/server-core/src/appconfig'
 import { FriendService } from '../social/services/FriendService'
 import { connectToInstance } from '../transports/mediasoup/MediasoupClientFunctions'
@@ -197,16 +203,13 @@ export const MediaInstanceProvisioning = () => {
 
   const channelState = useMutableState(ChannelState)
 
-  const worldNetworkId = NetworkState.worldNetwork?.id
-  const worldNetwork = useWorldNetwork()
-
   MediaInstanceConnectionService.useAPIListeners()
   const mediaInstanceState = useHookstate(getMutableState(MediaInstanceState).instances)
   // const instance = useMediaInstance()
 
   // Once we have the world server, provision the media server
   useEffect(() => {
-    if (mediaInstanceState.keys.length || !worldNetwork?.ready?.value) return
+    if (mediaInstanceState.keys.length) return
 
     const currentChannel = channelState.targetChannelId.value
     if (!currentChannel) return
@@ -223,7 +226,7 @@ export const MediaInstanceProvisioning = () => {
     //     mediaInstanceState[id].set(none)
     //   }
     // }
-  }, [worldNetwork?.ready?.value, mediaInstanceState.keys.length, channelState.targetChannelId.value])
+  }, [mediaInstanceState.keys.length, channelState.targetChannelId.value])
 
   return (
     <>

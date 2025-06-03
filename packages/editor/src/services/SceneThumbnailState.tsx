@@ -121,7 +121,7 @@ export const SceneThumbnailState = defineState({
   },
   createLoadingScreen: async () => {
     const sceneThumbnailState = getMutableState(SceneThumbnailState)
-    const envmapImageData = generateEnvmapBake(sceneThumbnailState.resolution.value)
+    const envmapImageData = generateEnvmapBake({ resolution: sceneThumbnailState.resolution.value })
     const blob = await imageDataToBlob(envmapImageData)
     const sceneThumbnail = getMutableState(SceneThumbnailState)
     sceneThumbnail.merge({

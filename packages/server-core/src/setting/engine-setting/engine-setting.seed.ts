@@ -92,58 +92,71 @@ export async function seed(knex: Knex): Promise<void> {
     ],
     'coil'
   )
-  const instanceServerSeedData = await generateSeedData(
-    [
-      {
-        key: EngineSettings.InstanceServer.ClientHost,
-        value: process.env.APP_HOST || ''
-      },
-      {
-        key: EngineSettings.InstanceServer.RtcStartPort,
-        value: process.env.RTC_START_PORT || ''
-      },
-      {
-        key: EngineSettings.InstanceServer.RtcEndPort,
-        value: process.env.RTC_END_PORT || ''
-      },
-      {
-        key: EngineSettings.InstanceServer.RtcPortBlockSize,
-        value: process.env.RTC_PORT_BLOCK_SIZE || ''
-      },
-      {
-        key: EngineSettings.InstanceServer.IdentifierDigits,
-        value: '5'
-      },
-      {
-        key: EngineSettings.InstanceServer.Local,
-        value: `${process.env.LOCAL === 'true'}`
-      },
-      {
-        key: EngineSettings.InstanceServer.Domain,
-        value: process.env.INSTANCESERVER_DOMAIN || 'instanceserver.etherealengine.com'
-      },
-      {
-        key: EngineSettings.InstanceServer.ReleaseName,
-        value: process.env.RELEASE_NAME || 'local'
-      },
-      {
-        key: EngineSettings.InstanceServer.Port,
-        value: process.env.INSTANCESERVER_PORT || '3031'
-      },
-      {
-        key: EngineSettings.InstanceServer.Mode,
-        value: process.env.INSTANCESERVER_MODE || 'dev'
-      },
-      {
-        key: EngineSettings.InstanceServer.LocationName,
-        value: process.env.PRELOAD_LOCATION_NAME || ''
-      },
-      {
-        key: EngineSettings.InstanceServer.ShutdownDelayMs,
-        value: process.env.INSTANCESERVER_SHUTDOWN_DELAY_MS || '0'
-      }
-    ],
-    'instance-server'
+  const instanceServerSeedData = (
+    await generateSeedData(
+      [
+        {
+          key: EngineSettings.InstanceServer.ClientHost,
+          value: process.env.APP_HOST || ''
+        },
+        {
+          key: EngineSettings.InstanceServer.RtcStartPort,
+          value: process.env.RTC_START_PORT || ''
+        },
+        {
+          key: EngineSettings.InstanceServer.RtcEndPort,
+          value: process.env.RTC_END_PORT || ''
+        },
+        {
+          key: EngineSettings.InstanceServer.RtcPortBlockSize,
+          value: process.env.RTC_PORT_BLOCK_SIZE || ''
+        },
+        {
+          key: EngineSettings.InstanceServer.IdentifierDigits,
+          value: '5'
+        },
+        {
+          key: EngineSettings.InstanceServer.Local,
+          value: `${process.env.LOCAL === 'true'}`
+        },
+        {
+          key: EngineSettings.InstanceServer.Domain,
+          value: process.env.INSTANCESERVER_DOMAIN || 'instanceserver.etherealengine.com'
+        },
+        {
+          key: EngineSettings.InstanceServer.ReleaseName,
+          value: process.env.RELEASE_NAME || 'local'
+        },
+        {
+          key: EngineSettings.InstanceServer.Port,
+          value: process.env.INSTANCESERVER_PORT || '3031'
+        },
+        {
+          key: EngineSettings.InstanceServer.Mode,
+          value: process.env.INSTANCESERVER_MODE || 'dev'
+        },
+        {
+          key: EngineSettings.InstanceServer.LocationName,
+          value: process.env.PRELOAD_LOCATION_NAME || ''
+        },
+        {
+          key: EngineSettings.InstanceServer.ShutdownDelayMs,
+          value: process.env.INSTANCESERVER_SHUTDOWN_DELAY_MS || '0'
+        }
+      ],
+      'instance-server'
+    )
+  ).concat(
+    await generateSeedData(
+      [
+        {
+          key: EngineSettings.InstanceServer.MaxUsersPerInstance,
+          value: process.env.INSTANCESERVER_MAX_USERS_PER_INSTANCE || '5'
+        }
+      ],
+      'instance-server',
+      'public'
+    )
   )
 
   const instanceServerWebRtc: EngineSettingType[] = await Promise.all(
@@ -254,6 +267,14 @@ export async function seed(knex: Knex): Promise<void> {
       {
         key: EngineSettings.Server.LocalStorageProvider,
         value: process.env.LOCAL_STORAGE_PROVIDER || ''
+      },
+      {
+        key: EngineSettings.Server.IpGeolocation.ApiUrl,
+        value: process.env.IP_GEOLOCATION_API_URL || 'https://api.ipinfo.io/lite'
+      },
+      {
+        key: EngineSettings.Server.IpGeolocation.ApiToken,
+        value: process.env.IP_GEOLOCATION_API_TOKEN || ''
       },
       {
         key: EngineSettings.Server.PerformDryRun,

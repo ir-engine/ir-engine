@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { NO_PROXY, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { t } from 'i18next'
@@ -35,7 +35,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import Toolbar from '../components/toolbar/Toolbar'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
-import { EditorState } from '../services/EditorServices'
+import { ActiveLowerPanel, EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
@@ -61,6 +61,7 @@ import { AssetsPanelTab } from '../panels/assets'
 import { AssetsQueryProvider } from '../panels/assets/hooks'
 import { CurrentFilesQueryProvider } from '../panels/files/helpers'
 import { HierarchyPanelTab } from '../panels/hierarchy'
+import { InspectorPanelTab } from '../panels/inspector'
 import { MaterialsPanelTab } from '../panels/materials'
 import { PropertiesPanelTab } from '../panels/properties'
 import { ScenePanelTab } from '../panels/scenes'
@@ -68,6 +69,7 @@ import { ViewportPanelTab } from '../panels/viewport'
 import { VisualScriptPanelTab } from '../panels/visualscript'
 import { EditorWarningState } from '../services/EditorWarningServices'
 import { UIAddonsState } from '../services/UIAddonsState'
+import { ClickPlacementState } from '../systems/ClickPlacementSystem'
 import './EditorContainer.css'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
@@ -106,9 +108,13 @@ const onEditorError = (error) => {
   )
 }
 
-const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData => {
+const defaultLayout = (flags: {
+  visualScriptPanelEnabled: boolean
+  activeLowerPanel: ActiveLowerPanel
+}): LayoutData => {
   const tabs = [AssetsPanelTab]
   flags.visualScriptPanelEnabled && tabs.push(VisualScriptPanelTab)
+  const activeLowerPane = flags.activeLowerPanel
 
   return {
     dockbox: {
@@ -134,7 +140,8 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
               tabs: [HierarchyPanelTab, ScenePanelTab, MaterialsPanelTab]
             },
             {
-              tabs: [PropertiesPanelTab]
+              tabs: [PropertiesPanelTab, InspectorPanelTab],
+              activeId: activeLowerPane
             }
           ]
         }
@@ -144,12 +151,46 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
 }
 
 const EditorContainer = () => {
-  const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, rootEntity, canvasRef } =
+  const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, rootEntity, canvasRef, activeLowerPanel } =
     useMutableState(EditorState)
+  const { metadata } = useMutableState(ClickPlacementState).value
   const editorUIAddon = useMutableState(UIAddonsState).editor
   const currentLoadedSceneURL = useHookstate(null as string | null)
 
-  useEngineCanvas(canvasRef.value as React.RefObject<HTMLElement> | null)
+  useEngineCanvas(canvasRef.get(NO_PROXY) as React.RefObject<HTMLElement> | null)
+
+  useSpatialEngine()
+
+  /** Call get state since it needs to be created */
+  getState(AuthoringState)
+
+  const engineState = useMutableState(EngineState)
+
+  const errorState = useMutableState(EditorErrorState).error
+  const warningState = useMutableState(EditorWarningState).warning
+
+  const dockPanelRef = useRef<DockLayout>(null)
+
+  useHotkeys(`${cmdOrCtrlString}+s`, (e) => {
+    e.preventDefault()
+    onSaveScene()
+  })
+
+  const { initialized, isWidgetVisible, openChat } = useZendesk()
+  const { t } = useTranslation()
+
+  const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
+
+  const originEntity = useMutableState(ReferenceSpaceState).originEntity.value
+
+  const memoizedDefaultLayout = React.useMemo(
+    () =>
+      defaultLayout({
+        visualScriptPanelEnabled,
+        activeLowerPanel: activeLowerPanel.value
+      }),
+    [visualScriptPanelEnabled, activeLowerPanel.value]
+  )
 
   /**
    * what is our source of truth for which scene is loaded?
@@ -190,13 +231,6 @@ const EditorContainer = () => {
     }
   }, [scenePath.value])
 
-  useSpatialEngine()
-
-  /** Call get state since it needs to be created */
-  getState(AuthoringState)
-
-  const engineState = useHookstate(getMutableState(EngineState))
-
   useEffect(() => {
     if (engineState.isEditing.value || !rootEntity.value) return
     /** @todo upon saving the scene, the GLTFComponent src is not with the new hash, so we need to get the old src */
@@ -207,27 +241,10 @@ const EditorContainer = () => {
     }
   }, [engineState.isEditing.value, rootEntity.value])
 
-  const originEntity = useMutableState(ReferenceSpaceState).originEntity.value
-
   useEffect(() => {
     if (!sceneAssetID.value || !currentLoadedSceneURL.value || !originEntity) return
     return setCurrentEditorScene(currentLoadedSceneURL.value, sceneAssetID.value as EntityUUID)
   }, [originEntity, currentLoadedSceneURL.value])
-
-  const errorState = useHookstate(getMutableState(EditorErrorState).error)
-  const warningState = useHookstate(getMutableState(EditorWarningState).warning)
-
-  const dockPanelRef = useRef<DockLayout>(null)
-
-  useHotkeys(`${cmdOrCtrlString}+s`, (e) => {
-    e.preventDefault()
-    onSaveScene()
-  })
-
-  const { initialized, isWidgetVisible, openChat } = useZendesk()
-  const { t } = useTranslation()
-
-  const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
 
   useEffect(() => {
     return () => {
@@ -236,13 +253,13 @@ const EditorContainer = () => {
   }, [scenePath])
 
   useEffect(() => {
-    if (errorState.value) {
+    if (errorState && errorState.value) {
       onEditorError(errorState.value)
     }
   }, [errorState])
 
   useEffect(() => {
-    if (warningState.value) {
+    if (warningState && warningState.value) {
       onEditorWarning(warningState.value)
     }
   }, [warningState])
@@ -256,6 +273,19 @@ const EditorContainer = () => {
     window.addEventListener('beforeunload', handleBeforeUnload)
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [])
+
+  useEffect(() => {
+    // on click palcement select and if inspector switch is true, activate inspector panel
+    const dock = dockPanelRef.current
+    const shouldActivateInspector = activeLowerPanel.value === 'inspector'
+
+    if (dock && shouldActivateInspector) {
+      const inspectorTab = dock.find('inspectorPanel')
+      if (inspectorTab && 'id' in inspectorTab && inspectorTab.parent && 'tabs' in inspectorTab.parent) {
+        dock.dockMove(inspectorTab as any, 'inspectorPanel', inspectorTab.parent as any)
+      }
+    }
+  }, [metadata.name, activeLowerPanel.value])
 
   return (
     <main className="pointer-events-auto">
@@ -274,7 +304,7 @@ const EditorContainer = () => {
                   <DockContainer>
                     <DockLayout
                       ref={dockPanelRef}
-                      defaultLayout={defaultLayout({ visualScriptPanelEnabled })}
+                      defaultLayout={memoizedDefaultLayout}
                       style={{ position: 'absolute', left: 5, top: 50, right: 5, bottom: 5 }}
                     />
                   </DockContainer>

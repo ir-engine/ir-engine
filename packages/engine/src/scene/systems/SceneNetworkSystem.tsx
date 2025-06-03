@@ -24,20 +24,20 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
+  defineSystem,
   Entity,
   EntityTreeComponent,
+  getComponent,
+  hasComponent,
   PresentationSystemGroup,
   QueryReactor,
   QuerySubReactor,
-  UUIDComponent,
-  defineSystem,
-  getComponent,
-  hasComponent,
   useComponent,
-  useEntityContext
+  useEntityContext,
+  UUIDComponent,
+  WorldNetworkAction
 } from '@ir-engine/ecs'
-import { dispatchAction, useHookstate } from '@ir-engine/hyperflux'
-import { NetworkState, ScenePeer, SceneUser, WorldNetworkAction } from '@ir-engine/network'
+import { dispatchAction, NetworkState, ScenePeer, SceneUser, useHookstate } from '@ir-engine/hyperflux'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import React, { useEffect } from 'react'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
@@ -94,6 +94,9 @@ const SourcedSceneReactor = () => {
   )
 }
 
+/**
+ * @todo - we only want one level of depth currently, not each entity in nested models
+ */
 const SceneReactor = () => {
   const entity = useEntityContext()
   const sourceID = UUIDComponent.getAsSourceID(entity)
@@ -113,7 +116,7 @@ const reactor = () => {
 
   if (!ready) return null
 
-  return <QueryReactor ChildEntityReactor={SceneReactor} Components={[SceneComponent, GLTFComponent]} />
+  return <QueryReactor ChildEntityReactor={SourcedSceneReactor} Components={[SceneComponent, GLTFComponent]} />
 }
 
 export const SceneNetworkSystem = defineSystem({

@@ -32,9 +32,8 @@ import { defineQuery, QueryReactor, useQuery } from '@ir-engine/ecs/src/QueryFun
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
 
-import { EngineState, Not, useEntityContext } from '@ir-engine/ecs'
+import { EngineState, NetworkSchemaState, Not, useEntityContext } from '@ir-engine/ecs'
 import React from 'react'
 import { Vector3 } from 'three'
 import {
@@ -115,12 +114,11 @@ const PhysicsSceneReactor = () => {
   const scene = useComponent(entity, SceneComponent)
 
   useEffect(() => {
-    if (!scene.active.value) return
     Physics.createWorld(entity)
     return () => {
       Physics.destroyWorld(entity)
     }
-  }, [scene.active.value])
+  }, [])
   return null
 }
 
@@ -169,15 +167,15 @@ const reactor = () => {
   useEffect(() => {
     InputHeuristicState.addHeuristic(0, spatialInputRaycastHeuristic)
 
-    const networkState = getMutableState(NetworkState)
+    const networkState = getMutableState(NetworkSchemaState)
 
-    networkState.networkSchema[PhysicsSerialization.ID].set({
+    networkState[PhysicsSerialization.ID].set({
       read: PhysicsSerialization.readRigidBody,
       write: PhysicsSerialization.writeRigidBody
     })
 
     return () => {
-      networkState.networkSchema[PhysicsSerialization.ID].set(none)
+      networkState[PhysicsSerialization.ID].set(none)
     }
   }, [])
 

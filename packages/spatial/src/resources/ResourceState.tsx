@@ -26,8 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   AnimationClip,
   BufferAttribute,
-  Cache,
   CompressedTexture,
+  CompressedTextureMipmap,
   InterleavedBufferAttribute,
   Light,
   Line,
@@ -51,18 +51,27 @@ import {
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
+
 import { NO_PROXY, State, defineState, getMutableState, getState, none, useMutableState } from '@ir-engine/hyperflux'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 
-import { ReferenceSpaceState } from '@ir-engine/spatial'
 import React, { useEffect } from 'react'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { Geometry } from '../common/constants/Geometry'
-import { isIPhone } from '../common/functions/isMobile'
 import iterateObject3D from '../common/functions/iterateObject3D'
 import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { PerformanceState } from '../renderer/PerformanceState'
 import { RendererComponent } from '../renderer/components/RendererComponent'
 import { VisibleComponent } from '../renderer/components/VisibleComponent'
+
+// offloadTextureData implemented in engine package, but needs to be called and typed here
+
+declare module 'three/src/textures/Texture.js' {
+  export interface Texture {
+    offloadTextureData: () => Promise<boolean>
+  }
+}
+
 export interface DisposableObject {
   uuid: string
   id: number
@@ -71,7 +80,7 @@ export interface DisposableObject {
   disposed?: boolean
 }
 
-Cache.enabled = false
+// Cache.enabled = true
 
 export enum ResourceType {
   Mesh = 'Mesh',
@@ -278,40 +287,42 @@ const resourceCallbacks = {
       discardUponUpload = false
     ) => {
       if (!asset.image) return
+
       resource.metadata.merge({ onGPU: false, discarded: false })
       asset.onUpdate = () => {
-        resource.metadata.merge({ onGPU: true, discarded: discardUponUpload })
-        //@ts-ignore
-        // asset.onUpdate = null
+        resource.metadata.merge({ onGPU: true, discarded: false })
         const viewer = getState(ReferenceSpaceState).viewerEntity
         const renderer = getComponent(viewer, RendererComponent)
         const gl = renderer.renderContext as WebGL2RenderingContext
-        if (discardUponUpload && gl.fenceSync && isIPhone) {
+        if (discardUponUpload && typeof gl.fenceSync === 'function') {
           const sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0)
           if (sync) {
+            gl.flush()
+            let count = 0
             const checkSync = () => {
               const status = gl.clientWaitSync(sync, 0, 0)
-              if (status === gl.TIMEOUT_EXPIRED) {
-                requestAnimationFrame(checkSync)
+              if (status === gl.TIMEOUT_EXPIRED && count++ < 10) {
+                setTimeout(checkSync)
               } else {
                 gl.deleteSync(sync)
-                resource.metadata.merge({ onGPU: true, discarded: true })
-                asset.source.data = null
-                asset.mipmaps = []
+                asset
+                  .offloadTextureData()
+                  .then(() => {
+                    resource.metadata.merge({ onGPU: true, discarded: true })
+                  })
+                  .catch((err) => {
+                    console.error(err)
+                  })
               }
             }
-            requestAnimationFrame(checkSync)
+            setTimeout(checkSync)
           }
         }
       }
-      if ((asset as CompressedTexture).isCompressedTexture && discardUponUpload) {
-        // for some reason, this is necessary for the onUpdate to trigger
-        asset.needsUpdate = true
-      }
       //Compressed texture size
-      if (asset.mipmaps[0]) {
+      if (asset.mipmaps![0]) {
         let size = 0
-        for (const mip of asset.mipmaps) {
+        for (const mip of asset.mipmaps as CompressedTextureMipmap[]) {
           size += mip.data.byteLength
         }
         resource.metadata.size.set(size)
@@ -357,13 +368,14 @@ const resourceCallbacks = {
       let size = 0
 
       const checkUploaded = () => {
-        if (!resource.get(NO_PROXY).metadata) return
+        if (!resource.get(NO_PROXY)?.metadata) return
         resource.metadata.merge({ onGPU: needsUploaded === 0, discarded: needsUploaded === 0 && discardUponUpload })
       }
 
       asset.index?.onUpload(function () {
         if (discardUponUpload) {
-          this.array = new this.array.constructor(1)
+          /** @todo re-enable discard */
+          // this.array = new this.array.constructor(1)
         }
         needsUploaded -= 1
         checkUploaded()
@@ -608,7 +620,6 @@ const addEntityResource = (
 
   returnedResources.push(resource)
 
-  /** @todo disposal currently causes errors */
   const entityHasAuthoringUpstream =
     getAuthoringCounterpart(entity) || getAncestorWithComponents(entity, [ColliderComponent]) // collider component is a hack to prevent unloading of physics objects
 
@@ -689,6 +700,16 @@ const useEntityResource = (entity: Entity, state: State<ResourceAssetType>) => {
   }, [state])
 }
 
+const getAllResourcesOfType = (type: ResourceType) => {
+  const resources = getState(ResourceState).resources
+  const result = [] as Resource[]
+  for (const key in resources) {
+    const resource = resources[key]
+    if (resource.type === type) result.push(resource)
+  }
+  return result
+}
+
 export const ResourceState = defineState({
   name: 'ResourceState',
 
@@ -705,6 +726,8 @@ export const ResourceState = defineState({
   debugWarn: (...data: any[]) => {
     if (getState(ResourceState).debug) console.warn(...data)
   },
+
+  getAllResourcesOfType,
 
   resourceCallbacks,
   useEntityResource,

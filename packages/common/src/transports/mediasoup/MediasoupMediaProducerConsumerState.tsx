@@ -27,8 +27,12 @@ import React, { useEffect } from 'react'
 
 import { ChannelID } from '@ir-engine/common/src/schema.type.module'
 import {
+  MediaChannelType,
   NO_PROXY_STEALTH,
+  Network,
+  NetworkActions,
   NetworkID,
+  NetworkState,
   PeerID,
   Validator,
   defineAction,
@@ -44,7 +48,6 @@ import {
   useMutableState
 } from '@ir-engine/hyperflux'
 
-import { DataChannelType, MediaTagType, Network, NetworkActions, NetworkState } from '@ir-engine/network'
 import { MediaStreamAppData } from '../../interfaces/NetworkInterfaces'
 import {
   MediasoupTransportActions,
@@ -75,7 +78,7 @@ export class MediasoupMediaProducerActions {
     producerID: matches.string,
     transportID: matches.string,
     peerID: matchesPeerID,
-    mediaTag: matches.string as Validator<unknown, DataChannelType>,
+    mediaTag: matches.string as Validator<unknown, MediaChannelType>,
     channelID: matches.string as Validator<unknown, ChannelID>,
     $cache: true
   })
@@ -101,7 +104,7 @@ export class MediasoupMediaConsumerActions {
   static requestConsumer = defineAction({
     type: 'ee.engine.network.mediasoup.MEDIA_REQUEST_CONSUMER',
     peerID: matchesPeerID,
-    mediaTag: matches.string as Validator<unknown, DataChannelType>,
+    mediaTag: matches.string as Validator<unknown, MediaChannelType>,
     rtpCapabilities: matches.object,
     channelID: matches.string as Validator<unknown, ChannelID>
   })
@@ -111,7 +114,7 @@ export class MediasoupMediaConsumerActions {
     consumerID: matches.string,
     transportID: matches.string,
     peerID: matchesPeerID,
-    mediaTag: matches.string as Validator<unknown, DataChannelType>,
+    mediaTag: matches.string as Validator<unknown, MediaChannelType>,
     channelID: matches.string as Validator<unknown, ChannelID>,
     producerID: matches.string,
     kind: matches.literals('audio', 'video').optional(),
@@ -151,7 +154,7 @@ export const MediasoupMediaProducersConsumersObjectsState = defineState({
 export type MediasoupMediaProducerType = {
   producerID: string
   peerID: PeerID
-  mediaTag: DataChannelType
+  mediaTag: MediaChannelType
   transportID: string
   channelID: ChannelID
   paused?: boolean
@@ -161,7 +164,7 @@ export type MediasoupMediaProducerType = {
 export type MediasoupMediaConsumerType = {
   consumerID: string
   peerID: PeerID
-  mediaTag: DataChannelType
+  mediaTag: MediaChannelType
   transportID: string
   channelID: ChannelID
   producerID: string
@@ -187,7 +190,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
     }
   >,
 
-  getProducerByPeerIdAndMediaTag: (networkID: NetworkID, peerID: string, mediaTag: MediaTagType) => {
+  getProducerByPeerIdAndMediaTag: (networkID: NetworkID, peerID: string, mediaTag: MediaChannelType) => {
     const state = getState(MediasoupMediaProducerConsumerState)[networkID]
     if (!state) return
 
@@ -197,7 +200,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
     return getState(MediasoupMediaProducersConsumersObjectsState).producers[producer.producerID]
   },
 
-  getConsumerByPeerIdAndMediaTag: (networkID: NetworkID, peerID: string, tag: MediaTagType) => {
+  getConsumerByPeerIdAndMediaTag: (networkID: NetworkID, peerID: string, tag: MediaChannelType) => {
     const state = getState(MediasoupMediaProducerConsumerState)[networkID]
     if (!state) return
 

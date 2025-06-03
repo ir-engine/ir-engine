@@ -33,7 +33,9 @@ import {
   EntityTreeComponent,
   LayerComponent,
   LayerFunctions,
+  LayerID,
   Layers,
+  SourceID,
   UUIDComponent,
   deserializeComponent,
   getComponent,
@@ -41,11 +43,11 @@ import {
   hasComponent,
   iterateEntityNode,
   removeComponent,
+  removeEntity,
   setComponent,
   traverseEntityNode
 } from '@ir-engine/ecs'
-import { dispatchAction, getState, isClient } from '@ir-engine/hyperflux'
-import { SceneUser } from '@ir-engine/network'
+import { SceneUser, dispatchAction, getState, isClient } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -60,7 +62,7 @@ import {
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { setupMaterialParameters } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import { ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
+import { ResourceState, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import {
   AnimationClip,
@@ -106,9 +108,10 @@ import {
 import { loadResource, unloadResourcesForEntity } from '../assets/functions/resourceLoaderFunctions'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { Loader } from '../assets/loaders/base/Loader'
+import { ResourceCache } from '../assets/loaders/base/ResourceCache'
 import { TextureLoader } from '../assets/loaders/texture/TextureLoader'
-import { AssetCacheState } from '../assets/state/AssetCacheState'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
+import { ResourceCacheState } from '../assets/state/ResourceCacheState'
 import { AuthoringActions } from '../authoring/AuthoringState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { GLTFComponent } from './GLTFComponent'
@@ -539,12 +542,13 @@ const loadBuffer = async (options: GLTFParserOptions, bufferIndex: number): Prom
       (err) => {
         reject(new Error('GLTFLoaderFunctions: Failed to load buffer "' + bufferDef.uri + '".'))
       },
-      null!, // controller.signal,
+      options.signal,
       loader
     )
   })
 
-  bufferDef.uri && cache?.set(bufferDef.uri, bufferPromise)
+  if (bufferDef.uri) cache?.set(bufferDef.uri, bufferPromise)
+
   return bufferPromise
 }
 
@@ -647,7 +651,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   setComponent(materialEntity, EntityTreeComponent, { parentEntity: entity, childIndex: materialIndex })
   setComponent(materialEntity, NameComponent, materialDef.name ?? 'Material-' + materialIndex)
 
-  let materialConstructorParameters = {} as any
+  const materialConstructorParameters = {} as any
   const promises = [] as Promise<void>[]
   const materialExtensions = materialDef.extensions || {}
 
@@ -802,17 +806,31 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
     }
   }
 
+  // backwards support for EE_material
+  const EE_materialExtensionParams = materialDef.extensions?.['EE_material'] as any
+  if (EE_materialExtensionParams?.args) {
+    for (const prop in EE_materialExtensionParams.args) {
+      const contents = EE_materialExtensionParams.args[prop].contents
+      if (!!contents && typeof contents === 'object' && typeof contents.index === 'number') {
+        extensionPromises.push(
+          GLTFLoaderFunctions.assignTexture(options, contents).then((map) => {
+            materialConstructorParameters[prop] = map
+          })
+        )
+      } else {
+        materialConstructorParameters[prop] = contents
+      }
+    }
+  }
+
   await Promise.all(extensionPromises)
 
   const material = new materialConstructor(materialConstructorParameters)
   material.name = materialDef.name ?? 'Material-' + materialIndex
 
   setComponent(materialEntity, MaterialStateComponent, { material })
-  setupMaterialParameters(materialEntity, {
-    ...materialConstructorParameters,
-    uuid: material.uuid,
-    name: material.name
-  })
+
+  setupMaterialParameters(materialEntity, material.type, materialConstructorParameters)
 
   assignExtrasToUserData(material, materialDef)
 
@@ -995,8 +1013,9 @@ const loadImageSource = async (options: GLTFParserOptions, sourceIndex: number, 
   const json = options.document
   const sourceDef = json.images![sourceIndex]
 
-  let sourceURI = sourceDef.uri ?? ''
-  let isObjectURL = false
+  const url = LoaderUtils.resolveURL(sourceDef.uri || options.url + '?image=' + sourceIndex, options.path)
+
+  const hasResource = await ResourceCache?.hasResource(url)
 
   if (sourceDef.bufferView !== undefined) {
     if (!isClient) {
@@ -1004,25 +1023,23 @@ const loadImageSource = async (options: GLTFParserOptions, sourceIndex: number, 
       texture.userData.mimeType = sourceDef.mimeType ?? getImageURIMimeType(sourceDef.uri)
       return Promise.resolve(texture)
     }
-    // Load binary image data from bufferView, if provided.
-
-    sourceURI = await getDependency(options, 'bufferView', sourceDef.bufferView).then(function (bufferView) {
-      isObjectURL = true
-      const blob = new Blob([bufferView!], { type: sourceDef.mimeType })
-      sourceURI = URL.createObjectURL(blob)
-      return sourceURI
-    })
+    if (!hasResource) {
+      // Load binary image data from bufferView, if provided.
+      await GLTFLoaderFunctions.loadBufferView(options, sourceDef.bufferView).then(function (bufferView) {
+        return ResourceCache?.putResource(url, bufferView!)
+      })
+    }
   } else if (sourceDef.uri === undefined) {
     throw new Error('THREE.GLTFLoader: Image ' + sourceIndex + ' is missing URI and bufferView')
   }
 
   const texture = await new Promise<Texture>(function (resolve, reject) {
-    const url = LoaderUtils.resolveURL(sourceURI, options.path)
     loadResource<Texture>(
       url,
       ResourceType.Texture,
       options.entity, // the GLTF entity
       (response) => {
+        ResourceState.addEntityResource(options.entity, response)
         resolve(response)
       },
       (request) => {
@@ -1031,18 +1048,13 @@ const loadImageSource = async (options: GLTFParserOptions, sourceIndex: number, 
       (err) => {
         reject(err as Error)
       },
-      null!, // controller.signal,
+      options.signal,
       loader
     )
   })
 
-  if (isObjectURL) {
-    URL.revokeObjectURL(sourceURI)
-  } else {
-    texture.userData.src = sourceURI
-  }
-
-  texture.userData.mimeType = sourceDef.mimeType ?? getImageURIMimeType(sourceDef.uri)
+  texture.userData.src = url
+  texture.userData.mimeType = sourceDef.mimeType || getImageURIMimeType(sourceDef.uri)
 
   return texture
 }
@@ -1263,7 +1275,8 @@ const loadMesh = async (options: GLTFParserOptions, entity: Entity, nodeIndex: n
   //   primitive.mode === undefined
   // ) {
   const materials = materialEntities.map((entity) => getComponent(entity, MaterialStateComponent).material)
-  const mesh = isSkinnedMesh === true ? new SkinnedMesh(geometry, materials) : new Mesh(geometry, materials)
+  const material = geometry.groups.length === 0 && materials.length === 1 ? materials[0] : materials
+  const mesh = isSkinnedMesh === true ? new SkinnedMesh(geometry, material) : new Mesh(geometry, material)
 
   //   if (primitive.mode === WEBGL_CONSTANTS.TRIANGLE_STRIP) {
   //     mesh.geometry = toTrianglesDrawMode(mesh.geometry, TriangleStripDrawMode)
@@ -1298,7 +1311,7 @@ const loadMesh = async (options: GLTFParserOptions, entity: Entity, nodeIndex: n
   // }
 
   setComponent(entity, MeshComponent, mesh)
-  setComponent(entity, NameComponent, meshDef.name ?? 'Mesh-' + meshIndex)
+  setComponent(entity, NameComponent, node.name ?? meshDef.name ?? `Mesh-${meshIndex}`)
 
   setComponent(entity, MaterialInstanceComponent, {
     entities: materialEntities
@@ -1530,8 +1543,13 @@ const loadGLTFDependencies = (options: GLTFParserOptions) => {
 const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const json = options.document
   const rootEntity = options.entity
+  const sourceID = GLTFComponent.getSourceID(rootEntity)
+  const layer = LayerComponent.get(rootEntity)
 
-  DependencyCache.set(options.url, new Map())
+  // Create a new dependency cache for this URL if it doesn't exist
+  if (!DependencyCache.has(options.url)) {
+    DependencyCache.set(options.url, new Map<string, Promise<any>>())
+  }
 
   migrateSceneDeltas(options.entity, options.document)
 
@@ -1547,56 +1565,79 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const sceneDef = json.scenes?.[sceneIndex] ?? ({} as GLTF.IScene)
   const nodeIds = sceneDef.nodes || []
 
-  const pending = [] as Promise<Entity>[]
+  const abortEvent = () => {
+    unloadScene(options.url, rootEntity)
+    unloadEntities(sourceID, layer)
+  }
 
+  const signal = options.signal
+  signal.addEventListener('abort', abortEvent, { once: true })
+
+  const pending = [] as Promise<Entity>[]
   for (let i = 0, il = nodeIds.length; i < il; i++) {
     pending.push(getDependency(options, 'node', nodeIds[i]))
   }
 
   const animationPromises = [] as Promise<AnimationClip>[]
-
   const animations = json.animations || []
   for (let i = 0, il = animations.length; i < il; i++) {
     const animation = getDependency(options, 'animation', i)
     animationPromises.push(animation)
   }
 
-  const loadedNodeEntities = await Promise.all(pending)
-  await Promise.all(loadGLTFDependencies(options))
+  try {
+    const loadedNodeEntities = await Promise.all(pending)
+    await Promise.all(loadGLTFDependencies(options))
+    if (signal.aborted) return
 
-  for (const entity of loadedNodeEntities) {
-    setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity })
-    iterateEntityNode(entity, (e) => {
-      if (hasComponent(e, TransformComponent)) {
-        TransformComponent.computeTransformMatrix(e)
-        TransformComponent.dirty[e] = 1
-      }
-    })
+    for (const entity of loadedNodeEntities) {
+      setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity })
+      iterateEntityNode(entity, (e) => {
+        if (hasComponent(e, TransformComponent)) {
+          TransformComponent.computeTransformMatrix(e)
+          TransformComponent.dirty[e] = 1
+        }
+      })
+    }
+
+    /** @todo this is a temporary hack */
+    if (!hasComponent(rootEntity, ObjectComponent)) {
+      const obj3d = new Object3D()
+      setComponent(rootEntity, ObjectComponent, obj3d)
+    }
+
+    const animationClips = await Promise.all(animationPromises)
+    if (signal.aborted) return
+
+    setAnimationClips(rootEntity, animationClips)
+  } finally {
+    // dereference body non-reactively if it exists
+    getComponent(options.entity, GLTFComponent).body = null
+
+    // Mark the scene as loaded by setting progress to 100
+    // This is important for tests that wait for scene loading
+    if (hasComponent(options.entity, GLTFComponent)) {
+      const gltfComponent = getMutableComponent(options.entity, GLTFComponent)
+      gltfComponent.progress.set(100)
+    }
   }
-
-  /** @todo this is a temporary hack */
-  if (!hasComponent(rootEntity, ObjectComponent)) {
-    const obj3d = new Object3D()
-    setComponent(rootEntity, ObjectComponent, obj3d)
-  }
-
-  const animationClips = await Promise.all(animationPromises)
-  setAnimationClips(rootEntity, animationClips)
-
-  // dereference body non-reactively if it exists
-  getComponent(options.entity, GLTFComponent).body = null
 }
 
-const unloadScene = async (url: string, entity: Entity) => {
+const unloadScene = (url: string, entity: Entity) => {
   // handle reference counting
   unloadResourcesForEntity(entity)
 
   // if no more references to this url, remove from cache
-  const assetCacheState = getState(AssetCacheState)
-  if (!assetCacheState[url]) {
+  const resourceCacheState = getState(ResourceCacheState)
+  if (!resourceCacheState[url]) {
     delete interleavedBufferCache[url]
     DependencyCache.delete(url)
   }
+}
+
+const unloadEntities = (sourceID: SourceID, layer: LayerID) => {
+  const loadedEntities = UUIDComponent.getEntitiesBySource(sourceID, layer)
+  for (const entity of loadedEntities) removeEntity(entity)
 }
 
 export const GLTFLoaderFunctions = {
@@ -1618,6 +1659,7 @@ export const GLTFLoaderFunctions = {
   loadMesh,
   loadNode,
   loadScene,
+  loadSkin,
   unloadScene
 }
 
@@ -1686,6 +1728,7 @@ export type GLTFParserOptions = {
   manager: LoadingManager
   path: string
   requestHeader: Record<string, string>
+  signal: AbortSignal
 }
 
 const validateVersionFormat = (vers: string): boolean => /^[0-9]{1,10}.[0-9]{1,10}$/.test(vers)

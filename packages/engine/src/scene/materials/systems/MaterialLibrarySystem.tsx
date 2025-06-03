@@ -36,16 +36,16 @@ import {
   removeEntity,
   setComponent,
   SourceID,
-  UndefinedEntity,
   useComponent,
   useEntityContext,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { NO_PROXY_STEALTH, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, NO_PROXY_STEALTH, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import {
   MaterialInstanceComponent,
+  MaterialReferenceState,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { getMaterialIndices } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
@@ -68,12 +68,9 @@ const reactor = () => {
       side: FrontSide
     })
     const fallbackMaterialEntity = createEntity()
-    setComponent(fallbackMaterialEntity, MaterialStateComponent, {
-      material: fallbackMaterial,
-      instances: [UndefinedEntity]
-    })
     setComponent(fallbackMaterialEntity, UUIDComponent, MaterialStateComponent.fallbackMaterialUUIDPair)
     setComponent(fallbackMaterialEntity, NameComponent, 'Fallback Material')
+    setComponent(fallbackMaterialEntity, MaterialStateComponent, { material: fallbackMaterial })
   }, [])
 
   const rendererState = useMutableState(RendererState)
@@ -86,22 +83,13 @@ const reactor = () => {
 
 const ChildMaterialReactor = () => {
   const entity = useEntityContext()
-  const forceBasicMaterials = useMutableState(RendererState).forceBasicMaterials
+  const forceBasicMaterials = useMutableState(RendererState).forceBasicMaterials.value
   const materialComponent = useComponent(entity, MaterialStateComponent)
+  const materialReferences = useHookstate(getMutableState(MaterialReferenceState)[entity])
   useEffect(() => {
-    if (materialComponent.promised || materialComponent.material.promised) {
-      // The material is still loading; don't access its value yet.
-      // This happens when setting graphics quality to 0, in many cases. HookState will throw a 103 error. see https://tsu.atlassian.net/browse/IR-8475
-      return
-    }
-    if (!materialComponent.material.value || !materialComponent.instances.length) return
-    convertMaterials(entity, forceBasicMaterials.value)
-  }, [
-    materialComponent.material,
-    materialComponent.material.needsUpdate,
-    materialComponent.instances,
-    forceBasicMaterials
-  ])
+    if (!materialComponent.material.value || !materialReferences.length) return
+    convertMaterials(entity, forceBasicMaterials)
+  }, [materialComponent.material, materialComponent.material.needsUpdate, materialReferences, forceBasicMaterials])
   return null
 }
 
@@ -109,8 +97,9 @@ const ExpensiveMaterials = new Set(['MeshStandardMaterial', 'MeshPhysicalMateria
 /**@todo refactor this to use preprocessor directives instead of new cloned materials with different shaders */
 export const convertMaterials = (material: Entity, forceBasicMaterials: boolean) => {
   const materialComponent = getComponent(material, MaterialStateComponent)
+  const references = getState(MaterialReferenceState)[material]
   const setMaterial = (newMaterial: Entity) => {
-    for (const instance of materialComponent.instances) {
+    for (const instance of references) {
       const indices = getMaterialIndices(instance, material)
       for (const index of indices) {
         const instanceComponent = getMutableComponent(instance, MaterialInstanceComponent)
@@ -147,12 +136,9 @@ export const convertMaterials = (material: Entity, forceBasicMaterials: boolean)
     newBasicMaterial.side = prevMaterial.side
 
     const newMaterialEntity = createEntity()
-    setComponent(newMaterialEntity, MaterialStateComponent, {
-      material: newBasicMaterial,
-      instances: materialComponent.instances
-    })
     setComponent(newMaterialEntity, UUIDComponent, basicUuid)
     setComponent(newMaterialEntity, NameComponent, 'basic-' + getComponent(material, NameComponent))
+    setComponent(newMaterialEntity, MaterialStateComponent, { material: newBasicMaterial })
     setMaterial(newMaterialEntity)
   } else if (!forceBasicMaterials) {
     const basicMaterialEntity = UUIDComponent.getEntityByUUID(UUIDComponent.join(uuid))

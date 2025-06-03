@@ -58,9 +58,6 @@ export const ObjectLayers = {
   // transform gizmo
   TransformGizmo: 11 as ObjectLayer,
 
-  // transform gizmo
-  HighlightEffect: 12 as ObjectLayer,
-
   UVOL: 30 as ObjectLayer
 }
 export type ObjectLayerMask = Opaque<'ObjectLayerMask', number>
@@ -78,7 +75,6 @@ export const ObjectLayerMasks = {
   NodeIcon: (1 << ObjectLayers.NodeIcon) as ObjectLayerMask,
   Panel: (1 << ObjectLayers.Panel) as ObjectLayerMask,
   TransformGizmo: (1 << ObjectLayers.TransformGizmo) as ObjectLayerMask,
-  HighlightEffect: (1 << ObjectLayers.HighlightEffect) as ObjectLayerMask,
   UVOL: (1 << ObjectLayers.UVOL) as ObjectLayerMask
 }
 

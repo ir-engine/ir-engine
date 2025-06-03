@@ -87,12 +87,14 @@ export const FollowCameraComponent = defineComponent({
     }),
     allowedModes: S.Array(
       S.Enum(FollowCameraMode, { $comment: "A list of allowed string values for the 'mode' property" }),
-      [
-        FollowCameraMode.ThirdPerson,
-        FollowCameraMode.FirstPerson,
-        FollowCameraMode.TopDown,
-        FollowCameraMode.ShoulderCam
-      ]
+      {
+        default: [
+          FollowCameraMode.ThirdPerson,
+          FollowCameraMode.FirstPerson,
+          FollowCameraMode.TopDown,
+          FollowCameraMode.ShoulderCam
+        ]
+      }
     ),
     distance: S.Number({ default: 0 }),
     targetDistance: S.Number({ default: 0 }),
@@ -126,7 +128,7 @@ export const FollowCameraComponent = defineComponent({
         maxDistance: S.Number({ default: -1 }),
         targetHit: S.Bool({ default: false })
       }),
-      cameraRays: S.Array(T.Vec3(), [])
+      cameraRays: S.Array(T.Vec3())
     }),
     pointerLock: S.Bool({ default: false }),
     smoothLerp: S.Bool({ default: true }),

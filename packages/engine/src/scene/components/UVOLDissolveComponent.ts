@@ -90,7 +90,7 @@ export const UVOLDissolveComponent = defineComponent({
       origin_texture: {
         value: texture
       }
-    }
+    } as Record<string, any>
 
     let vertexShader = '',
       fragmentShader = ''

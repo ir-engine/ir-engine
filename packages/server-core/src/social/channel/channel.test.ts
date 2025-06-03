@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -32,7 +32,8 @@ import { instancePath, InstanceType } from '@ir-engine/common/src/schemas/networ
 import { channelUserPath, ChannelUserType } from '@ir-engine/common/src/schemas/social/channel-user.schema'
 import { channelPath, ChannelType } from '@ir-engine/common/src/schemas/social/channel.schema'
 import { RoomCode } from '@ir-engine/common/src/schemas/social/location.schema'
-import { InviteCode, UserName, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
+import { userRelationshipPath } from '@ir-engine/common/src/schemas/user/user-relationship.schema'
+import { InviteCode, UserID, UserName, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
@@ -223,5 +224,104 @@ describe('channel service', () => {
 
     assert.equal(channelFindAsUser.length, 1)
     assert.equal(channelFindAsUser[0].id, channel.id)
+  })
+
+  it('should find exact channel match with specific users only', async () => {
+    // Create three users
+    const user1 = await app.service(userPath).create({
+      name: 'user1' as UserName,
+      isGuest: false,
+      inviteCode: '' as InviteCode
+    })
+
+    const user2 = await app.service(userPath).create({
+      name: 'user2' as UserName,
+      isGuest: false,
+      inviteCode: '' as InviteCode
+    })
+
+    const user3 = await app.service(userPath).create({
+      name: 'user3' as UserName,
+      isGuest: false,
+      inviteCode: '' as InviteCode
+    })
+
+    // Create friend relationships between users
+    await app.service(userRelationshipPath).create({
+      userId: user1.id,
+      relatedUserId: user2.id,
+      userRelationshipType: 'friend'
+    })
+
+    await app.service(userRelationshipPath).create({
+      userId: user1.id,
+      relatedUserId: user3.id,
+      userRelationshipType: 'friend'
+    })
+
+    await app.service(userRelationshipPath).create({
+      userId: user2.id,
+      relatedUserId: user1.id,
+      userRelationshipType: 'friend'
+    })
+
+    await app.service(userRelationshipPath).create({
+      userId: user3.id,
+      relatedUserId: user1.id,
+      userRelationshipType: 'friend'
+    })
+
+    await app.service(userRelationshipPath).create({
+      userId: user2.id,
+      relatedUserId: user3.id,
+      userRelationshipType: 'friend'
+    })
+
+    await app.service(userRelationshipPath).create({
+      userId: user3.id,
+      relatedUserId: user2.id,
+      userRelationshipType: 'friend'
+    })
+
+    // Create a channel with user1 and user2
+    const channel1 = await app.service(channelPath).create(
+      {
+        users: [user2.id as UserID]
+      },
+      { user: user1 }
+    )
+
+    assert.ok(channel1.id)
+
+    // Create a channel with user1, user2, and user3
+    const channel2 = await app.service(channelPath).create(
+      {
+        users: [user2.id as UserID, user3.id as UserID]
+      },
+      { user: user1 }
+    )
+
+    assert.ok(channel2.id)
+    assert.notEqual(channel1.id, channel2.id, 'Channels should have different IDs')
+
+    // Try to create a channel with user1 and user2 again - should return the existing channel1
+    const channel1Again = await app.service(channelPath).create(
+      {
+        users: [user2.id as UserID]
+      },
+      { user: user1 }
+    )
+
+    assert.equal(channel1Again.id, channel1.id, 'Should return the existing channel with exactly the same users')
+
+    // Try to create a channel with user1, user2, and user3 again - should return the existing channel2
+    const channel2Again = await app.service(channelPath).create(
+      {
+        users: [user2.id as UserID, user3.id as UserID]
+      },
+      { user: user1 }
+    )
+
+    assert.equal(channel2Again.id, channel2.id, 'Should return the existing channel with exactly the same users')
   })
 })

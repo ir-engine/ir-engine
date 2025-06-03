@@ -102,7 +102,8 @@ export const EngineSettings = {
     Mode: 'mode',
     LocationName: 'locationName',
     WebRTCSettings: 'webRTCSettings',
-    ShutdownDelayMs: 'shutdownDelayMs'
+    ShutdownDelayMs: 'shutdownDelayMs',
+    MaxUsersPerInstance: 'maxUsersPerInstance'
   },
   Metabase: {
     SiteUrl: 'siteUrl',
@@ -171,7 +172,11 @@ export const EngineSettings = {
     ReleaseName: 'releaseName',
     InstanceserverUnreachableTimeoutSeconds: 'instanceserverUnreachableTimeoutSeconds',
     PerformDryRun: 'performDryRun',
-    Local: 'local'
+    Local: 'local',
+    IpGeolocation: {
+      ApiUrl: 'ipGeolocation.apiUrl',
+      ApiToken: 'ipGeolocation.apiToken'
+    }
   },
   Aws: {
     S3: {

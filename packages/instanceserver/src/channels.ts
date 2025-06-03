@@ -52,8 +52,18 @@ import { EntityUUID, getComponent, UUIDComponent } from '@ir-engine/ecs'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { dispatchAction, getMutableState, getState, HyperFlux, Identifiable, PeerID, State } from '@ir-engine/hyperflux'
-import { addNetwork, NetworkActions, NetworkState, NetworkTopics } from '@ir-engine/network'
+import {
+  dispatchAction,
+  getMutableState,
+  getState,
+  HyperFlux,
+  Identifiable,
+  NetworkActions,
+  NetworkState,
+  NetworkTopics,
+  PeerID,
+  State
+} from '@ir-engine/hyperflux'
 import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
 import { Application } from '@ir-engine/server-core/declarations'
 import config from '@ir-engine/server-core/src/appconfig'
@@ -197,8 +207,6 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
 
   await setupIPs()
   const network = await initializeNetwork(app, hostId, Engine.instance.store.peerID, topic)
-
-  addNetwork(network)
 
   dispatchAction(
     NetworkActions.peerJoined({

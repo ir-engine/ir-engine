@@ -35,10 +35,10 @@ import { ReactorReconciler, ReactorRoot } from './ReactorFunctions'
 import { setInitialState, StateDefinitions } from './StateFunctions'
 import { HyperFlux } from './StoreFunctions'
 
-const matchesPeerID = matches.string as Validator<unknown, PeerID>
-
 export { matches, Validator } from 'ts-matches'
-export { matchesPeerID }
+
+export const matchesUserID = matches.string as Validator<unknown, UserID>
+export const matchesPeerID = matches.string as Validator<unknown, PeerID>
 
 export type Topic = OpaqueType<'Topic'> & string
 

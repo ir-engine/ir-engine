@@ -23,9 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
-import { describe, it } from 'node:test'
 import { Box3, Frustum, Matrix4, PerspectiveCamera, Vector3 } from 'three'
+import { assert, describe, it } from 'vitest'
 
 //test view frustum  intersection with box
 describe('SelectionBoxTool', () => {

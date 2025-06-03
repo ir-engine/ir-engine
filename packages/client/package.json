@@ -31,7 +31,6 @@
     "react": "18.2.0"
   },
   "dependencies": {
-    "@hookstate/core": "^4.0.0",
     "@ir-engine/client-core": "^1.6.0",
     "@ir-engine/common": "^1.6.0",
     "@ir-engine/editor": "^1.6.0",
@@ -65,7 +64,6 @@
     "tailwindcss": "^3.3.2",
     "ts-node": "10.9.1",
     "vite": "5.4.8",
-    "vite-plugin-cli-browser-bridge": "^0.2.0",
     "vite-plugin-compression2": "1.3.0",
     "vite-plugin-ejs": "^1.6.4",
     "vite-plugin-node-polyfills": "^0.9.0",

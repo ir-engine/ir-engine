@@ -36,9 +36,28 @@ import {
   userPath
 } from '@ir-engine/common/src/schema.type.module'
 import { checkScope } from '@ir-engine/common/src/utils/checkScope'
-import { defineSystem, ECSState, Engine, EntityUUID, PresentationSystemGroup, UUIDComponent } from '@ir-engine/ecs'
+import {
+  defineSystem,
+  ECSState,
+  Engine,
+  EntityUUID,
+  NetworkSchemaState,
+  PresentationSystemGroup,
+  SerializationSchema,
+  UUIDComponent,
+  WorldNetworkAction
+} from '@ir-engine/ecs'
+import {
+  ECSDeserializer,
+  ECSSerialization,
+  ECSSerializer,
+  SerializedChunk
+} from '@ir-engine/ecs/src/network/ECSSerializerSystem'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import {
+  addDataChannelHandler,
+  DataChannelRegistryState,
+  DataChannelType,
   defineAction,
   defineActionQueue,
   defineState,
@@ -47,31 +66,18 @@ import {
   getState,
   HyperFlux,
   isClient,
-  PeerID,
-  Topic,
-  UserID
-} from '@ir-engine/hyperflux'
-import {
-  addDataChannelHandler,
-  DataChannelRegistryState,
-  DataChannelType,
   matchesUserID,
   Network,
   NetworkActions,
   NetworkState,
   NetworkTopics,
+  PeerID,
   removeDataChannelHandler,
-  SerializationSchema,
-  webcamAudioDataChannelType,
-  webcamVideoDataChannelType,
-  WorldNetworkAction
-} from '@ir-engine/network'
-import {
-  ECSDeserializer,
-  ECSSerialization,
-  ECSSerializer,
-  SerializedChunk
-} from '@ir-engine/network/src/serialization/ECSSerializerSystem'
+  Topic,
+  UserID,
+  webcamAudioMediaChannelType,
+  webcamVideoMediaChannelType
+} from '@ir-engine/hyperflux'
 import { PhysicsSerialization } from '@ir-engine/spatial/src/physics/PhysicsSerialization'
 
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
@@ -176,8 +182,8 @@ export const RecordingState = defineState({
       Object.entries(peerSchema.peers).forEach(([peerID, value]) => {
         const peerSchema = [] as string[]
         if (value.Mocap) peerSchema.push(mocapDataChannelType)
-        if (value.Video) peerSchema.push(webcamVideoDataChannelType)
-        if (value.Audio) peerSchema.push(webcamAudioDataChannelType)
+        if (value.Video) peerSchema.push(webcamVideoMediaChannelType)
+        if (value.Audio) peerSchema.push(webcamAudioMediaChannelType)
         if (peerSchema.length) schema.peers[peerID] = peerSchema
       })
 
@@ -403,7 +409,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
 
   if (NetworkState.worldNetwork) {
     const serializationSchema = schema.user
-      .map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema)
+      .map((component) => getState(NetworkSchemaState)[component] as SerializationSchema)
       .filter(Boolean)
 
     activeRecording.serializer = ECSSerialization.createSerializer({
@@ -602,7 +608,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
     id: recording.id,
     chunks: entityChunks,
     schema: schema.user
-      .map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema)
+      .map((component) => getState(NetworkSchemaState)[component] as SerializationSchema)
       .filter(Boolean),
     onChunkStarted: (chunkIndex) => {
       if (!entityChunks[chunkIndex]) return

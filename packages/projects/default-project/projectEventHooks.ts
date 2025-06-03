@@ -111,7 +111,8 @@ const config = {
     await createLocations(app, manifestJson.name, {
       apartment: 'public/scenes/apartment.gltf',
       default: 'public/scenes/default.gltf',
-      ['sky-station']: 'public/scenes/sky-station.gltf'
+      ['sky-station']: 'public/scenes/sky-station.gltf',
+      test: 'public/scenes/test.gltf'
     })
 
     await activateRoute(app.service(routePath))({

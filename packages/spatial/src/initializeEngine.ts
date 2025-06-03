@@ -52,6 +52,7 @@ export const initializeSpatialViewer = (canvas?: HTMLCanvasElement) => {
     entitySourceID: 'engine' as SourceID,
     entityID: 'viewer' as EntityID
   })
+  setComponent(viewerEntity, TransformComponent)
   setComponent(viewerEntity, CameraComponent)
   setComponent(viewerEntity, VisibleComponent, true)
   setComponent(viewerEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
@@ -117,7 +118,7 @@ export const initializeSpatialEngine = () => {
   setComponent(localFloorEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
   setComponent(localFloorEntity, TransformComponent)
   setComponent(localFloorEntity, VisibleComponent, true)
-  setComponent(localFloorEntity, SceneComponent, { active: true })
+  setComponent(localFloorEntity, SceneComponent)
   const floorHelperMesh = new Mesh(new BoxGeometry(0.1, 0.1, 0.1), new MeshNormalMaterial())
   ObjectLayerMaskComponent.setLayer(localFloorEntity, ObjectLayers.Gizmos)
   setComponent(localFloorEntity, MeshComponent, floorHelperMesh)
