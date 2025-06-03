@@ -35,8 +35,8 @@ import ToggleItem from './ToggleItem'
 
 // Define types for screen components
 interface ScreenProps {
-  navigateTo: (screen: string) => void
-  onClose?: () => void
+  navigateTo: (screenKey: string, historyKey: string) => void
+  navigateClose?: () => void
 }
 
 const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
@@ -50,7 +50,7 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
     <div className="space-y-4">
       {/* Communication Section */}
       <Section>
-        <MenuItem label="Share Space" onClick={() => navigateTo('shareSpace')} hasChevron />
+        <MenuItem label="Share Space" onClick={() => navigateTo('Settings', 'shareSpace')} hasChevron />
         <Divider />
         <ToggleItem
           label="Video Communication"
@@ -72,20 +72,20 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
 
       {/* World & Account Section */}
       <Section>
-        <MenuItem label="World" onClick={() => navigateTo('world')} hasChevron />
+        <MenuItem label="World" onClick={() => navigateTo('Settings', 'world')} hasChevron />
         <Divider />
         <ToggleItem label="Multiplayer" checked={multiplayer} onClick={() => setMultiplayer(!multiplayer)} />
         <Divider />
-        <MenuItem label="Account" onClick={() => navigateTo('account')} hasChevron />
+        <MenuItem label="Account" onClick={() => navigateTo('Settings', 'account')} hasChevron />
         <Divider />
-        <MenuItem label="Avatar" onClick={() => navigateTo('avatar')} hasChevron />
+        <MenuItem label="Avatar" onClick={() => navigateTo('Settings', 'avatar')} hasChevron />
       </Section>
 
       {/* System Section */}
       <Section>
-        <MenuItem label="Controls" onClick={() => navigateTo('controls')} hasChevron />
+        <MenuItem label="Controls" onClick={() => navigateTo('Settings', 'controls')} hasChevron />
         <Divider />
-        <MenuItem label="Graphics" onClick={() => navigateTo('graphics')} hasChevron />
+        <MenuItem label="Graphics" onClick={() => navigateTo('Settings', 'graphics')} hasChevron />
         <MenuItem label="Log Out" onClick={AuthService.logoutUser} />
       </Section>
     </div>

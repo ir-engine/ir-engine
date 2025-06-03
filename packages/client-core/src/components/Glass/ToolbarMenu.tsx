@@ -28,8 +28,6 @@ import React, { useState } from 'react'
 import { ChevronDownMd, ChevronLeftMd, CogMd, EmoteM, MessageTextSquare01Sm } from '@ir-engine/ui/src/icons'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
-import { ModalState } from '../../common/services/ModalState'
-import Settings from '../Settings'
 import { Badge } from './Badge'
 import { useChatProvider } from './ChatProvider'
 import { MenuButton } from './MenuButton'
@@ -251,7 +249,7 @@ const collapsableSectionCloseStyles = `
   sm:max-lg:scale-x-0  
 `
 
-export const ToolbarMenu = ({ onMessageClick, onShareClick, activeKey }) => {
+export const ToolbarMenu = ({ onMessageClick, onShareClick, onSettingsClick, activeKey }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { unreadMessages } = useChatProvider()
   const showMessagesBadge = unreadMessages.value
@@ -275,7 +273,7 @@ export const ToolbarMenu = ({ onMessageClick, onShareClick, activeKey }) => {
             isMenuOpen ? collapsableSectionOpenStyles : collapsableSectionCloseStyles
           )}
         >
-          <MenuButton onClick={() => ModalState.openModal(<Settings onClose={ModalState.closeModal} />)}>
+          <MenuButton onClick={onSettingsClick}>
             <CogMd />
           </MenuButton>
           <MenuButton

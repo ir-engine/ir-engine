@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React, { useLayoutEffect, useRef } from 'react'
 
 import { TouchGamepad } from '@ir-engine/client-core/src/common/components/TouchGamepad'
 import { EngineState } from '@ir-engine/ecs'
@@ -37,9 +37,11 @@ import { XRLoading } from '../XRLoading'
 import { ToolbarAndSidebar } from './ToolbarAndSidebar'
 
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
+import Settings, { screens as settingsScreens } from '../Settings'
 import { ChatMenu } from './ChatMenu'
 import { ChatProvider } from './ChatProvider'
 import { MultiVideos } from './MultiVideo'
+import { NavigationProvider, useNavigationProvider } from './NavigationProvider'
 import { ToolbarMenu } from './ToolbarMenu'
 import { VideoMenu } from './VideoMenu'
 
@@ -71,6 +73,18 @@ const Menu = () => {
   const externalInjectedMenus = useMutableState(ViewerMenuState).externalInjectedMenus.get(NO_PROXY)
   const locationContainer = useRef<HTMLDivElement>(null)
 
+  const {
+    activeHistoryKey,
+    sidebarKey,
+    setSidebarKey,
+    createToggleSidebarKey,
+    isSidebarOpen,
+    navigateClose,
+    navigateBack,
+    hasHistory,
+    navigateTo
+  } = useNavigationProvider()
+
   useLayoutEffect(() => {
     if (locationContainer.current) locationContainer.current.style.opacity = '0'
   }, [locationContainer])
@@ -79,20 +93,12 @@ const Menu = () => {
 
   if (!isLoggedIn) return null
 
-  const [sidebarKey, setSidebarKey] = useState(``)
-
-  const isSidebarOpen = !!sidebarKey
-
-  const createToggleSidebarKey = (sidebarKey) => () =>
-    setSidebarKey((prev) => {
-      return prev === sidebarKey ? `` : sidebarKey
-    })
-
   const headings = {
     Chat: `Chat`,
     Video: `Video`,
     Cart: `Cart`,
-    Share: `Share`
+    Share: `Share`,
+    Settings: `Settings`
   }
 
   const tabs = {
@@ -121,33 +127,43 @@ const Menu = () => {
   }
 
   const contents = {
-    Chat: <ChatMenu />,
-    Video: <VideoMenu />
+    Chat: <ChatMenu navigateTo={navigateTo} />,
+    Video: <VideoMenu />,
+    Settings: <Settings />
   }
 
   const onMessageClick = createToggleSidebarKey(`Chat`)
   const onShareClick = createToggleSidebarKey(`Share`)
   const onFullscreenVideosClick = createToggleSidebarKey(`Video`)
+  const onSettingsClick = createToggleSidebarKey(`Settings`)
 
-  const toolbar = <ToolbarMenu onMessageClick={onMessageClick} onShareClick={onShareClick} activeKey={sidebarKey} />
+  const toolbar = (
+    <ToolbarMenu
+      onMessageClick={onMessageClick}
+      onShareClick={onShareClick}
+      activeKey={sidebarKey}
+      onSettingsClick={onSettingsClick}
+    />
+  )
+  const sidebarHeadingFromHistory = settingsScreens[activeHistoryKey]?.title
 
   const sidebarTabs = tabs[sidebarKey] || []
-  const sidebarHeading = headings[sidebarKey]
+  const sidebarHeading = sidebarHeadingFromHistory || headings[sidebarKey]
   const sidebarContent = isSidebarOpen && contents[sidebarKey]
-
-  const closeSidebar = () => setSidebarKey(``)
 
   return (
     <div id="location-container" ref={locationContainer} className="fixed h-dvh w-full">
       <MultiVideos handleSidebarOpen={onFullscreenVideosClick} />
 
       <ToolbarAndSidebar
-        handleSidebarClose={closeSidebar}
+        handleSidebarClose={navigateClose}
+        handleSidebarBack={navigateBack}
         isSidebarOpen={isSidebarOpen}
         content={sidebarContent}
         heading={sidebarHeading}
         tabs={sidebarTabs}
         toolbar={toolbar}
+        hasHistory={hasHistory}
       />
 
       <ARPlacement />
@@ -161,8 +177,10 @@ const Menu = () => {
 
 export const ViewerInteractions = () => {
   return (
-    <ChatProvider>
-      <Menu />
-    </ChatProvider>
+    <NavigationProvider>
+      <ChatProvider>
+        <Menu />
+      </ChatProvider>
+    </NavigationProvider>
   )
 }
