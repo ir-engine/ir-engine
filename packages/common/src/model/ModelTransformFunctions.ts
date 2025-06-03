@@ -717,7 +717,6 @@ const writeFiles = async (
   const regex = /projects\/[^/]+\/[^/]+(\/(?:public|assets)\/)/
   const match = regex.exec(srcBaseURL)
   const path = match ? match[1] : undefined
-  console.log(path, 'path')
   if (['glb', 'vrm'].includes(modelFormat)) {
     // For GLB/VRM, we keep textures embedded and don't process them separately
     const data = await io.writeBinary(document)
@@ -1168,70 +1167,4 @@ const adaptiveSimplify = (document: Document, args: ModelTransformParameters) =>
       }
     }
   }
-}
-export const compressForThePublish = async (
-  srcURL: string,
-  projectName: string,
-  fileName: string,
-  onProgress?: (progress: number, status: Status) => void
-) => {
-  onProgress?.(0, Status.TransformingModels)
-
-  const io = await loaderIO
-  const srcDocument = await io.read(srcURL)
-
-  onProgress?.(0.1, Status.TransformingModels)
-  await srcDocument.transform(reorder({ encoder: MeshoptEncoder, target: 'performance' }))
-  onProgress?.(0.3, Status.TransformingModels)
-  await srcDocument.transform(dedup())
-  onProgress?.(0.4, Status.TransformingModels)
-  await srcDocument.transform(prune({ keepAttributes: true }))
-  onProgress?.(0.6, Status.ProcessingTexture)
-  await srcDocument.transform(
-    textureCompress({
-      slots: /baseColorTexture|normalTexture|emissiveTexture/,
-      encoder: 'basisu',
-      quality: 1.0,
-      formats: /uastc/,
-      resize: [1024, 1024]
-    })
-  )
-
-  onProgress?.(0.8, Status.ProcessingTexture)
-  const root = srcDocument.getRoot()
-  // Manual embed for v1.x
-  await Promise.all(
-    [root.listBuffers(), root.listMeshes(), root.listTextures()].map(
-      async (elements) =>
-        await Promise.all(
-          elements.map(async (element: Texture | Mesh | glBuffer) => {
-            let elementName = ''
-            if (element instanceof Texture) {
-              elementName = hashBuffer(element.getImage()!)
-            } else if (element instanceof Mesh) {
-              elementName = hashBuffer(
-                Uint8Array.from(element.listPrimitives()[0].getAttribute('POSITION')!.getArray()!)
-              )
-            } else if (element instanceof glBuffer) {
-              const bufferPath = pathJoin(srcURL, element.getURI())
-              const response = await fetch(bufferPath)
-              const arrayBuffer = await response.arrayBuffer()
-              const bufferData = new Uint8Array(arrayBuffer)
-              elementName = hashBuffer(bufferData)
-            }
-            element.setName(elementName)
-          })
-        )
-    )
-  )
-  // srcDocument.transform(
-  //   partition({
-  //     animations: true,
-  //     meshes: root.listMeshes().map((mesh) => mesh.getName())
-  //   })
-  // )
-  onProgress?.(0.9, Status.WritingFiles)
-  const glbBinary = await io.writeBinary(srcDocument)
-  await doUpload(projectName, fileName, glbBinary, '/public/')
-  onProgress?.(1, Status.Complete)
 }
