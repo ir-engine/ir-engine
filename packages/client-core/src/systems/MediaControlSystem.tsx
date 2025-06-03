@@ -78,6 +78,7 @@ const onUpdate = (entity: Entity) => {
   const mediaComponent = getMutableComponent(entity, MediaComponent)
   if (!mediaComponent.controls.value) return
   const xrui = getComponent(mediaComponent.xruiEntity.value, XRUIComponent)
+  if (!xrui) return
   const transition = MediaFadeTransitions.get(entity)!
   const buttonLayer = xrui.rootLayer.querySelector('#button')
 
