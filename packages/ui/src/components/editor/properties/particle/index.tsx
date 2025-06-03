@@ -386,7 +386,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Mesh" label={t('editor:properties.particle-system.mesh')}>
         <ModelInput
           value={particleSystem.systemParameters.instancingGeometry}
-          onRelease={onSetState('instancingGeometry')}
+          onRelease={onSetSystemParm('instancingGeometry')}
         />
       </InputGroup>
       <InputGroup name="Blending" label={t('editor:properties.particle-system.blending')}>
@@ -412,14 +412,16 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="World Space" label={t('editor:properties.particle-system.world-space')}>
         <Checkbox checked={particleSystem.systemParameters.worldSpace} onChange={onSetSystemParm('worldSpace')} />
       </InputGroup>
-      <Button className="self-end" onClick={onAddBehavior}>
-        {t('editor:properties.particle-system.addBehavior')}
-      </Button>
+      <InputGroup name="Behaviors" label={t('editor:properties.particle-system.behaviors')}>
+        <Button className="self-end" onClick={onAddBehavior}>
+          {t('editor:properties.particle-system.addBehavior')}
+        </Button>
+      </InputGroup>
       <PaginatedList
         list={particleSystemState.behaviorParameters}
         element={(behaviorState: State<BehaviorJSON>, index) => {
           return (
-            <>
+            <div>
               <BehaviorInput
                 path={`behaviorParameters.${index}`}
                 scope={behaviorState}
@@ -427,7 +429,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
                 onChange={onSetState}
               />
               <Button onClick={onRemoveBehavior(index)}>{t('editor:properties.particle-system.remove')}</Button>
-            </>
+            </div>
           )
         }}
       />

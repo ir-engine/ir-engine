@@ -52,9 +52,10 @@ export const ShadowNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Cast Shadow" label={t('editor:properties.shadow.lbl-castShadow')}>
         <Checkbox checked={shadowComponent.cast.value} onChange={commitProperty(ShadowComponent, 'cast')} />
       </InputGroup>
-      <InputGroup name="Receive Shadow" label={t('editor:properties.shadow.lbl-receiveShadow')}>
+      {/**@todo shadow recieving is determined on a per-material basis */
+      /* <InputGroup name="Receive Shadow" label={t('editor:properties.shadow.lbl-receiveShadow')}>
         <Checkbox checked={shadowComponent.receive.value} onChange={commitProperty(ShadowComponent, 'receive')} />
-      </InputGroup>
+      </InputGroup> */}
     </NodeEditor>
   )
 }

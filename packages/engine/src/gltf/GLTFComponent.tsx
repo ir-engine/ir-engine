@@ -33,6 +33,7 @@ import {
   Entity,
   EntityID,
   EntityUUID,
+  getAncestorWithComponents,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -42,7 +43,7 @@ import {
   LayerID,
   Layers,
   removeComponent,
-  setComponent,
+  SimulationLayerComponent,
   SourceID,
   UndefinedEntity,
   useAncestorWithComponents,
@@ -59,6 +60,7 @@ import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions
 import { getMutableState, getState, NO_PROXY_STEALTH, none, State, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { ShapeSchema } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -146,7 +148,7 @@ export const GLTFComponent = defineComponent({
 
 type DependencyEval = {
   key: string
-  eval: (val: unknown) => boolean
+  eval: (val: unknown, entity?: Entity) => boolean
 }
 
 type ComponentDependencies = {
@@ -155,6 +157,12 @@ type ComponentDependencies = {
 
 const componentDependenciesLoaded = (dependencies?: ComponentDependencies) => {
   return !!dependencies && Object.keys(dependencies.componentDependencies).length === 0
+}
+
+const checkCollider = (hasCollider: boolean, entity: Entity) => {
+  if (!getAncestorWithComponents(entity, [RigidBodyComponent]) || !hasComponent(entity, SimulationLayerComponent))
+    return true
+  return hasCollider
 }
 
 const loadDependencies = {
@@ -167,7 +175,7 @@ const loadDependencies = {
   [ColliderComponent.jsonID]: [
     {
       key: 'hasCollider',
-      eval: (hasCollider: boolean) => hasCollider
+      eval: (hasCollider: boolean, entity: Entity) => checkCollider(hasCollider, entity)
     }
   ]
 } as Record<string, DependencyEval[]>
@@ -263,13 +271,6 @@ export const GLTFComponentReactor = () => {
     }
   }, [gltfComponent.document])
 
-  const scene = useOptionalComponent(entity, SceneComponent)
-
-  useEffect(() => {
-    if (!sceneLoaded || !scene) return
-    setComponent(entity, SceneComponent)
-  }, [sceneLoaded, !!scene])
-
   const dependencies = gltfComponent.dependencies.get(NO_PROXY_STEALTH) as ComponentDependencies | undefined
 
   return (
@@ -346,7 +347,7 @@ const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; 
   useEffect(() => {
     const compValue = comp.value
     for (const dep of dependencies) {
-      if (!dep.eval(compValue[dep.key])) return
+      if (!dep.eval(compValue[dep.key], entity)) return
     }
 
     removeGLTFDependency()
