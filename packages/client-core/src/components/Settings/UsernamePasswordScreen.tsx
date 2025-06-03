@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import Divider from '@ir-engine/ui/src/components/viewer/Divider'
 import { ChevronRightSm } from '@ir-engine/ui/src/icons'
 import React, { useState } from 'react'
-import Divider from './Divider'
 import { Section } from './Section'
 
 interface UsernamePasswordScreenProps {

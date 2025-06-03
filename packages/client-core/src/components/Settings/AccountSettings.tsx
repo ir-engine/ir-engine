@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-import Divider from './Divider'
+import Divider from '@ir-engine/ui/src/components/viewer/Divider'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
 

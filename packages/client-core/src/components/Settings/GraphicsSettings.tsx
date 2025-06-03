@@ -27,7 +27,7 @@ import React from 'react'
 
 import { useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
-import Divider from './Divider'
+import Divider from '@ir-engine/ui/src/components/viewer/Divider'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
 import SliderItem from './SliderItem'

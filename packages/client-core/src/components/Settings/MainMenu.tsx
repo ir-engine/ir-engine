@@ -26,8 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useState } from 'react'
 
 import { useHookstate } from '@hookstate/core'
+import Divider from '@ir-engine/ui/src/components/viewer/Divider'
 import { AuthService } from '../../user/services/AuthService'
-import Divider from './Divider'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
 import SliderItem from './SliderItem'
