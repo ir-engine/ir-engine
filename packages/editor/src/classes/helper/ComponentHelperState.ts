@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvMapBakeComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
@@ -68,8 +69,8 @@ import { SpawnPointHelperReactor } from './SpawnPointHelper'
 import { SpotLightHelperReactor } from './SpotLightHelper'
 
 export interface ComponentHelperEntry {
-  reactor: React.FC
-  icon: any
+  reactor?: React.FC
+  icon?: any
   directional?: boolean
   volume?: boolean
 }
@@ -130,18 +131,18 @@ export const ComponentHelperState = defineState({
       },
       [RigidBodyComponent.jsonID]: {
         icon: RigidBodyIcon,
-        reactor: undefined,
         volume: true
       },
       [TriggerCallbackComponent.jsonID]: {
         icon: TriggerIcon,
-        reactor: undefined,
         volume: true
       },
       [ColliderComponent.jsonID]: {
-        // special case for collider shapes
         icon: BoxColliderIcon,
         reactor: ColliderHelperReactor,
+        volume: true
+      },
+      [GLTFComponent.jsonID]: {
         volume: true
       }
     } as Record<string, ComponentHelperEntry>

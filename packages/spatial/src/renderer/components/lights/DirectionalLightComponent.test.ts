@@ -37,7 +37,6 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getMutableState } from '@ir-engine/hyperflux'
-import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import assert from 'assert'
 import { BufferGeometry, Color, ColorRepresentation, DirectionalLight, LineBasicMaterial } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
@@ -291,14 +290,7 @@ describe('DirectionalLightComponent', () => {
       // Create a helper entity that we'll use
       const helperSelectedGizmo = createEntity()
 
-      // Set the color and the ActiveHelperComponent with our helper entity
       setComponent(testEntity, DirectionalLightComponent, { color: Expected })
-      setComponent(testEntity, ActiveHelperComponent, {
-        enabled: true,
-        selected: true,
-        hovered: false,
-        helperSelectedGizmo: helperSelectedGizmo
-      })
 
       // Set the LineSegmentComponent on the helper entity to simulate what the component would do
       setComponent(helperSelectedGizmo, LineSegmentComponent, {
@@ -428,12 +420,7 @@ describe('DirectionalLightComponent', () => {
 
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
-      // Explicitly set ActiveHelperComponent with the required properties
-      setComponent(testEntity, ActiveHelperComponent, {
-        enabled: true,
-        selected: true,
-        hovered: false
-      })
+
       await vi.waitFor(() => {
         const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
         assert.equal(hasComponent(childEntity1, LineSegmentComponent), Expected)
@@ -443,12 +430,7 @@ describe('DirectionalLightComponent', () => {
 
       // Re-run and Check the unmount case
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
-      // Explicitly set ActiveHelperComponent with the required properties
-      setComponent(testEntity, ActiveHelperComponent, {
-        enabled: false,
-        selected: false,
-        hovered: false
-      })
+
       await vi.waitFor(() => {
         const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
         assert.equal(hasComponent(childEntity1, LineSegmentComponent), Initial)

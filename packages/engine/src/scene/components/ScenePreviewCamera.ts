@@ -38,7 +38,6 @@ import {
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getMutableState, getState, isClient, useHookstate } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
-import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { TransformDirtyCleanupSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
@@ -68,7 +67,6 @@ export const ScenePreviewCameraComponent = defineComponent({
       cameraTransform.rotation.copy(transform.rotation)
       const camera = previewCamera.camera.value as PerspectiveCamera
       setComponent(entity, ObjectComponent, camera)
-      setComponent(entity, ActiveHelperComponent, { directional: true })
 
       return () => {
         removeComponent(entity, ObjectComponent)

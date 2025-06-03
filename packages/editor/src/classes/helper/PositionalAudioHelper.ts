@@ -23,33 +23,171 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getOptionalComponent, removeComponent, setComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs'
+import { useHookstate } from '@hookstate/core'
+import {
+  createEntity,
+  EntityTreeComponent,
+  getMutableComponent,
+  removeEntity,
+  setComponent,
+  UndefinedEntity,
+  useComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
-import { PositionalAudioHelperComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioHelperComponent'
 import { MediaElementComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
-import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { TransformComponent } from '@ir-engine/spatial'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { useEffect } from 'react'
+import {
+  BufferGeometry,
+  ConeGeometry,
+  DoubleSide,
+  LatheGeometry,
+  MathUtils,
+  Mesh,
+  MeshBasicMaterial,
+  Vector2
+} from 'three'
 
-// must re-ewrite this to use the reactor instead of a new component
+function createCone(angleDegrees: number, coneHyp: number) {
+  const sgmnts = Math.floor(angleDegrees / 30)
+  const capSegments = Math.max(sgmnts, 3)
+  const coneSegments = capSegments * 4
+  const angleRad = MathUtils.degToRad(angleDegrees)
+
+  const coneOpp = coneHyp * Math.sin(angleRad / 2)
+  const coneHeight = Math.sqrt(coneHyp ** 2 - coneOpp ** 2)
+
+  const coneGeometry = new ConeGeometry(coneOpp, coneHeight, coneSegments, 1, true)
+
+  if (angleRad <= Math.PI) coneGeometry.rotateX(Math.PI)
+
+  coneGeometry.translate(0, (angleRad <= Math.PI ? 1 : -1) * (coneHeight / 2), 0)
+  coneGeometry.rotateX(Math.PI / 2)
+  return coneGeometry
+}
+
+function createCap(angleDegrees: number, coneHyp: number) {
+  const sgmnts = Math.floor(angleDegrees / 30)
+  const capSegments = Math.max(sgmnts, 3)
+  const angleRad = MathUtils.degToRad(angleDegrees)
+  const coneSegments = capSegments * 4
+
+  const capPoints = [] as Vector2[]
+  for (let i = 0; i <= capSegments; i++) {
+    const x = Math.sin(((i / capSegments) * angleRad) / 2) * -coneHyp
+    const y = Math.cos(((i / capSegments) * angleRad) / 2) * -coneHyp
+    capPoints.push(new Vector2(x, y))
+  }
+
+  const capGeometry = new LatheGeometry(capPoints, coneSegments)
+  capGeometry.rotateX(Math.PI)
+  capGeometry.rotateX(Math.PI / 2)
+  return capGeometry as BufferGeometry
+}
+
 export const PositionalAudioHelperReactor: React.FC = (props: { parentEntity; iconEntity; selected; hovered }) => {
   const { parentEntity, iconEntity, selected, hovered } = props
-  const audio = useComponent(parentEntity, PositionalAudioComponent)
   const mediaElement = useOptionalComponent(parentEntity, MediaElementComponent)
   const debugEnabled = selected || hovered
+  const audioComponent = useComponent(parentEntity, PositionalAudioComponent)
+  const helperEntities = useHookstate({
+    innerConeEntity: UndefinedEntity,
+    innerCapEntity: UndefinedEntity,
+    outerConeEntity: UndefinedEntity,
+    outerCapEntity: UndefinedEntity
+  })
 
   useEffect(() => {
-    if (debugEnabled) {
-      const name = getOptionalComponent(parentEntity, NameComponent)
-      setComponent(parentEntity, PositionalAudioHelperComponent, {
-        name: name ? `${name}-positional-audio-helper` : undefined
-      })
-      setComponent(parentEntity, ActiveHelperComponent, { helperSelectedGizmo: parentEntity, directional: true }) // we have multiple child helpers so we use the parentEntity as the selected gizmo
-    }
+    if (!debugEnabled) return
+
+    const innerConeEntity = createEntity()
+    setComponent(innerConeEntity, VisibleComponent)
+    setComponent(innerConeEntity, TransformComponent)
+    setComponent(innerConeEntity, EntityTreeComponent, { parentEntity })
+    setComponent(
+      innerConeEntity,
+      MeshComponent,
+      new Mesh(
+        createCone(audioComponent.coneInnerAngle.value, audioComponent.maxDistance.value),
+        new MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.4, side: DoubleSide })
+      )
+    )
+
+    const innerCapEntity = createEntity()
+    setComponent(innerCapEntity, VisibleComponent)
+    setComponent(innerCapEntity, TransformComponent)
+    setComponent(innerCapEntity, EntityTreeComponent, { parentEntity })
+    setComponent(
+      innerCapEntity,
+      MeshComponent,
+      new Mesh(
+        createCap(audioComponent.coneInnerAngle.value, audioComponent.maxDistance.value),
+        new MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.4, side: DoubleSide })
+      )
+    )
+
+    const outerConeEntity = createEntity()
+    setComponent(outerConeEntity, VisibleComponent)
+    setComponent(outerConeEntity, TransformComponent)
+    setComponent(outerConeEntity, EntityTreeComponent, { parentEntity })
+    setComponent(
+      outerConeEntity,
+      MeshComponent,
+      new Mesh(
+        createCone(audioComponent.coneOuterAngle.value, audioComponent.maxDistance.value),
+        new MeshBasicMaterial({ color: 0x000080, wireframe: true, side: DoubleSide })
+      )
+    )
+
+    const outerCapEntity = createEntity()
+    setComponent(outerCapEntity, VisibleComponent)
+    setComponent(outerCapEntity, TransformComponent)
+    setComponent(outerCapEntity, EntityTreeComponent, { parentEntity })
+    setComponent(
+      outerCapEntity,
+      MeshComponent,
+      new Mesh(
+        createCap(audioComponent.coneOuterAngle.value, audioComponent.maxDistance.value),
+        new MeshBasicMaterial({ color: 0x000080, wireframe: true, side: DoubleSide })
+      )
+    )
+
+    helperEntities.set({
+      innerConeEntity,
+      innerCapEntity,
+      outerConeEntity,
+      outerCapEntity
+    })
+
     return () => {
-      removeComponent(parentEntity, PositionalAudioHelperComponent)
+      removeEntity(helperEntities.innerConeEntity.value)
+      removeEntity(helperEntities.innerCapEntity.value)
+      removeEntity(helperEntities.outerConeEntity.value)
+      removeEntity(helperEntities.outerCapEntity.value)
     }
-  }, [debugEnabled, mediaElement?.element, audio.maxDistance, audio.coneInnerAngle, audio.coneOuterAngle])
+  }, [debugEnabled, mediaElement?.element])
+
+  useEffect(() => {
+    const innerConeMesh = getMutableComponent(helperEntities.innerConeEntity.value, MeshComponent)
+    const innerCapMesh = getMutableComponent(helperEntities.innerCapEntity.value, MeshComponent)
+
+    if (!innerConeMesh || !innerCapMesh) return
+    innerConeMesh.geometry.set(createCone(audioComponent.coneInnerAngle.value, audioComponent.maxDistance.value))
+    innerCapMesh.geometry.set(createCap(audioComponent.coneInnerAngle.value, audioComponent.maxDistance.value))
+  }, [audioComponent.coneInnerAngle.value, audioComponent.maxDistance.value])
+
+  useEffect(() => {
+    const outerConeMesh = getMutableComponent(helperEntities.outerConeEntity.value, MeshComponent)
+    const outerCapMesh = getMutableComponent(helperEntities.outerCapEntity.value, MeshComponent)
+
+    if (!outerConeMesh || !outerCapMesh) return
+
+    outerConeMesh.geometry.set(createCone(audioComponent.coneOuterAngle.value, audioComponent.maxDistance.value))
+    outerCapMesh.geometry.set(createCap(audioComponent.coneOuterAngle.value, audioComponent.maxDistance.value))
+  }, [audioComponent.coneOuterAngle.value, audioComponent.maxDistance.value])
 
   return null
 }

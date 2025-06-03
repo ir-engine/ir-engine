@@ -113,12 +113,6 @@ const ActiveHelperReactor = (helper) => {
     () => {
       const iconGizmo = getIconGizmo(helper.icon)
       iconGizmo.renderOrder = -1
-      const lineEntities = setupGizmo(
-        getState(ReferenceSpaceState).originEntity,
-        iconGizmoYHelper,
-        ObjectLayers.NodeIcon
-      )
-      lineEntitiesState.set(lineEntities)
 
       if (helper?.directional) {
         const directionalEntities = setupGizmo(entity, iconGizmoArrow, ObjectLayers.NodeIcon)
@@ -128,9 +122,16 @@ const ActiveHelperReactor = (helper) => {
       if (helper?.volume) {
         setComponent(entity, BoundingBoxComponent)
       }
+
+      const lineEntities = setupGizmo(
+        getState(ReferenceSpaceState).originEntity,
+        iconGizmoYHelper,
+        ObjectLayers.NodeIcon
+      )
+      lineEntitiesState.set(lineEntities)
       return iconGizmo
     },
-    editorHelperState.gizmoEnabled.value && visibility && engineState.isEditing.value,
+    editorHelperState.gizmoEnabled.value && visibility && engineState.isEditing.value && helper?.icon !== undefined,
     ObjectLayerMasks.NodeIcon,
     'icon-helper'
   )
@@ -169,7 +170,7 @@ const ActiveHelperReactor = (helper) => {
   )
 
   useEffect(() => {
-    if (helper?.volume) return
+    if (helper?.volume === undefined) return
     switch (editorHelperState.volumeVisibility.value) {
       case VolumeVisibility.On:
         setComponent(entity, BoundingBoxComponent)
@@ -177,6 +178,7 @@ const ActiveHelperReactor = (helper) => {
       case VolumeVisibility.Off:
         return
       case VolumeVisibility.Auto:
+        console.log('Auto volume visibility for', entity, 'selected:', selected.value, 'hovered:', hovered.value)
         if (selected.value || hovered.value) {
           setComponent(entity, BoundingBoxComponent)
         } else {

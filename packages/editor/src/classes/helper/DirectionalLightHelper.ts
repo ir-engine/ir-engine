@@ -23,7 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createEntity, EntityTreeComponent, removeEntity, setComponent, useComponent } from '@ir-engine/ecs'
+import { useHookstate } from '@hookstate/core'
+import {
+  createEntity,
+  Entity,
+  EntityTreeComponent,
+  getMutableComponent,
+  removeEntity,
+  setComponent,
+  UndefinedEntity,
+  useComponent
+} from '@ir-engine/ecs'
 import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 import { LineSegmentComponent } from '@ir-engine/spatial/src/renderer/components/LineSegmentComponent'
 import { DirectionalLightComponent } from '@ir-engine/spatial/src/SpatialModule'
@@ -90,7 +100,7 @@ export const DirectionalLightHelperReactor: React.FC = (props: { parentEntity; i
   const { parentEntity, iconEntity, selected, hovered } = props
 
   const directionalLight = useComponent(parentEntity, DirectionalLightComponent)
-
+  const directionalLightHelperEntity = useHookstate<Entity>(UndefinedEntity)
   useEffect(() => {
     if (!(selected || hovered)) return
 
@@ -102,11 +112,19 @@ export const DirectionalLightHelperReactor: React.FC = (props: { parentEntity; i
       geometry: mergedGeometry?.clone(),
       color: directionalLight.color.value
     })
+    directionalLightHelperEntity.set(helperEntity)
 
     return () => {
       removeEntity(helperEntity)
+      directionalLightHelperEntity.set(UndefinedEntity)
     }
   }, [selected, hovered])
+
+  useEffect(() => {
+    if (directionalLightHelperEntity) return
+    const helper = getMutableComponent(directionalLightHelperEntity, LineSegmentComponent)
+    helper.color.set(directionalLight.color.value)
+  }, [directionalLightHelperEntity, directionalLight.color])
 
   return null
 }

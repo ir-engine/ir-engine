@@ -33,16 +33,13 @@ import {
   removeComponent,
   setComponent,
   useComponent,
-  useEntityContext,
-  useOptionalComponent
+  useEntityContext
 } from '@ir-engine/ecs'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
-import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
 import { mergeBufferGeometries } from '../../../common/classes/BufferGeometryUtils'
 import { T } from '../../../schema/schemaFunctions'
 import { RendererState } from '../../RendererState'
-import { LineSegmentComponent } from '../LineSegmentComponent'
 import { ObjectComponent } from '../ObjectComponent'
 import { LightTagComponent } from './LightTagComponent'
 
@@ -119,7 +116,6 @@ export const DirectionalLightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
-    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
     const light = useHookstate(() => new DirectionalLight()).value as DirectionalLight
 
@@ -136,12 +132,6 @@ export const DirectionalLightComponent = defineComponent({
     useEffect(() => {
       light.color.set(directionalLightComponent.color.value)
     }, [directionalLightComponent.color])
-
-    useEffect(() => {
-      if (!activeHelperComponent?.helperSelectedGizmo.value) return
-      const helper = getMutableComponent(activeHelperComponent?.helperSelectedGizmo.value, LineSegmentComponent)
-      helper.color.set(directionalLightComponent.color.value)
-    }, [activeHelperComponent?.helperSelectedGizmo, directionalLightComponent.color])
 
     useEffect(() => {
       light.intensity = directionalLightComponent.intensity.value

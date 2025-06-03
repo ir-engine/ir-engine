@@ -42,7 +42,6 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { ActiveHelperComponent } from '../../common/ActiveHelperComponent'
 import { InputComponent } from '../../input/components/InputComponent'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -59,10 +58,6 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
   const helperEntityState = useHookstate(UndefinedEntity)
   const nameComponent = useOptionalComponent(parentEntity, NameComponent)
   const transform = useOptionalComponent(helperEntityState.value, TransformComponent)
-
-  useEffect(() => {
-    setComponent(parentEntity, ActiveHelperComponent)
-  }, [])
 
   useEffect(() => {
     if (!enabled) return

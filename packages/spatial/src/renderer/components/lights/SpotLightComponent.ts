@@ -27,16 +27,9 @@ import { useEffect } from 'react'
 import { SpotLight } from 'three'
 
 import { S, useEntityContext } from '@ir-engine/ecs'
-import {
-  defineComponent,
-  removeComponent,
-  setComponent,
-  useComponent,
-  useOptionalComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
-import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
 import { T } from '../../../schema/schemaFunctions'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { RendererState } from '../../RendererState'
@@ -69,11 +62,6 @@ export const SpotLightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
-    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
-    const debugEnabled =
-      activeHelperComponent !== undefined &&
-      activeHelperComponent.enabled.value === true &&
-      (activeHelperComponent.selected.value || activeHelperComponent.hovered.value)
 
     const spotLightComponent = useComponent(entity, SpotLightComponent)
     const light = useHookstate(() => new SpotLight()).value as SpotLight
@@ -84,7 +72,6 @@ export const SpotLightComponent = defineComponent({
       light.target.position.set(1, 0, 0)
       light.target.name = 'light-target'
       setComponent(entity, ObjectComponent, light)
-      setComponent(entity, ActiveHelperComponent, { directional: true })
 
       return () => {
         removeComponent(entity, ObjectComponent)
