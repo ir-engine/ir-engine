@@ -23,27 +23,43 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Forbidden } from '@feathersjs/errors'
+export const smallIconButtonStyles = `
+  rounded-full
+  text-white
+  text-3xl
+  font-bold
+  w-10
+  h-10
+  flex
+  items-center
+  justify-center
+  border-2
+  border-b-white/0
+  border-white/10
+  shadow-xl
+  
+  bg-white/10
+  
+  hover:bg-white/20
+`
 
-/**
- * Base storage provider class with common functionality
- */
-export abstract class BaseStorageProvider {
-  /**
-   * Checks if a prefix is blacklisted
-   * @param prefix The prefix to check
-   * @throws {Forbidden} If the prefix is blacklisted
-   */
-  protected checkBlacklistedPrefix(prefix: string): void {
-    // Define blacklisted prefixes
-    const blacklistedPrefixes = ['projects/']
-
-    const normalizedPrefix = prefix.endsWith('/') ? prefix : prefix + '/'
-
-    for (const blacklistedPrefix of blacklistedPrefixes) {
-      if (normalizedPrefix === blacklistedPrefix) {
-        throw new Forbidden(`Access to '${prefix}' is restricted`)
-      }
-    }
-  }
-}
+export const largeIconButtonStyles = `
+  rounded-full
+  text-white
+  text-3xl
+  font-bold
+  w-14
+  h-14
+  flex
+  items-center
+  justify-center
+  border-2
+  border-b-white/0
+  border-white/10
+  shadow-xl
+  
+  bg-white/10
+  backdrop-blur-lg
+  
+  hover:bg-white/20
+`

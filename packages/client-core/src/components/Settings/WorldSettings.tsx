@@ -19,31 +19,35 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Forbidden } from '@feathersjs/errors'
+import React from 'react'
 
-/**
- * Base storage provider class with common functionality
- */
-export abstract class BaseStorageProvider {
-  /**
-   * Checks if a prefix is blacklisted
-   * @param prefix The prefix to check
-   * @throws {Forbidden} If the prefix is blacklisted
-   */
-  protected checkBlacklistedPrefix(prefix: string): void {
-    // Define blacklisted prefixes
-    const blacklistedPrefixes = ['projects/']
+import Divider from '@ir-engine/ui/src/components/viewer/Divider'
+import { Section } from './Section'
+import SliderItem from './SliderItem'
+import ToggleItem from './ToggleItem'
 
-    const normalizedPrefix = prefix.endsWith('/') ? prefix : prefix + '/'
-
-    for (const blacklistedPrefix of blacklistedPrefixes) {
-      if (normalizedPrefix === blacklistedPrefix) {
-        throw new Forbidden(`Access to '${prefix}' is restricted`)
-      }
-    }
-  }
+// Define types for screen components
+interface ScreenProps {
+  navigateTo: (screen: string) => void
+  onClose?: () => void
 }
+
+const WorldSettings: React.FC<ScreenProps> = () => (
+  <div className="h-full space-y-4">
+    <Section>
+      <SliderItem label="Audio Volume" defaultValue={50} />
+      <Divider />
+      <ToggleItem label="Animation" checked />
+      <Divider />
+      <ToggleItem label="Vegetation" />
+      <Divider />
+      <ToggleItem label="Multiplayer" />
+    </Section>
+  </div>
+)
+
+export default WorldSettings

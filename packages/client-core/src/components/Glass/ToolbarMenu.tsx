@@ -28,11 +28,21 @@ import React, { useState } from 'react'
 import { ChevronDownMd, ChevronLeftMd, CogMd, EmoteM, MessageTextSquare01Sm } from '@ir-engine/ui/src/icons'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
+import { ModalState } from '../../common/services/ModalState'
+import Settings from '../Settings'
 import { Badge } from './Badge'
 import { MenuButton } from './MenuButton'
 import { MultimediaStateProvider, useMultimediaStateProvider } from './MultimediaStateProvider'
 
-const MicButton = () => {
+export const ChatButton = ({ onClick, active }) => {
+  return (
+    <MenuButton onClick={onClick} active={active}>
+      <MessageTextSquare01Sm className={'relative top-[0.04em]'} />
+    </MenuButton>
+  )
+}
+
+export const MicButton = () => {
   const { onMicClick, _MicIcon, isMicReady } = useMultimediaStateProvider()
 
   return isMicReady ? (
@@ -44,7 +54,7 @@ const MicButton = () => {
   )
 }
 
-const CamButton = () => {
+export const CamButton = () => {
   const { onCamClick, _CamIcon, isCamReady, isCamLoading } = useMultimediaStateProvider()
 
   return isCamReady ? (
@@ -56,7 +66,7 @@ const CamButton = () => {
   )
 }
 
-const ScreenshareButton = () => {
+export const ScreenshareButton = () => {
   const { onScreenshareClick, _ScreenshareIcon, isScreenshareReady } = useMultimediaStateProvider()
 
   return isScreenshareReady ? (
@@ -68,7 +78,7 @@ const ScreenshareButton = () => {
   )
 }
 
-const MultiVideoButton = () => {
+export const MultiVideoButton = () => {
   const { onMultiVideoClick, _MultiVideoIcon, isMultiVideoReady } = useMultimediaStateProvider()
 
   return isMultiVideoReady ? (
@@ -86,7 +96,7 @@ const MultiVideoButton = () => {
   )
 }
 
-const VRButton = () => {
+export const VRButton = () => {
   const { t } = useTranslation()
 
   const { onVRClick, _VRIcon, isVRReady } = useMultimediaStateProvider()
@@ -106,7 +116,7 @@ const VRButton = () => {
   )
 }
 
-const Divider = () => {
+export const Divider = () => {
   return (
     <div className={'relative grid h-full w-full items-center px-2 py-0 sm:max-lg:w-auto sm:max-lg:px-5'}>
       <div className={'h-[2px] w-full rounded-full bg-white sm:max-lg:h-6 sm:max-lg:w-[2px]'} />
@@ -140,15 +150,15 @@ export const HorizontalMenu = ({ children }) => {
       className={`
         pointer-events-auto
 
-        collapse absolute
-        left-1/2
+        absolute left-1/2
         right-auto
         top-6
         z-10
+        hidden
         -translate-x-1/2
         
         translate-y-0
-        sm:max-lg:visible
+        sm:max-lg:block
       `}
     >
       {children}
@@ -156,25 +166,38 @@ export const HorizontalMenu = ({ children }) => {
   )
 }
 
-const containerStyles = `
-  translate-z
+export const containerStyles = `
   relative
+  
+  inline-flex
+  
+  translate-z
   transform-gpu
+  
   rounded-full
   border-y-2 border-white/5
   bg-black/[0.05]
   
-  shadow-[0_0.1rem_2.3rem_-0.5rem_hsla(0,0%,0%,0.1)]
+  shadow-[0_0.1rem_2.3rem_-0.5rem_hsla(0,0%,0%,0.15)]
   backdrop-blur-xl transition-transform
+
   delay-[60ms]
   hover:scale-[1.03]
 `
 
-export const gridStyles = `
+export const gridStyles_base = `
   relative
-  flex flex-col items-center py-4
-  text-[1.8rem] text-white
-  
+  flex items-center
+
+  text-[1.8rem]
+  text-white
+`
+
+const gridStyles = `
+  ${gridStyles_base}
+  flex-col
+  py-4
+
   sm:max-lg:flex-row
   sm:max-lg:flex-row-reverse
   sm:max-lg:gap-x-3
@@ -183,10 +206,16 @@ export const gridStyles = `
   sm:max-lg:pl-6
 `
 
+export const sectionStyles_base = `
+  flex items-center
+  gap-7 pb-2
+`
+
 const sectionStyles = `
-  flex flex-col items-center
-  gap-7 px-3 pb-2 pt-6
-  
+  ${sectionStyles_base}
+  flex-col
+  px-3 pt-6
+
   sm:max-lg:flex-row
   sm:max-lg:px-0
   sm:max-lg:pt-2
@@ -221,7 +250,7 @@ const collapsableSectionCloseStyles = `
   sm:max-lg:scale-x-0  
 `
 
-export const ToolbarMenu = ({ onMessageClick, onShareClick }) => {
+export const ToolbarMenu = ({ onMessageClick, onShareClick, activeKey }) => {
   const hasNotifications = true
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
@@ -241,7 +270,7 @@ export const ToolbarMenu = ({ onMessageClick, onShareClick }) => {
             isMenuOpen ? collapsableSectionOpenStyles : collapsableSectionCloseStyles
           )}
         >
-          <MenuButton>
+          <MenuButton onClick={() => ModalState.openModal(<Settings onClose={ModalState.closeModal} />)}>
             <CogMd />
           </MenuButton>
           <MenuButton onClick={onShareClick} badge={{ number: 1 }}>
@@ -252,9 +281,7 @@ export const ToolbarMenu = ({ onMessageClick, onShareClick }) => {
         {isMenuOpen && <Divider />}
 
         <div className={sectionStyles}>
-          <MenuButton onClick={onMessageClick}>
-            <MessageTextSquare01Sm className={'relative top-[0.04em]'} />
-          </MenuButton>
+          <ChatButton active={activeKey === `Chat`} onClick={onMessageClick} />
           <MultimediaStateProvider>
             <MicButton />
             <CamButton />

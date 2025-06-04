@@ -23,27 +23,29 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Forbidden } from '@feathersjs/errors'
+import { ChevronRightSm } from '@ir-engine/ui/src/icons'
+import React from 'react'
 
-/**
- * Base storage provider class with common functionality
- */
-export abstract class BaseStorageProvider {
-  /**
-   * Checks if a prefix is blacklisted
-   * @param prefix The prefix to check
-   * @throws {Forbidden} If the prefix is blacklisted
-   */
-  protected checkBlacklistedPrefix(prefix: string): void {
-    // Define blacklisted prefixes
-    const blacklistedPrefixes = ['projects/']
-
-    const normalizedPrefix = prefix.endsWith('/') ? prefix : prefix + '/'
-
-    for (const blacklistedPrefix of blacklistedPrefixes) {
-      if (normalizedPrefix === blacklistedPrefix) {
-        throw new Forbidden(`Access to '${prefix}' is restricted`)
-      }
-    }
-  }
+interface MenuItemProps {
+  label: string
+  onClick: () => void
+  hasChevron?: boolean
+  leftIcon?: React.ReactNode
+  rightIcon?: React.ReactNode
 }
+
+export const MenuItem: React.FC<MenuItemProps> = ({ label, onClick, hasChevron = false, leftIcon, rightIcon }) => (
+  <div
+    className="flex cursor-pointer items-center justify-between px-4 py-3.5 text-white/90 transition-colors hover:bg-white/5"
+    onClick={onClick}
+  >
+    <span className="flex items-center gap-3">
+      {leftIcon && <span className="text-white/70">{leftIcon}</span>}
+      <span className="font-medium">{label}</span>
+    </span>
+    <span className="flex items-center gap-3">
+      {rightIcon && <span className="text-white/70">{rightIcon}</span>}
+      {hasChevron && <ChevronRightSm className="text-white/70" />}
+    </span>
+  </div>
+)

@@ -23,8 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useMutableState } from '@ir-engine/hyperflux'
 import React from 'react'
+import { HiChatBubbleLeftRight } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
+import { ModalState } from '../../common/services/ModalState'
+import { AuthState } from '../../user/services/AuthService'
+import SettingsMenu from '../Settings'
 
 const messageBaseStyles = `
   inline-grid
@@ -80,6 +85,25 @@ const OtherChat = ({ children }) => (
 )
 
 export const ChatMenu = () => {
+  const { type } = useMutableState(AuthState).authUser.identityProvider.get()
+  const onCTAClicked = () => {
+    ModalState.openModal(<SettingsMenu initScreen="signup" onClose={ModalState.closeModal} />)
+  }
+  if (type === 'guest') {
+    return (
+      <div className="flex h-full max-w-screen-sm flex-col items-center justify-center gap-8 font-dm-sans">
+        <HiChatBubbleLeftRight className="mx-auto h-[5.5rem] w-[5.5rem]" />
+        <div className="text-shadow-md text-2xl text-white">Want to chat with others?</div>
+        <button
+          onClick={onCTAClicked}
+          className="mt-6 w-[80%] rounded-full border border-white/20 bg-white/15 px-6 py-4 text-lg font-bold text-white/90 shadow-lg drop-shadow-xl backdrop-blur-sm"
+        >
+          Create an Account
+        </button>
+      </div>
+    )
+  }
+
   return (
     <>
       <OtherChat>

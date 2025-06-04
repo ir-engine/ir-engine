@@ -23,27 +23,19 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Forbidden } from '@feathersjs/errors'
+import React from 'react'
+
+export interface DividerProps {
+  className?: string
+  width?: string
+}
 
 /**
- * Base storage provider class with common functionality
+ * Divider component for separating items within sections
+ * Uses a centered, rounded horizontal line with customizable width and opacity
  */
-export abstract class BaseStorageProvider {
-  /**
-   * Checks if a prefix is blacklisted
-   * @param prefix The prefix to check
-   * @throws {Forbidden} If the prefix is blacklisted
-   */
-  protected checkBlacklistedPrefix(prefix: string): void {
-    // Define blacklisted prefixes
-    const blacklistedPrefixes = ['projects/']
+const Divider: React.FC<DividerProps> = ({ className = '' }) => (
+  <div className={`mx-auto h-px rounded-full ${className} w-[80%] bg-white/10 ${className}`} />
+)
 
-    const normalizedPrefix = prefix.endsWith('/') ? prefix : prefix + '/'
-
-    for (const blacklistedPrefix of blacklistedPrefixes) {
-      if (normalizedPrefix === blacklistedPrefix) {
-        throw new Forbidden(`Access to '${prefix}' is restricted`)
-      }
-    }
-  }
-}
+export default Divider

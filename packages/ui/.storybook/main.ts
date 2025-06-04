@@ -28,7 +28,7 @@ import globby from 'globby'
 import { dirname, join, resolve } from 'path'
 import { mergeConfig } from 'vite'
 
-const stories = globby.sync(['../src/**/*.stories.tsx'], {
+const stories = globby.sync(['../src/**/*.stories.tsx', '../../client-core/src/components/Settings/*.stories.tsx'], {
   ignore: [
     '../src/primitives/tailwind/TruncatedText/**/*.stories.tsx',
     '../src/components/tailwind/Header/**/*.stories.tsx',
@@ -79,8 +79,8 @@ const config: StorybookConfig = {
     getAbsolutePath('@storybook/addon-interactions'),
     getAbsolutePath('@storybook/addon-a11y'),
     getAbsolutePath('@storybook/addon-jest'),
-    getAbsolutePath('storybook-addon-react-router-v6'),
-    getAbsolutePath('storybook-addon-sass-postcss')
+    getAbsolutePath('storybook-addon-sass-postcss'),
+    'storybook-addon-rmeix-react-router'
   ],
   staticDirs: ['../public', '../../client/public'],
   core: {},

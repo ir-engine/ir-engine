@@ -1613,13 +1613,6 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   } finally {
     // dereference body non-reactively if it exists
     getComponent(options.entity, GLTFComponent).body = null
-
-    // Mark the scene as loaded by setting progress to 100
-    // This is important for tests that wait for scene loading
-    if (hasComponent(options.entity, GLTFComponent)) {
-      const gltfComponent = getMutableComponent(options.entity, GLTFComponent)
-      gltfComponent.progress.set(100)
-    }
   }
 }
 
