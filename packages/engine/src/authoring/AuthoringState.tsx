@@ -63,7 +63,8 @@ import {
 } from '@ir-engine/hyperflux'
 import {
   MaterialPrototypeDefinitions,
-  MaterialStateComponent
+  MaterialStateComponent,
+  SerializedTexture
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import React, { Suspense, useEffect } from 'react'
 import { applyPatch, createPatch, Operation, Patch } from 'rfc6902'
@@ -433,8 +434,12 @@ export const applyCommandsToECS = (sourceID: SourceID, currentState: SourceData,
             // set property on material too, since it does't get serialized but also doesn't get update from parameters
             if (args[key].type === 'texture') {
               if (!val || (material[key]?.isTexture && val === material[key].userData?.url)) continue
-              getTextureAsync(val).then(([texture]) => {
+              const textureData = val as SerializedTexture
+              getTextureAsync(textureData.source).then(([texture]) => {
                 if (texture?.isTexture) {
+                  texture.channel = textureData.channel
+                  if (textureData.repeat) texture.repeat.copy(textureData.repeat)
+                  if (textureData.offset) texture.offset.copy(textureData.offset)
                   texture.flipY = false
                   texture.needsUpdate = true
                   texture.colorSpace = SRGBColorSpace

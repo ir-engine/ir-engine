@@ -113,12 +113,14 @@ import SkyboxNodeEditor from '@ir-engine/ui/src/components/editor/properties/sky
 import SpawnPointNodeEditor from '@ir-engine/ui/src/components/editor/properties/spawnPoint'
 import SplineNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline'
 
+import { LightmapComponent } from '@ir-engine/editor/src/lightmapper/LightmapComponent'
 import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { LookAtComponent } from '@ir-engine/engine/src/scene/components/LookAtComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { OverlayComponent } from '@ir-engine/engine/src/scene/components/OverlayComponent'
 import { TriggerCallbackComponent } from '@ir-engine/engine/src/scene/components/TriggerCallbackComponent'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import LightmapNodeEditor from '@ir-engine/ui/src/components/editor/properties/lightmap'
 import MediaNodeEditor from '@ir-engine/ui/src/components/editor/properties/media'
 import PlaylistNodeEditor from '@ir-engine/ui/src/components/editor/properties/playlist'
 import SplineTrackNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline/track'
@@ -171,6 +173,7 @@ export const ComponentEditorsState = defineState({
       [EnvMapComponent.name]: EnvMapEditor,
       [EnvMapBakeComponent.name]: EnvMapBakeNodeEditor,
       [InstancingComponent.name]: InstancingNodeEditor,
+      [LightmapComponent.name]: LightmapNodeEditor,
       [PersistentAnchorComponent.name]: PersistentAnchorNodeEditor,
       [VariantComponent.name]: VariantNodeEditor,
       [SplineComponent.name]: SplineNodeEditor,

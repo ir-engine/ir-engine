@@ -128,8 +128,12 @@ export default function ParameterInput({
                     <TexturePreviewInput
                       preview={thumbnails?.[k]}
                       value={valuesWithDefaults[k]}
-                      onRelease={setArgsProp(k)}
-                      onModify={onModify}
+                      onRelease={setArgsProp(k + '.map')}
+                      onModify={{
+                        channel: setArgsProp(k + '.channel'),
+                        offset: setArgsProp(k + '.offset'),
+                        repeat: setArgsProp(k + '.repeat')
+                      }}
                     />
                   )
                 case 'vec2':

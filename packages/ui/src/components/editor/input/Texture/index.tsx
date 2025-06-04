@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { Fragment, useEffect } from 'react'
-import { ColorSpace, LinearSRGBColorSpace, SRGBColorSpace, Texture, Vector2 } from 'three'
+import { ColorSpace, LinearSRGBColorSpace, Texture, Vector2 } from 'three'
 
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
@@ -32,7 +32,6 @@ import { ImageFileTypes, VideoFileTypes } from '@ir-engine/engine/src/assets/con
 import { useHookstate } from '@ir-engine/hyperflux'
 
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
-import { DisplayP3ColorSpace } from '@ir-engine/spatial/src/threejsPatches'
 import Button from '../../../../primitives/tailwind/Button'
 import FileBrowserInput from '../FileBrowser'
 import InputGroup from '../Group'
@@ -59,7 +58,7 @@ export default function TexturePreviewInput({
 }: {
   value: string | Texture | null
   onRelease: (value: any) => void
-  onModify?: () => void
+  onModify?: { channel: (value: any) => void; offset: (value: any) => void; repeat: (value: any) => void }
   preview?: string
 }) {
   const { preview, onModify } = rest
@@ -128,29 +127,9 @@ export default function TexturePreviewInput({
         <div className="inline-flex items-end justify-center gap-2.5 self-stretch rounded bg-neutral-900 px-2 py-1">
           <TextureInput value={inputSrc} onRelease={onRelease} />
         </div>
-        {texture?.isTexture && !texture.isRenderTargetTexture && (
-          <>
-            <Vector2Input
-              value={offset.value}
-              onChange={(_offset) => {
-                offset.set(_offset)
-                texture.offset.copy(_offset)
-              }}
-              uniformScaling={false}
-            />
-            <Vector2Input
-              value={scale.value}
-              onChange={(_scale) => {
-                scale.set(_scale)
-                texture.repeat.copy(_scale)
-              }}
-              uniformScaling={false}
-            />
-          </>
-        )}
-        {texture?.isTexture && (
-          <>
-            <InputGroup name="Encoding" label="Encoding">
+        <Vector2Input value={offset.value} onChange={onModify?.offset} uniformScaling={false} />
+        <Vector2Input value={scale.value} onChange={onModify?.repeat} uniformScaling={false} />
+        {/* <InputGroup name="Encoding" label="Encoding">
               <SelectInput
                 value={colorspace.value}
                 options={[
@@ -165,26 +144,20 @@ export default function TexturePreviewInput({
                   console.log('DEBUG changed space', texture.colorSpace)
                 }}
               />
-            </InputGroup>
-            <InputGroup name="UV Channel" label="UV Channel">
-              <SelectInput
-                value={uvChannel.value}
-                options={[
-                  { label: 'UV', value: 0 },
-                  { label: 'UV2', value: 1 },
-                  { label: 'UV3', value: 2 },
-                  { label: 'UV4', value: 3 }
-                ]}
-                onChange={(value: number) => {
-                  uvChannel.set(value)
-                  texture.channel = value
-                  texture.needsUpdate = true
-                  onModify?.()
-                }}
-              />
-            </InputGroup>
-          </>
-        )}
+            </InputGroup> */}
+        <InputGroup name="UV Channel" label="UV Channel">
+          <SelectInput
+            value={uvChannel.value}
+            options={[
+              { label: 'UV0', value: 0 },
+              { label: 'UV1', value: 1 },
+              { label: 'UV2', value: 2 },
+              { label: 'UV3', value: 3 }
+            ]}
+            onChange={onModify?.channel}
+          />
+        </InputGroup>
+
         {value && (
           <>
             <div>

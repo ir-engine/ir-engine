@@ -33,7 +33,8 @@ import {
   MaterialInstanceComponent,
   MaterialPrototypeDefinitions,
   MaterialStateComponent,
-  PrototypeArgument
+  PrototypeArgument,
+  SerializedTexture
 } from './MaterialComponent'
 
 export const formatMaterialArgs = (args: any, defaultArgs?: PrototypeArgument) => {
@@ -107,7 +108,7 @@ export const setupMaterialParameters = (entity: Entity, type: string, properties
     if (typeof v === 'function') return
     if (v.isTexture) {
       const url = v.userData?.url ?? v.userData?.src
-      if (url) params[k] = url
+      if (url) params[k] = { source: url, channel: v.channel, repeat: v.repeat, offset: v.offset } as SerializedTexture
       return
     }
     if (v.isColor) {

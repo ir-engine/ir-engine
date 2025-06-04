@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { IUniform, Material, Shader } from 'three'
+import { IUniform, Material, Shader, Vector2 } from 'three'
 
 import {
   ComponentType,
@@ -54,7 +54,6 @@ import MeshToonMaterial from './prototypes/MeshToonMaterial.mat'
 import { ShadowMaterial } from './prototypes/ShadowMaterial.mat'
 
 export type MaterialPrototypeConstructor = new (...args: any) => any
-export type MaterialPrototypeObjectConstructor = { [key: string]: MaterialPrototypeConstructor }
 export type MaterialPrototypeDefinition = {
   prototypeConstructor: MaterialPrototypeConstructor
   arguments: PrototypeArgument
@@ -70,6 +69,13 @@ export type PrototypeArgumentValue = {
 
 export type PrototypeArgument = {
   [_: string]: PrototypeArgumentValue
+}
+
+export type SerializedTexture = {
+  source: string
+  channel: number
+  repeat: Vector2
+  offset: Vector2
 }
 
 export const MaterialPrototypeDefinitions = defineState({
