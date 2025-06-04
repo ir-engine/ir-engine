@@ -804,7 +804,7 @@ describe('GLTF Loader', async () => {
     expect(rigidbodyEntities.length).toBe(0)
   })
 
-  it('can load a model with normal maps and tangents', async () => {
+  it('properly sets normalScale when no tangents are present', async () => {
     const src = base_url + '/NormalTangentTest/NormalTangentTest.gltf'
 
     const entity = setupEntity()
