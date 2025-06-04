@@ -717,30 +717,50 @@ const writeFiles = async (
   const regex = /projects\/[^/]+\/[^/]+(\/(?:public|assets)\/)/
   const match = regex.exec(srcBaseURL)
   const path = match ? match[1] : undefined
+
+  // Deduplicate buffers before writing
+  await document.transform(dedup())
+
   if (['glb', 'vrm'].includes(modelFormat)) {
     // For GLB/VRM, we keep textures embedded and don't process them separately
     const data = await io.writeBinary(document)
     await doUpload(...toProjectAndFileName(finalPath, srcBaseURL), data, path)
   } else if (modelFormat === 'gltf') {
+    // Create a buffer hash map to track duplicates
+    const bufferHashes = new Map()
+
     await Promise.all(
       [root.listBuffers(), root.listMeshes(), root.listTextures()].map(
         async (elements) =>
           await Promise.all(
             elements.map(async (element: Texture | Mesh | glBuffer) => {
               let elementName = ''
+              let hashValue = ''
+
               if (element instanceof Texture) {
-                elementName = hashBuffer(element.getImage()!)
+                hashValue = hashBuffer(element.getImage()!)
               } else if (element instanceof Mesh) {
-                elementName = hashBuffer(
-                  Uint8Array.from(element.listPrimitives()[0].getAttribute('POSITION')!.getArray()!)
-                )
+                const positionAttr = element.listPrimitives()[0].getAttribute('POSITION')
+                if (positionAttr) {
+                  hashValue = hashBuffer(Uint8Array.from(positionAttr.getArray()!))
+                }
               } else if (element instanceof glBuffer) {
                 const bufferPath = pathJoin(srcBaseURL, element.getURI())
                 const response = await fetch(bufferPath)
                 const arrayBuffer = await response.arrayBuffer()
                 const bufferData = new Uint8Array(arrayBuffer)
-                elementName = hashBuffer(bufferData)
+                hashValue = hashBuffer(bufferData)
               }
+
+              // Check if we've seen this hash before
+              if (bufferHashes.has(hashValue)) {
+                elementName = bufferHashes.get(hashValue)
+              } else {
+                // Create a valid name that meets the criteria (4-64 chars, alphanumeric start/end)
+                elementName = `buf_${hashValue.slice(0, 60)}` // Ensure total length ≤ 64 chars
+                bufferHashes.set(hashValue, elementName)
+              }
+
               element.setName(elementName)
             })
           )
@@ -753,6 +773,38 @@ const writeFiles = async (
       })
     )
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
+
+    // Create a map to track which buffers we've already processed
+    const processedBuffers = new Map()
+
+    // Process buffers to ensure no duplicates
+    if (json.buffers) {
+      const uniqueBuffers: glBuffer[] = []
+      const bufferMap = new Map()
+
+      for (let i = 0; i < json.buffers.length; i++) {
+        const buffer = json.buffers[i]
+        const bufferName = buffer.name || buffer.uri
+
+        if (!bufferMap.has(bufferName)) {
+          bufferMap.set(bufferName, uniqueBuffers.length)
+          uniqueBuffers.push(buffer as any)
+        }
+      }
+
+      // Update buffer references in bufferViews
+      if (json.bufferViews) {
+        for (const bufferView of json.bufferViews) {
+          if (bufferView.buffer !== undefined) {
+            const originalBuffer = json.buffers[bufferView.buffer]
+            const bufferName = originalBuffer.name || originalBuffer.uri
+            bufferView.buffer = bufferMap.get(bufferName)
+          }
+        }
+      }
+
+      json.buffers = uniqueBuffers as any
+    }
 
     const removeExtension = (uri: string) => {
       const pathSegments = uri.split('/')
