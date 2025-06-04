@@ -923,6 +923,7 @@ function computeMorphedAttributes(object) {
 export {
   computeMorphedAttributes,
   computeTangents,
+  deinterleaveAttribute,
   deinterleaveGeometry,
   estimateBytesUsed,
   interleaveAttributes,

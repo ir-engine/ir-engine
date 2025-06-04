@@ -37,7 +37,7 @@ import Worker from 'web-worker'
 
 import { isClient } from '@ir-engine/hyperflux'
 import { WorkerPool } from '@ir-engine/xrui/core/WorkerPool'
-import { deinterleaveGeometry } from '../../common/classes/BufferGeometryUtils'
+import { deinterleaveAttribute } from '../../common/classes/BufferGeometryUtils'
 
 const createWorker = () => {
   if (isClient) {
@@ -68,10 +68,11 @@ export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options =
 
   const index = geometry.index ? Uint32Array.from(geometry.index.array) : null
 
-  if ((geometry.attributes.position as InterleavedBufferAttribute).isInterleavedBufferAttribute)
-    deinterleaveGeometry(geometry)
-
-  const pos = Float32Array.from((geometry.attributes.position as BufferAttribute).array)
+  let positionAttr = geometry.attributes.position
+  if ((positionAttr as InterleavedBufferAttribute).isInterleavedBufferAttribute) {
+    positionAttr = deinterleaveAttribute(positionAttr as InterleavedBufferAttribute)
+  }
+  const pos = Float32Array.from(positionAttr.array)
 
   const transferrables = [pos as ArrayLike<number>]
   if (index) {
