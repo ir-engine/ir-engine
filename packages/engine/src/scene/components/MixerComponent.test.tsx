@@ -44,6 +44,7 @@ import {
   destroyEngine,
   EngineState,
   Entity,
+  EntityID,
   getComponent,
   getMutableComponent,
   hasComponent,
@@ -61,7 +62,7 @@ import { Vector3 } from 'three'
 import { afterEach, assert, beforeEach, describe, it, vi } from 'vitest'
 import { MixerComponent } from './MixerComponent'
 
-const createEntityWithUUID = () => {
+const createEntityWithID = () => {
   const entity = createEntity()
   setComponent(entity, UUIDComponent, {
     entitySourceID: 'source' as SourceID,
@@ -123,7 +124,7 @@ describe('MixerComponent.ts', async () => {
       })
 
       it('should set the mixer component initial data', async () => {
-        const mixerEntity = createEntityWithUUID()
+        const mixerEntity = createEntityWithID()
         const customData = {
           coord: 0,
           properties: [],
@@ -150,6 +151,7 @@ describe('MixerComponent.ts', async () => {
 
     describe('Properties', () => {
       let targetEntity: Entity
+      let targetEntityID: EntityID
       let mixerEntity: Entity
       let mixerComp: any
 
@@ -157,8 +159,9 @@ describe('MixerComponent.ts', async () => {
         createEngine()
         getMutableState(EngineState).userID.set('userId' as UserID)
 
-        mixerEntity = createEntityWithUUID()
-        targetEntity = createEntityWithUUID()
+        mixerEntity = createEntityWithID()
+        targetEntity = createEntityWithID()
+        targetEntityID = getComponent(targetEntity, UUIDComponent).entityID
         setComponent(targetEntity, testComponent)
         setComponent(mixerEntity, MixerComponent)
         await vi.waitUntil(() => getComponent(mixerEntity, MixerComponent).state != null)
@@ -174,20 +177,20 @@ describe('MixerComponent.ts', async () => {
       describe('addProperty', () => {
         it('should add a property to the mixer component, if it is found in the target entity', () => {
           const lastSize = mixerComp.properties.length
-          MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')
+          MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'x')
           assert.equal(mixerComp.properties.length, lastSize + 1)
           assert.equal(mixerComp.state.properties.size, lastSize + 1)
           assert.isTrue(mixerComp.state.properties.keys().next().value.endsWith('x'))
         })
         it('should not add a property to the mixer component if it already exists', () => {
           const lastSize = mixerComp.properties.length
-          assert.isNotNull(MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x'))
+          assert.isNotNull(MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'x'))
           assert.equal(mixerComp.properties.length, lastSize + 1)
           assert.equal(mixerComp.state.properties.size, lastSize + 1)
         })
         it('should not add a property to the mixer component if it is not found in the target entity', () => {
           const lastSize = mixerComp.properties.length
-          assert.isNull(MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'fake'))
+          assert.isNull(MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'fake'))
           assert.equal(mixerComp.properties.length, lastSize)
           assert.equal(mixerComp.state.properties.size, lastSize)
         })
@@ -195,8 +198,8 @@ describe('MixerComponent.ts', async () => {
 
       describe('propertySetter', () => {
         it('should return a function that creates an entry partial for the property', () => {
-          const x1Setter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
-          const x2Setter = MixerComponent.propertySetter(mixerEntity, targetEntity, testComponent, 'x')
+          const x1Setter = MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'x')!
+          const x2Setter = MixerComponent.propertySetter(mixerEntity, targetEntityID, testComponent, 'x')
           const xProperty = mixerComp.properties.find((prop: string) => prop.endsWith('x'))
           assert.isNotNull(x2Setter)
 
@@ -211,18 +214,23 @@ describe('MixerComponent.ts', async () => {
           assert.deepEqual(x2Partial[xProperty][0], x2)
         })
         it('should return null if the property was not added to the mixer', () => {
-          assert.isNull(MixerComponent.propertySetter(mixerEntity, targetEntity, testComponent, 'fake'))
+          assert.isNull(MixerComponent.propertySetter(mixerEntity, targetEntityID, testComponent, 'fake'))
         })
       })
 
       describe('removeProperty', () => {
-        it('should remove a property from the mixer component, if it is present', () => {
-          MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')
-          MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'y')
+        it('should remove a property from the mixer component, if its index is in range', () => {
+          MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'x')
+          MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'y')
           const lastSize = mixerComp.properties.length
 
+          // Removing a property that doesn't exist shouldn't do anything
+          MixerComponent.removeProperty(mixerEntity, targetEntityID, testComponent, 'q')
+          assert.equal(mixerComp.properties.length, lastSize)
+          assert.equal(mixerComp.state.properties.size, lastSize)
+
           // Removing one property shouldn't affect the other properties
-          MixerComponent.removeProperty(mixerEntity, targetEntity, testComponent, 'x')
+          MixerComponent.removeProperty(mixerEntity, targetEntityID, testComponent, 'x')
           assert.equal(mixerComp.properties.length, lastSize - 1)
           assert.equal(mixerComp.state.properties.size, lastSize - 1)
         })
@@ -230,6 +238,7 @@ describe('MixerComponent.ts', async () => {
     })
     describe('Entries', () => {
       let targetEntity: Entity
+      let targetEntityID: EntityID
       let mixerEntity: Entity
       let mixerComp: any
 
@@ -237,8 +246,9 @@ describe('MixerComponent.ts', async () => {
         createEngine()
         getMutableState(EngineState).userID.set('userId' as UserID)
 
-        mixerEntity = createEntityWithUUID()
-        targetEntity = createEntityWithUUID()
+        mixerEntity = createEntityWithID()
+        targetEntity = createEntityWithID()
+        targetEntityID = getComponent(targetEntity, UUIDComponent).entityID
         setComponent(targetEntity, testComponent)
         setComponent(mixerEntity, MixerComponent)
         await vi.waitUntil(
@@ -256,7 +266,7 @@ describe('MixerComponent.ts', async () => {
 
       describe('getDefaultEntry', () => {
         it('should return an entry with default values for all properties', () => {
-          MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
+          MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'x')!
           const xProperty = mixerComp.properties.find((prop: string) => prop.endsWith('x'))
           const defaultValue = 0
           const defaultEntry = MixerComponent.getDefaultEntry(mixerEntity)
@@ -266,9 +276,9 @@ describe('MixerComponent.ts', async () => {
 
       describe('setEntry', () => {
         it('should set an entry at the given coord, overwriting any existing entry at that coord', () => {
-          const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
+          const xSetter = MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'x')!
           const xProperty = mixerComp.properties.find((prop: string) => prop.endsWith('x'))
-          const ySetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'y')!
+          const ySetter = MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'y')!
           const yProperty = mixerComp.properties.find((prop: string) => prop.endsWith('y'))
 
           const coord = 3
@@ -318,7 +328,7 @@ describe('MixerComponent.ts', async () => {
           assert.isNotNull(entry)
         })
         it('should provide a value for any properties not set in the entry, that is mixed between the two closest entries, weighted by distance', () => {
-          const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
+          const xSetter = MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'x')!
           const xProperty = mixerComp.properties.find((prop: string) => prop.endsWith('x'))
 
           // Create two entries at different coordinates
@@ -338,9 +348,9 @@ describe('MixerComponent.ts', async () => {
         })
 
         it('should change an existing entry, while leaving existing values unchanged', () => {
-          const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
+          const xSetter = MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'x')!
           const xProperty = mixerComp.properties.find((prop: string) => prop.endsWith('x'))
-          const ySetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'y')!
+          const ySetter = MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'y')!
           const yProperty = mixerComp.properties.find((prop: string) => prop.endsWith('y'))
           const coord = 3
           const xValue = 1
@@ -401,6 +411,7 @@ describe('MixerComponent.ts', async () => {
     })
     describe('Mixing', () => {
       let targetEntity: Entity
+      let targetEntityID: EntityID
       let mixerEntity: Entity
       let mixerComp: any
 
@@ -408,8 +419,9 @@ describe('MixerComponent.ts', async () => {
         createEngine()
         getMutableState(EngineState).userID.set('userId' as UserID)
 
-        mixerEntity = createEntityWithUUID()
-        targetEntity = createEntityWithUUID()
+        mixerEntity = createEntityWithID()
+        targetEntity = createEntityWithID()
+        targetEntityID = getComponent(targetEntity, UUIDComponent).entityID
         setComponent(targetEntity, testComponent)
         setComponent(mixerEntity, MixerComponent)
         await vi.waitUntil(
@@ -427,7 +439,7 @@ describe('MixerComponent.ts', async () => {
 
       describe('getMixedEntry', () => {
         it('should return an entry that is the mixed value of the entries at the given coord, weighted by distance', () => {
-          const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
+          const xSetter = MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'x')!
           const xProperty = mixerComp.properties.find((prop: string) => prop.endsWith('x'))
 
           // Create entries at two coordinates
@@ -448,7 +460,7 @@ describe('MixerComponent.ts', async () => {
 
         // Test getting entry at exact coordinate
         it('should return an entry that is deeply equal to the entry at the given coord, if it exists', () => {
-          const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
+          const xSetter = MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'x')!
           const value = 10
           const coord = 10
 
@@ -465,7 +477,7 @@ describe('MixerComponent.ts', async () => {
 
         // Test getting entry outside the range
         it('should return an entry that is deeply equal to the nearest entry if the given coord is outside the range of entries', () => {
-          const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
+          const xSetter = MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'x')!
 
           // Create entries
           const leftValue = 10
@@ -488,7 +500,7 @@ describe('MixerComponent.ts', async () => {
 
       describe('mix', () => {
         it('should set the target entity properties to the mixed value of the entries at the mixer coord', () => {
-          const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
+          const xSetter = MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'x')!
           const leftValue = 10
           const rightValue = 20
           const leftCoord = 10
@@ -508,6 +520,7 @@ describe('MixerComponent.ts', async () => {
 
     describe('Serialization', () => {
       let targetEntity: Entity
+      let targetEntityID: EntityID
       let mixerEntity: Entity
       let mixerComp: any
 
@@ -515,8 +528,9 @@ describe('MixerComponent.ts', async () => {
         createEngine()
         getMutableState(EngineState).userID.set('userId' as UserID)
 
-        mixerEntity = createEntityWithUUID()
-        targetEntity = createEntityWithUUID()
+        mixerEntity = createEntityWithID()
+        targetEntity = createEntityWithID()
+        targetEntityID = getComponent(targetEntity, UUIDComponent).entityID
         setComponent(targetEntity, testComponent)
         setComponent(mixerEntity, MixerComponent)
         await vi.waitUntil(
@@ -534,8 +548,8 @@ describe('MixerComponent.ts', async () => {
 
       it('should correctly serialize and deserialize component data', async () => {
         // Set up properties and entries
-        const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')
-        const ySetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'y')
+        const xSetter = MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'x')
+        const ySetter = MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'y')
         const xValue = 10
         const yValue = 20
         MixerComponent.setEntry(mixerEntity, 0, { ...xSetter?.(xValue), ...ySetter?.(yValue) })
@@ -573,6 +587,7 @@ describe('MixerComponent.ts', async () => {
     })
     describe('Reactor', () => {
       let targetEntity: Entity
+      let targetEntityID: EntityID
       let mixerEntity: Entity
       let mixerComp: any
       let targetComp: any
@@ -581,8 +596,9 @@ describe('MixerComponent.ts', async () => {
         createEngine()
         getMutableState(EngineState).userID.set('userId' as UserID)
 
-        mixerEntity = createEntityWithUUID()
-        targetEntity = createEntityWithUUID()
+        mixerEntity = createEntityWithID()
+        targetEntity = createEntityWithID()
+        targetEntityID = getComponent(targetEntity, UUIDComponent).entityID
         setComponent(targetEntity, testComponent)
         setComponent(mixerEntity, MixerComponent)
         await vi.waitUntil(() => {
@@ -604,7 +620,7 @@ describe('MixerComponent.ts', async () => {
       describe('coord', () => {
         it('should cause the target entity properties to be set to the mixed value of the entries at the mixer coord', async () => {
           // Set up property and entries
-          const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'x')!
+          const xSetter = MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'x')!
           const leftValue = 10
           const rightValue = 20
           const leftCoord = 10
@@ -627,6 +643,7 @@ describe('MixerComponent.ts', async () => {
     // Add tests for nested properties
     describe('Nested Properties', () => {
       let targetEntity: Entity
+      let targetEntityID: EntityID
       let mixerEntity: Entity
       let mixerComp: any
       let targetComp: any
@@ -635,8 +652,9 @@ describe('MixerComponent.ts', async () => {
         createEngine()
         getMutableState(EngineState).userID.set('userId' as UserID)
 
-        mixerEntity = createEntityWithUUID()
-        targetEntity = createEntityWithUUID()
+        mixerEntity = createEntityWithID()
+        targetEntity = createEntityWithID()
+        targetEntityID = getComponent(targetEntity, UUIDComponent).entityID
         setComponent(targetEntity, testComponent)
         setComponent(mixerEntity, MixerComponent)
         await vi.waitUntil(() => {
@@ -653,7 +671,7 @@ describe('MixerComponent.ts', async () => {
       })
 
       it('should support simple properties', async () => {
-        const simpleSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'simple')
+        const simpleSetter = MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'simple')
         assert.isNotNull(simpleSetter)
 
         MixerComponent.setEntry(mixerEntity, 0, simpleSetter!(10))
@@ -664,7 +682,7 @@ describe('MixerComponent.ts', async () => {
       })
 
       it('should support first-level nested properties', async () => {
-        const nestedXSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'nested.x')
+        const nestedXSetter = MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'nested.x')
         assert.isNotNull(nestedXSetter)
 
         MixerComponent.setEntry(mixerEntity, 0, nestedXSetter!(5))
@@ -677,7 +695,7 @@ describe('MixerComponent.ts', async () => {
       it('should support deeply nested properties', async () => {
         const deepNestedSetter = MixerComponent.addProperty(
           mixerEntity,
-          targetEntity,
+          targetEntityID,
           testComponent,
           'deepNested.rotation.angle'
         )
@@ -693,7 +711,7 @@ describe('MixerComponent.ts', async () => {
       it('should support vector properties', async () => {
         const positionSetter = MixerComponent.addProperty(
           mixerEntity,
-          targetEntity,
+          targetEntityID,
           testComponent,
           'deepNested.position'
         )
@@ -713,7 +731,7 @@ describe('MixerComponent.ts', async () => {
       it('should interpolate between entries with nested properties', async () => {
         const angleSetter = MixerComponent.addProperty(
           mixerEntity,
-          targetEntity,
+          targetEntityID,
           testComponent,
           'deepNested.rotation.angle'
         )
@@ -733,11 +751,11 @@ describe('MixerComponent.ts', async () => {
 
       it('should handle multiple nested properties simultaneously', async () => {
         // Add multiple properties at different nesting levels
-        const xSetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'nested.x')
-        const ySetter = MixerComponent.addProperty(mixerEntity, targetEntity, testComponent, 'nested.y')
+        const xSetter = MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'nested.x')
+        const ySetter = MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'nested.y')
         const angleSetter = MixerComponent.addProperty(
           mixerEntity,
-          targetEntity,
+          targetEntityID,
           testComponent,
           'deepNested.rotation.angle'
         )

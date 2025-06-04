@@ -42,7 +42,7 @@ import {
   ComponentJSONIDMap,
   defineComponent,
   Entity,
-  EntityUUID,
+  EntityID,
   getComponent,
   S,
   setComponent,
@@ -56,7 +56,7 @@ import { Color, Quaternion, Vector2, Vector3, Vector4 } from 'three'
 /**
  * Enum defining the types of values that can be mixed/interpolated
  */
-enum MixableType {
+export enum MixableType {
   Number,
   Vector2,
   Vector3,
@@ -126,26 +126,22 @@ const mixFuncs: Record<MixableType, MixFunc<any>> = {
 type AnyComponent = Component<any, any, any, any, any, any>
 type AnyComponentWithID = AnyComponent & { jsonID: string }
 
-const toEntityUUID = (entity: Entity | EntityUUID): EntityUUID =>
-  typeof entity === 'string' ? entity : UUIDComponent.get(entity)
-const toEntity = (entity: Entity | EntityUUID): Entity =>
-  typeof entity === 'string' ? UUIDComponent.getEntityByUUID(entity) : entity
-
 const toComponentID = (targetComponent: AnyComponentWithID | string): string | undefined =>
   typeof targetComponent === 'string' ? targetComponent : targetComponent.jsonID
 const toComponent = (targetComponent: AnyComponentWithID | string): AnyComponent | undefined =>
   typeof targetComponent === 'string' ? ComponentJSONIDMap.get(targetComponent) : targetComponent
 
-type PropertyAddress = [EntityUUID, string, string]
+// TODO: replace PropertyAddress with a proper JSON pointer implementation
+type PropertyAddress = [EntityID, string, string]
 
 const packAddress = (
-  targetEntity: Entity | EntityUUID,
+  targetEntityID: EntityID,
   targetComponent: AnyComponentWithID | string,
   propertyPath: string
-): string => `${toEntityUUID(targetEntity)}::${toComponentID(targetComponent)}::${propertyPath}`
+): string => `/${targetEntityID}/${toComponentID(targetComponent)}/${propertyPath}`
 
 const unpackAddress = (packedAddress: string): PropertyAddress =>
-  packedAddress.split('::') as [EntityUUID, string, string]
+  packedAddress.replace(/^\//, '').split('/') as [EntityID, string, string]
 
 type Entry = Record<string, number[]>
 type Property = { type: MixableType; address: PropertyAddress }
@@ -255,13 +251,14 @@ const setPropertyValue = (obj: any, path: string, value: Mixable): any => {
 
 /**
  * Creates a Property object for a specific property on a target entity/component
- * @param targetEntity The entity containing the property
+ * @param targetEntityID The entity containing the property
  * @param targetComponent The component containing the property
  * @param propertyPath The path to the property
  * @returns A Property object or null if the property cannot be created
  */
 const createProperty = (
-  targetEntity: Entity | EntityUUID,
+  mixerEntity: Entity,
+  targetEntityID: EntityID,
   targetComponent: AnyComponentWithID | string,
   propertyPath: string
 ): Property | null => {
@@ -272,7 +269,7 @@ const createProperty = (
   if (Component == null) return null
 
   // Validate entity and component instance
-  const entity = toEntity(targetEntity)
+  const entity = UUIDComponent.getEntityFromSameSourceByID(mixerEntity, targetEntityID)
   if (entity == null) return null
   const component = getComponent(entity, Component)
   if (component == null) return null
@@ -286,7 +283,7 @@ const createProperty = (
 
   return {
     type,
-    address: [toEntityUUID(targetEntity), componentID, propertyPath]
+    address: [targetEntityID, componentID, propertyPath]
   }
 }
 
@@ -338,8 +335,8 @@ export const MixerComponent = defineComponent({
       const properties = new Map<string, Property>(
         mixerComp.properties.value
           .map((address: string): [string, Property] | null => {
-            const [entityUUID, componentID, propertyPath] = unpackAddress(address)
-            const property = createProperty(entityUUID, componentID, propertyPath)
+            const [entityID, componentID, propertyPath] = unpackAddress(address)
+            const property = createProperty(entity, entityID, componentID, propertyPath)
             return property == null ? null : [address, property]
           })
           .filter((p) => p != null) // TODO: address missing properties somehow
@@ -377,21 +374,21 @@ export const MixerComponent = defineComponent({
     const mixed = MixerComponent.getMixedEntry(mixerEntity, mixerComp.coord)
 
     // Group properties by entity and component to minimize setComponent calls
-    const updates = new Map<EntityUUID, Map<string, any>>()
+    const updates = new Map<EntityID, Map<string, any>>()
 
     // Process each property
     for (const [propertyAddress, property] of mixerComp.state.properties) {
       const {
         type,
-        address: [entityUUID, componentID, propertyPath]
+        address: [entityID, componentID, propertyPath]
       } = property
       const mixedValue = mixFuncs[type].fromNumberList(mixed[propertyAddress])
 
       // Organize updates by entity and component
-      if (!updates.has(entityUUID)) {
-        updates.set(entityUUID, new Map())
+      if (!updates.has(entityID)) {
+        updates.set(entityID, new Map())
       }
-      const entityUpdates = updates.get(entityUUID)!
+      const entityUpdates = updates.get(entityID)!
       if (!entityUpdates.has(componentID)) {
         entityUpdates.set(componentID, {})
       }
@@ -399,12 +396,12 @@ export const MixerComponent = defineComponent({
       // Build the updated component data
       const componentUpdate = entityUpdates.get(componentID)
       const updatedComponent = setPropertyValue(componentUpdate, propertyPath, mixedValue)
-      updates.get(entityUUID)!.set(componentID, updatedComponent)
+      updates.get(entityID)!.set(componentID, updatedComponent)
     }
 
     // Apply all updates
-    for (const [entityUUID, componentUpdates] of updates) {
-      const entity = UUIDComponent.getEntityByUUID(entityUUID)
+    for (const [entityID, componentUpdates] of updates) {
+      const entity = UUIDComponent.getEntityFromSameSourceByID(mixerEntity, entityID)
       for (const [componentID, update] of componentUpdates) {
         setComponent(entity, ComponentJSONIDMap.get(componentID)!, update)
       }
@@ -475,27 +472,27 @@ export const MixerComponent = defineComponent({
   /**
    * Adds a property to be tracked by the mixer
    * @param mixerEntity The entity with the MixerComponent
-   * @param targetEntity The entity containing the property to track
+   * @param targetEntityIDID The entity containing the property to track
    * @param targetComponent The component containing the property to track
    * @param propertyPath The path to the property to track
    * @returns A function to set values for this property in entries, or null if the property couldn't be added
    */
   addProperty: (
     mixerEntity: Entity,
-    targetEntity: Entity | EntityUUID,
+    targetEntityIDID: EntityID,
     targetComponent: AnyComponentWithID | string,
     propertyPath: string
   ) => {
     const mixerComp = getComponent(mixerEntity, MixerComponent)
 
     // Check if property is already tracked
-    const packedAddress = packAddress(targetEntity, targetComponent, propertyPath)
+    const packedAddress = packAddress(targetEntityIDID, targetComponent, propertyPath)
     if (mixerComp.state.properties.has(packedAddress)) {
-      return MixerComponent.propertySetter(mixerEntity, targetEntity, targetComponent, propertyPath)
+      return MixerComponent.propertySetter(mixerEntity, targetEntityIDID, targetComponent, propertyPath)
     }
 
     // Create the property
-    const property = createProperty(targetEntity, targetComponent, propertyPath)
+    const property = createProperty(mixerEntity, targetEntityIDID, targetComponent, propertyPath)
     if (property == null) return null
 
     // Add to tracked properties
@@ -507,25 +504,25 @@ export const MixerComponent = defineComponent({
       entry[packedAddress] = mixFuncs[property.type].toNumberList(mixFuncs[property.type].create())
     }
 
-    return MixerComponent.propertySetter(mixerEntity, targetEntity, targetComponent, propertyPath)
+    return MixerComponent.propertySetter(mixerEntity, targetEntityIDID, targetComponent, propertyPath)
   },
 
   /**
    * Creates a function that generates entry data for a specific property
    * @param mixerEntity The entity with the MixerComponent
-   * @param targetEntity The entity containing the property
+   * @param targetEntityID The entity containing the property
    * @param targetComponent The component containing the property
    * @param propertyPath The path to the property
    * @returns A function that takes a value and returns entry data for the property, or null if the property isn't tracked
    */
   propertySetter: (
     mixerEntity: Entity,
-    targetEntity: Entity | EntityUUID,
+    targetEntityID: EntityID,
     targetComponent: AnyComponentWithID | string,
     propertyPath: string
   ): ((value: Mixable) => Entry) | null => {
     const mixerComp = getComponent(mixerEntity, MixerComponent)
-    const packedAddress = packAddress(targetEntity, targetComponent, propertyPath)
+    const packedAddress = packAddress(targetEntityID, targetComponent, propertyPath)
 
     const property = mixerComp.state.properties.get(packedAddress)
     if (property == null) return null
@@ -536,18 +533,18 @@ export const MixerComponent = defineComponent({
   /**
    * Removes a property from being tracked by the mixer
    * @param mixerEntity The entity with the MixerComponent
-   * @param targetEntity The entity containing the property
+   * @param targetEntityID The entity containing the property
    * @param targetComponent The component containing the property
    * @param propertyPath The path to the property
    */
   removeProperty: (
     mixerEntity: Entity,
-    targetEntity: Entity | EntityUUID,
+    targetEntityID: EntityID,
     targetComponent: AnyComponentWithID | string,
     propertyPath: string
   ) => {
     const mixerComp = getComponent(mixerEntity, MixerComponent)
-    const packedAddress = packAddress(targetEntity, targetComponent, propertyPath)
+    const packedAddress = packAddress(targetEntityID, targetComponent, propertyPath)
 
     if (!mixerComp.state.properties.has(packedAddress)) return
 
