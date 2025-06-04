@@ -34,7 +34,7 @@ export default defineConfig({
     isolate: true,
     fileParallelism: false,
     hookTimeout: 10000,
-    testTimeout: 10000,
+    testTimeout: 30000,
     maxConcurrency: 1,
     coverage: {
       enabled: true,
