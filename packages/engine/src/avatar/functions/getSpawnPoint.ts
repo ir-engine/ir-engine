@@ -54,8 +54,6 @@ const randomPositionCentered = (area: Vector3) => {
   const radius = 0.5
   const x = (Math.random() - 0.5) * 2 * radius + area.x
   const z = (Math.random() - 0.5) * 2 * radius + area.z
-  console.log('mbf', area)
-  console.log('mbf', x, area.y, z)
   return new Vector3(x, area.y, z)
 }
 
