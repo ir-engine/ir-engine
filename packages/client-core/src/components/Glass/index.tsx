@@ -38,6 +38,7 @@ import { ToolbarAndSidebar } from './ToolbarAndSidebar'
 
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { ChatMenu } from './ChatMenu'
+import { ChatProvider } from './ChatProvider'
 import { MultiVideos } from './MultiVideo'
 import { ToolbarMenu } from './ToolbarMenu'
 import { VideoMenu } from './VideoMenu'
@@ -62,7 +63,7 @@ const useIsPortrait = () => {
   return isPortrait
 }
 
-export const ViewerInteractions = () => {
+const Menu = () => {
   const isPortrait = useIsPortrait()
   const userID = useHookstate(getMutableState(EngineState).userID).value
   const loadingScreenVisible = useHookstate(getMutableState(LoadingSystemState).loadingScreenVisible).value
@@ -155,5 +156,13 @@ export const ViewerInteractions = () => {
       <TouchGamepad />
       <PopupMenu />
     </div>
+  )
+}
+
+export const ViewerInteractions = () => {
+  return (
+    <ChatProvider>
+      <Menu />
+    </ChatProvider>
   )
 }
