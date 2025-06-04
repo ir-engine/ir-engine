@@ -23,10 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Engine, Entity, EntityTreeComponent } from '@ir-engine/ecs'
+import { Engine, Entity, EntityTreeComponent, UndefinedEntity } from '@ir-engine/ecs'
 import {
-  getMutableComponent,
   getOptionalComponent,
+  getOptionalMutableComponent,
+  removeEntity,
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -43,8 +44,18 @@ import { ObjectFitFunctions } from '@ir-engine/spatial/src/transform/functions/O
 import React, { useEffect, useState } from 'react'
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'
 
+export function tearDownPoiUi(cameraEntity: Entity) {
+  const poiCameraComponent = getOptionalMutableComponent(cameraEntity, PoiCameraComponent)
+  if (!poiCameraComponent || !poiCameraComponent.xruiEntity.value) return
+  removeEntity(poiCameraComponent.xruiEntity.value)
+  poiCameraComponent.xruiEntity.set(UndefinedEntity)
+}
+
 export function setupPoiUi(cameraEntity: Entity) {
-  const poiCameraComponent = getMutableComponent(cameraEntity, PoiCameraComponent)
+  const poiCameraComponent = getOptionalMutableComponent(cameraEntity, PoiCameraComponent)
+  if (!poiCameraComponent) return
+  if (poiCameraComponent.xruiEntity.value) return
+
   poiCameraComponent.xruiEntity.set(createPoiUI(cameraEntity).entity)
   setComponent(poiCameraComponent.xruiEntity.value, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
 
