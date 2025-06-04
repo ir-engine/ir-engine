@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 
 import { defineQuery, EngineState, Entity, entityExists, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
 import {
@@ -45,15 +45,12 @@ import React from 'react'
 
 import { QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
-import {
-  HeuristicFunctions,
-  InputHeuristicState,
-  IntersectionData
-} from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
+import { InputHeuristicState, IntersectionData } from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import {
+  BOUNDING_BOX_COLORS,
   BoundingBoxComponent,
   updateBoundingBox
 } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
@@ -102,140 +99,189 @@ export const studioIconGizmoInputHeuristic = (
   }
 }
 
-const ActiveHelperReactor = (helper) => {
+interface HelperProps {
+  icon?: unknown
+  directional?: boolean
+  volume?: boolean
+  reactor?: React.ComponentType<{
+    parentEntity: Entity
+    iconEntity: Entity
+    selected: boolean
+    hovered: boolean
+  }>
+}
+
+const ActiveHelperReactor: React.FC<HelperProps> = (helper) => {
   const entity = useEntityContext()
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
   const engineState = useHookstate(getMutableState(EngineState))
-  const selectedEntities = SelectionState.useSelectedEntities() // all authoring layer
+  const selectedEntities = SelectionState.useSelectedEntities()
   const selected = useHookstate<boolean>(false)
   const lineEntitiesState = useHookstate<Entity[]>([])
   const directionalEntitiesState = useHookstate<Entity[]>([])
   const iconSize = useHookstate<number>(getState(EditorHelperState).editorIconMinSize)
   const visibility = useHasComponent(entity, VisibleComponent)
+
+  const shouldShowHelper = useMemo(
+    () =>
+      editorHelperState.gizmoEnabled.value && visibility && engineState.isEditing.value && helper?.icon !== undefined,
+    [editorHelperState.gizmoEnabled.value, visibility, engineState.isEditing.value, helper?.icon]
+  )
+
+  const helperFactory = useCallback(() => {
+    const iconGizmo = getIconGizmo(helper.icon)
+    iconGizmo.renderOrder = -1
+
+    if (helper?.directional) {
+      const directionalEntities = setupGizmo(entity, iconGizmoArrow, ObjectLayers.NodeIcon)
+      directionalEntitiesState.set(directionalEntities)
+    }
+
+    if (helper?.volume) {
+      setComponent(entity, BoundingBoxComponent)
+    }
+
+    const lineEntities = setupGizmo(getState(ReferenceSpaceState).originEntity, iconGizmoYHelper, ObjectLayers.NodeIcon)
+    lineEntitiesState.set(lineEntities)
+    return iconGizmo
+  }, [entity, helper, directionalEntitiesState, lineEntitiesState])
+
   const studioIconEntity = useHelperEntity(
     entity,
-    () => {
-      const iconGizmo = getIconGizmo(helper.icon)
-      iconGizmo.renderOrder = -1
-
-      if (helper?.directional) {
-        const directionalEntities = setupGizmo(entity, iconGizmoArrow, ObjectLayers.NodeIcon)
-        directionalEntitiesState.set(directionalEntities)
-      }
-
-      if (helper?.volume) {
-        setComponent(entity, BoundingBoxComponent)
-      }
-
-      const lineEntities = setupGizmo(
-        getState(ReferenceSpaceState).originEntity,
-        iconGizmoYHelper,
-        ObjectLayers.NodeIcon
-      )
-      lineEntitiesState.set(lineEntities)
-      return iconGizmo
-    },
-    editorHelperState.gizmoEnabled.value && visibility && engineState.isEditing.value && helper?.icon !== undefined,
+    helperFactory,
+    shouldShowHelper,
     ObjectLayerMasks.NodeIcon,
     'icon-helper'
   )
+
   const hovered = InputComponent.useHasFocus(studioIconEntity)
 
-  InputComponent.useExecuteWithInput(
-    () => {
-      if (studioIconEntity === UndefinedEntity || !entityExists(studioIconEntity)) return
-      if (entity === UndefinedEntity || !entityExists(entity)) return
-      if (!engineState.isEditing.value || !editorHelperState.gizmoEnabled.value) return
+  const inputExecutionCallback = useCallback(() => {
+    if (studioIconEntity === UndefinedEntity || !entityExists(studioIconEntity)) return
+    if (entity === UndefinedEntity || !entityExists(entity)) return
+    if (!engineState.isEditing.value || !editorHelperState.gizmoEnabled.value) return
 
-      gizmoIconUpdate(entity, studioIconEntity, [...directionalEntitiesState.get(NO_PROXY_STEALTH)], iconSize.value)
+    gizmoIconUpdate(entity, studioIconEntity, [...directionalEntitiesState.get(NO_PROXY_STEALTH)], iconSize.value)
 
-      iconSize.set((currentSize) => setIconSize(hovered.value, currentSize))
+    iconSize.set((currentSize) => setIconSize(hovered.value, currentSize))
 
-      for (const lineEntity of lineEntitiesState.value) {
-        setVisibleComponent(lineEntity, hovered.value && getState(EngineState).isEditing ? true : false)
-        gizmoIconHelperYAxisUpdate(lineEntity, getComponent(entity, TransformComponent).position)
-      }
+    const isEditing = getState(EngineState).isEditing
+    for (const lineEntity of lineEntitiesState.value) {
+      setVisibleComponent(lineEntity, hovered.value && isEditing)
+      gizmoIconHelperYAxisUpdate(lineEntity, getComponent(entity, TransformComponent).position)
+    }
 
+    if (selected.value) {
       const transformGizmoControllerEntity = transformGizmoControllerQuery()
-      if (selected.value)
-        if (
-          transformGizmoControllerEntity.length > 0 &&
-          getComponent(transformGizmoControllerEntity[0], TransformGizmoControlComponent).dragging
-        )
-          return
-
-      const defaultGizmoButtons = InputComponent.getButtons(studioIconEntity)
-
-      if (defaultGizmoButtons.PrimaryClick?.down) {
-        SelectionState.updateSelection([UUIDComponent.get(entity)])
+      if (
+        transformGizmoControllerEntity.length > 0 &&
+        getComponent(transformGizmoControllerEntity[0], TransformGizmoControlComponent).dragging
+      ) {
+        return
       }
-    },
-    InputExecutionOrder.Before,
-    true
-  )
+    }
+
+    const defaultGizmoButtons = InputComponent.getButtons(studioIconEntity)
+    if (defaultGizmoButtons.PrimaryClick?.down) {
+      SelectionState.updateSelection([UUIDComponent.get(entity)])
+    }
+  }, [
+    studioIconEntity,
+    entity,
+    engineState.isEditing.value,
+    editorHelperState.gizmoEnabled.value,
+    directionalEntitiesState,
+    iconSize,
+    hovered.value,
+    lineEntitiesState.value,
+    selected.value
+  ])
+
+  InputComponent.useExecuteWithInput(inputExecutionCallback, InputExecutionOrder.Before, true)
 
   useEffect(() => {
     if (helper?.volume === undefined) return
-    switch (editorHelperState.volumeVisibility.value) {
-      case VolumeVisibility.On:
-        !hasComponent(entity, BoundingBoxComponent)
-          ? setComponent(entity, BoundingBoxComponent)
-          : updateBoundingBox(entity)
-        if (selected.value) {
-          setComponent(entity, BoundingBoxComponent, {
-            color: 'white'
-          })
-        } else if (hovered.value) {
-          setComponent(entity, BoundingBoxComponent, {
-            color: '#F3A2FF'
-          })
-        }
-        break
-      case VolumeVisibility.Off:
-        return
-      case VolumeVisibility.Auto:
-        if (selected.value || hovered.value) {
-          !hasComponent(entity, BoundingBoxComponent)
-            ? setComponent(entity, BoundingBoxComponent)
-            : updateBoundingBox(entity)
-          if (selected.value) {
-            setComponent(entity, BoundingBoxComponent, {
-              color: 'white'
-            })
-          } else if (hovered.value) {
-            setComponent(entity, BoundingBoxComponent, {
-              color: '#F3A2FF'
-            })
+
+    const updateBoundingBoxVisibility = () => {
+      const { volumeVisibility } = editorHelperState
+
+      switch (volumeVisibility.value) {
+        case VolumeVisibility.On: {
+          if (!hasComponent(entity, BoundingBoxComponent)) {
+            setComponent(entity, BoundingBoxComponent)
+          } else {
+            updateBoundingBox(entity)
           }
-        } else {
-          return
+
+          const color = selected.value
+            ? BOUNDING_BOX_COLORS.SELECTED
+            : hovered.value
+            ? BOUNDING_BOX_COLORS.HOVERED
+            : undefined
+
+          if (color) {
+            setComponent(entity, BoundingBoxComponent, { color })
+          }
+          break
         }
-        break
+
+        case VolumeVisibility.Auto:
+          if (selected.value || hovered.value) {
+            if (!hasComponent(entity, BoundingBoxComponent)) {
+              setComponent(entity, BoundingBoxComponent)
+            } else {
+              updateBoundingBox(entity)
+            }
+
+            const autoColor = selected.value ? BOUNDING_BOX_COLORS.SELECTED : BOUNDING_BOX_COLORS.HOVERED
+
+            setComponent(entity, BoundingBoxComponent, { color: autoColor })
+          }
+          break
+
+        case VolumeVisibility.Off:
+        default:
+          break
+      }
     }
 
+    updateBoundingBoxVisibility()
+
     return () => {
-      removeComponent(entity, BoundingBoxComponent)
+      if (hasComponent(entity, BoundingBoxComponent)) {
+        removeComponent(entity, BoundingBoxComponent)
+      }
     }
-  }, [selected, hovered, helper?.volume, visibility, editorHelperState.volumeVisibility])
+  }, [selected.value, hovered.value, helper?.volume, visibility, editorHelperState.volumeVisibility.value, entity])
 
   useEffect(() => {
     const authoringEntity = getAuthoringCounterpart(entity)
-    selected.set(selectedEntities.find((e) => e === authoringEntity) !== undefined)
-  }, [selectedEntities])
+    const isSelected = selectedEntities.some((e) => e === authoringEntity)
+    selected.set(isSelected)
+  }, [selectedEntities, entity, selected])
 
   useEffect(() => {
     const setGizmoVisibility = (visible: boolean) => {
       if (studioIconEntity === UndefinedEntity) return
-      setVisibleComponent(studioIconEntity, visible)
-      directionalEntitiesState.value.forEach((entity) => {
-        setVisibleComponent(entity, visible)
-      })
-      lineEntitiesState.value.forEach((entity) => {
-        setVisibleComponent(entity, visible)
-      })
+
+      const entitiesToUpdate = [studioIconEntity, ...directionalEntitiesState.value, ...lineEntitiesState.value]
+
+      for (const entityToUpdate of entitiesToUpdate) {
+        setVisibleComponent(entityToUpdate, visible)
+      }
     }
-    setGizmoVisibility(engineState.isEditing.value && editorHelperState.gizmoEnabled.value)
-  }, [engineState.isEditing, editorHelperState.gizmoEnabled])
+
+    const shouldBeVisible = engineState.isEditing.value && editorHelperState.gizmoEnabled.value
+    setGizmoVisibility(shouldBeVisible)
+  }, [
+    engineState.isEditing.value,
+    editorHelperState.gizmoEnabled.value,
+    studioIconEntity,
+    directionalEntitiesState.value,
+    lineEntitiesState.value
+  ])
+
+  if (!helper.reactor) return null
 
   return (
     <helper.reactor
@@ -249,23 +295,38 @@ const ActiveHelperReactor = (helper) => {
 
 const reactor = () => {
   useEffect(() => {
-    InputHeuristicState.addHeuristic(1, studioIconGizmoInputHeuristic as HeuristicFunctions)
+    InputHeuristicState.addHeuristic(1, studioIconGizmoInputHeuristic)
+
+    // Cleanup function to remove heuristic if needed
+    return () => {
+      // Note: Add cleanup logic here if InputHeuristicState supports removal
+    }
   }, [])
 
-  // use registry to add helper reactors
-  const HelperRegistry = useMutableState(ComponentHelperState).keys
+  const helperRegistry = useMutableState(ComponentHelperState).keys
 
-  return (
-    <>
-      {HelperRegistry.map((componentJsonId) => {
-        const component = globalThis.ComponentJSONIDMap.get(componentJsonId)
+  const helperComponents = useMemo(() => {
+    return helperRegistry
+      .map((componentJsonId) => {
+        const component = globalThis.ComponentJSONIDMap?.get(componentJsonId)
         if (!component) return null
+
         const helper = getState(ComponentHelperState)[componentJsonId]
-        if (!helper || !helper.reactor) return null
-        return <QueryReactor Components={[component]} ChildEntityReactor={ActiveHelperReactor} props={helper} />
-      })}
-    </>
-  )
+        if (!helper?.reactor) return null
+
+        return (
+          <QueryReactor
+            key={componentJsonId}
+            Components={[component]}
+            ChildEntityReactor={ActiveHelperReactor}
+            props={helper}
+          />
+        )
+      })
+      .filter(Boolean)
+  }, [helperRegistry])
+
+  return <>{helperComponents}</>
 }
 
 export const ActiveHelperSystem = defineSystem({

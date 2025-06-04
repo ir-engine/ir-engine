@@ -47,6 +47,11 @@ import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { T } from '../../schema/schemaFunctions'
 import { TransformComponent } from './TransformComponent'
 
+export const BOUNDING_BOX_COLORS = {
+  SELECTED: 'white',
+  HOVERED: '#F3A2FF'
+} as const
+
 export const BoundingBoxComponent = defineComponent({
   name: 'BoundingBoxComponent',
 
