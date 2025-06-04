@@ -36,7 +36,6 @@ import {
   removeComponent,
   setComponent,
   useHasComponent,
-  useQuery,
   UUIDComponent,
   WorldNetworkAction
 } from '@ir-engine/ecs'
@@ -183,11 +182,11 @@ const reactor = () => {
   const sceneEntity = useLoadedSceneEntity(locationSceneURL)
   const gltfLoaded = GLTFComponent.useSceneLoaded(sceneEntity)
 
-  const cameraSettingsQuery = useQuery([CameraSettingsComponent])
-  const cameraSettingsEntity = cameraSettingsQuery.length > 0 ? cameraSettingsQuery[0] : null
+  const cameraSettingsComponents = useChildrenWithComponents(sceneEntity, [CameraSettingsComponent])
+  const cameraSettingsEntity = cameraSettingsComponents.length > 0 ? cameraSettingsComponents[0] : null
   const engineState = useMutableState(EngineState)
   const cameraSettingsComponent = cameraSettingsEntity
-    ? getComponent(cameraSettingsQuery[0], CameraSettingsComponent)
+    ? getComponent(cameraSettingsComponents[0], CameraSettingsComponent)
     : null
   const cameraMode = cameraSettingsComponent ? cameraSettingsComponent.cameraMode : CameraMode.FOLLOW
   const isAvatarUsed = cameraMode === CameraMode.FOLLOW
