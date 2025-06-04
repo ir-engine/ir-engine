@@ -44,6 +44,13 @@ import { ObjectFitFunctions } from '@ir-engine/spatial/src/transform/functions/O
 import React, { useEffect, useState } from 'react'
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'
 
+// @ts-ignore
+import base from '@ir-engine/client/src/themes/base.css?inline'
+// @ts-ignore
+import components from '@ir-engine/client/src/themes/components.css?inline'
+// @ts-ignore
+import utilities from '@ir-engine/client/src/themes/utilities.css?inline'
+
 export function tearDownPoiUi(cameraEntity: Entity) {
   const poiCameraComponent = getOptionalMutableComponent(cameraEntity, PoiCameraComponent)
   if (!poiCameraComponent || !poiCameraComponent.xruiEntity.value) return
@@ -176,12 +183,16 @@ const PoiUiView = (props: PoiUiProps) => {
 
   return (
     <>
-      <div xr-layer="true" className="flex h-full w-full flex-row">
-        <div xr-layer="true" className="flex h-full w-1/2 items-center justify-start">
+      <style type="text/css">{components}</style>
+      <style type="text/css">{utilities}</style>
+      <style type="text/css">{base}</style>
+
+      <div className="flex flex-row">
+        <div className="flex h-full w-1/2 items-center justify-start">
           {showPrevious && (
             <button
               xr-layer="true"
-              className={`pointer-events-auto ml-4 flex h-16 w-16 items-center justify-center rounded-md ${
+              className={`pointer-events-auto ml-4 flex h-4 w-4 items-center justify-center rounded-md ${
                 buttonsDisabled
                   ? 'cursor-not-allowed bg-gray-400 text-gray-600 opacity-50'
                   : 'bg-ui-background text-text-primary-button hover:bg-gray-200'
@@ -193,11 +204,11 @@ const PoiUiView = (props: PoiUiProps) => {
             </button>
           )}
         </div>
-        <div xr-layer="true" className="flex h-full w-1/2 items-center justify-end">
+        <div className="flex h-full w-1/2 items-center justify-end">
           {showNext && (
             <button
               xr-layer="true"
-              className={`pointer-events-auto mr-4 flex h-16 w-16 items-center justify-center rounded-md ${
+              className={`pointer-events-auto mr-4 flex h-4 w-4 items-center justify-center rounded-md ${
                 buttonsDisabled
                   ? 'cursor-not-allowed bg-gray-400 text-gray-600 opacity-50'
                   : 'bg-ui-background text-text-primary-button hover:bg-gray-200'
