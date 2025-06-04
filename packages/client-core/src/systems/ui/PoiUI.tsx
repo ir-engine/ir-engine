@@ -66,7 +66,7 @@ export function setupPoiUi(cameraEntity: Entity) {
       const camera = getOptionalComponent(viewerEntity, CameraComponent)
       if (!camera) return
       const distance = camera.near * 1.1 // 10% in front of camera
-      ObjectFitFunctions.attachObjectInFrontOfCamera(poiCameraComponent.xruiEntity.value, 0.2, distance)
+      ObjectFitFunctions.attachObjectInFrontOfCamera(poiCameraComponent.xruiEntity.value, 1, distance)
     }
   })
 }
@@ -80,7 +80,7 @@ export const createPoiUI = (cameraEntity: Entity, aspectRatio: number = 1) => {
 
 export function createPoiUiView(cameraEntity: Entity): XRUI<null> {
   const PoiUi = () => <PoiUiView cameraEntity={cameraEntity} />
-  const xrUI = createXRUI(PoiUi, null, { interactable: true })
+  const xrUI = createXRUI(PoiUi, null, { interactable: false })
   return xrUI
 }
 
@@ -164,7 +164,7 @@ const PoiUiView = (props: PoiUiProps) => {
   useEffect(() => {
     const transitionType = cameraSettingsState.poiScrollTransitionType.value
     const isSnappingMode = transitionType === PoiScrollTransition.Snapping
-    const isTransitionActive = isSnappingMode && poiCamera.poiLerpValue.value > 0
+    const isTransitionActive = isSnappingMode && poiCamera.poiLerpValue.value > 0 && poiCamera.poiLerpValue.value < 1
 
     setButtonsDisabled(isTransitionActive)
   }, [cameraSettingsState.poiScrollTransitionType.value, poiCamera.poiLerpValue.value])
@@ -176,8 +176,8 @@ const PoiUiView = (props: PoiUiProps) => {
 
   return (
     <>
-      <div className="flex h-full w-full flex-row">
-        <div className="flex h-full w-1/2 items-center justify-start">
+      <div xr-layer="true" className="flex h-full w-full flex-row">
+        <div xr-layer="true" className="flex h-full w-1/2 items-center justify-start">
           {showPrevious && (
             <button
               xr-layer="true"
@@ -193,7 +193,7 @@ const PoiUiView = (props: PoiUiProps) => {
             </button>
           )}
         </div>
-        <div className="flex h-full w-1/2 items-center justify-end">
+        <div xr-layer="true" className="flex h-full w-1/2 items-center justify-end">
           {showNext && (
             <button
               xr-layer="true"
