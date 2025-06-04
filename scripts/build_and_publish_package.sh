@@ -136,7 +136,8 @@ if [ "$DOCKERFILE" != "client-serve-static" ]; then
     --build-arg APP_HOST=$APP_HOST \
     --build-arg GCP_PROJECT=$GCP_PROJECT \
     --build-arg GCP_EDGE_CACHE_SERVICE=$GCP_EDGE_CACHE_SERVICE \
-    --build-arg GCP_URL_MAP=GCP_URL_MAP \
+    --build-arg GCP_URL_MAP=$GCP_URL_MAP \
+    --build-arg VITE_AGENT_API_URL=$VITE_AGENT_API_URL \
     --build-arg VITE_APP_HOST=$VITE_APP_HOST \
     --build-arg VITE_APP_PORT=$VITE_APP_PORT \
     --build-arg VITE_PWA_ENABLED=$VITE_PWA_ENABLED \
@@ -192,10 +193,11 @@ else
     --build-arg MYSQL_PORT=$MYSQL_PORT \
     --build-arg MYSQL_PASSWORD=$MYSQL_PASSWORD \
     --build-arg MYSQL_DATABASE=$MYSQL_DATABASE \
-    --build-arg APP_HOST \
-    --build-arg GCP_PROJECT \
-    --build-arg GCP_EDGE_CACHE_SERVICE \
-    --build-arg GCP_URL_MAP \
+    --build-arg APP_HOST=$APP_HOST \
+    --build-arg GCP_PROJECT=$GCP_PROJECT \
+    --build-arg GCP_EDGE_CACHE_SERVICE=$GCP_EDGE_CACHE_SERVICE \
+    --build-arg GCP_URL_MAP=$GCP_URL_MAP \
+    --build-arg VITE_AGENT_API_URL=$VITE_AGENT_API_URL \
     --build-arg VITE_APP_HOST=$VITE_APP_HOST \
     --build-arg VITE_APP_PORT=$VITE_APP_PORT \
     --build-arg VITE_PWA_ENABLED=$VITE_PWA_ENABLED \
