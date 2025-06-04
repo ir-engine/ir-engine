@@ -41,93 +41,113 @@ import { BOUNDING_BOX_COLORS } from '@ir-engine/spatial/src/transform/components
 import { useEffect } from 'react'
 import { BufferGeometry, Float32BufferAttribute, PerspectiveCamera } from 'three'
 
-function createCameraFrustumGeometry(camera: PerspectiveCamera): BufferGeometry {
-  const positions: number[] = []
+function createCameraFrustumGeometry(camera: PerspectiveCamera, maxDistance = 10): BufferGeometry {
+  const { fov, aspect, near } = camera
+  const far = Math.min(camera.far, maxDistance)
+  const halfFov = (fov * Math.PI) / 360
 
-  const fov = (camera.fov * Math.PI) / 180
-  const aspect = camera.aspect
-  const near = camera.near
-  const far = Math.min(camera.far, 10)
+  const nearDim = { h: 2 * Math.tan(halfFov) * near, w: 0 }
+  nearDim.w = nearDim.h * aspect
 
-  const nearHeight = 2 * Math.tan(fov / 2) * near
-  const nearWidth = nearHeight * aspect
-  const farHeight = 2 * Math.tan(fov / 2) * far
-  const farWidth = farHeight * aspect
+  const farDim = { h: 2 * Math.tan(halfFov) * far, w: 0 }
+  farDim.w = farDim.h * aspect
 
-  const nearHalfWidth = nearWidth / 2
-  const nearHalfHeight = nearHeight / 2
-  const nearTopLeft = [-nearHalfWidth, nearHalfHeight, -near]
-  const nearTopRight = [nearHalfWidth, nearHalfHeight, -near]
-  const nearBottomLeft = [-nearHalfWidth, -nearHalfHeight, -near]
-  const nearBottomRight = [nearHalfWidth, -nearHalfHeight, -near]
+  const createCorners = (width, height, z) => {
+    const hw = width / 2,
+      hh = height / 2
+    return [
+      [-hw, hh, z],
+      [hw, hh, z],
+      [hw, -hh, z],
+      [-hw, -hh, z]
+    ]
+  }
 
-  const farHalfWidth = farWidth / 2
-  const farHalfHeight = farHeight / 2
-  const farTopLeft = [-farHalfWidth, farHalfHeight, -far]
-  const farTopRight = [farHalfWidth, farHalfHeight, -far]
-  const farBottomLeft = [-farHalfWidth, -farHalfHeight, -far]
-  const farBottomRight = [farHalfWidth, -farHalfHeight, -far]
+  const nearCorners = createCorners(nearDim.w, nearDim.h, near)
+  const farCorners = createCorners(farDim.w, farDim.h, far)
 
-  positions.push(...nearTopLeft, ...nearTopRight)
-  positions.push(...nearTopRight, ...nearBottomRight)
-  positions.push(...nearBottomRight, ...nearBottomLeft)
-  positions.push(...nearBottomLeft, ...nearTopLeft)
+  const addQuad = (corners, positions) => {
+    for (let i = 0; i < 4; i++) {
+      positions.push(...corners[i], ...corners[(i + 1) % 4])
+    }
+  }
 
-  positions.push(...farTopLeft, ...farTopRight)
-  positions.push(...farTopRight, ...farBottomRight)
-  positions.push(...farBottomRight, ...farBottomLeft)
-  positions.push(...farBottomLeft, ...farTopLeft)
+  const positions = []
+  addQuad(nearCorners, positions)
+  addQuad(farCorners, positions)
 
-  positions.push(...nearTopLeft, ...farTopLeft)
-  positions.push(...nearTopRight, ...farTopRight)
-  positions.push(...nearBottomLeft, ...farBottomLeft)
-  positions.push(...nearBottomRight, ...farBottomRight)
+  nearCorners.forEach((near, i) => {
+    positions.push(...near, ...farCorners[i])
+  })
 
   const geometry = new BufferGeometry()
   geometry.setAttribute('position', new Float32BufferAttribute(positions, 3))
   return geometry
 }
 
-function createCameraBodyGeometry(): BufferGeometry {
+function createCameraBodyGeometry(size = 0.2, lensConfig = { radius: 0.3, length: 0.5, segments: 12 }): BufferGeometry {
+  const hs = size / 2
   const positions: number[] = []
-  const size = 0.2
 
-  const halfSize = size / 2
+  const faces = [
+    [
+      [-hs, hs, -hs],
+      [hs, hs, -hs],
+      [hs, -hs, -hs],
+      [-hs, -hs, -hs]
+    ],
+    [
+      [-hs, hs, hs],
+      [hs, hs, hs],
+      [hs, -hs, hs],
+      [-hs, -hs, hs]
+    ],
+    [
+      [-hs, hs, -hs],
+      [-hs, hs, hs],
+      [-hs, -hs, hs],
+      [-hs, -hs, -hs]
+    ],
+    [
+      [hs, hs, -hs],
+      [hs, hs, hs],
+      [hs, -hs, hs],
+      [hs, -hs, -hs]
+    ],
+    [
+      [-hs, hs, -hs],
+      [hs, hs, -hs],
+      [hs, hs, hs],
+      [-hs, hs, hs]
+    ],
+    [
+      [-hs, -hs, -hs],
+      [hs, -hs, -hs],
+      [hs, -hs, hs],
+      [-hs, -hs, hs]
+    ]
+  ]
 
-  positions.push(-halfSize, halfSize, halfSize, halfSize, halfSize, halfSize)
-  positions.push(halfSize, halfSize, halfSize, halfSize, -halfSize, halfSize)
-  positions.push(halfSize, -halfSize, halfSize, -halfSize, -halfSize, halfSize)
-  positions.push(-halfSize, -halfSize, halfSize, -halfSize, halfSize, halfSize)
-
-  positions.push(-halfSize, halfSize, -halfSize, halfSize, halfSize, -halfSize)
-  positions.push(halfSize, halfSize, -halfSize, halfSize, -halfSize, -halfSize)
-  positions.push(halfSize, -halfSize, -halfSize, -halfSize, -halfSize, -halfSize)
-  positions.push(-halfSize, -halfSize, -halfSize, -halfSize, halfSize, -halfSize)
-
-  positions.push(-halfSize, halfSize, halfSize, -halfSize, halfSize, -halfSize)
-  positions.push(halfSize, halfSize, halfSize, halfSize, halfSize, -halfSize)
-  positions.push(halfSize, -halfSize, halfSize, halfSize, -halfSize, -halfSize)
-  positions.push(-halfSize, -halfSize, halfSize, -halfSize, -halfSize, -halfSize)
-
-  const lensRadius = size * 0.3
-  const lensLength = size * 0.5
-  const lensSegments = 8
-
-  for (let i = 0; i < lensSegments; i++) {
-    const angle1 = (i / lensSegments) * Math.PI * 2
-    const angle2 = ((i + 1) / lensSegments) * Math.PI * 2
-
-    const x1 = Math.cos(angle1) * lensRadius
-    const y1 = Math.sin(angle1) * lensRadius
-    const x2 = Math.cos(angle2) * lensRadius
-    const y2 = Math.sin(angle2) * lensRadius
-
-    positions.push(x1, y1, halfSize + lensLength, x2, y2, halfSize + lensLength)
-
-    if (i % 2 === 0) {
-      positions.push(x1, y1, halfSize, x1, y1, halfSize + lensLength)
+  faces.forEach((face) => {
+    for (let i = 0; i < 4; i++) {
+      positions.push(...face[i], ...face[(i + 1) % 4])
     }
-  }
+  })
+
+  const { radius, length, segments } = lensConfig
+  const lensR = size * radius
+  const lensL = size * length
+  const lensZ = -hs - lensL
+
+  Array.from({ length: segments }, (_, i) => {
+    const a1 = (i / segments) * Math.PI * 2
+    const a2 = ((i + 1) / segments) * Math.PI * 2
+    const [x1, y1] = [Math.cos(a1) * lensR, Math.sin(a1) * lensR]
+    const [x2, y2] = [Math.cos(a2) * lensR, Math.sin(a2) * lensR]
+
+    positions.push(x1, y1, lensZ, x2, y2, lensZ)
+    if (i % 3 === 0) positions.push(x1, y1, -hs, x1, y1, lensZ)
+  })
 
   const geometry = new BufferGeometry()
   geometry.setAttribute('position', new Float32BufferAttribute(positions, 3))

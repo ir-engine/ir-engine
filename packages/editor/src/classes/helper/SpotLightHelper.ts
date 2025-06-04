@@ -57,8 +57,8 @@ function createSpotLightConeGeometry(angle: number, range: number): BufferGeomet
     const x2 = Math.cos(angle2) * radius
     const y2 = Math.sin(angle2) * radius
 
-    positions.push(x1, y1, -visualRange)
-    positions.push(x2, y2, -visualRange)
+    positions.push(x1, y1, visualRange)
+    positions.push(x2, y2, visualRange)
   }
 
   for (let i = 0; i < segments; i += 4) {
@@ -67,7 +67,39 @@ function createSpotLightConeGeometry(angle: number, range: number): BufferGeomet
     const y = Math.sin(lineAngle) * radius
 
     positions.push(0, 0, 0)
-    positions.push(x, y, -visualRange)
+    positions.push(x, y, visualRange)
+  }
+
+  const geometry = new BufferGeometry()
+  geometry.setAttribute('position', new Float32BufferAttribute(positions, 3))
+  return geometry
+}
+
+function createSpotLightRadialGeometry(angle: number, range: number): BufferGeometry {
+  const positions: number[] = []
+
+  const visualRange = range === 0 ? 10 : range
+  const radius = Math.tan(angle) * visualRange
+
+  const numLines = 16
+  for (let i = 0; i < numLines; i++) {
+    const lineAngle = (i / numLines) * Math.PI * 2
+    const x = Math.cos(lineAngle) * radius
+    const y = Math.sin(lineAngle) * radius
+
+    positions.push(0, 0, 0)
+    positions.push(x, y, visualRange)
+  }
+
+  const halfRange = visualRange * 0.5
+  const halfRadius = Math.tan(angle) * halfRange
+  for (let i = 0; i < 8; i++) {
+    const lineAngle = (i / 8) * Math.PI * 2
+    const x = Math.cos(lineAngle) * halfRadius
+    const y = Math.sin(lineAngle) * halfRadius
+
+    positions.push(0, 0, 0)
+    positions.push(x, y, halfRange)
   }
 
   const geometry = new BufferGeometry()
@@ -77,10 +109,12 @@ function createSpotLightConeGeometry(angle: number, range: number): BufferGeomet
 
 function createSpotLightGizmoGeometry(angle: number, range: number): BufferGeometry {
   const coneGeometry = createSpotLightConeGeometry(angle, range)
+  const radialGeometry = createSpotLightRadialGeometry(angle, range)
 
-  const mergedGeometry = mergeBufferGeometries([coneGeometry])
+  const mergedGeometry = mergeBufferGeometries([coneGeometry, radialGeometry])
 
   coneGeometry.dispose()
+  radialGeometry.dispose()
 
   return mergedGeometry!
 }

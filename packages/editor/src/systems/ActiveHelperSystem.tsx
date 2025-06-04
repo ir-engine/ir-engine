@@ -56,7 +56,7 @@ import {
 } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import { Raycaster, Vector3 } from 'three'
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
-import { ComponentHelperState } from '../classes/helper/ComponentHelperState'
+import { ComponentHelperEntry, ComponentHelperState } from '../classes/helper/ComponentHelperState'
 import { iconGizmoArrow, iconGizmoYHelper, setupGizmo } from '../constants/GizmoPresets'
 import {
   getIconGizmo,
@@ -99,19 +99,28 @@ export const studioIconGizmoInputHeuristic = (
   }
 }
 
-interface HelperProps {
-  icon?: unknown
-  directional?: boolean
-  volume?: boolean
-  reactor?: React.ComponentType<{
-    parentEntity: Entity
-    iconEntity: Entity
-    selected: boolean
-    hovered: boolean
-  }>
+const getHighestPriorityHelper = (entity: Entity): ComponentHelperEntry | undefined => {
+  const componentHelpers = getState(ComponentHelperState)
+  let highestPriorityHelper: ComponentHelperEntry | undefined = undefined
+  let highestPriority = -1
+
+  // Iterate through all registered component helpers
+  for (const [componentId, helperEntry] of Object.entries(componentHelpers)) {
+    const component = globalThis.ComponentJSONIDMap?.get(componentId)
+    // Check if the entity has this component
+    if (component && hasComponent(entity, component)) {
+      // If this helper has higher priority than current highest, replace it
+      if (helperEntry.priority > highestPriority) {
+        highestPriority = helperEntry.priority
+        highestPriorityHelper = helperEntry
+      }
+    }
+  }
+
+  return highestPriorityHelper
 }
 
-const ActiveHelperReactor: React.FC<HelperProps> = (helper) => {
+const ActiveHelperReactor: React.FC<ComponentHelperEntry> = (helper) => {
   const entity = useEntityContext()
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
   const engineState = useHookstate(getMutableState(EngineState))
@@ -122,29 +131,45 @@ const ActiveHelperReactor: React.FC<HelperProps> = (helper) => {
   const iconSize = useHookstate<number>(getState(EditorHelperState).editorIconMinSize)
   const visibility = useHasComponent(entity, VisibleComponent)
 
+  // check if entity has any higher priority helper
+  const effectiveHelper = useMemo(() => {
+    const highestPriorityHelper = getHighestPriorityHelper(entity)
+
+    // If there's a higher priority helper than the current one, use it
+    if (highestPriorityHelper && highestPriorityHelper.priority > helper.priority) {
+      return highestPriorityHelper
+    }
+
+    // Otherwise, use the current helper
+    return helper
+  }, [entity, helper])
+
   const shouldShowHelper = useMemo(
     () =>
-      editorHelperState.gizmoEnabled.value && visibility && engineState.isEditing.value && helper?.icon !== undefined,
-    [editorHelperState.gizmoEnabled.value, visibility, engineState.isEditing.value, helper?.icon]
+      editorHelperState.gizmoEnabled.value &&
+      visibility &&
+      engineState.isEditing.value &&
+      effectiveHelper?.icon !== undefined,
+    [editorHelperState.gizmoEnabled.value, visibility, engineState.isEditing.value, effectiveHelper?.icon]
   )
 
   const helperFactory = useCallback(() => {
-    const iconGizmo = getIconGizmo(helper.icon)
+    const iconGizmo = getIconGizmo(effectiveHelper.icon)
     iconGizmo.renderOrder = -1
 
-    if (helper?.directional) {
+    if (effectiveHelper?.directional) {
       const directionalEntities = setupGizmo(entity, iconGizmoArrow, ObjectLayers.NodeIcon)
       directionalEntitiesState.set(directionalEntities)
     }
 
-    if (helper?.volume) {
+    if (effectiveHelper?.volume) {
       setComponent(entity, BoundingBoxComponent)
     }
 
     const lineEntities = setupGizmo(getState(ReferenceSpaceState).originEntity, iconGizmoYHelper, ObjectLayers.NodeIcon)
     lineEntitiesState.set(lineEntities)
     return iconGizmo
-  }, [entity, helper, directionalEntitiesState, lineEntitiesState])
+  }, [entity, effectiveHelper, directionalEntitiesState, lineEntitiesState])
 
   const studioIconEntity = useHelperEntity(
     entity,
@@ -200,7 +225,7 @@ const ActiveHelperReactor: React.FC<HelperProps> = (helper) => {
   InputComponent.useExecuteWithInput(inputExecutionCallback, InputExecutionOrder.Before, true)
 
   useEffect(() => {
-    if (helper?.volume === undefined) return
+    if (effectiveHelper?.volume === undefined) return
 
     const updateBoundingBoxVisibility = () => {
       const { volumeVisibility } = editorHelperState
@@ -252,7 +277,7 @@ const ActiveHelperReactor: React.FC<HelperProps> = (helper) => {
         removeComponent(entity, BoundingBoxComponent)
       }
     }
-  }, [selected.value, hovered.value, helper?.volume, visibility, editorHelperState.volumeVisibility.value, entity])
+  }, [selected, hovered, effectiveHelper?.volume, visibility, editorHelperState.volumeVisibility, entity])
 
   useEffect(() => {
     const authoringEntity = getAuthoringCounterpart(entity)
@@ -281,10 +306,17 @@ const ActiveHelperReactor: React.FC<HelperProps> = (helper) => {
     lineEntitiesState.value
   ])
 
-  if (!helper.reactor) return null
+  if (!effectiveHelper.reactor) return null
+
+  const ReactorComponent = effectiveHelper.reactor as React.ComponentType<{
+    parentEntity: Entity
+    iconEntity: Entity
+    selected: boolean
+    hovered: boolean
+  }>
 
   return (
-    <helper.reactor
+    <ReactorComponent
       parentEntity={entity}
       iconEntity={studioIconEntity}
       selected={selected.value}
@@ -296,11 +328,6 @@ const ActiveHelperReactor: React.FC<HelperProps> = (helper) => {
 const reactor = () => {
   useEffect(() => {
     InputHeuristicState.addHeuristic(1, studioIconGizmoInputHeuristic)
-
-    // Cleanup function to remove heuristic if needed
-    return () => {
-      // Note: Add cleanup logic here if InputHeuristicState supports removal
-    }
   }, [])
 
   const helperRegistry = useMutableState(ComponentHelperState).keys
@@ -309,10 +336,10 @@ const reactor = () => {
     return helperRegistry
       .map((componentJsonId) => {
         const component = globalThis.ComponentJSONIDMap?.get(componentJsonId)
+
         if (!component) return null
 
         const helper = getState(ComponentHelperState)[componentJsonId]
-        if (!helper?.reactor) return null
 
         return (
           <QueryReactor
