@@ -531,6 +531,21 @@ export const MixerComponent = defineComponent({
   },
 
   /**
+   * Creates a function that generates entry data for a specific property with the provided address (useful for UI)
+   * @param mixerEntity The entity with the MixerComponent
+   * @param propertyAddress
+   * @returns A function that takes a value and returns entry data for the property, or null if the property isn't tracked
+   */
+  propertySetterWithAddress: (mixerEntity: Entity, propertyAddress: string): ((value: Mixable) => Entry) | null => {
+    const mixerComp = getComponent(mixerEntity, MixerComponent)
+
+    const property = mixerComp.state.properties.get(propertyAddress)
+    if (property == null) return null
+
+    return (value: Mixable) => ({ [propertyAddress]: mixFuncs[property.type].toNumberList(value) })
+  },
+
+  /**
    * Removes a property from being tracked by the mixer
    * @param mixerEntity The entity with the MixerComponent
    * @param targetEntityID The entity containing the property
@@ -548,6 +563,20 @@ export const MixerComponent = defineComponent({
 
     if (!mixerComp.state.properties.has(packedAddress)) return
 
+    // Remove from tracked properties
+    mixerComp.state.properties.delete(packedAddress)
+    mixerComp.properties = mixerComp.properties.filter((p) => p !== packedAddress)
+  },
+
+  /**
+   * Removes a property at a specific index from the mixer (useful for UI)
+   * @param mixerEntity The entity with the MixerComponent
+   * @param index The index of the property to remove
+   */
+  removePropertyAtIndex: (mixerEntity: Entity, index: number) => {
+    const mixerComp = getComponent(mixerEntity, MixerComponent)
+    if (index < 0 || index >= mixerComp.properties.length) return
+    const packedAddress = mixerComp.properties[index]
     // Remove from tracked properties
     mixerComp.state.properties.delete(packedAddress)
     mixerComp.properties = mixerComp.properties.filter((p) => p !== packedAddress)

@@ -218,6 +218,29 @@ describe('MixerComponent.ts', async () => {
         })
       })
 
+      describe('propertySetterWithAddress', () => {
+        it('should return a function that creates an entry partial for the property', () => {
+          const x1Setter = MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'x')!
+          const xAddress = mixerComp.properties.find((prop: string) => prop.endsWith('x'))
+          const x2Setter = MixerComponent.propertySetterWithAddress(mixerEntity, xAddress)
+          const xProperty = mixerComp.properties.find((prop: string) => prop.endsWith('x'))
+          assert.isNotNull(x2Setter)
+
+          // Test first setter
+          const x1 = 0
+          const x1Partial = x1Setter(x1)
+          assert.deepEqual(x1Partial[xProperty][0], x1)
+
+          // Test second setter (should be equivalent)
+          const x2 = 1
+          const x2Partial = x2Setter!(x2)
+          assert.deepEqual(x2Partial[xProperty][0], x2)
+        })
+        it('should return null if the property was not added to the mixer', () => {
+          assert.isNull(MixerComponent.propertySetterWithAddress(mixerEntity, 'fake'))
+        })
+      })
+
       describe('removeProperty', () => {
         it('should remove a property from the mixer component, if its index is in range', () => {
           MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'x')
@@ -231,6 +254,24 @@ describe('MixerComponent.ts', async () => {
 
           // Removing one property shouldn't affect the other properties
           MixerComponent.removeProperty(mixerEntity, targetEntityID, testComponent, 'x')
+          assert.equal(mixerComp.properties.length, lastSize - 1)
+          assert.equal(mixerComp.state.properties.size, lastSize - 1)
+        })
+      })
+
+      describe('removePropertyAtIndex', () => {
+        it('should remove a property from the mixer component, if it is present', () => {
+          MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'x')
+          MixerComponent.addProperty(mixerEntity, targetEntityID, testComponent, 'y')
+          const lastSize = mixerComp.properties.length
+
+          // Removing from an index that's out of range shouldn't do anything
+          MixerComponent.removeProperty(mixerEntity, targetEntityID, testComponent, lastSize)
+          assert.equal(mixerComp.properties.length, lastSize)
+          assert.equal(mixerComp.state.properties.size, lastSize)
+
+          // Removing one property shouldn't affect the other properties
+          MixerComponent.removePropertyAtIndex(mixerEntity, 0)
           assert.equal(mixerComp.properties.length, lastSize - 1)
           assert.equal(mixerComp.state.properties.size, lastSize - 1)
         })
