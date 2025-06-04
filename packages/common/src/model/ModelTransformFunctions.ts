@@ -829,8 +829,7 @@ export const transformModel = async (
   srcURL: string,
   modelOperations: ModelTransformParameters[],
   onMetadata: (index: number, key: string, data: any) => void = (key, data) => {},
-  onProgress?: (progress: number, status: Status, numerator?: number, denominator?: number) => void,
-  bypassTransformations = false
+  onProgress?: (progress: number, status: Status, numerator?: number, denominator?: number) => void
 ): Promise<string[]> => {
   onProgress?.(0, Status.TransformingModels)
 
@@ -891,72 +890,65 @@ export const transformModel = async (
     const params = modelOperations[i]
     const isGLBFormat = ['glb', 'vrm'].includes(params.modelFormat)
 
-    const document = cloneDocument(srcDocument)
+    const document = await cloneDocument(srcDocument)
 
-    if (bypassTransformations) {
-      // Skip all transformations - just copy the model without modifications
-      console.log('Bypassing transformations for debugging purposes')
-    } else {
-      // Preserve vertex colors before applying transformations
-      await document.transform(preserveVertexColors)
+    // Preserve vertex colors before applying transformations
+    await document.transform(preserveVertexColors)
 
-      // Apply basic optimizations
-      await document.transform(unInstanceSingletons)
-      params.split && (await document.transform(split))
-      params.combineMaterials && (await document.transform(combineMaterials))
-      params.instance && (await document.transform(doInstancing))
-      params.dedup && (await document.transform(dedup()))
-      params.flatten && (await document.transform(flatten()))
-      params.join.enabled && (await document.transform(join(params.join.options)))
+    // Apply basic optimizations
+    await document.transform(unInstanceSingletons)
+    params.split && (await document.transform(split))
+    params.combineMaterials && (await document.transform(combineMaterials))
+    params.instance && (await document.transform(doInstancing))
+    params.dedup && (await document.transform(dedup()))
+    params.flatten && (await document.transform(flatten()))
+    params.join.enabled && (await document.transform(join(params.join.options)))
 
-      if (params.simplifyRatio < 1) {
-        const simplifyTransforms = [] as Transform[]
-        if (!params.weld.enabled) simplifyTransforms.push(weld())
-        simplifyTransforms.push(
-          params.adaptiveSimplification
-            ? (doc) => {
-                adaptiveSimplify(doc, params)
-                return doc
-              }
-            : simplify({
-                simplifier: MeshoptSimplifier,
-                ratio: params.simplifyRatio,
-                error: params.simplifyErrorThreshold
-              })
-        )
-        await document.transform(...simplifyTransforms)
-      }
+    if (params.simplifyRatio < 1) {
+      const simplifyTransforms = [] as Transform[]
+      if (!params.weld.enabled) simplifyTransforms.push(weld())
+      simplifyTransforms.push(
+        params.adaptiveSimplification
+          ? (doc) => {
+              adaptiveSimplify(doc, params)
+              return doc
+            }
+          : simplify({
+              simplifier: MeshoptSimplifier,
+              ratio: params.simplifyRatio,
+              error: params.simplifyErrorThreshold
+            })
+      )
+      await document.transform(...simplifyTransforms)
+    }
 
-      // For GLB/VRM formats, skip texture conversion to KTX2
-      if (!isGLBFormat && params.textureFormat !== 'default') {
-        const textureUsages = new Map<string, Set<string>>()
-        const operations = createTextureOperations(document, params, params.resources, textureUsages)
-        textureOperations.push(...operations)
-      }
+    // For GLB/VRM formats, skip texture conversion to KTX2
+    if (!isGLBFormat && params.textureFormat !== 'default') {
+      const textureUsages = new Map<string, Set<string>>()
+      const operations = createTextureOperations(document, params, params.resources, textureUsages)
+      textureOperations.push(...operations)
+    }
 
-      // Apply final optimizations
-      if (params.reorder) {
-        await MeshoptEncoder.ready
-        await document.transform(reorder({ encoder: MeshoptEncoder, target: 'performance' }))
-      }
+    // Apply final optimizations
+    if (params.reorder) {
+      await MeshoptEncoder.ready
+      await document.transform(reorder({ encoder: MeshoptEncoder, target: 'performance' }))
+    }
 
-      if (params.dracoCompression.enabled) {
-        await document.transform(draco(params.dracoCompression.options))
-      }
+    if (params.dracoCompression.enabled) {
+      await document.transform(draco(params.dracoCompression.options))
     }
 
     documents.push(document)
   }
 
-  const numTextureOperations = bypassTransformations ? 0 : textureOperations.length
+  const numTextureOperations = textureOperations.length
   const totalProgressSteps = 1 + numTextureOperations + numDocOperations
 
   const resultCache = new Map<string, Texture>()
-  if (!bypassTransformations) {
-    for (let i = 0; i < textureOperations.length; i++) {
-      onProgress?.((i + 1) / totalProgressSteps, Status.ProcessingTexture, i, textureOperations.length)
-      await transformTexture(resultCache, textureOperations[i], i)
-    }
+  for (let i = 0; i < numTextureOperations; i++) {
+    onProgress?.((i + 1) / totalProgressSteps, Status.ProcessingTexture, i, numTextureOperations)
+    await transformTexture(resultCache, textureOperations[i], i)
   }
 
   // Write files
