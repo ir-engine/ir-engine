@@ -127,7 +127,6 @@
     "concurrently": "7.6.0",
     "deep-object-diff": "^1.1.9",
     "depcheck": "1.4.3",
-    "dexie": "^4.0.11",
     "eslint": "9.5.0",
     "globals": "15.6.0",
     "kill-port": "2.0.1",

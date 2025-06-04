@@ -31,12 +31,13 @@ import { twMerge } from 'tailwind-merge'
 import { ModalState } from '../../common/services/ModalState'
 import Settings from '../Settings'
 import { Badge } from './Badge'
+import { useChatProvider } from './ChatProvider'
 import { MenuButton } from './MenuButton'
 import { MultimediaStateProvider, useMultimediaStateProvider } from './MultimediaStateProvider'
 
-export const ChatButton = ({ onClick, active }) => {
+export const ChatButton = ({ badge, onClick, active }) => {
   return (
-    <MenuButton onClick={onClick} active={active}>
+    <MenuButton badge={badge} onClick={onClick} active={active}>
       <MessageTextSquare01Sm className={'relative top-[0.04em]'} />
     </MenuButton>
   )
@@ -251,13 +252,17 @@ const collapsableSectionCloseStyles = `
 `
 
 export const ToolbarMenu = ({ onMessageClick, onShareClick, activeKey }) => {
-  const hasNotifications = true
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { unreadMessages } = useChatProvider()
+  const showMessagesBadge = unreadMessages.value
+  const emoteBadgeNumber = 0
+  const showEmoteBadge = !!emoteBadgeNumber
+  const showBadge = showMessagesBadge && showEmoteBadge
 
   return (
     <div className={containerStyles}>
       <div className={gridStyles}>
-        <Badge show={hasNotifications} />
+        <Badge show={showBadge} />
 
         <MenuButton onClick={() => setIsMenuOpen((prev) => !prev)}>
           <ChevronDownMd className={twMerge(isMenuOpen ? `scale-[1.2]` : `-scale-[1.2]`, 'sm:max-lg:hidden')} />
@@ -273,7 +278,13 @@ export const ToolbarMenu = ({ onMessageClick, onShareClick, activeKey }) => {
           <MenuButton onClick={() => ModalState.openModal(<Settings onClose={ModalState.closeModal} />)}>
             <CogMd />
           </MenuButton>
-          <MenuButton onClick={onShareClick} badge={{ number: 1 }}>
+          <MenuButton
+            onClick={onShareClick}
+            badge={{
+              show: showEmoteBadge,
+              number: emoteBadgeNumber
+            }}
+          >
             <EmoteM className={'relative sm:max-lg:-top-[0.075em]'} />
           </MenuButton>
         </div>
@@ -281,7 +292,7 @@ export const ToolbarMenu = ({ onMessageClick, onShareClick, activeKey }) => {
         {isMenuOpen && <Divider />}
 
         <div className={sectionStyles}>
-          <ChatButton active={activeKey === `Chat`} onClick={onMessageClick} />
+          <ChatButton badge={{ show: showMessagesBadge }} active={activeKey === `Chat`} onClick={onMessageClick} />
           <MultimediaStateProvider>
             <MicButton />
             <CamButton />

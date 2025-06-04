@@ -73,33 +73,74 @@ validate_required_vars() {
 
 wait_for_builds_finished() {
   sleep $BUILD_WAIT_INTERVAL
-  API_SLICE=($(kubectl get pods | grep ir-engine-kaniko-api))
-  API_STATUS=${API_SLICE[2]}
-  CLIENT_SLICE=($(kubectl get pods | grep ir-engine-kaniko-client))
-  CLIENT_STATUS=${CLIENT_SLICE[2]}
-  INSTANCESERVER_SLICE=($(kubectl get pods | grep ir-engine-kaniko-instanceserver))
-  INSTANCESERVER_STATUS=${INSTANCESERVER_SLICE[2]}
-
-  if [[ "$API_STATUS" == "Running" ]] || [[ "$API_STATUS" == "Failed" ]]
-  then
+  
+  # Get pod information for all services
+  API_SLICE=($(kubectl get pods | grep ir-engine-kaniko-api || echo "NOT_FOUND - - -"))
+  API_STATUS=${API_SLICE[2]:-"NOT_FOUND"}
+  CLIENT_SLICE=($(kubectl get pods | grep ir-engine-kaniko-client || echo "NOT_FOUND - - -"))
+  CLIENT_STATUS=${CLIENT_SLICE[2]:-"NOT_FOUND"}
+  INSTANCESERVER_SLICE=($(kubectl get pods | grep ir-engine-kaniko-instanceserver || echo "NOT_FOUND - - -"))
+  INSTANCESERVER_STATUS=${INSTANCESERVER_SLICE[2]:-"NOT_FOUND"}
+  
+  # Track if we've already captured logs for each service in this run
+  local api_logs_captured=${API_LOGS_CAPTURED:-false}
+  local client_logs_captured=${CLIENT_LOGS_CAPTURED:-false}
+  local instanceserver_logs_captured=${INSTANCESERVER_LOGS_CAPTURED:-false}
+  
+  # Always capture logs if pod exists, regardless of status
+  if [[ "$API_STATUS" != "NOT_FOUND" && "$api_logs_captured" != "true" ]]; then
     API_KANIKO_POD=$(kubectl get pods | grep ir-engine-kaniko-api | tail -n 1 | cut -d ' ' -f 1)
-    kubectl logs $API_KANIKO_POD >api-build-error.txt
+    if [[ -n "$API_KANIKO_POD" ]]; then
+      log_info "Capturing logs for API pod (status: $API_STATUS)"
+      kubectl logs $API_KANIKO_POD >api-build-logs.txt 2>api-build-error.txt || true
+      export API_LOGS_CAPTURED=true
+    fi
   fi
 
-  if [[ "$CLIENT_STATUS" == "Running" ]] || [[ "$CLIENT_STATUS" == "Failed" ]]
-  then
+  if [[ "$CLIENT_STATUS" != "NOT_FOUND" && "$client_logs_captured" != "true" ]]; then
     CLIENT_KANIKO_POD=$(kubectl get pods | grep ir-engine-kaniko-client | tail -n 1 | cut -d ' ' -f 1)
-    kubectl logs $CLIENT_KANIKO_POD >client-build-error.txt
+    if [[ -n "$CLIENT_KANIKO_POD" ]]; then
+      log_info "Capturing logs for Client pod (status: $CLIENT_STATUS)"
+      kubectl logs $CLIENT_KANIKO_POD >client-build-logs.txt 2>client-build-error.txt || true
+      export CLIENT_LOGS_CAPTURED=true
+    fi
   fi
 
-  if [[ "$INSTANCESERVER_STATUS" == "Running" ]] || [[ "$INSTANCESERVER_STATUS" == "Failed" ]]
-  then
+  if [[ "$INSTANCESERVER_STATUS" != "NOT_FOUND" && "$instanceserver_logs_captured" != "true" ]]; then
     INSTANCESERVER_KANIKO_POD=$(kubectl get pods | grep ir-engine-kaniko-instanceserver | tail -n 1 | cut -d ' ' -f 1)
-    kubectl logs $INSTANCESERVER_KANIKO_POD >instanceserver-build-error.txt
+    if [[ -n "$INSTANCESERVER_KANIKO_POD" ]]; then
+      log_info "Capturing logs for InstanceServer pod (status: $INSTANCESERVER_STATUS)"
+      kubectl logs $INSTANCESERVER_KANIKO_POD >instanceserver-build-logs.txt 2>instanceserver-build-error.txt || true
+      export INSTANCESERVER_LOGS_CAPTURED=true
+    fi
   fi
 
-  if [[ "$API_STATUS" != "Running" && "$API_STATUS" != "Pending" && "$CLIENT_STATUS" != "Running" && "$CLIENT_STATUS" != "Pending" && "$INSTANCESERVER_STATUS" != "Running" && "$INSTANCESERVER_STATUS" != "Pending" ]]
-  then
+  # Check if all builds are finished
+  if [[ "$API_STATUS" != "Running" && "$API_STATUS" != "Pending" && 
+        "$CLIENT_STATUS" != "Running" && "$CLIENT_STATUS" != "Pending" && 
+        "$INSTANCESERVER_STATUS" != "Running" && "$INSTANCESERVER_STATUS" != "Pending" ]]; then
+    # Capture final logs before returning
+    if [[ "$API_STATUS" != "NOT_FOUND" ]]; then
+      API_KANIKO_POD=$(kubectl get pods | grep ir-engine-kaniko-api | tail -n 1 | cut -d ' ' -f 1)
+      if [[ -n "$API_KANIKO_POD" ]]; then
+        kubectl logs $API_KANIKO_POD >api-build-logs.txt 2>api-build-error.txt || true
+      fi
+    fi
+    
+    if [[ "$CLIENT_STATUS" != "NOT_FOUND" ]]; then
+      CLIENT_KANIKO_POD=$(kubectl get pods | grep ir-engine-kaniko-client | tail -n 1 | cut -d ' ' -f 1)
+      if [[ -n "$CLIENT_KANIKO_POD" ]]; then
+        kubectl logs $CLIENT_KANIKO_POD >client-build-logs.txt 2>client-build-error.txt || true
+      fi
+    fi
+    
+    if [[ "$INSTANCESERVER_STATUS" != "NOT_FOUND" ]]; then
+      INSTANCESERVER_KANIKO_POD=$(kubectl get pods | grep ir-engine-kaniko-instanceserver | tail -n 1 | cut -d ' ' -f 1)
+      if [[ -n "$INSTANCESERVER_KANIKO_POD" ]]; then
+        kubectl logs $INSTANCESERVER_KANIKO_POD >instanceserver-build-logs.txt 2>instanceserver-build-error.txt || true
+      fi
+    fi
+    
     return 0
   else
     wait_for_builds_finished
@@ -109,15 +150,39 @@ wait_for_builds_finished() {
 record_build_error() {
   local service=$1
 
-  SLICE=($(kubectl get pods | grep ir-engine-kaniko-$service))
-  STATUS=${SLICE[2]}
+  SLICE=($(kubectl get pods | grep ir-engine-kaniko-$service || echo "NOT_FOUND - - -"))
+  STATUS=${SLICE[2]:-"NOT_FOUND"}
 
-  if [[ "$STATUS" != "Completed" ]]
-  then
+  if [[ "$STATUS" != "Completed" && "$STATUS" != "NOT_FOUND" ]]; then
     local error_file="${service}-build-error.txt"
-    echo "Error in building $service"
-    cat $error_file
-    npm run record-build-error -- --service="$service"
+    local logs_file="${service}-build-logs.txt"
+    
+    echo "Checking build status for $service (status: $STATUS)"
+    
+    # Capture logs one final time to ensure we have the latest
+    local pod_name=$(kubectl get pods | grep ir-engine-kaniko-$service | tail -n 1 | cut -d ' ' -f 1)
+    if [[ -n "$pod_name" ]]; then
+      kubectl logs $pod_name >$logs_file 2>$error_file || true
+    fi
+    
+    # Check for errors in both log files
+    if [[ -s "$error_file" || -s "$logs_file" && $(grep -E "Error|error|ERROR|Failed|failed|FAILED" "$logs_file") ]]; then
+      echo "Error in building $service"
+      
+      # Show error content
+      if [[ -s "$error_file" ]]; then
+        echo "Error log content:"
+        cat $error_file
+      fi
+      
+      # Show relevant parts of the logs if they contain error keywords
+      if [[ -s "$logs_file" && $(grep -E "Error|error|ERROR|Failed|failed|FAILED" "$logs_file") ]]; then
+        echo "Log file contains errors:"
+        grep -E "Error|error|ERROR|Failed|failed|FAILED" -A 5 -B 2 "$logs_file"
+      fi
+      
+      npm run record-build-error -- --service="$service"
+    fi
   fi
 }
 
