@@ -164,7 +164,7 @@ const PoiUiView = (props: PoiUiProps) => {
   useEffect(() => {
     const transitionType = cameraSettingsState.poiScrollTransitionType.value
     const isSnappingMode = transitionType === PoiScrollTransition.Snapping
-    const isTransitionActive = isSnappingMode && poiCamera.poiLerpValue.value < 1
+    const isTransitionActive = isSnappingMode && poiCamera.poiLerpValue.value > 0
 
     setButtonsDisabled(isTransitionActive)
   }, [cameraSettingsState.poiScrollTransitionType.value, poiCamera.poiLerpValue.value])
