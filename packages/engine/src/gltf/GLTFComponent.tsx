@@ -53,7 +53,6 @@ import {
   useHasComponent,
   useHasComponents,
   useOptionalComponent,
-  useQuery,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -68,7 +67,9 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 import { LoaderUtils } from 'three'
+import { loadResource } from '../assets/functions/resourceLoaderFunctions'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
@@ -78,7 +79,7 @@ import { addError, removeError } from '../scene/functions/ErrorFunctions'
 import { GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
 import { AssetState } from './GLTFState'
 import { migrateEEMaterial } from './migrateEEMaterial'
-import { ResourcePendingComponent } from './ResourcePendingComponent'
+import { ResourceProgressComponent } from './ResourceProgressComponent'
 import { useApplyCollidersToChildMeshesEffect } from './useApplyCollidersToChildMeshesEffect'
 
 export const GLTFComponent = defineComponent({
@@ -170,8 +171,8 @@ const checkCollider = (hasCollider: boolean, entity: Entity) => {
 const loadDependencies = {
   [GLTFComponent.jsonID]: [
     {
-      key: 'dependencies',
-      eval: (dependencies?: ComponentDependencies) => componentDependenciesLoaded(dependencies)
+      key: 'progress',
+      eval: (progress: number) => progress === 100
     }
   ],
   [ColliderComponent.jsonID]: [
@@ -180,7 +181,7 @@ const loadDependencies = {
       eval: (hasCollider: boolean, entity: Entity) => checkCollider(hasCollider, entity)
     }
   ]
-} as Record<string, DependencyEval[]>
+} as Record<Exclude<Component['jsonID'], undefined>, DependencyEval[]>
 
 const buildComponentDependencies = (entity: Entity, json: GLTF.IGLTF) => {
   const dependencies = {
@@ -291,41 +292,42 @@ export const GLTFComponentReactor = () => {
 }
 
 const ResourceReactor = (props: { documentID: SourceID; entity: Entity; documentLoaded: boolean }) => {
-  const dependenciesLoaded = GLTFComponent.useDependenciesLoaded(props.entity)
-  const resourceQuery = useQuery([ResourcePendingComponent])
+  const { documentID, entity, documentLoaded } = props
+  const gltfComponent = useComponent(entity, GLTFComponent)
+  const sourceEntities = UUIDComponent.useEntitiesBySource(documentID) as Entity[]
 
-  const simulationEntity = getSimulationCounterpart(props.entity)
+  const simulationEntity = getSimulationCounterpart(entity)
   useApplyCollidersToChildMeshesEffect(simulationEntity)
+
+  if (!documentLoaded || gltfComponent.progress.value === 100) return null
+
+  return (
+    <ChildResourceReactor
+      rootEntity={entity}
+      sourceEntities={sourceEntities}
+      key={JSON.stringify([entity, ...sourceEntities])}
+    />
+  )
+}
+
+const ChildResourceReactor = (props: { rootEntity: Entity; sourceEntities: Entity[] }) => {
+  const { rootEntity, sourceEntities } = props
+  const resourceProgress = ResourceProgressComponent.useResourcesProgressForEntities([rootEntity, ...sourceEntities])
+  const dependenciesLoaded = GLTFComponent.useDependenciesLoaded(rootEntity)
+
   useEffect(() => {
-    if (!hasComponent(props.entity, GLTFComponent) || !props.documentLoaded) return
-    if (getComponent(props.entity, GLTFComponent).progress === 100) return
-    const entities = resourceQuery.filter((e) => UUIDComponent.getSourceEntity(e) === props.entity)
-    if (!entities.length) {
-      if (dependenciesLoaded) getMutableComponent(props.entity, GLTFComponent).progress.set(100)
-      return
+    const percentage = Math.floor(Math.min(resourceProgress, dependenciesLoaded ? 100 : 99))
+    getMutableComponent(rootEntity, GLTFComponent).progress.set(percentage)
+  }, [resourceProgress, dependenciesLoaded])
+
+  useEffect(() => {
+    if (resourceProgress !== 100) return
+
+    removeComponent(rootEntity, ResourceProgressComponent)
+    for (const entity of sourceEntities) {
+      removeComponent(entity, ResourceProgressComponent)
     }
-
-    const resources = entities
-      .map((entity) => {
-        const resource = getOptionalComponent(entity, ResourcePendingComponent)
-        if (!resource) return []
-        return Object.values(resource).map((resource) => {
-          return {
-            progress: resource.progress,
-            total: resource.total
-          }
-        })
-      })
-      .flat()
-      .filter(Boolean)
-
-    const progress = resources.reduce((acc, resource) => acc + resource.progress, 0)
-    const total = resources.reduce((acc, resource) => acc + resource.total, 0)
-    if (!total) return
-
-    const percentage = Math.floor(Math.min((progress / total) * 100, dependenciesLoaded ? 100 : 99))
-    getMutableComponent(props.entity, GLTFComponent).progress.set(percentage)
-  }, [resourceQuery, dependenciesLoaded, props.documentLoaded])
+  }, [resourceProgress])
 
   return null
 }
@@ -429,54 +431,39 @@ export const BINARY_EXTENSION_HEADER_MAGIC = 'glTF'
 export const BINARY_EXTENSION_HEADER_LENGTH = 12
 export const BINARY_EXTENSION_CHUNK_TYPES = { JSON: 0x4e4f534a, BIN: 0x004e4942 }
 
-export const loadGLTFFile = (
-  url: string,
-  onLoad: (gltf: GLTF.IGLTF, body: ArrayBuffer | null) => void,
-  onProgress?: (event: ProgressEvent) => void,
-  onError?: (error: ErrorEvent) => void,
-  signal?: AbortSignal
-) => {
-  const onSuccess = (data: string | ArrayBuffer | GLTF.IGLTF) => {
-    if (signal && signal.aborted) return
+export const parseGLTFFile = (
+  data: string | ArrayBuffer | GLTF.IGLTF,
+  onError: (error: ErrorEvent) => void
+): [GLTF.IGLTF | null, ArrayBuffer | null] => {
+  const textDecoder = new TextDecoder()
+  let json: GLTF.IGLTF
+  let body: ArrayBuffer | null = null
 
-    const textDecoder = new TextDecoder()
-    let json: GLTF.IGLTF
-    let body: ArrayBuffer | null = null
-
-    try {
-      if (typeof data === 'string') {
-        json = JSON.parse(data)
-      } else if ('byteLength' in data) {
-        const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
-        if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
-          const { json: jsonContent, body: bodyContent } = parseBinaryData(data)
-          body = bodyContent
-          json = jsonContent
-        } else {
-          json = JSON.parse(textDecoder.decode(data))
-        }
+  try {
+    if (typeof data === 'string') {
+      json = JSON.parse(data)
+    } else if ('byteLength' in data) {
+      const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
+      if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
+        const { json: jsonContent, body: bodyContent } = parseBinaryData(data)
+        body = bodyContent
+        json = jsonContent
       } else {
-        json = data
+        json = JSON.parse(textDecoder.decode(data))
       }
-
-      json = JSON.parse(JSON.stringify(json))
-
-      json = migrateEEMaterial(json)
-
-      onLoad(parseStorageProviderURLs(json), body)
-    } catch (error) {
-      if (onError) onError(error)
-      return
+    } else {
+      json = data
     }
+
+    json = JSON.parse(JSON.stringify(json))
+
+    json = migrateEEMaterial(json)
+
+    return [parseStorageProviderURLs(json), body]
+  } catch (error) {
+    if (onError) onError(error)
+    return [null, null]
   }
-
-  const loader = new FileLoader()
-
-  loader.setResponseType('arraybuffer')
-  loader.setRequestHeader({})
-  loader.setWithCredentials(false)
-
-  loader.load(url, onSuccess, onProgress, onError, signal)
 }
 
 const useGLTFDocument = (entity: Entity) => {
@@ -504,19 +491,33 @@ const useGLTFDocument = (entity: Entity) => {
 
     removeError(entity, GLTFComponent, 'LOADING_ERROR')
 
-    loadGLTFFile(
+    const loader = new FileLoader()
+
+    loader.setResponseType('arraybuffer')
+    loader.setRequestHeader({})
+    loader.setWithCredentials(false)
+
+    loadResource<ArrayBuffer>(
       url,
-      (gltf, body) => {
-        if (body) state.body.set(body)
-        state.document.set(gltf)
-        const dependencies = buildComponentDependencies(entity, gltf)
-        state.dependencies.set(dependencies)
+      ResourceType.ArrayBuffer,
+      entity,
+      (response) => {
+        if (signal.aborted) return
+        const [gltf, body] = parseGLTFFile(response, onError)
+
+        if (gltf) {
+          state.document.set(gltf)
+          state.body.set(body)
+          const dependencies = buildComponentDependencies(entity, gltf)
+          state.dependencies.set(dependencies)
+        }
       },
-      (progress: ProgressEvent) => {
+      (request) => {
         //this is the gtlf file loading progress, not to be confused with the GTLF Component property "progress" which tracks if the gtlf is loaded into the scene
       },
       onError,
-      signal
+      signal,
+      loader
     )
 
     return () => {

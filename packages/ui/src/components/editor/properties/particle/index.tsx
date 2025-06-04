@@ -305,7 +305,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Render Mode" label={t('editor:properties.particle-system.render-mode')}>
         <SelectInput
-          value={RenderMode[particleSystem.systemParameters.renderMode]}
+          value={particleSystem.systemParameters.renderMode}
           onChange={onSetSystemParm('renderMode')}
           options={[
             { label: t('editor:properties.particle-system.render-mode-type.billboard'), value: RenderMode.BillBoard },
@@ -412,14 +412,16 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="World Space" label={t('editor:properties.particle-system.world-space')}>
         <Checkbox checked={particleSystem.systemParameters.worldSpace} onChange={onSetSystemParm('worldSpace')} />
       </InputGroup>
-      <Button className="self-end" onClick={onAddBehavior}>
-        {t('editor:properties.particle-system.addBehavior')}
-      </Button>
+      <InputGroup name="Behaviors" label={t('editor:properties.particle-system.behaviors')}>
+        <Button className="self-end" onClick={onAddBehavior}>
+          {t('editor:properties.particle-system.addBehavior')}
+        </Button>
+      </InputGroup>
       <PaginatedList
         list={particleSystemState.behaviorParameters}
         element={(behaviorState: State<BehaviorJSON>, index) => {
           return (
-            <>
+            <div>
               <BehaviorInput
                 path={`behaviorParameters.${index}`}
                 scope={behaviorState}
@@ -427,7 +429,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
                 onChange={onSetState}
               />
               <Button onClick={onRemoveBehavior(index)}>{t('editor:properties.particle-system.remove')}</Button>
-            </>
+            </div>
           )
         }}
       />
