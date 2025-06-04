@@ -40,21 +40,23 @@ export function getSpawnPoint(spawnPointNodeId: string, userId: UserID): { posit
     const spawnComponent = getComponent(entity, SpawnPointComponent)
     if (!spawnComponent.permissionedUsers.length || spawnComponent.permissionedUsers.includes(userId)) {
       return {
-        position: spawnTransform.position
-          .clone()
-          .add(randomPositionCentered(new Vector3(spawnTransform.scale.x, 0, spawnTransform.scale.z))),
+        position: randomPositionCentered(spawnTransform.position.clone(), spawnTransform.scale.clone()),
         rotation: spawnTransform.rotation.clone()
       }
     }
   }
   return getRandomSpawnPoint(userId)
 }
-
-const randomPositionCentered = (area: Vector3) => {
-  const radius = 0.5
-  const x = (Math.random() - 0.5) * 2 * radius + area.x
-  const z = (Math.random() - 0.5) * 2 * radius + area.z
-  return new Vector3(x, area.y, z)
+/**
+ * Takes an origin point and scale to return a random point, within a retanglar area the size of the scale, with the origin in the center
+ * @param origin
+ * @param scale
+ * @returns
+ */
+const randomPositionCentered = (origin: Vector3, scale: Vector3) => {
+  const x = (Math.random() - 0.5) * scale.x + origin.x
+  const z = (Math.random() - 0.5) * scale.z + origin.z
+  return new Vector3(x, origin.y, z)
 }
 
 const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
@@ -69,7 +71,7 @@ export function getRandomSpawnPoint(userId: UserID): { position: Vector3; rotati
     const spawnTransform = getComponent(entity, TransformComponent)
     const worldPosition = TransformComponent.getWorldPosition(entity, new Vector3())
     return {
-      position: randomPositionCentered(worldPosition),
+      position: randomPositionCentered(worldPosition, spawnTransform.scale.clone()),
       rotation: spawnTransform.rotation.clone()
     }
   }
@@ -77,7 +79,7 @@ export function getRandomSpawnPoint(userId: UserID): { position: Vector3; rotati
   console.warn("Couldn't spawn entity at spawn point, no spawn points available")
 
   return {
-    position: randomPositionCentered(new Vector3(2, 0, 2)),
+    position: randomPositionCentered(new Vector3(2, 0, 2), new Vector3(1, 1, 1)),
     rotation: new Quaternion()
   }
 }
