@@ -549,7 +549,7 @@ export const getGithubOwnerRepo = (url: string) => {
 
 export const getOctokitForToken = async (app: Application, token: string) => {
   const retryOctokit = Octokit.plugin(retry)
-  let octoKit = new retryOctokit({ auth: token })
+  let octoKit = new retryOctokit({ auth: token, retry: { enabled: process.env.TEST !== 'true' } })
   const authenticationSettings = await fetchAuthenticationSettings(app)
   try {
     const retryOctokit = Octokit.plugin(retry)
@@ -559,7 +559,8 @@ export const getOctokitForToken = async (app: Application, token: string) => {
         clientType: 'oauth-app',
         clientId: authenticationSettings.oauth!.github!.key,
         clientSecret: authenticationSettings.oauth!.github!.secret
-      }
+      },
+      retry: { enabled: process.env.TEST !== 'true' }
     })
     await checkerOctokit.rest.apps.checkToken({
       client_id: authenticationSettings.oauth!.github!.key,
@@ -568,7 +569,7 @@ export const getOctokitForToken = async (app: Application, token: string) => {
   } catch (err) {
     token = await refreshToken(authenticationSettings, token, app)
     const retryOctokit = Octokit.plugin(retry)
-    octoKit = new retryOctokit({ auth: token })
+    octoKit = new retryOctokit({ auth: token, retry: { enabled: process.env.TEST !== 'true' } })
   }
   return {
     octoKit,
@@ -591,7 +592,10 @@ export const getOctokitForChecking = async (app: Application, url: string, param
     throw new Forbidden('You must have a connected GitHub account to access public repos')
   const { owner, repo } = getGithubOwnerRepo(url)
   const retryOctokit = Octokit.plugin(retry)
-  let octoKit = new retryOctokit({ auth: githubIdentityProvider.data[0].oauthToken })
+  let octoKit = new retryOctokit({
+    auth: githubIdentityProvider.data[0].oauthToken,
+    retry: { enabled: process.env.TEST !== 'true' }
+  })
   const authenticationSettings = await fetchAuthenticationSettings(app)
   let token = githubIdentityProvider.data[0].oauthToken
   try {
@@ -602,7 +606,8 @@ export const getOctokitForChecking = async (app: Application, url: string, param
         clientType: 'oauth-app',
         clientId: authenticationSettings?.oauth!.github!.key,
         clientSecret: authenticationSettings?.oauth!.github!.secret
-      }
+      },
+      retry: { enabled: process.env.TEST !== 'true' }
     })
     await checkerOctokit.rest.apps.checkToken({
       client_id: authenticationSettings.oauth!.github!.key,
@@ -611,7 +616,7 @@ export const getOctokitForChecking = async (app: Application, url: string, param
   } catch (err) {
     token = await refreshToken(authenticationSettings, token!, app)
     const retryOctokit = Octokit.plugin(retry)
-    octoKit = new retryOctokit({ auth: token })
+    octoKit = new retryOctokit({ auth: token, retry: { enabled: process.env.TEST !== 'true' } })
   }
   return {
     owner,
@@ -780,7 +785,8 @@ export const generateInstallationOctokit = (appId: string, privateKey: string, i
       appId,
       privateKey,
       installationId
-    }
+    },
+    retry: { enabled: process.env.TEST !== 'true' }
   })
 }
 /**

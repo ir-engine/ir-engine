@@ -86,7 +86,10 @@ export class GithubStrategy extends CustomOAuthStrategy {
       email = profile.email
     } else {
       const retryOctokit = Octokit.plugin(retry)
-      const octoKit = new retryOctokit({ auth: `token ${params.access_token}` })
+      const octoKit = new retryOctokit({
+        auth: `token ${params.access_token}`,
+        retry: { enabled: process.env.TEST !== 'true' }
+      })
       const githubEmails = await octoKit.rest.users.listEmailsForAuthenticatedUser()
 
       email = githubEmails.data.filter((githubEmail: any) => githubEmail.primary === true)[0].email

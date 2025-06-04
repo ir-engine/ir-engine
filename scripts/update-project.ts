@@ -93,7 +93,7 @@ cli.main(async () => {
       if (jwtDecoded.iss == null || parseInt(jwtDecoded.iss) !== appId)
         throw new NotAuthenticated('Invalid app credentials')
       const retryOctokit = Octokit.plugin(retry)
-      const octoKit = new retryOctokit({ auth: token })
+      const octoKit = new retryOctokit({ auth: token, retry: { enabled: process.env.TEST !== 'true' } })
       let appResponse
       try {
         appResponse = await octoKit.rest.apps.getAuthenticated()

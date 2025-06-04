@@ -1422,7 +1422,7 @@ export const updateProject = async (
     usesInstallationToken = false
   if (params?.appJWT) {
     const retryOctokit = Octokit.plugin(retry)
-    const octokit = new retryOctokit({ auth: params.appJWT })
+    const octokit = new retryOctokit({ auth: params.appJWT, retry: { enabled: process.env.TEST !== 'true' } })
     let repoInstallation
     try {
       repoInstallation = await octokit.rest.apps.getRepoInstallation({
