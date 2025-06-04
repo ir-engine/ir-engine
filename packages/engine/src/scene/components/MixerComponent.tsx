@@ -472,27 +472,27 @@ export const MixerComponent = defineComponent({
   /**
    * Adds a property to be tracked by the mixer
    * @param mixerEntity The entity with the MixerComponent
-   * @param targetEntityIDID The entity containing the property to track
+   * @param targetEntityID The entity containing the property to track
    * @param targetComponent The component containing the property to track
    * @param propertyPath The path to the property to track
    * @returns A function to set values for this property in entries, or null if the property couldn't be added
    */
   addProperty: (
     mixerEntity: Entity,
-    targetEntityIDID: EntityID,
+    targetEntityID: EntityID,
     targetComponent: AnyComponentWithID | string,
     propertyPath: string
   ) => {
     const mixerComp = getComponent(mixerEntity, MixerComponent)
 
     // Check if property is already tracked
-    const packedAddress = packAddress(targetEntityIDID, targetComponent, propertyPath)
+    const packedAddress = packAddress(targetEntityID, targetComponent, propertyPath)
     if (mixerComp.state.properties.has(packedAddress)) {
-      return MixerComponent.propertySetter(mixerEntity, targetEntityIDID, targetComponent, propertyPath)
+      return MixerComponent.propertySetter(mixerEntity, targetEntityID, targetComponent, propertyPath)
     }
 
     // Create the property
-    const property = createProperty(mixerEntity, targetEntityIDID, targetComponent, propertyPath)
+    const property = createProperty(mixerEntity, targetEntityID, targetComponent, propertyPath)
     if (property == null) return null
 
     // Add to tracked properties
@@ -504,7 +504,7 @@ export const MixerComponent = defineComponent({
       entry[packedAddress] = mixFuncs[property.type].toNumberList(mixFuncs[property.type].create())
     }
 
-    return MixerComponent.propertySetter(mixerEntity, targetEntityIDID, targetComponent, propertyPath)
+    return MixerComponent.propertySetter(mixerEntity, targetEntityID, targetComponent, propertyPath)
   },
 
   /**
