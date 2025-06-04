@@ -37,6 +37,7 @@ interface MenuButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   }
   badge?: BaseBadgeProps
   loading?: boolean | undefined
+  active?: boolean | undefined
 }
 
 const buttonStyles = `
@@ -53,13 +54,25 @@ const buttonStyles = `
   hover:bg-white/10
 `
 
-export const MenuButton = ({ tooltip, badge, loading, children, className, ...props }: MenuButtonProps) => {
+export const MenuButton = ({ active, tooltip, badge, loading, children, className, ...props }: MenuButtonProps) => {
   const { t } = useTranslation()
 
   const hasBadge = !!badge
 
   const button = (
-    <button className={twMerge(buttonStyles, className)} {...props}>
+    <button
+      className={twMerge(
+        buttonStyles,
+        active
+          ? `
+      scale-[1.05]
+      bg-white/30
+    `
+          : ``,
+        className
+      )}
+      {...props}
+    >
       <div
         className={twMerge(
           `

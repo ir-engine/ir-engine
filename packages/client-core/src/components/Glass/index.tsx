@@ -30,7 +30,6 @@ import { EngineState } from '@ir-engine/ecs'
 import { getMutableState, NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { useTranslation } from 'react-i18next'
 import { LoadingSystemState } from '../../systems/state/LoadingState'
-import { VideoWindows } from '../../user/VideoWindows'
 import { ViewerMenuState } from '../../util/ViewerMenuState'
 import { ARPlacement } from '../ARPlacement'
 import { XRLoading } from '../XRLoading'
@@ -39,7 +38,9 @@ import { ToolbarAndSidebar } from './ToolbarAndSidebar'
 
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { ChatMenu } from './ChatMenu'
+import { MultiVideos } from './MultiVideo'
 import { ToolbarMenu } from './ToolbarMenu'
+import { VideoMenu } from './VideoMenu'
 
 const useIsPortrait = () => {
   const isPortrait = useHookstate(window.matchMedia('(orientation: portrait)').matches)
@@ -119,13 +120,15 @@ export const ViewerInteractions = () => {
   }
 
   const contents = {
-    Chat: <ChatMenu />
+    Chat: <ChatMenu />,
+    Video: <VideoMenu />
   }
 
   const onMessageClick = createToggleSidebarKey(`Chat`)
   const onShareClick = createToggleSidebarKey(`Share`)
+  const onFullscreenVideosClick = createToggleSidebarKey(`Video`)
 
-  const toolbar = <ToolbarMenu onMessageClick={onMessageClick} onShareClick={onShareClick} />
+  const toolbar = <ToolbarMenu onMessageClick={onMessageClick} onShareClick={onShareClick} activeKey={sidebarKey} />
 
   const sidebarTabs = tabs[sidebarKey] || []
   const sidebarHeading = headings[sidebarKey]
@@ -135,9 +138,7 @@ export const ViewerInteractions = () => {
 
   return (
     <div id="location-container" ref={locationContainer} className="fixed h-dvh w-full">
-      <div className={`pointer-events-auto absolute left-6 top-6 select-none`}>
-        <VideoWindows />
-      </div>
+      <MultiVideos handleSidebarOpen={onFullscreenVideosClick} />
 
       <ToolbarAndSidebar
         handleSidebarClose={closeSidebar}
