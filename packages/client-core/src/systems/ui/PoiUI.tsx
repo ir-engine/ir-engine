@@ -41,7 +41,7 @@ import { CameraScrollBehavior, PoiScrollTransition } from '@ir-engine/spatial/sr
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import { ObjectFitFunctions } from '@ir-engine/spatial/src/transform/functions/ObjectFitFunctions'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'
 
 // @ts-ignore
@@ -73,7 +73,8 @@ export function setupPoiUi(cameraEntity: Entity) {
       const camera = getOptionalComponent(viewerEntity, CameraComponent)
       if (!camera) return
       const distance = camera.near * 1.1 // 10% in front of camera
-      ObjectFitFunctions.attachObjectInFrontOfCamera(poiCameraComponent.xruiEntity.value, 1, distance)
+      const scale = 0.275
+      ObjectFitFunctions.attachObjectInFrontOfCamera(poiCameraComponent.xruiEntity.value, scale, distance)
     }
   })
 }
@@ -103,6 +104,8 @@ const PoiUiView = (props: PoiUiProps) => {
   const [showPrevious, setShowPrevious] = useState(false)
   const [showNext, setShowNext] = useState(false)
   const [buttonsDisabled, setButtonsDisabled] = useState(false)
+
+  const refCanvas = useRef<HTMLElement>(document.getElementById('engine-renderer-canvas'))
 
   const previousClicked = () => {
     const transitionType = cameraSettingsState.poiScrollTransitionType.value
@@ -181,18 +184,25 @@ const PoiUiView = (props: PoiUiProps) => {
     return null
   }
 
+  useEffect(() => {
+    console.log('mbf', refCanvas.current?.clientHeight, refCanvas.current?.clientWidth)
+  }, [refCanvas?.current])
+
   return (
     <>
       <style type="text/css">{components}</style>
       <style type="text/css">{utilities}</style>
       <style type="text/css">{base}</style>
 
-      <div className="flex flex-row">
+      <div
+        style={{ height: refCanvas.current?.clientHeight, width: refCanvas.current?.clientWidth }}
+        className={`flex flex-row `}
+      >
         <div className="flex h-full w-1/2 items-center justify-start">
           {showPrevious && (
             <button
               xr-layer="true"
-              className={`pointer-events-auto ml-4 flex h-4 w-4 items-center justify-center rounded-md ${
+              className={`pointer-events-auto ml-4 flex h-12 w-12 items-center justify-center rounded-md ${
                 buttonsDisabled
                   ? 'cursor-not-allowed bg-gray-400 text-gray-600 opacity-50'
                   : 'bg-ui-background text-text-primary-button hover:bg-gray-200'
@@ -208,7 +218,7 @@ const PoiUiView = (props: PoiUiProps) => {
           {showNext && (
             <button
               xr-layer="true"
-              className={`pointer-events-auto mr-4 flex h-4 w-4 items-center justify-center rounded-md ${
+              className={`pointer-events-auto mr-4 flex h-12 w-12 items-center justify-center rounded-md ${
                 buttonsDisabled
                   ? 'cursor-not-allowed bg-gray-400 text-gray-600 opacity-50'
                   : 'bg-ui-background text-text-primary-button hover:bg-gray-200'
