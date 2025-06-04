@@ -62,10 +62,10 @@ export const createExecutorJob = async (
       counter++
 
       const job = await app.service(apiJobPath).get(jobId)
-      console.log('job to be checked on', job, job.status)
+      console.log('job to be checked on', job, job.status, counter)
       if (job.status !== 'pending') clearInterval(interval)
       if (job.status === 'succeeded') resolve(job.returnData)
-      if (job.status === 'failed') reject()
+      if (job.status === 'failed') reject(job.returnData)
       if (counter >= timeout) {
         clearInterval(interval)
         const date = await getDateTimeSql()
