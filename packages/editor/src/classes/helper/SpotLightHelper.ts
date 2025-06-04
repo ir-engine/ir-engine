@@ -37,6 +37,7 @@ import {
 import { SpotLightComponent } from '@ir-engine/spatial'
 import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 import { LineSegmentComponent } from '@ir-engine/spatial/src/renderer/components/LineSegmentComponent'
+import { BOUNDING_BOX_COLORS } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import { useEffect } from 'react'
 import { BufferGeometry, Float32BufferAttribute } from 'three'
 
@@ -74,50 +75,12 @@ function createSpotLightConeGeometry(angle: number, range: number): BufferGeomet
   return geometry
 }
 
-function createSpotLightRadialGeometry(angle: number, range: number): BufferGeometry {
-  const positions: number[] = []
-
-  // Use visual range for display
-  const visualRange = range === 0 ? 10 : range
-  const radius = Math.tan(angle) * visualRange
-
-  // Create radiating lines from center
-  const numLines = 12
-  for (let i = 0; i < numLines; i++) {
-    const lineAngle = (i / numLines) * Math.PI * 2
-    const x = Math.cos(lineAngle) * radius
-    const y = Math.sin(lineAngle) * radius
-
-    // Line from center to edge
-    positions.push(0, 0, 0)
-    positions.push(x, y, -visualRange)
-  }
-
-  // Add intermediate lines at half distance
-  const halfRange = visualRange * 0.5
-  const halfRadius = Math.tan(angle) * halfRange
-  for (let i = 0; i < 8; i++) {
-    const lineAngle = (i / 8) * Math.PI * 2
-    const x = Math.cos(lineAngle) * halfRadius
-    const y = Math.sin(lineAngle) * halfRadius
-
-    positions.push(0, 0, 0)
-    positions.push(x, y, -halfRange)
-  }
-
-  const geometry = new BufferGeometry()
-  geometry.setAttribute('position', new Float32BufferAttribute(positions, 3))
-  return geometry
-}
-
 function createSpotLightGizmoGeometry(angle: number, range: number): BufferGeometry {
   const coneGeometry = createSpotLightConeGeometry(angle, range)
-  const radialGeometry = createSpotLightRadialGeometry(angle, range)
 
-  const mergedGeometry = mergeBufferGeometries([coneGeometry, radialGeometry])
+  const mergedGeometry = mergeBufferGeometries([coneGeometry])
 
   coneGeometry.dispose()
-  radialGeometry.dispose()
 
   return mergedGeometry!
 }
@@ -156,7 +119,7 @@ export const SpotLightHelperReactor: React.FC = (props: { parentEntity; iconEnti
     const helper = getMutableComponent(spotLightHelperEntity.value, LineSegmentComponent)
     if (!helper) return
 
-    helper.color.set(spotLightComponent.color.value)
+    helper.color.set(hovered ? BOUNDING_BOX_COLORS.HOVERED : spotLightComponent.color.value)
 
     const newGeometry = createSpotLightGizmoGeometry(spotLightComponent.angle.value, spotLightComponent.range.value)
 
@@ -164,7 +127,7 @@ export const SpotLightHelperReactor: React.FC = (props: { parentEntity; iconEnti
       helper.geometry.value.dispose()
     }
     helper.geometry.set(newGeometry)
-  }, [spotLightHelperEntity, spotLightComponent.color, spotLightComponent.angle, spotLightComponent.range])
+  }, [spotLightHelperEntity, spotLightComponent.color, spotLightComponent.angle, spotLightComponent.range, hovered])
 
   return null
 }

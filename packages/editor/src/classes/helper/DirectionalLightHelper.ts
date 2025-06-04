@@ -37,10 +37,11 @@ import {
 import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 import { LineSegmentComponent } from '@ir-engine/spatial/src/renderer/components/LineSegmentComponent'
 import { DirectionalLightComponent } from '@ir-engine/spatial/src/SpatialModule'
+import { BOUNDING_BOX_COLORS } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import { useEffect } from 'react'
 import { BufferGeometry, Float32BufferAttribute } from 'three'
 
-const size = 1
+const size = 3
 const lightPlaneGeometry = new BufferGeometry()
 lightPlaneGeometry.setAttribute(
   'position',
@@ -108,7 +109,6 @@ export const DirectionalLightHelperReactor: React.FC = (props: { parentEntity; i
     setComponent(helperEntity, EntityTreeComponent, { parentEntity })
     setComponent(helperEntity, LineSegmentComponent, {
       name: 'directional-light-helper',
-      // Clone geometry because LineSegmentComponent disposes it when removed
       geometry: mergedGeometry?.clone(),
       color: directionalLight.color.value
     })
@@ -121,10 +121,12 @@ export const DirectionalLightHelperReactor: React.FC = (props: { parentEntity; i
   }, [selected, hovered])
 
   useEffect(() => {
-    if (directionalLightHelperEntity) return
-    const helper = getMutableComponent(directionalLightHelperEntity, LineSegmentComponent)
-    helper.color.set(directionalLight.color.value)
-  }, [directionalLightHelperEntity, directionalLight.color])
+    if (directionalLightHelperEntity.value === UndefinedEntity) return
+    const helper = getMutableComponent(directionalLightHelperEntity.value, LineSegmentComponent)
+    if (!helper) return
+
+    helper.color.set(hovered ? BOUNDING_BOX_COLORS.HOVERED : directionalLight.color.value)
+  }, [directionalLightHelperEntity, directionalLight.color, hovered])
 
   return null
 }
