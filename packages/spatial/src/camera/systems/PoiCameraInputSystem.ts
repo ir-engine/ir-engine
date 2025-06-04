@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, UUIDComponent, setComponent } from '@ir-engine/ecs'
+import { Entity, UUIDComponent, hasComponent, setComponent } from '@ir-engine/ecs'
 import { getComponent, getMutableComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
@@ -92,7 +92,7 @@ export const handlePoiCameraScroll = (cameraEntity: Entity, zoomDelta: number): 
 
     const newScrollAccumulator = poiCamera.scrollAccumulator.value + zoomDelta * scrollSensitivity
 
-    const rawTargetIndex = newScrollAccumulator / scrollDistancePerPoi
+    const rawTargetIndex = newScrollAccumulator / Math.max(0.001, scrollDistancePerPoi)
     let targetIndex = Math.floor(rawTargetIndex)
 
     if (scrollBehavior === CameraScrollBehavior.Wrap) {
@@ -133,6 +133,7 @@ export const handlePoiCameraScroll = (cameraEntity: Entity, zoomDelta: number): 
 
 const execute = () => {
   const viewerEntity = getState(ReferenceSpaceState).viewerEntity
+  if (!hasComponent(viewerEntity, PoiCameraComponent)) return
 
   const axes = InputComponent.getAxes(viewerEntity)
   const zoomDelta = axes.FollowCameraZoomScroll ?? 0
