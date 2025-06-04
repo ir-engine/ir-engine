@@ -163,18 +163,42 @@ const loadPrimitives = async (options: GLTFParserOptions, meshIndex: number): Pr
   )
 
   if (primitives.length > 1) {
-    let needsTangentRecalculation = false
-    for (const [geometry] of primitives) {
-      if (geometry.attributes.tangent) needsTangentRecalculation = true
-      geometry.deleteAttribute('tangent')
+    const hasAnyTangents = primitives.some(([geometry]) => geometry.hasAttribute('tangent'))
+
+    if (hasAnyTangents) {
+      const tangentAttributeLength = 4
+      for (let i = 0; i < primitives.length; i++) {
+        let [geometry] = primitives[i]
+
+        if (!geometry.hasAttribute('tangent')) {
+          if (!geometry.index) {
+            geometry = geometry.toNonIndexed()
+            primitives[i][0] = geometry
+          }
+
+          try {
+            geometry.computeTangents()
+          } catch (e) {
+            console.warn(`Failed to compute tangents for primitive ${i}:`, e)
+            // Fallback
+            const count = geometry.getAttribute('position').count
+            const fallback = new Float32Array(count * tangentAttributeLength)
+            for (let j = 0; j < count; j++) {
+              fallback[j * 4 + 0] = 1
+              fallback[j * 4 + 1] = 0
+              fallback[j * 4 + 2] = 0
+              fallback[j * 4 + 3] = 1
+            }
+            geometry.setAttribute('tangent', new BufferAttribute(fallback, 4))
+          }
+        }
+      }
     }
 
     const newGeometry = mergeBufferGeometries(
       primitives.map(([geometry]) => geometry),
       true
     )!
-    if (needsTangentRecalculation) newGeometry?.computeTangents()
-
     return [newGeometry, primitives.map(([, material]) => material)]
   } else {
     return [primitives[0][0], [primitives[0][1]]]
@@ -731,12 +755,28 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
     )
   }
 
+  let hasTangents = false
+  if (json.meshes) {
+    for (const mesh of json.meshes) {
+      for (const primitive of mesh.primitives) {
+        if (
+          primitive.material === materialIndex &&
+          primitive.attributes &&
+          primitive.attributes.TANGENT !== undefined
+        ) {
+          hasTangents = true
+          break
+        }
+      }
+      if (hasTangents) break
+    }
+  }
+
   if (materialDef.normalTexture?.scale) {
     const scale = materialDef.normalTexture.scale
     materialConstructorParameters.normalScale = new Vector2(scale, scale)
   } else {
-    /** @todo Once we have a solution for mergedBuffers, check for tangents on the geometry*/
-    materialConstructorParameters.normalScale = new Vector2(1, -1)
+    materialConstructorParameters.normalScale = new Vector2(1, hasTangents ? 1 : -1)
   }
 
   if (typeof materialDef.occlusionTexture !== 'undefined') {
