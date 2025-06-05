@@ -30,8 +30,11 @@ import {
   defineSystem,
   Entity,
   EntityID,
+  getComponent,
   getOptionalComponent,
   PresentationSystemGroup,
+  removeComponent,
+  setComponent,
   useHasComponent,
   UUIDComponent,
   WorldNetworkAction
@@ -56,8 +59,13 @@ import { config } from '@ir-engine/common/src/config'
 import { avatarPath, userAvatarPath } from '@ir-engine/common/src/schema.type.module'
 import { EngineState, useChildrenWithComponents } from '@ir-engine/ecs'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
+import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/CameraSettingsComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
+import { PoiCameraComponent } from '@ir-engine/spatial/src/camera/components/PoiCameraComponent'
+import { CameraMode } from '@ir-engine/spatial/src/camera/types/CameraMode'
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { SearchParamState } from '../common/services/RouterService'
 import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
@@ -173,9 +181,39 @@ const reactor = () => {
   const sceneEntity = useLoadedSceneEntity(locationSceneURL)
   const gltfLoaded = GLTFComponent.useSceneLoaded(sceneEntity)
 
+  const cameraSettingsComponents = useChildrenWithComponents(sceneEntity, [CameraSettingsComponent])
+  const cameraSettingsEntity = cameraSettingsComponents.length > 0 ? cameraSettingsComponents[0] : null
+  const engineState = useMutableState(EngineState)
+  const cameraSettingsComponent = cameraSettingsEntity
+    ? getComponent(cameraSettingsComponents[0], CameraSettingsComponent)
+    : null
+  const cameraMode = cameraSettingsComponent ? cameraSettingsComponent.cameraMode : CameraMode.FOLLOW
+  const isAvatarUsed = cameraMode === CameraMode.FOLLOW
+
+  useEffect(() => {
+    const cameraEntity = getState(ReferenceSpaceState).viewerEntity
+
+    if (!engineState.isEditing.value) {
+      if (cameraMode === CameraMode.FOLLOW) {
+        if (!isAvatarUsed) {
+          setComponent(cameraEntity, FollowCameraComponent)
+        }
+        removeComponent(cameraEntity, PoiCameraComponent)
+      } else if (cameraMode === CameraMode.POI) {
+        setComponent(cameraEntity, PoiCameraComponent)
+        removeComponent(cameraEntity, FollowCameraComponent)
+      }
+    }
+
+    return () => {
+      removeComponent(cameraEntity, FollowCameraComponent)
+      removeComponent(cameraEntity, PoiCameraComponent)
+    }
+  }, [cameraMode, isAvatarUsed, engineState.isEditing])
+
   if (!gltfLoaded || !userID) return null
 
-  return <AvatarSpawnReactor key={sceneEntity} sceneEntity={sceneEntity} />
+  return (isAvatarUsed && <AvatarSpawnReactor key={sceneEntity} sceneEntity={sceneEntity} />) || null
 }
 
 export const AvatarSpawnSystem = defineSystem({
