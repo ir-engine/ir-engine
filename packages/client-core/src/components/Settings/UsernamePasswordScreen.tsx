@@ -29,7 +29,7 @@ import React, { useState } from 'react'
 import { Section } from './Section'
 
 interface UsernamePasswordScreenProps {
-  navigateTo: (screen: string) => void
+  navigateTo: (screenKey: string, historyKey: string) => void
 }
 
 const UsernamePasswordScreen: React.FC<UsernamePasswordScreenProps> = ({ navigateTo }) => {
@@ -58,11 +58,16 @@ const UsernamePasswordScreen: React.FC<UsernamePasswordScreenProps> = ({ navigat
   return (
     <div className="flex h-full flex-col gap-4">
       <Section>
-        <FieldItem label="Display Name" value={displayName} onClick={() => navigateTo('displayName')} />
+        <FieldItem label="Display Name" value={displayName} onClick={() => navigateTo('Settings', 'displayName')} />
         <Divider />
-        <FieldItem label="User ID" value={userId} onClick={() => navigateTo('userId')} />
+        <FieldItem label="User ID" value={userId} onClick={() => navigateTo('Settings', 'userId')} />
         <Divider />
-        <FieldItem label="Password" value={password} onClick={() => navigateTo('password')} isPassword={true} />
+        <FieldItem
+          label="Password"
+          value={password}
+          onClick={() => navigateTo('Settings', 'password')}
+          isPassword={true}
+        />
       </Section>
     </div>
   )

@@ -35,8 +35,8 @@ import ToggleItem from './ToggleItem'
 
 // Define types for screen components
 interface ScreenProps {
-  navigateTo: (screen: string) => void
-  onClose?: () => void
+  navigateTo: (screenKey: string, historyKey: string) => void
+  navigateClose?: () => void
 }
 
 const GraphicsSettings: React.FC<ScreenProps> = ({ navigateTo }) => {
@@ -64,7 +64,11 @@ const GraphicsSettings: React.FC<ScreenProps> = ({ navigateTo }) => {
         <Divider />
         <ToggleItem label="Shadows" checked={useShadows.value} onClick={onShadowToggle} />
         <Divider />
-        <MenuItem label="Shadow Map Resolution" onClick={() => navigateTo('shadowMapResolution')} hasChevron />
+        <MenuItem
+          label="Shadow Map Resolution"
+          onClick={() => navigateTo('Settings', 'shadowMapResolution')}
+          hasChevron
+        />
       </Section>
     </div>
   )

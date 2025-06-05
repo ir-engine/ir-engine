@@ -26,8 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { HiChatBubbleLeftRight } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
-import { ModalState } from '../../common/services/ModalState'
-import SettingsMenu from '../Settings'
 
 import { useMutableState } from '@ir-engine/hyperflux'
 import { Send01Md } from '@ir-engine/ui/src/icons'
@@ -136,12 +134,11 @@ const inputOuterStyles = `
   pb-4 px-4 pt-4
 `
 
-export const ChatMenu = () => {
+export const ChatMenu = ({ navigateTo }: { navigateTo: (screenKey: string, historyKey: string) => void }) => {
   const user = useMutableState(AuthState).user
+
   const isGuest = user.isGuest.value
-  const onCTAClicked = () => {
-    ModalState.openModal(<SettingsMenu initScreen="signup" onClose={ModalState.closeModal} />)
-  }
+  const onCTAClicked = () => navigateTo('Settings', 'signup')
 
   const { messageGroupedBySender, inputRef, handleInputChange, sendMessage, composedMessage } = useChatProvider()
 

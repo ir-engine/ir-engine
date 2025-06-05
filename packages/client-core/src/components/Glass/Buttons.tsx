@@ -36,7 +36,7 @@ export const smallIconButtonStyles = `
   border-2
   border-b-white/0
   border-white/10
-  shadow-xl
+  shadow-lg
   
   bg-white/10
   
