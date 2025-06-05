@@ -76,8 +76,6 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
 
       {/* World & Account Section */}
       <Section>
-        <MenuItem label="World" onClick={() => navigateTo('Settings', 'world')} hasChevron />
-        <Divider />
         <ToggleItem label="Multiplayer" checked={multiplayer} onClick={() => setMultiplayer(!multiplayer)} />
         <Divider />
         <MenuItem label="Account" onClick={() => navigateTo('Settings', 'account')} hasChevron />

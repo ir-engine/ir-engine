@@ -37,7 +37,6 @@ interface ScreenProps {
 import AccountSettings from './AccountSettings'
 import GraphicsSettings from './GraphicsSettings'
 import MainMenu from './MainMenu'
-import WorldSettings from './WorldSettings'
 
 // Import other screen components
 import { useNavigationProvider } from '../Glass/NavigationProvider'
@@ -63,7 +62,6 @@ const PlaceholderScreen: React.FC<ScreenProps & { title: string }> = ({ title })
 // Define all screens
 export const screens: Record<string, ScreenDefinition> = {
   main: { component: MainMenu, title: 'Settings' },
-  world: { component: WorldSettings, title: 'World' },
   account: { component: AccountSettings, title: 'Account' },
   graphics: { component: GraphicsSettings, title: 'Graphics' },
   signup: {
