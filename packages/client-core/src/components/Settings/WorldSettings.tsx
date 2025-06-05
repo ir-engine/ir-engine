@@ -32,8 +32,8 @@ import ToggleItem from './ToggleItem'
 
 // Define types for screen components
 interface ScreenProps {
-  navigateTo: (screen: string) => void
-  onClose?: () => void
+  navigateTo: (screenKey: string, historyKey: string) => void
+  navigateClose?: () => void
 }
 
 const WorldSettings: React.FC<ScreenProps> = () => (

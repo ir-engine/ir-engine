@@ -49,6 +49,7 @@ const buttonStyles = `
 
   transition-[background]
   transition-transform
+  text-inherit
 
   hover:scale-[1.05]
   hover:bg-white/10

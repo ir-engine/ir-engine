@@ -25,8 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { XCloseLg } from '@ir-engine/ui/src/icons'
+import { ChevronLeftMd, XCloseLg } from '@ir-engine/ui/src/icons'
 import { twMerge } from 'tailwind-merge'
+import { smallIconButtonStyles } from './Buttons'
 import { MenuButton } from './MenuButton'
 import { HorizontalMenu, VerticalMenu } from './ToolbarMenu'
 
@@ -40,6 +41,8 @@ type HeaderProps = {
   heading: string
   tabs?: TabProps[]
   handleSidebarClose: () => void
+  handleSidebarBack: () => void
+  hasHistory: boolean
 }
 
 type ToolbarAndSidebarProps = HeaderProps & {
@@ -90,7 +93,7 @@ const headerInnerStyles = `
   w-full
 `
 
-const closeButtonStyles = `
+const buttonContainer_base = `
   absolute z-10
   right-0
   top-1/2
@@ -101,6 +104,16 @@ const closeButtonStyles = `
   lg:bottom-auto
   lg:top-0
   lg:translate-y-0
+`
+
+const closeButtonStyles = `
+  right-0
+`
+
+const backButtonStyles = `
+  left-0
+  
+  lg:hidden
 `
 
 const Tab = ({ onClick, heading, active }: TabProps) => {
@@ -127,21 +140,36 @@ const headingsStyles = `
   text-2xl
   
   lg:justify-start
-  lg:p-4
+  lg:py-4
+  lg:pl-2
   lg:text-5xl
+  lg:gap-x-4
 `
 
-const Header = ({ tabs = [], heading, handleSidebarClose }: HeaderProps) => {
+const headerBackButtonStyles = `
+  hidden
+  lg:block
+`
+
+const Header = ({ tabs = [], heading, handleSidebarClose, handleSidebarBack, hasHistory }: HeaderProps) => {
+  const backButton = (
+    <button className={twMerge(smallIconButtonStyles, `shadow`)} onClick={handleSidebarBack}>
+      <ChevronLeftMd />
+    </button>
+  )
+
   return (
     <div className={headerContainerStyles}>
       <div className={headerInnerStyles}>
-        <div className={closeButtonStyles}>
-          <MenuButton onClick={handleSidebarClose}>
-            <XCloseLg className={'h-8 w-8'} />
+        {hasHistory ? <div className={twMerge(buttonContainer_base, backButtonStyles)}>{backButton}</div> : <></>}
+        <div className={twMerge(buttonContainer_base, closeButtonStyles)}>
+          <MenuButton className={`text-3xl`} onClick={handleSidebarClose}>
+            <XCloseLg />
           </MenuButton>
         </div>
         <div style={{ textShadow: `0 0.025em 0.08em hsla(0, 0%, 0%, 0.2)` }} className={headingsStyles}>
-          <h2 className={`hidden lg:block`}>{heading}</h2>
+          {hasHistory ? <div className={headerBackButtonStyles}>{backButton}</div> : <></>}
+          <h2 className={twMerge(`lg:block`, tabs.length ? `hidden` : ``)}>{heading}</h2>
           {tabs.map((tabProps) => {
             return <Tab {...tabProps} />
           })}
@@ -201,6 +229,8 @@ export const ToolbarAndSidebar = ({
   heading,
   tabs = [],
   handleSidebarClose,
+  handleSidebarBack,
+  hasHistory,
   isSidebarOpen
 }: ToolbarAndSidebarProps) => {
   tabs = (tabs as TabProps[]) || [{ heading } as TabProps]
@@ -210,7 +240,13 @@ export const ToolbarAndSidebar = ({
       <div className={twMerge(containerStyles, isSidebarOpen ? `translate-x-0` : `translate-x-full`)}>
         <VerticalMenu>{toolbar}</VerticalMenu>
         <div className={sidebarContainerStyles}>
-          <Header tabs={tabs} heading={heading} handleSidebarClose={handleSidebarClose} />
+          <Header
+            tabs={tabs}
+            heading={heading}
+            hasHistory={hasHistory}
+            handleSidebarClose={handleSidebarClose}
+            handleSidebarBack={handleSidebarBack}
+          />
           <div className={`h-[2px] lg:bg-white/10`} />
           <div className={contentContainerStyles}>
             <div className={contentFakeSpacer} />
