@@ -169,7 +169,7 @@ const Header = ({ tabs = [], heading, handleSidebarClose, handleSidebarBack, has
         </div>
         <div style={{ textShadow: `0 0.025em 0.08em hsla(0, 0%, 0%, 0.2)` }} className={headingsStyles}>
           {hasHistory ? <div className={headerBackButtonStyles}>{backButton}</div> : <></>}
-          <h2 className={twMerge(`lg:block`, tabs.length ? `hidden` : ``)}>{heading}</h2>
+          <h2 className={twMerge(`font-dm-sans lg:block`, tabs.length ? `hidden` : ``)}>{heading}</h2>
           {tabs.map((tabProps) => {
             return <Tab {...tabProps} />
           })}
