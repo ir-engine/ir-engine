@@ -86,6 +86,7 @@ import {
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { BackgroundComponent, SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { createHash } from 'crypto'
 import mime from 'mime-types'
@@ -497,6 +498,8 @@ const renderThumbnailFromAngle = (
       setCameraFocusOnBoxFromAngle(entity, cameraEntity, viewAngle)
 
       const camera = getComponent(cameraEntity, CameraComponent)
+      camera.layers.set(ObjectLayers.Scene)
+
       const viewCamera = camera.cameras[0]
 
       viewCamera.layers.mask = ObjectLayerMaskComponent.mask[cameraEntity]
@@ -645,9 +648,12 @@ const renderThumbnail = (
   tryCatch(() => {
     setCameraFocusOnBox(entity, cameraEntity)
     const camera = getComponent(cameraEntity, CameraComponent)
+    camera.layers.set(ObjectLayers.Scene)
+
     const viewCamera = camera.cameras[0]
 
     viewCamera.layers.mask = ObjectLayerMaskComponent.mask[cameraEntity]
+
     setComponent(cameraEntity, RendererComponent, { scenes: [entity, lightEntity, skyboxEntity] })
 
     const renderer = getComponent(cameraEntity, RendererComponent)

@@ -28,11 +28,11 @@ import { motion } from 'motion/react'
 import React, { useState } from 'react'
 
 interface DeleteAccountScreenProps {
-  navigateTo: (screen: string) => void
-  onClose?: () => void
+  navigateTo: (screenKey: string, historyKey: string) => void
+  navigateClose: () => void
 }
 
-const DeleteAccountScreen: React.FC<DeleteAccountScreenProps> = ({ navigateTo, onClose }) => {
+const DeleteAccountScreen: React.FC<DeleteAccountScreenProps> = ({ navigateTo, navigateClose }) => {
   const [showConfirmation, setShowConfirmation] = useState(true)
   const [showSuccess, setShowSuccess] = useState(false)
 
@@ -42,11 +42,11 @@ const DeleteAccountScreen: React.FC<DeleteAccountScreenProps> = ({ navigateTo, o
   }
 
   const handleStayHere = () => {
-    navigateTo('account')
+    navigateTo('Settings', 'account')
   }
 
   const handleClose = () => {
-    onClose?.()
+    navigateClose()
   }
 
   if (showSuccess) {

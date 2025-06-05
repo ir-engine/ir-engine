@@ -27,12 +27,12 @@ import React from 'react'
 import { ClassNameValue, twMerge } from 'tailwind-merge'
 
 export type BaseBadgeProps = {
-  number?: number
+  number?: number | undefined
   position?: 'top' | 'bottom'
+  show?: boolean | undefined
 }
 
 type BadgeProps = BaseBadgeProps & {
-  show?: boolean
   className?: string
 }
 

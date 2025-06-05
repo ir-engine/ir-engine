@@ -803,4 +803,33 @@ describe('GLTF Loader', async () => {
     const rigidbodyEntities = getChildrenWithComponents(entity, [RigidBodyComponent])
     expect(rigidbodyEntities.length).toBe(0)
   })
+
+  it('properly sets normalScale when no tangents are present', async () => {
+    const src = base_url + '/NormalTangentTest/NormalTangentTest.gltf'
+
+    const entity = setupEntity()
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
+
+    setComponent(entity, GLTFComponent, {
+      cameraOcclusion: true,
+      src: src
+    })
+
+    await waitForScene(entity)
+
+    expect(GLTFComponent.isSceneLoaded(entity)).toBeTruthy()
+
+    const meshEntities = getChildrenWithComponents(entity, [MeshComponent])
+    expect(meshEntities.length).toBeGreaterThan(0)
+
+    const materialEntities = getChildrenWithComponents(entity, [MaterialStateComponent])
+    expect(materialEntities[0]).toBeDefined()
+    const material = getComponent(materialEntities[0], MaterialStateComponent).material as MeshStandardMaterial
+
+    expect(material.normalScale?.x).toBe(1)
+    expect(material.normalScale?.y).toBe(-1)
+
+    const mesh = getComponent(meshEntities[0], MeshComponent)
+    expect(mesh.geometry.hasAttribute('tangent')).toBeFalsy()
+  })
 })
