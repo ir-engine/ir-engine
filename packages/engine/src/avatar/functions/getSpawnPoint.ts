@@ -40,7 +40,7 @@ export function getSpawnPoint(spawnPointNodeId: string, userId: UserID): { posit
     const spawnComponent = getComponent(entity, SpawnPointComponent)
     if (!spawnComponent.permissionedUsers.length || spawnComponent.permissionedUsers.includes(userId)) {
       return {
-        position: randomPositionCentered(spawnTransform.position.clone(), spawnTransform.scale.clone()),
+        position: randomPositionCentered(spawnTransform.position, spawnTransform.scale),
         rotation: spawnTransform.rotation.clone()
       }
     }
@@ -71,7 +71,7 @@ export function getRandomSpawnPoint(userId: UserID): { position: Vector3; rotati
     const spawnTransform = getComponent(entity, TransformComponent)
     const worldPosition = TransformComponent.getWorldPosition(entity, new Vector3())
     return {
-      position: randomPositionCentered(worldPosition, spawnTransform.scale.clone()),
+      position: randomPositionCentered(worldPosition, spawnTransform.scale),
       rotation: spawnTransform.rotation.clone()
     }
   }
