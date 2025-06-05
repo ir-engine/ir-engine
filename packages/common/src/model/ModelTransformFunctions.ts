@@ -403,7 +403,7 @@ const doUpload = async (projectName, fileName, buffer, path?: string) => {
     resolver = resolve
   })
   uploadRequestState.queue.set([...queue, { file, projectName, callback: resolver, path: path }])
-  if (fileName.includes('compressed-published')) {
+  if (fileName.includes('combined-mesh')) {
     uploadRequestState.isOnPublishing.set(true)
   }
   await promise
@@ -718,49 +718,30 @@ const writeFiles = async (
   const match = regex.exec(srcBaseURL)
   const path = match ? match[1] : undefined
 
-  // Deduplicate buffers before writing
-  await document.transform(dedup())
-
   if (['glb', 'vrm'].includes(modelFormat)) {
     // For GLB/VRM, we keep textures embedded and don't process them separately
     const data = await io.writeBinary(document)
     await doUpload(...toProjectAndFileName(finalPath, srcBaseURL), data, path)
   } else if (modelFormat === 'gltf') {
-    // Create a buffer hash map to track duplicates
-    const bufferHashes = new Map()
-
     await Promise.all(
       [root.listBuffers(), root.listMeshes(), root.listTextures()].map(
         async (elements) =>
           await Promise.all(
             elements.map(async (element: Texture | Mesh | glBuffer) => {
               let elementName = ''
-              let hashValue = ''
-
               if (element instanceof Texture) {
-                hashValue = hashBuffer(element.getImage()!)
+                elementName = hashBuffer(element.getImage()!)
               } else if (element instanceof Mesh) {
-                const positionAttr = element.listPrimitives()[0].getAttribute('POSITION')
-                if (positionAttr) {
-                  hashValue = hashBuffer(Uint8Array.from(positionAttr.getArray()!))
-                }
+                elementName = hashBuffer(
+                  Uint8Array.from(element.listPrimitives()[0].getAttribute('POSITION')!.getArray()!)
+                )
               } else if (element instanceof glBuffer) {
                 const bufferPath = pathJoin(srcBaseURL, element.getURI())
                 const response = await fetch(bufferPath)
                 const arrayBuffer = await response.arrayBuffer()
                 const bufferData = new Uint8Array(arrayBuffer)
-                hashValue = hashBuffer(bufferData)
+                elementName = hashBuffer(bufferData)
               }
-
-              // Check if we've seen this hash before
-              if (bufferHashes.has(hashValue)) {
-                elementName = bufferHashes.get(hashValue)
-              } else {
-                // Create a valid name that meets the criteria (4-64 chars, alphanumeric start/end)
-                elementName = `buf_${hashValue.slice(0, 60)}` // Ensure total length ≤ 64 chars
-                bufferHashes.set(hashValue, elementName)
-              }
-
               element.setName(elementName)
             })
           )
@@ -773,38 +754,6 @@ const writeFiles = async (
       })
     )
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
-
-    // Create a map to track which buffers we've already processed
-    const processedBuffers = new Map()
-
-    // Process buffers to ensure no duplicates
-    if (json.buffers) {
-      const uniqueBuffers: glBuffer[] = []
-      const bufferMap = new Map()
-
-      for (let i = 0; i < json.buffers.length; i++) {
-        const buffer = json.buffers[i]
-        const bufferName = buffer.name || buffer.uri
-
-        if (!bufferMap.has(bufferName)) {
-          bufferMap.set(bufferName, uniqueBuffers.length)
-          uniqueBuffers.push(buffer as any)
-        }
-      }
-
-      // Update buffer references in bufferViews
-      if (json.bufferViews) {
-        for (const bufferView of json.bufferViews) {
-          if (bufferView.buffer !== undefined) {
-            const originalBuffer = json.buffers[bufferView.buffer]
-            const bufferName = originalBuffer.name || originalBuffer.uri
-            bufferView.buffer = bufferMap.get(bufferName)
-          }
-        }
-      }
-
-      json.buffers = uniqueBuffers as any
-    }
 
     const removeExtension = (uri: string) => {
       const pathSegments = uri.split('/')
@@ -1218,5 +1167,109 @@ const adaptiveSimplify = (document: Document, args: ModelTransformParameters) =>
         console.error(`Error simplifying mesh ${mesh.getName()}:`, error)
       }
     }
+  }
+}
+export const uploadTransformedGLTF = async (
+  srcURL: string,
+  document: Document,
+  dst: string,
+  modelFormat: ModelFormat
+): Promise<string> => {
+  const io = await loaderIO
+  const srcBaseURL = LoaderUtils.extractUrlBase(srcURL)
+  const resourceName = baseName(srcURL).replace(/\.[^.]+$/, '')
+  const finalPath = pathJoin(srcBaseURL, dst.endsWith(`.${modelFormat}`) ? dst : `${dst}.${modelFormat}`)
+  const root = document.getRoot()
+
+  const uploadAsset = async (uri: string, data: Uint8Array, mime: string) => {
+    const blob = new Blob([data], { type: mime })
+    await doUpload(...toProjectAndFileName(uri, srcBaseURL), blob)
+  }
+
+  if (modelFormat === 'glb' || modelFormat === 'vrm') {
+    const binary = await io.writeBinary(document)
+    await uploadAsset(finalPath, binary, 'model/gltf-binary')
+    return finalPath
+  }
+  console.log('writing json')
+  const { json, resources } = await io.writeJSON(document, {
+    format: Format.GLTF,
+    basename: resourceName
+  })
+  console.log('wrote json', json, resources)
+  for (const [uri, data] of Object.entries(resources)) {
+    const ext = uri.split('.').pop()!
+    const mime = fileTypeToMime(ext)!
+    console.log('uploading', uri, mime, data.length)
+    await uploadAsset(uri, data as Uint8Array, mime)
+  }
+
+  await uploadAsset(finalPath, new TextEncoder().encode(JSON.stringify(json)), 'application/json')
+  return finalPath
+}
+const safeImageCompress = async (document: Document) => {
+  for (const texture of document.getRoot().listTextures()) {
+    if (texture.getMimeType() === 'image/ktx2') continue
+    // Load pixels
+    const texturePixels = await getPixels(texture.getImage()!, texture.getMimeType())
+    const clampedData = new Uint8ClampedArray(texturePixels.data as Uint8Array)
+    const [width, height] = texturePixels.shape
+
+    // Create ImageData
+    const imageData = new ImageData(clampedData, width, height)
+
+    // Compress with ktx2
+    const ktx2Encoder = new KTX2Encoder()
+    const compressed = await ktx2Encoder.encode(imageData, {
+      uastc: true, // or false for ETC1S
+      mipmaps: true,
+      srgb: true,
+      qualityLevel: 5
+    })
+
+    texture.setImage(new Uint8Array(compressed))
+    texture.setMimeType('image/ktx2')
+
+    // Create a valid file name
+    const safeName = validTextureFileName(texture.getName() || texture.getURI() || 'texture')
+    texture.setURI(`${safeName}.ktx2`)
+  }
+}
+export async function safeCompressGLTFWeb(
+  srcURL: string,
+  destinationUrl: string,
+  params: ModelTransformParameters,
+  onProgress?: (progress: number, status: Status, numerator?: number, denominator?: number) => void
+) {
+  onProgress?.(0, Status.TransformingModels)
+
+  try {
+    const io = await loaderIO
+    const srcBaseURL = LoaderUtils.extractUrlBase(srcURL)
+    const document: Document = await io.read(srcURL)
+
+    // Keep vertex colors
+    await document.transform(preserveVertexColors)
+
+    // Simplify meshes
+    await document.transform(
+      simplify({
+        simplifier: MeshoptSimplifier,
+        ratio: params.simplifyRatio,
+        error: params.simplifyErrorThreshold
+      })
+    )
+    onProgress?.(0.4, Status.ProcessingTexture)
+
+    // Convert images to .ktx2
+    await safeImageCompress(document)
+    onProgress?.(0.8, Status.ProcessingTexture)
+    // Now you can export it with your existing writer
+    await uploadTransformedGLTF(srcURL, document, destinationUrl, params.modelFormat)
+
+    onProgress?.(1, Status.Complete)
+  } catch (error) {
+    console.log(`Error compressing ${srcURL}:`, error)
+    throw error
   }
 }
