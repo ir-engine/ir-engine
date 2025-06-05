@@ -29,6 +29,7 @@ import { UserUISystem } from '@ir-engine/client-core/src/user/UserUISystem'
 import { RenderInfoSystem } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
 // import { EditorInstanceNetworkingSystem } from './components/realtime/EditorInstanceNetworkingSystem'
 import { PositionalAudioSystem } from '@ir-engine/client-core/src/systems/PositionalAudioSystem'
+import { PoiUiSystem } from '@ir-engine/client-core/src/systems/ui/PoiUI'
 import { ActiveHelperSystem } from './systems/ActiveHelperSystem'
 import { CameraGizmoSystem } from './systems/CameraGizmoSystem'
 import { ClickPlacementSystem } from './systems/ClickPlacementSystem'
@@ -51,6 +52,7 @@ export {
   ModelLoadingSpinnerSystem,
   ObjectGridSnapSystem,
   OverlaySystem,
+  PoiUiSystem,
   PositionalAudioSystem,
   RenderInfoSystem,
   RenderMonitorSystem,

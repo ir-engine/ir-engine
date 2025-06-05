@@ -23,13 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Engine, Entity, EntityTreeComponent, UndefinedEntity } from '@ir-engine/ecs'
+import {
+  defineSystem,
+  Engine,
+  Entity,
+  EntityTreeComponent,
+  PresentationSystemGroup,
+  QueryReactor
+} from '@ir-engine/ecs'
 import {
   getOptionalComponent,
-  getOptionalMutableComponent,
+  Layers,
   removeEntity,
   setComponent,
-  useComponent
+  useComponent,
+  useEntityContext
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
 import { getState, useMutableState } from '@ir-engine/hyperflux'
@@ -52,48 +60,57 @@ import components from '@ir-engine/client/src/themes/components.css?inline'
 import utilities from '@ir-engine/client/src/themes/utilities.css?inline'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 
-export function tearDownPoiUi(cameraEntity: Entity) {
-  const poiCameraComponent = getOptionalMutableComponent(cameraEntity, PoiCameraComponent)
-  if (!poiCameraComponent || !poiCameraComponent.xruiEntity.value) return
-  removeEntity(poiCameraComponent.xruiEntity.value)
-  poiCameraComponent.xruiEntity.set(UndefinedEntity)
-}
+export const PoiUiSystem = defineSystem({
+  uuid: 'ee.engine.PoiUiSystem',
+  insert: { after: PresentationSystemGroup },
+  reactor: () => (
+    <QueryReactor Components={[PoiCameraComponent]} ChildEntityReactor={PoiReactor} layer={Layers.Simulation} />
+  )
+})
 
-export function setupPoiUi(cameraEntity: Entity) {
-  const poiCameraComponent = getOptionalMutableComponent(cameraEntity, PoiCameraComponent)
-  if (!poiCameraComponent) return
-  if (poiCameraComponent.xruiEntity.value) return
+const PoiReactor = () => {
+  const entity = useEntityContext()
 
-  poiCameraComponent.xruiEntity.set(createPoiUI(cameraEntity).entity)
-  setComponent(poiCameraComponent.xruiEntity.value, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+  useEffect(() => {
+    const xrui = createPoiUI(entity)
+    setComponent(xrui.entity, EntityTreeComponent, {
+      parentEntity: Engine.instance.originEntity
+    })
 
-  const { viewerEntity } = getState(ReferenceSpaceState)
-  setComponent(poiCameraComponent.xruiEntity.value, ComputedTransformComponent, {
-    referenceEntities: [viewerEntity],
-    computeFunction: () => {
-      const camera = getOptionalComponent(viewerEntity, CameraComponent)
-      if (!camera) return
-      const distance = camera.near * 1.1 // 10% in front of camera
-      const scale = 0.137
-      ObjectFitFunctions.attachObjectInFrontOfCamera(poiCameraComponent.xruiEntity.value, scale, distance)
+    const { viewerEntity } = getState(ReferenceSpaceState)
+    setComponent(xrui.entity, ComputedTransformComponent, {
+      referenceEntities: [viewerEntity],
+      computeFunction: () => {
+        const camera = getOptionalComponent(viewerEntity, CameraComponent)
+        if (!camera) return
+        const distance = camera.near * 1.1 // 10% in front of camera
+        const scale = 0.137
+        ObjectFitFunctions.attachObjectInFrontOfCamera(xrui.entity, scale, distance)
+      }
+    })
+
+    return () => {
+      if (!xrui.entity) return
+      removeEntity(xrui.entity)
     }
-  })
+  }, [])
+  return null
 }
 
-export const createPoiUI = (cameraEntity: Entity, aspectRatio: number = 1) => {
-  const PoiUi = () => <PoiUiView cameraEntity={cameraEntity} />
+export const createPoiUI = (entity: Entity, aspectRatio: number = 1) => {
+  const PoiUi = () => <PoiUiView entity={entity} />
   const ui = createXRUI(PoiUi, null, { interactable: false })
   setComponent(ui.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-  setComponent(ui.entity, NameComponent, 'poi-ui-' + cameraEntity)
+  setComponent(ui.entity, NameComponent, 'poi-ui-' + entity)
   return ui
 }
 
 type PoiUiProps = {
-  cameraEntity: Entity
+  entity: Entity
 }
 
 const PoiUiView = (props: PoiUiProps) => {
-  const poiCamera = useComponent(props.cameraEntity, PoiCameraComponent)
+  const poiCamera = useComponent(props.entity, PoiCameraComponent)
   const cameraSettingsState = useMutableState(CameraSettingsState)
 
   // State for reactive boolean variables
