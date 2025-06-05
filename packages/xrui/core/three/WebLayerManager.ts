@@ -19,11 +19,19 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { CanvasTexture, ClampToEdgeWrapping, CompressedTexture, LinearMipmapLinearFilter, SRGBColorSpace } from 'three'
+import {
+  CanvasTexture,
+  ClampToEdgeWrapping,
+  CompressedTexture,
+  LinearMipmapLinearFilter,
+  Mesh,
+  SRGBColorSpace,
+  WebGLRenderer
+} from 'three'
 
 import { TextureData, TextureHash, WebLayerManagerBase } from '../WebLayerManagerBase'
 import { WebLayer3D } from './WebLayer3D'
@@ -33,7 +41,7 @@ export interface ThreeTextureData {
   compressedTexture?: CompressedTexture
 }
 export class WebLayerManager extends WebLayerManagerBase {
-  static initialize(renderer: THREE.WebGLRenderer, ktx2Loader) {
+  static initialize(renderer: WebGLRenderer, ktx2Loader) {
     WebLayerManager.instance = new WebLayerManager()
     WebLayerManager.instance.renderer = renderer
     WebLayerManager.instance.ktx2Loader = ktx2Loader
@@ -42,7 +50,7 @@ export class WebLayerManager extends WebLayerManagerBase {
 
   static instance: WebLayerManager
 
-  renderer!: THREE.WebGLRenderer
+  renderer!: WebGLRenderer
   textureEncoding = SRGBColorSpace
   // ktx2Loader: KTX2Loader // todo, currently the type exists in the engine package, which we cannot import here
   ktx2Loader: any
@@ -50,7 +58,7 @@ export class WebLayerManager extends WebLayerManagerBase {
   texturesByHash = new Map<string, ThreeTextureData>()
   // texturesByCharacter = new Map<number, ThreeTextureData>()
   layersByElement = new WeakMap<Element, WebLayer3D>()
-  layersByMesh = new WeakMap<THREE.Mesh, WebLayer3D>()
+  layersByMesh = new WeakMap<Mesh, WebLayer3D>()
 
   getTexture(textureHash: TextureHash) {
     const textureData = this.getTextureState(textureHash)

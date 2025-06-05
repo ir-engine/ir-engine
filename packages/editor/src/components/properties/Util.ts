@@ -19,11 +19,10 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Layers, UUIDComponent } from '@ir-engine/ecs'
 import {
   Component,
   deserializeComponent,
@@ -31,11 +30,12 @@ import {
   serializeComponent,
   SerializedComponentType
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
-import { getMutableState, setNestedObject } from '@ir-engine/hyperflux'
+import { Entity, SourceID } from '@ir-engine/ecs/src/Entity'
+import { setNestedObject } from '@ir-engine/hyperflux'
 
-import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
-import { EditorState } from '../../services/EditorServices'
+import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
 
 export type EditorPropType = {
@@ -51,7 +51,7 @@ export type EditorComponentType = React.FC<EditorPropType> & {
 export const updateProperty = <C extends Component, K extends keyof SerializedComponentType<C>>(
   component: C,
   propName: K,
-  nodes?: Entity[]
+  nodes = SelectionState.getSelectedEntities()
 ) => {
   return (value: SerializedComponentType<C>[K]) => {
     updateProperties(component, { [propName]: value } as any, nodes)
@@ -61,17 +61,10 @@ export const updateProperty = <C extends Component, K extends keyof SerializedCo
 export const updateProperties = <C extends Component>(
   component: C,
   properties: Partial<SerializedComponentType<C>>,
-  nodes?: Entity[]
+  nodes = SelectionState.getSelectedEntities()
 ) => {
-  const editorState = getMutableState(EditorState)
-
-  const affectedNodes = nodes
-    ? nodes
-    : editorState.lockPropertiesPanel.value
-    ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value, Layers.Authoring)]
-    : SelectionState.getSelectedEntities()
-  for (let i = 0; i < affectedNodes.length; i++) {
-    const entity = affectedNodes[i]
+  for (let i = 0; i < nodes.length; i++) {
+    const entity = nodes[i]
     const currentComponent = hasComponent(entity, component) ? serializeComponent(entity, component) : {}
     for (const [key, val] of Object.entries(properties)) {
       if (key.includes('.')) {
@@ -84,10 +77,13 @@ export const updateProperties = <C extends Component>(
   }
 }
 
+/**
+ * @todo add types for period separated string property support & later JSON pointers
+ */
 export const commitProperty = <C extends Component, K extends keyof SerializedComponentType<C>>(
   component: C,
   propName: K,
-  nodes?: Entity[]
+  nodes = SelectionState.getSelectedEntities()
 ) => {
   return (value: SerializedComponentType<C>[K]) => {
     commitProperties(component, { [propName]: value } as any, nodes)
@@ -97,15 +93,13 @@ export const commitProperty = <C extends Component, K extends keyof SerializedCo
 export const commitProperties = <C extends Component>(
   component: C,
   properties: Partial<SerializedComponentType<C>>,
-  nodes?: Entity[]
+  nodes = SelectionState.getSelectedEntities()
 ) => {
-  const editorState = getMutableState(EditorState)
+  EditorControlFunctions.modifyProperty(nodes, component, properties)
 
-  const affectedNodes = nodes
-    ? nodes
-    : editorState.lockPropertiesPanel.value
-    ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value, Layers.Authoring)]
-    : SelectionState.getSelectedEntities()
+  const affectedAssets = new Set<SourceID>(nodes.map((entity) => GLTFComponent.getSourceID(entity)))
 
-  EditorHistoryFunctions.setComponent(affectedNodes, component, properties)
+  for (const assetID of affectedAssets) {
+    AuthoringState.snapshot(assetID)
+  }
 }

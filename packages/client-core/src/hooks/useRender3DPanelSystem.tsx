@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,19 +19,19 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
 
 import {
+  EntityID,
   EntityTreeComponent,
-  EntityUUID,
+  SourceID,
   UUIDComponent,
   UndefinedEntity,
   createEntity,
-  generateEntityUUID,
   hasComponent,
   removeComponent,
   removeEntity,
@@ -44,7 +44,7 @@ import { CameraComponent } from '@ir-engine/spatial/src/camera/components/Camera
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
@@ -53,15 +53,15 @@ export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvas
 
   const panelState = useHookstate(() => {
     const sceneEntity = createEntity()
-    const uuid = generateEntityUUID()
-    setComponent(sceneEntity, UUIDComponent, (uuid + '-scene') as EntityUUID)
+    const sourceID = UUIDComponent.generateUUID() as string as SourceID
+    setComponent(sceneEntity, UUIDComponent, { entitySourceID: sourceID, entityID: 'scene' as EntityID })
     setComponent(sceneEntity, TransformComponent)
     setComponent(sceneEntity, VisibleComponent)
     setComponent(sceneEntity, SceneComponent)
     setComponent(sceneEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
 
     const cameraEntity = createEntity()
-    setComponent(cameraEntity, UUIDComponent, (uuid + '-camera') as EntityUUID)
+    setComponent(cameraEntity, UUIDComponent, { entitySourceID: sourceID, entityID: 'camera' as EntityID })
     setComponent(cameraEntity, CameraComponent)
     setComponent(cameraEntity, TransformComponent)
     setComponent(cameraEntity, VisibleComponent)

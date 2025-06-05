@@ -19,19 +19,17 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
-import {
-  FileThumbnailJobState,
-  removeFromFileThumbnailsSeen
-} from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
+import { removeFromFileThumbnailsSeen } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
+import useLoadingThumbnails from '@ir-engine/client-core/src/hooks/useLoadingThumbnails'
 import ProgressBar from '@ir-engine/client-core/src/systems/ui/LoadingDetailView/SimpleProgressBar'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
-import { getMutableState, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { Button, Tooltip } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import InfiniteScroll from '@ir-engine/ui/src/components/tailwind/InfiniteScroll'
@@ -41,7 +39,6 @@ import { DragPreviewImage, useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
-import { FilesViewModeSettings } from '../../services/FilesState'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileIcon } from '../files/fileicon'
 import { FileUploadProgress } from '../files/loaders'
@@ -163,7 +160,6 @@ export function FileCard({
   onLoad,
   onLoadStart
 }) {
-  const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
   const thumbnailURL = item.thumbnailURL
   return (
     <>
@@ -180,14 +176,11 @@ export function FileCard({
       >
         <div
           className={twMerge(
-            'box-border rounded border-0 p-2 font-figtree',
-            isSelected ? 'rounded border-2 border-text-link bg-[#2C2E30]' : 'group-hover:bg-ui-hover-background'
+            `box-border h-20 w-16 rounded font-figtree text-sm`,
+            isSelected
+              ? 'rounded border border-ui-primary bg-ui-select-background p-1'
+              : 'group-hover:bg-ui-hover-background'
           )}
-          style={{
-            height: iconSize,
-            width: iconSize,
-            fontSize: iconSize
-          }}
           data-testid={dataTestIdJson?.fileIconId}
         >
           <FileIcon
@@ -212,7 +205,7 @@ export function FileCard({
             {name}
           </Text>
         </Tooltip>
-        <span className="text-xs text-[#375DAF]">{info}</span>
+        <span className="w-24 overflow-hidden text-ellipsis whitespace-nowrap text-xs text-[#375DAF]">{info}</span>
       </div>
     </>
   )
@@ -242,6 +235,23 @@ function ResourceFile({
     multiple: false
   }))
 
+  const metadata = {
+    thumbnail: resource.thumbnailURL,
+    name: resource.name,
+    type: assetType,
+    author: '',
+    dateCreated: resource.createdAt,
+    fileSize: '',
+    dimensions: {
+      height: resource.height,
+      width: resource.width,
+      depth: resource.depth
+    },
+    mesh: '',
+    resources: '',
+    tags: resource.tags
+  }
+
   useEffect(() => {
     if (preview) preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
@@ -263,7 +273,10 @@ function ResourceFile({
         <FileCard
           item={resource}
           name={name}
-          onClick={() => ClickPlacementState.setSelectedAsset(resource.url)}
+          onClick={() => {
+            ClickPlacementState.setSelectedAsset(resource.url)
+            ClickPlacementState.setSelectedAssetData(metadata)
+          }}
           onContextMenu={(event) => {
             event.preventDefault()
             event.stopPropagation()
@@ -409,21 +422,13 @@ function ResourceItems() {
     fileIconsLoaded.set(fileIconsLoaded.get() + 1)
   }
 
-  const thumbnailJobState = useMutableState(FileThumbnailJobState)
-  const debouncedRefetchResourcesRef = useRef<ReturnType<typeof setTimeout>>()
+  const isLoading = useHookstate(false)
+  useLoadingThumbnails(isLoading)
 
   useEffect(() => {
-    clearTimeout(debouncedRefetchResourcesRef.current)
-  }, [])
-
-  useEffect(() => {
-    if (debouncedRefetchResourcesRef) {
-      clearTimeout(debouncedRefetchResourcesRef.current)
-    }
-    debouncedRefetchResourcesRef.current = setTimeout(() => {
-      refetchResources()
-    }, 500)
-  }, [thumbnailJobState.jobs.length])
+    if (isLoading.value) return
+    refetchResources()
+  }, [isLoading.value])
 
   useEffect(() => {
     fileIconsToLoad.set(0)
@@ -518,6 +523,11 @@ export default function Resources() {
       <InfiniteScroll
         disableEvent={staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || resourcesLoading}
         onScrollBottom={() => {
+          if (
+            staticResourcesPagination.skip.value + ASSETS_PAGE_LIMIT + calculateItemsToFetch() >
+            staticResourcesPagination.total.value
+          )
+            return
           staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT + calculateItemsToFetch())
           refetchResources()
         }}

@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -31,24 +31,23 @@ import {
   defineQuery,
   defineSystem,
   Entity,
+  EntityTreeComponent,
   getComponent,
   getOptionalComponent,
   hasComponent,
   LayerComponents,
-  Layers
+  Layers,
+  NetworkSchemaState
 } from '@ir-engine/ecs'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
-
-import { EntityTreeComponent } from '@ir-engine/ecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { insertionSort } from '../../common/functions/insertionSort'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { XRState } from '../../xr/XRState'
-import { BoundingBoxComponent, updateBoundingBox } from '../components/BoundingBoxComponents'
+import { BoundingBoxComponent, updateBoundingBox } from '../components/BoundingBoxComponent'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../components/DistanceComponents'
-import { composeMatrix, TransformComponent } from '../components/TransformComponent'
+import { TransformComponent } from '../components/TransformComponent'
 import { TransformSerialization } from '../TransformSerialization'
 
 const transformQuery = defineQuery([TransformComponent])
@@ -60,33 +59,6 @@ const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCam
 const frustumCulledQuery = defineQuery([TransformComponent, FrustumCullCameraComponent])
 
 const cameraQuery = defineQuery([TransformComponent, CameraComponent])
-
-export const computeTransformMatrix = (entity: Entity) => {
-  const transform = getComponent(entity, TransformComponent)
-  getOptionalComponent(entity, ComputedTransformComponent)?.computeFunction()
-  composeMatrix(entity)
-  const entityTree = getOptionalComponent(entity, EntityTreeComponent)
-  const parentEntity = entityTree?.parentEntity
-  if (parentEntity) {
-    const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
-    if (parentTransform) transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
-  } else {
-    transform.matrixWorld.copy(transform.matrix)
-  }
-}
-
-export const computeTransformMatrixWithChildren = (entity: Entity) => {
-  hasComponent(entity, TransformComponent) && computeTransformMatrix(entity)
-  for (const child of getOptionalComponent(entity, EntityTreeComponent)?.children ?? []) {
-    computeTransformMatrixWithChildren(child)
-  }
-}
-
-const _tempDistSqrVec3 = new Vector3()
-
-export const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vector3) => {
-  return TransformComponent.getWorldPosition(entity, _tempDistSqrVec3).distanceToSquared(targetPosition)
-}
 
 const _frustum = new Frustum()
 const _worldPos = new Vector3()
@@ -114,9 +86,12 @@ const compareReferenceDepth = (a: Entity, b: Entity) => {
   return aDepth - bDepth
 }
 
-const dirtyAuthoringTransformQuery = defineQuery([TransformComponent], Layers.Authoring)
+const authoringTransformQuery = defineQuery([TransformComponent], Layers.Authoring)
 
 export const isDirty = (entity: Entity) => TransformComponent.dirty[entity] === 1
+
+// Re-export getDistanceSquaredFromTarget from TransformComponent
+export const getDistanceSquaredFromTarget = TransformComponent.getDistanceSquaredFromTarget
 
 const _sortedTransformEntities = [] as Entity[]
 
@@ -154,7 +129,7 @@ const sortAndMakeDirtyEntities = () => {
   }
 
   /** Mark the corresponding simulation entity of any authoring layer entities as dirty */
-  const dirtyAuthoringEntities = dirtyAuthoringTransformQuery().filter(isDirty)
+  const dirtyAuthoringEntities = authoringTransformQuery().filter(isDirty)
   for (const entity of dirtyAuthoringEntities) {
     const authoringComponent = getComponent(entity, LayerComponents[Layers.Authoring])
     const linkedEntity = authoringComponent.relations[Layers.Simulation]
@@ -174,7 +149,7 @@ const sortAndMakeDirtyEntities = () => {
 
 const execute = () => {
   const dirtySortedTransformEntities = _sortedTransformEntities.filter(isDirty)
-  for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity)
+  for (const entity of dirtySortedTransformEntities) TransformComponent.computeTransformMatrix(entity)
 
   const dirtyBoundingBoxes = boundingBoxQuery().filter(isDirty)
   for (const entity of dirtyBoundingBoxes) updateBoundingBox(entity)
@@ -200,7 +175,10 @@ const execute = () => {
   const cameraPosition = getComponent(viewerEntity, TransformComponent).position
   const camera = getComponent(viewerEntity, CameraComponent)
   for (const entity of distanceFromCameraQuery())
-    DistanceFromCameraComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(entity, cameraPosition)
+    DistanceFromCameraComponent.squaredDistance[entity] = TransformComponent.getDistanceSquaredFromTarget(
+      entity,
+      cameraPosition
+    )
 
   /** @todo expose the frustum in WebGLRenderer to not calculate this twice  */
   _projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
@@ -217,15 +195,15 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
-    const networkState = getMutableState(NetworkState)
+    const networkState = getMutableState(NetworkSchemaState)
 
-    networkState.networkSchema[TransformSerialization.ID].set({
+    networkState[TransformSerialization.ID].set({
       read: TransformSerialization.readTransform,
       write: TransformSerialization.writeTransform
     })
 
     return () => {
-      networkState.networkSchema[TransformSerialization.ID].set(none)
+      networkState[TransformSerialization.ID].set(none)
       _sortedTransformEntities.length = 0
       _transformDepths.clear()
     }

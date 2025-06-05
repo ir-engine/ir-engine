@@ -19,12 +19,12 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { Fragment, useEffect } from 'react'
-import { ColorSpace, DisplayP3ColorSpace, LinearSRGBColorSpace, SRGBColorSpace, Texture, Vector2 } from 'three'
+import { ColorSpace, LinearSRGBColorSpace, SRGBColorSpace, Texture, Vector2 } from 'three'
 
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
@@ -32,13 +32,13 @@ import { ImageFileTypes, VideoFileTypes } from '@ir-engine/engine/src/assets/con
 import { useHookstate } from '@ir-engine/hyperflux'
 
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import { DisplayP3ColorSpace } from '@ir-engine/spatial/src/threejsPatches'
 import Button from '../../../../primitives/tailwind/Button'
 import FileBrowserInput from '../FileBrowser'
 import InputGroup from '../Group'
 import SelectInput from '../Select'
 import { StringInputProps } from '../String'
 import { Vector2Input } from '../Vector2'
-
 /**
  * VideoInput used to render component view for video inputs.
  */

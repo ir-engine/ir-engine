@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -40,18 +40,16 @@ import {
   Layers,
   serializeComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
-import { destroy, getState, hookstate, startReactor, State, useHookstate } from '@ir-engine/hyperflux'
+import { Entity, SourceID } from '@ir-engine/ecs/src/Entity'
+import { destroy, hookstate, startReactor, State, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import {
   MaterialInstanceComponent,
-  MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { injectMaterialDefaults } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { useEffect } from 'react'
 import {
@@ -88,7 +86,6 @@ import {
 import { baseName, pathJoin, relativePathTo } from '../assets/functions/miscUtils'
 import { STATIC_ASSET_REGEX } from '../assets/functions/pathResolver'
 import { AnimationComponent, getEntityUUIDFromTrack } from '../avatar/components/AnimationComponent'
-import { SourceComponent } from '../scene/components/SourceComponent'
 import { handleScenePaths } from '../scene/functions/GLTFConversion'
 import { GLTFComponent } from './GLTFComponent'
 import {
@@ -108,8 +105,7 @@ import {
   MaterialTextureValue,
   MaterialValue
 } from './MaterialExtensionComponents'
-import { NodeIDComponent } from './NodeIDComponent'
-import { SceneDeltaExporterExtension } from './SceneDeltaExporterExtension'
+import { overrideExporterExtension } from './overrideExporterExtension'
 
 const WEBGL_CONSTANTS = {
   POINTS: 0x0000,
@@ -209,7 +205,7 @@ export interface GLTFSceneExportExtension {
 
 type GLTFSceneExportContext = {
   rootEntity: Entity
-  sourceID: string
+  sourceID: SourceID
   buffers: ArrayBuffer[]
   extensionsUsed: Set<string>
   exportExtensions: GLTFSceneExportExtension[]
@@ -231,7 +227,7 @@ type GLTFSceneExportContext = {
 
 export type ExportExtension = GLTFSceneExportExtension
 
-export const defaultExportExtensionList = [SceneDeltaExporterExtension] as (() => ExportExtension)[]
+export const defaultExportExtensionList = [overrideExporterExtension] as (() => ExportExtension)[]
 
 type TypedArrayConstructor =
   | Int8ArrayConstructor
@@ -395,9 +391,7 @@ export async function exportGLTFScene(
 
   const context: GLTFSceneExportContext = {
     rootEntity: entity,
-    sourceID: hasComponent(entity, GLTFComponent)
-      ? GLTFComponent.getInstanceID(entity)
-      : getComponent(entity, SourceComponent),
+    sourceID: GLTFComponent.getSourceID(entity),
     buffers: [] as ArrayBuffer[],
     extensionsUsed: new Set<string>(),
     exportExtensions,
@@ -478,8 +472,7 @@ export async function exportGLTFScene(
 }
 
 const awaitMaterial = (materialEntity: Entity, context: GLTFSceneExportContext) => {
-  const source = getOptionalComponent(materialEntity, SourceComponent)
-  if (source !== context.sourceID) return Promise.resolve(-1)
+  if (getComponent(materialEntity, UUIDComponent).entitySourceID !== context.sourceID) return Promise.resolve(-1)
   return new Promise<number>((resolve) => {
     if (typeof context.materialPromises.value[materialEntity] === 'number')
       return resolve(context.materialPromises.value[materialEntity])
@@ -582,9 +575,8 @@ const exportMesh = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFSceneEx
 
   const materialInstances = getOptionalComponent(entity, MaterialInstanceComponent)
   if (materialInstances) {
-    for (let i = 0; i < materialInstances.uuid.length; i++) {
-      const materialInstance = materialInstances.uuid[i]
-      const materialEntity = UUIDComponent.getEntityByUUID(materialInstance, layer)
+    for (let i = 0; i < materialInstances.entities.length; i++) {
+      const materialEntity = materialInstances.entities[i]
       materialPromises.push(
         new Promise<void>((resolve) => {
           awaitMaterial(materialEntity, context).then((materialIndex) => {
@@ -895,10 +887,14 @@ const exportMaterial = async (
   const cache = context.cache.materials
   if (cache.has(material)) return cache.get(material)!
 
-  const materialEntityUUID = material.uuid as EntityUUID
+  const materialEntityUUID = getComponent(entity, UUIDComponent)
 
   //do not export fallback material
-  if (materialEntityUUID === MaterialStateComponent.fallbackMaterialUUID) return null
+  if (
+    materialEntityUUID.entityID === MaterialStateComponent.fallbackMaterialUUIDPair.entityID &&
+    materialEntityUUID.entitySourceID === MaterialStateComponent.fallbackMaterialUUIDPair.entitySourceID
+  )
+    return null
 
   const materialDef: GLTF.IMaterial = {}
 
@@ -915,34 +911,31 @@ const exportMaterial = async (
 
   if (material.side === DoubleSide) materialDef.doubleSided = true
 
-  const argData = injectMaterialDefaults(materialEntityUUID)
-  if (!argData) {
-    throw new Error('Unsupported material ' + JSON.stringify(material))
-  }
   const result: any = {}
-  for (const [field, value] of Object.entries(argData)) {
-    if (material[field] === null) {
-      delete argData[field]
-      continue
-    }
+  await Promise.all(
+    Object.entries(material).map(async ([field, value]) => {
+      if (value === undefined || value === null) return
+      if (typeof value === 'function') return
 
-    const argEntry = {
-      type: value.type,
-      contents: material[field]
-    }
-    if (value.type === 'texture' && material[field]) {
-      if (field === 'envMap') continue //for skipping environment maps which cause errors
-      if ((material[field] as CubeTexture).isCubeTexture) continue //for skipping environment maps which cause errors
-      const texture = material[field] as Texture
-      const textureIndex = await exportTexture(texture, gltf, context)
-      if (typeof textureIndex !== 'number') continue
-      argEntry.contents = {
-        index: textureIndex,
-        texCoord: texture.channel
+      const argEntry = {
+        type: value.type,
+        contents: value
       }
-    }
-    result[field] = argEntry
-  }
+      const texture = value as Texture
+
+      if (texture.isTexture) {
+        if (field === 'envMap') return //for skipping environment maps which cause errors
+        if ((texture as CubeTexture).isCubeTexture) return //for skipping environment maps which cause errors
+        const textureIndex = await exportTexture(texture, gltf, context)
+        if (typeof textureIndex !== 'number') return
+        argEntry.contents = {
+          index: textureIndex,
+          texCoord: texture.channel
+        }
+      }
+      result[field] = argEntry
+    })
+  )
 
   for (const key in _builtinMaterialDefs) {
     const resultValue = result[key]
@@ -962,15 +955,12 @@ const exportMaterial = async (
     }
   }
 
-  const materialComponent = getComponent(entity, MaterialStateComponent)
-  const prototype = getState(MaterialPrototypeDefinitions)[materialComponent.material.type]
-  //@todo: plugins
-  materialDef.extensions['EE_material'] = {
-    uuid: getComponent(entity, NodeIDComponent),
-    name: getComponent(entity, NameComponent),
-    prototype: prototype.prototypeConstructor.name,
-    args: result,
-    plugins: []
+  const components = getAllComponents(entity)
+  for (const component of components) {
+    if (!component.jsonID) continue
+    if (component === UUIDComponent || component === NameComponent || component === EntityTreeComponent) continue
+    if (materialDef.extensions[component.jsonID]) continue
+    materialDef.extensions[component.jsonID] = serializeComponent(entity, component)
   }
 
   for (const ext in materialDef.extensions) {
@@ -1175,7 +1165,7 @@ const exportEntity = async (
   for (const extension of context.exportExtensions) extension.beforeNode?.(entity)
 
   //ignore entities with no source
-  if (!hasComponent(entity, SourceComponent)) return
+  if (!hasComponent(entity, UUIDComponent)) return
   //ignore material entities as they get exported in exportMesh
   const materialComponent = hasComponent(entity, MaterialStateComponent)
   if (materialComponent) {
@@ -1198,7 +1188,7 @@ const exportEntity = async (
   const childrenIndicies = [] as number[]
   if (children && children.length > 0) {
     for (const child of children) {
-      if (getComponent(child, SourceComponent) !== context.sourceID) continue
+      if (getComponent(child, UUIDComponent).entitySourceID !== context.sourceID) continue
       const childPromise = new Promise<void>((resolve) => {
         exportEntity(child, gltf, context).then((childIndex) => {
           if (typeof childIndex === 'number') childrenIndicies.push(childIndex)
@@ -1243,6 +1233,9 @@ const exportEntity = async (
     //skip components that don't have a jsonID
     if (!component.jsonID) continue
 
+    // skip serializable components we already handle
+    if (component === NameComponent || component === EntityTreeComponent) continue
+
     if (entity === context.rootEntity && component === GLTFComponent) continue
 
     if (component === TransformComponent) {
@@ -1259,7 +1252,8 @@ const exportEntity = async (
     } else {
       const compData = serializeComponent(entity, component)
       // Do we not want to serialize tag components?
-      if (!compData) continue
+      if (compData == null) continue
+
       extensions[component.jsonID] = compData
       context.extensionsUsed.add(component.jsonID)
     }
@@ -1284,7 +1278,11 @@ const _trsRotation = new Quaternion()
 const _trsScale = new Vector3()
 
 const exportAnimations = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFSceneExportContext) => {
-  if (!hasComponent(entity, AnimationComponent) || getOptionalComponent(entity, SourceComponent) !== context.sourceID)
+  if (
+    !hasComponent(entity, AnimationComponent) ||
+    getComponent(entity, UUIDComponent).entitySourceID !== context.sourceID ||
+    (hasComponent(entity, AnimationComponent) && hasComponent(entity, GLTFComponent) && entity !== context.rootEntity)
+  )
     return
 
   const animationsDef = [] as GLTF.IAnimation[]
@@ -1351,7 +1349,7 @@ const exportAnimations = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFS
       samplerDef.input = input
       samplerDef.output = output
 
-      const interpolantFunc = track.createInterpolant as (any) => any
+      const interpolantFunc = (track as any).createInterpolant as (any) => any
       if (interpolantFunc === track.InterpolantFactoryMethodDiscrete) {
         samplerDef.interpolation = 'STEP'
       } else if ((interpolantFunc as any).isInterpolantFactoryMethodGLTFCubicSpline) {

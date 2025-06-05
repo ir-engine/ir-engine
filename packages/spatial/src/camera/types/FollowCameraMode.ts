@@ -19,21 +19,23 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 /** Camera Modes. */
-export enum FollowCameraMode {
-  FirstPerson = 'FirstPerson',
-  ShoulderCam = 'ShoulderCam',
-  ThirdPerson = 'ThirdPerson',
-  TopDown = 'TopDown',
-  Strategic = 'Strategic',
-  Dynamic = 'Dynamic'
+export const FollowCameraMode = {
+  FirstPerson: 'FirstPerson' as const,
+  ShoulderCam: 'ShoulderCam' as const,
+  ThirdPerson: 'ThirdPerson' as const,
+  TopDown: 'TopDown' as const,
+  Strategic: 'Strategic' as const,
+  Dynamic: 'Dynamic' as const
 }
 
-export enum FollowCameraShoulderSide {
-  Left = 'Left',
-  Right = 'Right'
+export type FollowCameraMode = (typeof FollowCameraMode)[keyof typeof FollowCameraMode]
+
+export const FollowCameraShoulderSide = {
+  Left: 'Left' as const,
+  Right: 'Right' as const
 }

@@ -19,30 +19,28 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
+  defineSystem,
   Entity,
   EntityTreeComponent,
+  getComponent,
+  hasComponent,
   PresentationSystemGroup,
   QueryReactor,
   QuerySubReactor,
-  UUIDComponent,
-  defineSystem,
-  getComponent,
-  hasComponent,
   useComponent,
   useEntityContext,
-  useOptionalComponent
+  UUIDComponent,
+  WorldNetworkAction
 } from '@ir-engine/ecs'
-import { dispatchAction, useHookstate } from '@ir-engine/hyperflux'
-import { NetworkState, ScenePeer, SceneUser, WorldNetworkAction } from '@ir-engine/network'
+import { dispatchAction, NetworkState, ScenePeer, SceneUser, useHookstate } from '@ir-engine/hyperflux'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import React, { useEffect } from 'react'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { SourceComponent } from '../components/SourceComponent'
 
 /**
  * For p2p networking, entities need to be spawned deterministically for the scene to be consistent across peers, since there is no host.
@@ -51,10 +49,10 @@ import { SourceComponent } from '../components/SourceComponent'
 const SourcedEntityReactor = () => {
   const entity = useEntityContext()
   const parentEntity = useComponent(entity, EntityTreeComponent).parentEntity.value
-  const parentUUID = useOptionalComponent(parentEntity, UUIDComponent)?.value
+  const parentUUID = UUIDComponent.use(parentEntity)
 
   useEffect(() => {
-    const entityUUID = getComponent(entity, UUIDComponent)
+    const entityUUID = UUIDComponent.get(entity)
     return () => {
       dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID }))
     }
@@ -66,7 +64,8 @@ const SourcedEntityReactor = () => {
     dispatchAction(
       WorldNetworkAction.spawnEntity({
         ownerID: SceneUser,
-        entityUUID,
+        entityID: entityUUID.entityID,
+        entitySourceID: entityUUID.entitySourceID,
         parentUUID,
         $network: undefined,
         $topic: undefined,
@@ -83,8 +82,8 @@ const filterSpatialEntities = (entity: Entity) => hasComponent(entity, EntityTre
 
 const SourcedSceneReactor = () => {
   const entity = useEntityContext()
-  const sourceID = useComponent(entity, SourceComponent).value
-  const sourcedEntities = SourceComponent.useEntitiesBySource(sourceID)
+  const sourceID = UUIDComponent.getAsSourceID(entity)
+  const sourcedEntities = UUIDComponent.useEntitiesBySource(sourceID)
 
   return (
     <>
@@ -95,10 +94,13 @@ const SourcedSceneReactor = () => {
   )
 }
 
+/**
+ * @todo - we only want one level of depth currently, not each entity in nested models
+ */
 const SceneReactor = () => {
   const entity = useEntityContext()
-  const source = GLTFComponent.useInstanceID(entity)
-  const sourcedEntities = SourceComponent.useEntitiesBySource(source)
+  const sourceID = UUIDComponent.getAsSourceID(entity)
+  const sourcedEntities = UUIDComponent.useEntitiesBySource(sourceID)
 
   return (
     <>
@@ -114,7 +116,7 @@ const reactor = () => {
 
   if (!ready) return null
 
-  return <QueryReactor ChildEntityReactor={SceneReactor} Components={[SceneComponent, GLTFComponent]} />
+  return <QueryReactor ChildEntityReactor={SourcedSceneReactor} Components={[SceneComponent, GLTFComponent]} />
 }
 
 export const SceneNetworkSystem = defineSystem({

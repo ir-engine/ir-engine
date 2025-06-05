@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -38,14 +38,14 @@ import TexturePreviewInput from '../../input/Texture'
 
 /**@TODO this should be looking up values from material prototype definitions to avoid incorrectly typed fields */
 export default function ParameterInput({
-  entity,
+  path,
   values,
   onChange,
   defaults,
   thumbnails,
   ...rest
 }: {
-  entity: string
+  path: string
   values: object
   defaults?: object
   thumbnails?: Record<string, string>
@@ -100,34 +100,34 @@ export default function ParameterInput({
 12: "object"
 13: "list"
 14: "entity"*/
+  const valuesWithDefaults = {
+    ...Object.fromEntries(Object.entries(_defaults).map(([k, v]) => [k, v.default])),
+    ...values
+  }
+
   return (
     <>
       {Object.entries(_defaults).map(([k, parms]: [string, any]) => {
-        const compKey = `${entity}-${k}`
+        const compKey = `${path}-${k}`
         return (
           <InputGroup key={compKey} name={k} label={camelCaseToSpacedString(capitalizeFirstLetter(k))}>
             {(() => {
-              if (!(k in values)) {
-                console.warn(`Key "${k}" not found in ParameterInput values object`)
-                return null
-              }
-
               switch (parms.type) {
                 case 'boolean':
-                  return <Checkbox checked={values[k]} onChange={setArgsProp(k)} />
+                  return <Checkbox checked={valuesWithDefaults[k]} onChange={setArgsProp(k)} />
                 case 'entity':
                 case 'integer':
                 case 'float':
-                  return <NumericInput value={values[k]} onChange={setArgsProp(k)} />
+                  return <NumericInput value={valuesWithDefaults[k]} onChange={setArgsProp(k)} />
                 case 'string':
-                  return <StringInput value={values[k]} onChange={setArgsProp(k)} />
+                  return <StringInput value={valuesWithDefaults[k]} onChange={setArgsProp(k)} />
                 case 'color':
-                  return <ColorInput value={values[k]} onChange={setArgsProp(k)} />
+                  return <ColorInput value={valuesWithDefaults[k]} onChange={setArgsProp(k)} />
                 case 'texture':
                   return (
                     <TexturePreviewInput
                       preview={thumbnails?.[k]}
-                      value={values[k]}
+                      value={valuesWithDefaults[k]}
                       onRelease={setArgsProp(k)}
                       onModify={onModify}
                     />
@@ -136,15 +136,15 @@ export default function ParameterInput({
                 case 'vec3':
                 case 'vec4':
                   return (
-                    typeof values[k]?.map === 'function' &&
-                    (values[k] as number[]).map((arrayVal, idx) => (
+                    typeof valuesWithDefaults[k]?.map === 'function' &&
+                    (valuesWithDefaults[k] as number[]).map((arrayVal, idx) => (
                       <NumericInput key={`${compKey}-${idx}`} value={arrayVal} onChange={setArgsArrayProp(k, idx)} />
                     ))
                   )
                 case 'select':
                   return (
                     <SelectInput
-                      value={values[k]}
+                      value={valuesWithDefaults[k]}
                       options={JSON.parse(JSON.stringify(parms.options))}
                       onChange={setArgsProp(k)}
                     />
@@ -152,8 +152,8 @@ export default function ParameterInput({
                 case 'object':
                   return (
                     <ParameterInput
-                      entity={compKey}
-                      values={values[k]}
+                      path={compKey}
+                      values={valuesWithDefaults[k]}
                       onChange={setArgsObjectProp(k)}
                       defaults={parms.default}
                     />

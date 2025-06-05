@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -35,10 +35,10 @@ import { ReactorReconciler, ReactorRoot } from './ReactorFunctions'
 import { setInitialState, StateDefinitions } from './StateFunctions'
 import { HyperFlux } from './StoreFunctions'
 
-const matchesPeerID = matches.string as Validator<unknown, PeerID>
-
 export { matches, Validator } from 'ts-matches'
-export { matchesPeerID }
+
+export const matchesUserID = matches.string as Validator<unknown, UserID>
+export const matchesPeerID = matches.string as Validator<unknown, PeerID>
 
 export type Topic = OpaqueType<'Topic'> & string
 

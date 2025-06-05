@@ -87,8 +87,8 @@ describe('VisibleComponent', () => {
     it('should serialize the component data as expected', () => {
       setComponent(testEntity, VisibleComponent)
       const result = serializeComponent(testEntity, VisibleComponent)
-      assert.equal(typeof result, 'boolean')
-      assert.equal(result, true)
+      assert.equal(typeof result, 'object')
+      assert.equal(Object.keys(result).length, 0)
     })
   }) //:: toJSON
 }) //:: VisibleComponent

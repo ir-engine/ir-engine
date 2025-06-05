@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025 
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -57,7 +57,7 @@ const handleOEmbedRequest = async (app: Application, project: ProjectType, url: 
       },
       pagination: false
     } as any)) as any as LocationType[]
-    if (locationResult.length === 0) throw new BadRequest('Invalid location name')
+    if (locationResult.length === 0) throw new BadRequest('Invalid Published Space Name')
     const scene = (await app.service(staticResourcePath).get(locationResult[0].sceneId)) as StaticResourceType
     currentOEmbed.title = `${locationResult[0].name} - ${currentOEmbed.title}`
     currentOEmbed.description = `Join others in VR at ${locationResult[0].name}, directly from the web browser`
@@ -111,7 +111,8 @@ const config = {
     await createLocations(app, manifestJson.name, {
       apartment: 'public/scenes/apartment.gltf',
       default: 'public/scenes/default.gltf',
-      ['sky-station']: 'public/scenes/sky-station.gltf'
+      ['sky-station']: 'public/scenes/sky-station.gltf',
+      test: 'public/scenes/test.gltf'
     })
 
     await activateRoute(app.service(routePath))({

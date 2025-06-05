@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -29,7 +29,6 @@ import { Color } from 'three'
 import {
   ColorGeneratorJSON,
   ColorGeneratorJSONDefaults,
-  ColorGradientFunctionJSON,
   ColorGradientJSON,
   ColorJSON,
   ColorRangeJSON,
@@ -121,15 +120,14 @@ export default function ColorGenerator({
     )
   }, [scope])
 
-  const onRemoveGradient = useCallback((element: State<ColorGradientFunctionJSON>) => {
+  const onRemoveGradient = (index: number) => {
     const gradientScope = scope as State<ColorGradientJSON>
     const gradient = gradientScope.value
     const thisOnChange = onChange(path + '.functions')
-    return () => {
-      const nuFunctions = gradient.functions.filter((item) => item !== element.value)
-      thisOnChange(JSON.parse(JSON.stringify(nuFunctions)))
-    }
-  }, [])
+    const nuFunctions = [...gradient.functions]
+    nuFunctions.splice(index, 1)
+    thisOnChange(JSON.parse(JSON.stringify(nuFunctions)))
+  }
 
   const GradientInput = useCallback(() => {
     const gradientScope = scope as State<ColorGradientJSON>
@@ -169,7 +167,7 @@ export default function ColorGenerator({
             <div className="flex flex-col">
               <div className="flex items-center gap-x-1">
                 <Text fontSize="xs">Start</Text>
-                <NumericInput value={item.start} onChange={onChange(path + '.functions[' + index + '].start')} />
+                <NumericInput value={item.start} onChange={onChange(path + '.functions.' + index + '.start')} />
               </div>
 
               <div className="flex items-center gap-x-1">
@@ -177,7 +175,7 @@ export default function ColorGenerator({
                 <div className="col-span-1 grid">
                   <ColorJSONInput
                     value={item.function.a}
-                    onChange={onChange(path + '.functions[' + index + '].function.a')}
+                    onChange={onChange(path + '.functions.' + index + '.function.a')}
                   />
                 </div>
               </div>
@@ -187,12 +185,12 @@ export default function ColorGenerator({
                 <div className="col-span-1 grid">
                   <ColorJSONInput
                     value={item.function.b}
-                    onChange={onChange(path + '.functions[' + index + '].function.b')}
+                    onChange={onChange(path + '.functions.' + index + '.function.b')}
                   />
                 </div>
               </div>
             </div>
-            <Button onClick={onRemoveGradient(gradientScope.functions[index])}>Remove</Button>
+            <Button onClick={() => onRemoveGradient(index)}>Remove</Button>
           </div>
         ))}
       </div>

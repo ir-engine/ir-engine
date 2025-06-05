@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -30,7 +30,7 @@ import { Tooltip } from '@ir-engine/ui'
 import React from 'react'
 import { LuInfo } from 'react-icons/lu'
 
-export const UserLastLoginInfo = (userId) => {
+export const UserLastLoginInfo = ({ userId }) => {
   const login = useFind(userLoginPath, {
     query: {
       userId: userId,

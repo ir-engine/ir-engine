@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -28,16 +28,29 @@ import React from 'react'
 import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/ModelTransform'
 import { State } from '@ir-engine/hyperflux'
 import { Checkbox, Input, Select } from '@ir-engine/ui'
+import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 
-function CheckBoxParam({ label, state }: { label: string; state: State<boolean> }) {
+function CheckBoxParam({
+  className,
+  label,
+  info,
+  state
+}: {
+  className?: string
+  label: string
+  info?: string
+  state: State<boolean>
+}) {
   return (
-    <div className={twMerge('my-2.5 grid grid-cols-4 items-center gap-x-2')}>
+    <div className={twMerge(`my-2.5 grid grid-cols-4 items-center gap-x-2 ${className ?? ''}`)}>
       <div className="col-span-1 col-start-2 text-right">
-        <Text fontSize="xs">{label}</Text>
+        <InputGroup label={label} info={info}>
+          <div></div>
+        </InputGroup>
       </div>
 
       <div className="col-span-2 col-start-3">
@@ -54,19 +67,26 @@ function CheckBoxParam({ label, state }: { label: string; state: State<boolean> 
 
 function TextParam({
   label,
+  info,
   state,
   parseFunction = (value: string) => value
 }: {
   label: string
+  info?: string
   state: State<string | number>
   parseFunction?: (value: string) => string | number
 }) {
   return (
     <div className="my-1 grid grid-cols-4 items-center gap-x-2">
       <div className="col-span-1 col-start-2 text-right">
-        <Text fontWeight="medium" fontSize="xs">
-          {label}
-        </Text>
+        <InputGroup
+          label={label}
+          // fontWeight="medium"
+          // fontSize="xs"
+          info={info}
+        >
+          <div></div>
+        </InputGroup>
       </div>
 
       <div className="col-span-2 col-start-3">
@@ -96,26 +116,20 @@ export default function GLTFTransformProperties({
         {itemCount === 1 && (
           <div className="mb-6 grid grid-cols-4 gap-2 border-b  pb-6">
             <div className="col-span-1 flex flex-col justify-around gap-y-2">
-              <Text
-                fontSize="xs"
-                fontWeight="medium"
-                className="block px-2 py-0.5 text-right leading-[1.125rem] "
-                style={{
-                  textWrap: 'nowrap' // tailwind class is not working
-                }}
+              <InputGroup
+                label={t('editor:properties.model.transform.dst')}
+                className="block px-2 py-0.5 text-right leading-[1.125rem]"
+                info={t('editor:properties.model.transform.info-dst')}
               >
-                {t('editor:properties.model.transform.dst')}
-              </Text>
-              <Text
-                fontSize="xs"
-                fontWeight="medium"
-                className="px-2 py-0.5 text-right leading-[1.125rem] "
-                style={{
-                  textWrap: 'nowrap' // tailwind class is not working
-                }}
+                <div></div>
+              </InputGroup>
+              <InputGroup
+                label={t('editor:properties.model.transform.resourceUri')}
+                className="px-2 py-0.5 text-right leading-[1.125rem]"
+                info={t('editor:properties.model.transform.info-resourceUri')}
               >
-                {t('editor:properties.model.transform.resourceUri')}
-              </Text>
+                <div></div>
+              </InputGroup>
             </div>
             <div className="col-span-3 flex flex-col justify-around gap-y-2">
               <Input
@@ -156,9 +170,12 @@ export default function GLTFTransformProperties({
         <Accordion title="Materials">
           <div className="my-1 grid grid-cols-4 items-center gap-x-2">
             <div className="col-span-1 col-start-2 text-right">
-              <Text fontWeight="medium" fontSize="xs">
-                {t('editor:properties.model.transform.textureFormat')}
-              </Text>
+              <InputGroup
+                label={t('editor:properties.model.transform.textureFormat')}
+                info={t('editor:properties.model.transform.info-textureFormat')}
+              >
+                <div></div>
+              </InputGroup>
             </div>
 
             <div className="col-span-2 col-start-3">
@@ -181,27 +198,33 @@ export default function GLTFTransformProperties({
 
           <TextParam
             label={t('editor:properties.model.transform.maxTextureSize')}
+            info={t('editor:properties.model.transform.info-maxTextureSize')}
             state={transformParms.maxTextureSize}
             parseFunction={parseInt}
           />
 
           <TextParam
             label={t('editor:properties.model.transform.simplifyRatio')}
+            info={t('editor:properties.model.transform.info-simplifyRatio')}
             state={transformParms.simplifyRatio}
             parseFunction={parseFloat}
           />
 
           <TextParam
             label={t('editor:properties.model.transform.simplifyErrorThreshold')}
+            info={t('editor:properties.model.transform.info-simplifyErrorThreshold')}
             state={transformParms.simplifyErrorThreshold}
             parseFunction={parseFloat}
           />
 
           <div className="my-1 grid grid-cols-4 items-center gap-x-2">
             <div className="col-span-1 col-start-2 text-right">
-              <Text fontWeight="medium" fontSize="xs">
-                {t('editor:properties.model.transform.textureCompressionType')}
-              </Text>
+              <InputGroup
+                label={t('editor:properties.model.transform.textureCompressionType')}
+                info={t('editor:properties.model.transform.info-textureCompressionType')}
+              >
+                <div></div>
+              </InputGroup>
             </div>
 
             <div className="col-span-2 col-start-3">
@@ -221,60 +244,111 @@ export default function GLTFTransformProperties({
 
           <TextParam
             label={t('editor:properties.model.transform.ktx2Quality')}
+            info={t('editor:properties.model.transform.info-ktx2Quality')}
             state={transformParms.textureCompressionQuality}
             parseFunction={parseFloat}
           />
 
-          <CheckBoxParam label={t('editor:properties.model.transform.split')} state={transformParms.split} />
+          <CheckBoxParam
+            label={t('editor:properties.model.transform.split')}
+            info={t('editor:properties.model.transform.info-split')}
+            state={transformParms.split}
+          />
 
           <CheckBoxParam
             label={t('editor:properties.model.transform.combineMaterials')}
+            info={t('editor:properties.model.transform.info-combineMaterials')}
             state={transformParms.combineMaterials}
           />
 
           <CheckBoxParam
             label={t('editor:properties.model.transform.palette')}
+            info={t('editor:properties.model.transform.info-palette')}
             state={transformParms.palette.enabled}
           />
 
-          <CheckBoxParam label={t('editor:properties.model.transform.flipY')} state={transformParms.flipY} />
+          <CheckBoxParam
+            label={t('editor:properties.model.transform.flipY')}
+            info={t('editor:properties.model.transform.info-flipY')}
+            state={transformParms.flipY}
+          />
 
-          <CheckBoxParam label={t('editor:properties.model.transform.linear')} state={transformParms.linear} />
+          <CheckBoxParam
+            label={t('editor:properties.model.transform.linear')}
+            info={t('editor:properties.model.transform.info-linear')}
+            state={transformParms.linear}
+          />
 
-          <CheckBoxParam label={t('editor:properties.model.transform.mipmaps')} state={transformParms.mipmap} />
+          <CheckBoxParam
+            label={t('editor:properties.model.transform.mipmaps')}
+            info={t('editor:properties.model.transform.info-mipmaps')}
+            state={transformParms.mipmap}
+          />
         </Accordion>
 
         <Accordion title="Meshes">
-          <CheckBoxParam label={t('editor:properties.model.transform.instance')} state={transformParms.instance} />
+          <CheckBoxParam
+            label={t('editor:properties.model.transform.instance')}
+            info={t('editor:properties.model.transform.info-instance')}
+            state={transformParms.instance}
+          />
 
-          <CheckBoxParam label={t('editor:properties.model.transform.join')} state={transformParms.join.enabled} />
+          <CheckBoxParam
+            label={t('editor:properties.model.transform.join')}
+            info={t('editor:properties.model.transform.info-join')}
+            state={transformParms.join.enabled}
+          />
 
           <CheckBoxParam
             label={t('editor:properties.model.transform.weldVertices')}
+            info={t('editor:properties.model.transform.info-weldVertices')}
             state={transformParms.weld.enabled}
           />
 
           <CheckBoxParam
             label={t('editor:properties.model.transform.useMeshoptimizer')}
+            info={t('editor:properties.model.transform.info-useMeshoptimizer')}
             state={transformParms.meshoptCompression.enabled}
           />
 
           <CheckBoxParam
+            className={'text-nowrap'}
             label={t('editor:properties.model.transform.useDraco')}
+            info={t('editor:properties.model.transform.info-useDraco')}
             state={transformParms.dracoCompression.enabled}
           />
         </Accordion>
 
         <Accordion title="Scene">
-          <CheckBoxParam label={t('editor:properties.model.transform.removeDuplicates')} state={transformParms.dedup} />
-          <CheckBoxParam label={t('editor:properties.model.transform.flatten')} state={transformParms.flatten} />
-          <CheckBoxParam label={t('editor:properties.model.transform.pruneUnused')} state={transformParms.prune} />
-          <CheckBoxParam label={t('editor:properties.model.transform.reorder')} state={transformParms.reorder} />
+          <CheckBoxParam
+            label={t('editor:properties.model.transform.removeDuplicates')}
+            info={t('editor:properties.model.transform.info-removeDuplicates')}
+            state={transformParms.dedup}
+          />
+
+          <CheckBoxParam
+            label={t('editor:properties.model.transform.flatten')}
+            info={t('editor:properties.model.transform.info-flatten')}
+            state={transformParms.flatten}
+          />
+
+          <CheckBoxParam
+            label={t('editor:properties.model.transform.pruneUnused')}
+            info={t('editor:properties.model.transform.info-pruneUnused')}
+            state={transformParms.prune}
+          />
+
+          <CheckBoxParam
+            label={t('editor:properties.model.transform.reorder')}
+            info={t('editor:properties.model.transform.info-reorder')}
+            state={transformParms.reorder}
+          />
         </Accordion>
 
         <Accordion title="Animation">
           <CheckBoxParam
             label={t('editor:properties.model.transform.resampleAnimations')}
+            info={t('editor:properties.model.transform.info-resampleAnimations')}
             state={transformParms.resample}
           />
         </Accordion>

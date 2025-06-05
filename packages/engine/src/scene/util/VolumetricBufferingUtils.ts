@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -28,6 +28,7 @@ import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import { MutableRefObject } from 'react'
 import {
+  BufferAttribute,
   BufferGeometry,
   CompressedTexture,
   InterleavedBufferAttribute,
@@ -93,7 +94,7 @@ export const bufferLimits = {
   }
 }
 
-interface fetchProps {
+interface FetchProps {
   manifest: OldManifestSchema | ManifestSchema | Record<string, never>
   manifestPath: string
   currentTimeInMS: number
@@ -102,7 +103,7 @@ interface fetchProps {
   startTimeInMS: number
 }
 
-interface fetchGeometryProps extends fetchProps {
+interface FetchGeometryProps extends FetchProps {
   geometryType: GeometryType
   geometryBuffer: Map<string, (Mesh<BufferGeometry, Material> | BufferGeometry | KeyframeAttribute)[]>
   mesh: Mesh<BufferGeometry, ShaderMaterial>
@@ -124,7 +125,7 @@ export const fetchGeometry = ({
   startTimeInMS,
   repeat,
   offset
-}: fetchGeometryProps) => {
+}: FetchGeometryProps) => {
   if (Object.keys(manifest).length === 0) return
   const currentTime = currentTimeInMS * (TIME_UNIT_MULTIPLIER / 1000)
   const nextMissing = bufferData.getNextMissing(currentTime)
@@ -333,7 +334,7 @@ export const fetchGeometry = ({
               mesh.geometry.index.needsUpdate = true
             }
 
-            mesh.geometry.morphAttributes = {}
+            mesh.geometry.morphAttributes = {} as Record<string, (BufferAttribute | InterleavedBufferAttribute)[]>
             mesh.morphTargetDictionary = undefined
             mesh.morphTargetInfluences = undefined
           }
@@ -358,7 +359,7 @@ export const fetchGeometry = ({
   }
 }
 
-interface deleteUsedGeometryBuffersProps {
+interface DeleteUsedGeometryBuffersProps {
   currentTimeInMS: number
   bufferData?: BufferDataContainer
   geometryType: GeometryType
@@ -378,7 +379,7 @@ export const deleteUsedGeometryBuffers = ({
   frameRate,
   mesh,
   clearAll = false
-}: deleteUsedGeometryBuffersProps) => {
+}: DeleteUsedGeometryBuffersProps) => {
   if (geometryType === GeometryType.Corto || geometryType === GeometryType.Draco) {
     let _frameRate = frameRate || 1
 
@@ -470,7 +471,7 @@ export const deleteUsedGeometryBuffers = ({
   }
 }
 
-interface fetchTextureProps extends fetchProps {
+interface FetchTextureProps extends FetchProps {
   textureType: TextureType
   textureBuffer: Map<string, CompressedTexture[]>
   textureFormat: TextureFormat
@@ -489,7 +490,7 @@ export const fetchTextures = ({
   textureFormat,
   initialBufferLoaded,
   startTimeInMS
-}: fetchTextureProps) => {
+}: FetchTextureProps) => {
   const currentTime = currentTimeInMS * (TIME_UNIT_MULTIPLIER / 1000)
 
   const nextMissing = bufferData.getNextMissing(currentTime)
@@ -574,7 +575,7 @@ export const fetchTextures = ({
   }
 }
 
-interface deleteUsedTextureBuffersProps {
+interface DeleteUsedTextureBuffersProps {
   currentTimeInMS: number
   bufferData?: BufferDataContainer
   textureBuffer: Map<string, CompressedTexture[]>
@@ -590,7 +591,7 @@ export const deleteUsedTextureBuffers = ({
   textureType,
   targetData,
   clearAll = false
-}: deleteUsedTextureBuffersProps) => {
+}: DeleteUsedTextureBuffersProps) => {
   for (const [target, collection] of textureBuffer) {
     if (!collection || !targetData || !targetData[target]) {
       continue

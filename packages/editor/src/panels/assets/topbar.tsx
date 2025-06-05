@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -87,20 +87,22 @@ export function AssetsBreadcrumbs() {
   }
 
   return (
-    <div className="flex items-center gap-2" data-testid="assets-panel-breadcrumbs">
+    <div className="grid grid-cols-[auto_auto] items-center gap-2" data-testid="assets-panel-breadcrumbs">
       <FolderSm onClick={() => handleSelectParentCategory(0)} className="text-base text-text-secondary" />
-      {breadcrumbTrail.map((category, idx) => (
-        <div key={category.path} className="flex items-center">
-          <span
-            className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-base text-text-secondary"
-            data-testid={`assets-panel-breadcrumb-nested-level-${idx}`}
-            onClick={() => handleSelectParentCategory(idx)}
-          >
-            {category.name}
-          </span>
-          {idx < breadcrumbTrail.length - 1 && <BreadCrumbSlash />}
-        </div>
-      ))}
+      <div className="flex w-full items-center gap-2 overflow-x-auto">
+        {breadcrumbTrail.map((category, idx) => (
+          <div key={category.path} className="flex items-center">
+            <span
+              className="cursor-pointer whitespace-nowrap text-base text-text-secondary"
+              data-testid={`assets-panel-breadcrumb-nested-level-${idx}`}
+              onClick={() => handleSelectParentCategory(idx)}
+            >
+              {category.name}
+            </span>
+            {idx < breadcrumbTrail.length - 1 && <BreadCrumbSlash />}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
@@ -159,7 +161,12 @@ export default function Topbar() {
         </Tooltip>
       }
       uploadButton={
-        <Button size="l" data-testid="assets-panel-upload-button" onClick={() => uploadFiles().then(handleRefresh)}>
+        <Button
+          variant="tertiary"
+          size="l"
+          data-testid="assets-panel-upload-button"
+          onClick={() => uploadFiles().then(handleRefresh)}
+        >
           <PlusCircleSm />
           <span className="text-nowrap">{t('editor:layout.filebrowser.uploadAssets')}</span>
         </Button>

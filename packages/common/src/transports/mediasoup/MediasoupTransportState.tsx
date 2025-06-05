@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -33,14 +33,16 @@ import {
   isClient,
   matches,
   matchesPeerID,
+  Network,
+  NetworkActions,
   NetworkID,
+  NetworkState,
   none,
   PeerID,
   useHookstate,
   useMutableState,
   Validator
 } from '@ir-engine/hyperflux'
-import { Network, NetworkActions, NetworkState } from '@ir-engine/network'
 
 export class MediasoupTransportActions {
   static requestTransport = defineAction({

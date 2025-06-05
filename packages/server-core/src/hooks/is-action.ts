@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -30,7 +30,8 @@ export default (...params: string[]) => {
   return (hook: HookContext): boolean => {
     return (
       (hook.params?.query && args.includes(hook.params.query.action)) ||
-      (hook.params?.actualQuery && args.includes(hook.params.actualQuery.action))
+      (hook.params?.actualQuery && args.includes(hook.params.actualQuery.action)) ||
+      (hook.data?.action && args.includes(hook.data.action))
     )
   }
 }

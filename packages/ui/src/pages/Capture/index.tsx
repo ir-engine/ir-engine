@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -34,6 +34,7 @@ import { useResizableVideoCanvas } from '@ir-engine/client-core/src/hooks/useRes
 import { useScrubbableVideo } from '@ir-engine/client-core/src/hooks/useScrubbableVideo'
 import { CaptureClientSettingsState } from '@ir-engine/client-core/src/media/CaptureClientSettingsState'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
+import { SocketWebRTCClientNetwork } from '@ir-engine/client-core/src/transports/mediasoup/MediasoupClientFunctions'
 import { useGet } from '@ir-engine/common'
 import {
   ECSRecordingActions,
@@ -55,6 +56,8 @@ import {
   mocapDataChannelType
 } from '@ir-engine/engine/src/mocap/MotionCaptureSystem'
 import {
+  MediaStreamState,
+  NetworkState,
   defineState,
   dispatchAction,
   getMutableState,
@@ -63,17 +66,14 @@ import {
   useHookstate,
   useMutableState
 } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { useVideoFrameCallback } from '@ir-engine/spatial/src/common/functions/useVideoFrameCallback'
 import { useEngineCanvas } from '@ir-engine/spatial/src/renderer/functions/useEngineCanvas'
 import Header from '@ir-engine/ui/src/components/tailwind/Header'
 import RecordingsList from '@ir-engine/ui/src/components/tailwind/RecordingList'
 import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 import Video from '@ir-engine/ui/src/primitives/tailwind/Video'
 
-import { SocketWebRTCClientNetwork } from '@ir-engine/client-core/src/transports/mediasoup/MediasoupClientFunctions'
-import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
-import { ReferenceSpaceState } from '@ir-engine/spatial'
-import { useVideoFrameCallback } from '@ir-engine/spatial/src/common/functions/useVideoFrameCallback'
 import { Slider } from '../../../editor'
 import Button from '../../primitives/tailwind/Button'
 

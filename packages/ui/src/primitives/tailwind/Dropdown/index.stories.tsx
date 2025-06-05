@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -28,7 +28,7 @@ import { HiMiniRocketLaunch } from 'react-icons/hi2'
 import { DropdownItem, DropdownItemProps } from './index'
 
 export default {
-  title: 'Components/Editor/DropdownList',
+  title: 'Primitives/Tailwind/Dropdown Item',
   parameters: {
     componentSubtitle: 'Dropdown',
     design: {
@@ -48,7 +48,6 @@ const DropdownItemRenderer = (args: DropdownItemProps) => {
 }
 
 export const DropdownItemStory = {
-  name: 'Dropdown Item',
   render: DropdownItemRenderer,
   args: {
     label: 'Account settings',

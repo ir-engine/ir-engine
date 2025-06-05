@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -77,7 +77,7 @@ export function flattenObjectToArray(obj: Record<string, any>, parentKey: string
           }
         })
       } else if (typeof currentObj[key] === 'boolean') {
-        result.push({ key: fullPath, value: currentObj[key], dataType: getDataType(currentObj[key]) })
+        result.push({ key: fullPath, value: `${currentObj[key]}`, dataType: getDataType(currentObj[key]) })
       } else {
         result.push({ key: fullPath, value: currentObj[key], dataType: getDataType(currentObj[key]) })
       }
@@ -134,7 +134,7 @@ export function unflattenArrayToObject(flattenedArray: FlattenedEntry[]): Record
     }
 
     const lastKey = keys[keys.length - 1]
-    current[lastKey] = parseValue(value, dataType as EngineSettingType['dataType']) // Use parseValue to parse the value based on dataType
+    current[lastKey] = parseValue(`${value}`, dataType as EngineSettingType['dataType']) // Use parseValue to parse the value based on dataType
   })
 
   return result

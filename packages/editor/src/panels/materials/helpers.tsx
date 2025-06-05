@@ -19,16 +19,15 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import { API } from '@ir-engine/common'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { EntityUUID, Layers, UUIDComponent } from '@ir-engine/ecs'
+import { Entity, EntityUUID, Layers, UUIDComponent } from '@ir-engine/ecs'
 import exportMaterialsGLTF from '@ir-engine/engine/src/assets/functions/exportMaterialsGLTF'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
-import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
 import React, { useEffect, useRef } from 'react'
 import { FixedSizeList, ListProps } from 'react-window'
@@ -42,8 +41,8 @@ export function FixedSizeListWrapper({
   nodes,
   children
 }: {
-  nodes: readonly EntityUUID[]
-  children: ListProps<{ nodes: EntityUUID[] }>['children']
+  nodes: readonly Entity[]
+  children: ListProps<{ nodes: Entity[] }>['children']
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const listDimensions = useHookstate({
@@ -81,9 +80,8 @@ export function FixedSizeListWrapper({
   )
 }
 
-export async function saveMaterial(sourcePath: string) {
+export async function saveMaterial(sourcePath: string, materialUUID: EntityUUID) {
   const projectName = getState(EditorState).projectName!
-  const materialUUID = getState(MaterialSelectionState).selectedMaterial ?? ('' as EntityUUID)
   if (!sourcePath.endsWith('.material.gltf')) {
     sourcePath += '.material.gltf'
   }

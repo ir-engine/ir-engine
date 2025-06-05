@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -39,8 +39,18 @@ import { decode } from 'msgpackr'
 import os from 'os'
 
 import { API } from '@ir-engine/common'
-import { dispatchAction, getMutableState, getState, Identifiable, none, PeerID, State } from '@ir-engine/hyperflux'
-import { DataChannelRegistryState, DataChannelType, NetworkState } from '@ir-engine/network'
+import {
+  DataChannelRegistryState,
+  DataChannelType,
+  dispatchAction,
+  getMutableState,
+  getState,
+  Identifiable,
+  NetworkState,
+  none,
+  PeerID,
+  State
+} from '@ir-engine/hyperflux'
 import config from '@ir-engine/server-core/src/appconfig'
 import { config as mediaConfig, sctpParameters } from '@ir-engine/server-core/src/config'
 import multiLogger from '@ir-engine/server-core/src/ServerLogger'

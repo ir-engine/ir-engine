@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -27,14 +27,12 @@ import React, { useEffect } from 'react'
 
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, NetworkState, useHookstate } from '@ir-engine/hyperflux'
 
-import { useHookstate } from '@hookstate/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { EngineState, QueryReactor, setComponent, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
 import { OverlayComponent } from '@ir-engine/engine/src/scene/components/OverlayComponent'
-import { NetworkState } from '@ir-engine/network'
 import { ModalState } from '../common/services/ModalState'
 import { InviteService } from '../social/services/InviteService'
 import { LoadingUISystemState } from '../systems/LoadingUISystem'

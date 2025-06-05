@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 import { useMemo } from 'react'
@@ -32,15 +32,15 @@ import { GraphTemplate, VisualScriptState } from '@ir-engine/visual-script'
 import { useSelectionHandler } from './useSelectionHandler'
 import { useVisualScriptFlow } from './useVisualScriptFlow'
 
-type selectionHandler = ReturnType<typeof useSelectionHandler>
-type visualScriptFlow = ReturnType<typeof useVisualScriptFlow>
+type SelectionHandler = ReturnType<typeof useSelectionHandler>
+type VisualScriptFlow = ReturnType<typeof useVisualScriptFlow>
 export const useTemplateHandler = ({
   selectedNodes,
   selectedEdges,
   pasteNodes,
   onNodesChange
-}: Pick<selectionHandler, 'pasteNodes'> &
-  Pick<visualScriptFlow, 'onNodesChange'> & {
+}: Pick<SelectionHandler, 'pasteNodes'> &
+  Pick<VisualScriptFlow, 'onNodesChange'> & {
     selectedNodes: Node[]
     selectedEdges: Edge[]
   }) => {

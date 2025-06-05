@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -28,19 +28,20 @@ import { decode, encode } from 'msgpackr'
 import { useEffect } from 'react'
 import { Quaternion } from 'three'
 
-import { ECSState } from '@ir-engine/ecs'
+import { ECSState, RingBuffer } from '@ir-engine/ecs'
 import { getComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { PeerID, getState, isClient } from '@ir-engine/hyperflux'
 import {
   DataChannelType,
   Network,
   NetworkState,
+  PeerID,
   addDataChannelHandler,
+  getState,
+  isClient,
   removeDataChannelHandler
-} from '@ir-engine/network'
-import { RingBuffer } from '@ir-engine/network/src/functions/RingBuffer'
+} from '@ir-engine/hyperflux'
 
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'

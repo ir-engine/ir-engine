@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -35,9 +35,9 @@ const sizes = {
 
 const variants = {
   primary:
-    'bg-ui-primary text-text-primary-button hover:bg-ui-hover-primary focus:bg-ui-select-primary disabled:bg-ui-inactive-primary disabled:text-text-inactive',
+    'bg-ui-primary text-text-primary-button hover:bg-ui-hover-primary focus:bg-ui-select-primary disabled:bg-ui-inactive-primary dark:disabled:text-text-inactive disabled:text-white',
   secondary:
-    'bg-ui-secondary text-text-primary-button hover:bg-ui-hover-secondary focus:bg-ui-select-secondary disabled:bg-ui-inactive-secondary disabled:text-text-inactive',
+    'bg-[#4D84BF33] dark:bg-ui-secondary text-ui-primary dark:text-text-primary-button hover:bg-ui-hover-secondary hover:text-text-primary-button focus:bg-ui-select-secondary disabled:bg-ui-inactive-secondary disabled:text-text-inactive',
   tertiary:
     'text-text-primary border border-ui-secondary hover:border-ui-hover-secondary focus:border-ui-select-secondary disabled:border-ui-inactive-secondary disabled:text-text-inactive',
   green:

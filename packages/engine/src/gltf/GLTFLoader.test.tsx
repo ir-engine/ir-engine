@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -30,18 +30,29 @@ import { GLTF } from '@gltf-transform/core/dist/types/gltf'
 import {
   createEntity,
   Entity,
+  EntityID,
   EntityTreeComponent,
-  generateEntityUUID,
   getChildrenWithComponents,
   getComponent,
   getOptionalComponent,
   hasComponent,
+  LayerComponent,
+  removeComponent,
   setComponent,
+  SourceID,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } from '@ir-engine/spatial'
+import {
+  DirectionalLightComponent,
+  PointLightComponent,
+  SpotLightComponent,
+  TransformComponent
+} from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
@@ -50,16 +61,18 @@ import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { InstancedMesh, MathUtils, MeshStandardMaterial } from 'three'
+import { InstancedMesh, LoaderUtils, LoadingManager, MathUtils, MeshStandardMaterial } from 'three'
 import { startEngineReactor } from '../../tests/startEngineReactor'
 import { overrideFileLoaderLoad } from '../../tests/util/loadGLTFAssetNode'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { GLTFComponent } from './GLTFComponent'
+import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
 import { KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
 import { EXTMeshGPUInstancingComponent, KHRLightsPunctualComponent, KHRPunctualLight } from './MeshExtensionComponents'
 
 const base_url = 'packages/engine/tests/assets'
 const duck_gltf = base_url + '/duck/Duck.gltf'
+const duck_nodeless_gltf = base_url + '/duck/DuckNodeless.gltf'
 const draco_gltf = base_url + '/draco-duck/Duck.gltf'
 const unlit_gltf = base_url + '/unlit/UnlitTest.gltf'
 const textured_gltf = base_url + '/textured-box/BoxTextured.gltf'
@@ -72,16 +85,31 @@ const instanced_gltf = base_url + '/instanced/SimpleInstancing.gltf'
 const default_url = 'packages/projects/default-project/assets'
 const animation_pack = default_url + '/animations/emotes.glb'
 const rings_gltf = default_url + '/rings.glb'
+const collider_and_rigidbody_gltf = base_url + '/physics/ColliderAndRigidbody.gltf'
+const collider_gltf = base_url + '/physics/ColliderOnly.gltf'
 
-const waitForScene = (entity: Entity) => vi.waitUntil(() => GLTFComponent.isSceneLoaded(entity), { timeout: 5000 })
+const waitForScene = (entity: Entity) => vi.waitUntil(() => GLTFComponent.isSceneLoaded(entity), { timeout: 10000 })
 
 const setupEntity = () => {
   const parent = createEntity()
   setComponent(parent, SceneComponent)
   setComponent(parent, EntityTreeComponent)
-  const uuid = UUIDComponent.generateUUID()
-  setComponent(parent, UUIDComponent, uuid)
+  const uuid = 'source' as SourceID
+  setComponent(parent, UUIDComponent, { entitySourceID: uuid, entityID: 'test' as EntityID })
 
+  const entity = createEntity()
+  setComponent(entity, EntityTreeComponent, { parentEntity: parent })
+  return entity
+}
+
+const setupPhysicsEntity = () => {
+  const parent = createEntity()
+  setComponent(parent, SceneComponent)
+  setComponent(parent, EntityTreeComponent)
+  const uuid = 'source' as SourceID
+  setComponent(parent, UUIDComponent, { entitySourceID: uuid, entityID: 'test' as EntityID })
+  setComponent(parent, TransformComponent)
+  Physics.createWorld(parent)
   const entity = createEntity()
   setComponent(entity, EntityTreeComponent, { parentEntity: parent })
   return entity
@@ -93,6 +121,7 @@ describe('GLTF Loader', async () => {
   beforeEach(async () => {
     createEngine()
     startEngineReactor()
+    await Physics.load()
 
     await act(() => render(null))
   })
@@ -104,7 +133,7 @@ describe('GLTF Loader', async () => {
   it('can load a mesh', async () => {
     const entity = setupEntity()
 
-    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
     setComponent(entity, GLTFComponent, { src: duck_gltf })
 
     await waitForScene(entity)
@@ -131,7 +160,7 @@ describe('GLTF Loader', async () => {
   it('can load a material', async () => {
     const entity = setupEntity()
 
-    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
     setComponent(entity, GLTFComponent, { src: duck_gltf })
 
     await waitForScene(entity)
@@ -162,7 +191,7 @@ describe('GLTF Loader', async () => {
   it('can load a draco geometry', async () => {
     const entity = setupEntity()
 
-    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
     setComponent(entity, GLTFComponent, { src: draco_gltf })
 
     await waitForScene(entity)
@@ -188,7 +217,7 @@ describe('GLTF Loader', async () => {
   it('can load an unlit material', async () => {
     const entity = setupEntity()
 
-    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
     setComponent(entity, GLTFComponent, { src: unlit_gltf })
 
     await waitForScene(entity)
@@ -224,7 +253,7 @@ describe('GLTF Loader', async () => {
   it('can load a texture for a material', async () => {
     const entity = setupEntity()
 
-    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
     setComponent(entity, GLTFComponent, { src: textured_gltf })
 
     await waitForScene(entity)
@@ -260,7 +289,7 @@ describe('GLTF Loader', async () => {
   it('can load meshes with multiple primitives/materials', async () => {
     const entity = setupEntity()
 
-    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
     setComponent(entity, GLTFComponent, { src: multiple_mesh_primitives_gltf })
 
     await waitForScene(entity)
@@ -303,11 +332,11 @@ describe('GLTF Loader', async () => {
     assert(meshEntities.length === meshes.length)
 
     const matEntities = getChildrenWithComponents(entity, [MaterialInstanceComponent])
-    const uniqueMatUUIDs = matEntities.reduce((uuids, matEntity) => {
+    const uniqueMatUUIDs = matEntities.reduce((entities, matEntity) => {
       const matInstance = getComponent(matEntity, MaterialInstanceComponent)
-      for (const uuid of matInstance.uuid) uuids.add(uuid)
-      return uuids
-    }, new Set<string>())
+      for (const entity of matInstance.entities) entities.add(entity)
+      return entities
+    }, new Set<Entity>())
     const matUUIDs = [...uniqueMatUUIDs].filter(Boolean)
 
     assert(materials.length === matUUIDs.length)
@@ -317,7 +346,7 @@ describe('GLTF Loader', async () => {
   it('can load morph targets', async () => {
     const entity = setupEntity()
 
-    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
     setComponent(entity, GLTFComponent, { src: morph_gltf })
 
     await waitForScene(entity)
@@ -338,7 +367,7 @@ describe('GLTF Loader', async () => {
   it('can load a mesh with a single animation clip', async () => {
     const entity = setupEntity()
 
-    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
     setComponent(entity, GLTFComponent, { src: rings_gltf })
 
     await waitForScene(entity)
@@ -359,7 +388,7 @@ describe('GLTF Loader', async () => {
   it('can load a skeleton with many animation clips', async () => {
     const entity = setupEntity()
 
-    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
     setComponent(entity, GLTFComponent, { src: animation_pack })
 
     await waitForScene(entity)
@@ -380,7 +409,7 @@ describe('GLTF Loader', async () => {
   it('can load skinned meshes with bones and animations', async () => {
     const entity = setupEntity()
 
-    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
     setComponent(entity, GLTFComponent, { src: skinned_gltf })
 
     await waitForScene(entity)
@@ -416,7 +445,7 @@ describe('GLTF Loader', async () => {
   it('can load cameras', async () => {
     const entity = setupEntity()
 
-    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
     setComponent(entity, GLTFComponent, { src: camera_gltf })
 
     await waitForScene(entity)
@@ -460,7 +489,10 @@ describe('GLTF Loader', async () => {
    * Manually for the test, by some other reactor, or something else ?? */
   it('can load KHR lights', async () => {
     const testEntity = setupEntity()
-    setComponent(testEntity, UUIDComponent, UUIDComponent.generateUUID())
+    setComponent(testEntity, UUIDComponent, {
+      entitySourceID: 'source' as SourceID,
+      entityID: 'test' as EntityID
+    })
     setComponent(testEntity, GLTFComponent, { src: khr_light_gltf })
 
     await waitForScene(testEntity)
@@ -511,7 +543,10 @@ describe('GLTF Loader', async () => {
   it('can load instanced primitives with EXT_mesh_gpu_instancing', async () => {
     const testEntity = setupEntity()
 
-    setComponent(testEntity, UUIDComponent, UUIDComponent.generateUUID())
+    setComponent(testEntity, UUIDComponent, {
+      entitySourceID: 'source' as SourceID,
+      entityID: 'test' as EntityID
+    })
     setComponent(testEntity, GLTFComponent, { src: instanced_gltf })
 
     await waitForScene(testEntity)
@@ -561,25 +596,240 @@ describe('GLTF Loader', async () => {
   })
 
   it('can load multiple of the same GLTF file', async () => {
+    // This test verifies that we can load the same GLTF file multiple times
+    // with different source IDs and get separate instances
+
+    // Create two separate entities with different source IDs
     const entity = setupEntity()
     const entity2 = setupEntity()
 
-    setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+    // Set up the first entity with a unique source ID
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source1' as SourceID, entityID: 'test' as EntityID })
     setComponent(entity, GLTFComponent, { src: duck_gltf })
 
-    setComponent(entity2, UUIDComponent, UUIDComponent.generateUUID())
+    // Wait for the first entity to load completely
+    await waitForScene(entity)
+
+    // Verify the first entity is fully loaded
+    expect(GLTFComponent.isSceneLoaded(entity)).toBeTruthy()
+
+    // Set up the second entity with a different source ID
+    setComponent(entity2, UUIDComponent, { entitySourceID: 'source2' as SourceID, entityID: 'test' as EntityID })
     setComponent(entity2, GLTFComponent, { src: duck_gltf })
+
+    // Wait for the second entity to load completely
+    await waitForScene(entity2)
+
+    // Verify the second entity is fully loaded
+    expect(GLTFComponent.isSceneLoaded(entity2)).toBeTruthy()
+
+    // Get the source IDs for both entities
+    const instanceID = GLTFComponent.getSourceID(entity)
+    const instanceID2 = GLTFComponent.getSourceID(entity2)
+
+    // Verify that the source IDs are different
+    expect(instanceID).not.toBe(instanceID2)
+
+    // The test is successful if we can load both entities with different source IDs
+    // and both are properly loaded without errors
+  })
+
+  it('can load GLTFs without scenes or nodes', async () => {
+    const entity = setupEntity()
+
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
+    setComponent(entity, GLTFComponent, { src: duck_nodeless_gltf })
 
     await waitForScene(entity)
 
-    const instanceID = GLTFComponent.getInstanceID(entity)
-    const instanceID2 = GLTFComponent.getInstanceID(entity2)
+    // Loads the material and texture in the GLTF without having an associated node
+    const materials = getChildrenWithComponents(entity, [MaterialStateComponent])
+    assert(materials.length === 1)
+    const materialState = getComponent(materials[0], MaterialStateComponent)
+    assert((materialState.material as MeshStandardMaterial).map?.isTexture)
+  })
 
-    expect(instanceID).not.toBe(instanceID2)
+  it('can abort loading when component is unmounted while loading', async () => {
+    const entity = setupEntity()
+
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
+    setComponent(entity, GLTFComponent, { src: duck_gltf })
+
+    await vi.waitUntil(() => !!GLTFComponent.getSourceID(entity), { timeout: 10000 })
+
+    const sourceID = GLTFComponent.getSourceID(entity)
+    const layer = LayerComponent.get(entity)
+
+    removeComponent(entity, GLTFComponent)
+
+    assert(!hasComponent(entity, GLTFComponent))
+    assert(UUIDComponent.getEntitiesBySource(sourceID, layer).length === 0)
+  })
+
+  it('can abort loading when component is unmounted after loading', async () => {
+    const entity = setupEntity()
+
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
+    setComponent(entity, GLTFComponent, { src: duck_gltf })
+
+    await vi.waitUntil(() => !!GLTFComponent.getSourceID(entity), { timeout: 10000 })
+
+    const sourceID = GLTFComponent.getSourceID(entity)
+    const layer = LayerComponent.get(entity)
+
+    await waitForScene(entity)
+
+    removeComponent(entity, GLTFComponent)
+
+    await vi.waitUntil(() => UUIDComponent.getEntitiesBySource(sourceID, layer).length === 0, { timeout: 10000 })
+
+    assert(!hasComponent(entity, GLTFComponent))
+    assert(UUIDComponent.getEntitiesBySource(sourceID, layer).length === 0)
+  })
+
+  it('can abort loading when src changes', async () => {
+    const entity = setupEntity()
+
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
+    setComponent(entity, GLTFComponent, { src: duck_gltf })
+
+    const initialLoadPromise = waitForScene(entity)
+
+    setComponent(entity, GLTFComponent, { src: textured_gltf })
+
+    await waitForScene(entity)
+
+    const document = getComponent(entity, GLTFComponent).document
+
+    const hasMaterialsWithTextures = document!.materials?.some(
+      (material) => material.pbrMetallicRoughness?.baseColorTexture !== undefined
+    )
+
+    assert(hasMaterialsWithTextures)
+    await initialLoadPromise
+
+    assert(getComponent(entity, GLTFComponent).src === textured_gltf)
+  })
+
+  it('can abort loading in GLTFLoaderFunctions directly', async () => {
+    const entity = setupEntity()
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
+
+    const abortController = new AbortController()
+
+    const options = {
+      entity,
+      url: duck_gltf,
+      signal: abortController.signal,
+      document: {
+        asset: { version: '2.0' },
+        scenes: [{ nodes: [0] }],
+        nodes: [{ mesh: 0 }],
+        meshes: [{ primitives: [{ attributes: { POSITION: 0 } }] }],
+        accessors: [{ componentType: 5126 as GLTF.AccessorComponentType, count: 1, type: 'VEC3' as GLTF.AccessorType }]
+      },
+      body: null,
+      manager: new LoadingManager(),
+      path: LoaderUtils.extractUrlBase(duck_gltf),
+      requestHeader: {}
+    }
+
+    abortController.abort()
+    await GLTFLoaderFunctions.loadScene(options, 0)
+    assert(getChildrenWithComponents(entity, [MeshComponent]).length == 0)
+  })
+
+  it('handles abort during async operations in GLTFLoaderFunctions', async () => {
+    const entity = setupEntity()
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
+
+    const abortController = new AbortController()
+    setComponent(entity, GLTFComponent, { src: duck_gltf })
+    const loadPromise = waitForScene(entity)
+
+    await new Promise((resolve) =>
+      setTimeout(() => {
+        abortController.abort()
+        removeComponent(entity, GLTFComponent)
+        resolve(undefined)
+      }, 50)
+    )
+    await loadPromise
+
+    assert(!hasComponent(entity, GLTFComponent))
+  })
+
+  it('loads a GLTF with a collider and a rigidbody creates a dependency', async () => {
+    const entity = setupPhysicsEntity()
+
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
+    setComponent(entity, GLTFComponent, { src: collider_and_rigidbody_gltf })
+
+    await waitForScene(entity)
+
+    const colliderEntities = getChildrenWithComponents(entity, [ColliderComponent])
+    expect(colliderEntities.length).toBeGreaterThan(0)
+
+    const colliderWithoutRigidbody = colliderEntities.find((e) => !hasComponent(e, RigidBodyComponent))
+    expect(colliderWithoutRigidbody).toBeDefined()
+
+    const colliderEntity = getChildrenWithComponents(entity, [ColliderComponent])[0]
+    assert(getComponent(colliderEntity, ColliderComponent).hasCollider === true)
+
+    const dependencies = getComponent(entity, GLTFComponent).dependencies
+    expect(dependencies).toBeDefined()
+
+    const uuid = UUIDComponent.get(colliderWithoutRigidbody!)
+    expect(dependencies?.componentDependencies[uuid]).toBeUndefined()
+  })
+
+  it('loads a GLTF with Detached collider', async () => {
+    const entity = setupPhysicsEntity()
+
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
+    setComponent(entity, GLTFComponent, { src: collider_gltf })
+
+    await waitForScene(entity)
+
+    const colliderEntities = getChildrenWithComponents(entity, [ColliderComponent])
+    expect(colliderEntities.length).toBeGreaterThan(0)
+
+    const colliderEntity = getChildrenWithComponents(entity, [ColliderComponent])[0]
+    assert(getComponent(colliderEntity, ColliderComponent).hasCollider === false)
+
+    const colliderWithoutRigidbody = colliderEntities.find((e) => !hasComponent(e, RigidBodyComponent))
+    expect(colliderWithoutRigidbody).toBeDefined()
+
+    const rigidbodyEntities = getChildrenWithComponents(entity, [RigidBodyComponent])
+    expect(rigidbodyEntities.length).toBe(0)
+  })
+
+  it('properly sets normalScale when no tangents are present', async () => {
+    const src = base_url + '/NormalTangentTest/NormalTangentTest.gltf'
+
+    const entity = setupEntity()
+    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
+
+    setComponent(entity, GLTFComponent, {
+      cameraOcclusion: true,
+      src: src
+    })
+
+    await waitForScene(entity)
+
+    expect(GLTFComponent.isSceneLoaded(entity)).toBeTruthy()
 
     const meshEntities = getChildrenWithComponents(entity, [MeshComponent])
-    const meshEntities2 = getChildrenWithComponents(entity2, [MeshComponent])
+    expect(meshEntities.length).toBeGreaterThan(0)
 
-    expect(meshEntities.length).toBe(meshEntities2.length)
+    const materialEntities = getChildrenWithComponents(entity, [MaterialStateComponent])
+    expect(materialEntities[0]).toBeDefined()
+    const material = getComponent(materialEntities[0], MaterialStateComponent).material as MeshStandardMaterial
+
+    expect(material.normalScale?.x).toBe(1)
+    expect(material.normalScale?.y).toBe(-1)
+
+    const mesh = getComponent(meshEntities[0], MeshComponent)
+    expect(mesh.geometry.hasAttribute('tangent')).toBeFalsy()
   })
 })

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -91,6 +91,8 @@ export const FeathersState = defineState({
           response: unknown
           status: 'pending' | 'success' | 'error'
           error: string
+          requestTime: number
+          resolvedTime: number | null
           $stack?: string[]
         }
       >
@@ -140,6 +142,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
     }
     state.merge({
       status: 'pending',
+      requestTime: Date.now(),
       error: ''
     })
     if (isDev) {
@@ -156,14 +159,16 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
         state.merge({
           response: res,
           status: 'success',
-          error: ''
+          error: '',
+          resolvedTime: Date.now()
         })
       })
       .catch((error) => {
         console.error(`Error in service: ${serviceName}, method: ${method}, args: ${JSON.stringify(args)}`, error)
         state.merge({
           status: 'error',
-          error: error.message
+          error: error.message,
+          resolvedTime: Date.now()
         })
       })
   }
@@ -190,6 +195,8 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
         refs: 0,
         response: null,
         status: 'pending',
+        requestTime: 0,
+        resolvedTime: null,
         error: ''
       }
     })

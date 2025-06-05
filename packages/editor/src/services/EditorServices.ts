@@ -19,19 +19,19 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import { LayoutData } from 'rc-dock'
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { EntityUUID, getOptionalComponent } from '@ir-engine/ecs'
+import { UUIDComponent } from '@ir-engine/ecs'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { LinkState } from '@ir-engine/engine/src/scene/components/LinkComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+
 import { defineState, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 
@@ -39,6 +39,8 @@ export enum UIMode {
   BASIC = 'BASIC',
   ADVANCED = 'ADVANCED'
 }
+
+export type ActiveLowerPanel = 'properties' | 'inspector'
 
 export const EditorState = defineState({
   name: 'EditorState',
@@ -49,42 +51,44 @@ export const EditorState = defineState({
     scenePath: null as string | null,
     /** just used to store the id of the current scene asset */
     sceneAssetID: null as string | null,
-    lockPropertiesPanel: '' as EntityUUID,
     panelLayout: {} as LayoutData,
     rootEntity: UndefinedEntity,
     uiEnabled: true,
     uiMode: UIMode.ADVANCED,
-    canvasRef: null as React.RefObject<HTMLElement> | null
+    canvasRef: null as React.RefObject<HTMLElement> | null,
+    activeLowerPanel: 'properties' as ActiveLowerPanel
   }),
+  setActiveLowerPanel: (panel: ActiveLowerPanel) => {
+    getMutableState(EditorState).activeLowerPanel.set(panel)
+  },
   useIsModified: () => {
     const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
     const modifiedState = useMutableState(AssetModifiedState)
     if (!rootEntity) return false
-    return !!modifiedState[GLTFComponent.getInstanceID(rootEntity)].value
+    return !!modifiedState[GLTFComponent.getSourceID(rootEntity)].value
   },
   isModified: () => {
     const rootEntity = getState(EditorState).rootEntity
     if (!rootEntity) return false
-    return !!getState(AssetModifiedState)[GLTFComponent.getInstanceID(rootEntity)]
+    return !!getState(AssetModifiedState)[GLTFComponent.getSourceID(rootEntity)]
   },
   markModifiedScene: (entity: Entity) => {
-    const sourceID = getOptionalComponent(entity, SourceComponent) || GLTFComponent.getInstanceID(entity)
+    const sourceID = GLTFComponent.getSourceID(entity)
     if (!sourceID) return
 
     const modifiedState = getMutableState(AssetModifiedState)
     modifiedState[sourceID].set(true)
     const activeScene = getState(EditorState).rootEntity
     //also mark the active scene as modified due to scene deltas being added
-    const rootSourceID = GLTFComponent.getInstanceID(activeScene)
+    const rootSourceID = GLTFComponent.getSourceID(activeScene)
     if (rootSourceID !== sourceID) {
       modifiedState[rootSourceID].set(true)
     }
   },
   isInActiveScene: (entity: Entity) => {
     const rootEntity = getState(EditorState).rootEntity
-    const rootSourceID = GLTFComponent.getInstanceID(rootEntity)
-    const sourceID = getOptionalComponent(entity, SourceComponent)
-    return sourceID === rootSourceID
+    const sourceEntity = UUIDComponent.getSourceEntity(entity)
+    return sourceEntity === rootEntity
   },
   reactor: () => {
     const linkState = useMutableState(LinkState)

@@ -19,16 +19,15 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useLayoutEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { EntityUUID, setComponent, UUIDComponent } from '@ir-engine/ecs'
+import { EntityUUID, setComponent, UUIDComponent, WorldNetworkAction } from '@ir-engine/ecs'
 import { defineState, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { WorldNetworkAction } from '@ir-engine/network'
 
 import { TransformComponent } from './components/TransformComponent'
 import { SpawnObjectActions } from './SpawnObjectActions'
@@ -46,7 +45,12 @@ export const SpawnPoseState = defineState({
 
   receptors: {
     onSpawnObject: SpawnObjectActions.spawnObject.receive((action) => {
-      getMutableState(SpawnPoseState)[action.entityUUID].merge({
+      getMutableState(SpawnPoseState)[
+        UUIDComponent.join({
+          entitySourceID: action.entitySourceID ?? action.parentUUID,
+          entityID: action.entityID
+        })
+      ].merge({
         spawnPosition: action.position ? new Vector3().copy(action.position) : new Vector3(),
         spawnRotation: action.rotation ? new Quaternion().copy(action.rotation) : new Quaternion()
       })

@@ -19,12 +19,12 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useQuery } from '@ir-engine/ecs'
-import { getComponent, hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { UUIDComponent } from '@ir-engine/ecs'
+import { getComponent, hasComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   commitProperties,
   commitProperty,
@@ -32,10 +32,8 @@ import {
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { EditorHistoryFunctions } from '@ir-engine/editor/src/services/EditorHistoryState'
-import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+
+import { useNodeOptions } from '@ir-engine/engine/src/authoring/functions/useNodeOptions'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -49,24 +47,13 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const inputComponent = useComponent(props.entity, InputComponent)
-  const authoringLayerEntities = useQuery([SourceComponent])
-
-  const options = authoringLayerEntities.map((entity) => {
-    return {
-      label: getComponent(entity, NameComponent),
-      value: getComponent(entity, NodeIDComponent)
-    }
-  })
-  options.unshift({
-    label: 'Self',
-    value: getComponent(props.entity, NodeIDComponent)
-  })
+  const options = useNodeOptions(props.entity)
 
   const addSink = () => {
-    const sinks = [...(inputComponent.inputSinks.value ?? []), getComponent(props.entity, NodeIDComponent)]
+    const sinks = [...(inputComponent.inputSinks.value ?? []), getComponent(props.entity, UUIDComponent)]
 
     if (!hasComponent(props.entity, InputComponent)) {
-      EditorHistoryFunctions.setComponent([props.entity], InputComponent, {
+      setComponent(props.entity, InputComponent, {
         inputSinks: JSON.parse(JSON.stringify(sinks))
       })
     } else {

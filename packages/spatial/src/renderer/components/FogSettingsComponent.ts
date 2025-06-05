@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -35,33 +35,39 @@ import {
   useComponent,
   useHasComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { FogComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { FogShaders } from '../FogSystem'
 import { initBrownianMotionFogShader, initHeightFogShader, removeFogShader } from './FogShaders'
+import { FogComponent } from './SceneComponents'
 import { VisibleComponent } from './VisibleComponent'
 
-export enum FogType {
-  Disabled = 'disabled',
-  Linear = 'linear',
-  Exponential = 'exponential',
-  Brownian = 'brownian',
-  Height = 'height'
+export const FogType = {
+  Disabled: 'disabled' as const,
+  Linear: 'linear' as const,
+  Exponential: 'exponential' as const,
+  Brownian: 'brownian' as const,
+  Height: 'height' as const
 }
+
+export type FogType = (typeof FogType)[keyof typeof FogType]
 
 export const FogSettingsComponent = defineComponent({
   name: 'FogSettingsComponent',
   jsonID: 'EE_fog',
 
   schema: S.Object({
-    type: S.Enum(FogType, FogType.Disabled),
-    color: S.String('#FFFFFF'),
-    density: S.Number(0.005),
-    near: S.Number(1),
-    far: S.Number(1000),
-    timeScale: S.Number(1),
-    height: S.Number(0.05)
+    type: S.Enum(FogType, {
+      $comment:
+        "A string enum, ie. one of the following values: 'disabled', 'linear', 'exponential', 'brownian', 'height'",
+      default: FogType.Disabled
+    }),
+    color: S.String({ default: '#FFFFFF' }),
+    density: S.Number({ default: 0.005 }),
+    near: S.Number({ default: 1 }),
+    far: S.Number({ default: 1000 }),
+    timeScale: S.Number({ default: 1 }),
+    height: S.Number({ default: 0.05 })
   }),
 
   reactor: () => {

@@ -19,13 +19,12 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
-import { describe, it } from 'node:test'
 import { Box3, Frustum, Matrix4, PerspectiveCamera, Vector3 } from 'three'
+import { assert, describe, it } from 'vitest'
 
 //test view frustum  intersection with box
 describe('SelectionBoxTool', () => {

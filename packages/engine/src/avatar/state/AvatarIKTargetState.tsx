@@ -19,16 +19,15 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useLayoutEffect } from 'react'
 
-import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
+import { EntityUUID, NetworkObjectSendPeriodicUpdatesTag, UUIDComponent, WorldNetworkAction } from '@ir-engine/ecs'
 import { setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineState, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { NetworkObjectSendPeriodicUpdatesTag, WorldNetworkAction } from '@ir-engine/network'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
@@ -47,7 +46,9 @@ export const AvatarIKTargetState = defineState({
 
   receptors: {
     onSpawn: AvatarNetworkAction.spawnIKTarget.receive((action) => {
-      getMutableState(AvatarIKTargetState)[action.entityUUID].merge({ name: action.name })
+      getMutableState(AvatarIKTargetState)[
+        UUIDComponent.join({ entitySourceID: action.entitySourceID!, entityID: action.entityID })
+      ].merge({ name: action.name })
     }),
     onDestroyObject: WorldNetworkAction.destroyEntity.receive((action) => {
       getMutableState(AvatarIKTargetState)[action.entityUUID].set(none)

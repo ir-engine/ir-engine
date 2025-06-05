@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -92,6 +92,8 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
   const portValue = getSettingValue(EngineSettings.InstanceServer.Port)
   const modeValue = getSettingValue(EngineSettings.InstanceServer.Mode)
   const locationNameValue = getSettingValue(EngineSettings.InstanceServer.LocationName)
+  const maxUsersPerInstanceValue = getSettingValue(EngineSettings.InstanceServer.MaxUsersPerInstance)
+  const maxUsersPerInstance = useHookstate(maxUsersPerInstanceValue)
   const webRTCSettingsValue =
     instanceWebRTCSettings?.data.length === 0
       ? defaultWebRTCSettings
@@ -102,6 +104,12 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             dataType: setting.dataType
           }))
         )
+
+  useEffect(() => {
+    if (engineSettings.status === 'success') {
+      maxUsersPerInstance.set(maxUsersPerInstanceValue)
+    }
+  }, [engineSettings.status])
 
   useEffect(() => {
     if (instanceWebRTCSettings.status === 'success') {
@@ -123,6 +131,18 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     const missingInstanceSettings = Array.from(instanceSettingsMap.values()).filter(
       (setting) => !webTrcKeyValues.some((entry) => entry.key === setting.key)
     )
+
+    // Update maxUsersPerInstance if it has changed
+    const maxUsersSettingInDb = engineSettings.data.find(
+      (el) => el.key === EngineSettings.InstanceServer.MaxUsersPerInstance
+    )
+
+    let maxUsersOperation
+    if (maxUsersSettingInDb && maxUsersPerInstance.value !== maxUsersSettingInDb.value) {
+      maxUsersOperation = engineSettingMutation.patch(maxUsersSettingInDb.id, {
+        value: maxUsersPerInstance.value
+      })
+    }
 
     // Update or create settings
     const settingsUpdateOperations = webTrcKeyValues.map((entry) => {
@@ -294,6 +314,20 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
           }}
           value={locationNameValue || ''}
           disabled
+        />
+        <Input
+          fullWidth
+          type="number"
+          min={1}
+          max={100}
+          labelProps={{
+            text: t('admin:components.setting.maxUsersPerInstance'),
+            position: 'top'
+          }}
+          value={maxUsersPerInstance.value}
+          onChange={(e) => {
+            maxUsersPerInstance.set(e.target.value)
+          }}
         />
 
         <Toggle

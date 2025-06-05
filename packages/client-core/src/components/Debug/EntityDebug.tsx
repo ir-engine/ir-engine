@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -62,7 +62,11 @@ const renderEntityTreeRoots = (roots: Entity[]) => {
       .map((entity, i) => {
         if (!entity || !entityExists(entity)) return []
         return [
-          `${entity} - ${getOptionalComponent(entity, NameComponent) ?? getOptionalComponent(entity, UUIDComponent)}`,
+          `${entity} - ${
+            getOptionalComponent(entity, NameComponent) ??
+            (hasComponent(entity, UUIDComponent) && UUIDComponent.get(entity)) ??
+            'Unknown'
+          }`,
           renderEntityTree(entity)
         ]
       })
@@ -80,7 +84,9 @@ const renderEntityTree = (entity: Entity) => {
             (r, child) =>
               Object.assign(r, {
                 [`${child} - ${
-                  getOptionalComponent(child, NameComponent) ?? getOptionalComponent(child, UUIDComponent)
+                  getOptionalComponent(child, NameComponent) ??
+                  (hasComponent(child, UUIDComponent) && UUIDComponent.get(child)) ??
+                  'Unknown'
                 }`]: renderEntityTree(child)
               }),
             {}
@@ -121,7 +127,9 @@ const renderAllEntities = (filter: string, queryString: string) => {
           if (!entityExists(eid)) return null!
 
           const label = `${eid} - ${
-            getOptionalComponent(eid, NameComponent) ?? getOptionalComponent(eid, UUIDComponent) ?? ''
+            getOptionalComponent(eid, NameComponent) ??
+            (hasComponent(eid, UUIDComponent) && UUIDComponent.get(eid)) ??
+            ''
           }`
 
           if (

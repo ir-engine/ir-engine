@@ -19,37 +19,43 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { generateMultiViewThumbnails } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { REMOVE_EDGE_SLASH_REGEX } from '@ir-engine/common/src/regex'
-import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
-import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
-import { Slider, ViewportButton } from '@ir-engine/ui/editor'
-import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
+import { getState, NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
+import { Button, Input, Tooltip } from '@ir-engine/ui'
+import { ViewportButton } from '@ir-engine/ui/editor'
 import {
   ArrowLeftSm,
-  CogSm,
   Download01Sm,
   FolderPlusSm,
   FolderSm,
   Grid01Sm,
+  Image01Sm,
   PlusCircleSm,
   Refresh1Sm,
-  SearchSmSm
+  SearchSmSm,
+  XCircleLg
 } from '@ir-engine/ui/src/icons'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaList } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
-import { handleUploadFiles, inputFileWithAddToScene } from '../../functions/assetFunctions'
+import {
+  handleConvertGifFileToVideoAndUpload,
+  handleUploadFiles,
+  inputFileWithAddToScene
+} from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
-import { FilesState, FilesViewModeSettings, FilesViewModeState } from '../../services/FilesState'
-import { availableTableColumns, useCurrentFiles } from './helpers'
+import { FilesState, FilesViewModeState } from '../../services/FilesState'
+import { useAssetsQuery } from '../assets/hooks'
+import { useCurrentFiles } from './helpers'
 import { handleDownloadProject } from './loaders'
 
 // keeping this here for now, Move this to icons or static folder
@@ -69,7 +75,6 @@ export function BreadCrumbSlash() {
 
 export const showMultipleFileModal = (projectName: string, directoryPath: string, files: File[]) => {
   const fileNames = files.map((file) => file.name)
-
   const onSubmit = async () => {
     await handleUploadFiles(projectName, directoryPath, files)
     ModalState.closeModal()
@@ -87,6 +92,65 @@ export const showMultipleFileModal = (projectName: string, directoryPath: string
   )
 }
 
+export const GifFileConfirmationModal = ({ projectName, directoryPath, files, onClose }) => {
+  const { refetchResources } = useAssetsQuery()
+  const fileNames = files.map((file) => file.name)
+
+  const onSubmit = async () => {
+    await handleConvertGifFileToVideoAndUpload(projectName, directoryPath, files)
+    await refetchResources(true) // Refresh assets after conversion
+    onClose()
+  }
+
+  return (
+    <Modal title={'GIF Conversion Confirmation'} className="w-[50vw] max-w-2xl" onSubmit={onSubmit} onClose={onClose}>
+      <div className="flex flex-col rounded-lg bg-[#0e0f11] px-5 py-10 text-center">
+        Warning: We don't support animated GIF files, do you want to convert them to Video? <br />
+        {fileNames.length > 0 && `Files: ${fileNames.join(', ')}`}
+      </div>
+    </Modal>
+  )
+}
+
+export const showGifFileConfimation = (projectName: string, directoryPath: string, files: File[]) => {
+  ModalState.openModal(
+    <GifFileConfirmationModal
+      projectName={projectName}
+      directoryPath={directoryPath}
+      files={files}
+      onClose={ModalState.closeModal}
+    />
+  )
+}
+export const generateMultiView = (resources: any[]): void => {
+  try {
+    const projectName = getState(EditorState).projectName
+    if (!projectName) {
+      NotificationService.dispatchNotify('No project selected', { variant: 'error' })
+      return
+    }
+
+    if (!resources || resources.length === 0) {
+      NotificationService.dispatchNotify('No assets found', { variant: 'error' })
+      return
+    }
+
+    // Filter for 3D model files
+    const modelFiles = resources.filter((file: any) => file.type === 'gltf' || file.type === 'glb')
+
+    if (modelFiles.length > 0) {
+      modelFiles.forEach((modelFile: any) => {
+        generateMultiViewThumbnails(modelFile.url, projectName as string)
+      })
+    } else {
+      NotificationService.dispatchNotify('No 3D model files (GLTF or GLB) found in the current directory.', {
+        variant: 'error'
+      })
+    }
+  } catch (err) {
+    NotificationService.dispatchNotify(err.message, { variant: 'error' })
+  }
+}
 function BreadcrumbItems() {
   const filesState = useMutableState(FilesState)
   const { changeDirectoryByPath } = useCurrentFiles()
@@ -110,106 +174,38 @@ function BreadcrumbItems() {
   breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx > nestedIndex + 1)
 
   return (
-    <div className="flex items-center gap-2">
-      <FolderSm className="text-base text-text-primary" />
-      {breadcrumbDirectoryFiles.map((file, index, arr) => (
-        <Fragment key={index}>
-          {index !== 0 && (
-            <span className="cursor-default items-center text-base text-text-primary">
-              <BreadCrumbSlash />
-            </span>
-          )}
-          {index === arr.length - 1 ? (
-            <span
-              className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-base text-text-secondary hover:underline"
-              data-testid={'files-panel-breadcrumb-current-directory'}
-            >
-              {file}
-            </span>
-          ) : (
-            <a
-              className="hover: focus: inline-flex cursor-pointer items-center overflow-hidden text-sm text-text-secondary hover:underline"
-              onClick={() => handleBreadcrumbDirectoryClick(file)}
-              data-testid={`files-panel-breadcrumb-nested-level-${index}`}
-            >
-              <span className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-base text-text-secondary hover:underline">
+    <div className="grid grid-cols-[auto_auto] items-center gap-2">
+      <FolderSm className="min-w-[1rem] text-base text-text-primary" />
+      <div className="flex w-full items-center gap-2 overflow-x-auto">
+        {breadcrumbDirectoryFiles.map((file, index, arr) => (
+          <Fragment key={index}>
+            {index !== 0 && (
+              <span className="cursor-default items-center text-base text-text-primary">
+                <BreadCrumbSlash />
+              </span>
+            )}
+            {index === arr.length - 1 ? (
+              <span
+                className="cursor-pointer whitespace-nowrap text-base text-text-secondary hover:underline"
+                data-testid={'files-panel-breadcrumb-current-directory'}
+              >
                 {file}
               </span>
-            </a>
-          )}
-        </Fragment>
-      ))}
+            ) : (
+              <a
+                className="hover: focus: flex cursor-pointer items-center text-sm text-text-secondary hover:underline"
+                onClick={() => handleBreadcrumbDirectoryClick(file)}
+                data-testid={`files-panel-breadcrumb-nested-level-${index}`}
+              >
+                <span className="cursor-pointer whitespace-nowrap text-base text-text-secondary hover:underline">
+                  {file}
+                </span>
+              </a>
+            )}
+          </Fragment>
+        ))}
+      </div>
     </div>
-  )
-}
-
-const ViewModeSettings = () => {
-  const { t } = useTranslation()
-  const viewModeSettings = useMutableState(FilesViewModeSettings)
-  const filesViewMode = useMutableState(FilesViewModeState).viewMode
-
-  return (
-    <Popup
-      contentStyle={{
-        background: 'var(--surface-1)',
-        border: 'solid',
-        borderColor: 'var(--ui-outline)',
-        borderWidth: '2px',
-        borderRadius: '0.5rem'
-      }}
-      position={'bottom left'}
-      trigger={
-        <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-          <ViewportButton data-testid="view-options-button" icon={CogSm} />
-        </Tooltip>
-      }
-    >
-      {filesViewMode.value === 'icons' ? (
-        <div className="flex justify-end">
-          <Slider
-            label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}
-            min={10}
-            max={100}
-            step={0.5}
-            value={viewModeSettings.icons.iconSize.value}
-            onChange={viewModeSettings.icons.iconSize.set}
-            onRelease={viewModeSettings.icons.iconSize.set}
-            data-testid="files-panel-view-options-icon-size-value-input-group"
-          />
-        </div>
-      ) : (
-        <div className="flex flex-col items-center gap-y-1">
-          <div className="flex justify-end">
-            <Slider
-              label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
-              data-testid="files-panel-view-options-list-font-size-value-input-group"
-              min={10}
-              max={100}
-              step={0.5}
-              value={viewModeSettings.list.fontSize.value}
-              onChange={viewModeSettings.list.fontSize.set}
-              onRelease={viewModeSettings.list.fontSize.set}
-            />
-          </div>
-          <div className="flex w-full flex-col gap-y-1">
-            <div className="mt-1 flex flex-auto font-semibold text-text-primary">
-              <h3>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</h3>
-            </div>
-            <div className="flex flex-col gap-y-0.5">
-              {availableTableColumns.map((column, index) => (
-                <Checkbox
-                  checked={viewModeSettings.list.selectedTableColumns[column].value}
-                  onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
-                  label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}
-                  data-testid={`files-panel-view-mode-list-options-column-${column}`}
-                  key={index}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-    </Popup>
   )
 }
 
@@ -226,7 +222,7 @@ export default function FilesToolbar() {
     filesState.selectedDirectory.value.startsWith('/projects/' + filesState.projectName.value + '/public/') ||
     filesState.selectedDirectory.value.startsWith('/projects/' + filesState.projectName.value + '/assets/')
 
-  const { backDirectory, refreshDirectory } = useCurrentFiles()
+  const { backDirectory, refreshDirectory, files } = useCurrentFiles()
 
   return (
     <PanelToolbar
@@ -243,6 +239,11 @@ export default function FilesToolbar() {
           height="xs"
           startComponent={<SearchSmSm className="h-[14px] w-[14px] text-[#9CA0AA]" />}
           data-testid="files-panel-search-input"
+          endComponent={
+            <button className="h-4 w-4" onClick={() => filesState.searchText.set('')}>
+              <XCircleLg className="h-full w-full" />
+            </button>
+          }
         />
       }
       dataTestIdJson={{
@@ -292,6 +293,7 @@ export default function FilesToolbar() {
       uploadButton={
         <>
           <Button
+            variant="tertiary"
             size="l"
             disabled={!showUploadButtons}
             onClick={() =>
@@ -312,6 +314,7 @@ export default function FilesToolbar() {
           </Button>
           <Button
             size="l"
+            variant="tertiary"
             disabled={!showUploadButtons}
             className="disabled:bg-[#212226]"
             onClick={() =>
@@ -320,7 +323,7 @@ export default function FilesToolbar() {
                 directoryPath: filesState.selectedDirectory.get(NO_PROXY).slice(1),
                 preserveDirectory: true
               })
-                .then(refreshDirectory)
+                .then(() => refreshDirectory())
                 .catch((err) => {
                   NotificationService.dispatchNotify(err.message, { variant: 'error' })
                 })
@@ -329,6 +332,18 @@ export default function FilesToolbar() {
           >
             <FolderSm />
             <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFolder')}</span>
+          </Button>
+
+          <Button
+            size="l"
+            variant="tertiary"
+            disabled={!showUploadButtons}
+            className="disabled:bg-[#212226]"
+            onClick={() => generateMultiView(files)}
+            data-testid="files-panel-generate-multiview-button"
+          >
+            <Image01Sm />
+            <span className="text-nowrap">Generate Multi-View</span>
           </Button>
         </>
       }
@@ -363,7 +378,7 @@ export function PanelToolbar({
 
   return (
     <div
-      className="mb-1 flex items-center justify-between gap-2 bg-[#1E1F22] bg-surface-4 px-2 py-1"
+      className="mb-1 grid grid-cols-[max-content_auto_max-content] items-center gap-2 bg-[#1E1F22] bg-surface-4 px-2 py-1"
       data-testid={dataTestIdJson?.topbarId}
     >
       {/* Tools */}
@@ -396,14 +411,13 @@ export function PanelToolbar({
               icon={FolderPlusSm}
             />
           </Tooltip>
-          <ViewModeSettings />
         </div>
         {utilsComponent && <div className="flex items-center">{utilsComponent}</div>}
         <div className="flex items-center gap-x-2 px-1">{uploadButton}</div>
       </div>
 
       {/* Breadcrumb */}
-      <div className="flex items-center justify-between">{breadcrumbComponent}</div>
+      <div className="grid">{breadcrumbComponent}</div>
 
       {/* Search */}
       <div>{searchbar}</div>

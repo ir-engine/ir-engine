@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -27,12 +27,12 @@ import { Cache, LoadingManager } from 'three'
 
 import { parseStorageProviderURLs } from '../../functions/parseSceneJSON'
 import { Loader } from './Loader'
+import { ResourceCache } from './ResourceCache'
 
-const loading = {}
-
+export const loading = {}
 class HttpError extends Error {
-  response: any
-  constructor(message, response) {
+  response: Response
+  constructor(message: string, response: Response) {
     super(message)
     this.response = response
   }
@@ -60,7 +60,14 @@ class FileLoader<TData = unknown> extends Loader<TData> {
 
     url = this.manager.resolveURL(url)
 
-    const cached = Cache.get(url)
+    const cacheKey = JSON.stringify({
+      url,
+      responseType: this.responseType,
+      mimeType: this.mimeType,
+      headers: this.requestHeader,
+      withCredentials: this.withCredentials
+    })
+    const cached = Cache.get(cacheKey) || Cache.get(url)
 
     if (cached !== undefined) {
       this.manager.itemStart(url)
@@ -75,10 +82,8 @@ class FileLoader<TData = unknown> extends Loader<TData> {
       return cached
     }
 
-    // Check if request is duplicate
-
-    if (loading[url] !== undefined) {
-      loading[url].push({
+    if (loading[cacheKey] !== undefined) {
+      loading[cacheKey].push({
         onLoad: onLoad,
         onProgress: onProgress,
         onError: onError
@@ -87,49 +92,55 @@ class FileLoader<TData = unknown> extends Loader<TData> {
       return
     }
 
-    // Initialise array for duplicate requests
-    loading[url] = []
+    loading[cacheKey] = []
 
-    loading[url].push({
+    loading[cacheKey].push({
       onLoad: onLoad,
       onProgress: onProgress,
       onError: onError
     })
 
-    // create request
+    const isBlob = url.startsWith('blob:')
+
     const req = new Request(url, {
       headers: new Headers(this.requestHeader),
       credentials: this.withCredentials ? 'include' : 'same-origin'
-      // An abort controller could be added within a future PR
     })
 
-    // record states ( avoid data race )
     const mimeType = this.mimeType
     const responseType = this.responseType
     const manager = this.manager
 
+    let fromCache = false
+    let responsePromise: Promise<Response>
+    if (!isBlob && ResourceCache) {
+      responsePromise = ResourceCache.getResource(req.url).then((response) => {
+        if (!response) return fetch(req, { signal })
+        fromCache = true
+        return response
+      })
+    } else {
+      responsePromise = fetch(req, { signal })
+    }
+
     // start the fetch
-    fetch(req, { signal })
+    responsePromise
       .then((response) => {
-        if (response.status === 200 || response.status === 0) {
+        if (response.ok || response.status === 0) {
           // Some browsers return HTTP Status 0 when using non-http protocol
           // e.g. 'file://' or 'data://'. Handle as success.
-
-          if (response.status === 0) {
-            console.warn('THREE.FileLoader: HTTP Status 0 received.')
-          }
-
-          // Workaround: Checking if response.body === undefined for Alipay browser #23548
 
           if (
             typeof ReadableStream === 'undefined' ||
             response.body == undefined ||
-            response.body.getReader == undefined
+            response.body.getReader == undefined ||
+            isBlob ||
+            fromCache
           ) {
             return response
           }
 
-          const callbacks = loading[url]
+          const callbacks = loading[cacheKey]
           const reader = response.body.getReader()
 
           // Nginx needs X-File-Size check
@@ -139,7 +150,6 @@ class FileLoader<TData = unknown> extends Loader<TData> {
           const lengthComputable = total !== 0
           let loaded = 0
 
-          // periodically read data into the new stream tracking while download progress
           const stream = new ReadableStream({
             start(controller) {
               readData()
@@ -164,12 +174,15 @@ class FileLoader<TData = unknown> extends Loader<TData> {
                     }
                   })
                   .catch((err) => {
-                    delete loading[url]
+                    delete loading[cacheKey]
 
                     for (let i = 0, il = callbacks.length; i < il; i++) {
                       const callback = callbacks[i]
                       if (callback.onError) callback.onError(err)
                     }
+
+                    reader.cancel().catch(() => {})
+                    controller.error(err)
 
                     manager.itemError(url)
                   })
@@ -183,6 +196,21 @@ class FileLoader<TData = unknown> extends Loader<TData> {
             `fetch for "${response.url}" responded with ${response.status}: ${response.statusText}`,
             response
           )
+        }
+      })
+      .then((response) => {
+        if (!isBlob && ResourceCache) {
+          return response
+            .clone()
+            .arrayBuffer()
+            .then((buffer) => {
+              return ResourceCache!.putResource(req.url, buffer)
+            })
+            .then(() => {
+              return response
+            })
+        } else {
+          return response
         }
       })
       .then((response) => {
@@ -206,7 +234,6 @@ class FileLoader<TData = unknown> extends Loader<TData> {
             if (mimeType === undefined) {
               return response.text()
             } else {
-              // sniff encoding
               const re = /charset="?([^;"\s]*)"?/i
               const exec = re.exec(mimeType)
               const label = exec && exec[1] ? exec[1].toLowerCase() : undefined
@@ -216,39 +243,52 @@ class FileLoader<TData = unknown> extends Loader<TData> {
         }
       })
       .then((data) => {
-        // Add to cache only on HTTP success, so that we do not cache
-        // error response bodies as proper responses to requests.
-        Cache.add(url, data)
+        if (!data) throw new Error('No data returned from fetch')
+        Cache.add(cacheKey, data)
 
-        const callbacks = loading[url]
-        delete loading[url]
+        const callbacks = loading[cacheKey]
+        delete loading[cacheKey]
 
-        for (let i = 0, il = callbacks.length; i < il; i++) {
+        const processedData = data
+
+        for (let i = 0, il = callbacks ? callbacks.length : 0; i < il; i++) {
           const callback = callbacks[i]
-          if (callback.onLoad) callback.onLoad(data)
+          if (callback.onLoad) callback.onLoad(processedData)
         }
+
+        callbacks.length = 0
       })
       .catch((err) => {
-        // Abort errors and other errors are handled the same
-
-        const callbacks = loading[url]
+        const callbacks = loading[cacheKey]
 
         if (callbacks === undefined) {
-          // When onLoad was called and url was deleted in `loading`
           this.manager.itemError(url)
           throw err
         }
 
-        delete loading[url]
+        delete loading[cacheKey]
+
+        const processedError = err instanceof Error ? err : new Error(String(err))
 
         for (let i = 0, il = callbacks.length; i < il; i++) {
           const callback = callbacks[i]
-          if (callback.onError) callback.onError(err)
+          if (callback.onError) callback.onError(processedError)
         }
+
+        callbacks.length = 0
 
         this.manager.itemError(url)
       })
       .finally(() => {
+        if (loading[cacheKey] !== undefined) {
+          const callbacks = loading[cacheKey]
+          if (callbacks && Array.isArray(callbacks)) {
+            callbacks.length = 0
+          }
+
+          delete loading[cacheKey]
+        }
+
         this.manager.itemEnd(url)
       })
 
@@ -260,7 +300,7 @@ class FileLoader<TData = unknown> extends Loader<TData> {
     return this
   }
 
-  setMimeType(value): this {
+  setMimeType(value: string): this {
     this.mimeType = value
     return this
   }

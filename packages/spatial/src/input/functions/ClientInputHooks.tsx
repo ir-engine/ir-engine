@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -32,20 +32,23 @@ import {
   createEntity,
   Engine,
   Entity,
+  EntityID,
   EntityTreeComponent,
   getComponent,
   getOptionalComponent,
   removeEntity,
   setComponent,
+  SourceID,
   useAncestorWithComponents,
   useComponent,
-  useEntityContext
+  useEntityContext,
+  UUIDComponent
 } from '@ir-engine/ecs'
 import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { Vector2 } from 'three'
 import { NameComponent } from '../../common/NameComponent'
-import { RendererComponent } from '../../renderer/WebGLRendererSystem'
+import { RendererComponent } from '../../renderer/components/RendererComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
 import { DefaultButtonBindings, InputComponent } from '../components/InputComponent'
@@ -132,11 +135,17 @@ export const useGamepadInputSources = () => {
       console.log('[ClientInputSystem] found gamepad', e.gamepad)
       const eid = createEntity()
       setComponent(eid, InputSourceComponent, { gamepad: e.gamepad })
-      setComponent(eid, NameComponent, 'InputSource-gamepad-' + e.gamepad.id)
+      setComponent(eid, UUIDComponent, {
+        entitySourceID: 'InputSource-gamepad' as SourceID,
+        entityID: e.gamepad.id as EntityID
+      })
     }
     const removeGamepad = (e: GamepadEvent) => {
       console.log('[ClientInputSystem] lost gamepad', e.gamepad)
-      NameComponent.getEntitiesByName('InputSource-gamepad-' + e.gamepad.id).forEach(removeEntity)
+      const entity = UUIDComponent.getEntityByUUID(
+        UUIDComponent.join({ entitySourceID: 'InputSource-gamepad' as SourceID, entityID: e.gamepad.id as EntityID })
+      )
+      removeEntity(entity)
     }
     window.addEventListener('gamepadconnected', addGamepad)
     window.addEventListener('gamepaddisconnected', removeGamepad)
@@ -219,7 +228,7 @@ export const CanvasInputReactor = () => {
   useEffect(() => {
     if (xrState.session.value) return // pointer input sources are automatically handled by webxr
 
-    const canvas = rendererComponent.canvas.value
+    const canvas = rendererComponent.canvas.value as HTMLCanvasElement
     if (!canvas) return
 
     /** Clear mouse events */
@@ -269,10 +278,14 @@ export const CanvasInputReactor = () => {
 
       const down = event.type === 'pointerdown'
 
-      if (down) canvas.setPointerCapture(event.pointerId)
-      else canvas.releasePointerCapture(event.pointerId)
+      try {
+        if (down) canvas.setPointerCapture(event.pointerId)
+        else canvas.releasePointerCapture(event.pointerId)
+      } catch (e) {
+        //
+      }
 
-      let button = MouseButton.PrimaryClick
+      let button: MouseButton = MouseButton.PrimaryClick
       if (event.button === 1) button = MouseButton.AuxiliaryClick
       else if (event.button === 2) button = MouseButton.SecondaryClick
 
@@ -281,7 +294,7 @@ export const CanvasInputReactor = () => {
         state[button] = createInitialButtonState(pointerEntity) //down, pressed, touched = true
 
         const pointer = getOptionalComponent(pointerEntity, InputPointerComponent)
-        if (pointer) {
+        if (pointer && document.pointerLockElement !== canvas) {
           state[button]!.downPointerPosition = new Vector2(pointer.position.x, pointer.position.y)
           pointer.position.set(
             ((event.clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
@@ -300,7 +313,7 @@ export const CanvasInputReactor = () => {
       const pointerComponent = getOptionalComponent(pointerEntity, InputPointerComponent)
       if (!pointerComponent) return
 
-      if (document.pointerLockElement === (canvas as HTMLCanvasElement)) {
+      if (document.pointerLockElement === canvas) {
         pointerComponent.position.set(
           pointerComponent.position.x + event.movementX / canvas.clientWidth,
           pointerComponent.position.y - event.movementY / canvas.clientHeight
@@ -341,6 +354,8 @@ export const CanvasInputReactor = () => {
       const axes = inputSourceComponent.source.gamepad!.axes as number[]
       axes[MouseScroll.HorizontalScroll] = normalizedValues.spinX
       axes[MouseScroll.VerticalScroll] = normalizedValues.spinY
+      event.preventDefault()
+      event.stopPropagation()
     }
 
     canvas.addEventListener('dragstart', ClientInputFunctions.preventDefault, false)
@@ -355,7 +370,7 @@ export const CanvasInputReactor = () => {
     canvas.addEventListener('blur', onVisibilityChange)
     canvas.addEventListener('visibilitychange', onVisibilityChange)
     canvas.addEventListener('click', onClick)
-    canvas.addEventListener('wheel', onWheelEvent, { passive: true, capture: true })
+    canvas.addEventListener('wheel', onWheelEvent, { passive: false, capture: true })
 
     return () => {
       canvas.removeEventListener('dragstart', ClientInputFunctions.preventDefault, false)

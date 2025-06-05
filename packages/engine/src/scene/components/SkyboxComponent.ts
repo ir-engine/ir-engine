@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -45,7 +45,7 @@ import {
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -64,18 +64,18 @@ export const SkyboxComponent = defineComponent({
 
   schema: S.Object({
     backgroundColor: T.Color(0x000000),
-    equirectangularPath: S.String(''),
-    cubemapPath: S.String(''),
-    backgroundType: S.Number(1),
-    sky: S.NonSerialized(S.Nullable(S.Type<Sky>())),
+    equirectangularPath: S.String({ default: '' }),
+    cubemapPath: S.String({ default: '' }),
+    backgroundType: S.Number({ default: 1 }),
+    sky: S.Type<Sky | null>({ serialized: false }),
     skyboxProps: S.Object({
-      turbidity: S.Number(10),
-      rayleigh: S.Number(1),
-      luminance: S.Number(1),
-      mieCoefficient: S.Number(0.004999999999999893),
-      mieDirectionalG: S.Number(0.99),
-      inclination: S.Number(0.10471975511965978),
-      azimuth: S.Number(0.16666666666666666)
+      turbidity: S.Number({ default: 10 }),
+      rayleigh: S.Number({ default: 1 }),
+      luminance: S.Number({ default: 1 }),
+      mieCoefficient: S.Number({ default: 0.004999999999999893 }),
+      mieDirectionalG: S.Number({ default: 0.99 }),
+      inclination: S.Number({ default: 0.10471975511965978 }),
+      azimuth: S.Number({ default: 0.16666666666666666 })
     })
   }),
 

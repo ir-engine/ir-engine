@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,24 +19,26 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ECSState, defineQuery, useEntityContext } from '@ir-engine/ecs'
+import { defineQuery, ECSState, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { getState, NO_PROXY, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { Clock, MathUtils, Quaternion, Raycaster, Vector3 } from 'three'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
@@ -45,6 +47,7 @@ import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp, smootherStep } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectLayerComponents } from '../../renderer/components/ObjectLayerComponent'
+import { RendererComponent } from '../../renderer/components/RendererComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { T } from '../../schema/schemaFunctions'
@@ -61,7 +64,7 @@ export const FollowCameraComponent = defineComponent({
   name: 'FollowCameraComponent',
 
   schema: S.Object({
-    lerpValue: S.Number(0),
+    lerpValue: S.Number({ default: 0 }),
     originalPosition: T.Vec3(),
     originalOffset: T.Vec3(),
     originalRotation: T.Quaternion(),
@@ -74,50 +77,63 @@ export const FollowCameraComponent = defineComponent({
     firstPersonOffset: T.Vec3(),
     thirdPersonOffset: T.Vec3(),
     currentOffset: T.Vec3(),
-    offsetSmoothness: S.Number(0.1),
+    offsetSmoothness: S.Number({ default: 0.1 }),
     targetEntity: S.Entity(),
     currentTargetPosition: T.Vec3(),
-    targetPositionSmoothness: S.Number(0),
-    mode: S.Enum(FollowCameraMode, FollowCameraMode.ThirdPerson),
-    allowedModes: S.Array(S.Enum(FollowCameraMode), [
-      FollowCameraMode.ThirdPerson,
-      FollowCameraMode.FirstPerson,
-      FollowCameraMode.TopDown,
-      FollowCameraMode.ShoulderCam
-    ]),
-    distance: S.Number(0),
-    targetDistance: S.Number(0),
-    zoomVelocity: S.Object({
-      value: S.Number(0)
+    targetPositionSmoothness: S.Number({ default: 0 }),
+    mode: S.Enum(FollowCameraMode, {
+      $comment: "A limited string enum, ie. one of the values listed in the 'allowedModes' property",
+      default: FollowCameraMode.ThirdPerson
     }),
-    thirdPersonMinDistance: S.Number(0),
-    thirdPersonMaxDistance: S.Number(0),
-    effectiveMinDistance: S.Number(0),
-    effectiveMaxDistance: S.Number(0),
-    theta: S.Number(180),
-    phi: S.Number(10),
-    minPhi: S.Number(0),
-    maxPhi: S.Number(0),
-    locked: S.Bool(false),
-    enabled: S.Bool(true),
-    shoulderSide: S.Enum(FollowCameraShoulderSide, FollowCameraShoulderSide.Left),
+    allowedModes: S.Array(
+      S.Enum(FollowCameraMode, { $comment: "A list of allowed string values for the 'mode' property" }),
+      {
+        default: [
+          FollowCameraMode.ThirdPerson,
+          FollowCameraMode.FirstPerson,
+          FollowCameraMode.TopDown,
+          FollowCameraMode.ShoulderCam
+        ]
+      }
+    ),
+    distance: S.Number({ default: 0 }),
+    targetDistance: S.Number({ default: 0 }),
+    zoomVelocity: S.Object({
+      value: S.Number({ default: 0 })
+    }),
+    thirdPersonMinDistance: S.Number({ default: 0 }),
+    thirdPersonMaxDistance: S.Number({ default: 0 }),
+    effectiveMinDistance: S.Number({ default: 0 }),
+    effectiveMaxDistance: S.Number({ default: 0 }),
+    theta: S.Number({ default: 180 }),
+    phi: S.Number({ default: 10 }),
+    minPhi: S.Number({ default: 0 }),
+    maxPhi: S.Number({ default: 0 }),
+    minTheta: S.Number({ default: 0 }),
+    maxTheta: S.Number({ default: 0 }),
+    locked: S.Bool({ default: false }),
+    enabled: S.Bool({ default: true }),
+    shoulderSide: S.Enum(FollowCameraShoulderSide, {
+      $comment: "Likely a string enum, ie. one of the following values: 'Left', 'Right'",
+      default: FollowCameraShoulderSide.Left
+    }),
     raycastProps: S.Object({
-      enabled: S.Bool(true),
-      rayCount: S.Number(3),
-      rayLength: S.Number(15.0),
-      rayFrequency: S.Number(0.1),
-      rayConeAngle: S.Number(Math.PI / 12),
+      enabled: S.Bool({ default: true }),
+      rayCount: S.Number({ default: 3 }),
+      rayLength: S.Number({ default: 15.0 }),
+      rayFrequency: S.Number({ default: 0.1 }),
+      rayConeAngle: S.Number({ default: Math.PI / 12 }),
       camRayCastClock: S.Class(() => new Clock()),
       camRayCastCache: S.Object({
-        maxDistance: S.Number(-1),
-        targetHit: S.Bool(false)
+        maxDistance: S.Number({ default: -1 }),
+        targetHit: S.Bool({ default: false })
       }),
-      cameraRays: S.Array(T.Vec3(), [])
+      cameraRays: S.Array(T.Vec3())
     }),
-    pointerLock: S.Bool(false),
-    smoothLerp: S.Bool(true),
-    accumulatedZoomTriggerDebounceTime: S.Number(-1),
-    lastZoomStartDistance: S.Number(0)
+    pointerLock: S.Bool({ default: false }),
+    smoothLerp: S.Bool({ default: true }),
+    accumulatedZoomTriggerDebounceTime: S.Number({ default: -1 }),
+    lastZoomStartDistance: S.Number({ default: 0 })
   }),
 
   reactor: () => {
@@ -183,12 +199,44 @@ export const FollowCameraComponent = defineComponent({
       }
     }, [follow.mode])
 
+    const rendererComponent = useOptionalComponent(entity, RendererComponent)
+
     useImmediateEffect(() => {
-      if (!follow.pointerLock.value) return
+      if (!follow.pointerLock.value || !rendererComponent) return
+
+      const canvas = rendererComponent.canvas.get(NO_PROXY) as HTMLCanvasElement
+      if (!canvas) return
+
+      const onClick = () => {
+        if (!hasComponent(entity, RendererComponent)) return
+        if (document.pointerLockElement !== canvas) {
+          /**
+           * @todo - add support for unadjustedMovement API
+           *  - https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API#handling_promise_and_non-promise_versions_of_requestpointerlock
+           */
+          canvas?.requestPointerLock()
+        }
+      }
+
+      const onPointerLock = () => {
+        // console.log('pointer lock')
+      }
+
+      const onPointerUnlock = () => {
+        // console.log('pointer unlock')
+      }
+
+      canvas?.addEventListener('click', onClick)
+      document.addEventListener('pointerlockchange', onPointerLock)
+      document.addEventListener('pointerlockerror', onPointerUnlock)
+
       return () => {
+        canvas?.removeEventListener('click', onClick)
+        document.removeEventListener('pointerlockchange', onPointerLock)
+        document.removeEventListener('pointerlockerror', onPointerUnlock)
         document.exitPointerLock()
       }
-    }, [follow.pointerLock])
+    }, [follow.pointerLock.value, !!rendererComponent?.canvas])
 
     useEffect(() => {
       follow.lerpValue.set(0)
@@ -414,6 +462,10 @@ const updateCameraTargetRotation = (cameraEntity: Entity) => {
   const epsilon = 0.001
 
   target.phi = Math.min(followCamera.maxPhi, Math.max(followCamera.minPhi, target.phi))
+
+  if (followCamera.maxTheta && followCamera.minTheta) {
+    target.theta = Math.min(followCamera.maxTheta, Math.max(followCamera.minTheta, target.theta))
+  }
 
   if (Math.abs(target.phi - followCamera.phi) < epsilon && Math.abs(target.theta - followCamera.theta) < epsilon) {
     removeComponent(followCamera.targetEntity, TargetCameraRotationComponent)

@@ -1,0 +1,508 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "THREE.GLTFExporter"
+  },
+  "scenes": [
+    {
+      "name": "platform",
+      "nodes": [
+        2
+      ],
+      "extras": {
+        "src": "__$project$__/default-project/assets/platform.glb"
+      }
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "matrix": [
+        10,
+        0,
+        0,
+        0,
+        0,
+        0.10000000149011612,
+        0,
+        0,
+        0,
+        0,
+        10,
+        0,
+        0,
+        -0.10000000149011612,
+        0,
+        1
+      ],
+      "name": "Collider",
+      "extras": {
+        "name": "Collider"
+      },
+      "mesh": 0,
+      "extensions": {
+        "EE_uuid": "0b77bd2a-245e-4717-8938-ff5946c6fd6d",
+        "EE_collider": {
+          "shape": "box",
+          "mass": 1,
+          "massCenter": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "friction": 0.5,
+          "restitution": 0.5,
+          "collisionLayer": 1,
+          "collisionMask": 7
+        },
+        "EE_shadow": {
+          "cast": true,
+          "receive": true
+        },
+        "EE_envmap": {
+          "type": "Skybox",
+          "envMapTextureType": "Equirectangular",
+          "envMapSourceColor": 4095,
+          "envMapSourceURL": "",
+          "envMapSourceEntityUUID": "",
+          "envMapIntensity": 1
+        }
+      }
+    },
+    {
+      "name": "Geometry",
+      "extras": {
+        "name": "Geometry"
+      },
+      "mesh": 1,
+      "extensions": {
+        "EE_uuid": "80f1b0f4-8760-43da-9268-8967f12a74c4",
+        "EE_visible": true,
+        "EE_shadow": {
+          "cast": true,
+          "receive": true
+        },
+        "EE_envmap": {
+          "type": "Skybox",
+          "envMapTextureType": "Equirectangular",
+          "envMapSourceColor": 4095,
+          "envMapSourceURL": "",
+          "envMapSourceEntityUUID": "",
+          "envMapIntensity": 1
+        }
+      }
+    },
+    {
+      "name": "Base",
+      "children": [
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": "340406cb-0abc-4855-bc02-0b80f4f5602f",
+        "EE_visible": true
+      }
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteOffset": 0,
+      "byteLength": 288,
+      "target": 34962,
+      "byteStride": 12
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 288,
+      "byteLength": 288,
+      "target": 34962,
+      "byteStride": 12
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 576,
+      "byteLength": 192,
+      "target": 34962,
+      "byteStride": 8
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 768,
+      "byteLength": 144,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 912,
+      "byteLength": 288,
+      "target": 34962,
+      "byteStride": 12
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 1200,
+      "byteLength": 288,
+      "target": 34962,
+      "byteStride": 12
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 1488,
+      "byteLength": 192,
+      "target": 34962,
+      "byteStride": 8
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 1680,
+      "byteLength": 144,
+      "target": 34963
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 1824
+    }
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "componentType": 5126,
+      "count": 24,
+      "max": [
+        1,
+        1,
+        1
+      ],
+      "min": [
+        -1,
+        -1,
+        -1
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 24,
+      "max": [
+        1,
+        1,
+        1
+      ],
+      "min": [
+        -1,
+        -1,
+        -1
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 24,
+      "max": [
+        0.875,
+        1
+      ],
+      "min": [
+        0.125,
+        0
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5125,
+      "count": 36,
+      "max": [
+        23
+      ],
+      "min": [
+        0
+      ],
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 4,
+      "componentType": 5126,
+      "count": 24,
+      "max": [
+        10,
+        0,
+        10
+      ],
+      "min": [
+        -10,
+        -0.20000000298023224,
+        -10
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 5,
+      "componentType": 5126,
+      "count": 24,
+      "max": [
+        1,
+        1,
+        1
+      ],
+      "min": [
+        -1,
+        -1,
+        -1
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 6,
+      "componentType": 5126,
+      "count": 24,
+      "max": [
+        0.875,
+        1
+      ],
+      "min": [
+        0.125,
+        0
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 7,
+      "componentType": 5125,
+      "count": 36,
+      "max": [
+        23
+      ],
+      "min": [
+        0
+      ],
+      "type": "SCALAR"
+    }
+  ],
+  "materials": [
+    {
+      "name": "Material",
+      "extras": {
+        "plugins": [
+          null,
+          null,
+          null,
+          null
+        ],
+        "CSMPlugin": {
+          "id": "CSM0.9043409238087623",
+          "priority": 1
+        }
+      },
+      "extensions": {
+        "EE_material": {
+          "uuid": "7e03c4c7-69a6-4a75-b7a8-e0aea366418a",
+          "name": "Material",
+          "prototype": "MeshStandardMaterial",
+          "plugins": [
+            null,
+            null,
+            null,
+            null
+          ],
+          "args": {
+            "alphaTest": {
+              "type": "float",
+              "contents": 0
+            },
+            "alphaMap": {
+              "type": "texture",
+              "contents": null
+            },
+            "map": {
+              "type": "texture",
+              "contents": null
+            },
+            "color": {
+              "type": "color",
+              "contents": 16777215
+            },
+            "opacity": {
+              "type": "float",
+              "contents": 1
+            },
+            "blending": {
+              "type": "select",
+              "contents": 1
+            },
+            "depthTest": {
+              "type": "boolean",
+              "contents": true
+            },
+            "depthWrite": {
+              "type": "boolean",
+              "contents": true
+            },
+            "side": {
+              "type": "select",
+              "contents": 0
+            },
+            "toneMapped": {
+              "type": "boolean",
+              "contents": true
+            },
+            "transparent": {
+              "type": "boolean",
+              "contents": false
+            },
+            "vertexColors": {
+              "type": "boolean",
+              "contents": false
+            },
+            "emissive": {
+              "type": "color",
+              "contents": 0
+            },
+            "emissiveMap": {
+              "type": "texture",
+              "contents": null
+            },
+            "emissiveIntensity": {
+              "type": "float",
+              "contents": 1
+            },
+            "combine": {
+              "type": "select"
+            },
+            "envMapIntensity": {
+              "type": "float",
+              "contents": 1
+            },
+            "reflectivity": {
+              "type": "float"
+            },
+            "refractionRatio": {
+              "type": "float"
+            },
+            "normalMap": {
+              "type": "texture",
+              "contents": null
+            },
+            "normalMapType": {
+              "type": "select",
+              "contents": 0
+            },
+            "normalScale": {
+              "type": "vec2",
+              "contents": {
+                "x": 1,
+                "y": 1
+              }
+            },
+            "bumpMap": {
+              "type": "texture",
+              "contents": null
+            },
+            "bumpScale": {
+              "type": "float",
+              "contents": 1
+            },
+            "displacementMap": {
+              "type": "texture",
+              "contents": null
+            },
+            "displacementScale": {
+              "type": "float",
+              "contents": 1
+            },
+            "displacementBias": {
+              "type": "float",
+              "contents": 0
+            },
+            "roughness": {
+              "type": "float",
+              "contents": 1
+            },
+            "roughnessMap": {
+              "type": "texture",
+              "contents": null
+            },
+            "metalness": {
+              "type": "float",
+              "contents": 0
+            },
+            "metalnessMap": {
+              "type": "texture",
+              "contents": null
+            },
+            "aoMap": {
+              "type": "texture",
+              "contents": null
+            },
+            "aoMapIntensity": {
+              "type": "float",
+              "contents": 1
+            },
+            "lightMap": {
+              "type": "texture",
+              "contents": null
+            },
+            "lightMapIntensity": {
+              "type": "float",
+              "contents": 1
+            }
+          }
+        }
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "primitives": [
+        {
+          "mode": 4,
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TEXCOORD_0": 2
+          },
+          "indices": 3,
+          "material": 0
+        }
+      ],
+      "extensions": {
+        "EE_resourceId": {
+          "resourceId": "1523377b-707e-43d4-9154-11c6ed710de5"
+        }
+      }
+    },
+    {
+      "primitives": [
+        {
+          "mode": 4,
+          "attributes": {
+            "POSITION": 4,
+            "NORMAL": 5,
+            "TEXCOORD_0": 6
+          },
+          "indices": 7,
+          "material": 0
+        }
+      ],
+      "extensions": {
+        "EE_resourceId": {
+          "resourceId": "12b43d2a-a89d-4c1b-9058-065989af7687"
+        }
+      }
+    }
+  ],
+  "extensionsUsed": [
+    "EE_material",
+    "EE_resourceId",
+    "EE_uuid",
+    "EE_collider",
+    "EE_shadow",
+    "EE_envmap",
+    "EE_ecs",
+    "EE_visible"
+  ]
+}

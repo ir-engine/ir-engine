@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 import { afterEach, assert, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -39,7 +39,7 @@ import { Quaternion, Vector3 } from 'three'
 import { ReferenceSpaceState, TransformComponent } from '../SpatialModule'
 import { Q_IDENTITY, Vector3_One, Vector3_Zero } from '../common/constants/MathConstants'
 import { destroySpatialEngine, destroySpatialViewer } from '../initializeEngine'
-import { RendererComponent } from '../renderer/WebGLRendererSystem'
+import { RendererComponent } from '../renderer/components/RendererComponent'
 import { endXRSession, getReferenceSpaces, onSessionEnd, requestXRSession, setupXRSession } from './XRSessionFunctions'
 import { ReferenceSpace, XRState } from './XRState'
 

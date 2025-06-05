@@ -19,30 +19,20 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import {
-  Entity,
-  EntityTreeComponent,
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  Layers,
-  UUIDComponent
-} from '@ir-engine/ecs'
+import { Entity, EntityTreeComponent, getOptionalComponent, Layers, UUIDComponent } from '@ir-engine/ecs'
 import { AllFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
-import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
+
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { getState } from '@ir-engine/hyperflux'
 import { t } from 'i18next'
 import { CopyPasteFunctions, EntityCopyDataType } from '../../functions/CopyPasteFunctions'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { isEntityGlb } from '../../functions/utils'
-import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { SelectionState } from '../../services/SelectionServices'
 
@@ -54,6 +44,7 @@ export type HierarchyTreeNodeType = {
   isLeaf?: boolean
   isCollapsed?: boolean
   isRendered?: boolean
+  parentEntity?: Entity
 }
 
 /* COMMON */
@@ -68,25 +59,27 @@ export const uploadOptions = {
 /* NODE FUNCTIONALITIES */
 
 const getSelectedEntities = (entity?: Entity) => {
-  const selected = entity
-    ? getState(SelectionState).selectedEntities.includes(getComponent(entity, UUIDComponent))
-    : true
+  const selected = entity ? getState(SelectionState).selectedEntities.includes(UUIDComponent.get(entity)) : true
   const selectedEntities = selected ? SelectionState.getSelectedEntities() : [entity!]
   return selectedEntities
 }
 
 export const deleteNode = (entity: Entity) => {
-  EditorHistoryFunctions.removeEntity(getSelectedEntities(entity))
+  const entities = getSelectedEntities(entity)
+  EditorControlFunctions.removeObject(entities)
+  AuthoringState.snapshotEntities(entities)
 }
 
 export const duplicateNode = (entity?: Entity) => {
-  EditorControlFunctions.duplicateObject(getSelectedEntities(entity))
-  EditorHistoryFunctions.snapshot()
+  const entities = getSelectedEntities(entity)
+  EditorControlFunctions.duplicateObject(entities)
+  AuthoringState.snapshotEntities(entities)
 }
 
 export const groupNodes = (entity?: Entity) => {
-  EditorControlFunctions.groupObjects(getSelectedEntities(entity))
-  EditorHistoryFunctions.snapshot()
+  const entities = getSelectedEntities(entity)
+  EditorControlFunctions.groupObjects(entities)
+  AuthoringState.snapshotEntities
 }
 
 export const copyNodes = (entity?: Entity) => {
@@ -102,7 +95,7 @@ export const pasteNodes = (parentEntity?: Entity) => {
   const ProcessEntityData = (parentEntity: Entity | undefined, nodeEntitiesData: EntityCopyDataType[]) => {
     nodeEntitiesData.forEach((nodeEntityData) => {
       const components = nodeEntityData.components.map((c) => ({ name: c.name, props: c.json }) as ComponentJsonType)
-      delete components[NodeIDComponent.jsonID]
+      delete components[UUIDComponent.jsonID]
 
       const entityData = EditorControlFunctions.createObjectFromSceneElement(
         components,
@@ -120,7 +113,7 @@ export const pasteNodes = (parentEntity?: Entity) => {
       parentEntities.forEach((entity) => {
         ProcessEntityData(entity, nodeEntitiesData)
       })
-      EditorHistoryFunctions.snapshot()
+      AuthoringState.snapshotEntities(parentEntities)
     })
     .catch(() => {
       NotificationService.dispatchNotify(t('editor:hierarchy.copy-paste.no-hierarchy-nodes') as string, {
@@ -142,19 +135,16 @@ export function ecsHierarchyTreeWalker(rootEntity: Entity, enableHideGlbChildren
   while (frontier.length > 0) {
     const { entity, depth, lastChild, isRendered: originalIsRendered } = frontier.pop()!
     const eTree = getOptionalComponent(entity, EntityTreeComponent)
+    const parentEntity = eTree?.parentEntity
 
-    const hasGLTFComponent = hasComponent(entity, GLTFComponent)
-    const hasSourceComponent = hasComponent(entity, SourceComponent)
-
-    const valid = hasGLTFComponent || hasSourceComponent
-    if (!eTree || !valid) continue
+    if (!eTree) continue
     const childIndex = eTree.childIndex ?? 0
     const children = eTree.children
 
     //@todo temporary check for glb so we don't display children we can't save edits to
     const hideChildren = isEntityGlb(entity) && enableHideGlbChildren
     const isLeaf = !children || children.length === 0 || hideChildren //check glb here to hide expansion chevron
-    const sourceID = GLTFComponent.getInstanceID(rootEntity)
+    const sourceID = UUIDComponent.get(rootEntity)
     const isCollapsed = !getState(HierarchyTreeState).expandedNodes[sourceID]?.[entity]
     const isRendered = originalIsRendered && !isCollapsed
     result.push({
@@ -164,7 +154,8 @@ export function ecsHierarchyTreeWalker(rootEntity: Entity, enableHideGlbChildren
       lastChild,
       isLeaf,
       isCollapsed,
-      isRendered: originalIsRendered
+      isRendered: originalIsRendered,
+      parentEntity
     })
     if (children && !hideChildren) {
       //do not push children of glb

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -30,10 +30,10 @@ import { getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunction
 import { SplineTrackComponent } from '@ir-engine/engine/src/scene/components/SplineTrackComponent'
 import { MdCameraswitch } from 'react-icons/md'
 
+import { UUIDComponent } from '@ir-engine/ecs'
 import { useQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { SplineComponent } from '@ir-engine/engine/src/scene/components/SplineComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Checkbox } from '@ir-engine/ui'
@@ -57,7 +57,7 @@ export const SplineTrackNodeEditor: EditorComponentType = (props) => {
 
   const availableSplines = useQuery([SplineComponent]).map((entity) => {
     const name = getComponent(entity, NameComponent)
-    const nodeID = getComponent(entity, NodeIDComponent)
+    const nodeID = getComponent(entity, UUIDComponent).entityID
     return {
       label: name,
       value: nodeID

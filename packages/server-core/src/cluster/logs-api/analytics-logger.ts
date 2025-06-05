@@ -19,34 +19,90 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { HookContext } from '@feathersjs/feathers'
+import { resolve } from '@feathersjs/schema'
+import { getValidator, Static, Type } from '@feathersjs/typebox'
 import { BigQuery } from '@google-cloud/bigquery'
-import { LogParamsObject } from '@ir-engine/common/src/logger'
-import { v4 as uuidv4 } from 'uuid'
+import { dataValidator } from '@ir-engine/common/src/schemas/validators'
 
-interface BigQueryRow {
-  event_name: string
-  event_id: string
-  event_value: string
-  event_properties: any
-  event_time: number
-  tenant: string
-  project: string
-  user_id: string
-  session_id: string
-  environment: string
-  host_uri: string
-  app_name: string
-  ip_address: string
-  device_type: string
-  device_info: string
-  account_id: string
-  location_id: string
-  project_id: string
-}
+export const AnalyticsLogSchema = Type.Object(
+  {
+    // Required Log Properties Payload
+    event_id: Type.String(),
+    event_name: Type.String(),
+    // Optional Properties
+    action: Type.Optional(Type.String()),
+    level: Type.Optional(Type.String()),
+    component: Type.Optional(Type.String()),
+    user_id: Type.Optional(Type.String()),
+    event_value: Type.Optional(Type.String()),
+    event_properties: Type.Optional(
+      Type.Array(
+        Type.Object({
+          key: Type.String(),
+          value: Type.String()
+        })
+      )
+    ),
+    session_id: Type.Optional(Type.String()),
+    environment: Type.Optional(Type.String()),
+    host_uri: Type.Optional(Type.String()),
+    app_name: Type.Optional(Type.String()),
+    ip_address: Type.Optional(Type.String()),
+    device_type: Type.Optional(Type.String()),
+    device_info: Type.Optional(Type.String()),
+    account_id: Type.Optional(Type.String()),
+    location_id: Type.Optional(Type.String()),
+    project_id: Type.Optional(Type.String()),
+    tenant: Type.Optional(Type.String()),
+    project: Type.Optional(Type.String()),
+    event_time: Type.Optional(Type.Number())
+  },
+  { additionalProperties: false }
+)
+
+export const BQLogSchema = Type.Pick(
+  AnalyticsLogSchema,
+  [
+    'user_id',
+    'event_name',
+    'event_id',
+    'event_value',
+    'event_properties',
+    'session_id',
+    'environment',
+    'host_uri',
+    'app_name',
+    'ip_address',
+    'device_type',
+    'device_info',
+    'account_id',
+    'location_id',
+    'project_id',
+    'tenant',
+    'project',
+    'event_time'
+  ],
+  { additionalProperties: false }
+)
+
+export type AnalyticsLog = Static<typeof AnalyticsLogSchema>
+export type BQLog = Static<typeof BQLogSchema>
+
+export const AnalyticsLogValidator = getValidator(AnalyticsLogSchema, dataValidator)
+export const AnalyticsLogResolver = resolve<AnalyticsLog, HookContext>({
+  user_id: async (value, log, context) => context.params.user.id,
+  event_time: async (value, log) => value || Date.now(),
+  action: async () => undefined,
+  level: async () => undefined,
+  component: async () => undefined
+})
+
+export const BQLogValidator = getValidator(BQLogSchema, dataValidator)
 
 // Ensure the environment variables exist (or add runtime checks as needed)
 const projectId: string = process.env.BQ_PROJECT_ID!
@@ -63,37 +119,15 @@ const bigquery = new BigQuery({
  *
  * @param event - The event object containing the event data.
  */
-export const logToBigQuery = async (event: LogParamsObject) => {
-  // Create the row to insert into BigQuery.
-  const row: BigQueryRow = {
-    event_name: event.event_name,
-    event_id: event.event_id || uuidv4(),
-    event_value: event.event_value || '',
-    event_properties: event.event_properties || [],
-    event_time: Date.now(),
-    tenant: event.tenant,
-    project: event.project,
-    user_id: event.user_id,
-    session_id: event.session_id,
-    environment: event.environment,
-    host_uri: event.host_uri,
-    app_name: event.app_name,
-    ip_address: event.ip_address,
-    device_type: event.device_type,
-    device_info: event.device_info,
-    account_id: event.account_id,
-    location_id: event.location_id,
-    project_id: event.project_id
-  }
-
+export const logToBigQuery = async (log: BQLog) => {
   try {
     // Retrieve the dataset and table from BigQuery.
     const dataset = bigquery.dataset(datasetId)
     const table = dataset.table(tableId)
-
     // Insert the row.
-    await table.insert(row)
-    console.log(`Logged event to BigQuery: ${event.event_name}`)
+    const result = await table.insert(log)
+    console.log('[BigQuery] event:', log)
+    console.log('[BigQuery] result:', result)
   } catch (error) {
     console.error('Error inserting row into BigQuery:', error)
     throw error

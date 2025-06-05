@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -135,7 +135,8 @@ export const setInputSources = (startEntity: Entity, inputSources: Entity[]) => 
   const inputComponent = getComponent(inputEntity, InputComponent)
 
   for (const sinkEntityUUID of inputComponent.inputSinks) {
-    const sinkEntity = sinkEntityUUID === 'Self' ? inputEntity : UUIDComponent.getEntityByUUID(sinkEntityUUID) //TODO why is this not sending input to my sinks
+    const sinkEntity =
+      sinkEntityUUID === 'Self' ? inputEntity : UUIDComponent.getEntityFromSameSourceByID(inputEntity, sinkEntityUUID)
     if (!hasComponent(sinkEntity, InputComponent)) continue
     const sinkInputComponent = getMutableComponent(sinkEntity, InputComponent)
     sinkInputComponent.inputSources.merge(inputSources)

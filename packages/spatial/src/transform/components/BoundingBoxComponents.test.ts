@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -49,7 +49,7 @@ import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
-import { BoundingBoxComponent, BoundingBoxComponentFunctions, updateBoundingBox } from './BoundingBoxComponents'
+import { BoundingBoxComponent, BoundingBoxComponentFunctions, updateBoundingBox } from './BoundingBoxComponent'
 import { TransformComponent } from './TransformComponent'
 
 function createEntityWithBoxAndParent(parent: Entity): Entity {
@@ -140,6 +140,7 @@ describe('BoundingBoxComponent', () => {
     beforeEach(async () => {
       createEngine()
       testEntity = createEntity()
+      getMutableState(RendererState).nodeHelperVisibility.set(false)
     })
 
     afterEach(() => {

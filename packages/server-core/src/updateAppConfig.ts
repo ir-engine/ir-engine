@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -31,20 +31,11 @@ import knex from 'knex'
 import { WebRTCSettings, defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { EngineSettingType, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
-import {
-  AuthenticationSettingDatabaseType,
-  authenticationSettingPath
-} from '@ir-engine/common/src/schemas/setting/authentication-setting.schema'
-import {
-  ClientSettingDatabaseType,
-  clientDbToSchema,
-  clientSettingPath
-} from '@ir-engine/common/src/schemas/setting/client-setting.schema'
+
 import { parseValue } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { FlattenedEntry, unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { createHash } from 'crypto'
 import appConfig, { updateNestedConfig } from './appconfig'
-import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
 
 const db = {
   user: process.env.MYSQL_USER ?? 'server',
@@ -69,62 +60,7 @@ export const updateAppConfig = async (): Promise<void> => {
 
   const promises: any[] = []
 
-  const authenticationSettingPromise = knexClient
-    .select()
-    .from<AuthenticationSettingDatabaseType>(authenticationSettingPath)
-    .then(([dbAuthentication]) => {
-      const dbAuthenticationConfig = authenticationDbToSchema(dbAuthentication)
-      if (dbAuthenticationConfig) {
-        const authStrategies = ['jwt']
-        for (let authStrategy of dbAuthenticationConfig.authStrategies) {
-          const keys = Object.keys(authStrategy)
-          for (let key of keys)
-            if (nonFeathersStrategies.indexOf(key) < 0 && authStrategies.indexOf(key) < 0) authStrategies.push(key)
-        }
-        delete (dbAuthenticationConfig as any).authStrategies
-
-        appConfig.authentication = {
-          ...appConfig.authentication,
-          ...(dbAuthenticationConfig as any),
-          secret: dbAuthenticationConfig.secret.split(String.raw`\n`).join('\n'),
-          authStrategies: authStrategies
-        }
-        if (dbAuthenticationConfig.oauth?.github?.privateKey)
-          appConfig.authentication.oauth.github.privateKey = dbAuthenticationConfig.oauth.github.privateKey
-            .split(String.raw`\n`)
-            .join('\n')
-        if (dbAuthentication.jwtPublicKey && typeof dbAuthentication.jwtPublicKey === 'string') {
-          appConfig.authentication.jwtPublicKey = dbAuthentication.jwtPublicKey.split(String.raw`\n`).join('\n')
-          ;(appConfig.authentication.jwtOptions as any).keyid = createHash('sha3-256')
-            .update(appConfig.authentication.jwtPublicKey)
-            .digest('hex')
-        }
-        appConfig.authentication.jwtOptions.algorithm = dbAuthentication.jwtAlgorithm || 'HS256'
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read ${authenticationSettingPath}: ${e.message}`)
-    })
-  promises.push(authenticationSettingPromise)
-
-  const clientSettingPromise = knexClient
-    .select()
-    .from<ClientSettingDatabaseType>(clientSettingPath)
-    .then(([dbClient]) => {
-      const dbClientConfig = clientDbToSchema(dbClient)
-      if (dbClientConfig) {
-        appConfig.client = {
-          ...appConfig.client,
-          ...dbClientConfig
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read clientSetting: ${e.message}`)
-    })
-  promises.push(clientSettingPromise)
-
-  const categoriesToUnflatten = ['email', 'aws']
+  const categoriesToUnflatten = ['email', 'aws', 'authentication', 'client']
 
   const engineSettingPromise = knexClient
     .select()
@@ -189,8 +125,43 @@ const processSettings = (settings: EngineSettingType[], category: string) => {
       dataType: setting.dataType
     }))
   )
-  appConfig[category] = {
-    ...appConfig[category],
-    ...settingsObject
+  if (category === 'authentication') {
+    const authStrategies = ['jwt']
+    for (const authStrategy of settingsObject.authStrategies) {
+      const keys = Object.keys(authStrategy)
+      for (const key of keys) {
+        if (nonFeathersStrategies.indexOf(key) < 0 && authStrategies.indexOf(key) < 0) {
+          authStrategies.push(key)
+        }
+      }
+    }
+    delete (settingsObject as any).authStrategies
+
+    appConfig.authentication = {
+      ...appConfig.authentication,
+      ...(settingsObject as any),
+      secret: settingsObject.secret.split(String.raw`\n`).join('\n'),
+      authStrategies: authStrategies
+    }
+
+    if (settingsObject.oauth?.github?.privateKey) {
+      appConfig.authentication.oauth.github.privateKey = settingsObject.oauth.github.privateKey
+        .split(String.raw`\n`)
+        .join('\n')
+    }
+
+    if (settingsObject.jwtPublicKey && typeof settingsObject.jwtPublicKey === 'string') {
+      appConfig.authentication.jwtPublicKey = settingsObject.jwtPublicKey.split(String.raw`\n`).join('\n')
+      ;(appConfig.authentication.jwtOptions as any).keyid = createHash('sha3-256')
+        .update(appConfig.authentication.jwtPublicKey)
+        .digest('hex')
+    }
+
+    appConfig.authentication.jwtOptions.algorithm = settingsObject.jwtAlgorithm || 'HS256'
+  } else {
+    appConfig[category] = {
+      ...appConfig[category],
+      ...settingsObject
+    }
   }
 }

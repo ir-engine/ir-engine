@@ -19,12 +19,11 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
-import { getMutableState, NO_PROXY } from '@ir-engine/hyperflux'
+import { getMutableState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import { TabData } from 'rc-dock'
 import React, { useEffect } from 'react'
@@ -71,12 +70,18 @@ function AssetsContainer() {
   const toolbar = sidebarType.value === SidebarType.FILES ? <FilesToolbar /> : <Topbar />
   const rightChildren = sidebarType.value === SidebarType.FILES ? <FileBrowser /> : <Resources />
 
+  const initAssetsSidebar = () => {
+    const projectName = getMutableState(FilesState).projectName.get(NO_PROXY)
+    const importFolder = getMutableState(ImportSettingsState).importFolder.get(NO_PROXY)
+    const dir = `/projects/${projectName}${importFolder}`
+    getMutableState(FilesState).selectedDirectory.set(dir)
+  }
+
+  useEffect(() => initAssetsSidebar(), [])
+
   useEffect(() => {
     if (sidebarType.value === SidebarType.ASSETS) {
-      const projectName = getMutableState(FilesState).projectName.get(NO_PROXY)
-      const importFolder = getMutableState(ImportSettingsState).importFolder.get(NO_PROXY)
-      const dir = `projects/${projectName}${importFolder}`
-      getMutableState(FilesState).selectedDirectory.set(dir)
+      initAssetsSidebar()
     }
   }, [sidebarType])
 

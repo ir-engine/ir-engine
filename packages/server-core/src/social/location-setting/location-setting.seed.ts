@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -39,6 +39,9 @@ export const locationSettingSeedData = [
     audioEnabled: true,
     screenSharingEnabled: true,
     faceStreamingEnabled: true
+    /** @todo: Re-enable this when the engine has a working jump control/vr capabilities */
+    // jumpControlEnabled: true,
+    // vrEnabled: true
   },
   {
     id: '37ce32f0-208d-11eb-b02f-37cfdadfe58d',
@@ -48,6 +51,9 @@ export const locationSettingSeedData = [
     audioEnabled: true,
     screenSharingEnabled: true,
     faceStreamingEnabled: true
+    /** @todo: Re-enable this when the engine has a working jump control/vr capabilities */
+    // jumpControlEnabled: true,
+    // vrEnabled: true
   },
   {
     id: '37ce32f0-208d-11eb-b02f-37cfdadfe58e',
@@ -56,7 +62,10 @@ export const locationSettingSeedData = [
     videoEnabled: true,
     audioEnabled: true,
     screenSharingEnabled: true,
+    /** @todo: Re-enable this when the engine has a working jump control/vr capabilities */
     faceStreamingEnabled: true
+    // jumpControlEnabled: true,
+    // vrEnabled: true
   }
 ]
 

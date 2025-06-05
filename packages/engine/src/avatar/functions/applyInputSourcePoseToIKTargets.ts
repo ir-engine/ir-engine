@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -128,12 +128,12 @@ export const applyInputSourcePoseToIKTargets = () => {
   const xrFrame = getState(XRState).xrFrame!
   const referenceSpace = ReferenceSpace.origin
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-  const uuid = getComponent(selfAvatarEntity, UUIDComponent)
-  const ikTargetLeftHand = AvatarIKTargetComponent.getTargetEntity(uuid, ikTargets.leftHand)
-  const ikTargetRightHand = AvatarIKTargetComponent.getTargetEntity(uuid, ikTargets.rightHand)
-  const ikTargetHead = AvatarIKTargetComponent.getTargetEntity(uuid, ikTargets.head)
-  const ikTargetLeftFoot = AvatarIKTargetComponent.getTargetEntity(uuid, ikTargets.leftFoot)
-  const ikTargetRightFoot = AvatarIKTargetComponent.getTargetEntity(uuid, ikTargets.rightFoot)
+  const entitySourceID = getComponent(selfAvatarEntity, UUIDComponent).entitySourceID
+  const ikTargetLeftHand = AvatarIKTargetComponent.getTargetEntity(entitySourceID, ikTargets.leftHand)
+  const ikTargetRightHand = AvatarIKTargetComponent.getTargetEntity(entitySourceID, ikTargets.rightHand)
+  const ikTargetHead = AvatarIKTargetComponent.getTargetEntity(entitySourceID, ikTargets.head)
+  const ikTargetLeftFoot = AvatarIKTargetComponent.getTargetEntity(entitySourceID, ikTargets.leftFoot)
+  const ikTargetRightFoot = AvatarIKTargetComponent.getTargetEntity(entitySourceID, ikTargets.rightFoot)
   // reset all IK targets
   if (ikTargetHead) AvatarIKTargetComponent.blendWeight[ikTargetHead] = 0
   if (ikTargetLeftHand) AvatarIKTargetComponent.blendWeight[ikTargetLeftHand] = 0

@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -36,7 +36,7 @@ import {
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { getState, State } from '@ir-engine/hyperflux'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { AudioState } from '../../audio/AudioState'
@@ -89,24 +89,27 @@ export const LegacyVolumetricComponent = defineComponent({
 
   schema: S.Object({
     paths: S.Array(S.String()),
-    useLoadingEffect: S.Bool(true),
-    autoPauseWhenBuffering: S.Bool(true), // TODO: Implement this for UVOL1
-    autoplay: S.Bool(true),
-    paused: S.Bool(true),
-    initialBuffersLoaded: S.Bool(false),
-    hasAudio: S.Bool(false),
-    ended: S.Bool(true),
-    volume: S.Number(1),
-    playMode: S.Enum(PlayMode, PlayMode.loop),
-    track: S.Number(-1),
-    forceChangeTrack: S.Bool(false),
+    useLoadingEffect: S.Bool({ default: true }),
+    autoPauseWhenBuffering: S.Bool({ default: true }), // TODO: Implement this for UVOL1
+    autoplay: S.Bool({ default: true }),
+    paused: S.Bool({ default: true }),
+    initialBuffersLoaded: S.Bool({ default: false }),
+    hasAudio: S.Bool({ default: false }),
+    ended: S.Bool({ default: true }),
+    volume: S.Number({ default: 1 }),
+    playMode: S.Enum(PlayMode, {
+      $comment: "A string enum, ie. one of the following values: 'single', 'random', 'loop', 'singleloop'",
+      default: PlayMode.loop
+    }),
+    track: S.Number({ default: -1 }),
+    forceChangeTrack: S.Bool({ default: false }),
     currentTrackInfo: S.Object({
-      dontReset: S.Bool(false),
-      mediaStartTime: S.Number(0),
-      playbackStartDate: S.Number(0),
-      playbackRate: S.Number(1),
-      currentTime: S.Number(0),
-      duration: S.Number(0)
+      dontReset: S.Bool({ default: false }),
+      mediaStartTime: S.Number({ default: 0 }),
+      playbackStartDate: S.Number({ default: 0 }),
+      playbackRate: S.Number({ default: 1 }),
+      currentTime: S.Number({ default: 0 }),
+      duration: S.Number({ default: 0 })
     })
   }),
 

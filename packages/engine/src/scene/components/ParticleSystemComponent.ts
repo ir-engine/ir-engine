@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -50,28 +50,25 @@ import {
   ParticleSystemJSONParameters,
   RenderMode
 } from 'three.quarks'
-import matches from 'ts-matches'
 
 import {
   Entity,
   EntityTreeComponent,
   UUIDComponent,
   createEntity,
-  generateEntityUUID,
   getAncestorWithComponents,
   getChildrenWithComponents,
   removeEntity,
-  useAncestorWithComponents,
   useEntityContext
 } from '@ir-engine/ecs'
 import {
   defineComponent,
+  entityExists,
   getComponent,
   removeComponent,
   setComponent,
   useComponent,
-  useHasComponent,
-  useOptionalComponent
+  useHasComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
@@ -82,11 +79,11 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { getRendererEntity, useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useGLTFComponent, useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { mergeGeometries } from '../util/meshUtils'
-import { SourceComponent } from './SourceComponent'
 
 export type ParticleSystemRendererInstance = {
   renderer: BatchedRenderer
@@ -95,38 +92,47 @@ export type ParticleSystemRendererInstance = {
 }
 
 const createBatchedRenderer = (entity: Entity) => {
-  const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
+  const rendererEntity = getRendererEntity(entity)
   const particleState = getMutableState(ParticleState)
-  if (particleState.renderers[sceneEntity].value) {
-    const instance = particleState.renderers[sceneEntity].get(NO_PROXY) as ParticleSystemRendererInstance
+  if (particleState.renderers.value[rendererEntity]) {
+    const instance = particleState.renderers[rendererEntity].get(NO_PROXY) as ParticleSystemRendererInstance
     instance.instanceCount++
     return instance
   } else {
     const renderer = new BatchedRenderer()
-    const rendererEntity = createEntity()
-    setComponent(rendererEntity, UUIDComponent, generateEntityUUID())
-    setComponent(rendererEntity, VisibleComponent)
-    setComponent(rendererEntity, NameComponent, 'Particle Renderer')
+    const particleRendererEntity = createEntity()
+    setComponent(particleRendererEntity, VisibleComponent)
+    setComponent(particleRendererEntity, NameComponent, 'Particle Renderer')
     const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
-    setComponent(rendererEntity, EntityTreeComponent, { parentEntity: sceneEntity })
+    setComponent(particleRendererEntity, UUIDComponent, {
+      entitySourceID: getComponent(sceneEntity, UUIDComponent).entitySourceID,
+      entityID: UUIDComponent.generateUUID()
+    })
+    setComponent(particleRendererEntity, EntityTreeComponent, { parentEntity: sceneEntity })
     renderer.preserveChildren = true
     renderer.parent = {
       type: 'Scene',
+      matrix: new Matrix4().identity(),
+      matrixWorld: new Matrix4().identity(),
       remove: () => {},
       removeFromParent: () => {}
     } as Object3D
     renderer.matrixWorld = new Matrix4().identity()
-    setComponent(rendererEntity, ObjectComponent, renderer)
-    const instance: ParticleSystemRendererInstance = { renderer, rendererEntity, instanceCount: 1 }
-    particleState.renderers[sceneEntity].set(instance)
+    setComponent(particleRendererEntity, ObjectComponent, renderer)
+    const instance: ParticleSystemRendererInstance = {
+      renderer,
+      rendererEntity: particleRendererEntity,
+      instanceCount: 1
+    }
+    particleState.renderers[rendererEntity].set(instance)
     return instance
   }
 }
 
-const removeBatchedRenderer: (sceneID: string) => void = (sceneID) => {
+const removeBatchedRenderer = (rendererEntity: Entity) => {
   const particleState = getMutableState(ParticleState)
-  if (particleState.renderers[sceneID].value) {
-    const instance = particleState.renderers[sceneID].get(NO_PROXY) as ParticleSystemRendererInstance
+  if (particleState.renderers[rendererEntity].value) {
+    const instance = particleState.renderers[rendererEntity].get(NO_PROXY) as ParticleSystemRendererInstance
     if (instance.instanceCount <= 1) {
       removeComponent(instance.rendererEntity, ObjectComponent)
       for (const batch of instance.renderer.batches) {
@@ -134,7 +140,7 @@ const removeBatchedRenderer: (sceneID: string) => void = (sceneID) => {
         batch.dispose()
       }
       removeEntity(instance.rendererEntity)
-      particleState.renderers[sceneID].set(none)
+      particleState.renderers[rendererEntity].set(none)
     } else {
       instance.instanceCount--
     }
@@ -739,106 +745,86 @@ export type ParticleSystemComponentType = {
   behaviors?: Behavior[] | undefined
 }
 
-export const ParticleSystemJSONParametersValidator = matches.shape({
-  version: matches.string,
-  autoDestroy: matches.boolean,
-  looping: matches.boolean,
-  duration: matches.number,
-  shape: matches.shape({
-    type: matches.string,
-    radius: matches.number.optional(),
-    arc: matches.number.optional(),
-    thickness: matches.number.optional(),
-    angle: matches.number.optional(),
-    mesh: matches.string.optional()
-  }),
-  startLife: matches.object,
-  startSpeed: matches.object,
-  startRotation: matches.object,
-  startSize: matches.object,
-  startColor: matches.object,
-  emissionOverTime: matches.object,
-  emissionOverDistance: matches.object,
-  onlyUsedByOther: matches.boolean,
-  rendererEmitterSettings: matches
-    .shape({
-      startLength: matches.object.optional(),
-      followLocalOrigin: matches.boolean.optional()
-    })
-    .optional(),
-  renderMode: matches.natural,
-  speedFactor: matches.number,
-  texture: matches.string,
-  instancingGeometry: matches.object.optional(),
-  startTileIndex: matches.natural,
-  uTileCount: matches.natural,
-  vTileCount: matches.natural,
-  blending: matches.natural,
-  behaviors: matches.arrayOf(matches.any),
-  worldSpace: matches.boolean
-})
-
 const BlendingSchema = S.LiteralUnion(
   [NoBlending, NormalBlending, AdditiveBlending, SubtractiveBlending, MultiplyBlending, CustomBlending],
-  AdditiveBlending
+  { default: AdditiveBlending }
 )
 
 export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS = S.Object({
-  version: S.String('1.0'),
-  autoDestroy: S.Bool(false),
-  looping: S.Bool(true),
-  prewarm: S.Bool(false),
-  material: S.String(''),
+  version: S.String({ default: '1.0' }),
+  autoDestroy: S.Bool({ default: false }),
+  looping: S.Bool({ default: true }),
+  prewarm: S.Bool({ default: false }),
+  material: S.String({ default: '' }),
   transparent: S.Optional(S.Bool()),
-  duration: S.Number(5),
-  shape: S.Object({ type: S.String('point'), mesh: S.Optional(S.String()), geometry: S.Optional(S.String()) }),
+  duration: S.Number({ default: 5 }),
+  shape: S.Object({
+    type: S.String({ default: 'point' }),
+    mesh: S.Optional(S.String()),
+    geometry: S.Optional(S.String())
+  }),
   startLife: S.Object({
-    type: S.String('IntervalValue'),
-    a: S.Number(1),
-    b: S.Number(2),
-    value: S.Number(1),
+    type: S.String({ default: 'IntervalValue' }),
+    a: S.Number({ default: 1 }),
+    b: S.Number({ default: 2 }),
+    value: S.Number({ default: 1 }),
     functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   startSpeed: S.Object({
-    type: S.String('IntervalValue'),
-    a: S.Number(0.1),
-    b: S.Number(5),
-    value: S.Number(1),
+    type: S.String({ default: 'IntervalValue' }),
+    a: S.Number({ default: 0.1 }),
+    b: S.Number({ default: 5 }),
+    value: S.Number({ default: 1 }),
     functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   startRotation: S.Object({
-    type: S.String('IntervalValue'),
-    a: S.Number(0),
-    b: S.Number(300),
-    value: S.Number(1),
+    type: S.String({ default: 'IntervalValue' }),
+    a: S.Number({ default: 0 }),
+    b: S.Number({ default: 300 }),
+    value: S.Number({ default: 1 }),
     functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   startSize: S.Object({
-    type: S.String('IntervalValue'),
-    a: S.Number(0.025),
-    b: S.Number(0.45),
-    value: S.Number(1),
+    type: S.String({ default: 'IntervalValue' }),
+    a: S.Number({ default: 0.025 }),
+    b: S.Number({ default: 0.45 }),
+    value: S.Number({ default: 1 }),
     functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   startColor: S.Object({
-    type: S.String('ConstantColor'),
-    color: S.Object({ r: S.Number(1), g: S.Number(1), b: S.Number(1), a: S.Number(0.1) }),
-    a: S.Object({ r: S.Number(1), g: S.Number(1), b: S.Number(1), a: S.Number(1) }),
-    b: S.Object({ r: S.Number(1), g: S.Number(1), b: S.Number(1), a: S.Number(1) }),
+    type: S.String({ default: 'ConstantColor' }),
+    color: S.Object({
+      r: S.Number({ default: 1 }),
+      g: S.Number({ default: 1 }),
+      b: S.Number({ default: 1 }),
+      a: S.Number({ default: 0.1 })
+    }),
+    a: S.Object({
+      r: S.Number({ default: 1 }),
+      g: S.Number({ default: 1 }),
+      b: S.Number({ default: 1 }),
+      a: S.Number({ default: 1 })
+    }),
+    b: S.Object({
+      r: S.Number({ default: 1 }),
+      g: S.Number({ default: 1 }),
+      b: S.Number({ default: 1 }),
+      a: S.Number({ default: 1 })
+    }),
     functions: S.Array(S.Type<ColorGradientFunctionJSON>())
   }),
   emissionOverTime: S.Object({
-    type: S.String('ConstantValue'),
-    value: S.Number(400),
-    a: S.Number(0),
-    b: S.Number(1),
+    type: S.String({ default: 'ConstantValue' }),
+    value: S.Number({ default: 400 }),
+    a: S.Number({ default: 0 }),
+    b: S.Number({ default: 1 }),
     functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   emissionOverDistance: S.Object({
-    type: S.String('ConstantValue'),
-    value: S.Number(0),
-    a: S.Number(0),
-    b: S.Number(1),
+    type: S.String({ default: 'ConstantValue' }),
+    value: S.Number({ default: 0 }),
+    a: S.Number({ default: 0 }),
+    b: S.Number({ default: 1 }),
     functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   emissionBursts: S.Array(
@@ -850,35 +836,39 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS = S.Object({
       probability: S.Number()
     })
   ),
-  onlyUsedByOther: S.Bool(false),
+  onlyUsedByOther: S.Bool({ default: false }),
   rendererEmitterSettings: S.Object({
     startLength: S.Object({
-      type: S.String('ConstantValue'),
-      value: S.Number(1),
-      a: S.Number(0),
-      b: S.Number(1),
+      type: S.String({ default: 'ConstantValue' }),
+      value: S.Number({ default: 1 }),
+      a: S.Number({ default: 0 }),
+      b: S.Number({ default: 1 }),
       functions: S.Array(S.Type<BezierFunctionJSON>())
     }),
-    followLocalOrigin: S.Bool(true)
+    followLocalOrigin: S.Bool({ default: true })
   }),
-  renderMode: S.Enum(RenderMode, RenderMode.BillBoard),
-  texture: S.String(''),
+  renderMode: S.LiteralUnion(Object.values(RenderMode), {
+    $comment:
+      "A number enum, where: 0 represents 'BillBoard', 1 represents 'StretchedBillBoard', 2 represents 'Mesh', 3 represents 'Trail'",
+    default: RenderMode.BillBoard
+  }),
+  texture: S.String({ default: '' }),
   /**
    * particle mesh geometry
    */
-  instancingGeometry: S.String(''),
+  instancingGeometry: S.String({ default: '' }),
   startTileIndex: S.Object({
-    type: S.String('ConstantValue'),
-    value: S.Number(0),
-    a: S.Number(0),
-    b: S.Number(1),
+    type: S.String({ default: 'ConstantValue' }),
+    value: S.Number({ default: 0 }),
+    a: S.Number({ default: 0 }),
+    b: S.Number({ default: 1 }),
     functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
-  uTileCount: S.Number(1),
-  vTileCount: S.Number(1),
+  uTileCount: S.Number({ default: 1 }),
+  vTileCount: S.Number({ default: 1 }),
   blending: BlendingSchema,
   behaviors: S.Array(S.Type<BehaviorJSON>()),
-  worldSpace: S.Bool(true)
+  worldSpace: S.Bool({ default: true })
 })
 
 export const ParticleSystemComponent = defineComponent({
@@ -888,8 +878,8 @@ export const ParticleSystemComponent = defineComponent({
   schema: S.Object({
     systemParameters: DEFAULT_PARTICLE_SYSTEM_PARAMETERS,
     behaviorParameters: S.Array(S.Type<BehaviorJSON>()),
-    behaviors: S.NonSerialized(S.Optional(S.Array(S.Type<Behavior>()))),
-    system: S.NonSerialized(S.Type<ParticleSystem>())
+    behaviors: S.Optional(S.Array(S.Type<Behavior>()), { serialized: false }),
+    system: S.Type<ParticleSystem>({ serialized: false } as any)
   }),
 
   onSet: (entity, component, json) => {
@@ -911,7 +901,6 @@ export const ParticleSystemComponent = defineComponent({
     const entity = useEntityContext()
     const componentState = useComponent(entity, ParticleSystemComponent)
     const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
-    const sceneID = useOptionalComponent(entity, SourceComponent)?.value
 
     //for particle meshes
     const geoDependencyEntity = useGLTFComponent(componentState.value.systemParameters.instancingGeometry, entity)
@@ -976,12 +965,15 @@ export const ParticleSystemComponent = defineComponent({
         metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(mergedGeometry)
 
         return () => {
-          metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(none)
+          if (componentState.value.systemParameters.shape.mesh) {
+            metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(none)
+          }
         }
       }
     }, [shapeMeshEntity])
 
     const [texture] = useTexture(componentState.value.systemParameters.texture!, entity, (url) => {
+      if (!entityExists(entity)) return
       metadata.textures.nested(url).set(none)
       dudMaterial.map = null
     })
@@ -1011,28 +1003,29 @@ export const ParticleSystemComponent = defineComponent({
 
     const dependenciesLoaded = loadedEmissionGeo && loadedInstanceGeo && loadedTexture
 
-    const sceneEntity = useAncestorWithComponents(entity, [SceneComponent])
+    const rendererEntity = useRendererEntity(entity)
     const visible = useHasComponent(entity, VisibleComponent)
 
     useEffect(() => {
-      if (!dependenciesLoaded || !sceneEntity || !visible) return
+      if (!dependenciesLoaded || !rendererEntity || !visible) return
 
       const component = componentState.get(NO_PROXY)
       const rendererInstance = createBatchedRenderer(entity)
       const renderer = rendererInstance.renderer
 
       const systemParameters = JSON.parse(JSON.stringify(component.systemParameters)) as ExpandedSystemJSON
-      const nuSystem = ParticleSystem.fromJSON(systemParameters, metadata.value as ParticleSystemMetadata, {})
-      renderer.addSystem(nuSystem)
+      const system = ParticleSystem.fromJSON(systemParameters, metadata.value as ParticleSystemMetadata, {})
+      renderer.addSystem(system)
       const behaviors = component.behaviorParameters.map((behaviorJSON) => {
-        const behavior = BehaviorFromJSON(behaviorJSON, nuSystem)
-        nuSystem.addBehavior(behavior)
+        const behavior = BehaviorFromJSON(behaviorJSON, system)!
+        system.addBehavior(behavior)
         return behavior
       })
       componentState.behaviors.set(behaviors)
 
-      const emitterAsObj3D = nuSystem.emitter
+      const emitterAsObj3D = system.emitter
       emitterAsObj3D.parent = renderer
+      setComponent(entity, EntityTreeComponent, { parentEntity: renderer.entity })
       setComponent(entity, ObjectComponent, emitterAsObj3D)
       // quarks expects the parent property on the emitter object to be the renderer, otherwise it will dispose the emitter
       Object.defineProperties(emitterAsObj3D, {
@@ -1046,15 +1039,14 @@ export const ParticleSystemComponent = defineComponent({
           }
         }
       })
-      setComponent(entity, EntityTreeComponent, { parentEntity: renderer.entity })
       const transformComponent = getComponent(entity, TransformComponent)
       emitterAsObj3D.matrix = transformComponent.matrix
-      componentState.system.set(nuSystem)
+      componentState.system.set(system)
 
       return () => {
-        const index = renderer.systemToBatchIndex.get(nuSystem)
+        const index = renderer.systemToBatchIndex.get(system)
         if (typeof index !== 'undefined') {
-          renderer.deleteSystem(nuSystem)
+          renderer.deleteSystem(system)
           renderer.children.splice(index, 1)
           const [batch] = renderer.batches.splice(index, 1)
           batch.dispose()
@@ -1066,13 +1058,19 @@ export const ParticleSystemComponent = defineComponent({
           }
         }
         removeComponent(entity, ObjectComponent)
-        setComponent(entity, ObjectComponent, new Object3D())
+        if (entityExists(entity)) setComponent(entity, ObjectComponent, new Object3D())
 
-        nuSystem.dispose()
+        system.dispose()
         emitterAsObj3D.dispose()
-        removeBatchedRenderer(sceneID!)
+        removeBatchedRenderer(rendererEntity!)
       }
-    }, [componentState.systemParameters, componentState.behaviorParameters, dependenciesLoaded, sceneEntity, visible])
+    }, [
+      componentState.systemParameters,
+      componentState.behaviorParameters,
+      dependenciesLoaded,
+      rendererEntity,
+      visible
+    ])
 
     return null
   }

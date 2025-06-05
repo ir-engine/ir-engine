@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -28,15 +28,17 @@ import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import '@ir-engine/engine'
 
+import { Cache } from 'three'
+
 import { API } from '@ir-engine/common'
 import { avatarPath, staticResourcePath, userAvatarPath } from '@ir-engine/common/src/schema.type.module'
 import {
   Engine,
   EngineState,
   Entity,
+  EntityID,
   EntityTreeComponent,
   SystemDefinitions,
-  UUIDComponent,
   createEntity,
   destroyEngine,
   setComponent
@@ -44,11 +46,15 @@ import {
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import '@ir-engine/engine/src/avatar/state/AvatarNetworkState'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { startEngineReactor } from '@ir-engine/engine/tests/startEngineReactor'
 import {
   EventDispatcher,
+  NetworkActions,
+  NetworkState,
+  NetworkTopics,
   UserID,
   applyIncomingActions,
   dispatchAction,
@@ -56,18 +62,19 @@ import {
   getState,
   startReactor
 } from '@ir-engine/hyperflux'
-import { NetworkActions, NetworkState, NetworkTopics } from '@ir-engine/network'
-import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
+import { createMockNetwork } from '@ir-engine/hyperflux/tests/createMockNetwork'
 import { SpectateActions } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
 import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
+import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { act, render } from '@testing-library/react'
-import { Cache } from 'three'
 import { v4 } from 'uuid'
 import { SearchParamState } from '../common/services/RouterService'
 import { LocationState } from '../social/services/LocationService'
 import { AvatarSpawnSystem } from './AvatarSpawnSystem'
 
 const system = SystemDefinitions.get(AvatarSpawnSystem)!
+
+const waitForScene = (entity: Entity) => vi.waitUntil(() => GLTFComponent.isSceneLoaded(entity), { timeout: 5000 })
 
 const emptyGltf = {
   asset: {
@@ -86,7 +93,6 @@ const sceneID = 'scene id'
 const sceneURL = '/empty.gltf'
 
 describe('AvatarSpawnSystem', async () => {
-  let sceneEntity: Entity
   beforeEach(async () => {
     Cache.enabled = true
     createEngine()
@@ -94,6 +100,8 @@ describe('AvatarSpawnSystem', async () => {
     startEngineReactor()
 
     Cache.add(sceneURL, emptyGltf)
+
+    await Physics.load()
 
     db = {
       [staticResourcePath]: [
@@ -161,7 +169,8 @@ describe('AvatarSpawnSystem', async () => {
     getMutableState(LocationState).currentLocation.location.sceneURL.set(sceneURL)
     SceneState.loadScene(sceneURL, sceneID)
 
-    sceneEntity = getState(SceneState)[sceneURL]
+    const sceneEntity = getState(SceneState)[sceneURL]
+    await waitForScene(sceneEntity)
 
     createMockNetwork(NetworkTopics.world)
 
@@ -187,7 +196,6 @@ describe('AvatarSpawnSystem', async () => {
     const url = new URL(location.href)
     url.search = ''
     history.replaceState(history.state, null!, url.href)
-
     Cache.enabled = false
     return destroyEngine()
   })
@@ -212,15 +220,16 @@ describe('AvatarSpawnSystem', async () => {
     assert.ok(spawnAction.rotation)
     assert.ok(spawnAction.parentUUID)
     assert.equal(spawnAction.avatarURL, '/avatar.gltf')
-    assert.equal(spawnAction.entityUUID, userID + '_avatar')
+    assert.equal(spawnAction.entityID, 'avatar')
+    assert.equal(spawnAction.entitySourceID, userID as string)
 
     const avatarURLAction = Engine.instance.store.actions.history.findLast((action) =>
       AvatarNetworkAction.setAvatarURL.matches.test(action)
-    ) as typeof AvatarNetworkAction.spawn.matches._TYPE
+    ) as typeof AvatarNetworkAction.setAvatarURL.matches._TYPE
     assert.ok(avatarURLAction)
     assert.deepEqual(avatarURLAction.type as string, AvatarNetworkAction.setAvatarURL.type)
     assert.equal(avatarURLAction.avatarURL, '/avatar.gltf')
-    assert.equal(avatarURLAction.entityUUID, userID + '_avatar')
+    assert.equal(avatarURLAction.entityUUID, userID + 'avatar')
   })
 
   it('should enter spectate mode with freecam when empty spectate is in search state', async () => {
@@ -248,7 +257,7 @@ describe('AvatarSpawnSystem', async () => {
   })
 
   it('should enter spectate mode when spectate specified user is in search state', async () => {
-    const otherUserID = UUIDComponent.generateUUID()
+    const otherUserID = 'other user id' as EntityID
 
     // ensure spectate data
     getMutableState(SearchParamState).set({ spectate: otherUserID })
@@ -274,8 +283,10 @@ describe('AvatarSpawnSystem', async () => {
   })
 
   it('should spectate entity specified in scene settings', async () => {
-    const spectateUUID = UUIDComponent.generateUUID()
+    const spectateUUID = 'spectate entity uuid' as EntityID
     const entity = createEntity()
+
+    const sceneEntity = getState(SceneState)[sceneURL]
     setComponent(entity, EntityTreeComponent, { parentEntity: sceneEntity })
     setComponent(entity, SceneSettingsComponent, { spectateEntity: spectateUUID })
 

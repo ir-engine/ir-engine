@@ -19,11 +19,11 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '@hookstate/core'
+import '@ir-engine/hyperflux'
 import assert from 'assert'
 import React, { useEffect } from 'react'
 import sinon from 'sinon'
@@ -44,8 +44,8 @@ import {
   EngineState,
   Entity,
   EntityContext,
+  EntityID,
   EntityTreeComponent,
-  EntityUUID,
   InputSystemGroup,
   SystemDefinitions,
   UndefinedEntity,
@@ -59,7 +59,7 @@ import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { initializeSpatialEngine, initializeSpatialViewer } from '../../initializeEngine'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import ClientInputFunctions from '../functions/ClientInputFunctions'
-import { KeyboardButton, MouseButton, MouseScroll, createInitialButtonState } from '../state/ButtonState'
+import { AnyAxis, KeyboardButton, MouseButton, MouseScroll, createInitialButtonState } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 import { InputButtonBindings, InputComponent, InputExecutionOrder, InputExecutionSystemGroup } from './InputComponent'
 import { InputSinkComponent } from './InputSinkComponent'
@@ -69,7 +69,7 @@ import { InputSourceComponent } from './InputSourceComponent'
 type Axes = [number, number, number, number]
 
 type InputComponentData = {
-  inputSinks: EntityUUID[]
+  inputSinks: EntityID[]
   activationDistance: number
   highlight: boolean
   grow: boolean
@@ -77,7 +77,7 @@ type InputComponentData = {
 }
 
 const InputComponentDefaults: InputComponentData = {
-  inputSinks: ['Self'] as EntityUUID[],
+  inputSinks: ['Self'] as EntityID[],
   activationDistance: 2,
   highlight: false,
   grow: false,
@@ -131,7 +131,7 @@ describe('InputComponent', () => {
       const before = getComponent(testEntity, InputComponent)
       assertInputComponentEq(before, InputComponentDefaults)
       const Expected = {
-        inputSinks: ['SomeUUID'] as EntityUUID[],
+        inputSinks: ['SomeUUID'] as EntityID[],
         activationDistance: 10_000,
         highlight: false,
         grow: true,
@@ -406,8 +406,8 @@ describe('InputComponent', () => {
 
       // Create the `@param inputAlias` object
       const SomeAliasList = {
-        SomeAxisOne: [MouseScroll.HorizontalScroll, MouseScroll.VerticalScroll],
-        SomeWrongAxis: [10]
+        SomeAxisOne: [MouseScroll.HorizontalScroll, MouseScroll.VerticalScroll] as AnyAxis[],
+        SomeWrongAxis: [10 as AnyAxis]
       }
       // Set the low and high values
       const OtherX = 2.0

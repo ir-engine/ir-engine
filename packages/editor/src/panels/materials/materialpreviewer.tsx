@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -27,34 +27,37 @@ import React, { useCallback, useEffect, useRef } from 'react'
 import { BufferAttribute, Mesh, SphereGeometry } from 'three'
 
 import { useRender3DPanelSystem } from '@ir-engine/client-core/src/hooks/useRender3DPanelSystem'
-import { getComponent, getOptionalComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
-import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
+import { EntityID, getComponent, Layers, setComponent, SourceID, UUIDComponent } from '@ir-engine/ecs'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { computeTransformPivot } from '@ir-engine/spatial/src/common/functions/TransformPivot'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { SelectionState } from '../../services/SelectionServices'
 import { MATERIALS_PANEL_ID } from './helpers'
 
 function MaterialPreviewCanvas() {
   const panelRef = useRef() as React.MutableRefObject<HTMLCanvasElement>
   const renderPanel = useRender3DPanelSystem(panelRef)
-  const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
+  const selectedMaterial = useHookstate(getMutableState(SelectionState).selectedEntities[0])
   const panel = document.getElementById(MATERIALS_PANEL_ID)
   useEffect(() => {
     const { sceneEntity, cameraEntity } = renderPanel
     if (
-      !selectedMaterial.value ||
-      selectedMaterial.value === getOptionalComponent(sceneEntity, MaterialInstanceComponent)?.uuid[0]
+      !selectedMaterial.value
+      // || selectedMaterial.value === getOptionalComponent(sceneEntity, MaterialInstanceComponent)?.uuid[0]
     )
       return
 
     setComponent(sceneEntity, TransformComponent)
-    setComponent(sceneEntity, UUIDComponent, UUIDComponent.generateUUID())
+    setComponent(sceneEntity, UUIDComponent, {
+      entitySourceID: 'preview' as SourceID,
+      entityID: 'material' as EntityID
+    })
     setComponent(sceneEntity, NameComponent, 'Material Preview Entity')
     setComponent(sceneEntity, VisibleComponent, true)
     const sphereMesh = new Mesh(new SphereGeometry(5, 32, 32))
@@ -64,7 +67,8 @@ function MaterialPreviewCanvas() {
     )
     sphereMesh.geometry.attributes['uv1'] = sphereMesh.geometry.attributes['uv']
     setComponent(sceneEntity, MeshComponent, sphereMesh)
-    setComponent(sceneEntity, MaterialInstanceComponent, { uuid: [selectedMaterial.value] })
+    const selectedMaterialEntity = UUIDComponent.getEntityByUUID(selectedMaterial.value, Layers.Authoring)
+    setComponent(sceneEntity, MaterialInstanceComponent, { entities: [selectedMaterialEntity] })
 
     const pivot = computeTransformPivot([sceneEntity])
     if (pivot.position) {
@@ -100,7 +104,7 @@ function MaterialPreviewCanvas() {
 }
 
 export const MaterialPreviewer = () => {
-  const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
+  const selectedMaterial = useHookstate(getMutableState(SelectionState).selectedEntities[0])
   const panel = document.getElementById(MATERIALS_PANEL_ID)!
   const disableScroll = (event: Event) => {
     event.stopPropagation()

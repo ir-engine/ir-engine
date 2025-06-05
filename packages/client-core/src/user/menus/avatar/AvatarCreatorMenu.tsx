@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -36,6 +36,7 @@ import { Button, Input } from '@ir-engine/ui'
 import { ArrowLeftLg, XCloseLg } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { twMerge } from 'tailwind-merge'
 import AvatarPreview from '../../../common/components/AvatarPreview'
 import { ModalState } from '../../../common/services/ModalState'
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../util/avatarIdFunctions'
@@ -270,7 +271,12 @@ const AvatarCreatorMenu = (selectedSdk: string) =>
     return (
       <div
         id="create-avatar-modal"
-        className="min-w-34 pointer-events-auto absolute z-50 m-auto flex h-[90dvh] w-full max-w-[90vw] flex-1 flex-col overflow-y-auto rounded-xl bg-surface-4 lg:h-[95dvh] lg:w-full lg:max-w-6xl"
+        className={twMerge(
+          'min-w-34 pointer-events-auto absolute z-50 m-auto flex h-[90dvh]',
+          'w-full max-w-[90vw] flex-1 flex-col overflow-y-auto rounded-xl',
+          'border border-surface-1 bg-white dark:bg-surface-1',
+          'lg:h-[95dvh] lg:w-full lg:max-w-6xl'
+        )}
       >
         <div className="grid h-14 w-full grid-cols-[1.5rem,1fr,1.5rem] border-b px-5">
           <button

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import {
   Entity,
+  EntityID,
   getComponent,
   getOptionalComponent,
   getOptionalMutableComponent,
@@ -35,7 +36,8 @@ import {
   hasComponent,
   useComponent,
   useOptionalComponent,
-  useQuery
+  useQuery,
+  UUIDComponent
 } from '@ir-engine/ecs'
 import {
   commitProperties,
@@ -48,14 +50,13 @@ import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorCo
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
-import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { MediaComponent, MediaElementComponent, setTime } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import { PlayMode } from '@ir-engine/engine/src/scene/constants/PlayMode'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Checkbox } from '@ir-engine/ui'
-import { Slider } from '@ir-engine/ui/editor'
+import { AudioVolumeVisualizer, Slider } from '@ir-engine/ui/editor'
 import { CgArrowsExpandRight } from 'react-icons/cg'
 import { FaRegPauseCircle } from 'react-icons/fa'
 import { FaRegCirclePlay } from 'react-icons/fa6'
@@ -150,8 +151,8 @@ export function updateConeAngle(
 export interface MediaInputProps {
   mediaMode: MediaMode
   entity: Entity
-  mediaNodeId: NodeID
-  OnMediaSourceUpdate: (value: NodeID) => void
+  mediaNodeId: EntityID
+  OnMediaSourceUpdate: (value: EntityID) => void
   dropTypes?: string[]
 }
 
@@ -173,11 +174,11 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
     .map((loopEntity) => {
       return {
         label: getComponent(loopEntity, NameComponent),
-        value: getComponent(loopEntity, NodeIDComponent)
+        value: getComponent(loopEntity, UUIDComponent).entityID
       }
     })
 
-  const [mediaSourceValue, setMediaSourceValue] = useState(mediaNodeId === ('' as NodeID) ? 'Self' : 'Other')
+  const [mediaSourceValue, setMediaSourceValue] = useState(mediaNodeId === ('' as EntityID) ? 'Self' : 'Other')
   const currentTrackMin = useHookstate(0)
   const currentTrackMax = useHookstate(1)
   const currentTrackPercent = useHookstate(0)
@@ -188,7 +189,7 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
   const mediaSourceChange = (val: string) => {
     setMediaSourceValue(val)
     if (val === 'Self') {
-      OnMediaSourceUpdate('' as NodeID)
+      OnMediaSourceUpdate('' as EntityID)
     } else {
       if (media) {
         media.paused.set(true)
@@ -213,6 +214,9 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
     const formattedSeconds = remainingSeconds.toString().padStart(2, '0')
     return `${formattedMinutes}:${formattedSeconds}`
   }
+
+  const displayVolume = useHookstate(0)
+  const visualizerVolume = useHookstate(Math.pow(10, -20 / 20))
 
   const video = useOptionalComponent(simulationEntity, VideoComponent)
   const videoRef = useRef(null)
@@ -243,8 +247,10 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
     if (!previewVideo) return
     previewVideo.currentTime = sourceVideo.currentTime
     if (!sourceVideo.paused) {
+      previewVideo.muted = true
       previewVideo.play()
     } else {
+      previewVideo.muted = false
       previewVideo.pause()
     }
   }, [media?.currentTrackTime, showVideoPreview])
@@ -272,6 +278,35 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
     )
   }, [media?.currentTrackDuration, media?.currentTrackTime])
 
+  const clampDecibels = (dbValue: number) => {
+    return Math.max(-60, Math.min(20, dbValue))
+  }
+
+  // Convert decibels to linear volume
+  const dbToVolume = (clampedDb: number) => {
+    const gain = Math.pow(10, clampedDb / 20)
+    return Number(Math.max(0, Math.min(1, gain)).toFixed(2))
+  }
+
+  const dbToGain = (dbValue: number) => {
+    return Math.pow(10, dbValue / 20)
+  }
+
+  const handleVolumeChange = (newDbValue: number) => {
+    // Clamp dB value between -60 and +20
+    const clampedDb = clampDecibels(newDbValue)
+    displayVolume.set(Math.round(clampedDb))
+
+    // Convert dB to linear gain
+    const newVol = dbToVolume(clampedDb)
+    //updateProperty(MediaComponent, 'volume')(newVol)
+    //@ts-ignore
+    mediaElement.value.element.volume = newVol
+    console.log('new Vol', newVol)
+    console.log('new gain', dbToGain(clampedDb))
+    visualizerVolume.set(dbToGain(clampedDb))
+  }
+
   return (
     <>
       <InputGroup
@@ -292,7 +327,7 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
         </InputGroup>
       )}
 
-      {mediaSourceValue === 'Self' && mediaNodeId === ('' as NodeID) && media && (
+      {mediaSourceValue === 'Self' && mediaNodeId === ('' as EntityID) && media && (
         <>
           <InputGroup
             name="SourcePaths"
@@ -404,13 +439,30 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
             label={t('editor:properties.media.lbl-volume')}
             info={t('editor:properties.media.lbl-volume')}
           >
+            <AudioVolumeVisualizer
+              audioSrc={mediaElement?.element.value.src}
+              currentTrackTime={media.currentTrackTime.value}
+              value={visualizerVolume.value}
+              onChange={handleVolumeChange}
+              isPlaying={!media.paused.value}
+              scaleSettings={{
+                transitionPoint: -40,
+                lowerRangePortion: 0.75
+              }}
+              className={mediaElement ? 'my-4' : 'mb-0 h-0 overflow-hidden'}
+            />
             <Slider
-              min={0}
-              max={10}
-              step={0.1}
-              value={media.volume.value}
-              onChange={updateProperty(MediaComponent, 'volume')}
-              onRelease={commitProperty(MediaComponent, 'volume')}
+              units="dB"
+              min={-60}
+              max={20}
+              step={1}
+              value={displayVolume.value}
+              onChange={handleVolumeChange}
+              onRelease={(newDbValue) => {
+                const clampedDb = clampDecibels(newDbValue)
+                const newVol = dbToVolume(clampedDb)
+                commitProperty(MediaComponent, 'volume')(newVol)
+              }}
               aria-label="Volume"
             />
           </InputGroup>

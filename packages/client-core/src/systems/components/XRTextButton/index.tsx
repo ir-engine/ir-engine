@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -27,7 +27,7 @@ import React from 'react'
 
 import styleString from './index.scss?inline'
 
-type textButtonVariant = 'filled' | 'outlined' | 'gradient'
+type TextButtonVariant = 'filled' | 'outlined' | 'gradient'
 
 const XRTextButton = (props) => {
   const {
@@ -35,7 +35,7 @@ const XRTextButton = (props) => {
     className,
     children,
     ...buttonProps
-  }: { variant: textButtonVariant; className: any; content: any; children: React.ReactNode; buttonProps: any } = props
+  }: { variant: TextButtonVariant; className: any; content: any; children: React.ReactNode; buttonProps: any } = props
 
   return (
     <>

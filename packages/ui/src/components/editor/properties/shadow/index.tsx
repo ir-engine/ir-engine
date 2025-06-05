@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -52,9 +52,10 @@ export const ShadowNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Cast Shadow" label={t('editor:properties.shadow.lbl-castShadow')}>
         <Checkbox checked={shadowComponent.cast.value} onChange={commitProperty(ShadowComponent, 'cast')} />
       </InputGroup>
-      <InputGroup name="Receive Shadow" label={t('editor:properties.shadow.lbl-receiveShadow')}>
+      {/**@todo shadow recieving is determined on a per-material basis */
+      /* <InputGroup name="Receive Shadow" label={t('editor:properties.shadow.lbl-receiveShadow')}>
         <Checkbox checked={shadowComponent.receive.value} onChange={commitProperty(ShadowComponent, 'receive')} />
-      </InputGroup>
+      </InputGroup> */}
     </NodeEditor>
   )
 }

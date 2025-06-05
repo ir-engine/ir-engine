@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -31,8 +31,7 @@ import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getNearbyUsers } from '@ir-engine/engine/src/avatar/functions/getNearbyUsers'
-import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
+import { defineState, getMutableState, getState, NetworkState } from '@ir-engine/hyperflux'
 
 import { useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
 

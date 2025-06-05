@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -294,7 +294,6 @@ const Select = ({
                     {required && <span className="text-sm text-ui-error">*</span>}
                     <span className="text-xs text-text-secondary">{labelProps.text}</span>
                   </div>
-
                   {labelProps?.infoText && (
                     <Tooltip content={labelProps.infoText}>
                       <HelpIconSm className="text-text-tertiary" />
@@ -333,7 +332,7 @@ const Select = ({
                   }}
                   type="text"
                   className={twMerge(
-                    'w-full bg-inherit text-text-secondary focus:border-transparent focus:outline-none focus:ring-0',
+                    'box-content w-full border-y border-transparent bg-transparent text-text-secondary focus:border-transparent focus:outline-none focus:ring-0',
                     disabled ? 'cursor-not-allowed' : searchMode === undefined ? 'cursor-pointer' : 'cursor-text'
                   )}
                   data-testid="select-input"
@@ -434,53 +433,56 @@ const Select = ({
       >
         {filteredOptions.length > 0 &&
           !disabled &&
-          filteredOptions.map(({ value: currentValue, ...optionProps }, index) => (
-            <DropdownItem
-              key={index}
-              {...optionProps}
-              selected={localValue.value === currentValue}
-              active={index === activeIndex}
-              onMouseDown={(e) => {
-                e.stopPropagation()
-                e.preventDefault()
-                closePopup()
-                localValue.set(currentValue)
-                setSelectedOptionIndex(index)
-                setDisplayText(optionProps.label)
-                onChange(currentValue)
-              }}
-              onMouseEnter={() => {
-                setActiveIndex(index)
-              }}
-              onMouseLeave={() => {
-                setActiveIndex(-1)
-              }}
-              onTouchStart={(e) => {
-                e.stopPropagation()
-                e.preventDefault()
-              }}
-              onTouchMove={() => setTouchedMoved(true)}
-              onTouchEnd={() => {
-                if (!touchMoved) {
+          filteredOptions
+            .filter((option) => Boolean(option))
+            .map(({ value: currentValue, ...optionProps }, index) => (
+              <DropdownItem
+                height={inputHeight}
+                key={index}
+                {...optionProps}
+                selected={localValue.value === currentValue}
+                active={index === activeIndex}
+                onMouseDown={(e) => {
+                  e.stopPropagation()
+                  e.preventDefault()
                   closePopup()
                   localValue.set(currentValue)
                   setSelectedOptionIndex(index)
                   setDisplayText(optionProps.label)
                   onChange(currentValue)
-                }
-                setTouchedMoved(false)
-              }}
-              onKeyUp={(e) => {
-                if (e.code === 'Enter') {
-                  closePopup()
-                  localValue.set(currentValue)
-                  setSelectedOptionIndex(index)
-                  setDisplayText(optionProps.label)
-                  onChange(currentValue)
-                }
-              }}
-            />
-          ))}
+                }}
+                onMouseEnter={() => {
+                  setActiveIndex(index)
+                }}
+                onMouseLeave={() => {
+                  setActiveIndex(-1)
+                }}
+                onTouchMove={() => setTouchedMoved(true)}
+                onTouchEnd={() => {
+                  if (!touchMoved) {
+                    closePopup()
+                    localValue.set(currentValue)
+                    setSelectedOptionIndex(index)
+                    setDisplayText(optionProps.label)
+                    onChange(currentValue)
+                  }
+                  setTouchedMoved(false)
+                }}
+                onPointerUp={(e) => {
+                  e.stopPropagation()
+                  e.preventDefault()
+                }}
+                onKeyUp={(e) => {
+                  if (e.code === 'Enter') {
+                    closePopup()
+                    localValue.set(currentValue)
+                    setSelectedOptionIndex(index)
+                    setDisplayText(optionProps.label)
+                    onChange(currentValue)
+                  }
+                }}
+              />
+            ))}
 
         {filteredOptions.length === 0 && !disabled && (
           <div className="flex h-12 items-center justify-center bg-ui-background text-text-secondary">

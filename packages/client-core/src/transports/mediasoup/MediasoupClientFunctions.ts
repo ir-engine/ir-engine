@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -50,7 +50,10 @@ import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { AuthTask, ReadyTask } from '@ir-engine/engine/src/avatar/functions/spawnLocalAvatarInWorld'
 import {
   Action,
+  DataChannelType,
   NetworkID,
+  NetworkState,
+  NetworkTopics,
   PeerID,
   Topic,
   addOutgoingTopicIfNecessary,
@@ -58,21 +61,15 @@ import {
   dispatchAction,
   getMutableState,
   getState,
+  joinNetwork,
+  leaveNetwork,
   none,
-  removeActionQueue
+  removeActionQueue,
+  screenshareAudioMediaChannelType,
+  screenshareVideoMediaChannelType,
+  webcamAudioMediaChannelType,
+  webcamVideoMediaChannelType
 } from '@ir-engine/hyperflux'
-import {
-  DataChannelType,
-  NetworkState,
-  NetworkTopics,
-  addNetwork,
-  createNetwork,
-  removeNetwork,
-  screenshareAudioDataChannelType,
-  screenshareVideoDataChannelType,
-  webcamAudioDataChannelType,
-  webcamVideoDataChannelType
-} from '@ir-engine/network'
 
 import {
   MediasoupDataProducerActions,
@@ -85,7 +82,7 @@ import {
   MediasoupTransportState,
   TransportType
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
-import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
+import { MediaStreamState } from '@ir-engine/hyperflux'
 import { LocationInstanceState } from '../../common/services/LocationInstanceConnectionService'
 import { MediaInstanceState } from '../../common/services/MediaInstanceConnectionService'
 import { ChannelState } from '../../social/services/ChannelService'
@@ -122,7 +119,7 @@ export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
   clearInterval(network.heartbeat)
   network.primus?.removeAllListeners()
   network.primus?.end()
-  removeNetwork(network)
+  leaveNetwork(network)
 }
 
 export const initializeNetwork = (
@@ -136,7 +133,7 @@ export const initializeNetwork = (
     navigator.userAgent === BotUserAgent ? { handlerName: 'Chrome74' } : undefined
   )
 
-  const network = createNetwork(id, hostPeerID, topic, {
+  const network = joinNetwork(id, hostPeerID, topic, {
     mediasoupDevice,
     primus,
     heartbeat: setInterval(() => {
@@ -285,7 +282,7 @@ export const connectToInstance = (
       primus.end()
     } else {
       const network = getState(NetworkState).networks[instanceID] as SocketWebRTCClientNetwork | undefined
-      if (network) leaveNetwork(network)
+      if (network) leaveClientNetwork(network)
     }
   }
 }
@@ -399,8 +396,7 @@ export const connectToNetwork = async (
     getMutableState(NetworkState).hostIds[topic].set(instanceID)
 
     const mediasoupClient = await import('mediasoup-client')
-    const network = initializeNetwork(instanceID, hostPeerID, topic, primus, mediasoupClient)
-    addNetwork(network)
+    initializeNetwork(instanceID, hostPeerID, topic, primus, mediasoupClient)
   }
 
   const network = getState(NetworkState).networks[instanceID] as SocketWebRTCClientNetwork
@@ -573,16 +569,16 @@ export const onTransportCreated = async (networkID: NetworkID, transportDefiniti
         let paused = false
 
         switch (appData.mediaTag) {
-          case webcamVideoDataChannelType:
+          case webcamVideoMediaChannelType:
             paused = !mediaStreamState.webcamEnabled.value
             break
-          case webcamAudioDataChannelType:
+          case webcamAudioMediaChannelType:
             paused = !mediaStreamState.microphoneEnabled.value
             break
-          case screenshareVideoDataChannelType:
+          case screenshareVideoMediaChannelType:
             paused = false
             break
-          case screenshareAudioDataChannelType:
+          case screenshareAudioMediaChannelType:
             paused = mediaStreamState.screenShareAudioPaused.value
             break
           default:
@@ -750,7 +746,7 @@ export const onTransportCreated = async (networkID: NetworkID, transportDefiniti
   getMutableState(MediasoupTransportObjectsState)[transportID].set(transport)
 }
 
-export function leaveNetwork(network: SocketWebRTCClientNetwork) {
+export function leaveClientNetwork(network: SocketWebRTCClientNetwork) {
   if (!network) return
   logger.info('Leaving network %o', { topic: network.topic, id: network.id })
 
@@ -763,7 +759,7 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork) {
       getMutableState(NetworkState).hostIds.world.set(none)
       // if world has a media server connection
       if (NetworkState.mediaNetwork) {
-        leaveNetwork(NetworkState.mediaNetwork as SocketWebRTCClientNetwork)
+        leaveClientNetwork(NetworkState.mediaNetwork as SocketWebRTCClientNetwork)
       }
     }
   } catch (err) {

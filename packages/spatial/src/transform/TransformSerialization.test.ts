@@ -19,21 +19,25 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
   UndefinedEntity,
+  ViewCursor,
   createEngine,
   createEntity,
+  createViewCursor,
   destroyEngine,
   getComponent,
   hasComponent,
+  readFloat64,
+  readUint8,
   removeEntity,
-  setComponent
+  setComponent,
+  writeComponent
 } from '@ir-engine/ecs'
-import { ViewCursor, createViewCursor, readFloat64, readUint8, writeComponent } from '@ir-engine/network'
 import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'

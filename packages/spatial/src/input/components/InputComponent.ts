@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -42,12 +42,11 @@ import {
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import { Entity, EntityID } from '@ir-engine/ecs/src/Entity'
 import { getState, NO_PROXY_STEALTH, useHookstate } from '@ir-engine/hyperflux'
 
 import { getAncestorWithComponents, isAncestor } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { NameComponent } from '../../common/NameComponent'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import {
   AnyAxis,
@@ -86,10 +85,22 @@ export const DefaultAxisBindings = {
 } satisfies InputAxisBindings
 
 const ButtonSchema = S.Union([
-  S.Enum(KeyboardButton),
-  S.Enum(MouseButton),
-  S.Enum(StandardGamepadButton),
-  S.Enum(XRStandardGamepadButton)
+  S.Enum(KeyboardButton, {
+    $comment:
+      "Likely a string enum, ie. one of the following values: 'Backspace', 'Tab', 'Enter', 'ShiftLeft', 'ShiftRight', 'ControlLeft', 'ControlRight', 'AltLeft', 'AltRight', 'Pause', 'CapsLock', 'Escape', 'Space', 'PageUp', 'PageDown', 'End', 'Home', 'ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown', 'PrintScreen', 'Insert', 'Delete', 'Digit0', 'Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7', 'Digit8', 'Digit9', 'KeyA', 'KeyB', 'KeyC', 'KeyD', 'KeyE', 'KeyF', 'KeyG', 'KeyH', 'KeyI', 'KeyJ', 'KeyK', 'KeyL', 'KeyM', 'KeyN', 'KeyO', 'KeyP', 'KeyQ', 'KeyR', 'KeyS', 'KeyT', 'KeyU', 'KeyV', 'KeyW', 'KeyX', 'KeyY', 'KeyZ'"
+  }),
+  S.Enum(MouseButton, {
+    $comment:
+      "Likely a string enum, ie. one of the following values: 'PrimaryClick', 'AuxiliaryClick', 'SecondaryClick'"
+  }),
+  S.Enum(StandardGamepadButton, {
+    $comment:
+      "A number enum, where: 0 represents 'StandardGamepadButtonA', 1 represents 'StandardGamepadButtonB', 2 represents 'StandardGamepadButtonX', 3 represents 'StandardGamepadButtonY', 4 represents 'StandardGamepadLeft1', 5 represents 'StandardGamepadRight1', 6 represents 'StandardGamepadLeft2', 7 represents 'StandardGamepadRight2', 8 represents 'StandardGamepadButtonBack', 9 represents 'StandardGamepadButtonStart', 10 represents 'StandardGamepadLeftStick', 11 represents 'StandardGamepadRightStick', 12 represents 'StandardGamepadDPadUp', 13 represents 'StandardGamepadDPadDown', 14 represents 'StandardGamepadDPadLeft', 15 represents 'StandardGamepadDPadRight', 16 represents 'StandardGamepadButtonHome'"
+  }),
+  S.Enum(XRStandardGamepadButton, {
+    $comment:
+      "A number enum, where: 0 represents 'XRStandardGamepadTrigger', 1 represents 'XRStandardGamepadSqueeze', 2 represents 'XRStandardGamepadPad', 3 represents 'XRStandardGamepadStick', 4 represents 'XRStandardGamepadButtonA', 5 represents 'XRStandardGamepadButtonB'"
+  })
 ])
 
 /**
@@ -147,23 +158,23 @@ export const InputComponent = defineComponent({
   jsonID: 'EE_input',
 
   schema: S.Object({
-    inputSinks: S.Array(S.EntityUUID(), ['Self']),
-    activationDistance: S.Number(2),
-    highlight: S.Bool(false),
-    grow: S.Bool(false),
+    inputSinks: S.Array(S.EntityID(), { default: ['Self' as EntityID] }),
+    activationDistance: S.Number({ default: 2 }),
+    highlight: S.Bool({ default: false }),
+    grow: S.Bool({ default: false }),
     buttonBindings: S.Record(S.String(), S.Array(S.Union([ButtonSchema, S.Array(ButtonSchema)])), {
-      ...DefaultButtonBindings
+      default: { ...DefaultButtonBindings }
     }),
     //internal
     /** populated automatically by ClientInputSystem */
-    inputSources: S.NonSerialized(S.Array(S.Entity())),
-    cachedButtons: S.NonSerialized(S.Type<ButtonStateMap<any>>({})),
+    inputSources: S.Array(S.Entity(), { serialized: false }),
+    cachedButtons: S.Type<ButtonStateMap<any>>({ serialized: false, default: {} }),
 
     /** if true, the input component will automatically capture input when a button is consumed */
-    autoCapture: S.Bool(false),
+    autoCapture: S.Bool({ default: false }),
 
-    buttons: S.NonSerialized(
-      S.SerializedClass((entity) => {
+    buttons: S.SerializedClass(
+      (entity) => {
         // Helper function to find first unconsumed button state
         const findButtonState = (button: AnyButton): ButtonState | undefined => {
           const inputComponent = getComponent(entity, InputComponent)
@@ -171,12 +182,12 @@ export const InputComponent = defineComponent({
             const inputSourceComponent = getOptionalComponent(sourceEntity, InputSourceComponent)
             if (!inputSourceComponent) continue
             const state = inputSourceComponent.buttons[button] as ButtonState
-            if (state?.consumed)
-              console.warn(
-                `button ${button} checked by ${entity} - ${getComponent(entity, NameComponent)} consumed by ${
-                  state.consumed
-                } - ${getComponent(state.consumed, NameComponent)}`
-              )
+            // if (state?.consumed)
+            //   console.warn(
+            //     `button ${button} checked by ${entity} - ${getComponent(entity, NameComponent)} consumed by ${
+            //       state.consumed
+            //     } - ${getComponent(state.consumed, NameComponent)}`
+            //   )
             if (state && !state.consumed) {
               return state
             }
@@ -266,7 +277,9 @@ export const InputComponent = defineComponent({
             }
           }
         )
-      }, {})
+      },
+      {},
+      { serialized: false }
     )
   }),
 
@@ -321,7 +334,7 @@ export const InputComponent = defineComponent({
         for (let i = 0; i < 4; i++) {
           const newAxis = inputSource.source.gamepad.axes[i] ?? 0
           axes[i] = getLargestMagnitudeNumber(axes[i] ?? 0, newAxis)
-          axes[mapping[i]] = axes[i]
+          axes[Object.keys(mapping)[i]] = axes[i]
         }
       }
     }
@@ -410,25 +423,12 @@ export const InputComponent = defineComponent({
     //   // collider.collisionLayer.set(collider.collisionLayer.value | CollisionGroups.Input)
     // }, [])
 
-    /** @todo - fix */
-    // useLayoutEffect(() => {
-    //   if (!input.inputSources.length || !input.grow.value) return
-    //   setComponent(entity, AnimateScaleComponent)
-    //   return () => {
-    //     removeComponent(entity, AnimateScaleComponent)
-    //   }
-    // }, [input.inputSources, input.grow])
-
     return null
   }
 })
 
 function getLargestMagnitudeNumber(a: number, b: number) {
   return Math.abs(a) > Math.abs(b) ? a : b
-}
-
-function filterInputEntities(entity: Entity, index: number, arr: Entity[]) {
-  return arr.indexOf(entity) === index && entity !== UndefinedEntity
 }
 
 export const enum InputExecutionOrder {
@@ -453,13 +453,3 @@ export const InputExecutionSystemGroup = defineSystem({
   uuid: 'ee.engine.InputExecutionSystemGroup',
   insert: { with: InputSystemGroup }
 })
-
-const mapInputButtons = (eid: Entity) => getComponent(eid, InputSourceComponent).buttons
-
-const inputSinkComponentQueryComponents = [InputSinkComponent]
-const inputComponentQueryComponents = [InputComponent]
-
-const reduceInputEntities = (prev: Entity[], eid: Entity) => {
-  prev.push(...getComponent(eid, InputComponent).inputSources)
-  return prev
-}

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -30,13 +30,19 @@ import { afterEach, beforeEach, describe, it } from 'vitest'
 import '@ir-engine/spatial/src/transform/SpawnPoseState'
 import '../state/AvatarNetworkState'
 
-import { Entity, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
+import { Entity, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Engine, createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { UserID, applyIncomingActions, dispatchAction, getMutableState } from '@ir-engine/hyperflux'
-import { NetworkTopics } from '@ir-engine/network'
-import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
+import {
+  NetworkTopics,
+  UserID,
+  applyIncomingActions,
+  dispatchAction,
+  getMutableState,
+  getState
+} from '@ir-engine/hyperflux'
+import { createMockNetwork } from '@ir-engine/hyperflux/tests/createMockNetwork'
 import { initializeSpatialEngine, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { Physics, PhysicsWorld } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
@@ -64,7 +70,21 @@ describe('moveAvatar function tests', () => {
     physicsWorld = Physics.createWorld(sceneEntity)
     physicsWorld.timestep = 1 / 60
 
-    createMockNetwork(NetworkTopics.world, Engine.instance.store.peerID, Engine.instance.userID)
+    createMockNetwork(NetworkTopics.world, Engine.instance.store.peerID, getState(EngineState).userID)
+
+    dispatchAction(
+      AvatarNetworkAction.spawn({
+        $peer: Engine.instance.store.peerID,
+        parentUUID: UUIDComponent.get(sceneEntity),
+        position: new Vector3(),
+        rotation: new Quaternion(),
+        entityID: AvatarComponent.entityID,
+        entitySourceID: AvatarComponent.getSelfSourceID(),
+        avatarURL: avatarUrl,
+        name: 'TestAvatar'
+      })
+    )
+    applyIncomingActions()
   })
 
   afterEach(() => {
@@ -76,21 +96,6 @@ describe('moveAvatar function tests', () => {
   it('should apply world.fixedDelta @ 60 tick to avatar movement, consistent with physics simulation', async () => {
     const ecsState = getMutableState(ECSState)
     ecsState.simulationTimestep.set(1000 / 60)
-
-    const entityUUID = (Engine.instance.userID + '_avatar') as EntityUUID
-
-    dispatchAction(
-      AvatarNetworkAction.spawn({
-        $peer: Engine.instance.store.peerID,
-        parentUUID: getComponent(sceneEntity, UUIDComponent),
-        position: new Vector3(),
-        rotation: new Quaternion(),
-        entityUUID: entityUUID,
-        avatarURL: avatarUrl,
-        name: 'TestAvatar'
-      })
-    )
-    applyIncomingActions()
 
     const entity = AvatarComponent.getSelfAvatarEntity()
 
@@ -111,19 +116,6 @@ describe('moveAvatar function tests', () => {
     const ecsState = getMutableState(ECSState)
     ecsState.simulationTimestep.set(1000 / 60)
 
-    dispatchAction(
-      AvatarNetworkAction.spawn({
-        $peer: Engine.instance.store.peerID,
-        parentUUID: getComponent(sceneEntity, UUIDComponent),
-        position: new Vector3(),
-        rotation: new Quaternion(),
-        entityUUID: (Engine.instance.userID + '_avatar') as EntityUUID,
-        avatarURL: avatarUrl,
-        name: 'TestAvatar'
-      })
-    )
-    applyIncomingActions()
-
     const entity = AvatarComponent.getSelfAvatarEntity()
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 
@@ -136,26 +128,11 @@ describe('moveAvatar function tests', () => {
   })
 
   it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', async () => {
-    getMutableState(EngineState).userID.set('user' as UserID)
-
     const ecsState = getMutableState(ECSState)
     ecsState.simulationTimestep.set(1000 / 60)
 
     /* mock */
     physicsWorld.timestep = 1 / 2
-
-    dispatchAction(
-      AvatarNetworkAction.spawn({
-        $peer: Engine.instance.store.peerID,
-        parentUUID: getComponent(sceneEntity, UUIDComponent),
-        position: new Vector3(),
-        rotation: new Quaternion(),
-        entityUUID: (Engine.instance.userID + '_avatar') as EntityUUID,
-        avatarURL: avatarUrl,
-        name: 'TestAvatar'
-      })
-    )
-    applyIncomingActions()
 
     const entity = AvatarComponent.getSelfAvatarEntity()
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
@@ -169,23 +146,8 @@ describe('moveAvatar function tests', () => {
   })
 
   it('should not allow velocity to breach a full unit through multiple frames', async () => {
-    getMutableState(EngineState).userID.set('user' as UserID)
-
     const ecsState = getMutableState(ECSState)
     ecsState.simulationTimestep.set(1000 / 60)
-
-    dispatchAction(
-      AvatarNetworkAction.spawn({
-        $peer: Engine.instance.store.peerID,
-        parentUUID: getComponent(sceneEntity, UUIDComponent),
-        position: new Vector3(),
-        rotation: new Quaternion(),
-        entityUUID: (Engine.instance.userID + '_avatar') as EntityUUID,
-        avatarURL: avatarUrl,
-        name: 'TestAvatar'
-      })
-    )
-    applyIncomingActions()
 
     const entity = AvatarComponent.getSelfAvatarEntity()
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity

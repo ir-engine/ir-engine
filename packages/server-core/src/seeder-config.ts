@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -29,7 +29,6 @@ import path from 'path'
 import { KnexSeed } from '@ir-engine/common/src/interfaces/KnexSeed'
 import { ProjectConfigInterface } from '@ir-engine/projects/ProjectConfigInterface'
 
-import { analyticsSeeds } from './analytics/seeder-config'
 import { integrationsSeeds } from './integrations/seeder-config'
 import { mediaSeeds } from './media/seeder-config'
 import { networkingSeeds } from './networking/seeder-config'
@@ -78,7 +77,6 @@ export const knexSeeds = (): Promise<Array<KnexSeed>> => {
   return installedProjects().then((installedProjectSeeds: KnexSeed[]) => {
     return [
       ...routeSeeds,
-      ...analyticsSeeds,
       ...settingSeeds,
       ...scopeSeeds,
       ...userSeeds,

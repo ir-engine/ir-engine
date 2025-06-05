@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright 2021-2025 
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -37,6 +37,7 @@ import {
   HyperFlux,
   Identifiable,
   NO_PROXY_STEALTH,
+  Path,
   ReactorRoot,
   SetPartialStateAction,
   State,
@@ -58,7 +59,7 @@ import { defineSystem } from './SystemFunctions'
 import { PresentationSystemGroup } from './SystemGroups'
 import { Transitionable, TransitionableTypes, getTransitionableKeyForType } from './Transitionable'
 import { createResizableTypeArray } from './bitecsLegacy'
-import { Kind, Static, Schema as TSchema, TTypedSchema } from './schemas/JSONSchemaTypes'
+import { Kind, Schema, Static, Schema as TSchema, TTypedSchema } from './schemas/JSONSchemaTypes'
 import {
   CreateSchemaValue,
   DeserializeSchemaValue,
@@ -214,7 +215,7 @@ export type ComponentErrorsType<C extends Component> =
 
 type Primitive = string | number | bigint | boolean | undefined | symbol
 export type ComponentPropertyPath<T, Prefix = ''> = {
-  [K in keyof T]: T[K] extends Function // eslint-disable-line @typescript-eslint/ban-types
+  [K in keyof T]: T[K] extends Function
     ? never
     : T[K] extends Primitive | Array<any>
     ? `${string & Prefix}${string & K}`
@@ -505,12 +506,10 @@ const _getComponentState = <C extends Component>(entity: Entity, component: C) =
         onSet: (s, d) => {
           const rootState = component.stateMap[entity]
           component.valueMap[entity] = rootState.promised ? undefined : rootState.get(NO_PROXY_STEALTH)
-          if (bitECS.hasComponent(HyperFlux.store, entity, component)) {
-            LayerFunctions.propagateLayer(entity, component)
-          }
+          LayerFunctions.propagateLayer(entity, component)
         }
       }))
-    )
+    ) as State<ComponentType<C>, Identifiable>
   }
   return component.stateMap[entity]
 }
@@ -563,7 +562,10 @@ export const setComponent = <C extends Component>(
 
   if (component.reactor && !component.reactorRoot) {
     const root = startReactor(() => {
-      return React.createElement(QueryReactor, { Components: [component], ChildEntityReactor: component.reactor })
+      return React.createElement(QueryReactor, {
+        Components: [component],
+        ChildEntityReactor: component.reactor as any
+      })
     }) as ReactorRoot
     root.cleanupFunctions.add(() => {
       component.reactorRoot = undefined
@@ -841,7 +843,7 @@ function shouldPropagate(entityLayer: LayerID, layer: LayerID): boolean {
  * @description Returns an object containing the args required by {@link createPropagationArgs} when schema[Kind] is a Number
  * */
 function createPropagationArgsNumber<C extends Component>(
-  schema: TTypedSchema<C>,
+  schema: Schema,
   key: string | number,
   obj: any,
   layer: LayerID,
@@ -867,7 +869,7 @@ function createPropagationArgsNumber<C extends Component>(
  * @description Returns an object containing the args required by {@link createPropagationArgs} when schema[Kind] is of type any
  * */
 function createPropagationArgsAny<C extends Component>(
-  schema: TTypedSchema<C>,
+  schema: Schema,
   key: string | number,
   obj: any,
   layer: LayerID,
@@ -889,7 +891,7 @@ function createPropagationArgsAny<C extends Component>(
  * @description Returns an object containing the args required by {@link createPropagationArgs} when schema[Kind] is a Class
  * */
 function createPropagationArgsClass<C extends Component>(
-  schema: TTypedSchema<C>,
+  schema: Schema,
   key: string | number,
   obj: any,
   layer: LayerID,
@@ -898,7 +900,7 @@ function createPropagationArgsClass<C extends Component>(
   component: C
 ) {
   if (!obj) return undefined
-  if ('clone' in obj && typeof obj.clone === 'function') {
+  if (typeof obj === 'object' && 'clone' in obj && typeof obj.clone === 'function') {
     return obj.clone()
   } else {
     try {
@@ -917,7 +919,7 @@ function createPropagationArgsClass<C extends Component>(
  * @description Returns an object containing the args required by {@link createPropagationArgs} when schema[Kind] is an Object
  * */
 function createPropagationArgsObject<C extends Component>(
-  schema: TTypedSchema<C>,
+  schema: Schema,
   key: string | number,
   obj: any,
   layer: LayerID,
@@ -925,7 +927,7 @@ function createPropagationArgsObject<C extends Component>(
   entity: Entity,
   component: C
 ) {
-  if (!obj) return undefined
+  if (!obj || typeof obj !== 'object') return undefined
   const props = schema.properties as any
   const args = {} as any
   for (const k in props) {
@@ -940,7 +942,7 @@ function createPropagationArgsObject<C extends Component>(
  * @description Returns an object containing the args required by {@link createPropagationArgs} when schema[Kind] is a Record
  * */
 function createPropagationArgsRecord<C extends Component>(
-  schema: TTypedSchema<C>,
+  schema: Schema,
   key: string | number,
   obj: any,
   layer: LayerID,
@@ -963,7 +965,7 @@ function createPropagationArgsRecord<C extends Component>(
  * @description Returns an object containing the args required by {@link createPropagationArgs} when schema[Kind] is an Array
  * */
 function createPropagationArgsArray<C extends Component>(
-  schema: TTypedSchema<C>,
+  schema: Schema,
   key: string | number,
   obj: any,
   layer: LayerID,
@@ -985,7 +987,7 @@ function createPropagationArgsArray<C extends Component>(
  * @description Returns an object containing the args required by {@link createPropagationArgs} when schema[Kind] is a Tuple
  * */
 function createPropagationArgsTuple<C extends Component>(
-  schema: TTypedSchema<C>,
+  schema: Schema,
   key: string | number,
   obj: any,
   layer: LayerID,
@@ -1007,7 +1009,7 @@ function createPropagationArgsTuple<C extends Component>(
  * @description Returns an object containing the args required by {@link createPropagationArgs} when schema[Kind] is a Union
  * */
 function createPropagationArgsUnion<C extends Component>(
-  schema: TTypedSchema<C>,
+  schema: Schema,
   key: string | number,
   obj: any,
   layer: LayerID,
@@ -1027,7 +1029,7 @@ function createPropagationArgsUnion<C extends Component>(
  * @description Returns an object containing the args required by {@link createPropagationArgs} for the default case
  * */
 function createPropagationArgsDefault<C extends Component>(
-  schema: TTypedSchema<C>,
+  schema: Schema,
   key: string | number,
   obj: any,
   layer: LayerID,
@@ -1054,7 +1056,7 @@ function createPropagationArgsDefault<C extends Component>(
  * @description Returns an object containing the args required by {@link createPropagationArgs}
  * */
 function createPropagationArgsInner<C extends Component>(
-  schema: TTypedSchema<C>,
+  schema: Schema,
   key: string | number,
   data: any,
   layer: LayerID,
@@ -1063,14 +1065,14 @@ function createPropagationArgsInner<C extends Component>(
   component: C
 ) {
   const obj = key === '' ? data : data[key]
-  if (typeof obj === 'undefined') return undefined
-  switch (schema[Kind] as any) {
+  if (typeof obj === 'undefined' || !schema.options?.serialized) return undefined
+
+  switch (schema[Kind]) {
     case 'Null':
     case 'Undefined':
     case 'Void':
     case 'Bool':
     case 'String':
-    case 'Enum':
     case 'Literal': {
       return obj
     }
@@ -1098,11 +1100,7 @@ function createPropagationArgsInner<C extends Component>(
     case 'Union': {
       return CreatePropagationArgs.Union(schema, key, obj, layer, linkedLayer, entity, component)
     }
-    case 'NonSerialized': {
-      return undefined
-    }
     case 'Partial':
-    case 'Required':
     case 'Proxy':
     default: {
       return CreatePropagationArgs.Default(schema, key, obj, layer, linkedLayer, entity, component)
@@ -1162,6 +1160,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
  * @note Checking whether this process/behavior should be run or not is done with the {@link shouldPropagate} helper function.
  * */
 function propagateLayer<C extends Component>(entity: Entity, component: C) {
+  if (!bitECS.hasComponent(HyperFlux.store, entity, component)) return
   if ((component as any) === LayerComponent || LayerComponents.includes(component as any)) return
   const relations = LayerFunctions.getLayerRelationsEntities(entity)
   if (!relations) return
@@ -1213,7 +1212,13 @@ export const LayerComponents = Object.entries(Layers).map(([name, layer]) => {
   return defineComponent({
     name: `${name}LayerComponent`,
     schema: S.Object({
-      relations: S.Record(S.Enum(Layers), S.Entity())
+      relations: S.Record(
+        S.Enum(Layers, {
+          $comment:
+            "A numeric enum, ie. the value of one of the following key-value pairs: 'Simulation': 0, 'Authoring': 1"
+        }),
+        S.Entity()
+      )
     }),
 
     // backward references
@@ -1316,18 +1321,17 @@ export const TransitionComponent = defineComponent({
       componentJsonID: S.String(),
       propertyPath: S.String(),
       transitionableType: S.String(),
-      duration: S.Number(500),
-      easing: S.String(Easing.exponential.inOut.path),
-      initialValue: S.NonSerialized(S.Optional(S.Type<TransitionableTypes>())),
-      events: S.NonSerialized(
-        S.Array(
-          S.Object({
-            age: S.Number(),
-            toValue: S.Type<TransitionableTypes>(),
-            duration: S.Number(),
-            easing: S.String()
-          })
-        )
+      duration: S.Number({ default: 500 }),
+      easing: S.String({ default: Easing.exponential.inOut.path }),
+      initialValue: S.Type<TransitionableTypes | undefined>({ serialized: false }),
+      events: S.Array(
+        S.Object({
+          age: S.Number(),
+          toValue: S.Type<TransitionableTypes>(),
+          duration: S.Number(),
+          easing: S.String()
+        }),
+        { serialized: false }
       )
     })
   ),

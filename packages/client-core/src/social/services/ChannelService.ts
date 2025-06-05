@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -36,8 +36,7 @@ import {
   UserID
 } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { defineState, getMutableState, none } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
+import { defineState, getMutableState, NetworkState, none } from '@ir-engine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
 
@@ -55,10 +54,7 @@ export const ChannelState = defineState({
     instanceChannelFetching: false,
     instanceChannelFetched: false,
     messageCreated: false
-  }),
-  onCreate: (store, state) => {
-    // syncStateWithLocalStorage(ChannelState, ['targetChannelId'])
-  }
+  })
 })
 
 export const ChannelService = {

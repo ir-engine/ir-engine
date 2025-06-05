@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -55,7 +55,15 @@ export const FriendService = {
 
       const relationships = (await API.instance.service(userRelationshipPath).find({
         query: {
-          userId,
+          $or: [
+            {
+              userId
+            },
+            {
+              relatedUserId: userId,
+              userRelationshipType: 'requested'
+            }
+          ],
           $limit: 100
         }
       })) as Paginated<UserRelationshipType>
@@ -138,6 +146,7 @@ export const FriendService = {
 }
 
 async function createRelation(userId: UserID, relatedUserId: UserID, type: 'requested' | 'blocking') {
+  console.log('createRelation', { userId, relatedUserId, type })
   try {
     await API.instance.service(userRelationshipPath).create({
       relatedUserId,

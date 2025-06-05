@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -31,49 +31,55 @@ import {
   ComponentJSONIDMap,
   defineComponent,
   Entity,
+  EntityID,
   EntityUUID,
+  getAncestorWithComponents,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   getSimulationCounterpart,
   hasComponent,
+  LayerComponent,
+  LayerID,
   Layers,
   removeComponent,
-  removeEntity,
   setComponent,
+  SimulationLayerComponent,
+  SourceID,
   UndefinedEntity,
+  useAncestorWithComponents,
   useComponent,
   useEntityContext,
   useHasComponent,
   useHasComponents,
   useOptionalComponent,
-  useQuery,
   UUIDComponent
 } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 import { getMutableState, getState, NO_PROXY_STEALTH, none, State, useHookstate } from '@ir-engine/hyperflux'
-
-import { LayerComponent, useAncestorWithComponents } from '@ir-engine/ecs'
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformComponent } from '@ir-engine/spatial'
+import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { ShapeSchema } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 import { LoaderUtils } from 'three'
+import { loadResource } from '../assets/functions/resourceLoaderFunctions'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { ErrorComponent } from '../scene/components/ErrorComponent'
 import { SceneDynamicLoadComponent } from '../scene/components/SceneDynamicLoadComponent'
-import { SourceComponent, SourceID } from '../scene/components/SourceComponent'
 import { addError, removeError } from '../scene/functions/ErrorFunctions'
-import { SceneJsonType } from '../scene/types/SceneTypes'
 import { GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
 import { AssetState } from './GLTFState'
-import { NodeID, NodeIDComponent } from './NodeIDComponent'
-import { ResourcePendingComponent } from './ResourcePendingComponent'
+import { migrateEEMaterial } from './migrateEEMaterial'
+import { ResourceProgressComponent } from './ResourceProgressComponent'
 import { useApplyCollidersToChildMeshesEffect } from './useApplyCollidersToChildMeshesEffect'
 
 export const GLTFComponent = defineComponent({
@@ -81,20 +87,21 @@ export const GLTFComponent = defineComponent({
   jsonID: 'EE_model',
 
   schema: S.Object({
-    src: S.String(''),
+    src: S.String({ default: '' }),
+
     /** @todo move this to it's own component */
-    cameraOcclusion: S.Bool(true),
+    cameraOcclusion: S.Bool({ default: true }),
 
     //collision info
-    applyColliders: S.Bool(false),
+    applyColliders: S.Bool(),
     shape: ShapeSchema('box'),
 
     // internals
-    body: S.NonSerialized(S.Nullable(S.Type<ArrayBuffer>())),
-    document: S.NonSerialized(S.Nullable(S.Type<GLTF.IGLTF>())),
-    progress: S.NonSerialized(S.Number(0)),
-    extensions: S.NonSerialized(S.Record(S.String(), S.Any(), {})),
-    dependencies: S.NonSerialized(S.Optional(S.Type<ComponentDependencies>()))
+    body: S.Type<ArrayBuffer | null>({ serialized: false }),
+    document: S.Type<GLTF.IGLTF | null>({ serialized: false }),
+    progress: S.Number({ default: 0, serialized: false }),
+    extensions: S.Record(S.String(), S.Any(), { serialized: false }),
+    dependencies: S.Type<ComponentDependencies | undefined>({ serialized: false })
   }),
 
   errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
@@ -120,29 +127,31 @@ export const GLTFComponent = defineComponent({
     return componentDependenciesLoaded(dependencies) && progress === 100
   },
 
-  getInstanceID: (entity: Entity) => {
-    if (!hasComponent(entity, GLTFComponent)) return getOptionalComponent(entity, SourceComponent) ?? ('' as SourceID)
-    const uuid = getOptionalComponent(entity, UUIDComponent)
-    const src = getOptionalComponent(entity, GLTFComponent)?.src
-    if (!uuid || !src) return '' as SourceID
-    return SourceComponent.getSourceID(uuid, src)
+  getEntityBySourceAndID(source: Entity, id: EntityID, layer = Layers.Simulation as LayerID) {
+    return UUIDComponent.getEntityByUUID(
+      ((GLTFComponent.getSourceID(source) || UUIDComponent.get(source)) + id) as EntityUUID,
+      layer
+    )
   },
 
-  useInstanceID: (entity: Entity) => {
+  getSourceID: (entity: Entity): SourceID =>
+    hasComponent(entity, UUIDComponent)
+      ? hasComponent(entity, GLTFComponent)
+        ? UUIDComponent.getAsSourceID(entity)
+        : getComponent(entity, UUIDComponent).entitySourceID
+      : ('' as SourceID),
+
+  useSourceID: (entity: Entity): SourceID => {
     const uuid = useOptionalComponent(entity, UUIDComponent)?.value
-    const src = useOptionalComponent(entity, GLTFComponent)?.src.value
-    const source = useOptionalComponent(entity, SourceComponent)?.value
-    if (!uuid || !src) return source ?? ('' as SourceID)
-    return SourceComponent.getSourceID(uuid, src)
-  },
-  removeHashes: <T extends EntityUUID | SourceID | NodeID | string>(url: T) => {
-    return url.replaceAll(/\?hash=[^-]+/g, '') as T
+    if (!uuid) return '' as SourceID
+    if (hasComponent(entity, GLTFComponent)) return UUIDComponent.getAsSourceID(entity)
+    return uuid?.entitySourceID || ('' as SourceID)
   }
 })
 
 type DependencyEval = {
   key: string
-  eval: (val: unknown) => boolean
+  eval: (val: unknown, entity?: Entity) => boolean
 }
 
 type ComponentDependencies = {
@@ -153,29 +162,39 @@ const componentDependenciesLoaded = (dependencies?: ComponentDependencies) => {
   return !!dependencies && Object.keys(dependencies.componentDependencies).length === 0
 }
 
+const checkCollider = (hasCollider: boolean, entity: Entity) => {
+  if (!getAncestorWithComponents(entity, [RigidBodyComponent]) || !hasComponent(entity, SimulationLayerComponent))
+    return true
+  return hasCollider
+}
+
 const loadDependencies = {
-  ['EE_model']: [
+  [GLTFComponent.jsonID]: [
     {
-      key: 'dependencies',
-      eval: (dependencies?: ComponentDependencies) => componentDependenciesLoaded(dependencies)
+      key: 'progress',
+      eval: (progress: number) => progress === 100
+    }
+  ],
+  [ColliderComponent.jsonID]: [
+    {
+      key: 'hasCollider',
+      eval: (hasCollider: boolean, entity: Entity) => checkCollider(hasCollider, entity)
     }
   ]
-} as Record<string, DependencyEval[]>
+} as Record<Exclude<Component['jsonID'], undefined>, DependencyEval[]>
 
 const buildComponentDependencies = (entity: Entity, json: GLTF.IGLTF) => {
   const dependencies = {
     componentDependencies: {}
   } as ComponentDependencies
 
-  const meshes = new Set<number>()
-  const materials = new Set<number>()
-
   if (!json.nodes) return dependencies
   for (const node of json.nodes) {
-    if (node.extensions && node.extensions[NodeIDComponent.jsonID]) {
-      const nodeID = node.extensions[NodeIDComponent.jsonID] as NodeID
-      const sourceID = GLTFComponent.getInstanceID(entity)
-      const uuid = NodeIDComponent.getUUIDBySourceAndNodeID(sourceID, nodeID)
+    if (node.extensions && node.extensions[UUIDComponent.jsonID]) {
+      const ext = node.extensions[UUIDComponent.jsonID] as EntityID | { entityID: EntityID }
+      const nodeID = typeof ext === 'string' ? ext : (ext!.entityID as EntityID)
+      const sourceID = GLTFComponent.getSourceID(entity)
+      const uuid = UUIDComponent.join({ entitySourceID: sourceID, entityID: nodeID })
       const extensions = Object.keys(node.extensions)
       if (typeof node.extensions[SceneDynamicLoadComponent.jsonID] !== 'undefined') continue
       for (const extension of extensions) {
@@ -184,14 +203,6 @@ const buildComponentDependencies = (entity: Entity, json: GLTF.IGLTF) => {
           dependencies.componentDependencies[uuid].push(ComponentJSONIDMap.get(extension)!)
         }
       }
-    }
-
-    if (node.mesh !== undefined) {
-      meshes.add(node.mesh)
-      const mesh = json.meshes![node.mesh]
-      mesh.primitives.forEach((prim) => {
-        if (prim.material !== undefined) materials.add(prim.material)
-      })
     }
   }
 
@@ -208,8 +219,8 @@ export const GLTFComponentReactor = () => {
     if (!sceneLoaded) return
 
     const occlusion = gltfComponent.cameraOcclusion.value
-    const entities = SourceComponent.getEntitiesBySource(GLTFComponent.getInstanceID(entity))
-
+    const source = UUIDComponent.getAsSourceID(entity)
+    const entities = UUIDComponent.getEntitiesBySource(source)
     if (!occlusion) {
       ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
       for (const curr of entities) {
@@ -225,7 +236,7 @@ export const GLTFComponentReactor = () => {
 
   useGLTFDocument(entity)
 
-  const sourceID = GLTFComponent.getInstanceID(entity)
+  const sourceID = GLTFComponent.getSourceID(entity)
 
   useEffect(() => {
     getMutableState(AssetState)[sourceID].set(entity)
@@ -238,58 +249,38 @@ export const GLTFComponentReactor = () => {
     const gltfComponent = getComponent(entity, GLTFComponent)
     if (!gltfComponent.document) return
 
-    const options = getGLTFOptions(entity)
-    const url = options.url
+    const abortController = new AbortController()
+
+    const options = getGLTFOptions(entity, abortController.signal)
 
     const sceneIndex = options.document.scene || 0
-    let aborted = false
     removeComponent(entity, AnimationComponent)
 
-    const layer = LayerComponent.get(entity)
-    const unloadEntities = () => {
-      const loadedEntities = SourceComponent.getEntitiesBySource(sourceID, layer)
-      for (const entity of loadedEntities) removeEntity(entity)
-    }
-    const unhashedUrl = GLTFComponent.removeHashes(url)
-    if (unhashedUrl.endsWith('.material.gltf')) {
-      GLTFLoaderFunctions.loadMaterialGLTF(options).then(() => {
-        documentLoaded.set(true)
-        if (aborted) {
-          unloadEntities()
-        }
-      })
-    } else {
-      GLTFLoaderFunctions.loadScene(options, sceneIndex).then(() => {
-        documentLoaded.set(true)
+    GLTFLoaderFunctions.loadScene(options, sceneIndex).then(() => {
+      if (abortController.signal.aborted) return
 
-        // force transform update for all entities in the model.
-        // required to propagate dirty update auth to sim layers
-        TransformComponent.dirty[entity] = 1
+      documentLoaded.set(true)
+      // force transform update for all entities in the model.
+      // required to propagate dirty update auth to sim layers
+      TransformComponent.dirty[entity] = 1
+    })
 
-        if (aborted) {
-          unloadEntities()
-        }
-      })
-    }
     return () => {
+      abortController.abort()
       documentLoaded.set(false)
-      GLTFLoaderFunctions.unloadScene(url, entity)
-      aborted = true
-      unloadEntities()
       if (hasComponent(entity, GLTFComponent)) {
         getMutableComponent(entity, GLTFComponent).progress.set(0)
       }
     }
   }, [gltfComponent.document])
 
-  const scene = useOptionalComponent(entity, SceneComponent)
-
   useEffect(() => {
-    if (!sceneLoaded || !scene) return
-    setComponent(entity, SceneComponent, { active: true })
-  }, [sceneLoaded, !!scene])
+    if (!sceneLoaded) return
+    setComponent(entity, ActiveHelperComponent, { volumeEnabled: true })
+  }, [sceneLoaded])
 
   const dependencies = gltfComponent.dependencies.get(NO_PROXY_STEALTH) as ComponentDependencies | undefined
+
   return (
     <>
       <ResourceReactor documentID={sourceID} entity={entity} documentLoaded={documentLoaded.value} />
@@ -300,43 +291,43 @@ export const GLTFComponentReactor = () => {
   )
 }
 
-const ResourceReactor = (props: { documentID: string; entity: Entity; documentLoaded: boolean }) => {
-  const dependenciesLoaded = GLTFComponent.useDependenciesLoaded(props.entity)
-  const resourceQuery = useQuery([SourceComponent, ResourcePendingComponent])
+const ResourceReactor = (props: { documentID: SourceID; entity: Entity; documentLoaded: boolean }) => {
+  const { documentID, entity, documentLoaded } = props
+  const gltfComponent = useComponent(entity, GLTFComponent)
+  const sourceEntities = UUIDComponent.useEntitiesBySource(documentID) as Entity[]
 
-  const simulationEntity = getSimulationCounterpart(props.entity)
+  const simulationEntity = getSimulationCounterpart(entity)
   useApplyCollidersToChildMeshesEffect(simulationEntity)
 
+  if (!documentLoaded || gltfComponent.progress.value === 100) return null
+
+  return (
+    <ChildResourceReactor
+      rootEntity={entity}
+      sourceEntities={sourceEntities}
+      key={JSON.stringify([entity, ...sourceEntities])}
+    />
+  )
+}
+
+const ChildResourceReactor = (props: { rootEntity: Entity; sourceEntities: Entity[] }) => {
+  const { rootEntity, sourceEntities } = props
+  const resourceProgress = ResourceProgressComponent.useResourcesProgressForEntities([rootEntity, ...sourceEntities])
+  const dependenciesLoaded = GLTFComponent.useDependenciesLoaded(rootEntity)
+
   useEffect(() => {
-    if (!hasComponent(props.entity, GLTFComponent) || !props.documentLoaded) return
-    if (getComponent(props.entity, GLTFComponent).progress === 100) return
-    const entities = resourceQuery.filter((e) => getComponent(e, SourceComponent) === props.documentID)
-    if (!entities.length) {
-      if (dependenciesLoaded) getMutableComponent(props.entity, GLTFComponent).progress.set(100)
-      return
+    const percentage = Math.floor(Math.min(resourceProgress, dependenciesLoaded ? 100 : 99))
+    getMutableComponent(rootEntity, GLTFComponent).progress.set(percentage)
+  }, [resourceProgress, dependenciesLoaded])
+
+  useEffect(() => {
+    if (resourceProgress !== 100) return
+
+    removeComponent(rootEntity, ResourceProgressComponent)
+    for (const entity of sourceEntities) {
+      removeComponent(entity, ResourceProgressComponent)
     }
-
-    const resources = entities
-      .map((entity) => {
-        const resource = getOptionalComponent(entity, ResourcePendingComponent)
-        if (!resource) return []
-        return Object.values(resource).map((resource) => {
-          return {
-            progress: resource.progress,
-            total: resource.total
-          }
-        })
-      })
-      .flat()
-      .filter(Boolean)
-
-    const progress = resources.reduce((acc, resource) => acc + resource.progress, 0)
-    const total = resources.reduce((acc, resource) => acc + resource.total, 0)
-    if (!total) return
-
-    const percentage = Math.floor(Math.min((progress / total) * 100, dependenciesLoaded ? 100 : 99))
-    getMutableComponent(props.entity, GLTFComponent).progress.set(percentage)
-  }, [resourceQuery, dependenciesLoaded, props.documentLoaded])
+  }, [resourceProgress])
 
   return null
 }
@@ -349,7 +340,7 @@ const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; 
 
   const removeGLTFDependency = () => {
     const gltfComponent = getMutableComponent(gltfComponentEntity, GLTFComponent)
-    const uuid = getComponent(entity, UUIDComponent)
+    const uuid = UUIDComponent.get(entity)
     ;(gltfComponent.dependencies as State<ComponentDependencies>).componentDependencies.set((prev) => {
       const dependencyArr = prev![uuid] as Component[]
       if (!dependencyArr) return prev
@@ -365,10 +356,9 @@ const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; 
   useEffect(() => {
     const compValue = comp.value
     for (const dep of dependencies) {
-      if (!dep.eval(compValue[dep.key])) return
+      if (!dep.eval(compValue[dep.key], entity)) return
     }
 
-    // console.log(`All dependencies loaded for entity: ${entity} on component: ${component.jsonID}`)
     removeGLTFDependency()
   }, [...dependencies.map((dep) => comp[dep.key])])
 
@@ -386,7 +376,7 @@ const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; 
   return null
 }
 
-const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: string; components: Component[] }) => {
+const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: EntityUUID; components: Component[] }) => {
   const { gltfComponentEntity, uuid, components } = props
   const layer = LayerComponent.get(gltfComponentEntity)
   const entity = UUIDComponent.useEntityByUUID(uuid as EntityUUID, layer) as Entity | undefined
@@ -398,7 +388,7 @@ const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: stri
         return (
           <Suspense key={component.jsonID} fallback={null}>
             <ComponentReactor
-              key={component.jsonID}
+              key={`${uuid}-${component.jsonID}`}
               gltfComponentEntity={gltfComponentEntity}
               entity={entity}
               component={component}
@@ -413,7 +403,6 @@ const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: stri
 const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: ComponentDependencies }) => {
   const { gltfComponentEntity, dependencies } = props
   const componentDependencies = Object.entries(dependencies.componentDependencies)
-
   useEffect(() => {
     return () => {
       removeError(gltfComponentEntity, GLTFComponent, 'LOADING_ERROR')
@@ -428,7 +417,7 @@ const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: C
           <DependencyEntryReactor
             key={uuid}
             gltfComponentEntity={gltfComponentEntity}
-            uuid={uuid}
+            uuid={uuid as EntityUUID}
             components={components}
           />
         )
@@ -437,60 +426,44 @@ const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: C
   )
 }
 
-const onProgress: (event: ProgressEvent) => void = (event) => {
-  // console.log(event)
-}
-
 /* BINARY EXTENSION */
 export const BINARY_EXTENSION_HEADER_MAGIC = 'glTF'
 export const BINARY_EXTENSION_HEADER_LENGTH = 12
 export const BINARY_EXTENSION_CHUNK_TYPES = { JSON: 0x4e4f534a, BIN: 0x004e4942 }
 
-export const loadGLTFFile = (
-  url: string,
-  onLoad: (gltf: GLTF.IGLTF, body: ArrayBuffer | null) => void,
-  onProgress?: (event: ProgressEvent) => void,
-  onError?: (error: ErrorEvent) => void,
-  signal?: AbortSignal
-) => {
-  const onSuccess = (data: string | ArrayBuffer | GLTF.IGLTF) => {
-    if (signal && signal.aborted) return
+export const parseGLTFFile = (
+  data: string | ArrayBuffer | GLTF.IGLTF,
+  onError: (error: ErrorEvent) => void
+): [GLTF.IGLTF | null, ArrayBuffer | null] => {
+  const textDecoder = new TextDecoder()
+  let json: GLTF.IGLTF
+  let body: ArrayBuffer | null = null
 
-    const textDecoder = new TextDecoder()
-    let json: GLTF.IGLTF | SceneJsonType
-    let body: ArrayBuffer | null = null
-
-    try {
-      if (typeof data === 'string') {
-        json = JSON.parse(data)
-      } else if ('byteLength' in data) {
-        const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
-
-        if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
-          const { json: jsonContent, body: bodyContent } = parseBinaryData(data)
-          body = bodyContent
-          json = jsonContent
-        } else {
-          json = JSON.parse(textDecoder.decode(data))
-        }
+  try {
+    if (typeof data === 'string') {
+      json = JSON.parse(data)
+    } else if ('byteLength' in data) {
+      const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
+      if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
+        const { json: jsonContent, body: bodyContent } = parseBinaryData(data)
+        body = bodyContent
+        json = jsonContent
       } else {
-        json = data
+        json = JSON.parse(textDecoder.decode(data))
       }
-
-      onLoad(parseStorageProviderURLs(JSON.parse(JSON.stringify(json))), body)
-    } catch (error) {
-      if (onError) onError(error)
-      return
+    } else {
+      json = data
     }
+
+    json = JSON.parse(JSON.stringify(json))
+
+    json = migrateEEMaterial(json)
+
+    return [parseStorageProviderURLs(json), body]
+  } catch (error) {
+    if (onError) onError(error)
+    return [null, null]
   }
-
-  const loader = new FileLoader()
-
-  loader.setResponseType('arraybuffer')
-  loader.setRequestHeader({})
-  loader.setWithCredentials(false)
-
-  loader.load(url, onSuccess, onProgress, onError, signal)
 }
 
 const useGLTFDocument = (entity: Entity) => {
@@ -505,9 +478,7 @@ const useGLTFDocument = (entity: Entity) => {
 
   useEffect(() => {
     if (dynamicLoadAndNotEditing) return
-
     if (!url) {
-      addError(entity, GLTFComponent, 'INVALID_SOURCE', 'Invalid URL')
       return
     }
 
@@ -515,20 +486,38 @@ const useGLTFDocument = (entity: Entity) => {
     const signal = abortController.signal
 
     const onError = (error: ErrorEvent) => {
-      addError(entity, GLTFComponent, 'LOADING_ERROR', 'Error loading model')
+      addError(entity, GLTFComponent, 'LOADING_ERROR', 'Error loading model ' + url)
     }
 
-    loadGLTFFile(
+    removeError(entity, GLTFComponent, 'LOADING_ERROR')
+
+    const loader = new FileLoader()
+
+    loader.setResponseType('arraybuffer')
+    loader.setRequestHeader({})
+    loader.setWithCredentials(false)
+
+    loadResource<ArrayBuffer>(
       url,
-      (gltf, body) => {
-        if (body) state.body.set(body)
-        state.document.set(gltf)
-        const dependencies = buildComponentDependencies(entity, gltf)
-        state.dependencies.set(dependencies)
+      ResourceType.ArrayBuffer,
+      entity,
+      (response) => {
+        if (signal.aborted) return
+        const [gltf, body] = parseGLTFFile(response, onError)
+
+        if (gltf) {
+          state.document.set(gltf)
+          state.body.set(body)
+          const dependencies = buildComponentDependencies(entity, gltf)
+          state.dependencies.set(dependencies)
+        }
       },
-      onProgress,
+      (request) => {
+        //this is the gtlf file loading progress, not to be confused with the GTLF Component property "progress" which tracks if the gtlf is loaded into the scene
+      },
       onError,
-      signal
+      signal,
+      loader
     )
 
     return () => {
@@ -604,20 +593,19 @@ export const useHasModelOrIndependentMesh = (entity: Entity) => {
   return hasModel || (hasMesh && !isChildOfModel)
 }
 
-export const getGLTFOptions = (entity: Entity): GLTFParserOptions => {
+export const getGLTFOptions = (entity: Entity, signal: AbortSignal): GLTFParserOptions => {
   const gltfComponent = getComponent(entity, GLTFComponent)
-  const documentID = GLTFComponent.getInstanceID(entity)
   const document = gltfComponent.document!
   const manager = getState(AssetLoaderState).manager
 
   return {
     entity,
     document,
-    documentID,
     url: gltfComponent.src,
     path: LoaderUtils.extractUrlBase(gltfComponent.src),
     body: gltfComponent.body,
     requestHeader: {},
-    manager
+    manager,
+    signal
   }
 }

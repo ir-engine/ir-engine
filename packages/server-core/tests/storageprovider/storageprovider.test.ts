@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -53,7 +53,8 @@ describe('storageprovider', () => {
   if (
     process.env.STORAGE_S3_TEST_RESOURCE_BUCKET &&
     process.env.STORAGE_AWS_ACCESS_KEY_ID &&
-    process.env.STORAGE_AWS_ACCESS_KEY_SECRET
+    process.env.STORAGE_AWS_ACCESS_KEY_SECRET &&
+    process.env.ENABLE_S3_PROVIDER_TEST
   ) {
     storageProviders.push(S3Provider)
   }

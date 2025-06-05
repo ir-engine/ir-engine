@@ -19,15 +19,14 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import matches from 'ts-matches'
 
 import { matchesEntityUUID } from '@ir-engine/ecs'
-import { defineAction } from '@ir-engine/hyperflux'
-import { NetworkTopics } from '@ir-engine/network'
+import { defineAction, NetworkTopics } from '@ir-engine/hyperflux'
 import { SpawnObjectActions } from '@ir-engine/spatial/src/transform/SpawnObjectActions'
 
 import { matchesIkTarget } from '../animation/Util'

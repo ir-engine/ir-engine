@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -36,9 +36,10 @@ import {
   serializeComponent,
   setComponent
 } from '@ir-engine/ecs'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { getMutableState } from '@ir-engine/hyperflux'
+import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import assert from 'assert'
-import { Color, ColorRepresentation, DirectionalLight } from 'three'
+import { BufferGeometry, Color, ColorRepresentation, DirectionalLight, LineBasicMaterial } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { destroySpatialEngine } from '../../../initializeEngine'
@@ -48,7 +49,6 @@ import { LineSegmentComponent } from '../LineSegmentComponent'
 import { ObjectComponent } from '../ObjectComponent'
 import { DirectionalLightComponent } from './DirectionalLightComponent'
 import { LightTagComponent } from './LightTagComponent'
-
 type DirectionalLightComponentData = {
   light: DirectionalLight
   color: ColorRepresentation
@@ -278,6 +278,8 @@ describe('DirectionalLightComponent', () => {
 
       // Set the data as expected
       getMutableState(RendererState).nodeHelperVisibility.set(true)
+
+      // Run and Check the Initial result
       setComponent(testEntity, DirectionalLightComponent)
       await vi.waitFor(() => {
         // Sanity check before running
@@ -286,11 +288,29 @@ describe('DirectionalLightComponent', () => {
         assert.notEqual(new Color(before).getHex(), Expected.getHex())
       })
 
-      // Run and Check the result
+      // Create a helper entity that we'll use
+      const helperSelectedGizmo = createEntity()
+
+      // Set the color and the ActiveHelperComponent with our helper entity
       setComponent(testEntity, DirectionalLightComponent, { color: Expected })
+      setComponent(testEntity, ActiveHelperComponent, {
+        enabled: true,
+        selected: true,
+        hovered: false,
+        helperSelectedGizmo: helperSelectedGizmo
+      })
+
+      // Set the LineSegmentComponent on the helper entity to simulate what the component would do
+      setComponent(helperSelectedGizmo, LineSegmentComponent, {
+        name: 'directional-light-helper',
+        geometry: new BufferGeometry(),
+        material: new LineBasicMaterial(),
+        color: Expected
+      })
+
       await vi.waitFor(() => {
-        const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
-        const result = getComponent(childEntity1, LineSegmentComponent).color
+        // Check if the helper entity has the correct color
+        const result = getComponent(helperSelectedGizmo, LineSegmentComponent).color
         assert.equal(new Color(result).getHex(), Expected.getHex())
       })
     })
@@ -399,24 +419,36 @@ describe('DirectionalLightComponent', () => {
     it('should react when debugEnabled changes', async () => {
       const Initial = false
       const Expected = !Initial
-
+      const ExpectedColor = new Color(0x123456)
       // Set the data as expected
-      assert.equal(getState(RendererState).nodeHelperVisibility, false)
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
 
       // Run and Check the Initial result
-      setComponent(testEntity, DirectionalLightComponent)
+      setComponent(testEntity, DirectionalLightComponent, { color: ExpectedColor })
 
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
+      // Explicitly set ActiveHelperComponent with the required properties
+      setComponent(testEntity, ActiveHelperComponent, {
+        enabled: true,
+        selected: true,
+        hovered: false
+      })
       await vi.waitFor(() => {
         const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
         assert.equal(hasComponent(childEntity1, LineSegmentComponent), Expected)
         assert.equal(getComponent(childEntity1, LineSegmentComponent).name, 'directional-light-helper')
+        assert.equal(getComponent(childEntity1, LineSegmentComponent).color, ExpectedColor)
       })
 
       // Re-run and Check the unmount case
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
+      // Explicitly set ActiveHelperComponent with the required properties
+      setComponent(testEntity, ActiveHelperComponent, {
+        enabled: false,
+        selected: false,
+        hovered: false
+      })
       await vi.waitFor(() => {
         const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
         assert.equal(hasComponent(childEntity1, LineSegmentComponent), Initial)

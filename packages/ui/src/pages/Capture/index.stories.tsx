@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -35,8 +35,7 @@ import { NotificationState } from '@ir-engine/client-core/src/common/services/No
 import { ProjectService, ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { AuthService, AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
-import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
+import { getMutableState, NetworkState, useMutableState } from '@ir-engine/hyperflux'
 import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
 
 import Component from './index'
@@ -121,6 +120,7 @@ export default {
   component: Component,
   decorators,
   parameters: {
+    chromatic: { disable: true },
     reactRouter: {
       routePath: '/capture/:locationName',
       routeParams: { locationName: 'default' }

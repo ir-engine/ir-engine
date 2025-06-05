@@ -19,21 +19,20 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import { defineComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 
 export const LookAtComponent = defineComponent({
   name: 'LookAtComponent',
   jsonID: 'IR_lookAt',
 
   schema: S.Object({
-    target: NodeIDSchema(),
-    xAxis: S.Bool(true),
-    yAxis: S.Bool(true)
+    target: S.EntityID(),
+    xAxis: S.Bool({ default: true }),
+    yAxis: S.Bool({ default: true })
   })
 })

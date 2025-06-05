@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -33,6 +33,7 @@ import {
   getOptionalComponent,
   hasComponent,
   iterateEntityNode,
+  NetworkSchemaState,
   QueryReactor,
   setComponent,
   useComponent,
@@ -40,7 +41,6 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, none } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
 import { TransformComponent } from '@ir-engine/spatial'
 import { Axis } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import {
@@ -114,7 +114,8 @@ const execute = () => {
 
     if (!rig.hips) continue
 
-    const ownerID = getComponent(entity, UUIDComponent)
+    const ownerID = getComponent(entity, UUIDComponent).entitySourceID
+
     const leftFoot = AvatarIKTargetComponent.getTargetEntity(ownerID, ikTargets.leftFoot)
     const leftFootTransform = getOptionalComponent(leftFoot, TransformComponent)
     const leftFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[leftFoot]
@@ -351,15 +352,15 @@ const SetupIkMatrices = () => {
 
 export const AvatarIkReactor = () => {
   useEffect(() => {
-    const networkState = getMutableState(NetworkState)
+    const networkSchemaState = getMutableState(NetworkSchemaState)
 
-    networkState.networkSchema[IKSerialization.ID].set({
+    networkSchemaState[IKSerialization.ID].set({
       read: IKSerialization.readBlendWeight,
       write: IKSerialization.writeBlendWeight
     })
 
     return () => {
-      networkState.networkSchema[IKSerialization.ID].set(none)
+      networkSchemaState[IKSerialization.ID].set(none)
     }
   }, [])
 

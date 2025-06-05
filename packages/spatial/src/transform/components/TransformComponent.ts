@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,15 +19,16 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
-import { EntityTreeComponent, getAncestorWithComponents, S } from '@ir-engine/ecs'
+import { EntityTreeComponent, getAncestorWithComponents, hasComponent, S } from '@ir-engine/ecs'
 import { defineComponent, getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
+import { ComputedTransformComponent } from './ComputedTransformComponent'
 
 import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
 import { isZero } from '../../common/functions/MathFunctions'
@@ -54,14 +55,15 @@ const assignScale = (entity: Entity): Vector3 =>
 
 export const TransformComponent = defineComponent({
   name: 'TransformComponent',
-  jsonID: 'EE_transform',
+
+  jsonID: 'IR_transform',
 
   schema: S.Object({
     position: T.Vec3(assignPosition),
     rotation: T.Quaternion(assignRotation),
     scale: T.Vec3(assignScale),
-    matrix: T.Mat4(),
-    matrixWorld: T.Mat4()
+    matrix: T.Mat4(undefined, { serialized: false }),
+    matrixWorld: T.Mat4(undefined, { serialized: false })
   }),
 
   storage: {
@@ -321,8 +323,44 @@ export const TransformComponent = defineComponent({
     return outVector
   },
 
-  transformsNeedSorting: false
+  transformsNeedSorting: false,
+
+  /**
+   * Computes the transform matrix for an entity
+   * @param entity
+   */
+  computeTransformMatrix: (entity: Entity) => {
+    const transform = getComponent(entity, TransformComponent)
+    getOptionalComponent(entity, ComputedTransformComponent)?.computeFunction()
+    composeMatrix(entity)
+
+    const entityTree = getOptionalComponent(entity, EntityTreeComponent)
+    const parentEntity = entityTree?.parentEntity
+    if (parentEntity) {
+      const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
+      if (parentTransform) transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
+    } else {
+      transform.matrixWorld.copy(transform.matrix)
+    }
+  },
+
+  /**
+   * Computes the transform matrix for an entity and all its children
+   * @param entity
+   */
+  computeTransformMatrixWithChildren: (entity: Entity) => {
+    hasComponent(entity, TransformComponent) && TransformComponent.computeTransformMatrix(entity)
+    for (const child of getOptionalComponent(entity, EntityTreeComponent)?.children ?? []) {
+      TransformComponent.computeTransformMatrixWithChildren(child)
+    }
+  },
+
+  getDistanceSquaredFromTarget: (entity: Entity, targetPosition: Vector3) => {
+    return TransformComponent.getWorldPosition(entity, _tempDistSqrVec3).distanceToSquared(targetPosition)
+  }
 })
+
+const _tempDistSqrVec3 = new Vector3()
 
 const vec3 = new Vector3()
 const vec3_2 = new Vector3()

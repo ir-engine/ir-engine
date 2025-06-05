@@ -7,8 +7,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -20,7 +20,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -39,18 +39,13 @@ Infinite Reality Engine. All Rights Reserved.
  */
 
 import {
-	CompressedTexture,
-	CompressedArrayTexture,
-	CompressedCubeTexture,
 	Data3DTexture,
 	DataTexture,
-	DisplayP3ColorSpace,
 	FloatType,
 	HalfFloatType,
 	NoColorSpace,
 	LinearFilter,
 	LinearMipmapLinearFilter,
-	LinearDisplayP3ColorSpace,
 	LinearSRGBColorSpace,
 	RedFormat,
 	RGB_ETC1_Format,
@@ -99,6 +94,9 @@ import WebWorker from 'web-worker'
 import { FileLoader } from '../base/FileLoader';
 import { Loader } from '../base/Loader';
 import { isClient } from '@ir-engine/hyperflux'
+import { CompressedTexture, CompressedArrayTexture } from 'three';
+
+import { DisplayP3ColorSpace, LinearDisplayP3ColorSpace } from '@ir-engine/spatial/src/threejsPatches'
 
 const _taskCache = new WeakMap();
 
@@ -282,7 +280,7 @@ class KTX2Loader extends Loader {
 
 			}
 
-			this._createTexture( buffer )
+			this._createTexture( buffer, { url })
 				.then( ( texture ) => onLoad ? onLoad( texture ) : null )
 				.catch( onError );
 
@@ -290,7 +288,7 @@ class KTX2Loader extends Loader {
 
 	}
 
-	_createTextureFrom( transcodeResult, container ) {
+	_createTextureFrom( transcodeResult, container, config = {} ) {
 
 		const { faces, width, height, format, type, error, dfdFlags } = transcodeResult;
 
@@ -300,7 +298,8 @@ class KTX2Loader extends Loader {
 
 		if ( container.faceCount === 6 ) {
 
-			texture = new CompressedCubeTexture( faces, format, UnsignedByteType );
+			texture = new CompressedTexture( faces, width, height, format, UnsignedByteType );
+			texture.userData = { url: config.url };
 
 		} else {
 
@@ -309,6 +308,7 @@ class KTX2Loader extends Loader {
 			texture = container.layerCount > 1
 				? new CompressedArrayTexture( mipmaps, width, height, container.layerCount, format, UnsignedByteType )
 				: new CompressedTexture( mipmaps, width, height, format, UnsignedByteType );
+			texture.userData = { url: config.url };
 
 		}
 
@@ -345,7 +345,7 @@ class KTX2Loader extends Loader {
 
 			return this.workerPool.postMessage( { type: 'transcode', buffer, taskConfig: taskConfig }, [ buffer ] );
 
-		} ).then( ( e ) => this._createTextureFrom( e.data, container ) );
+		} ).then( ( e ) => this._createTextureFrom( e.data, container, config ) );
 
 		// Cache the task result.
 		_taskCache.set( buffer, { promise: texturePending } );

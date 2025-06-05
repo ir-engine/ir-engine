@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -27,14 +27,14 @@ import React from 'react'
 
 import styleString from './index.scss?inline'
 
-type uploadButtonVariant = 'filled' | 'outlined' | 'gradient'
+type UploadButtonVariant = 'filled' | 'outlined' | 'gradient'
 
 const XRUploadButton = (props) => {
   const {
     variant = 'filled',
     buttonContent,
     ...inputProps
-  }: { variant: uploadButtonVariant; buttonContent: any; inputProps: any } = props
+  }: { variant: UploadButtonVariant; buttonContent: any; inputProps: any } = props
 
   return (
     <>

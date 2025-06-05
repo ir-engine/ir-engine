@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -30,9 +30,9 @@ export const FlyControlComponent = defineComponent({
   name: 'FlyControlComponent',
 
   schema: S.Object({
-    moveSpeed: S.Number(1),
-    boostSpeed: S.Number(1),
-    lookSensitivity: S.Number(1),
-    maxXRotation: S.Number(Math.PI / 2)
+    moveSpeed: S.Number({ default: 1 }),
+    boostSpeed: S.Number({ default: 1 }),
+    lookSensitivity: S.Number({ default: 1 }),
+    maxXRotation: S.Number({ default: Math.PI / 2 })
   })
 })

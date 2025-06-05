@@ -19,21 +19,18 @@
 // The Original Developer is the Initial Developer. The Initial Developer of the
 // Original Code is the Infinite Reality Engine team.
 
-// All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+// All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 // Infinite Reality Engine. All Rights Reserved.
 // */
 
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 
 import assert from 'assert'
-import { MathUtils } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 
 import {
   Entity,
   EntityTreeComponent,
-  EntityUUID,
-  UUIDComponent,
   UndefinedEntity,
   createEntity,
   getComponent,
@@ -44,7 +41,6 @@ import {
 } from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { Effect } from 'postprocessing'
 import { useEffect } from 'react'
@@ -53,6 +49,7 @@ import { destroySpatialEngine, initializeSpatialEngine } from '../../initializeE
 import { RendererState } from '../RendererState'
 import { EffectReactorProps, PostProcessingEffectState } from '../effects/EffectRegistry'
 import { PostProcessingComponent } from './PostProcessingComponent'
+import { RendererComponent } from './RendererComponent'
 
 const effectKey = 'MockEffect'
 
@@ -293,7 +290,6 @@ describe('PostProcessingComponent', async () => {
       rootEntity = getState(ReferenceSpaceState).viewerEntity
 
       testEntity = createEntity()
-      setComponent(testEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
       getMutableState(RendererState).usePostProcessing.set(true)
       setComponent(testEntity, SceneComponent)
       setComponent(testEntity, PostProcessingComponent, { enabled: true })

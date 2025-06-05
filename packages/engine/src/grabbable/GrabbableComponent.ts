@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -34,12 +34,12 @@ import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/In
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { NetworkTopics } from '@ir-engine/network'
+import { NetworkTopics } from '@ir-engine/hyperflux'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { InteractableComponent, XRUIVisibilityOverride } from '../interaction/components/InteractableComponent'
 
 // @todo move this to spatial package schema definitions
-export const XRHandedness = S.LiteralUnion(['none', 'left', 'right'], 'none')
+export const XRHandedness = S.LiteralUnion(['none', 'left', 'right'])
 
 /**
  * GrabbableComponent
@@ -88,8 +88,8 @@ export const GrabbableComponent = defineComponent({
     if (grabbedEntity) return
     dispatchAction(
       GrabbableNetworkAction.setGrabbedObject({
-        entityUUID: getComponent(grabbableEntity, UUIDComponent),
-        grabberEntityUUID: getComponent(grabberEntity, UUIDComponent),
+        entityUUID: UUIDComponent.get(grabbableEntity),
+        grabberEntityUUID: UUIDComponent.get(grabberEntity),
         grabbed: true,
         attachmentPoint: handedness
       })
@@ -106,8 +106,8 @@ export const GrabbableComponent = defineComponent({
 
     dispatchAction(
       GrabbableNetworkAction.setGrabbedObject({
-        entityUUID: getComponent(grabbableEntity, UUIDComponent),
-        grabberEntityUUID: getComponent(grabberEntity, UUIDComponent),
+        entityUUID: UUIDComponent.get(grabbableEntity),
+        grabberEntityUUID: UUIDComponent.get(grabberEntity),
         grabbed: false
       })
     )
