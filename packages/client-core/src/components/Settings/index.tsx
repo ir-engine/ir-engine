@@ -154,7 +154,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ initScreen = 'main' }) => {
       id="settings-menu-backdrop"
       className={`
         flex h-full w-full items-start
-        justify-center
+        justify-center font-figtree
       `}
     >
       <motion.div
