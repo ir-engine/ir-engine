@@ -450,9 +450,9 @@ export const useHierarchyTreeHotkeys = () => {
     const selectedEntity = getMutableState(HierarchyTreeState).firstSelectedEntity.value
     if (selectedEntity === rootEntity.value || !selectedEntity) return
     if (shiftKey) {
-      EditorControlFunctions.toggleSelection([getComponent(selectedEntity, UUIDComponent)])
+      EditorControlFunctions.toggleSelection([UUIDComponent.get(selectedEntity)])
     } else {
-      EditorControlFunctions.replaceSelection([getComponent(selectedEntity, UUIDComponent)])
+      EditorControlFunctions.replaceSelection([UUIDComponent.get(selectedEntity)])
     }
   })
 
@@ -500,13 +500,13 @@ export const useHierarchyTreeHotkeys = () => {
     upperNodeEl?.focus()
     if (event.shiftKey) {
       const uuids = [
-        ...getSelectedEntities().map((e) => getComponent(e, UUIDComponent)),
-        getComponent(upperNode.entity, UUIDComponent)
+        ...getSelectedEntities().map((e) => UUIDComponent.get(e)),
+        UUIDComponent.get(upperNode.entity)
       ].filter((value, index, array) => array.indexOf(value) === index)
 
-      EditorControlFunctions.addToSelection([...uuids, getComponent(upperNode.entity, UUIDComponent)])
+      EditorControlFunctions.addToSelection([...uuids, UUIDComponent.get(upperNode.entity)])
     } else {
-      EditorControlFunctions.replaceSelection([getComponent(upperNode.entity, UUIDComponent)])
+      EditorControlFunctions.replaceSelection([UUIDComponent.get(upperNode.entity)])
     }
     getMutableState(HierarchyTreeState).firstSelectedEntity.set(upperNode.entity)
   })
@@ -523,13 +523,13 @@ export const useHierarchyTreeHotkeys = () => {
     lowerNodeEl?.focus()
     if (event.shiftKey) {
       const uuids = [
-        ...getSelectedEntities().map((e) => getComponent(e, UUIDComponent)),
-        getComponent(lowerNode!.entity, UUIDComponent)
+        ...getSelectedEntities().map((e) => UUIDComponent.get(e)),
+        UUIDComponent.get(lowerNode!.entity)
       ].filter((value, index, array) => array.indexOf(value) === index)
 
-      EditorControlFunctions.addToSelection([...uuids, getComponent(lowerNode.entity, UUIDComponent)])
+      EditorControlFunctions.addToSelection([...uuids, UUIDComponent.get(lowerNode.entity)])
     } else {
-      EditorControlFunctions.replaceSelection([getComponent(lowerNode.entity, UUIDComponent)])
+      EditorControlFunctions.replaceSelection([UUIDComponent.get(lowerNode.entity)])
     }
     getMutableState(HierarchyTreeState).firstSelectedEntity.set(lowerNode.entity)
   })
