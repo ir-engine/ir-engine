@@ -25,7 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useState } from 'react'
 
-import { useHookstate } from '@hookstate/core'
+import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
+import { useMutableState } from '@ir-engine/hyperflux'
 import Divider from '@ir-engine/ui/src/components/viewer/Divider'
 import { AuthService } from '../../user/services/AuthService'
 import { MenuItem } from './MenuItem'
@@ -43,8 +44,7 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
   const [videoCommunication, setVideoCommunication] = useState(false)
   const [spatialAudio, setSpatialAudio] = useState(false)
   const [multiplayer, setMultiplayer] = useState(false)
-  const micVolume = useHookstate(30)
-  const audioVolume = useHookstate(70)
+  const audioState = useMutableState(AudioState)
 
   return (
     <div className="space-y-4">
@@ -61,12 +61,16 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
       <Section>
         <ToggleItem label="Spatial Audio" checked={spatialAudio} onClick={() => setSpatialAudio(!spatialAudio)} />
         <Divider />
-        <SliderItem label="Mic Volume" defaultValue={micVolume.get()} onChange={(value) => micVolume.set(value)} />
+        <SliderItem
+          label="Mic Volume"
+          value={audioState.microphoneGain.value * 100}
+          onChange={(value) => audioState.microphoneGain.set(value / 100)}
+        />
         <Divider />
         <SliderItem
           label="Audio Volume"
-          defaultValue={audioVolume.get()}
-          onChange={(value) => audioVolume.set(value)}
+          value={audioState.masterVolume.value * 100}
+          onChange={(value) => audioState.masterVolume.set(value / 100)}
         />
       </Section>
 
