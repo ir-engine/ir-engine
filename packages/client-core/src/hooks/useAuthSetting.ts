@@ -33,6 +33,7 @@ import { initialAuthState, initialOAuthConnectedState } from '../common/initialA
 
 export const useAuthSettings = () => {
   const { data: authSetting } = useEngineSetting<AuthenticationConfig>('authentication')
+  console.log({ authSetting })
   //authStrategies is typed as string[], yet when printed the result is an array of objects.
   const strategies = authSetting?.authStrategies as unknown as { [key: string]: boolean }[]
 

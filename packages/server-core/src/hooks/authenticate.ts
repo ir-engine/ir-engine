@@ -46,6 +46,7 @@ export const asyncLocalStorage = new AsyncLocalStorage<{ user: UserType }>()
  */
 export default async (context: HookContext<Application>, next: NextFunction): Promise<HookContext> => {
   const store = asyncLocalStorage.getStore()
+  console.log('authenticate hook')
 
   // If user param is already stored then we don't need to
   // authenticate. This is typically an internal service call.
