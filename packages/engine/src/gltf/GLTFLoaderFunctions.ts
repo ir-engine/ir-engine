@@ -88,7 +88,6 @@ import {
   MathUtils,
   Matrix4,
   Mesh,
-  MeshPhysicalMaterial,
   MeshStandardMaterial,
   NumberKeyframeTrack,
   Object3D,
@@ -155,23 +154,6 @@ export function getImageURIMimeType(uri) {
   return 'image/png'
 }
 
-const assignFinalMaterial = (primitiveDef: GLTF.IMeshPrimitive, entity: Entity) => {
-  const material = getComponent(entity, MaterialStateComponent).material as MeshPhysicalMaterial
-  const useDerivativeTangents = primitiveDef.attributes.TANGENT === undefined
-  const useVertexColors = primitiveDef.attributes.COLOR_0 !== undefined
-  const useFlatShading = primitiveDef.attributes.NORMAL === undefined
-
-  if (useVertexColors) material.vertexColors = true
-  if (useFlatShading) material.flatShading = true
-
-  if (useDerivativeTangents) {
-    if (material.normalScale) material.normalScale.y *= -1
-    if (material.clearcoatNormalScale) material.clearcoatNormalScale.y *= -1
-  }
-
-  material.needsUpdate = true
-}
-
 const loadPrimitives = async (options: GLTFParserOptions, meshIndex: number): Promise<[BufferGeometry, Entity[]]> => {
   const json = options.document
   const mesh = json.meshes![meshIndex]
@@ -181,18 +163,42 @@ const loadPrimitives = async (options: GLTFParserOptions, meshIndex: number): Pr
   )
 
   if (primitives.length > 1) {
-    let needsTangentRecalculation = false
-    for (const [geometry] of primitives) {
-      if (geometry.attributes.tangent) needsTangentRecalculation = true
-      geometry.deleteAttribute('tangent')
+    const hasAnyTangents = primitives.some(([geometry]) => geometry.hasAttribute('tangent'))
+
+    if (hasAnyTangents) {
+      const tangentAttributeLength = 4
+      for (let i = 0; i < primitives.length; i++) {
+        let [geometry] = primitives[i]
+
+        if (!geometry.hasAttribute('tangent')) {
+          if (!geometry.index) {
+            geometry = geometry.toNonIndexed()
+            primitives[i][0] = geometry
+          }
+
+          try {
+            geometry.computeTangents()
+          } catch (e) {
+            console.warn(`Failed to compute tangents for primitive ${i}:`, e)
+            // Fallback
+            const count = geometry.getAttribute('position').count
+            const fallback = new Float32Array(count * tangentAttributeLength)
+            for (let j = 0; j < count; j++) {
+              fallback[j * 4 + 0] = 1
+              fallback[j * 4 + 1] = 0
+              fallback[j * 4 + 2] = 0
+              fallback[j * 4 + 3] = 1
+            }
+            geometry.setAttribute('tangent', new BufferAttribute(fallback, 4))
+          }
+        }
+      }
     }
 
     const newGeometry = mergeBufferGeometries(
       primitives.map(([geometry]) => geometry),
       true
     )!
-    if (needsTangentRecalculation) newGeometry?.computeTangents()
-
     return [newGeometry, primitives.map(([, material]) => material)]
   } else {
     return [primitives[0][0], [primitives[0][1]]]
@@ -228,13 +234,19 @@ const loadPrimitive = async (
     )
   }
 
+  const material = await materialPromise
+  const materialComponent = getComponent(material, MaterialStateComponent).material as MeshStandardMaterial
+  const useVertexColors = primitiveDef.attributes.COLOR_0 !== undefined
+  const useFlatShading = primitiveDef.attributes.NORMAL === undefined
+  if (useVertexColors) materialComponent.vertexColors = true
+  if (useFlatShading) materialComponent.flatShading = true
+
   if (hasDracoCompression) {
     return new Promise((resolve) => {
       KHR_DRACO_MESH_COMPRESSION.decodePrimitive(options, primitiveDef).then((geom) => {
         GLTFLoaderFunctions.computeBounds(json, geom, primitiveDef)
         assignExtrasToUserData(geom, primitiveDef)
         materialPromise.then((material) => {
-          assignFinalMaterial(primitiveDef, material)
           resolve([geom, material])
         })
       })
@@ -278,7 +290,6 @@ const loadPrimitive = async (
     GLTFLoaderFunctions.computeBounds(json, geometry, primitiveDef)
     assignExtrasToUserData(geometry, primitiveDef)
     const [material] = await Promise.all([materialPromise, Promise.all(promises)])
-    assignFinalMaterial(primitiveDef, material)
     if (primitiveDef.targets) await addMorphTargets(options, geometry, primitiveDef.targets)
     return [geometry, material]
   }
@@ -744,11 +755,28 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
     )
   }
 
+  let hasTangents = false
+  if (json.meshes) {
+    for (const mesh of json.meshes) {
+      for (const primitive of mesh.primitives) {
+        if (
+          primitive.material === materialIndex &&
+          primitive.attributes &&
+          primitive.attributes.TANGENT !== undefined
+        ) {
+          hasTangents = true
+          break
+        }
+      }
+      if (hasTangents) break
+    }
+  }
+
   if (materialDef.normalTexture?.scale) {
     const scale = materialDef.normalTexture.scale
     materialConstructorParameters.normalScale = new Vector2(scale, scale)
   } else {
-    materialConstructorParameters.normalScale = new Vector2(1, 1)
+    materialConstructorParameters.normalScale = new Vector2(1, hasTangents ? 1 : -1)
   }
 
   if (typeof materialDef.occlusionTexture !== 'undefined') {
@@ -863,7 +891,6 @@ const mergeMorphTargets = async (options: GLTFParserOptions, nodeIndex: number) 
     const newAttributesLength = morphAttributes[name].length / morphTargets.length
     for (let j = newAttributesLength; j < morphAttributes[name].length; j++) {
       const mergeIntoIndex = j % newAttributesLength
-      // console.log(j + ' goes into ' + mergeIntoIndex)
       const newArray = new Float32Array(
         morphAttributes[name][j].array.length + morphAttributes[name][mergeIntoIndex].array.length
       )

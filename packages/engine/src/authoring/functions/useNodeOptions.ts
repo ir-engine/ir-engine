@@ -26,14 +26,20 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   Entity,
   EntityID,
+  EntityUUID,
   getAuthoringCounterpart,
   getComponent,
   getOptionalComponent,
   hasComponent,
+  Layers,
+  useQuery,
   UUIDComponent
 } from '@ir-engine/ecs'
+import { useHookstate } from '@ir-engine/hyperflux'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import * as bitECS from 'bitecs'
+import { useEffect } from 'react'
 
 export type CallbackOptionType = {
   callbacks: Array<{
@@ -101,4 +107,37 @@ export const useNodeOptions = (entity: Entity) => {
       value: entity === entity ? '' : getComponent(entity, UUIDComponent).entityID
     }
   })
+}
+
+export type EntityOptionType = { label: string; value: EntityUUID; entity: Entity }
+
+/**
+ * Returns a list of authoring layer EntitiyOptionTypes that match the component array filter
+ * @param filter
+ */
+export const useEntityOptions = (filter: bitECS.QueryTerm[]) => {
+  const entityOptions = useHookstate<EntityOptionType[]>([])
+
+  // Query all entities
+  const filteredEntities = useQuery(filter, Layers.Authoring)
+
+  // Update entity options when entities change
+  useEffect(() => {
+    // Create options for the Select components
+    const options = filteredEntities.map((entity) => {
+      const name = hasComponent(entity, NameComponent) ? getComponent(entity, NameComponent) : `Entity ${entity}`
+
+      const entityUUID = hasComponent(entity, UUIDComponent) ? UUIDComponent.get(entity) : (`${entity}` as EntityUUID)
+
+      return {
+        label: name,
+        value: entityUUID,
+        entity
+      }
+    })
+
+    entityOptions.set(options)
+  }, [filteredEntities.length, filter])
+
+  return entityOptions
 }

@@ -40,8 +40,7 @@
           "minCameraDistance": 1,
           "maxCameraDistance": 50,
           "startCameraDistance": 3,
-          "cameraMode": "Dynamic",
-          "cameraModeDefault": "ThirdPerson",
+          "cameraMode": "FOLLOW",
           "minPhi": -70,
           "maxPhi": 85
         },
