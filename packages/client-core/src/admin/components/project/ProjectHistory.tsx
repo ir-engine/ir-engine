@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -174,6 +174,11 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
           ? 'resource'
           : 'scene'
 
+      const objectName =
+        projectHistory.action === 'RESOURCE_CREATED' || projectHistory.action === 'RESOURCE_REMOVED'
+          ? t('admin:components.history.resource')
+          : t('admin:components.history.scene')
+
       const actionDetail = JSON.parse(projectHistory.actionDetail) as {
         url: string
       }
@@ -186,7 +191,7 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
             {projectHistory.action.endsWith('CREATED')
               ? t('admin:components.history.created')
               : t('admin:components.history.removed')}{' '}
-            {object}
+            {objectName}
           </Text>
 
           {projectHistory.action.endsWith('CREATED') ? (
@@ -232,6 +237,10 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
       )
     } else if (projectHistory.action === 'RESOURCE_MODIFIED' || projectHistory.action === 'SCENE_MODIFIED') {
       const object = projectHistory.action === 'RESOURCE_MODIFIED' ? 'resource' : 'scene'
+      const objectName =
+        projectHistory.action === 'RESOURCE_MODIFIED'
+          ? t('admin:components.history.resource')
+          : t('admin:components.history.scene')
       const actionDetail = JSON.parse(projectHistory.actionDetail) as {
         url: string
       }
@@ -241,7 +250,7 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
       return (
         <>
           <Text>
-            {t('admin:components.history.modified')} {object}
+            {t('admin:components.history.modified')} {objectName}
           </Text>
           <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
             {relativeURL}
@@ -347,17 +356,18 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
   }
 
   return (
-    <div className="mb-3 flex w-full items-center justify-between gap-x-2 rounded-lg bg-surface-1 px-5 py-2 text-text-secondary hover:text-text-primary">
+    <div className="mb-3 flex w-full items-center justify-between gap-x-4 truncate rounded-lg border border-ui-tertiary bg-white px-5 py-2 text-text-secondary hover:text-text-primary dark:border-none dark:bg-surface-1">
       <AvatarImage
         className="inline-grid min-h-10 min-w-10 rounded-full"
         src={projectHistory.userAvatarURL}
         name={projectHistory.userName}
       />
 
-      <div className="flex w-full flex-wrap items-center justify-start gap-x-2 [&>*]:whitespace-nowrap">
+      <div className="flex w-full items-center justify-start gap-x-8 overflow-hidden [&>*]:whitespace-nowrap">
         <Text>{projectHistory.userName}</Text>
-
-        <RenderAction />
+        <div className="flex gap-x-1">
+          <RenderAction />
+        </div>
       </div>
 
       <Text className="text-nowrap">{toDisplayDateTime(projectHistory.createdAt)}</Text>

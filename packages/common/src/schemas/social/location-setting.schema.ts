@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -49,6 +49,9 @@ export const locationSettingSchema = Type.Object(
     /** @todo review */
     faceStreamingEnabled: Type.Boolean(),
     videoEnabled: Type.Boolean(),
+    /** @todo Re-enable this when the engine has a working jump control/vr capabilities */
+    // jumpControlEnabled: Type.Boolean(),
+    // vrEnabled: Type.Boolean(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -77,6 +80,9 @@ export const locationSettingQueryProperties = Type.Pick(locationSettingSchema, [
   'screenSharingEnabled',
   'faceStreamingEnabled',
   'videoEnabled'
+  /** @todo: Re-enable this when the engine has a working jump control/vr capabilities */
+  // 'jumpControlEnabled',
+  // 'vrEnabled'
 ])
 export const locationSettingQuerySchema = Type.Intersect(
   [

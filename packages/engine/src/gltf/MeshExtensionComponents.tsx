@@ -19,7 +19,7 @@ The Original Code is Ethereal Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Ethereal Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2025 
 Ethereal Engine. All Rights Reserved.
 */
 
@@ -28,6 +28,7 @@ import {
   ComponentType,
   defineComponent,
   EntityTreeComponent,
+  EntityUUID,
   getAncestorWithComponents,
   getComponent,
   removeComponent,
@@ -37,6 +38,7 @@ import {
   useEntityContext,
   UUIDComponent
 } from '@ir-engine/ecs'
+import { useHookstate } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } from '@ir-engine/spatial'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { useEffect } from 'react'
@@ -45,7 +47,6 @@ import { InstancingComponent } from '../scene/components/InstancingComponent'
 import { getGLTFOptions, GLTFComponent } from './GLTFComponent'
 import { WEBGL_CONSTANTS } from './GLTFConstants'
 import { getDependency, getNodeID, GLTFParserOptions } from './GLTFLoaderFunctions'
-import { NodeIDComponent } from './NodeIDComponent'
 
 export type KHRPunctualLight = {
   color?: [number, number, number]
@@ -71,14 +72,21 @@ export const KHRLightsPunctualComponent = defineComponent({
     useComponent(entity, EntityTreeComponent)
     const component = useComponent(entity, KHRLightsPunctualComponent)
 
+    const abortController = useHookstate(() => new AbortController())
     const gltfEntity = getAncestorWithComponents(entity, [GLTFComponent])
-    const options = getGLTFOptions(gltfEntity)
+    const options = getGLTFOptions(gltfEntity, abortController.value.signal)
     const json = options.document
     const extensions: {
       lights?: KHRPunctualLight[]
     } = (json.extensions && json.extensions[KHRLightsPunctualComponent.jsonID]) || {}
     const lightDefs = extensions.lights
     const lightDef = lightDefs && component.light.value !== undefined ? lightDefs[component.light.value] : undefined
+
+    useEffect(() => {
+      return () => {
+        abortController.value.abort()
+      }
+    }, [])
 
     useEffect(() => {
       return () => {
@@ -210,8 +218,9 @@ export const EXTMeshGPUInstancingComponent = defineComponent({
 
     const results = await Promise.all(pending)
 
-    const nodeID = getNodeID(nodeDef, options.documentID, nodeIndex)
-    const nodeUUID = NodeIDComponent.getUUIDBySourceAndNodeID(options.documentID, nodeID)
+    const nodeID = getNodeID(nodeDef, nodeIndex)
+    const nodeUUID = (UUIDComponent.get(options.entity) + nodeID) as EntityUUID
+
     const entity = UUIDComponent.getEntityByUUID(nodeUUID)
     const mesh = getComponent(entity, MeshComponent)
 

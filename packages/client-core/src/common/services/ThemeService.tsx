@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -227,7 +227,7 @@ const darkTheme: CSSClasses = {
   '--ui-background': '#16191C',
   '--ui-outline': '#42454D',
   '--ui-primary': '#3771AF',
-  '--ui-secondary': '#1B2844',
+  '--ui-secondary': '#1B2F44',
   '--ui-tertiary': '#42454D',
   '--ui-quadrary': '#2C2E33',
   '--ui-error': '#732424',
@@ -299,10 +299,16 @@ export const themes: Record<string, Partial<CSSClasses>> = {
   dark: darkTheme
 }
 
+export const checkDarkMode = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+
 export const ThemeState = defineState({
   name: 'ThemeState',
-  initial: {
-    theme: 'dark' as 'light' | 'dark'
+  initial: () => {
+    const initialDarkMode = checkDarkMode()
+
+    return {
+      theme: (initialDarkMode ? 'dark' : 'light') as 'light' | 'dark'
+    }
   },
 
   setTheme: (theme: 'light' | 'dark') => {
@@ -324,6 +330,21 @@ export const updateTheme = (themeClasses: Partial<CSSClasses>) => {
 export const useThemeProvider = () => {
   const themeState = useMutableState(ThemeState)
   const themeClasses = themes[themeState.theme.value]
+
+  useEffect(() => {
+    const matchMedia = window.matchMedia('(prefers-color-scheme: dark)')
+    const listener = (event) => {
+      const newColorScheme = event.matches ? 'dark' : 'light'
+
+      ThemeState.setTheme(newColorScheme)
+    }
+
+    matchMedia.addEventListener('change', listener)
+
+    return () => {
+      matchMedia.removeEventListener('change', listener)
+    }
+  }, [])
 
   useEffect(() => {
     updateTheme(themeClasses)

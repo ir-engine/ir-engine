@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -40,9 +40,7 @@ import {
   MediaComponent,
   MediaElementComponent
 } from '@ir-engine/engine/src/scene/components/MediaComponent'
-import { useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ActiveHelperComponent } from '../../../../spatial/src/common/ActiveHelperComponent'
@@ -58,7 +56,7 @@ export interface PositionalAudioInterface {
   coneOuterGain: number
 }
 
-const distanceModel = S.LiteralUnion(['exponential', 'inverse', 'linear'], 'inverse')
+const distanceModel = S.LiteralUnion(['exponential', 'inverse', 'linear'], { default: 'inverse' })
 
 export const PositionalAudioComponent = defineComponent({
   name: 'EE_positionalAudio',
@@ -67,19 +65,21 @@ export const PositionalAudioComponent = defineComponent({
 
   schema: S.Object({
     distanceModel,
-    rolloffFactor: S.Number(1),
-    refDistance: S.Number(1),
-    maxDistance: S.Number(40),
-    coneInnerAngle: S.Number(360),
-    coneOuterAngle: S.Number(360),
-    coneOuterGain: S.Number(0)
+    rolloffFactor: S.Number({ default: 1 }),
+    refDistance: S.Number({ default: 1 }),
+    maxDistance: S.Number({ default: 40 }),
+    coneInnerAngle: S.Number({ default: 360 }),
+    coneOuterAngle: S.Number({ default: 360 }),
+    coneOuterGain: S.Number()
   }),
 
   reactor: function () {
     const entity = useEntityContext()
-    const renderState = useMutableState(RendererState)
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
-    const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
+    const debugEnabled =
+      activeHelperComponent !== undefined &&
+      activeHelperComponent.enabled.value &&
+      (activeHelperComponent.selected.value || activeHelperComponent.hovered.value)
     const audio = useComponent(entity, PositionalAudioComponent)
     const mediaElement = useOptionalComponent(entity, MediaElementComponent)
 
@@ -96,6 +96,7 @@ export const PositionalAudioComponent = defineComponent({
         setComponent(entity, PositionalAudioHelperComponent, {
           name: name ? `${name}-positional-audio-helper` : undefined
         })
+        setComponent(entity, ActiveHelperComponent, { helperSelectedGizmo: entity, directional: true }) // we have multiple child helpers so we use the entity as the selected gizmo
       }
       return () => {
         removeComponent(entity, PositionalAudioHelperComponent)

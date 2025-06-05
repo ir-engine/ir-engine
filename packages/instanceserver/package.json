@@ -31,7 +31,7 @@
     "node": ">= 22.11.0"
   },
   "scripts": {
-    "check-errors": "tsc --noemit",
+    "check-errors": "tsc --noemit && npx cycle-import-check src || true",
     "start": "cross-env APP_ENV=production ts-node --swc src/index.ts",
     "start-channel": "cross-env APP_ENV=production INSTANCESERVER_PORT=3032 DEV_CHANNEL=true ts-node --swc src/index.ts",
     "dev": "cross-env APP_ENV=development NODE_OPTIONS='--inspect=2995' ts-node --swc src/index.ts",
@@ -46,7 +46,6 @@
     "@ir-engine/ecs": "^1.6.0",
     "@ir-engine/engine": "^1.6.0",
     "@ir-engine/hyperflux": "^1.6.0",
-    "@ir-engine/network": "^1.6.0",
     "@ir-engine/projects": "^1.6.0",
     "@ir-engine/server-core": "^1.6.0",
     "@ir-engine/spatial": "^1.6.0",

@@ -33,14 +33,13 @@
   },
   "npmClient": "npm",
   "scripts": {
-    "check-errors": "tsc --noemit",
+    "check-errors": "tsc --noemit && npx cycle-import-check src",
     "build": "npm run build:worker",
     "build:worker": "esbuild core/textures/KTX2Worker.ts --bundle --format=esm --outfile=core/textures/KTX2Worker.bundle.js --loader:.wasm=binary",
     "test": "cross-env TEST=true vitest run --config=../../vitest.client.config.ts"
   },
   "dependencies": {
     "@juggle/resize-observer": "^3.4.0",
-    "dexie": "^3.2.3",
     "fflate": "^0.7.4",
     "msgpackr": "^1.9.2"
   },

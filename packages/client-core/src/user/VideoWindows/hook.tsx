@@ -14,7 +14,7 @@ specific language governing rights and limitations under the License.
 The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -32,13 +32,25 @@ import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
 import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
 import { MotionCaptureSystem, timeSeriesMocapData } from '@ir-engine/engine/src/mocap/MotionCaptureSystem'
 import { applyScreenshareToTexture } from '@ir-engine/engine/src/scene/functions/applyScreenshareToTexture'
-import { getMutableState, getState, NO_PROXY, PeerID, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
+import {
+  getMutableState,
+  getState,
+  MediaChannelState,
+  MediaStreamInterface,
+  MediaStreamState,
+  NetworkState,
+  NO_PROXY,
+  PeerID,
+  screenshareAudioMediaChannelType,
+  screenshareVideoMediaChannelType,
+  useHookstate,
+  useMutableState,
+  webcamAudioMediaChannelType,
+  webcamVideoMediaChannelType
+} from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { drawPoseToCanvas } from '@ir-engine/ui/src/pages/Capture'
 
-import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
-import { PeerMediaChannelState, PeerMediaStreamInterface } from '@ir-engine/network/src/media/PeerMediaChannelState'
 import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 
 export interface Props {
@@ -47,11 +59,20 @@ export interface Props {
 }
 
 export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
-  const peerMediaChannelState = useHookstate(
-    getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
-  )
-  const { videoMediaStream, audioMediaStream, videoStreamPaused, audioStreamPaused, videoElement, audioElement } =
-    peerMediaChannelState.value as PeerMediaStreamInterface
+  const audioChannelType = type === 'screen' ? screenshareAudioMediaChannelType : webcamAudioMediaChannelType
+  const videoChannelType = type === 'screen' ? screenshareVideoMediaChannelType : webcamVideoMediaChannelType
+  const audioMediaChannelState = useHookstate(getMutableState(MediaChannelState)[peerID][audioChannelType])
+  const videoMediaChannelState = useHookstate(getMutableState(MediaChannelState)[peerID][videoChannelType])
+  const {
+    stream: audioMediaStream,
+    paused: audioStreamPaused,
+    element: audioElement
+  } = audioMediaChannelState.value as MediaStreamInterface
+  const {
+    stream: videoMediaStream,
+    paused: videoStreamPaused,
+    element: videoElement
+  } = videoMediaChannelState.value as MediaStreamInterface
 
   const harkListener = useHookstate(null as ReturnType<typeof hark> | null)
   const soundIndicatorOn = useHookstate(false)
@@ -143,7 +164,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     videoElement.srcObject = videoMediaStream
 
     if (isScreen) {
-      applyScreenshareToTexture(videoElement!)
+      applyScreenshareToTexture(videoElement as HTMLVideoElement)
     }
   }, [videoMediaStream])
 
@@ -161,7 +182,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     } else if (isSelf && isScreen) {
       MediaStreamState.toggleScreenshareVideoPaused()
     } else {
-      peerMediaChannelState.videoStreamPaused.set((val) => !val)
+      videoMediaChannelState.paused.set((val) => !val)
     }
   }
 
@@ -171,7 +192,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     } else if (isSelf && isScreen) {
       MediaStreamState.toggleScreenshareAudioPaused()
     } else {
-      peerMediaChannelState.audioStreamPaused.set((val) => !val)
+      audioMediaChannelState.paused.set((val) => !val)
     }
   }
 
@@ -211,7 +232,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const togglePiP = () => isPiP.set(!isPiP.value)
 
   useEffect(() => {
-    peerMediaChannelState.videoQuality.set(isPiP.value ? 'largest' : 'smallest')
+    videoMediaChannelState.quality.set(isPiP.value ? 'largest' : 'smallest')
   }, [isPiP.value])
 
   const username = getUsername() as UserName
@@ -222,22 +243,22 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     if (document.hidden) {
       if (!videoStreamPaused && mediaStreamState.webcamMediaStream.value) {
         resumeVideoOnUnhide.current = true
-        peerMediaChannelState.videoStreamPaused.set(true)
+        videoMediaChannelState.paused.set(true)
         toggleVideo()
       }
       if (!audioStreamPaused && mediaStreamState.microphoneMediaStream.value) {
         resumeAudioOnUnhide.current = true
-        peerMediaChannelState.audioStreamPaused.set(true)
+        audioMediaChannelState.paused.set(true)
         toggleAudio()
       }
     }
     if (!document.hidden) {
       if (resumeVideoOnUnhide.current) {
-        peerMediaChannelState.videoStreamPaused.set(false)
+        videoMediaChannelState.paused.set(false)
         toggleVideo()
       }
       if (resumeAudioOnUnhide.current) {
-        peerMediaChannelState.audioStreamPaused.set(false)
+        audioMediaChannelState.paused.set(false)
         toggleAudio()
       }
       resumeVideoOnUnhide.current = false

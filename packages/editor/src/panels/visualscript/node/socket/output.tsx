@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -30,7 +30,7 @@ import { Connection, Handle, Position, useReactFlow } from 'reactflow'
 import { OutputSocketSpecJSON } from '@ir-engine/visual-script'
 import { twMerge } from 'tailwind-merge'
 import { NodeSpecGenerator } from '../../hooks'
-import { valueTypeColorMap } from '../../util/colors'
+import { colors, valueTypeColorMap } from '../../util/colors'
 import { isValidConnection } from '../../util/isValidConnection'
 
 export type OutputSocketProps = {
@@ -49,7 +49,7 @@ export default function OutputSocket({ specGenerator, connected, ...rest }: Outp
   if (colorName === undefined) {
     colorName = 'red'
   }
-  // @ts-ignore
+
   const [backgroundColor, borderColor] = colors[colorName]
   const showName = isFlowSocket === false || name !== 'flow'
   const position = {} as any

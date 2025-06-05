@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -47,8 +47,7 @@ import {
   userPath
 } from '@ir-engine/common/src/schema.type.module'
 import { destroyEngine, Engine } from '@ir-engine/ecs/src/Engine'
-import { getState, PeerID } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
+import { getState, NetworkState, PeerID } from '@ir-engine/hyperflux'
 import { Application } from '@ir-engine/server-core/declarations'
 
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
@@ -148,7 +147,7 @@ describe('InstanceLoad', () => {
 
     const scene = await app.service(staticResourcePath).get(skyStationScene.data[0].sceneId)
 
-    const entity = UUIDComponent.getEntityByUUID(scene.id as EntityUUID)
+    const entity = UUIDComponent.getEntityByUUID(('root' + scene.id) as EntityUUID)
     assert(entity > 0)
 
     assert.equal(getComponent(entity, GLTFComponent).progress, 100)

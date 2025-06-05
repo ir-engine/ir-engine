@@ -19,16 +19,25 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Box3, BufferAttribute, BufferGeometry, InstancedMesh, Mesh, TypedArray } from 'three'
+import {
+  Box3,
+  BufferAttribute,
+  BufferGeometry,
+  InstancedMesh,
+  InterleavedBufferAttribute,
+  Mesh,
+  TypedArray
+} from 'three'
 import { MeshBVH, SerializedBVH } from 'three-mesh-bvh'
 import Worker from 'web-worker'
 
 import { isClient } from '@ir-engine/hyperflux'
 import { WorkerPool } from '@ir-engine/xrui/core/WorkerPool'
+import { deinterleaveAttribute } from '../../common/classes/BufferGeometryUtils'
 
 const createWorker = () => {
   if (isClient) {
@@ -58,7 +67,12 @@ export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options =
   const geometry = mesh.geometry as BufferGeometry
 
   const index = geometry.index ? Uint32Array.from(geometry.index.array) : null
-  const pos = Float32Array.from((geometry.attributes.position as BufferAttribute).array)
+
+  let positionAttr = geometry.attributes.position
+  if ((positionAttr as InterleavedBufferAttribute).isInterleavedBufferAttribute) {
+    positionAttr = deinterleaveAttribute(positionAttr as InterleavedBufferAttribute)
+  }
+  const pos = Float32Array.from(positionAttr.array)
 
   const transferrables = [pos as ArrayLike<number>]
   if (index) {
@@ -86,8 +100,8 @@ export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options =
         geometry.addGroup(group.start, group.count, group.materialIndex)
       }
     }
-    geometry.setIndex(new BufferAttribute(serialized.index as TypedArray, 1, false))
     const bvh = MeshBVH.deserialize(serialized, geometry, { setIndex: false })
+    geometry.setIndex(new BufferAttribute(serialized.index as TypedArray, 1, false))
     geometry.boundingBox = bvh.getBoundingBox(new Box3())
     geometry.boundsTree = bvh
 

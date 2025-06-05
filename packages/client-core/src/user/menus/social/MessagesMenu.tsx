@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -40,14 +40,6 @@ import { useUserAvatarThumbnail } from '../../../hooks/useUserAvatarThumbnail'
 import { ChannelService, ChannelState } from '../../../social/services/ChannelService'
 import XRIconButton from '../../../systems/components/XRIconButton'
 import FriendsMenu from './FriendsMenu'
-
-// This file is a raw css copy of packages/ui/src/components/Chat/Message.tsx
-// Once location is migrated to tailwind, this file can use that tailwind code instead
-
-/**
- * @todo
- *
- */
 
 const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Element => {
   const { t } = useTranslation()

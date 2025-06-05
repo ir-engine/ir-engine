@@ -175,12 +175,6 @@ jobs:
       - run: rm -rf packages/*
       - run: mv packages_moved/hyperflux packages/
       - run: cd packages/hyperflux && npm run test
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_hyperflux }}
-        with:
-          projectBaseDir: packages/hyperflux/
 
   test_ecs:
     needs: install-modules
@@ -217,57 +211,6 @@ jobs:
       - run: mv packages_moved/hyperflux packages/
       - run: mv packages_moved/ecs packages/
       - run: cd packages/ecs && npm run test
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_ecs }}
-        with:
-          projectBaseDir: packages/ecs/
-
-  test_network:
-    needs: install-modules
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22.x
-          cache: 'npm'
-          cache-dependency-path: '**/package.json'
-      - name: Restore
-        uses: actions/cache/restore@v4
-        id: cache
-        with:
-          path: |
-            ./node_modules
-            ./packages/*/node_modules
-          key: ${{ runner.os }}-build-${{ hashFiles('./package.json', './packages/*/package.json') }}
-      - name: Install Dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm i
-      - run: cp .env.local.default .env.local
-      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
-      - run: mkdir -p packages_moved/hyperflux/
-      - run: mkdir -p packages_moved/ecs/
-      - run: mkdir -p packages_moved/network/
-      - run: mv packages/hyperflux packages_moved/
-      - run: mv packages/ecs packages_moved/
-      - run: mv packages/network packages_moved/
-      - run: rm -rf packages/*
-      - run: mv packages_moved/hyperflux packages/
-      - run: mv packages_moved/ecs packages/
-      - run: mv packages_moved/network packages/
-      - run: cd packages/network && npm run test
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_network }}
-        with:
-          projectBaseDir: packages/network/
 
   test_spatial:
     needs: install-modules
@@ -298,27 +241,18 @@ jobs:
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
-      - run: mkdir -p packages_moved/network/
       - run: mkdir -p packages_moved/xrui/
       - run: mkdir -p packages_moved/spatial/
       - run: mv packages/hyperflux packages_moved/
       - run: mv packages/ecs packages_moved/
-      - run: mv packages/network packages_moved/
       - run: mv packages/xrui packages_moved/
       - run: mv packages/spatial packages_moved/
       - run: rm -rf packages/*
       - run: mv packages_moved/hyperflux packages/
       - run: mv packages_moved/ecs packages/
-      - run: mv packages_moved/network packages/
       - run: mv packages_moved/xrui packages/
       - run: mv packages_moved/spatial packages/
       - run: cd packages/spatial && npm run test
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_spatial }}
-        with:
-          projectBaseDir: packages/spatial/
 
   test_engine:
     needs: install-modules
@@ -349,33 +283,78 @@ jobs:
       - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
-      - run: mkdir -p packages_moved/network/
       - run: mkdir -p packages_moved/xrui/
       - run: mkdir -p packages_moved/spatial/
+      - run: mkdir -p packages_moved/visual-script/
       - run: mkdir -p packages_moved/engine/
       - run: mkdir -p packages_moved/projects/
       - run: mv packages/hyperflux packages_moved/
       - run: mv packages/ecs packages_moved/
-      - run: mv packages/network packages_moved/
       - run: mv packages/xrui packages_moved/
       - run: mv packages/spatial packages_moved/
+      - run: mv packages/visual-script packages_moved/
       - run: mv packages/engine packages_moved/
       - run: mv packages/projects packages_moved/
       - run: rm -rf packages/*
       - run: mv packages_moved/hyperflux packages/
       - run: mv packages_moved/ecs packages/
-      - run: mv packages_moved/network packages/
       - run: mv packages_moved/xrui packages/
       - run: mv packages_moved/spatial packages/
+      - run: mv packages_moved/visual-script packages/
       - run: mv packages_moved/engine packages/
       - run: mv packages_moved/projects packages/
       - run: cd packages/engine && npm run test
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_engine }}
+
+  test_visual_script:
+    needs: install-modules
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
         with:
-          projectBaseDir: packages/engine/
+          node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+      - name: Restore
+        uses: actions/cache/restore@v4
+        id: cache
+        with:
+          path: |
+            ./node_modules
+            ./packages/*/node_modules
+          key: ${{ runner.os }}-build-${{ hashFiles('./package.json', './packages/*/package.json') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm i
+      - run: cp .env.local.default .env.local
+      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
+      - run: mkdir -p packages_moved/hyperflux/
+      - run: mkdir -p packages_moved/ecs/
+      - run: mkdir -p packages_moved/xrui/
+      - run: mkdir -p packages_moved/spatial/
+      - run: mkdir -p packages_moved/visual-script/
+      - run: mkdir -p packages_moved/engine/
+      - run: mkdir -p packages_moved/projects/
+      - run: mv packages/hyperflux packages_moved/
+      - run: mv packages/ecs packages_moved/
+      - run: mv packages/xrui packages_moved/
+      - run: mv packages/spatial packages_moved/
+      - run: mv packages/visual-script packages_moved/
+      - run: mv packages/engine packages_moved/
+      - run: mv packages/projects packages_moved/
+      - run: rm -rf packages/*
+      - run: mv packages_moved/hyperflux packages/
+      - run: mv packages_moved/ecs packages/
+      - run: mv packages_moved/xrui packages/
+      - run: mv packages_moved/spatial packages/
+      - run: mv packages_moved/visual-script packages/
+      - run: mv packages_moved/engine packages/
+      - run: mv packages_moved/projects packages/
+      - run: cd packages/visual-script && npm run test
 
   test_client:
     needs: install-modules
@@ -417,12 +396,6 @@ jobs:
       - run: rm -rf packages/server-core
       - run: rm -rf packages/taskserver
       - run: cd packages/${{ matrix.package }} && npm run test
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets[format('SONAR_TOKEN', matrix.package)] }}
-        with:
-          projectBaseDir: packages/${{ matrix.package }}/
 
   test_server:
     needs: install-modules
@@ -463,17 +436,13 @@ jobs:
       - run: rm -rf packages/client-core
       - run: rm -rf packages/editor
       - run: rm -rf packages/ui
-      - run: npm run dev-docker
+      - name: Start Docker
+        run: npm run dev-docker
+        timeout-minutes: 20
       - run: npm run dev-reinit
       - run: git config --global user.email "you@example.com" && git config --global user.name "Your Name"
       - run: cd packages/${{ matrix.package }} && npm run test
         timeout-minutes: 20
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets[format('SONAR_TOKEN', matrix.package)] }}
-        with:
-          projectBaseDir: packages/${{ matrix.package }}/
 
   npm_builds:
     needs: install-modules

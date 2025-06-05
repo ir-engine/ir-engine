@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -84,7 +84,7 @@ export interface KTX2EncodeOptions {
   vflip?: boolean
 }
 
-export enum UVOL_TYPE {
+export enum UvolType {
   DRACO_WITH_COMPRESSED_TEXTURE = 0,
   GLB_WITH_COMPRESSED_TEXTURE = 1,
   UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE = 2
@@ -402,23 +402,23 @@ export interface BasePlayerManifest {
   deletePreviousBuffers: boolean
 }
 
-export interface DRACO_Manifest extends BasePlayerManifest {
-  type: UVOL_TYPE.DRACO_WITH_COMPRESSED_TEXTURE
+export interface DracoManifest extends BasePlayerManifest {
+  type: UvolType.DRACO_WITH_COMPRESSED_TEXTURE
   geometry: {
     targets: Record<string, DRACOTarget>
     path: EncoderManifest['geometryOutputPath']
   }
 }
 
-export interface UniformSolve_Manifest extends BasePlayerManifest {
-  type: UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE
+export interface UniformSolveManifest extends BasePlayerManifest {
+  type: UvolType.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE
   geometry: {
     targets: Record<string, UniformSolveTarget>
     path: EncoderManifest['geometryOutputPath']
   }
 }
 
-export type PlayerManifest = DRACO_Manifest | UniformSolve_Manifest
+export type PlayerManifest = DracoManifest | UniformSolveManifest
 
 export const ABC_TO_OBJ_PADDING = 7
 
@@ -440,11 +440,13 @@ export interface FrameTargetInfo {
   userTarget: number
 }
 
-export enum GeometryType {
-  Corto, // legacy
-  Draco,
-  Unify
+export const GeometryType = {
+  Corto: 0 as const, // legacy
+  Draco: 1 as const,
+  Unify: 2 as const
 }
+
+export type GeometryType = (typeof GeometryType)[keyof typeof GeometryType]
 
 export const GeometryFormatToType = {
   draco: GeometryType.Draco,

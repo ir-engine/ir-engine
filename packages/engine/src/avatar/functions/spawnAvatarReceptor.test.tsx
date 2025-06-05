@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -30,12 +30,11 @@ import { afterEach, beforeEach, describe, it } from 'vitest'
 import '@ir-engine/spatial/src/transform/SpawnPoseState'
 import '../state/AvatarNetworkState'
 
-import { Entity, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity, UUIDComponent } from '@ir-engine/ecs'
+import { hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine, createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { UserID, applyIncomingActions, dispatchAction, getMutableState } from '@ir-engine/hyperflux'
-import { NetworkTopics } from '@ir-engine/network'
-import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
+import { NetworkTopics, UserID, applyIncomingActions, dispatchAction, getMutableState } from '@ir-engine/hyperflux'
+import { createMockNetwork } from '@ir-engine/hyperflux/tests/createMockNetwork'
 import { initializeSpatialEngine, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import {
@@ -69,6 +68,20 @@ describe('spawnAvatarReceptor', () => {
     physicsWorld.timestep = 1 / 60
 
     createMockNetwork(NetworkTopics.world, Engine.instance.store.peerID, Engine.instance.userID)
+
+    dispatchAction(
+      AvatarNetworkAction.spawn({
+        $peer: Engine.instance.store.peerID,
+        parentUUID: UUIDComponent.get(sceneEntity),
+        position: new Vector3(),
+        rotation: new Quaternion(),
+        entityID: AvatarComponent.entityID,
+        entitySourceID: AvatarComponent.getSelfSourceID(),
+        avatarURL: avatarUrl,
+        name: 'TestAvatar'
+      })
+    )
+    applyIncomingActions()
   })
 
   afterEach(() => {
@@ -76,23 +89,6 @@ describe('spawnAvatarReceptor', () => {
   })
 
   it('check the create avatar function', async () => {
-    const entityUUID = (Engine.instance.userID + '_avatar') as EntityUUID
-
-    // mock entity to apply incoming unreliable updates to
-    dispatchAction(
-      AvatarNetworkAction.spawn({
-        $peer: Engine.instance.store.peerID,
-        parentUUID: getComponent(sceneEntity, UUIDComponent),
-        position: new Vector3(),
-        rotation: new Quaternion(),
-        entityUUID: entityUUID,
-        avatarURL: avatarUrl,
-        name: 'TestAvatar'
-      })
-    )
-
-    applyIncomingActions()
-
     const entity = AvatarComponent.getSelfAvatarEntity()
 
     assert(hasComponent(entity, TransformComponent))

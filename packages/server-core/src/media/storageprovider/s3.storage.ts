@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -72,6 +72,7 @@ import { ASSETS_REGEX, PROJECT_PUBLIC_REGEX, PROJECT_REGEX, PROJECT_THUMBNAIL_RE
 import { FileBrowserContentType } from '@ir-engine/common/src/schemas/media/file-browser.schema'
 
 import config from '../../appconfig'
+import { BaseStorageProvider } from './base.storage'
 import {
   PutObjectParams,
   SignedURLResponse,
@@ -124,8 +125,9 @@ export const getACL = (key: string) =>
 /**
  * Storage provide class to communicate with AWS S3 API.
  */
-export class S3Provider implements StorageProviderInterface {
+export class S3Provider extends BaseStorageProvider implements StorageProviderInterface {
   constructor() {
+    super()
     if (!this.minioClient) this.getOriginURLs().then((result) => (this.originURLs = result))
     const awsCredentials = `[default]\naws_access_key_id=${config.aws.s3.accessKeyId}\naws_secret_access_key=${config.aws.s3.secretAccessKey}\n[role]\nrole_arn = ${config.aws.s3.roleArn}\nsource_profile = default`
 
@@ -675,26 +677,49 @@ export class S3Provider implements StorageProviderInterface {
    */
   async listFolderContent(folderName: string, recursive = false): Promise<FileBrowserContentType[]> {
     folderName = folderName.endsWith('/') ? folderName : folderName + '/'
+    this.checkBlacklistedPrefix(folderName)
     const folderContent = await this.listObjects(folderName, recursive)
 
     const promises: Promise<FileBrowserContentType>[] = []
 
     // Folders
-    for (let i = 0; i < folderContent.CommonPrefixes!.length; i++) {
-      promises.push(
-        new Promise(async (resolve) => {
-          const key = folderContent.CommonPrefixes![i].Prefix.slice(0, -1)
-          const size = await this.getFolderSize(key)
-          const cont: FileBrowserContentType = {
-            key,
-            url: `${this.bucketAssetURL}/${key}`,
-            name: key.split('/').pop()!,
-            type: 'folder',
-            size
-          }
-          resolve(cont)
-        })
-      )
+    if (!recursive) {
+      for (let i = 0; i < folderContent.CommonPrefixes!.length; i++) {
+        promises.push(
+          new Promise(async (resolve) => {
+            const key = folderContent.CommonPrefixes![i].Prefix.slice(0, -1)
+            const size = await this.getFolderSize(key)
+            const cont: FileBrowserContentType = {
+              key,
+              url: `${this.bucketAssetURL}/${key}`,
+              name: key.split('/').pop()!,
+              type: 'folder',
+              size
+            }
+            resolve(cont)
+          })
+        )
+      }
+    }
+
+    if (recursive) {
+      const folders = this.getUniqueFolderPathsFromFiles(folderContent.Contents, folderName)
+      for (let i = 0; i < folders.length; i++) {
+        promises.push(
+          new Promise(async (resolve) => {
+            const key = folders[i].endsWith('/') ? folders[i].slice(0, -1) : folders[i]
+            const size = await this.getFolderSize(key)
+            const cont: FileBrowserContentType = {
+              key,
+              url: `${this.bucketAssetURL}/${key}`,
+              name: key.split('/').pop()!,
+              type: 'folder',
+              size
+            }
+            resolve(cont)
+          })
+        )
+      }
     }
 
     // Files
@@ -719,6 +744,33 @@ export class S3Provider implements StorageProviderInterface {
     }
 
     return await Promise.all(promises)
+  }
+
+  private getUniqueFolderPathsFromFiles(folderObjects: { Key: string }[], prefix: string): string[] {
+    prefix = prefix.startsWith('/') ? prefix.substring(1) : prefix
+
+    if (!prefix.endsWith('/')) {
+      prefix = prefix + '/'
+    }
+
+    const folders = new Set<string>()
+
+    folderObjects.forEach((item) => {
+      const key = item.Key
+      if (key.startsWith(prefix)) {
+        const relativePath = key.substring(prefix.length)
+
+        const parts = relativePath.split('/')
+        let currentPath = prefix
+
+        for (let i = 0; i < parts.length - 1; i++) {
+          currentPath += parts[i] + '/'
+          folders.add(currentPath)
+        }
+      }
+    })
+
+    return Array.from(folders).sort()
   }
 
   async getFolderSize(folderName: string): Promise<number> {

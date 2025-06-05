@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -28,14 +28,15 @@ import { Group, MathUtils } from 'three'
 
 import {
   Entity,
+  EntityID,
   EntityTreeComponent,
-  EntityUUID,
   LayerComponent,
   LayerComponents,
   LayerID,
   Layers,
   PresentationSystemGroup,
   QuerySubReactor,
+  SourceID,
   UUIDComponent,
   UndefinedEntity,
   createEntity,
@@ -51,9 +52,9 @@ import {
 import { defineState, getMutableState, none, startReactor } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { GLTFComponent, GLTFComponentReactor } from './GLTFComponent'
 import './MeshExtensionComponents'
@@ -66,7 +67,7 @@ export const SceneState = defineState({
   initial: {} as Record<string, Entity>,
 
   loadScene: (sceneURL: string, uuid: string, viewerEntity?: Entity, layer?: LayerID) => {
-    const gltfEntity = AssetState.load(sceneURL, uuid as EntityUUID, UndefinedEntity, layer)
+    const gltfEntity = AssetState.load(sceneURL, uuid as string as EntityID, UndefinedEntity, layer)
     getMutableState(SceneState)[sceneURL].set(gltfEntity)
     setComponent(gltfEntity, SceneComponent)
 
@@ -104,12 +105,12 @@ export const AssetState = defineState({
    */
   load: (
     source: string,
-    uuid = MathUtils.generateUUID() as EntityUUID,
+    uuid = MathUtils.generateUUID() as EntityID,
     parentEntity = UndefinedEntity,
     layer = Layers.Simulation as LayerID
   ) => {
     const entity = createEntity(layer)
-    setComponent(entity, UUIDComponent, uuid)
+    setComponent(entity, UUIDComponent, { entityID: uuid, entitySourceID: 'root' as SourceID })
     setComponent(entity, NameComponent, source.split('/').pop()!)
     setComponent(entity, VisibleComponent, true)
     setComponent(entity, TransformComponent)

@@ -19,25 +19,27 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export enum PlayMode {
+export const PlayMode = {
   /**
    * Play a single track once, then stop playing
    */
-  single = 'single',
+  single: 'single' as const,
   /**
    * Play tracks at random repeatedly
    */
-  random = 'random',
+  random: 'random' as const,
   /**
    * Play tracks in a loop
    */
-  loop = 'loop',
+  loop: 'loop' as const,
   /**
    * Play a single track repeatedly
    */
-  singleloop = 'singleloop'
+  singleloop: 'singleloop' as const
 }
+
+export type PlayMode = (typeof PlayMode)[keyof typeof PlayMode]

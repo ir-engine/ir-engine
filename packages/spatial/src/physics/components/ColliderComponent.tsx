@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,12 +19,11 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import { defineComponent, useComponent, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
-import { useState } from '@ir-engine/hyperflux'
 
 import { useAncestorWithComponents } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -45,19 +44,23 @@ export const ColliderComponent = defineComponent({
 
   schema: S.Object({
     shape: ShapeSchema('box'),
-    mass: S.Number(1),
+    mass: S.Number({ default: 1 }),
     massCenter: T.Vec3(),
-    friction: S.Number(0.5),
-    restitution: S.Number(0.5),
-    collisionLayer: S.Enum(CollisionGroups, CollisionGroups.Default),
-    collisionMask: S.Number(DefaultCollisionMask),
-
+    friction: S.Number({ default: 0.5 }),
+    restitution: S.Number({ default: 0.5 }),
+    collisionLayer: S.Enum(CollisionGroups, {
+      $comment:
+        "A bitmask, ie. an integer whose binary digits, in order of least to most significance, represent the following values: 'Default', 'Avatars', 'Ground', 'Trigger'",
+      default: CollisionGroups.Default
+    }),
+    collisionMask: S.Number({ default: DefaultCollisionMask }),
+    hasCollider: S.Bool({ default: false, serialized: false }),
     //shape specific parameters
-    matchMesh: S.Bool(true),
+    matchMesh: S.Bool({ default: true }),
     centerOffset: T.Vec3(),
     boxSize: T.Vec3(Vector3_One),
-    radius: S.Number(1),
-    height: S.Number(2)
+    radius: S.Number({ default: 1 }),
+    height: S.Number({ default: 2 })
   }),
 
   reactor: () => {
@@ -73,7 +76,6 @@ const ColliderReactor = function () {
   const rigidbodyComponent = useOptionalComponent(rigidbodyEntity, RigidBodyComponent)
   const physicsWorld = Physics.useWorld(entity)
   const triggerComponent = useOptionalComponent(entity, TriggerComponent)
-  const hasCollider = useState(false)
 
   useLayoutEffect(() => {
     if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return
@@ -83,11 +85,11 @@ const ColliderReactor = function () {
     if (!colliderDesc) return
 
     Physics.attachCollider(physicsWorld, colliderDesc, rigidbodyEntity, entity)
-    hasCollider.set(true)
+    component.hasCollider.set(true)
 
     return () => {
+      if (!physicsWorld) return
       Physics.removeCollider(physicsWorld, entity)
-      hasCollider.set(false)
     }
   }, [
     physicsWorld,
@@ -99,14 +101,6 @@ const ColliderReactor = function () {
     component.radius,
     component.height
   ])
-
-  useEffect(() => {
-    return () => {
-      if (!physicsWorld) return
-      Physics.removeCollider(physicsWorld, entity)
-      hasCollider.set(false)
-    }
-  }, [])
 
   useLayoutEffect(() => {
     if (!physicsWorld) return
@@ -138,14 +132,14 @@ const ColliderReactor = function () {
   }, [physicsWorld, component.collisionMask])
 
   useLayoutEffect(() => {
-    if (!physicsWorld || !triggerComponent?.value || !hasCollider.value) return
+    if (!physicsWorld || !triggerComponent?.value || !component.hasCollider.value) return
 
     Physics.setTrigger(physicsWorld, entity, true)
 
     return () => {
       Physics.setTrigger(physicsWorld, entity, false)
     }
-  }, [physicsWorld, triggerComponent, hasCollider])
+  }, [physicsWorld, triggerComponent, component.hasCollider.value])
 
   useEffect(() => {
     if (!physicsWorld) return

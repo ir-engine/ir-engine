@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -34,8 +34,8 @@ import { defineState, getMutableState, getState, useMutableState } from '@ir-eng
 
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { Vector3_Zero } from '../common/constants/MathConstants'
-import { RendererComponent } from '../renderer/WebGLRendererSystem'
 import { ObjectComponent } from '../renderer/components/ObjectComponent'
+import { RendererComponent } from '../renderer/components/RendererComponent'
 import { EnvironmentMapComponent } from '../renderer/components/SceneComponents'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { DirectionalLightComponent } from '../renderer/components/lights/DirectionalLightComponent'
@@ -85,7 +85,7 @@ const updateReflection = () => {
 
   const textureProperties = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!.properties.get(
     xrLightProbeState.environment
-  )
+  ) as any
 
   if (textureProperties) {
     const cubeMap = xrLightProbeState.xrWebGLBinding!.getReflectionCubeMap?.(xrLightProbeState.probe)

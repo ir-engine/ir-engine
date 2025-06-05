@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -137,9 +137,9 @@ export const InfiniteGridComponent = defineComponent({
   name: 'InfiniteGridComponent',
 
   schema: S.Object({
-    size: S.Number(1),
+    size: S.Number({ default: 1 }),
     color: T.Color(0x535353),
-    distance: S.Number(200)
+    distance: S.Number({ default: 200 })
   }),
 
   reactor: () => {
@@ -168,10 +168,10 @@ export const InfiniteGridComponent = defineComponent({
             fragmentShader: fragmentShaderGrid,
             polygonOffset: true,
             polygonOffsetFactor: -1,
-            polygonOffsetUnits: 0.01,
-            extensions: {
-              derivatives: true
-            }
+            polygonOffsetUnits: 0.01
+            // extensions: {
+            //   derivatives: true
+            // }
           })
         )
       )

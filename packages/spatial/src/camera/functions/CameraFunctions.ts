@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -29,10 +29,9 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getState } from '@ir-engine/hyperflux'
 import { Box3, Frustum, Matrix4, PerspectiveCamera, Quaternion, Sphere, Vector3 } from 'three'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
-import { BoundingBoxComponent, updateBoundingBox } from '../../transform/components/BoundingBoxComponents'
+import { BoundingBoxComponent, updateBoundingBox } from '../../transform/components/BoundingBoxComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { getBoundingBoxVertices } from '../../transform/functions/BoundingBoxFunctions'
-import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { CameraComponent } from '../components/CameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 
@@ -96,7 +95,24 @@ export function computeCameraDistanceAndCenterFromBox(camera: PerspectiveCamera,
   const points = getBoundingBoxVertices(box)
   return computeCameraDistanceAndCenter(camera, points, padding)
 }
-export function setCameraFocusOnBox(modelEntity: Entity, cameraEntity: Entity) {
+/**
+ * Camera view angles enum
+ */
+export enum CameraViewAngle {
+  FRONT = 'front',
+  BACK = 'back',
+  LEFT = 'left',
+  RIGHT = 'right',
+  TOP = 'top',
+  BOTTOM = 'bottom',
+  PERSPECTIVE = 'perspective' // Default perspective view for thumbnail
+}
+
+export function setCameraFocusOnBoxFromAngle(
+  modelEntity: Entity,
+  cameraEntity: Entity,
+  viewAngle: CameraViewAngle = CameraViewAngle.PERSPECTIVE
+) {
   updateBoundingBox(modelEntity)
 
   const bbox = getComponent(modelEntity, BoundingBoxComponent).box
@@ -109,15 +125,42 @@ export function setCameraFocusOnBox(modelEntity: Entity, cameraEntity: Entity) {
   const camera = getComponent(cameraEntity, CameraComponent)
   const fov = camera.fov * (Math.PI / 180) // convert vertical fov to radians
 
-  // Calculate the camera direction vector with the desired angle offsets
-  const angleY = 30 * (Math.PI / 180) // 30 degrees in radians
-  const angleX = 15 * (Math.PI / 180) // 15 degrees in radians
+  // Calculate the direction vector based on the view angle
+  let direction = new Vector3()
 
-  const direction = new Vector3(
-    Math.sin(angleY) * Math.cos(angleX),
-    Math.sin(angleX),
-    Math.cos(angleY) * Math.cos(angleX)
-  ).normalize()
+  switch (viewAngle) {
+    case CameraViewAngle.FRONT:
+      direction = new Vector3(0, 0, 1)
+      break
+    case CameraViewAngle.BACK:
+      direction = new Vector3(0, 0, -1)
+      break
+    case CameraViewAngle.LEFT:
+      direction = new Vector3(1, 0, 0)
+      break
+    case CameraViewAngle.RIGHT:
+      direction = new Vector3(-1, 0, 0)
+      break
+    case CameraViewAngle.TOP:
+      direction = new Vector3(0, -1, 0)
+      break
+    case CameraViewAngle.BOTTOM:
+      direction = new Vector3(0, 1, 0)
+      break
+    case CameraViewAngle.PERSPECTIVE:
+    default: {
+      const angleY = 30 * (Math.PI / 180) // 30 degrees in radians
+      const angleX = 15 * (Math.PI / 180) // 15 degrees in radians
+      direction = new Vector3(
+        Math.sin(angleY) * Math.cos(angleX),
+        Math.sin(angleX),
+        Math.cos(angleY) * Math.cos(angleX)
+      )
+      break
+    }
+  }
+
+  direction.normalize()
 
   // Calculate the distance from the camera to the bounding sphere such that it fully frames the content
   const distance = radius / Math.sin(fov / 2)
@@ -127,16 +170,16 @@ export function setCameraFocusOnBox(modelEntity: Entity, cameraEntity: Entity) {
 
   // Set the camera transform component
   setComponent(cameraEntity, TransformComponent, { position: cameraPosition })
-  computeTransformMatrix(cameraEntity)
+  TransformComponent.computeTransformMatrix(cameraEntity)
 
   // Calculate the quaternion rotation to look at the center
   const lookAtMatrix = new Matrix4()
   lookAtMatrix.lookAt(cameraPosition, center, new Vector3(0, 1, 0))
   const targetRotation = new Quaternion().setFromRotationMatrix(lookAtMatrix)
 
-  // Apply the rotation to the camera's TransfortexturemComponent
+  // Apply the rotation to the camera's TransformComponent
   setComponent(cameraEntity, TransformComponent, { rotation: targetRotation })
-  computeTransformMatrix(cameraEntity)
+  TransformComponent.computeTransformMatrix(cameraEntity)
   camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
 
   // Update the view camera matrices
@@ -145,6 +188,9 @@ export function setCameraFocusOnBox(modelEntity: Entity, cameraEntity: Entity) {
   viewCamera.matrixWorldInverse.copy(camera.matrixWorldInverse)
   viewCamera.projectionMatrix.copy(camera.projectionMatrix)
   viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
+}
+export function setCameraFocusOnBox(modelEntity: Entity, cameraEntity: Entity) {
+  setCameraFocusOnBoxFromAngle(modelEntity, cameraEntity, CameraViewAngle.PERSPECTIVE)
 }
 
 const mat4 = new Matrix4()

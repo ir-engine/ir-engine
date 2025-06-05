@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -43,9 +43,9 @@ import { useTemplateHandler, useVariableHandler, useVisualScriptFlow } from './h
 import { Examples } from './modals/load'
 import { visualToFlow } from './transformers'
 
-type templateHandler = ReturnType<typeof useTemplateHandler>
-type variableHandler = ReturnType<typeof useVariableHandler>
-type visualScriptFlow = ReturnType<typeof useVisualScriptFlow>
+type TemplateHandler = ReturnType<typeof useTemplateHandler>
+type VariableHandler = ReturnType<typeof useVariableHandler>
+type VisualScriptFlow = ReturnType<typeof useVisualScriptFlow>
 
 export type SidePanelProps = {
   flowref: React.MutableRefObject<HTMLElement | null>
@@ -66,9 +66,9 @@ export const SidePanel = ({
   handleEditVariable,
   handleDeleteVariable
 }: SidePanelProps &
-  Pick<templateHandler, 'handleApplyTemplate' | 'handleDeleteTemplate' | 'handleEditTemplate' | 'handleAddTemplate'> &
-  Pick<visualScriptFlow, 'onNodesChange'> &
-  Pick<variableHandler, 'handleAddVariable' | 'handleDeleteVariable' | 'handleEditVariable'>) => {
+  Pick<TemplateHandler, 'handleApplyTemplate' | 'handleDeleteTemplate' | 'handleEditTemplate' | 'handleAddTemplate'> &
+  Pick<VisualScriptFlow, 'onNodesChange'> &
+  Pick<VariableHandler, 'handleAddVariable' | 'handleDeleteVariable' | 'handleEditVariable'>) => {
   const reactFlow = useReactFlow()
   const visualScriptState = useMutableState(VisualScriptState)
   const { t } = useTranslation()
@@ -208,7 +208,7 @@ export const SidePanel = ({
                     }}
                   />
                   <ParameterInput
-                    entity={`${UndefinedEntity}`}
+                    path={`${UndefinedEntity}`}
                     values={[NodetoEnginetype(variable.initialValue, variable.valueTypeName)]}
                     onChange={(key) => (e) => {
                       let value = e

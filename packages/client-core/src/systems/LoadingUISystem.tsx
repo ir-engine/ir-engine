@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -46,9 +46,9 @@ import { CameraComponent } from '@ir-engine/spatial/src/camera/components/Camera
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
@@ -139,13 +139,13 @@ export const LoadingUISystemState = defineState({
 
 const LoadingReactor = (props: { sceneEntity: Entity }) => {
   const { sceneEntity } = props
-  const gltfComponent = useComponent(sceneEntity, GLTFComponent)
-  const loadingProgress = gltfComponent.progress.value
+  const loadingProgress = useComponent(sceneEntity, GLTFComponent).progress.value
+  const sceneLoaded = GLTFComponent.useSceneLoaded(sceneEntity)
   const avatarEntity = AvatarComponent.useSelfAvatarEntity()
   const avatarLoaded = AvatarRigComponent.useAvatarLoaded(avatarEntity)
   const userID = useMutableState(EngineState).userID.value
   const spectatorLoaded = !!useMutableState(SpectateEntityState).value[userID]
-  const viewerReady = avatarLoaded || spectatorLoaded
+  const viewerReady = (avatarLoaded || spectatorLoaded) && sceneLoaded
   const locationState = useMutableState(LocationState)
   const state = useMutableState(LoadingUISystemState)
 
@@ -234,19 +234,19 @@ const SceneSettingsChildReactor = (props: { entity: Entity }) => {
     mesh.material.map.needsUpdate = true
     getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!.initTexture(loadingTexture)
 
-    getMutableState(LoadingUISystemState).ready.set(true)
+    state.ready.set(true)
   }, [loadingTexture])
 
   useEffect(() => {
     if (!error) return
 
     console.error(error)
-    getMutableState(LoadingUISystemState).ready.set(true)
+    state.ready.set(true)
   }, [error])
 
   /** Scene data changes */
   useEffect(() => {
-    const colors = getMutableState(LoadingUISystemState).colors
+    const colors = state.colors
     colors.main.set(sceneComponent.primaryColor.value)
     colors.background.set(sceneComponent.backgroundColor.value)
     colors.alternate.set(sceneComponent.alternativeColor.value)
@@ -345,9 +345,8 @@ const execute = () => {
 const Reactor = () => {
   const locationSceneURL = useHookstate(getMutableState(LocationState).currentLocation.location.sceneURL).value
   const sceneEntity = useLoadedSceneEntity(locationSceneURL)
-  const sceneLoaded = GLTFComponent.useSceneLoaded(sceneEntity)
 
-  if (!sceneEntity || !sceneLoaded) return null
+  if (!sceneEntity) return null
 
   return (
     <>
@@ -361,7 +360,9 @@ export const LoadingUISystem = defineSystem({
   insert: { before: TransformDirtyUpdateSystem },
   execute,
   reactor: () => {
-    if (!useMutableState(ReferenceSpaceState).viewerEntity.value) return null
-    return <Reactor />
+    const viewerEntity = useMutableState(ReferenceSpaceState).viewerEntity.value
+
+    if (!viewerEntity) return null
+    return <Reactor key={viewerEntity} />
   }
 })

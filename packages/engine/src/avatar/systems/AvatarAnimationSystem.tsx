@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -31,9 +31,9 @@ import {
   defineSystem,
   ECSState,
   Entity,
+  entityExists,
   getComponent,
   setComponent,
-  useComponent,
   useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
@@ -242,9 +242,9 @@ const RigReactor = (props: { entity: Entity }) => {
 
   const rig = useOptionalComponent(entity, AvatarRigComponent)
   useEffect(() => {
+    if (!entityExists(entity)) return
     setVisibleComponent(entity, !!rig?.bonesToEntities?.hips?.value && gltfComponent?.progress.value === 100)
   }, [rig?.bonesToEntities.hips, gltfComponent?.progress])
-
   return null
 }
 
@@ -252,14 +252,14 @@ const AnimationReactor = (props: { entity: Entity }) => {
   const entity = props.entity
   const avatarObject = useOptionalComponent(entity, ObjectComponent)
   const loadedAnimations = useMutableState(AnimationState).loadedAnimations
-  const avatarRigComponent = useComponent(entity, AvatarRigComponent)
+  const avatarRigComponent = useOptionalComponent(entity, AvatarRigComponent)
   useEffect(() => {
-    if (!avatarRigComponent.bonesToEntities?.hips.value) return
+    if (!avatarRigComponent?.bonesToEntities?.hips.value) return
     setComponent(entity, AnimationComponent, {
       animations: getAllLoadedAnimations(),
       mixer: new AnimationMixer(getComponent(entity, ObjectComponent) as Group)
     })
-  }, [avatarRigComponent.bonesToEntities?.hips, avatarObject?.value, loadedAnimations])
+  }, [avatarRigComponent?.bonesToEntities?.hips, avatarObject?.value, loadedAnimations])
   return null
 }
 

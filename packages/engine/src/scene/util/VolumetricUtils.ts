@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -27,7 +27,7 @@ import { Engine, getChildrenWithComponents, getComponent } from '@ir-engine/ecs'
 import { ImmutableArray, State, getState } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import {
   BufferGeometry,
@@ -84,7 +84,7 @@ export const getGLTFGeometrySize = (mesh: Mesh) => {
 export const getKTX2TextureSize = (texture: CompressedTexture) => {
   let size = 0
   if (texture.image) {
-    texture.mipmaps.map((mipmap) => {
+    texture.mipmaps!.map((mipmap) => {
       size += mipmap.data.byteLength
     })
   }
@@ -408,12 +408,12 @@ interface GetResourceURLBasicProps {
 
 interface GetResourceURLCortoGeometryProps extends GetResourceURLBasicProps {
   type: 'geometry'
-  geometryType: GeometryType.Corto
+  geometryType: typeof GeometryType.Corto
 }
 
 interface GetResourceURLNewGeometryProps extends GetResourceURLBasicProps {
   type: 'geometry'
-  geometryType: GeometryType.Draco | GeometryType.Unify
+  geometryType: typeof GeometryType.Draco | typeof GeometryType.Unify
   path: string
   target: string
   index: number
@@ -519,16 +519,16 @@ interface GetGeometryModernProps extends GetGeometryBaseProps {
 }
 
 interface GetGeometryUnifyProps extends GetGeometryModernProps {
-  geometryType: GeometryType.Unify
+  geometryType: typeof GeometryType.Unify
   keyframeName: 'keyframeA' | 'keyframeB'
 }
 
 interface GetGeometryNonUnifyProps extends GetGeometryModernProps {
-  geometryType: GeometryType.Draco
+  geometryType: typeof GeometryType.Draco
 }
 
 interface GetGeometryCortoProps extends GetGeometryBaseProps {
-  geometryType: GeometryType.Corto
+  geometryType: typeof GeometryType.Corto
   frameRate: number
 }
 
@@ -644,13 +644,13 @@ export const getTexture = ({
   return false
 }
 
-interface handleAutoplayProps {
+interface HandleAutoplayProps {
   audioContext: AudioContext
   media: HTMLMediaElement
   paused: State<boolean>
 }
 
-export const handleMediaAutoplay = ({ audioContext, media, paused }: handleAutoplayProps) => {
+export const handleMediaAutoplay = ({ audioContext, media, paused }: HandleAutoplayProps) => {
   const attachEventListeners = () => {
     const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).canvas!
     const playMedia = () => {

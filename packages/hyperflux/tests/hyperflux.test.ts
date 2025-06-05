@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -340,24 +340,6 @@ describe('Hyperflux Unit Tests', () => {
     })
     getState(HospitalityState)
     assert(store.stateMap['test.hospitality.0'])
-  })
-
-  it('should be able to optionally have an onCreate callback', () => {
-    const HospitalityState = defineState({
-      name: 'test.hospitality.1',
-      initial: () => ({
-        create: false
-      }),
-      onCreate: (s, state) => {
-        assert.equal(s, store)
-        state.create.set(true)
-      }
-    })
-    const store = createHyperStore({
-      getDispatchTime: () => Date.now()
-    })
-    const hospitality = getMutableState(HospitalityState).value
-    assert.equal(hospitality.create, true)
   })
 
   it('should be able to get immutable registered state', () => {

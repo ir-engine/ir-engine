@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -131,9 +131,10 @@ class MetaTags extends Component<Props> {
     }
   }
   componentWillUnmount() {
-    if (this.temporaryRoot) {
-      this.temporaryRoot.unmount()
-    }
+    // This causes an error
+    // if (this.temporaryRoot) {
+    //   this.temporaryRoot.unmount()
+    // }
   }
   extractChildren() {
     const { extract } = this.context as MetaContextType

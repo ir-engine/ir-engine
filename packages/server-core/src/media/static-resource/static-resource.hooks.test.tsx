@@ -19,12 +19,11 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 import '../../patchEngineNode'
 
-import '@hookstate/core'
 import { staticResourcePath } from '@ir-engine/common/src/schemas/media/static-resource.schema'
 import { projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
 import { ScopeType, scopePath } from '@ir-engine/common/src/schemas/scope/scope.schema'
@@ -33,6 +32,7 @@ import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identit
 import { UserApiKeyType, userApiKeyPath } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { UserName, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@ir-engine/ecs'
+import '@ir-engine/hyperflux'
 import assert from 'assert'
 import path from 'path/posix'
 import { v4 as uuidv4 } from 'uuid'

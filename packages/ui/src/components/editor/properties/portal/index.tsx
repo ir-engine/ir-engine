@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -34,15 +34,15 @@ import {
   PortalPreviewTypes
 } from '@ir-engine/engine/src/scene/components/PortalComponent'
 
+import { UUIDComponent } from '@ir-engine/ecs'
 import {
   EditorComponentType,
   commitProperties,
   commitProperty,
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
-import { bakeEnvmapTexture, uploadCubemapBakeToServer } from '@ir-engine/editor/src/functions/uploadEnvMapBake'
+import { generateEnvmapBake, uploadCubemapBakeToServer } from '@ir-engine/editor/src/functions/uploadEnvMapBake'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { imageDataToBlob } from '@ir-engine/engine/src/scene/classes/ImageUtils'
 import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
@@ -81,9 +81,11 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   const updateCubeMapBake = async () => {
-    const imageData = await bakeEnvmapTexture(
-      transformComponent.value.position.clone().add(new Vector3(0, 2, 0).multiply(transformComponent.scale.value))
-    )
+    const imageData = await generateEnvmapBake({
+      position: transformComponent.value.position
+        .clone()
+        .add(new Vector3(0, 2, 0).multiply(transformComponent.scale.value))
+    })
     const blob = await imageDataToBlob(imageData)
     state.previewImageData.set(imageData)
     state.previewImageURL.set(URL.createObjectURL(blob!))
@@ -96,13 +98,13 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         .push
         //...((await API.instance.client.service(portalPath).find({ query: { paginate: false } })) as PortalType[])
         ()
-      console.log('portalsDetail', portalsDetail, getComponent(props.entity, NodeIDComponent))
+      console.log('portalsDetail', portalsDetail, getComponent(props.entity, UUIDComponent).entityID)
     } catch (error) {
       throw new Error(error)
     }
     state.portals.set(
       portalsDetail
-        .filter((portal) => portal.portalEntityId !== getComponent(props.entity, NodeIDComponent))
+        .filter((portal) => portal.portalEntityId !== getComponent(props.entity, UUIDComponent).entityID)
         .map(({ portalEntityId, portalEntityName, sceneName }) => {
           return { value: portalEntityId, label: sceneName + ': ' + portalEntityName }
         })

@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -28,15 +28,15 @@ import React, { useEffect } from 'react'
 import { Entity, useAncestorWithComponents, useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, hasComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
-import { useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { useMutableState } from '@ir-engine/hyperflux'
 import { GraphJSON, IRegistry, VisualScriptState, defaultVisualScript } from '@ir-engine/visual-script'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { useVisualScriptRunner } from '../systems/useVisualScriptRunner'
 
-export enum VisualScriptDomain {
-  'ECS' = 'ECS'
+export const VisualScriptDomain = {
+  ECS: 'ECS' as const
 }
 
 export const VisualScriptComponent = defineComponent({
@@ -44,15 +44,19 @@ export const VisualScriptComponent = defineComponent({
   jsonID: 'EE_visual_script',
 
   schema: S.Object({
-    domain: S.Enum(VisualScriptDomain, VisualScriptDomain.ECS),
-    visualScript: S.Nullable(S.Type<GraphJSON>(), null, {
+    domain: S.Enum(VisualScriptDomain, {
+      $comment: "A string enum, ie. one of the following values: 'ECS'",
+      default: VisualScriptDomain.ECS
+    }),
+    visualScript: S.Type<GraphJSON | null>({
+      default: () => parseStorageProviderURLs(defaultVisualScript),
       deserialize(curr, value) {
         if (!value) return value
         return parseStorageProviderURLs(value)
       }
     }),
-    run: S.Bool(false),
-    disabled: S.Bool(false)
+    run: S.Bool(),
+    disabled: S.Bool()
   }),
 
   // we make reactor for each component handle the engine
@@ -63,11 +67,6 @@ export const VisualScriptComponent = defineComponent({
     const canPlay = visualScript.run.value && !visualScript.disabled.value
     const registry = visualScriptState.registries[visualScript.domain.value].get({ noproxy: true }) as IRegistry
     const gltfAncestor = useAncestorWithComponents(entity, [GLTFComponent])
-
-    useImmediateEffect(() => {
-      if (visualScript.visualScript.value === null)
-        visualScript.visualScript.set(parseStorageProviderURLs(defaultVisualScript))
-    }, [])
 
     const visualScriptRunner = useVisualScriptRunner({
       visualScriptJson: visualScript.visualScript.get({ noproxy: true }) as GraphJSON,

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -35,7 +35,6 @@ import {
 import multiLogger from '@ir-engine/server-core/src/ServerLogger'
 import { ServerMode } from '@ir-engine/server-core/src/ServerState'
 
-import collectAnalytics from './collect-analytics'
 import collectEvents from './collect-events'
 
 const logger = multiLogger.child({ component: 'taskserver' })
@@ -52,7 +51,6 @@ export const start = async (): Promise<Application> => {
   app.set('host', config.server.local ? config.server.hostname + ':' + config.server.port : config.server.hostname)
   app.set('port', config.server.port)
 
-  collectAnalytics(app)
   collectEvents(app)
   logger.info('Task server running.')
 

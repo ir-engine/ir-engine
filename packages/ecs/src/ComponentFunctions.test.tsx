@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 import assert from 'assert'
@@ -29,10 +29,11 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { act, render } from '@testing-library/react'
 import React, { useEffect } from 'react'
 
-import { Kind, proxySoAStore, removeEntity, Schema } from '@ir-engine/ecs'
+import { proxySoAStore, removeEntity } from '@ir-engine/ecs'
 import { DirectionalLight, Vector3 } from 'three'
 import {
   ComponentMap,
+  createEntity,
   defineComponent,
   deserializeComponent,
   getAllComponents,
@@ -46,8 +47,7 @@ import {
   useOptionalComponent
 } from './ComponentFunctions'
 import { createEngine, destroyEngine } from './Engine'
-import { Entity, EntityUUID, UndefinedEntity } from './Entity'
-import { createEntity } from './EntityFunctions'
+import { Entity, EntityID, EntityUUID, EntityUUIDPair, SourceID, UndefinedEntity } from './Entity'
 import { UUIDComponent } from './UUIDComponent'
 import { createResizableTypeArray } from './bitecsLegacy'
 import {
@@ -94,9 +94,9 @@ describe('ComponentFunctions', async () => {
       const Vector3Component = defineComponent({
         name: 'Vector3Component',
         schema: S.Object({
-          x: S.Number(0),
-          y: S.Number(0),
-          z: S.Number(4)
+          x: S.Number(),
+          y: S.Number(),
+          z: S.Number({ default: 4 })
         })
       })
 
@@ -112,7 +112,7 @@ describe('ComponentFunctions', async () => {
         name: 'NestedObjectComponent',
         schema: S.Object({
           obj: S.Object({
-            num: S.Number(0)
+            num: S.Number()
           })
         })
       })
@@ -128,9 +128,9 @@ describe('ComponentFunctions', async () => {
       const Vector3Component = defineComponent({
         name: 'Vector3Component',
         schema: S.Object({
-          x: S.Number(0),
-          y: S.Number(0),
-          z: S.Number(4)
+          x: S.Number(),
+          y: S.Number(),
+          z: S.Number({ default: 4 })
         })
       })
 
@@ -170,9 +170,9 @@ describe('ComponentFunctions', async () => {
       const Vector3Component = defineComponent({
         name: 'Vector3Component',
         schema: S.Object({
-          x: S.Number(0),
-          y: S.Number(0),
-          z: S.Number(0)
+          x: S.Number(),
+          y: S.Number(),
+          z: S.Number()
         })
       })
 
@@ -190,9 +190,9 @@ describe('ComponentFunctions', async () => {
       const Vector3Component = defineComponent({
         name: 'Vector3Component',
         schema: S.Object({
-          x: S.Number(0),
-          y: S.Number(0),
-          z: S.Number(4)
+          x: S.Number(),
+          y: S.Number(),
+          z: S.Number({ default: 4 })
         })
       })
 
@@ -209,9 +209,9 @@ describe('ComponentFunctions', async () => {
       const Vector3Component = defineComponent({
         name: 'Vector3Component',
         schema: S.Object({
-          x: S.Number(0),
-          y: S.Number(0),
-          z: S.Number(4)
+          x: S.Number(),
+          y: S.Number(),
+          z: S.Number({ default: 4 })
         }),
         onInit: (initial) => new Vector3(initial.x, initial.y, initial.z)
       })
@@ -232,9 +232,9 @@ describe('ComponentFunctions', async () => {
       const Vector3Component = defineComponent({
         name: 'Vector3Component',
         schema: S.Object({
-          x: S.Number(0),
-          y: S.Number(0),
-          z: S.Number(4)
+          x: S.Number(),
+          y: S.Number(),
+          z: S.Number({ default: 4 })
         }),
         onInit: (initial) => new Vector3(initial.x, initial.y, initial.z)
       })
@@ -255,9 +255,9 @@ describe('ComponentFunctions', async () => {
       const Vector3Component = defineComponent({
         name: 'Vector3Component',
         schema: S.Object({
-          x: S.Number(0),
-          y: S.Number(0),
-          z: S.Number(4)
+          x: S.Number(),
+          y: S.Number(),
+          z: S.Number({ default: 4 })
         }),
         onInit: (initial) => new Vector3(initial.x, initial.y, initial.z)
       })
@@ -276,14 +276,14 @@ describe('ComponentFunctions', async () => {
       const ObjComponent = defineComponent({
         name: 'ObjComponent',
         schema: S.Object({
-          light: S.NonSerialized(S.Class(() => new DirectionalLight())),
-          other: S.Number(0)
+          light: S.Class(() => new DirectionalLight(), { serialized: false }),
+          other: S.Number()
         })
       })
 
       const TopLevelComponent = defineComponent({
         name: 'ObjComponent',
-        schema: S.NonSerialized(S.Number())
+        schema: S.Number({ serialized: false })
       })
 
       const entity = createEntity()
@@ -331,24 +331,26 @@ describe('ComponentFunctions', async () => {
       const ObjComponent = defineComponent({
         name: 'ObjComponent',
         schema: S.Object({
-          val: S.Number(4, {
+          val: S.Number({
             deserialize: (curr, value) => {
               assert(curr === 4)
               spy()
               return value * 2
-            }
+            },
+            default: 4
           })
         })
       })
 
       const TopLevelComponent = defineComponent({
         name: 'ObjComponent',
-        schema: S.Number(2, {
+        schema: S.Number({
           deserialize: (curr, value) => {
             assert(curr === 2)
             spy()
             return value * 3
-          }
+          },
+          default: 2
         })
       })
 
@@ -356,11 +358,10 @@ describe('ComponentFunctions', async () => {
         name: 'Vector3Component',
         schema: S.Object(
           {
-            x: S.Number(0),
-            y: S.Number(0),
-            z: S.Number(4)
+            x: S.Number(),
+            y: S.Number(),
+            z: S.Number({ default: 4 })
           },
-          undefined,
           {
             deserialize: (curr, value) => {
               return new Vector3(value.x, value.y, value.z)
@@ -498,7 +499,10 @@ describe('ComponentFunctions', async () => {
       describe('.. when `@param def`.schema represents a single value ...', () => {
         describe('... when `@param def`.schema has a required schema value ....', () => {
           it('.... should set (closure)`@param Component`.onSet to a function that throws an error when `@param json` returns an invalid schema value based on the `(closure)@param def`.schema ', () => {
-            const component = defineComponent({ name: 'TestComponent', schema: S.Required(S.Number(1234)) })
+            const component = defineComponent({
+              name: 'TestComponent',
+              schema: S.Number({ default: 1234, required: true })
+            })
             expect(IsSingleValueSchema(component.schema)).toBeTruthy()
             setComponent(testEntity, component, 21)
             const data = getComponent(testEntity, component)
@@ -512,7 +516,10 @@ describe('ComponentFunctions', async () => {
           it('.... should set (closure)`@param Component`.onSet to a function that calls `@param component`.set with `@param component`.json as arguments', () => {
             const Expected = 42
 
-            const component = defineComponent({ name: 'TestComponent', schema: S.Required(S.Number(1234)) })
+            const component = defineComponent({
+              name: 'TestComponent',
+              schema: S.Number({ default: 1234, required: true })
+            })
             expect(IsSingleValueSchema(component.schema)).toBeTruthy()
             setComponent(testEntity, component, 21)
             const data = getMutableComponent(testEntity, component)
@@ -528,7 +535,7 @@ describe('ComponentFunctions', async () => {
           it(".... should set (closure)`@param Component`.onSet to a function that doesn't do anything (return early) when `@param json` is falsy", () => {
             const Expected = 42
 
-            const component = defineComponent({ name: 'TestComponent', schema: S.Number(1234) })
+            const component = defineComponent({ name: 'TestComponent', schema: S.Number({ default: 1234 }) })
             expect(IsSingleValueSchema(component.schema)).toBeTruthy()
             setComponent(testEntity, component, Expected)
             const data = getMutableComponent(testEntity, component)
@@ -542,7 +549,7 @@ describe('ComponentFunctions', async () => {
           it('.... should set (closure)`@param Component`.onSet to a function that calls `@param component`.set with `@param component`.json as arguments', () => {
             const Expected = 42
 
-            const component = defineComponent({ name: 'TestComponent', schema: S.Number(1234) })
+            const component = defineComponent({ name: 'TestComponent', schema: S.Number({ default: 1234 }) })
             expect(IsSingleValueSchema(component.schema)).toBeTruthy()
             setComponent(testEntity, component, 21)
             const data = getMutableComponent(testEntity, component)
@@ -560,7 +567,7 @@ describe('ComponentFunctions', async () => {
           it('.... should set (closure)`@param Component`.onSet to a function that throws an error when `@param json` returns an invalid schema value based on the `(closure)@param def`.schema ', () => {
             const component = defineComponent({
               name: 'TestComponent',
-              schema: S.Required(S.Object({ one: S.Number(1234) }))
+              schema: S.Object({ one: S.Number({ default: 1234 }) }, { required: true })
             })
             expect(IsSingleValueSchema(component.schema)).toBeFalsy()
             setComponent(testEntity, component, { one: 21 })
@@ -581,7 +588,7 @@ describe('ComponentFunctions', async () => {
               // 2. Run the process
               const component = defineComponent({
                 name: 'TestComponent',
-                schema: S.Required(S.Object({ one: S.Number(1234) }))
+                schema: S.Object({ one: S.Number({ default: 1234 }) }, { required: true })
               })
               expect(IsSingleValueSchema(component.schema)).toBeFalsy()
               setComponent(testEntity, component, { one: 21 })
@@ -596,7 +603,7 @@ describe('ComponentFunctions', async () => {
           it(".... should set (closure)`@param Component`.onSet to a function that calls component.set with `@param json` as arguments when typeof json is not 'object'", () => {
             const component = defineComponent({
               name: 'TestComponent',
-              schema: S.Required(S.Object({ one: S.Number(1234) }))
+              schema: S.Object({ one: S.Number({ default: 1234 }) }, { required: true })
             })
             expect(IsSingleValueSchema(component.schema)).toBeFalsy()
             setComponent(testEntity, component, { one: 21 })
@@ -611,7 +618,7 @@ describe('ComponentFunctions', async () => {
           it(".... should set (closure)`@param Component`.onSet to a function that calls component.merge with `@param json` as arguments when json is not an array and typeof json is 'object'", () => {
             const component = defineComponent({
               name: 'TestComponent',
-              schema: S.Required(S.Object({ one: S.Number(1234) }))
+              schema: S.Object({ one: S.Number({ default: 1234 }) }, { required: true })
             })
             expect(IsSingleValueSchema(component.schema)).toBeFalsy()
             setComponent(testEntity, component, { one: 21 })
@@ -628,7 +635,10 @@ describe('ComponentFunctions', async () => {
           it(".... should set (closure)`@param Component`.onSet to a function that doesn't do anything (return early) when `@param json` is falsy", () => {
             const Expected = { one: 21 }
 
-            const component = defineComponent({ name: 'TestComponent', schema: S.Object({ one: S.Number(1234) }) })
+            const component = defineComponent({
+              name: 'TestComponent',
+              schema: S.Object({ one: S.Number({ default: 1234 }) })
+            })
             expect(IsSingleValueSchema(component.schema)).toBeFalsy()
             setComponent(testEntity, component, Expected)
             const data = getMutableComponent(testEntity, component)
@@ -646,7 +656,10 @@ describe('ComponentFunctions', async () => {
               // 3. Set input & dependencies data
               // 1. Sanity check (input & dependencies)
               // 2. Run the process
-              const component = defineComponent({ name: 'TestComponent', schema: S.Object({ one: S.Number(1234) }) })
+              const component = defineComponent({
+                name: 'TestComponent',
+                schema: S.Object({ one: S.Number({ default: 1234 }) })
+              })
               expect(IsSingleValueSchema(component.schema)).toBeFalsy()
               setComponent(testEntity, component, { one: 21 })
               const data = getComponent(testEntity, component)
@@ -658,7 +671,10 @@ describe('ComponentFunctions', async () => {
           )
 
           it(".... should set (closure)`@param Component`.onSet to a function that calls component.set with `@param json` as arguments when typeof json is not 'object'", () => {
-            const component = defineComponent({ name: 'TestComponent', schema: S.Object({ one: S.Number(1234) }) })
+            const component = defineComponent({
+              name: 'TestComponent',
+              schema: S.Object({ one: S.Number({ default: 1234 }) })
+            })
             expect(IsSingleValueSchema(component.schema)).toBeFalsy()
             setComponent(testEntity, component, { one: 21 })
             const data = getMutableComponent(testEntity, component)
@@ -670,7 +686,10 @@ describe('ComponentFunctions', async () => {
           })
 
           it(".... should set (closure)`@param Component`.onSet to a function that calls component.merge with `@param json` as arguments when json is not an array and typeof json is not 'object'", () => {
-            const component = defineComponent({ name: 'TestComponent', schema: S.Object({ one: S.Number(1234) }) })
+            const component = defineComponent({
+              name: 'TestComponent',
+              schema: S.Object({ one: S.Number({ default: 1234 }) })
+            })
             expect(IsSingleValueSchema(component.schema)).toBeFalsy()
             setComponent(testEntity, component, { one: 21 })
             const data = getMutableComponent(testEntity, component)
@@ -947,17 +966,17 @@ describe('deserializeComponent', () => {
 
   it('should throw an error if `@param Component`.schema is truthy, it has a required schema entry and one of the `@param json` values is not a valid required schema value', () => {
     const json = { one: 42, invalid: 'InvalidNumber' }
-    const schema = { [Kind]: 'Required', properties: { [Kind]: 'Number' } as Schema } as Schema
+    const schema = S.Number({ required: true })
     const component = defineComponent({ name: 'TestComponent', schema: schema })
 
-    expect(() => deserializeComponent(testEntity, component, json)).toThrowError()
+    expect(() => deserializeComponent(testEntity, component, json as any)).toThrowError()
   })
 
   it('should set the `@param Component` to `@param entity` when that entity does not have the component', () => {
     const Expected = true
 
     const json = { one: 42 }
-    const schema = { [Kind]: 'Required', properties: { one: { [Kind]: 'Number' } as Schema } } as Schema
+    const schema = S.Object({ one: S.Number() }, { required: true })
     const component = defineComponent({ name: 'TestComponent', schema: schema })
 
     deserializeComponent(testEntity, component, json)
@@ -968,7 +987,7 @@ describe('deserializeComponent', () => {
 
   it('should not do anything else (return early) when `@param json` is null', () => {
     const json = null
-    const schema = S.String('TestString', { validate: () => false }) // validate=>false   would always trigger the error, but we pass null to json
+    const schema = S.String({ validate: () => false, default: 'TestString' }) // validate=>false   would always trigger the error, but we pass null to json
     const prev = 'PrevValue'
     const onSet = (_: any, component: any, value: string) => {
       component.set(value ?? 'Test')
@@ -986,7 +1005,7 @@ describe('deserializeComponent', () => {
 
   it('should not do anything else (return early) when `@param json` is undefined', () => {
     const json = undefined
-    const schema = S.String('TestString', { validate: () => false }) // validate=>false   would always trigger the error, but we pass undefined to json
+    const schema = S.String({ validate: () => false, default: 'TestString' }) // validate=>false   would always trigger the error, but we pass undefined to json
     const prev = 'PrevValue'
     const onSet = (_: any, component: any, value: string) => {
       component.set(value ?? 'Test')
@@ -1003,7 +1022,7 @@ describe('deserializeComponent', () => {
 
   it('should throw an error if `@param Component`.schema is truthy, .schema has validators and HasValidSchemaValues returns invalid for `@param json`', () => {
     const json = 'Test42'
-    const schema = S.String('TestString', { validate: () => false }) // validate=>false   will always trigger the error for this case
+    const schema = S.String({ validate: () => false, default: 'TestString' }) // validate=>false   will always trigger the error for this case
     const prev = 'PrevValue'
     const onSet = (_: any, component: any, value: string) => {
       component.set(value ?? 'Test')
@@ -1022,7 +1041,7 @@ describe('deserializeComponent', () => {
     const Expected = 'ExpectedValue'
 
     const json = Expected
-    const schema = S.String('TestString')
+    const schema = S.String({ default: 'TestString' })
     const prev = 'PrevValue'
     const onSet = (_: any, component: any, value: string) => {
       component.set(value ?? 'Test')
@@ -1149,8 +1168,8 @@ describe('ComponentFunctions Hooks', async () => {
       // Initialize the dummy data
       type ResultType = EntityUUID | undefined
       const component = UUIDComponent
-      const TestUUID1 = 'TestUUID1' as EntityUUID
-      const TestUUID2 = 'TestUUID2' as EntityUUID
+      const TestUUID1 = { entitySourceID: 'source1' as SourceID, entityID: 'id1' as EntityID } as EntityUUIDPair
+      const TestUUID2 = { entitySourceID: 'source2' as SourceID, entityID: 'id2' as EntityID } as EntityUUIDPair
       const oneEntity = createEntity()
       const twoEntity = createEntity()
       let result: ResultType = undefined
@@ -1164,7 +1183,7 @@ describe('ComponentFunctions Hooks', async () => {
         // Call the hook to set the data
         const data = useComponent(props.entity, component)
         useEffect(() => {
-          result = data.value
+          result = UUIDComponent.join(data.value)
           ++counter
         }, [data])
         return null
@@ -1177,9 +1196,9 @@ describe('ComponentFunctions Hooks', async () => {
       await act(() => rerender(tag))
       assert.equal(counter, 1, `The reactor has run an incorrect number of times: ${counter}`)
       assert.notEqual(result, undefined, "The result data didn't get initialized")
-      assert.equal(result, TestUUID1)
+      assert.equal(result, UUIDComponent.join(TestUUID1))
       await act(() => rerender(<Reactor entity={twoEntity} />))
-      assert.equal(result, TestUUID2)
+      assert.equal(result, UUIDComponent.join(TestUUID2))
 
       // Terminate the Reactor and Isolated Test
       unmount()

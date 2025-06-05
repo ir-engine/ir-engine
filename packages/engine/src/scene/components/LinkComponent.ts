@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -86,10 +86,10 @@ export const LinkComponent = defineComponent({
   jsonID: 'EE_link',
 
   schema: S.Object({
-    url: S.String(''),
-    sceneNav: S.Bool(false),
-    location: S.String(''),
-    newTab: S.Bool(true)
+    url: S.String(),
+    sceneNav: S.Bool(),
+    location: S.String(),
+    newTab: S.Bool({ default: true })
   }),
 
   linkCallbackName,

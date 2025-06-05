@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 import { Ray } from '@dimforge/rapier3d-compat'
@@ -40,7 +40,7 @@ import {
 import { AssetExt, FileToAssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+
 import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
 import { NO_PROXY, defineState, getMutableState, getState, useHookstate, useState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
@@ -62,6 +62,25 @@ import { SelectionState } from '../services/SelectionServices'
 import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 
 let placedCount = 0
+
+type AssetTag = string
+
+export interface AssetMetadataType {
+  thumbnail: string
+  name: string
+  type: string
+  author: string
+  dateCreated: string
+  fileSize: string
+  dimensions: {
+    height: number
+    width: number
+    depth: number
+  }
+  mesh: string
+  resources: string
+  tags: AssetTag[]
+}
 export const ClickPlacementState = defineState({
   name: 'ClickPlacementState',
   initial: {
@@ -71,7 +90,8 @@ export const ClickPlacementState = defineState({
     pitchOffset: 0,
     rollOffset: 0,
     maxDistance: 25,
-    materialCache: [] as [Mesh, Material][]
+    materialCache: [] as [Mesh, Material][],
+    metadata: {} as AssetMetadataType
   },
   setSelectedAsset: (src: string) => {
     const assetExt = FileToAssetExt(src)
@@ -83,6 +103,9 @@ export const ClickPlacementState = defineState({
         ClickPlacementState.assetError()
       } else ClickPlacementState.resetSelectedAsset()
     }
+  },
+  setSelectedAssetData: (resource) => {
+    getMutableState(ClickPlacementState).metadata.set(resource)
   },
   resetSelectedAsset: () => {
     getMutableState(ClickPlacementState).selectedAsset.set('')
@@ -109,7 +132,7 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
     } else {
       if (!clickState.placementEntity.value) return
       const selectedEntities = getState(SelectionState).selectedEntities.filter(
-        (uuid) => uuid !== getComponent(clickState.placementEntity.value, UUIDComponent)
+        (uuid) => uuid !== UUIDComponent.get(clickState.placementEntity.value)
       )
       EditorControlFunctions.removeObject([clickState.placementEntity.value])
       clickState.placementEntity.set(UndefinedEntity)
@@ -178,7 +201,7 @@ const updatePlacementEntitySnapshot = (placementEntity: Entity) => {
   // const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
   // const uuid = getComponent(placementEntity, UUIDComponent)
   // const nodeIndex = snapshot.data.nodes!.findIndex(
-  //   (value) => value.extensions && value.extensions[NodeIDComponent.jsonID] === uuid
+  //   (value) => value.extensions && value.extensions[UUIDComponent.jsonID] === uuid
   // )
   // const entityJson = toEntityJson(placementEntity)
   // const entityGLTFNode = entityJSONToGLTFNode(entityJson, uuid)
@@ -204,8 +227,8 @@ const createPlacementEntitySnapshot = (placementEntity: Entity) => {
 const createPlacementEntity = (parentEntity: Entity) => {
   const placementEntity = createSceneEntity('Placement-' + placedCount, parentEntity)
 
-  const sceneID = getComponent(parentEntity, SourceComponent)
-  setComponent(placementEntity, SourceComponent, sceneID)
+  // const sceneID = getComponent(parentEntity, SourceComponent)
+  // setComponent(placementEntity, SourceComponent, sceneID)
   setComponent(placementEntity, EntityTreeComponent, { parentEntity })
   createPlacementEntitySnapshot(placementEntity)
 
@@ -274,7 +297,7 @@ export const ClickPlacementSystem = defineSystem({
     const buttons = InputComponent.getButtons(viewerEntity)
     const axes = InputComponent.getAxes(viewerEntity)
 
-    const zoom = axes[MouseScroll.VerticalScroll]
+    const zoom = axes[MouseScroll.VerticalScroll]!
 
     if (buttons.SecondaryClick?.pressed) {
       clickState.maxDistance.set(clickState.maxDistance.value - zoom)

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -27,7 +27,6 @@ import { Knex } from 'knex'
 
 import { scopeTypePath, ScopeTypeType } from '@ir-engine/common/src/schemas/scope/scope-type.schema'
 import { ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
-import { clientSettingPath } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import appConfig from '@ir-engine/server-core/src/appconfig'
 
@@ -115,12 +114,6 @@ export const scopeTypeSeed = [
   },
   {
     type: 'settings:write' as ScopeType
-  },
-  {
-    type: `${clientSettingPath}:read` as ScopeType
-  },
-  {
-    type: `${clientSettingPath}:write` as ScopeType
   },
   {
     type: 'server:read' as ScopeType

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -41,12 +41,23 @@ import {
   ECSState,
   Engine,
   EntityUUID,
-  getComponent,
+  NetworkSchemaState,
   PresentationSystemGroup,
-  UUIDComponent
+  SerializationSchema,
+  UUIDComponent,
+  WorldNetworkAction
 } from '@ir-engine/ecs'
+import {
+  ECSDeserializer,
+  ECSSerialization,
+  ECSSerializer,
+  SerializedChunk
+} from '@ir-engine/ecs/src/network/ECSSerializerSystem'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import {
+  addDataChannelHandler,
+  DataChannelRegistryState,
+  DataChannelType,
   defineAction,
   defineActionQueue,
   defineState,
@@ -55,35 +66,23 @@ import {
   getState,
   HyperFlux,
   isClient,
-  PeerID,
-  Topic,
-  UserID
-} from '@ir-engine/hyperflux'
-import {
-  addDataChannelHandler,
-  DataChannelRegistryState,
-  DataChannelType,
   matchesUserID,
   Network,
   NetworkActions,
   NetworkState,
   NetworkTopics,
+  PeerID,
   removeDataChannelHandler,
-  SerializationSchema,
-  webcamAudioDataChannelType,
-  webcamVideoDataChannelType,
-  WorldNetworkAction
-} from '@ir-engine/network'
-import {
-  ECSDeserializer,
-  ECSSerialization,
-  ECSSerializer,
-  SerializedChunk
-} from '@ir-engine/network/src/serialization/ECSSerializerSystem'
+  Topic,
+  UserID,
+  webcamAudioMediaChannelType,
+  webcamVideoMediaChannelType
+} from '@ir-engine/hyperflux'
 import { PhysicsSerialization } from '@ir-engine/spatial/src/physics/PhysicsSerialization'
 
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { mocapDataChannelType } from '@ir-engine/engine/src/mocap/MotionCaptureSystem'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 
 export class ECSRecordingActions {
   static startRecording = defineAction({
@@ -183,8 +182,8 @@ export const RecordingState = defineState({
       Object.entries(peerSchema.peers).forEach(([peerID, value]) => {
         const peerSchema = [] as string[]
         if (value.Mocap) peerSchema.push(mocapDataChannelType)
-        if (value.Video) peerSchema.push(webcamVideoDataChannelType)
-        if (value.Audio) peerSchema.push(webcamAudioDataChannelType)
+        if (value.Video) peerSchema.push(webcamVideoMediaChannelType)
+        if (value.Audio) peerSchema.push(webcamAudioMediaChannelType)
         if (peerSchema.length) schema.peers[peerID] = peerSchema
       })
 
@@ -410,7 +409,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
 
   if (NetworkState.worldNetwork) {
     const serializationSchema = schema.user
-      .map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema)
+      .map((component) => getState(NetworkSchemaState)[component] as SerializationSchema)
       .filter(Boolean)
 
     activeRecording.serializer = ECSSerialization.createSerializer({
@@ -609,7 +608,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
     id: recording.id,
     chunks: entityChunks,
     schema: schema.user
-      .map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema)
+      .map((component) => getState(NetworkSchemaState)[component] as SerializationSchema)
       .filter(Boolean),
     onChunkStarted: (chunkIndex) => {
       if (!entityChunks[chunkIndex]) return
@@ -652,11 +651,12 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
                 .then((userAvatars) => {
                   dispatchAction(
                     AvatarNetworkAction.spawn({
-                      parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+                      parentUUID: UUIDComponent.get(getState(ReferenceSpaceState).originEntity),
                       ownerID: entityID,
-                      entityUUID: (entityID + '_avatar') as EntityUUID,
                       avatarURL: userAvatars.data[0].avatar.modelResource!.url!,
-                      name: user.name + "'s Clone"
+                      name: user.name + "'s Clone",
+                      entityID: AvatarComponent.entityID,
+                      entitySourceID: entityID
                     })
                   )
                   entitiesSpawned.push(entityID)

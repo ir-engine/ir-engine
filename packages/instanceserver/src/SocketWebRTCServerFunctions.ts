@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -28,8 +28,16 @@ import { encode } from 'msgpackr'
 
 import { MediaStreamAppData } from '@ir-engine/common/src/interfaces/NetworkInterfaces'
 import { InstanceID } from '@ir-engine/common/src/schema.type.module'
-import { Action, getState, PeerID, Topic } from '@ir-engine/hyperflux'
-import { createNetwork, DataChannelType, NetworkActionFunctions, NetworkState } from '@ir-engine/network'
+import {
+  Action,
+  DataChannelType,
+  getState,
+  joinNetwork,
+  NetworkActionFunctions,
+  NetworkState,
+  PeerID,
+  Topic
+} from '@ir-engine/hyperflux'
 import { Application } from '@ir-engine/server-core/declarations'
 import multiLogger from '@ir-engine/server-core/src/ServerLogger'
 
@@ -86,7 +94,7 @@ export const initializeNetwork = async (app: Application, id: InstanceID, hostPe
     outgoingDataProducers: {} as Record<DataChannelType, DataProducer>
   }
 
-  const network = createNetwork(id, hostPeerID, topic, extension)
+  const network = joinNetwork(id, hostPeerID, topic, extension)
 
   return network
 }

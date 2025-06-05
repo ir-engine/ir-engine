@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -40,12 +40,8 @@ import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstant
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputPointerComponent } from '../../input/components/InputPointerComponent'
 import { MouseScroll } from '../../input/state/ButtonState'
-import { RendererComponent } from '../../renderer/WebGLRendererSystem'
+import { RendererComponent } from '../../renderer/components/RendererComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-
-const ZOOM_SPEED = 0.1
-const PAN_SPEED = 1
-const ORBIT_SPEED = 5
 
 const delta = new Vector3()
 const normalMatrix = new Matrix3()
@@ -71,14 +67,23 @@ const execute = () => {
 
     const transform = getComponent(cameraEid, TransformComponent)
     const editorCameraCenter = cameraOrbit.cameraOrbitCenter.value
-    const distance = Math.max(cameraOrbit.minimumZoom.value, transform.position.distanceTo(editorCameraCenter))
+    const distance = transform.position.distanceTo(editorCameraCenter)
     const camera = getComponent(cameraEid, CameraComponent)
-
+    // distance <= cameraOrbit.maximumZoomDistance.value && distance >= cameraOrbit.minimumZoomDistance.value
     if (zoom) {
-      delta.set(0, 0, zoom * distance * ZOOM_SPEED)
+      delta.set(0, 0, zoom * distance * cameraOrbit.zoomSpeed.value)
       if (delta.length() < distance) {
         delta.applyMatrix3(normalMatrix.getNormalMatrix(camera.matrixWorld))
-        transform.position.add(delta)
+
+        const newPosition = transform.position.clone().add(delta)
+        const newDistance = newPosition.distanceTo(editorCameraCenter)
+
+        if (
+          newDistance >= cameraOrbit.minimumZoomDistance.value &&
+          newDistance <= cameraOrbit.maximumZoomDistance.value
+        ) {
+          transform.position.copy(newPosition)
+        }
       }
     }
 
@@ -89,7 +94,7 @@ const execute = () => {
         const distance = transform.position.distanceTo(editorCameraCenter)
         delta
           .set(-movement.x, -movement.y, 0)
-          .multiplyScalar(Math.max(distance, 1) * PAN_SPEED)
+          .multiplyScalar(Math.max(distance, 1) * cameraOrbit.panSpeed.value)
           .applyMatrix3(normalMatrix.getNormalMatrix(camera.matrix))
         transform.position.add(delta)
         editorCameraCenter.add(delta)
@@ -102,8 +107,8 @@ const execute = () => {
       if (movement) {
         delta.copy(transform.position).sub(editorCameraCenter)
         spherical.setFromVector3(delta)
-        spherical.theta -= movement.x * ORBIT_SPEED
-        spherical.phi += movement.y * ORBIT_SPEED
+        spherical.theta -= movement.x * cameraOrbit.orbitSpeed.value
+        spherical.phi += movement.y * cameraOrbit.orbitSpeed.value
         spherical.makeSafe()
         delta.setFromSpherical(spherical)
         transform.position.copy(editorCameraCenter).add(delta)

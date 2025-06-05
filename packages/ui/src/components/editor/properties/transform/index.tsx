@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -27,7 +27,14 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Quaternion, Vector3 } from 'three'
 
-import { useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { SceneDynamicLoadComponent } from '@ir-engine/engine/src/scene/components/SceneDynamicLoadComponent'
 import { getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 
@@ -43,15 +50,15 @@ import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices
 import { TransformComponent } from '@ir-engine/spatial'
 import { TransformSpace } from '@ir-engine/spatial/src/common/constants/TransformConstants'
 
-import { PresentationSystemGroup, useExecute } from '@ir-engine/ecs'
-import { EditorHistoryFunctions } from '@ir-engine/editor/src/services/EditorHistoryState'
+import { entityExists, PresentationSystemGroup, useExecute } from '@ir-engine/ecs'
+import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import { Checkbox } from '@ir-engine/ui'
 import ComponentDropdown from '../../ComponentDropdown'
 import EulerInput from '../../input/Euler'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import Vector3Input from '../../input/Vector3'
-import { TransformUniformScaleState } from './TransformUniformScaleState.ts'
+import { TransformUniformScaleState } from './TransformUniformScaleState'
 
 /**
  * TransformPropertyGroup component is used to render editor view to customize properties.
@@ -70,25 +77,20 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   useExecute(
     () => {
-      const updatedPostion = transformComponent.position.get(NO_PROXY)
-      const updatedRotation = transformComponent.rotation.get(NO_PROXY)
-      const updatedScale = transformComponent.scale.get(NO_PROXY)
-      if (
-        position.x.value != updatedPostion.x ||
-        position.y.value != updatedPostion.y ||
-        position.z.value != updatedPostion.z
-      ) {
+      if (!entityExists(props.entity) || !hasComponent(props.entity, TransformComponent)) return
+
+      const transformComponent = getComponent(props.entity, TransformComponent)
+      const updatedPostion = transformComponent.position
+      const updatedRotation = transformComponent.rotation
+      const updatedScale = transformComponent.scale
+
+      if (!position.value.equals(updatedPostion)) {
         position.set(updatedPostion)
       }
-      if (
-        rotation.x.value != updatedRotation.x ||
-        rotation.y.value != updatedRotation.y ||
-        rotation.z.value != updatedRotation.z ||
-        rotation.w.value != updatedRotation.w
-      ) {
+      if (!rotation.value.equals(updatedRotation)) {
         rotation.set(updatedRotation)
       }
-      if (scale.x.value != updatedScale.x || scale.y.value != updatedScale.y || scale.z.value != updatedScale.z) {
+      if (!scale.value.equals(updatedScale)) {
         scale.set(updatedScale)
       }
     },
@@ -103,15 +105,17 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     if (bboxSnapState.enabled) {
       ObjectGridSnapState.apply()
     }
-    const selectedEntities = SelectionState.getSelectedEntities()
-    EditorHistoryFunctions.setComponent(selectedEntities, TransformComponent)
+    const entities = SelectionState.getSelectedEntities()
+    AuthoringState.snapshotEntities(entities)
   }
 
   const onChangeDynamicLoad = (value) => {
-    const selectedEntities = SelectionState.getSelectedEntities()
-
-    if (value === true) EditorHistoryFunctions.setComponent(selectedEntities, SceneDynamicLoadComponent)
-    else EditorHistoryFunctions.removeComponent(selectedEntities, SceneDynamicLoadComponent)
+    const entities = SelectionState.getSelectedEntities()
+    for (const entity of entities) {
+      if (value === true) setComponent(entity, SceneDynamicLoadComponent)
+      else removeComponent(entity, SceneDynamicLoadComponent)
+    }
+    AuthoringState.snapshotEntities(entities)
   }
 
   const onChangePosition = (value: Vector3) => {

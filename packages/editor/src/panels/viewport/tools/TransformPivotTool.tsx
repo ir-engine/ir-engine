@@ -19,67 +19,73 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { setTransformPivot, toggleTransformPivot } from '@ir-engine/editor/src/functions/transformFunctions'
+import { setTransformPivot } from '@ir-engine/editor/src/functions/transformFunctions'
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { TransformPivot } from '@ir-engine/spatial/src/common/constants/TransformConstants'
 import { Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
-import { SelectionMd } from '@ir-engine/ui/src/icons'
+import { FlexAlignBottomMd, Globe01Md, SelectionMd, SquareMd } from '@ir-engine/ui/src/icons'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { t } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import ToolbarDropdown from './ToolbarDropdown'
 
-const transformPivotOptions = [
+const options = [
   {
-    label: t('editor:toolbar.transformPivot.lbl-selection'),
-    description: t('editor:toolbar.transformPivot.info-selection'),
-    value: TransformPivot.FirstSelected
+    label: t('editor:toolbar.transformPivot.lbl-singleOrigin'),
+    description: t('editor:toolbar.transformPivot.info-single-origin'),
+    value: TransformPivot.FirstSelected,
+    icon: SelectionMd
   },
   {
     label: t('editor:toolbar.transformPivot.lbl-center'),
     description: t('editor:toolbar.transformPivot.info-center'),
-    value: TransformPivot.Center
+    value: TransformPivot.Center,
+    icon: SquareMd
   },
   {
-    label: t('editor:toolbar.transformPivot.lbl-bottom'),
-    description: t('editor:toolbar.transformPivot.info-bottom'),
-    value: TransformPivot.Bottom
+    label: t('editor:toolbar.transformPivot.lbl-floor'),
+    description: t('editor:toolbar.transformPivot.info-floor'),
+    value: TransformPivot.Bottom,
+    icon: FlexAlignBottomMd
   },
   {
-    label: t('editor:toolbar.transformPivot.lbl-origin'),
-    description: t('editor:toolbar.transformPivot.info-origin'),
-    value: TransformPivot.Origin
+    label: t('editor:toolbar.transformPivot.lbl-worldOrigin'),
+    description: t('editor:toolbar.transformPivot.info-world-origin'),
+    value: TransformPivot.Origin,
+    icon: Globe01Md
   }
 ]
 
 const TransformPivotTool = () => {
   const { t } = useTranslation()
 
-  const editorHelperState = useHookstate(getMutableState(EditorHelperState))
+  const transformPivot = useHookstate(getMutableState(EditorHelperState).transformPivot)
 
   return (
-    <div className="flex items-center gap-x-1">
-      <Tooltip content={t('editor:toolbar.transformPivot.toggleTransformPivot')} position="bottom">
-        <ViewportButton onClick={toggleTransformPivot} icon={SelectionMd} />
+    <div className="flex items-center gap-x-3">
+      <Tooltip position={'auto'} content={t('editor:toolbar.transformSpace.description')}>
+        <Text className={'dark:text-[#A3A3A3]'} fontSize={'sm'}>
+          {t('editor:toolbar.transformPivot.lbl-pivot')}
+        </Text>
       </Tooltip>
-      <ToolbarDropdown
-        tooltipContent={
-          transformPivotOptions.find((pivot) => pivot.value === editorHelperState.transformPivot.value)?.description
-        }
-        tooltipPosition="right"
-        onChange={setTransformPivot}
-        options={transformPivotOptions}
-        value={editorHelperState.transformPivot.value}
-        width="full"
-        inputHeight="l"
-        dropdownParentClassName="w-[106px]"
-      />
+      {options.map(({ label, description, value, icon }) => {
+        return (
+          <Tooltip position="bottom" content={t(label)} key={value}>
+            <ViewportButton
+              selected={transformPivot.value === value}
+              lean={true}
+              onClick={() => setTransformPivot(value)}
+              icon={icon}
+            />
+          </Tooltip>
+        )
+      })}
     </div>
   )
 }

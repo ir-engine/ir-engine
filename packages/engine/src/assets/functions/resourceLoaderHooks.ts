@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -30,7 +30,7 @@ import {
   createEntity,
   Entity,
   entityExists,
-  generateEntityUUID,
+  getComponent,
   removeEntity,
   setComponent,
   UndefinedEntity,
@@ -46,7 +46,6 @@ import {
 
 import { EntityTreeComponent } from '@ir-engine/ecs'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { ResourcePendingComponent } from '../../gltf/ResourcePendingComponent'
 import { FileLoader } from '../loaders/base/FileLoader'
 import { Loader } from '../loaders/base/Loader'
 import { parseStorageProviderURLs } from './parseSceneJSON'
@@ -90,10 +89,6 @@ function useLoader<T extends ResourceAssetType>(
     if (!_url) return
     let completed = false
 
-    if (entity) {
-      ResourcePendingComponent.setResource(entity, _url, 0, 0)
-    }
-
     const controller = new AbortController()
     loadResource<T>(
       _url,
@@ -103,24 +98,15 @@ function useLoader<T extends ResourceAssetType>(
         completed = true
         value.set(response)
         entityResource.set(ResourceState.addEntityResource(entity, response))
-        if (entity) {
-          ResourcePendingComponent.removeResource(entity, _url)
-        }
       },
       (request) => {
         progress.set(request)
-        if (entity) {
-          ResourcePendingComponent.setResource(entity, _url, request.loaded, request.total)
-        }
       },
       (err) => {
         // Effect was unmounted, can't set error state safely
         if (controller.signal.aborted) return
         completed = true
         error.set(err)
-        if (entity) {
-          ResourcePendingComponent.removeResource(entity, _url)
-        }
       },
       controller.signal,
       loader
@@ -132,7 +118,6 @@ function useLoader<T extends ResourceAssetType>(
           `resourceHooks:useLoader Component loading ${resourceType} at url ${url} for entity ${entity} was unmounted`
         )
 
-      if (entity && entityExists(entity)) ResourcePendingComponent.removeResource(entity, _url)
       // ResourceState.unload(_url, entity, uuid.value)
       value.set(null)
       progress.set(null)
@@ -191,7 +176,10 @@ export function useGLTFComponent(url: string, parentEntity: Entity): Entity | nu
     if (!url || !parentEntity) return
     const gltfEntity = createEntity()
     setComponent(gltfEntity, EntityTreeComponent, { parentEntity })
-    setComponent(gltfEntity, UUIDComponent, generateEntityUUID())
+    setComponent(gltfEntity, UUIDComponent, {
+      entitySourceID: getComponent(parentEntity, UUIDComponent).entitySourceID,
+      entityID: UUIDComponent.generate()
+    })
     setComponent(gltfEntity, GLTFComponent, { src: url })
     gltfEntityState.set(gltfEntity)
 

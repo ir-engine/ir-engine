@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -29,10 +29,10 @@ import { UserUISystem } from '@ir-engine/client-core/src/user/UserUISystem'
 import { RenderInfoSystem } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
 // import { EditorInstanceNetworkingSystem } from './components/realtime/EditorInstanceNetworkingSystem'
 import { PositionalAudioSystem } from '@ir-engine/client-core/src/systems/PositionalAudioSystem'
+import { ActiveHelperSystem } from './systems/ActiveHelperSystem'
 import { CameraGizmoSystem } from './systems/CameraGizmoSystem'
 import { ClickPlacementSystem } from './systems/ClickPlacementSystem'
 import { EditorControlSystem } from './systems/EditorControlSystem'
-import { HelperActiveSystem } from './systems/HelperActiveSystem'
 import { ModelHandlingSystem } from './systems/ModelHandlingSystem'
 import { ModelLoadingSpinnerSystem } from './systems/ModelLoadingSpinnerSystem'
 import { ObjectGridSnapSystem } from './systems/ObjectGridSnapSystem'
@@ -42,11 +42,11 @@ import { TransformGizmoSystem } from './systems/TransformGizmoSystem'
 import { UploadRequestSystem } from './systems/UploadRequestSystem'
 
 export {
+  ActiveHelperSystem,
   AvatarSpawnSystem,
   CameraGizmoSystem,
   ClickPlacementSystem,
   EditorControlSystem,
-  HelperActiveSystem,
   ModelHandlingSystem,
   ModelLoadingSpinnerSystem,
   ObjectGridSnapSystem,

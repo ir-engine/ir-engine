@@ -13,6 +13,42 @@ DESTINATION_REPO_PROVIDER=$8
 DESTINATION_REPO_NAME=$9
 PRIVATE_REPO=$10
 
+DESTINATION_REPO_NAME=$DESTINATION_REPO_NAME_STEM-$PACKAGE
+SOURCE_REPO_NAME=$SOURCE_REPO_NAME_STEM-root
+
+if [ "$SOURCE_REPO_PROVIDER" == "gcp" ]; then
+  # Set default repo name pattern
+  SOURCE_REPO_NAME="$SOURCE_REPO_NAME_STEM-root/$SOURCE_REPO_NAME_STEM-root"
+  
+  # Apply environment-specific suffixes based on APP_HOST
+  if [[ "$APP_HOST" =~ "studio" ]] || [[ "$APP_HOST" =~ "mt-stg" ]]; then
+    SUFFIX="mt"
+  elif [[ "$APP_HOST" =~ "mt-rc" ]]; then
+    SUFFIX="mt-rc"
+  elif [[ "$APP_HOST" =~ "mt-int" ]]; then
+      SUFFIX="mt-int"
+  elif [[ "$APP_HOST" =~ "mt-qat" ]]; then
+    SUFFIX="mt-qat"
+  elif [[ "$APP_HOST" =~ "mt" ]]; then
+    SUFFIX="mt"
+  elif [[ "$APP_HOST" =~ "qat" ]]; then
+    SUFFIX="qat"
+  elif [[ "$app_host" =~ "mt-nightly" ]]; then
+    suffix="mt-nightly"
+  elif [[ "$app_host" =~ "mt-weekly" ]]; then
+    suffix="mt-weekly"
+  elif [[ "$app_host" =~ "mt-prdmirr" ]]; then
+    suffix="mt-prdmirr"
+  else
+    SUFFIX=""
+  fi
+  
+  # Only modify the repo name if a suffix was identified
+  if [ -n "$SUFFIX" ]; then
+    SOURCE_REPO_NAME="$SOURCE_REPO_NAME_STEM-root-$SUFFIX/$SOURCE_REPO_NAME_STEM-root"
+  fi
+fi
+
 if [ "$DESTINATION_REPO_PROVIDER" = "aws" ]; then
   if [ "$PRIVATE_REPO" = "true" ]; then
     aws ecr get-login-password --region $REGION | docker login -u AWS --password-stdin $DESTINATION_REPO_URL
@@ -22,6 +58,31 @@ if [ "$DESTINATION_REPO_PROVIDER" = "aws" ]; then
     aws ecr-public describe-repositories --repository-names $DESTINATION_REPO_NAME --region us-east-1 || aws ecr-public create-repository --repository-name $DESTINATION_REPO_NAME_STEM-$PACKAGE --region us-east-1
   fi
 elif [ "$DESTINATION_REPO_PROVIDER" == "gcp" ]; then
+  echo "Log into Docker with GCP credentials"
+  DESTINATION_REPO_NAME=$DESTINATION_REPO_NAME_STEM-$PACKAGE/$DESTINATION_REPO_NAME_STEM-$PACKAGE
+
+  # Apply environment-specific suffixes based on APP_HOST
+  if [[ "$APP_HOST" =~ "studio" ]] || [[ "$APP_HOST" =~ "mt-stg" ]]; then
+    SUFFIX="mt"
+  elif [[ "$APP_HOST" =~ "mt-rc" ]]; then
+    SUFFIX="mt-rc"
+  elif [[ "$APP_HOST" =~ "mt-int" ]]; then
+      SUFFIX="mt-int"
+  elif [[ "$APP_HOST" =~ "mt-qat" ]]; then
+      SUFFIX="mt-qat"
+  elif [[ "$APP_HOST" =~ "mt" ]]; then
+      SUFFIX="mt"
+  elif [[ "$APP_HOST" =~ "qat" ]]; then
+      SUFFIX="qat"
+  else
+      SUFFIX=""
+  fi
+    
+  # Only modify the repo name if a suffix was identified
+  if [ -n "$SUFFIX" ]; then
+      DESTINATION_REPO_NAME="$DESTINATION_REPO_NAME_STEM-$PACKAGE-$SUFFIX/$DESTINATION_REPO_NAME_STEM-$PACKAGE"
+  fi    
+
   gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
   # Insert GCP credentials fetching here, and apply that to docker login
 else
@@ -75,7 +136,8 @@ if [ "$DOCKERFILE" != "client-serve-static" ]; then
     --build-arg APP_HOST=$APP_HOST \
     --build-arg GCP_PROJECT=$GCP_PROJECT \
     --build-arg GCP_EDGE_CACHE_SERVICE=$GCP_EDGE_CACHE_SERVICE \
-    --build-arg GCP_URL_MAP=GCP_URL_MAP \
+    --build-arg GCP_URL_MAP=$GCP_URL_MAP \
+    --build-arg VITE_AGENT_API_URL=$VITE_AGENT_API_URL \
     --build-arg VITE_APP_HOST=$VITE_APP_HOST \
     --build-arg VITE_APP_PORT=$VITE_APP_PORT \
     --build-arg VITE_PWA_ENABLED=$VITE_PWA_ENABLED \
@@ -98,6 +160,7 @@ if [ "$DOCKERFILE" != "client-serve-static" ]; then
     --build-arg VITE_ZENDESK_ENABLED=$VITE_ZENDESK_ENABLED \
     --build-arg VITE_ZENDESK_KEY=$VITE_ZENDESK_KEY \
     --build-arg VITE_DNS_PROVIDER=$VITE_DNS_PROVIDER \
+    --build-arg=VITE_MIDDLEWARE_API_URL=$VITE_MIDDLEWARE_API_URL \
     --build-arg VITE_ZENDESK_AUTHENTICATION_ENABLED=$VITE_ZENDESK_AUTHENTICATION_ENABLED .
 else
   docker buildx build \
@@ -130,10 +193,11 @@ else
     --build-arg MYSQL_PORT=$MYSQL_PORT \
     --build-arg MYSQL_PASSWORD=$MYSQL_PASSWORD \
     --build-arg MYSQL_DATABASE=$MYSQL_DATABASE \
-    --build-arg APP_HOST \
-    --build-arg GCP_PROJECT \
-    --build-arg GCP_EDGE_CACHE_SERVICE \
-    --build-arg GCP_URL_MAP \
+    --build-arg APP_HOST=$APP_HOST \
+    --build-arg GCP_PROJECT=$GCP_PROJECT \
+    --build-arg GCP_EDGE_CACHE_SERVICE=$GCP_EDGE_CACHE_SERVICE \
+    --build-arg GCP_URL_MAP=$GCP_URL_MAP \
+    --build-arg VITE_AGENT_API_URL=$VITE_AGENT_API_URL \
     --build-arg VITE_APP_HOST=$VITE_APP_HOST \
     --build-arg VITE_APP_PORT=$VITE_APP_PORT \
     --build-arg VITE_PWA_ENABLED=$VITE_PWA_ENABLED \
@@ -156,6 +220,7 @@ else
     --build-arg VITE_ZENDESK_ENABLED=$VITE_ZENDESK_ENABLED \
     --build-arg VITE_ZENDESK_KEY=$VITE_ZENDESK_KEY \
     --build-arg VITE_DNS_PROVIDER=$VITE_DNS_PROVIDER \
+    --build-arg=VITE_MIDDLEWARE_API_URL=$VITE_MIDDLEWARE_API_URL \
     --build-arg VITE_ZENDESK_AUTHENTICATION_ENABLED=$VITE_ZENDESK_AUTHENTICATION_ENABLED .
 fi
 

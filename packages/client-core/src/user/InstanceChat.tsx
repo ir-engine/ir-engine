@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -27,9 +27,16 @@ import { useFind, useMutation } from '@ir-engine/common'
 import { InstanceID, MessageType, messagePath } from '@ir-engine/common/src/schema.type.module'
 import { useTouchOutside } from '@ir-engine/common/src/utils/useClickOutside'
 import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
-import { State, UserID, dispatchAction, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
-import { PeerMediaChannelState } from '@ir-engine/network/src/media/PeerMediaChannelState'
+import {
+  MediaChannelState,
+  NetworkState,
+  State,
+  UserID,
+  dispatchAction,
+  useHookstate,
+  useMutableState,
+  webcamVideoMediaChannelType
+} from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { Button } from '@ir-engine/ui'
 import {
@@ -210,10 +217,10 @@ function NewMessage() {
 
 function ReportUserButton({ userId }: { userId: UserID }) {
   const peerId = NetworkState.mediaNetwork.users[userId]?.[0]
-  const peerMediaChannelState = useMutableState(PeerMediaChannelState)
+  const peerMediaChannelState = useMutableState(MediaChannelState)
   if (!peerId) return null
 
-  const isCameraVisibile = peerMediaChannelState[peerId]?.['cam']?.value
+  const isCameraVisibile = peerMediaChannelState[peerId]?.[webcamVideoMediaChannelType]?.value
   if (!isCameraVisibile) return null
 
   return (

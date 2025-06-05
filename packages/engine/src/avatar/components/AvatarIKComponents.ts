@@ -19,18 +19,16 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import { AxesHelper, Quaternion, Vector3 } from 'three'
 
-import { S, UUIDComponent, useEntityContext } from '@ir-engine/ecs'
+import { NetworkObjectComponent, S, UUIDComponent, useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
+import { Entity, EntityID, SourceID } from '@ir-engine/ecs/src/Entity'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { NetworkObjectComponent } from '@ir-engine/network'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
@@ -64,8 +62,10 @@ export const AvatarIKTargetComponent = defineComponent({
     return null
   },
 
-  getTargetEntity: (ownerID: EntityUUID, targetName: (typeof ikTargets)[keyof typeof ikTargets]) => {
-    return UUIDComponent.getEntityByUUID((ownerID + targetName) as EntityUUID)
+  getTargetEntity: (ownerID: SourceID, targetName: (typeof ikTargets)[keyof typeof ikTargets]) => {
+    return UUIDComponent.getEntityByUUID(
+      UUIDComponent.join({ entitySourceID: ownerID, entityID: targetName as EntityID })
+    )
   }
 })
 
@@ -83,7 +83,9 @@ type HandTargetReturn = { position: Vector3; rotation: Quaternion } | null
 export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetReturn => {
   const networkComponent = getComponent(entity, NetworkObjectComponent)
 
-  const targetEntity = NameComponent.getEntitiesByName(networkComponent.ownerId + '_' + hand)[0] // todo, how should be choose which one to use?
+  const targetEntity = UUIDComponent.getEntityByUUID(
+    UUIDComponent.join({ entitySourceID: networkComponent.ownerId as string as SourceID, entityID: hand as EntityID })
+  )
   if (targetEntity && AvatarIKTargetComponent.blendWeight[targetEntity] > 0)
     return getComponent(targetEntity, TransformComponent)
 

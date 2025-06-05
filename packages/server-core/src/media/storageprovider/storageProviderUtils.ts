@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -33,8 +33,12 @@ export const getFileKeysRecursive = async (path: string, storageProviderName?: s
     const response = await storageProvider.listObjects(path, true)
     const entries = response.Contents
     if (entries.length) {
-      for (const { Key } of entries) {
-        files.push(Key)
+      for (const { Key, Size, Type } of entries) {
+        if (Type !== 'folder') {
+          files.push(Key)
+        } else {
+          logger.debug(`[getFileKeysRecursive] Skipping directory: ${Key}`)
+        }
       }
     }
   } catch (e) {

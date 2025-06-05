@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,15 +19,15 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
   AnimationClip,
   BufferAttribute,
-  Cache,
   CompressedTexture,
+  CompressedTextureMipmap,
   InterleavedBufferAttribute,
   Light,
   Line,
@@ -42,24 +42,35 @@ import {
   Engine,
   Entity,
   QueryReactor,
+  UUIDComponent,
   getAncestorWithComponents,
   getAuthoringCounterpart,
   getComponent,
   getOptionalComponent,
+  hasComponent,
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
-import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@ir-engine/hyperflux'
+
+import { NO_PROXY, State, defineState, getMutableState, getState, none, useMutableState } from '@ir-engine/hyperflux'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 
-import { ReferenceSpaceState } from '@ir-engine/spatial'
 import React, { useEffect } from 'react'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { Geometry } from '../common/constants/Geometry'
-import { isIPhone } from '../common/functions/isMobile'
 import iterateObject3D from '../common/functions/iterateObject3D'
 import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { PerformanceState } from '../renderer/PerformanceState'
-import { RendererComponent } from '../renderer/WebGLRendererSystem'
+import { RendererComponent } from '../renderer/components/RendererComponent'
+import { VisibleComponent } from '../renderer/components/VisibleComponent'
+
+// offloadTextureData implemented in engine package, but needs to be called and typed here
+
+declare module 'three/src/textures/Texture.js' {
+  export interface Texture {
+    offloadTextureData: () => Promise<boolean>
+  }
+}
 
 export interface DisposableObject {
   uuid: string
@@ -69,7 +80,7 @@ export interface DisposableObject {
   disposed?: boolean
 }
 
-Cache.enabled = false
+// Cache.enabled = true
 
 export enum ResourceType {
   Mesh = 'Mesh',
@@ -167,6 +178,36 @@ const getTotalVertexCount = () => {
   return verts
 }
 
+const useTotalVertexCount = () => {
+  let verts = 0
+  const resources = useMutableState(ResourceState).resources.value as Record<string, Resource>
+  for (const key in resources) {
+    const resource = resources[key]
+    if (resource.type == ResourceType.Geometry && (resource.metadata as GLTFMetadata).vertexCount)
+      verts += (resource.metadata as GLTFMetadata).vertexCount
+  }
+
+  return verts
+}
+
+const useVisibleVertexCount = () => {
+  let verts = 0
+  const resources = useMutableState(ResourceState).resources.value as Record<string, Resource>
+  for (const key in resources) {
+    const resource = resources[key]
+    if (
+      resource.type == ResourceType.Geometry &&
+      (resource.metadata as GLTFMetadata).vertexCount &&
+      hasComponent(resource.entity, VisibleComponent) &&
+      // Ignore helpers and gizmos
+      hasComponent(resource.entity, UUIDComponent)
+    )
+      verts += (resource.metadata as GLTFMetadata).vertexCount
+  }
+
+  return verts
+}
+
 const getRendererInfo = () => {
   const viewer = Engine?.instance?.viewerEntity as Entity | undefined
   if (!viewer) return {}
@@ -246,40 +287,42 @@ const resourceCallbacks = {
       discardUponUpload = false
     ) => {
       if (!asset.image) return
+
       resource.metadata.merge({ onGPU: false, discarded: false })
       asset.onUpdate = () => {
-        resource.metadata.merge({ onGPU: true, discarded: discardUponUpload })
-        //@ts-ignore
-        // asset.onUpdate = null
+        resource.metadata.merge({ onGPU: true, discarded: false })
         const viewer = getState(ReferenceSpaceState).viewerEntity
         const renderer = getComponent(viewer, RendererComponent)
         const gl = renderer.renderContext as WebGL2RenderingContext
-        if (discardUponUpload && gl.fenceSync && isIPhone) {
+        if (discardUponUpload && typeof gl.fenceSync === 'function') {
           const sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0)
           if (sync) {
+            gl.flush()
+            let count = 0
             const checkSync = () => {
               const status = gl.clientWaitSync(sync, 0, 0)
-              if (status === gl.TIMEOUT_EXPIRED) {
-                requestAnimationFrame(checkSync)
+              if (status === gl.TIMEOUT_EXPIRED && count++ < 10) {
+                setTimeout(checkSync)
               } else {
                 gl.deleteSync(sync)
-                resource.metadata.merge({ onGPU: true, discarded: true })
-                asset.source.data = null
-                asset.mipmaps = []
+                asset
+                  .offloadTextureData()
+                  .then(() => {
+                    resource.metadata.merge({ onGPU: true, discarded: true })
+                  })
+                  .catch((err) => {
+                    console.error(err)
+                  })
               }
             }
-            requestAnimationFrame(checkSync)
+            setTimeout(checkSync)
           }
         }
       }
-      if ((asset as CompressedTexture).isCompressedTexture && discardUponUpload) {
-        // for some reason, this is necessary for the onUpdate to trigger
-        asset.needsUpdate = true
-      }
       //Compressed texture size
-      if (asset.mipmaps[0]) {
+      if (asset.mipmaps![0]) {
         let size = 0
-        for (const mip of asset.mipmaps) {
+        for (const mip of asset.mipmaps as CompressedTextureMipmap[]) {
           size += mip.data.byteLength
         }
         resource.metadata.size.set(size)
@@ -325,13 +368,14 @@ const resourceCallbacks = {
       let size = 0
 
       const checkUploaded = () => {
-        if (!resource.get(NO_PROXY).metadata) return
+        if (!resource.get(NO_PROXY)?.metadata) return
         resource.metadata.merge({ onGPU: needsUploaded === 0, discarded: needsUploaded === 0 && discardUponUpload })
       }
 
       asset.index?.onUpload(function () {
         if (discardUponUpload) {
-          this.array = new this.array.constructor(1)
+          /** @todo re-enable discard */
+          // this.array = new this.array.constructor(1)
         }
         needsUploaded -= 1
         checkUploaded()
@@ -576,7 +620,6 @@ const addEntityResource = (
 
   returnedResources.push(resource)
 
-  /** @todo disposal currently causes errors */
   const entityHasAuthoringUpstream =
     getAuthoringCounterpart(entity) || getAncestorWithComponents(entity, [ColliderComponent]) // collider component is a hack to prevent unloading of physics objects
 
@@ -657,6 +700,16 @@ const useEntityResource = (entity: Entity, state: State<ResourceAssetType>) => {
   }, [state])
 }
 
+const getAllResourcesOfType = (type: ResourceType) => {
+  const resources = getState(ResourceState).resources
+  const result = [] as Resource[]
+  for (const key in resources) {
+    const resource = resources[key]
+    if (resource.type === type) result.push(resource)
+  }
+  return result
+}
+
 export const ResourceState = defineState({
   name: 'ResourceState',
 
@@ -674,6 +727,8 @@ export const ResourceState = defineState({
     if (getState(ResourceState).debug) console.warn(...data)
   },
 
+  getAllResourcesOfType,
+
   resourceCallbacks,
   useEntityResource,
   addEntityResource,
@@ -683,7 +738,9 @@ export const ResourceState = defineState({
   budgets: {
     getTotalSizeOfResources,
     getTotalBufferSize,
-    getTotalVertexCount
+    getTotalVertexCount,
+    useTotalVertexCount,
+    useVisibleVertexCount
   },
   /** Removes a resource even if it is still being referenced, needed for updating assets in the studio */
   __unsafeRemoveResource: removeResource,

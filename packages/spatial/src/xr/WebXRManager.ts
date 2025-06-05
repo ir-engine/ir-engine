@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -35,8 +35,7 @@ import {
   Vector4,
   WebGLMultiviewRenderTarget,
   WebGLRenderer,
-  WebGLRenderTarget,
-  WebGLRenderTargetOptions
+  WebGLRenderTarget
 } from 'three'
 
 import { getComponent } from '@ir-engine/ecs'
@@ -65,7 +64,7 @@ declare module 'three/src/renderers/WebGLRenderer.js' {
 
 declare module 'three' {
   class WebGLMultiviewRenderTarget extends WebGLRenderTarget {
-    constructor(width: number, height: number, numViews: number, options: WebGLRenderTargetOptions)
+    constructor(width: number, height: number, numViews: number, options)
     numViews: number
     static isWebGLMultiviewRenderTarget: true
   }
@@ -290,7 +289,7 @@ function createRenderTarget(
     result = new WebGLRenderTarget(glProjLayer.textureWidth, glProjLayer.textureHeight, rtOptions)
   }
   const renderTargetProperties = renderer.properties.get(result)
-  renderTargetProperties.__ignoreDepthValues = glProjLayer.ignoreDepthValues
+  //renderTargetProperties.__ignoreDepthValues = glProjLayer.ignoreDepthValues
 
   return result
 }
@@ -386,6 +385,8 @@ export function createWebXRManager(renderer: WebGLRenderer) {
   result.hasEventListener = function (type: string, listener: EventListener) {}
   result.removeEventListener = function (type: string, listener: EventListener) {}
   result.dispatchEvent = function (event: Event) {}
+
+  console.log('result', result)
 
   return result
 }

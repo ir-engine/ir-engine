@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -41,12 +41,17 @@ import {
   EventDispatcher,
   getMutableState,
   getState,
+  joinNetwork,
+  MediaChannelState,
   NetworkID,
-  UserID
+  NetworkState,
+  NetworkTopics,
+  screenshareVideoMediaChannelType,
+  UserID,
+  webcamAudioMediaChannelType,
+  webcamVideoMediaChannelType
 } from '@ir-engine/hyperflux'
-import { addNetwork, createNetwork, NetworkState, NetworkTopics } from '@ir-engine/network'
-import { PeerMediaChannelState } from '@ir-engine/network/src/media/PeerMediaChannelState'
-import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
+import { createMockNetwork } from '@ir-engine/hyperflux/tests/createMockNetwork'
 import React from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { LocationState } from '../../social/services/LocationService'
@@ -191,8 +196,7 @@ describe('SingleVideoWindow component', () => {
     getMutableState(EngineState).userID.set(hostUserID)
 
     createMockNetwork(NetworkTopics.world, peerID, hostUserID)
-    const network = createNetwork(instanceID, peerID, NetworkTopics.world)
-    addNetwork(network)
+    const network = joinNetwork(instanceID, peerID, NetworkTopics.world)
 
     const worldNetworkId = network.id
     getMutableState(NetworkState).networks[network.id].set({
@@ -202,25 +206,31 @@ describe('SingleVideoWindow component', () => {
     })
     getMutableState(NetworkState).hostIds.media.set(worldNetworkId)
 
-    getMutableState(PeerMediaChannelState).set({
+    getMutableState(MediaChannelState).set({
       [peerID]: {
-        cam: {
-          videoMediaStream: new MediaStream(),
-          audioMediaStream: new MediaStream(),
-          videoQuality: 'smallest',
-          videoStreamPaused: false,
-          audioStreamPaused: false,
-          videoElement: document.createElement('video'),
-          audioElement: document.createElement('audio')
+        [webcamVideoMediaChannelType]: {
+          stream: new MediaStream(),
+          quality: 'smallest',
+          paused: false,
+          element: document.createElement('video')
         },
-        screen: {
-          videoMediaStream: new MediaStream(),
-          audioMediaStream: new MediaStream(),
-          videoQuality: 'auto',
-          videoStreamPaused: false,
-          audioStreamPaused: false,
-          videoElement: document.createElement('video'),
-          audioElement: document.createElement('audio')
+        [webcamAudioMediaChannelType]: {
+          stream: new MediaStream(),
+          quality: 'smallest',
+          paused: false,
+          element: document.createElement('audio')
+        },
+        [screenshareVideoMediaChannelType]: {
+          stream: new MediaStream(),
+          quality: 'smallest',
+          paused: false,
+          element: document.createElement('video')
+        },
+        [screenshareVideoMediaChannelType]: {
+          stream: new MediaStream(),
+          quality: 'smallest',
+          paused: false,
+          element: document.createElement('audio')
         }
       }
     })

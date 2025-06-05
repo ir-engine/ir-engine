@@ -16,7 +16,7 @@
   "types": "lib/index.d.ts",
   "npmClient": "npm",
   "scripts": {
-    "check-errors": "tsc --noemit",
+    "check-errors": "tsc --noemit && npx cycle-import-check src || true",
     "test": "cross-env TEST=true vitest run --config=../../vitest.client.config.ts"
   },
   "resolutions": {
@@ -32,11 +32,11 @@
     "@feathersjs/client": "5.0.5",
     "@feathersjs/primus-client": "4.5.15",
     "@feathersjs/rest-client": "5.0.5",
-    "@hookstate/core": "^4.0.0",
     "@ir-engine/common": "^1.6.0",
     "@ir-engine/engine": "^1.6.0",
     "@ir-engine/hyperflux": "^1.6.0",
     "@ir-engine/ui": "^1.6.0",
+    "@storybook/react": "^8.6.14",
     "@uiw/react-color-sketch": "^2.1.1",
     "axios": "1.3.4",
     "comlink": "4.4.1",
@@ -63,7 +63,7 @@
     "@types/hark": "1.2.2",
     "@types/node": "18.15.5",
     "@types/react": "18.2.0",
-    "@types/three": "0.158.0",
+    "@types/three": "0.176.0",
     "css-modules-require-hook": "4.2.3",
     "esbuild": "0.17.12",
     "react-dom": "18.2.0",

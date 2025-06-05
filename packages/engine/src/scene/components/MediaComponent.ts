@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -29,6 +29,7 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  getOptionalMutableComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -41,11 +42,11 @@ import { NO_PROXY, State, getState, isClient, useMutableState } from '@ir-engine
 import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
-import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
+import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import type Hls from 'hls.js'
 import { useEffect, useLayoutEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
@@ -53,7 +54,6 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AudioState } from '../../audio/AudioState'
 import { removePannerNode } from '../../audio/PositionalAudioFunctions'
-import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 import { PlayMode } from '../constants/PlayMode'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
 import isHLS from '../functions/isHLS'
@@ -89,7 +89,7 @@ export const MediaElementComponent = defineComponent({
 
   schema: S.Object({
     element: S.Type<HTMLMediaElement>(),
-    hls: S.Optional(S.Type<Hls>()),
+    hls: S.Type<Hls | undefined>(),
     abortController: S.Class(() => new AbortController())
   }),
 
@@ -136,28 +136,32 @@ export const MediaComponent = defineComponent({
   jsonID: 'EE_media',
 
   schema: S.Object({
-    controls: S.Bool(false),
-    synchronize: S.Bool(true),
-    autoplay: S.Bool(false), //false = personal preference, this is super annoying when it just starts playing once added to a scene while editing
-    muteEditor: S.Bool(false), //false
+    controls: S.Bool({ default: false }),
+    synchronize: S.Bool({ default: true }),
+    autoplay: S.Bool({ default: false }), //false = personal preference, this is super annoying when it just starts playing once added to a scene while editing
+    muteEditor: S.Bool({ default: false }), //false
     uiOffset: T.Vec3(),
-    volume: S.Number(1),
+    volume: S.Number({ default: 1 }),
     resources: S.Array(S.String()),
-    playMode: S.Enum(PlayMode, PlayMode.loop),
-    isMusic: S.Bool(false),
-    seekTime: S.NonSerialized(S.Number(0)),
+    playMode: S.Enum(PlayMode, {
+      $comment: "A string enum, ie. one of the following values: 'single', 'random', 'loop', 'singleloop'",
+      default: PlayMode.loop
+    }),
+    isMusic: S.Bool({ default: false }),
+    seekTime: S.Number({ default: 0, serialized: false }),
     /**@deprecated */
     paths: S.Array(S.String()),
     // runtime props
-    xruiEntity: S.NonSerialized(S.Entity()),
-    paused: S.NonSerialized(S.Bool(true)),
-    ended: S.NonSerialized(S.Bool(true)),
-    waiting: S.NonSerialized(S.Bool(false)),
-    track: S.NonSerialized(S.Number(-1)),
-    currentTrackTime: S.NonSerialized(S.Number(0)),
-    currentTrackDuration: S.NonSerialized(S.Number(0)),
-    isCurrentTrackLoaded: S.NonSerialized(S.Bool(false)),
-    externalMediaNodeID: NodeIDSchema()
+    xruiEntity: S.Entity({ serialized: false }),
+    paused: S.Bool({ default: true, serialized: false }),
+    muted: S.Bool({ default: false, serialized: false }),
+    ended: S.Bool({ default: true, serialized: false }),
+    waiting: S.Bool({ default: false, serialized: false }),
+    track: S.Number({ default: -1, serialized: false }),
+    currentTrackTime: S.Number({ default: 0, serialized: false }),
+    currentTrackDuration: S.Number({ default: 0, serialized: false }),
+    isCurrentTrackLoaded: S.Bool({ default: false, serialized: false }),
+    externalMediaNodeID: S.EntityID()
     /**
      * TODO: refactor this into a ScheduleComponent for invoking callbacks at scheduled times
      * The auto start time for the playlist, in Unix/Epoch time (milliseconds).
@@ -224,7 +228,15 @@ export function MediaReactor() {
       return
     }
 
-    const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
+    const urlToPlay = encodeURI(AssetLoader.getAbsolutePath(path))
+
+    const checkMediaElement = getOptionalComponent(entity, MediaElementComponent)
+    /** do nothing if we are already playing this track */
+    if (checkMediaElement && urlToPlay === checkMediaElement.element.src) {
+      return
+    }
+
+    const assetClass = AssetLoader.getAssetClass(urlToPlay).toLowerCase()
 
     if (assetClass !== 'audio' && assetClass !== 'video') {
       addError(entity, MediaComponent, 'UNSUPPORTED_ASSET_CLASS')
@@ -233,18 +245,17 @@ export function MediaReactor() {
 
     media.ended.set(false)
 
-    const checkMediaElement = getComponent(entity, MediaElementComponent)
     if (
       !checkMediaElement ||
       !checkMediaElement.element ||
       checkMediaElement.element.nodeName.toLowerCase() !== assetClass
     ) {
-      setUpMediaElement(entity, path, media, audioContext, gainNodeMixBuses)
+      setUpMediaElement(entity, urlToPlay, media, audioContext, gainNodeMixBuses)
     }
 
     const mutableMediaElement = getMutableComponent(entity, MediaElementComponent)
 
-    if (mutableMediaElement.element.src.value === path && media.isCurrentTrackLoaded.value) {
+    if (mutableMediaElement.element.src.value === urlToPlay && media.isCurrentTrackLoaded.value) {
       const duration = mutableMediaElement.element.duration.value
       media.currentTrackDuration.set(duration)
       return
@@ -254,9 +265,9 @@ export function MediaReactor() {
     mutableMediaElement.hls.set(undefined)
     ;(mutableMediaElement.element.value as HTMLMediaElement).crossOrigin = 'anonymous'
     ;(mutableMediaElement.element.value as HTMLMediaElement).ontimeupdate = (event) => {
-      const localMedia = getMutableComponent(entity, MediaComponent)
-      const localMediaElement = getComponent(entity, MediaElementComponent)
+      const localMedia = getOptionalMutableComponent(entity, MediaComponent)
       if (!localMedia) return
+      const localMediaElement = getOptionalComponent(entity, MediaElementComponent)
       if (!localMediaElement) return
       if (!localMediaElement.element) return
       const time = (localMediaElement.element as HTMLMediaElement).currentTime
@@ -273,13 +284,13 @@ export function MediaReactor() {
       localMedia.currentTrackDuration.set(time)
       localMedia.isCurrentTrackLoaded.set(true)
     }
-    if (isHLS(path)) {
-      setupHLS(entity, path).then((hls) => {
+    if (isHLS(urlToPlay)) {
+      setupHLS(entity, urlToPlay).then((hls) => {
         mutableMediaElement.hls.set(hls)
         mutableMediaElement.hls.value!.attachMedia(mutableMediaElement.element.value as HTMLMediaElement)
       })
     } else {
-      mutableMediaElement.element.src.set(path)
+      mutableMediaElement.element.src.set(urlToPlay)
     }
 
     if (!media.paused.value) {
@@ -380,15 +391,30 @@ export function MediaReactor() {
 
   useEffect(() => {
     if (!mediaElement) return
+    const element = mediaElement.element.value as HTMLMediaElement
+
+    const resetMuted = () => {
+      element.muted = false
+      document.removeEventListener('pointerdown', resetMuted)
+    }
+
     if (media.paused.value) {
-      mediaElement.element.value.pause()
+      element.pause()
     } else {
-      const promise = mediaElement.element.value.play()
-      if (promise) {
-        promise.catch((error) => {
+      element.play().catch((error) => {
+        if (error.name === 'NotAllowedError') {
+          element.muted = true
+          element.play()
+
+          document.addEventListener('pointerdown', resetMuted)
+        } else {
           console.error(error)
-        })
-      }
+        }
+      })
+    }
+
+    return () => {
+      document.removeEventListener('pointerdown', resetMuted)
     }
   }, [media.paused, !!mediaElement])
 
@@ -490,6 +516,12 @@ export function MediaReactor() {
     [media.volume]
   )
 
+  useEffect(() => {
+    if (!mediaElement) return
+    const htmlMedia = mediaElement.element.get(NO_PROXY) as HTMLMediaElement
+    htmlMedia.muted = media.muted.value
+  }, [media.muted, mediaElement])
+
   useEffect(
     function updateMixbus() {
       if (mediaElement == null) {
@@ -515,7 +547,7 @@ export function MediaReactor() {
 
   useHelperEntity(
     entity,
-    () => new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide })),
+    () => new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide, opacity: 0 })),
     rendererState.nodeHelperVisibility.value && !!audioHelperTexture
   )
 

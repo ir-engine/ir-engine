@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -30,7 +30,7 @@ import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { UserName, userPath } from '@ir-engine/common/src/schema.type.module'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { EventDispatcher, createState } from '@ir-engine/hyperflux'
+import { EventDispatcher, hookstate } from '@ir-engine/hyperflux'
 
 import { API } from '@ir-engine/common'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
@@ -276,7 +276,7 @@ describe('FeathersHooks', () => {
   describe('can use listeners', () => {
     describe('on created', () => {
       it('should populate find query', async () => {
-        const result = createState({} as any)
+        const result = hookstate({} as any)
         const { rerender } = renderHook(() => {
           const data = useFind(userPath)
           useEffect(() => {
@@ -297,7 +297,7 @@ describe('FeathersHooks', () => {
       })
 
       it('should populate get query', async () => {
-        const result = createState({} as any)
+        const result = hookstate({} as any)
         const { rerender } = renderHook(() => {
           const data = useGet(userPath, '3')
           useEffect(() => {
@@ -335,7 +335,7 @@ describe('FeathersHooks', () => {
       })
 
       it('should populate get query', async () => {
-        const result = createState({} as any)
+        const result = hookstate({} as any)
         const { rerender } = renderHook(() => {
           const data = useGet(userPath, '1')
           useEffect(() => {
@@ -373,7 +373,7 @@ describe('FeathersHooks', () => {
       })
 
       it('should populate get query', async () => {
-        const result = createState({} as any)
+        const result = hookstate({} as any)
         const { rerender } = renderHook(() => {
           const data = useGet(userPath, '1')
           useEffect(() => {
@@ -411,7 +411,7 @@ describe('FeathersHooks', () => {
       })
 
       it('should populate get query', async () => {
-        const result = createState({} as any)
+        const result = hookstate({} as any)
         const { rerender } = renderHook(() => {
           const data = useGet(userPath, '1')
           useEffect(() => {

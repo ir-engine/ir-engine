@@ -19,13 +19,13 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityTreeComponent, UUIDComponent, createEntity, generateEntityUUID } from '@ir-engine/ecs'
+import { EntityTreeComponent, UUIDComponent, createEntity } from '@ir-engine/ecs'
 import { ComponentJSONIDMap, getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { Entity, SourceID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
@@ -45,8 +45,10 @@ export const addEntityToScene = (
   }
   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
   setComponent(newEntity, TransformComponent)
-  const uuid = generateEntityUUID()
-  setComponent(newEntity, UUIDComponent, uuid)
+  setComponent(newEntity, UUIDComponent, {
+    entitySourceID: 'visual-script' as SourceID,
+    entityID: UUIDComponent.generate()
+  })
   setComponent(newEntity, VisibleComponent)
   for (const component of componentJson) {
     if (ComponentJSONIDMap.has(component.name))

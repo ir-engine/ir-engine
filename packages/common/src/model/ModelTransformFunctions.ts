@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -51,13 +51,6 @@ import {
   textureCompress,
   weld
 } from '@gltf-transform/functions'
-import { createHash } from 'crypto'
-import { MeshoptEncoder, MeshoptSimplifier } from 'meshoptimizer'
-import { getPixels } from 'ndarray-pixels'
-import { $attributes } from 'property-graph'
-import { LoaderUtils } from 'three'
-import { v4 as uuidv4 } from 'uuid'
-
 import {
   ExtractedImageTransformParameters,
   extractParameters,
@@ -68,6 +61,12 @@ import {
 import { baseName, dropRoot, pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { getMutableState, NO_PROXY } from '@ir-engine/hyperflux'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
+import { createHash } from 'crypto'
+import { MeshoptEncoder, MeshoptSimplifier } from 'meshoptimizer'
+import { getPixels } from 'ndarray-pixels'
+import { $attributes } from 'property-graph'
+import { LoaderUtils } from 'three'
+import { v4 as uuidv4 } from 'uuid'
 
 import {
   EEArgEntry,
@@ -477,7 +476,12 @@ const toTransformedDocument = async (srcDocument: Document, args: ModelTransform
     //gltfTransform documentation recommends doing a weld before simply
     if (!args.weld.enabled) simplifyTransforms.push(weld())
     simplifyTransforms.push(
-      simplify({ simplifier: MeshoptSimplifier, ratio: args.simplifyRatio, error: args.simplifyErrorThreshold })
+      args.adaptiveSimplification
+        ? (doc) => {
+            adaptiveSimplify(doc, args)
+            return doc
+          }
+        : simplify({ simplifier: MeshoptSimplifier, ratio: args.simplifyRatio, error: args.simplifyErrorThreshold })
     )
     await document.transform(...simplifyTransforms)
   }
@@ -545,7 +549,6 @@ const createTextureOperations = (
 
   if (args.textureFormat !== 'default') {
     for (const texture of textures) {
-      console.log('considering texture ' + texture.getURI())
       if (texture.getMimeType() === 'image/ktx2') continue
       const oldSize = texture.getSize()
       if (!oldSize) continue
@@ -716,6 +719,7 @@ const writeFiles = async (
   const path = match ? match[1] : undefined
 
   if (['glb', 'vrm'].includes(modelFormat)) {
+    // For GLB/VRM, we keep textures embedded and don't process them separately
     const data = await io.writeBinary(document)
     await doUpload(...toProjectAndFileName(finalPath, srcBaseURL), data, path)
   } else if (modelFormat === 'gltf') {
@@ -804,6 +808,23 @@ const writeFiles = async (
   return finalPath
 }
 
+// Add a function to preserve vertex colors
+const preserveVertexColors: Transform = (document: Document) => {
+  document
+    .getRoot()
+    .listMeshes()
+    .map((mesh) => mesh.listPrimitives())
+    .flat()
+    .forEach((prim) => {
+      // Ensure COLOR_0 attribute is preserved during transformations
+      const colorAttr = prim.getAttribute('COLOR_0')
+      if (colorAttr) {
+        // Mark it with extras to ensure it's not removed
+        colorAttr.setExtras({ preserve: true })
+      }
+    })
+}
+
 export const transformModel = async (
   srcURL: string,
   modelOperations: ModelTransformParameters[],
@@ -866,15 +887,59 @@ export const transformModel = async (
   }
 
   for (let i = 0; i < numDocOperations; i++) {
-    const docOperation = modelOperations[i]
+    const params = modelOperations[i]
+    const isGLBFormat = ['glb', 'vrm'].includes(params.modelFormat)
 
-    const document = await toTransformedDocument(srcDocument, docOperation)
+    const document = await cloneDocument(srcDocument)
+
+    // Preserve vertex colors before applying transformations
+    await document.transform(preserveVertexColors)
+
+    // Apply basic optimizations
+    await document.transform(unInstanceSingletons)
+    params.split && (await document.transform(split))
+    params.combineMaterials && (await document.transform(combineMaterials))
+    params.instance && (await document.transform(doInstancing))
+    params.dedup && (await document.transform(dedup()))
+    params.flatten && (await document.transform(flatten()))
+    params.join.enabled && (await document.transform(join(params.join.options)))
+
+    if (params.simplifyRatio < 1) {
+      const simplifyTransforms = [] as Transform[]
+      if (!params.weld.enabled) simplifyTransforms.push(weld())
+      simplifyTransforms.push(
+        params.adaptiveSimplification
+          ? (doc) => {
+              adaptiveSimplify(doc, params)
+              return doc
+            }
+          : simplify({
+              simplifier: MeshoptSimplifier,
+              ratio: params.simplifyRatio,
+              error: params.simplifyErrorThreshold
+            })
+      )
+      await document.transform(...simplifyTransforms)
+    }
+
+    // For GLB/VRM formats, skip texture conversion to KTX2
+    if (!isGLBFormat && params.textureFormat !== 'default') {
+      const textureUsages = new Map<string, Set<string>>()
+      const operations = createTextureOperations(document, params, params.resources, textureUsages)
+      textureOperations.push(...operations)
+    }
+
+    // Apply final optimizations
+    if (params.reorder) {
+      await MeshoptEncoder.ready
+      await document.transform(reorder({ encoder: MeshoptEncoder, target: 'performance' }))
+    }
+
+    if (params.dracoCompression.enabled) {
+      await document.transform(draco(params.dracoCompression.options))
+    }
+
     documents.push(document)
-
-    const operations = createTextureOperations(document, docOperation, docOperation.resources, textureUsages)
-    const maxTextureSize = Math.max(...operations.map(({ texture }) => texture.getSize()?.[0] ?? 0))
-    onMetadata(i, 'maxTextureSize', maxTextureSize)
-    textureOperations.push(...operations)
   }
 
   const numTextureOperations = textureOperations.length
@@ -886,6 +951,7 @@ export const transformModel = async (
     await transformTexture(resultCache, textureOperations[i], i)
   }
 
+  // Write files
   const results: string[] = []
 
   for (const document of documents) {
@@ -904,7 +970,7 @@ export const transformModel = async (
         const matArgs = eeMaterial.args!
 
         const newTextures = document.getRoot().listTextures()
-        const materialArgsInfo = eeMaterialExtension.materialInfoMap.get(matArgs.getExtras().uuid as string)!
+        const materialArgsInfo = eeMaterialExtension.materialInfoMap.get(matArgs.getExtras().uuid as string) || []
         materialArgsInfo.map((field) => {
           let argEntry: EEArgEntry
           try {
@@ -933,7 +999,13 @@ export const transformModel = async (
     onProgress?.((i + 1 + numTextureOperations) / totalProgressSteps, Status.WritingFiles)
 
     const document = documents[i]
-    results.push(...(await writeFiles(srcURL, document, modelOperations[i])))
+    results.push(
+      await writeFiles(srcURL, document, {
+        modelFormat: modelOperations[i].modelFormat,
+        resourceUri: modelOperations[i].resourceUri,
+        dst: modelOperations[i].dst
+      })
+    )
 
     const totalVertexCount = document
       .getRoot()
@@ -947,4 +1019,153 @@ export const transformModel = async (
   onProgress?.(1, Status.Complete)
 
   return results
+}
+// Main function to calculate mesh importance
+const calculateMeshImportance = (
+  mesh: Mesh,
+  weights = { size: 0.35, material: 0.25, visibility: 0.2, vertexDensity: 0.2 },
+  sceneScale = 10.0
+): number => {
+  const size = getMeshSize(mesh)
+  const normalizedSize = Math.min(1.0, size / sceneScale)
+
+  const materialImportance = getMaterialImportance(mesh)
+  const visibilityImportance = getVisibilityImportance(mesh)
+  const vertexDensityImportance = getVertexDensityImportance(mesh)
+
+  return (
+    normalizedSize * weights.size +
+    materialImportance * weights.material +
+    visibilityImportance * weights.visibility +
+    vertexDensityImportance * weights.vertexDensity
+  )
+}
+
+// Helper: Calculate bounding box volume
+const getMeshSize = (mesh: Mesh): number => {
+  let totalVolume = 0
+  for (const prim of mesh.listPrimitives()) {
+    const positionAccessor = prim.getAttribute('POSITION')
+    if (positionAccessor) {
+      const min = [Infinity, Infinity, Infinity]
+      const max = [-Infinity, -Infinity, -Infinity]
+
+      for (let i = 0; i < positionAccessor.getCount(); i++) {
+        const position = positionAccessor.getElement(i, [])
+        for (let j = 0; j < 3; j++) {
+          min[j] = Math.min(min[j], position[j])
+          max[j] = Math.max(max[j], position[j])
+        }
+      }
+
+      const volume = Math.max(0, (max[0] - min[0]) * (max[1] - min[1]) * (max[2] - min[2]))
+      totalVolume += volume
+    }
+  }
+  return totalVolume
+}
+
+// Helper: Material importance based on texture or emissive use
+const getMaterialImportance = (mesh: Mesh): number => {
+  let importance = 0.5
+
+  for (const prim of mesh.listPrimitives()) {
+    const material = prim.getMaterial()
+    if (material) {
+      if (material.getBaseColorTexture() || material.getNormalTexture() || material.getEmissiveTexture()) {
+        importance = Math.max(importance, 0.8)
+      }
+
+      if (material.getEmissiveFactor().some((v) => v > 0)) {
+        importance = Math.max(importance, 0.9)
+      }
+    }
+  }
+
+  return importance
+}
+
+// uses visibility/occlusion as importance factor
+const getVisibilityImportance = (mesh: Mesh): number => {
+  // Check if mesh has any primitives with transparent materials
+  let isTransparent = false
+  let isVisible = true
+
+  for (const prim of mesh.listPrimitives()) {
+    const material = prim.getMaterial()
+    if (material) {
+      if (
+        material.getAlphaMode() === 'BLEND' ||
+        (material.getBaseColorFactor() && material.getBaseColorFactor()[3] < 1.0)
+      ) {
+        isTransparent = true
+      }
+
+      const extras = material.getExtras()
+      if (extras && extras.visible === false) {
+        isVisible = false
+      }
+    }
+  }
+
+  if (isTransparent) return 0.8
+
+  if (!isVisible) return 0.2
+
+  return 0.5
+}
+
+// Helper: Importance  based on vertex density (more dense = more important details)
+const getVertexDensityImportance = (mesh: Mesh): number => {
+  let totalVolume = 0
+  let totalVertices = 0
+
+  for (const prim of mesh.listPrimitives()) {
+    const positionAccessor = prim.getAttribute('POSITION')
+    if (positionAccessor) {
+      totalVertices += positionAccessor.getCount()
+
+      const min = [Infinity, Infinity, Infinity]
+      const max = [-Infinity, -Infinity, -Infinity]
+
+      for (let i = 0; i < positionAccessor.getCount(); i++) {
+        const position = positionAccessor.getElement(i, [])
+        for (let j = 0; j < 3; j++) {
+          min[j] = Math.min(min[j], position[j])
+          max[j] = Math.max(max[j], position[j])
+        }
+      }
+
+      const volume = Math.max(0.0001, (max[0] - min[0]) * (max[1] - min[1]) * (max[2] - min[2]))
+      totalVolume += volume
+    }
+  }
+
+  if (totalVolume === 0 || totalVertices === 0) return 0.5
+
+  const density = totalVertices / totalVolume
+
+  return Math.min(1.0, density / 1000)
+}
+
+// adaptiveSimplify function with inverted logic to increase simplification
+const adaptiveSimplify = (document: Document, args: ModelTransformParameters) => {
+  const meshes = document.getRoot().listMeshes()
+
+  for (const mesh of meshes) {
+    const importance = calculateMeshImportance(mesh)
+    const adaptiveRatio = args.simplifyRatio * importance
+
+    for (const prim of mesh.listPrimitives()) {
+      try {
+        simplify({
+          simplifier: MeshoptSimplifier,
+          ratio: adaptiveRatio,
+          error: args.simplifyErrorThreshold
+        })(document)
+      } catch (error) {
+        console.error(`Error simplifying mesh ${mesh.getName()}:`, error)
+      }
+    }
+  }
 }

@@ -19,14 +19,12 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
 import { FogSystem } from '@ir-engine/spatial/src/renderer/FogSystem'
-import { NoiseOffsetSystem } from '@ir-engine/spatial/src/renderer/materials/constants/plugins/NoiseOffsetPlugin'
-
 import { PositionalAudioComponent } from '../audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '../avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '../grabbable/GrabbableComponent'
@@ -71,6 +69,8 @@ import { SceneObjectSystem } from './systems/SceneObjectSystem'
 import { DropShadowSystem, ShadowSystem } from './systems/ShadowSystem'
 import { TriggerCallbackSystem } from './systems/TriggerCallbackSystem'
 import { VariantSystem } from './systems/VariantSystem'
+
+import './functions/definePrefab'
 
 /** This const MUST be kept here, to ensure all components definitions are loaded by the time the scene loading occurs */
 export const SceneComponents = [
@@ -120,7 +120,6 @@ export {
   LookAtSystem,
   MaterialLibrarySystem,
   MountPointSystem,
-  NoiseOffsetSystem,
   ParticleSystem,
   PortalSystem,
   SceneKillHeightSystem,

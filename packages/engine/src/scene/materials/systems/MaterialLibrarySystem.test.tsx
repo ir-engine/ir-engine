@@ -19,12 +19,14 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
-  EntityUUID,
+  EntityID,
+  EntityUUIDPair,
+  SourceID,
   UUIDComponent,
   UndefinedEntity,
   createEngine,
@@ -33,6 +35,7 @@ import {
   getComponent,
   setComponent
 } from '@ir-engine/ecs'
+import { flushAll } from '@ir-engine/hyperflux/tests/utils/flushAll'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import {
@@ -40,30 +43,32 @@ import {
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
-import { act, render } from '@testing-library/react'
 import { Mesh, MeshLambertMaterial, MeshPhysicalMaterial } from 'three'
 import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 import { convertMaterials } from './MaterialLibrarySystem'
 
-describe('MaterialLibrarySystem', { retry: 2 }, () => {
+describe('MaterialLibrarySystem', () => {
   describe('convertMaterials', () => {
     let instanceEntity = UndefinedEntity
-    let material = UndefinedEntity
-    const materialUuid = 'materialUuid' as EntityUUID
+    let materialEntity = UndefinedEntity
+    const materialInstanceID = 'materialUuid' as SourceID
+    const materialID = 'id' as EntityID
+
     beforeEach(async () => {
       createEngine()
       mockSpatialEngine()
-      material = createEntity()
-      setComponent(material, UUIDComponent, materialUuid)
-      setComponent(material, NameComponent, 'Material')
-      setComponent(material, MaterialStateComponent, { material: new MeshPhysicalMaterial() })
+      materialEntity = createEntity()
+      setComponent(materialEntity, UUIDComponent, { entitySourceID: materialInstanceID, entityID: materialID })
+      setComponent(materialEntity, NameComponent, 'Material')
+      setComponent(materialEntity, MaterialStateComponent, { material: new MeshPhysicalMaterial() })
 
       instanceEntity = createEntity()
       setComponent(instanceEntity, MaterialInstanceComponent, {
-        uuid: ['mockUuid1' as EntityUUID, materialUuid, 'mockUuid2' as EntityUUID]
+        entities: [materialEntity]
       })
       setComponent(instanceEntity, MeshComponent, new Mesh())
-      await act(() => render(null))
+
+      await flushAll()
     })
 
     afterEach(() => {
@@ -71,32 +76,45 @@ describe('MaterialLibrarySystem', { retry: 2 }, () => {
     })
 
     it('should convert a physical material to a basic material and update the instance', () => {
-      convertMaterials(material, true)
-      const basicUuid = ('basic-' + materialUuid) as EntityUUID
-      const basicMaterialEntity = UUIDComponent.getEntityByUUID(basicUuid)
-      assert(getComponent(basicMaterialEntity, UUIDComponent) === basicUuid)
+      convertMaterials(materialEntity, true)
+
+      const basicUuid = { entitySourceID: 'basic-' + materialInstanceID, entityID: materialID } as EntityUUIDPair
+      const basicMaterialEntity = UUIDComponent.getEntityByUUID(UUIDComponent.join(basicUuid))
+
+      assert.equal(getComponent(basicMaterialEntity, UUIDComponent).entitySourceID, basicUuid.entitySourceID)
+
       const basicMaterialComponent = getComponent(basicMaterialEntity, MaterialStateComponent)
       const basicMaterial = basicMaterialComponent.material as MeshLambertMaterial
-      const originalMaterial = getComponent(material, MaterialStateComponent).material as MeshPhysicalMaterial
-      assert(basicMaterial.reflectivity === originalMaterial.metalness)
-      assert(basicMaterial.envMap === originalMaterial.envMap)
-      assert(basicMaterial.uuid === 'basic-' + materialUuid)
-      assert(basicMaterial.alphaTest === originalMaterial.alphaTest)
-      assert(basicMaterial.side === originalMaterial.side)
+      const originalMaterial = getComponent(materialEntity, MaterialStateComponent).material as MeshPhysicalMaterial
 
-      assert(getComponent(instanceEntity, MaterialInstanceComponent).uuid[1] === basicUuid)
+      assert.equal(basicMaterial.reflectivity, originalMaterial.metalness)
+      assert.equal(basicMaterial.envMap, originalMaterial.envMap)
+      assert.equal(basicMaterial.uuid, UUIDComponent.join(basicUuid))
+      assert.equal(basicMaterial.alphaTest, originalMaterial.alphaTest)
+      assert.equal(basicMaterial.side, originalMaterial.side)
+      assert.equal(getComponent(instanceEntity, MaterialInstanceComponent).entities[0], basicMaterialEntity)
     })
 
     it('should switch the instance back to physical when disabling basic materials', async () => {
-      convertMaterials(material, true)
+      convertMaterials(materialEntity, true)
+      await flushAll()
 
-      const basicUuid = ('basic-' + materialUuid) as EntityUUID
-      const basicMaterialEntity = UUIDComponent.getEntityByUUID(basicUuid)
-      assert(getComponent(basicMaterialEntity, UUIDComponent) === basicUuid)
+      const basicMaterialEntity = UUIDComponent.getEntityByUUID(
+        UUIDComponent.join({
+          entitySourceID: ('basic-' + materialInstanceID) as SourceID,
+          entityID: materialID
+        })
+      )
+
+      assert.equal(getComponent(basicMaterialEntity, UUIDComponent).entitySourceID, 'basic-' + materialInstanceID)
+
       const instanceComponent = getComponent(instanceEntity, MaterialInstanceComponent)
-      assert(instanceComponent.uuid[1] === basicUuid)
+
+      assert.equal(instanceComponent.entities[0], basicMaterialEntity)
+
       convertMaterials(basicMaterialEntity, false)
-      assert(instanceComponent.uuid[1] === materialUuid)
+
+      assert.equal(instanceComponent.entities[0], materialEntity)
     })
   })
 })

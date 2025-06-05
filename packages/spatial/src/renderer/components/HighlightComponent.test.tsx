@@ -27,9 +27,7 @@ import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import {
   Entity,
   EntityTreeComponent,
-  EntityUUID,
   SystemDefinitions,
-  UUIDComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -46,14 +44,15 @@ import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { OutlineEffect } from 'postprocessing'
-import { BoxGeometry, MathUtils, Mesh } from 'three'
+import { BoxGeometry, Mesh } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { NameComponent } from '../../common/NameComponent'
 import { destroySpatialEngine, destroySpatialViewer } from '../../initializeEngine'
 import { TransformComponent } from '../RendererModule'
 import { RendererState } from '../RendererState'
-import { RendererComponent, WebGLRendererSystem } from '../WebGLRendererSystem'
+import { WebGLRendererSystem } from '../WebGLRendererSystem'
+import { RendererComponent } from '../components/RendererComponent'
 import { HighlightComponent, HighlightSystem } from './HighlightComponent'
 import { MeshComponent } from './MeshComponent'
 import { PostProcessingComponent } from './PostProcessingComponent'
@@ -253,7 +252,6 @@ describe('HighlightSystem', () => {
       rootEntity = getState(ReferenceSpaceState).viewerEntity
 
       testEntity = createEntity()
-      setComponent(testEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
       getMutableState(RendererState).usePostProcessing.set(true)
       setComponent(testEntity, SceneComponent)
       getMutableComponent(rootEntity, RendererComponent).scenes.merge([testEntity])

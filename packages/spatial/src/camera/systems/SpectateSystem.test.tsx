@@ -19,27 +19,25 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
-import {
-  Engine,
-  EntityUUID,
-  UUIDComponent,
-  UndefinedEntity,
-  createEntity,
-  destroyEngine,
-  removeEntity,
-  setComponent
-} from '@ir-engine/ecs'
+import { Engine, EntityID, UndefinedEntity, createEntity, destroyEngine, removeEntity } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { UserID, applyIncomingActions, dispatchAction, getState } from '@ir-engine/hyperflux'
-import { NetworkActions, NetworkState, NetworkTopics } from '@ir-engine/network'
-import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
+import {
+  NetworkActions,
+  NetworkState,
+  NetworkTopics,
+  UserID,
+  applyIncomingActions,
+  dispatchAction,
+  getState
+} from '@ir-engine/hyperflux'
+import { createMockNetwork } from '@ir-engine/hyperflux/tests/createMockNetwork'
 import { SpectateActions, SpectateEntityState } from './SpectateSystem'
 
 describe('SpectateSystem', async () => {
@@ -50,7 +48,6 @@ describe('SpectateSystem', async () => {
       createEngine()
       Engine.instance.store.defaultDispatchDelay = () => 0
       viewerEntity = createEntity()
-      setComponent(viewerEntity, UUIDComponent, UUIDComponent.generateUUID())
     })
 
     afterEach(() => {
@@ -78,7 +75,7 @@ describe('SpectateSystem', async () => {
       dispatchAction(
         SpectateActions.spectateEntity({
           spectatorUserID: userID,
-          spectatingEntity: 'entity' as EntityUUID,
+          spectatingEntity: 'entity' as EntityID,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.store.peerID
         })
@@ -109,7 +106,7 @@ describe('SpectateSystem', async () => {
       dispatchAction(
         SpectateActions.spectateEntity({
           spectatorUserID: userID,
-          spectatingEntity: 'entity' as EntityUUID,
+          spectatingEntity: 'entity' as EntityID,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.store.peerID
         })

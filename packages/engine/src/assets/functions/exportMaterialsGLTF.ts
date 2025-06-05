@@ -19,11 +19,20 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createEntity, Entity, EntityTreeComponent, getComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
+import {
+  createEntity,
+  Entity,
+  EntityID,
+  EntityTreeComponent,
+  getComponent,
+  setComponent,
+  SourceID,
+  UUIDComponent
+} from '@ir-engine/ecs'
 
 import { TransformComponent } from '@ir-engine/spatial'
 import { exportGLTFScene } from '../../gltf/exportGLTFScene'
@@ -38,7 +47,10 @@ export default async function exportMaterialsGLTF(
 ): Promise<ArrayBuffer | { [key: string]: any } | undefined> {
   if (materialEntities.length === 0) return
   const rootEntity = createEntity()
-  setComponent(rootEntity, UUIDComponent, UUIDComponent.generateUUID())
+  setComponent(rootEntity, UUIDComponent, {
+    entitySourceID: 'detatched' as SourceID,
+    entityID: 'material' as EntityID
+  })
   setComponent(rootEntity, TransformComponent)
   setComponent(rootEntity, EntityTreeComponent)
   // hacky way to set the root entity as the parent of all material entities

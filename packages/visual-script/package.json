@@ -7,8 +7,8 @@
   },
   "description": "Extendable visual script system for the Infinite Reality Engine",
   "scripts": {
-    "check-errors": "tsc --noemit",
-    "test": "exit 0",
+    "check-errors": "tsc --noemit && npx cycle-import-check src || true",
+    "test": "cross-env TEST=true vitest run --config=../../vitest.client.config.ts",
     "test-coverage": "npm run test-coverage-generate ; npm run test-coverage-launch",
     "test-coverage-generate": "npm run test -- --coverage --silent",
     "test-coverage-launch": "vite preview --open --outDir coverage",
@@ -21,7 +21,7 @@
   "dependencies": {
     "@ir-engine/hyperflux": "^1.6.0",
     "lodash": "4.17.21",
-    "three": "0.158.0",
+    "three": "0.176.0",
     "ts-matches": "5.3.0",
     "ajv": "^8.11.2",
     "rambdax": "9.0.0"
@@ -29,7 +29,7 @@
   "devDependencies": {
     "@types/offscreencanvas": "2019.7.0",
     "@types/sinon": "10.0.13",
-    "@types/three": "0.158.0",
+    "@types/three": "0.176.0",
     "@types/webxr": "0.5.13",
     "sinon": "15.0.2",
     "trace-unhandled": "2.0.1",

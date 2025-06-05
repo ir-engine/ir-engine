@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -36,15 +36,19 @@ import {
   defineQuery,
   destroyEngine,
   EntityContext,
+  EntityID,
   EntityTreeComponent,
   getComponent,
   getMutableComponent,
   hasComponent,
+  removeComponent,
   removeEntity,
   setComponent,
+  SourceID,
   SystemDefinitions,
   SystemUUID,
-  UndefinedEntity
+  UndefinedEntity,
+  UUIDComponent
 } from '@ir-engine/ecs'
 import { getMutableState, getState, ReactorRoot, startReactor } from '@ir-engine/hyperflux'
 import {
@@ -56,27 +60,38 @@ import {
 } from '@ir-engine/spatial'
 import { Vector3_Back } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { destroySpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { RenderModes } from '@ir-engine/spatial/src/renderer/constants/RenderModes'
 import { CSM } from '@ir-engine/spatial/src/renderer/csm/CSM'
+import { CSMComponent } from '@ir-engine/spatial/src/renderer/csm/CSMComponent'
+import { CSMPluginComponent } from '@ir-engine/spatial/src/renderer/csm/CSMPluginComponent'
 import { getShadowsEnabled } from '@ir-engine/spatial/src/renderer/functions/RenderSettingsFunction'
+import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { XRLightProbeState } from '@ir-engine/spatial/src/xr/XRLightProbeSystem'
 import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
 import { act, render } from '@testing-library/react'
 import React from 'react'
-import { BoxGeometry, Color, Material, Mesh, MeshBasicMaterial, Quaternion, Raycaster, Vector2, Vector3 } from 'three'
+import {
+  BoxGeometry,
+  Color,
+  DirectionalLight,
+  Material,
+  Mesh,
+  MeshStandardMaterial,
+  Quaternion,
+  Raycaster,
+  Vector2,
+  Vector3
+} from 'three'
 import { getTextureAsync } from '../../assets/functions/resourceLoaderHooks'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
-import { NodeFunctions } from '../../gltf/NodeFunctions'
-import { NodeID, NodeIDComponent, NodesBySourceState } from '../../gltf/NodeIDComponent'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
-import { SourceComponent, SourceID } from '../components/SourceComponent'
 import {
   DropShadowSystem,
   ShadowSystem,
@@ -142,11 +157,22 @@ describe('ShadowSystemState', async () => {
 
 describe('EntityChildCSMReactor', async () => {
   let testEntity = UndefinedEntity
+  let rendererEntity = UndefinedEntity
 
   beforeEach(async () => {
     createEngine()
     mockSpatialEngine()
     testEntity = createEntity()
+    setComponent(testEntity, UUIDComponent, {
+      entitySourceID: 'source' as SourceID,
+      entityID: 'id' as EntityID
+    })
+    rendererEntity = createEntity()
+    setComponent(rendererEntity, UUIDComponent, {
+      entitySourceID: 'source' as SourceID,
+      entityID: 'renderer' as EntityID
+    })
+    setComponent(rendererEntity, RendererComponent)
   })
 
   afterEach(() => {
@@ -156,20 +182,21 @@ describe('EntityChildCSMReactor', async () => {
   })
 
   describe('on change [shadowComponent.receive, csm]', async () => {
-    it('should not do anything (return early) if `@param props.rendererEntity`.RendererComponent.csm is falsy', async () => {
+    it('should not do anything (return early) if `@param props.rendererEntity`CSMComponent is falsy', async () => {
       const resultSpy = vi.fn()
-      const csm = new CSM({})
-      csm.setupMaterial = resultSpy
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: csm })
-      getMutableComponent(rendererEntity, RendererComponent).csm.set(null)
+
+      CSM.initCSM({}, rendererEntity)
+      removeComponent(rendererEntity, CSMComponent)
       setComponent(testEntity, ShadowComponent)
       setComponent(testEntity, ObjectComponent, new Mesh(new BoxGeometry()))
       const Reactor = () => {
         return React.createElement(
           EntityContext.Provider,
           { value: testEntity },
-          React.createElement(ShadowSystemReactors.EntityChildCSMReactor, { rendererEntity: rendererEntity })
+          React.createElement(ShadowSystemReactors.EntityChildCSMReactor, {
+            rendererEntity: rendererEntity,
+            entity: testEntity
+          })
         )
       }
 
@@ -180,40 +207,38 @@ describe('EntityChildCSMReactor', async () => {
     })
 
     it('should not do anything (return early) if entityContext.ShadowComponent.receive is falsy', async () => {
-      const resultSpy = vi.fn()
-      const csm = new CSM({})
-      csm.setupMaterial = resultSpy
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: csm })
+      CSM.initCSM({}, rendererEntity)
       setComponent(testEntity, ShadowComponent, { receive: false })
-      setComponent(testEntity, ObjectComponent, new Mesh(new BoxGeometry()))
+      setComponent(testEntity, MaterialStateComponent, { material: new MeshStandardMaterial() })
       const Reactor = () => {
         return React.createElement(
           EntityContext.Provider,
           { value: testEntity },
-          React.createElement(ShadowSystemReactors.EntityChildCSMReactor, { rendererEntity: rendererEntity })
+          React.createElement(ShadowSystemReactors.EntityChildCSMReactor, {
+            rendererEntity: rendererEntity,
+            entity: testEntity
+          })
         )
       }
 
       const root = startReactor(Reactor) as ReactorRoot
 
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      expect(resultSpy).not.toHaveBeenCalled()
+      expect(hasComponent(testEntity, CSMPluginComponent)).toBeFalsy()
     })
 
-    it('should call `@param props.rendererEntity`.RendererComponent.csm.setupMaterial if entityContext.ObjectComponent.material is truthy', async () => {
-      const resultSpy = vi.fn()
-      const csm = new CSM({})
-      csm.setupMaterial = resultSpy
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: csm })
+    it('should set CSMPluginComponent if entityContext.MaterialStateComponent.material is truthy', async () => {
+      CSM.initCSM({}, rendererEntity)
       setComponent(testEntity, ShadowComponent)
-      setComponent(testEntity, ObjectComponent, new Mesh(new BoxGeometry(), new MeshBasicMaterial()))
+      setComponent(testEntity, MaterialStateComponent, { material: new MeshStandardMaterial() })
       const Reactor = () => {
         return React.createElement(
           EntityContext.Provider,
           { value: testEntity },
-          React.createElement(ShadowSystemReactors.EntityChildCSMReactor, { rendererEntity: rendererEntity })
+          React.createElement(ShadowSystemReactors.EntityChildCSMReactor, {
+            rendererEntity: rendererEntity,
+            entity: testEntity
+          })
         )
       }
 
@@ -221,24 +246,24 @@ describe('EntityChildCSMReactor', async () => {
       await act(() => render(null))
       await vi.waitFor(() => {
         expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-        expect(resultSpy).toHaveBeenCalledTimes(1)
+        expect(hasComponent(testEntity, CSMPluginComponent)).toBeTruthy()
       })
     })
 
     describe('on cleanup ..', async () => {
-      it('.. should call `@param props.rendererEntity`.RendererComponent.csm.teardownMaterial if entityContext.ObjectComponent.material is truthy', async () => {
-        const resultSpy = vi.fn()
-        const csm = new CSM({})
-        csm.teardownMaterial = resultSpy
-        const rendererEntity = createEntity()
-        setComponent(rendererEntity, RendererComponent, { csm: csm })
+      it('.. should remove CSMPluginComponent if entityContext.MaterialStateComponent.material is truthy', async () => {
+        CSM.initCSM({}, rendererEntity)
         setComponent(testEntity, ShadowComponent)
-        setComponent(testEntity, ObjectComponent, new Mesh(new BoxGeometry()))
+        setComponent(testEntity, MaterialStateComponent, { material: new MeshStandardMaterial() })
+        setComponent(testEntity, CSMPluginComponent)
         const Reactor = () => {
           return React.createElement(
             EntityContext.Provider,
             { value: testEntity },
-            React.createElement(ShadowSystemReactors.EntityChildCSMReactor, { rendererEntity: rendererEntity })
+            React.createElement(ShadowSystemReactors.EntityChildCSMReactor, {
+              rendererEntity: rendererEntity,
+              entity: testEntity
+            })
           )
         }
 
@@ -247,7 +272,7 @@ describe('EntityChildCSMReactor', async () => {
         await vi.waitFor(() => {
           root.stop()
           expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-          expect(resultSpy).toHaveBeenCalledTimes(1)
+          expect(hasComponent(testEntity, CSMPluginComponent)).toBeFalsy()
         })
       })
     })
@@ -256,11 +281,22 @@ describe('EntityChildCSMReactor', async () => {
 
 describe('EntityCSMReactor', async () => {
   let testEntity = UndefinedEntity
+  let rendererEntity = UndefinedEntity
 
   beforeEach(async () => {
     createEngine()
     mockSpatialEngine()
     testEntity = createEntity()
+    setComponent(testEntity, UUIDComponent, {
+      entitySourceID: 'source' as SourceID,
+      entityID: 'id' as EntityID
+    })
+    rendererEntity = createEntity()
+    setComponent(rendererEntity, UUIDComponent, {
+      entitySourceID: 'source' as SourceID,
+      entityID: 'renderer' as EntityID
+    })
+    setComponent(rendererEntity, RendererComponent)
   })
 
   afterEach(() => {
@@ -271,10 +307,14 @@ describe('EntityCSMReactor', async () => {
 
   describe('on change [directionalLight, directionalLightComponent?.castShadow.value]', async () => {
     it('should not do anything (return early) if `@param props.entity`.DirectionalLightComponent.light is falsy', async () => {
-      const Initial = new CSM({})
-
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: Initial })
+      CSM.initCSM({}, rendererEntity)
+      const fakeRendererEntity = createEntity()
+      setComponent(fakeRendererEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'faker!!!!!!!!!!' as EntityID
+      })
+      CSM.initCSM({}, fakeRendererEntity)
+      const initialCSM = getComponent(rendererEntity, CSMComponent)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
@@ -289,16 +329,21 @@ describe('EntityCSMReactor', async () => {
 
       const root = startReactor(Reactor)
 
-      const result = getComponent(rendererEntity, RendererComponent).csm
+      const result = getComponent(rendererEntity, CSMComponent)
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      expect(result).toBe(Initial)
+      expect(result).toBe(initialCSM)
     })
 
     it('should not do anything (return early) if `@param props.entity`.DirectionalLightComponent.castShadow is falsy', async () => {
-      const Initial = new CSM({})
+      CSM.initCSM({}, rendererEntity)
+      const fakeRendererEntity = createEntity()
+      setComponent(fakeRendererEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'fakerfake fake fake' as EntityID
+      })
+      CSM.initCSM({}, fakeRendererEntity)
+      const initialCSM = getComponent(rendererEntity, CSMComponent)
 
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: Initial })
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: false })
@@ -312,16 +357,13 @@ describe('EntityCSMReactor', async () => {
 
       const root = startReactor(Reactor)
 
-      const result = getComponent(rendererEntity, RendererComponent).csm
+      const result = getComponent(rendererEntity, CSMComponent)
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      expect(result).toBe(Initial)
+      expect(result).toBe(initialCSM)
     })
 
     it('should call `@param props.rendererEntity`.RendererComponent.csm.set with a newly created CSM instance', async () => {
-      const Initial = new CSM({})
-
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: Initial })
+      CSM.initCSM({}, rendererEntity)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
@@ -336,21 +378,17 @@ describe('EntityCSMReactor', async () => {
       const root = startReactor(Reactor)
       await act(() => render(null))
       await vi.waitFor(() => {
-        const result = getComponent(rendererEntity, RendererComponent).csm
         expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-        expect(result).not.toBe(Initial)
+        expect(hasComponent(rendererEntity, CSMComponent)).toBeTruthy()
       })
     })
 
     it('should set `@param props.rendererEntity`.RendererComponent.csm.light to `@param props.entity`.DirectionalLightComponent.light', async () => {
-      const Initial = undefined
+      CSM.initCSM({}, rendererEntity)
 
-      const csm = new CSM({})
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: csm })
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
-      setComponent(testEntity, DirectionalLightComponent, { castShadow: true, light: Initial })
+      setComponent(testEntity, DirectionalLightComponent, { castShadow: true, light: new DirectionalLight() })
       const Reactor = () => {
         return React.createElement(ShadowSystemReactors.EntityCSMReactor, {
           entity: testEntity,
@@ -362,19 +400,15 @@ describe('EntityCSMReactor', async () => {
       const root = startReactor(Reactor)
       await act(() => render(null))
       await vi.waitFor(() => {
-        const result = getComponent(rendererEntity, RendererComponent).csm?.sourceLight
         expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-        expect(result).not.toBe(Initial)
+        const directionalLight = getComponent(testEntity, DirectionalLightComponent).light
+        expect(getComponent(rendererEntity, CSMComponent).sourceLight).toBe(directionalLight)
       })
     })
 
     it('should set `@param props.rendererEntity`.RendererComponent.csm.shadowMapSize to RendererState.shadowMapResolution', async () => {
       const Expected = getState(RendererState).shadowMapResolution
-      const Initial = 42_000
-
-      const csm = new CSM({ shadowMapSize: Initial })
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: csm })
+      CSM.initCSM({}, rendererEntity)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
@@ -389,20 +423,14 @@ describe('EntityCSMReactor', async () => {
       const root = startReactor(Reactor)
       await act(() => render(null))
       await vi.waitFor(() => {
-        const result = getComponent(rendererEntity, RendererComponent).csm?.shadowMapSize
         expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-        expect(result).not.toBe(Initial)
-        expect(result).toBe(Expected)
+        expect(getComponent(rendererEntity, CSMComponent).shadowMapSize).toBe(Expected)
       })
     })
 
     it('should set `@param props.rendererEntity`.RendererComponent.csm.shadowBias to `@param props.entity`.DirectionalLightComponent.shadowBias', async () => {
       const Expected = 42_000
-      const Initial = 21_000
-
-      const csm = new CSM({ shadowBias: Initial })
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: csm })
+      CSM.initCSM({}, rendererEntity)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true, shadowBias: Expected })
@@ -417,20 +445,14 @@ describe('EntityCSMReactor', async () => {
       const root = startReactor(Reactor)
       await act(() => render(null))
       await vi.waitFor(() => {
-        const result = getComponent(rendererEntity, RendererComponent).csm?.shadowBias
         expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-        expect(result).not.toBe(Initial)
-        expect(result).toBe(Expected)
+        expect(getComponent(rendererEntity, CSMComponent).shadowBias).toBe(Expected)
       })
     })
 
     it('should set `@param props.rendererEntity`.RendererComponent.csm.maxFar to `@param props.entity`.DirectionalLightComponent.cameraFar', async () => {
       const Expected = 42_000
-      const Initial = 21_000
-
-      const csm = new CSM({ maxFar: Initial })
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: csm })
+      CSM.initCSM({}, rendererEntity)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true, cameraFar: Expected })
@@ -445,20 +467,14 @@ describe('EntityCSMReactor', async () => {
       const root = startReactor(Reactor)
       await act(() => render(null))
       await vi.waitFor(() => {
-        const result = getComponent(rendererEntity, RendererComponent).csm?.maxFar
         expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-        expect(result).not.toBe(Initial)
-        expect(result).toBe(Expected)
+        expect(getComponent(rendererEntity, CSMComponent).maxFar).toBe(Expected)
       })
     })
 
     it('should set `@param props.rendererEntity`.RendererComponent.csm.lightIntensity to `@param props.entity`.DirectionalLightComponent.intensity', async () => {
       const Expected = 42_000
-      const Initial = 21_000
-
-      const csm = new CSM({ lightIntensity: Initial })
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: csm })
+      CSM.initCSM({}, rendererEntity)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true, intensity: Expected })
@@ -473,20 +489,14 @@ describe('EntityCSMReactor', async () => {
       const root = startReactor(Reactor)
       await act(() => render(null))
       await vi.waitFor(() => {
-        const result = getComponent(rendererEntity, RendererComponent).csm?.lightIntensity
         expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-        expect(result).not.toBe(Initial)
-        expect(result).toBe(Expected)
+        expect(getComponent(rendererEntity, CSMComponent).lightIntensity).toBe(Expected)
       })
     })
 
     it('should set `@param props.rendererEntity`.RendererComponent.csm.lightColor to `@param props.entity`.DirectionalLightComponent.color', async () => {
       const Expected = new Color(42_000)
-      const Initial = 21_000
-
-      const csm = new CSM({ lightColor: Initial })
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: csm })
+      CSM.initCSM({}, rendererEntity)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true, color: Expected })
@@ -501,20 +511,14 @@ describe('EntityCSMReactor', async () => {
       const root = startReactor(Reactor)
       await act(() => render(null))
       await vi.waitFor(() => {
-        const result = getComponent(rendererEntity, RendererComponent).csm?.lightColor
         expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-        expect(result).not.toBe(Initial)
-        expect(result).toEqual(Expected)
+        expect(getComponent(rendererEntity, CSMComponent).lightColor).toEqual(Expected)
       })
     })
 
     it('should set `@param props.rendererEntity`.RendererComponent.csm.cascades to `@param props.renderSettingsEntity`.RenderSettingsComponent.cascades', async () => {
       const Expected = 4.2
-      const Initial = 2.1
-
-      const csm = new CSM({ cascades: Initial })
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: csm })
+      CSM.initCSM({}, rendererEntity)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent, { cascades: Expected })
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
@@ -529,23 +533,19 @@ describe('EntityCSMReactor', async () => {
       const root = startReactor(Reactor)
       await act(() => render(null))
       await vi.waitFor(() => {
-        const result = getComponent(rendererEntity, RendererComponent).csm?.cascades
         expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-        expect(result).not.toBe(Initial)
-        expect(result).toEqual(Expected)
+        expect(getComponent(rendererEntity, CSMComponent).cascades).toBe(Expected)
       })
     })
 
     describe('on cleanup ..', async () => {
-      it('.. should dispose of `@param props.rendererEntity`.RendererComponent.csm and set it to `null`', async () => {
-        const Expected = null
-        const Initial = new CSM({})
+      it('.. should dispose of `@param props.rendererEntity`.CSMComponent', async () => {
+        CSM.initCSM({}, rendererEntity)
 
-        const rendererEntity = createEntity()
-        setComponent(rendererEntity, RendererComponent, { csm: Initial })
         const renderSettingsEntity = createEntity()
         setComponent(renderSettingsEntity, RenderSettingsComponent)
         setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
+        console.log(getComponent(testEntity, UUIDComponent))
         const Reactor = () => {
           return React.createElement(ShadowSystemReactors.EntityCSMReactor, {
             entity: testEntity,
@@ -558,10 +558,8 @@ describe('EntityCSMReactor', async () => {
         await act(() => render(null))
         await vi.waitFor(() => {
           root.stop()
-          const result = getComponent(rendererEntity, RendererComponent).csm
           expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-          expect(result).not.toBe(Initial)
-          expect(result).toEqual(Expected)
+          expect(hasComponent(rendererEntity, CSMComponent)).toBeFalsy()
         })
       })
     })
@@ -572,7 +570,7 @@ describe('EntityCSMReactor', async () => {
       const Initial = undefined
 
       const rendererEntity = defineQuery([RendererComponent])()[0]
-      setComponent(rendererEntity, RendererComponent, { csm: new CSM({}) })
+      CSM.initCSM({}, rendererEntity)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
@@ -609,7 +607,7 @@ describe('EntityCSMReactor', async () => {
       const Initial = true
 
       const rendererEntity = defineQuery([RendererComponent])()[0]
-      setComponent(rendererEntity, RendererComponent, { csm: new CSM({}) })
+      CSM.initCSM({}, rendererEntity)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: false })
@@ -639,7 +637,7 @@ describe('EntityCSMReactor', async () => {
       const Expected = false
 
       const rendererEntity = defineQuery([RendererComponent])()[0]
-      setComponent(rendererEntity, RendererComponent, { csm: new CSM({}) })
+      CSM.initCSM({}, rendererEntity)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
@@ -668,43 +666,17 @@ describe('EntityCSMReactor', async () => {
   })
 
   describe('on change [ rendererComponent.csm, shadowMapResolution, directionalLight, directionalLightComponent.shadowBias, directionalLightComponent.intensity, directionalLightComponent.color, directionalLightComponent.castShadow, directionalLightComponent.shadowRadius, directionalLightComponent.cameraFar ]', async () => {
-    it('should not do anything (return early) and not crash if `@param props.rendererEntity`.RendererComponent.csm is falsy', async () => {
-      const Initial = undefined
-
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: undefined })
-      const renderSettingsEntity = createEntity()
-      setComponent(renderSettingsEntity, RenderSettingsComponent)
-      setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
-      const Reactor = () => {
-        return React.createElement(ShadowSystemReactors.EntityCSMReactor, {
-          entity: testEntity,
-          rendererEntity: rendererEntity,
-          renderSettingsEntity: renderSettingsEntity
-        })
-      }
-
-      const root = startReactor(Reactor)
-      await act(() => render(null))
-      await vi.waitUntil(() => {
-        return getComponent(testEntity, DirectionalLightComponent).light
-      })
-      setComponent(rendererEntity, RendererComponent, { csm: undefined })
-
-      await act(() => render(null))
-
-      expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      const result = getComponent(rendererEntity, RendererComponent).csm?.needsUpdate
-      expect(result).toBe(Initial)
-    })
-
     it('should not do anything (return early) if `@param props.entity`.DirectionalLightComponent.light is falsy', async () => {
       const Initial = false
 
       const rendererEntity = createEntity()
-      const csm = new CSM({})
-      csm.needsUpdate = Initial
-      setComponent(rendererEntity, RendererComponent, { csm: csm })
+      setComponent(rendererEntity, RendererComponent)
+      setComponent(rendererEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'renderer' as EntityID
+      })
+      CSM.initCSM({}, rendererEntity)
+      getMutableComponent(rendererEntity, CSMComponent).needsUpdate.set(Initial)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
@@ -729,22 +701,19 @@ describe('EntityCSMReactor', async () => {
 
       await act(() => render(null))
 
-      getMutableComponent(rendererEntity, RendererComponent).csm.merge({ needsUpdate: Initial })
+      getMutableComponent(rendererEntity, CSMComponent).merge({ needsUpdate: Initial })
 
       await act(() => render(null))
 
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      const result = getComponent(rendererEntity, RendererComponent).csm?.needsUpdate
+      const result = getComponent(rendererEntity, CSMComponent)?.needsUpdate
       expect(result).toBe(Initial)
     })
 
     it('should not do anything (return early) if `@param props.entity`.DirectionalLightComponent.castShadow is falsy', async () => {
       const Initial = false
-
-      const rendererEntity = createEntity()
-      const csm = new CSM({})
-      csm.needsUpdate = Initial
-      setComponent(rendererEntity, RendererComponent, { csm: csm })
+      CSM.initCSM({}, rendererEntity)
+      getMutableComponent(rendererEntity, CSMComponent).needsUpdate.set(Initial)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: false })
@@ -763,22 +732,20 @@ describe('EntityCSMReactor', async () => {
         return getComponent(testEntity, DirectionalLightComponent).light
       })
 
-      getMutableComponent(rendererEntity, RendererComponent).csm.merge({ needsUpdate: Initial })
+      getMutableComponent(rendererEntity, CSMComponent).needsUpdate.set(Initial)
 
       await act(() => render(null))
 
       expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      const result = getComponent(rendererEntity, RendererComponent).csm?.needsUpdate
+      const result = getComponent(rendererEntity, CSMComponent)?.needsUpdate
       expect(result).toBe(Initial)
     })
 
     it('should set `@param props.rendererEntity`.RendererComponent.csm.shadowBias to `@param props.entity`.DirectionalLightComponent.light.shadow.bias', async () => {
       const Expected = 42_000
       const Initial = 21_000
-
-      const csm = new CSM({ shadowBias: Initial })
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: csm })
+      CSM.initCSM({}, rendererEntity)
+      getMutableComponent(rendererEntity, CSMComponent).shadowBias.set(Initial)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true, shadowBias: Initial })
@@ -800,7 +767,7 @@ describe('EntityCSMReactor', async () => {
 
       await act(() => render(null))
       await vi.waitFor(() => {
-        const result = getComponent(rendererEntity, RendererComponent).csm?.shadowBias
+        const result = getComponent(rendererEntity, CSMComponent)?.shadowBias
         expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
         expect(result).not.toBe(Initial)
         expect(result).toBe(Expected)
@@ -810,10 +777,8 @@ describe('EntityCSMReactor', async () => {
     it('should set `@param props.rendererEntity`.RendererComponent.csm.maxFar to `@param props.entity`.DirectionalLightComponent.cameraFar', async () => {
       const Expected = 42_000
       const Initial = 21_000
-
-      const csm = new CSM({ maxFar: Initial })
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: csm })
+      CSM.initCSM({}, rendererEntity)
+      getMutableComponent(rendererEntity, CSMComponent).maxFar.set(Initial)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true, cameraFar: Initial })
@@ -835,7 +800,7 @@ describe('EntityCSMReactor', async () => {
 
       await act(() => render(null))
       await vi.waitFor(() => {
-        const result = getComponent(rendererEntity, RendererComponent).csm?.maxFar
+        const result = getComponent(rendererEntity, CSMComponent)?.maxFar
         expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
         expect(result).not.toBe(Initial)
         expect(result).toBe(Expected)
@@ -847,9 +812,9 @@ describe('EntityCSMReactor', async () => {
       const Initial = 21_000
 
       getMutableState(RendererState).shadowMapResolution.set(Initial)
-      const csm = new CSM({ shadowMapSize: Initial })
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: csm })
+
+      CSM.initCSM({}, rendererEntity)
+      getMutableComponent(rendererEntity, CSMComponent).shadowMapSize.set(Initial)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
@@ -872,7 +837,7 @@ describe('EntityCSMReactor', async () => {
 
       await act(() => render(null))
       await vi.waitFor(() => {
-        const result = getComponent(rendererEntity, RendererComponent).csm?.shadowMapSize
+        const result = getComponent(rendererEntity, CSMComponent)?.shadowMapSize
         expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
         expect(result).not.toBe(Initial)
         expect(result).toBe(Expected)
@@ -884,10 +849,9 @@ describe('EntityCSMReactor', async () => {
         const Expected = 42
         const Initial = 21_000
 
-        const csm = new CSM({ shadowMapSize: Initial })
+        CSM.initCSM({}, rendererEntity)
+        const csm = getComponent(rendererEntity, CSMComponent)
         for (const light of csm.lights) light.color.setHex(Initial)
-        const rendererEntity = createEntity()
-        setComponent(rendererEntity, RendererComponent, { csm: csm })
         const renderSettingsEntity = createEntity()
         setComponent(renderSettingsEntity, RenderSettingsComponent)
         setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
@@ -905,10 +869,8 @@ describe('EntityCSMReactor', async () => {
         await act(() => render(null))
         await vi.waitFor(() => {
           expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-          for (const light of getComponent(rendererEntity, RendererComponent).csm!.lights!) {
-            const result = light.color.getHex()
-            expect(result).not.toBe(Initial)
-            expect(result).toBe(Expected)
+          for (const light of getComponent(rendererEntity, CSMComponent).lights) {
+            expect(light.color.getHex()).toBe(Expected)
           }
         })
       })
@@ -917,10 +879,10 @@ describe('EntityCSMReactor', async () => {
         const Expected = 42
         const Initial = 21_000
 
-        const csm = new CSM({ shadowMapSize: Initial })
+        CSM.initCSM({}, rendererEntity)
+        const csm = getComponent(rendererEntity, CSMComponent)
         for (const light of csm.lights) light.intensity = Initial
-        const rendererEntity = createEntity()
-        setComponent(rendererEntity, RendererComponent, { csm: csm })
+
         const renderSettingsEntity = createEntity()
         setComponent(renderSettingsEntity, RenderSettingsComponent)
         setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
@@ -938,7 +900,7 @@ describe('EntityCSMReactor', async () => {
         await act(() => render(null))
         await vi.waitFor(() => {
           expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-          for (const light of getComponent(rendererEntity, RendererComponent).csm!.lights!) {
+          for (const light of getComponent(rendererEntity, CSMComponent)!.lights!) {
             const result = light.intensity
             expect(result).not.toBe(Initial)
             expect(result).toBe(Expected)
@@ -951,10 +913,9 @@ describe('EntityCSMReactor', async () => {
         const Initial = 21_000
 
         getMutableState(RendererState).shadowMapResolution.set(Initial)
-        const csm = new CSM({ shadowMapSize: Initial })
+        CSM.initCSM({}, rendererEntity)
+        const csm = getComponent(rendererEntity, CSMComponent)
         for (const light of csm.lights) light.shadow.mapSize.setScalar(Initial)
-        const rendererEntity = createEntity()
-        setComponent(rendererEntity, RendererComponent, { csm: csm })
         const renderSettingsEntity = createEntity()
         setComponent(renderSettingsEntity, RenderSettingsComponent)
         setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
@@ -972,7 +933,7 @@ describe('EntityCSMReactor', async () => {
         await act(() => render(null))
         await vi.waitFor(() => {
           expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-          for (const light of getComponent(rendererEntity, RendererComponent).csm!.lights!) {
+          for (const light of getComponent(rendererEntity, CSMComponent)!.lights!) {
             const result = light.shadow.mapSize
             expect(result).not.toEqual(new Vector2(Initial, Initial))
             expect(result).toEqual(new Vector2(Expected, Expected))
@@ -984,10 +945,9 @@ describe('EntityCSMReactor', async () => {
         const Expected = 42
         const Initial = 21_000
 
-        const csm = new CSM({ shadowMapSize: Initial })
+        CSM.initCSM({}, rendererEntity)
+        const csm = getComponent(rendererEntity, CSMComponent)
         for (const light of csm.lights) light.shadow.radius = Initial
-        const rendererEntity = createEntity()
-        setComponent(rendererEntity, RendererComponent, { csm: csm })
         const renderSettingsEntity = createEntity()
         setComponent(renderSettingsEntity, RenderSettingsComponent)
         setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
@@ -1005,7 +965,7 @@ describe('EntityCSMReactor', async () => {
         await act(() => render(null))
         await vi.waitFor(() => {
           expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-          for (const light of getComponent(rendererEntity, RendererComponent).csm!.lights!) {
+          for (const light of getComponent(rendererEntity, CSMComponent)!.lights!) {
             const result = light.shadow.radius
             expect(result).not.toBe(Initial)
             expect(result).toBe(Expected)
@@ -1018,10 +978,8 @@ describe('EntityCSMReactor', async () => {
       const Expected = true
       const Initial = !Expected
 
-      const csm = new CSM({})
-      csm.needsUpdate = Initial
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: csm })
+      CSM.initCSM({}, rendererEntity)
+      getMutableComponent(rendererEntity, CSMComponent).needsUpdate.set(Initial)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
@@ -1038,7 +996,7 @@ describe('EntityCSMReactor', async () => {
       await act(() => render(null))
       await vi.waitFor(() => {
         expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-        const result = getComponent(rendererEntity, RendererComponent).csm?.needsUpdate
+        const result = getComponent(rendererEntity, CSMComponent)?.needsUpdate
         expect(result).not.toBe(Initial)
         expect(result).toBe(Expected)
       })
@@ -1048,7 +1006,7 @@ describe('EntityCSMReactor', async () => {
   describe('on change [csm, renderSettingsComponent.cascades]', async () => {
     it('should not do anything (return early) and not crash if `@param props.rendererEntity`.RendererComponent.csm is falsy', async () => {
       const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: undefined })
+      setComponent(rendererEntity, RendererComponent)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
@@ -1071,9 +1029,8 @@ describe('EntityCSMReactor', async () => {
       const Expected = 42
       const Initial = 21
 
-      const csm = new CSM({ cascades: Initial })
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: csm })
+      CSM.initCSM({}, rendererEntity)
+      getMutableComponent(rendererEntity, CSMComponent).cascades.set(Initial)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
@@ -1091,7 +1048,7 @@ describe('EntityCSMReactor', async () => {
       await act(() => render(null))
       await vi.waitFor(() => {
         expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-        const result = getComponent(rendererEntity, RendererComponent).csm?.cascades
+        const result = getComponent(rendererEntity, CSMComponent)?.cascades
         expect(result).not.toBe(Initial)
         expect(result).toBe(Expected)
       })
@@ -1099,12 +1056,10 @@ describe('EntityCSMReactor', async () => {
 
     it('should set `@param props.rendererEntity`.RendererComponent.csm.needsUpdate to true', async () => {
       const Expected = true
-      const Initial = !Expected
+      const Initial = false
 
-      const csm = new CSM({})
-      csm.needsUpdate = Initial
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: csm })
+      CSM.initCSM({}, rendererEntity)
+      getMutableComponent(rendererEntity, CSMComponent).needsUpdate.set(Initial)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
@@ -1121,7 +1076,7 @@ describe('EntityCSMReactor', async () => {
       await act(() => render(null))
       await vi.waitFor(() => {
         expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-        const result = getComponent(rendererEntity, RendererComponent).csm?.needsUpdate
+        const result = getComponent(rendererEntity, CSMComponent)?.needsUpdate
         expect(result).not.toBe(Initial)
         expect(result).toBe(Expected)
       })
@@ -1129,12 +1084,9 @@ describe('EntityCSMReactor', async () => {
   })
 
   describe('on cleanup ..', async () => {
-    it('should call EntityChildCSMReactor for every entity with components [ShadowComponent, ObjectComponent] and `@param props.rendererEntity` as a props argument', async () => {
-      const resultSpy = vi.fn()
-      const csm = new CSM({})
-      csm.setupMaterial = resultSpy
-      const rendererEntity = createEntity()
-      setComponent(rendererEntity, RendererComponent, { csm: csm })
+    it('should call EntityChildCSMReactor for every entity with components [MaterialStateComponent] and `@param props.rendererEntity` as a props argument', async () => {
+      CSM.initCSM({}, rendererEntity)
+      setComponent(testEntity, CSMPluginComponent)
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
@@ -1145,17 +1097,13 @@ describe('EntityCSMReactor', async () => {
           renderSettingsEntity: renderSettingsEntity
         })
       }
-      const entities = [createEntity(), createEntity()]
-      for (const entity of entities) {
-        setComponent(entity, ShadowComponent)
-        setComponent(entity, ObjectComponent, new Mesh(new BoxGeometry(), new MeshBasicMaterial()))
-      }
+
       const root = startReactor(Reactor)
-
-      await flushAll()
-
-      expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
-      expect(resultSpy).toHaveBeenCalledTimes(entities.length)
+      await act(() => render(null))
+      await vi.waitFor(() => {
+        root.stop()
+        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+      })
     })
   })
 }) //:: EntityCSMReactor
@@ -1184,23 +1132,24 @@ describe('CSMReactor', async () => {
         const Expected = createEntity()
 
         const rendererEntity = defineQuery([RendererComponent])()[0]
-        getMutableComponent(rendererEntity, RendererComponent).csm.set(new CSM({}))
+
+        CSM.initCSM({}, rendererEntity)
 
         const directionalLightEntity = Expected
         setComponent(directionalLightEntity, DirectionalLightComponent)
         getMutableState(XRLightProbeState).directionalLightEntity.set(directionalLightEntity)
 
-        const directionalLightNodeID = 'SomeNodeID' as NodeID
-        setComponent(directionalLightEntity, NodeIDComponent, directionalLightNodeID)
-        const nodeID = directionalLightNodeID // Readability alias to match the tested code
-
-        const sourceID = 'SomeSourceID' as SourceID
+        setComponent(directionalLightEntity, UUIDComponent, {
+          entitySourceID: 'source' as SourceID,
+          entityID: 'directionalLight' as EntityID
+        })
+        const directionalLightUUID = getComponent(directionalLightEntity, UUIDComponent).entityID
         const renderSettingsEntity = createEntity()
-        setComponent(renderSettingsEntity, SourceComponent, sourceID)
-        setComponent(renderSettingsEntity, RenderSettingsComponent, { primaryLight: directionalLightNodeID })
-
-        const nodes = { [nodeID]: directionalLightEntity }
-        getMutableState(NodesBySourceState)[sourceID].set(nodes)
+        setComponent(renderSettingsEntity, UUIDComponent, {
+          entitySourceID: 'source' as SourceID,
+          entityID: 'renderSettings' as EntityID
+        })
+        setComponent(renderSettingsEntity, RenderSettingsComponent, { primaryLight: directionalLightUUID })
 
         const Reactor = () => {
           return React.createElement(ShadowSystemReactors.CSMReactor, {
@@ -1213,7 +1162,7 @@ describe('CSMReactor', async () => {
 
         await flushAll()
 
-        const result = NodeFunctions.getEntityFromNodeID(
+        const result = UUIDComponent.getEntityFromSameSourceByID(
           renderSettingsEntity,
           getComponent(renderSettingsEntity, RenderSettingsComponent).primaryLight
         )
@@ -1226,22 +1175,24 @@ describe('CSMReactor', async () => {
   describe('on cleanup', async () => {
     it('should not call EntityCSMReactor if renderSettingsComponent.csm is falsy', async () => {
       const rendererEntity = defineQuery([RendererComponent])()[0]
-      getMutableComponent(rendererEntity, RendererComponent).csm.set(new CSM({}))
+      getMutableComponent(rendererEntity, RendererComponent)
 
       const directionalLightEntity = createEntity()
       setComponent(directionalLightEntity, DirectionalLightComponent)
       getMutableState(XRLightProbeState).directionalLightEntity.set(directionalLightEntity)
+      setComponent(directionalLightEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'directionalLight' as EntityID
+      })
+      const directionalLightUUID = getComponent(directionalLightEntity, UUIDComponent).entityID
 
-      const directionalLightNodeID = 'SomeNodeID' as NodeID
-      setComponent(directionalLightEntity, NodeIDComponent, directionalLightNodeID)
-
-      const sourceID = 'SomeSourceID' as SourceID
       const renderSettingsEntity = createEntity()
-      setComponent(renderSettingsEntity, SourceComponent, sourceID)
-      setComponent(renderSettingsEntity, RenderSettingsComponent, { primaryLight: directionalLightNodeID })
+      setComponent(renderSettingsEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'renderSettings' as EntityID
+      })
+      setComponent(renderSettingsEntity, RenderSettingsComponent, { primaryLight: directionalLightUUID })
       getMutableComponent(renderSettingsEntity, RenderSettingsComponent).csm.set(false)
-      const nodes = { [directionalLightNodeID]: directionalLightEntity }
-      getMutableState(NodesBySourceState)[sourceID].set(nodes)
 
       const Reactor = () => {
         return React.createElement(ShadowSystemReactors.CSMReactor, {
@@ -1261,20 +1212,18 @@ describe('CSMReactor', async () => {
 
     it('should not call EntityCSMReactor if activeLightEntity is falsy', async () => {
       const rendererEntity = defineQuery([RendererComponent])()[0]
-      getMutableComponent(rendererEntity, RendererComponent).csm.set(new CSM({}))
+      CSM.initCSM({}, rendererEntity)
 
       const directionalLightEntity = createEntity()
       setComponent(directionalLightEntity, DirectionalLightComponent)
+      const directionalLightUUID = 'some invalid uuid that points to nothing' as EntityID
 
-      const directionalLightNodeID = 'SomeNodeID' as NodeID
-      setComponent(directionalLightEntity, NodeIDComponent, directionalLightNodeID)
-
-      const sourceID = 'SomeSourceID' as SourceID
       const renderSettingsEntity = createEntity()
-      setComponent(renderSettingsEntity, SourceComponent, sourceID)
-      setComponent(renderSettingsEntity, RenderSettingsComponent, { primaryLight: directionalLightNodeID })
-      const nodes = { [directionalLightNodeID]: UndefinedEntity }
-      getMutableState(NodesBySourceState)[sourceID].set(nodes)
+      setComponent(renderSettingsEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'renderSettings' as EntityID
+      })
+      setComponent(renderSettingsEntity, RenderSettingsComponent, { primaryLight: directionalLightUUID })
 
       const Reactor = () => {
         return React.createElement(ShadowSystemReactors.CSMReactor, {
@@ -1294,20 +1243,23 @@ describe('CSMReactor', async () => {
 
     it('should not call EntityCSMReactor if directionalLight is falsy', async () => {
       const rendererEntity = defineQuery([RendererComponent])()[0]
-      getMutableComponent(rendererEntity, RendererComponent).csm.set(new CSM({}))
+      CSM.initCSM({}, rendererEntity)
 
       const directionalLightEntity = createEntity()
       getMutableState(XRLightProbeState).directionalLightEntity.set(directionalLightEntity)
 
-      const directionalLightNodeID = 'SomeNodeID' as NodeID
-      setComponent(directionalLightEntity, NodeIDComponent, directionalLightNodeID)
+      setComponent(directionalLightEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'directionalLight' as EntityID
+      })
+      const directionalLightUUID = getComponent(directionalLightEntity, UUIDComponent).entityID
 
-      const sourceID = 'SomeSourceID' as SourceID
       const renderSettingsEntity = createEntity()
-      setComponent(renderSettingsEntity, SourceComponent, sourceID)
-      setComponent(renderSettingsEntity, RenderSettingsComponent, { primaryLight: directionalLightNodeID })
-      const nodes = { [directionalLightNodeID]: directionalLightEntity }
-      getMutableState(NodesBySourceState)[sourceID].set(nodes)
+      setComponent(renderSettingsEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'renderSettings' as EntityID
+      })
+      setComponent(renderSettingsEntity, RenderSettingsComponent, { primaryLight: directionalLightUUID })
 
       const Reactor = () => {
         return React.createElement(ShadowSystemReactors.CSMReactor, {
@@ -1327,21 +1279,24 @@ describe('CSMReactor', async () => {
 
     it('should call EntityCSMReactor with (key,entity,rendererEntity,renderSettingsEntity) if renderSettingsComponent.csm, activeLightEntity and directionalLight are all truthy', async () => {
       const rendererEntity = defineQuery([RendererComponent])()[0]
-      getMutableComponent(rendererEntity, RendererComponent).csm.set(new CSM({}))
+      CSM.initCSM({}, rendererEntity)
 
       const directionalLightEntity = createEntity()
       setComponent(directionalLightEntity, DirectionalLightComponent)
       getMutableState(XRLightProbeState).directionalLightEntity.set(directionalLightEntity)
 
-      const directionalLightNodeID = 'SomeNodeID' as NodeID
-      setComponent(directionalLightEntity, NodeIDComponent, directionalLightNodeID)
+      setComponent(directionalLightEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'directionalLight' as EntityID
+      })
+      const directionalLightUUID = getComponent(directionalLightEntity, UUIDComponent).entityID
 
-      const sourceID = 'SomeSourceID' as SourceID
       const renderSettingsEntity = createEntity()
-      setComponent(renderSettingsEntity, SourceComponent, sourceID)
-      setComponent(renderSettingsEntity, RenderSettingsComponent, { primaryLight: directionalLightNodeID })
-      const nodes = { [directionalLightNodeID]: directionalLightEntity }
-      getMutableState(NodesBySourceState)[sourceID].set(nodes)
+      setComponent(renderSettingsEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'renderSettings' as EntityID
+      })
+      setComponent(renderSettingsEntity, RenderSettingsComponent, { primaryLight: directionalLightUUID })
 
       const Reactor = () => {
         return React.createElement(ShadowSystemReactors.CSMReactor, {
@@ -1363,11 +1318,18 @@ describe('CSMReactor', async () => {
 
 describe('RenderSettingsQueryReactor', async () => {
   let testEntity = UndefinedEntity
+  let rendererEntity = UndefinedEntity
 
   beforeEach(async () => {
     createEngine()
     mockSpatialEngine()
     testEntity = createEntity()
+    rendererEntity = createEntity()
+    setComponent(rendererEntity, UUIDComponent, {
+      entitySourceID: 'source' as SourceID,
+      entityID: 'renderer' as EntityID
+    })
+    setComponent(rendererEntity, RendererComponent)
   })
 
   afterEach(() => {
@@ -1394,11 +1356,10 @@ describe('RenderSettingsQueryReactor', async () => {
   })
 
   it('should not call CSMReactor (return null) if RendererEntity is not ReferenceSpaceState.viewerEntity', async () => {
-    const rendererEntity = createEntity()
-    const csm = new CSM({})
-    setComponent(rendererEntity, RendererComponent, { csm: csm })
+    CSM.initCSM({}, rendererEntity)
+
     expect(hasComponent(rendererEntity, RendererComponent)).toBeTruthy()
-    expect(getComponent(rendererEntity, RendererComponent).csm).toBeTruthy()
+    expect(hasComponent(rendererEntity, CSMComponent)).toBeTruthy()
     const renderSettingsEntity = createEntity()
     setComponent(renderSettingsEntity, RenderSettingsComponent)
     const Reactor = () => {
@@ -1418,12 +1379,15 @@ describe('RenderSettingsQueryReactor', async () => {
   })
 
   it('should not call CSMReactor (return null) if RendererState.renderMode is RenderModes.UNLIT', async () => {
-    const rendererEntity = createEntity()
-    const csm = new CSM({})
-    setComponent(rendererEntity, RendererComponent, { csm: csm })
+    CSM.initCSM({}, rendererEntity)
+
     expect(hasComponent(rendererEntity, RendererComponent)).toBeTruthy()
-    expect(getComponent(rendererEntity, RendererComponent).csm).toBeTruthy()
+    expect(hasComponent(rendererEntity, CSMComponent)).toBeTruthy()
     const renderSettingsEntity = createEntity()
+    setComponent(renderSettingsEntity, UUIDComponent, {
+      entitySourceID: 'source' as SourceID,
+      entityID: 'renderSettings' as EntityID
+    })
     setComponent(renderSettingsEntity, RenderSettingsComponent)
     const Reactor = () => {
       return React.createElement(ShadowSystemReactors.RenderSettingsQueryReactor, {
@@ -1444,12 +1408,15 @@ describe('RenderSettingsQueryReactor', async () => {
   })
 
   it('should not call CSMReactor (return null) if RendererState.renderMode is RenderModes.LIT', async () => {
-    const rendererEntity = createEntity()
-    const csm = new CSM({})
-    setComponent(rendererEntity, RendererComponent, { csm: csm })
+    CSM.initCSM({}, rendererEntity)
+
     expect(hasComponent(rendererEntity, RendererComponent)).toBeTruthy()
-    expect(getComponent(rendererEntity, RendererComponent).csm).toBeTruthy()
+    expect(hasComponent(rendererEntity, RendererComponent)).toBeTruthy()
     const renderSettingsEntity = createEntity()
+    setComponent(renderSettingsEntity, UUIDComponent, {
+      entitySourceID: 'source' as SourceID,
+      entityID: 'renderSettings' as EntityID
+    })
     setComponent(renderSettingsEntity, RenderSettingsComponent)
     const Reactor = () => {
       return React.createElement(ShadowSystemReactors.RenderSettingsQueryReactor, {
@@ -1470,10 +1437,16 @@ describe('RenderSettingsQueryReactor', async () => {
   })
 
   it('should call CSMReactor with rendererEntity and renderSettingsEntity otherwise', async () => {
+    getMutableState(RendererState).renderMode.set(RenderModes.SHADOW)
+
     const rendererEntity = defineQuery([RendererComponent])()[0]
-    getMutableComponent(rendererEntity, RendererComponent).csm.set(new CSM({}))
+    CSM.initCSM({}, rendererEntity)
 
     setComponent(testEntity, RenderSettingsComponent)
+    setComponent(testEntity, UUIDComponent, {
+      entitySourceID: 'source' as SourceID,
+      entityID: 'renderSettings' as EntityID
+    })
     setComponent(testEntity, EntityTreeComponent, { parentEntity: rendererEntity }) // Connect them for useRendererEntity
 
     const Reactor = () => {
@@ -1483,12 +1456,13 @@ describe('RenderSettingsQueryReactor', async () => {
         React.createElement(ShadowSystemReactors.RenderSettingsQueryReactor)
       )
     }
-    getMutableState(ReferenceSpaceState).viewerEntity.set(rendererEntity)
+
     const resultSpy = vi.spyOn(ShadowSystemReactors, 'CSMReactor')
+    getMutableState(ReferenceSpaceState).viewerEntity.set(rendererEntity)
+    getMutableState(RendererState).renderMode.set(RenderModes.SHADOW)
 
     const root = startReactor(Reactor)
-
-    await flushAll()
+    await act(() => render(null))
 
     expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
     expect(resultSpy).toHaveBeenCalled()
@@ -1505,6 +1479,7 @@ describe('RendererShadowReactor', async () => {
     createEngine()
     mockSpatialEngine()
     testEntity = createEntity()
+    getMutableState(RendererState).set(RendererState.initial())
   })
 
   afterEach(() => {
@@ -1607,10 +1582,18 @@ describe('ShadowSystem', async () => {
 
   describe('execute', async () => {
     let testEntity = UndefinedEntity
+    let rendererEntity = UndefinedEntity
 
     beforeEach(async () => {
       createEngine()
+      mockSpatialEngine()
       testEntity = createEntity()
+      rendererEntity = createEntity()
+      setComponent(rendererEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'renderer' as EntityID
+      })
+      setComponent(rendererEntity, RendererComponent)
     })
 
     afterEach(() => {
@@ -1620,9 +1603,10 @@ describe('ShadowSystem', async () => {
 
     it('should not do anything if the result of getShadowsEnabled is falsy', async () => {
       const resultSpy = vi.fn()
-      setComponent(testEntity, RendererComponent)
-      const csm = { update: resultSpy as any } as CSM
-      getMutableComponent(testEntity, RendererComponent).csm.set(csm)
+
+      CSM.initCSM({}, rendererEntity)
+      CSM.update = resultSpy
+
       getMutableState(RendererState).useShadows.set(false)
 
       System.execute()
@@ -1630,26 +1614,22 @@ describe('ShadowSystem', async () => {
     })
 
     describe('for every entity that has a RendererComponent', async () => {
-      it('should call entity.RendererComponent.csm.update if entity.RendererComponent.csm is truthy', async () => {
+      it('should call CSM.update if entity.CSMComponent is truthy', async () => {
+        getMutableState(RendererState).useShadows.set(true)
         const resultSpy = vi.fn()
-        setComponent(testEntity, RendererComponent)
-        const csm = { update: resultSpy as any } as CSM
-        getMutableComponent(testEntity, RendererComponent).csm.set(csm)
+
+        CSM.initCSM({}, rendererEntity)
+        CSM.update = resultSpy
 
         System.execute()
         expect(resultSpy).toHaveBeenCalled()
         expect(resultSpy).toHaveBeenCalledTimes(1)
       })
 
-      it('should not call entity.RendererComponent.csm.update if entity.RendererComponent.csm is falsy', async () => {
-        /* @note Just for test coverage %
-         * Can't test that the function wasn't called if csm is falsy,
-         * because assigning the function makes csm truthy.
-         * */
+      it('should not call CSM.update if entity.CSMComponent is falsy', async () => {
         const resultSpy = vi.fn()
-        setComponent(testEntity, RendererComponent)
         const csm = null
-        getMutableComponent(testEntity, RendererComponent).csm.set(csm)
+        removeComponent(rendererEntity, CSMComponent)
         System.execute()
         expect(resultSpy).not.toHaveBeenCalled()
       })
@@ -1808,6 +1788,8 @@ describe('ShadowSystem', async () => {
     })
 
     it('should call RendererShadowReactor once for every entity that has a RendererComponent', async () => {
+      getMutableState(RendererState).useShadows.set(true)
+
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       const rendererEntity = defineQuery([RendererComponent])()[0]
@@ -1868,6 +1850,8 @@ describe('DropShadowSystem', async () => {
     })
 
     it('should not call ShadowSystemFunctions.updateDropShadowTransforms when the result of getShadowsEnabled is truthy', async () => {
+      getMutableState(RendererState).useShadows.set(true)
+
       const resultSpy = vi.spyOn(ShadowSystemFunctions, 'updateDropShadowTransforms')
       System.execute()
       expect(resultSpy).not.toHaveBeenCalled()

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -30,6 +30,7 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 import { WebLayer3D } from '@ir-engine/xrui'
 
+import { MeshBasicMaterial } from 'three'
 import { createModalView } from '../ui/InteractiveModalView'
 
 /**
@@ -67,7 +68,7 @@ export function createUI(
 
   const xrui = getComponent(ui.entity, XRUIComponent)
   xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-    const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
+    const mat = layer.contentMesh.material as MeshBasicMaterial
     mat.transparent = true
   })
   const transform = getComponent(ui.entity, TransformComponent)

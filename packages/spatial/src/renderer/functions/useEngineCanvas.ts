@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,22 +19,22 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getComponent, getOptionalMutableComponent, hasComponent } from '@ir-engine/ecs'
+import { Engine, getComponent, getOptionalMutableComponent, hasComponent } from '@ir-engine/ecs'
 import { getState, none, useMutableState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { destroySpatialViewer, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { useEffect } from 'react'
+import { RendererComponent } from '../components/RendererComponent'
 
 export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
   useEffect(() => {
     if (!ref) return
     const parent = ref.current as HTMLElement
-
+    if (!parent) return
     const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
 
     const originalParent = canvas.parentElement!
@@ -50,6 +50,8 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
 
     return () => {
       observer.disconnect()
+      const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
+      if (!parent.contains(canvas)) return
       parent.removeChild(canvas)
       originalParent.appendChild(canvas)
       canvas.hidden = true
@@ -60,6 +62,7 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
     const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
     initializeSpatialViewer(canvas)
     return () => {
+      if (!Engine.instance) return
       destroySpatialViewer()
     }
   }, [])
@@ -79,6 +82,7 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
     rendererComponent.scenes.merge([originEntity])
 
     return () => {
+      if (!Engine.instance) return
       if (!hasComponent(viewerEntity, RendererComponent)) return
       const index = rendererComponent.scenes.value.indexOf(originEntity)
       rendererComponent.scenes[index].set(none)
@@ -94,6 +98,7 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
     rendererComponent.scenes.merge([localFloorEntity])
 
     return () => {
+      if (!Engine.instance) return
       if (!hasComponent(viewerEntity, RendererComponent)) return
       const index = rendererComponent.scenes.value.indexOf(localFloorEntity)
       rendererComponent.scenes[index].set(none)

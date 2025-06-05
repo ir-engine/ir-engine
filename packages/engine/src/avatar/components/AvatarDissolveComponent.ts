@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -57,8 +57,8 @@ export const AvatarDissolveComponent = defineComponent({
   name: 'AvatarDissolveComponent',
 
   schema: S.Object({
-    height: S.Number(1),
-    currentTime: S.Number(0),
+    height: S.Number({ default: 1 }),
+    currentTime: S.Number(),
     dissolveMaterials: S.Array(S.Type<ShaderMaterial>()),
     originMaterials: S.Array(
       S.Object({
@@ -138,7 +138,7 @@ export const AvatarDissolveComponent = defineComponent({
       time: {
         value: -200
       }
-    }
+    } as Record<string, any>
 
     let fragmentShader = ''
     let vertexShader = ''

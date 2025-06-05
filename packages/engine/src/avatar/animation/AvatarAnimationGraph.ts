@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -35,10 +35,10 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { defineActionQueue, getState } from '@ir-engine/hyperflux'
+import { defineActionQueue, getState, NetworkState } from '@ir-engine/hyperflux'
 import { lerp } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
 
-import { NetworkObjectComponent, NetworkState } from '@ir-engine/network'
+import { NetworkObjectComponent } from '@ir-engine/ecs'
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -55,7 +55,7 @@ export const getAnimationAction = (name: string, mixer: AnimationMixer, animatio
       getComponent(manager.loadedAnimations[preloadedAnimations.locomotion]!, AnimationComponent).animations,
     name
   )
-  return mixer.clipAction(clip)
+  return mixer.clipAction(clip!)
 }
 
 const currentActionBlendSpeed = 7

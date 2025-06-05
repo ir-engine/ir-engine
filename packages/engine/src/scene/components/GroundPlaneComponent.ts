@@ -19,23 +19,26 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect, useLayoutEffect } from 'react'
-import { Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 'three'
+import { Mesh, MeshLambertMaterial, MeshStandardMaterial, PlaneGeometry, ShadowMaterial } from 'three'
 
-import { useEntityContext } from '@ir-engine/ecs'
+import { EntityID, EntityTreeComponent, EntityUUID, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
 import {
+  createEntity,
   defineComponent,
   removeComponent,
+  removeEntity,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { State } from '@ir-engine/hyperflux'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
@@ -43,6 +46,10 @@ import { BodyTypes, Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsT
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import {
+  MaterialInstanceComponent,
+  MaterialStateComponent
+} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 
 export const GroundPlaneComponent = defineComponent({
@@ -51,13 +58,16 @@ export const GroundPlaneComponent = defineComponent({
 
   schema: S.Object({
     color: T.Color(0xffffff),
-    visible: S.Bool(true)
+    visible: S.Bool({ default: true })
   }),
 
   reactor: function () {
     const entity = useEntityContext()
 
     const component = useComponent(entity, GroundPlaneComponent)
+
+    const source = UUIDComponent.getAsSourceID(entity)
+    const materialID = 'ground-plane-material' as EntityID
 
     useLayoutEffect(() => {
       setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Scene)
@@ -74,20 +84,34 @@ export const GroundPlaneComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      const mesh = new Mesh(
-        new PlaneGeometry(10000, 10000),
-        component.visible.value ? new MeshLambertMaterial() : new ShadowMaterial({ opacity: 0.5, colorWrite: false })
-      )
+      const materialEntity = createEntity()
+      setComponent(materialEntity, NameComponent, 'GroundPlaneMaterial')
+
+      const materialObject = new MeshStandardMaterial()
+      materialObject.polygonOffset = true
+      materialObject.polygonOffsetFactor = -0.01
+      materialObject.polygonOffsetUnits = 1
+      setComponent(materialEntity, UUIDComponent, {
+        entitySourceID: source,
+        entityID: materialID
+      })
+      setComponent(materialEntity, EntityTreeComponent, { parentEntity: entity })
+      setComponent(materialEntity, MaterialStateComponent, {
+        material: materialObject
+      })
+
+      const mesh = new Mesh(new PlaneGeometry(10000, 10000))
       mesh.geometry.rotateX(-Math.PI / 2)
       mesh.name = 'GroundPlaneMesh'
-      mesh.material.polygonOffset = true
-      mesh.material.polygonOffsetFactor = -0.01
-      mesh.material.polygonOffsetUnits = 1
 
       setComponent(entity, MeshComponent, mesh)
+      setComponent(entity, MaterialInstanceComponent, {
+        entities: [materialEntity]
+      })
 
       return () => {
         removeComponent(entity, MeshComponent)
+        removeEntity(materialEntity)
       }
     }, [component.visible.value])
 
@@ -95,12 +119,17 @@ export const GroundPlaneComponent = defineComponent({
       Mesh<any, MeshLambertMaterial | ShadowMaterial>
     >
 
+    const material = useOptionalComponent(
+      UUIDComponent.useEntityByUUID((source + materialID) as EntityUUID),
+      MaterialStateComponent
+    )?.material
+
     useLayoutEffect(() => {
-      if (!meshComponent) return
+      if (!meshComponent || !material) return
       const color = component.color.value
       if (meshComponent.material.color.value == color) return
       meshComponent.material.color.value.set(component.color.value)
-    }, [component.color])
+    }, [component.color, material])
 
     return null
   }

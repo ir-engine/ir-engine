@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -70,12 +70,20 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
   const instanceserverUnreachableTimeoutSecondsSetting = engineSettings.data.find(
     (item) => item.key === EngineSettings.Server.InstanceserverUnreachableTimeoutSeconds
   )
+  const ipGeolocationApiUrlSetting = engineSettings.data.find(
+    (item) => item.key === EngineSettings.Server.IpGeolocation.ApiUrl
+  )
+  const ipGeolocationApiTokenSetting = engineSettings.data.find(
+    (item) => item.key === EngineSettings.Server.IpGeolocation.ApiToken
+  )
   const githubWebhookSecretSetting = engineSettings.data.find(
     (item) => item.key === EngineSettings.Server.GithubWebhookSecret
   )
 
   const githubWebhookSecret = useHookstate('')
   const instanceserverUnreachableTimeoutSeconds = useHookstate('')
+  const ipGeolocationApiUrl = useHookstate('')
+  const ipGeolocationApiToken = useHookstate('')
   const dryRun = useHookstate(true)
   const local = useHookstate(true)
 
@@ -86,13 +94,17 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
   useEffect(() => {
     githubWebhookSecret.set(githubWebhookSecretSetting?.value || '')
     instanceserverUnreachableTimeoutSeconds.set(instanceserverUnreachableTimeoutSecondsSetting?.value || '')
+    ipGeolocationApiUrl.set(ipGeolocationApiUrlSetting?.value || '')
+    ipGeolocationApiToken.set(ipGeolocationApiTokenSetting?.value || '')
   }, [engineSettings.status])
 
   const handleSubmit = (event) => {
     state.loading.set(true)
     const settings = {
       [EngineSettings.Server.GithubWebhookSecret]: githubWebhookSecret.value,
-      [EngineSettings.Server.InstanceserverUnreachableTimeoutSeconds]: instanceserverUnreachableTimeoutSeconds.value
+      [EngineSettings.Server.InstanceserverUnreachableTimeoutSeconds]: instanceserverUnreachableTimeoutSeconds.value,
+      [EngineSettings.Server.IpGeolocation.ApiUrl]: ipGeolocationApiUrl.value,
+      [EngineSettings.Server.IpGeolocation.ApiToken]: ipGeolocationApiToken.value
     }
     const createData: EngineSettingData[] = []
     const operations: Promise<EngineSettingType | EngineSettingType[]>[] = []
@@ -134,8 +146,10 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
   }
 
   const handleCancel = () => {
-    githubWebhookSecret.set(githubWebhookSecret.value)
-    instanceserverUnreachableTimeoutSeconds.set(instanceserverUnreachableTimeoutSeconds.value)
+    githubWebhookSecret.set(githubWebhookSecretSetting?.value || '')
+    instanceserverUnreachableTimeoutSeconds.set(instanceserverUnreachableTimeoutSecondsSetting?.value || '')
+    ipGeolocationApiUrl.set(ipGeolocationApiUrlSetting?.value || '')
+    ipGeolocationApiToken.set(ipGeolocationApiTokenSetting?.value || '')
   }
 
   return (
@@ -304,6 +318,26 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           }}
           value={instanceserverUnreachableTimeoutSeconds?.value || ''}
           onChange={(e) => instanceserverUnreachableTimeoutSeconds.set(e.target.value)}
+        />
+
+        <Input
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.ipGeolocationApiUrl'),
+            position: 'top'
+          }}
+          value={ipGeolocationApiUrl?.value || ''}
+          onChange={(e) => ipGeolocationApiUrl.set(e.target.value)}
+        />
+
+        <PasswordInput
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.ipGeolocationApiToken'),
+            position: 'top'
+          }}
+          value={ipGeolocationApiToken?.value || ''}
+          onChange={(e) => ipGeolocationApiToken.set(e.target.value)}
         />
 
         <div className="col-span-1 mt-5 grid grid-cols-2">

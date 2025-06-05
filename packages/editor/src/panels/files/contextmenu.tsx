@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -32,7 +32,7 @@ import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
-import { Vector3 } from 'three'
+import { Vector2, Vector3 } from 'three'
 import ImageCompressionPanel from '../../components/assets/ImageCompressionPanel'
 import ModelCompressionPanel from '../../components/assets/ModelCompressionPanel'
 import { addMediaNode } from '../../functions/addMediaNode'
@@ -203,9 +203,13 @@ export function FileContextMenu({
         selectedFiles
           .filter((file) => !file.isFolder.value)
           .map((file) => {
-            addMediaNode(file.url.value, undefined, undefined, [
-              { name: TransformComponent.jsonID, props: { position: vec3 } }
-            ])
+            addMediaNode(
+              file.url.value,
+              undefined,
+              undefined,
+              [{ name: TransformComponent.jsonID, props: { position: vec3 } }],
+              new Vector2()
+            )
           })
         setAnchorEvent(undefined)
       },
@@ -216,12 +220,17 @@ export function FileContextMenu({
       condition: hasFiles,
       label: t('editor:layout.assetGrid.placeObjectAtOrigin'),
       action: () => {
+        const position = getSpawnPositionAtCenter(new Vector3())
         selectedFiles
           .filter((file) => !file.isFolder.value)
           .map((file) => {
-            addMediaNode(file.url.value, undefined, undefined, [
-              { name: TransformComponent.jsonID, props: { position: new Vector3() } }
-            ])
+            addMediaNode(
+              file.url.value,
+              undefined,
+              undefined,
+              [{ name: TransformComponent.jsonID, props: { position: new Vector3() } }],
+              new Vector2()
+            )
           })
         setAnchorEvent(undefined)
       },

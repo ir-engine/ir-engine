@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -27,9 +27,8 @@ import React, { useEffect, useRef } from 'react'
 import { Mesh, SphereGeometry } from 'three'
 
 import { useRender3DPanelSystem } from '@ir-engine/client-core/src/hooks/useRender3DPanelSystem'
-import { getComponent, Layers, setComponent, useComponent, UUIDComponent } from '@ir-engine/ecs'
+import { EntityID, getComponent, Layers, setComponent, SourceID, useComponent, UUIDComponent } from '@ir-engine/ecs'
 import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
-import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { getState, useMutableState } from '@ir-engine/hyperflux'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { TransformPivot, TransformSpace } from '@ir-engine/spatial/src/common/constants/TransformConstants'
@@ -38,20 +37,20 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { SelectionState } from '../../../services/SelectionServices'
 
 export const MaterialPreviewCanvas = () => {
   const panelRef = useRef() as React.MutableRefObject<HTMLCanvasElement>
   const renderPanel = useRender3DPanelSystem(panelRef)
-  const selectedMaterial = useMutableState(MaterialSelectionState).selectedMaterial
+  const selectedMaterial = useMutableState(SelectionState).selectedEntities[0]
   useEffect(() => {
     if (!selectedMaterial.value) return
     const { sceneEntity, cameraEntity } = renderPanel
     setComponent(sceneEntity, NameComponent, 'Material Preview Entity')
-    const uuid = UUIDComponent.generateUUID()
-    setComponent(sceneEntity, UUIDComponent, uuid)
+    setComponent(sceneEntity, UUIDComponent, { entitySourceID: 'preview' as SourceID, entityID: 'scene' as EntityID })
     setComponent(sceneEntity, VisibleComponent, true)
     const material = getComponent(
-      UUIDComponent.getEntityByUUID(getState(MaterialSelectionState).selectedMaterial!, Layers.Authoring),
+      UUIDComponent.getEntityByUUID(getState(SelectionState).selectedEntities[0]!, Layers.Authoring),
       MaterialStateComponent
     ).material
     if (!material) return
@@ -75,7 +74,7 @@ export const MaterialPreviewCanvas = () => {
 }
 
 export const MaterialPreviewPanel = (props) => {
-  const selectedMaterial = useMutableState(MaterialSelectionState).selectedMaterial
+  const selectedMaterial = useMutableState(SelectionState).selectedEntities[0]
   if (!selectedMaterial.value) return null
   return <MaterialPreviewCanvas key={selectedMaterial.value} />
 }
