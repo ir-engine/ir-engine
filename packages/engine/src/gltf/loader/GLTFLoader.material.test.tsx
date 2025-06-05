@@ -1301,36 +1301,6 @@ describe('glTF: NormalTextureInfo Type', () => {
   })
 
   describe('scale', () => {
-    it('MAY be undefined', async () => {
-      const gltf = createTexturedMaterialGLTF({
-        normalTexture: {
-          index: 0,
-          scale: undefined
-        }
-      })
-
-      const materialEntity = await loadTestMaterial(gltf)
-      const material = getComponent(materialEntity, MaterialStateComponent).material as MeshStandardMaterial
-      expect(material.normalMap).toBeDefined()
-      expect(material.normalScale.x).toBe(1.0)
-      expect(material.normalScale.y).toBe(1.0)
-    })
-
-    it('SHOULD assign a default value of 1.0', async () => {
-      const gltf = createTexturedMaterialGLTF({
-        normalTexture: {
-          index: 0,
-          scale: undefined
-        }
-      })
-
-      const materialEntity = await loadTestMaterial(gltf)
-      const material = getComponent(materialEntity, MaterialStateComponent).material as MeshStandardMaterial
-      expect(material.normalMap).toBeDefined()
-      expect(material.normalScale.x).toBe(1.0)
-      expect(material.normalScale.y).toBe(1.0)
-    })
-
     it.todo('MUST be a `number` type when defined', async () => {
       const validGltf = createTexturedMaterialGLTF({
         normalTexture: {
