@@ -113,7 +113,7 @@ describe('glTF: Buffer Type', () => {
     /** @todo Should throw. Our implementation does not respect the specification for glTF.buffer.byteLength */
     it.todo('MUST be defined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalBuffer())
-
+      // @ts-expect-error Delete, even if mandatory, to provoke the error
       delete options.document.buffers![0].byteLength
       expect(GLTFLoaderFunctions.loadBuffer(options, 0)).rejects.toThrowError()
     })
