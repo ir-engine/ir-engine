@@ -54,7 +54,6 @@ import {
 import {
   Entity,
   EntityTreeComponent,
-  SourceID,
   UUIDComponent,
   createEntity,
   getAncestorWithComponents,
@@ -66,7 +65,6 @@ import {
   defineComponent,
   entityExists,
   getComponent,
-  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
@@ -106,23 +104,14 @@ const createBatchedRenderer = (entity: Entity) => {
     setComponent(particleRendererEntity, VisibleComponent)
     setComponent(particleRendererEntity, NameComponent, 'Particle Renderer')
     const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
-
-    // Check if sceneEntity exists and has UUIDComponent before accessing it
-    if (sceneEntity && hasComponent(sceneEntity, UUIDComponent)) {
-      const uuidComponent = getComponent(sceneEntity, UUIDComponent)
+    const uuidComponent = getComponent(sceneEntity, UUIDComponent)
+    if (uuidComponent) {
       setComponent(particleRendererEntity, UUIDComponent, {
         entitySourceID: uuidComponent.entitySourceID,
         entityID: UUIDComponent.generateUUID()
       })
-    } else {
-      // Fallback if sceneEntity doesn't exist or doesn't have UUIDComponent
-      setComponent(particleRendererEntity, UUIDComponent, {
-        entitySourceID: 'default' as SourceID,
-        entityID: UUIDComponent.generateUUID()
-      })
     }
-
-    setComponent(particleRendererEntity, EntityTreeComponent, { parentEntity: sceneEntity || entity })
+    setComponent(particleRendererEntity, EntityTreeComponent, { parentEntity: sceneEntity })
     renderer.preserveChildren = true
     renderer.parent = {
       type: 'Scene',
