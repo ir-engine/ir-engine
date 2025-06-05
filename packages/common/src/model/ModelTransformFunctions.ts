@@ -1207,32 +1207,41 @@ export const uploadTransformedGLTF = async (
   await uploadAsset(finalPath, new TextEncoder().encode(JSON.stringify(json)), 'application/json')
   return finalPath
 }
-const safeImageCompress = async (document: Document) => {
+const safeImageCompress = async (document: Document, params: ModelTransformParameters) => {
   for (const texture of document.getRoot().listTextures()) {
-    if (texture.getMimeType() === 'image/ktx2') continue
-    // Load pixels
-    const texturePixels = await getPixels(texture.getImage()!, texture.getMimeType())
-    const clampedData = new Uint8ClampedArray(texturePixels.data as Uint8Array)
-    const [width, height] = texturePixels.shape
+    const originalImage = texture.getImage()
+    const mimeType = texture.getMimeType()
 
-    // Create ImageData
-    const imageData = new ImageData(clampedData, width, height)
+    if (!originalImage || !mimeType) {
+      console.warn(`Skipping texture ${texture.getName()} due to missing image or mimeType`)
+      continue
+    }
 
-    // Compress with ktx2
-    const ktx2Encoder = new KTX2Encoder()
-    const compressed = await ktx2Encoder.encode(imageData, {
-      uastc: true, // or false for ETC1S
-      mipmaps: true,
-      srgb: true,
-      qualityLevel: 5
-    })
+    console.log(`Compressing texture: ${texture.getName()} (${mimeType})`)
 
-    texture.setImage(new Uint8Array(compressed))
-    texture.setMimeType('image/ktx2')
+    try {
+      const texturePixels = await getPixels(originalImage, mimeType)
+      const clampedData = new Uint8ClampedArray(texturePixels.data as Uint8Array)
+      const [width, height] = texturePixels.shape
 
-    // Create a valid file name
-    const safeName = validTextureFileName(texture.getName() || texture.getURI() || 'texture')
-    texture.setURI(`${safeName}.ktx2`)
+      const imageData = new ImageData(clampedData, width, height)
+
+      const ktx2Encoder = new KTX2Encoder()
+      const compressed = await ktx2Encoder.encode(imageData, {
+        uastc: true,
+        mipmaps: true,
+        srgb: true,
+        qualityLevel: 5
+      })
+
+      texture.setImage(new Uint8Array(compressed))
+      texture.setMimeType('image/ktx2')
+
+      const safeName = validTextureFileName(texture.getName() || texture.getURI() || 'texture')
+      texture.setURI(`${safeName}.ktx2`)
+    } catch (e) {
+      console.error(`Failed to compress texture: ${texture.getName()}`, e)
+    }
   }
 }
 export async function safeCompressGLTFWeb(
@@ -1262,7 +1271,7 @@ export async function safeCompressGLTFWeb(
     onProgress?.(0.4, Status.ProcessingTexture)
 
     // Convert images to .ktx2
-    await safeImageCompress(document)
+    await safeImageCompress(document, params)
     onProgress?.(0.8, Status.ProcessingTexture)
     // Now you can export it with your existing writer
     await uploadTransformedGLTF(srcURL, document, destinationUrl, params.modelFormat)
