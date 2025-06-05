@@ -41,6 +41,7 @@ import { MenuItem } from './MenuItem'
 import { Section } from './Section'
 import { Socials } from './SSOScreen'
 import ToggleItem from './ToggleItem'
+
 export default function SignupScreen() {
   const [tosAgreed, setTosAgreed] = useState(false)
   const [ageAgreed, setAgeAgreed] = useState(false)
