@@ -307,7 +307,10 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
                 numerator: (numerator ?? 0) + 1,
                 denominator
               })
-              progressState.set({ progress, caption })
+              progressState.set({
+                progress: progress / entitiesToCompress.length + progressState.value.progress,
+                caption
+              })
             })
             // continue if it is scene itself
             if (fileName == scenename) {

@@ -403,9 +403,9 @@ const doUpload = async (projectName, fileName, buffer, path?: string) => {
     resolver = resolve
   })
   uploadRequestState.queue.set([...queue, { file, projectName, callback: resolver, path: path }])
-  if (fileName.includes('combined-mesh')) {
-    uploadRequestState.isOnPublishing.set(true)
-  }
+  // if (fileName.includes('combined-mesh')) {
+  uploadRequestState.isOnPublishing.set(true)
+  // }
   await promise
 }
 
@@ -1176,49 +1176,87 @@ export const uploadTransformedGLTF = async (
   modelFormat: ModelFormat
 ): Promise<string> => {
   const io = await loaderIO
+  const resourceUri = ''
   const srcBaseURL = LoaderUtils.extractUrlBase(srcURL)
-  const resourceName = baseName(srcURL).replace(/\.[^.]+$/, '')
-  const finalPath = pathJoin(srcBaseURL, dst.endsWith(`.${modelFormat}`) ? dst : `${dst}.${modelFormat}`)
-  const root = document.getRoot()
-
-  const uploadAsset = async (uri: string, data: Uint8Array, mime: string) => {
-    const blob = new Blob([data], { type: mime })
-    await doUpload(...toProjectAndFileName(uri, srcBaseURL), blob)
+  const resourceName = baseName(srcURL).slice(0, baseName(srcURL).lastIndexOf('.'))
+  const resourcePath = pathJoin(srcBaseURL, resourceName + '_resources')
+  let finalPath = dst.replace(/\.[^.]*$/, `.${modelFormat}`)
+  if (!finalPath.endsWith(`.${modelFormat}`)) {
+    finalPath += `.${modelFormat}`
   }
 
   if (modelFormat === 'glb' || modelFormat === 'vrm') {
     const binary = await io.writeBinary(document)
-    await uploadAsset(finalPath, binary, 'model/gltf-binary')
+    await doUpload(...toProjectAndFileName(finalPath, srcBaseURL), binary)
     return finalPath
   }
-  console.log('writing json')
   const { json, resources } = await io.writeJSON(document, {
     format: Format.GLTF,
     basename: resourceName
   })
-  console.log('wrote json', json, resources)
+  const removeExtension = (uri: string) => {
+    const pathSegments = uri.split('/')
+    const filename = pathSegments.pop()
+    if (filename != null) {
+      const nameSegments = filename.split('.')
+      nameSegments.pop()
+      pathSegments.push(nameSegments.join('.'))
+    }
+    return pathSegments.join('/')
+  }
+  json.images?.map((image) => {
+    const nuURI = pathJoin(
+      resourceUri.length > 0 ? resourceUri : resourceName + '_resources',
+      `${
+        (image.uri ?? '').length > 0 ? removeExtension(image.uri!).replaceAll(/^\.\//g, '') : image.name
+      }.${mimeToFileType(image.mimeType)}`
+    )
+    resources[nuURI] = resources[image.uri!]
+    delete resources[image.uri!]
+    image.uri = nuURI
+  })
+  const defaultBufURI = uuidv4() + '.bin'
+  json.buffers?.map((buffer) => {
+    buffer.uri = pathJoin(
+      resourceUri ? resourceUri : resourceName + '_resources',
+      baseName(buffer.uri ?? defaultBufURI)
+    )
+  })
+  Object.keys(resources).map((uri) => {
+    const localPath = pathJoin(resourcePath, dropRoot(uri))
+    resources[localPath] = resources[uri]
+    delete resources[uri]
+  })
   for (const [uri, data] of Object.entries(resources)) {
     const ext = uri.split('.').pop()!
     const mime = fileTypeToMime(ext)!
-    console.log('uploading', uri, mime, data.length)
-    await uploadAsset(uri, data as Uint8Array, mime)
+    const blob = new Blob([data as BlobPart], { type: fileTypeToMime(uri.split('.').pop()!)! })
+    await doUpload(...toProjectAndFileName(uri, srcBaseURL), blob)
   }
 
-  await uploadAsset(finalPath, new TextEncoder().encode(JSON.stringify(json)), 'application/json')
+  await doUpload(
+    ...toProjectAndFileName(finalPath, srcBaseURL),
+    new Blob([JSON.stringify(json)], { type: 'application/json' })
+  )
   return finalPath
 }
-const safeImageCompress = async (document: Document, params: ModelTransformParameters) => {
-  for (const texture of document.getRoot().listTextures()) {
+const safeImageCompress = async (
+  document: Document,
+  params: ModelTransformParameters,
+  onProgress?: (progress: number, status: Status, numerator?: number, denominator?: number) => void
+) => {
+  const textures = document.getRoot().listTextures()
+  const numTextures = textures.length
+  const totalProgressSteps = 1 + numTextures
+  for (const [i, texture] of textures.entries()) {
     const originalImage = texture.getImage()
     const mimeType = texture.getMimeType()
 
     if (!originalImage || !mimeType) {
-      console.warn(`Skipping texture ${texture.getName()} due to missing image or mimeType`)
       continue
     }
 
-    console.log(`Compressing texture: ${texture.getName()} (${mimeType})`)
-
+    onProgress?.((i + 1) / totalProgressSteps + 0.4, Status.ProcessingTexture, i, numTextures)
     try {
       const texturePixels = await getPixels(originalImage, mimeType)
       const clampedData = new Uint8ClampedArray(texturePixels.data as Uint8Array)
@@ -1237,8 +1275,13 @@ const safeImageCompress = async (document: Document, params: ModelTransformParam
       texture.setImage(new Uint8Array(compressed))
       texture.setMimeType('image/ktx2')
 
-      const safeName = validTextureFileName(texture.getName() || texture.getURI() || 'texture')
-      texture.setURI(`${safeName}.ktx2`)
+      const safeName = validTextureFileName(texture.getURI().replace(/\.[^.]+$/, '.ktx2'))
+      texture.setURI(`${safeName}`)
+      await document.transform(
+        textureCompress({
+          resize: [params.maxTextureSize, params.maxTextureSize]
+        })
+      )
     } catch (e) {
       console.error(`Failed to compress texture: ${texture.getName()}`, e)
     }
@@ -1254,7 +1297,6 @@ export async function safeCompressGLTFWeb(
 
   try {
     const io = await loaderIO
-    const srcBaseURL = LoaderUtils.extractUrlBase(srcURL)
     const document: Document = await io.read(srcURL)
 
     // Keep vertex colors
@@ -1268,11 +1310,9 @@ export async function safeCompressGLTFWeb(
         error: params.simplifyErrorThreshold
       })
     )
-    onProgress?.(0.4, Status.ProcessingTexture)
-
+    onProgress?.(0.4, Status.WritingFiles)
     // Convert images to .ktx2
-    await safeImageCompress(document, params)
-    onProgress?.(0.8, Status.ProcessingTexture)
+    await safeImageCompress(document, params, onProgress)
     // Now you can export it with your existing writer
     await uploadTransformedGLTF(srcURL, document, destinationUrl, params.modelFormat)
 
