@@ -34,7 +34,7 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
   useEffect(() => {
     if (!ref) return
     const parent = ref.current as HTMLElement
-
+    if (!parent) return
     const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
 
     const originalParent = canvas.parentElement!

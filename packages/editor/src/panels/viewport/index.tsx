@@ -32,10 +32,10 @@ import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { engineSettingPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
 import { cleanFileNameFile } from '@ir-engine/common/src/utils/cleanFileName'
-import { useComponent, useQuery } from '@ir-engine/ecs'
+import { useComponent } from '@ir-engine/ecs'
 import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { ResourcePendingComponent } from '@ir-engine/engine/src/gltf/ResourcePendingComponent'
+import { ResourceProgressComponent } from '@ir-engine/engine/src/gltf/ResourceProgressComponent'
 import { ErrorBoundary, getState, useMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { RenderModes } from '@ir-engine/spatial/src/renderer/constants/RenderModes'
@@ -164,7 +164,7 @@ const SceneLoadingProgress = ({ rootEntity }) => {
   const { t } = useTranslation()
   const progress = useComponent(rootEntity, GLTFComponent).progress.value
   const loaded = GLTFComponent.useSceneLoaded(rootEntity)
-  const resourcePendingQuery = useQuery([ResourcePendingComponent])
+  const pendingResources = ResourceProgressComponent.useAllPendingResources()
 
   if (loaded) return null
 
@@ -173,7 +173,7 @@ const SceneLoadingProgress = ({ rootEntity }) => {
       fullSpace
       className="block h-12 w-12"
       containerClassName="absolute bg-black bg-opacity-70"
-      title={t('editor:loadingScenesWithProgress', { progress, assetsLeft: resourcePendingQuery.length })}
+      title={t('editor:loadingScenesWithProgress', { progress, assetsLeft: pendingResources })}
     />
   )
 }

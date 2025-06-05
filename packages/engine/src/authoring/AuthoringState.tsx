@@ -234,8 +234,12 @@ export const AuthoringState = defineState({
         .map((entity) => getComponent(entity, UUIDComponent).entitySourceID)
     )
     if (affectedSources.size === 0) return
+    AuthoringState.snapshotSources(affectedSources)
+  },
+
+  snapshotSources: (sources: Set<SourceID>) => {
     const ops = {} as Record<SourceID, Operation[]>
-    for (const sourceID of affectedSources) {
+    for (const sourceID of sources) {
       if (!sourceID) continue
       if (!getState(AuthoringState).sources[sourceID]) continue
       const newData = getSourceSnapshot(sourceID)
@@ -244,7 +248,6 @@ export const AuthoringState = defineState({
     }
     dispatchAction(AuthoringActions.ops({ ops }))
   },
-
   hasEdits: (sourceID: SourceID) => {
     if (!getState(AuthoringState).commands[getState(EngineState).userID]) return false
     return Object.values(getState(AuthoringState).commands[getState(EngineState).userID])

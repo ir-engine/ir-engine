@@ -23,12 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Box3, BufferAttribute, BufferGeometry, InstancedMesh, Mesh, TypedArray } from 'three'
+import {
+  Box3,
+  BufferAttribute,
+  BufferGeometry,
+  InstancedMesh,
+  InterleavedBufferAttribute,
+  Mesh,
+  TypedArray
+} from 'three'
 import { MeshBVH, SerializedBVH } from 'three-mesh-bvh'
 import Worker from 'web-worker'
 
 import { isClient } from '@ir-engine/hyperflux'
 import { WorkerPool } from '@ir-engine/xrui/core/WorkerPool'
+import { deinterleaveAttribute } from '../../common/classes/BufferGeometryUtils'
 
 const createWorker = () => {
   if (isClient) {
@@ -58,7 +67,12 @@ export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options =
   const geometry = mesh.geometry as BufferGeometry
 
   const index = geometry.index ? Uint32Array.from(geometry.index.array) : null
-  const pos = Float32Array.from((geometry.attributes.position as BufferAttribute).array)
+
+  let positionAttr = geometry.attributes.position
+  if ((positionAttr as InterleavedBufferAttribute).isInterleavedBufferAttribute) {
+    positionAttr = deinterleaveAttribute(positionAttr as InterleavedBufferAttribute)
+  }
+  const pos = Float32Array.from(positionAttr.array)
 
   const transferrables = [pos as ArrayLike<number>]
   if (index) {

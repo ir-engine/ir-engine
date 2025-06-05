@@ -59,6 +59,9 @@ export const createLocations = async (app: Application, projectName: string, sce
         videoEnabled: true,
         screenSharingEnabled: true,
         faceStreamingEnabled: true
+        /** @todo: Re-enable this when the engine has a working jump control/vr capabilities */
+        // jumpControlEnabled: true,
+        // vrEnabled: true
       } as LocationSettingType
 
       const location = {
