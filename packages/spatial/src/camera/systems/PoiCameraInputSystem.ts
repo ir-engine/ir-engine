@@ -49,6 +49,14 @@ export const handlePoiCameraScroll = (cameraEntity: Entity, zoomDelta: number): 
   const poiCamera = getMutableComponent(cameraEntity, PoiCameraComponent)
   const cameraSettingsState = getMutableState(CameraSettingsState)
 
+  if (poiCamera.targetPoiIndex.value < 0) {
+    poiCamera.targetPoiIndex.set(0)
+    poiCamera.currentPoiIndex.set(0)
+    poiCamera.poiLerpValue.set(0)
+    poiCamera.scrollAccumulator.set(0)
+  }
+  poiCamera.isTransitioning.set(poiCamera.poiLerpValue.value < 1)
+
   if (cameraSettingsState.poiEntities.value.length === 0 || Math.abs(zoomDelta) < 0.01) return
 
   const deadzone = cameraSettingsState.scrollDeadzone.value
@@ -57,14 +65,8 @@ export const handlePoiCameraScroll = (cameraEntity: Entity, zoomDelta: number): 
   const transitionType = cameraSettingsState.poiScrollTransitionType.value
   const scrollSensitivity = cameraSettingsState.scrollSensitivity.value
 
-  if (poiCamera.targetPoiIndex.value < 0) {
-    poiCamera.targetPoiIndex.set(0)
-    poiCamera.currentPoiIndex.set(0)
-    poiCamera.poiLerpValue.set(0)
-    poiCamera.scrollAccumulator.set(0)
-  }
-
   if (transitionType === PoiScrollTransition.Snapping) {
+    if (poiCamera.isTransitioning.value && poiCamera.targetPoiIndex.value !== poiCamera.currentPoiIndex.value) return
     // Snap navigation: single scroll increment changes target POI
     const currentTargetIndex = poiCamera.targetPoiIndex.value
     let newTargetIndex = currentTargetIndex
@@ -255,6 +257,7 @@ const execute = () => {
 
       if (settings.poiScrollTransitionType.value === PoiScrollTransition.Snapping) {
         const poiCameraMutable = getMutableComponent(viewerEntity, PoiCameraComponent)
+
         const lerpSpeed = settings.poiLerpSpeed.value
         const deltaTime = getState(ECSState).deltaSeconds
 
