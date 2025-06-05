@@ -31,7 +31,7 @@ import {
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { createXRUI, XRUI } from '@ir-engine/engine/src/xrui/createXRUI'
+import { createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
 import { getState, useMutableState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraSettingsState } from '@ir-engine/spatial/src/camera/CameraSettingsState'
@@ -81,16 +81,11 @@ export function setupPoiUi(cameraEntity: Entity) {
 }
 
 export const createPoiUI = (cameraEntity: Entity, aspectRatio: number = 1) => {
-  const ui = createPoiUiView(cameraEntity)
+  const PoiUi = () => <PoiUiView cameraEntity={cameraEntity} />
+  const ui = createXRUI(PoiUi, null, { interactable: false })
   setComponent(ui.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
   setComponent(ui.entity, NameComponent, 'poi-ui-' + cameraEntity)
   return ui
-}
-
-export function createPoiUiView(cameraEntity: Entity): XRUI<null> {
-  const PoiUi = () => <PoiUiView cameraEntity={cameraEntity} />
-  const xrUI = createXRUI(PoiUi, null, { interactable: false })
-  return xrUI
 }
 
 type PoiUiProps = {
@@ -113,9 +108,14 @@ const PoiUiView = (props: PoiUiProps) => {
 
   useEffect(() => {
     if (!rendererComponent.canvas.value) return
-    setCanvasWidth(rendererComponent.canvas.value.width)
-    setCanvasHeight(rendererComponent.canvas.value.height)
-  }, [rendererComponent.canvas, rendererComponent.needsResize])
+    setCanvasWidth(rendererComponent.canvas.value.clientWidth)
+    setCanvasHeight(rendererComponent.canvas.value.clientHeight)
+  }, [
+    rendererComponent.canvas,
+    rendererComponent.needsResize,
+    rendererComponent.canvas.value?.clientWidth,
+    rendererComponent.canvas.value?.clientHeight
+  ])
 
   const previousClicked = () => {
     const transitionType = cameraSettingsState.poiScrollTransitionType.value
