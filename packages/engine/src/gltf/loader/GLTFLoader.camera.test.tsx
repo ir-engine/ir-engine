@@ -38,7 +38,6 @@ import { createEngine, createEntity, destroyEngine, removeEntity, UndefinedEntit
 import { DependencyCache, GLTFLoaderFunctions } from '../GLTFLoaderFunctions'
 
 beforeEach(() => {
-  // Clear the dependency cache before each test
   DependencyCache.clear()
 })
 
@@ -157,7 +156,7 @@ describe('glTF: Camera Type', () => {
         ymag: 1,
         znear: 1,
         zfar: 10
-      } // Not undefined
+      }
       delete options.document.cameras![0].perspective
       await GLTFLoaderFunctions.loadCamera(options, testEntity, 0)
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).resolves.not.toThrow()
