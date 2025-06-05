@@ -301,13 +301,4 @@ describe('glTF: Image Type', () => {
       ).rejects.toThrow()
     })
   }) //:: name
-
-  describe('extensions', () => {
-    it.todo('MAY be undefined', () => {})
-    it.todo('MUST be a JSON object when defined', () => {})
-  }) //:: extensions
-
-  describe('extras', () => {
-    it.todo('MAY be undefined', () => {})
-  }) //:: extras
 }) //:: glTF: Image
