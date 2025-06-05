@@ -72,7 +72,7 @@ function createCameraFrustumGeometry(camera: PerspectiveCamera, maxDistance = 10
     }
   }
 
-  const positions = []
+  const positions: any[] = []
   addQuad(nearCorners, positions)
   addQuad(farCorners, positions)
 

@@ -33,7 +33,7 @@ import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/Obje
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@ir-engine/spatial/src/SpatialModule'
 import { Line, Raycaster, Sprite, SpriteMaterial, TextureLoader } from 'three'
-import { Vector3_Zero } from '../../../../spatial/src/common/constants/MathConstants'
+import { Vector3_One, Vector3_Zero } from '../../../../spatial/src/common/constants/MathConstants'
 import { EditorHelperState } from '../../services/EditorHelperState'
 import { getCameraFactor, intersectObjectWithRay } from './gizmoCommonFunctions'
 
@@ -87,8 +87,9 @@ export function gizmoIconUpdate(parentEntity: Entity, iconEntity: Entity, direct
   const size = transform.scale
   const finalSize = size
     .set(1, 1, 1)
+    .multiplyScalar(getCameraFactor(parentTransform.position, currentsize))
+    .max(Vector3_One)
     .divide(parentTransform.scale)
-    .multiplyScalar(getCameraFactor(transform.position, currentsize))
 
   setComponent(iconEntity, TransformComponent, { position: Vector3_Zero, scale: finalSize })
   for (const entity of directionalEntities) {
@@ -112,7 +113,7 @@ function pointerHover(studioIcon: Entity) {
 export function setIconSize(intersect, currentSize) {
   const targetSize = intersect
     ? getState(EditorHelperState).editorIconMaxSize
-    : getState(EditorHelperState).editorIconMinSize // 0.25 is the hover size, 0.2 is the default size
+    : getState(EditorHelperState).editorIconMinSize
   //TODO : make the sizeFactor editable
   const originalSize = currentSize
   const interpolatedSize = originalSize + (targetSize - originalSize) * _interpolationFactor

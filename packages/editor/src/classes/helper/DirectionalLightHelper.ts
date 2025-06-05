@@ -124,7 +124,6 @@ export const DirectionalLightHelperReactor: React.FC = (props: { parentEntity; i
     if (directionalLightHelperEntity.value === UndefinedEntity) return
     const helper = getMutableComponent(directionalLightHelperEntity.value, LineSegmentComponent)
     if (!helper) return
-
     helper.color.set(hovered ? BOUNDING_BOX_COLORS.HOVERED : directionalLight.color.value)
   }, [directionalLightHelperEntity, directionalLight.color, hovered])
 
