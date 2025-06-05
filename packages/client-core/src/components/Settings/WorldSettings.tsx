@@ -27,9 +27,7 @@ import React from 'react'
 
 import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
 import { useMutableState } from '@ir-engine/hyperflux'
-import Divider from '@ir-engine/ui/src/components/viewer/Divider'
 import { Section } from './Section'
-import SliderItem from './SliderItem'
 import ToggleItem from './ToggleItem'
 
 // Define types for screen components
@@ -41,20 +39,9 @@ interface ScreenProps {
 const WorldSettings: React.FC<ScreenProps> = () => {
   const audioState = useMutableState(AudioState)
 
-  // Convert between engine's 0-1 range and slider's 0-100 range
-  const volumePercentage = Math.round(audioState.masterVolume.value * 100)
-
-  const handleVolumeChange = (value: number) => {
-    // Convert from 0-100 range to 0-1 range
-    const normalizedValue = value / 100
-    audioState.masterVolume.set(normalizedValue)
-  }
-
   return (
     <div className="h-full space-y-4">
       <Section>
-        <SliderItem label="Audio Volume" value={volumePercentage} onChange={handleVolumeChange} />
-        <Divider />
         <ToggleItem label="Multiplayer" />
       </Section>
     </div>
