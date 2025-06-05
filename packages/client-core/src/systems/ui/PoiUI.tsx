@@ -41,7 +41,7 @@ import { CameraScrollBehavior, PoiScrollTransition } from '@ir-engine/spatial/sr
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import { ObjectFitFunctions } from '@ir-engine/spatial/src/transform/functions/ObjectFitFunctions'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'
 
 // @ts-ignore
@@ -50,6 +50,7 @@ import base from '@ir-engine/client/src/themes/base.css?inline'
 import components from '@ir-engine/client/src/themes/components.css?inline'
 // @ts-ignore
 import utilities from '@ir-engine/client/src/themes/utilities.css?inline'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 
 export function tearDownPoiUi(cameraEntity: Entity) {
   const poiCameraComponent = getOptionalMutableComponent(cameraEntity, PoiCameraComponent)
@@ -73,7 +74,7 @@ export function setupPoiUi(cameraEntity: Entity) {
       const camera = getOptionalComponent(viewerEntity, CameraComponent)
       if (!camera) return
       const distance = camera.near * 1.1 // 10% in front of camera
-      const scale = 0.275
+      const scale = 0.137
       ObjectFitFunctions.attachObjectInFrontOfCamera(poiCameraComponent.xruiEntity.value, scale, distance)
     }
   })
@@ -105,7 +106,16 @@ const PoiUiView = (props: PoiUiProps) => {
   const [showNext, setShowNext] = useState(false)
   const [buttonsDisabled, setButtonsDisabled] = useState(false)
 
-  const refCanvas = useRef<HTMLElement>(document.getElementById('engine-renderer-canvas'))
+  const [canvasWidth, setCanvasWidth] = useState(0)
+  const [canvasHeight, setCanvasHeight] = useState(0)
+
+  const rendererComponent = useComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)
+
+  useEffect(() => {
+    if (!rendererComponent.canvas.value) return
+    setCanvasWidth(rendererComponent.canvas.value.width)
+    setCanvasHeight(rendererComponent.canvas.value.height)
+  }, [rendererComponent.canvas, rendererComponent.needsResize])
 
   const previousClicked = () => {
     const transitionType = cameraSettingsState.poiScrollTransitionType.value
@@ -184,20 +194,13 @@ const PoiUiView = (props: PoiUiProps) => {
     return null
   }
 
-  useEffect(() => {
-    console.log('mbf', refCanvas.current?.clientHeight, refCanvas.current?.clientWidth)
-  }, [refCanvas?.current])
-
   return (
     <>
       <style type="text/css">{components}</style>
       <style type="text/css">{utilities}</style>
       <style type="text/css">{base}</style>
 
-      <div
-        style={{ height: refCanvas.current?.clientHeight, width: refCanvas.current?.clientWidth }}
-        className={`flex flex-row `}
-      >
+      <div style={{ height: canvasHeight, width: canvasWidth }} className={`flex flex-row `}>
         <div className="flex h-full w-1/2 items-center justify-start">
           {showPrevious && (
             <button
