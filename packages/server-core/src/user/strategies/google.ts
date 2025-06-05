@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AuthenticationRequest, AuthenticationResult } from '@feathersjs/authentication'
 import { Paginated, Params } from '@feathersjs/feathers'
-import multiLogger from '@ir-engine/common/src/logger'
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { loginTokenPath } from '@ir-engine/common/src/schemas/user/login-token.schema'
 import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
@@ -40,7 +39,6 @@ import getFreeInviteCode from '../../util/get-free-invite-code'
 import makeInitialAdmin from '../../util/make-initial-admin'
 import CustomOAuthStrategy, { CustomOAuthParams } from './custom-oauth'
 
-const logger = multiLogger.child({ component: 'googleoauth' })
 export class Googlestrategy extends CustomOAuthStrategy {
   constructor(app: Application) {
     super()
@@ -207,13 +205,6 @@ export class Googlestrategy extends CustomOAuthStrategy {
       return redirectUrl
     } else {
       const loginType = params.query?.userId ? 'connection' : 'login'
-      if (signupUsername) {
-        console.log(data)
-        this.app.service(userPath).patch(data[identityProviderPath].userId, {
-          name: signupUsername as UserName
-        })
-      }
-
       let redirectUrl = `${redirectDomain}?token=${(data as AuthenticationResult).accessToken}&type=${loginType}`
       if (redirectPath) {
         redirectUrl = redirectUrl.concat(`&path=${redirectPath}`)
