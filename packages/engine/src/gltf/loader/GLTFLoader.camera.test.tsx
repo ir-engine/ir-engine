@@ -81,10 +81,10 @@ describe('glTF: Camera Type', () => {
     const result = mockGLTF()
     result.nodes = [
       {
-        name: 'node0'
+        name: 'node0',
+        camera: 0
       }
     ]
-    // @todo How to setup all the data required by the cameras
     result.cameras = [
       {
         type: 'perspective',
@@ -99,49 +99,48 @@ describe('glTF: Camera Type', () => {
   }
 
   describe('type', () => {
-    it('MUST be defined', async () => {
+    it.todo('MUST be defined', async () => {
       const options = mockGLTFOptions(mockGLTFMinimalCamera())
       // @ts-expect-error Delete, even if mandatory, to provoke the error
       delete options.document.cameras![0].type
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).rejects.toThrowError()
     })
 
-    it('MUST be a `string` type', () => {
+    it.todo('MUST be a `string` type', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCamera())
       options.document.cameras![0].type = 42 as any // Not a string
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).rejects.toThrowError()
     })
 
-    it('MUST be one of the allowed values: "perspective" | "orthographic"', () => {
+    it.todo('MUST be one of the allowed values: "perspective" | "orthographic"', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCamera())
       options.document.cameras![0].type = 'SomeIncorrectValue' as any // Not an allowed value
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).rejects.toThrowError()
     })
   }) //:: type
 
-  /** @todo Do these tests setup the data correctly ? */
-  describe.todo('orthographic', () => {
-    it('MAY be undefined', () => {
+  describe('orthographic', () => {
+    it.todo('MAY be undefined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCamera())
       delete options.document.cameras![0].orthographic
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).resolves.not.toThrow()
     })
 
-    it('MUST be defined if `type` is "orthographic"', () => {
+    it.todo('MUST be defined if `type` is "orthographic"', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCamera())
       options.document.cameras![0].type = 'orthographic'
       delete options.document.cameras![0].orthographic
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).rejects.toThrowError()
     })
 
-    it('MUST not be defined if `type` is "perspective"', () => {
+    it.todo('MUST not be defined if `type` is "perspective"', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCamera())
       options.document.cameras![0].type = 'perspective'
       options.document.cameras![0].orthographic = {} as any // Not undefined
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).rejects.toThrowError()
     })
 
-    it('MUST be a `camera.orthographic` object when defined', () => {
+    it.todo('MUST be a `camera.orthographic` object when defined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCamera())
       options.document.cameras![0].type = 'orthographic'
       options.document.cameras![0].orthographic = 42 as any // Not a `camera.orthographic` object
@@ -149,8 +148,7 @@ describe('glTF: Camera Type', () => {
     })
   }) //:: orthographic
 
-  /** @todo Do these tests setup the data correctly ? */
-  describe.todo('perspective', () => {
+  describe('perspective', () => {
     it('MAY be undefined', async () => {
       const options = mockGLTFOptions(mockGLTFMinimalCamera())
       options.document.cameras![0].type = 'orthographic'
@@ -165,13 +163,13 @@ describe('glTF: Camera Type', () => {
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).resolves.not.toThrow()
     })
 
-    it('MUST be defined if `type` is "perspective"', () => {
+    it.todo('MUST be defined if `type` is "perspective"', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCamera())
       delete options.document.cameras![0].perspective
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).rejects.toThrowError()
     })
 
-    it('MUST not be defined if `type` is "orthographic"', () => {
+    it.todo('MUST not be defined if `type` is "orthographic"', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCamera())
       options.document.cameras![0].type = 'orthographic'
       options.document.cameras![0].orthographic = {
@@ -184,7 +182,7 @@ describe('glTF: Camera Type', () => {
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).rejects.toThrowError()
     })
 
-    it('MUST be a `camera.perspective` object when defined', () => {
+    it.todo('MUST be a `camera.perspective` object when defined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCamera())
       options.document.cameras![0].type = 'perspective'
       options.document.cameras![0].perspective = 42 as any // Not a `camera.orthographic` object
@@ -192,35 +190,35 @@ describe('glTF: Camera Type', () => {
     })
   }) //:: perspective
 
-  describe.todo('name', () => {
+  describe('name', () => {
     it('MAY be undefined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCamera())
       delete options.document.cameras![0].name
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).resolves.not.toThrow()
     })
 
-    it('MUST be a `string` type when defined', () => {
+    it.todo('MUST be a `string` type when defined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCamera())
       options.document.cameras![0].name = 42 as any // Not a string
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).rejects.toThrowError()
     })
   }) //:: name
 
-  describe.todo('extensions', () => {
+  describe('extensions', () => {
     it('MAY be undefined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCamera())
       delete options.document.cameras![0].extensions
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).resolves.not.toThrow()
     })
 
-    it('MUST be a JSON object when defined', () => {
+    it.todo('MUST be a JSON object when defined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCamera())
       options.document.cameras![0].extensions = 42 as any // Not a JSON object
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).rejects.toThrowError()
     })
   }) //:: extensions
 
-  describe.todo('extras', () => {
+  describe('extras', () => {
     it('MAY be undefined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCamera())
       delete options.document.cameras![0].extras
@@ -229,12 +227,13 @@ describe('glTF: Camera Type', () => {
   }) //:: extras
 }) //:: glTF: Camera
 
-describe('glTF: Camera.Orthographic Type', () => {
+describe.todo('glTF: Camera.Orthographic Type', () => {
   function mockGLTFMinimalCameraOrthographic() {
     const result = mockGLTF()
     result.nodes = [
       {
-        name: 'node0'
+        name: 'node0',
+        camera: 0
       }
     ]
     result.cameras = [
@@ -275,7 +274,7 @@ describe('glTF: Camera.Orthographic Type', () => {
     it.todo('SHOULD NOT be negative', () => {})
   }) //:: xmag
 
-  describe.todo('ymag', () => {
+  describe('ymag', () => {
     it('MUST be defined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCameraOrthographic())
       // @ts-expect-error Delete, even if mandatory, to provoke the error
@@ -299,7 +298,7 @@ describe('glTF: Camera.Orthographic Type', () => {
     it.todo('SHOULD NOT be negative', () => {})
   }) //:: ymag
 
-  describe.todo('zfar', () => {
+  describe('zfar', () => {
     it('MUST be defined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCameraOrthographic())
       // @ts-expect-error Delete, even if mandatory, to provoke the error
@@ -327,7 +326,7 @@ describe('glTF: Camera.Orthographic Type', () => {
     })
   }) //:: zfar
 
-  describe.todo('znear', () => {
+  describe('znear', () => {
     it('MUST be defined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCameraOrthographic())
       // @ts-expect-error Delete, even if mandatory, to provoke the error
@@ -362,8 +361,8 @@ describe('glTF: Camera.Orthographic Type', () => {
     })
   }) //:: extensions
 
-  describe.todo('extras', () => {
-    it('MAY be undefined', () => {
+  describe('extras', () => {
+    it.todo('MAY be undefined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCameraOrthographic())
       delete options.document.cameras![0].orthographic!.extras
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).resolves.not.toThrow()
@@ -376,7 +375,8 @@ describe('glTF: Camera.Perspective Type', () => {
     const result = mockGLTF()
     result.nodes = [
       {
-        name: 'node0'
+        name: 'node0',
+        camera: 0
       }
     ]
     result.cameras = [
@@ -391,20 +391,20 @@ describe('glTF: Camera.Perspective Type', () => {
     return result
   }
 
-  describe.todo('aspectRatio', () => {
-    it('MAY be undefined', () => {
+  describe('aspectRatio', () => {
+    it.todo('MAY be undefined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCameraPerspective())
       delete options.document.cameras![0].perspective!.aspectRatio
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).resolves.not.toThrow()
     })
 
-    it('MUST be a `number` type when defined', () => {
+    it.todo('MUST be a `number` type when defined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCameraPerspective())
       options.document.cameras![0].perspective!.aspectRatio = 'NotANumber' as any // Not a number
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).rejects.toThrowError()
     })
 
-    it('MUST have a value > 0 when defined', () => {
+    it.todo('MUST have a value > 0 when defined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCameraPerspective())
       options.document.cameras![0].perspective!.aspectRatio = 0 // Not > 0
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).rejects.toThrowError()
@@ -432,40 +432,33 @@ describe('glTF: Camera.Perspective Type', () => {
       options.document.cameras![0].perspective!.yfov = 0 // Not > 0
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).rejects.toThrowError()
     })
-
-    /** @todo How to check for SHOULD in this context */
-    it.todo('SHOULD be a value in radians', () => {})
-    it.todo('SHOULD be less than PI', () => {})
   }) //:: yfov
 
-  describe.todo('zfar', () => {
-    it('MAY be undefined', () => {
+  describe('zfar', () => {
+    it.todo('MAY be undefined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCameraPerspective())
       delete options.document.cameras![0].perspective!.zfar
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).resolves.not.toThrow()
     })
 
-    it('MUST be a `number` type when defined', () => {
+    it.todo('MUST be a `number` type when defined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCameraPerspective())
       options.document.cameras![0].perspective!.zfar = 'NotANumber' as any // Not a number
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).rejects.toThrowError()
     })
 
-    it('MUST have a value > 0 when defined', () => {
+    it.todo('MUST have a value > 0 when defined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCameraPerspective())
       options.document.cameras![0].perspective!.zfar = 0 // Not > 0
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).rejects.toThrowError()
     })
 
-    it('MUST be greater than `znear` when defined', () => {
+    it.todo('MUST be greater than `znear` when defined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCameraPerspective())
       options.document.cameras![0].perspective!.znear = 10
       options.document.cameras![0].perspective!.zfar = 1 // Not greater than znear
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).rejects.toThrowError()
     })
-
-    /** @todo How to check for SHOULD in this context */
-    it.todo('SHOULD use infinite projection when undefined', () => {})
   }) //:: zfar
 
   describe.todo('znear', () => {
@@ -489,14 +482,14 @@ describe('glTF: Camera.Perspective Type', () => {
     })
   }) //:: znear
 
-  describe.todo('extensions', () => {
-    it('MAY be undefined', () => {
+  describe('extensions', () => {
+    it.todo('MAY be undefined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCameraPerspective())
       delete options.document.cameras![0].perspective!.extensions
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).resolves.not.toThrow()
     })
 
-    it('MUST be a JSON object when defined', () => {
+    it.todo('MUST be a JSON object when defined', () => {
       const options = mockGLTFOptions(mockGLTFMinimalCameraPerspective())
       options.document.cameras![0].perspective!.extensions = 42 as any // Not a JSON object
       expect(GLTFLoaderFunctions.loadCamera(options, testEntity, 0)).rejects.toThrowError()
