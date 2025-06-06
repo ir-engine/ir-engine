@@ -30,7 +30,6 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { BufferAttribute, BufferGeometry } from 'three'
 import { UVUnwrapper } from 'xatlas-three'
 
-//add isLoaded to UVUnwrapper
 declare module 'xatlas-three' {
   export interface UVUnwrapper {
     isLoaded: boolean
@@ -70,7 +69,7 @@ export const LightmapComponent = defineComponent({
       roundnessWeight: 0.009999999776482582,
       straightnessWeight: 6,
       textureSeamWeight: 0.5,
-      useInputMeshUvs: true
+      useInputMeshUvs: false
     }
 
     LightmapComponent.unwrapper.isLoaded = true
