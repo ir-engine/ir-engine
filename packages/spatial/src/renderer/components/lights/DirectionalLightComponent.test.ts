@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   EntityTreeComponent,
+  SystemDefinitions,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -36,10 +37,11 @@ import {
   serializeComponent,
   setComponent
 } from '@ir-engine/ecs'
-import { getMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, startReactor } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { BufferGeometry, Color, ColorRepresentation, DirectionalLight, LineBasicMaterial } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
+import { ActiveHelperSystem } from '../../../../../editor/src/systems/ActiveHelperSystem'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { destroySpatialEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
@@ -67,6 +69,8 @@ const DirectionalLightComponentDefaults: DirectionalLightComponentData = {
   shadowRadius: 1,
   cameraFar: 200
 }
+
+const helperReactor = SystemDefinitions.get(ActiveHelperSystem)!.reactor!
 
 function assertDirectionalLightComponentEq(A: DirectionalLightComponentData, B: DirectionalLightComponentData): void {
   /** @todo How to check for (AmbientLight === AmbientLight), when the are different objects with the same data?
@@ -280,6 +284,8 @@ describe('DirectionalLightComponent', () => {
 
       // Run and Check the Initial result
       setComponent(testEntity, DirectionalLightComponent)
+      startReactor(helperReactor)
+
       await vi.waitFor(() => {
         // Sanity check before running
         const before = getComponent(testEntity, DirectionalLightComponent).color
@@ -417,10 +423,10 @@ describe('DirectionalLightComponent', () => {
 
       // Run and Check the Initial result
       setComponent(testEntity, DirectionalLightComponent, { color: ExpectedColor })
+      startReactor(helperReactor)
 
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
-
       await vi.waitFor(() => {
         const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
         assert.equal(hasComponent(childEntity1, LineSegmentComponent), Expected)
