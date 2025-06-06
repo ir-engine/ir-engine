@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Select, { SelectProps } from '@ir-engine/ui/src/primitives/tailwind/Select'
 import React from 'react'
 import { MdOutlineHeatPump, MdOutlineWatch, MdOutlineWindPower } from 'react-icons/md'
+import Select, { SelectProps } from '../../../../primitives/tailwind/Select'
 
 /**Tailwind `Select` styled for studio */
 const SelectInput = (props: SelectProps) => {

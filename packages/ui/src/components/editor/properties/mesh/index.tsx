@@ -33,8 +33,8 @@ import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEdito
 import MaterialEditor from '@ir-engine/editor/src/panels/properties/materialeditor'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import { GiMeshBall } from 'react-icons/gi'
+import Accordion from '../../../../primitives/tailwind/Accordion'
 import GeometryEditor from './geometryEditor'
 
 const materialIsInAuthoringLayer = (entity: Entity) => !!LayerFunctions.getLayerRelationsEntities(entity)?.[0]?.[1]

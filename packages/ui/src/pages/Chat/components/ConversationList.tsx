@@ -29,10 +29,10 @@ import { ChannelID, channelPath, ChannelType } from '@ir-engine/common/src/schem
 import { Engine } from '@ir-engine/ecs'
 import { EngineState } from '@ir-engine/ecs/src/EngineState'
 import { getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { NewChatState } from '@ir-engine/ui/src/pages/Chat/ChatState'
-import { formatMessageTimestamp } from '@ir-engine/ui/src/pages/Chat/utils/dateUtils'
 import React, { useEffect } from 'react'
 import { HiPlus, HiSearch } from 'react-icons/hi'
+import { NewChatState } from '../ChatState'
+import { formatMessageTimestamp } from '../utils/dateUtils'
 
 export const getChannelName = (channel: ChannelType) => {
   return (

@@ -24,10 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { ImmutableObject, useMutableState } from '@ir-engine/hyperflux'
-import { NewChatState, Workspace, WorkspaceChannel } from '@ir-engine/ui/src/pages/Chat/ChatState'
 import React, { useState } from 'react'
 import { HiCog, HiPhone, HiPlus, HiX } from 'react-icons/hi'
 import { twMerge } from 'tailwind-merge'
+import { NewChatState, Workspace, WorkspaceChannel } from '../ChatState'
 
 interface ChannelSidebarProps {
   workspace: Workspace | ImmutableObject<Workspace>

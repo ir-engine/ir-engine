@@ -24,9 +24,9 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@ir-engine/hyperflux'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useId, useRef } from 'react'
 import { LuInfo } from 'react-icons/lu'
+import Tooltip from '../../../primitives/tailwind/Tooltip'
 
 export interface SliderProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   value: number

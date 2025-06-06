@@ -23,18 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ColliderHelperReactor } from '@ir-engine/editor/src/classes/helper/ColliderHelper'
-import { DirectionalLightHelperReactor } from '@ir-engine/editor/src/classes/helper/DirectionalLightHelper'
-import { EnvmapBakeHelperReactor } from '@ir-engine/editor/src/classes/helper/EnvmapBakeHelper'
-import { HemiSphereLightHelperReactor } from '@ir-engine/editor/src/classes/helper/HemiSphereLightHelper'
-import { MediaHelperReactor } from '@ir-engine/editor/src/classes/helper/MediaHelper'
-import { MountPointHelperReactor } from '@ir-engine/editor/src/classes/helper/MountPointHelper'
-import { PointLightHelperReactor } from '@ir-engine/editor/src/classes/helper/PointLightHelper'
-import { PortalHelperReactor } from '@ir-engine/editor/src/classes/helper/PortalHelper'
-import { PositionalAudioHelperReactor } from '@ir-engine/editor/src/classes/helper/PositionalAudioHelper'
-import { ScenePreviewCameraHelperReactor } from '@ir-engine/editor/src/classes/helper/ScenePreviewCameraHelper'
-import { SpawnPointHelperReactor } from '@ir-engine/editor/src/classes/helper/SpawnPointHelper'
-import { SpotLightHelperReactor } from '@ir-engine/editor/src/classes/helper/SpotLightHelper'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvMapBakeComponent'
@@ -67,6 +55,18 @@ import RigidBodyIcon from '@ir-engine/ui/src/components/editor/assets/rigidBody.
 import SpawnPointIcon from '@ir-engine/ui/src/components/editor/assets/spawnPoint.png'
 import SpotLightIcon from '@ir-engine/ui/src/components/editor/assets/spot.png'
 import TriggerIcon from '@ir-engine/ui/src/components/editor/assets/trigger.png'
+import { ColliderHelperReactor } from './ColliderHelper'
+import { DirectionalLightHelperReactor } from './DirectionalLightHelper'
+import { EnvmapBakeHelperReactor } from './EnvmapBakeHelper'
+import { HemiSphereLightHelperReactor } from './HemiSphereLightHelper'
+import { MediaHelperReactor } from './MediaHelper'
+import { MountPointHelperReactor } from './MountPointHelper'
+import { PointLightHelperReactor } from './PointLightHelper'
+import { PortalHelperReactor } from './PortalHelper'
+import { PositionalAudioHelperReactor } from './PositionalAudioHelper'
+import { ScenePreviewCameraHelperReactor } from './ScenePreviewCameraHelper'
+import { SpawnPointHelperReactor } from './SpawnPointHelper'
+import { SpotLightHelperReactor } from './SpotLightHelper'
 
 export interface ComponentHelperEntry {
   reactor?: React.FC

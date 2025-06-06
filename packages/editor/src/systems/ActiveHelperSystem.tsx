@@ -44,19 +44,6 @@ import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelp
 import React from 'react'
 
 import { QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
-import { TransformGizmoControlComponent } from '@ir-engine/editor/src/classes/gizmo/transform/TransformGizmoControlComponent'
-import { ComponentHelperEntry, ComponentHelperState } from '@ir-engine/editor/src/classes/helper/ComponentHelperState'
-import { iconGizmoArrow, iconGizmoYHelper, setupGizmo } from '@ir-engine/editor/src/constants/GizmoPresets'
-import {
-  getIconGizmo,
-  gizmoIconHelperYAxisUpdate,
-  gizmoIconUpdate,
-  setIconSize,
-  VolumeVisibility
-} from '@ir-engine/editor/src/functions/gizmos/studioIconGizmoHelper'
-import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
-import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
-import { transformGizmoControllerQuery } from '@ir-engine/editor/src/systems/TransformGizmoSystem'
 import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { InputHeuristicState, IntersectionData } from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
@@ -68,6 +55,19 @@ import {
   updateBoundingBox
 } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import { Raycaster, Vector3 } from 'three'
+import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
+import { ComponentHelperEntry, ComponentHelperState } from '../classes/helper/ComponentHelperState'
+import { iconGizmoArrow, iconGizmoYHelper, setupGizmo } from '../constants/GizmoPresets'
+import {
+  getIconGizmo,
+  gizmoIconHelperYAxisUpdate,
+  gizmoIconUpdate,
+  setIconSize,
+  VolumeVisibility
+} from '../functions/gizmos/studioIconGizmoHelper'
+import { EditorHelperState } from '../services/EditorHelperState'
+import { SelectionState } from '../services/SelectionServices'
+import { transformGizmoControllerQuery } from './TransformGizmoSystem'
 
 const _raycaster = new Raycaster() // for heuristic
 _raycaster.layers.enable(ObjectLayers.NodeIcon) // only icons

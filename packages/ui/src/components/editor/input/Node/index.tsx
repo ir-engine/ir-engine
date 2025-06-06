@@ -25,10 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Entity, EntityID, getComponent, UUIDComponent } from '@ir-engine/ecs'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
-import { ControlledStringInput } from '@ir-engine/ui/src/components/editor/input/String'
-import { InputProps } from '@ir-engine/ui/src/primitives/tailwind/Input'
 import React from 'react'
 import { useDrop } from 'react-dnd'
+import { InputProps } from '../../../../primitives/tailwind/Input'
+import { ControlledStringInput } from '../String'
 
 export interface NodeInputProps extends Omit<InputProps, 'onChange'> {
   value: EntityID

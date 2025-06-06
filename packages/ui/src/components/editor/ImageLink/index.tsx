@@ -23,12 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Input } from '@ir-engine/ui/src'
-import ImageUrlFallback from '@ir-engine/ui/src/components/editor/ImageLink/image-url-fallback.png'
-import { XCloseLg } from '@ir-engine/ui/src/icons'
 import React, { ImgHTMLAttributes, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
+import { Input } from '../../..'
+import { XCloseLg } from '../../../icons'
+import ImageUrlFallback from './image-url-fallback.png'
 
 export interface ImageLinkProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'onChange' | 'onBlur'> {
   variant?: 'lg' | 'md' | 'sm' | 'full'

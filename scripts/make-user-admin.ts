@@ -41,7 +41,7 @@ import {
   UserType
 } from '@ir-engine/common/src/schema.type.module'
 
-import { scopeTypeSeed } from '@ir-engine/server-core/src/scope/scope-type/scope-type.seed'
+import { scopeTypeSeed } from '../packages/server-core/src/scope/scope-type/scope-type.seed'
 
 dotenv.config({
   path: appRootPath.path,

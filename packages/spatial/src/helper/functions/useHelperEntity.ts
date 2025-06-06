@@ -40,13 +40,13 @@ import {
 } from '@ir-engine/ecs'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { HelperComponent } from '@ir-engine/spatial/src/helper/HelperComponent'
-import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
-import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { InputComponent } from '../../input/components/InputComponent'
+import { ObjectComponent } from '../../renderer/components/ObjectComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { HelperComponent } from '../HelperComponent'
 
 type DisposableObject3D = Object3D & { update?: () => void; dispose?: () => void }
 

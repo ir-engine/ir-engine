@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Scrubber from '@ir-engine/ui/src/components/editor/layout/Scrubber'
 import React from 'react'
 import NumericInput, { NumericInputProp } from '..'
+import Scrubber from '../../../layout/Scrubber'
 
 const removeNumericInputOnlyProps = (props) => {
   const removeElement = (object, keyToRemove) => {

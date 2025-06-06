@@ -25,9 +25,9 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { ImageLink } from '@ir-engine/ui/editor'
-import { Image01Sm } from '@ir-engine/ui/src/icons'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+import { Image01Sm } from '../../../icons'
+import LoadingView from '../../../primitives/tailwind/LoadingView'
 
 export default function AddEditLocationModalStudioSections() {
   const { t } = useTranslation()

@@ -18,10 +18,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import CopyText from '@ir-engine/ui/src/primitives/tailwind/CopyText'
 import Fuse from 'fuse.js'
 import React, { useEffect, useRef, useState } from 'react'
 import * as Icons from '.'
+import CopyText from '../primitives/tailwind/CopyText'
 
 export default {
   title: 'Icons/All',

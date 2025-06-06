@@ -31,11 +31,11 @@ import { Color } from 'three'
 
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
-import NumericInput from '@ir-engine/ui/src/components/editor/input/Numeric'
-import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
-import ColorInput from '@ir-engine/ui/src/primitives/tailwind/Color'
 import { GiFog } from 'react-icons/gi'
+import ColorInput from '../../../../primitives/tailwind/Color'
+import InputGroup from '../../input/Group'
+import NumericInput from '../../input/Numeric'
+import SelectInput from '../../input/Select'
 
 const FogTypeOptions = [
   { label: 'Disabled', value: FogType.Disabled },

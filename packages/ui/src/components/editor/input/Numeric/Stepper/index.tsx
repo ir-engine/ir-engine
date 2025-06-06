@@ -26,10 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { t } from 'i18next'
 import { twMerge } from 'tailwind-merge'
 import NumericInput, { NumericInputProp } from '..'
+import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 
 export function NumericStepperInput({
   style,
