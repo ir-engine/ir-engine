@@ -33,12 +33,12 @@ if [ "$SOURCE_REPO_PROVIDER" == "gcp" ]; then
     SUFFIX="mt"
   elif [[ "$APP_HOST" =~ "qat" ]]; then
     SUFFIX="qat"
-  elif [[ "$app_host" =~ "mt-nightly" ]]; then
-    suffix="mt-nightly"
-  elif [[ "$app_host" =~ "mt-weekly" ]]; then
-    suffix="mt-weekly"
-  elif [[ "$app_host" =~ "mt-prdmirr" ]]; then
-    suffix="mt-prdmirr"
+  elif [[ "$APP_HOST" =~ "mt-nightly" ]]; then
+    SUFFIX="mt-nightly"
+  elif [[ "$APP_HOST" =~ "mt-weekly" ]]; then
+    SUFFIX="mt-weekly"
+  elif [[ "$APP_HOST" =~ "mt-prdmirr" ]]; then
+    SUFFIX="mt-prdmirr"
   else
     SUFFIX=""
   fi
@@ -74,6 +74,12 @@ elif [ "$DESTINATION_REPO_PROVIDER" == "gcp" ]; then
       SUFFIX="mt"
   elif [[ "$APP_HOST" =~ "qat" ]]; then
       SUFFIX="qat"
+   elif [[ "$APP_HOST" =~ "mt-nightly" ]]; then
+      SUFFIX="mt-nightly"
+   elif [[ "$APP_HOST" =~ "mt-weekly" ]]; then
+      SUFFIX="mt-weekly"
+   elif [[ "$APP_HOST" =~ "mt-prdmirr" ]]; then
+      SUFFIX="mt-prdmirr"
   else
       SUFFIX=""
   fi
