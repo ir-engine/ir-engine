@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   EntityID,
   SourceID,
-  SystemDefinitions,
   UUIDComponent,
   UndefinedEntity,
   createEngine,
@@ -38,7 +37,6 @@ import {
   serializeComponent,
   setComponent
 } from '@ir-engine/ecs'
-import { ActiveHelperSystem } from '@ir-engine/editor/src/systems/ActiveHelperSystem'
 import assert from 'assert'
 import { BoxGeometry, Color, ColorRepresentation, MeshBasicMaterial } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
@@ -72,8 +70,6 @@ function assertHemisphereLightComponentNotEq(A: HemisphereLightComponentData, B:
   assertColor.notEq(A.groundColor, B.groundColor)
   assert.notEqual(A.intensity, B.intensity)
 }
-
-const helperReactor = SystemDefinitions.get(ActiveHelperSystem)!.reactor!
 
 describe('HemisphereLightComponent', () => {
   describe('IDs', () => {

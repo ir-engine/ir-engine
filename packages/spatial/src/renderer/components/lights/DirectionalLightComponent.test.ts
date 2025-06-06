@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
-  SystemDefinitions,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -39,11 +38,11 @@ import {
 import { getMutableState, startReactor } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { BufferGeometry, Color, ColorRepresentation, DirectionalLight, LineBasicMaterial } from 'three'
+
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
-import { ActiveHelperSystem } from '../../../../../editor/src/systems/ActiveHelperSystem'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { destroySpatialEngine } from '../../../initializeEngine'
-import { TransformComponent } from '../../../transform/components/TransformComponent'
+import { TransformComponent } from '../../RendererModule'
 import { RendererState } from '../../RendererState'
 import { LineSegmentComponent } from '../LineSegmentComponent'
 import { ObjectComponent } from '../ObjectComponent'
@@ -68,8 +67,6 @@ const DirectionalLightComponentDefaults: DirectionalLightComponentData = {
   shadowRadius: 1,
   cameraFar: 200
 }
-
-const helperReactor = SystemDefinitions.get(ActiveHelperSystem)!.reactor!
 
 function assertDirectionalLightComponentEq(A: DirectionalLightComponentData, B: DirectionalLightComponentData): void {
   /** @todo How to check for (AmbientLight === AmbientLight), when the are different objects with the same data?

@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   EntityID,
   SourceID,
-  SystemDefinitions,
   UUIDComponent,
   UndefinedEntity,
   createEngine,
@@ -39,7 +38,6 @@ import {
   serializeComponent,
   setComponent
 } from '@ir-engine/ecs'
-import { ActiveHelperSystem } from '@ir-engine/editor/src/systems/ActiveHelperSystem'
 import { getMutableState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { ColorRepresentation, SpotLight, Vector3 } from 'three'
@@ -100,8 +98,6 @@ function assertSpotLightComponentNotEq(A: SpotLightComponentData, B: SpotLightCo
   assert.notEqual(A.shadowBias, B.shadowBias)
   assert.notEqual(A.shadowRadius, B.shadowRadius)
 }
-
-const helperReactor = SystemDefinitions.get(ActiveHelperSystem)!.reactor!
 
 describe('SpotLightComponent', () => {
   describe('IDs', () => {

@@ -27,7 +27,6 @@ import {
   Entity,
   EntityID,
   SourceID,
-  SystemDefinitions,
   UUIDComponent,
   UndefinedEntity,
   createEngine,
@@ -40,7 +39,6 @@ import {
   serializeComponent,
   setComponent
 } from '@ir-engine/ecs'
-import { ActiveHelperSystem } from '@ir-engine/editor/src/systems/ActiveHelperSystem'
 import { getMutableState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { BoxGeometry, ColorRepresentation, MeshBasicMaterial, PointLight } from 'three'
@@ -98,8 +96,6 @@ function assertPointLightComponentNotEq(A: PointLightComponentData, B: PointLigh
   assert.notEqual(A.shadowRadius, B.shadowRadius)
   assert.notEqual(A.helperEntity, B.helperEntity)
 }
-
-const helperReactor = SystemDefinitions.get(ActiveHelperSystem)!.reactor!
 
 describe('PointLightComponent', () => {
   describe('IDs', () => {
