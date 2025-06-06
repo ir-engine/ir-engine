@@ -25,7 +25,11 @@ import { useFind, useMutation } from '@ir-engine/common'
 import { config } from '@ir-engine/common/src/config'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { ModelTransformStatus, safeCompressGLTFWeb } from '@ir-engine/common/src/model/ModelTransformFunctions'
+import {
+  ModelTransformStatus,
+  safeCompressGLTFWeb,
+  transformModel
+} from '@ir-engine/common/src/model/ModelTransformFunctions'
 import {
   engineSettingPath,
   LocationData,
@@ -275,10 +279,10 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
               modelFormat: modelFormat,
               resourceUri: '',
               adaptiveSimplification: true,
-              textureCompressionType: 'uastc',
               flatten: false,
               dedup: false,
               combineMaterials: false,
+              maxTextureSize: 1024,
               split: false,
               prune: false,
               join: {
@@ -301,17 +305,37 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
               progress: progressState.value.progress,
               caption: `Compressing ${fileName}...`
             })
-            // transform each of them seperately
-            await safeCompressGLTFWeb(copiedPath, destPath, lodParams, (progress, status, numerator, denominator) => {
-              const caption = t(progressCaptions[status]!, {
-                numerator: (numerator ?? 0) + 1,
-                denominator
+            if (modelFormat === 'glb') {
+              await transformModel(
+                copiedPath,
+                [lodParams],
+                (i, key, data) => {
+                  if (!transformMetadata[i]) transformMetadata[i] = {}
+                  transformMetadata[i][key] = data
+                },
+                (progress, status, numerator, denominator) => {
+                  const caption = t(progressCaptions[status]!, {
+                    numerator: numerator! + 1,
+                    denominator
+                  })
+                  progressState.set({
+                    progress: progressState.value.progress + progress / entitiesToCompress.length,
+                    caption
+                  })
+                }
+              )
+            } else {
+              await safeCompressGLTFWeb(copiedPath, destPath, lodParams, (progress, status, numerator, denominator) => {
+                const caption = t(progressCaptions[status]!, {
+                  numerator: (numerator ?? 0) + 1,
+                  denominator
+                })
+                progressState.set({
+                  progress: progress / entitiesToCompress.length + progressState.value.progress,
+                  caption
+                })
               })
-              progressState.set({
-                progress: progress / entitiesToCompress.length + progressState.value.progress,
-                caption
-              })
-            })
+            }
             // continue if it is scene itself
             if (fileName == scenename) {
               EditorControlFunctions.modifyProperty([gltfEntity], GLTFComponent, {
@@ -322,7 +346,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
             setComponent(gltfEntity, NameComponent, fileName + '-compressed-published')
             // Create a new entity with the compressed GLT
             EditorControlFunctions.modifyProperty([gltfEntity], GLTFComponent, {
-              src: copiedPath
+              src: pathJoin(config.client.fileServer, destPath)
             })
           } catch (error) {
             console.log(error, 'Error compressing')
