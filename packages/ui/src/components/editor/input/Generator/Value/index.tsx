@@ -34,11 +34,11 @@ import {
   ValueGeneratorJSONDefaults
 } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@ir-engine/hyperflux'
-import Button from '../../../../../primitives/tailwind/Button'
-import PaginatedList from '../../../layout/PaginatedList'
-import InputGroup from '../../Group'
-import NumericInput from '../../Numeric'
-import SelectInput from '../../Select'
+import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
+import NumericInput from '@ir-engine/ui/src/components/editor/input/Numeric'
+import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
+import PaginatedList from '@ir-engine/ui/src/components/editor/layout/PaginatedList'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 
 export default function ValueGenerator({
   path,

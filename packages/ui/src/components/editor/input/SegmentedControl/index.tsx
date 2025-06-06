@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import SegmentedControl, { SegmentedControlProps } from '@ir-engine/ui/src/primitives/tailwind/SegmentedControl'
 import React from 'react'
 import { MdOutlineHeatPump, MdOutlineWatch, MdOutlineWindPower } from 'react-icons/md'
-import SegmentedControl, { SegmentedControlProps } from '../../../../primitives/tailwind/SegmentedControl'
 
 /**Tailwind `Select` styled for studio */
 const SegmentedControlInput = (props: SegmentedControlProps) => {

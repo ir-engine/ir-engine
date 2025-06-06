@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React, { ReactNode } from 'react'
-import Text from '../../../primitives/tailwind/Text'
 
 export const PanelTitle = ({ children }: { children: ReactNode }) => {
   return (

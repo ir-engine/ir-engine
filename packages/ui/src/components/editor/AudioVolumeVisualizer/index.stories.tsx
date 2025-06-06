@@ -24,12 +24,12 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@ir-engine/hyperflux'
+import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
+import Slider from '@ir-engine/ui/src/components/editor/Slider'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import { ArgTypes } from '@storybook/react'
 import React, { ChangeEvent, useRef } from 'react'
 import { FaBackwardStep, FaPause, FaPlay, FaUpload } from 'react-icons/fa6'
-import Button from '../../../primitives/tailwind/Button'
-import InputGroup from '../input/Group'
-import Slider from '../Slider'
 import AudioVolumeVisualizer, { AudioVolumeVisualizerProps } from './index'
 
 const argTypes: ArgTypes = {

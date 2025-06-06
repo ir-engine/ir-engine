@@ -40,15 +40,15 @@ import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorCom
 import { useState } from '@ir-engine/hyperflux'
 import { getCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { Checkbox } from '@ir-engine/ui'
+import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
+import ModelInput from '@ir-engine/ui/src/components/editor/input/Model'
+import NumericInput from '@ir-engine/ui/src/components/editor/input/Numeric'
+import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
+import { OptionType } from '@ir-engine/ui/src/primitives/tailwind/Select'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaStreetView } from 'react-icons/fa'
 import { LoopOnce, LoopPingPong, LoopRepeat } from 'three'
-import { OptionType } from '../../../../primitives/tailwind/Select'
-import InputGroup from '../../input/Group'
-import ModelInput from '../../input/Model'
-import NumericInput from '../../input/Numeric'
-import SelectInput from '../../input/Select'
 
 export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()

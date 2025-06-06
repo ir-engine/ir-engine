@@ -30,8 +30,8 @@ import { clamp } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions
 import { getStepSize } from '@ir-engine/editor/src/functions/utils'
 import { toPrecision } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { useHookstate } from '@ir-engine/hyperflux'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { twMerge } from 'tailwind-merge'
-import Text from '../../../../primitives/tailwind/Text'
 
 function toPrecisionString(value: number, precision?: number) {
   if (value === 0) return '0.00'

@@ -33,12 +33,12 @@ import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components
 import { DistanceModel, DistanceModelOptions } from '@ir-engine/engine/src/audio/constants/AudioConstants'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { Slider } from '@ir-engine/ui/editor'
+import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
+import NumericScrubber from '@ir-engine/ui/src/components/editor/input/Numeric/Scrubber'
+import SegmentedControlInput from '@ir-engine/ui/src/components/editor/input/SegmentedControl'
 import { FaAngleLeft } from 'react-icons/fa'
 import { RiExpandUpDownLine } from 'react-icons/ri'
 import { TfiAngleLeft } from 'react-icons/tfi'
-import InputGroup from '../../../input/Group'
-import NumericScrubber from '../../../input/Numeric/Scrubber'
-import SegmentedControlInput from '../../../input/SegmentedControl'
 
 /**
  * MediaNodeEditor used to render editor view for property customization.

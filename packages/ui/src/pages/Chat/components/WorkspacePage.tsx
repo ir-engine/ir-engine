@@ -24,13 +24,13 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useMutableState } from '@ir-engine/hyperflux'
+import { NewChatState } from '@ir-engine/ui/src/pages/Chat/ChatState'
+import { ChannelSidebar } from '@ir-engine/ui/src/pages/Chat/components/ChannelSidebar'
+import { ConversationWindow } from '@ir-engine/ui/src/pages/Chat/components/ConversationWindow'
+import { MemberSidebar } from '@ir-engine/ui/src/pages/Chat/components/MemberSidebar'
+import { WorkspaceHeader } from '@ir-engine/ui/src/pages/Chat/components/WorkspaceHeader'
 import React, { useEffect } from 'react'
 import { HiEye, HiEyeOff } from 'react-icons/hi'
-import { NewChatState } from '../ChatState'
-import { ChannelSidebar } from './ChannelSidebar'
-import { ConversationWindow } from './ConversationWindow'
-import { MemberSidebar } from './MemberSidebar'
-import { WorkspaceHeader } from './WorkspaceHeader'
 
 export const WorkspacePage: React.FC = () => {
   const chatState = useMutableState(NewChatState)

@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { XCircleLg } from '@ir-engine/ui/src/icons'
+import Input, { InputProps } from '@ir-engine/ui/src/primitives/tailwind/Input'
 import React, { useEffect, useState } from 'react'
-import { XCircleLg } from '../../../../icons'
-import Input, { InputProps } from '../../../../primitives/tailwind/Input'
 
 export interface StringInputProps extends Omit<InputProps, 'onChange'> {
   value: string

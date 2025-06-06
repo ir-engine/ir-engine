@@ -29,7 +29,7 @@ import React, { useEffect } from 'react'
 
 import { State, useHookstate } from '@ir-engine/hyperflux'
 
-import Button from '../../../primitives/tailwind/Button'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 
 const buttonStyle = {
   width: '90%',

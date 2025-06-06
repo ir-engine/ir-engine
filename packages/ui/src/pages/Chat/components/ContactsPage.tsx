@@ -31,10 +31,10 @@ import { API } from '@ir-engine/common'
 import { UserID, UserName, userPath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { NewChatState } from '@ir-engine/ui/src/pages/Chat/ChatState'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiChat, HiCheck, HiDotsVertical, HiPhone, HiSearch, HiUserAdd, HiUserRemove, HiX } from 'react-icons/hi'
-import { NewChatState } from '../ChatState'
 
 export const ContactsPage: React.FC = () => {
   const { t } = useTranslation()

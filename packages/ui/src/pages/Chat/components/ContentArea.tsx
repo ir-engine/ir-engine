@@ -23,12 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { ChatPageType } from '@ir-engine/ui/src/pages/Chat/ChatState'
+import { ContactsPage } from '@ir-engine/ui/src/pages/Chat/components/ContactsPage'
+import { DirectMessagesPage } from '@ir-engine/ui/src/pages/Chat/components/DirectMessagesPage'
+import { SettingsPage } from '@ir-engine/ui/src/pages/Chat/components/SettingsPage'
+import { WorkspacePage } from '@ir-engine/ui/src/pages/Chat/components/WorkspacePage'
 import React from 'react'
-import { ChatPageType } from '../ChatState'
-import { ContactsPage } from './ContactsPage'
-import { DirectMessagesPage } from './DirectMessagesPage'
-import { SettingsPage } from './SettingsPage'
-import { WorkspacePage } from './WorkspacePage'
 
 interface ContentAreaProps {
   currentPage: ChatPageType

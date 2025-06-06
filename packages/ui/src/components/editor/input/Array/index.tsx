@@ -24,6 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import { SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { NO_PROXY, useHookstate, useState } from '@ir-engine/hyperflux'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import React, { ReactNode, useCallback, useEffect } from 'react'
 import { DndProvider, useDrag, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -31,8 +33,6 @@ import { HiMinus, HiPlus } from 'react-icons/hi'
 import { MdDragIndicator } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import { v4 as uuidv4 } from 'uuid'
-import Button from '../../../../primitives/tailwind/Button'
-import Input from '../../../../primitives/tailwind/Input'
 
 const ItemType = {
   inputElement: 'inputElement'

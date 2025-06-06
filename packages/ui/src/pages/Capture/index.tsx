@@ -74,8 +74,8 @@ import RecordingsList from '@ir-engine/ui/src/components/tailwind/RecordingList'
 import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 import Video from '@ir-engine/ui/src/primitives/tailwind/Video'
 
-import { Slider } from '../../../editor'
-import Button from '../../primitives/tailwind/Button'
+import { Slider } from '@ir-engine/ui/editor'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 
 /**
  * Start playback of a recording

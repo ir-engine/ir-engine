@@ -37,12 +37,12 @@ import {
 } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@ir-engine/hyperflux'
 
-import Button from '../../../../../primitives/tailwind/Button'
-import ColorInput from '../../../../../primitives/tailwind/Color'
-import Text from '../../../../../primitives/tailwind/Text'
-import InputGroup from '../../Group'
-import NumericInput from '../../Numeric'
-import SelectInput from '../../Select'
+import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
+import NumericInput from '@ir-engine/ui/src/components/editor/input/Numeric'
+import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import ColorInput from '@ir-engine/ui/src/primitives/tailwind/Color'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 export function ColorJSONInput({ value, onChange }: { value: ColorJSON; onChange: (color: ColorJSON) => void }) {
   return (

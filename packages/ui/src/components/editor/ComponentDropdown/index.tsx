@@ -25,11 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Entity, UUIDComponent } from '@ir-engine/ecs'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { Tooltip } from '@ir-engine/ui/src'
 import { InfoCircleSm } from '@ir-engine/ui/src/icons'
 import React, { useEffect } from 'react'
 import { HiCube, HiMiniXMark, HiOutlineChevronRight } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
-import { Tooltip } from '../../..'
 import { ComponentDropdownState } from './ComponentDropdownState'
 
 export interface ComponentDropdownProps {

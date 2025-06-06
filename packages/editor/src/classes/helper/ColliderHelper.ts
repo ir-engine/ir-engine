@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { setComponent, UndefinedEntity, useComponent } from '@ir-engine/ecs'
+import { getIconGizmo } from '@ir-engine/editor/src/functions/gizmos/studioIconGizmoHelper'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
@@ -31,7 +32,6 @@ import BoxColliderIcon from '@ir-engine/ui/src/components/editor/assets/boxColli
 import CylinderColliderIcon from '@ir-engine/ui/src/components/editor/assets/cylinderCollider.png'
 import SphereColiderIcon from '@ir-engine/ui/src/components/editor/assets/sphereCollider.png'
 import { useEffect } from 'react'
-import { getIconGizmo } from '../../functions/gizmos/studioIconGizmoHelper'
 
 export const ColliderHelperReactor: React.FC = (props: { parentEntity; iconEntity; selected; hovered }) => {
   const { parentEntity, iconEntity, selected, hovered } = props

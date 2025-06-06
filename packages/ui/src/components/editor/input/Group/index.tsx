@@ -25,11 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
+import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
+import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { LuInfo } from 'react-icons/lu'
 import { MdOutlineHelpOutline } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
-import Label from '../../../../primitives/tailwind/Label'
-import Tooltip from '../../../../primitives/tailwind/Tooltip'
 
 /**
  * Used to provide styles for InputGroupContainer div.

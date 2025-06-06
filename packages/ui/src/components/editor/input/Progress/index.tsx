@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
+import Progress, { ProgressProps } from '@ir-engine/ui/src/primitives/tailwind/Progress'
 import { HiPause, HiPlay } from 'react-icons/hi2'
-import Progress, { ProgressProps } from '../../../../primitives/tailwind/Progress'
 
 export interface ProgressBarProps extends ProgressProps {
   paused: boolean

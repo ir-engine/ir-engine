@@ -24,8 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Engine, Entity, getComponent, getOptionalComponent, setComponent } from '@ir-engine/ecs'
+import { getCameraFactor, intersectObjectWithRay } from '@ir-engine/editor/src/functions/gizmos/gizmoCommonFunctions'
+import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
 import { getState } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { Vector3_One, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -33,9 +36,6 @@ import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/Obje
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@ir-engine/spatial/src/SpatialModule'
 import { Line, Raycaster, Sprite, SpriteMaterial, TextureLoader } from 'three'
-import { Vector3_One, Vector3_Zero } from '../../../../spatial/src/common/constants/MathConstants'
-import { EditorHelperState } from '../../services/EditorHelperState'
-import { getCameraFactor, intersectObjectWithRay } from './gizmoCommonFunctions'
 
 const _raycaster = new Raycaster() // for hover
 _raycaster.layers.set(ObjectLayers.NodeIcon)

@@ -33,7 +33,7 @@ import { useHookstate } from '@ir-engine/hyperflux'
 
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { DisplayP3ColorSpace } from '@ir-engine/spatial/src/threejsPatches'
-import Button from '../../../../primitives/tailwind/Button'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import FileBrowserInput from '../FileBrowser'
 import InputGroup from '../Group'
 import SelectInput from '../Select'
