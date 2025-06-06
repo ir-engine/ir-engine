@@ -71,7 +71,7 @@ import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
-import { AuthoringActions, AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState.tsx'
+import { AuthoringActions, AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { InputButtonBindings } from '@ir-engine/spatial/src/input/components/InputComponent'

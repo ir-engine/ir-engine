@@ -23,13 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useMutableState } from '@ir-engine/hyperflux'
 import React from 'react'
 import { HiChatBubbleLeftRight } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
-import { ModalState } from '../../common/services/ModalState'
+
+import { useMutableState } from '@ir-engine/hyperflux'
+import { Send01Md } from '@ir-engine/ui/src/icons'
 import { AuthState } from '../../user/services/AuthService'
-import SettingsMenu from '../Settings'
+import { useChatProvider } from './ChatProvider'
 
 const messageBaseStyles = `
   inline-grid
@@ -47,27 +48,33 @@ const messageBaseStyles = `
   sm:max-w-md
 `
 
+const blueGradientStyles = `
+  bg-gradient-to-r
+  from-blue-500
+  from-40%
+
+  via-blue-400
+  via-90%
+
+  to-blue-400
+  to-100%
+`
+
+const Notification = ({ children }) => {
+  return (
+    <div
+      className={`
+        flex
+        text-center
+      `}
+    >
+      {children}
+    </div>
+  )
+}
+
 const OwnMessage = ({ children }) => (
-  <div
-    className={twMerge(
-      messageBaseStyles,
-      `
-        self-end
-  
-        bg-gradient-to-r
-        from-blue-500
-      
-        from-40%
-        via-blue-400
-        via-80%
-      
-        to-blue-400
-        to-100%
-      `
-    )}
-  >
-    {children}
-  </div>
+  <div className={twMerge(messageBaseStyles, blueGradientStyles, `self-end`)}>{children}</div>
 )
 
 const OtherMessage = ({ children }) => <div className={twMerge(messageBaseStyles, `bg-black/30`)}>{children}</div>
@@ -84,12 +91,58 @@ const OtherChat = ({ children }) => (
   </div>
 )
 
-export const ChatMenu = () => {
-  const { type } = useMutableState(AuthState).authUser.identityProvider.get()
-  const onCTAClicked = () => {
-    ModalState.openModal(<SettingsMenu initScreen="signup" onClose={ModalState.closeModal} />)
-  }
-  if (type === 'guest') {
+const BottomSpacer = () => <div className={`h-12`} />
+
+const inputContainerStyles = `
+  flex items-center
+  w-full
+  p-1
+  pl-4
+  rounded-full
+  bg-black/10
+  shadow-inner
+`
+
+const inputStyles = `
+  bg-transparent
+  border-none
+  outline-none
+  h-full
+  w-full
+`
+
+const sendButtonStyles = `
+  flex items-center
+  
+  p-2
+  
+  rounded-full
+  text-white
+  text-xl
+  bg-blue-500
+  border
+  border-white/10
+  shadow
+`
+
+const inputOuterStyles = `
+  fixed
+  bottom-0
+  left-0
+  right-0
+  bg-black/30
+  pb-4 px-4 pt-4
+`
+
+export const ChatMenu = ({ navigateTo }: { navigateTo: (screenKey: string, historyKey: string) => void }) => {
+  const user = useMutableState(AuthState).user
+
+  const isGuest = user.isGuest.value
+  const onCTAClicked = () => navigateTo('Settings', 'signup')
+
+  const { messageGroupedBySender, inputRef, handleInputChange, sendMessage, composedMessage } = useChatProvider()
+
+  if (isGuest) {
     return (
       <div className="flex h-full max-w-screen-sm flex-col items-center justify-center gap-8 font-dm-sans">
         <HiChatBubbleLeftRight className="mx-auto h-[5.5rem] w-[5.5rem]" />
@@ -104,53 +157,52 @@ export const ChatMenu = () => {
     )
   }
 
+  const onSubmit = (ev) => {
+    ev.preventDefault()
+
+    sendMessage()
+  }
+
+  const hasInputText = !!composedMessage.value
+
   return (
     <>
-      <OtherChat>
-        <OtherName>{`Annie`}</OtherName>
-        <OtherMessage>{`Hi there! What items did you buy? I'm still deciding on the shirts`}</OtherMessage>
-      </OtherChat>
-      <OwnMessage>{`Ooooo. I can't decide.`}</OwnMessage>
-      <OwnMessage>{`Maybe Green?`}</OwnMessage>
-      <OtherChat>
-        <OtherName>{`Lisa`}</OtherName>
-        <OtherMessage>{`Noo! We need to match for the event. Let's go for pink! How about that?`}</OtherMessage>
-      </OtherChat>
-      <OwnMessage>{`Ooooo. I can't decide.`}</OwnMessage>
-      <OwnMessage>{`Maybe Green?`}</OwnMessage>
-      <OwnMessage>{`Ooooo. I can't decide.`}</OwnMessage>
-      <OwnMessage>{`Maybe Green?`}</OwnMessage>
-      <OwnMessage>{`Ooooo. I can't decide.`}</OwnMessage>
-      <OwnMessage>{`Maybe Green?`}</OwnMessage>
-      <OwnMessage>{`I need some help with this project`}</OwnMessage>
-      <OwnMessage>{`This shousdflsd goo so hardsdfskdfjslfkjslksjdflskjdflsdkfjsldkfjsdfjs`}</OwnMessage>
-      <OwnMessage>{`This shasdfadfasdfasfdasdfsafsdfasousdflsd goo so hardsdfskdfjslfkjslksjdflskjdflsdkfjsldkfjsdfjs`}</OwnMessage>
-      <OwnMessage>{`Maybe Green?`}</OwnMessage>
-      <OwnMessage>{`Maybe Green?`}</OwnMessage>
-      <OwnMessage>{`MMMMMM !!!!!LKJLKJL`}</OwnMessage>
-      <OwnMessage>{`MMMMMM !!!!!LKJLKJL`}</OwnMessage>
-      <OwnMessage>{`MMMMMM !!!!!LKJLKJL`}</OwnMessage>
-      <OwnMessage>{`This shousdflsd goo so hardsdfskdfjslfkjslksjdflskjdflsdkfjsldkfjsdfjs`}</OwnMessage>
-      <OwnMessage>{`This shasdfadfasdfasfdasdfsafsdfasousdflsd goo so hardsdfskdfjslfkjslksjdflskjdflsdkfjsldkfjsdfjs`}</OwnMessage>
-      <OwnMessage>{`Maybe Green?`}</OwnMessage>
-      <OwnMessage>{`Maybe Green?`}</OwnMessage>
-      <OwnMessage>{`MMMMMM !!!!!LKJLKJL`}</OwnMessage>
-      <OwnMessage>{`MMMMMM !!!!!LKJLKJL`}</OwnMessage>
-      <OwnMessage>{`MMMMMM !!!!!LKJLKJL`}</OwnMessage>
-      <OwnMessage>{`This shousdflsd goo so hardsdfskdfjslfkjslksjdflskjdflsdkfjsldkfjsdfjs`}</OwnMessage>
-      <OwnMessage>{`This shasdfadfasdfasfdasdfsafsdfasousdflsd goo so hardsdfskdfjslfkjslksjdflskjdflsdkfjsldkfjsdfjs`}</OwnMessage>
-      <OwnMessage>{`Maybe Green?`}</OwnMessage>
-      <OwnMessage>{`Maybe Green?`}</OwnMessage>
-      <OwnMessage>{`MMMMMM !!!!!LKJLKJL`}</OwnMessage>
-      <OwnMessage>{`MMMMMM !!!!!LKJLKJL`}</OwnMessage>
-      <OwnMessage>{`MMMMMM !!!!!LKJLKJL`}</OwnMessage>
-      <OwnMessage>{`This shousdflsd goo so hardsdfskdfjslfkjslksjdflskjdflsdkfjsldkfjsdfjs`}</OwnMessage>
-      <OwnMessage>{`This shasdfadfasdfasfdasdfsafsdfasousdflsd goo so hardsdfskdfjslfkjslksjdflskjdflsdkfjsldkfjsdfjs`}</OwnMessage>
-      <OwnMessage>{`Maybe Green?`}</OwnMessage>
-      <OwnMessage>{`Maybe Green?`}</OwnMessage>
-      <OwnMessage>{`MMMMMM !!!!!LKJLKJL`}</OwnMessage>
-      <OwnMessage>{`MMMMMM !!!!!LKJLKJL`}</OwnMessage>
-      <OwnMessage>{`MMMMMM !!!!!LKJLKJL`}</OwnMessage>
+      {messageGroupedBySender.map((group, groupIndex) => {
+        const [firstMessage] = group
+        const isOwnGroup = firstMessage.senderId === user.id.value
+        const isNotification = !!firstMessage.isNotification
+
+        const MessageComponent = isNotification ? Notification : isOwnGroup ? OwnMessage : OtherMessage
+
+        const groupedMessage = group.map((message, messageIndex) => {
+          return <MessageComponent key={`${groupIndex}-${messageIndex}`}>{message.text}</MessageComponent>
+        })
+
+        return isOwnGroup || isNotification ? (
+          groupedMessage
+        ) : (
+          <OtherChat key={groupIndex}>
+            <OtherName>{firstMessage.sender.name}</OtherName>
+            {groupedMessage}
+          </OtherChat>
+        )
+      })}
+
+      <div className={inputOuterStyles}>
+        <form onSubmit={onSubmit}>
+          <div className={inputContainerStyles}>
+            <input className={inputStyles} onChange={handleInputChange} ref={inputRef} value={composedMessage.value} />
+            <button
+              className={twMerge(blueGradientStyles, sendButtonStyles, hasInputText ? `` : `invisible`)}
+              type={'submit'}
+            >
+              <Send01Md />
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <BottomSpacer />
     </>
   )
 }

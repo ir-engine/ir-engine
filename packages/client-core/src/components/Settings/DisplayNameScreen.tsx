@@ -27,7 +27,7 @@ import { motion } from 'motion/react'
 import React, { useEffect, useRef, useState } from 'react'
 
 interface DisplayNameScreenProps {
-  navigateTo: (screen: string) => void
+  navigateTo: (screenKey: string, historyKey) => void
 }
 
 const DisplayNameScreen: React.FC<DisplayNameScreenProps> = ({ navigateTo }) => {
@@ -56,7 +56,7 @@ const DisplayNameScreen: React.FC<DisplayNameScreenProps> = ({ navigateTo }) => 
     // Hide success message after 2 seconds and navigate back
     setTimeout(() => {
       setShowSuccessMessage(false)
-      navigateTo('usernamePassword')
+      navigateTo('Settings', 'usernamePassword')
     }, 2000)
   }
 

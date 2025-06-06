@@ -19,48 +19,24 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  defineComponent,
-  Entity,
-  getMutableComponent,
-  getOptionalMutableComponent,
-  removeComponent,
-  setComponent
-} from '@ir-engine/ecs'
+import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { none } from '@ir-engine/hyperflux'
 
-export const ResourcePendingComponent = defineComponent({
-  name: 'ResourcePendingComponent',
+/**
+ * Component for entities that serve as points of interest for the camera system.
+ * This component stores settings related to how the camera should behave when focusing on this POI.
+ */
+export const PoiComponent = defineComponent({
+  name: 'PoiComponent',
+  jsonID: 'IR_poi_component',
 
-  schema: S.Record(
-    S.String(),
-    S.Object({
-      progress: S.Number(),
-      total: S.Number()
+  schema: S.Object({
+    hotspotEntityUUIDs: S.Array(S.EntityUUID(), {
+      $comment: 'Optional entities that can be hotspots within this POI'
     })
-  ),
-
-  setResource(entity: Entity, url: string, progress: number, total: number) {
-    setComponent(entity, ResourcePendingComponent)
-
-    const component = getMutableComponent(entity, ResourcePendingComponent)
-    component[url].set({ progress, total })
-  },
-
-  removeResource(entity: Entity, url: string) {
-    const component = getOptionalMutableComponent(entity, ResourcePendingComponent)
-    if (!component) return
-    if (!component[url].value) return
-
-    component[url].set(none)
-
-    if (!component.keys.length) {
-      removeComponent(entity, ResourcePendingComponent)
-    }
-  }
+  })
 })
