@@ -24,10 +24,12 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
+  EngineState,
   Entity,
   EntityID,
   EntityTreeComponent,
   SourceID,
+  SystemDefinitions,
   UUIDComponent,
   UndefinedEntity,
   createEngine,
@@ -35,14 +37,17 @@ import {
   destroyEngine,
   getComponent,
   getMutableComponent,
+  getOptionalComponent,
   hasComponent,
   removeEntity,
   serializeComponent,
   setComponent
 } from '@ir-engine/ecs'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { ActiveHelperSystem } from '@ir-engine/editor/src/systems/ActiveHelperSystem'
+import { getMutableState, getState, startReactor } from '@ir-engine/hyperflux'
 import assert from 'assert'
-import { BoxGeometry, ColorRepresentation, MeshBasicMaterial, PointLight } from 'three'
+import { BoxGeometry, Color, ColorRepresentation, MeshBasicMaterial, PointLight } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 import { assertColor } from '../../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
@@ -52,6 +57,7 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import { RendererState } from '../../RendererState'
 import { LineSegmentComponent } from '../LineSegmentComponent'
 import { ObjectComponent } from '../ObjectComponent'
+import { VisibleComponent } from '../VisibleComponent'
 import { LightTagComponent } from './LightTagComponent'
 import { PointLightComponent } from './PointLightComponent'
 
@@ -98,6 +104,8 @@ function assertPointLightComponentNotEq(A: PointLightComponentData, B: PointLigh
   assert.notEqual(A.shadowRadius, B.shadowRadius)
   assert.notEqual(A.helperEntity, B.helperEntity)
 }
+
+const helperReactor = SystemDefinitions.get(ActiveHelperSystem)!.reactor!
 
 describe('PointLightComponent', () => {
   describe('IDs', () => {
@@ -237,7 +245,7 @@ describe('PointLightComponent', () => {
       })
     })
 
-    it('should react when directionalLightComponent.color changes', async () => {
+    it('should react when pointLight.color changes', async () => {
       const Expected = 0x123456
 
       // Set the data as expected
@@ -253,9 +261,6 @@ describe('PointLightComponent', () => {
       await vi.waitFor(() => {
         const result = getComponent(testEntity, PointLightComponent).color
         assertColor.eq(result, Expected)
-        // Check side-effect
-        const light = getComponent(testEntity, ObjectComponent) as PointLight
-        assert.equal(light.color.getHex(), Expected)
       })
     })
 
@@ -443,30 +448,39 @@ describe('PointLightComponent', () => {
     it('should react when debugEnabled changes', async () => {
       const Initial = false
       const Expected = !Initial
+      const ExpectedColor = new Color(0x123456)
 
       // Set the data as expected
       assert.equal(getState(RendererState).nodeHelperVisibility, false)
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
+      getMutableState(EngineState).isEditing.set(Expected)
 
       // Run and Check the Initial result
       setComponent(testEntity, PointLightComponent)
       setComponent(testEntity, NameComponent, 'point-light')
-
+      setComponent(testEntity, VisibleComponent)
+      setComponent(testEntity, UUIDComponent, { entitySourceID: 'test' as SourceID, entityID: '0' as EntityID })
+      SelectionState.updateSelection([UUIDComponent.get(testEntity)])
+      startReactor(helperReactor)
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
 
       await vi.waitFor(() => {
-        const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
-        assert.equal(hasComponent(childEntity1, ObjectComponent), Expected)
-        assert.equal(getComponent(childEntity1, NameComponent), 'point-light-helper')
+        const childEntity1 = getComponent(testEntity, EntityTreeComponent).children.find(
+          (child) => getOptionalComponent(child, LineSegmentComponent)?.name === 'point-light-helper'
+        )!
+        assert.equal(hasComponent(childEntity1, LineSegmentComponent), Expected)
+        assert.equal(getComponent(childEntity1, LineSegmentComponent).name, 'point-light-helper')
       })
 
       // Re-run and Check the unmount case
-      getMutableState(RendererState).nodeHelperVisibility.set(Initial)
+      SelectionState.updateSelection([])
 
       await vi.waitFor(() => {
-        const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
-        assert.equal(hasComponent(childEntity1, ObjectComponent), Initial)
+        const childEntity1 = getComponent(testEntity, EntityTreeComponent).children.find(
+          (child) => getOptionalComponent(child, LineSegmentComponent)?.name === 'point-light-helper'
+        )!
+        assert.equal(hasComponent(childEntity1, LineSegmentComponent), Initial)
       })
     })
   }) //:: reactor

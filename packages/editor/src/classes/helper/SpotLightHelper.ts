@@ -134,7 +134,7 @@ export const SpotLightHelperReactor: React.FC = (props: { parentEntity; iconEnti
     const gizmoGeometry = createSpotLightGizmoGeometry(spotLightComponent.angle.value, spotLightComponent.range.value)
 
     setComponent(helperEntity, LineSegmentComponent, {
-      name: 'spotlight-helper',
+      name: 'spot-light-helper',
       geometry: gizmoGeometry?.clone(),
       color: spotLightComponent.color.value
     })

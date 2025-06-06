@@ -128,7 +128,7 @@ export const PointLightHelperReactor: React.FC = (props: { parentEntity; iconEnt
     const helperEntity = createEntity()
     setComponent(helperEntity, EntityTreeComponent, { parentEntity })
     setComponent(helperEntity, LineSegmentComponent, {
-      name: 'pointlight-helper',
+      name: 'point-light-helper',
       geometry: createPointLightGizmoGeometry(pointLight.range.value)?.clone(),
       color: pointLight.color.value
     })

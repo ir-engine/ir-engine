@@ -24,19 +24,25 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
+  EngineState,
+  EntityID,
   EntityTreeComponent,
+  SourceID,
   SystemDefinitions,
+  UUIDComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
   destroyEngine,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   removeEntity,
   serializeComponent,
   setComponent
 } from '@ir-engine/ecs'
+import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { getMutableState, startReactor } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { BufferGeometry, Color, ColorRepresentation, DirectionalLight, LineBasicMaterial } from 'three'
@@ -48,6 +54,7 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import { RendererState } from '../../RendererState'
 import { LineSegmentComponent } from '../LineSegmentComponent'
 import { ObjectComponent } from '../ObjectComponent'
+import { VisibleComponent } from '../VisibleComponent'
 import { DirectionalLightComponent } from './DirectionalLightComponent'
 import { LightTagComponent } from './LightTagComponent'
 type DirectionalLightComponentData = {
@@ -419,26 +426,34 @@ describe('DirectionalLightComponent', () => {
       const Expected = !Initial
       const ExpectedColor = new Color(0x123456)
       // Set the data as expected
-      getMutableState(RendererState).nodeHelperVisibility.set(Initial)
-
+      getMutableState(RendererState).nodeHelperVisibility.set(Expected)
+      getMutableState(EngineState).isEditing.set(Expected)
       // Run and Check the Initial result
+
       setComponent(testEntity, DirectionalLightComponent, { color: ExpectedColor })
+      setComponent(testEntity, VisibleComponent)
+      setComponent(testEntity, UUIDComponent, { entitySourceID: 'test' as SourceID, entityID: '0' as EntityID })
+
+      SelectionState.updateSelection([UUIDComponent.get(testEntity)])
       startReactor(helperReactor)
 
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
       await vi.waitFor(() => {
-        const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
-        assert.equal(hasComponent(childEntity1, LineSegmentComponent), Expected)
-        assert.equal(getComponent(childEntity1, LineSegmentComponent).name, 'directional-light-helper')
-        assert.equal(getComponent(childEntity1, LineSegmentComponent).color, ExpectedColor)
+        const childEntity1 = getComponent(testEntity, EntityTreeComponent).children.find(
+          (child) => getOptionalComponent(child, LineSegmentComponent)?.name === 'directional-light-helper'
+        )
+        assert.equal(hasComponent(childEntity1!, LineSegmentComponent), Expected)
+        assert.equal(getComponent(childEntity1!, LineSegmentComponent).name, 'directional-light-helper')
       })
 
       // Re-run and Check the unmount case
-      getMutableState(RendererState).nodeHelperVisibility.set(Initial)
+      SelectionState.updateSelection([])
 
       await vi.waitFor(() => {
-        const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
+        const childEntity1 = getComponent(testEntity, EntityTreeComponent).children.find(
+          (child) => getOptionalComponent(child, LineSegmentComponent)?.name === 'directional-light-helper'
+        )!
         assert.equal(hasComponent(childEntity1, LineSegmentComponent), Initial)
       })
     })

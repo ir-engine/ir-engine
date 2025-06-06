@@ -24,21 +24,26 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
+  EngineState,
   EntityID,
   EntityTreeComponent,
   SourceID,
+  SystemDefinitions,
   UUIDComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
   destroyEngine,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeEntity,
   serializeComponent,
   setComponent
 } from '@ir-engine/ecs'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { ActiveHelperSystem } from '@ir-engine/editor/src/systems/ActiveHelperSystem'
+import { getMutableState, getState, startReactor } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { BoxGeometry, Color, ColorRepresentation, MeshBasicMaterial } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
@@ -49,7 +54,7 @@ import { destroySpatialEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { RendererState } from '../../RendererState'
 import { LineSegmentComponent } from '../LineSegmentComponent'
-import { ObjectComponent } from '../ObjectComponent'
+import { VisibleComponent } from '../VisibleComponent'
 import { HemisphereLightComponent } from './HemisphereLightComponent'
 import { LightTagComponent } from './LightTagComponent'
 
@@ -75,6 +80,8 @@ function assertHemisphereLightComponentNotEq(A: HemisphereLightComponentData, B:
   assertColor.notEq(A.groundColor, B.groundColor)
   assert.notEqual(A.intensity, B.intensity)
 }
+
+const helperReactor = SystemDefinitions.get(ActiveHelperSystem)!.reactor!
 
 describe('HemisphereLightComponent', () => {
   describe('IDs', () => {
@@ -268,30 +275,39 @@ describe('HemisphereLightComponent', () => {
     it('should react when debugEnabled changes', async () => {
       const Initial = false
       const Expected = !Initial
+      const ExpectedColor = new Color(0x123456)
 
       // Set the dassert.equalata as expected
       assert.equal(getState(RendererState).nodeHelperVisibility, false)
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
+      getMutableState(EngineState).isEditing.set(Expected)
 
       // Run and Check the Initial result
       setComponent(testEntity, HemisphereLightComponent)
       setComponent(testEntity, NameComponent, 'hemisphere-light')
-
+      setComponent(testEntity, VisibleComponent)
+      setComponent(testEntity, UUIDComponent, { entitySourceID: 'test' as SourceID, entityID: '0' as EntityID })
+      SelectionState.updateSelection([UUIDComponent.get(testEntity)])
+      startReactor(helperReactor)
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
 
       await vi.waitFor(() => {
-        const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
-        assert.equal(hasComponent(childEntity1, ObjectComponent), Expected)
-        assert.equal(getComponent(childEntity1, NameComponent), 'hemisphere-light-helper')
+        const childEntity1 = getComponent(testEntity, EntityTreeComponent).children.find(
+          (child) => getOptionalComponent(child, LineSegmentComponent)?.name === 'hemisphere-light-helper'
+        )!
+        assert.equal(hasComponent(childEntity1!, LineSegmentComponent), Expected)
+        assert.equal(getComponent(childEntity1!, LineSegmentComponent).name, 'hemisphere-light-helper')
       })
 
       // Re-run and Check the unmount case
-      getMutableState(RendererState).nodeHelperVisibility.set(Initial)
+      SelectionState.updateSelection([])
 
       await vi.waitFor(() => {
-        const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
-        assert.equal(hasComponent(childEntity1, ObjectComponent), Initial)
+        const childEntity1 = getComponent(testEntity, EntityTreeComponent).children.find(
+          (child) => getOptionalComponent(child, LineSegmentComponent)?.name === 'hemisphere-light-helper'
+        )!
+        assert.equal(hasComponent(childEntity1, LineSegmentComponent), Initial)
       })
     })
   }) //:: reactor
