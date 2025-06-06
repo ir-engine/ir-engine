@@ -33,14 +33,14 @@ export interface SectionProps {
 
 export const Section: React.FC<SectionProps> = ({ children, className = '', disabled }) => (
   <div
-    className={`overflow-hidden rounded-xl  font-dm-sans text-xs shadow-sm md:text-base ${
-      disabled ? 'pointer-events-none opacity-50' : ''
-    } ${className} `}
-    style={{
-      background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-      border: '1px solid rgba(255, 255, 255, 0.05)',
-      letterSpacing: '0.025em'
-    }}
+    className={`
+      overflow-hidden rounded-xl border border-white/10 
+      bg-gradient-to-bl from-white/10 to-transparent font-dm-sans  
+      text-xs
+      tracking-wide shadow-sm md:text-base
+      ${disabled ? 'pointer-events-none opacity-50' : ''} 
+      ${className} 
+    `}
   >
     {children}
   </div>
