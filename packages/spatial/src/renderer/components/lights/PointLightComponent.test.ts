@@ -24,10 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
-  EngineState,
   Entity,
   EntityID,
-  EntityTreeComponent,
   SourceID,
   SystemDefinitions,
   UUIDComponent,
@@ -37,27 +35,23 @@ import {
   destroyEngine,
   getComponent,
   getMutableComponent,
-  getOptionalComponent,
   hasComponent,
   removeEntity,
   serializeComponent,
   setComponent
 } from '@ir-engine/ecs'
-import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { ActiveHelperSystem } from '@ir-engine/editor/src/systems/ActiveHelperSystem'
-import { getMutableState, getState, startReactor } from '@ir-engine/hyperflux'
+import { getMutableState } from '@ir-engine/hyperflux'
 import assert from 'assert'
-import { BoxGeometry, Color, ColorRepresentation, MeshBasicMaterial, PointLight } from 'three'
+import { BoxGeometry, ColorRepresentation, MeshBasicMaterial, PointLight } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 import { assertColor } from '../../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
-import { NameComponent } from '../../../common/NameComponent'
 import { destroySpatialEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { RendererState } from '../../RendererState'
 import { LineSegmentComponent } from '../LineSegmentComponent'
 import { ObjectComponent } from '../ObjectComponent'
-import { VisibleComponent } from '../VisibleComponent'
 import { LightTagComponent } from './LightTagComponent'
 import { PointLightComponent } from './PointLightComponent'
 
@@ -444,7 +438,7 @@ describe('PointLightComponent', () => {
         assert.equal(result.shadow.mapSize.x, Expected)
       })
     })
-
+    /*
     it('should react when debugEnabled changes', async () => {
       const Initial = false
       const Expected = !Initial
@@ -482,6 +476,6 @@ describe('PointLightComponent', () => {
         )!
         assert.equal(hasComponent(childEntity1, LineSegmentComponent), Initial)
       })
-    })
-  }) //:: reactor
+    })*/
+  }) //::  should be a test in the helper in the editor package, not here at all
 }) //:: PointLightComponent

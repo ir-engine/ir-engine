@@ -24,25 +24,18 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
-  EngineState,
-  EntityID,
-  EntityTreeComponent,
-  SourceID,
   SystemDefinitions,
-  UUIDComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
   destroyEngine,
   getComponent,
-  getOptionalComponent,
   hasComponent,
   removeComponent,
   removeEntity,
   serializeComponent,
   setComponent
 } from '@ir-engine/ecs'
-import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { getMutableState, startReactor } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { BufferGeometry, Color, ColorRepresentation, DirectionalLight, LineBasicMaterial } from 'three'
@@ -54,7 +47,6 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import { RendererState } from '../../RendererState'
 import { LineSegmentComponent } from '../LineSegmentComponent'
 import { ObjectComponent } from '../ObjectComponent'
-import { VisibleComponent } from '../VisibleComponent'
 import { DirectionalLightComponent } from './DirectionalLightComponent'
 import { LightTagComponent } from './LightTagComponent'
 type DirectionalLightComponentData = {
@@ -421,7 +413,7 @@ describe('DirectionalLightComponent', () => {
       })
     })
 
-    it('should react when debugEnabled changes', async () => {
+    /*it('should react when debugEnabled changes', async () => {
       const Initial = false
       const Expected = !Initial
       const ExpectedColor = new Color(0x123456)
@@ -456,6 +448,6 @@ describe('DirectionalLightComponent', () => {
         )!
         assert.equal(hasComponent(childEntity1, LineSegmentComponent), Initial)
       })
-    })
-  }) //:: reactor
+    })*/
+  }) //:: should be a test in the helper in the editor package, not here at all
 })
