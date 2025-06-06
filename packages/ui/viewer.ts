@@ -24,6 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 export { default as Divider } from './src/components/viewer/Divider'
+export { default as Dropdown } from './src/components/viewer/Dropdown'
+export type { DropdownOption, DropdownProps } from './src/components/viewer/Dropdown'
 export { default as InputField } from './src/components/viewer/InputField'
 export type { InputFieldProps } from './src/components/viewer/InputField'
 export { default as Link } from './src/components/viewer/Link'

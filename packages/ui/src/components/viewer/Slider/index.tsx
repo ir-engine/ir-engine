@@ -43,13 +43,18 @@ const Slider: React.FC<SliderProps> = ({ value, min = 0, max = 100, step = 1, on
     onChange?.(newValue)
   }
 
+  const mappedValue = Math.round(((value - min) / (max - min)) * 100)
+
   return (
     <div className={`relative w-full ${className}`}>
       <div className="inset-shadow relative h-4 w-full rounded-full bg-inactive-input">
-        <div className={`absolute left-0 top-0 h-4 rounded-full bg-primary-blue`} style={{ width: `${value}%` }} />
+        <div
+          className={`absolute left-0 top-0 h-4 rounded-full bg-primary-blue`}
+          style={{ width: `${mappedValue}%` }}
+        />
         <div
           className={`absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-lg`}
-          style={{ left: `${value}%` }}
+          style={{ left: `${mappedValue}%` }}
         />
       </div>
       <input
