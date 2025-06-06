@@ -19,20 +19,24 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { CameraFadeBlackEffectSystem } from './systems/CameraFadeBlackEffectSystem'
-import { CameraOrbitSystem } from './systems/CameraOrbitSystem'
-import { CameraSystem } from './systems/CameraSystem'
-import { FollowCameraInputSystem } from './systems/FollowCameraInputSystem'
-import { PoiCameraInputSystem } from './systems/PoiCameraInputSystem'
+import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
-export default {
-  CameraFadeBlackEffectSystem,
-  CameraSystem,
-  CameraOrbitSystem,
-  FollowCameraInputSystem,
-  PoiCameraInputSystem
-}
+/**
+ * Component for entities that serve as points of interest for the camera system.
+ * This component stores settings related to how the camera should behave when focusing on this POI.
+ */
+export const PoiComponent = defineComponent({
+  name: 'PoiComponent',
+  jsonID: 'IR_poi_component',
+
+  schema: S.Object({
+    hotspotEntityUUIDs: S.Array(S.EntityUUID(), {
+      $comment: 'Optional entities that can be hotspots within this POI'
+    })
+  })
+})

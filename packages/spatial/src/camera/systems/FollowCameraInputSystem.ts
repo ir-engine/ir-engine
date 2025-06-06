@@ -31,7 +31,7 @@ import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getState, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 import { CameraSettings } from '@ir-engine/spatial/src/camera/CameraState'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@ir-engine/spatial/src/camera/components/TargetCameraRotationComponent'
@@ -49,12 +49,10 @@ import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { Q_Y_180 } from '../../common/constants/MathConstants'
 import { RendererComponent } from '../../renderer/components/RendererComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-
-// const throttleHandleCameraZoom = throttle(handleFollowCameraZoom, 30, { leading: true, trailing: false })
+import { CameraSettingsState } from '../CameraSettingsState'
 
 const pointerPositionDelta = new Vector2()
 const followCameraQuery = defineQuery([RendererComponent, FollowCameraComponent])
-const epsilon = 0.001
 
 const followCameraModeCycle = [
   FollowCameraMode.FirstPerson,
@@ -83,8 +81,10 @@ const onFollowCameraShoulderCam = (cameraEntity: Entity) => {
 }
 
 /**
- * Change camera distance.
+ * Change camera distance for follow camera mode.
  * @param cameraEntity Entity holding camera and input component.
+ * @param axes Input axes values.
+ * @param deltaTime Delta time for smooth transitions.
  */
 export const handleFollowCameraScroll = (
   cameraEntity: Entity,
@@ -92,16 +92,16 @@ export const handleFollowCameraScroll = (
   deltaTime: number
 ): void => {
   const follow = getComponent(cameraEntity, FollowCameraComponent)
-
   const zoomDelta = axes.FollowCameraZoomScroll ?? 0
   const shoulderDelta = axes.FollowCameraShoulderCamScroll ?? 0
 
-  follow.targetDistance = Math.max(follow.targetDistance + zoomDelta, 0)
+  const cameraSettingsState = getMutableState(CameraSettingsState)
 
-  // Math.min(
-  //   Math.max(follow.targetDistance + zoomDelta, follow.effectiveMinDistance * 0.8),
-  //   follow.effectiveMaxDistance * 1.2
-  // )
+  // Standard camera zoom behavior for follow mode
+  follow.targetDistance = Math.max(
+    follow.targetDistance + zoomDelta * cameraSettingsState.followCameraScrollSensitivity.value,
+    0
+  )
 
   const outsideMinMaxRange =
     follow.targetDistance < follow.effectiveMinDistance || follow.targetDistance > follow.effectiveMaxDistance
@@ -121,6 +121,9 @@ const execute = () => {
 
   const deltaSeconds = getState(ECSState).deltaSeconds
   const cameraSettings = getState(CameraSettings)
+
+  // Get the viewer entity
+  const viewerEntity = getState(ReferenceSpaceState).viewerEntity
 
   for (const cameraEntity of followCameraQuery()) {
     const buttons = InputComponent.getButtons(cameraEntity)

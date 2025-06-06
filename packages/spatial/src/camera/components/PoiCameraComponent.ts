@@ -23,16 +23,27 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { CameraFadeBlackEffectSystem } from './systems/CameraFadeBlackEffectSystem'
-import { CameraOrbitSystem } from './systems/CameraOrbitSystem'
-import { CameraSystem } from './systems/CameraSystem'
-import { FollowCameraInputSystem } from './systems/FollowCameraInputSystem'
-import { PoiCameraInputSystem } from './systems/PoiCameraInputSystem'
+import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
-export default {
-  CameraFadeBlackEffectSystem,
-  CameraSystem,
-  CameraOrbitSystem,
-  FollowCameraInputSystem,
-  PoiCameraInputSystem
-}
+/**
+ * Component for POI (Point of Interest) camera behavior.
+ * This component manages camera state specific to POI mode navigation.
+ */
+export const PoiCameraComponent = defineComponent({
+  name: 'PoiCameraComponent',
+  jsonID: 'IR_poi_camera',
+
+  schema: S.Object({
+    // Current POI navigation state
+    currentPoiIndex: S.Number({ default: -1 }),
+    targetPoiIndex: S.Number({ default: -1 }),
+    poiLerpValue: S.Number({ default: 0 }),
+
+    // Scroll accumulation for manual control
+    scrollAccumulator: S.Number({ default: 0 }),
+
+    // Transition state for snapping mode
+    isTransitioning: S.Bool({ default: false })
+  })
+})

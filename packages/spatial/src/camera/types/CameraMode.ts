@@ -23,16 +23,22 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { CameraFadeBlackEffectSystem } from './systems/CameraFadeBlackEffectSystem'
-import { CameraOrbitSystem } from './systems/CameraOrbitSystem'
-import { CameraSystem } from './systems/CameraSystem'
-import { FollowCameraInputSystem } from './systems/FollowCameraInputSystem'
-import { PoiCameraInputSystem } from './systems/PoiCameraInputSystem'
-
-export default {
-  CameraFadeBlackEffectSystem,
-  CameraSystem,
-  CameraOrbitSystem,
-  FollowCameraInputSystem,
-  PoiCameraInputSystem
+/** Camera Modes. */
+export const CameraMode = {
+  FOLLOW: 'FOLLOW' as const,
+  POI: 'POI' as const
 }
+
+export type CameraModeType = (typeof CameraMode)[keyof typeof CameraMode]
+
+export const CameraScrollBehavior = {
+  Wrap: 'Wrap' as const,
+  Clamp: 'Clamp' as const
+}
+export type CameraScrollBehaviorType = (typeof CameraScrollBehavior)[keyof typeof CameraScrollBehavior]
+
+export const PoiScrollTransition = {
+  Scrolling: 'Scrolling' as const,
+  Snapping: 'Snapping' as const
+}
+export type PoiScrollTransitionType = (typeof PoiScrollTransition)[keyof typeof PoiScrollTransition]

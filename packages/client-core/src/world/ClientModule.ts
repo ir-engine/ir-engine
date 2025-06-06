@@ -32,6 +32,7 @@ import { LinkErrorSystem } from '../systems/LinkErrorSystem'
 import { LoadingUISystem } from '../systems/LoadingUISystem'
 import { MediaControlSystem } from '../systems/MediaControlSystem'
 import { PositionalAudioSystem } from '../systems/PositionalAudioSystem'
+import { PoiUiSystem } from '../systems/ui/PoiUI'
 import { WarningUISystem } from '../systems/WarningUISystem'
 import { WidgetUISystem } from '../systems/WidgetUISystem'
 import { UserUISystem } from '../user/UserUISystem'
@@ -48,6 +49,7 @@ export {
   LoadingUISystem,
   MediaControlSystem,
   OverlaySystem,
+  PoiUiSystem,
   PortalRedirectSystem,
   PositionalAudioSystem,
   UserUISystem,
