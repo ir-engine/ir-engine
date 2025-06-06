@@ -34,18 +34,16 @@ import {
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
-
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { UndefinedEntity } from '../../../../ecs/src/Entity'
-import { NameComponent } from '../../common/NameComponent'
-import { MeshComponent } from '../../renderer/components/MeshComponent'
-import { ObjectComponent } from '../../renderer/components/ObjectComponent'
-import { ObjectLayerMaskComponent } from '../../renderer/components/ObjectLayerComponent'
-import { VisibleComponent } from '../../renderer/components/VisibleComponent'
-import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
-import { T } from '../../schema/schemaFunctions'
-import { TransformComponent } from './TransformComponent'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 export const BOUNDING_BOX_COLORS = {
   SELECTED: 'white',
