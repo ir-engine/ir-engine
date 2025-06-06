@@ -42,7 +42,7 @@ interface DisplayNameScreenProps {
 }
 const logger = multiLogger.child({ component: 'engine:ecs:DisplayName', modifier: clientContextParams })
 
-const DisplayNameScreen: React.FC<UsernamePasswordScreenProps> = () => {
+const DisplayNameScreen: React.FC<DisplayNameScreenProps> = () => {
   const { name, id } = useMutableState(AuthState).user
   const displayName = useHookstate(name.value as string)
   const saved = useHookstate(false)
