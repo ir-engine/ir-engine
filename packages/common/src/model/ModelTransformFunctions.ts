@@ -403,7 +403,7 @@ const doUpload = async (projectName, fileName, buffer, path?: string) => {
     resolver = resolve
   })
   uploadRequestState.queue.set([...queue, { file, projectName, callback: resolver, path: path }])
-  if (fileName.includes('compressed-published')) {
+  if (fileName.includes('combined-mesh')) {
     uploadRequestState.isOnPublishing.set(true)
   }
   await promise
