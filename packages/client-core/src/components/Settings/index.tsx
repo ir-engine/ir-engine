@@ -37,17 +37,16 @@ interface ScreenProps {
 import AccountSettings from './AccountSettings'
 import GraphicsSettings from './GraphicsSettings'
 import MainMenu from './MainMenu'
-import WorldSettings from './WorldSettings'
 
 // Import other screen components
 import { useNavigationProvider } from '../Glass/NavigationProvider'
 import AvatarScreen from './AvatarScreen'
 import DeleteAccountScreen from './DeleteAccountScreen'
-import DisplayNameScreen from './DisplayNameScreen'
 import PermissionsScreen from './PermissionsScreen'
 import ShareSpaceScreen from './ShareSpaceScreen'
 import SignUpScreen from './SignUpScreen'
 import SSOScreen from './SSOScreen'
+import UsernameScreen from './UsernameScreen'
 
 // Define screen structure type
 interface ScreenDefinition {
@@ -63,7 +62,6 @@ const PlaceholderScreen: React.FC<ScreenProps & { title: string }> = ({ title })
 // Define all screens
 export const screens: Record<string, ScreenDefinition> = {
   main: { component: MainMenu, title: 'Settings' },
-  world: { component: WorldSettings, title: 'World' },
   account: { component: AccountSettings, title: 'Account' },
   graphics: { component: GraphicsSettings, title: 'Graphics' },
   signup: {
@@ -83,7 +81,7 @@ export const screens: Record<string, ScreenDefinition> = {
     title: 'Controls'
   },
   displayName: {
-    component: DisplayNameScreen,
+    component: UsernameScreen,
     title: 'Display Name'
   },
   userId: {
