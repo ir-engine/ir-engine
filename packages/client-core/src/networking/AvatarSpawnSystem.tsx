@@ -35,6 +35,7 @@ import {
   PresentationSystemGroup,
   removeComponent,
   setComponent,
+  UndefinedEntity,
   useHasComponent,
   UUIDComponent,
   WorldNetworkAction
@@ -184,6 +185,7 @@ const reactor = () => {
   const cameraSettingsComponents = useChildrenWithComponents(sceneEntity, [CameraSettingsComponent])
   const cameraSettingsEntity = cameraSettingsComponents.length > 0 ? cameraSettingsComponents[0] : null
   const engineState = useMutableState(EngineState)
+  const referenceSpaceState = useMutableState(ReferenceSpaceState)
   const cameraSettingsComponent = cameraSettingsEntity
     ? getComponent(cameraSettingsComponents[0], CameraSettingsComponent)
     : null
@@ -191,13 +193,11 @@ const reactor = () => {
   const isAvatarUsed = cameraMode === CameraMode.FOLLOW
 
   useEffect(() => {
-    const cameraEntity = getState(ReferenceSpaceState).viewerEntity
+    const cameraEntity = referenceSpaceState.viewerEntity.value
 
-    if (!engineState.isEditing.value) {
+    if (!engineState.isEditing.value && cameraEntity !== UndefinedEntity) {
       if (cameraMode === CameraMode.FOLLOW) {
-        if (!isAvatarUsed) {
-          setComponent(cameraEntity, FollowCameraComponent)
-        }
+        setComponent(cameraEntity, FollowCameraComponent)
         removeComponent(cameraEntity, PoiCameraComponent)
       } else if (cameraMode === CameraMode.POI) {
         setComponent(cameraEntity, PoiCameraComponent)
@@ -206,10 +206,12 @@ const reactor = () => {
     }
 
     return () => {
-      removeComponent(cameraEntity, FollowCameraComponent)
-      removeComponent(cameraEntity, PoiCameraComponent)
+      if (cameraEntity !== UndefinedEntity) {
+        removeComponent(cameraEntity, FollowCameraComponent)
+        removeComponent(cameraEntity, PoiCameraComponent)
+      }
     }
-  }, [cameraMode, isAvatarUsed, engineState.isEditing])
+  }, [referenceSpaceState.viewerEntity, engineState.isEditing])
 
   if (!gltfLoaded || !userID) return null
 
