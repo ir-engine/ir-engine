@@ -42,11 +42,11 @@ import MainMenu from './MainMenu'
 import { useNavigationProvider } from '../Glass/NavigationProvider'
 import AvatarScreen from './AvatarScreen'
 import DeleteAccountScreen from './DeleteAccountScreen'
+import DisplayNameScreen from './DisplayNameScreen'
 import PermissionsScreen from './PermissionsScreen'
 import ShareSpaceScreen from './ShareSpaceScreen'
 import SignUpScreen from './SignUpScreen'
 import SSOScreen from './SSOScreen'
-import UsernameScreen from './UsernameScreen'
 
 // Define screen structure type
 interface ScreenDefinition {
@@ -81,7 +81,7 @@ export const screens: Record<string, ScreenDefinition> = {
     title: 'Controls'
   },
   displayName: {
-    component: UsernameScreen,
+    component: DisplayNameScreen,
     title: 'Display Name'
   },
   userId: {
