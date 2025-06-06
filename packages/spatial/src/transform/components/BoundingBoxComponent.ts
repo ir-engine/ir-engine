@@ -26,7 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Box3, Box3Helper, BufferGeometry, Mesh } from 'three'
 
-import { EntityTreeComponent, createEntity, iterateEntityNode, removeEntity, useEntityContext } from '@ir-engine/ecs'
+import {
+  EntityTreeComponent,
+  UndefinedEntity,
+  createEntity,
+  iterateEntityNode,
+  removeEntity,
+  useEntityContext
+} from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -37,7 +44,6 @@ import {
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { UndefinedEntity } from '../../../../ecs/src/Entity'
 import { NameComponent } from '../../common/NameComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
