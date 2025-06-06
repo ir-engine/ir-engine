@@ -331,7 +331,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
                   denominator
                 })
                 progressState.set({
-                  progress: progress / entitiesToCompress.length + progressState.value.progress,
+                  progress: progressState.value.progress + progress / entitiesToCompress.length,
                   caption
                 })
               })

@@ -1212,7 +1212,6 @@ async function resizeImage(
 
   ctx.drawImage(imageBitmap, 0, 0, newWidth, newHeight)
 
-  // Convert canvas to blob in the original image mime type (fallback to PNG if unsupported)
   const outputMimeType = ['image/png', 'image/jpeg', 'image/webp'].includes(mimeType) ? mimeType : 'image/png'
 
   const resizedBlob = await new Promise<Blob>((resolve) =>
@@ -1251,10 +1250,8 @@ const safeImageCompress = async (
       texture.setMimeType(newMimeType)
 
       const ext = newMimeType.split('/')[1] || 'png'
-      const safeName = validTextureFileName(texture.getURI().replace(/\.[^.]+$/, `.${ext}`))
+      const safeName = validTextureFileName(texture.getURI().replace(/\.[^.]+$/, `.${ext}`)).slice(6)
       texture.setURI(safeName)
-
-      // Optionally, apply further document transforms if needed
     } catch (e) {
       console.error(`Failed to resize texture: ${texture.getName()}`, e)
     }
@@ -1279,6 +1276,10 @@ export async function safeCompressGLTFWeb(
       await safeImageCompress(document, params, onProgress)
     }
     await document.transform(unInstanceSingletons)
+    await document.transform(dedup())
+    await document.transform(weld())
+
+    await document.transform(prune({ keepAttributes: true /*keepExtras: true*/ }))
     await document.transform(
       simplify({
         ratio: 0.95, // Higher = less simplification
