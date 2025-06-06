@@ -44,7 +44,7 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
     <div className={`flex max-w-[25ch] flex-1 items-center gap-2 ${className}`}>
       <input
         ref={ref}
-        type={isPassword ? 'password' : 'text'}
+        type={isPassword || props.type === 'password' ? 'password' : 'text'}
         className="w-full bg-transparent text-right placeholder:text-white/20 focus-visible:outline-none"
         value={value}
         onChange={(e) => onChange(e.target.value)}
