@@ -161,15 +161,18 @@ const Header = ({ tabs = [], heading, handleSidebarClose, handleSidebarBack, has
   return (
     <div className={headerContainerStyles}>
       <div className={headerInnerStyles}>
-        <div style={{ textShadow: `0 0.025em 0.08em hsla(0, 0%, 0%, 0.2)` }} className={headingsStyles}>
-          <div className={twMerge(headerBackButtonStyles, hasHistory ? '' : 'invisible')}>{backButton}</div>
-          <h2 className={twMerge(`mx-auto font-dm-sans lg:block`, tabs.length ? `hidden` : ``)}>{heading}</h2>
-          {tabs.map((tabProps) => {
-            return <Tab {...tabProps} />
-          })}
+        {hasHistory ? <div className={twMerge(buttonContainer_base, backButtonStyles)}>{backButton}</div> : <></>}
+        <div className={twMerge(buttonContainer_base, closeButtonStyles)}>
           <MenuButton className={`text-3xl`} onClick={handleSidebarClose}>
             <XCloseLg />
           </MenuButton>
+        </div>
+        <div style={{ textShadow: `0 0.025em 0.08em hsla(0, 0%, 0%, 0.2)` }} className={headingsStyles}>
+          {hasHistory ? <div className={headerBackButtonStyles}>{backButton}</div> : <></>}
+          <h2 className={twMerge(`lg:block`, tabs.length ? `hidden` : ``)}>{heading}</h2>
+          {tabs.map((tabProps) => {
+            return <Tab {...tabProps} />
+          })}
         </div>
       </div>
     </div>
