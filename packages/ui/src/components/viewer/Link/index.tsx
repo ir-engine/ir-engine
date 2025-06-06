@@ -23,22 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Toggle from '@ir-engine/ui/src/components/viewer/Toggle'
 import React from 'react'
+import { twMerge } from 'tailwind-merge'
 
-interface ToggleItemProps extends React.PropsWithChildren {
-  label?: string
-  checked?: boolean
-  onClick?: () => void
+export interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+  children: React.ReactNode
 }
 
-const ToggleItem: React.FC<ToggleItemProps> = ({ label, checked = false, onClick, children }) => {
+const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(({ children, className, ...props }, ref) => {
   return (
-    <div className="flex items-center justify-between px-4 py-3.5 text-white/90">
-      {children || <span className="font-medium">{label}</span>}
-      <Toggle checked={checked} onChange={onClick} />
-    </div>
+    <a ref={ref} className={twMerge(className, 'cursor-pointer text-blue-300 hover:underline')} {...props}>
+      {children}
+    </a>
   )
-}
+})
 
-export default ToggleItem
+Link.displayName = 'Link'
+
+export default Link

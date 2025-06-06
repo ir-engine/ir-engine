@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and
-provide for limited attribution for the Original Developer. In addition,
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -23,22 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Toggle from '@ir-engine/ui/src/components/viewer/Toggle'
-import React from 'react'
-
-interface ToggleItemProps extends React.PropsWithChildren {
-  label?: string
-  checked?: boolean
-  onClick?: () => void
-}
-
-const ToggleItem: React.FC<ToggleItemProps> = ({ label, checked = false, onClick, children }) => {
-  return (
-    <div className="flex items-center justify-between px-4 py-3.5 text-white/90">
-      {children || <span className="font-medium">{label}</span>}
-      <Toggle checked={checked} onChange={onClick} />
-    </div>
-  )
-}
-
-export default ToggleItem
+export { default as Divider } from './src/components/viewer/Divider'
+export { default as InputField } from './src/components/viewer/InputField'
+export type { InputFieldProps } from './src/components/viewer/InputField'
+export { default as Link } from './src/components/viewer/Link'
+export type { LinkProps } from './src/components/viewer/Link'
+export { default as Slider } from './src/components/viewer/Slider'
+export type { SliderProps } from './src/components/viewer/Slider'
+export { default as Toggle } from './src/components/viewer/Toggle'
+export type { ToggleProps } from './src/components/viewer/Toggle'
