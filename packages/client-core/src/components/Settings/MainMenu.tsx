@@ -42,7 +42,6 @@ interface ScreenProps {
 
 const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
   const [videoCommunication, setVideoCommunication] = useState(false)
-  const [spatialAudio, setSpatialAudio] = useState(false)
   const [multiplayer, setMultiplayer] = useState(false)
   const audioState = useMutableState(AudioState)
 
@@ -59,8 +58,6 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
         />
       </Section>
       <Section>
-        <ToggleItem label="Spatial Audio" checked={spatialAudio} onClick={() => setSpatialAudio(!spatialAudio)} />
-        <Divider />
         <SliderItem
           label="Mic Volume"
           value={audioState.microphoneGain.value * 100}

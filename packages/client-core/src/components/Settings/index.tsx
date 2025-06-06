@@ -80,7 +80,7 @@ export const screens: Record<string, ScreenDefinition> = {
     component: (props) => <PlaceholderScreen {...props} title="Controls" />,
     title: 'Controls'
   },
-  username: {
+  displayName: {
     component: UsernameScreen,
     title: 'Display Name'
   },
