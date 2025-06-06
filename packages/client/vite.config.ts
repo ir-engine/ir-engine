@@ -273,7 +273,6 @@ export default defineConfig(async () => {
         icon192px: clientSetting.icon192px || '/android-chrome-192x192.png',
         icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
         webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest',
-        siteManifest: clientSetting.siteManifest || '/site.webmanifest',
         safariPinnedTab: clientSetting.safariPinnedTab || '/safari-pinned-tab.svg',
         favicon: clientSetting.favicon || '/favicon.ico',
         swScriptLink:
