@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Box3, Box3Helper, BufferGeometry, Mesh } from 'three'
+import { Box3, Box3Helper, BufferGeometry, Matrix4, Mesh } from 'three'
 
 import { EntityTreeComponent, createEntity, iterateEntityNode, removeEntity, useEntityContext } from '@ir-engine/ecs'
 import {
@@ -53,15 +53,17 @@ import { TransformComponent } from './TransformComponent'
 
 export const BoundingBoxComponent = defineComponent({
   name: 'BoundingBoxComponent',
+  jsonID: 'EE_bounding_box',
 
   schema: S.Object({
     box: T.Box3(),
+    worldBox: T.Box3(),
     helper: S.Entity()
   }),
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility) // show all volumes
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const boundingBox = useComponent(entity, BoundingBoxComponent)
 
@@ -75,11 +77,12 @@ export const BoundingBoxComponent = defineComponent({
         activeHelperComponent !== undefined && activeHelperComponent.volumeControlled.value
           ? helperEnabled
           : debugEnabled.value
-      if (!showVolume) return
+
+      if (!showVolume || !activeHelperComponent || !activeHelperComponent.volumeEnabled?.value) return
 
       const helperEntity = createEntity()
 
-      const helper = new Box3Helper(boundingBox.box.value, 'white')
+      const helper = new Box3Helper(boundingBox.box.value, 'yellow')
       helper.name = `bounding-box-helper-${entity}`
 
       setComponent(helperEntity, NameComponent, helper.name)
@@ -91,7 +94,7 @@ export const BoundingBoxComponent = defineComponent({
       ObjectLayerMaskComponent.setLayer(helperEntity, ObjectLayers.NodeHelper)
       boundingBox.helper.set(helperEntity)
 
-      TransformComponent.dirty[entity] = 1 //used to dirty trasform and set the appropate bounding box
+      TransformComponent.dirty[entity] = 1
       updateBoundingBox(entity)
 
       return () => {
@@ -119,12 +122,24 @@ export const updateBoundingBox = (entity: Entity) => {
     return
   }
 
+  TransformComponent.computeTransformMatrixWithChildren(entity)
+
   const box = boxComponent.box
+  const worldBox = boxComponent.worldBox
   box.makeEmpty()
+  worldBox.makeEmpty()
+
+  const entityTransform = getOptionalComponent(entity, TransformComponent)
+  const entityMatrixInverse = entityTransform
+    ? new Matrix4().copy(entityTransform.matrixWorld).invert()
+    : new Matrix4().identity()
 
   const callback = (child: Entity) => {
     const obj = getOptionalComponent(child, MeshComponent)
-    if (obj) expandBoxByObject(obj, box)
+    if (obj) {
+      expandBoxByObject(obj, box, entityMatrixInverse)
+      expandBoxByObject(obj, worldBox)
+    }
   }
 
   iterateEntityNode(entity, callback)
@@ -135,13 +150,15 @@ export const updateBoundingBox = (entity: Entity) => {
   if (!helperEntity) return
 
   const helperObject = getComponent(helperEntity, ObjectComponent) as any as Box3Helper
+
+  helperObject.box.copy(box)
   helperObject.updateMatrixWorld(true)
-  helperObject.position.set(0, 0, 0)
 }
 
 const _box = new Box3()
+const _relativeMatrix = new Matrix4()
 
-const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3) => {
+const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3, entityMatrixInverse?: Matrix4) => {
   const geometry = object.geometry
   if (!geometry) return
 
@@ -149,8 +166,19 @@ const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3) => {
     geometry.computeBoundingBox()
   }
 
+  object.updateMatrixWorld(true)
+
   _box.copy(geometry.boundingBox!)
-  _box.applyMatrix4(object.matrixWorld)
+
+  if (entityMatrixInverse) {
+    // Transform to local space
+    _relativeMatrix.multiplyMatrices(entityMatrixInverse, object.matrixWorld)
+    _box.applyMatrix4(_relativeMatrix)
+  } else {
+    // Keep in world space
+    _box.applyMatrix4(object.matrixWorld)
+  }
+
   box.union(_box)
 }
 

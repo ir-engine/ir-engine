@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+import { Box3, Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import {
   EntityTreeComponent,
@@ -31,6 +31,7 @@ import {
   findRootAncestors,
   getAncestorWithComponents,
   getChildrenWithComponents,
+  getOptionalComponent,
   iterateEntityNode,
   UUIDComponent
 } from '@ir-engine/ecs'
@@ -57,7 +58,9 @@ import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { getMutableState, getState, setNestedObject } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent } from '@ir-engine/spatial'
 import { TransformSpace } from '@ir-engine/spatial/src/common/constants/TransformConstants'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { serializeEntity } from '@ir-engine/engine/src/scene/functions/serializeWorld'
@@ -566,6 +569,99 @@ const addToSelection = (entities: EntityUUID[]) => {
   SelectionState.updateSelection(entities)
 }
 
+/**
+ * Gets bounding box for entity using BoundingBoxComponent.worldBox or fallback to MeshComponent.geometry.boundingBox
+ * @param entity - Entity to get bounding box for
+ * @returns Box3 in world space or null if no bounding box available
+ */
+const getEntityBoundingBox = (entity: Entity): Box3 | null => {
+  // Try BoundingBoxComponent first (preferred for GLTF entities)
+  const boundingBoxComponent = getOptionalComponent(entity, BoundingBoxComponent)
+  if (boundingBoxComponent && !boundingBoxComponent.worldBox.isEmpty()) {
+    console.log(`Entity ${entity}: Using BoundingBoxComponent.worldBox`)
+    return boundingBoxComponent.worldBox
+  }
+
+  // Fallback to MeshComponent.geometry.boundingBox for non-GLTF entities
+  const meshComponent = getOptionalComponent(entity, MeshComponent)
+  if (meshComponent?.geometry) {
+    // Ensure bounding box is computed
+    if (!meshComponent.geometry.boundingBox) {
+      meshComponent.geometry.computeBoundingBox()
+    }
+
+    if (meshComponent.geometry.boundingBox) {
+      console.log(`Entity ${entity}: Using MeshComponent.geometry.boundingBox fallback`)
+      const transform = getComponent(entity, TransformComponent)
+      const worldBBox = new Box3().copy(meshComponent.geometry.boundingBox)
+      worldBBox.applyMatrix4(transform.matrixWorld)
+      return worldBBox
+    }
+  }
+
+  console.log(`Entity ${entity}: No bounding box found`)
+  return null
+}
+
+/** Aligns source entity to target entity using bounding box face directions */
+const alignObjects = (
+  sourceEntity: Entity,
+  targetEntity: Entity,
+  srcDirection: Vector3,
+  dstDirection: Vector3
+): boolean => {
+  const srcBBox = getEntityBoundingBox(sourceEntity)
+  const dstBBox = getEntityBoundingBox(targetEntity)
+
+  if (!srcBBox) {
+    console.error(`alignObjects: Source entity ${sourceEntity} has no bounding box`)
+    return false
+  }
+
+  if (!dstBBox) {
+    console.error(`alignObjects: Target entity ${targetEntity} has no bounding box`)
+    return false
+  }
+
+  if (srcBBox.isEmpty() || dstBBox.isEmpty()) {
+    console.error('One or both entities have empty bounding boxes')
+    return false
+  }
+
+  const dstWorldPos = TransformComponent.getWorldPosition(targetEntity, tempVector)
+  const desiredWorldPos = new Vector3().copy(dstWorldPos)
+
+  const isHorizontalAlignment = Math.abs(srcDirection.y) < 0.1 && Math.abs(dstDirection.y) < 0.1
+
+  if (isHorizontalAlignment) {
+    desiredWorldPos.y = dstWorldPos.y
+
+    const dstSize = dstBBox.getSize(new Vector3())
+    const srcSize = srcBBox.getSize(new Vector3())
+
+    if (Math.abs(srcDirection.x) > 0.5) {
+      desiredWorldPos.x = dstWorldPos.x + srcDirection.x * (dstSize.x + srcSize.x) * 0.5
+    } else if (Math.abs(srcDirection.z) > 0.5) {
+      desiredWorldPos.z = dstWorldPos.z + srcDirection.z * (dstSize.z + srcSize.z) * 0.5
+    }
+  } else {
+    const dstHeight = dstBBox.max.y - dstBBox.min.y
+    const srcHeight = srcBBox.max.y - srcBBox.min.y
+
+    if (srcDirection.y > 0 && dstDirection.y < 0) {
+      desiredWorldPos.y = dstWorldPos.y - srcHeight
+    } else {
+      desiredWorldPos.y = dstWorldPos.y + dstHeight
+    }
+  }
+
+  positionObject([sourceEntity], [desiredWorldPos], TransformSpace.world)
+
+  EditorState.markModifiedScene(sourceEntity)
+
+  return true
+}
+
 export const EditorControlFunctions = {
   addOrRemoveComponent,
   modifyProperty,
@@ -582,5 +678,6 @@ export const EditorControlFunctions = {
   addToSelection,
   replaceSelection,
   toggleSelection,
-  overwriteLookdevObject
+  overwriteLookdevObject,
+  alignObjects
 }
