@@ -140,9 +140,10 @@ export const MixerNodeEditor: EditorComponentType = (props) => {
   const entries = mixerComponent.entries.value as [number, Record<string, number[]>][]
   const sortedEntries = [...entries].sort((a, b) => a[0] - b[0])
 
+  const newPropertyEntity = UUIDComponent.getEntityFromSameSourceByID(mixerEntity, newPropertyEntityID.value)
   const componentOptions =
     newPropertyEntityID.value !== ''
-      ? getAllComponents(UUIDComponent.getEntityFromSameSourceByID(mixerEntity, newPropertyEntityID.value))
+      ? getAllComponents(newPropertyEntity)
           .filter((component) => component.jsonID)
           .map((component) => ({
             label: component.name,
@@ -210,7 +211,7 @@ export const MixerNodeEditor: EditorComponentType = (props) => {
             <div className="space-y-1">
               {mixerComponent.properties.value.map((property, index) => (
                 <div key={index} className="flex w-full items-center gap-2">
-                  {property}
+                  {property.address}
                   <Button onClick={() => removeProperty(index)} variant="secondary">
                     {t('editor:properties.mixer.remove', 'Remove')}
                   </Button>
@@ -284,11 +285,17 @@ export const MixerNodeEditor: EditorComponentType = (props) => {
         >
           <div className="space-y-2">
             {/* Property Value Inputs */}
-            {[...mixerComponent.state.value.properties.entries()].map(([propertyAddress, property]) => {
+            {mixerComponent.properties.value.map((property) => {
+              const propertyAddress = property.address
               const currentEntry = MixerComponent.getEntry(mixerEntity, selectedEntryCoord.value!)!
-              const currentValue = currentEntry[propertyAddress]
+              const currentValue = currentEntry[propertyAddress]!
 
-              const setter = MixerComponent.propertySetterWithAddress(mixerEntity, propertyAddress)!
+              const setter = MixerComponent.propertySetter(
+                mixerEntity,
+                property.entityID,
+                property.componentID,
+                property.propertyPath
+              )!
 
               // Helper function to update property value in entry
               const updatePropertyValue = (newValue: any) => {
@@ -301,13 +308,13 @@ export const MixerNodeEditor: EditorComponentType = (props) => {
               }
 
               return (
-                <InputGroup key={propertyAddress} name={propertyAddress} label={`/${property.address.join('/')}`}>
+                <InputGroup key={propertyAddress} name={propertyAddress} label={`/${propertyAddress}`}>
                   {renderPropertyInput(property.type, currentValue, updatePropertyValue)}
                 </InputGroup>
               )
             })}
 
-            {mixerComponent.state.value.properties.size === 0 && (
+            {mixerComponent.properties.length === 0 && (
               <div className="text-sm text-gray-500">
                 {t(
                   'editor:properties.mixer.noProperties',
