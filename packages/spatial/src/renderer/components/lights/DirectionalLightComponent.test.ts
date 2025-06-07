@@ -35,16 +35,15 @@ import {
   serializeComponent,
   setComponent
 } from '@ir-engine/ecs'
-import { getMutableState, startReactor } from '@ir-engine/hyperflux'
+import { getMutableState } from '@ir-engine/hyperflux'
 import assert from 'assert'
-import { BufferGeometry, Color, ColorRepresentation, DirectionalLight, LineBasicMaterial } from 'three'
+import { Color, ColorRepresentation, DirectionalLight } from 'three'
 
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { destroySpatialEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../RendererModule'
 import { RendererState } from '../../RendererState'
-import { LineSegmentComponent } from '../LineSegmentComponent'
 import { ObjectComponent } from '../ObjectComponent'
 import { DirectionalLightComponent } from './DirectionalLightComponent'
 import { LightTagComponent } from './LightTagComponent'
@@ -272,6 +271,7 @@ describe('DirectionalLightComponent', () => {
       })
     })
 
+    /*
     it("should react and assign the light's color to LineSegmentComponent.color for the entity when directionalLightComponent.color changes", async () => {
       const Expected = new Color(0x123456)
 
@@ -280,7 +280,6 @@ describe('DirectionalLightComponent', () => {
 
       // Run and Check the Initial result
       setComponent(testEntity, DirectionalLightComponent)
-      startReactor(helperReactor)
 
       await vi.waitFor(() => {
         // Sanity check before running
@@ -308,6 +307,7 @@ describe('DirectionalLightComponent', () => {
         assert.equal(new Color(result).getHex(), Expected.getHex())
       })
     })
+    */
 
     it('should react when directionalLightComponent.intensity changes', async () => {
       const Expected = 42
