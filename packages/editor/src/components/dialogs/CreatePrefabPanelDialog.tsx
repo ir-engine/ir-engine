@@ -107,6 +107,8 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
       entityID: 'temp-prefab' as EntityID
     })
     setComponent(prefabEntity, ObjectComponent, sceneObject)
+    setComponent(prefabEntity, EntityTreeComponent, { parentEntity: getState(EditorState).rootEntity })
+    setComponent(prefabEntity, NameComponent, 'temp prefab')
 
     const rootEntity = getState(EditorState).rootEntity
 
@@ -126,13 +128,6 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
           setComponent(prefabEntity, component, componentData)
         }
       })
-    })
-
-    setComponent(prefabEntity, EntityTreeComponent, { parentEntity: rootEntity })
-    setComponent(prefabEntity, NameComponent, 'temp prefab')
-
-    lookdevEntity.forEach((entity) => {
-      setComponent(entity, EntityTreeComponent, { parentEntity: prefabEntity })
     })
 
     getMutableState(SelectionState).selectedEntities.set([])
