@@ -499,16 +499,13 @@ export const getSourceSnapshot = (sourceID: SourceID) => {
       if (!sceneComponentID) continue
       // special case for entity tree since we need to serialize an EntityID
       if (component === EntityTreeComponent) {
-        const entityTree = getComponent(entity, EntityTreeComponent)
         // use an empty string to denote the root of the source
-        let parentEntityID = ''
-        if (entityTree.parentEntity !== sourceEntity && hasComponent(entityTree.parentEntity, UUIDComponent)) {
-          parentEntityID = getComponent(entityTree.parentEntity, UUIDComponent).entityID
-        }
-
         sourceData[entityID][sceneComponentID] = {
-          parentEntity: parentEntityID,
-          childIndex: entityTree.childIndex
+          parentEntity:
+            getComponent(entity, EntityTreeComponent).parentEntity === sourceEntity
+              ? ''
+              : getComponent(getComponent(entity, EntityTreeComponent).parentEntity, UUIDComponent).entityID,
+          childIndex: getComponent(entity, EntityTreeComponent).childIndex
         }
         continue
       }
