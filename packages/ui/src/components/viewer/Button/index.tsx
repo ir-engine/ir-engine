@@ -23,22 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Toggle from '@ir-engine/ui/src/components/viewer/Toggle'
 import React from 'react'
+import { twMerge } from 'tailwind-merge'
 
-interface ToggleItemProps extends React.PropsWithChildren {
-  label?: string
-  checked?: boolean
-  onClick?: () => void
+export const GlassButton = (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => {
+  const { className, disabled } = props
+  const style = `
+  flex items-center justify-center rounded-full border border-white/20 bg-white/15 px-6 py-4 text-lg font-bold text-white/90 shadow-lg drop-shadow-xl backdrop-blur-sm
+  ${disabled ? 'cursor-not-allowed opacity-50' : ''}
+  `
+  return <button {...props} className={twMerge(style, className)} />
 }
-
-const ToggleItem: React.FC<ToggleItemProps> = ({ label, checked = false, onClick, children }) => {
-  return (
-    <div className="flex items-center justify-between px-4 py-3.5 text-white/90">
-      {children || <span className="font-medium">{label}</span>}
-      <Toggle checked={checked} onChange={onClick} />
-    </div>
-  )
-}
-
-export default ToggleItem

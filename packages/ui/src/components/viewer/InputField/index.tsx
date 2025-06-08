@@ -23,51 +23,42 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { XCloseMd } from '@ir-engine/ui/src/icons'
 import React from 'react'
 
-export interface SliderProps {
-  value: number
-  min?: number
-  max?: number
-  step?: number
-  onChange?: (value: number) => void
+export interface InputFieldProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+  label: string
+  value: string
+  isPassword?: boolean
+  onChange: (value: string) => void
+  onReset?: () => void
+  isDirty?: boolean
   className?: string
 }
 
 /**
- * A reusable slider component with custom styling
+ * A reusable input field component with reset functionality
  */
-const Slider: React.FC<SliderProps> = ({ value, min = 0, max = 100, step = 1, onChange, className = '' }) => {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = parseInt(e.target.value)
-    onChange?.(newValue)
-  }
-
-  const mappedValue = Math.round(((value - min) / (max - min)) * 100)
-
-  return (
-    <div className={`relative w-full ${className}`}>
-      <div className="inset-shadow relative h-4 w-full rounded-full bg-inactive-input">
-        <div
-          className={`absolute left-0 top-0 h-4 rounded-full bg-primary-blue`}
-          style={{ width: `${mappedValue}%` }}
-        />
-        <div
-          className={`absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-lg`}
-          style={{ left: `${mappedValue}%` }}
-        />
-      </div>
+const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
+  ({ label, value, isPassword = false, onChange, isDirty = false, onReset, className = '', ...props }, ref) => (
+    <div className={`flex max-w-[25ch] flex-1 items-center gap-2 ${className}`}>
       <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
+        ref={ref}
+        type={isPassword || props.type === 'password' ? 'password' : 'text'}
+        className="w-full bg-transparent text-right placeholder:text-white/20 focus-visible:outline-none"
         value={value}
-        onChange={handleChange}
-        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+        onChange={(e) => onChange(e.target.value)}
+        aria-label={label}
+        {...props}
       />
+
+      <button onClick={onReset} className={isDirty ? 'visible' : 'invisible'} aria-label={`Reset ${label}`}>
+        <XCloseMd className="h-4 w-4 text-white/70" />
+      </button>
     </div>
   )
-}
+)
 
-export default Slider
+InputField.displayName = 'InputField'
+
+export default InputField

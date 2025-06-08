@@ -24,29 +24,20 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
-import { useFind } from '@ir-engine/common'
-import useEngineSetting from '@ir-engine/common/src/hooks/useEngineSetting'
-import { identityProviderPath } from '@ir-engine/common/src/schema.type.module'
-import { AuthenticationConfig } from '@ir-engine/server-core/src/appconfig'
 import Divider from '@ir-engine/ui/src/components/viewer/Divider'
 import { PlusCircleMd } from '@ir-engine/ui/src/icons'
-import React, { useEffect } from 'react'
+import { capitalize } from 'lodash'
+import React from 'react'
 import { FaApple, FaGithub, FaGoogle, FaMinusCircle } from 'react-icons/fa'
-import { initialAuthState, initialOAuthConnectedState } from '../../common/initialAuthState'
+import { useAuthSettings, useOAuthState } from '../../hooks/useAuthSetting'
 import { AuthService } from '../../user/services/AuthService'
+import ButtonGroup from './ButtonGroup'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
 
 interface SSOScreenProps {}
 
-interface SSOProvider {
-  id: string
-  name: string
-  icon: React.ReactNode
-  connected: boolean
-}
-
-const Socials = [
+export const Socials = [
   {
     client: 'google',
     label: 'Google',
@@ -65,43 +56,36 @@ const Socials = [
 ]
 
 const SSOScreen: React.FC<SSOScreenProps> = () => {
-  const identityProvidersQuery = useFind(identityProviderPath)
-  const oauthConnectedState = useHookstate(Object.assign({}, initialOAuthConnectedState))
-  const authState = useHookstate(initialAuthState)
-
-  const { data: authSetting } = useEngineSetting<AuthenticationConfig>('authentication')
-
-  useEffect(() => {
-    if (authSetting) {
-      const temp = { ...initialAuthState }
-      authSetting?.authStrategies?.forEach((el) => {
-        Object.entries(el).forEach(([strategyName, strategy]) => {
-          temp[strategyName] = strategy
-        })
-      })
-      authState.set(temp)
-    }
-  }, [authSetting])
-
-  useEffect(() => {
-    const { data } = identityProvidersQuery
-    if (!data) return
-
-    for (const ip of data) {
-      oauthConnectedState.merge({ [ip.type]: true })
-    }
-  }, [identityProvidersQuery.data])
+  const oauthConnectedState = useOAuthState()
+  const authSettings = useAuthSettings()
+  const deleteSSO = useHookstate('')
 
   const handleProviderClick = (client: string) => {
     AuthService.loginUserByOAuth(client, location, true, location.href)
   }
 
+  const connectedProviders = Socials.filter((p) => oauthConnectedState[p.client].value && authSettings[p.client])
+  const disconnectedProviders = Socials.filter((p) => !oauthConnectedState[p.client].value && authSettings[p.client])
+
   const disableProvider = (client: string) => {
-    AuthService.removeUserOAuth(client)
+    deleteSSO.set(client)
   }
 
-  const connectedProviders = Socials.filter((p) => oauthConnectedState[p.client].value && authState.value[p.client])
-  const disconnectedProviders = Socials.filter((p) => !oauthConnectedState[p.client].value && authState.value[p.client])
+  if (deleteSSO.value) {
+    return (
+      <div className="mx-auto flex h-full max-w-sm flex-col items-center justify-between pb-2">
+        <div className="text-dm-sans m-auto flex w-full flex-1 flex-col justify-center text-center text-2xl text-white">
+          Are you sure you want to remove social login from {capitalize(deleteSSO.value)}?
+        </div>
+        <ButtonGroup
+          options={[
+            { label: 'Remove', onClick: () => AuthService.removeUserOAuth(deleteSSO.value) },
+            { label: 'Nevermind', onClick: () => deleteSSO.set('') }
+          ]}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="h-full space-y-4">

@@ -23,22 +23,46 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Toggle from '@ir-engine/ui/src/components/viewer/Toggle'
-import React from 'react'
+import { InputField, InputFieldProps } from '@ir-engine/ui/viewer'
+import React, { useRef } from 'react'
 
-interface ToggleItemProps extends React.PropsWithChildren {
-  label?: string
-  checked?: boolean
-  onClick?: () => void
+interface FieldItemProps extends InputFieldProps {
+  label: string
+  className?: string
 }
 
-const ToggleItem: React.FC<ToggleItemProps> = ({ label, checked = false, onClick, children }) => {
+const FieldItem: React.FC<FieldItemProps> = ({
+  label,
+  className = '',
+  value,
+  onChange,
+  isDirty,
+  onReset,
+  ...inputProps
+}) => {
+  const ref = useRef<HTMLInputElement>(null)
   return (
-    <div className="flex items-center justify-between px-4 py-3.5 text-white/90">
-      {children || <span className="font-medium">{label}</span>}
-      <Toggle checked={checked} onChange={onClick} />
+    <div
+      onClick={(e) => {
+        ref.current?.focus()
+        if (e.currentTarget === e.target) {
+          ref.current?.setSelectionRange(value.length, value.length)
+        }
+      }}
+      className={`flex w-full items-center justify-between px-4 py-3.5 text-white/90 transition-colors hover:bg-white/5 ${className}`}
+    >
+      <span className="text-sm font-medium">{label}</span>
+      <InputField
+        ref={ref}
+        label="Display Name"
+        value={value}
+        onChange={onChange}
+        isDirty={isDirty}
+        onReset={onReset}
+        {...inputProps}
+      />
     </div>
   )
 }
 
-export default ToggleItem
+export default FieldItem
