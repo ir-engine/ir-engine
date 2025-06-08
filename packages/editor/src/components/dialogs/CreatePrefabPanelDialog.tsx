@@ -98,14 +98,18 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
       DirectionalLightComponent,
       PostProcessingComponent
     ]
+
     const prefabEntity = createEntity()
-    const obj = new Scene()
+    const sceneObject = new Scene()
+
     setComponent(prefabEntity, UUIDComponent, {
       entitySourceID: UUIDComponent.generate() as string as SourceID,
       entityID: 'temp-prefab' as EntityID
     })
-    setComponent(prefabEntity, ObjectComponent, obj)
+    setComponent(prefabEntity, ObjectComponent, sceneObject)
+
     const rootEntity = getState(EditorState).rootEntity
+
     iterateEntityNode(rootEntity, (entity) => {
       lookDevComponent.forEach((component) => {
         if (hasComponent(entity, component)) {
@@ -114,9 +118,19 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
         }
       })
     })
-    EditorControlFunctions.duplicateObject(lookdevEntity)
+
+    lookdevEntity.forEach((entity) => {
+      lookDevComponent.forEach((component) => {
+        if (hasComponent(entity, component)) {
+          const componentData = getComponent(entity, component)
+          setComponent(prefabEntity, component, componentData)
+        }
+      })
+    })
+
     setComponent(prefabEntity, EntityTreeComponent, { parentEntity: rootEntity })
     setComponent(prefabEntity, NameComponent, 'temp prefab')
+
     lookdevEntity.forEach((entity) => {
       setComponent(entity, EntityTreeComponent, { parentEntity: prefabEntity })
     })
@@ -125,17 +139,20 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
 
     await exportRelativeGLTF(prefabEntity, srcProject, fileName)
 
+    const resourcePath = `projects/${srcProject}/${fileName}`
     const resources = await API.instance.service(staticResourcePath).find({
-      query: { key: 'projects/' + srcProject + '/' + fileName }
+      query: { key: resourcePath }
     })
+
     if (resources.data.length === 0) {
-      throw new Error('User not found')
+      throw new Error('Resource not found')
     }
+
     const resource = resources.data[0]
-    const tags = prefabTag.value.map(({ value }) => value)
-    tags.push('Lookdev')
+    const tags = [...prefabTag.value.map(({ value }) => value), 'Lookdev']
+
     await API.instance.service(staticResourcePath).patch(resource.id, { tags: tags, project: srcProject })
-    setComponent(prefabEntity, NameComponent, 'temp prefab')
+
     removeEntityNodeRecursively(prefabEntity)
     finishSavePrefab()
   }
@@ -194,32 +211,37 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
   const onExportPrefab = async () => {
     isLoading.set(true)
     const editorState = getState(EditorState)
-    const fileName = isExportLookDev
-      ? defaultPrefabFolder.value + '/' + prefabName.value + '.lookdev' + '.gltf'
-      : defaultPrefabFolder.value + '/' + prefabName.value + '.gltf'
+    const baseFileName = `${defaultPrefabFolder.value}/${prefabName.value}`
+    const fileName = isExportLookDev ? `${baseFileName}.lookdev.gltf` : `${baseFileName}.gltf`
     const srcProject = editorState.projectName!
     const fileURL = pathJoin(config.client.fileServer, 'projects', srcProject, fileName)
 
     try {
+      const resourcePath = `projects/${srcProject}/${fileName}`
       const resourcesOld = await API.instance.service(staticResourcePath).find({
-        query: { key: 'projects/' + srcProject + '/' + fileName }
+        query: { key: resourcePath }
       })
-      if (resourcesOld.data.length !== 0 && !isOverwriteConfirmed.value) {
-        console.log('this name already exist, click confirm to overwrite the prefab')
+
+      const prefabExits = resourcesOld.data.length !== 0
+
+      if (prefabExits && !isOverwriteConfirmed.value) {
+        console.log('This name already exist, click confirm to overwrite the prefab')
         await isOverwriteModalVisible.set(true)
-      } else {
-        if (isExportLookDev) {
-          exportLookDevPrefab(srcProject, fileName)
-          NotificationService.dispatchNotify(t('editor:prefab.exportedSuccess'), { variant: 'success' })
-        } else {
-          if (!entity) return
-          exportPrefab(entity, srcProject, fileName, fileURL)
-          NotificationService.dispatchNotify(t('editor:prefab.exportedSuccess'), { variant: 'success' })
-        }
+        return
       }
-    } catch (e) {
-      console.error(e)
-      NotificationService.dispatchNotify(e.message, { variant: 'error' })
+
+      if (isExportLookDev) {
+        await exportLookDevPrefab(srcProject, fileName)
+      } else {
+        if (!entity) return
+
+        await exportPrefab(entity, srcProject, fileName, fileURL)
+      }
+
+      NotificationService.dispatchNotify(t('editor:prefab.exportedSuccess'), { variant: 'success' })
+    } catch (error) {
+      console.error(error)
+      NotificationService.dispatchNotify(error.message, { variant: 'error' })
     } finally {
       isLoading.set(false)
     }
