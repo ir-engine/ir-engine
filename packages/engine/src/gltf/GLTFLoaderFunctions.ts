@@ -25,12 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { GLTF } from '@gltf-transform/core'
 import { KHRDracoMeshCompression } from '@gltf-transform/extensions'
+
 import {
   Component,
   ComponentJSONIDMap,
   Entity,
   EntityID,
   EntityTreeComponent,
+  EntityUUID,
+  EntityUUIDPair,
   LayerComponent,
   LayerFunctions,
   Layers,
@@ -635,33 +638,51 @@ export function computeBounds(json: GLTF.IGLTF, geometry: BufferGeometry, primit
  * @param {number} materialIndex
  * @return {Promise<Material>}
  */
-const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) => {
+const loadMaterial = async (options: GLTFParserOptions, materialIndex: number): Promise<Entity> => {
   const json = options.document
-  const entity = options.entity
-
-  const layer = LayerComponent.get(entity)
+  const gltfRootEntity = options.entity
+  const layer = LayerComponent.get(gltfRootEntity)
   const materialDef = json.materials![materialIndex]
+  const ecsMaterialNodeID = ('material-' + materialIndex) as EntityID
+  const ecsMaterialEntity = UUIDComponent.create(gltfRootEntity, ecsMaterialNodeID, layer)
 
-  const nodeID = ('material-' + materialIndex) as EntityID
-  const materialEntity = UUIDComponent.create(entity, nodeID, layer)
-  setComponent(materialEntity, EntityTreeComponent, { parentEntity: entity, childIndex: materialIndex })
-  setComponent(materialEntity, NameComponent, materialDef.name ?? 'Material-' + materialIndex)
+  setComponent(ecsMaterialEntity, EntityTreeComponent, { parentEntity: gltfRootEntity, childIndex: materialIndex })
+  setComponent(ecsMaterialEntity, NameComponent, materialDef.name ?? 'Material-' + materialIndex)
 
-  let materialConstructorParameters = {} as any
-  const promises = [] as Promise<void>[]
+  const ecsMaterialUuidComponentValue = UUIDComponent.get(ecsMaterialEntity)
+  let fullCanonicalECSMaterialUUID: EntityUUID | undefined
+
+  if (typeof ecsMaterialUuidComponentValue === 'string') {
+    fullCanonicalECSMaterialUUID = ecsMaterialUuidComponentValue
+  } else if (
+    ecsMaterialUuidComponentValue &&
+    typeof (ecsMaterialUuidComponentValue as EntityUUIDPair).entitySourceID === 'string' &&
+    typeof (ecsMaterialUuidComponentValue as EntityUUIDPair).entityID === 'string'
+  ) {
+    const pair = ecsMaterialUuidComponentValue as EntityUUIDPair
+    fullCanonicalECSMaterialUUID = (pair.entitySourceID + pair.entityID) as EntityUUID
+  } else {
+    console.error(
+      `[GLTF loadMaterial] CRITICAL: Could not determine a full canonical string UUID from UUIDComponent for new ECS Material Entity (local nodeID: ${ecsMaterialNodeID}, GLTF material index ${materialIndex}). Value:`,
+      ecsMaterialUuidComponentValue,
+      '. This will likely break material linking and modification from external systems.'
+    )
+  }
+
+  let materialConstructorParameters: any = {}
+  const texturePromises: Promise<void>[] = []
   const materialExtensions = materialDef.extensions || {}
+  let materialConstructor: any = MeshStandardMaterial
 
-  let materialConstructor = MeshStandardMaterial
   if (!materialExtensions['EE_material'] && materialExtensions['KHR_materials_unlit']) {
     const kmuExtension = KHRUnlitExtensionComponent
     materialConstructor = kmuExtension.getMaterialType() as any
-    promises.push(kmuExtension.extendMaterialParams(options, materialConstructorParameters, materialDef))
+    texturePromises.push(kmuExtension.extendMaterialParams(options, materialConstructorParameters, materialDef))
   } else {
     materialConstructorParameters.color = new Color(1.0, 1.0, 1.0)
     materialConstructorParameters.opacity = 1.0
-
     if (typeof materialDef.pbrMetallicRoughness?.baseColorTexture !== 'undefined') {
-      promises.push(
+      texturePromises.push(
         GLTFLoaderFunctions.assignTexture(options, materialDef.pbrMetallicRoughness.baseColorTexture).then((map) => {
           if (map) {
             map.colorSpace = SRGBColorSpace
@@ -670,7 +691,6 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
         })
       )
     }
-
     if (typeof materialDef.pbrMetallicRoughness?.baseColorFactor !== 'undefined') {
       if (Array.isArray(materialDef.pbrMetallicRoughness?.baseColorFactor)) {
         const array = materialDef.pbrMetallicRoughness.baseColorFactor
@@ -682,31 +702,22 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
       materialDef.pbrMetallicRoughness?.metallicFactor !== undefined
         ? materialDef.pbrMetallicRoughness.metallicFactor
         : 1.0
-
     materialConstructorParameters.roughness =
       materialDef.pbrMetallicRoughness?.roughnessFactor !== undefined
         ? materialDef.pbrMetallicRoughness.roughnessFactor
         : 1.0
-
     if (typeof materialDef.pbrMetallicRoughness?.metallicRoughnessTexture !== 'undefined') {
-      promises.push(
+      texturePromises.push(
         GLTFLoaderFunctions.assignTexture(options, materialDef.pbrMetallicRoughness.metallicRoughnessTexture).then(
           (metalnessMap) => {
-            if (metalnessMap) {
-              materialConstructorParameters.metalnessMap = metalnessMap
-            }
+            if (metalnessMap) materialConstructorParameters.metalnessMap = metalnessMap
           }
         )
       )
-    }
-
-    if (typeof materialDef.pbrMetallicRoughness?.metallicRoughnessTexture !== 'undefined') {
-      promises.push(
+      texturePromises.push(
         GLTFLoaderFunctions.assignTexture(options, materialDef.pbrMetallicRoughness.metallicRoughnessTexture).then(
           (roughnessMap) => {
-            if (roughnessMap) {
-              materialConstructorParameters.roughnessMap = roughnessMap
-            }
+            if (roughnessMap) materialConstructorParameters.roughnessMap = roughnessMap
           }
         )
       )
@@ -714,49 +725,32 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   }
 
   materialConstructorParameters.side = materialDef.doubleSided === true ? DoubleSide : FrontSide
-
   const alphaMode = materialDef.alphaMode ?? ALPHA_MODES.OPAQUE
   materialConstructorParameters.transparent = alphaMode === ALPHA_MODES.BLEND
-
-  // See: https://github.com/mrdoob/three.js/issues/17706
   if (alphaMode === ALPHA_MODES.BLEND) {
     materialConstructorParameters.depthWrite = false
   }
-
-  if (materialDef.alphaMode === ALPHA_MODES.MASK) {
-    materialConstructorParameters.alphaTest =
-      typeof materialDef.alphaCutoff === 'number' ? materialDef.alphaCutoff : 0.5
-  } else {
-    materialConstructorParameters.alphaTest = 0
-  }
+  materialConstructorParameters.alphaTest =
+    alphaMode === ALPHA_MODES.MASK ? (typeof materialDef.alphaCutoff === 'number' ? materialDef.alphaCutoff : 0.5) : 0
 
   if (typeof materialDef.normalTexture !== 'undefined') {
-    promises.push(
+    texturePromises.push(
       GLTFLoaderFunctions.assignTexture(options, materialDef.normalTexture).then((normalMap) => {
-        if (normalMap) {
-          materialConstructorParameters.normalMap = normalMap
-        }
+        if (normalMap) materialConstructorParameters.normalMap = normalMap
       })
     )
   }
-
-  if (materialDef.normalTexture?.scale) {
-    const scale = materialDef.normalTexture.scale
-    materialConstructorParameters.normalScale = new Vector2(scale, scale)
-  } else {
-    materialConstructorParameters.normalScale = new Vector2(1, 1)
-  }
+  materialConstructorParameters.normalScale = materialDef.normalTexture?.scale
+    ? new Vector2(materialDef.normalTexture.scale, materialDef.normalTexture.scale)
+    : new Vector2(1, 1)
 
   if (typeof materialDef.occlusionTexture !== 'undefined') {
-    promises.push(
+    texturePromises.push(
       GLTFLoaderFunctions.assignTexture(options, materialDef.occlusionTexture).then((aoMap) => {
-        if (aoMap) {
-          materialConstructorParameters.aoMap = aoMap
-        }
+        if (aoMap) materialConstructorParameters.aoMap = aoMap
       })
     )
   }
-
   materialConstructorParameters.aoMapIntensity = materialDef.occlusionTexture?.strength ?? 1.0
 
   const emissiveFactor = materialDef.emissiveFactor
@@ -770,7 +764,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   }
 
   if (typeof materialDef.emissiveTexture !== 'undefined') {
-    promises.push(
+    texturePromises.push(
       GLTFLoaderFunctions.assignTexture(options, materialDef.emissiveTexture).then((emissiveMap) => {
         if (emissiveMap) {
           emissiveMap.colorSpace = SRGBColorSpace
@@ -780,43 +774,51 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
     )
   }
 
+  await Promise.all(texturePromises)
+
+  const extensionProcessingPromises: Promise<void>[] = []
   const extensions = Object.entries(materialDef.extensions || {})
-
-  await Promise.all(promises)
-
-  const extensionPromises = [] as Promise<void>[]
-
-  for (const [extensionName, extension] of extensions) {
-    const Component = ComponentJSONIDMap.get(extensionName) as ComponentExt
-    if (!Component) continue
-    deserializeComponent(materialEntity, Component, extension)
-    if (typeof Component.getMaterialType === 'function') {
-      const ext = Component.getMaterialType(materialDef)
-      if (ext) materialConstructor = ext
-      else console.warn('GLTFLoaderFunctions: Material type not found.')
+  for (const [extensionName, extensionDef] of extensions) {
+    const ComponentDef = ComponentJSONIDMap.get(extensionName) as ComponentExt | undefined
+    if (!ComponentDef) continue
+    deserializeComponent(ecsMaterialEntity, ComponentDef, extensionDef)
+    if (typeof ComponentDef.getMaterialType === 'function') {
+      const extMaterialConstructor = ComponentDef.getMaterialType(materialDef)
+      if (extMaterialConstructor) materialConstructor = extMaterialConstructor
     }
-    if (typeof Component.extendMaterialParams === 'function') {
-      extensionPromises.push(
-        Component.extendMaterialParams(options, materialConstructorParameters, materialDef, materialIndex)
+    if (typeof ComponentDef.extendMaterialParams === 'function') {
+      extensionProcessingPromises.push(
+        ComponentDef.extendMaterialParams(options, materialConstructorParameters, materialDef, materialIndex)
       )
     }
   }
+  await Promise.all(extensionProcessingPromises)
 
-  await Promise.all(extensionPromises)
+  const threeMaterialInstance = new materialConstructor(materialConstructorParameters) as Material
+  threeMaterialInstance.name = materialDef.name ?? 'Material-' + materialIndex
 
-  const material = new materialConstructor(materialConstructorParameters)
-  material.name = materialDef.name ?? 'Material-' + materialIndex
+  if (fullCanonicalECSMaterialUUID) {
+    threeMaterialInstance.uuid = fullCanonicalECSMaterialUUID
+    threeMaterialInstance.userData.ecsMaterialEntityUUID = fullCanonicalECSMaterialUUID
+    console.debug(
+      `[GLTF loadMaterial] Linked THREE.Material '${threeMaterialInstance.name}' (GLTF matIndex ${materialIndex}) to ECS Material Entity UUID: '${fullCanonicalECSMaterialUUID}'`
+    )
+  } else {
+    console.warn(
+      `[GLTF loadMaterial] Using default THREE.js UUID for material '${threeMaterialInstance.name}' (GLTF matIndex ${materialIndex}) as full ECS UUID could not be determined. Material modification from Python might fail for this material.`
+    )
+  }
 
-  setComponent(materialEntity, MaterialStateComponent, { material })
-  setupMaterialParameters(materialEntity, {
+  setComponent(ecsMaterialEntity, MaterialStateComponent, { material: threeMaterialInstance })
+  setupMaterialParameters(ecsMaterialEntity, {
     ...materialConstructorParameters,
-    uuid: material.uuid,
-    name: material.name
+    uuid: threeMaterialInstance.uuid,
+    name: threeMaterialInstance.name
   })
 
-  assignExtrasToUserData(material, materialDef)
+  assignExtrasToUserData(threeMaterialInstance, materialDef)
 
-  return materialEntity
+  return ecsMaterialEntity
 }
 
 const mergeMorphTargets = async (options: GLTFParserOptions, nodeIndex: number) => {
@@ -1319,7 +1321,6 @@ const loadCamera = async (options: GLTFParserOptions, entity: Entity, nodeIndex:
   const cameraDef = json.cameras![node.camera!]
 
   if (cameraDef.type === 'orthographic' || !cameraDef.perspective) {
-    // const camera = new OrthographicCamera(-params.xmag, params.xmag, params.ymag, -params.ymag, params.znear, params.zfar)
     return console.warn('Orthographic cameras not supported yet')
   }
 
@@ -1368,7 +1369,6 @@ const loadSkin = async (options: GLTFParserOptions, nodeEntity: Entity, nodeInde
 
   const skeleton = new Skeleton(bones, boneInverses)
   skinnedMesh.skeleton = skeleton
-  // Make sure skeleton is propagated to simulation layer
   setComponent(skinnedMesh.entity, SkinnedMeshComponent, skinnedMesh)
 }
 
