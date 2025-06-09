@@ -124,7 +124,7 @@ const ShareMenu = (): JSX.Element => {
             readOnly
             value={shareLink}
             endComponent={
-              <button className="h-4 w-4 text-text-primary" onMouseDown={copyLinkToClipboard}>
+              <button className="h-4 w-4 text-text-primary" onMouseDown={() => copyLinkToClipboard()}>
                 <Copy03Lg />
               </button>
             }

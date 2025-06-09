@@ -42,18 +42,7 @@ export interface UseShareMenuProps {
   refLink?: React.MutableRefObject<HTMLInputElement>
 }
 
-export interface UseShareMenuReturn {
-  copyLinkToClipboard: () => void
-  shareOnApps: () => void
-  packageInvite: () => Promise<void>
-  handleChangeToken: (e: React.ChangeEvent<HTMLInputElement>) => void
-  token: string
-  shareLink: string
-  isSpectatorMode: boolean
-  toggleSpectatorMode: () => void
-}
-
-export const useShareMenu = ({ refLink } = {} as UseShareMenuProps): UseShareMenuReturn => {
+export const useShareMenu = ({ refLink } = {} as UseShareMenuProps) => {
   const { t } = useTranslation()
   const [token, setToken] = React.useState('')
   const [isSpectatorMode, setSpectatorMode] = useState<boolean>(false)
@@ -72,8 +61,10 @@ export const useShareMenu = ({ refLink } = {} as UseShareMenuProps): UseShareMen
     }
   }
 
-  const copyLinkToClipboard = () => {
-    navigator.clipboard.writeText(refLink?.current.value ?? getInviteLink())
+  const inviteLink = getInviteLink()
+
+  const copyLinkToClipboard = (link?: string) => {
+    navigator.clipboard.writeText(link ?? refLink?.current.value ?? inviteLink)
     NotificationService.dispatchNotify(t('user:usermenu.share.linkCopied'), { variant: 'success' })
   }
 
@@ -145,6 +136,10 @@ export const useShareMenu = ({ refLink } = {} as UseShareMenuProps): UseShareMen
     setShareLink(isSpectatorMode ? getSpectateModeUrl() : getInviteLink())
   }, [isSpectatorMode])
 
+  const questLink = new URL('https://oculus.com/open_url/')
+  questLink.searchParams.set('url', shareLink)
+  console.log(questLink)
+
   return {
     copyLinkToClipboard,
     shareOnApps,
@@ -153,6 +148,8 @@ export const useShareMenu = ({ refLink } = {} as UseShareMenuProps): UseShareMen
     token,
     shareLink,
     isSpectatorMode,
-    toggleSpectatorMode
+    toggleSpectatorMode,
+    questLink: questLink.toString(),
+    inviteLink
   }
 }

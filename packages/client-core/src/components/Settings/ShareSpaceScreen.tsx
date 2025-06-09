@@ -32,7 +32,7 @@ interface ShareSpaceScreenProps {
 }
 
 const ShareSpaceScreen: React.FC<ShareSpaceScreenProps> = () => {
-  const { shareLink, copyLinkToClipboard } = useShareMenu()
+  const { shareLink, copyLinkToClipboard, questLink, inviteLink } = useShareMenu()
 
   return (
     <div className="xs:gap-6 flex h-full flex-col items-center justify-between p-4 md:flex-row md:items-start md:justify-center md:gap-5">
@@ -46,13 +46,16 @@ const ShareSpaceScreen: React.FC<ShareSpaceScreenProps> = () => {
       {/* Action Buttons */}
       <div className="flex w-full flex-col gap-3">
         <button
-          onClick={copyLinkToClipboard}
+          onClick={() => copyLinkToClipboard(inviteLink)}
           className="w-full rounded-full bg-white/20 py-3 text-center text-white hover:bg-white/30"
         >
           Copy Direct Link
         </button>
 
-        <button className="w-full rounded-full bg-white/20 py-3 text-center text-white hover:bg-white/30">
+        <button
+          onClick={() => copyLinkToClipboard(questLink)}
+          className="w-full rounded-full bg-white/20 py-3 text-center text-white hover:bg-white/30"
+        >
           Share to Meta Quest
         </button>
 
