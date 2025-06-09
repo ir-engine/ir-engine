@@ -23,14 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
+import { Mesh, MeshPhysicalMaterial, SphereGeometry } from 'three'
 
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+const sphereGeometry = new SphereGeometry(0.75)
+const helperMeshMaterial = new MeshPhysicalMaterial({ roughness: 0, metalness: 1 })
 
-export const SpawnPointComponent = defineComponent({
-  name: 'SpawnPointComponent',
-  jsonID: 'EE_spawn_point',
-  schema: S.Object({
-    permissionedUsers: S.Array(S.UserID())
-  })
-})
+export const EnvmapBakeHelperReactor: React.FC = (props: { parentEntity; iconEntity; selected; hovered }) => {
+  const { parentEntity, iconEntity, selected, hovered } = props
+
+  const debugEnabled = selected || hovered
+  useHelperEntity(parentEntity, () => new Mesh(sphereGeometry, helperMeshMaterial), debugEnabled)
+  return null
+}

@@ -23,23 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Mesh, MeshPhysicalMaterial, SphereGeometry } from 'three'
-
-import { useEntityContext } from '@ir-engine/ecs'
-import { defineComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-
-import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
+import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { Vector3_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
-import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
-import { useEffect } from 'react'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
-
-const sphereGeometry = new SphereGeometry(0.75)
-const helperMeshMaterial = new MeshPhysicalMaterial({ roughness: 0, metalness: 1 })
 
 export const EnvMapBakeComponent = defineComponent({
   name: 'EnvMapBakeComponent',
@@ -60,22 +50,5 @@ export const EnvMapBakeComponent = defineComponent({
     }),
     envMapOrigin: S.String({ default: '' }),
     boxProjection: S.Bool({ default: true })
-  }),
-
-  reactor: function () {
-    const entity = useEntityContext()
-    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
-    const debugEnabled =
-      activeHelperComponent !== undefined &&
-      activeHelperComponent.enabled.value &&
-      (activeHelperComponent.selected.value || activeHelperComponent.hovered.value)
-
-    const helperEntity = useHelperEntity(entity, () => new Mesh(sphereGeometry, helperMeshMaterial), debugEnabled)
-
-    useEffect(() => {
-      activeHelperComponent?.helperSelectedGizmo.set(helperEntity)
-    }, [helperEntity])
-
-    return null
-  }
+  })
 })

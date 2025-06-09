@@ -26,23 +26,25 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Box3, Box3Helper, BufferGeometry, Mesh } from 'three'
 
-import { EntityTreeComponent, createEntity, iterateEntityNode, removeEntity, useEntityContext } from '@ir-engine/ecs'
+import {
+  EntityTreeComponent,
+  UndefinedEntity,
+  createEntity,
+  iterateEntityNode,
+  removeEntity,
+  useEntityContext
+} from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
   getOptionalComponent,
-  hasComponent,
   setComponent,
-  useComponent,
-  useOptionalComponent
+  useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { Entity } from '@ir-engine/ecs/src/Entity'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { ActiveHelperComponent } from '../../common/ActiveHelperComponent'
 import { NameComponent } from '../../common/NameComponent'
-import { RendererState } from '../../renderer/RendererState'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { ObjectLayerMaskComponent } from '../../renderer/components/ObjectLayerComponent'
@@ -51,35 +53,28 @@ import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { T } from '../../schema/schemaFunctions'
 import { TransformComponent } from './TransformComponent'
 
+export const BOUNDING_BOX_COLORS = {
+  SELECTED: 'white',
+  HOVERED: '#F3A2FF'
+} as const
+
 export const BoundingBoxComponent = defineComponent({
   name: 'BoundingBoxComponent',
 
   schema: S.Object({
     box: T.Box3(),
-    helper: S.Entity()
+    helper: S.Entity(),
+    color: T.Color('white')
   }),
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility) // show all volumes
-    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const boundingBox = useComponent(entity, BoundingBoxComponent)
 
     useEffect(() => {
-      const helperEnabled =
-        activeHelperComponent !== undefined &&
-        activeHelperComponent.enabled.value &&
-        (activeHelperComponent.hovered.value || activeHelperComponent.selected.value)
-
-      const showVolume =
-        activeHelperComponent !== undefined && activeHelperComponent.volumeControlled.value
-          ? helperEnabled
-          : debugEnabled.value
-      if (!showVolume) return
-
       const helperEntity = createEntity()
 
-      const helper = new Box3Helper(boundingBox.box.value, 'white')
+      const helper = new Box3Helper(boundingBox.box.value, boundingBox.color.value)
       helper.name = `bounding-box-helper-${entity}`
 
       setComponent(helperEntity, NameComponent, helper.name)
@@ -96,16 +91,16 @@ export const BoundingBoxComponent = defineComponent({
 
       return () => {
         removeEntity(helperEntity)
-        if (!hasComponent(entity, BoundingBoxComponent)) return
-        boundingBox.helper.set(UndefinedEntity)
       }
-    }, [
-      debugEnabled,
-      activeHelperComponent?.volumeControlled,
-      activeHelperComponent?.enabled,
-      activeHelperComponent?.hovered,
-      activeHelperComponent?.selected
-    ])
+    }, [])
+
+    useEffect(() => {
+      const helperEntity = boundingBox.helper.value
+      if (helperEntity === UndefinedEntity) return
+
+      const helperObject = getComponent(helperEntity, ObjectComponent) as any as Box3Helper
+      ;(helperObject.material as any).color.set(boundingBox.color.value)
+    }, [boundingBox.helper, boundingBox.color])
 
     return null
   }

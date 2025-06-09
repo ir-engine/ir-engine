@@ -23,14 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent } from '@ir-engine/ecs'
 
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-
-export const SpawnPointComponent = defineComponent({
-  name: 'SpawnPointComponent',
-  jsonID: 'EE_spawn_point',
-  schema: S.Object({
-    permissionedUsers: S.Array(S.UserID())
-  })
-})
+export const HelperComponent = defineComponent({ name: 'HelperComponent' })

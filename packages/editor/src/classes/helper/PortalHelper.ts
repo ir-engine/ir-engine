@@ -23,14 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Vector3_Right, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
+import { ArrowHelper } from 'three'
 
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+export const PortalHelperReactor: React.FC = (props: { parentEntity; iconEntity; selected; hovered }) => {
+  const { parentEntity, iconEntity, selected, hovered } = props
 
-export const SpawnPointComponent = defineComponent({
-  name: 'SpawnPointComponent',
-  jsonID: 'EE_spawn_point',
-  schema: S.Object({
-    permissionedUsers: S.Array(S.UserID())
-  })
-})
+  const debugEnabled = selected || hovered
+
+  useHelperEntity(parentEntity, () => new ArrowHelper(Vector3_Right, Vector3_Zero, 1, 0x000000), debugEnabled)
+
+  return null
+}
