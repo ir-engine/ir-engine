@@ -107,7 +107,6 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
       entityID: 'temp-prefab' as EntityID
     })
     setComponent(prefabEntity, ObjectComponent, sceneObject)
-    setComponent(prefabEntity, EntityTreeComponent, { parentEntity: getState(EditorState).rootEntity })
     setComponent(prefabEntity, NameComponent, 'temp prefab')
 
     const rootEntity = getState(EditorState).rootEntity
