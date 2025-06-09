@@ -23,14 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
+import { ArrowHelper } from 'three'
 
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+export const MountPointHelperReactor: React.FC = (props: { parentEntity; iconEntity; selected; hovered }) => {
+  const { parentEntity, iconEntity, selected, hovered } = props
 
-export const SpawnPointComponent = defineComponent({
-  name: 'SpawnPointComponent',
-  jsonID: 'EE_spawn_point',
-  schema: S.Object({
-    permissionedUsers: S.Array(S.UserID())
-  })
-})
+  const debugEnabled = selected || hovered
+
+  useHelperEntity(parentEntity, () => new ArrowHelper(), debugEnabled)
+
+  return null
+}

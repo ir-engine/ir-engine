@@ -24,87 +24,23 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { BufferGeometry, DirectionalLight, Float32BufferAttribute } from 'three'
+import { DirectionalLight } from 'three'
 
 import {
-  EntityTreeComponent,
   S,
-  UndefinedEntity,
-  createEntity,
   defineComponent,
   getMutableComponent,
   removeComponent,
-  removeEntity,
   setComponent,
   useComponent,
-  useEntityContext,
-  useOptionalComponent
+  useEntityContext
 } from '@ir-engine/ecs'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
-import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
-import { mergeBufferGeometries } from '../../../common/classes/BufferGeometryUtils'
 import { T } from '../../../schema/schemaFunctions'
 import { RendererState } from '../../RendererState'
-import { LineSegmentComponent } from '../LineSegmentComponent'
 import { ObjectComponent } from '../ObjectComponent'
 import { LightTagComponent } from './LightTagComponent'
-
-const size = 1
-const lightPlaneGeometry = new BufferGeometry()
-lightPlaneGeometry.setAttribute(
-  'position',
-  new Float32BufferAttribute(
-    [
-      -size,
-      size,
-      0,
-      size,
-      size,
-      0,
-      size,
-      size,
-      0,
-      size,
-      -size,
-      0,
-      size,
-      -size,
-      0,
-      -size,
-      -size,
-      0,
-      -size,
-      -size,
-      0,
-      -size,
-      size,
-      0,
-      -size,
-      size,
-      0,
-      size,
-      -size,
-      0,
-      size,
-      size,
-      0,
-      -size,
-      -size,
-      0
-    ],
-    3
-  )
-)
-
-const targetLineGeometry = new BufferGeometry()
-const t = size * 0.1
-targetLineGeometry.setAttribute(
-  'position',
-  new Float32BufferAttribute([-t, t, 0, 0, 0, 1, t, t, 0, 0, 0, 1, t, -t, 0, 0, 0, 1, -t, -t, 0, 0, 0, 1], 3)
-)
-
-const mergedGeometry = mergeBufferGeometries([targetLineGeometry, lightPlaneGeometry])
 
 export const DirectionalLightComponent = defineComponent({
   name: 'DirectionalLightComponent',
@@ -123,7 +59,6 @@ export const DirectionalLightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
-    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
     const light = useHookstate(() => new DirectionalLight()).value as DirectionalLight
 
@@ -131,7 +66,6 @@ export const DirectionalLightComponent = defineComponent({
       setComponent(entity, LightTagComponent)
       getMutableComponent(entity, DirectionalLightComponent).light.set(light)
       setComponent(entity, ObjectComponent, light)
-      setComponent(entity, ActiveHelperComponent, { directional: true })
 
       return () => {
         removeComponent(entity, ObjectComponent)
@@ -141,12 +75,6 @@ export const DirectionalLightComponent = defineComponent({
     useEffect(() => {
       light.color.set(directionalLightComponent.color.value)
     }, [directionalLightComponent.color])
-
-    useEffect(() => {
-      if (!activeHelperComponent?.helperSelectedGizmo.value) return
-      const helper = getMutableComponent(activeHelperComponent?.helperSelectedGizmo.value, LineSegmentComponent)
-      helper.color.set(directionalLightComponent.color.value)
-    }, [activeHelperComponent?.helperSelectedGizmo, directionalLightComponent.color])
 
     useEffect(() => {
       light.intensity = directionalLightComponent.intensity.value
@@ -174,31 +102,6 @@ export const DirectionalLightComponent = defineComponent({
         light.shadow.needsUpdate = true
       }
     }, [renderState.shadowMapResolution])
-
-    useEffect(() => {
-      if (activeHelperComponent === undefined) return
-      if (
-        !(
-          activeHelperComponent.enabled.value &&
-          (activeHelperComponent.selected.value || activeHelperComponent.hovered.value)
-        )
-      )
-        return
-
-      activeHelperComponent.helperSelectedGizmo.set(createEntity())
-      setComponent(activeHelperComponent.helperSelectedGizmo.value, EntityTreeComponent, { parentEntity: entity })
-      setComponent(activeHelperComponent.helperSelectedGizmo.value, LineSegmentComponent, {
-        name: 'directional-light-helper',
-        // Clone geometry because LineSegmentComponent disposes it when removed
-        geometry: mergedGeometry?.clone(),
-        color: directionalLightComponent.color.value
-      })
-
-      return () => {
-        removeEntity(activeHelperComponent!.helperSelectedGizmo.value)
-        activeHelperComponent!.helperSelectedGizmo.set(UndefinedEntity)
-      }
-    }, [activeHelperComponent?.enabled, activeHelperComponent?.selected, activeHelperComponent?.hovered])
 
     return null
   }
