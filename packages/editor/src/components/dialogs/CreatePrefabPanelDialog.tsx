@@ -40,7 +40,7 @@ import {
   getComponent,
   hasComponent,
   iterateEntityNode,
-  removeEntityNodeRecursively,
+  removeEntity,
   setComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
@@ -91,7 +91,6 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
   }
 
   const exportLookDevPrefab = async (srcProject: string, fileName: string) => {
-    const lookdevEntity = [] as Entity[]
     const lookDevComponent: Component[] = [
       SkyboxComponent,
       HemisphereLightComponent,
@@ -112,15 +111,6 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
     const rootEntity = getState(EditorState).rootEntity
 
     iterateEntityNode(rootEntity, (entity) => {
-      lookDevComponent.forEach((component) => {
-        if (hasComponent(entity, component)) {
-          if (lookdevEntity.includes(entity)) return
-          lookdevEntity.push(entity)
-        }
-      })
-    })
-
-    lookdevEntity.forEach((entity) => {
       lookDevComponent.forEach((component) => {
         if (hasComponent(entity, component)) {
           const componentData = getComponent(entity, component)
@@ -147,7 +137,7 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
 
     await API.instance.service(staticResourcePath).patch(resource.id, { tags: tags, project: srcProject })
 
-    removeEntityNodeRecursively(prefabEntity)
+    removeEntity(prefabEntity)
     finishSavePrefab()
   }
 
