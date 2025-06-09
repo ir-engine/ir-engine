@@ -37,7 +37,6 @@ interface ScreenProps {
 import AccountSettings from './AccountSettings'
 import GraphicsSettings from './GraphicsSettings'
 import MainMenu from './MainMenu'
-import WorldSettings from './WorldSettings'
 
 // Import other screen components
 import { useNavigationProvider } from '../Glass/NavigationProvider'
@@ -48,7 +47,6 @@ import PermissionsScreen from './PermissionsScreen'
 import ShareSpaceScreen from './ShareSpaceScreen'
 import SignUpScreen from './SignUpScreen'
 import SSOScreen from './SSOScreen'
-import UsernamePasswordScreen from './UsernamePasswordScreen'
 
 // Define screen structure type
 interface ScreenDefinition {
@@ -64,7 +62,6 @@ const PlaceholderScreen: React.FC<ScreenProps & { title: string }> = ({ title })
 // Define all screens
 export const screens: Record<string, ScreenDefinition> = {
   main: { component: MainMenu, title: 'Settings' },
-  world: { component: WorldSettings, title: 'World' },
   account: { component: AccountSettings, title: 'Account' },
   graphics: { component: GraphicsSettings, title: 'Graphics' },
   signup: {
@@ -83,9 +80,9 @@ export const screens: Record<string, ScreenDefinition> = {
     component: (props) => <PlaceholderScreen {...props} title="Controls" />,
     title: 'Controls'
   },
-  usernamePassword: {
-    component: UsernamePasswordScreen,
-    title: 'Username & Password'
+  displayName: {
+    component: DisplayNameScreen,
+    title: 'Display Name'
   },
   userId: {
     component: (props) => <PlaceholderScreen {...props} title="User ID" />,
@@ -102,10 +99,6 @@ export const screens: Record<string, ScreenDefinition> = {
   sso: {
     component: SSOScreen,
     title: 'Single Sign On'
-  },
-  displayName: {
-    component: DisplayNameScreen,
-    title: 'Display Name'
   },
   deleteAccount: {
     component: DeleteAccountScreen,
@@ -140,51 +133,27 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ initScreen = 'main' }) => {
   }
 
   return (
-    <div
-      data-testid="settings-menu-backdrop"
-      id="settings-menu-backdrop"
-      className={`
-        flex w-full items-start
-        justify-center
-      `}
-    >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        transition={{ duration: 0.2 }}
-        className={`
-          pointer-events-auto
-          flex w-full
-          flex-col
-          font-dm-sans
-          text-white
-        `}
-      >
-        <div className="relative my-auto h-full overflow-hidden rounded-md">
-          <AnimatePresence initial={false} mode="popLayout" custom={direction}>
-            <motion.div
-              key={activeHistoryKey}
-              custom={direction}
-              variants={variants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{
-                x: { type: 'tween', duration: 0.2 },
-                opacity: { duration: 0.2 }
-              }}
-              className={`
+    <div data-testid="settings-menu-backdrop" id="settings-menu-backdrop" className="h-full w-full">
+      <AnimatePresence initial={false} mode="popLayout" custom={direction}>
+        <motion.div
+          key={activeHistoryKey}
+          custom={direction}
+          variants={variants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{
+            x: { type: 'tween', duration: 0.2 },
+            opacity: { duration: 0.2 }
+          }}
+          className={`
                 scrollbar-hide
-                flex flex-col justify-center
-                gap-y-4
+                h-full
               `}
-            >
-              <ActiveComponent navigateTo={navigateTo} navigateClose={navigateClose} />
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </motion.div>
+        >
+          <ActiveComponent navigateTo={navigateTo} navigateClose={navigateClose} />
+        </motion.div>
+      </AnimatePresence>
     </div>
   )
 }
