@@ -23,9 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useHookstate } from '@hookstate/core'
+import { AnimatePresence } from 'motion/react'
 import { QRCodeSVG } from 'qrcode.react'
 import React from 'react'
+import { createPortal } from 'react-dom'
 import { useShareMenu } from '../../hooks/useShareMenu'
+import ShareDrawer from './ShareDrawer'
 
 interface ShareSpaceScreenProps {
   navigateTo: (screen: string) => void
@@ -33,6 +37,13 @@ interface ShareSpaceScreenProps {
 
 const ShareSpaceScreen: React.FC<ShareSpaceScreenProps> = () => {
   const { shareLink, copyLinkToClipboard, questLink, inviteLink } = useShareMenu()
+  const contentDiv = document.getElementById('settings-menu-content')!
+  const openDrawer = useHookstate(false)
+
+  const portal = createPortal(
+    <AnimatePresence>{openDrawer.value && <ShareDrawer onClose={() => openDrawer.set(false)} />}</AnimatePresence>,
+    contentDiv
+  )
 
   return (
     <div className="xs:gap-6 flex h-full flex-col items-center justify-between p-4 md:flex-row md:items-start md:justify-center md:gap-5">
@@ -59,10 +70,14 @@ const ShareSpaceScreen: React.FC<ShareSpaceScreenProps> = () => {
           Share to Meta Quest
         </button>
 
-        <button className="w-full rounded-full bg-white/20 py-3 text-center text-white hover:bg-white/30">
+        <button
+          onClick={() => openDrawer.set(!openDrawer.value)}
+          className="w-full rounded-full bg-white/20 py-3 text-center text-white hover:bg-white/30"
+        >
           Share by email or phone
         </button>
       </div>
+      {portal}
     </div>
   )
 }
