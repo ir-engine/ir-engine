@@ -62,7 +62,7 @@ const LocationPage = ({ online }: Props) => {
   const ready = useMutableState(LoadingUISystemState).ready
 
   let [glassDisabled] = useFeatureFlags([FeatureFlags.Client.Glass])
-  glassDisabled = glassDisabled && searchParams.get('glassUI') === undefined
+  glassDisabled = glassDisabled && searchParams.get('glassUI') === null
 
   useNetwork({ online })
 
