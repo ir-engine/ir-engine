@@ -453,7 +453,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
             </button>
           )}
 
-          <div className="grid h-full w-full grid-cols-[max-content_auto_max-content_max-content] items-center gap-2 bg-inherit">
+          <div className="grid h-full w-full grid-cols-[max-content_auto_max-content_max-content_max-content] items-center gap-2 bg-inherit">
             <IconComponent entity={entity} />
             {renamingNode.entity === entity ? (
               <Input
