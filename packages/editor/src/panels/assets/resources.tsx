@@ -428,7 +428,7 @@ function ResourceItems() {
   useEffect(() => {
     fileIconsToLoad.set(0)
     fileIconsLoaded.set(0)
-  }, [category.currentCategoryPath.path])
+  }, [category.currentCategoryPath])
 
   return (
     <div className="relative flex w-full ">
