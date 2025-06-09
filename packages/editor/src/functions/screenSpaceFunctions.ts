@@ -43,7 +43,7 @@ import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 export const getScreenSpacePosition = (() => {
   const raycaster = new Raycaster()
   raycaster.layers.disable(ObjectLayers.Camera)
-  raycaster.layers.enable(ObjectLayers.NodeHelper)
+  raycaster.layers.enable(ObjectLayers.Helper)
   raycaster.layers.enable(ObjectLayers.Scene)
   const raycastTargets: Intersection<Object3D>[] = []
 

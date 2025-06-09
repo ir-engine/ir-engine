@@ -216,7 +216,7 @@ describe('BoundingBoxComponent', () => {
           assert.equal(result, Expected)
         })
 
-        it('... has a Box3Helper with the ObjectLayers.NodeHelper layer enabled', async () => {
+        it('... has a Box3Helper with the ObjectLayers.Helper layer enabled', async () => {
           const Expected = true
           // Run and Check the result
 
@@ -229,11 +229,11 @@ describe('BoundingBoxComponent', () => {
           assert.equal(hasComponent(helperEntity, NameComponent), true)
           assert.equal(hasComponent(helperEntity, TransformComponent), true)
           assert.equal(hasComponent(helperEntity, ObjectComponent), true)
-          const result = getComponent(helperEntity, ObjectComponent).layers.isEnabled(ObjectLayers.NodeHelper)
+          const result = getComponent(helperEntity, ObjectComponent).layers.isEnabled(ObjectLayers.Helper)
           console.log(
             getComponent(helperEntity, ObjectComponent).layers,
             getComponent(helperEntity, ObjectComponent).layers.mask,
-            getComponent(helperEntity, ObjectComponent).layers.isEnabled(ObjectLayers.NodeHelper)
+            getComponent(helperEntity, ObjectComponent).layers.isEnabled(ObjectLayers.Helper)
           )
           assert.equal(result, Expected)
         })

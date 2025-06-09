@@ -67,7 +67,7 @@ import { getCameraFactor } from './gizmoCommonFunctions'
 import { gizmoIconHelperUpdate } from './studioIconGizmoHelper'
 
 const _raycaster = new Raycaster()
-_raycaster.layers.set(ObjectLayers.TransformGizmo)
+_raycaster.layers.set(ObjectLayers.Gizmos)
 _raycaster.firstHitOnly = true
 
 const _tempQuaternion = new Quaternion()

@@ -76,7 +76,7 @@ const PhysicsReactor = () => {
 
     setComponent(lineSegmentsEntity, EntityTreeComponent, { parentEntity: entity })
 
-    setObjectLayers(lineSegments, ObjectLayers.PhysicsHelper)
+    setObjectLayers(lineSegments, ObjectLayers.Helper)
     PhysicsDebugEntities.set(entity, lineSegmentsEntity)
 
     return () => {

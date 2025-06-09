@@ -165,7 +165,7 @@ const drawMocapDebug = (label: string) => {
         setComponent(entity, MeshComponent, mesh)
         setVisibleComponent(entity, true)
         setComponent(entity, NameComponent, `Mocap Debug ${label} ${LandmarkNames[key]}`)
-        setObjectLayers(mesh, ObjectLayers.AvatarHelper)
+        setObjectLayers(mesh, ObjectLayers.Helper)
       }
       const entity = debugEntities[key]
       const mesh = getComponent(entity, ObjectComponent) as Mesh<BufferGeometry, MeshBasicMaterial>
@@ -189,7 +189,7 @@ const drawMocapDebug = (label: string) => {
       setComponent(lineSegmentEntity, ObjectComponent, positionLineSegment)
       setVisibleComponent(lineSegmentEntity, true)
       setComponent(lineSegmentEntity, NameComponent, 'Mocap Debug Line Segment ' + label)
-      setObjectLayers(positionLineSegment, ObjectLayers.AvatarHelper)
+      setObjectLayers(positionLineSegment, ObjectLayers.Helper)
     }
 
     for (let i = 0; i < PoseLandmarker.POSE_CONNECTIONS.length * 2; i += 2) {

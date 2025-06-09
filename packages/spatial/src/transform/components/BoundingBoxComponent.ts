@@ -88,7 +88,7 @@ export const BoundingBoxComponent = defineComponent({
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
 
       setComponent(helperEntity, ObjectComponent, helper)
-      ObjectLayerMaskComponent.setLayer(helperEntity, ObjectLayers.NodeHelper)
+      ObjectLayerMaskComponent.setLayer(helperEntity, ObjectLayers.Helper)
       boundingBox.helper.set(helperEntity)
 
       TransformComponent.dirty[entity] = 1 //used to dirty trasform and set the appropate bounding box

@@ -53,7 +53,7 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
   parentEntity: Entity,
   helperFactory: () => TObject,
   enabled: boolean,
-  layerMask = ObjectLayerMasks.NodeHelper,
+  layerMask = ObjectLayerMasks.Helper,
   nameSuffix = 'helper'
 ): Entity {
   const helperEntityState = useHookstate(UndefinedEntity)
@@ -100,7 +100,7 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
 export function createHelperEntity<TObject extends DisposableObject3D>(
   parentEntity: Entity,
   helperFactory: () => TObject,
-  layerMask = ObjectLayerMasks.NodeHelper,
+  layerMask = ObjectLayerMasks.Helper,
   nameSuffix = '-helper'
 ): Entity {
   const helperEntity = createEntity()

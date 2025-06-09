@@ -76,7 +76,7 @@ const LineSegmentComponentDefaults = {
   geometry: null!,
   material: new LineBasicMaterial(),
   color: undefined,
-  layerMask: ObjectLayerMasks.NodeHelper,
+  layerMask: ObjectLayerMasks.Helper,
   entity: undefined
 } as LineSegmentComponentData
 
@@ -263,8 +263,8 @@ describe('LineSegmentComponent', () => {
       const geometry = new BoxGeometry(1, 1, 1)
       const material = new MeshBasicMaterial({ color: 0xffff00 })
 
-      const layerMask = ObjectLayerMasks.NodeHelper
-      const layer = ObjectLayers.NodeHelper
+      const layerMask = ObjectLayerMasks.Helper
+      const layer = ObjectLayers.Helper
 
       setComponent(entity, LineSegmentComponent, {
         geometry: geometry,

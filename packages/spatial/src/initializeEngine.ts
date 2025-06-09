@@ -64,7 +64,6 @@ export const initializeSpatialViewer = (canvas?: HTMLCanvasElement) => {
   camera.layers.enable(ObjectLayers.Scene)
   camera.layers.enable(ObjectLayers.Avatar)
   camera.layers.enable(ObjectLayers.UI)
-  camera.layers.enable(ObjectLayers.TransformGizmo)
   camera.layers.enable(ObjectLayers.Gizmos)
   camera.layers.enable(ObjectLayers.UVOL)
 

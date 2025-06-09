@@ -71,7 +71,7 @@ import { SelectionState } from '../services/SelectionServices'
 import { transformGizmoControllerQuery } from './TransformGizmoSystem'
 
 const _raycaster = new Raycaster() // for heuristic
-_raycaster.layers.enable(ObjectLayers.NodeIcon) // only icons
+_raycaster.layers.enable(ObjectLayers.Helper) // only icons
 _raycaster.firstHitOnly = true
 
 const inputObjectsQuery = defineQuery([InputComponent, VisibleComponent, ObjectComponent])
@@ -126,12 +126,12 @@ const ActiveHelperReactor = () => {
       const lineEntitites = setupGizmo(
         getState(ReferenceSpaceState).originEntity,
         iconGizmoYHelper,
-        ObjectLayers.NodeIcon
+        ObjectLayers.Helper
       )
       activeHelperComponent.lineEntities.set(lineEntitites)
 
       if (getComponent(entity, ActiveHelperComponent).directional) {
-        const directionalEntities = setupGizmo(entity, iconGizmoArrow, ObjectLayers.NodeIcon)
+        const directionalEntities = setupGizmo(entity, iconGizmoArrow, ObjectLayers.Helper)
         activeHelperComponent.directionalEntities.set(directionalEntities)
       }
 
@@ -141,7 +141,7 @@ const ActiveHelperReactor = () => {
       return iconGizmo
     },
     editorHelperState.gizmoEnabled.value && activeHelperComponent.enabled.value,
-    ObjectLayerMasks.NodeIcon,
+    ObjectLayerMasks.Helper,
     'icon-helper'
   )
 

@@ -74,7 +74,7 @@ export class CSMHelper {
     addObjectToGroup(frustumLinesEntity, frustumLines)
     setComponent(frustumLinesEntity, EntityTreeComponent, { parentEntity: Engine.instance.cameraEntity })
     setComponent(frustumLinesEntity, NameComponent, 'CSM frustum lines')
-    setObjectLayers(frustumLines, ObjectLayers.NodeHelper)
+    setObjectLayers(frustumLines, ObjectLayers.Helper)
 
     this.frustumLinesEntity = frustumLinesEntity
   }
@@ -143,7 +143,7 @@ export class CSMHelper {
       addObjectToGroup(cascadeLinesEntity, cascadeLine)
       setComponent(cascadeLinesEntity, EntityTreeComponent, { parentEntity: Engine.instance.cameraEntity })
       setComponent(cascadeLinesEntity, NameComponent, 'CSM cascade line ' + cascadeLines.length)
-      setObjectLayers(cascadeLine, ObjectLayers.NodeHelper)
+      setObjectLayers(cascadeLine, ObjectLayers.Helper)
 
       cascadeLines.push(cascadeLinesEntity)
 
@@ -154,7 +154,7 @@ export class CSMHelper {
       addObjectToGroup(cascadePlanesEntity, cascadePlane)
       setComponent(cascadePlanesEntity, EntityTreeComponent, { parentEntity: Engine.instance.cameraEntity })
       setComponent(cascadePlanesEntity, NameComponent, 'CSM cascade plane ' + cascadeLines.length)
-      setObjectLayers(cascadePlane, ObjectLayers.NodeHelper)
+      setObjectLayers(cascadePlane, ObjectLayers.Helper)
 
       cascadePlanes.push(cascadePlanesEntity)
 
@@ -164,7 +164,7 @@ export class CSMHelper {
       addObjectToGroup(shadowLinesEntity, shadowLine)
       setComponent(shadowLinesEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
       setComponent(shadowLinesEntity, NameComponent, 'CSM shadow line ' + cascadeLines.length)
-      setObjectLayers(shadowLine, ObjectLayers.NodeHelper)
+      setObjectLayers(shadowLine, ObjectLayers.Helper)
       shadowLines.push(shadowLinesEntity)
     }
 

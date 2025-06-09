@@ -240,13 +240,13 @@ const cameraReactor = () => {
   const engineRendererSettings = useMutableState(RendererState)
 
   useEffect(() => {
-    if (engineRendererSettings.physicsDebug.value) camera.layers.enable(ObjectLayers.PhysicsHelper)
-    else camera.layers.disable(ObjectLayers.PhysicsHelper)
+    if (engineRendererSettings.physicsDebug.value) camera.layers.enable(ObjectLayers.Helper)
+    else camera.layers.disable(ObjectLayers.Helper)
   }, [engineRendererSettings.physicsDebug])
 
   useEffect(() => {
-    if (engineRendererSettings.avatarDebug.value) camera.layers.enable(ObjectLayers.AvatarHelper)
-    else camera.layers.disable(ObjectLayers.AvatarHelper)
+    if (engineRendererSettings.avatarDebug.value) camera.layers.enable(ObjectLayers.Helper)
+    else camera.layers.disable(ObjectLayers.Helper)
   }, [engineRendererSettings.avatarDebug])
 
   useEffect(() => {
@@ -256,18 +256,18 @@ const cameraReactor = () => {
 
   // the studio icons exist on the same layer as the selected gizmos, so disabling the node helper layer also hides the studio icons, which is not desired
   useEffect(() => {
-    if (engineRendererSettings.nodeHelperVisibility.value) camera.layers.enable(ObjectLayers.NodeHelper)
-    else camera.layers.disable(ObjectLayers.NodeHelper)
+    if (engineRendererSettings.nodeHelperVisibility.value) camera.layers.enable(ObjectLayers.Helper)
+    else camera.layers.disable(ObjectLayers.Helper)
   }, [engineRendererSettings.nodeHelperVisibility])
 
   useEffect(() => {
-    if (engineRendererSettings.nodeIconVisibility.value) camera.layers.enable(ObjectLayers.NodeIcon)
-    else camera.layers.disable(ObjectLayers.NodeIcon)
+    if (engineRendererSettings.nodeIconVisibility.value) camera.layers.enable(ObjectLayers.Helper)
+    else camera.layers.disable(ObjectLayers.Helper)
   }, [engineRendererSettings.nodeIconVisibility])
 
   /*useEffect(() => {
-    if (engineRendererSettings.nodeHelperVisibility.value) camera.layers.enable(ObjectLayers.NodeHelper)
-    else camera.layers.disable(ObjectLayers.NodeHelper)
+    if (engineRendererSettings.nodeHelperVisibility.value) camera.layers.enable(ObjectLayers.Helper)
+    else camera.layers.disable(ObjectLayers.Helper)
   }, [engineRendererSettings.nodeHelperVisibility])*/
 
   return null

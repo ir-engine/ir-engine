@@ -146,10 +146,10 @@ describe('WebGl Renderer System', () => {
 
       // assert(renderPass.overrideMaterial, 'change render mode')
       assert(rendererComp.needsResize, 'change render scale')
-      assert(camera.layers.isEnabled(ObjectLayers.PhysicsHelper), 'enable physicsDebug')
-      assert(camera.layers.isEnabled(ObjectLayers.AvatarHelper), 'enable avatarDebug')
+      assert(camera.layers.isEnabled(ObjectLayers.Helper), 'enable physicsDebug')
+      assert(camera.layers.isEnabled(ObjectLayers.Helper), 'enable avatarDebug')
       assert(camera.layers.isEnabled(ObjectLayers.Gizmos), 'enable gridVisibility')
-      assert(camera.layers.isEnabled(ObjectLayers.NodeHelper), 'enable nodeHelperVisibility')
+      assert(camera.layers.isEnabled(ObjectLayers.Helper), 'enable nodeHelperVisibility')
     })
 
     webGLRendererSystem?.execute()

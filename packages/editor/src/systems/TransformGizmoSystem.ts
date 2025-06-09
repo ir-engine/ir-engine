@@ -94,9 +94,7 @@ export function editorInputHeuristic(
     .map((eid) => getComponent(eid, ObjectComponent))
 
   //camera gizmos layer should always be active here, since it doesn't disable based on transformGizmo existing
-  pickerObj.length > 0
-    ? _raycaster.layers.enable(ObjectLayers.TransformGizmo)
-    : _raycaster.layers.disable(ObjectLayers.TransformGizmo)
+  pickerObj.length > 0 ? _raycaster.layers.enable(ObjectLayers.Gizmos) : _raycaster.layers.disable(ObjectLayers.Gizmos)
 
   const hits = _raycaster.intersectObjects(objects, true)
   for (const hit of hits) {

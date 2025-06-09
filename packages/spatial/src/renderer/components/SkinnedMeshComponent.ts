@@ -131,7 +131,7 @@ export const SkinnedMeshComponent = defineComponent({
       setVisibleComponent(helperEntity, true)
       addObjectToGroup(helperEntity, line)
       setComponent(helperEntity, NameComponent, line.name)
-      setObjectLayers(line, ObjectLayers.AvatarHelper)
+      setObjectLayers(line, ObjectLayers.Helper)
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
 
       setComponent(helperEntity, ComputedTransformComponent, {

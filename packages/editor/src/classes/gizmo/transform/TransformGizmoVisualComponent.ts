@@ -76,8 +76,8 @@ export const TransformGizmoVisualComponent = defineComponent({
       setComponent(gizmoEntity, TransformComponent)
       setComponent(gizmoEntity, VisibleComponent)
       setComponent(gizmoEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-      setupGizmo(gizmoEntity, gizmo[mode], ObjectLayers.TransformGizmo)
-      ObjectLayerMaskComponent.setLayer(gizmoEntity, ObjectLayers.TransformGizmo)
+      setupGizmo(gizmoEntity, gizmo[mode], ObjectLayers.Gizmos)
+      ObjectLayerMaskComponent.setLayer(gizmoEntity, ObjectLayers.Gizmos)
       visualComponent.gizmo.set(gizmoEntity)
       entities.push(gizmoEntity)
 
@@ -88,8 +88,8 @@ export const TransformGizmoVisualComponent = defineComponent({
       setComponent(helperEntity, VisibleComponent)
       setComponent(helperEntity, TransformComponent)
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-      setupGizmo(helperEntity, helper[mode], ObjectLayers.TransformGizmo)
-      setupGizmo(helperEntity, iconGizmoHelper, ObjectLayers.NodeHelper)
+      setupGizmo(helperEntity, helper[mode], ObjectLayers.Gizmos)
+      setupGizmo(helperEntity, iconGizmoHelper, ObjectLayers.Helper)
       visualComponent.helper.set(helperEntity)
       entities.push(helperEntity)
 
@@ -101,8 +101,8 @@ export const TransformGizmoVisualComponent = defineComponent({
       setComponent(pickerEntity, TransformComponent)
       setComponent(pickerEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
       setComponent(pickerEntity, InputComponent)
-      setupGizmo(pickerEntity, picker[mode], ObjectLayers.TransformGizmo)
-      ObjectLayerMaskComponent.setLayer(pickerEntity, ObjectLayers.TransformGizmo)
+      setupGizmo(pickerEntity, picker[mode], ObjectLayers.Gizmos)
+      ObjectLayerMaskComponent.setLayer(pickerEntity, ObjectLayers.Gizmos)
       visualComponent.picker.set(pickerEntity)
       entities.push(pickerEntity)
 

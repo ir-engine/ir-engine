@@ -118,7 +118,7 @@ export const TransformGizmoControlComponent = defineComponent({
       setComponent(gizmoVisualEntity, VisibleComponent)
       setComponent(gizmoVisualEntity, TransformComponent)
       setComponent(gizmoVisualEntity, InputComponent)
-      ObjectLayerMaskComponent.setLayer(gizmoVisualEntity, ObjectLayers.TransformGizmo)
+      ObjectLayerMaskComponent.setLayer(gizmoVisualEntity, ObjectLayers.Gizmos)
 
       const gizmoPlaneEntity = createEntity()
       setComponent(gizmoPlaneEntity, EntityTreeComponent, { parentEntity: originEntity })
@@ -140,7 +140,7 @@ export const TransformGizmoControlComponent = defineComponent({
 
       setComponent(gizmoPlaneEntity, MeshComponent, gizmoPlane)
       //setComponent(gizmoPlaneEntity, TransformGizmoTagComponent) remove the gizmo plane from being considered in theheuristic , we use TransformGizmoTagComponent query to collect gizmo entities for heuristic
-      ObjectLayerMaskComponent.setLayer(gizmoPlaneEntity, ObjectLayers.TransformGizmo)
+      ObjectLayerMaskComponent.setLayer(gizmoPlaneEntity, ObjectLayers.Gizmos)
 
       const pivotEntity = createEntity()
       setComponent(pivotEntity, NameComponent, 'transformGizmoPivotEntity')

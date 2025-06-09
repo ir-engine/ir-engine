@@ -317,7 +317,7 @@ export const ObjectGridSnapSystem = defineSystem({
       } else {
         nonSelectedEntities.push(entity)
         resetHelperTransform(entity)
-        setHelperLayer(entity, ObjectLayers.NodeHelper)
+        setHelperLayer(entity, ObjectLayers.Helper)
         setHelperColor(entity, new Color(1, 0, 0))
       }
     }

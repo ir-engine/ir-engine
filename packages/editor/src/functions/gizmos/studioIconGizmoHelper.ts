@@ -49,7 +49,7 @@ const minimumIconSize = new Vector3(1, 1, 1)
 const maximumIconSize = new Vector3(3, 3, 3)
 
 const _raycaster = new Raycaster() // for hover
-_raycaster.layers.set(ObjectLayers.NodeIcon)
+_raycaster.layers.set(ObjectLayers.Helper)
 _raycaster.firstHitOnly = true
 
 const _interpolationFactor = 0.3 // used for the hover grow effect

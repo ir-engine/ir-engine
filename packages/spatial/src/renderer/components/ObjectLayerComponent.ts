@@ -54,10 +54,10 @@ export const ObjectLayerMaskComponent = defineComponent({
    * Takes a layer mask as a parameter, not a layer (eg. layer mask with value 256 enables layer 8)
    * ```ts
    * // Incorrect usage
-   * setComponent(entity, ObjectLayerMaskComponent, ObjectLayers.NodeHelper)
+   * setComponent(entity, ObjectLayerMaskComponent, ObjectLayers.Helper)
    *
    * // Correct usage
-   * setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.NodeHelper)
+   * setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Helper)
    * ```
    */
   onSet(entity, component, mask = ObjectLayerMaskDefault) {
