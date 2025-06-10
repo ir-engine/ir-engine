@@ -23,11 +23,18 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Camera01Md, ChevronLeftMd, ChevronRightMd, Microphone01Md } from '@ir-engine/ui/src/icons'
-import React, { useState } from 'react'
+import {
+  ChevronLeftMd,
+  ChevronRightMd,
+  Microphone01Md,
+  MicrophoneOff,
+  VideoRecorderMd,
+  VideoRecorderOffMd
+} from '@ir-engine/ui/src/icons'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { BsFillExclamationTriangleFill } from 'react-icons/bs'
 import { twMerge } from 'tailwind-merge'
-import { MultimediaStateProvider } from './MultimediaStateProvider'
+import { MultimediaStateProvider, useMultimediaStateProvider } from './MultimediaStateProvider'
 import {
   CamButton,
   containerStyles as containerStyles_base,
@@ -37,6 +44,8 @@ import {
   sectionStyles_base
 } from './ToolbarMenu'
 
+import { WindowType } from '../../user/VideoWindows'
+import { useUserMediaWindowHook } from '../../user/VideoWindows/hook'
 import { smallIconButtonStyles } from './Buttons'
 
 const toolbarContainerStyles = `
@@ -82,7 +91,7 @@ const videoContainer = `
   border-4
   border-white/80
   
-  bg-white/40
+  bg-white/20
   text-2xl
   font-bold
 
@@ -115,24 +124,75 @@ const videoButtonsInner = `
   group-hover:visible
 `
 
-const DesktopVideo = ({ children }) => (
-  <div style={{ textShadow: `0 0.03em 0.08em hsla(0, 0%, 0%, 0.4)` }} className={twMerge(videoContainer)}>
-    <div className={twMerge(videoButtonsContainer)}>
-      <div className={twMerge(videoButtonsInner)}>
-        <button onClick={() => {}} className={`cursor-pointer`}>
-          <Camera01Md />
-        </button>
-        <button onClick={() => {}} className={`cursor-pointer`}>
-          <Microphone01Md />
-        </button>
-        <button onClick={() => {}} className={`cursor-pointer`}>
-          <BsFillExclamationTriangleFill />
-        </button>
+const Video = ({ peerID, type }: WindowType) => {
+  const {
+    isSelf,
+    isPiP,
+    isScreen,
+    videoMediaStream,
+    audioMediaStream,
+    avatarThumbnail,
+    videoStreamPaused,
+    audioStreamPaused,
+    togglePiP,
+    toggleAudio,
+    toggleVideo
+  } = useUserMediaWindowHook({
+    peerID,
+    type
+  })
+
+  const { isCamVideoEnabled, isCamAudioEnabled } = useMultimediaStateProvider()
+
+  const ref = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    if (!ref.current || ref.current.srcObject || !videoMediaStream) return
+
+    ref.current.autoplay = true
+    ref.current.muted = true
+    ref.current.setAttribute('playsinline', 'true')
+
+    const newVideoTrack = videoMediaStream.getVideoTracks()[0].clone()
+    ref.current.srcObject = new MediaStream([newVideoTrack])
+    ref.current.play()
+  }, [ref.current, videoMediaStream])
+
+  const showVideoIfSelf = isSelf ? isCamVideoEnabled : true
+  const showVideo = showVideoIfSelf && !videoStreamPaused
+
+  const camVideoOn = isSelf ? isCamVideoEnabled : !videoStreamPaused
+  const camAudioOn = isSelf ? isCamAudioEnabled : !audioStreamPaused
+
+  return (
+    <div className={twMerge(videoContainer)}>
+      {showVideo ? (
+        <video
+          className={`
+        h-full
+        max-w-[unset]
+      `}
+          ref={ref}
+        />
+      ) : (
+        <img className={``} src={avatarThumbnail} />
+      )}
+      <div className={twMerge(videoButtonsContainer)}>
+        <div className={twMerge(videoButtonsInner)}>
+          <button onClick={toggleVideo} className={`cursor-pointer`}>
+            {camVideoOn ? <VideoRecorderMd /> : <VideoRecorderOffMd />}
+          </button>
+          <button onClick={toggleAudio} className={`cursor-pointer`}>
+            {camAudioOn ? <Microphone01Md /> : <MicrophoneOff />}
+          </button>
+          <button onClick={() => {}} className={`cursor-pointer`}>
+            <BsFillExclamationTriangleFill />
+          </button>
+        </div>
       </div>
     </div>
-    {children}
-  </div>
-)
+  )
+}
 
 const videoMenuContainer = `
   inline-grid
@@ -151,59 +211,92 @@ const videosContainer = `
 `
 
 const arrowsContainer = `
-  flex
-  
-  items-center
-  justify-end
-  gap-x-4
-  tracking-wide
+  flex items-center
+  justify-between
 `
+const numVideosPerPage = 6
 
-export const VideoMenu = () => {
-  const numVideos = 20
-
-  const [videoProps, setVideoProps] = useState([...Array(numVideos)])
-
+export const VideoMenu = ({ videos = [] }: { videos: WindowType[] }) => {
   const [pageIndex, setPageIndex] = useState(0)
 
-  const videoPages: number[][] = []
-  let _page: number[] = []
+  const videosByPage = useMemo(() => {
+    const videoPages: WindowType[][] = []
+    let page: WindowType[] = []
 
-  const maxPageLength = 6
+    videos.map((videoProps, i: number) => {
+      page.push(videoProps)
 
-  videoProps.map((__, i: number) => {
-    if (_page.length === maxPageLength) {
-      videoPages.push(_page)
-      _page = []
+      const isPageFull = page.length === numVideosPerPage
+      const isLastVideo = i === videos.length - 1
+
+      if (isPageFull || isLastVideo) {
+        videoPages.push(page)
+        page = []
+      }
+    })
+
+    const videosByPage = videoPages.map((page, i) => {
+      return page.map((videoProps, j) => {
+        return <Video key={`${i}-${j}`} {...videoProps} />
+      })
+    })
+
+    return videosByPage
+  }, [videos])
+
+  const numPages = videosByPage.length
+  const currentPageVideos = videosByPage[pageIndex] || []
+
+  const isLastPage = pageIndex === videosByPage.length - 1
+
+  const needsFillers = isLastPage && videos.length % numVideosPerPage !== 0
+  const minNumPages = Math.ceil(videos.length / numVideosPerPage)
+  const totalNumVideosWithFiller = minNumPages * numVideosPerPage
+  const numFiller = totalNumVideosWithFiller - videos.length
+
+  const videoEls = !needsFillers
+    ? currentPageVideos
+    : [
+        ...currentPageVideos,
+        ...[...Array(numFiller)].map(() => {
+          return <div className={twMerge(videoContainer)} />
+        })
+      ]
+
+  useEffect(() => {
+    const lastPageIndex = videosByPage.length - 1
+
+    if (pageIndex > lastPageIndex) {
+      setPageIndex(lastPageIndex)
     }
-
-    _page.push(i)
-  })
-
-  const videos = videoPages[pageIndex].map((num, i) => {
-    return <DesktopVideo>{num}</DesktopVideo>
-  })
-
-  const numPages = videoPages.length
+  }, [pageIndex, videosByPage.length])
 
   return (
     <div className={videoMenuContainer}>
-      <div className={videosContainer}>{videos}</div>
+      <div className={videosContainer}>{videoEls}</div>
 
       <div className={arrowsContainer}>
         <button
           onClick={() => setPageIndex(pageIndex - 1)}
-          className={twMerge(smallIconButtonStyles, pageIndex === 0 ? `hidden` : ``)}
+          className={twMerge(smallIconButtonStyles, pageIndex === 0 ? `collapse` : ``)}
         >
           <ChevronLeftMd />
         </button>
-        {`${pageIndex + 1}/${numPages}`}
-        <button
-          onClick={() => setPageIndex(pageIndex + 1)}
-          className={twMerge(smallIconButtonStyles, pageIndex === numPages - 1 ? `hidden` : ``)}
+        <div
+          className={`
+          flex items-center
+          gap-x-4
+          tracking-wide
+        `}
         >
-          <ChevronRightMd />
-        </button>
+          {`${pageIndex + 1}/${numPages}`}
+          <button
+            onClick={() => setPageIndex(pageIndex + 1)}
+            className={twMerge(smallIconButtonStyles, pageIndex === numPages - 1 ? `hidden` : ``)}
+          >
+            <ChevronRightMd />
+          </button>
+        </div>
       </div>
 
       <div className={toolbarContainerStyles}>

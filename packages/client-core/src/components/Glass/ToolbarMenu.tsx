@@ -31,7 +31,7 @@ import { twMerge } from 'tailwind-merge'
 import { Badge } from './Badge'
 import { useChatProvider } from './ChatProvider'
 import { MenuButton } from './MenuButton'
-import { MultimediaStateProvider, useMultimediaStateProvider } from './MultimediaStateProvider'
+import { useMultimediaStateProvider } from './MultimediaStateProvider'
 
 export const ChatButton = ({ badge, onClick, active }) => {
   return (
@@ -135,7 +135,7 @@ export const VerticalMenu = ({ children }) => {
         -translate-x-full
         
         -translate-y-1/2
-        sm:max-lg:collapse
+        sm:max-lg:hidden
       `}
     >
       {children}
@@ -291,13 +291,11 @@ export const ToolbarMenu = ({ onMessageClick, onShareClick, onSettingsClick, act
 
         <div className={sectionStyles}>
           <ChatButton badge={{ show: showMessagesBadge }} active={activeKey === `Chat`} onClick={onMessageClick} />
-          <MultimediaStateProvider>
-            <MicButton />
-            <CamButton />
-            <MultiVideoButton />
-            <ScreenshareButton />
-            <VRButton />
-          </MultimediaStateProvider>
+          <MicButton />
+          <CamButton />
+          <MultiVideoButton />
+          <ScreenshareButton />
+          <VRButton />
         </div>
       </div>
     </div>
