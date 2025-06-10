@@ -19,35 +19,25 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import React from 'react'
+import { twMerge } from 'tailwind-merge'
 
-import Divider from '@ir-engine/ui/src/components/viewer/Divider'
-import { Section } from './Section'
-import SliderItem from './SliderItem'
-import ToggleItem from './ToggleItem'
-
-// Define types for screen components
-interface ScreenProps {
-  navigateTo: (screen: string) => void
-  onClose?: () => void
+export interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+  children: React.ReactNode
 }
 
-const WorldSettings: React.FC<ScreenProps> = () => (
-  <div className="h-full space-y-4">
-    <Section>
-      <SliderItem label="Audio Volume" defaultValue={50} />
-      <Divider />
-      <ToggleItem label="Animation" checked />
-      <Divider />
-      <ToggleItem label="Vegetation" />
-      <Divider />
-      <ToggleItem label="Multiplayer" />
-    </Section>
-  </div>
-)
+const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(({ children, className, ...props }, ref) => {
+  return (
+    <a ref={ref} className={twMerge(className, 'cursor-pointer text-blue-300 hover:underline')} {...props}>
+      {children}
+    </a>
+  )
+})
 
-export default WorldSettings
+Link.displayName = 'Link'
+
+export default Link

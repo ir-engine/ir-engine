@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect, useLayoutEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 
 import { useLoadLocation, useLoadScene } from '@ir-engine/client-core/src/components/World/LoadLocationScene'
 import { AuthService, AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
@@ -58,9 +58,11 @@ type Props = {
 const LocationPage = ({ online }: Props) => {
   const { t } = useTranslation()
   const params = useParams()
+  const [searchParams] = useSearchParams()
   const ready = useMutableState(LoadingUISystemState).ready
 
-  const [glassDisabled] = useFeatureFlags([FeatureFlags.Client.Glass])
+  let [glassDisabled] = useFeatureFlags([FeatureFlags.Client.Glass])
+  glassDisabled = glassDisabled && searchParams.get('glassUI') === null
 
   useNetwork({ online })
 

@@ -367,8 +367,8 @@ export const InputComponent = defineComponent({
 
   useExecuteWithInput,
 
-  useHasFocus() {
-    const entity = useEntityContext()
+  useHasFocus(entityContext?: Entity) {
+    const entity = entityContext ?? useEntityContext()
     const hasFocus = useHookstate(() => {
       return InputComponent.getInputSourceEntities(entity).length > 0
     })

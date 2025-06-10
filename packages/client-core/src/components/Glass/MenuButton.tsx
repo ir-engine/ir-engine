@@ -49,6 +49,7 @@ const buttonStyles = `
 
   transition-[background]
   transition-transform
+  text-inherit
 
   hover:scale-[1.05]
   hover:bg-white/10
@@ -56,8 +57,6 @@ const buttonStyles = `
 
 export const MenuButton = ({ active, tooltip, badge, loading, children, className, ...props }: MenuButtonProps) => {
   const { t } = useTranslation()
-
-  const hasBadge = !!badge
 
   const button = (
     <button
@@ -94,7 +93,7 @@ export const MenuButton = ({ active, tooltip, badge, loading, children, classNam
         />
       </div>
 
-      <Badge show={hasBadge} {...(badge || {})} />
+      <Badge {...badge} />
       <span className={loading ? `opacity-0` : `opacity-1`}>{children}</span>
     </button>
   )

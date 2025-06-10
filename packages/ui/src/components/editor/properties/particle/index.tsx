@@ -356,7 +356,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           <>
             <NumericInput
               value={particleSystem.systemParameters.startTileIndex}
-              onChange={onSetState('systemParameters.startTileIndex')}
+              onChange={onSetSystemParm('startTileIndex')}
             />
             <Button
               onClick={() => {
@@ -386,13 +386,14 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Mesh" label={t('editor:properties.particle-system.mesh')}>
         <ModelInput
           value={particleSystem.systemParameters.instancingGeometry}
+          onChange={onSetSystemParm('instancingGeometry')}
           onRelease={onSetSystemParm('instancingGeometry')}
         />
       </InputGroup>
       <InputGroup name="Blending" label={t('editor:properties.particle-system.blending')}>
         <SelectInput
           value={particleSystem.systemParameters.blending as Blending}
-          onChange={onSetState('systemParameters.blending')}
+          onChange={onSetSystemParm('blending')}
           options={[
             { label: t('editor:properties.particle-system.blending-type.normal'), value: NormalBlending },
             { label: t('editor:properties.particle-system.blending-type.additive'), value: AdditiveBlending },
@@ -406,7 +407,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Transparent" label={t('editor:properties.particle-system.transparent')}>
         <Checkbox
           checked={particleSystem.systemParameters.transparent ?? false}
-          onChange={onSetState('systemParameters.transparent')}
+          onChange={onSetSystemParm('transparent')}
         />
       </InputGroup>
       <InputGroup name="World Space" label={t('editor:properties.particle-system.world-space')}>

@@ -29,8 +29,8 @@ import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
-import { CameraSettingsState } from '@ir-engine/spatial/src/camera/CameraSceneMetadata'
-import { FollowCameraMode } from '@ir-engine/spatial/src/camera/types/FollowCameraMode'
+import { CameraSettingsState } from '@ir-engine/spatial/src/camera/CameraSettingsState'
+import { CameraMode, CameraScrollBehavior, PoiScrollTransition } from '@ir-engine/spatial/src/camera/types/CameraMode'
 import { ProjectionType } from '@ir-engine/spatial/src/camera/types/ProjectionType'
 
 export const CameraSettingsComponent = defineComponent({
@@ -38,28 +38,61 @@ export const CameraSettingsComponent = defineComponent({
   jsonID: 'EE_camera_settings',
 
   schema: S.Object({
-    fov: S.Number({ default: 60 }),
     cameraNearClip: S.Number({ default: 0.1 }),
     cameraFarClip: S.Number({ default: 1000 }),
     projectionType: S.Enum(ProjectionType, {
-      $comment: "A number enum, where: 0 represents 'Orthographic', 1 represents 'Perspective'",
+      $comment:
+        "An indexed enum, ie. the numeric index of a value in the following sequence: 'Orthographic', 'Perspective'",
       default: ProjectionType.Perspective
     }),
-    minCameraDistance: S.Number({ default: 1.5 }),
-    maxCameraDistance: S.Number({ default: 50 }),
-    startCameraDistance: S.Number({ default: 3 }),
-    cameraMode: S.Enum(FollowCameraMode, {
-      $comment:
-        "A string enum, ie. one of the following values: 'FirstPerson', 'ShoulderCam', 'ThirdPerson', 'TopDown', 'Strategic', 'Dynamic'",
-      default: FollowCameraMode.Dynamic
+    fov: S.Number({ default: 60 }),
+
+    cameraMode: S.Enum(CameraMode, {
+      $comment: "An indexed enum, ie. the numeric index of a value in the following sequence: 'FOLLOW', 'POI' ",
+      default: CameraMode.FOLLOW
     }),
-    cameraModeDefault: S.Enum(FollowCameraMode, {
-      $comment:
-        "A string enum, ie. one of the following values: 'FirstPerson', 'ShoulderCam', 'ThirdPerson', 'TopDown', 'Strategic', 'Dynamic'",
-      default: FollowCameraMode.ThirdPerson
-    }),
+
+    //Fields for FOLLOW camera mode
     minPhi: S.Number({ default: -70 }),
-    maxPhi: S.Number({ default: 85 })
+    maxPhi: S.Number({ default: 85 }),
+
+    isAvatarVisible: S.Bool({ default: true }),
+
+    followCameraScrollSensitivity: S.Number({ default: 1 }),
+
+    canCameraFirstPerson: S.Bool({ default: true }),
+    canCameraThirdPerson: S.Bool({ default: true }),
+    canCameraTopDown: S.Bool({ default: true }),
+
+    isFistPersonFreeCamera: S.Bool({ default: true }),
+    isThirdPersonFreeCamera: S.Bool({ default: true }),
+    isTopDownFreeCamera: S.Bool({ default: false }),
+
+    firstPersonCameraLimits: S.Number({ default: 360 }),
+    thirdPersonCameraLimits: S.Number({ default: 360 }),
+    topDownCameraLimits: S.Number({ default: 360 }),
+
+    isFirstPersonCameraReset: S.Bool({ default: true }),
+    isThirdPersonCameraReset: S.Bool({ default: true }),
+    isTopDownCameraReset: S.Bool({ default: true }),
+
+    thirdPersonMinDistance: S.Number({ default: 1.5 }),
+    thirdPersonMaxDistance: S.Number({ default: 50 }),
+    thirdPersonDefaultDistance: S.Number({ default: 3 }),
+
+    topDownMinDistance: S.Number({ default: 10 }),
+    topDownMaxDistance: S.Number({ default: 70 }),
+    topDownDefaultDistance: S.Number({ default: 40 }),
+
+    // Fields for POI camera mode
+    poiEntities: S.Array(S.EntityUUID()),
+    poiLerpSpeed: S.Number({ default: 0.5 }),
+    scrollDeadzone: S.Number({ default: 1.0 }),
+    scrollSensitivity: S.Number({ default: 0.1 }),
+    scrollDistancePerPoi: S.Number({ default: 3.0 }),
+    scrollBehavior: S.Enum(CameraScrollBehavior, { default: CameraScrollBehavior.Clamp }),
+    poiScrollTransitionType: S.Enum(PoiScrollTransition, { default: PoiScrollTransition.Scrolling }),
+    enableTransitionButtons: S.Bool({ default: false })
   }),
 
   reactor: () => {
@@ -68,10 +101,21 @@ export const CameraSettingsComponent = defineComponent({
 
     for (const prop of Object.keys(getState(CameraSettingsState))) {
       useEffect(() => {
-        if (component[prop].value !== getState(CameraSettingsState)[prop])
-          getMutableState(CameraSettingsState)[prop].set(component[prop].value)
-      }, [component[prop]])
+        if (component[prop].value !== undefined && component[prop].value !== getState(CameraSettingsState)[prop]) {
+          if (Array.isArray(component[prop].value)) {
+            getMutableState(CameraSettingsState)[prop].set(Array.from(component[prop].value))
+          } else {
+            getMutableState(CameraSettingsState)[prop].set(component[prop].value)
+          }
+        }
+      }, [component[prop].value])
     }
+
+    useEffect(() => {
+      if (component.poiScrollTransitionType.value === PoiScrollTransition.Scrolling) {
+        component.enableTransitionButtons.set(false)
+      }
+    }, [component.poiScrollTransitionType])
 
     return null
   }

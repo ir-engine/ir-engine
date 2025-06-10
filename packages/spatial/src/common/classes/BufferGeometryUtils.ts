@@ -364,6 +364,69 @@ function interleaveAttributes(attributes) {
   return res
 }
 
+// returns a new, non-interleaved version of the provided attribute
+function deinterleaveAttribute(attribute: InterleavedBufferAttribute): BufferAttribute | InstancedBufferAttribute {
+  const cons = attribute.data.array.constructor
+  const count = attribute.count
+  const itemSize = attribute.itemSize
+  const normalized = attribute.normalized
+
+  const array = new cons(count * itemSize)
+  let newAttribute: BufferAttribute | InstancedBufferAttribute
+  if (attribute.isInstancedInterleavedBufferAttribute) {
+    newAttribute = new InstancedBufferAttribute(array, itemSize, normalized, attribute.meshPerAttribute)
+  } else {
+    newAttribute = new BufferAttribute(array, itemSize, normalized)
+  }
+
+  for (let i = 0; i < count; i++) {
+    newAttribute.setX(i, attribute.getX(i))
+
+    if (itemSize >= 2) {
+      newAttribute.setY(i, attribute.getY(i))
+    }
+
+    if (itemSize >= 3) {
+      newAttribute.setZ(i, attribute.getZ(i))
+    }
+
+    if (itemSize >= 4) {
+      newAttribute.setW(i, attribute.getW(i))
+    }
+  }
+
+  return newAttribute
+}
+
+// deinterleaves all attributes on the geometry
+function deinterleaveGeometry(geometry: BufferGeometry) {
+  const attributes = geometry.attributes
+  const morphTargets = geometry.morphTargets
+  const attrMap = new Map<BufferAttribute | InterleavedBufferAttribute, BufferAttribute>()
+
+  for (const key in attributes) {
+    const attr = attributes[key]
+    if (attr.isInterleavedBufferAttribute) {
+      if (!attrMap.has(attr)) {
+        attrMap.set(attr, deinterleaveAttribute(attr))
+      }
+
+      attributes[key] = attrMap.get(attr)
+    }
+  }
+
+  for (const key in morphTargets) {
+    const attr = morphTargets[key]
+    if (attr.isInterleavedBufferAttribute) {
+      if (!attrMap.has(attr)) {
+        attrMap.set(attr, deinterleaveAttribute(attr))
+      }
+
+      morphTargets[key] = attrMap.get(attr)
+    }
+  }
+}
+
 /**
  * @param {Array<BufferGeometry>} geometry
  * @return {number}
@@ -860,6 +923,8 @@ function computeMorphedAttributes(object) {
 export {
   computeMorphedAttributes,
   computeTangents,
+  deinterleaveAttribute,
+  deinterleaveGeometry,
   estimateBytesUsed,
   interleaveAttributes,
   mergeBufferAttributes,

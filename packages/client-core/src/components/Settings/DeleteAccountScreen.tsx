@@ -23,124 +23,52 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { CheckSm } from '@ir-engine/ui/src/icons'
+import { useMutableState } from '@ir-engine/hyperflux'
 import { motion } from 'motion/react'
-import React, { useState } from 'react'
+import React from 'react'
+import { AuthService, AuthState } from '../../user/services/AuthService'
+import ButtonGroup from './ButtonGroup'
 
 interface DeleteAccountScreenProps {
-  navigateTo: (screen: string) => void
-  onClose?: () => void
+  navigateTo: (screenKey: string, historyKey: string) => void
+  navigateClose: () => void
 }
 
-const DeleteAccountScreen: React.FC<DeleteAccountScreenProps> = ({ navigateTo, onClose }) => {
-  const [showConfirmation, setShowConfirmation] = useState(true)
-  const [showSuccess, setShowSuccess] = useState(false)
+const DeleteAccountScreen: React.FC<DeleteAccountScreenProps> = ({ navigateTo, navigateClose }) => {
+  const { id } = useMutableState(AuthState).user
 
   const handleDelete = () => {
-    setShowConfirmation(false)
-    setShowSuccess(true)
+    AuthService.removeUser(id.value)
+    // This will force a full page reload
+    AuthService.logoutUser()
   }
 
   const handleStayHere = () => {
-    navigateTo('account')
+    navigateTo('Settings', 'account')
   }
 
-  const handleClose = () => {
-    onClose?.()
-  }
+  return (
+    <div className="flex h-full flex-col items-center justify-between space-y-8 pb-4 text-center">
+      {/* Confirmation Message */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="flex h-full flex-1 flex-col items-center justify-center space-y-2"
+      >
+        <p className="text-lg font-medium text-white/90 md:text-2xl">Are you sure you want to</p>
+        <p className="text-lg font-medium text-white/90 md:text-2xl">delete your account?</p>
+      </motion.div>
 
-  if (showSuccess) {
-    return (
-      <div className="flex h-full flex-col items-center justify-center space-y-8 text-center">
-        {/* Success Checkmark */}
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 0.3, delay: 0.2 }}
-          className="flex h-16 w-16 items-center justify-center rounded-full"
-        >
-          <CheckSm className="h-8 w-8 text-white" />
-        </motion.div>
-
-        {/* Success Message */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.4 }}
-          className="flex flex-col gap-2"
-        >
-          <p className="text-lg font-medium text-white/90">Your account has been</p>
-          <p className="text-lg font-medium text-white/90">successfully deleted.</p>
-        </motion.div>
-
-        {/* Close Button */}
-        <motion.button
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.6 }}
-          onClick={handleClose}
-          className="w-full max-w-xs rounded-xl py-3.5 font-medium text-white transition-all hover:scale-105"
-          style={{
-            background: 'linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.08))',
-            border: '1px solid rgba(255, 255, 255, 0.1)'
-          }}
-        >
-          Close
-        </motion.button>
-      </div>
-    )
-  }
-
-  if (showConfirmation) {
-    return (
-      <div className="flex h-full flex-col items-center justify-center space-y-8 text-center">
-        {/* Confirmation Message */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="space-y-2"
-        >
-          <p className="text-lg font-medium text-white/90">Are you sure you want to</p>
-          <p className="text-lg font-medium text-white/90">delete your account?</p>
-        </motion.div>
-
-        {/* Action Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.2 }}
-          className="w-full max-w-xs space-y-3"
-        >
-          {/* Stay Here Button */}
-          <button
-            onClick={handleStayHere}
-            className="w-full rounded-xl py-3.5 font-medium text-white transition-all hover:scale-105"
-            style={{
-              background: 'linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.08))',
-              border: '1px solid rgba(255, 255, 255, 0.1)'
-            }}
-          >
-            Stay Here
-          </button>
-
-          {/* Delete Button */}
-          <button
-            onClick={handleDelete}
-            className="w-full rounded-xl py-3.5 font-medium text-white transition-all hover:scale-105"
-            style={{
-              background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-              border: '1px solid rgba(255, 255, 255, 0.08)'
-            }}
-          >
-            Delete
-          </button>
-        </motion.div>
-      </div>
-    )
-  }
-
-  return null
+      {/* Action Buttons */}
+      <ButtonGroup
+        options={[
+          { label: 'Stay Here', onClick: handleStayHere },
+          { label: 'Delete', onClick: handleDelete }
+        ]}
+      />
+    </div>
+  )
 }
 
 export default DeleteAccountScreen

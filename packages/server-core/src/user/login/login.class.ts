@@ -29,7 +29,7 @@ import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identit
 import { loginTokenPath } from '@ir-engine/common/src/schemas/user/login-token.schema'
 import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { userLoginPath } from '@ir-engine/common/src/schemas/user/user-login.schema'
-import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
+import { UserID, UserName, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import moment from 'moment'
@@ -170,6 +170,7 @@ export class LoginService implements ServiceInterface {
       // Uncomment to re-enable
       // if (isValidId(loginToken.id)) await this.app.service(loginTokenPath).remove(loginToken.id)
       await this.app.service(userPath).patch(identityProvider.userId, {
+        name: params.query?.username as UserName,
         isGuest: false
       })
 

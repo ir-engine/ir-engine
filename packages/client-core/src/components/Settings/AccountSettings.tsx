@@ -31,24 +31,22 @@ import { Section } from './Section'
 
 // Define types for screen components
 interface ScreenProps {
-  navigateTo: (screen: string) => void
-  onClose?: () => void
+  navigateTo: (screenKey: string, historyKey: string) => void
+  navigateClose?: () => void
 }
 
 const AccountSettings: React.FC<ScreenProps> = ({ navigateTo }) => (
   <div className="h-full space-y-4">
     <Section>
-      <MenuItem label="Username & Password" onClick={() => navigateTo('usernamePassword')} hasChevron />
+      <MenuItem label="Display Name" onClick={() => navigateTo('Settings', 'displayName')} hasChevron />
       <Divider />
-      <MenuItem label="User ID" onClick={() => navigateTo('userId')} hasChevron />
-      <Divider />
-      <MenuItem label="Permissions" onClick={() => navigateTo('permissions')} hasChevron />
+      <MenuItem label="Permissions" onClick={() => navigateTo('Settings', 'permissions')} hasChevron />
     </Section>
 
     <Section>
-      <MenuItem label="Single Sign On" onClick={() => navigateTo('sso')} hasChevron />
+      <MenuItem label="Single Sign On" onClick={() => navigateTo('Settings', 'sso')} hasChevron />
       <Divider />
-      <MenuItem label="Delete My Account" onClick={() => navigateTo('deleteAccount')} hasChevron />
+      <MenuItem label="Delete My Account" onClick={() => navigateTo('Settings', 'deleteAccount')} hasChevron />
     </Section>
   </div>
 )
