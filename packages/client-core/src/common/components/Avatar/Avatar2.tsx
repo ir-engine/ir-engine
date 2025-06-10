@@ -43,9 +43,21 @@ interface Props {
   size?: number
   onChange?: () => void
   onClick?: () => void
+  playAudio?: boolean
 }
 
-const Avatar = ({ alt, imageSrc, isSelected, name, showChangeButton, type, size, onChange, onClick }: Props) => {
+const Avatar = ({
+  alt,
+  imageSrc,
+  isSelected,
+  name,
+  showChangeButton,
+  type,
+  size,
+  onChange,
+  onClick,
+  playAudio = true
+}: Props) => {
   const { t } = useTranslation()
   const handleChange = (e: MouseEvent) => {
     e.stopPropagation()
@@ -56,8 +68,8 @@ const Avatar = ({ alt, imageSrc, isSelected, name, showChangeButton, type, size,
     return (
       <div
         onClick={onClick}
-        onPointerUp={handleSoundEffect}
-        onPointerEnter={handleSoundEffect}
+        onPointerUp={playAudio ? handleSoundEffect : undefined}
+        onPointerEnter={playAudio ? handleSoundEffect : undefined}
         className={twMerge(
           'relative box-border flex h-[6.5rem] max-h-32 max-w-96 cursor-pointer items-start gap-3 rounded-lg bg-surface-2 p-3 shadow-sm ',
           isSelected ? 'border-2 border-ui-select-primary' : 'border border-ui-outline'
