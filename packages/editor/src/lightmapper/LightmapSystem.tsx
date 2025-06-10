@@ -33,11 +33,11 @@ import {
   useComponent
 } from '@ir-engine/ecs'
 import { QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
+import { LightmapComponent } from '@ir-engine/engine/src/lightmap/LightmapComponent'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import React, { useEffect } from 'react'
 import { MeshStandardMaterial } from 'three'
 import { commitProperty } from '../components/properties/Util'
-import { LightmapComponent } from './LightmapComponent'
 
 const MaterialReactor = (props: { lightmapEntity: Entity; entity: Entity }) => {
   const { lightmapEntity, entity } = props
@@ -47,7 +47,6 @@ const MaterialReactor = (props: { lightmapEntity: Entity; entity: Entity }) => {
   const material = materialState.material.value as MeshStandardMaterial
 
   useEffect(() => {
-    console.log('Material reactor', material)
     if (!material) return
 
     //debug only

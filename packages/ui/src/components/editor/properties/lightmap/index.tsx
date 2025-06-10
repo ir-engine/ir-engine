@@ -23,10 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
-import { useComponent } from '@ir-engine/ecs'
+import { getComponent, useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
-import { LightmapComponent } from '@ir-engine/editor/src/lightmapper/LightmapComponent'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { Button } from '@ir-engine/ui'
 import React, { useEffect } from 'react'
@@ -35,6 +33,12 @@ import { MdLightbulb } from 'react-icons/md'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
+
+import { AtlasingFunctions, UV2UnwrapperState } from '@ir-engine/editor/src/lightmapper/AtlasingFunctions'
+import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { LightmapComponent } from '@ir-engine/engine/src/lightmap/LightmapComponent'
+import { getState, useMutableState } from '@ir-engine/hyperflux'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 
 const resolutionOptions = [
   { label: '256', value: 256 },
@@ -47,19 +51,29 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const lightmapComponent = useComponent(props.entity, LightmapComponent)
 
-  const handleGenerateAtlas = () => {
-    LightmapComponent.generateAtlas(props.entity)
+  const handleGenerateAtlas = async () => {
+    const entities = await AtlasingFunctions.generateAtlas(props.entity)
+    if (!entities) return
+    const editorState = getState(EditorState)
+    const atlasSrc = await AtlasingFunctions.exportAtlasData(
+      entities,
+      editorState.projectName!,
+      'public/scenes/lightmap/' + editorState.sceneName?.substring(0, editorState.sceneName!.lastIndexOf('.')),
+      getComponent(props.entity, NameComponent)
+    )
+
+    commitProperty(LightmapComponent, 'atlasSrc', [props.entity])(atlasSrc)
   }
 
   const handleBakeLightmap = async () => {
     console.log('Baking lightmap for entity:', props.entity)
   }
 
-  const unwrapperLoaded = useHookstate(LightmapComponent.unwrapper.isLoaded)
+  const unwrapperLoaded = useMutableState(UV2UnwrapperState).isLoaded
 
   useEffect(() => {
     if (!unwrapperLoaded.value) {
-      LightmapComponent.loadUnwrapper().then(() => unwrapperLoaded.set(true))
+      UV2UnwrapperState.loadUnwrapper().then(() => unwrapperLoaded.set(true))
     }
   }, [])
 
