@@ -59,13 +59,14 @@ import { getRendererEntity, useRendererEntity } from '@ir-engine/spatial/src/ren
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useGLTFComponent, useTexture } from '../../assets/functions/resourceLoaderHooks'
-import { DEFAULT_PARTICLE_SYSTEM_PARAMETERS, ParticleState } from '../constants/particle-system'
 import {
   BehaviorJSON,
+  DEFAULT_PARTICLE_SYSTEM_PARAMETERS,
   ExpandedSystemJSON,
+  ParticleState,
   ParticleSystemMetadata,
   ParticleSystemRendererInstance
-} from '../types/particle-system'
+} from '../types/ParticleSystemTypes'
 import { mergeGeometries } from '../util/meshUtils'
 
 const createBatchedRenderer = (entity: Entity) => {

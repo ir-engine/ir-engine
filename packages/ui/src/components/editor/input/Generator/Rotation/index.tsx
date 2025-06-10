@@ -23,13 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { RotationGeneratorJSONDefaults } from '@ir-engine/engine/src/scene/constants/particle-system'
 import {
   AxisAngleGeneratorJSON,
   EulerGeneratorJSON,
   RotationGeneratorJSON,
+  RotationGeneratorJSONDefaults,
   ValueGeneratorJSON
-} from '@ir-engine/engine/src/scene/types/particle-system'
+} from '@ir-engine/engine/src/scene/types/ParticleSystemTypes'
 import { State } from '@ir-engine/hyperflux'
 import React, { useCallback } from 'react'
 import { Vector3 } from 'three'

@@ -44,20 +44,18 @@ import { EditorComponentType, commitProperties, commitProperty } from '@ir-engin
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
 import {
-  CONE_SHAPE_DEFAULT,
-  DONUT_SHAPE_DEFAULT,
-  MESH_SHAPE_DEFAULT,
-  POINT_SHAPE_DEFAULT,
-  SPHERE_SHAPE_DEFAULT
-} from '@ir-engine/engine/src/scene/constants/particle-system'
-import {
   ApplyForceBehaviorJSON,
   BehaviorJSON,
   BurstParametersJSON,
+  CONE_SHAPE_DEFAULT,
   ColorGeneratorJSON,
   ConstantColorJSON,
+  DONUT_SHAPE_DEFAULT,
+  MESH_SHAPE_DEFAULT,
+  POINT_SHAPE_DEFAULT,
+  SPHERE_SHAPE_DEFAULT,
   ValueGeneratorJSON
-} from '@ir-engine/engine/src/scene/types/particle-system'
+} from '@ir-engine/engine/src/scene/types/ParticleSystemTypes'
 import { Checkbox } from '@ir-engine/ui'
 import Button from '../../../../primitives/tailwind/Button'
 import BehaviorInput from '../../input/Behavior'

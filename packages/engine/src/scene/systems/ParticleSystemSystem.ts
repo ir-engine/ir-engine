@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getState } from '@ir-engine/hyperflux'
-import { ParticleState } from '../constants/particle-system'
+import { ParticleState } from '../types/ParticleSystemTypes'
 import { SceneObjectSystem } from './SceneObjectSystem'
 
 const execute = () => {

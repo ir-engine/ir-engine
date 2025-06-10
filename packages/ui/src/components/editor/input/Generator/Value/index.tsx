@@ -23,14 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ValueGeneratorJSONDefaults } from '@ir-engine/engine/src/scene/constants/particle-system'
 import {
   BezierFunctionJSON,
   ConstantValueJSON,
   IntervalValueJSON,
   PiecewiseBezierValueJSON,
-  ValueGeneratorJSON
-} from '@ir-engine/engine/src/scene/types/particle-system'
+  ValueGeneratorJSON,
+  ValueGeneratorJSONDefaults
+} from '@ir-engine/engine/src/scene/types/ParticleSystemTypes'
 import { State } from '@ir-engine/hyperflux'
 import React, { useCallback } from 'react'
 import Button from '../../../../../primitives/tailwind/Button'
