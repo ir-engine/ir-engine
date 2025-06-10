@@ -179,7 +179,7 @@ export function Contents() {
   return (
     <div
       ref={ref}
-      className={twMerge('h-5/6 overflow-hidden bg-ui-background', isOver && canDrop && 'border border-dotted')}
+      className={twMerge('h-5/6 overflow-hidden bg-surface-1', isOver && canDrop && 'border border-dotted')}
       data-testid="hierarchy-panel-scene-item-list"
     >
       <FixedSizeList
