@@ -398,7 +398,13 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   return (
     <li
       key={node.depth + ' ' + props.index + ' ' + entity}
-      style={fixedSizeListStyles}
+      style={{
+        ...fixedSizeListStyles,
+        ...{
+          borderTop: '2px solid var(--surface-1)',
+          borderBottom: '2px solid var(--surface-1)'
+        }
+      }}
       className={twMerge(
         'inline-flex w-auto min-w-full items-center',
         'cursor-pointer text-text-secondary hover:bg-ui-hover-background hover:text-text-primary',
