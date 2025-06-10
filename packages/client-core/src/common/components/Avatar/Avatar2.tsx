@@ -39,7 +39,7 @@ interface Props {
   isSelected?: boolean
   name?: string
   showChangeButton?: boolean
-  type?: 'round' | 'rectangle' | 'thumbnail'
+  type?: 'round' | 'rectangle' | 'thumbnail' | 'square'
   size?: number
   onChange?: () => void
   onClick?: () => void
@@ -62,6 +62,35 @@ const Avatar = ({
   const handleChange = (e: MouseEvent) => {
     e.stopPropagation()
     onChange && onChange()
+  }
+
+  if (type === 'square') {
+    return (
+      <div
+        onClick={onClick}
+        onPointerUp={playAudio ? handleSoundEffect : undefined}
+        onPointerEnter={playAudio ? handleSoundEffect : undefined}
+        className={twMerge(
+          'relative flex cursor-pointer flex-col items-center gap-2',
+          isSelected ? 'opacity-100' : 'opacity-80 hover:opacity-100'
+        )}
+      >
+        <div
+          className={twMerge(
+            'relative overflow-hidden rounded-2xl bg-gradient-to-b from-blue-400 to-blue-600',
+            size ? `w-[${size}px] h-[${size}px]` : 'h-32 w-32',
+            isSelected ? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-gray-900' : ''
+          )}
+        >
+          <img className="h-full w-full object-cover" src={imageSrc} alt={alt} crossOrigin="anonymous" />
+          <div className="absolute bottom-0 w-full text-ellipsis bg-blue-500 px-4 py-1 text-center">
+            <Text fontWeight="medium" fontSize="sm" className="text-white">
+              {name}
+            </Text>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (type === 'rectangle') {

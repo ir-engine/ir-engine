@@ -110,14 +110,14 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({ navigateTo }) => {
         />
       </Section>
       <div className="flex-1 overflow-auto">
-        <div className="flex h-full flex-col gap-2">
-          {[...avatars, ...avatars, ...avatars, ...avatars].map((avatar) => (
+        <div className="grid grid-flow-row grid-cols-4 gap-4 p-4">
+          {avatars.map((avatar) => (
             <Fragment key={avatar.id}>
               <Avatar
                 imageSrc={avatar.thumbnailResource?.url || ''}
                 isSelected={currentAvatar && avatar.id === currentAvatar.id}
                 name={avatar.name}
-                type="rectangle"
+                type="square"
                 onClick={() => currentAvatarId.set(avatar.id)}
                 playAudio={false}
                 // onChange={() => ModalState.openModal(<AvatarModifyMenu selectedAvatar={avatar} />)}
