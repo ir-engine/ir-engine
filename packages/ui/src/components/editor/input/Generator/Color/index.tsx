@@ -26,17 +26,17 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useCallback } from 'react'
 import { Color } from 'three'
 
+import { State } from '@ir-engine/hyperflux'
+
+import { ColorGeneratorJSONDefaults } from '@ir-engine/engine/src/scene/constants/particle-system'
 import {
   ColorGeneratorJSON,
-  ColorGeneratorJSONDefaults,
   ColorGradientJSON,
   ColorJSON,
   ColorRangeJSON,
   ConstantColorJSON,
   RandomColorJSON
-} from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
-import { State } from '@ir-engine/hyperflux'
-
+} from '@ir-engine/engine/src/scene/types/particle-system'
 import Button from '../../../../../primitives/tailwind/Button'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import Text from '../../../../../primitives/tailwind/Text'

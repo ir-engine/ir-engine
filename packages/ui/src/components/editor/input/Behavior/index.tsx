@@ -23,15 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useCallback } from 'react'
-import { Texture, Vector2, Vector3 } from 'three'
-
 import { getTextureAsync } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
+import { BehaviorJSONDefaults } from '@ir-engine/engine/src/scene/constants/particle-system'
 import {
   ApplyForceBehaviorJSON,
   ApplySequencesJSON,
   BehaviorJSON,
-  BehaviorJSONDefaults,
   ChangeEmitDirectionBehaviorJSON,
   ColorGeneratorJSON,
   ColorOverLifeBehaviorJSON,
@@ -49,10 +46,12 @@ import {
   TurbulenceFieldBehaviorJSON,
   ValueGeneratorJSON,
   WidthOverLengthBehaviorJSON
-} from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
+} from '@ir-engine/engine/src/scene/types/particle-system'
 import { State } from '@ir-engine/hyperflux'
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
 import { Checkbox } from '@ir-engine/ui'
+import React, { useCallback } from 'react'
+import { Texture, Vector2, Vector3 } from 'three'
 import ColorGenerator from '../Generator/Color'
 import RotationGenerator from '../Generator/Rotation'
 import ValueGenerator from '../Generator/Value'
