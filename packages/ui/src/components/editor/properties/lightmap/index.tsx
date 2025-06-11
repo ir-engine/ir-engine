@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getComponent, useComponent } from '@ir-engine/ecs'
+import { defineQuery, getComponent, useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { Button } from '@ir-engine/ui'
@@ -39,6 +39,8 @@ import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { LightmapComponent } from '@ir-engine/engine/src/lightmap/LightmapComponent'
 import { getState, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 
 const resolutionOptions = [
   { label: '256', value: 256 },
@@ -46,6 +48,8 @@ const resolutionOptions = [
   { label: '1024', value: 1024 },
   { label: '2048', value: 2048 }
 ]
+
+const rendererQuery = defineQuery([RendererComponent])
 
 export const LightmapNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -61,6 +65,21 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
       'public/scenes/lightmap/' + editorState.sceneName?.substring(0, editorState.sceneName!.lastIndexOf('.')),
       getComponent(props.entity, NameComponent)
     )
+
+    // this is a test
+    const textures = AtlasingFunctions.renderAtlas(
+      getComponent(rendererQuery()[0], RendererComponent).renderer!,
+      entities.map((entity) => getComponent(entity, MeshComponent)),
+      lightmapComponent.resolution.value,
+      true
+    )
+    // debugging
+    entities.map((entity) => {
+      /**@ts-ignore */
+      getComponent(entity, MeshComponent).material.map = textures.positionTexture
+      /**@ts-ignore */
+      getComponent(entity, MeshComponent).material.map.channel = 2
+    })
 
     commitProperty(LightmapComponent, 'atlasSrc', [props.entity])(atlasSrc)
   }

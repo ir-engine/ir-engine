@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import config from '@ir-engine/common/src/config'
 import {
   defineSystem,
   Entity,
@@ -34,9 +33,10 @@ import {
 } from '@ir-engine/ecs'
 import { QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { LightmapComponent } from '@ir-engine/engine/src/lightmap/LightmapComponent'
+import { useHookstate } from '@ir-engine/hyperflux'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import React, { useEffect } from 'react'
-import { MeshStandardMaterial } from 'three'
+import { MeshStandardMaterial, WebGLRenderTarget } from 'three'
 import { commitProperty } from '../components/properties/Util'
 
 const MaterialReactor = (props: { lightmapEntity: Entity; entity: Entity }) => {
@@ -46,13 +46,27 @@ const MaterialReactor = (props: { lightmapEntity: Entity; entity: Entity }) => {
 
   const material = materialState.material.value as MeshStandardMaterial
 
+  const lightmapRenderTarget = useHookstate(
+    new WebGLRenderTarget(lightmapComponent.resolution.value, lightmapComponent.resolution.value)
+  )
+
+  useEffect(() => {
+    // Lightmapper.initialize(new WebGLRenderer(), )
+  }, [])
+
+  useEffect(() => {
+    // material.map = lightmapRenderTarget.get(NO_PROXY).texture
+    // material.color = new Color(1,0,0)
+    // material.needsUpdate = true
+  }, [material])
+
   useEffect(() => {
     if (!material) return
 
     //debug only
-    commitProperty(MaterialStateComponent, 'parameters.map.source' as any, [entity])(
-      config.client.fileServer + '/projects/ir-engine/default-project/assets/UV.png'
-    )
+    // commitProperty(MaterialStateComponent, 'parameters.map.source' as any, [entity])(
+    //   config.client.fileServer + '/projects/ir-engine/default-project/assets/UV.png'
+    // )
     commitProperty(MaterialStateComponent, 'parameters.map.channel' as any, [entity])(2)
 
     material.needsUpdate = true
@@ -74,9 +88,16 @@ const LightmapReactor = ({ entity }) => {
   )
 }
 
+const execute = () => {
+  // const lightmapQuery = defineQuery([LightmapComponent])
+  // for (const entity of lightmapQuery()) {
+  // }
+}
+
 export const LightmapSystem = defineSystem({
   uuid: 'ee.engine.LightmapSystem',
   insert: { with: PresentationSystemGroup },
+  execute,
   reactor: () => (
     <QueryReactor Components={[LightmapComponent]} ChildEntityReactor={LightmapReactor} layer={Layers.Authoring} />
   )
