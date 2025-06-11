@@ -71,8 +71,7 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
     const templatePath = path.join(emailAccountTemplatesPath, 'magiclink-email.pug')
 
     const compiledHTML = pug.compileFile(templatePath)({
-      headerLogo: `${config.client.url}/static/Email-Template-Header.png`,
-      irWhiteLogo: `${config.client.url}/static/3d-IR-White-Logo.png`,
+      headerLogo: `${config.client.url}/static/Napster-Horizontal-Black.png`,
       templateBg: `${config.client.url}/static/Email-Template-BG.png`,
       hashLink
     })
