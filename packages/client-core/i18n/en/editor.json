@@ -258,7 +258,7 @@
       "noThumbnailPlaceholder": "Publish Scene to Generate a Preview Image",
       "createCompressedScenePublish": "Compress and Publish",
       "createCompressedScenePublishInfo": "This is a beta feature that optimizes your space for mobile devices. If you encounter errors, please refresh your browser and try again, or use the regular “Publish” function for now.",
-       "jumpControlFeature": "Jump Control",
+      "jumpControlFeature": "Jump Control",
       "jumpControlFeatureDesc": "Enable your avatar’s ability to jump.",
       "vrCapabilitiesFeature": "VR Capabilities",
       "vrCapabilitiesFeatureDesc": "Enable your eligible devices to render AR experiences."
@@ -758,7 +758,18 @@
       "start-size": "Start Size",
       "start-speed": "Start Speed",
       "start-rotation": "Start Rotation",
-      "start-color": "Start Color",
+      "startColor": {
+        "title": "Start Color",
+        "type": "Type",
+        "constant": "Constant",
+        "range": "Range",
+        "random": "Random",
+        "gradient": "Gradient",
+        "color": "Color",
+        "opacity": "Opacity",
+        "start": "Start",
+        "remove": "Remove"
+      },
       "emission-over-time": "Emission Over Time",
       "render-mode": "Render Mode",
       "render-mode-type": {
