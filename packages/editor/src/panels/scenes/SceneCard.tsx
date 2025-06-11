@@ -29,9 +29,10 @@ import { twMerge } from 'tailwind-merge'
 type Props = Readonly<{
   children: ReactNode
   className: string
-  isAddSceneCard?: boolean
-}>
-export default function SceneCard({ children, className, isAddSceneCard = false }: Props) {
+}> &
+  React.HTMLAttributes<HTMLDivElement>
+
+export default function SceneCard({ children, className, ...props }: Props) {
   return (
     <div
       className={twMerge(
@@ -40,7 +41,8 @@ export default function SceneCard({ children, className, isAddSceneCard = false 
         'dark:border-ui-outline dark:bg-ui-background lg:col-span-1',
         className
       )}
-      data-testid={`${isAddSceneCard ? 'add-scene-card' : 'scene-card'}`}
+      data-testid="scene-card"
+      {...props}
     >
       {children}
     </div>
