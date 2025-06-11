@@ -195,7 +195,7 @@ export default function Toolbar() {
     <>
       <div className="flex h-10 items-center justify-between px-4 py-0.5">
         <div className="flex items-center">
-          <div className="cursor-pointer" onClick={onCloseProject}>
+          <div className="cursor-pointer" data-testid="back-to-dashboard-button" onClick={onCloseProject}>
             <img
               src={themeState.theme.value === 'dark' ? irStudioIconDark : irStudioIconLight}
               alt="iR Engine Logo"
@@ -203,6 +203,7 @@ export default function Toolbar() {
             />
           </div>
           <button
+            data-testid="editor-main-menu-button"
             onClick={(event) => {
               anchorPosition.set({ left: event.clientX - 20, top: event.clientY - 20 })
               anchorEvent.set(event)
@@ -216,15 +217,19 @@ export default function Toolbar() {
           <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-simple')}</div>
           <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
         </div> */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5" data-testid="editor-breadcrumbs-container">
           <File04Sm />
           {projectName.value!.split('/').map((part, index) => (
             <Fragment key={index}>
-              <span className="text-text-secondary">{part}</span>
+              <span className="text-text-secondary" data-testid="editor-breadcrumbs-item">
+                {part}
+              </span>
               <span className="text-text-secondary">{' / '}</span>
             </Fragment>
           ))}
-          <span className="text-text-primary">{sceneNameSimplified}</span>
+          <span className="text-text-primary" data-testid="editor-breadcrumbs-scene-name">
+            {sceneNameSimplified}
+          </span>
         </div>
 
         <div className="flex items-center justify-center gap-2">
@@ -268,6 +273,7 @@ export default function Toolbar() {
               label={name}
               href={href}
               secondaryText={hotkey}
+              data-testid={`editor-main-menu-item-${name.toLowerCase().replace(/\s+/g, '-')}`}
               onClick={() => {
                 action()
                 anchorEvent.set(null)
