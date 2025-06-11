@@ -19,7 +19,7 @@ The Original Code is Ethereal Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Ethereal Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2025 
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2025
 Ethereal Engine. All Rights Reserved.
 */
 
@@ -1636,9 +1636,9 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
     if (signal.aborted) return
 
     setAnimationClips(rootEntity, animationClips)
-  } finally {
-    // dereference body non-reactively if it exists
-    getComponent(options.entity, GLTFComponent).body = null
+  } catch (error) {
+    console.error('Error loading GLTF scene:', error)
+    throw error
   }
 }
 
