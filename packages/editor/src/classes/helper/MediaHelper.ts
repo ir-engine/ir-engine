@@ -23,26 +23,22 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { S } from '@ir-engine/ecs'
-import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
+import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
+import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-export const ActiveHelperComponent = defineComponent({
-  name: 'ActiveHelperComponent',
-  jsonID: 'EE_activeHelper',
-  schema: S.Object({
-    enabled: S.Bool({ default: true }),
-    helperIconGizmo: S.Entity(), // manages the icon and minor gizmo
-    hovered: S.Bool({ default: false }),
-    selected: S.Bool({ default: false }),
-    helperSelectedGizmo: S.Entity(), // manages the elaborate gizmo
-    directional: S.Bool({ default: false }),
-    directionalEntities: S.Array(S.Entity()),
-    lineEntities: S.Array(S.Entity()),
-    volumeEnabled: S.Bool({ default: false }),
-    volumeControlled: S.Bool({ default: true }),
-    sizeFactor: S.Number({ default: 0.25 })
-  }),
-  reactor: () => {
-    return null
-  }
-})
+const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png'
+
+export const MediaHelperReactor: React.FC = (props: { parentEntity; iconEntity; selected; hovered }) => {
+  const { parentEntity, iconEntity, selected, hovered } = props
+
+  const debugEnabled = selected || hovered
+  const [audioHelperTexture] = useTexture(debugEnabled ? AUDIO_TEXTURE_PATH : '', parentEntity)
+
+  useHelperEntity(
+    parentEntity,
+    () => new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide })),
+    debugEnabled && !!audioHelperTexture
+  )
+  return null
+}

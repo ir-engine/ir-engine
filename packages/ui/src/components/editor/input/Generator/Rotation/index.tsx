@@ -23,17 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useCallback } from 'react'
-import { Vector3 } from 'three'
-
 import {
   AxisAngleGeneratorJSON,
   EulerGeneratorJSON,
   RotationGeneratorJSON,
   RotationGeneratorJSONDefaults,
   ValueGeneratorJSON
-} from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
+} from '@ir-engine/engine/src/scene/types/ParticleSystemTypes'
 import { State } from '@ir-engine/hyperflux'
+import React, { useCallback } from 'react'
+import { Vector3 } from 'three'
 import InputGroup from '../../Group'
 import SelectInput from '../../Select'
 import Vector3Input from '../../Vector3'

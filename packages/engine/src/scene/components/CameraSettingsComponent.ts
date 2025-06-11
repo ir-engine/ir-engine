@@ -69,8 +69,8 @@ export const CameraSettingsComponent = defineComponent({
     isTopDownFreeCamera: S.Bool({ default: false }),
 
     firstPersonCameraLimits: S.Number({ default: 360 }),
-    thirdPersonCameraLimits: S.Number({ default: 180 }),
-    topDownCameraLimits: S.Number({ default: 180 }),
+    thirdPersonCameraLimits: S.Number({ default: 360 }),
+    topDownCameraLimits: S.Number({ default: 360 }),
 
     isFirstPersonCameraReset: S.Bool({ default: true }),
     isThirdPersonCameraReset: S.Bool({ default: true }),

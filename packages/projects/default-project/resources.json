@@ -681,5 +681,14 @@
       "projects/ir-engine/default-project/assets/avatars/irRobot.png"
     ],
     "name": "irRobot.vrm"
+  },
+  "public/scenes/sponza.gltf": {
+    "type": "scene",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "name": "sponza.gltf",
+    "thumbnailKey": "projects/ir-engine/default-project/public/scenes/sponza.thumbnail.jpg"
   }
 }

@@ -24,21 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { PointLight, PointLightHelper } from 'three'
+import { PointLight } from 'three'
 
-import {
-  S,
-  defineComponent,
-  removeComponent,
-  setComponent,
-  useComponent,
-  useEntityContext,
-  useOptionalComponent
-} from '@ir-engine/ecs'
-import { NO_PROXY, useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { S, defineComponent, removeComponent, setComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
-import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
-import { useHelperEntity } from '../../../common/debug/useHelperEntity'
 import { T } from '../../../schema/schemaFunctions'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { RendererState } from '../../RendererState'
@@ -63,16 +53,9 @@ export const PointLightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
-    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
-    const debugEnabled =
-      activeHelperComponent !== undefined &&
-      activeHelperComponent.enabled.value === true &&
-      (activeHelperComponent.selected.value || activeHelperComponent.hovered.value)
 
     const pointLightComponent = useComponent(entity, PointLightComponent)
     const light = useHookstate(() => new PointLight()).value as PointLight
-    const helperEntity = useHelperEntity(entity, () => new PointLightHelper(light), debugEnabled)
-    const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as PointLightHelper | undefined
 
     useImmediateEffect(() => {
       setComponent(entity, LightTagComponent)
@@ -82,11 +65,6 @@ export const PointLightComponent = defineComponent({
         removeComponent(entity, ObjectComponent)
       }
     }, [])
-
-    useEffect(() => {
-      light.color.set(pointLightComponent.color.value)
-      if (helper) helper.color = pointLightComponent.color.value
-    }, [!!helper, pointLightComponent.color])
 
     useEffect(() => {
       light.intensity = pointLightComponent.intensity.value

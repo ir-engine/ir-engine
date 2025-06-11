@@ -23,23 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ECSState } from '@ir-engine/ecs/src/ECSState'
-import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { getState } from '@ir-engine/hyperflux'
-import { ParticleState } from '../types/ParticleSystemTypes'
-import { SceneObjectSystem } from './SceneObjectSystem'
+import { Vector3_Right, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
+import { ArrowHelper } from 'three'
 
-const execute = () => {
-  const renderers = getState(ParticleState).renderers
-  for (const rendererInstance of Object.values(renderers)) {
-    const batchRenderer = rendererInstance.renderer
-    const deltaSeconds = getState(ECSState).deltaSeconds
-    batchRenderer.update(deltaSeconds)
-  }
+export const PortalHelperReactor: React.FC = (props: { parentEntity; iconEntity; selected; hovered }) => {
+  const { parentEntity, iconEntity, selected, hovered } = props
+
+  const debugEnabled = selected || hovered
+
+  useHelperEntity(parentEntity, () => new ArrowHelper(Vector3_Right, Vector3_Zero, 1, 0x000000), debugEnabled)
+
+  return null
 }
-
-export const ParticleSystem = defineSystem({
-  uuid: 'ee.engine.ParticleSystem',
-  insert: { with: SceneObjectSystem },
-  execute
-})

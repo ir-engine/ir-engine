@@ -37,6 +37,12 @@ import {
 import { BurstParameters, RenderMode } from 'three.quarks'
 
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { State } from '@ir-engine/hyperflux'
+import { HiSparkles } from 'react-icons/hi'
+
+import { EditorComponentType, commitProperties, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
 import {
   ApplyForceBehaviorJSON,
   BehaviorJSON,
@@ -47,15 +53,9 @@ import {
   DONUT_SHAPE_DEFAULT,
   MESH_SHAPE_DEFAULT,
   POINT_SHAPE_DEFAULT,
-  ParticleSystemComponent,
   SPHERE_SHAPE_DEFAULT,
   ValueGeneratorJSON
-} from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
-import { State } from '@ir-engine/hyperflux'
-import { HiSparkles } from 'react-icons/hi'
-
-import { EditorComponentType, commitProperties, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
-import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+} from '@ir-engine/engine/src/scene/types/ParticleSystemTypes'
 import { Checkbox } from '@ir-engine/ui'
 import Button from '../../../../primitives/tailwind/Button'
 import BehaviorInput from '../../input/Behavior'
@@ -356,7 +356,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           <>
             <NumericInput
               value={particleSystem.systemParameters.startTileIndex}
-              onChange={onSetState('systemParameters.startTileIndex')}
+              onChange={onSetSystemParm('startTileIndex')}
             />
             <Button
               onClick={() => {
@@ -386,13 +386,14 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Mesh" label={t('editor:properties.particle-system.mesh')}>
         <ModelInput
           value={particleSystem.systemParameters.instancingGeometry}
+          onChange={onSetSystemParm('instancingGeometry')}
           onRelease={onSetSystemParm('instancingGeometry')}
         />
       </InputGroup>
       <InputGroup name="Blending" label={t('editor:properties.particle-system.blending')}>
         <SelectInput
           value={particleSystem.systemParameters.blending as Blending}
-          onChange={onSetState('systemParameters.blending')}
+          onChange={onSetSystemParm('blending')}
           options={[
             { label: t('editor:properties.particle-system.blending-type.normal'), value: NormalBlending },
             { label: t('editor:properties.particle-system.blending-type.additive'), value: AdditiveBlending },
@@ -406,7 +407,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Transparent" label={t('editor:properties.particle-system.transparent')}>
         <Checkbox
           checked={particleSystem.systemParameters.transparent ?? false}
-          onChange={onSetState('systemParameters.transparent')}
+          onChange={onSetSystemParm('transparent')}
         />
       </InputGroup>
       <InputGroup name="World Space" label={t('editor:properties.particle-system.world-space')}>

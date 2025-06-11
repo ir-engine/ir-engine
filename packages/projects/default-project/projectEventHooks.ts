@@ -112,7 +112,8 @@ const config = {
       apartment: 'public/scenes/apartment.gltf',
       default: 'public/scenes/default.gltf',
       ['sky-station']: 'public/scenes/sky-station.gltf',
-      test: 'public/scenes/test.gltf'
+      test: 'public/scenes/test.gltf',
+      sponza: 'public/scenes/sponza.gltf'
     })
 
     await activateRoute(app.service(routePath))({
