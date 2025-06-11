@@ -1,0 +1,365 @@
+{
+  "asset": {
+    "generator": "IREngine.SceneExporter",
+    "version": "2.0"
+  },
+  "nodes": [
+    {
+      "name": "Settings",
+      "extensions": {
+        "EE_uuid": {
+          "entityID": "0d5a20e1-abe2-455e-9963-d5e1e19fca20"
+        },
+        "EE_envmapbake": {
+          "bakePosition": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "bakePositionOffset": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "bakeScale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          },
+          "bakeType": "Baked",
+          "resolution": 2048,
+          "refreshMode": "OnAwake",
+          "envMapOrigin": "__$project$__/ir-engine/default-project/public/scenes/sponza.envmap.ktx2",
+          "boxProjection": true
+        },
+        "EE_fog": {
+          "type": "disabled",
+          "color": "#FFFFFF",
+          "density": 0.005,
+          "near": 1,
+          "far": 1000,
+          "timeScale": 1,
+          "height": 0.05
+        },
+        "EE_camera_settings": {
+          "cameraNearClip": 0.1,
+          "cameraFarClip": 1000,
+          "projectionType": 1,
+          "fov": 50,
+          "cameraMode": "FOLLOW",
+          "minPhi": -70,
+          "maxPhi": 85,
+          "isAvatarVisible": true,
+          "followCameraScrollSensitivity": 1,
+          "canCameraFirstPerson": true,
+          "canCameraThirdPerson": true,
+          "canCameraTopDown": true,
+          "isFistPersonFreeCamera": true,
+          "isThirdPersonFreeCamera": true,
+          "isTopDownFreeCamera": false,
+          "firstPersonCameraLimits": 360,
+          "thirdPersonCameraLimits": 360,
+          "topDownCameraLimits": 180,
+          "isFirstPersonCameraReset": true,
+          "isThirdPersonCameraReset": true,
+          "isTopDownCameraReset": true,
+          "thirdPersonMinDistance": 1.5,
+          "thirdPersonMaxDistance": 50,
+          "thirdPersonDefaultDistance": 3,
+          "topDownMinDistance": 10,
+          "topDownMaxDistance": 70,
+          "topDownDefaultDistance": 40,
+          "poiEntities": [],
+          "poiLerpSpeed": 0.5,
+          "scrollDeadzone": 1,
+          "scrollSensitivity": 0.1,
+          "scrollDistancePerPoi": 3,
+          "scrollBehavior": "Clamp",
+          "poiScrollTransitionType": "Scrolling",
+          "enableTransitionButtons": false
+        },
+        "EE_postprocessing": {
+          "enabled": true,
+          "effects": {
+            "BloomEffect": {
+              "isActive": true,
+              "blendFunction": 28,
+              "kernelSize": 2,
+              "luminanceThreshold": 0.78,
+              "luminanceSmoothing": 0.4,
+              "intensity": 1.09,
+              "mipmapBlur": false
+            },
+            "SSAOEffect": {
+              "isActive": true,
+              "blendFunction": 21,
+              "distanceScaling": true,
+              "depthAwareUpsampling": true,
+              "samples": 9,
+              "rings": 7,
+              "distanceThreshold": 0.97,
+              "distanceFalloff": 0.03,
+              "rangeThreshold": 0.0005,
+              "rangeFalloff": 0.001,
+              "minRadiusScale": 0.1,
+              "luminanceInfluence": 0.7,
+              "bias": 0.025,
+              "radius": 0.1825,
+              "intensity": 4.45,
+              "fade": 0.02,
+              "resolutionScale": 1,
+              "resolutionX": -1,
+              "resolutionY": -1,
+              "width": -1,
+              "height": -1,
+              "blur": true,
+              "kernelSize": 1
+            },
+            "DepthOfFieldEffect": {
+              "isActive": false,
+              "blendFunction": 28,
+              "focalRange": 1,
+              "focusDistance": 1
+            },
+            "NoiseEffect": {
+              "isActive": false
+            },
+            "ToneMappingEffect": {
+              "isActive": false
+            },
+            "VignetteEffect": {
+              "isActive": true,
+              "blendFunction": 0,
+              "technique": 0,
+              "darkness": 0.4,
+              "offset": 0
+            }
+          }
+        },
+        "EE_render_settings": {
+          "primaryLight": "cb045cfd-8daf-4a2b-b764-35625be54a12",
+          "csm": true,
+          "cascades": 3,
+          "toneMapping": 1,
+          "toneMappingExposure": 0.8,
+          "shadowMapType": 2
+        },
+        "EE_scene_settings": {
+          "thumbnailURL": "__$project$__/ir-engine/default-project/public/scenes/sponza.thumbnail.jpg",
+          "loadingScreenURL": "__$project$__/ir-engine/default-project/public/scenes/sponza.loadingscreen.ktx2",
+          "primaryColor": "#B3B3B3",
+          "backgroundColor": "#2C2C2C",
+          "alternativeColor": "#A1A1A1",
+          "sceneKillHeight": -10,
+          "spectateEntity": ""
+        },
+        "EE_visible": {}
+      }
+    },
+    {
+      "name": "scene preview camera",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0.8660254037844387,
+        0.5,
+        0,
+        0,
+        -0.5,
+        0.8660254037844387,
+        0,
+        0,
+        5,
+        10,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": {
+          "entityID": "bb362197-f14d-4da7-9c3c-1ed834386424"
+        },
+        "EE_scene_preview_camera": {},
+        "EE_visible": {}
+      }
+    },
+    {
+      "name": "Skybox",
+      "extensions": {
+        "EE_uuid": {
+          "entityID": "e7d6bfb1-6390-4a8b-b744-da83b059c2d4"
+        },
+        "EE_visible": {},
+        "EE_skybox": {
+          "backgroundColor": 3026478,
+          "equirectangularPath": "__$project$__/ir-engine/default-project/assets/generic_midday_02.ktx2?hash=19535b",
+          "cubemapPath": "__$project$__/ir-engine/default-project/assets/skyboxsun25deg/",
+          "backgroundType": 2,
+          "skyboxProps": {
+            "turbidity": 10,
+            "rayleigh": 1,
+            "luminance": 1,
+            "mieCoefficient": 0.004999999999999893,
+            "mieDirectionalG": 0.99,
+            "inclination": 0.10471975511965978,
+            "azimuth": 0.20833333333333334
+          }
+        }
+      }
+    },
+    {
+      "name": "spawn point",
+      "matrix": [
+        -1,
+        1.0106430996148606e-15,
+        -1.224646852585167e-16,
+        0,
+        1.0106430996148606e-15,
+        1,
+        1.2246467991473547e-16,
+        0,
+        1.2246468525851686e-16,
+        1.2246467991473532e-16,
+        -1,
+        0,
+        -2.020836528815537e-15,
+        0.00044493492742936347,
+        -2.448748710160004e-16,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": {
+          "entityID": "3e8a430e-9dcf-440e-990c-44ecb8051763"
+        },
+        "EE_visible": {},
+        "EE_spawn_point": {
+          "permissionedUsers": []
+        }
+      }
+    },
+    {
+      "name": "directional light",
+      "matrix": [
+        0.8201518642540717,
+        0.2860729507918133,
+        -0.495492872184692,
+        0,
+        0.4085832251560171,
+        0.3133890987191349,
+        0.8572321861229406,
+        0,
+        0.4005130056336225,
+        -0.9055106513063624,
+        0.14014204468698419,
+        0,
+        0,
+        10,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": {
+          "entityID": "cb045cfd-8daf-4a2b-b764-35625be54a12"
+        },
+        "EE_directional_light": {
+          "color": 16777215,
+          "intensity": 4,
+          "castShadow": true,
+          "shadowBias": -0.00001,
+          "shadowRadius": 1,
+          "cameraFar": 100
+        },
+        "EE_visible": {}
+      }
+    },
+    {
+      "name": "Sponza",
+      "matrix": [
+        1.5,
+        0,
+        0,
+        0,
+        0,
+        1.5,
+        0,
+        0,
+        0,
+        0,
+        1.5,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": {
+          "entityID": "685c48da-e2a0-4a9a-af7c-c5a3c187c99b"
+        },
+        "EE_model": {
+          "src": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/refs/heads/main/Models/Sponza/glTF/Sponza.gltf",
+          "cameraOcclusion": true,
+          "applyColliders": true,
+          "shape": "mesh"
+        },
+        "EE_visible": {},
+        "EE_shadow": {
+          "cast": true,
+          "receive": true
+        },
+        "EE_envmap": {
+          "type": "Skybox",
+          "envMapSourceColor": 4095,
+          "envMapSourceURL": "",
+          "envMapCubemapURL": "",
+          "envMapSourceEntityUUID": "",
+          "envMapIntensity": 0.24
+        },
+        "EE_rigidbody": {
+          "type": "fixed",
+          "ccd": false,
+          "allowRolling": true,
+          "enabledRotations": [
+            true,
+            true,
+            true
+          ],
+          "canSleep": true,
+          "gravityScale": 1
+        }
+      }
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "nodes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    }
+  ],
+  "extensionsUsed": [
+    "EE_uuid",
+    "EE_envmapbake",
+    "EE_fog",
+    "EE_camera_settings",
+    "EE_postprocessing",
+    "EE_render_settings",
+    "EE_scene_settings",
+    "EE_visible",
+    "EE_scene_preview_camera",
+    "EE_skybox",
+    "EE_spawn_point",
+    "EE_directional_light",
+    "EE_model",
+    "EE_shadow",
+    "EE_envmap",
+    "EE_rigidbody"
+  ]
+}
