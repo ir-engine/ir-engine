@@ -38,11 +38,12 @@ import { ToolbarAndSidebar } from './ToolbarAndSidebar'
 
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { useMediaWindows } from '../../user/VideoWindows'
+import { useUserMediaWindowsHook } from '../../user/VideoWindows/hook'
 import Settings, { screens as settingsScreens } from '../Settings'
 import { ChatMenu } from './ChatMenu'
 import { ChatProvider } from './ChatProvider'
 import { MultimediaStateProvider } from './MultimediaStateProvider'
-import { MultiVideos } from './MultiVideo'
+import { VideoCarousel } from './MultiVideo'
 import { NavigationProvider, useNavigationProvider } from './NavigationProvider'
 import { ToolbarMenu } from './ToolbarMenu'
 import { VideoMenu } from './VideoMenu'
@@ -140,6 +141,8 @@ const Menu = () => {
   const onFullscreenVideosClick = createToggleSidebarKey(`Video`)
   const onSettingsClick = createToggleSidebarKey(`Settings`)
 
+  const { videoElements, videoMediaStreams } = useUserMediaWindowsHook(windows)
+
   const toolbar = (
     <ToolbarMenu
       onMessageClick={onMessageClick}
@@ -156,7 +159,11 @@ const Menu = () => {
 
   return (
     <div id="location-container" ref={locationContainer} className="fixed h-dvh w-full">
-      <MultiVideos handleSidebarOpen={onFullscreenVideosClick} />
+      <VideoCarousel
+        handleSidebarOpen={onFullscreenVideosClick}
+        videoElements={videoElements}
+        videoMediaStreams={videoMediaStreams}
+      />
 
       <ToolbarAndSidebar
         handleSidebarClose={navigateClose}

@@ -124,6 +124,20 @@ const videoButtonsInner = `
   group-hover:visible
 `
 
+export const useVideoStream = (videoElement, videoMediaStream) => {
+  useEffect(() => {
+    if (!videoElement || videoElement.srcObject || !videoMediaStream) return
+
+    videoElement.autoplay = true
+    videoElement.muted = true
+    videoElement.setAttribute('playsinline', 'true')
+
+    const newVideoTrack = videoMediaStream.getVideoTracks()[0].clone()
+    videoElement.srcObject = new MediaStream([newVideoTrack])
+    videoElement.play()
+  }, [videoElement, videoMediaStream])
+}
+
 const Video = ({ peerID, type }: WindowType) => {
   const {
     isSelf,
@@ -146,17 +160,7 @@ const Video = ({ peerID, type }: WindowType) => {
 
   const ref = useRef<HTMLVideoElement>(null)
 
-  useEffect(() => {
-    if (!ref.current || ref.current.srcObject || !videoMediaStream) return
-
-    ref.current.autoplay = true
-    ref.current.muted = true
-    ref.current.setAttribute('playsinline', 'true')
-
-    const newVideoTrack = videoMediaStream.getVideoTracks()[0].clone()
-    ref.current.srcObject = new MediaStream([newVideoTrack])
-    ref.current.play()
-  }, [ref.current, videoMediaStream])
+  useVideoStream(ref.current, videoMediaStream)
 
   const showVideoIfSelf = isSelf ? isCamVideoEnabled : true
   const showVideo = showVideoIfSelf && !videoStreamPaused
@@ -169,9 +173,9 @@ const Video = ({ peerID, type }: WindowType) => {
       {showVideo ? (
         <video
           className={`
-        h-full
-        max-w-[unset]
-      `}
+            h-full
+            max-w-[unset]
+          `}
           ref={ref}
         />
       ) : (
