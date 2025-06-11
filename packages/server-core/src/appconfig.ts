@@ -251,12 +251,12 @@ const email = {
   },
   from: `${process.env.SMTP_FROM_NAME}` + ` <${process.env.SMTP_FROM_EMAIL}>`,
   subject: {
-    'new-user': 'IR Engine Signup',
-    location: 'IR Engine Location invitation',
-    instance: 'IR Engine Location invitation',
-    login: 'IR Engine Login link',
-    friend: 'IR Engine Friend request',
-    channel: 'IR Engine Channel invitation'
+    'new-user': 'Napster Spaces Signup',
+    location: 'Napster Spaces Location invitation',
+    instance: 'Napster Spaces Location invitation',
+    login: 'Napster Spaces Login link',
+    friend: 'Napster Spaces Friend request',
+    channel: 'Napster Spaces Channel invitation'
   },
   smsNameCharacterLimit: 20
 }
