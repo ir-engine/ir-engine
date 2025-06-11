@@ -14,6 +14,7 @@
   "savingError": "Error saving Project",
   "savingErrorMsg": "An error occurred when saving the Project. Please try again or contact support.",
   "savingSceneErrorMsg": "The Scene did not load properly. Please try reloading the Scene.",
+  "savingLoadingSceneErrorMsg": "The Scene is not finished loading. Please wait for it to finish loading before saving.",
   "duplicating": "Duplicating Project",
   "exporting": "Exporting Project",
   "exportingError": "Error exporting the Project",
@@ -748,6 +749,11 @@
         "cone": "Cone",
         "donut": "Donut",
         "mesh": "Mesh"
+      },
+      "poiComponent": {
+        "name": "POI Component",
+        "description": "Settings for a point of interest camera view",
+        "lbl-poiHotspotEntities": "POI Hotspot Entities"
       },
       "emission-bursts": "Emission Bursts",
       "add-burst": "Add Burst",

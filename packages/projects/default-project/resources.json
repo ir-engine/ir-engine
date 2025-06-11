@@ -682,6 +682,14 @@
     ],
     "name": "irRobot.vrm"
   },
+  "assets/noise-offset.material.gltf": {
+    "type": "asset",
+    "tags": [
+      "Material"
+    ],
+    "dependencies": [],
+    "name": "noise-offset.material.gltf"
+  },
   "public/scenes/sponza.gltf": {
     "type": "scene",
     "tags": [

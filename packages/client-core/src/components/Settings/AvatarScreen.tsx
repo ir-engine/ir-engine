@@ -23,8 +23,26 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { Fragment, useEffect } from 'react'
 
+import { useHookstate } from '@hookstate/core'
+import { useFind, useMutation } from '@ir-engine/common'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
+import { AvatarID, avatarPath } from '@ir-engine/common/src/schema.type.module'
+import { userAvatarPath } from '@ir-engine/common/src/schemas/user/user-avatar.schema'
+import { hasComponent, useOptionalComponent } from '@ir-engine/ecs'
+import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
+import { SpawnEffectComponent } from '@ir-engine/engine/src/avatar/components/SpawnEffectComponent'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { useMutableState } from '@ir-engine/hyperflux'
+import Avatar from '../../common/components/Avatar/Avatar2'
+import AvatarPreview from '../../common/components/AvatarPreview'
+import { ModalState } from '../../common/services/ModalState'
+import useFeatureFlags from '../../hooks/useFeatureFlags'
+import AvatarCreatorMenu, { SupportedSdks } from '../../user/menus/avatar/AvatarCreatorMenu'
+import AvatarModifyMenu from '../../user/menus/avatar/AvatarModifyMenu'
+import { AuthService, AuthState } from '../../user/services/AuthService'
+import { AVATAR_PAGE_LIMIT } from '../../user/services/AvatarService'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
 
@@ -34,100 +52,101 @@ interface AvatarScreenProps {
 }
 
 const AvatarScreen: React.FC<AvatarScreenProps> = ({ navigateTo }) => {
+  const search = useHookstate('')
+  const page = useHookstate(0)
+
+  const { id: userId } = useMutableState(AuthState).user.value
+  const { data: avatars } = useFind(avatarPath, {
+    query: {
+      name: {
+        $like: `%${search.value}%`
+      },
+      $skip: page.value * AVATAR_PAGE_LIMIT,
+      $limit: AVATAR_PAGE_LIMIT
+    }
+  })
+
+  const initialAvatar = useFind(avatarPath, { query: { userId } }).data?.at(0)
+  const selectedAvatarId = useHookstate(initialAvatar?.id || ('' as AvatarID))
+  const selectedAvatar = avatars.find((avatar) => avatar.id === selectedAvatarId.value)
+
+  const [createAvatarEnabled, uploadAvatarEnabled] = useFeatureFlags([
+    FeatureFlags.Client.Menu.CreateAvatar,
+    FeatureFlags.Client.Menu.UploadAvatar
+  ])
+
+  useEffect(() => {
+    if (initialAvatar) {
+      selectedAvatarId.set(initialAvatar.id)
+    }
+  }, [initialAvatar])
+
+  AuthService.useAPIListeners()
+
+  const userAvatarMutation = useMutation(userAvatarPath)
+  const avatarEntity = AvatarComponent.useSelfAvatarEntity()
+  const selfAvatarLoaded = useOptionalComponent(avatarEntity, GLTFComponent)?.progress?.value === 100
+
+  const onAvatarThumbnailClicked = async (id: AvatarID) => {
+    if (selectedAvatarId.value === id) return
+
+    const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+    if (!selfAvatarEntity || !hasComponent(selfAvatarEntity, SpawnEffectComponent)) {
+      await userAvatarMutation.patch(null, { avatarId: selectedAvatarId.value }, { query: { userId } })
+    }
+
+    selectedAvatarId.set(id)
+  }
+
   return (
-    <div className="space-y-4">
+    <div className="flex h-full flex-col gap-4">
       {/* Avatar Display Section */}
       <Section>
-        <div className="relative aspect-square max-h-[250px] w-full overflow-hidden rounded-xl">
-          {/* Gradient background similar to the image */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background: 'linear-gradient(135deg, #E8F4FD 0%, #B8E6B8 50%, #87CEEB 100%)'
-            }}
-          />
-
-          {/* Avatar placeholder */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex h-48 w-32 flex-col items-center justify-end">
-              {/* Head */}
-              <div
-                className="mb-2 h-12 w-12 rounded-full"
-                style={{
-                  background: 'linear-gradient(145deg, #D4A574, #C19660)',
-                  border: '2px solid rgba(255,255,255,0.3)'
-                }}
-              />
-
-              {/* Body */}
-              <div
-                className="mb-1 h-16 w-20 rounded-t-lg"
-                style={{
-                  background: 'linear-gradient(145deg, #2C2C2C, #1A1A1A)',
-                  border: '1px solid rgba(255,255,255,0.1)'
-                }}
-              />
-
-              {/* Legs */}
-              <div className="flex space-x-1">
-                <div
-                  className="h-12 w-8 rounded-b-lg"
-                  style={{
-                    background: 'linear-gradient(145deg, #2C2C2C, #1A1A1A)',
-                    border: '1px solid rgba(255,255,255,0.1)'
-                  }}
-                />
-                <div
-                  className="h-12 w-8 rounded-b-lg"
-                  style={{
-                    background: 'linear-gradient(145deg, #2C2C2C, #1A1A1A)',
-                    border: '1px solid rgba(255,255,255,0.1)'
-                  }}
-                />
-              </div>
-
-              {/* Feet */}
-              <div className="mt-1 flex space-x-2">
-                <div
-                  className="h-3 w-6 rounded-full"
-                  style={{
-                    background: 'linear-gradient(145deg, #8B7355, #6B5B47)',
-                    border: '1px solid rgba(255,255,255,0.2)'
-                  }}
-                />
-                <div
-                  className="h-3 w-6 rounded-full"
-                  style={{
-                    background: 'linear-gradient(145deg, #8B7355, #6B5B47)',
-                    border: '1px solid rgba(255,255,255,0.2)'
-                  }}
-                />
-              </div>
+        <div className="relative aspect-square max-h-[250px] w-full overflow-hidden ">
+          {selfAvatarLoaded && (
+            <div className="relative h-full min-h-0 min-w-0 bg-gradient-to-b from-[#162941] to-[#114352]">
+              <div className="stars absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent" />
+              <AvatarPreview fill avatarUrl={selectedAvatar?.modelResource?.url} />
             </div>
-          </div>
+          )}
         </div>
       </Section>
 
       {/* Action Buttons */}
-      <Section>
+      <Section className={createAvatarEnabled || uploadAvatarEnabled ? '' : 'hidden'}>
         <MenuItem
-          label="Edit Avatar"
+          label="Create Avatar"
           onClick={() => {
-            // Navigate to edit avatar screen (placeholder)
-            console.log('Navigate to Edit Avatar')
+            const Menu = AvatarCreatorMenu(SupportedSdks.ReadyPlayerMe)
+            ModalState.openModal(<Menu showBackButton={false} previewEnabled={true} />, () => ModalState.closeModal())
           }}
-          hasChevron
+          className={createAvatarEnabled ? '' : 'hidden'}
         />
         <div className="h-px bg-white/10"></div>
         <MenuItem
           label="Upload New Avatar"
           onClick={() => {
-            // Handle upload action (placeholder)
-            console.log('Upload New Avatar')
+            ModalState.openModal(<AvatarModifyMenu />)
           }}
-          hasChevron
+          className={uploadAvatarEnabled ? '' : 'hidden'}
         />
       </Section>
+      <div className="flex-1 overflow-auto">
+        <div className="grid grid-flow-row grid-cols-4 gap-4 p-4">
+          {avatars.map((avatar) => (
+            <Fragment key={avatar.id}>
+              <Avatar
+                imageSrc={avatar.thumbnailResource?.url || ''}
+                isSelected={selectedAvatarId && avatar.id === selectedAvatarId.value}
+                name={avatar.name}
+                type="square"
+                onClick={() => onAvatarThumbnailClicked(avatar.id)}
+                playAudio={false}
+              />
+            </Fragment>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
