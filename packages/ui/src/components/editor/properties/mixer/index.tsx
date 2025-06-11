@@ -24,8 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { EntityID, UUIDComponent } from '@ir-engine/ecs'
-import { getAllComponents, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import { getAllComponents, Layers, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { commitProperty, EditorComponentType, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { MixableType, MixerComponent } from '@ir-engine/engine/src/scene/components/MixerComponent'
 import { useHookstate } from '@ir-engine/hyperflux'
@@ -130,17 +130,15 @@ export const MixerNodeEditor: EditorComponentType = (props) => {
     }
   }
 
-  // propertySetter
-  // getEntry
-  // getDefaultEntry
-  // setEntry
-  // appendEntry
-
   // Get current entries for display
   const entries = mixerComponent.entries.value as [number, Record<string, number[]>][]
   const sortedEntries = [...entries].sort((a, b) => a[0] - b[0])
 
-  const newPropertyEntity = UUIDComponent.getEntityFromSameSourceByID(mixerEntity, newPropertyEntityID.value)
+  const newPropertyEntity = UUIDComponent.getEntityFromSameSourceByID(
+    mixerEntity,
+    newPropertyEntityID.value,
+    Layers.Authoring
+  )
   const componentOptions =
     newPropertyEntityID.value !== ''
       ? getAllComponents(newPropertyEntity)

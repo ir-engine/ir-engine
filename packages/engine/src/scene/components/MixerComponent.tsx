@@ -303,8 +303,8 @@ const schema = S.Object({
       entityID: S.EntityID(),
       componentID: S.String(),
       propertyPath: S.String(),
-      type: S.Enum(MixableType, { serialized: false }),
-      address: S.String({ serialized: false })
+      type: S.Enum(MixableType),
+      address: S.String()
     })
   ),
   entries: S.Array(S.Tuple([S.Number(), S.Record(S.String(), S.Array(S.Number()))])), // Array of [coord, entry] tuples
@@ -340,9 +340,7 @@ export const MixerComponent = defineComponent({
         initialized: true,
         properties: mixerComp.properties.map((initialProperty) => {
           const { entityID, componentID, propertyPath } = initialProperty
-          const property = createProperty(entity, entityID, componentID, propertyPath)
-          const address = packAddress(entityID, componentID, propertyPath)
-          return property == null ? initialProperty : { ...property, address }
+          return createProperty(entity, entityID, componentID, propertyPath) ?? initialProperty
         }),
         entries: mixerComp.entries.toSorted(([coord1], [coord2]) => coord1 - coord2)
       })
@@ -429,7 +427,7 @@ export const MixerComponent = defineComponent({
         break
       }
     }
-    if (entries[mid][0] > coord) {
+    if (entries[mid][0] > coord && mid > 0) {
       mid--
     }
     const from = mid
@@ -448,7 +446,7 @@ export const MixerComponent = defineComponent({
         const value =
           fromValue == null || toValue == null
             ? mixFuncs[type].create(fromValue ?? toValue)
-            : mixFuncs[type].lerp(fromValue, toValue, p)
+            : mixFuncs[type].lerp(mixFuncs[type].fromNumberList(fromValue), mixFuncs[type].fromNumberList(toValue), p)
         return [address, mixFuncs[type].toNumberList(value)]
       })
     )
