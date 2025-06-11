@@ -83,8 +83,8 @@ const Avatar = ({
           )}
         >
           <img className="h-full w-full object-cover" src={imageSrc} alt={alt} crossOrigin="anonymous" />
-          <div className="absolute bottom-0 w-full text-ellipsis bg-blue-500 px-4 py-1 text-center">
-            <Text fontWeight="medium" fontSize="sm" className="text-white">
+          <div className="absolute bottom-0 w-full overflow-hidden bg-blue-500/50 px-4 py-1 text-center">
+            <Text fontWeight="medium" fontSize="sm" className="w-full truncate text-white">
               {name}
             </Text>
           </div>

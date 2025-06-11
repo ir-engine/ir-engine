@@ -23,14 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { Fragment } from 'react'
+import React, { Fragment, useEffect } from 'react'
 
 import { useHookstate } from '@hookstate/core'
-import { useFind } from '@ir-engine/common'
+import { useFind, useMutation } from '@ir-engine/common'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { AvatarID, avatarPath } from '@ir-engine/common/src/schema.type.module'
-import { useOptionalComponent } from '@ir-engine/ecs'
+import { userAvatarPath } from '@ir-engine/common/src/schemas/user/user-avatar.schema'
+import { hasComponent, useOptionalComponent } from '@ir-engine/ecs'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
+import { SpawnEffectComponent } from '@ir-engine/engine/src/avatar/components/SpawnEffectComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { useMutableState } from '@ir-engine/hyperflux'
 import Avatar from '../../common/components/Avatar/Avatar2'
@@ -52,8 +54,8 @@ interface AvatarScreenProps {
 const AvatarScreen: React.FC<AvatarScreenProps> = ({ navigateTo }) => {
   const search = useHookstate('')
   const page = useHookstate(0)
+
   const { id: userId } = useMutableState(AuthState).user.value
-  const currentAvatar = useFind(avatarPath, { query: { userId } }).data?.at(0)
   const { data: avatars } = useFind(avatarPath, {
     query: {
       name: {
@@ -64,17 +66,37 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({ navigateTo }) => {
     }
   })
 
-  const currentAvatarId = useHookstate('' as AvatarID)
+  const initialAvatar = useFind(avatarPath, { query: { userId } }).data?.at(0)
+  const selectedAvatarId = useHookstate(initialAvatar?.id || ('' as AvatarID))
+  const selectedAvatar = avatars.find((avatar) => avatar.id === selectedAvatarId.value)
 
   const [createAvatarEnabled, uploadAvatarEnabled] = useFeatureFlags([
     FeatureFlags.Client.Menu.CreateAvatar,
     FeatureFlags.Client.Menu.UploadAvatar
   ])
 
+  useEffect(() => {
+    if (initialAvatar) {
+      selectedAvatarId.set(initialAvatar.id)
+    }
+  }, [initialAvatar])
+
   AuthService.useAPIListeners()
 
+  const userAvatarMutation = useMutation(userAvatarPath)
   const avatarEntity = AvatarComponent.useSelfAvatarEntity()
   const selfAvatarLoaded = useOptionalComponent(avatarEntity, GLTFComponent)?.progress?.value === 100
+
+  const onAvatarThumbnailClicked = async (id: AvatarID) => {
+    if (selectedAvatarId.value === id) return
+
+    const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+    if (!selfAvatarEntity || !hasComponent(selfAvatarEntity, SpawnEffectComponent)) {
+      await userAvatarMutation.patch(null, { avatarId: selectedAvatarId.value }, { query: { userId } })
+    }
+
+    selectedAvatarId.set(id)
+  }
 
   return (
     <div className="flex h-full flex-col gap-4">
@@ -84,7 +106,7 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({ navigateTo }) => {
           {selfAvatarLoaded && (
             <div className="relative h-full min-h-0 min-w-0 bg-gradient-to-b from-[#162941] to-[#114352]">
               <div className="stars absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent" />
-              <AvatarPreview fill avatarUrl={currentAvatar?.modelResource?.url} />
+              <AvatarPreview fill avatarUrl={selectedAvatar?.modelResource?.url} />
             </div>
           )}
         </div>
@@ -93,7 +115,7 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({ navigateTo }) => {
       {/* Action Buttons */}
       <Section className={createAvatarEnabled || uploadAvatarEnabled ? '' : 'hidden'}>
         <MenuItem
-          label="Edit Avatar"
+          label="Create Avatar"
           onClick={() => {
             const Menu = AvatarCreatorMenu(SupportedSdks.ReadyPlayerMe)
             ModalState.openModal(<Menu showBackButton={false} previewEnabled={true} />, () => ModalState.closeModal())
@@ -115,12 +137,11 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({ navigateTo }) => {
             <Fragment key={avatar.id}>
               <Avatar
                 imageSrc={avatar.thumbnailResource?.url || ''}
-                isSelected={currentAvatar && avatar.id === currentAvatar.id}
+                isSelected={selectedAvatarId && avatar.id === selectedAvatarId.value}
                 name={avatar.name}
                 type="square"
-                onClick={() => currentAvatarId.set(avatar.id)}
+                onClick={() => onAvatarThumbnailClicked(avatar.id)}
                 playAudio={false}
-                // onChange={() => ModalState.openModal(<AvatarModifyMenu selectedAvatar={avatar} />)}
               />
             </Fragment>
           ))}
