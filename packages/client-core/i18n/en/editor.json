@@ -749,6 +749,11 @@
         "donut": "Donut",
         "mesh": "Mesh"
       },
+      "poiComponent": {
+        "name": "POI Component",
+        "description": "Settings for a point of interest camera view",
+        "lbl-poiHotspotEntities": "POI Hotspot Entities"
+      },
       "emission-bursts": "Emission Bursts",
       "add-burst": "Add Burst",
       "remove-burst": "Remove Burst",

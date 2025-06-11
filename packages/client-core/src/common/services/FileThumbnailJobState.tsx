@@ -93,6 +93,8 @@ import mime from 'mime-types'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
+const ASSET_API_ENDPOINT = `${globalThis.process.env.VITE_MIDDLEWARE_API_URL}/assets`
+
 const getFilename = (path) => {
   return path.substring(path.lastIndexOf('/') + 1) // Get the filename after the last "/"
 }
@@ -172,9 +174,67 @@ export const uploadDimension = async (modelEntity: Entity, src: string, projectN
     console.error('error in uploadDimension', e)
   }
 }
-const uploadToCVProcessor = async (src: string, projectName: string, blob: Blob | null) => {
-  //TODO upload to database
+
+async function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const base64String = reader.result?.toString().split(',')[1] || ''
+      resolve(base64String)
+    }
+    reader.onerror = (error) => reject(error)
+    reader.readAsDataURL(blob)
+  })
 }
+
+const uploadToCVProcessor = async (modelEntity: Entity, src: string, projectName: string, blob: Blob | null) => {
+  // Process multi-view renderings using middleware assets microservice
+
+  if (!blob) return
+
+  setComponent(modelEntity, BoundingBoxComponent)
+  updateBoundingBox(modelEntity)
+  const boundingBox = getComponent(modelEntity, BoundingBoxComponent).box
+  const dimensions_x = boundingBox.max.x - boundingBox.min.x
+  const dimensions_y = boundingBox.max.y - boundingBox.min.y
+  const dimensions_z = boundingBox.max.z - boundingBox.min.z
+
+  const base64_image = await blobToBase64(blob)
+
+  const data = {
+    type: 'image_b64',
+    filename: src.split('/').pop()?.split('?')[0],
+    mime_type: 'image/png',
+    data_base64: base64_image,
+    dimensions: { x: dimensions_x, y: dimensions_y, z: dimensions_z }
+  }
+
+  const jsonData = JSON.stringify(data)
+
+  const url = `${ASSET_API_ENDPOINT}/process`
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: jsonData
+  }
+
+  fetch(url, options)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Error processing multi-view images: Status: ${response.status}`)
+      }
+      return response.json()
+    })
+    .then((responseData) => {
+      console.log('Sucessfully processed multi-view images:', responseData)
+    })
+    .catch((error) => {
+      console.error('Error processing multi-view images:', error)
+    })
+}
+
 const uploadThumbnail = async (src: string, projectName: string, blob: Blob | null) => {
   if (!blob) return
   const thumbnailMode = 'automatic'
@@ -618,8 +678,15 @@ const renderMultiViewImages = async (
         onError(error)
       }
     }
-    // TODO: Add functionality to process these images for computer vision tasks
-    uploadToCVProcessor(src, props.project, combinedBlob)
+
+    // Process multi-view images using middleware assets microservice
+    try {
+      console.log(`Processing multi-view images for ${src}`)
+      await uploadToCVProcessor(entity, src, props.project, combinedBlob)
+    } catch (error) {
+      console.error('Error processing multi-view images:', error)
+      onError(error)
+    }
     //job completed
     FileThumbnailJobState.removeCurrentJob()
   } catch (error) {
