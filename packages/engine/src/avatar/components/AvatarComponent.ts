@@ -24,14 +24,14 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { EngineState, EntityID, NetworkObjectComponent, SourceID, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
-import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, getComponent, useComponent, useHasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getState, useMutableState, UserID } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraSettingsState } from '@ir-engine/spatial/src/camera/CameraSettingsState'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { useEffect } from 'react'
 import { setAvatarColliderTransform } from '../functions/spawnAvatarReceptor'
 
@@ -110,6 +110,7 @@ export const AvatarComponent = defineComponent({
     const avatarComponent = useComponent(entity, AvatarComponent)
     const cameraSettingsState = useMutableState(CameraSettingsState)
     const selfAvatarEntity = AvatarComponent.useSelfAvatarEntity()
+    const hasVisibleComponent = useHasComponent(selfAvatarEntity, VisibleComponent)
 
     useEffect(() => {
       setAvatarColliderTransform(entity)
@@ -117,8 +118,9 @@ export const AvatarComponent = defineComponent({
 
     useEffect(() => {
       if (selfAvatarEntity === UndefinedEntity) return
+      if (hasVisibleComponent === cameraSettingsState.isAvatarVisible.value) return
       setVisibleComponent(selfAvatarEntity, cameraSettingsState.isAvatarVisible.value)
-    }, [selfAvatarEntity, cameraSettingsState.isAvatarVisible])
+    }, [hasVisibleComponent, selfAvatarEntity, cameraSettingsState.isAvatarVisible])
 
     return null
   }
