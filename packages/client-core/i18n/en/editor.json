@@ -14,6 +14,7 @@
   "savingError": "Error saving Project",
   "savingErrorMsg": "An error occurred when saving the Project. Please try again or contact support.",
   "savingSceneErrorMsg": "The Scene did not load properly. Please try reloading the Scene.",
+  "savingLoadingSceneErrorMsg": "The Scene is not finished loading. Please wait for it to finish loading before saving.",
   "duplicating": "Duplicating Project",
   "exporting": "Exporting Project",
   "exportingError": "Error exporting the Project",
@@ -258,7 +259,7 @@
       "noThumbnailPlaceholder": "Publish Scene to Generate a Preview Image",
       "createCompressedScenePublish": "Compress and Publish",
       "createCompressedScenePublishInfo": "This is a beta feature that optimizes your space for mobile devices. If you encounter errors, please refresh your browser and try again, or use the regular “Publish” function for now.",
-       "jumpControlFeature": "Jump Control",
+      "jumpControlFeature": "Jump Control",
       "jumpControlFeatureDesc": "Enable your avatar’s ability to jump.",
       "vrCapabilitiesFeature": "VR Capabilities",
       "vrCapabilitiesFeatureDesc": "Enable your eligible devices to render AR experiences."
@@ -748,6 +749,11 @@
         "cone": "Cone",
         "donut": "Donut",
         "mesh": "Mesh"
+      },
+      "poiComponent": {
+        "name": "POI Component",
+        "description": "Settings for a point of interest camera view",
+        "lbl-poiHotspotEntities": "POI Hotspot Entities"
       },
       "emission-bursts": "Emission Bursts",
       "add-burst": "Add Burst",

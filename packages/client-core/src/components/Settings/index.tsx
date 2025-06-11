@@ -42,6 +42,7 @@ import MainMenu from './MainMenu'
 import { useNavigationProvider } from '../Glass/NavigationProvider'
 import AudioScreen from './AudioScreen'
 import AvatarScreen from './AvatarScreen'
+import ControlsScreen from './ControlsScreen'
 import DeleteAccountScreen from './DeleteAccountScreen'
 import DisplayNameScreen from './DisplayNameScreen'
 import PermissionsScreen from './PermissionsScreen'
@@ -79,7 +80,7 @@ export const screens: Record<string, ScreenDefinition> = {
     title: 'Avatar'
   },
   controls: {
-    component: (props) => <PlaceholderScreen {...props} title="Controls" />,
+    component: ControlsScreen,
     title: 'Controls'
   },
   displayName: {

@@ -1583,8 +1583,7 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const overrides = json.extensions?.[OVERRIDE_EXTENSION_NAME]
   if (overrides) {
     for (const [id, ops] of Object.entries(overrides)) {
-      const rootUUID = UUIDComponent.getAsSourceID(rootEntity)
-      const overrideUUID = UUIDComponent.join({ entitySourceID: rootUUID, entityID: id as EntityID })
+      const overrideUUID = GLTFComponent.getOverrideUUID(rootEntity, id as EntityID)
       dispatchAction(AuthoringActions.ops({ ops: { [overrideUUID]: ops }, $user: SceneUser }))
     }
   }

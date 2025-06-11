@@ -190,6 +190,14 @@ export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
   }
 }
 
+export const useCanSaveScene = () => {
+  return GLTFComponent.useSceneLoaded(getState(EditorState).rootEntity)
+}
+
+export const canSaveScene = () => {
+  return GLTFComponent.isSceneLoaded(getState(EditorState).rootEntity)
+}
+
 /**
  * onSaveScene
  *
@@ -197,6 +205,13 @@ export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
  */
 export const onSaveScene = async () => {
   const { sceneAssetID, projectName, sceneName, rootEntity } = getState(EditorState)
+
+  if (!canSaveScene()) {
+    ModalState.openModal(
+      <ErrorDialog title={i18n.t('editor:savingError')} description={i18n.t('editor:savingLoadingSceneErrorMsg')} />
+    )
+    return
+  }
 
   try {
     await SceneThumbnailState.createThumbnail()

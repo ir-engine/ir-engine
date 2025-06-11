@@ -187,7 +187,7 @@ const contentStyles = `
   gap-y-7
   overflow-y-auto
   
-  px-6 pb-20 pt-0
+  px-6 mb-20 pt-0
 
   text-xl
   text-white
