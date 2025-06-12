@@ -167,6 +167,7 @@ export const FollowCameraComponent = defineComponent({
       follow.merge({
         distance: defaultDistance,
         targetDistance: defaultDistance,
+        defaultDistance: defaultDistance,
         minDistance: minDistance,
         maxDistance: maxDistance,
         effectiveMinDistance: minDistance,
@@ -204,6 +205,7 @@ export const FollowCameraComponent = defineComponent({
       follow.merge({
         distance: defaultDistance,
         targetDistance: defaultDistance,
+        defaultDistance: defaultDistance,
         minDistance: minDistance,
         maxDistance: maxDistance,
         effectiveMinDistance: minDistance,
@@ -236,6 +238,7 @@ export const FollowCameraComponent = defineComponent({
       follow.merge({
         distance: defaultDistance,
         targetDistance: defaultDistance,
+        defaultDistance: defaultDistance,
         minDistance: minDistance,
         maxDistance: maxDistance,
         effectiveMinDistance: minDistance,
@@ -605,12 +608,19 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
     }
   } else if (follow.mode === FollowCameraMode.TopDown) {
     newZoomDistance += minSpringFactor + maxSpringFactor * 0.1
+
     if (
       !follow.allowedModes.includes(FollowCameraMode.FirstPerson) &&
-      !follow.allowedModes.includes(FollowCameraMode.ThirdPerson)
+      !follow.allowedModes.includes(FollowCameraMode.ThirdPerson) &&
+      follow.targetDistance < follow.effectiveMinDistance
     ) {
+      follow.targetDistance = newZoomDistance = follow.effectiveMinDistance
+    }
+
+    if (follow.targetDistance > follow.effectiveMaxDistance) {
       follow.targetDistance = newZoomDistance = follow.effectiveMaxDistance
     }
+
     // Move from top down mode to third person mode
     if (triggerZoomShift) {
       follow.accumulatedZoomTriggerDebounceTime = -1
