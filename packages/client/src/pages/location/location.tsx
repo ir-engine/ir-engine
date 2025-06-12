@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { Suspense, useRef } from 'react'
+import React, { Suspense, useEffect, useRef } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
 import '../../engine'
@@ -38,7 +38,7 @@ import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 
 import { useEngineInjection } from '@ir-engine/client-core/src/components/World/EngineHooks'
 import { LoadingUISystemState } from '@ir-engine/client-core/src/systems/LoadingUISystem'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, NetworkState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import '../styles.scss'
 
 const LocationRoutes = () => {
@@ -51,11 +51,17 @@ const LocationRoutes = () => {
 
   const projectsLoaded = useEngineInjection()
 
+  const { config } = useMutableState(NetworkState)
+  useEffect(() => {
+    config.media.set(true)
+    config.world.set(true)
+  }, [])
+
   return (
     <Suspense>
       {projectsLoaded && (
         <Routes>
-          <Route path=":locationName" element={<LocationPage online />} />
+          <Route path=":locationName" element={<LocationPage />} />
         </Routes>
       )}
       {!ready && (

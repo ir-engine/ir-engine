@@ -28,7 +28,7 @@ import { useParams, useSearchParams } from 'react-router-dom'
 
 import { useLoadLocation, useLoadScene } from '@ir-engine/client-core/src/components/World/LoadLocationScene'
 import { AuthService, AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
-import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, NetworkState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { ViewerInteractions as GlassViewerInteractions } from '../components/Glass'
 import { ViewerInteractions } from '../components/ViewerInteractions'
 
@@ -51,11 +51,7 @@ import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 
 const logger = multiLogger.child({ component: 'system:location', modifier: clientContextParams })
 
-type Props = {
-  online?: boolean
-}
-
-const LocationPage = ({ online }: Props) => {
+const LocationPage = () => {
   const { t } = useTranslation()
   const params = useParams()
   const [searchParams] = useSearchParams()
@@ -64,7 +60,11 @@ const LocationPage = ({ online }: Props) => {
   let [glassDisabled] = useFeatureFlags([FeatureFlags.Client.Glass])
   glassDisabled = glassDisabled && searchParams.get('glassUI') === null
 
-  useNetwork({ online })
+  const {
+    config: { media, world }
+  } = useMutableState(NetworkState).value
+
+  useNetwork({ online: media && world })
 
   if (params.locationName) {
     useLoadLocation({ locationName: params.locationName })

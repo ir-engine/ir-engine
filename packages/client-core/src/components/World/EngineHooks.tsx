@@ -69,6 +69,7 @@ export const useEngineInjection = () => {
 }
 
 export const useNetwork = (props: { online?: boolean }) => {
+  const { online } = props
   const userID = useMutableState(EngineState).userID.value
   const ageVerified = useMutableState(AuthState).user.ageVerified.value
 
@@ -80,7 +81,23 @@ export const useNetwork = (props: { online?: boolean }) => {
       instanceID: !!props.online,
       roomID: false
     })
-  }, [props.online, ageVerified])
+  }, [])
+
+  useEffect(() => {
+    if (!online) return
+
+    const networkState = getMutableState(NetworkState)
+
+    // worldId initializes as null
+    const worldId = networkState.hostIds.world.value
+
+    const selfHosting = worldId === (userID as any as InstanceID)
+    // Refresh the page to return online
+    // worldId becomes undefined after disconnecting
+    if (selfHosting || worldId === undefined) {
+      window.location.reload()
+    }
+  }, [online])
 
   /** Offline/local world network */
   useEffect(() => {
