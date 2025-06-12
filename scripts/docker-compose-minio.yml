@@ -8,7 +8,6 @@ services:
     volumes:
       - 'minio_data:/data'
       - ../certs/minio:/certs
-      - ./init-buckets.sh:/usr/local/bin/init-buckets.sh
     environment:
       MINIO_ROOT_USER: server
       MINIO_ROOT_PASSWORD: password
@@ -17,7 +16,25 @@ services:
       BITNAMI_DEBUG: 'true'
       MINIO_SCHEME: https
       MINIO_SKIP_CLIENT: 'yes'
-    entrypoint: ["/bin/bash", "-c", "(/opt/bitnami/scripts/minio/entrypoint.sh /opt/bitnami/scripts/minio/run.sh &) && sleep 10 && chmod +x /usr/local/bin/init-buckets.sh && /usr/local/bin/init-buckets.sh && tail -f /dev/null"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "https://localhost:9000/minio/health/ready", "--insecure"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  init-buckets:
+    image: docker.io/bitnami/minio-client:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    volumes:
+      - ./init-buckets.sh:/usr/local/bin/init-buckets.sh
+    environment:
+      MINIO_SERVER: https://minio:9000
+      MINIO_ROOT_USER: server
+      MINIO_ROOT_PASSWORD: password
+    entrypoint: ["/bin/bash", "-c", "chmod +x /usr/local/bin/init-buckets.sh && /usr/local/bin/init-buckets.sh"]
 
 volumes:
   minio_data:

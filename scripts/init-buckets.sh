@@ -1,6 +1,7 @@
 #!/bin/bash
 
-mc alias set local https://127.0.0.1:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD --insecure
+# Use the MINIO_SERVER environment variable for flexibility
+mc alias set local $MINIO_SERVER $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD --insecure
 
 # Buckets to create with public policy
 buckets=(
