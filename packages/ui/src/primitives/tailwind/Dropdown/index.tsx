@@ -27,6 +27,7 @@ import React from 'react'
 import { HiCheck } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
 import { InputProps } from '../Input'
+import LoadingView from '../LoadingView'
 
 export interface DropdownItemProps extends Omit<React.HTMLAttributes<HTMLDivElement | HTMLAnchorElement>, 'className'> {
   /**text shown on the left end */
@@ -46,6 +47,9 @@ export interface DropdownItemProps extends Omit<React.HTMLAttributes<HTMLDivElem
   active?: boolean
   /** truncate overflowing label text with an ellipsis */
   truncate?: boolean
+
+  // Show a loading spinner if the item is disabled
+  showSpinner?: boolean
 }
 
 export function DropdownItem({
@@ -59,6 +63,7 @@ export function DropdownItem({
   truncate = true,
   href,
   height = 'l',
+  showSpinner = false,
   ...rest
 }: DropdownItemProps) {
   const children = (
@@ -67,7 +72,8 @@ export function DropdownItem({
         {Icon && <Icon className="h-4 w-4" />}
         <span className={truncate ? 'truncate' : ''}>{label}</span>
       </span>
-      {secondaryText && <span className="ml-auto">{secondaryText}</span>}
+      {secondaryText && !disabled && <span className="ml-auto">{secondaryText}</span>}
+      {disabled && showSpinner && <LoadingView spinnerOnly className="w-auto" />}
       {selected && <HiCheck className="ml-auto h-3 w-3 stroke-2" />}
     </>
   )
@@ -86,8 +92,8 @@ export function DropdownItem({
       active ? 'bg-ui-hover-background' : '',
       selected ? 'bg-ui-select-background text-text-primary' : '',
       disabled
-        ? 'text-ui-inactive-primary-outline cursor-not-allowed bg-ui-inactive-background'
-        : 'hover:bg-ui-hover-background',
+        ? 'cursor-not-allowed bg-ui-inactive-background'
+        : 'text-ui-inactive-primary-outline hover:bg-ui-hover-background',
       className
     ),
     tabIndex: 0,

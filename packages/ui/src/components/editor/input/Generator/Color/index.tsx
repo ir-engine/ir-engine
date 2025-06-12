@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useCallback } from 'react'
-import { Color } from 'three'
 
 import { State } from '@ir-engine/hyperflux'
 
@@ -32,50 +31,35 @@ import {
   ColorGeneratorJSON,
   ColorGeneratorJSONDefaults,
   ColorGradientJSON,
-  ColorJSON,
   ColorRangeJSON,
   ConstantColorJSON,
   RandomColorJSON
 } from '@ir-engine/engine/src/scene/types/ParticleSystemTypes'
+import { t as translate } from 'i18next'
+import { useTranslation } from 'react-i18next'
 import Button from '../../../../../primitives/tailwind/Button'
-import ColorInput from '../../../../../primitives/tailwind/Color'
-import Text from '../../../../../primitives/tailwind/Text'
+import { OptionType } from '../../../../../primitives/tailwind/Select'
 import InputGroup from '../../Group'
-import NumericInput from '../../Numeric'
 import SelectInput from '../../Select'
+import { ColorJSONInput } from './ColorJSONInput'
+import { GradientInputItem } from './GradientInputItem'
 
-export function ColorJSONInput({ value, onChange }: { value: ColorJSON; onChange: (color: ColorJSON) => void }) {
-  return (
-    <>
-      <InputGroup name="color" label="Color">
-        <ColorInput
-          value={new Color(value.r, value.g, value.b)}
-          onChange={(color: Color) => {
-            onChange({ r: color.r, g: color.g, b: color.b, a: value.a })
-          }}
-        />
-      </InputGroup>
-      <InputGroup name="opacity" label="Opacity">
-        <NumericInput
-          value={value.a}
-          onChange={(alpha) => onChange({ r: value.r, g: value.g, b: value.b, a: alpha })}
-        />
-      </InputGroup>
-    </>
-  )
-}
+const colorOptions: OptionType[] = [
+  { label: translate('editor:properties.particle-system.startColor.constant'), value: 'ConstantColor' },
+  { label: translate('editor:properties.particle-system.startColor.range'), value: 'ColorRange' },
+  { label: translate('editor:properties.particle-system.startColor.random'), value: 'RandomColor' },
+  { label: translate('editor:properties.particle-system.startColor.gradient'), value: 'Gradient' }
+]
 
-export default function ColorGenerator({
-  path,
-  scope,
-  value,
-  onChange
-}: {
+type ColorGeneratorProps = Readonly<{
   path: string
   scope: State<ColorGeneratorJSON>
   value: ColorGeneratorJSON
   onChange: (path: string) => (value: any) => void
-}) {
+}>
+export default function ColorGenerator({ path, scope, value, onChange }: ColorGeneratorProps) {
+  const { t } = useTranslation()
+
   const onChangeType = useCallback(() => {
     const thisOnChange = onChange(path + '.type')
     return (type: typeof value.type) => {
@@ -87,12 +71,14 @@ export default function ColorGenerator({
   const ConstantColorInput = useCallback(() => {
     const constantScope = scope as State<ConstantColorJSON>
     const constant = constantScope.value
+
     return <ColorJSONInput value={constant.color} onChange={onChange(path + '.color')} />
   }, [scope])
 
   const ColorRangeInput = useCallback(() => {
     const rangeScope = scope as State<ColorRangeJSON>
     const range = rangeScope.value
+
     return (
       <>
         <InputGroup name="A" label="A">
@@ -108,6 +94,7 @@ export default function ColorGenerator({
   const RandomColorInput = useCallback(() => {
     const randomScope = scope as State<RandomColorJSON>
     const random = randomScope.value
+
     return (
       <>
         <InputGroup name="A" label="A">
@@ -120,78 +107,31 @@ export default function ColorGenerator({
     )
   }, [scope])
 
-  const onRemoveGradient = (index: number) => {
-    const gradientScope = scope as State<ColorGradientJSON>
-    const gradient = gradientScope.value
-    const thisOnChange = onChange(path + '.functions')
-    const nuFunctions = [...gradient.functions]
-    nuFunctions.splice(index, 1)
-    thisOnChange(JSON.parse(JSON.stringify(nuFunctions)))
-  }
-
   const GradientInput = useCallback(() => {
     const gradientScope = scope as State<ColorGradientJSON>
     const gradient = gradientScope.value
+
+    const handleAddGradient = () => {
+      const gradientState = scope as State<ColorGradientJSON>
+      gradientState.functions.set([
+        ...JSON.parse(JSON.stringify(gradient.functions)),
+        {
+          start: 0,
+          function: {
+            type: 'ColorRange',
+            a: { r: 1, g: 1, b: 1, a: 1 },
+            b: { r: 1, g: 1, b: 1, a: 1 }
+          }
+        }
+      ])
+    }
+
     return (
       <div>
-        <Button
-          onClick={() => {
-            const gradientState = scope as State<ColorGradientJSON>
-            gradientState.functions.set([
-              ...JSON.parse(JSON.stringify(gradient.functions)),
-              {
-                start: 0,
-                function: {
-                  type: 'ColorRange',
-                  a: { r: 1, g: 1, b: 1, a: 1 },
-                  b: { r: 1, g: 1, b: 1, a: 1 }
-                }
-              }
-            ])
-          }}
-        >
-          +
-        </Button>
+        <Button onClick={handleAddGradient}>+</Button>
 
         {gradient.functions.map((item, index) => (
-          <div
-            key={index}
-            style={{
-              border: '1px solid white',
-              borderRadius: '0.5rem',
-              margin: '1rem',
-              padding: '1.5rem',
-              overflow: 'auto'
-            }}
-          >
-            <div className="flex flex-col">
-              <div className="flex items-center gap-x-1">
-                <Text fontSize="xs">Start</Text>
-                <NumericInput value={item.start} onChange={onChange(path + '.functions.' + index + '.start')} />
-              </div>
-
-              <div className="flex items-center gap-x-1">
-                <Text fontSize="xs">A</Text>
-                <div className="col-span-1 grid">
-                  <ColorJSONInput
-                    value={item.function.a}
-                    onChange={onChange(path + '.functions.' + index + '.function.a')}
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-x-1">
-                <Text fontSize="xs">B</Text>
-                <div className="col-span-1 grid">
-                  <ColorJSONInput
-                    value={item.function.b}
-                    onChange={onChange(path + '.functions.' + index + '.function.b')}
-                  />
-                </div>
-              </div>
-            </div>
-            <Button onClick={() => onRemoveGradient(index)}>Remove</Button>
-          </div>
+          <GradientInputItem key={index} path={path} index={index} item={item} scope={scope} onChange={onChange} />
         ))}
       </div>
     )
@@ -206,17 +146,8 @@ export default function ColorGenerator({
 
   return (
     <div>
-      <InputGroup name="type" label="Type">
-        <SelectInput
-          value={value.type}
-          options={[
-            { label: 'Constant', value: 'ConstantColor' },
-            { label: 'Range', value: 'ColorRange' },
-            { label: 'Random', value: 'RandomColor' },
-            { label: 'Gradient', value: 'Gradient' }
-          ]}
-          onChange={onChangeType()}
-        />
+      <InputGroup name="type" label={t('editor:properties.particle-system.startColor.type')}>
+        <SelectInput value={value.type} options={colorOptions} onChange={onChangeType()} />
       </InputGroup>
       {colorInputs[value.type]()}
     </div>

@@ -25,7 +25,12 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Scene, Vector3 } from 'three'
 
-import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  getSimulationCounterpart,
+  hasComponent,
+  setComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import CubemapCapturer from '@ir-engine/engine/src/scene/classes/CubemapCapturer'
@@ -36,12 +41,12 @@ import {
 import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvMapBakeComponent'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@ir-engine/hyperflux'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-
 import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { getNestedVisibleChildren, getSceneParameters } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { EditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
 
@@ -139,7 +144,8 @@ export const generateEnvmapBake = (
   const renderer = getComponent(viewerEntity, RendererComponent).renderer!
 
   const rootEntity = getState(EditorState).rootEntity
-  const entitiesToRender = getNestedVisibleChildren(rootEntity)
+  const rootEntitySimulation = getSimulationCounterpart(rootEntity)
+  const entitiesToRender = getNestedVisibleChildren(rootEntitySimulation)
   const sceneData = getSceneParameters(entitiesToRender, viewerEntity)
   const scene = new Scene()
   scene.children = sceneData.children
@@ -148,7 +154,9 @@ export const generateEnvmapBake = (
   scene.environment = sceneData.environment
 
   const cubemapCapturer = new CubemapCapturer(renderer, scene, resolution)
+  ObjectComponent.activeRender = true
   const renderTarget = cubemapCapturer.update(cubemapPosition)
+  ObjectComponent.activeRender = false
 
   const originalEnvironment = scene.environment
   scene.environment = renderTarget.texture
@@ -164,8 +172,6 @@ export const generateEnvmapBake = (
 
   return envmapImageData
 }
-
-const resolution = 1024
 
 /**
  * Generates and uploads a high res cubemap at a specific position in the world for saving and export.

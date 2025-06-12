@@ -1,0 +1,21 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "Infinite Reality Engine Material Library"
+  },
+  "scenes": [
+    {
+      "name": "Root"
+    }
+  ],
+  "scene": 0,
+  "materials": [
+    {
+      "name": "Noise Offset",
+      "extensions": {
+        "IR_material_noise_offset": {}
+      }
+    }
+  ],
+  "extensionsUsed": ["IR_material_noise_offset"]
+}

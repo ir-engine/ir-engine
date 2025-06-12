@@ -76,6 +76,7 @@ import { google } from '@google-cloud/artifact-registry/build/protos/protos'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { BUILDER_CHART_REGEX } from '@ir-engine/common/src/regex'
 import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { retry } from '@octokit/plugin-retry'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/pods/pods-helper'
@@ -1420,7 +1421,8 @@ export const updateProject = async (
     signingToken,
     usesInstallationToken = false
   if (params?.appJWT) {
-    const octokit = new Octokit({ auth: params.appJWT })
+    const retryOctokit = Octokit.plugin(retry)
+    const octokit = new retryOctokit({ auth: params.appJWT, retry: { enabled: process.env.TEST !== 'true' } })
     let repoInstallation
     try {
       repoInstallation = await octokit.rest.apps.getRepoInstallation({

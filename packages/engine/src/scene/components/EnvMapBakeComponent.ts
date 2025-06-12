@@ -24,10 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { Vector3_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
+
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
 
@@ -36,7 +36,6 @@ export const EnvMapBakeComponent = defineComponent({
   jsonID: 'EE_envmapbake',
 
   schema: S.Object({
-    bakePosition: T.Vec3(),
     bakePositionOffset: T.Vec3(),
     bakeScale: T.Vec3(Vector3_One),
     bakeType: S.Enum(EnvMapBakeTypes, {

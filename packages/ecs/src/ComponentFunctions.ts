@@ -1242,6 +1242,7 @@ export const LayerComponents = Object.entries(Layers).map(([name, layer]) => {
           delete LayerComponents[linkedLayer].refs[relation]
         }
       }
+      LayerComponents[layer].refs[entity] = UndefinedEntity
     }
   })
 })
