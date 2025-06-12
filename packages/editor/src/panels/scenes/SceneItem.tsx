@@ -194,7 +194,7 @@ export default function SceneItem({
   }
 
   return (
-    <SceneCard data-testid="scene-container" className="cursor-pointer items-start justify-start gap-3 bg-white p-3">
+    <SceneCard className="cursor-pointer items-start justify-start gap-3 bg-white p-3">
       <div className="flex max-h-40 shrink grow basis-0 items-center justify-center self-stretch rounded bg-surface-4">
         <img
           className={twMerge(

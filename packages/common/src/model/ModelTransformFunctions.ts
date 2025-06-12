@@ -36,7 +36,12 @@ import {
   Texture,
   Transform
 } from '@gltf-transform/core'
-import { EXTMeshGPUInstancing, EXTMeshoptCompression, KHRTextureBasisu } from '@gltf-transform/extensions'
+import {
+  EXTMeshGPUInstancing,
+  EXTMeshoptCompression,
+  KHRMeshQuantization,
+  KHRTextureBasisu
+} from '@gltf-transform/extensions'
 import {
   cloneDocument,
   dedup,
@@ -403,7 +408,7 @@ const doUpload = async (projectName, fileName, buffer, path?: string) => {
     resolver = resolve
   })
   uploadRequestState.queue.set([...queue, { file, projectName, callback: resolver, path: path }])
-  if (fileName.includes('combined-mesh')) {
+  if (fileName.includes('compressed-published')) {
     uploadRequestState.isOnPublishing.set(true)
   }
   await promise
@@ -695,11 +700,13 @@ const writeFiles = async (
   {
     modelFormat,
     resourceUri,
-    dst
+    dst,
+    skipPartition
   }: {
     modelFormat: ModelFormat
     resourceUri: string
     dst: string
+    skipPartition?: boolean
   }
 ): Promise<string> => {
   const srcBaseURL = LoaderUtils.extractUrlBase(srcURL)
@@ -747,12 +754,14 @@ const writeFiles = async (
           )
       )
     )
-    document.transform(
-      partition({
-        animations: true,
-        meshes: root.listMeshes().map((mesh) => mesh.getName())
-      })
-    )
+    if (!skipPartition) {
+      await document.transform(
+        partition({
+          animations: true,
+          meshes: root.listMeshes().map((mesh) => mesh.getName())
+        })
+      )
+    }
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
 
     const removeExtension = (uri: string) => {
@@ -1167,5 +1176,168 @@ const adaptiveSimplify = (document: Document, args: ModelTransformParameters) =>
         console.error(`Error simplifying mesh ${mesh.getName()}:`, error)
       }
     }
+  }
+}
+
+async function resizeImage(
+  originalImage: Uint8Array,
+  mimeType: string,
+  maxSize: number
+): Promise<{ data: Uint8Array; mimeType: string }> {
+  // Create blob from original image bytes and mime type
+  const blob = new Blob([originalImage], { type: mimeType })
+  const imageBitmap = await createImageBitmap(blob)
+
+  // Calculate new size preserving aspect ratio
+  const aspectRatio = imageBitmap.width / imageBitmap.height
+  let newWidth = imageBitmap.width
+  let newHeight = imageBitmap.height
+
+  if (newWidth > maxSize || newHeight > maxSize) {
+    if (aspectRatio > 1) {
+      newWidth = maxSize
+      newHeight = Math.round(maxSize / aspectRatio)
+    } else {
+      newHeight = maxSize
+      newWidth = Math.round(maxSize * aspectRatio)
+    }
+  }
+
+  // Draw resized image onto canvas
+  const canvas = document.createElement('canvas')
+  canvas.width = newWidth
+  canvas.height = newHeight
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('Failed to get 2D context')
+
+  ctx.drawImage(imageBitmap, 0, 0, newWidth, newHeight)
+
+  const outputMimeType = ['image/png', 'image/jpeg', 'image/webp'].includes(mimeType) ? mimeType : 'image/png'
+
+  const resizedBlob = await new Promise<Blob>((resolve) =>
+    canvas.toBlob((blob) => {
+      if (!blob) throw new Error('Canvas toBlob returned null')
+      resolve(blob)
+    }, outputMimeType)
+  )
+
+  const arrayBuffer = await resizedBlob.arrayBuffer()
+  return { data: new Uint8Array(arrayBuffer), mimeType: outputMimeType }
+}
+
+const safeImageCompress = async (
+  document: Document,
+  params: ModelTransformParameters,
+  onProgress?: (progress: number, status: Status, numerator?: number, denominator?: number) => void
+) => {
+  const textures = document.getRoot().listTextures()
+  const numTextures = textures.length
+  const totalProgressSteps = 1 + numTextures
+
+  for (const [i, texture] of textures.entries()) {
+    const originalImage = texture.getImage()
+    const mimeType = texture.getMimeType()
+
+    if (!originalImage || !mimeType) continue
+    if (!mimeType.startsWith('image/')) continue
+
+    onProgress?.((i + 1) / totalProgressSteps + 0.1, Status.ProcessingTexture, i, numTextures)
+
+    try {
+      const { data, mimeType: newMimeType } = await resizeImage(originalImage, mimeType, params.maxTextureSize)
+
+      texture.setImage(data)
+      texture.setMimeType(newMimeType)
+
+      const ext = newMimeType.split('/')[1] || 'png'
+      const safeName = validTextureFileName(texture.getURI().replace(/\.[^.]+$/, `.${ext}`)).slice(6)
+      texture.setURI(safeName)
+    } catch (e) {
+      console.error(`Failed to resize texture: ${texture.getName()}`, e)
+    }
+  }
+}
+
+export async function safeCompressGLTFWeb(
+  srcURL: string,
+  destinationUrl: string,
+  params: ModelTransformParameters,
+  onProgress?: (progress: number, status: Status, numerator?: number, denominator?: number) => void
+) {
+  onProgress?.(0, Status.TransformingModels)
+
+  try {
+    const io = await loaderIO
+    const document: Document = await io.read(srcURL)
+
+    await document.transform(preserveVertexColors)
+
+    if (params.modelFormat === 'gltf') {
+      await safeImageCompress(document, params, onProgress)
+    }
+    await document.transform(unInstanceSingletons)
+    await document.transform(dedup())
+    await document.transform(weld())
+
+    await document.transform(prune({ keepAttributes: true /*keepExtras: true*/ }))
+    await document.transform(
+      simplify({
+        ratio: 0.95, // Higher = less simplification
+        error: 0.001,
+        simplifier: MeshoptSimplifier
+      })
+    )
+
+    document.createExtension(KHRMeshQuantization)?.setRequired(true)
+    onProgress?.(0.8, Status.WritingFiles)
+    const eeMaterialExtension: EEMaterialExtension | undefined = document
+      .getRoot()
+      .listExtensionsUsed()
+      .find((ext) => ext.extensionName === 'EE_material') as EEMaterialExtension
+    if (eeMaterialExtension) {
+      for (const texture of eeMaterialExtension.textures) {
+        document.createTexture().copy(texture)
+        // Find all materials that reference the old texture, and change their reference to the new texture
+      }
+      for (const material of document.getRoot().listMaterials()) {
+        const eeMaterial = material.getExtension<EEMaterial>('EE_material')
+        if (eeMaterial == null) continue
+        const matArgs = eeMaterial.args!
+
+        const newTextures = document.getRoot().listTextures()
+        const materialArgsInfo = eeMaterialExtension.materialInfoMap.get(matArgs.getExtras().uuid as string) || []
+        materialArgsInfo.map((field) => {
+          let argEntry: EEArgEntry
+          try {
+            argEntry = matArgs.getPropRef(field) as EEArgEntry
+          } catch (e) {
+            argEntry = matArgs.getProp(field) as EEArgEntry
+          }
+
+          if (argEntry.type === 'texture') {
+            const oldTexture = argEntry.contents as Texture
+            if (oldTexture != null) {
+              const uuid: string = oldTexture.getExtras().uuid as string
+              const newTexture = newTextures.find((texture) => texture.getExtras().uuid === uuid)
+              if (newTexture == null) {
+                throw new Error('Transformed texture is not listed.')
+              }
+              argEntry.contents = newTexture
+            }
+          }
+        })
+      }
+    }
+    await writeFiles(srcURL, document, {
+      modelFormat: params.modelFormat,
+      resourceUri: params.resourceUri,
+      dst: destinationUrl,
+      skipPartition: true
+    })
+
+    onProgress?.(1, Status.Complete)
+  } catch (error) {
+    console.log(`Error compressing ${srcURL}:`, error)
+    throw error
   }
 }

@@ -26,16 +26,16 @@ Infinite Reality Engine. All Rights Reserved.
 import Toggle from '@ir-engine/ui/src/components/viewer/Toggle'
 import React from 'react'
 
-interface ToggleItemProps {
-  label: string
+interface ToggleItemProps extends React.PropsWithChildren {
+  label?: string
   checked?: boolean
   onClick?: () => void
 }
 
-const ToggleItem: React.FC<ToggleItemProps> = ({ label, checked = false, onClick }) => {
+const ToggleItem: React.FC<ToggleItemProps> = ({ label, checked = false, onClick, children }) => {
   return (
     <div className="flex items-center justify-between px-4 py-3.5 text-white/90">
-      <span className="font-medium">{label}</span>
+      {children || <span className="font-medium">{label}</span>}
       <Toggle checked={checked} onChange={onClick} />
     </div>
   )

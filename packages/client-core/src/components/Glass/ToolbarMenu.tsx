@@ -30,6 +30,7 @@ import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import { Badge } from './Badge'
 import { useChatProvider } from './ChatProvider'
+import { EmoteMenu } from './EmoteMenu'
 import { MenuButton } from './MenuButton'
 import { MultimediaStateProvider, useMultimediaStateProvider } from './MultimediaStateProvider'
 
@@ -117,8 +118,29 @@ export const VRButton = () => {
 
 export const Divider = () => {
   return (
-    <div className={'relative grid h-full w-full items-center px-2 py-0 sm:max-lg:w-auto sm:max-lg:px-5'}>
-      <div className={'h-[2px] w-full rounded-full bg-white sm:max-lg:h-6 sm:max-lg:w-[2px]'} />
+    <div
+      className={`
+      relative grid h-full
+      w-full items-center
+      
+      px-2 py-4
+      
+      sm:max-lg:w-auto
+      sm:max-lg:px-5
+      sm:max-lg:py-0
+    `}
+    >
+      <div
+        className={`
+        h-[2px] w-full
+        rounded-full
+        
+        bg-white
+        
+        sm:max-lg:h-6
+        sm:max-lg:w-[2px]
+      `}
+      />
     </div>
   )
 }
@@ -199,7 +221,6 @@ const gridStyles = `
 
   sm:max-lg:flex-row
   sm:max-lg:flex-row-reverse
-  sm:max-lg:gap-x-3
   sm:max-lg:px-5
   sm:max-lg:py-1
   sm:max-lg:pl-6
@@ -207,46 +228,38 @@ const gridStyles = `
 
 export const sectionStyles_base = `
   flex items-center
-  gap-7 pb-2
+  gap-y-7
+  gap-x-7
+  py-2
 `
 
-const sectionStyles = `
-  ${sectionStyles_base}
-  flex-col
-  px-3 pt-6
+const collapsableSectionBaseStyles = twMerge(
+  sectionStyles_base,
+  `
+    inline-flex origin-bottom flex-col
+    items-center
+    px-3
 
-  sm:max-lg:flex-row
-  sm:max-lg:px-0
-  sm:max-lg:pt-2
-`
+    sm:max-lg:origin-left
+    sm:max-lg:flex-row
+    sm:max-lg:px-0
+  `
+)
 
-const collapsableSectionBaseStyles = `
-  inline-flex flex-col items-center origin-bottom
-  gap-7 px-3
-  
-  transition-all
-  
-  sm:max-lg:origin-left
-  sm:max-lg:flex-row
-  sm:max-lg:px-0
-`
+const collapsableSectionOpenStyles = twMerge(collapsableSectionBaseStyles, ``)
 
-const collapsableSectionOpenStyles = `
-  sm:max-lg:max-h-auto
-  max-h-screen
-  py-5
-  pb-7
-  
-  sm:max-lg:max-w-full
-  sm:max-lg:py-0 sm:max-lg:pr-2
-`
+const collapsableSectionCloseStyles = twMerge(
+  collapsableSectionBaseStyles,
+  `
+    hidden
+  `
+)
 
-const collapsableSectionCloseStyles = `
-  max-h-0
-  scale-y-0
-  
-  sm:max-lg:max-w-0
-  sm:max-lg:scale-x-0  
+const arrowButtonStyles = `
+  mb-1
+
+  sm:max-lg:ml-3
+  sm:max-lg:-mb-2
 `
 
 export const ToolbarMenu = ({ onMessageClick, onShareClick, onSettingsClick, activeKey }) => {
@@ -256,28 +269,45 @@ export const ToolbarMenu = ({ onMessageClick, onShareClick, onSettingsClick, act
   const emoteBadgeNumber = 0
   const showEmoteBadge = !!emoteBadgeNumber
   const showBadge = showMessagesBadge && showEmoteBadge
+  const [isEmoteMenuOpen, setIsEmoteMenuOpen] = useState(false)
+
+  const showFirstDivider = isMenuOpen && !isEmoteMenuOpen
+  const showSecondDivider = isEmoteMenuOpen
+
+  const isMultiMediaOpen = !isEmoteMenuOpen
+  const isMainMenuOpen = isMenuOpen && !isEmoteMenuOpen
+  const isDefaultArrowDirection = !!isMainMenuOpen
+
+  const handleToggleMenu = () => setIsMenuOpen((prev) => !prev)
+  const handleOpenEmoteMenu = () => setIsEmoteMenuOpen(true)
+  const handleCloseEmoteMenu = () => setIsEmoteMenuOpen(false)
+  const onArrowClick = isEmoteMenuOpen ? handleCloseEmoteMenu : handleToggleMenu
 
   return (
     <div className={containerStyles}>
       <div className={gridStyles}>
         <Badge show={showBadge} />
 
-        <MenuButton onClick={() => setIsMenuOpen((prev) => !prev)}>
-          <ChevronDownMd className={twMerge(isMenuOpen ? `scale-[1.2]` : `-scale-[1.2]`, 'sm:max-lg:hidden')} />
-          <ChevronLeftMd className={twMerge(isMenuOpen ? `scale-[1.2]` : `-scale-[1.2]`, 'hidden sm:max-lg:block')} />
+        <MenuButton className={isEmoteMenuOpen ? `` : arrowButtonStyles} onClick={onArrowClick}>
+          <ChevronDownMd
+            className={twMerge(isDefaultArrowDirection ? `scale-[1.2]` : `-scale-[1.2]`, 'sm:max-lg:hidden')}
+          />
+          <ChevronLeftMd
+            className={twMerge(isDefaultArrowDirection ? `scale-[1.2]` : `-scale-[1.2]`, 'hidden sm:max-lg:block')}
+          />
         </MenuButton>
 
         <div
           className={twMerge(
             collapsableSectionBaseStyles,
-            isMenuOpen ? collapsableSectionOpenStyles : collapsableSectionCloseStyles
+            isMainMenuOpen ? collapsableSectionOpenStyles : collapsableSectionCloseStyles
           )}
         >
           <MenuButton onClick={onSettingsClick}>
             <CogMd />
           </MenuButton>
           <MenuButton
-            onClick={onShareClick}
+            onClick={handleOpenEmoteMenu}
             badge={{
               show: showEmoteBadge,
               number: emoteBadgeNumber
@@ -287,9 +317,9 @@ export const ToolbarMenu = ({ onMessageClick, onShareClick, onSettingsClick, act
           </MenuButton>
         </div>
 
-        {isMenuOpen && <Divider />}
+        {showFirstDivider && <Divider />}
 
-        <div className={sectionStyles}>
+        <div className={isMultiMediaOpen ? collapsableSectionOpenStyles : collapsableSectionCloseStyles}>
           <ChatButton badge={{ show: showMessagesBadge }} active={activeKey === `Chat`} onClick={onMessageClick} />
           <MultimediaStateProvider>
             <MicButton />
@@ -298,6 +328,12 @@ export const ToolbarMenu = ({ onMessageClick, onShareClick, onSettingsClick, act
             <ScreenshareButton />
             <VRButton />
           </MultimediaStateProvider>
+        </div>
+
+        {showSecondDivider && <Divider />}
+
+        <div className={isEmoteMenuOpen ? collapsableSectionOpenStyles : collapsableSectionCloseStyles}>
+          <EmoteMenu />
         </div>
       </div>
     </div>

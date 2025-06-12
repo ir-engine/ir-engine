@@ -1583,8 +1583,7 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const overrides = json.extensions?.[OVERRIDE_EXTENSION_NAME]
   if (overrides) {
     for (const [id, ops] of Object.entries(overrides)) {
-      const rootUUID = UUIDComponent.getAsSourceID(rootEntity)
-      const overrideUUID = UUIDComponent.join({ entitySourceID: rootUUID, entityID: id as EntityID })
+      const overrideUUID = GLTFComponent.getOverrideUUID(rootEntity, id as EntityID)
       dispatchAction(AuthoringActions.ops({ ops: { [overrideUUID]: ops }, $user: SceneUser }))
     }
   }
@@ -1646,7 +1645,6 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
 const unloadScene = (url: string, entity: Entity) => {
   // handle reference counting
   unloadResourcesForEntity(entity)
-
   // if no more references to this url, remove from cache
   const resourceCacheState = getState(ResourceCacheState)
   if (!resourceCacheState[url]) {
@@ -1717,7 +1715,17 @@ export const getDependency = <
   const cache = DependencyCache.get(url)
   if (!cache) throw new Error('GLTFLoader: No cache found for url ' + url)
 
-  const cacheKey = type + ':' + JSON.stringify(args)
+  // Only include sourceID for entity-related dependencies
+  const entityTypes = ['node', 'scene'] as const
+  let cacheKey = type + ':'
+
+  if (entityTypes.includes(type as any)) {
+    // For entity types, include the source ID to make unique instances
+    const sourceID = GLTFComponent.getSourceID(options.entity)
+    cacheKey += sourceID + ':'
+  }
+
+  cacheKey += JSON.stringify(args)
   const dependency = cache.get(cacheKey) as ReturnType<Func> | undefined
 
   if (!dependency) {

@@ -495,6 +495,15 @@ const groupObjects = (entities: Entity[]) => {
   }
 }
 
+const ungroupObjects = (entities: Entity[]) => {
+  for (const entity of entities) {
+    if (hasComponent(entity, SceneComponent)) continue
+    const children = getComponent(entity, EntityTreeComponent).children
+    reparentObject(children, entity, undefined, getComponent(entity, EntityTreeComponent).parentEntity)
+    removeObject([entity])
+  }
+}
+
 const removeObject = (entities: Entity[]) => {
   /** we have to manually set this here or it will cause react errors when entities are removed */
   getMutableState(SelectionState).selectedEntities.set([])
@@ -578,6 +587,7 @@ export const EditorControlFunctions = {
   scaleObject,
   reparentObject,
   groupObjects,
+  ungroupObjects,
   removeObject,
   addToSelection,
   replaceSelection,

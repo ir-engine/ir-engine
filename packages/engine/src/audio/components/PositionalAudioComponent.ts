@@ -28,8 +28,6 @@ import { useEffect } from 'react'
 import {
   defineComponent,
   getAuthoringCounterpart,
-  getOptionalComponent,
-  removeComponent,
   setComponent,
   useComponent,
   useEntityContext,
@@ -40,11 +38,8 @@ import {
   MediaComponent,
   MediaElementComponent
 } from '@ir-engine/engine/src/scene/components/MediaComponent'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { ActiveHelperComponent } from '../../../../spatial/src/common/ActiveHelperComponent'
-import { PositionalAudioHelperComponent } from './PositionalAudioHelperComponent'
 
 export interface PositionalAudioInterface {
   refDistance: number
@@ -75,11 +70,6 @@ export const PositionalAudioComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
-    const debugEnabled =
-      activeHelperComponent !== undefined &&
-      activeHelperComponent.enabled.value &&
-      (activeHelperComponent.selected.value || activeHelperComponent.hovered.value)
     const audio = useComponent(entity, PositionalAudioComponent)
     const mediaElement = useOptionalComponent(entity, MediaElementComponent)
 
@@ -89,19 +79,6 @@ export const PositionalAudioComponent = defineComponent({
         setComponent(authEntity, MediaComponent)
       }
     }, [])
-
-    useEffect(() => {
-      if (debugEnabled) {
-        const name = getOptionalComponent(entity, NameComponent)
-        setComponent(entity, PositionalAudioHelperComponent, {
-          name: name ? `${name}-positional-audio-helper` : undefined
-        })
-        setComponent(entity, ActiveHelperComponent, { helperSelectedGizmo: entity, directional: true }) // we have multiple child helpers so we use the entity as the selected gizmo
-      }
-      return () => {
-        removeComponent(entity, PositionalAudioHelperComponent)
-      }
-    }, [debugEnabled, mediaElement?.element, audio.maxDistance, audio.coneInnerAngle, audio.coneOuterAngle])
 
     useEffect(() => {
       if (!mediaElement?.element.value) return

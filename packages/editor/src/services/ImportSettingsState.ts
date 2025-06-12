@@ -35,7 +35,7 @@ export const ImportSettingsState = defineState({
     selectedLODS: defaultLODs,
     imageCompression: false,
     imageSettings: KTX2EncodeDefaultArguments,
-    importFolder: '/assets/',
+    importFolder: '/public/assets/',
     LODFolder: 'LODs/'
   }),
   extension: syncStateWithLocalStorage([

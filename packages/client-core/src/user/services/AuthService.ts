@@ -440,13 +440,20 @@ export const AuthService = {
   /**
    * Logs in the current user based on an OAuth response.
    */
-  async loginUserByOAuth(service: string, location: any, isSignUp: boolean, redirectUrl?: string) {
+  async loginUserByOAuth(
+    service: string,
+    location: any,
+    isSignUp: boolean,
+    redirectUrl?: string,
+    signupUsername?: string
+  ) {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     const token = getState(AuthState).authUser.accessToken
     const path = redirectUrl || new URLSearchParams(location.search).get('redirectUrl') || location.pathname
 
     const redirectConfig = {
-      path
+      path,
+      signupUsername
     } as Record<string, string>
 
     const currentUrl = new URL(window.location.href)

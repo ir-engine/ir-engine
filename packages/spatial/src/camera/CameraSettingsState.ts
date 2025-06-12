@@ -70,8 +70,8 @@ export const CameraSettingsState = defineState({
     isTopDownFreeCamera: false,
 
     firstPersonCameraLimits: 360,
-    thirdPersonCameraLimits: 180,
-    topDownCameraLimits: 180,
+    thirdPersonCameraLimits: 360,
+    topDownCameraLimits: 360,
 
     isFirstPersonCameraReset: true,
     isThirdPersonCameraReset: true,

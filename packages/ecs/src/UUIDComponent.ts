@@ -42,6 +42,7 @@ import {
   createEntity,
   defineComponent,
   getComponent,
+  hasComponent,
   setComponent,
   useComponent
 } from './ComponentFunctions'
@@ -227,6 +228,14 @@ export const UUIDComponent = defineComponent({
 
   getEntitiesBySource: (sourceID: SourceID, layer = Layers.Simulation as LayerID): Entity[] => {
     return getState(EntitiesBySourceState)[layer]?.[sourceID] || []
+  },
+
+  /** Recursively get the source entity until the root source is found */
+  getRootSource: (entity: Entity) => {
+    if (!hasComponent(entity, UUIDComponent)) return UndefinedEntity
+    const sourceEntity = UUIDComponent.getSourceEntity(entity)
+    if (!sourceEntity || sourceEntity === entity) return entity
+    return UUIDComponent.getRootSource(sourceEntity)
   },
 
   /** Construct a new SourceID from the concatenated values of the source entity */
