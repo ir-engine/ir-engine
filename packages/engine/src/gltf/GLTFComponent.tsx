@@ -528,9 +528,6 @@ const useGLTFDocument = (entity: Entity) => {
   useEffect(() => {
     if (dynamicLoadAndNotEditing) return
     if (!url) {
-      // add blank 3d model
-      gltfComponent.document.set(null)
-      gltfComponent.body.set(null)
       gltfComponent.progress.set(100)
       return
     }
