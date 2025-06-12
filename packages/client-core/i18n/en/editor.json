@@ -1556,6 +1556,7 @@
     "lbl-edited": "Edited",
     "lbl-duplicate": "Duplicate",
     "lbl-group": "Group",
+    "lbl-ungroup": "Ungroup",
     "lbl-cloneScene": "Clone Scene",
     "lbl-cloneSceneToProject": "Clone Scene to Project",
     "lbl-cloneOptions": "Please select the clone action you want to perform",
