@@ -27,6 +27,7 @@ import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { createAppAuth } from '@octokit/auth-app'
 import { createOAuthAppAuth } from '@octokit/auth-oauth-app'
+import { retry } from '@octokit/plugin-retry'
 import { Octokit } from '@octokit/rest'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
@@ -62,9 +63,11 @@ import { useGit } from '../../util/gitHelperFunctions'
 import { cleanProjectName, getProjectPushJobBody } from './project-helper'
 import { ProjectParams } from './project.class'
 
-// 30 MB. GitHub's documentation says that the blob upload cutoff is 50MB, but in testing, some files that were around
+// 10 MB. GitHub's documentation says that the blob upload cutoff is 50MB, but in testing, some files that were around
 // 40 MB were throwing server errors when uploaded as blobs. This was made well below that to avoid issues.
-const GITHUB_LFS_FLOOR = 30 * 1000 * 1000
+// There were also observed issues when uploading several ~25 MB files from the same project, where the Github
+// blob API would time out. Lowering the LFS floor made this less likely to happen.
+const GITHUB_LFS_FLOOR = 10 * 1000 * 1000
 const TOKEN_REGEX = /"RemoteAuth ([0-9a-zA-Z-_]+)"/
 const OID_REGEX = /oid sha256:([0-9a-fA-F]{64})/
 const PUSH_TIMEOUT = 60 * 10 //10 minute timeout on GitHub push jobs completing or failing
@@ -545,16 +548,19 @@ export const getGithubOwnerRepo = (url: string) => {
 }
 
 export const getOctokitForToken = async (app: Application, token: string) => {
-  let octoKit = new Octokit({ auth: token })
+  const retryOctokit = Octokit.plugin(retry)
+  let octoKit = new retryOctokit({ auth: token, retry: { enabled: process.env.TEST !== 'true' } })
   const authenticationSettings = await fetchAuthenticationSettings(app)
   try {
-    const checkerOctokit = new Octokit({
+    const retryOctokit = Octokit.plugin(retry)
+    const checkerOctokit = new retryOctokit({
       authStrategy: createOAuthAppAuth,
       auth: {
         clientType: 'oauth-app',
         clientId: authenticationSettings.oauth!.github!.key,
         clientSecret: authenticationSettings.oauth!.github!.secret
-      }
+      },
+      retry: { enabled: process.env.TEST !== 'true' }
     })
     await checkerOctokit.rest.apps.checkToken({
       client_id: authenticationSettings.oauth!.github!.key,
@@ -562,7 +568,8 @@ export const getOctokitForToken = async (app: Application, token: string) => {
     })
   } catch (err) {
     token = await refreshToken(authenticationSettings, token, app)
-    octoKit = new Octokit({ auth: token })
+    const retryOctokit = Octokit.plugin(retry)
+    octoKit = new retryOctokit({ auth: token, retry: { enabled: process.env.TEST !== 'true' } })
   }
   return {
     octoKit,
@@ -584,17 +591,23 @@ export const getOctokitForChecking = async (app: Application, url: string, param
   if (githubIdentityProvider.data.length === 0)
     throw new Forbidden('You must have a connected GitHub account to access public repos')
   const { owner, repo } = getGithubOwnerRepo(url)
-  let octoKit = new Octokit({ auth: githubIdentityProvider.data[0].oauthToken })
+  const retryOctokit = Octokit.plugin(retry)
+  let octoKit = new retryOctokit({
+    auth: githubIdentityProvider.data[0].oauthToken,
+    retry: { enabled: process.env.TEST !== 'true' }
+  })
   const authenticationSettings = await fetchAuthenticationSettings(app)
   let token = githubIdentityProvider.data[0].oauthToken
   try {
-    const checkerOctokit = new Octokit({
+    const retryOctokit = Octokit.plugin(retry)
+    const checkerOctokit = new retryOctokit({
       authStrategy: createOAuthAppAuth,
       auth: {
         clientType: 'oauth-app',
         clientId: authenticationSettings?.oauth!.github!.key,
         clientSecret: authenticationSettings?.oauth!.github!.secret
-      }
+      },
+      retry: { enabled: process.env.TEST !== 'true' }
     })
     await checkerOctokit.rest.apps.checkToken({
       client_id: authenticationSettings.oauth!.github!.key,
@@ -602,7 +615,8 @@ export const getOctokitForChecking = async (app: Application, url: string, param
     })
   } catch (err) {
     token = await refreshToken(authenticationSettings, token!, app)
-    octoKit = new Octokit({ auth: token })
+    const retryOctokit = Octokit.plugin(retry)
+    octoKit = new retryOctokit({ auth: token, retry: { enabled: process.env.TEST !== 'true' } })
   }
   return {
     owner,
@@ -764,13 +778,15 @@ const isBase64Encoded = (filePath: string) => {
 }
 
 export const generateInstallationOctokit = (appId: string, privateKey: string, installationId: string) => {
-  return new Octokit({
+  const retryOctokit = Octokit.plugin(retry)
+  return new retryOctokit({
     authStrategy: createAppAuth,
     auth: {
       appId,
       privateKey,
       installationId
-    }
+    },
+    retry: { enabled: process.env.TEST !== 'true' }
   })
 }
 /**

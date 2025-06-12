@@ -82,6 +82,12 @@ export const groupNodes = (entity?: Entity) => {
   AuthoringState.snapshotEntities
 }
 
+export const ungroupNodes = (entity?: Entity) => {
+  const entities = getSelectedEntities(entity)
+  EditorControlFunctions.ungroupObjects(entities)
+  AuthoringState.snapshotEntities(entities)
+}
+
 export const copyNodes = (entity?: Entity) => {
   CopyPasteFunctions.copyEntities(getSelectedEntities(entity))
 }

@@ -45,7 +45,6 @@ import { MountPointComponent } from '@ir-engine/engine/src/scene/components/Moun
 import { OverlayComponent } from '@ir-engine/engine/src/scene/components/OverlayComponent'
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
 import { PoiComponent } from '@ir-engine/engine/src/scene/components/PoiComponent'
-import { PoiHotspotComponent } from '@ir-engine/engine/src/scene/components/PoiHotspotComponent'
 import { PortalComponent } from '@ir-engine/engine/src/scene/components/PortalComponent'
 import { PrimitiveGeometryComponent } from '@ir-engine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { RenderSettingsComponent } from '@ir-engine/engine/src/scene/components/RenderSettingsComponent'
@@ -115,7 +114,7 @@ export const ComponentShelfCategoriesState = defineState({
         LookAtComponent,
         FogSettingsComponent
       ],
-      Camera: [PoiComponent, PoiHotspotComponent]
+      Camera: [PoiComponent] //PoiHotspotComponent
     } as Record<string, Component[]>
   },
   reactor: () => {

@@ -7,7 +7,9 @@
     {
       "name": "Settings",
       "extensions": {
-        "EE_uuid": "0d5a20e1-abe2-455e-9963-d5e1e19fca19",
+        "EE_uuid": {
+          "entityID": "0d5a20e1-abe2-455e-9963-d5e1e19fca19"
+        },
         "EE_scene_settings": {
           "thumbnailURL": "__$project$__/ir-engine/default-project/public/scenes/test.thumbnail.jpg",
           "loadingScreenURL": "__$project$__/ir-engine/default-project/public/scenes/test.loadingscreen.ktx2",
@@ -18,17 +20,41 @@
           "spectateEntity": ""
         },
         "EE_camera_settings": {
-          "fov": 50,
           "cameraNearClip": 0.1,
           "cameraFarClip": 1000,
           "projectionType": 1,
-          "minCameraDistance": 1,
-          "maxCameraDistance": 50,
-          "startCameraDistance": 3,
-          "cameraMode": "Dynamic",
-          "cameraModeDefault": "ThirdPerson",
+          "fov": 50,
+          "cameraMode": "FOLLOW",
           "minPhi": -70,
-          "maxPhi": 85
+          "maxPhi": 85,
+          "isAvatarVisible": true,
+          "followCameraScrollSensitivity": 1,
+          "canCameraFirstPerson": true,
+          "canCameraThirdPerson": true,
+          "canCameraTopDown": true,
+          "isFistPersonFreeCamera": true,
+          "isThirdPersonFreeCamera": true,
+          "isTopDownFreeCamera": false,
+          "firstPersonCameraLimits": 360,
+          "thirdPersonCameraLimits": 360,
+          "topDownCameraLimits": 360,
+          "isFirstPersonCameraReset": true,
+          "isThirdPersonCameraReset": true,
+          "isTopDownCameraReset": true,
+          "thirdPersonMinDistance": 1.5,
+          "thirdPersonMaxDistance": 50,
+          "thirdPersonDefaultDistance": 3,
+          "topDownMinDistance": 10,
+          "topDownMaxDistance": 70,
+          "topDownDefaultDistance": 40,
+          "poiEntities": [],
+          "poiLerpSpeed": 0.5,
+          "scrollDeadzone": 1,
+          "scrollSensitivity": 0.1,
+          "scrollDistancePerPoi": 3,
+          "scrollBehavior": "Clamp",
+          "poiScrollTransitionType": "Scrolling",
+          "enableTransitionButtons": false
         },
         "EE_render_settings": {
           "primaryLight": "cb045cfd-8daf-4a2b-b764-35625be54a11",
@@ -38,7 +64,7 @@
           "toneMappingExposure": 0.8,
           "shadowMapType": 2
         },
-        "EE_visible": true
+        "EE_visible": {}
       }
     },
     {
@@ -62,9 +88,11 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "bb362197-f14d-4da7-9c3c-1ed834386423",
+        "EE_uuid": {
+          "entityID": "bb362197-f14d-4da7-9c3c-1ed834386423"
+        },
         "EE_scene_preview_camera": {},
-        "EE_visible": true
+        "EE_visible": {}
       }
     },
     {
@@ -88,28 +116,56 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "bb362197-f14d-4da7-9c3c-1ed834386424",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "bb362197-f14d-4da7-9c3c-1ed834386424"
+        },
+        "EE_visible": {},
         "EE_camera_settings": {
-          "fov": 50,
           "cameraNearClip": 0.1,
           "cameraFarClip": 1000,
           "projectionType": 0,
-          "minCameraDistance": 1,
-          "maxCameraDistance": 50,
-          "startCameraDistance": 3,
-          "cameraMode": "Dynamic",
-          "cameraModeDefault": "ThirdPerson",
+          "fov": 50,
+          "cameraMode": "FOLLOW",
           "minPhi": -70,
-          "maxPhi": 85
+          "maxPhi": 85,
+          "isAvatarVisible": true,
+          "followCameraScrollSensitivity": 1,
+          "canCameraFirstPerson": true,
+          "canCameraThirdPerson": true,
+          "canCameraTopDown": true,
+          "isFistPersonFreeCamera": true,
+          "isThirdPersonFreeCamera": true,
+          "isTopDownFreeCamera": false,
+          "firstPersonCameraLimits": 360,
+          "thirdPersonCameraLimits": 360,
+          "topDownCameraLimits": 360,
+          "isFirstPersonCameraReset": true,
+          "isThirdPersonCameraReset": true,
+          "isTopDownCameraReset": true,
+          "thirdPersonMinDistance": 1.5,
+          "thirdPersonMaxDistance": 50,
+          "thirdPersonDefaultDistance": 3,
+          "topDownMinDistance": 10,
+          "topDownMaxDistance": 70,
+          "topDownDefaultDistance": 40,
+          "poiEntities": [],
+          "poiLerpSpeed": 0.5,
+          "scrollDeadzone": 1,
+          "scrollSensitivity": 0.1,
+          "scrollDistancePerPoi": 3,
+          "scrollBehavior": "Clamp",
+          "poiScrollTransitionType": "Scrolling",
+          "enableTransitionButtons": false
         }
       }
     },
     {
       "name": "Skybox - Cubemap",
       "extensions": {
-        "EE_uuid": "e7d6bfb1-6390-4a8b-b744-da83b059c2d3",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "e7d6bfb1-6390-4a8b-b744-da83b059c2d3"
+        },
+        "EE_visible": {},
         "EE_skybox": {
           "backgroundColor": 3026478,
           "equirectangularPath": "__$project$__/ir-engine/default-project/assets/generic_midday_02.ktx2?hash=19535b",
@@ -130,8 +186,10 @@
     {
       "name": "Skybox - Color",
       "extensions": {
-        "EE_uuid": "e7d6bfb1-6390-4a8b-b744-da83b059c2d4",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "e7d6bfb1-6390-4a8b-b744-da83b059c2d4"
+        },
+        "EE_visible": {},
         "EE_skybox": {
           "backgroundColor": 8421504,
           "equirectangularPath": "",
@@ -152,8 +210,10 @@
     {
       "name": "Skybox - Equirectangular",
       "extensions": {
-        "EE_uuid": "e7d6bfb1-6390-4a8b-b744-da83b059c2d5",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "e7d6bfb1-6390-4a8b-b744-da83b059c2d5"
+        },
+        "EE_visible": {},
         "EE_skybox": {
           "backgroundColor": 3026478,
           "equirectangularPath": "__$project$__/ir-engine/default-project/assets/generic_midday_02.ktx2?hash=19535b",
@@ -192,8 +252,10 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "3e8a430e-9dcf-440e-990c-44ecb8051762",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "3e8a430e-9dcf-440e-990c-44ecb8051762"
+        },
+        "EE_visible": {},
         "EE_spawn_point": {
           "permissionedUsers": []
         }
@@ -202,8 +264,10 @@
     {
       "name": "hemisphere light",
       "extensions": {
-        "EE_uuid": "f77dc4c6-c9a6-433d-8102-4a9a8e1c0ce9",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "f77dc4c6-c9a6-433d-8102-4a9a8e1c0ce9"
+        },
+        "EE_visible": {},
         "EE_hemisphere_light": {
           "skyColor": 16777215,
           "groundColor": 16777215,
@@ -232,7 +296,9 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "cb045cfd-8daf-4a2b-b764-35625be54a11",
+        "EE_uuid": {
+          "entityID": "cb045cfd-8daf-4a2b-b764-35625be54a11"
+        },
         "EE_directional_light": {
           "color": 16777215,
           "intensity": 1,
@@ -241,7 +307,7 @@
           "shadowRadius": 1,
           "cameraFar": 50
         },
-        "EE_visible": true
+        "EE_visible": {}
       }
     },
     {
@@ -265,8 +331,10 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "685c48da-e2a0-4a9a-af7c-c5a3c187c99a",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "685c48da-e2a0-4a9a-af7c-c5a3c187c99a"
+        },
+        "EE_visible": {},
         "EE_ground_plane": {
           "color": 8421504,
           "visible": true
@@ -298,14 +366,25 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "7a7d0f05-6c02-4a01-b760-7af3ec46954b",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "7a7d0f05-6c02-4a01-b760-7af3ec46954b"
+        },
+        "EE_visible": {},
         "EE_image": {
           "source": "__$project$__/ir-engine/default-project/assets/apartment_skybox.jpg",
           "alphaMode": "Opaque",
           "alphaCutoff": 0.5,
           "projection": "Flat",
-          "side": 2
+          "side": 2,
+          "fit": "stretch",
+          "uvOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "uvScale": {
+            "x": 1,
+            "y": 1
+          }
         }
       }
     },
@@ -330,14 +409,25 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "8b8d0f05-6c02-4a01-b760-7af3ec46954b",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "8b8d0f05-6c02-4a01-b760-7af3ec46954b"
+        },
+        "EE_visible": {},
         "EE_image": {
           "source": "__$project$__/ir-engine/default-project/assets/apartment_skybox.jpg",
           "alphaMode": "Opaque",
           "alphaCutoff": 0.5,
           "projection": "Equirectangular360",
-          "side": 2
+          "side": 2,
+          "fit": "stretch",
+          "uvOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "uvScale": {
+            "x": 1,
+            "y": 1
+          }
         }
       }
     },
@@ -362,8 +452,10 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "9c9d0f05-6c02-4a01-b760-7af3ec46954b",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "9c9d0f05-6c02-4a01-b760-7af3ec46954b"
+        },
+        "EE_visible": {},
         "EE_video": {
           "side": 2,
           "uvOffset": {
@@ -385,8 +477,7 @@
           "alphaThreshold": 0.5,
           "fit": "stretch",
           "projection": "Flat",
-          "mediaUUID": "",
-          "texture": null
+          "mediaUUID": ""
         }
       }
     },
@@ -411,8 +502,10 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "9c9d0f05-6c02-4a01-b760-7af3ec46954c",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "9c9d0f05-6c02-4a01-b760-7af3ec46954c"
+        },
+        "EE_visible": {},
         "EE_video": {
           "side": 2,
           "uvOffset": {
@@ -434,8 +527,7 @@
           "alphaThreshold": 0.5,
           "fit": "stretch",
           "projection": "Equirectangular360",
-          "mediaUUID": "",
-          "texture": null
+          "mediaUUID": ""
         }
       }
     },
@@ -460,8 +552,10 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "aca0f05-6c02-4a01-b760-7af3ec46954b",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "aca0f05-6c02-4a01-b760-7af3ec46954b"
+        },
+        "EE_visible": {},
         "EE_text_spatial": {
           "text": "Component Test",
           "textOpacity": 100,
@@ -531,10 +625,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "bdb1f05-6c02-4a01-b760-7af3ec46954b",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "bdb1f05-6c02-4a01-b760-7af3ec46954b"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 0,
+          "geometryType": "BoxGeometry",
           "geometryParams": {
             "width": 1,
             "height": 1,
@@ -564,10 +660,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec46954b",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "cec2f05-6c02-4a01-b760-7af3ec46954b"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 1,
+          "geometryType": "SphereGeometry",
           "geometryParams": {
             "radius": 0.5,
             "widthSegments": 32,
@@ -597,10 +695,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec46954c",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "cec2f05-6c02-4a01-b760-7af3ec46954c"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 2,
+          "geometryType": "CylinderGeometry",
           "geometryParams": {
             "radiusTop": 0.5,
             "radiusBottom": 0.5,
@@ -631,10 +731,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec46954d",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "cec2f05-6c02-4a01-b760-7af3ec46954d"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 3,
+          "geometryType": "CapsuleGeometry",
           "geometryParams": {
             "radius": 0.5,
             "length": 1,
@@ -665,10 +767,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec46954e",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "cec2f05-6c02-4a01-b760-7af3ec46954e"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 4,
+          "geometryType": "PlaneGeometry",
           "geometryParams": {
             "width": 1,
             "height": 1
@@ -697,10 +801,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec46954g",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "cec2f05-6c02-4a01-b760-7af3ec46954g"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 5,
+          "geometryType": "CircleGeometry",
           "geometryParams": {
             "radius": 0.5,
             "segments": 32
@@ -729,10 +835,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec46954h",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "cec2f05-6c02-4a01-b760-7af3ec46954h"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 6,
+          "geometryType": "RingGeometry",
           "geometryParams": {
             "innerRadius": 0.3,
             "outerRadius": 0.5,
@@ -762,10 +870,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec46954f",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "cec2f05-6c02-4a01-b760-7af3ec46954f"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 7,
+          "geometryType": "TorusGeometry",
           "geometryParams": {
             "radius": 0.5,
             "tube": 0.2,
@@ -796,10 +906,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec469540",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "cec2f05-6c02-4a01-b760-7af3ec469540"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 8,
+          "geometryType": "DodecahedronGeometry",
           "geometryParams": {
             "radius": 0.5,
             "detail": 0
@@ -828,10 +940,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec469541",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "cec2f05-6c02-4a01-b760-7af3ec469541"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 9,
+          "geometryType": "IcosahedronGeometry",
           "geometryParams": {
             "radius": 0.5,
             "detail": 0
@@ -860,10 +974,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec469542",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "cec2f05-6c02-4a01-b760-7af3ec469542"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 10,
+          "geometryType": "OctahedronGeometry",
           "geometryParams": {
             "radius": 0.5,
             "detail": 0
@@ -892,10 +1008,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec469543",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "cec2f05-6c02-4a01-b760-7af3ec469543"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 11,
+          "geometryType": "TetrahedronGeometry",
           "geometryParams": {
             "radius": 0.5,
             "detail": 0
@@ -924,10 +1042,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "cec2f05-6c02-4a01-b760-7af3ec469544",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "cec2f05-6c02-4a01-b760-7af3ec469544"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 12,
+          "geometryType": "TorusKnotGeometry",
           "geometryParams": {
             "radius": 0.3,
             "tube": 0.1,
@@ -960,10 +1080,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "dfd3f05-6c02-4a01-b760-7af3ec46954b",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "dfd3f05-6c02-4a01-b760-7af3ec46954b"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 0,
+          "geometryType": "BoxGeometry",
           "geometryParams": {
             "width": 1,
             "height": 1,
@@ -997,10 +1119,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "efe4f05-6c02-4a01-b760-7af3ec46954b",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "efe4f05-6c02-4a01-b760-7af3ec46954b"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 0,
+          "geometryType": "BoxGeometry",
           "geometryParams": {
             "width": 1,
             "height": 1,
@@ -1034,10 +1158,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "f0f5f05-6c02-4a01-b760-7af3ec46954b",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "f0f5f05-6c02-4a01-b760-7af3ec46954b"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 1,
+          "geometryType": "SphereGeometry",
           "geometryParams": {
             "radius": 0.5,
             "widthSegments": 32,
@@ -1075,10 +1201,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "01f6f05-6c02-4a01-b760-7af3ec46954b",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "01f6f05-6c02-4a01-b760-7af3ec46954b"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 1,
+          "geometryType": "SphereGeometry",
           "geometryParams": {
             "radius": 0.5,
             "widthSegments": 32,
@@ -1116,10 +1244,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "01f6f05-6c02-4a01-b760-7af3ec46954c",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "01f6f05-6c02-4a01-b760-7af3ec46954c"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 1,
+          "geometryType": "SphereGeometry",
           "geometryParams": {
             "radius": 0.5,
             "widthSegments": 32,
@@ -1157,10 +1287,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "01f6f05-6c02-4a01-b760-7af3ec46954d",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "01f6f05-6c02-4a01-b760-7af3ec46954d"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 1,
+          "geometryType": "SphereGeometry",
           "geometryParams": {
             "radius": 0.5,
             "widthSegments": 32,
@@ -1198,10 +1330,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "12f7f05-6c02-4a01-b760-7af3ec46954b",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "12f7f05-6c02-4a01-b760-7af3ec46954b"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 2,
+          "geometryType": "CylinderGeometry",
           "geometryParams": {
             "radius": 0.5,
             "height": 1,
@@ -1236,10 +1370,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "23f8f05-6c02-4a01-b760-7af3ec46954b",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "23f8f05-6c02-4a01-b760-7af3ec46954b"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 2,
+          "geometryType": "CylinderGeometry",
           "geometryParams": {
             "radius": 0.5,
             "height": 1,
@@ -1274,10 +1410,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "34f9f05-6c02-4a01-b760-7af3ec46954b",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "34f9f05-6c02-4a01-b760-7af3ec46954b"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 2,
+          "geometryType": "CylinderGeometry",
           "geometryParams": {
             "radius": 0.5,
             "height": 1,
@@ -1312,8 +1450,10 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "511ad793-2a07-4f04-a14d-b26762967552",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "511ad793-2a07-4f04-a14d-b26762967552"
+        },
+        "EE_visible": {},
         "EE_particle_system": {
           "systemParameters": {
             "version": "1.0",
@@ -1442,10 +1582,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "fcbe4641-e0bb-4435-b30d-13ae64690b31",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "fcbe4641-e0bb-4435-b30d-13ae64690b31"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 0,
+          "geometryType": "BoxGeometry",
           "geometryParams": {
             "width": 1,
             "height": 1,
@@ -1484,8 +1626,10 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "60a15eb3-1ae8-44a8-8952-ea1f67fa8083",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "60a15eb3-1ae8-44a8-8952-ea1f67fa8083"
+        },
+        "EE_visible": {},
         "EE_spline": {
           "elements": [
             {
@@ -1565,10 +1709,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "fcbe4641-e0bb-4435-b30d-13ae64690b32",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "fcbe4641-e0bb-4435-b30d-13ae64690b32"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 0,
+          "geometryType": "BoxGeometry",
           "geometryParams": {
             "width": 0.5,
             "height": 0.5,
@@ -1605,10 +1751,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "adaa4d16-df22-47fa-9c0d-4111a8383f13",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "adaa4d16-df22-47fa-9c0d-4111a8383f13"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 0,
+          "geometryType": "BoxGeometry",
           "geometryParams": {
             "width": 1,
             "height": 0.5,
@@ -1647,8 +1795,10 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "10eb1bb2-5cf2-4b4e-abab-3132b3a995fa",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "10eb1bb2-5cf2-4b4e-abab-3132b3a995fa"
+        },
+        "EE_visible": {},
         "EE_postprocessing": {
           "enabled": true,
           "effects": {
@@ -1678,66 +1828,6 @@
       }
     },
     {
-      "name": "Dynamic Load",
-      "matrix": [
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        40,
-        1,
-        0,
-        1
-      ],
-      "extensions": {
-        "EE_uuid": "60a15eb3-1ae8-44a8-8952-ea1f67fa8084",
-        "EE_visible": true,
-        "EE_dynamic_load": {
-          "mode": "distance",
-          "distance": 20
-        }
-      },
-      "children": [
-        44
-      ]
-    },
-    {
-      "name": "Dynamic Load Model",
-      "extensions": {
-        "EE_uuid": "60a15eb3-1ae8-44a8-8952-ea1f67fa8085",
-        "EE_visible": true,
-        "EE_model": {
-          "src": "__$project$__/ir-engine/default-project/assets/rings.glb",
-          "cameraOcclusion": true,
-          "applyColliders": false,
-          "shape": "box"
-        },
-        "EE_loop_animation": {
-          "activeClipIndex": 0,
-          "animationPack": "",
-          "useVRM": false,
-          "enabled": true,
-          "paused": false,
-          "time": 0,
-          "timeScale": 1,
-          "blendMode": 2500,
-          "loop": 2201,
-          "clampWhenFinished": false,
-          "zeroSlopeAtStart": true,
-          "zeroSlopeAtEnd": true,
-          "weight": 1
-        }
-      }
-    },
-    {
       "name": "EnvMapBake",
       "matrix": [
         1,
@@ -1758,10 +1848,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "60a15eb3-1ae8-44a8-8952-ea1f67fa8086",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "60a15eb3-1ae8-44a8-8952-ea1f67fa8086"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 1,
+          "geometryType": "SphereGeometry",
           "geometryParams": {
             "radius": 0.5,
             "widthSegments": 32,
@@ -1813,10 +1905,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "174d63bd-4177-4dc3-ad87-90894320986b",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "174d63bd-4177-4dc3-ad87-90894320986b"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 0,
+          "geometryType": "BoxGeometry",
           "geometryParams": {
             "width": 1,
             "height": 1,
@@ -1852,10 +1946,12 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "174d63bd-4177-4dc3-ad87-90894320986c",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "174d63bd-4177-4dc3-ad87-90894320986c"
+        },
+        "EE_visible": {},
         "EE_primitive_geometry": {
-          "geometryType": 0,
+          "geometryType": "BoxGeometry",
           "geometryParams": {
             "width": 1,
             "height": 1,
@@ -1891,11 +1987,122 @@
         1
       ],
       "extensions": {
-        "EE_uuid": "174d63bd-4177-4dc3-ad87-90894320986d",
-        "EE_visible": true,
+        "EE_uuid": {
+          "entityID": "174d63bd-4177-4dc3-ad87-90894320986d"
+        },
+        "EE_visible": {},
         "EE_model": {
           "src": "__$project$__/ir-engine/default-project/assets/rings.glb",
           "cameraOcclusion": false,
+          "applyColliders": false,
+          "shape": "box"
+        },
+        "EE_loop_animation": {
+          "activeClipIndex": 0,
+          "animationPack": "",
+          "useVRM": false,
+          "enabled": true,
+          "paused": false,
+          "time": 0,
+          "timeScale": 1,
+          "blendMode": 2500,
+          "loop": 2201,
+          "clampWhenFinished": false,
+          "zeroSlopeAtStart": true,
+          "zeroSlopeAtEnd": true,
+          "weight": 1
+        }
+      }
+    },
+    {
+      "name": "collisioncube",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        60,
+        1,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": {
+          "entityID": "5e4058ed-5eed-4d85-8982-4ca6d60909ec"
+        },
+        "EE_model": {
+          "src": "__$project$__/ir-engine/default-project/assets/collisioncube.glb?hash=003af2",
+          "cameraOcclusion": true,
+          "applyColliders": false,
+          "shape": "box"
+        },
+        "EE_shadow": {
+          "cast": true,
+          "receive": true
+        },
+        "EE_envmap": {
+          "type": "Skybox",
+          "envMapSourceColor": 8421631,
+          "envMapSourceURL": "",
+          "envMapCubemapURL": "",
+          "envMapSourceEntityUUID": "",
+          "envMapIntensity": 1
+        },
+        "EE_visible": {}
+      }
+    },
+    {
+      "name": "Dynamic Load",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        40,
+        1,
+        0,
+        1
+      ],
+      "extensions": {
+        "EE_uuid": {
+          "entityID": "60a15eb3-1ae8-44a8-8952-ea1f67fa8084"
+        },
+        "EE_visible": {},
+        "EE_dynamic_load": {
+          "mode": "distance",
+          "distance": 20
+        }
+      },
+      "children": [
+        49
+      ]
+    },
+    {
+      "name": "Dynamic Load Model",
+      "extensions": {
+        "EE_uuid": {
+          "entityID": "60a15eb3-1ae8-44a8-8952-ea1f67fa8085"
+        },
+        "EE_visible": {},
+        "EE_model": {
+          "src": "__$project$__/ir-engine/default-project/assets/rings.glb",
+          "cameraOcclusion": true,
           "applyColliders": false,
           "shape": "box"
         },
@@ -1964,11 +2171,12 @@
         40,
         41,
         42,
+        43,
+        44,
         45,
         46,
         47,
-        48,
-        43
+        48
       ]
     }
   ],
@@ -1997,10 +2205,99 @@
     "EE_spline_track",
     "EE_mount_point",
     "EE_postprocessing",
+    "EE_envmapbake",
+    "EE_link",
     "EE_model",
     "EE_loop_animation",
     "EE_dynamic_load",
-    "EE_envmapbake",
-    "EE_link"
-  ]
+    "IR_override"
+  ],
+  "extensions": {
+    "IR_override": {
+      "5e4058ed-5eed-4d85-8982-4ca6d60909ec": [
+        {
+          "op": "remove",
+          "path": "/material-1/IR_material/parameters/emissive"
+        },
+        {
+          "op": "remove",
+          "path": "/material-1/IR_material/parameters/side"
+        },
+        {
+          "op": "remove",
+          "path": "/0/EE_visible"
+        },
+        {
+          "op": "add",
+          "path": "/material-1/IR_material_noise_offset",
+          "value": {
+            "textureSize": 64,
+            "frequency": 0.00025,
+            "amplitude": 0.005,
+            "offsetAxis": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            },
+            "time": 0
+          }
+        },
+        {
+          "op": "add",
+          "path": "/material-1/IR_material/parameters/metalness",
+          "value": 1
+        },
+        {
+          "op": "replace",
+          "path": "/material-1/IR_material/parameters/color",
+          "value": 16777215
+        },
+        {
+          "op": "replace",
+          "path": "/material-1/IR_material/parameters/roughness",
+          "value": 1
+        },
+        {
+          "op": "replace",
+          "path": "/1/IR_transform/rotation/x",
+          "value": 0.05614253016764221
+        },
+        {
+          "op": "replace",
+          "path": "/1/IR_transform/rotation/y",
+          "value": -0.3023363755325846
+        },
+        {
+          "op": "replace",
+          "path": "/1/IR_transform/rotation/z",
+          "value": 0.207512232009737
+        },
+        {
+          "op": "replace",
+          "path": "/1/IR_transform/rotation/w",
+          "value": -0.9286438531011404
+        },
+        {
+          "op": "replace",
+          "path": "/0/IR_transform/rotation/x",
+          "value": -0.15409314446571126
+        },
+        {
+          "op": "replace",
+          "path": "/0/IR_transform/rotation/y",
+          "value": -0.45100717592245765
+        },
+        {
+          "op": "replace",
+          "path": "/0/IR_transform/rotation/z",
+          "value": 0.2967741045653167
+        },
+        {
+          "op": "replace",
+          "path": "/0/IR_transform/rotation/w",
+          "value": -0.8275100971919156
+        }
+      ]
+    }
+  }
 }

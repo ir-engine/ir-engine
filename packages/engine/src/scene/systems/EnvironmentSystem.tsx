@@ -29,7 +29,6 @@ import {
   defineSystem,
   Entity,
   getOptionalMutableComponent,
-  hasComponent,
   haveCommonAncestor,
   PresentationSystemGroup,
   QueryReactor,
@@ -278,6 +277,7 @@ const EnvMapBakeReactor = (props: { entity: Entity; rootEntity: Entity }) => {
         const material = materialComponent.value as MeshStandardMaterial
         material.envMap = null
       }
+      removeComponent(entity, BoxProjectionPlugin)
     }
   }, [])
 
@@ -295,26 +295,30 @@ const EnvMapBakeReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     if (!bakeComponent) return
 
     if (!bakeComponent.boxProjection.value) {
-      if (hasComponent(entity, BoxProjectionPlugin)) {
-        removeComponent(entity, BoxProjectionPlugin)
-      }
+      removeComponent(entity, BoxProjectionPlugin)
       return
     }
 
     const entityPosition = transformComponent?.position.value.clone() || new Vector3(0, 0, 0)
-    const bakePosition = bakeComponent.bakePosition.value
-      ? bakeComponent.bakePosition.value.clone()
-      : entityPosition.add(bakeComponent.bakePositionOffset.value)
+    const cubeMapPos = entityPosition.clone().add(bakeComponent.bakePositionOffset.value)
+    const boxProjectionPlugin = getOptionalMutableComponent(entity, BoxProjectionPlugin)
 
-    setComponent(entity, BoxProjectionPlugin, {
-      cubeMapPos: bakePosition,
-      cubeMapSize: bakeComponent.bakeScale.value
-    })
-
-    return () => {
-      removeComponent(entity, BoxProjectionPlugin)
+    if (boxProjectionPlugin) {
+      boxProjectionPlugin.cubeMapPos.set(cubeMapPos)
+      boxProjectionPlugin.cubeMapSize.set(bakeComponent.bakeScale.value)
+    } else {
+      setComponent(entity, BoxProjectionPlugin, {
+        cubeMapPos: cubeMapPos,
+        cubeMapSize: bakeComponent.bakeScale.value
+      })
     }
-  }, [bakeComponent?.boxProjection, bakeComponent?.envMapOrigin])
+  }, [
+    bakeComponent?.boxProjection,
+    bakeComponent?.envMapOrigin,
+    bakeComponent?.bakePositionOffset,
+    bakeComponent?.bakeScale,
+    transformComponent?.position
+  ])
 
   useEffect(() => {
     if (!error) return

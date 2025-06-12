@@ -30,7 +30,6 @@ import {
   destroyEngine,
   Engine,
   EngineState,
-  Entity,
   entityExists,
   EntityID,
   EntityTreeComponent,
@@ -47,8 +46,6 @@ import { applyIncomingActions, getMutableState, getState, UserID } from '@ir-eng
 import { flushAll } from '@ir-engine/hyperflux/tests/utils/flushAll'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
-import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
 import { AddOperation } from 'rfc6902/diff'
@@ -56,7 +53,8 @@ import { Cache, Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { startEngineReactor } from '../../tests/startEngineReactor'
 import { GLTFComponent } from '../gltf/GLTFComponent'
-import { AssetState } from '../gltf/GLTFState'
+import { AssetState, SceneState } from '../gltf/GLTFState'
+import { OVERRIDE_EXTENSION_NAME } from '../gltf/overrideExporterExtension'
 import {
   applyCommandsToECS,
   AuthoringActions,
@@ -838,25 +836,10 @@ describe('AuthoringState', () => {
   })
 
   describe('should successfully migrate scene deltas to override format using operations', () => {
-    let physicsWorldEntity: Entity
-
     beforeEach(async () => {
       Cache.enabled = true
       createEngine()
       mockSpatialEngine()
-      await Physics.load()
-      physicsWorldEntity = createEntity()
-
-      setComponent(physicsWorldEntity, UUIDComponent, {
-        entityID: 'physicsWorld' as EntityID,
-        entitySourceID: 'source' as SourceID
-      })
-      setComponent(physicsWorldEntity, SceneComponent)
-      setComponent(physicsWorldEntity, TransformComponent)
-      setComponent(physicsWorldEntity, EntityTreeComponent)
-      const physicsWorld = Physics.createWorld(physicsWorldEntity)
-      physicsWorld.timestep = 1 / 60
-
       startEngineReactor()
     })
 
@@ -940,7 +923,8 @@ describe('AuthoringState', () => {
 
       Cache.add('/test.gltf', sceneGLTF)
       Cache.add('https://fake.com/child.gltf', childGLTF)
-      const rootEntity = AssetState.load('/test.gltf', 'test' as EntityID, physicsWorldEntity, Layers.Authoring)
+      SceneState.loadScene('/test.gltf', 'test' as EntityID, undefined, Layers.Authoring)
+      const rootEntity = getState(SceneState)['/test.gltf']
 
       await vi.waitUntil(() => GLTFComponent.isSceneLoaded(rootEntity), { timeout: 5000 })
       await flushAll()
@@ -956,6 +940,120 @@ describe('AuthoringState', () => {
         nodeEntity,
         'material-0' as EntityID,
         Layers.Authoring
+      )!
+
+      expect(getComponent(nestedEntity, TransformComponent).position.y).toBe(5)
+      expect(getComponent(materialEntity, MaterialCustomPlugin).customMap).toBe('/custom-map.png')
+    })
+  })
+
+  describe('should load overrides into scene loaded in the simulation layer', () => {
+    beforeEach(async () => {
+      Cache.enabled = true
+      createEngine()
+      mockSpatialEngine()
+      startEngineReactor()
+    })
+
+    afterEach(() => {
+      Cache.enabled = false
+      return destroyEngine()
+    })
+
+    it('should load overrides into scene loaded in the simulation layer', async () => {
+      const MaterialCustomPlugin = defineComponent({
+        name: 'MaterialCustomPlugin',
+        jsonID: 'IR_material_custom',
+        schema: S.Object({
+          customMap: S.String()
+        })
+      })
+
+      const sceneGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'node',
+            extensions: {
+              [UUIDComponent.jsonID]: 'node' as any,
+              [GLTFComponent.jsonID]: {
+                src: 'https://fake.com/child.gltf'
+              },
+              [VisibleComponent.jsonID]: true
+            }
+          }
+        ],
+        extensions: {
+          [OVERRIDE_EXTENSION_NAME]: {
+            node: [
+              {
+                op: 'add',
+                path: '/material-0/IR_material_custom',
+                value: {
+                  customMap: '/custom-map.png'
+                }
+              },
+              {
+                op: 'replace',
+                path: '/nested/IR_transform/position/y',
+                value: 5
+              }
+            ]
+          }
+        },
+        extensionsUsed: [UUIDComponent.jsonID, VisibleComponent.jsonID, GLTFComponent.jsonID, OVERRIDE_EXTENSION_NAME]
+      }
+
+      const childGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'nested',
+            extensions: {
+              [UUIDComponent.jsonID]: 'nested'
+            }
+          }
+        ],
+        materials: [
+          {
+            name: 'material'
+          }
+        ],
+        extensionsUsed: [UUIDComponent.jsonID]
+      }
+
+      // invoke state initially to make sure it's reactor starts
+      getState(AuthoringState)
+
+      Cache.add('/test.gltf', sceneGLTF)
+      Cache.add('https://fake.com/child.gltf', childGLTF)
+      SceneState.loadScene('/test.gltf', 'test' as EntityID, undefined, Layers.Simulation)
+      const rootEntity = getState(SceneState)['/test.gltf']
+
+      await flushAll()
+      applyIncomingActions()
+
+      await vi.waitUntil(() => GLTFComponent.isSceneLoaded(rootEntity), { timeout: 5000 })
+      await flushAll()
+      applyIncomingActions()
+
+      await flushAll()
+      applyIncomingActions()
+
+      const nodeEntity = GLTFComponent.getEntityBySourceAndID(rootEntity, 'node' as EntityID, Layers.Simulation)!
+      const nestedEntity = GLTFComponent.getEntityBySourceAndID(nodeEntity, 'nested' as EntityID, Layers.Simulation)!
+      const materialEntity = GLTFComponent.getEntityBySourceAndID(
+        nodeEntity,
+        'material-0' as EntityID,
+        Layers.Simulation
       )!
 
       expect(getComponent(nestedEntity, TransformComponent).position.y).toBe(5)

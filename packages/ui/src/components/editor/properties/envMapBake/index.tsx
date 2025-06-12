@@ -29,6 +29,7 @@ import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvMapBakeTypes } from '@ir-engine/engine/src/scene/types/EnvMapBakeTypes'
 
+import DroppableImageInput from '@ir-engine/editor/src/components/assets/DroppableImageInput'
 import { commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { uploadBPCEMBakeToServer } from '@ir-engine/editor/src/functions/uploadEnvMapBake'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
@@ -161,14 +162,14 @@ export const EnvMapBakeNodeEditor = (props) => {
       <Button className="my-1 ml-auto px-10" onClick={() => uploadBPCEMBakeToServer(props.entity)}>
         {t(`editor.projects.bake`)}
       </Button>
-      <InputGroup name="Position" label="Position Offset" className="w-auto">
+      <InputGroup name="Position" label="Bake Position Offset" className="w-auto">
         <Vector3Input
           value={bakeComponent.bakePositionOffset.value}
           onChange={updateProperty(EnvMapBakeComponent, 'bakePositionOffset')}
           onRelease={commitProperty(EnvMapBakeComponent, 'bakePositionOffset')}
         />
       </InputGroup>
-      <InputGroup name="Scale" label="Scale" className="w-auto">
+      <InputGroup name="Scale" label="Box Projection Scale" className="w-auto">
         <Vector3Input
           value={bakeComponent.bakeScale.value}
           onChange={updateProperty(EnvMapBakeComponent, 'bakeScale')}
@@ -192,6 +193,13 @@ export const EnvMapBakeNodeEditor = (props) => {
           key={props.entity}
           value={bakeComponent.resolution.value}
           onChange={commitProperty(EnvMapBakeComponent, 'resolution')}
+        />
+      </InputGroup>
+      <InputGroup name="EnvMap Origin" label="Environment Map Preview">
+        <DroppableImageInput
+          src={bakeComponent.envMapOrigin.value}
+          onChange={updateProperty(EnvMapBakeComponent, 'envMapOrigin')}
+          onBlur={commitProperty(EnvMapBakeComponent, 'envMapOrigin')}
         />
       </InputGroup>
       <Checkbox

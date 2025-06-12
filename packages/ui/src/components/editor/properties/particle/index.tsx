@@ -49,7 +49,6 @@ import {
   BurstParametersJSON,
   CONE_SHAPE_DEFAULT,
   ColorGeneratorJSON,
-  ConstantColorJSON,
   DONUT_SHAPE_DEFAULT,
   MESH_SHAPE_DEFAULT,
   POINT_SHAPE_DEFAULT,
@@ -287,11 +286,11 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           onChange={onSetState}
         />
       </InputGroup>
-      <InputGroup name="Start Color" label={t('editor:properties.particle-system.start-color')}>
+      <InputGroup name="Start Color" label={t('editor:properties.particle-system.startColor.title')}>
         <ColorGenerator
           path="systemParameters.startColor"
           scope={particleSystemState.systemParameters.startColor as unknown as State<ColorGeneratorJSON>}
-          value={particleSystem.systemParameters.startColor as ConstantColorJSON}
+          value={particleSystem.systemParameters.startColor as ColorGeneratorJSON}
           onChange={onSetState}
         />
       </InputGroup>

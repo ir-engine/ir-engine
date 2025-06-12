@@ -154,6 +154,7 @@ const PoiUiView = (props: PoiUiProps) => {
       poiCamera.targetPoiIndex.set(newTargetIndex)
       poiCamera.currentPoiIndex.set(currentTargetIndex) // Keep current as starting point
       poiCamera.poiLerpValue.set(0) // Reset lerp to start transition
+      poiCamera.isTransitioning.set(true)
     } else {
       // Scrolling mode: directly set current index (legacy behavior)
       poiCamera.currentPoiIndex.set(newTargetIndex)
@@ -180,6 +181,7 @@ const PoiUiView = (props: PoiUiProps) => {
       poiCamera.targetPoiIndex.set(newTargetIndex)
       poiCamera.currentPoiIndex.set(currentTargetIndex) // Keep current as starting point
       poiCamera.poiLerpValue.set(0) // Reset lerp to start transition
+      poiCamera.isTransitioning.set(true)
     } else {
       // Scrolling mode: directly set current index (legacy behavior)
       poiCamera.currentPoiIndex.set(newTargetIndex)

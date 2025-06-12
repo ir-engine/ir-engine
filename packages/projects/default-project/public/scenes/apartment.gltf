@@ -11,11 +11,6 @@
           "entityID": "51d71835-68a8-430b-96f6-4c618b8ea407"
         },
         "EE_envmapbake": {
-          "bakePosition": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
           "bakePositionOffset": {
             "x": 0,
             "y": 0,
@@ -33,16 +28,41 @@
           "boxProjection": false
         },
         "EE_camera_settings": {
-          "fov": 50,
           "cameraNearClip": 0.1,
           "cameraFarClip": 1000,
           "projectionType": 1,
-          "minCameraDistance": 1,
-          "maxCameraDistance": 50,
-          "startCameraDistance": 3,
+          "fov": 50,
           "cameraMode": "FOLLOW",
           "minPhi": -70,
-          "maxPhi": 85
+          "maxPhi": 85,
+          "isAvatarVisible": true,
+          "followCameraScrollSensitivity": 1,
+          "canCameraFirstPerson": true,
+          "canCameraThirdPerson": true,
+          "canCameraTopDown": true,
+          "isFistPersonFreeCamera": true,
+          "isThirdPersonFreeCamera": true,
+          "isTopDownFreeCamera": false,
+          "firstPersonCameraLimits": 360,
+          "thirdPersonCameraLimits": 360,
+          "topDownCameraLimits": 360,
+          "isFirstPersonCameraReset": true,
+          "isThirdPersonCameraReset": true,
+          "isTopDownCameraReset": true,
+          "thirdPersonMinDistance": 1.5,
+          "thirdPersonMaxDistance": 50,
+          "thirdPersonDefaultDistance": 3,
+          "topDownMinDistance": 10,
+          "topDownMaxDistance": 70,
+          "topDownDefaultDistance": 40,
+          "poiEntities": [],
+          "poiLerpSpeed": 0.5,
+          "scrollDeadzone": 1,
+          "scrollSensitivity": 0.1,
+          "scrollDistancePerPoi": 3,
+          "scrollBehavior": "Clamp",
+          "poiScrollTransitionType": "Scrolling",
+          "enableTransitionButtons": false
         },
         "EE_fog": {
           "type": "disabled",
@@ -76,17 +96,17 @@
     {
       "name": "scene preview camera",
       "matrix": [
-        0.9985554300035298,
-        1.843143693225355e-18,
-        -0.053731305683582656,
+        0.9985554300035294,
+        2.276824562219555e-18,
+        -0.05373130568358266,
         0,
-        0.001001211754780388,
+        0.0010012117547803885,
         0.9998263779823392,
-        0.018606758603761132,
+        0.018606758603761143,
         0,
-        0.053721976745878385,
-        -0.018633676253400698,
-        0.9983820587950275,
+        0.05372197674587839,
+        -0.0186336762534007,
+        0.9983820587950272,
         0,
         -2.3184722251170213,
         1.6898777584130713,
@@ -1239,9 +1259,9 @@
         0,
         1,
         0,
-        -0.6517807171857612,
-        3.1700513124390657,
-        1.5277829229407551,
+        -0.7826329664618463,
+        2,
+        0.5285113797429986,
         1
       ],
       "extensions": {
@@ -1249,25 +1269,20 @@
           "entityID": "1f374932-e649-4b30-b6e7-de990fdee2a1"
         },
         "EE_envmapbake": {
-          "bakePosition": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
           "bakePositionOffset": {
             "x": 0,
-            "y": 4.4,
+            "y": 4,
             "z": 0
           },
           "bakeScale": {
             "x": 17.200000000000003,
-            "y": 8.2,
+            "y": 12,
             "z": 20.5
           },
           "bakeType": "Baked",
           "resolution": 1024,
           "refreshMode": "OnAwake",
-          "envMapOrigin": "__$project$__/ir-engine/default-project/public/scenes/apartment.envmap.ktx2",
+          "envMapOrigin": "__$project$__/ir-engine/default-project/public/scenes/apartment.gltf-New-EnvMap%20Bake.ktx2?hash=876f20",
           "boxProjection": true
         },
         "EE_visible": {}

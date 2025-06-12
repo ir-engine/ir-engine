@@ -44,7 +44,13 @@ import { ChevronDownSm, File04Sm, UploadCloud02Sm } from '@ir-engine/ui/src/icon
 import { t } from 'i18next'
 import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
-import { confirmSceneExists, onNewScene, onSaveScene, saveSceneGLTF } from '../../functions/sceneFunctions'
+import {
+  confirmSceneExists,
+  onNewScene,
+  onSaveScene,
+  saveSceneGLTF,
+  useCanSaveScene
+} from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { uploadFiles } from '../../panels/assets/topbar'
 import { EditorState } from '../../services/EditorServices'
@@ -124,11 +130,15 @@ const generateToolbarMenu = () => {
     {
       name: t('editor:menubar.saveScene'),
       hotkey: `${cmdOrCtrlString}+s`,
-      action: onSaveScene
+      action: onSaveScene,
+      enabledHook: useCanSaveScene,
+      showSpinner: true
     },
     {
       name: t('editor:menubar.saveAs'),
-      action: () => ModalState.openModal(<SaveNewSceneDialog />)
+      action: () => ModalState.openModal(<SaveNewSceneDialog />),
+      enabledHook: useCanSaveScene,
+      showSpinner: true
     },
     {
       name: t('editor:menubar.importSettings'),
@@ -190,6 +200,12 @@ export default function Toolbar() {
   const hasPublishAccess = hasLocationWriteScope || permission?.type === 'owner' || permission?.type === 'editor'
   const locationQuery = useFind(locationPath, { query: { action: 'studio', sceneId: sceneAssetID.value } })
   const currentLocation = locationQuery.data[0]
+
+  // This is fine as long as toolbarMenu is a static object
+  const toolbarItemsEnabled = toolbarMenu.map((item) => {
+    if (!item.enabledHook) return true
+    return item.enabledHook()
+  })
 
   return (
     <>
@@ -267,14 +283,17 @@ export default function Toolbar() {
         onClose={() => anchorEvent.set(null)}
       >
         <div className="w-[180px]" tabIndex={0}>
-          {toolbarMenu.map(({ name, href, action = () => {}, hotkey }, index) => (
+          {toolbarMenu.map(({ name, href, action = () => {}, hotkey, showSpinner = false }, index) => (
             <DropdownItem
               key={name + '' + index}
+              disabled={!toolbarItemsEnabled[index]}
+              showSpinner={showSpinner}
               label={name}
               href={href}
               secondaryText={hotkey}
               data-testid={`editor-main-menu-item-${name.toLowerCase().replace(/\s+/g, '-')}`}
               onClick={() => {
+                if (!toolbarItemsEnabled[index]) return
                 action()
                 anchorEvent.set(null)
               }}

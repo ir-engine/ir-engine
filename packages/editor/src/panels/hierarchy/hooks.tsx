@@ -66,6 +66,7 @@ import {
   groupNodes,
   HierarchyTreeNodeType,
   pasteNodes,
+  ungroupNodes,
   uploadOptions
 } from './helpers'
 
@@ -431,6 +432,7 @@ export const useHierarchyTreeHotkeys = () => {
   const renamingNode = useRenamingNode()
   useSimplifiedHotkey('d', duplicateNode)
   useSimplifiedHotkey('g', groupNodes)
+  useSimplifiedHotkey('u', ungroupNodes)
   useSimplifiedHotkey('c', copyNodes)
   useSimplifiedHotkey('v', pasteNodes)
   useSimplifiedHotkey('r', () => {
