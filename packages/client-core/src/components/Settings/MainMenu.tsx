@@ -28,6 +28,7 @@ import React from 'react'
 import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
 import { NetworkState, useMutableState } from '@ir-engine/hyperflux'
 import Divider from '@ir-engine/ui/src/components/viewer/Divider'
+import { MultiplayerState } from '../../common/services/MultiplayerState'
 import { AuthService } from '../../user/services/AuthService'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
@@ -43,6 +44,7 @@ interface ScreenProps {
 const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
   const audioState = useMutableState(AudioState)
   const { config } = useMutableState(NetworkState)
+  const multiplayer = useMutableState(MultiplayerState).multiplayer
 
   return (
     <div className="space-y-4">
@@ -76,8 +78,8 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
       <Section>
         <ToggleItem
           label="Multiplayer"
-          checked={config.world.value}
-          onClick={() => config.world.set(!config.world.value)}
+          checked={multiplayer.value}
+          onClick={() => multiplayer.set(!multiplayer.value)}
         />
         <Divider />
         <MenuItem label="Account" onClick={() => navigateTo('Settings', 'account')} hasChevron />
