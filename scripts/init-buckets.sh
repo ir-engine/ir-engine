@@ -11,8 +11,7 @@ buckets=(
   "ir-engine-minikube-static-resources"
 )
 
-for bucket in "${buckets[@]}"
-do
+for bucket in "${buckets[@]}"; do
   mc mb local/$bucket --insecure || echo "Bucket $bucket already exists"
   mc anonymous set public local/$bucket --insecure
   echo "Bucket $bucket created and set to public"
