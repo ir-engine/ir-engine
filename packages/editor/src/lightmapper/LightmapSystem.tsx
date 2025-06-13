@@ -26,18 +26,25 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   defineSystem,
   Entity,
+  getComponent,
   Layers,
   PresentationSystemGroup,
+  removeComponent,
   useChildrenWithComponents,
   useComponent
 } from '@ir-engine/ecs'
-import { QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
+import { defineQuery, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { LightmapComponent } from '@ir-engine/engine/src/lightmap/LightmapComponent'
-import { useHookstate } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import React, { useEffect } from 'react'
-import { MeshStandardMaterial, WebGLRenderTarget } from 'three'
+import { MeshStandardMaterial } from 'three'
 import { commitProperty } from '../components/properties/Util'
+import { LightmapBakeComponent } from './LightmapBakeComponent'
+import { Lightmapper } from './LightmapperFunctions'
 
 const MaterialReactor = (props: { lightmapEntity: Entity; entity: Entity }) => {
   const { lightmapEntity, entity } = props
@@ -46,9 +53,9 @@ const MaterialReactor = (props: { lightmapEntity: Entity; entity: Entity }) => {
 
   const material = materialState.material.value as MeshStandardMaterial
 
-  const lightmapRenderTarget = useHookstate(
-    new WebGLRenderTarget(lightmapComponent.resolution.value, lightmapComponent.resolution.value)
-  )
+  // const lightmapRenderTarget = useHookstate(
+  //   new WebGLRenderTarget(lightmapComponent.resolution, lightmapComponent.resolution)
+  // )
 
   useEffect(() => {
     // Lightmapper.initialize(new WebGLRenderer(), )
@@ -88,10 +95,37 @@ const LightmapReactor = ({ entity }) => {
   )
 }
 
+const lightmapQuery = defineQuery([LightmapBakeComponent])
+
+let i = 0
 const execute = () => {
-  // const lightmapQuery = defineQuery([LightmapComponent])
-  // for (const entity of lightmapQuery()) {
-  // }
+  for (const entity of lightmapQuery()) {
+    const { renderTarget, raycastMesh, orthographicCamera, raycastMaterial, entities } = getComponent(
+      entity,
+      LightmapBakeComponent
+    )
+
+    if (i < 1000) {
+      i = Lightmapper.sample(
+        raycastMesh,
+        renderTarget,
+        raycastMaterial,
+        orthographicCamera,
+        getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!,
+        i
+      )
+    } else {
+      removeComponent(entity, LightmapBakeComponent)
+    }
+
+    // debugging
+    entities.map((entity) => {
+      ;(getComponent(entity, MeshComponent).material as MeshStandardMaterial).aoMap = renderTarget.texture
+
+      /**@ts-ignore */
+      ;(getComponent(entity, MeshComponent).material as MeshStandardMaterial).aoMap.channel = 2
+    })
+  }
 }
 
 export const LightmapSystem = defineSystem({

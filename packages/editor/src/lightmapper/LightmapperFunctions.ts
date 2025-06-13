@@ -23,14 +23,20 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, getComponent } from '@ir-engine/ecs'
-import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { createEntity, Entity, EntityTreeComponent, getComponent, setComponent } from '@ir-engine/ecs'
+import { mergeGeometries } from '@ir-engine/engine/src/scene/util/meshUtils'
+import { getState } from '@ir-engine/hyperflux'
+import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import {
   FloatType,
   LinearFilter,
   LinearMipMapLinearFilter,
   Matrix4,
   Mesh,
+  MeshStandardMaterial,
   OrthographicCamera,
   PlaneGeometry,
   ShaderMaterial,
@@ -62,7 +68,7 @@ const initializeLightmapper = (
   normals: Texture,
   bvh: MeshBVH,
   options: RaycastOptions
-) => {
+): [WebGLRenderTarget, Mesh, OrthographicCamera, LightmapperMaterial] => {
   const renderTexture = new WebGLRenderTarget(options.resolution, options.resolution, {
     type: FloatType,
     minFilter: LinearMipMapLinearFilter,
@@ -73,43 +79,40 @@ const initializeLightmapper = (
   renderer.setClearColor(0xff0000, 0)
   renderer.clear()
 
-  const raycastMesh = new Mesh(
-    new PlaneGeometry(2, 2),
-    new LightmapperMaterial({
-      bvh,
-      invModelMatrix: new Matrix4().identity(),
-      positions,
-      normals,
-      casts: options.casts,
-      lightPosition: options.lightPosition,
-      lightSize: options.lightSize,
-      opacity: 1,
-      sampleIndex: 0,
-      directLightEnabled: options.directLightEnabled,
-      indirectLightEnabled: options.indirectLightEnabled,
-      ambientLightEnabled: options.ambientLightEnabled,
-      ambientDistance: options.ambientDistance
-    })
-  )
+  const raycastMaterial = new LightmapperMaterial({
+    bvh,
+    invModelMatrix: new Matrix4().identity(),
+    positions,
+    normals,
+    casts: options.casts,
+    lightPosition: options.lightPosition,
+    lightSize: options.lightSize,
+    opacity: 1,
+    sampleIndex: 0,
+    directLightEnabled: options.directLightEnabled,
+    indirectLightEnabled: options.indirectLightEnabled,
+    ambientLightEnabled: options.ambientLightEnabled,
+    ambientDistance: options.ambientDistance
+  })
+
+  const raycastMesh = new Mesh(new PlaneGeometry(2, 2), raycastMaterial)
 
   renderer.setRenderTarget(null)
 
   const orthographicCamera = new OrthographicCamera()
 
-  return [renderTexture, raycastMesh, orthographicCamera]
+  return [renderTexture, raycastMesh, orthographicCamera, raycastMaterial]
 }
 
 const sampleLightmap = (
   raycastMesh: Mesh,
   renderTexture: WebGLRenderTarget,
-  material: Entity,
+  raycastMaterial: ShaderMaterial,
   orthographicCamera: OrthographicCamera,
   renderer: WebGLRenderer,
   totalSamples: number
 ) => {
   renderer.setRenderTarget(renderTexture)
-
-  const raycastMaterial = getComponent(material, MaterialStateComponent).material as ShaderMaterial
 
   raycastMaterial.uniforms.sampleIndex.value = totalSamples
   raycastMaterial.uniforms.opacity.value = totalSamples == 0 ? 1 : 1 / totalSamples
@@ -120,7 +123,29 @@ const sampleLightmap = (
   return totalSamples
 }
 
+const getBakeBVH = (entities: Entity[]) => {
+  const meshComponents = entities.map((entity) => getComponent(entity, MeshComponent))
+  const geometries = meshComponents.map((meshComponent) => meshComponent.geometry.clone())
+  for (let i = 0; i < geometries.length; i++) {
+    geometries[i].applyMatrix4(meshComponents[i].matrixWorld)
+  }
+  const merged = mergeGeometries(geometries)!
+
+  //debug visualize merged geometry
+  const mergedEntity = createEntity()
+  setComponent(mergedEntity, NameComponent, 'merged')
+  setComponent(mergedEntity, TransformComponent)
+  setComponent(mergedEntity, MeshComponent, new Mesh(merged, new MeshStandardMaterial({ color: 0xff0000 })))
+  setComponent(mergedEntity, VisibleComponent)
+  setComponent(mergedEntity, EntityTreeComponent, {
+    parentEntity: getComponent(getState(ReferenceSpaceState).originEntity, EntityTreeComponent).parentEntity
+  })
+
+  return new MeshBVH(merged)
+}
+
 export const Lightmapper = {
   initialize: initializeLightmapper,
-  sample: sampleLightmap
+  sample: sampleLightmap,
+  getBakeBVH
 }

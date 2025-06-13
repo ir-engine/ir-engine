@@ -50,9 +50,6 @@ export const LightmapComponent = defineComponent({
   jsonID: 'IR_lightmap',
 
   schema: S.Object({
-    resolution: S.Number({ default: 1024 }),
-    intensity: S.Number({ default: 1.0 }),
-    texCoord: S.Number({ default: 1 }),
     atlasSrc: S.String({ default: '' })
   }),
 

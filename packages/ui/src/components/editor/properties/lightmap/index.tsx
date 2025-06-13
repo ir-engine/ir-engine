@@ -23,24 +23,25 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineQuery, getComponent, useComponent } from '@ir-engine/ecs'
-import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
+import { Entity, getComponent, getSimulationCounterpart, setComponent } from '@ir-engine/ecs'
+import { commitProperty, EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { Button } from '@ir-engine/ui'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdLightbulb } from 'react-icons/md'
-import InputGroup from '../../input/Group'
-import NumericInput from '../../input/Numeric'
-import SelectInput from '../../input/Select'
 
 import { AtlasingFunctions, UV2UnwrapperState } from '@ir-engine/editor/src/lightmapper/AtlasingFunctions'
+import { LightmapBakeComponent } from '@ir-engine/editor/src/lightmapper/LightmapBakeComponent'
+import { Lightmapper } from '@ir-engine/editor/src/lightmapper/LightmapperFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { LightmapComponent } from '@ir-engine/engine/src/lightmap/LightmapComponent'
-import { getState, useMutableState } from '@ir-engine/hyperflux'
+import { getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
+import { LinearFilter, Vector3 } from 'three'
 
 const resolutionOptions = [
   { label: '256', value: 256 },
@@ -49,14 +50,13 @@ const resolutionOptions = [
   { label: '2048', value: 2048 }
 ]
 
-const rendererQuery = defineQuery([RendererComponent])
-
 export const LightmapNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const lightmapComponent = useComponent(props.entity, LightmapComponent)
+
+  const atlasedEntities = useHookstate([] as Entity[])
 
   const handleGenerateAtlas = async () => {
-    const entities = await AtlasingFunctions.generateAtlas(props.entity)
+    const entities = await AtlasingFunctions.generateAtlas(getSimulationCounterpart(props.entity))
     if (!entities) return
     const editorState = getState(EditorState)
     const atlasSrc = await AtlasingFunctions.exportAtlasData(
@@ -66,26 +66,49 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
       getComponent(props.entity, NameComponent)
     )
 
-    // this is a test
-    const textures = AtlasingFunctions.renderAtlas(
-      getComponent(rendererQuery()[0], RendererComponent).renderer!,
-      entities.map((entity) => getComponent(entity, MeshComponent)),
-      lightmapComponent.resolution.value,
-      true
-    )
-    // debugging
-    entities.map((entity) => {
-      /**@ts-ignore */
-      getComponent(entity, MeshComponent).material.map = textures.positionTexture
-      /**@ts-ignore */
-      getComponent(entity, MeshComponent).material.map.channel = 2
-    })
-
     commitProperty(LightmapComponent, 'atlasSrc', [props.entity])(atlasSrc)
+
+    atlasedEntities.set(entities)
   }
 
   const handleBakeLightmap = async () => {
-    console.log('Baking lightmap for entity:', props.entity)
+    if (!atlasedEntities.value.length) console.error('No atlased entities to bake')
+    const entities = atlasedEntities.value
+
+    const resolution = 1024
+
+    const textures = AtlasingFunctions.renderAtlas(
+      getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!,
+      entities.map((entity) => getComponent(entity, MeshComponent)),
+      resolution,
+      true
+    )
+
+    const [renderTexture, raycastMesh, orthographicCamera, raycastMaterial] = Lightmapper.initialize(
+      getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!,
+      textures.positionTexture,
+      textures.normalTexture,
+      Lightmapper.getBakeBVH(entities as Entity[]),
+      {
+        resolution,
+        casts: 1,
+        lightPosition: new Vector3(),
+        lightSize: 1,
+        filterMode: LinearFilter,
+        directLightEnabled: true,
+        indirectLightEnabled: true,
+        ambientLightEnabled: true,
+        ambientDistance: 1
+      }
+    )
+
+    setComponent(getSimulationCounterpart(props.entity), LightmapBakeComponent, {
+      entities: atlasedEntities.value as Entity[],
+      renderTarget: renderTexture,
+      raycastMesh,
+      orthographicCamera,
+      raycastMaterial
+    })
   }
 
   const unwrapperLoaded = useMutableState(UV2UnwrapperState).isLoaded
@@ -103,7 +126,7 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.lightmap.description') || 'Lightmap settings for static objects'}
       Icon={LightmapNodeEditor.iconComponent}
     >
-      <InputGroup name="Resolution" label={t('editor:properties.lightmap.lbl-resolution') || 'Resolution'}>
+      {/* <InputGroup name="Resolution" label={t('editor:properties.lightmap.lbl-resolution') || 'Resolution'}>
         <SelectInput
           options={resolutionOptions}
           value={lightmapComponent.resolution.value}
@@ -120,7 +143,7 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
           value={lightmapComponent.intensity.value}
           onChange={commitProperty(LightmapComponent, 'intensity')}
         />
-      </InputGroup>
+      </InputGroup> */}
 
       <div className="mt-2 flex flex-col gap-2">
         <Button onClick={handleGenerateAtlas} disabled={!unwrapperLoaded.value}>

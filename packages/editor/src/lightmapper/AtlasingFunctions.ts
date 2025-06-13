@@ -302,12 +302,11 @@ const renderAtlas = (renderer: WebGLRenderer, meshs: Mesh[], resolution: number,
       magFilter: NearestFilter,
       minFilter: NearestFilter
     })
-    // Create orthographic camera with large clip area to prevent clipping the geometry
-    // I'm don't know a better way to do this :(
+
     const orthographicCamera = new OrthographicCamera(-100, 100, -100, 100, -100, 200)
     orthographicCamera.updateMatrix()
 
-    // Re-create objects with util material - Maybe we could just change the material on the fly?
+    /**@todo attempt material swapping instead of cloning */
     const lightMapMeshes = new Object3D()
     lightMapMeshes.matrixWorldAutoUpdate = false
 
@@ -317,7 +316,6 @@ const renderAtlas = (renderer: WebGLRenderer, meshs: Mesh[], resolution: number,
       lightMapMeshes.add(lightMapMesh)
     }
 
-    // Setup renderer
     renderer.autoClear = false
     renderer.setRenderTarget(target)
     renderer.setClearColor(0, 0)
