@@ -508,7 +508,6 @@ export const parseGLTFFile = (
     json = JSON.parse(JSON.stringify(json))
 
     json = migrateEEMaterial(json)
-
     return [parseStorageProviderURLs(json), body]
   } catch (error) {
     if (onError) onError(error)
@@ -525,10 +524,11 @@ const useGLTFDocument = (entity: Entity) => {
   const isEditing = layer === Layers.Authoring
 
   const dynamicLoadAndNotEditing = !isEditing && !!dynamicLoadComponent && !dynamicLoadComponent?.loaded?.value
-
+  const gltfComponent = getMutableComponent(entity, GLTFComponent)
   useEffect(() => {
     if (dynamicLoadAndNotEditing) return
     if (!url) {
+      gltfComponent.progress.set(100)
       return
     }
 
@@ -573,7 +573,6 @@ const useGLTFDocument = (entity: Entity) => {
     return () => {
       abortController.abort()
       if (!hasComponent(entity, GLTFComponent)) return
-      const gltfComponent = getMutableComponent(entity, GLTFComponent)
       gltfComponent.document.set(null)
       gltfComponent.body.set(null)
       gltfComponent.progress.set(0)

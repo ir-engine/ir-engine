@@ -40,6 +40,7 @@ import MainMenu from './MainMenu'
 
 // Import other screen components
 import { useNavigationProvider } from '../Glass/NavigationProvider'
+import AudioScreen from './AudioScreen'
 import AvatarScreen from './AvatarScreen'
 import ControlsScreen from './ControlsScreen'
 import DeleteAccountScreen from './DeleteAccountScreen'
@@ -65,6 +66,7 @@ export const screens: Record<string, ScreenDefinition> = {
   main: { component: MainMenu, title: 'Settings' },
   account: { component: AccountSettings, title: 'Account' },
   graphics: { component: GraphicsSettings, title: 'Graphics' },
+  audio: { component: AudioScreen, title: 'Audio' },
   signup: {
     title: 'Sign Up',
     component: SignUpScreen

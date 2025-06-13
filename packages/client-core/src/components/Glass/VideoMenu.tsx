@@ -47,6 +47,7 @@ import {
 import { WindowType } from '../../user/VideoWindows'
 import { useUserMediaWindowHook } from '../../user/VideoWindows/hook'
 import { ReportUserState } from '../../util/ReportUserState'
+
 import { smallIconButtonStyles } from './Buttons'
 import { useNavigationProvider } from './NavigationProvider'
 

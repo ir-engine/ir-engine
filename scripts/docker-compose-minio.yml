@@ -8,14 +8,22 @@ services:
     volumes:
       - 'minio_data:/data'
       - ../certs/minio:/certs
+      - ./init-buckets.sh:/usr/local/bin/init-buckets.sh
     environment:
+      MINIO_SERVER: https://127.0.0.1:9000
       MINIO_ROOT_USER: server
       MINIO_ROOT_PASSWORD: password
       MINIO_API_REQUESTS_MAX: 2000
       MINIO_API_REQUESTS_DEADLINE: 3m
       BITNAMI_DEBUG: 'true'
       MINIO_SCHEME: https
-      MINIO_DEFAULT_BUCKETS: ir-engine-static-resources:public,ir-engine-static-resources-test:public,ir-engine-microk8s-static-resources:public,ir-engine-minikube-static-resources:public
+      MINIO_SKIP_CLIENT: 'yes'
+    entrypoint:
+      [
+        '/bin/bash',
+        '-c',
+        '(/opt/bitnami/scripts/minio/entrypoint.sh /opt/bitnami/scripts/minio/run.sh &) && sleep 10 && /usr/local/bin/init-buckets.sh && /usr/local/bin/init-buckets.sh && tail -f /dev/null'
+      ]
 
 volumes:
   minio_data:

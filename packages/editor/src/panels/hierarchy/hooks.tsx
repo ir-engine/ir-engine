@@ -26,6 +26,7 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import { VALID_HEIRARCHY_SEARCH_REGEX } from '@ir-engine/common/src/regex'
 import {
   Entity,
+  EntityArrayBoundary,
   EntityTreeComponent,
   getAncestorWithComponents,
   getChildrenWithComponents,
@@ -33,7 +34,6 @@ import {
   hasComponent,
   isAncestor,
   Layers,
-  QuerySubReactor,
   traverseEntityNode,
   UndefinedEntity,
   useComponent,
@@ -205,9 +205,7 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
 
   return (
     <>
-      {childEntities.map((childEntity) => (
-        <QuerySubReactor key={childEntity} entity={childEntity} ChildEntityReactor={ChildEntityReactor} />
-      ))}
+      <EntityArrayBoundary entities={childEntities} ChildEntityReactor={ChildEntityReactor} />
       <HierarchyTreeContext.Provider
         value={{
           nodes: displayedNodes,
