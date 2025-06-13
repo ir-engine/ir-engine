@@ -37,10 +37,13 @@ import { XRLoading } from '../XRLoading'
 import { ToolbarAndSidebar } from './ToolbarAndSidebar'
 
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
+import { useMediaWindows } from '../../user/VideoWindows'
+import { useUserMediaWindowsHook } from '../../user/VideoWindows/hook'
 import Settings, { screens as settingsScreens } from '../Settings'
 import { ChatMenu } from './ChatMenu'
 import { ChatProvider } from './ChatProvider'
-import { MultiVideos } from './MultiVideo'
+import { MultimediaStateProvider } from './MultimediaStateProvider'
+import { VideoCarousel } from './MultiVideo'
 import { NavigationProvider, useNavigationProvider } from './NavigationProvider'
 import { ToolbarMenu } from './ToolbarMenu'
 import { VideoMenu } from './VideoMenu'
@@ -72,6 +75,7 @@ const Menu = () => {
   const { t } = useTranslation()
   const externalInjectedMenus = useMutableState(ViewerMenuState).externalInjectedMenus.get(NO_PROXY)
   const locationContainer = useRef<HTMLDivElement>(null)
+  const windows = useMediaWindows()
 
   const {
     activeHistoryKey,
@@ -128,7 +132,7 @@ const Menu = () => {
 
   const contents = {
     Chat: <ChatMenu navigateTo={navigateTo} />,
-    Video: <VideoMenu />,
+    Video: <VideoMenu videos={windows} />,
     Settings: <Settings />
   }
 
@@ -136,6 +140,8 @@ const Menu = () => {
   const onShareClick = createToggleSidebarKey(`Share`)
   const onFullscreenVideosClick = createToggleSidebarKey(`Video`)
   const onSettingsClick = createToggleSidebarKey(`Settings`)
+
+  const { videoElements, videoMediaStreams } = useUserMediaWindowsHook(windows)
 
   const toolbar = (
     <ToolbarMenu
@@ -153,7 +159,11 @@ const Menu = () => {
 
   return (
     <div id="location-container" ref={locationContainer} className="fixed h-dvh w-full">
-      <MultiVideos handleSidebarOpen={onFullscreenVideosClick} />
+      <VideoCarousel
+        handleSidebarOpen={onFullscreenVideosClick}
+        videoElements={videoElements}
+        videoMediaStreams={videoMediaStreams}
+      />
 
       <ToolbarAndSidebar
         handleSidebarClose={navigateClose}
@@ -178,9 +188,11 @@ const Menu = () => {
 export const ViewerInteractions = () => {
   return (
     <NavigationProvider>
-      <ChatProvider>
-        <Menu />
-      </ChatProvider>
+      <MultimediaStateProvider>
+        <ChatProvider>
+          <Menu />
+        </ChatProvider>
+      </MultimediaStateProvider>
     </NavigationProvider>
   )
 }

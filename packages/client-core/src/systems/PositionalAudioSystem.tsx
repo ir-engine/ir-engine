@@ -119,9 +119,10 @@ const execute = () => {
       continue
     }
     const track = videoMediaStream.getVideoTracks()[0]
+    const audioTrack = videoMediaStream.getAudioTracks()[0]
 
     // avatar still exists but audio stream does not
-    if (!track) {
+    if (!track || !audioTrack) {
       if (avatarAudioStreams.has(networkObject)) avatarAudioStreams.delete(networkObject)
       continue
     }

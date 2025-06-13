@@ -681,5 +681,22 @@
       "projects/ir-engine/default-project/assets/avatars/irRobot.png"
     ],
     "name": "irRobot.vrm"
+  },
+  "assets/noise-offset.material.gltf": {
+    "type": "asset",
+    "tags": [
+      "Material"
+    ],
+    "dependencies": [],
+    "name": "noise-offset.material.gltf"
+  },
+  "public/scenes/sponza.gltf": {
+    "type": "scene",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "name": "sponza.gltf",
+    "thumbnailKey": "projects/ir-engine/default-project/public/scenes/sponza.thumbnail.jpg"
   }
 }

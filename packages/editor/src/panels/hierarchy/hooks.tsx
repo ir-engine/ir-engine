@@ -26,6 +26,7 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import { VALID_HEIRARCHY_SEARCH_REGEX } from '@ir-engine/common/src/regex'
 import {
   Entity,
+  EntityArrayBoundary,
   EntityTreeComponent,
   getAncestorWithComponents,
   getChildrenWithComponents,
@@ -33,7 +34,6 @@ import {
   hasComponent,
   isAncestor,
   Layers,
-  QuerySubReactor,
   traverseEntityNode,
   UndefinedEntity,
   useComponent,
@@ -66,6 +66,7 @@ import {
   groupNodes,
   HierarchyTreeNodeType,
   pasteNodes,
+  ungroupNodes,
   uploadOptions
 } from './helpers'
 
@@ -204,9 +205,7 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
 
   return (
     <>
-      {childEntities.map((childEntity) => (
-        <QuerySubReactor key={childEntity} entity={childEntity} ChildEntityReactor={ChildEntityReactor} />
-      ))}
+      <EntityArrayBoundary entities={childEntities} ChildEntityReactor={ChildEntityReactor} />
       <HierarchyTreeContext.Provider
         value={{
           nodes: displayedNodes,
@@ -431,6 +430,7 @@ export const useHierarchyTreeHotkeys = () => {
   const renamingNode = useRenamingNode()
   useSimplifiedHotkey('d', duplicateNode)
   useSimplifiedHotkey('g', groupNodes)
+  useSimplifiedHotkey('u', ungroupNodes)
   useSimplifiedHotkey('c', copyNodes)
   useSimplifiedHotkey('v', pasteNodes)
   useSimplifiedHotkey('r', () => {

@@ -33,6 +33,7 @@ import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/us
 import { InviteCode, UserName, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { getDateTimeSql, toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { isValidId } from '@ir-engine/common/src/utils/isValidId'
+import { retry } from '@octokit/plugin-retry'
 import moment from 'moment/moment'
 import { Octokit } from 'octokit'
 import { Application } from '../../../declarations'
@@ -84,7 +85,11 @@ export class GithubStrategy extends CustomOAuthStrategy {
     if (profile.email) {
       email = profile.email
     } else {
-      const octoKit = new Octokit({ auth: `token ${params.access_token}` })
+      const retryOctokit = Octokit.plugin(retry)
+      const octoKit = new retryOctokit({
+        auth: `token ${params.access_token}`,
+        retry: { enabled: process.env.TEST !== 'true' }
+      })
       const githubEmails = await octoKit.rest.users.listEmailsForAuthenticatedUser()
 
       email = githubEmails.data.filter((githubEmail: any) => githubEmail.primary === true)[0].email

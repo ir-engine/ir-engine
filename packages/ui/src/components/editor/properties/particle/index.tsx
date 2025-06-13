@@ -37,25 +37,24 @@ import {
 import { BurstParameters, RenderMode } from 'three.quarks'
 
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { State } from '@ir-engine/hyperflux'
+import { HiSparkles } from 'react-icons/hi'
+
+import { EditorComponentType, commitProperties, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
 import {
   ApplyForceBehaviorJSON,
   BehaviorJSON,
   BurstParametersJSON,
   CONE_SHAPE_DEFAULT,
   ColorGeneratorJSON,
-  ConstantColorJSON,
   DONUT_SHAPE_DEFAULT,
   MESH_SHAPE_DEFAULT,
   POINT_SHAPE_DEFAULT,
-  ParticleSystemComponent,
   SPHERE_SHAPE_DEFAULT,
   ValueGeneratorJSON
-} from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
-import { State } from '@ir-engine/hyperflux'
-import { HiSparkles } from 'react-icons/hi'
-
-import { EditorComponentType, commitProperties, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
-import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+} from '@ir-engine/engine/src/scene/types/ParticleSystemTypes'
 import { Checkbox } from '@ir-engine/ui'
 import Button from '../../../../primitives/tailwind/Button'
 import BehaviorInput from '../../input/Behavior'
@@ -287,11 +286,11 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           onChange={onSetState}
         />
       </InputGroup>
-      <InputGroup name="Start Color" label={t('editor:properties.particle-system.start-color')}>
+      <InputGroup name="Start Color" label={t('editor:properties.particle-system.startColor.title')}>
         <ColorGenerator
           path="systemParameters.startColor"
           scope={particleSystemState.systemParameters.startColor as unknown as State<ColorGeneratorJSON>}
-          value={particleSystem.systemParameters.startColor as ConstantColorJSON}
+          value={particleSystem.systemParameters.startColor as ColorGeneratorJSON}
           onChange={onSetState}
         />
       </InputGroup>

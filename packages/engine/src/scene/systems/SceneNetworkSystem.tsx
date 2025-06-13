@@ -26,12 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   defineSystem,
   Entity,
+  EntityArrayBoundary,
   EntityTreeComponent,
   getComponent,
   hasComponent,
   PresentationSystemGroup,
   QueryReactor,
-  QuerySubReactor,
   useComponent,
   useEntityContext,
   UUIDComponent,
@@ -86,11 +86,10 @@ const SourcedSceneReactor = () => {
   const sourcedEntities = UUIDComponent.useEntitiesBySource(sourceID)
 
   return (
-    <>
-      {sourcedEntities.filter(filterSpatialEntities).map((sourcedEntity) => (
-        <QuerySubReactor key={sourcedEntity} entity={sourcedEntity} ChildEntityReactor={SourcedEntityReactor} />
-      ))}
-    </>
+    <EntityArrayBoundary
+      entities={sourcedEntities.filter(filterSpatialEntities)}
+      ChildEntityReactor={SourcedEntityReactor}
+    />
   )
 }
 
@@ -102,13 +101,7 @@ const SceneReactor = () => {
   const sourceID = UUIDComponent.getAsSourceID(entity)
   const sourcedEntities = UUIDComponent.useEntitiesBySource(sourceID)
 
-  return (
-    <>
-      {sourcedEntities.map((sourcedEntity) => (
-        <QuerySubReactor key={sourcedEntity} entity={sourcedEntity} ChildEntityReactor={SourcedSceneReactor} />
-      ))}
-    </>
-  )
+  return <EntityArrayBoundary entities={sourcedEntities} ChildEntityReactor={SourcedSceneReactor} />
 }
 
 const reactor = () => {

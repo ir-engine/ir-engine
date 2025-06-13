@@ -68,6 +68,9 @@ type MultimediaState = {
   isVRReady: boolean | undefined
   isSpectateReady: boolean | undefined
 
+  isCamVideoEnabled: boolean | undefined
+  isCamAudioEnabled: boolean | undefined
+
   _MicIcon: IconType
   _CamIcon: IconType
   _ScreenshareIcon: IconType
@@ -208,6 +211,9 @@ const useMultimediaState = () => {
     isMultiVideoReady,
     isVRReady,
     isSpectateReady,
+
+    isCamVideoEnabled,
+    isCamAudioEnabled,
 
     _MicIcon,
     _CamIcon,

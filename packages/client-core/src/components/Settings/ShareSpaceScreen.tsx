@@ -23,39 +23,27 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useHookstate } from '@hookstate/core'
+import { AnimatePresence } from 'motion/react'
 import { QRCodeSVG } from 'qrcode.react'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
+import { createPortal } from 'react-dom'
+import { useShareMenu } from '../../hooks/useShareMenu'
+import ShareDrawer from './ShareDrawer'
 
 interface ShareSpaceScreenProps {
   navigateTo: (screen: string) => void
 }
 
 const ShareSpaceScreen: React.FC<ShareSpaceScreenProps> = () => {
-  const [shareLink, setShareLink] = useState('')
-  const [showCopyNotification, setShowCopyNotification] = useState(false)
+  const { shareLink, copyLinkToClipboard, questLink, inviteLink } = useShareMenu()
+  const contentDiv = document.getElementById('settings-menu-content')!
+  const openDrawer = useHookstate(false)
 
-  useEffect(() => {
-    // Set the share link to the current URL
-    setShareLink(window.location.href)
-  }, [])
-
-  const copyLinkToClipboard = () => {
-    navigator.clipboard.writeText(shareLink)
-    setShowCopyNotification(true)
-    setTimeout(() => {
-      setShowCopyNotification(false)
-    }, 3000)
-  }
-
-  const shareToMetaQuest = () => {
-    // Implement Meta Quest sharing functionality
-    console.log('Sharing to Meta Quest')
-  }
-
-  const shareByEmailOrPhone = () => {
-    // Implement email/phone sharing functionality
-    console.log('Opening email/phone sharing dialog')
-  }
+  const portal = createPortal(
+    <AnimatePresence>{openDrawer.value && <ShareDrawer onClose={() => openDrawer.set(false)} />}</AnimatePresence>,
+    contentDiv
+  )
 
   return (
     <div className="xs:gap-6 flex h-full flex-col items-center justify-between p-4 md:flex-row md:items-start md:justify-center md:gap-5">
@@ -69,33 +57,27 @@ const ShareSpaceScreen: React.FC<ShareSpaceScreenProps> = () => {
       {/* Action Buttons */}
       <div className="flex w-full flex-col gap-3">
         <button
-          onClick={copyLinkToClipboard}
+          onClick={() => copyLinkToClipboard(inviteLink)}
           className="w-full rounded-full bg-white/20 py-3 text-center text-white hover:bg-white/30"
         >
           Copy Direct Link
         </button>
 
         <button
-          onClick={shareToMetaQuest}
+          onClick={() => copyLinkToClipboard(questLink)}
           className="w-full rounded-full bg-white/20 py-3 text-center text-white hover:bg-white/30"
         >
           Share to Meta Quest
         </button>
 
         <button
-          onClick={shareByEmailOrPhone}
+          onClick={() => openDrawer.set(!openDrawer.value)}
           className="w-full rounded-full bg-white/20 py-3 text-center text-white hover:bg-white/30"
         >
           Share by email or phone
         </button>
       </div>
-
-      {/* Copy Notification */}
-      {showCopyNotification && (
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 rounded-full bg-gray-800/90 px-6 py-3 text-white">
-          Direct Link Has Been Copied.
-        </div>
-      )}
+      {portal}
     </div>
   )
 }

@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { act, render } from '@testing-library/react'
 import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { GLTF } from '@gltf-transform/core/dist/types/gltf'
@@ -43,6 +42,7 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
+import { flushAll } from '@ir-engine/hyperflux/tests/utils/flushAll'
 import {
   DirectionalLightComponent,
   PointLightComponent,
@@ -66,7 +66,7 @@ import { startEngineReactor } from '../../tests/startEngineReactor'
 import { overrideFileLoaderLoad } from '../../tests/util/loadGLTFAssetNode'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { GLTFComponent } from './GLTFComponent'
-import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
+import { DependencyCache, GLTFLoaderFunctions } from './GLTFLoaderFunctions'
 import { KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
 import { EXTMeshGPUInstancingComponent, KHRLightsPunctualComponent, KHRPunctualLight } from './MeshExtensionComponents'
 
@@ -123,10 +123,11 @@ describe('GLTF Loader', async () => {
     startEngineReactor()
     await Physics.load()
 
-    await act(() => render(null))
+    await flushAll()
   })
 
   afterEach(() => {
+    DependencyCache.clear()
     return destroyEngine()
   })
 
