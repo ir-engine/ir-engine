@@ -43,6 +43,7 @@ import { ViewerMenuState } from '../../util/ViewerMenuState'
 import { ARPlacement } from '../ARPlacement'
 import { Fullscreen } from '../Fullscreen'
 import { MediaIconsBox } from '../MediaIconsBox'
+import ReportUserMenu from '../ReportUser'
 import { XRLoading } from '../XRLoading'
 import ScreenRotateImage from './screen-rotate.svg'
 
@@ -131,6 +132,8 @@ export const ViewerInteractions = () => {
       <XRLoading />
 
       {isMobile && <TouchGamepad />}
+
+      <ReportUserMenu type="user" />
     </div>
   )
 }

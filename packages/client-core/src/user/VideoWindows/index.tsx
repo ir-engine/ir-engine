@@ -52,22 +52,19 @@ import {
 } from '@ir-engine/ui/src/icons'
 import { IoWarning } from 'react-icons/io5'
 
-import { useClickOutside, useTouchOutside } from '@ir-engine/common/src/utils/useClickOutside'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
-import { ModalState } from '../../common/services/ModalState'
 import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { LocationState } from '../../social/services/LocationService'
 import { ReportUserState } from '../../util/ReportUserState'
 import { FilteredUsersState } from '../../world/FilteredUsersSystem'
-import ReportMenu from '../menus/ReportMenu'
 import { AuthState } from '../services/AuthService'
 import { useUserMediaWindowHook } from './hook'
 import { SingleVideoWindow, SingleVideoWindowWidget } from './window'
 
-type WindowType = { peerID: PeerID; type: 'cam' | 'screen' }
+export type WindowType = { peerID: PeerID; type: 'cam' | 'screen' }
 
 const sortScreensBeforeCameras = (a: WindowType, b: WindowType) => {
   if (a.type === 'screen' && b.type === 'cam') return -1
@@ -186,9 +183,6 @@ const ReportUserWindow = () => {
     })
   const ref = useRef<HTMLDivElement>(null)
 
-  useClickOutside(ref, () => ReportUserState.resetPeerId())
-  useTouchOutside(ref, () => ReportUserState.resetPeerId())
-
   if (!reportedPeerId || !reportedUserId || !reportedUser) return null
 
   return (
@@ -237,9 +231,7 @@ const ReportUserWindow = () => {
           <button
             className="rounded-full bg-ui-error p-[15px]"
             title={t('user:videoWindows.reportUser')}
-            onClick={() =>
-              ModalState.openModal(<ReportMenu type="user" userId={reportedUserId} locationId={currentLocation.id} />)
-            }
+            onClick={() => ReportUserState.toggleReportUser()}
           >
             <IoWarning className="h-5 w-5 text-text-primary-button" />
           </button>

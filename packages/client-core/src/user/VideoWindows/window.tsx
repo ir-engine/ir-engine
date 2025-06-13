@@ -33,8 +33,7 @@ import {
   webcamAudioMediaChannelType,
   webcamVideoMediaChannelType
 } from '@ir-engine/hyperflux'
-import { ArrowTopRightOnSquareSm, Microphone01Lg, MicrophoneOff, VolumeMaxLg, VolumeXLg } from '@ir-engine/ui/src/icons'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Microphone01Lg, MicrophoneOff, VolumeMaxLg, VolumeXLg } from '@ir-engine/ui/src/icons'
 import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -98,14 +97,13 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
         tabIndex={0}
         id={peerID + '_' + type + '_container'}
         className={twMerge(
-          'pointer-events-auto relative h-[80px] w-[80px] overflow-hidden rounded-[90px] lg:h-[120px] lg:w-[120px]',
+          'pointer-events-auto relative h-[80px] w-[80px] cursor-pointer overflow-hidden rounded-[90px] lg:h-[120px] lg:w-[120px]',
           `${(!videoMediaStream || videoStreamPaused) && 'hidden lg:block'}`
         )}
         data-testid="video-window"
         onClick={() => {
-          if (isScreen && isPiP) togglePiP()
+          ReportUserState.setReportedPeerId(peerID)
         }}
-        onMouseOver={() => isMoreButtonVisible.set((prev) => !prev)}
       >
         {(!videoMediaStream || videoStreamPaused) && (
           <img
@@ -127,20 +125,6 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
         </div>
         <span key={peerID + '-' + type + '-audio-container'} id={peerID + '-' + type + '-audio-container'} />
       </div>
-      {!isSelf && (
-        <Button
-          variant="primary"
-          size="sm"
-          className={`hidden lg:group-hover/video-window:flex ${isMoreButtonVisible.value ? 'flex' : ''}`}
-          onClick={() => {
-            isMoreButtonVisible.set(false)
-            ReportUserState.setReportedPeerId(peerID)
-          }}
-        >
-          {t('user:videoWindows.more')}
-          <ArrowTopRightOnSquareSm />
-        </Button>
-      )}
     </div>
   )
 }

@@ -38,6 +38,8 @@ export interface DropdownProps {
   placeholder?: string
   className?: string
   disabled?: boolean
+  backgroundColor?: 'black' | 'white'
+  border?: boolean
 }
 
 /**
@@ -49,10 +51,13 @@ const Dropdown: React.FC<DropdownProps> = ({
   onChange,
   placeholder = 'Select an option',
   className = '',
-  disabled = false
+  disabled = false,
+  backgroundColor,
+  border = true
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const bgColor = backgroundColor === 'black' ? 'black' : 'white'
 
   const selectedOption = options.find((option) => option.value === value)
 
@@ -89,9 +94,9 @@ const Dropdown: React.FC<DropdownProps> = ({
         onClick={handleToggle}
         disabled={disabled}
         className={`
-          flex w-full items-center justify-between rounded-lg border border-white/20 
-          bg-white/10 px-4 py-3 text-left text-white backdrop-blur-sm
-          ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-white/15'}
+          flex w-full items-center justify-between rounded-lg ${border && 'border'} border-white/20 
+          bg-${bgColor}/10 px-4 py-3 text-left text-white backdrop-blur-sm
+          ${disabled ? 'cursor-not-allowed opacity-50' : `cursor-pointer hover:bg-${bgColor}/15`}
           ${isOpen ? 'ring-2 ring-white/30' : ''}
         `}
         aria-haspopup="listbox"
@@ -105,7 +110,7 @@ const Dropdown: React.FC<DropdownProps> = ({
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="z-50 mt-1 max-h-60 overflow-auto rounded-lg border border-white/20 bg-white shadow-lg">
+        <div className="z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-white/20 bg-white shadow-lg">
           {options.map((option) => (
             <button
               key={option.value}
