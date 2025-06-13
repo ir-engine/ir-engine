@@ -136,7 +136,7 @@ const ReportUserMenu = (props: ReportMenuProps) => {
     abuseType: {
       label: t('user:usermenu.profile.typeAbuse'),
       validate: (input: string) => {
-        if (input === 'null') {
+        if (input === null || input === '' || input === 'null') {
           errors.abuseType.set(t('user:usermenu.profile.selectAbuseTypeRequired'))
           return false
         }
@@ -182,11 +182,7 @@ const ReportUserMenu = (props: ReportMenuProps) => {
   }
 
   const handleSubmit = async () => {
-    if (
-      !fieldOptions.abuseType.validate(formData.value.abuseType) ||
-      !fieldOptions.details.validate() ||
-      !fieldOptions.files.validate()
-    ) {
+    if (!fieldOptions.abuseType.validate(formData.value.abuseType) || !fieldOptions.details.validate()) {
       return
     }
     try {
@@ -224,6 +220,8 @@ const ReportUserMenu = (props: ReportMenuProps) => {
     setContent(REPORT_INPROGRESS)
     handleChange('', 'abuseType')
     handleChange('', 'details')
+    errors.abuseType.set('')
+    errors.details.set('')
   }
 
   const reportProgress = (
@@ -240,6 +238,7 @@ const ReportUserMenu = (props: ReportMenuProps) => {
           options={abuseTypes}
           onChange={(event) => handleChange(event.toString(), 'abuseType')}
         />
+        {errors.abuseType.value && <span className="text-xs text-ui-error">{errors.abuseType.value}</span>}
       </div>
 
       <div className={twMerge(inputDivStyles, 'gap-y-2')}>
@@ -350,7 +349,7 @@ const ReportUserMenu = (props: ReportMenuProps) => {
     <div className={containerStyles}>
       <div className={sidebarContainerStyles}>
         <div className="absolute top-10 w-full md:top-5">
-          {content === REPORT && (
+          {content === REPORT_INPROGRESS && (
             <button
               className={twMerge(smallIconButtonStyles, buttonContainer_base, backButtonStyles, `shadow`)}
               onClick={onClose}

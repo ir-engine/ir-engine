@@ -5,6 +5,7 @@
     "save": "Save",
     "saving": "Saving",
     "upload": "Upload",
+    "attach": "Attach",
     "discardChanges": "Discard Changes",
     "confirmDiscardChange": "Changes you made will not be saved.",
     "changesLostAlert": "If you proceed, all your changes will be lost.",
@@ -302,8 +303,8 @@
       "selectOne": "Select One",
       "reportDetails": "Report Details",
       "reportDetailsRequired": "Please provide report details.",
-      "reportDetailsPlaceholder": "Use this section to include the necessary details for your report. Note that the upload attachment field below is required, so please be sure to attach any evidence you think is helpful to your report.",
-      "reportFileLabel": "Attachments",
+      "reportDetailsPlaceholder": "In your own words, help us understand what went wrong.",
+      "reportFileLabel": "Attachments (Optional)",
       "reportFileRequired": "Please attach at least one file",
       "reportSuccessMessage": "Your report has been submitted."
     },
