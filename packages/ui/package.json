@@ -1,6 +1,6 @@
 {
   "name": "@ir-engine/ui",
-  "version": "1.3.0",
+  "version": "1.0.3",
   "description": "A declarative way to build 3D/VR/AR/XR apps that scale. Built with tooling web developers will love, using conventions that game developers and creative coders will find straightforward familiar.",
   "homepage": "https://github.com/ir-engine/ir-engine#readme",
   "author": {
