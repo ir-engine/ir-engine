@@ -44,7 +44,7 @@ interface ScreenProps {
 const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
   const audioState = useMutableState(AudioState)
   const { config } = useMutableState(NetworkState)
-  const multiplayer = useMutableState(MultiplayerState).multiplayer
+  const multiplayer = useMutableState(MultiplayerState).enabled
 
   return (
     <div className="space-y-4">

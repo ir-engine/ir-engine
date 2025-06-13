@@ -28,7 +28,7 @@ import { defineState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
 export const MultiplayerState = defineState({
   name: 'MultiPlayer State',
   initial: () => ({
-    multiplayer: false
+    enabled: false
   }),
   extension: syncStateWithLocalStorage(['multiplayer'])
 })

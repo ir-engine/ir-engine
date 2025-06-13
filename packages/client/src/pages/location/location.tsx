@@ -52,7 +52,7 @@ const LocationRoutes = () => {
 
   const projectsLoaded = useEngineInjection()
 
-  const multiplayer = useMutableState(MultiplayerState).multiplayer
+  const multiplayer = useMutableState(MultiplayerState).enabled
   useEffect(() => {
     multiplayer.set(true)
   }, [])
