@@ -37,12 +37,10 @@ import { XRLoading } from '../XRLoading'
 import { ToolbarAndSidebar } from './ToolbarAndSidebar'
 
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
-import { useMediaWindows } from '../../user/VideoWindows'
 import ReportUserMenu from '../ReportUser'
 import Settings, { screens as settingsScreens } from '../Settings'
 import { ChatMenu } from './ChatMenu'
 import { ChatProvider } from './ChatProvider'
-import { MultimediaStateProvider } from './MultimediaStateProvider'
 import { MultiVideos } from './MultiVideo'
 import { NavigationProvider, useNavigationProvider } from './NavigationProvider'
 import { ToolbarMenu } from './ToolbarMenu'
@@ -75,7 +73,6 @@ const Menu = () => {
   const { t } = useTranslation()
   const externalInjectedMenus = useMutableState(ViewerMenuState).externalInjectedMenus.get(NO_PROXY)
   const locationContainer = useRef<HTMLDivElement>(null)
-  const windows = useMediaWindows()
 
   const {
     activeHistoryKey,
@@ -132,7 +129,7 @@ const Menu = () => {
 
   const contents = {
     Chat: <ChatMenu navigateTo={navigateTo} />,
-    Video: <VideoMenu videos={windows} />,
+    Video: <VideoMenu />,
     Settings: <Settings />
   }
 
@@ -175,6 +172,7 @@ const Menu = () => {
 
       <TouchGamepad />
       <PopupMenu />
+
       <ReportUserMenu type="user" />
     </div>
   )
@@ -183,11 +181,9 @@ const Menu = () => {
 export const ViewerInteractions = () => {
   return (
     <NavigationProvider>
-      <MultimediaStateProvider>
-        <ChatProvider>
-          <Menu />
-        </ChatProvider>
-      </MultimediaStateProvider>
+      <ChatProvider>
+        <Menu />
+      </ChatProvider>
     </NavigationProvider>
   )
 }
