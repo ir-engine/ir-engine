@@ -51,7 +51,11 @@ import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 
 const logger = multiLogger.child({ component: 'system:location', modifier: clientContextParams })
 
-const LocationPage = ({ online }: { online: boolean }) => {
+type Props = {
+  online?: boolean
+}
+
+const LocationPage = ({ online }: Props) => {
   const { t } = useTranslation()
   const params = useParams()
   const [searchParams] = useSearchParams()
