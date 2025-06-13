@@ -117,7 +117,7 @@ const videoButtonsInner = `
   group-hover:visible
 `
 
-const DesktopVideo = ({ children, peerId }) => {
+const DesktopVideo = ({ children }) => {
   const { navigateClose } = useNavigationProvider()
   const reportUser = () => {
     navigateClose()
