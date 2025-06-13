@@ -31,24 +31,24 @@ import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { isValidFileName } from '@ir-engine/common/src/utils/validateFileName'
 import {
   Component,
+  createEntity,
   Entity,
   EntityID,
   EntityTreeComponent,
-  SourceID,
-  UUIDComponent,
-  createEntity,
   getComponent,
   hasComponent,
   iterateEntityNode,
   removeEntity,
   setComponent,
-  useOptionalComponent
+  SourceID,
+  useOptionalComponent,
+  UUIDComponent
 } from '@ir-engine/ecs'
 import PrefabConfirmationPanelDialog from '@ir-engine/editor/src/components/dialogs/PrefabConfirmationPanelDialog'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
-import { getMutableState, getState, none, startReactor, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, getState, NO_PROXY, none, startReactor, useHookstate } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
@@ -63,6 +63,7 @@ import { Quaternion, Scene, Vector3 } from 'three'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
+import { ImportSettingsState } from '../../services/ImportSettingsState'
 import { SelectionState } from '../../services/SelectionServices'
 
 type PrefabTagType = Readonly<{
@@ -72,7 +73,8 @@ type PrefabTagType = Readonly<{
 
 export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?: Entity; isExportLookDev?: boolean }) {
   const isLoading = useHookstate(false)
-  const defaultPrefabFolder = useHookstate<string>('assets/custom-prefabs')
+  const importFolder = getMutableState(ImportSettingsState).importFolder.get(NO_PROXY)
+  const defaultPrefabFolder = useHookstate<string>('custom-prefabs')
   const prefabName = useHookstate<string>('prefab')
   const resultFileName = useHookstate(isValidFileName(prefabName.value))
   const prefabTag = useHookstate<PrefabTagType[]>([{ id: uniqueId('tag-'), value: 'prefab' }])
@@ -82,7 +84,7 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
 
   const finishSavePrefab = () => {
     ModalState.closeModal()
-    defaultPrefabFolder.set('assets/custom-prefabs')
+    defaultPrefabFolder.set('custom-prefabs')
     prefabName.set('prefab')
     prefabTag.set([])
     isOverwriteModalVisible.set(false)
@@ -123,7 +125,7 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
 
     await exportRelativeGLTF(prefabEntity, srcProject, fileName)
 
-    const resourcePath = `projects/${srcProject}/${fileName}`
+    const resourcePath = `projects/${srcProject}${fileName}`
     const resources = await API.instance.service(staticResourcePath).find({
       query: { key: resourcePath }
     })
@@ -158,7 +160,7 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
     await exportRelativeGLTF(entity, srcProject, fileName)
 
     const resources = await API.instance.service(staticResourcePath).find({
-      query: { key: 'projects/' + srcProject + '/' + fileName }
+      query: { key: `projects/${srcProject}${fileName}` }
     })
     if (resources.data.length === 0) {
       throw new Error('User not found')
@@ -195,13 +197,13 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
   const onExportPrefab = async () => {
     isLoading.set(true)
     const editorState = getState(EditorState)
-    const baseFileName = `${defaultPrefabFolder.value}/${prefabName.value}`
+    const baseFileName = `${importFolder}${defaultPrefabFolder.value}/${prefabName.value}`
     const fileName = isExportLookDev ? `${baseFileName}.lookdev.gltf` : `${baseFileName}.gltf`
     const srcProject = editorState.projectName!
     const fileURL = pathJoin(config.client.fileServer, 'projects', srcProject, fileName)
 
     try {
-      const resourcePath = `projects/${srcProject}/${fileName}`
+      const resourcePath = `projects/${srcProject}${fileName}`
       const resourcesOld = await API.instance.service(staticResourcePath).find({
         query: { key: resourcePath }
       })
