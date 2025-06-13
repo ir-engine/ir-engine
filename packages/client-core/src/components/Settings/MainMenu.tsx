@@ -85,6 +85,7 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
         <MenuItem label="Controls" onClick={() => navigateTo('Settings', 'controls')} hasChevron />
         <Divider />
         <MenuItem label="Graphics" onClick={() => navigateTo('Settings', 'graphics')} hasChevron />
+        <MenuItem label="Audio" onClick={() => navigateTo('Settings', 'audio')} hasChevron />
         <MenuItem label="Log Out" onClick={AuthService.logoutUser} />
       </Section>
     </div>
