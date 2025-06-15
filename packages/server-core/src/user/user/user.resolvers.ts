@@ -40,7 +40,8 @@ export const userResolver = resolve<UserType, HookContext>({
     return !!user.ageVerified
   }),
   createdAt: virtual(async (user) => fromDateTimeSql(user.createdAt)),
-  updatedAt: virtual(async (user) => fromDateTimeSql(user.updatedAt))
+  updatedAt: virtual(async (user) => fromDateTimeSql(user.updatedAt)),
+  deactivatedAt: virtual(async (user) => (user.deactivatedAt ? fromDateTimeSql(user.deactivatedAt) : undefined))
 })
 
 export const userExternalResolver = resolve<UserType, HookContext>({
@@ -63,7 +64,13 @@ export const userDataResolver = resolve<UserType, HookContext>({
 })
 
 export const userPatchResolver = resolve<UserType, HookContext>({
-  updatedAt: getDateTimeSql
+  updatedAt: getDateTimeSql,
+  deactivatedAt: async (deactivatedAt) => {
+    if (deactivatedAt) {
+      return getDateTimeSql()
+    }
+    return undefined
+  }
 })
 
 export const userQueryResolver = resolve<UserQuery, HookContext>({})

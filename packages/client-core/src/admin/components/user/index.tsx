@@ -35,7 +35,7 @@ import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 import { ModalState } from '../../../common/services/ModalState'
-import UserTable, { removeUsers } from './UserTable'
+import UserTable, { deactivateUsers } from './UserTable'
 
 export default function Users() {
   const { t } = useTranslation()
@@ -47,7 +47,7 @@ export default function Users() {
 
   useEffect(() => clearTimeout(debouncedSearchQueryRef.current), [])
 
-  const adminUserRemove = useMutation(userPath).remove
+  const adminUserRemove = useMutation(userPath).patch
   const modalProcessing = useHookstate(false)
 
   return (
@@ -82,7 +82,7 @@ export default function Users() {
                   <ConfirmDialog
                     text={t('admin:components.user.confirmMultiUserDelete')}
                     onSubmit={async () => {
-                      removeUsers(modalProcessing, adminUserRemove, selectedUsers.value as UserType[])
+                      deactivateUsers(modalProcessing, adminUserRemove, selectedUsers.value as UserType[])
                     }}
                   />
                 )

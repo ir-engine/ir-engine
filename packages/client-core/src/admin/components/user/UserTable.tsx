@@ -48,19 +48,22 @@ import ActionButton from '../ActionButton'
 import AccountIdentifiers from './AccountIdentifiers'
 import AddEditUserModal from './AddEditUserModal'
 
-export const removeUsers = async (
+export const deactivateUsers = async (
   modalProcessing: State<boolean>,
-  adminUserRemove: {
-    (id: Id): Promise<UserType>
-    (id: null): Promise<UserType[]>
-    (id: NullableId): Promise<any>
+  adminUserPatch: {
+    (id: Id, data: Partial<UserType>): Promise<UserType>
+    (id: null, data: Partial<UserType>): Promise<UserType[]>
+    (id: NullableId, data: Partial<UserType>): Promise<any>
   },
   users: UserType[]
 ) => {
   modalProcessing.set(true)
   await Promise.all(
     users.map((user) => {
-      adminUserRemove(user.id)
+      adminUserPatch(user.id, {
+        isDeactivated: true,
+        deactivatedAt: new Date().toISOString()
+      })
     })
   )
   ModalState.closeModal()
@@ -92,6 +95,7 @@ export default function UserTable({
   const adminUserQuery = useFind(userPath, {
     query: {
       isGuest: skipGuests ? false : undefined,
+      isDeactivated: false,
       $skip: 0,
       $limit: 20,
       $sort: {
@@ -108,7 +112,7 @@ export default function UserTable({
     search
   )
 
-  const adminUserRemove = useMutation(userPath).remove
+  const adminUserPatch = useMutation(userPath).patch
   const modalProcessing = useHookstate(false)
 
   const createRows = (rows: readonly UserType[]): UserRowType[] =>
@@ -199,7 +203,7 @@ export default function UserTable({
                   <ConfirmDialog
                     text={`${t('admin:components.user.confirmUserDelete')} '${row.name}'?`}
                     onSubmit={async () => {
-                      await removeUsers(modalProcessing, adminUserRemove, [row])
+                      await deactivateUsers(modalProcessing, adminUserPatch, [row])
                     }}
                   />
                 )
