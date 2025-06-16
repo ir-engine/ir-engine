@@ -1,9 +1,9 @@
-name: Deploy IR Engine
+name: Deploy Napster Engine
 
 on:
   push:
     branches: [dev, int, stg]
-    paths-ignore: 
+    paths-ignore:
       - '**/*.md'
       - '.*ignore'
   workflow_dispatch:

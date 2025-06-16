@@ -60,7 +60,7 @@
       "spawnBot": "Spawn Bot",
       "lastRunStatus": "Last run status",
       "autoRefreshing": "Auto-refreshing in 10 seconds",
-      "engineBots": "iR Engine bots",
+      "engineBots": "Napster Engine bots",
       "updateBot": "UPDATE BOT",
       "name": "Name",
       "confirmBotDelete": "Are you sure you want to delete this bot?"
@@ -269,7 +269,7 @@
       "commitData": "Commit",
       "branchProcessing": "Fetching branches of Project",
       "commitsProcessing": "Fetching commits of Project",
-      "mismatchedProjectWarning": "This version of this Project does not match the installed version of iR Engine. There may be compilation or runtime errors if this Project is installed.",
+      "mismatchedProjectWarning": "This version of this Project does not match the installed version of Napster Engine. There may be compilation or runtime errors if this Project is installed.",
       "needsGithubProvider": "You must connect your account with GitHub in order to create new Projects, or add or update Projects from GitHub",
       "sourceProjectName": "Project in Source repository",
       "destinationProjectName": "Project in Destination repository",

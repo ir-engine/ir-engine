@@ -1,3 +1,3 @@
-### iR Engine Project
+### Napster Engine Project
 
-This is the iR Engine default project. It contains some basic starter assets, avatars and scenes.
+This is the Napster Engine default project. It contains some basic starter assets, avatars and scenes.

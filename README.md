@@ -1,6 +1,6 @@
 # Infinite Reality Engine
 
-[ir engine sizzle.webm](https://github.com/user-attachments/assets/b09dc3c3-7fa2-4e01-b1b9-2c9eef4c317b)
+[Napster Engine sizzle.webm](https://github.com/user-attachments/assets/b09dc3c3-7fa2-4e01-b1b9-2c9eef4c317b)
 
 ## Background
 
@@ -23,13 +23,13 @@ We want a fair and human future where designing and participating in immersive e
 
 ## Project API
 
-### [Library of IR Engine Projects](https://github.com/ir-engine/project-manifest)
+### [Library of Napster Engine Projects](https://github.com/ir-engine/project-manifest)
 
-Create composable plug-ins for iR Engine experiences with the plugin system (Projects API)
+Create composable plug-ins for Napster Engine experiences with the plugin system (Projects API)
 
-## Launch iR Engine with Control Center Install
+## Launch Napster Engine with Control Center Install
 
-### [Use iR Engine Launcher GUI](https://github.com/ir-engine/ir-engine-launcher)
+### [Use Napster Engine Launcher GUI](https://github.com/ir-engine/ir-engine-launcher)
 
 Best for simple self hosting.
 
@@ -37,11 +37,11 @@ Best for simple self hosting.
 
 ### Pre-Requisites
 
-To install iR Engine locally, the following pre-reqs are required.
+To install Napster Engine locally, the following pre-reqs are required.
 
 - Linux, Mac, or Windows (via WSL2)
 - Node.js v22 or later ([`nvm`](https://github.com/nvm-sh/nvm) is recommended)
-- Docker. (Although Docker is technically optional, running iR Engine requires starting up half a dozen different services, and using Docker Compose will make your life dramatically easier.)
+- Docker. (Although Docker is technically optional, running Napster Engine requires starting up half a dozen different services, and using Docker Compose will make your life dramatically easier.)
 - MariaDB and Redis. (If you're using Docker, containers for MariaDB and Redis will automatically be started up.)
 
 ### Getting Started
@@ -65,7 +65,7 @@ Then open https://localhost:3000/location/apartment
 
 - We expect contributors and community members to follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 - See the **[Contributing Guide](CONTRIBUTING.md)** and corresponding [wiki entry](https://github.com/ir-engine/ir-engine/wiki/Testing-&-Contributing) for more details.
-- Version numbering of the iR Engine monorepo follows the [Semantic versioning](http://semver.org/) approach.
+- Version numbering of the Napster Engine monorepo follows the [Semantic versioning](http://semver.org/) approach.
 - We use the [Prettier.io](https://prettier.io/) formatter for our code style.
 - [Standard Readme](https://github.com/RichardLitt/standard-readme) for the README structure.
 
@@ -81,8 +81,8 @@ We are always hiring talented people who want to be leaders in what is to come. 
 
 ## License
 
-[CPAL](LICENSE) - Copyright (c) 2021-2024 Infinite Reality. iR Engine, formerly known as Ethereal Engine and XREngine
+[CPAL](LICENSE) - Copyright (c) 2021-2024 Infinite Reality. Napster Engine, formerly known as iR Engine, Ethereal Engine, and XREngine
 
-If you wish to use iR Engine under the open-source CPAL license, attribution is required. Please see attribution guidelines in the [LICENSE](LICENSE) file. Other licensing options are available, please contact us for more information.
+If you wish to use Napster Engine under the open-source CPAL license, attribution is required. Please see attribution guidelines in the [LICENSE](LICENSE) file. Other licensing options are available, please contact us for more information.
 
 [Release History and Author Archive](/HISTORY.md)

@@ -67,7 +67,7 @@ const AdminTopBar = () => {
     <div className="flex h-16 w-full items-center justify-between  px-8 py-4">
       <img
         src="static/app_logo.svg"
-        alt="iR Engine Logo"
+        alt="Napster Engine Logo"
         className={`h-7 w-7${theme.value === 'light' ? ' invert' : ''}`}
       />
       <div className="pointer-events-auto flex gap-4">
