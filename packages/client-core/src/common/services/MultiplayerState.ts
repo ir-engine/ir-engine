@@ -31,5 +31,5 @@ export const MultiplayerState = defineState({
     enabled: false,
     video: false
   }),
-  extension: syncStateWithLocalStorage(['enabled'])
+  extension: syncStateWithLocalStorage(['enabled', 'video'])
 })
