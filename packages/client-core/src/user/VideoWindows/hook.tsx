@@ -69,7 +69,7 @@ function addItem<T>(array: readonly T[], i: number, value: T): T[] {
 }
 
 export const useUserMediaWindowsHook = (windows: WindowType[]) => {
-  const mediaChannelState = useHookstate(getMutableState(MediaChannelState))
+  const mediaChannelState = useMutableState(MediaChannelState)
   const mediaStreamState = useMutableState(MediaStreamState)
   const mediaSettingState = useMutableState(MediaSettingsState)
 
