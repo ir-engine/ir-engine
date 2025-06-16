@@ -35,11 +35,11 @@
   },
   "unsupportedDevice": {
     "title": "Unsupported device type!",
-    "description": "Please use a desktop running the latest version of Google Chrome for the best experience with the iR Studio."
+    "description": "Please use a desktop running the latest version of Google Chrome for the best experience with the Napster 3D Studio."
   },
   "unsupportedBrowser": {
     "title": "Browser Not Supported",
-    "description": "Please use Google Chrome for the best experience with the iR Studio.",
+    "description": "Please use Google Chrome for the best experience with the Napster 3D Studio.",
     "downloadChrome": "Download Chrome",
     "continue": "Continue Anyway"
   },

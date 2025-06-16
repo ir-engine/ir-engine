@@ -134,7 +134,7 @@ export const replaceMaterialIndex = (assetEntity: Entity, targetEntity: Entity, 
   AuthoringState.snapshotEntities([targetEntity])
 }
 
-const updateMaterial = (assetEntity: Entity, targetEntity: Entity, materialIndex: number) => {
+export const updateMaterial = (assetEntity: Entity, targetEntity: Entity, materialIndex: number) => {
   const [newMaterialEntity] = getChildrenWithComponents(assetEntity, [MaterialStateComponent])
 
   const newMaterialComponent = getComponent(newMaterialEntity, MaterialStateComponent)
