@@ -30,12 +30,12 @@ import {
   defineSystem,
   Entity,
   EntityID,
-  getComponent,
   getOptionalComponent,
   PresentationSystemGroup,
   removeComponent,
   setComponent,
   UndefinedEntity,
+  useComponent,
   useHasComponent,
   UUIDComponent,
   WorldNetworkAction
@@ -66,7 +66,7 @@ import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/S
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import { PoiCameraComponent } from '@ir-engine/spatial/src/camera/components/PoiCameraComponent'
-import { CameraMode } from '@ir-engine/spatial/src/camera/types/CameraMode'
+import { CameraMode, CameraModeType } from '@ir-engine/spatial/src/camera/types/CameraMode'
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { SearchParamState } from '../common/services/RouterService'
 import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
@@ -176,21 +176,26 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   return null
 }
 
-const reactor = () => {
-  const userID = useMutableState(EngineState).userID.value
-  const locationSceneURL = useHookstate(getMutableState(LocationState).currentLocation.location.sceneURL).value
-  const sceneEntity = useLoadedSceneEntity(locationSceneURL)
-  const gltfLoaded = GLTFComponent.useSceneLoaded(sceneEntity)
+const CameraSettingsReactor = (props: {
+  cameraSettingsEntity: Entity | null
+  onCameraModeChange?: (cameraMode: CameraModeType) => void
+}) => {
+  const { cameraSettingsEntity, onCameraModeChange } = props
 
-  const cameraSettingsComponents = useChildrenWithComponents(sceneEntity, [CameraSettingsComponent])
-  const cameraSettingsEntity = cameraSettingsComponents.length > 0 ? cameraSettingsComponents[0] : null
+  if (!cameraSettingsEntity) {
+    onCameraModeChange?.(CameraMode.FOLLOW)
+    return null
+  }
+
+  const cameraSettingsComponent = useComponent(cameraSettingsEntity, CameraSettingsComponent)
   const engineState = useMutableState(EngineState)
   const referenceSpaceState = useMutableState(ReferenceSpaceState)
-  const cameraSettingsComponent = cameraSettingsEntity
-    ? getComponent(cameraSettingsComponents[0], CameraSettingsComponent)
-    : null
-  const cameraMode = cameraSettingsComponent ? cameraSettingsComponent.cameraMode : CameraMode.FOLLOW
-  const isAvatarUsed = cameraMode === CameraMode.FOLLOW
+
+  const cameraMode = cameraSettingsComponent.cameraMode.value
+
+  useEffect(() => {
+    onCameraModeChange?.(cameraMode)
+  }, [cameraMode, onCameraModeChange])
 
   useEffect(() => {
     const cameraEntity = referenceSpaceState.viewerEntity.value
@@ -211,11 +216,35 @@ const reactor = () => {
         removeComponent(cameraEntity, PoiCameraComponent)
       }
     }
-  }, [referenceSpaceState.viewerEntity, engineState.isEditing])
+  }, [cameraMode, referenceSpaceState.viewerEntity, engineState.isEditing])
+
+  return null
+}
+
+const reactor = () => {
+  const userID = useMutableState(EngineState).userID.value
+  const locationSceneURL = useHookstate(getMutableState(LocationState).currentLocation.location.sceneURL).value
+  const sceneEntity = useLoadedSceneEntity(locationSceneURL)
+  const gltfLoaded = GLTFComponent.useSceneLoaded(sceneEntity)
+
+  const cameraSettingsComponents = useChildrenWithComponents(sceneEntity, [CameraSettingsComponent])
+  const cameraSettingsEntity = cameraSettingsComponents.length > 0 ? cameraSettingsComponents[0] : null
+  const currentCameraMode = useHookstate<CameraModeType>(CameraMode.FOLLOW)
+
+  const handleCameraModeChange = (cameraMode: CameraModeType) => {
+    currentCameraMode.set(cameraMode)
+  }
 
   if (!gltfLoaded || !userID) return null
 
-  return (isAvatarUsed && <AvatarSpawnReactor key={sceneEntity} sceneEntity={sceneEntity} />) || null
+  return (
+    <>
+      <CameraSettingsReactor cameraSettingsEntity={cameraSettingsEntity} onCameraModeChange={handleCameraModeChange} />
+      {currentCameraMode.value === CameraMode.FOLLOW && (
+        <AvatarSpawnReactor key={sceneEntity} sceneEntity={sceneEntity} />
+      )}
+    </>
+  )
 }
 
 export const AvatarSpawnSystem = defineSystem({
