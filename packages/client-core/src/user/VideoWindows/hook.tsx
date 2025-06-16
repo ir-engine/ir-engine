@@ -434,17 +434,15 @@ export const useUserMediaWindowHook = ({ peerID, type }: WindowType) => {
 
   useEffect(() => {
     function onUserInteraction() {
-      const currentVideoElement = document.getElementById(`${peerID}_video`) as HTMLVideoElement
-      const currentAudioElement = document.getElementById(`${peerID}_audio`) as HTMLAudioElement
-      if (currentVideoElement?.srcObject) currentVideoElement.play()
-      if (currentAudioElement?.srcObject) currentAudioElement.play()
+      if (videoElement?.srcObject) videoElement.play()
+      if (audioElement?.srcObject) audioElement.play()
       harkListener?.value?.resume()
     }
     window.addEventListener('pointerup', onUserInteraction)
     return () => {
       window.removeEventListener('pointerup', onUserInteraction)
     }
-  }, [peerID]) // Use peerID to gracefully handle players leaving
+  }, [videoElement, audioElement, harkListener?.value])
 
   useEffect(() => {
     if (!audioMediaStream || !audioMediaStream.getAudioTracks().length) return
