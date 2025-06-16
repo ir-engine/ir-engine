@@ -58,10 +58,14 @@ export const uploadOptions = {
 
 /* NODE FUNCTIONALITIES */
 
-const getSelectedEntities = (entity?: Entity) => {
+export const getSelectedEntities = (entity?: Entity) => {
   const selected = entity ? getState(SelectionState).selectedEntities.includes(UUIDComponent.get(entity)) : true
   const selectedEntities = selected ? SelectionState.getSelectedEntities() : [entity!]
   return selectedEntities
+}
+
+export function getNodeElId(node: HierarchyTreeNodeType) {
+  return 'hierarchy-node-' + node.entity
 }
 
 export const deleteNode = (entity: Entity) => {

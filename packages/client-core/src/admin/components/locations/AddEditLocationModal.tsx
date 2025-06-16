@@ -156,6 +156,9 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
   const progressState = useHookstate(getMutableState(ProgressState))
   const lods = useHookstate<LODVariantDescriptor[]>([])
   const [xrEnabled] = useFeatureFlags([FeatureFlags.Client.Menu.XR])
+
+  const [compressOnPublishEnabled] = useFeatureFlags([FeatureFlags.Studio.UI.CompressOnPublish])
+
   useEffect(() => {
     if (location) {
       name.set(location.name)
@@ -696,6 +699,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
               <Button
                 className="bg-[#2F3A4D]"
                 data-testid="publish-panel-compress-and-publish-button"
+                disabled={isLoading || !compressOnPublishEnabled}
                 onClick={handlePublishFolder}
               >
                 <HiOutlineInformationCircle />

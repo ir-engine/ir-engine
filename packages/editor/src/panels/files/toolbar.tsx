@@ -54,7 +54,7 @@ import {
 } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { FilesState, FilesViewModeState } from '../../services/FilesState'
-import { useAssetsQuery } from '../assets/hooks'
+import { AssetsRefreshState } from '../assets/hooks'
 import { useCurrentFiles } from './helpers'
 import { handleDownloadProject } from './loaders'
 
@@ -82,7 +82,12 @@ export const showMultipleFileModal = (projectName: string, directoryPath: string
 
   ModalState.openModal(
     <>
-      <Modal title={'test'} className="w-[50vw] max-w-2xl" onSubmit={onSubmit} onClose={ModalState.closeModal}>
+      <Modal
+        title={'GIF Conversion Confirmation'}
+        className="w-[50vw] max-w-2xl"
+        onSubmit={onSubmit}
+        onClose={ModalState.closeModal}
+      >
         <div className="flex flex-col rounded-lg bg-[#0e0f11] px-5 py-10 text-center">
           Warning: You will overwrite existing files by uploading these. Do you wish to continue? <br />
           {fileNames.length > 0 && `Files: ${fileNames.join(', ')}`}
@@ -93,12 +98,11 @@ export const showMultipleFileModal = (projectName: string, directoryPath: string
 }
 
 export const GifFileConfirmationModal = ({ projectName, directoryPath, files, onClose }) => {
-  const { refetchResources } = useAssetsQuery()
   const fileNames = files.map((file) => file.name)
 
   const onSubmit = async () => {
     await handleConvertGifFileToVideoAndUpload(projectName, directoryPath, files)
-    await refetchResources(true) // Refresh assets after conversion
+    AssetsRefreshState.triggerRefresh()
     onClose()
   }
 

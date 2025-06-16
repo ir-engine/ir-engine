@@ -727,7 +727,7 @@ export async function seed(knex: Knex): Promise<void> {
     shortTitle: process.env.APP_TITLE || '',
     startPath: '/',
     releaseName: process.env.RELEASE_NAME || 'local',
-    siteDescription: process.env.SITE_DESC || 'IR Engine',
+    siteDescription: process.env.SITE_DESC || 'Napster Engine',
     url:
       process.env.APP_URL ||
       (process.env.VITE_LOCAL_BUILD
@@ -743,7 +743,7 @@ export async function seed(knex: Knex): Promise<void> {
     favicon: '/favicon.ico',
     appBackground: 'static/main-background.png',
     appTitle: 'static/ir-logo.svg',
-    appSubtitle: 'IR Engine',
+    appSubtitle: 'Napster Engine',
     appDescription: 'FREE, OPEN, & INTEROPERABLE IMMERSIVE WEB TECHNOLOGY',
     gtmContainerId: process.env.GOOGLE_TAG_MANAGER_CONTAINER_ID || '',
     gtmAuth: process.env.GOOGLE_TAG_MANAGER_AUTH || '',

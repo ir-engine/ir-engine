@@ -1,3 +1,3 @@
-### iR Engine Project
+### Napster Engine Project
 
-This is an iR Engine project.
+This is an Napster Engine project.
