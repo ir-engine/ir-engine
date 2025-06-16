@@ -59,10 +59,14 @@ const actionButtonStyles = `
   shadow-[inset_0px_1px_1px_rgba(255,255,255,0.25),inset_0px_-1px_1px_rgba(255,255,255,0.1),0px_8px_6px_rgba(0,0,0,0.05)]
 `
 
-const containerStyles = `
+const baseContainerStyles = `
   flex flex-col
   text-white
 `
+
+const containerStyles = twMerge(baseContainerStyles, 'gap-y-6')
+
+const inputContainerStyles = twMerge(baseContainerStyles, 'gap-y-2')
 
 type ReportMenuProps = { type: ModerationTypeType }
 
@@ -189,8 +193,8 @@ const ReportUserMenu = (props: ReportMenuProps) => {
   }
 
   const reportProgress = (
-    <div className={twMerge(containerStyles, 'gap-y-6')}>
-      <div className={twMerge(containerStyles, 'gap-y-2')}>
+    <div className={containerStyles}>
+      <div className={inputContainerStyles}>
         <Text fontSize="xs" className="text-white">
           {fieldOptions.abuseType.label}
         </Text>
@@ -205,7 +209,7 @@ const ReportUserMenu = (props: ReportMenuProps) => {
         {errors.abuseType.value && <span className="text-xs text-ui-error">{errors.abuseType.value}</span>}
       </div>
 
-      <div className={twMerge(containerStyles, 'gap-y-2')}>
+      <div className={inputContainerStyles}>
         <Text fontSize="xs" className="text-white">
           {fieldOptions.details.label}
         </Text>
@@ -224,7 +228,7 @@ const ReportUserMenu = (props: ReportMenuProps) => {
         {errors.details.value && <span className="text-xs text-ui-error">{errors.details.value}</span>}
       </div>
 
-      <div className={twMerge(containerStyles, 'gap-y-2')}>
+      <div className={inputContainerStyles}>
         <Text fontSize="xs" className="text-white">
           {fieldOptions.files.label}
         </Text>
