@@ -70,7 +70,6 @@ const useIsPortrait = () => {
 
 const Menu = () => {
   const isPortrait = useIsPortrait()
-  const userID = useHookstate(getMutableState(EngineState).userID).value
   const loadingScreenVisible = useHookstate(getMutableState(LoadingSystemState).loadingScreenVisible).value
   const { t } = useTranslation()
   const externalInjectedMenus = useMutableState(ViewerMenuState).externalInjectedMenus.get(NO_PROXY)
@@ -92,10 +91,6 @@ const Menu = () => {
   useLayoutEffect(() => {
     if (locationContainer.current) locationContainer.current.style.opacity = '0'
   }, [locationContainer])
-
-  const isLoggedIn = !!userID
-
-  if (!isLoggedIn) return null
 
   const headings = {
     Chat: `Chat`,
@@ -186,6 +181,11 @@ const Menu = () => {
 }
 
 export const ViewerInteractions = () => {
+  const userID = useHookstate(getMutableState(EngineState).userID).value
+  const isLoggedIn = !!userID
+
+  if (!isLoggedIn) return null
+
   return (
     <NavigationProvider>
       <MultimediaStateProvider>
