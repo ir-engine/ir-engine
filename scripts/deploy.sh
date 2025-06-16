@@ -33,16 +33,16 @@ if [ "$DESTINATION_REPO_PROVIDER" = "gcp" ]; then
     SUFFIX="-mt-int"
   elif [[ "$APP_HOST" =~ "mt-qat" ]]; then
     SUFFIX="-mt-qat"
-  elif [[ "$APP_HOST" =~ "mt" ]]; then
-    SUFFIX="-mt"
   elif [[ "$APP_HOST" =~ "qat" ]]; then
     SUFFIX="-qat"
   elif [[ "$APP_HOST" =~ "mt-nightly" ]]; then
     SUFFIX="-mt-nightly"
   elif [[ "$APP_HOST" =~ "mt-weekly" ]]; then
     SUFFIX="-mt-weekly"
-    elif [[ "$APP_HOST" =~ "mt-prdmirr" ]]; then
+  elif [[ "$APP_HOST" =~ "mt-prdmirr" ]]; then
     SUFFIX="-mt-prdmirr"
+  elif [[ "$APP_HOST" =~ "mt" ]]; then
+    SUFFIX="-mt"
   else
     SUFFIX=""
   fi

@@ -480,6 +480,20 @@ export const applyCommandsToECS = (sourceID: SourceID, currentState: SourceData,
               materialComponent.material[key].set(val)
             }
           }
+          for (const [key, val] of Object.entries(args)) {
+            if (typeof val === 'undefined' || typeof material[key] === 'undefined') continue
+            if (parameters[key]) continue
+            const _default = args[key].default
+            if (args[key].type === 'color') {
+              materialComponent.material[key].set(_default.isColor ? _default : new Color(_default))
+            } else if (args[key].type === 'vec2') {
+              materialComponent.material[key].set(_default.isVector2 ? _default : new Vector2().fromArray(_default))
+            } else if (args[key].type === 'vec3') {
+              materialComponent.material[key].set(_default.isVector3 ? _default : new Vector3().fromArray(_default))
+            } else {
+              materialComponent.material[key].set(_default)
+            }
+          }
         }
       }
       if (currentState[nodeID]) {

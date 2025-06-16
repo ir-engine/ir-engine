@@ -39,7 +39,7 @@ export interface SliderProps {
  */
 const Slider: React.FC<SliderProps> = ({ value, min = 0, max = 100, step = 1, onChange, className = '' }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = parseInt(e.target.value)
+    const newValue = parseFloat(e.target.value)
     onChange?.(newValue)
   }
 

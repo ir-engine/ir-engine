@@ -386,8 +386,6 @@ export function createWebXRManager(renderer: WebGLRenderer) {
   result.removeEventListener = function (type: string, listener: EventListener) {}
   result.dispatchEvent = function (event: Event) {}
 
-  console.log('result', result)
-
   return result
 }
 

@@ -61,7 +61,13 @@ import { HighlightComponent } from '../../renderer/components/HighlightComponent
 import ClientInputFunctions from '../functions/ClientInputFunctions'
 import { AnyAxis, KeyboardButton, MouseButton, MouseScroll, createInitialButtonState } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
-import { InputButtonBindings, InputComponent, InputExecutionOrder, InputExecutionSystemGroup } from './InputComponent'
+import {
+  DefaultButtonBindings,
+  InputButtonBindings,
+  InputComponent,
+  InputExecutionOrder,
+  InputExecutionSystemGroup
+} from './InputComponent'
 import { InputSinkComponent } from './InputSinkComponent'
 import { InputSourceComponent } from './InputSourceComponent'
 
@@ -487,6 +493,79 @@ describe('InputComponent', () => {
       assert.equal(merged.VerticalScroll, Expected[MouseScroll.VerticalScroll])
       assert.equal(merged.SomeAxisOne, BiggerY)
       assert.equal(merged.SomeWrongAxis, 0)
+    })
+  })
+
+  describe('button state caching', () => {
+    it('should find button states when InputSourceComponent has buttons assigned', () => {
+      // Create test entity and components
+      const testEntity = createEntity()
+      setComponent(testEntity, InputSourceComponent)
+      setComponent(testEntity, InputComponent, { inputSources: [testEntity] })
+      const inputSource = getMutableComponent(testEntity, InputSourceComponent)
+
+      // Test case 1: Initial state - no buttons
+      let result = InputComponent.getButtons(testEntity, DefaultButtonBindings)
+      assert.ok(!result.Interact, 'Initially no Interact button should be present')
+
+      // Test case 2: Add button state to InputSourceComponent
+      ClientInputFunctions.refreshInputs(true)
+      inputSource.buttons.set({
+        [MouseButton.PrimaryClick]: createInitialButtonState(testEntity, {
+          down: true,
+          pressed: true
+        })
+      })
+
+      // Get buttons again - should see the new button state
+      result = InputComponent.getButtons(testEntity, DefaultButtonBindings)
+      assert.ok(result.Interact, 'Interact button should now be present')
+      assert.ok(result.Interact?.down, 'Interact should be down')
+      assert.ok(result.Interact?.pressed, 'Interact should be pressed')
+
+      // Test case 3: Remove button state from InputSourceComponent
+      ClientInputFunctions.refreshInputs(true)
+      inputSource.buttons.set({})
+
+      // Get buttons again - should not see the button anymore
+      result = InputComponent.getButtons(testEntity, DefaultButtonBindings)
+      assert.ok(!result.Interact, 'Interact button should no longer be present')
+    })
+
+    it('should handle multiple entities accessing the same button', () => {
+      // Create input source entity
+      const inputSourceEntity = createEntity()
+      setComponent(inputSourceEntity, InputSourceComponent)
+      const inputSource = getMutableComponent(inputSourceEntity, InputSourceComponent)
+
+      // Create two different entities that will access the same input source
+      const entity1 = createEntity()
+      const entity2 = createEntity()
+      setComponent(entity1, InputComponent, { inputSources: [inputSourceEntity] })
+      setComponent(entity2, InputComponent, { inputSources: [inputSourceEntity] })
+
+      // Add button state to InputSourceComponent
+      ClientInputFunctions.refreshInputs(true)
+      inputSource.buttons.set({
+        [MouseButton.PrimaryClick]: createInitialButtonState(inputSourceEntity, {
+          down: true,
+          pressed: true
+        })
+      })
+
+      // First entity accesses the button - should consume it
+      let result1 = InputComponent.getButtons(entity1, DefaultButtonBindings)
+      assert.ok(result1.Interact, 'Entity1 should see the Interact button')
+      assert.ok(result1.Interact?.down, 'Entity1: Interact should be down')
+      assert.ok(result1.Interact?.pressed, 'Entity1: Interact should be pressed')
+
+      // Second entity tries to access the same button - should not see it (consumed by entity1)
+      let result2 = InputComponent.getButtons(entity2, DefaultButtonBindings)
+      assert.ok(!result2.Interact, 'Entity2 should not see the Interact button (consumed by entity1)')
+
+      // First entity accesses again - should still see the consumed button
+      result1 = InputComponent.getButtons(entity1, DefaultButtonBindings)
+      assert.ok(result1.Interact, 'Entity1 should still see the consumed Interact button')
     })
   })
 

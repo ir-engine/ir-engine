@@ -290,5 +290,7 @@ export const AvatarUISystem = defineSystem({
   uuid: 'ee.client.AvatarUISystem',
   insert: { before: TransformDirtyUpdateSystem },
   execute,
-  reactor: () => <QueryReactor Components={[AvatarComponent]} ChildEntityReactor={AvatarInstanceReactor} />
+  reactor: () => (
+    <QueryReactor Components={[NetworkObjectComponent, AvatarComponent]} ChildEntityReactor={AvatarInstanceReactor} />
+  )
 })

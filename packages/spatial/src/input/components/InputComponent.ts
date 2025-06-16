@@ -173,8 +173,9 @@ export const InputComponent = defineComponent({
     /** if true, the input component will automatically capture input when a button is consumed */
     autoCapture: S.Bool({ default: false }),
 
-    buttons: S.SerializedClass(
-      (entity) => {
+    buttons: S.Type<ButtonStateMap<any>>({
+      serialized: false,
+      default: (entity) => {
         // Helper function to find first unconsumed button state
         const findButtonState = (button: AnyButton): ButtonState | undefined => {
           const inputComponent = getComponent(entity, InputComponent)
@@ -259,12 +260,11 @@ export const InputComponent = defineComponent({
                     if (inputComponent.autoCapture && result?.pressed) {
                       InputState.setCapturingEntity(entity)
                     }
-                    return result
+                    if (result !== undefined) return result
                   }
-
-                  // If we get here, the button in the binding is not available, so set the state to undefined
-                  return (cachedButtons[prop] = undefined)
                 }
+                // If we get here, the button in the binding is not available, so set the state to undefined
+                return (cachedButtons[prop] = undefined)
               }
 
               // Otherwise check if this exact button exists and is not consumed
@@ -277,10 +277,8 @@ export const InputComponent = defineComponent({
             }
           }
         )
-      },
-      {},
-      { serialized: false }
-    )
+      }
+    })
   }),
 
   getInputEntity(entityContext: Entity): Entity {
