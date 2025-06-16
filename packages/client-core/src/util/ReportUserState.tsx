@@ -28,19 +28,12 @@ import { defineState, getMutableState, PeerID } from '@ir-engine/hyperflux'
 export const ReportUserState = defineState({
   name: 'ReportUserState',
   initial: () => ({
-    reportedPeerId: undefined as PeerID | undefined,
-    reportingUser: false as boolean
+    reportedPeerId: undefined as PeerID | undefined
   }),
   setReportedPeerId: (peerId: PeerID) => {
     getMutableState(ReportUserState).reportedPeerId.set(peerId)
   },
   resetPeerId: () => {
     getMutableState(ReportUserState).reportedPeerId.set(undefined)
-  },
-  toggleReportUser: () => {
-    getMutableState(ReportUserState).reportingUser.set((val) => !val)
-  },
-  resetReportUser: () => {
-    getMutableState(ReportUserState).reportingUser.set(false)
   }
 })

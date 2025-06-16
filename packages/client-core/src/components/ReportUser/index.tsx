@@ -46,43 +46,6 @@ import { uploadToFeathersService } from '../../util/upload'
 import { smallIconButtonStyles } from '../Glass/Buttons'
 import { useNavigationProvider } from '../Glass/NavigationProvider'
 
-const containerStyles = `
-  pointer-events-auto
-  inline-grid
-  absolute z-20
-  w-full
-  md:w-auto md:min-w-[40rem]
-  bottom-0 right-0 top-0
-  transition-transform
-`
-
-const sidebarContainerStyles = `
-  inline-grid
-  grid-rows-[min-content_min-content_1fr]
-  content-start
-  p-6
-  gap-y-8
-  max-h-full
-  h-full
-  border-l-2
-  border-white/10
-  shadow-[0_0.1rem_2.3rem_-0.5rem_hsla(0,0%,0%,0.1)]
-  backdrop-blur-3xl
-`
-
-const buttonContainer_base = `
-  absolute z-10
-  inline-flex items-center
-  -translate-y-1/2
-  lg:bottom-auto
-  lg:translate-y-0
-`
-
-const closeButtonStyles = `
-  right-4
-  text-white
-`
-
 const backButtonStyles = `
   left-4
 `
@@ -96,7 +59,7 @@ const actionButtonStyles = `
   shadow-[inset_0px_1px_1px_rgba(255,255,255,0.25),inset_0px_-1px_1px_rgba(255,255,255,0.1),0px_8px_6px_rgba(0,0,0,0.05)]
 `
 
-const inputDivStyles = `
+const containerStyles = `
   flex flex-col
   text-white
 `
@@ -109,7 +72,7 @@ const REPORT_SUCCESS = 'REPORT_SUCCESS'
 const ReportUserMenu = (props: ReportMenuProps) => {
   const { t } = useTranslation()
   const { type } = props
-  const { reportedPeerId, reportingUser } = useMutableState(ReportUserState)
+  const { reportedPeerId } = useMutableState(ReportUserState)
   const reportedUserId = type === 'user' ? NetworkState.mediaNetwork?.peers?.[reportedPeerId.value!]?.userId : undefined
   const typeReport = type === 'location' ? 'Location' : 'User'
   const currentLocation = getState(LocationState).currentLocation.location
@@ -137,6 +100,7 @@ const ReportUserMenu = (props: ReportMenuProps) => {
     abuseType: {
       label: t('user:usermenu.profile.typeAbuse'),
       validate: (input: string) => {
+        input = input.trim()
         if (input === null || input === '' || input === 'null') {
           errors.abuseType.set(t('user:usermenu.profile.selectAbuseTypeRequired'))
           return false
@@ -217,7 +181,6 @@ const ReportUserMenu = (props: ReportMenuProps) => {
 
   const onClose = () => {
     ReportUserState.resetPeerId()
-    ReportUserState.resetReportUser()
     setContent(REPORT_INPROGRESS)
     handleChange('', 'abuseType')
     handleChange('', 'details')
@@ -226,8 +189,8 @@ const ReportUserMenu = (props: ReportMenuProps) => {
   }
 
   const reportProgress = (
-    <div className={twMerge(inputDivStyles, 'gap-y-6')}>
-      <div className={twMerge(inputDivStyles, 'gap-y-2')}>
+    <div className={twMerge(containerStyles, 'gap-y-6')}>
+      <div className={twMerge(containerStyles, 'gap-y-2')}>
         <Text fontSize="xs" className="text-white">
           {fieldOptions.abuseType.label}
         </Text>
@@ -242,7 +205,7 @@ const ReportUserMenu = (props: ReportMenuProps) => {
         {errors.abuseType.value && <span className="text-xs text-ui-error">{errors.abuseType.value}</span>}
       </div>
 
-      <div className={twMerge(inputDivStyles, 'gap-y-2')}>
+      <div className={twMerge(containerStyles, 'gap-y-2')}>
         <Text fontSize="xs" className="text-white">
           {fieldOptions.details.label}
         </Text>
@@ -261,7 +224,7 @@ const ReportUserMenu = (props: ReportMenuProps) => {
         {errors.details.value && <span className="text-xs text-ui-error">{errors.details.value}</span>}
       </div>
 
-      <div className={twMerge(inputDivStyles, 'gap-y-2')}>
+      <div className={twMerge(containerStyles, 'gap-y-2')}>
         <Text fontSize="xs" className="text-white">
           {fieldOptions.files.label}
         </Text>
@@ -344,7 +307,7 @@ const ReportUserMenu = (props: ReportMenuProps) => {
     }
   }
 
-  return <div className="report-user-menu w-full">{showContents()}</div>
+  return <div className="w-full">{showContents()}</div>
 }
 
 export default ReportUserMenu

@@ -173,9 +173,8 @@ const Video = ({ peerID, type }: WindowType) => {
   const camAudioOn = isSelf ? isCamAudioEnabled : !audioStreamPaused
 
   const reportUser = () => {
-    navigateTo('ReportUser', '')
     ReportUserState.setReportedPeerId(peerID)
-    ReportUserState.toggleReportUser()
+    navigateTo('ReportUser', '')
   }
 
   return (
@@ -291,10 +290,7 @@ export const VideoMenu = ({ videos = [] }: { videos: WindowType[] }) => {
 
       <div className={arrowsContainer}>
         <button
-          onClick={() => {
-            setPageIndex(pageIndex - 1)
-            console.log('well hellooooo')
-          }}
+          onClick={() => setPageIndex(pageIndex - 1)}
           className={twMerge(smallIconButtonStyles, pageIndex === 0 ? `collapse` : ``)}
         >
           <ChevronLeftMd />

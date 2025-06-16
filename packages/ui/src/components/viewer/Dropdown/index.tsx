@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { CheckMd, ChevronDownMd } from '@ir-engine/ui/src/icons'
 import React, { useEffect, useRef, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 export interface DropdownOption {
   label: string
@@ -93,12 +94,16 @@ const Dropdown: React.FC<DropdownProps> = ({
         type="button"
         onClick={handleToggle}
         disabled={disabled}
-        className={`
-          flex w-full items-center justify-between rounded-lg ${border && 'border'} border-white/20 
-          bg-${bgColor}/10 px-4 py-3 text-left text-white backdrop-blur-sm
-          ${disabled ? 'cursor-not-allowed opacity-50' : `cursor-pointer hover:bg-${bgColor}/15`}
-          ${isOpen ? 'ring-2 ring-white/30' : ''}
-        `}
+        className={twMerge(
+          `
+            flex w-full items-center justify-between rounded-lg border-white/20
+            px-4 py-3 text-left text-white backdrop-blur-sm
+          `,
+          disabled ? 'cursor-not-allowed opacity-50' : `cursor-pointer`,
+          isOpen ? 'ring-2 ring-white/30' : '',
+          border && 'border',
+          bgColor === 'black' ? `bg-black/10 hover:bg-black/15` : `bg-white/10 hover:bg-white/15`
+        )}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
