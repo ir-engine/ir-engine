@@ -204,7 +204,7 @@ const CameraSettingsReactor = (props: {
       if (cameraMode === CameraMode.FOLLOW) {
         setComponent(cameraEntity, FollowCameraComponent)
         removeComponent(cameraEntity, PoiCameraComponent)
-      } else if (cameraMode === CameraMode.POI) {
+      } else if (cameraMode === CameraMode.GUIDED) {
         setComponent(cameraEntity, PoiCameraComponent)
         removeComponent(cameraEntity, FollowCameraComponent)
       }

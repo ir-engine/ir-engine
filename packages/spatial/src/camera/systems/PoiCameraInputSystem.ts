@@ -41,8 +41,8 @@ const targetPosition = new Vector3()
 const targetRotation = new Quaternion()
 
 /**
- * Handle POI camera scroll navigation.
  * @param cameraEntity Entity holding camera and POI camera component.
+ * Handle Guided camera scroll navigation.
  * @param zoomDelta Scroll input delta.
  */
 export const handlePoiCameraScroll = (cameraEntity: Entity, zoomDelta: number): void => {
@@ -228,7 +228,7 @@ const execute = () => {
   const axes = InputComponent.getAxes(viewerEntity)
   const zoomDelta = axes.FollowCameraZoomScroll ?? 0
   if (!hasComponent(viewerEntity, PoiCameraComponent)) return
-  // Handle POI camera scroll input
+  // Handle Guided camera scroll input
   if (Math.abs(zoomDelta) > 0.01) {
     handlePoiCameraScroll(viewerEntity, zoomDelta)
   }
