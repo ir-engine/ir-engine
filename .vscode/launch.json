@@ -194,7 +194,7 @@
                 "run-script",
                 "dev"
             ],
-            "runtimeExecutable": "/Users/andresjimenez/.local/state/fnm_multishells/2824_1749814457109/bin/npm",
+            "runtimeExecutable": "npm",
             "skipFiles": [
                 "<node_internals>/**"
             ],
