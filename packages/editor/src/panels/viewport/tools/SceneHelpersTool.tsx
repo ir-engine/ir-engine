@@ -140,8 +140,14 @@ export default function SceneHelpersTool() {
           selected={editorHelperState.gridVisibility.value}
         />
       </Tooltip>
-      <Tooltip content={t('editor:toolbar.helpersToggle.lbl-axisHelpers')} position="bottom">
-        <ViewportButton lean={true} onClick={() => {}} disabled={true} selected={false} icon={RulerUnitsMd} />
+      <Tooltip content={t('editor:toolbar.helpersToggle.info-helpers')} position="bottom">
+        <ViewportButton
+          lean={true}
+          onClick={() => rendererState.physicsDebug.set(!rendererState.physicsDebug.value)}
+          disabled={false}
+          selected={rendererState.physicsDebug.value}
+          icon={RulerUnitsMd}
+        />
       </Tooltip>
       <Tooltip content={t('editor:toolbar.helpersToggle.lbl-directManipulation')} position="bottom">
         <ViewportButton lean={true} onClick={() => {}} disabled={true} selected={false} icon={Edit01Md} />
