@@ -32,7 +32,7 @@ import {
   type ModerationTypeType
 } from '@ir-engine/common/src/schema.type.module'
 import { NetworkState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { CheckLg, ChevronLeftMd, XCloseLg } from '@ir-engine/ui/src/icons'
+import { CheckLg } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import TextArea from '@ir-engine/ui/src/primitives/tailwind/TextArea'
 import { Dropdown } from '@ir-engine/ui/viewer'
@@ -44,7 +44,7 @@ import { LocationState } from '../../social/services/LocationService'
 import { ReportUserState } from '../../util/ReportUserState'
 import { uploadToFeathersService } from '../../util/upload'
 import { smallIconButtonStyles } from '../Glass/Buttons'
-import { MenuButton } from '../Glass/MenuButton'
+import { useNavigationProvider } from '../Glass/NavigationProvider'
 
 const containerStyles = `
   pointer-events-auto
@@ -115,6 +115,7 @@ const ReportUserMenu = (props: ReportMenuProps) => {
   const currentLocation = getState(LocationState).currentLocation.location
   const reportedLocationId = currentLocation.id
   const userReportsMutation = useMutation(moderationPath)
+  const { activeHistoryKey, sidebarKey, navigateClose, navigateTo } = useNavigationProvider()
 
   const [content, setContent] = useState<string>(REPORT_INPROGRESS) // REPORT_INPROGRESS | REPORT_SUCCESS
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -225,7 +226,7 @@ const ReportUserMenu = (props: ReportMenuProps) => {
   }
 
   const reportProgress = (
-    <div className={twMerge(inputDivStyles, 'gap-y-6 pt-20')}>
+    <div className={twMerge(inputDivStyles, 'gap-y-6')}>
       <div className={twMerge(inputDivStyles, 'gap-y-2')}>
         <Text fontSize="xs" className="text-white">
           {fieldOptions.abuseType.label}
@@ -343,35 +344,7 @@ const ReportUserMenu = (props: ReportMenuProps) => {
     }
   }
 
-  if (!reportingUser.value) return null
-
-  return (
-    <div className={containerStyles}>
-      <div className={sidebarContainerStyles}>
-        <div className="absolute top-10 w-full md:top-5">
-          {content === REPORT_INPROGRESS && (
-            <button
-              className={twMerge(smallIconButtonStyles, buttonContainer_base, backButtonStyles, `shadow`)}
-              onClick={onClose}
-            >
-              <ChevronLeftMd />
-            </button>
-          )}
-          <div className="absolute w-full text-center">
-            <Text fontSize="lg" fontWeight="semibold" className="block flex-1 text-center text-white">
-              {t('user:usermenu.profile.report', { type: typeReport })}
-            </Text>
-          </div>
-          <div className={twMerge(buttonContainer_base, closeButtonStyles)}>
-            <MenuButton className={`text-3xl`} onClick={onClose}>
-              <XCloseLg />
-            </MenuButton>
-          </div>
-        </div>
-        {showContents()}
-      </div>
-    </div>
-  )
+  return <div className="report-user-menu w-full">{showContents()}</div>
 }
 
 export default ReportUserMenu

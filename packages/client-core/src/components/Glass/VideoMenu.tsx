@@ -160,7 +160,7 @@ const Video = ({ peerID, type }: WindowType) => {
   })
 
   const { isCamVideoEnabled, isCamAudioEnabled } = useMultimediaStateProvider()
-  const { navigateClose } = useNavigationProvider()
+  const { navigateTo } = useNavigationProvider()
 
   const ref = useRef<HTMLVideoElement>(null)
 
@@ -173,7 +173,7 @@ const Video = ({ peerID, type }: WindowType) => {
   const camAudioOn = isSelf ? isCamAudioEnabled : !audioStreamPaused
 
   const reportUser = () => {
-    navigateClose()
+    navigateTo('ReportUser', '')
     ReportUserState.setReportedPeerId(peerID)
     ReportUserState.toggleReportUser()
   }
@@ -291,7 +291,10 @@ export const VideoMenu = ({ videos = [] }: { videos: WindowType[] }) => {
 
       <div className={arrowsContainer}>
         <button
-          onClick={() => setPageIndex(pageIndex - 1)}
+          onClick={() => {
+            setPageIndex(pageIndex - 1)
+            console.log('well hellooooo')
+          }}
           className={twMerge(smallIconButtonStyles, pageIndex === 0 ? `collapse` : ``)}
         >
           <ChevronLeftMd />
