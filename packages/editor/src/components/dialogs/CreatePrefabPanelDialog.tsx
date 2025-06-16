@@ -49,7 +49,7 @@ import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
 import { getMutableState, getState, NO_PROXY, none, startReactor, useHookstate } from '@ir-engine/hyperflux'
-import { DirectionalLightComponent, HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
+import { HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
@@ -93,12 +93,7 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
   }
 
   const exportLookDevPrefab = async (srcProject: string, fileName: string) => {
-    const lookDevComponent: Component[] = [
-      SkyboxComponent,
-      HemisphereLightComponent,
-      DirectionalLightComponent,
-      PostProcessingComponent
-    ]
+    const lookDevComponent: Component[] = [SkyboxComponent, HemisphereLightComponent, PostProcessingComponent]
 
     const prefabEntity = createEntity()
     const sceneObject = new Scene()
