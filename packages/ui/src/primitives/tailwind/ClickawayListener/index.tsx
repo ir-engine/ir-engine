@@ -37,6 +37,8 @@ const ClickawayListener = (props: { children: React.ReactNode; onClickOutside: V
   const backdropRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    if (!backdropRef.current) return
+
     const handler = (e: Event) => {
       const element = backdropRef.current
       if (!element) {
@@ -57,12 +59,12 @@ const ClickawayListener = (props: { children: React.ReactNode; onClickOutside: V
       }
     }
 
-    document.addEventListener('pointerup', handler)
+    backdropRef.current.addEventListener('pointerup', handler)
 
     return () => {
-      document.removeEventListener('pointerup', handler)
+      backdropRef.current?.removeEventListener('pointerup', handler)
     }
-  }, [])
+  }, [backdropRef.current])
 
   useEffect(() => {
     callbackRef.current = props.onClickOutside || null

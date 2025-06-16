@@ -40,9 +40,9 @@ import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import { ReportUserState } from '../../util/ReportUserState'
-import { Props, useUserMediaWindowHook } from './hook'
+import { useUserMediaWindowHook, WindowType } from './hook'
 
-export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
+export const SingleVideoWindow = ({ peerID, type }: WindowType): JSX.Element => {
   const { isSelf, isPiP, isScreen, videoMediaStream, avatarThumbnail, videoStreamPaused, togglePiP } =
     useUserMediaWindowHook({
       peerID,
@@ -145,7 +145,7 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
   )
 }
 
-export const SingleVideoWindowWidget = ({ peerID, type }: Props): JSX.Element => {
+export const SingleVideoWindowWidget = ({ peerID, type }: WindowType): JSX.Element => {
   const { username, isSelf, videoMediaStream, avatarThumbnail, videoStreamPaused, audioStreamPaused, toggleAudio } =
     useUserMediaWindowHook({ peerID, type })
 

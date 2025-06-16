@@ -14,6 +14,7 @@
   "savingError": "Error saving Project",
   "savingErrorMsg": "An error occurred when saving the Project. Please try again or contact support.",
   "savingSceneErrorMsg": "The Scene did not load properly. Please try reloading the Scene.",
+  "savingLoadingSceneErrorMsg": "The Scene is not finished loading. Please wait for it to finish loading before saving.",
   "duplicating": "Duplicating Project",
   "exporting": "Exporting Project",
   "exportingError": "Error exporting the Project",
@@ -258,7 +259,7 @@
       "noThumbnailPlaceholder": "Publish Scene to Generate a Preview Image",
       "createCompressedScenePublish": "Compress and Publish",
       "createCompressedScenePublishInfo": "This is a beta feature that optimizes your space for mobile devices. If you encounter errors, please refresh your browser and try again, or use the regular “Publish” function for now.",
-       "jumpControlFeature": "Jump Control",
+      "jumpControlFeature": "Jump Control",
       "jumpControlFeatureDesc": "Enable your avatar’s ability to jump.",
       "vrCapabilitiesFeature": "VR Capabilities",
       "vrCapabilitiesFeatureDesc": "Enable your eligible devices to render AR experiences."
@@ -749,6 +750,11 @@
         "donut": "Donut",
         "mesh": "Mesh"
       },
+      "poiComponent": {
+        "name": "POI Component",
+        "description": "Settings for a point of interest camera view",
+        "lbl-poiHotspotEntities": "POI Hotspot Entities"
+      },
       "emission-bursts": "Emission Bursts",
       "add-burst": "Add Burst",
       "remove-burst": "Remove Burst",
@@ -758,7 +764,18 @@
       "start-size": "Start Size",
       "start-speed": "Start Speed",
       "start-rotation": "Start Rotation",
-      "start-color": "Start Color",
+      "startColor": {
+        "title": "Start Color",
+        "type": "Type",
+        "constant": "Constant",
+        "range": "Range",
+        "random": "Random",
+        "gradient": "Gradient",
+        "color": "Color",
+        "opacity": "Opacity",
+        "start": "Start",
+        "remove": "Remove"
+      },
       "emission-over-time": "Emission Over Time",
       "render-mode": "Render Mode",
       "render-mode-type": {
@@ -902,11 +919,28 @@
       "lbl-clippingPlanes": "Clipping Planes",
       "lbl-nearClip": "Near",
       "lbl-farClip": "Far ",
-      "lbl-minCamDist": "Min",
-      "lbl-maxCamDist": "Max",
+      "lbl-minCamDist": "Min Distance",
+      "lbl-maxCamDist": "Max Distance",
       "lbl-cameraDistance": "Camera Distance",
-      "lbl-startCameraDistance": "Start Camera Distance",
-      "lbl-phi": "Phi"
+      "lbl-enableTransitionButtons": "Transition Buttons",
+      "lbl-enableTransitionButtonsDescription": "Show UI buttons for navigating between POIs.",
+      "lbl-phi": "Phi",
+      "lbl-cameraMode": "Camera Mode",
+      "lbl-avatar": "Avatar",
+      "lbl-avatarVisible": "Avatar is Visible",
+      "lbl-scrollingSpeed": "Scolling Speed",
+      "lbl-followCameraModes": "Follow Camera Modes",
+      "lbl-followCameraFristPerson": "First Person Camera",
+      "lbl-followCameraThirdPerson": "Third Person Camera",
+      "lbl-followCameraTopDown": "Top-Down Camera",
+      "lbl-followCameraError": "You need to select at least one Follow Camera Mode",
+      "lbl-firstPersonSettings": "First Person Camera Settings",
+      "lbl-thirdPersonSettings": "Third Person Camera Settings",
+      "lbl-topDownSettings": "Top-Down Camera Settings",
+      "lbl-defaultDistance": "Default Distance",
+      "lbl-freeCamera": "Free Camera",
+      "lbl-cameraLimits": "Camera Limits",
+      "lbl-cameraReset": "Camera Reset"
     },
     "cameraComponent": {
       "name": "Camera",
@@ -1522,6 +1556,7 @@
     "lbl-edited": "Edited",
     "lbl-duplicate": "Duplicate",
     "lbl-group": "Group",
+    "lbl-ungroup": "Ungroup",
     "lbl-cloneScene": "Clone Scene",
     "lbl-cloneSceneToProject": "Clone Scene to Project",
     "lbl-cloneOptions": "Please select the clone action you want to perform",
@@ -1656,7 +1691,7 @@
       "optionButtons": {
         "defaultEditor": {
           "title": "Blank Scene",
-          "description": "Use the advanced iR Spaces Editor to create your Space from the ground up. Recommended for experienced 3D creators.",
+          "description": "Use the advanced Worlds Editor to create your Space from the ground up. Recommended for experienced 3D creators.",
           "submitButtonText": "Continue in Editor"
         }
       }

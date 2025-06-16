@@ -35,7 +35,7 @@ export interface DividerProps {
  * Uses a centered, rounded horizontal line with customizable width and opacity
  */
 const Divider: React.FC<DividerProps> = ({ className = '' }) => (
-  <div className={`mx-auto h-px rounded-full ${className} w-[80%] bg-white/10 ${className}`} />
+  <div className={`mx-auto h-px w-[80%] rounded-full bg-white/10 ${className}`} />
 )
 
 export default Divider

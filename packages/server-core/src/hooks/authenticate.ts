@@ -33,6 +33,7 @@ import { isProvider } from 'feathers-hooks-common'
 import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 
+import { retry } from '@octokit/plugin-retry'
 import { JwtPayload, verify } from 'jsonwebtoken'
 import { Application } from '../../declarations'
 import config from '../appconfig'
@@ -76,7 +77,8 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
     })! as JwtPayload
     if (jwtDecoded.iss == null || parseInt(jwtDecoded.iss) !== appId)
       throw new NotAuthenticated('Invalid app credentials')
-    const octoKit = new Octokit({ auth: token })
+    const retryOctokit = Octokit.plugin(retry)
+    const octoKit = new retryOctokit({ auth: token, retry: { enabled: process.env.TEST !== 'true' } })
     let appResponse
     try {
       appResponse = await octoKit.rest.apps.getAuthenticated()

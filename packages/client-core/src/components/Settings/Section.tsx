@@ -28,17 +28,20 @@ import React from 'react'
 export interface SectionProps {
   children: React.ReactNode
   className?: string
-  withDivider?: boolean
+  disabled?: boolean
 }
 
-export const Section: React.FC<SectionProps> = ({ children, className = '', withDivider = false }) => (
+export const Section: React.FC<SectionProps> = ({ children, className = '', disabled }) => (
   <div
-    className={`overflow-hidden rounded-xl shadow-sm ${className} `}
-    style={{
-      background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-      border: '1px solid rgba(255, 255, 255, 0.05)'
-    }}
+    className={`
+      overflow-hidden rounded-xl border border-white/10 
+      bg-gradient-to-bl from-white/10 to-transparent font-dm-sans  
+      text-xs
+      tracking-wide shadow-sm md:text-base
+      ${disabled ? 'pointer-events-none opacity-50' : ''} 
+      ${className} 
+    `}
   >
-    {withDivider ? <div className="divide-y divide-white/10">{children}</div> : <div className="">{children}</div>}
+    {children}
   </div>
 )

@@ -39,6 +39,7 @@ import {
 } from '@ir-engine/spatial/src/common/constants/TransformConstants'
 import { useEffect } from 'react'
 import { EditorMode, EditorModeType } from '../constants/EditorModeTypes'
+import { VolumeVisibility } from '../functions/gizmos/studioIconGizmoHelper'
 
 export enum PlacementMode {
   DRAG,
@@ -61,7 +62,10 @@ export const EditorHelperState = defineState({
     gizmoEnabled: true,
     gridVisibility: false,
     gridHeight: 0,
-    showGlbChildren: true
+    showGlbChildren: true,
+    volumeVisibility: 'Auto' as keyof typeof VolumeVisibility,
+    editorIconMaxSize: 0.5,
+    editorIconMinSize: 0.4
   }),
   extension: syncStateWithLocalStorage([
     'snapMode',

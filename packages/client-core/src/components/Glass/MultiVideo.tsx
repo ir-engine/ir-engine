@@ -29,6 +29,7 @@ import React, { useCallback, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { largeIconButtonStyles } from './Buttons'
+import { useVideoStream } from './VideoMenu'
 
 function interpolateRange(value, [fromMax, fromMin], [toMax, toMin]) {
   const normalized = (value - fromMin) / (fromMax - fromMin)
@@ -37,7 +38,7 @@ function interpolateRange(value, [fromMax, fromMin], [toMax, toMin]) {
   return toMin + normalized * toRange
 }
 
-const multiVideoContainerStyles = `
+const containerStyles = `
   absolute
   left-6
   top-6
@@ -64,14 +65,19 @@ const videosStyles = `
 
 const videoStyles = `
   flex items-center justify-center
+
+  overflow-hidden
+
   rounded-xl
   border-2
   border-white/90
   bg-white/10
   backdrop-blur-3xl
+
   text-xl
-  font-bold
   text-white
+  font-bold
+
   transition-transform
   duration-150
 `
@@ -83,15 +89,68 @@ const collapsedVideosStyles = `
   cursor-pointer
 `
 
-const multiVideoButtonsStyles = `
+const bottomButtonsStyles = `
   flex
   justify-between
 `
 
-export const MultiVideos = ({ handleSidebarOpen }) => {
-  const [list, setList] = useState([...Array(40)])
+const windowSize = 4
+const stackSize = 2
+
+const stackVideoGap = 0.4
+const windowVideoGap = 0.5
+
+const stackScaleMin = 0.75
+
+const halfWindowSize = windowSize / 2
+
+const aspectRatio = 9 / 16
+
+const videoWidth = 10
+const videoHeight = videoWidth * aspectRatio
+
+const scrollHeightMultiplier = 10
+const windowVideoHeightAndGap = videoHeight + windowVideoGap
+
+const CollapsedVideo = ({ index, videoMediaStream }) => {
+  const scale = interpolateRange(index, [0, stackSize], [1, stackScaleMin])
+
+  const ref = useRef<HTMLVideoElement>(null)
+
+  useVideoStream(ref.current, videoMediaStream)
+
+  return (
+    <div
+      style={{
+        zIndex: -index
+      }}
+      className={twMerge(
+        `
+          absolute
+          transition-transform
+          duration-200
+        `
+      )}
+    >
+      <div
+        style={{
+          height: `${videoHeight}rem`,
+          width: `${videoWidth}rem`,
+          transform: `translateY(${index * stackVideoGap}rem) scale(${scale})`
+        }}
+        className={twMerge(`origin-bottom`, videoStyles)}
+      >
+        <video ref={ref} />
+      </div>
+    </div>
+  )
+}
+
+export const VideoCarousel = ({ handleSidebarOpen, videoElements, videoMediaStreams }) => {
   const [collapsed, setCollapsed] = useState(true)
   const [muted, setMuted] = useState(false)
+
+  const [mounted, setMounted] = useState(false)
 
   const container = React.useRef<HTMLDivElement>(null)
   const videosRef = React.useRef<HTMLDivElement>(null)
@@ -102,32 +161,33 @@ export const MultiVideos = ({ handleSidebarOpen }) => {
     container: container
   })
 
-  const perVideoPercent = list.length && 1 / list.length
-  const windowSize = 4
-  const stackSize = 2
+  const numVideos = videoElements.length
+  const showVideos = numVideos > 0
 
-  const stackVideoGap = 0.4
-  const windowVideoGap = 0.5
+  const hasEnoughVideosForCarousel = numVideos > 1
 
-  const stackScaleMin = 0.75
+  const showBottomButtons = !collapsed && hasEnoughVideosForCarousel
 
-  const halfWindowSize = windowSize / 2
-
-  const aspectRatio = 9 / 16
-
-  const videoWidth = 10
-  const videoHeight = videoWidth * aspectRatio
-
-  const scrollHeightMultiplier = 10
-
-  const windowVideoHeightAndGap = videoHeight + windowVideoGap
+  const handleCollapsedVideosClick = useCallback(() => {
+    if (!hasEnoughVideosForCarousel) {
+      return
+    }
+    setCollapsed(false)
+  }, [hasEnoughVideosForCarousel])
 
   const createVideos = useCallback(() => {
-    if (!videosRef.current) {
+    if (!videosRef.current || !numVideos) {
       return
     }
 
-    const videos = list.map((__, i) => {
+    if (videosRef.current.children.length === numVideos) {
+      return
+    }
+    console.log('creating')
+
+    setMounted(true)
+
+    const videos = videoElements.map((videoElement, i) => {
       const videoContainer = document.createElement('div')
       const video = document.createElement('div')
 
@@ -144,7 +204,7 @@ export const MultiVideos = ({ handleSidebarOpen }) => {
       video.style.height = `${videoHeight}rem`
       video.style.width = `${videoWidth}rem`
 
-      video.innerHTML = `${i}`
+      video.appendChild(videoElement)
 
       videoContainer.appendChild(video)
 
@@ -152,19 +212,19 @@ export const MultiVideos = ({ handleSidebarOpen }) => {
     })
 
     videosRef.current.replaceChildren(...videos)
-  }, [videosRef.current, list.length])
+  }, [videosRef.current, numVideos])
 
   const positionVideos = useCallback(
     (latest = 0) => {
-      if (!videosRef.current) {
+      if (!videosRef.current || !numVideos) {
         return
       }
 
-      const minScroll = 1 / list.length
-      const maxScroll = (list.length - (windowSize - 1)) / list.length
+      const minScroll = 1 / numVideos
+      const maxScroll = (numVideos - (windowSize - 1)) / numVideos
       _scrollYProgress.current = Math.min(Math.max(latest, minScroll), maxScroll)
 
-      const currentVideoIndex = Math.round(_scrollYProgress.current * list.length)
+      const currentVideoIndex = Math.round(_scrollYProgress.current * numVideos)
 
       const windowTopIndex = Math.max(Math.floor(currentVideoIndex - halfWindowSize) + 1, 0)
       const windowBottomIndex = Math.max(Math.floor(currentVideoIndex + halfWindowSize), 0)
@@ -173,12 +233,17 @@ export const MultiVideos = ({ handleSidebarOpen }) => {
       const topStackBottomIndex = windowTopIndex
       const bottomStackTopIndex = windowBottomIndex
       const bottomStackBottomIndex = windowBottomIndex + stackSize
-      list.map((__, i) => {
+      videoElements.map((__, i) => {
         if (!videosRef.current) {
           return
         }
 
-        const videoContainerEl = videosRef.current.children[i] as HTMLElement
+        const videoContainerEl = videosRef.current.children?.[i] as HTMLElement
+
+        if (!videoContainerEl) {
+          return
+        }
+
         const videoEl = videoContainerEl.children[0] as HTMLElement
 
         const above = i < windowTopIndex
@@ -240,7 +305,7 @@ export const MultiVideos = ({ handleSidebarOpen }) => {
           : `${i}`
       })
     },
-    [videosRef.current, list.length]
+    [videosRef.current, numVideos]
   )
 
   const positionVideosWithCollapsed = useCallback(
@@ -257,93 +322,70 @@ export const MultiVideos = ({ handleSidebarOpen }) => {
   useMotionValueEvent(scrollYProgress, 'renderRequest', positionVideosWithCollapsed)
 
   useLayoutEffect(() => {
-    if (!container.current || !videosRef.current || !list.length) {
+    if (!container.current || !videosRef.current || !numVideos) {
       return
     }
 
     createVideos()
     positionVideos(0)
-  }, [container.current, videosRef.current, list.length])
+  }, [container.current, videosRef.current, numVideos])
 
-  const CollapsedVideo = ({ id }) => {
-    const scale = interpolateRange(id, [0, stackSize], [1, stackScaleMin])
-
-    return (
-      <div
-        style={{
-          zIndex: -id
-        }}
-        className={twMerge(
-          `
-          absolute
-          transition-transform
-          duration-200
-        `
-        )}
-      >
-        <div
-          style={{
-            height: `${videoHeight}rem`,
-            width: `${videoWidth}rem`,
-            transform: `translateY(${id * stackVideoGap}rem) scale(${scale})`
-          }}
-          className={twMerge(`origin-bottom`, videoStyles)}
-        >
-          {id}
-        </div>
-      </div>
-    )
-  }
-
-  const collapsedVideos = list
+  const collapsedVideos = videoElements
     .filter((__, i) => {
       return i <= stackSize
     })
     .reverse()
     .map((__, i) => {
-      return <CollapsedVideo key={i} id={i} />
+      return <CollapsedVideo videoMediaStream={videoMediaStreams[i]} key={i} index={i} />
     })
 
-  const scrollHeight = (list.length - (windowSize - 1)) * scrollHeightMultiplier
-  const videosListHeight = videoHeight + stackSize * stackVideoGap
+  const scrollHeight = (numVideos - (windowSize - 1)) * scrollHeightMultiplier
+  const collapsedVideosListHeight = videoHeight + stackSize * stackVideoGap
+  const openVideosListHeight = numVideos > 4 ? 25.7 : Math.min(numVideos, 4) * windowVideoHeightAndGap
+
+  const videosListHeight = showVideos ? (collapsed ? collapsedVideosListHeight : openVideosListHeight) : 0
 
   return (
-    <div className={multiVideoContainerStyles}>
+    <div className={containerStyles}>
       <div
         ref={container}
         style={{
-          height: collapsed ? `${videosListHeight}rem` : `25.7rem`
+          height: `${videosListHeight}rem`
         }}
         className={twMerge(videosListStyles)}
       >
-        <button
-          style={{
-            height: `${videoHeight}rem`,
-            width: `${videoWidth}rem`
-          }}
-          onClick={() => setCollapsed((prev) => false)}
-          className={twMerge(collapsedVideosStyles, collapsed ? `` : `hidden`)}
-        >
-          {collapsedVideos}
-        </button>
-        <>
-          <div
-            onClick={() => setCollapsed((prev) => true)}
-            ref={videosRef}
-            className={twMerge(videosStyles, collapsed ? `hidden` : ``)}
-          />
-          <div
-            style={{
-              height: `${scrollHeight}rem`,
-              width: `${videoWidth}rem`
-            }}
-          />
-        </>
+        {showVideos ? (
+          <>
+            <button
+              style={{
+                height: `${videoHeight}rem`,
+                width: `${videoWidth}rem`
+              }}
+              onClick={handleCollapsedVideosClick}
+              className={twMerge(collapsedVideosStyles, collapsed ? `` : `hidden`)}
+            >
+              {collapsedVideos}
+            </button>
+            <>
+              <div
+                onClick={() => setCollapsed(true)}
+                ref={videosRef}
+                className={twMerge(videosStyles, collapsed ? `hidden` : ``)}
+              />
+              <div
+                style={{
+                  height: `${scrollHeight}rem`,
+                  width: `${videoWidth}rem`
+                }}
+              />
+            </>
+          </>
+        ) : (
+          <></>
+        )}
       </div>
-      {collapsed ? (
-        <></>
-      ) : (
-        <div className={multiVideoButtonsStyles}>
+      {showBottomButtons ? (
+        <div className={bottomButtonsStyles}>
           <button onClick={() => setMuted((prev) => !prev)} className={twMerge(largeIconButtonStyles, ``)}>
             {muted ? <VolumeXMd /> : <VolumeMinMd />}
           </button>
@@ -351,6 +393,8 @@ export const MultiVideos = ({ handleSidebarOpen }) => {
             <Expand01Md />
           </button>
         </div>
+      ) : (
+        <></>
       )}
     </div>
   )

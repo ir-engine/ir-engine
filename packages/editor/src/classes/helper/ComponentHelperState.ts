@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvMapBakeComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
@@ -40,10 +41,8 @@ import {
 } from '@ir-engine/spatial'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
-import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import BoxColliderIcon from '@ir-engine/ui/src/components/editor/assets/boxCollider.png'
 import CameraIcon from '@ir-engine/ui/src/components/editor/assets/camera.png'
-import CylinderColliderIcon from '@ir-engine/ui/src/components/editor/assets/cylinderCollider.png'
 import DirectionalLightIcon from '@ir-engine/ui/src/components/editor/assets/directional.png'
 import EnvMapBakeIcon from '@ir-engine/ui/src/components/editor/assets/envMap.png'
 import HemisphereLightIcon from '@ir-engine/ui/src/components/editor/assets/hemisphere.png'
@@ -54,40 +53,115 @@ import PortalIcon from '@ir-engine/ui/src/components/editor/assets/portal.png'
 import PositionalAudioIcon from '@ir-engine/ui/src/components/editor/assets/positionalAudio.png'
 import RigidBodyIcon from '@ir-engine/ui/src/components/editor/assets/rigidBody.png'
 import SpawnPointIcon from '@ir-engine/ui/src/components/editor/assets/spawnPoint.png'
-import SphereColiderIcon from '@ir-engine/ui/src/components/editor/assets/sphereCollider.png'
 import SpotLightIcon from '@ir-engine/ui/src/components/editor/assets/spot.png'
 import TriggerIcon from '@ir-engine/ui/src/components/editor/assets/trigger.png'
+import { ColliderHelperReactor } from './ColliderHelper'
+import { DirectionalLightHelperReactor } from './DirectionalLightHelper'
+import { EnvmapBakeHelperReactor } from './EnvmapBakeHelper'
+import { HemiSphereLightHelperReactor } from './HemiSphereLightHelper'
+import { MediaHelperReactor } from './MediaHelper'
+import { MountPointHelperReactor } from './MountPointHelper'
+import { PointLightHelperReactor } from './PointLightHelper'
+import { PortalHelperReactor } from './PortalHelper'
+import { PositionalAudioHelperReactor } from './PositionalAudioHelper'
+import { ScenePreviewCameraHelperReactor } from './ScenePreviewCameraHelper'
+import { SpawnPointHelperReactor } from './SpawnPointHelper'
+import { SpotLightHelperReactor } from './SpotLightHelper'
 
-export const ComponentStudioIconState = defineState({
-  name: 'ee.editor.ComponentStudioIconState',
+export interface ComponentHelperEntry {
+  reactor?: React.FC
+  icon?: any
+  directional?: boolean
+  volume?: boolean
+  priority: number
+}
+
+export const ComponentHelperState = defineState({
+  name: 'ee.editor.ComponentHelperState',
   initial: () => {
     return {
-      [DirectionalLightComponent.jsonID]: DirectionalLightIcon, // point to texture files
-      [EnvMapBakeComponent.jsonID]: EnvMapBakeIcon,
-      [MediaComponent.jsonID]: MediaIcon,
-      [HemisphereLightComponent.jsonID]: HemisphereLightIcon,
-      [MountPointComponent.jsonID]: MountPointIcon,
-      [PointLightComponent.jsonID]: PointLightIcon,
-      [PositionalAudioComponent.jsonID]: PositionalAudioIcon,
-      [PortalComponent.jsonID]: PortalIcon,
-      [ScenePreviewCameraComponent.jsonID]: CameraIcon,
-      [SpotLightComponent.jsonID]: SpotLightIcon,
-      [SpawnPointComponent.jsonID]: SpawnPointIcon,
-      [RigidBodyComponent.jsonID]: RigidBodyIcon,
-      [TriggerCallbackComponent.jsonID]: TriggerIcon,
-      [ColliderComponent.jsonID]: (shape = 'box') => {
-        switch (shape) {
-          case Shapes.Sphere:
-          case Shapes.Capsule:
-            return SphereColiderIcon
-          case Shapes.Cylinder:
-            return CylinderColliderIcon
-          case Shapes.Box: /*fall-through*/
-          case Shapes.Plane:
-          default:
-            return BoxColliderIcon
-        }
+      [DirectionalLightComponent.jsonID]: {
+        icon: DirectionalLightIcon,
+        reactor: DirectionalLightHelperReactor,
+        directional: true,
+        priority: 3
+      },
+      [EnvMapBakeComponent.jsonID]: {
+        icon: EnvMapBakeIcon,
+        reactor: EnvmapBakeHelperReactor,
+        priority: 2
+      },
+      [MediaComponent.jsonID]: {
+        icon: MediaIcon,
+        reactor: MediaHelperReactor,
+        priority: 1
+      },
+      [HemisphereLightComponent.jsonID]: {
+        icon: HemisphereLightIcon,
+        reactor: HemiSphereLightHelperReactor,
+        priority: 3
+      },
+      [MountPointComponent.jsonID]: {
+        icon: MountPointIcon,
+        reactor: MountPointHelperReactor,
+        volume: true,
+        priority: 1
+      },
+      [PointLightComponent.jsonID]: {
+        icon: PointLightIcon,
+        reactor: PointLightHelperReactor,
+        priority: 3
+      },
+      [PositionalAudioComponent.jsonID]: {
+        icon: PositionalAudioIcon,
+        reactor: PositionalAudioHelperReactor,
+        directional: true,
+        priority: 2
+      },
+      [PortalComponent.jsonID]: {
+        icon: PortalIcon,
+        reactor: PortalHelperReactor,
+        priority: 2
+      },
+      [ScenePreviewCameraComponent.jsonID]: {
+        icon: CameraIcon,
+        reactor: ScenePreviewCameraHelperReactor,
+        directional: true,
+        priority: 2
+      },
+      [SpotLightComponent.jsonID]: {
+        icon: SpotLightIcon,
+        reactor: SpotLightHelperReactor,
+        directional: true,
+        priority: 3
+      },
+      [SpawnPointComponent.jsonID]: {
+        icon: SpawnPointIcon,
+        reactor: SpawnPointHelperReactor,
+        directional: true,
+        volume: true,
+        priority: 2
+      },
+      [RigidBodyComponent.jsonID]: {
+        icon: RigidBodyIcon,
+        volume: true,
+        priority: 0
+      },
+      [TriggerCallbackComponent.jsonID]: {
+        icon: TriggerIcon,
+        volume: true,
+        priority: 0
+      },
+      [ColliderComponent.jsonID]: {
+        icon: BoxColliderIcon,
+        reactor: ColliderHelperReactor,
+        volume: true,
+        priority: -1
+      },
+      [GLTFComponent.jsonID]: {
+        volume: true,
+        priority: -1
       }
-    } as Record<string, any>
+    } as Record<string, ComponentHelperEntry>
   }
 })

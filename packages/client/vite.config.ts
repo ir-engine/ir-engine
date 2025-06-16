@@ -262,7 +262,7 @@ export default defineConfig(async () => {
       process.env.VITE_PWA_ENABLED === 'true' ? PWA(clientSetting) : undefined,
       ViteEjsPlugin({
         ...manifest,
-        title: clientSetting.title || 'iR Engine',
+        title: clientSetting.title || 'Napster Engine',
         description: clientSetting?.siteDescription || 'Connected Worlds for Everyone',
         // short_name: clientSetting?.shortName || 'EE',
         // theme_color: clientSetting?.themeColor || '#ffffff',

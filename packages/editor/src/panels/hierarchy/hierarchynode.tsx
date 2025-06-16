@@ -73,7 +73,7 @@ import { isEntityGlb } from '../../functions/utils'
 import { EditorHelperState, PlacementMode } from '../../services/EditorHelperState'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
-import { deleteNode, HierarchyTreeNodeType } from './helpers'
+import { HierarchyTreeNodeType } from './helpers'
 import {
   useHierarchyNodes,
   useHierarchyTreeContextMenu,
@@ -199,76 +199,6 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
 
-  const onKeyDown = (event: KeyboardEvent) => {
-    const nodeIndex = nodes.findIndex((node) => node.entity === entity)
-    const entityTree = getComponent(entity, EntityTreeComponent)
-    switch (event.key) {
-      case 'ArrowDown': {
-        event.preventDefault()
-        if (entity === rootEntity) return
-
-        const nextNode = nodeIndex !== -1 && nodes[nodeIndex + 1]
-        if (!nextNode) return
-
-        if (event.shiftKey) {
-          EditorControlFunctions.addToSelection([UUIDComponent.get(nextNode.entity)])
-        }
-
-        const nextNodeEl = document.getElementById(getNodeElId(nextNode))
-        if (nextNodeEl) {
-          nextNodeEl.focus()
-        }
-        break
-      }
-      case 'ArrowUp': {
-        event.preventDefault()
-        if (entity === rootEntity) return
-
-        const prevNode = nodeIndex !== -1 && nodes[nodeIndex - 1]
-        if (!prevNode) return
-
-        if (event.shiftKey) {
-          EditorControlFunctions.addToSelection([UUIDComponent.get(prevNode.entity)])
-        }
-
-        const prevNodeEl = document.getElementById(getNodeElId(prevNode))
-        if (prevNodeEl) {
-          prevNodeEl.focus()
-        }
-        break
-      }
-      case 'ArrowLeft': {
-        if (entityTree && (!entityTree.children || entityTree.children.length === 0)) return
-
-        if (event.shiftKey) collapseChildren(entity)
-        else collapseNode(entity)
-        break
-      }
-      case 'ArrowRight': {
-        if (entityTree && (!entityTree.children || entityTree.children.length === 0)) return
-
-        if (event.shiftKey) expandChildren(entity)
-        else expandNode(entity)
-        break
-      }
-      case 'Enter': {
-        if (entity === rootEntity) return
-        if (event.shiftKey) {
-          EditorControlFunctions.toggleSelection([UUIDComponent.get(entity)])
-        } else {
-          EditorControlFunctions.replaceSelection([UUIDComponent.get(entity)])
-        }
-        break
-      }
-      case 'Delete':
-      case 'Backspace': {
-        if (entity === rootEntity) return
-        if (selected && renamingNode.entity !== entity) deleteNode(entity)
-        break
-      }
-    }
-  }
-
   const onClickNode = (event: React.MouseEvent) => {
     if (renamingNode.entity !== entity) {
       renamingNode.clear()
@@ -290,6 +220,12 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
         if (!selected) {
           EditorControlFunctions.replaceSelection([uuid])
         }
+        const node = nodes.find((node) => node.entity === entity)
+        if (node) {
+          const nodeEl = document.getElementById(getNodeElId(node))
+          nodeEl?.focus()
+        }
+
         firstSelectedEntity.set(entity)
       }
     } else if (event.detail === 2) {
@@ -398,7 +334,13 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   return (
     <li
       key={node.depth + ' ' + props.index + ' ' + entity}
-      style={fixedSizeListStyles}
+      style={{
+        ...fixedSizeListStyles,
+        ...{
+          borderTop: '2px solid var(--surface-1)',
+          borderBottom: '2px solid var(--surface-1)'
+        }
+      }}
       className={twMerge(
         'inline-flex w-auto min-w-full items-center',
         'cursor-pointer text-text-secondary hover:bg-ui-hover-background hover:text-text-primary',
@@ -414,7 +356,6 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
         ref={drag}
         id={getNodeElId(node)}
         tabIndex={0}
-        onKeyDown={onKeyDown}
         onClick={onClickNode}
         onContextMenu={(event) => {
           event.preventDefault()
@@ -434,7 +375,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
             'flex items-center justify-between gap-x-2 bg-inherit pr-2',
             rootEntity === entity ? 'p-2' : 'py-1 pr-2'
           )}
-          style={{ marginLeft: `${node.depth * 0.75}rem` }}
+          style={{ marginLeft: `${node.depth * 1.75}rem` }}
           ref={onDropTarget}
         >
           {node.isLeaf ? (
@@ -453,7 +394,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
             </button>
           )}
 
-          <div className="grid h-full w-full grid-cols-[max-content_auto_max-content_max-content] items-center gap-2 bg-inherit">
+          <div className="grid h-full w-full grid-cols-[max-content_auto_max-content_max-content_max-content] items-center gap-2 bg-inherit">
             <IconComponent entity={entity} />
             {renamingNode.entity === entity ? (
               <Input

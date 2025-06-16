@@ -67,7 +67,7 @@ import { AuthState } from '../services/AuthService'
 import { useUserMediaWindowHook } from './hook'
 import { SingleVideoWindow, SingleVideoWindowWidget } from './window'
 
-type WindowType = { peerID: PeerID; type: 'cam' | 'screen' }
+export type WindowType = { peerID: PeerID; type: 'cam' | 'screen' }
 
 const sortScreensBeforeCameras = (a: WindowType, b: WindowType) => {
   if (a.type === 'screen' && b.type === 'cam') return -1

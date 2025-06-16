@@ -162,7 +162,8 @@ module.exports = {
         sans: ['Inter', 'sans-serif'],
         figtree: ['Figtree', 'sans-serif'],
         campton: ['Campton', 'sans-serif'],
-        'dm-sans': ['"DM Sans"', 'sans-serif']
+        'dm-sans': ['"DM Sans"', 'sans-serif'],
+        manrope: ['Manrope', 'sans-serif']
       },
       keyframes: {
         twinkling: {

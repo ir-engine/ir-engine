@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { EditorHelperState, PlacementMode } from '@ir-engine/editor/src/services/EditorHelperState'
-import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
@@ -35,40 +35,42 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuMousePointerClick, LuMove3D } from 'react-icons/lu'
-import { setVolumeVisibility, VolumeVisibility } from '../../../functions/gizmos/studioIconGizmoHelper'
+import { VolumeVisibility } from '../../../functions/gizmos/studioIconGizmoHelper'
 
 const volumeVisbilityDescriptions = {
   On: 'On : Show all volumes in scene',
   Auto: 'Auto : Show volumes on hover in scene',
   Off: 'Off : Hide all volumes in scene'
 }
+
 export default function SceneHelpersTool() {
   const { t } = useTranslation()
   const editorHelperState = useMutableState(EditorHelperState)
   const rendererState = useMutableState(RendererState)
   const [pointClickEnabled] = useFeatureFlags([FeatureFlags.Studio.UI.PointClick])
-  const volumeVisibility = useHookstate(VolumeVisibility.Auto) as any
 
   useEffect(() => {
-    setVolumeVisibility(volumeVisibility)
-  }, [volumeVisibility])
+    getMutableState(RendererState).nodeHelperVisibility.set(
+      editorHelperState.volumeVisibility.value !== VolumeVisibility.Off
+    )
+  }, [editorHelperState.volumeVisibility])
 
   const onVolumeVisibilityClick = () => {
-    switch (volumeVisibility.value) {
+    switch (editorHelperState.volumeVisibility.value) {
       case VolumeVisibility.Off:
-        volumeVisibility.set(VolumeVisibility.Auto)
+        editorHelperState.volumeVisibility.set(VolumeVisibility.Auto)
         break
       case VolumeVisibility.Auto:
-        volumeVisibility.set(VolumeVisibility.On)
+        editorHelperState.volumeVisibility.set(VolumeVisibility.On)
         break
       case VolumeVisibility.On:
-        volumeVisibility.set(VolumeVisibility.Off)
+        editorHelperState.volumeVisibility.set(VolumeVisibility.Off)
         break
     }
   }
 
-  const isVolumeVisibilityAuto = volumeVisibility.value === VolumeVisibility.Auto
-  const isVolumeVisibilityOn = volumeVisibility.value === VolumeVisibility.On
+  const isVolumeVisibilityAuto = editorHelperState.volumeVisibility.value === VolumeVisibility.Auto
+  const isVolumeVisibilityOn = editorHelperState.volumeVisibility.value === VolumeVisibility.On
 
   const onToggleGridVisible = () => {
     editorHelperState.gridVisibility.set(!editorHelperState.gridVisibility.value)
@@ -115,7 +117,7 @@ export default function SceneHelpersTool() {
       </Tooltip>
       <Tooltip
         title={t('editor:toolbar.helpersToggle.lbl-nodeVolume')}
-        content={volumeVisbilityDescriptions[volumeVisibility.value]}
+        content={volumeVisbilityDescriptions[editorHelperState.volumeVisibility.value]}
         position="bottom"
       >
         <div className="relative z-10 inline-grid">
@@ -138,8 +140,14 @@ export default function SceneHelpersTool() {
           selected={editorHelperState.gridVisibility.value}
         />
       </Tooltip>
-      <Tooltip content={t('editor:toolbar.helpersToggle.lbl-axisHelpers')} position="bottom">
-        <ViewportButton lean={true} onClick={() => {}} disabled={true} selected={false} icon={RulerUnitsMd} />
+      <Tooltip content={t('editor:toolbar.helpersToggle.info-helpers')} position="bottom">
+        <ViewportButton
+          lean={true}
+          onClick={() => rendererState.physicsDebug.set(!rendererState.physicsDebug.value)}
+          disabled={false}
+          selected={rendererState.physicsDebug.value}
+          icon={RulerUnitsMd}
+        />
       </Tooltip>
       <Tooltip content={t('editor:toolbar.helpersToggle.lbl-directManipulation')} position="bottom">
         <ViewportButton lean={true} onClick={() => {}} disabled={true} selected={false} icon={Edit01Md} />

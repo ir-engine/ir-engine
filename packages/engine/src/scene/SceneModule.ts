@@ -42,6 +42,8 @@ import { LookAtComponent } from './components/LookAtComponent'
 import { MediaComponent } from './components/MediaComponent'
 import { MountPointComponent } from './components/MountPointComponent'
 import { ParticleSystemComponent } from './components/ParticleSystemComponent'
+import { PoiComponent } from './components/PoiComponent'
+import { PoiHotspotComponent } from './components/PoiHotspotComponent'
 import { PrimitiveGeometryComponent } from './components/PrimitiveGeometryComponent'
 import { RenderSettingsComponent } from './components/RenderSettingsComponent'
 import { SceneDynamicLoadComponent } from './components/SceneDynamicLoadComponent'
@@ -85,6 +87,8 @@ export const SceneComponents = [
   HyperspaceTagComponent,
   ImageComponent,
   // InteriorComponent,
+  PoiComponent,
+  PoiHotspotComponent,
   LookAtComponent,
   MediaComponent,
   // MediaSettingsComponent,

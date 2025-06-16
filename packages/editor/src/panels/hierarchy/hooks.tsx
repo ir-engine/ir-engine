@@ -26,6 +26,7 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import { VALID_HEIRARCHY_SEARCH_REGEX } from '@ir-engine/common/src/regex'
 import {
   Entity,
+  EntityArrayBoundary,
   EntityTreeComponent,
   getAncestorWithComponents,
   getChildrenWithComponents,
@@ -33,7 +34,6 @@ import {
   hasComponent,
   isAncestor,
   Layers,
-  QuerySubReactor,
   traverseEntityNode,
   UndefinedEntity,
   useComponent,
@@ -61,11 +61,15 @@ import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { SelectionState } from '../../services/SelectionServices'
 import {
   copyNodes,
+  deleteNode,
   duplicateNode,
   ecsHierarchyTreeWalker,
+  getNodeElId,
+  getSelectedEntities,
   groupNodes,
   HierarchyTreeNodeType,
   pasteNodes,
+  ungroupNodes,
   uploadOptions
 } from './helpers'
 
@@ -204,9 +208,7 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
 
   return (
     <>
-      {childEntities.map((childEntity) => (
-        <QuerySubReactor key={childEntity} entity={childEntity} ChildEntityReactor={ChildEntityReactor} />
-      ))}
+      <EntityArrayBoundary entities={childEntities} ChildEntityReactor={ChildEntityReactor} />
       <HierarchyTreeContext.Provider
         value={{
           nodes: displayedNodes,
@@ -429,8 +431,13 @@ const useSimplifiedHotkey = (key: string, onAction: () => void) => {
 
 export const useHierarchyTreeHotkeys = () => {
   const renamingNode = useRenamingNode()
+  const nodes = useHierarchyNodes()
+  const { rootEntity } = useMutableState(EditorState)
+
+  const { expandNode, collapseNode, collapseChildren, expandChildren } = useNodeCollapseExpand()
   useSimplifiedHotkey('d', duplicateNode)
   useSimplifiedHotkey('g', groupNodes)
+  useSimplifiedHotkey('u', ungroupNodes)
   useSimplifiedHotkey('c', copyNodes)
   useSimplifiedHotkey('v', pasteNodes)
   useSimplifiedHotkey('r', () => {
@@ -438,5 +445,92 @@ export const useHierarchyTreeHotkeys = () => {
     for (const entity of selectedEntities) {
       renamingNode.set(entity)
     }
+  })
+  useHotkeys(['Enter', 'Shift + Enter'], ({ shiftKey }) => {
+    const selectedEntity = getMutableState(HierarchyTreeState).firstSelectedEntity.value
+    if (selectedEntity === rootEntity.value || !selectedEntity) return
+    if (shiftKey) {
+      EditorControlFunctions.toggleSelection([UUIDComponent.get(selectedEntity)])
+    } else {
+      EditorControlFunctions.replaceSelection([UUIDComponent.get(selectedEntity)])
+    }
+  })
+
+  useHotkeys(['Delete', 'Backspace'], () => {
+    const selectedEntity = getMutableState(HierarchyTreeState).firstSelectedEntity.value
+    if (selectedEntity === rootEntity.value || !selectedEntity) return
+    if (renamingNode.entity !== selectedEntity) deleteNode(selectedEntity)
+  })
+
+  useHotkeys(['ArrowLeft', 'Shift + ArrowLeft'], ({ shiftKey }) => {
+    const selectedEntity = getMutableState(HierarchyTreeState).firstSelectedEntity.value
+    const index = nodes.findIndex((node) => node.entity === selectedEntity)
+    if (index === -1) return
+    const node = nodes[index]
+    const entityTree = getComponent(node.entity, EntityTreeComponent)
+    if (!entityTree || !entityTree.children || entityTree.children.length === 0) return
+    if (shiftKey) {
+      collapseChildren(node.entity)
+    } else {
+      collapseNode(node.entity)
+    }
+  })
+  useHotkeys(['ArrowRight', 'Shift + ArrowRight'], ({ shiftKey }) => {
+    const selectedEntity = getMutableState(HierarchyTreeState).firstSelectedEntity.value
+    const index = nodes.findIndex((node) => node.entity === selectedEntity)
+    if (index === -1) return
+    const node = nodes[index]
+    const entityTree = getComponent(node.entity, EntityTreeComponent)
+    if (!entityTree || !entityTree.children || entityTree.children.length === 0) return
+
+    if (shiftKey) {
+      expandChildren(node.entity)
+    } else {
+      expandNode(node.entity)
+    }
+  })
+
+  useHotkeys(['ArrowUp', 'Shift + ArrowUp'], (event) => {
+    const selectedEntity = getMutableState(HierarchyTreeState).firstSelectedEntity.value
+    const index = nodes.findIndex((node) => node.entity === selectedEntity)
+    if (index === -1) return
+    const upperNode = nodes.at(index - 1)
+    if (!upperNode) return
+    const upperNodeEl = document.getElementById(getNodeElId(upperNode))
+    upperNodeEl?.focus()
+    if (event.shiftKey) {
+      const uuids = [
+        ...getSelectedEntities().map((e) => UUIDComponent.get(e)),
+        UUIDComponent.get(upperNode.entity)
+      ].filter((value, index, array) => array.indexOf(value) === index)
+
+      EditorControlFunctions.addToSelection([...uuids, UUIDComponent.get(upperNode.entity)])
+    } else {
+      EditorControlFunctions.replaceSelection([UUIDComponent.get(upperNode.entity)])
+    }
+    getMutableState(HierarchyTreeState).firstSelectedEntity.set(upperNode.entity)
+  })
+  useHotkeys(['ArrowDown', 'Shift + ArrowDown'], (event) => {
+    const selectedEntity = getMutableState(HierarchyTreeState).firstSelectedEntity.value
+    const index = nodes.findIndex((node) => node.entity === selectedEntity)
+    if (index === -1) return
+    let lowerNode = nodes.at(index + 1)
+    if (!lowerNode) {
+      lowerNode = nodes.at(0)
+    }
+    lowerNode = lowerNode!
+    const lowerNodeEl = document.getElementById(getNodeElId(lowerNode))
+    lowerNodeEl?.focus()
+    if (event.shiftKey) {
+      const uuids = [
+        ...getSelectedEntities().map((e) => UUIDComponent.get(e)),
+        UUIDComponent.get(lowerNode!.entity)
+      ].filter((value, index, array) => array.indexOf(value) === index)
+
+      EditorControlFunctions.addToSelection([...uuids, UUIDComponent.get(lowerNode.entity)])
+    } else {
+      EditorControlFunctions.replaceSelection([UUIDComponent.get(lowerNode.entity)])
+    }
+    getMutableState(HierarchyTreeState).firstSelectedEntity.set(lowerNode.entity)
   })
 }

@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useCallback } from 'react'
-
 import {
   BezierFunctionJSON,
   ConstantValueJSON,
@@ -32,8 +30,9 @@ import {
   PiecewiseBezierValueJSON,
   ValueGeneratorJSON,
   ValueGeneratorJSONDefaults
-} from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
+} from '@ir-engine/engine/src/scene/types/ParticleSystemTypes'
 import { State } from '@ir-engine/hyperflux'
+import React, { useCallback } from 'react'
 import Button from '../../../../../primitives/tailwind/Button'
 import PaginatedList from '../../../layout/PaginatedList'
 import InputGroup from '../../Group'

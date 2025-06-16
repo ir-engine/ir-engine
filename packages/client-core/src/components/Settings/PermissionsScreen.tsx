@@ -23,8 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { MediaStreamState, useMutableState } from '@ir-engine/hyperflux'
 import Divider from '@ir-engine/ui/src/components/viewer/Divider'
-import React, { useState } from 'react'
+import React from 'react'
 import { Section } from './Section'
 import ToggleItem from './ToggleItem'
 
@@ -33,32 +34,7 @@ interface PermissionsScreenProps {
 }
 
 const PermissionsScreen: React.FC<PermissionsScreenProps> = () => {
-  const [cameraPermission, setCameraPermission] = useState(false)
-  const [microphonePermission, setMicrophonePermission] = useState(false)
-  const [showUpdateNotification, setShowUpdateNotification] = useState(false)
-
-  const updatePermissions = async () => {
-    try {
-      // Request camera permission if enabled
-      if (cameraPermission) {
-        await navigator.mediaDevices.getUserMedia({ video: true })
-      }
-
-      // Request microphone permission if enabled
-      if (microphonePermission) {
-        await navigator.mediaDevices.getUserMedia({ audio: true })
-      }
-
-      // Show success notification
-      setShowUpdateNotification(true)
-      setTimeout(() => {
-        setShowUpdateNotification(false)
-      }, 3000)
-    } catch (error) {
-      console.error('Error updating permissions:', error)
-      // You could add error handling here
-    }
-  }
+  const { microphoneEnabled, webcamEnabled } = useMutableState(MediaStreamState)
 
   return (
     <div className="flex h-full flex-col justify-between space-y-6">
@@ -67,34 +43,21 @@ const PermissionsScreen: React.FC<PermissionsScreenProps> = () => {
         <Section>
           <ToggleItem
             label="Camera"
-            checked={cameraPermission}
-            onClick={() => setCameraPermission(!cameraPermission)}
+            checked={webcamEnabled.value}
+            onClick={() => {
+              webcamEnabled.set(!webcamEnabled.value)
+            }}
           />
           <Divider />
           <ToggleItem
             label="Microphone"
-            checked={microphonePermission}
-            onClick={() => setMicrophonePermission(!microphonePermission)}
+            checked={microphoneEnabled.value}
+            onClick={() => {
+              microphoneEnabled.set(!microphoneEnabled.value)
+            }}
           />
         </Section>
       </div>
-
-      {/* Update Button */}
-      <div className="pb-4">
-        <button
-          onClick={updatePermissions}
-          className="w-full rounded-full bg-white/20 py-3 text-center font-medium text-white transition-colors hover:bg-white/30"
-        >
-          Update Permissions
-        </button>
-      </div>
-
-      {/* Update Notification */}
-      {showUpdateNotification && (
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 rounded-full bg-gray-800/90 px-6 py-3 text-white">
-          Permissions Updated Successfully
-        </div>
-      )}
     </div>
   )
 }

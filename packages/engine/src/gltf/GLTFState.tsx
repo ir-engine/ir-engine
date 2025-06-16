@@ -28,6 +28,7 @@ import { Group, MathUtils } from 'three'
 
 import {
   Entity,
+  EntityArrayBoundary,
   EntityID,
   EntityTreeComponent,
   LayerComponent,
@@ -35,7 +36,6 @@ import {
   LayerID,
   Layers,
   PresentationSystemGroup,
-  QuerySubReactor,
   SourceID,
   UUIDComponent,
   UndefinedEntity,
@@ -161,13 +161,7 @@ export const GLTFLoadSystem = defineSystem({
     const gltfSimulationEntities = useQuery([GLTFComponent]).filter((e) => !LayerComponent.hasUpstreamEntity(e))
     const gltfAuthoringEntities = useQuery([GLTFComponent], Layers.Authoring)
     const gltfEntities = [...gltfSimulationEntities, ...gltfAuthoringEntities]
-    return (
-      <>
-        {gltfEntities.map((entity) => (
-          <QuerySubReactor ChildEntityReactor={GLTFComponentReactor} key={entity} entity={entity} />
-        ))}
-      </>
-    )
+    return <EntityArrayBoundary entities={gltfEntities} ChildEntityReactor={GLTFComponentReactor} />
   }
 })
 

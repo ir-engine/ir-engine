@@ -29,10 +29,10 @@ import { Mesh, Object3D } from 'three'
 import {
   createEntity,
   Entity,
-  entityExists,
   EntityTreeComponent,
   getComponent,
   getOptionalComponent,
+  removeComponent,
   removeEntity,
   setComponent,
   UndefinedEntity,
@@ -46,7 +46,7 @@ import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/Obje
 import { InputComponent } from '../../input/components/InputComponent'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { ActiveHelperComponent } from '../ActiveHelperComponent'
+import { HelperComponent } from '../HelperComponent'
 
 type DisposableObject3D = Object3D & { update?: () => void; dispose?: () => void }
 
@@ -62,24 +62,21 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
   const transform = useOptionalComponent(helperEntityState.value, TransformComponent)
 
   useEffect(() => {
-    if (parentEntity && entityExists(parentEntity)) {
-      setComponent(parentEntity, ActiveHelperComponent)
-    }
-  }, [parentEntity])
-
-  useEffect(() => {
     if (!enabled) return
 
     const helperEntity = createHelperEntity(parentEntity, helperFactory, layerMask)
     const helper = getComponent(helperEntity, ObjectComponent) as TObject
     const helperMesh = helper.children[0] as Mesh<any, any> | undefined
     helperEntityState.set(helperEntity)
+    setComponent(parentEntity, HelperComponent)
     if (typeof helper.update === 'function') helper.update()
     return () => {
       if (helperMesh) {
         helperMesh.material.dispose()
         helperMesh.geometry.dispose()
       } else if (helper.dispose) helper.dispose()
+
+      removeComponent(parentEntity, HelperComponent)
       helperEntityState.set(UndefinedEntity)
       removeEntity(helperEntity)
     }
