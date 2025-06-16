@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 
 import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
-import { NetworkState, useMutableState } from '@ir-engine/hyperflux'
+import { useMutableState } from '@ir-engine/hyperflux'
 import Divider from '@ir-engine/ui/src/components/viewer/Divider'
 import { MultiplayerState } from '../../common/services/MultiplayerState'
 import { AuthService } from '../../user/services/AuthService'
@@ -43,8 +43,7 @@ interface ScreenProps {
 
 const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
   const audioState = useMutableState(AudioState)
-  const { config } = useMutableState(NetworkState)
-  const multiplayer = useMutableState(MultiplayerState).enabled
+  const { enabled: multiplayer, video } = useMutableState(MultiplayerState)
 
   return (
     <div className="space-y-4">
@@ -54,9 +53,9 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
         <Divider />
         <ToggleItem
           label="Video Communication"
-          checked={config.media.value}
+          checked={video.value}
           onClick={() => {
-            config.media.set(!config.media.value)
+            video.set(!video.value)
           }}
         />
       </Section>
