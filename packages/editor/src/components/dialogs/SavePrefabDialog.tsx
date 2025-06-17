@@ -34,8 +34,8 @@ import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
-import { useAssetsQuery } from '../../panels/assets/hooks'
-import { useCurrentFiles } from '../../panels/files/helpers'
+import { AssetsRefreshState } from '../../panels/assets/hooks'
+import { FileRefreshState } from '../../panels/files/helpers'
 import { EditorState } from '../../services/EditorServices'
 
 export default function SavePrefabPanel({ entity }) {
@@ -46,14 +46,13 @@ export default function SavePrefabPanel({ entity }) {
   const srcPath = useHookstate(STATIC_ASSET_REGEX.exec(gltfComponent.src)?.[3].replace(/\.[^.]*$/, ''))
   const fileName = (srcPath.value ?? '').split('/').pop() ?? ''
   const resultFileName = useHookstate(isValidFileName(fileName))
-  const { refetchResources } = useAssetsQuery()
-  const { refreshDirectory } = useCurrentFiles()
 
   const onSavePrefab = async () => {
     const saveName = srcPath.value + '.gltf'
     await exportRelativeGLTF(entity, getState(EditorState).projectName!, saveName, false)
-    refetchResources(true)
-    refreshDirectory()
+    AssetsRefreshState.triggerRefresh()
+    FileRefreshState.triggerRefresh()
+
     ModalState.closeModal()
   }
 

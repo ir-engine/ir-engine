@@ -24,8 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useFind, useMutation } from '@ir-engine/common'
-import { InstanceID, messagePath } from '@ir-engine/common/src/schema.type.module'
-import { MessageType } from '@ir-engine/common/src/schemas/social/message.schema'
+import { InstanceID, messagePath, MessageType } from '@ir-engine/common/src/schema.type.module'
 import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
 import { dispatchAction, NetworkState, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import React, { createContext, RefObject, useContext, useEffect, useRef } from 'react'

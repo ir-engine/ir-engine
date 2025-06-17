@@ -34,7 +34,6 @@ import {
   PresentationSystemGroup,
   removeComponent,
   setComponent,
-  UndefinedEntity,
   useComponent,
   useHasComponent,
   UUIDComponent,
@@ -200,7 +199,7 @@ const CameraSettingsReactor = (props: {
   useEffect(() => {
     const cameraEntity = referenceSpaceState.viewerEntity.value
 
-    if (!engineState.isEditing.value && cameraEntity !== UndefinedEntity) {
+    if (!engineState.isEditing.value && !!cameraEntity) {
       if (cameraMode === CameraMode.FOLLOW) {
         setComponent(cameraEntity, FollowCameraComponent)
         removeComponent(cameraEntity, PoiCameraComponent)
@@ -211,7 +210,7 @@ const CameraSettingsReactor = (props: {
     }
 
     return () => {
-      if (cameraEntity !== UndefinedEntity) {
+      if (!!cameraEntity) {
         removeComponent(cameraEntity, FollowCameraComponent)
         removeComponent(cameraEntity, PoiCameraComponent)
       }

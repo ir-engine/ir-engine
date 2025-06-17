@@ -71,8 +71,8 @@ const execute = () => {
 
   for (const entity of killableEntities) {
     const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
-    const sceneHeight = sceneKillHeights.find(([scene]) => scene === sceneEntity)?.[1]
-    if (typeof sceneHeight !== 'number') continue
+    let sceneHeight = sceneKillHeights.find(([scene]) => scene === sceneEntity)?.[1]
+    if (typeof sceneHeight !== 'number') sceneHeight = -100
 
     const rigidBodyPosition = getComponent(entity, RigidBodyComponent).position
     if (rigidBodyPosition.y < sceneHeight) {

@@ -34,6 +34,7 @@ import FileBrowser from '../files/filebrowser'
 import { CurrentFilesQueryProvider } from '../files/helpers'
 import FilesToolbar from '../files/toolbar'
 import CategoriesList, { VerticalDivider } from './categories'
+import { AssetsQueryProvider } from './hooks'
 import Resources from './resources'
 import Topbar from './topbar'
 
@@ -55,7 +56,11 @@ export const AssetsPanelTab: TabData = {
   id: 'assetsPanel',
   closable: true,
   title: <AssetsPanelTitle />,
-  content: <AssetsContainer />
+  content: (
+    <AssetsQueryProvider>
+      <AssetsContainer />
+    </AssetsQueryProvider>
+  )
 }
 
 enum SidebarType {

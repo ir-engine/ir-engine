@@ -30,6 +30,7 @@ import { BatchedRenderer, Behavior, BehaviorFromJSON, ParticleSystem } from 'thr
 import {
   Entity,
   EntityTreeComponent,
+  SourceID,
   UUIDComponent,
   createEntity,
   getAncestorWithComponents,
@@ -41,6 +42,7 @@ import {
   defineComponent,
   entityExists,
   getComponent,
+  getOptionalComponent,
   removeComponent,
   setComponent,
   useComponent,
@@ -82,10 +84,10 @@ const createBatchedRenderer = (entity: Entity) => {
     setComponent(particleRendererEntity, VisibleComponent)
     setComponent(particleRendererEntity, NameComponent, 'Particle Renderer')
     const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
-    const uuidComponent = getComponent(sceneEntity, UUIDComponent)
+    const uuidComponent = getOptionalComponent(sceneEntity, UUIDComponent)
 
     setComponent(particleRendererEntity, UUIDComponent, {
-      entitySourceID: uuidComponent.entitySourceID,
+      entitySourceID: uuidComponent?.entitySourceID ?? ('root' as SourceID),
       entityID: UUIDComponent.generateUUID()
     })
 
