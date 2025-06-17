@@ -39,13 +39,16 @@ vi.mock('react-i18next', () => ({
 
 vi.mock('./hooks', () => ({
   useAssetsCategory: vi.fn().mockReturnValue({
-    currentCategoryPath: { set: vi.fn(), get: vi.fn().mockReturnValue('') },
     sidebarWidth: {
       value: 300,
       set: vi.fn()
     }
   }),
+  AssetsRefreshState: {
+    triggerRefresh: vi.fn()
+  },
   useAssetsQuery: vi.fn().mockReturnValue({
+    category: { currentCategoryPath: { set: vi.fn(), get: vi.fn().mockReturnValue('') } },
     search: {
       value: ''
     },

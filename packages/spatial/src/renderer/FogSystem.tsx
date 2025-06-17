@@ -99,6 +99,8 @@ function FogGroupReactor(props: { fogEntity: Entity }) {
 
 const FogReactor = () => {
   const entity = useEntityContext()
+  const fogComponent = useComponent(entity, FogSettingsComponent)
+  if (fogComponent.type.value !== FogType.Brownian && fogComponent.type.value !== FogType.Height) return null
   return (
     <QueryReactor
       ChildEntityReactor={FogGroupReactor}

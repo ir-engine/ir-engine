@@ -46,7 +46,10 @@ import {
 
 import { WindowType } from '../../user/VideoWindows'
 import { useUserMediaWindowHook } from '../../user/VideoWindows/hook'
+import { ReportUserState } from '../../util/ReportUserState'
+
 import { smallIconButtonStyles } from './Buttons'
+import { useNavigationProvider } from './NavigationProvider'
 
 const toolbarContainerStyles = `
   flex
@@ -124,6 +127,20 @@ const videoButtonsInner = `
   group-hover:visible
 `
 
+export const useVideoStream = (videoElement, videoMediaStream) => {
+  useEffect(() => {
+    if (!videoElement || videoElement.srcObject || !videoMediaStream) return
+
+    videoElement.autoplay = true
+    videoElement.muted = true
+    videoElement.setAttribute('playsinline', 'true')
+
+    const newVideoTrack = videoMediaStream.getVideoTracks()[0].clone()
+    videoElement.srcObject = new MediaStream([newVideoTrack])
+    videoElement.play()
+  }, [videoElement, videoMediaStream])
+}
+
 const Video = ({ peerID, type }: WindowType) => {
   const {
     isSelf,
@@ -143,20 +160,11 @@ const Video = ({ peerID, type }: WindowType) => {
   })
 
   const { isCamVideoEnabled, isCamAudioEnabled } = useMultimediaStateProvider()
+  const { navigateTo } = useNavigationProvider()
 
   const ref = useRef<HTMLVideoElement>(null)
 
-  useEffect(() => {
-    if (!ref.current || ref.current.srcObject || !videoMediaStream) return
-
-    ref.current.autoplay = true
-    ref.current.muted = true
-    ref.current.setAttribute('playsinline', 'true')
-
-    const newVideoTrack = videoMediaStream.getVideoTracks()[0].clone()
-    ref.current.srcObject = new MediaStream([newVideoTrack])
-    ref.current.play()
-  }, [ref.current, videoMediaStream])
+  useVideoStream(ref.current, videoMediaStream)
 
   const showVideoIfSelf = isSelf ? isCamVideoEnabled : true
   const showVideo = showVideoIfSelf && !videoStreamPaused
@@ -164,14 +172,19 @@ const Video = ({ peerID, type }: WindowType) => {
   const camVideoOn = isSelf ? isCamVideoEnabled : !videoStreamPaused
   const camAudioOn = isSelf ? isCamAudioEnabled : !audioStreamPaused
 
+  const reportUser = () => {
+    ReportUserState.setReportedPeerId(peerID)
+    navigateTo('ReportUser', '')
+  }
+
   return (
     <div className={twMerge(videoContainer)}>
       {showVideo ? (
         <video
           className={`
-        h-full
-        max-w-[unset]
-      `}
+            h-full
+            max-w-[unset]
+          `}
           ref={ref}
         />
       ) : (
@@ -185,7 +198,7 @@ const Video = ({ peerID, type }: WindowType) => {
           <button onClick={toggleAudio} className={`cursor-pointer`}>
             {camAudioOn ? <Microphone01Md /> : <MicrophoneOff />}
           </button>
-          <button onClick={() => {}} className={`cursor-pointer`}>
+          <button onClick={reportUser} className={`cursor-pointer`}>
             <BsFillExclamationTriangleFill />
           </button>
         </div>

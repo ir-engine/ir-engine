@@ -71,8 +71,6 @@ export const PersistentAnchorComponent = defineComponent({
   reactor: PersistentAnchorReactor
 })
 
-const shadowMat = new ShadowMaterial({ opacity: 0.5, color: 0x0a0a0a, colorWrite: false })
-
 /**
  * PersistentAnchorComponent entity state reactor - reacts to the conditions upon which a mesh should be
  * @param
@@ -103,7 +101,7 @@ function PersistentAnchorReactor() {
     const wireframe = anchor.wireframe.value
 
     const shadowMesh = new Mesh().copy(obj, true)
-    shadowMesh.material = shadowMat
+    shadowMesh.material = new ShadowMaterial({ opacity: 0.5, color: 0x0a0a0a, colorWrite: false })
     const parentEntity = getComponent(obj.entity!, EntityTreeComponent).parentEntity!
     const shadowEntity = createEntity()
     setComponent(shadowEntity, NameComponent, obj.name + '_shadow')

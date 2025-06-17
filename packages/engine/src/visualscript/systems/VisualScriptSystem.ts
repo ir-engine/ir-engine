@@ -31,11 +31,9 @@ import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { defineAction, defineActionQueue } from '@ir-engine/hyperflux'
-import { VisualScriptState } from '@ir-engine/visual-script'
 
 import { useEffect } from 'react'
-import { VisualScriptComponent, VisualScriptDomain } from '../components/VisualScriptComponent'
-import { registerEngineProfile } from '../nodes/profiles/engine/registerEngineProfile'
+import { VisualScriptComponent } from '../components/VisualScriptComponent'
 
 export const VisualScriptActions = {
   execute: defineAction({
@@ -74,7 +72,8 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
-    VisualScriptState.registerProfile(registerEngineProfile, VisualScriptDomain.ECS)
+    /** @todo currently this creates an instance of each component, which can lead to a lot of unnecessary extra memory */
+    // VisualScriptState.registerProfile(registerEngineProfile, VisualScriptDomain.ECS)
   }, [])
   return null
 }
