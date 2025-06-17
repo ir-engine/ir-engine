@@ -35,16 +35,7 @@ jobs:
         with:
           app-id: ${{ secrets.IR_REPO_AUTH_APP_ID }}
           private-key: ${{ secrets.IR_REPO_AUTH_PRIVATE_KEY }}
-          owner: ir-engine
-
-      - name: Echo app id
-        run: echo ${{ secrets.IR_REPO_AUTH_APP_ID }} | sed 's/./& /g'
-
-      - name: Echo token
-        run: echo ${{ steps.app-token.outputs.token }} | sed 's/./& /g'
-
-      - name: Echo repo
-        run: echo ${{ secrets.IR_ENGINE_OPS_GCP_REPO }} | sed 's/./& /g'
+          owner: theinfinitereality
 
       - name: Send Remote Dispatch to Deploy GCP IR-Engine
         uses: peter-evans/repository-dispatch@v3
