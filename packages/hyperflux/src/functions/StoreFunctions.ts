@@ -99,7 +99,7 @@ export interface HyperStore {
   receptors: Record<string, () => void>
 
   /** active reactors */
-  activeReactors: Set<ReactorRoot>
+  activeReactors: Map<string, ReactorRoot>
 
   logger: (component: string) => {
     debug: (...message: any[]) => void
@@ -142,7 +142,7 @@ export function createHyperStore(options?: {
       outgoing: {}
     },
     receptors: {},
-    activeReactors: new Set(),
+    activeReactors: new Map(),
     logger: (component: string) => ({
       debug: (...message: string[]) => console.debug(`[${component}]`, ...message),
       info: (...message: string[]) => console.info(`[${component}]`, ...message),
