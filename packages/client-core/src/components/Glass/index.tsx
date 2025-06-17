@@ -39,6 +39,7 @@ import { ToolbarAndSidebar } from './ToolbarAndSidebar'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { useMediaWindows } from '../../user/VideoWindows'
 import { useUserMediaWindowsHook } from '../../user/VideoWindows/hook'
+import ReportUserMenu from '../ReportUser'
 import Settings, { screens as settingsScreens } from '../Settings'
 import { ChatMenu } from './ChatMenu'
 import { ChatProvider } from './ChatProvider'
@@ -97,7 +98,8 @@ const Menu = () => {
     Video: `Video`,
     Cart: `Cart`,
     Share: `Share`,
-    Settings: `Settings`
+    Settings: `Settings`,
+    ReportUser: `Report User`
   }
 
   const tabs = {
@@ -128,7 +130,8 @@ const Menu = () => {
   const contents = {
     Chat: <ChatMenu navigateTo={navigateTo} />,
     Video: <VideoMenu videos={windows} />,
-    Settings: <Settings />
+    Settings: <Settings />,
+    ReportUser: <ReportUserMenu type="user" />
   }
 
   const onMessageClick = createToggleSidebarKey(`Chat`)

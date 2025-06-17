@@ -81,7 +81,9 @@ We are always hiring talented people who want to be leaders in what is to come. 
 
 ## License
 
-[CPAL](LICENSE) - Copyright (c) 2021-2024 Infinite Reality. Napster Engine, formerly known as iR Engine, Ethereal Engine, and XREngine
+
+[CPAL](LICENSE) - Copyright (c) 2021-2025 Infinite Reality. iR Engine, formerly known as Ethereal Engine and XREngine
+
 
 If you wish to use Napster Engine under the open-source CPAL license, attribution is required. Please see attribution guidelines in the [LICENSE](LICENSE) file. Other licensing options are available, please contact us for more information.
 

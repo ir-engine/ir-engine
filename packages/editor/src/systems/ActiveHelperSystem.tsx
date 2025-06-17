@@ -27,6 +27,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 
 import { defineQuery, EngineState, Entity, entityExists, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
 import {
+  ComponentJSONIDMap,
   getAuthoringCounterpart,
   getComponent,
   hasComponent,
@@ -335,7 +336,7 @@ const reactor = () => {
   const helperComponents = useMemo(() => {
     return helperRegistry
       .map((componentJsonId) => {
-        const component = globalThis.ComponentJSONIDMap?.get(componentJsonId)
+        const component = ComponentJSONIDMap.get(componentJsonId)
 
         if (!component) return null
 
