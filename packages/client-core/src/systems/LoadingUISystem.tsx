@@ -289,7 +289,7 @@ const execute = () => {
 
   const ecsState = getState(ECSState)
 
-  if (transition.state === 'OUT' && transition.alpha === 0) {
+  if (transition.state === 'OUT' && transition.alpha === 0 && ready) {
     LoadingUISystemState.removeLoadingUI()
     return
   }
