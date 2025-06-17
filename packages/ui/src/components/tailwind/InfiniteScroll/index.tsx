@@ -40,16 +40,12 @@ export default function InfiniteScroll({
   children
 }: IInfiniteScrollProps) {
   const observerRef = useRef<HTMLElement>(null)
-  const intervalRef = useRef<ReturnType<typeof setInterval>>()
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !disableEvent) {
           onScrollBottom()
-          intervalRef.current = setInterval(() => onScrollBottom(), 1000)
-        } else {
-          clearInterval(intervalRef.current)
         }
       },
       { threshold }

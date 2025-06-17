@@ -12,7 +12,7 @@ We have strict formatting rules for all `.ts` and `.tsx` files. Please use the `
 
 Develop on your own branch and submit PRs for review.
 
-If you are part of the iR Engine development team, please create branches on ths repository, otherwise create a fork and branches to PR.
+If you are part of the Napster Engine development team, please create branches on ths repository, otherwise create a fork and branches to PR.
 
 Ensure any extraneous local project files, installs or build dependencies are removed before making a PR. You may make a seperate PR for adding to the .gitignore.
 

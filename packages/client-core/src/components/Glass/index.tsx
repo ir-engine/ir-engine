@@ -39,6 +39,7 @@ import { ToolbarAndSidebar } from './ToolbarAndSidebar'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { useMediaWindows } from '../../user/VideoWindows'
 import { useUserMediaWindowsHook } from '../../user/VideoWindows/hook'
+import ReportUserMenu from '../ReportUser'
 import Settings, { screens as settingsScreens } from '../Settings'
 import { ChatMenu } from './ChatMenu'
 import { ChatProvider } from './ChatProvider'
@@ -70,7 +71,6 @@ const useIsPortrait = () => {
 
 const Menu = () => {
   const isPortrait = useIsPortrait()
-  const userID = useHookstate(getMutableState(EngineState).userID).value
   const loadingScreenVisible = useHookstate(getMutableState(LoadingSystemState).loadingScreenVisible).value
   const { t } = useTranslation()
   const externalInjectedMenus = useMutableState(ViewerMenuState).externalInjectedMenus.get(NO_PROXY)
@@ -93,16 +93,13 @@ const Menu = () => {
     if (locationContainer.current) locationContainer.current.style.opacity = '0'
   }, [locationContainer])
 
-  const isLoggedIn = !!userID
-
-  if (!isLoggedIn) return null
-
   const headings = {
     Chat: `Chat`,
     Video: `Video`,
     Cart: `Cart`,
     Share: `Share`,
-    Settings: `Settings`
+    Settings: `Settings`,
+    ReportUser: `Report User`
   }
 
   const tabs = {
@@ -133,7 +130,8 @@ const Menu = () => {
   const contents = {
     Chat: <ChatMenu navigateTo={navigateTo} />,
     Video: <VideoMenu videos={windows} />,
-    Settings: <Settings />
+    Settings: <Settings />,
+    ReportUser: <ReportUserMenu type="user" />
   }
 
   const onMessageClick = createToggleSidebarKey(`Chat`)
@@ -186,6 +184,11 @@ const Menu = () => {
 }
 
 export const ViewerInteractions = () => {
+  const userID = useHookstate(getMutableState(EngineState).userID).value
+  const isLoggedIn = !!userID
+
+  if (!isLoggedIn) return null
+
   return (
     <NavigationProvider>
       <MultimediaStateProvider>

@@ -291,33 +291,35 @@ const resourceCallbacks = {
       resource.metadata.merge({ onGPU: false, discarded: false })
       asset.onUpdate = () => {
         resource.metadata.merge({ onGPU: true, discarded: false })
-        const viewer = getState(ReferenceSpaceState).viewerEntity
-        const renderer = getComponent(viewer, RendererComponent)
-        const gl = renderer.renderContext as WebGL2RenderingContext
-        if (discardUponUpload && typeof gl.fenceSync === 'function') {
-          const sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0)
-          if (sync) {
-            gl.flush()
-            let count = 0
-            const checkSync = () => {
-              const status = gl.clientWaitSync(sync, 0, 0)
-              if (status === gl.TIMEOUT_EXPIRED && count++ < 10) {
-                setTimeout(checkSync)
-              } else {
-                gl.deleteSync(sync)
-                asset
-                  .offloadTextureData()
-                  .then(() => {
-                    resource.metadata.merge({ onGPU: true, discarded: true })
-                  })
-                  .catch((err) => {
-                    console.error(err)
-                  })
+        setTimeout(() => {
+          const viewer = getState(ReferenceSpaceState).viewerEntity
+          const renderer = getComponent(viewer, RendererComponent)
+          const gl = renderer.renderContext as WebGL2RenderingContext
+          if (discardUponUpload && typeof gl.fenceSync === 'function') {
+            const sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0)
+            if (sync) {
+              gl.flush()
+              let count = 0
+              const checkSync = () => {
+                const status = gl.clientWaitSync(sync, 0, 0)
+                if (status === gl.TIMEOUT_EXPIRED && count++ < 10) {
+                  setTimeout(checkSync)
+                } else {
+                  gl.deleteSync(sync)
+                  asset
+                    .offloadTextureData()
+                    .then(() => {
+                      resource.metadata.merge({ onGPU: true, discarded: true })
+                    })
+                    .catch((err) => {
+                      console.error(err)
+                    })
+                }
               }
+              setTimeout(checkSync)
             }
-            setTimeout(checkSync)
           }
-        }
+        }, 1000)
       }
       //Compressed texture size
       if (asset.mipmaps![0]) {
@@ -369,7 +371,7 @@ const resourceCallbacks = {
 
       const checkUploaded = () => {
         if (!resource.get(NO_PROXY)?.metadata) return
-        resource.metadata.merge({ onGPU: needsUploaded === 0, discarded: needsUploaded === 0 && discardUponUpload })
+        resource.metadata.merge({ onGPU: needsUploaded === 0, discarded: false }) //needsUploaded === 0 && discardUponUpload })
       }
 
       asset.index?.onUpload(function () {

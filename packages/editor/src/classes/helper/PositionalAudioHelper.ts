@@ -168,7 +168,7 @@ export const PositionalAudioHelperReactor: React.FC = (props: { parentEntity; ic
       removeEntity(helperEntities.outerConeEntity.value)
       removeEntity(helperEntities.outerCapEntity.value)
     }
-  }, [debugEnabled, mediaElement?.element])
+  }, [debugEnabled, mediaElement?.value.element])
 
   useEffect(() => {
     const innerConeMesh = getMutableComponent(helperEntities.innerConeEntity.value, MeshComponent)
