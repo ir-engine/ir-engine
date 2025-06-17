@@ -1660,7 +1660,7 @@ describe('ShadowSystem', async () => {
         getMutableState(DomainConfigState).cloudDomain.set('InvalidDomain')
         const textureURL = `${
           getState(DomainConfigState).cloudDomain
-        }/projects/ir-engine/default-project/assets/drop-shadow.png`
+        }/projects/ir-engine/default-project/assets/drop-shadow.ktx2`
         ShadowSystemData._shadowMaterial.version = Initial
         const rendererEntity = defineQuery([RendererComponent])()[0]
         const Reactor = () => {
@@ -1685,7 +1685,7 @@ describe('ShadowSystem', async () => {
       it('.. should set _shadowMaterial.map to shadowTexture', async () => {
         const textureURL = `${
           getState(DomainConfigState).cloudDomain
-        }/projects/ir-engine/default-project/assets/drop-shadow.png`
+        }/projects/ir-engine/default-project/assets/drop-shadow.ktx2`
         const Expected = (await getTextureAsync(textureURL))[0]
         const Initial = ShadowSystemData._shadowMaterial.map
 
