@@ -31,9 +31,9 @@ import {
   UUIDComponent,
   defineQuery,
   defineSystem,
+  entityExists,
   getComponent,
   getOptionalComponent,
-  hasComponent,
   setComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
@@ -101,7 +101,7 @@ export const AvatarTransparencySystem = defineSystem({
 
 const AvatarReactor = (props: { entity: Entity }) => {
   const entity = props.entity
-  if (!hasComponent(entity, UUIDComponent)) return null // Early exit if the UUID on this avatar has been removed, which can happen when another player leaves the scene
+  if (!entityExists(entity)) return null // Return if the avatar is being removed
 
   const sourceID = UUIDComponent.getAsSourceID(entity)
   const childEntities = UUIDComponent.useEntitiesBySource(sourceID)
