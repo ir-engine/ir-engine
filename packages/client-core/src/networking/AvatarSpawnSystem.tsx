@@ -63,7 +63,6 @@ import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
-import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import { PoiCameraComponent } from '@ir-engine/spatial/src/camera/components/PoiCameraComponent'
 import { CameraMode, CameraModeType } from '@ir-engine/spatial/src/camera/types/CameraMode'
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
@@ -199,21 +198,12 @@ const CameraSettingsReactor = (props: {
   useEffect(() => {
     const cameraEntity = referenceSpaceState.viewerEntity.value
 
-    if (!engineState.isEditing.value && !!cameraEntity) {
-      if (cameraMode === CameraMode.FOLLOW) {
-        setComponent(cameraEntity, FollowCameraComponent)
-        removeComponent(cameraEntity, PoiCameraComponent)
-      } else if (cameraMode === CameraMode.GUIDED) {
-        setComponent(cameraEntity, PoiCameraComponent)
-        removeComponent(cameraEntity, FollowCameraComponent)
-      }
-    }
+    if (engineState.isEditing.value || !cameraEntity || cameraMode !== CameraMode.GUIDED) return
+
+    setComponent(cameraEntity, PoiCameraComponent)
 
     return () => {
-      if (!!cameraEntity) {
-        removeComponent(cameraEntity, FollowCameraComponent)
-        removeComponent(cameraEntity, PoiCameraComponent)
-      }
+      removeComponent(cameraEntity, PoiCameraComponent)
     }
   }, [cameraMode, referenceSpaceState.viewerEntity, engineState.isEditing])
 
