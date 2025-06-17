@@ -156,7 +156,6 @@ export const loadResource = <T extends ResourceAssetType>(
 }
 
 export const unloadResource = (url: string, entity: Entity) => {
-  console.trace('unloadResource', url)
   const resourceCacheState = getMutableState(ResourceCacheState)
   const resource = resourceCacheState[url]
   if (!resource.value) {
