@@ -138,7 +138,6 @@ const drawToCanvas = (source: CanvasImageSource): Promise<HTMLCanvasElement | nu
 }
 export const uploadDimension = async (modelEntity: Entity, src: string, projectName: string) => {
   try {
-    console.log('uploading dimension for11', src)
     setComponent(modelEntity, BoundingBoxComponent)
     updateBoundingBox(modelEntity)
     const boundingBox = getComponent(modelEntity, BoundingBoxComponent).box
@@ -149,7 +148,7 @@ export const uploadDimension = async (modelEntity: Entity, src: string, projectN
     fileURL.search = ''
     fileURL.hash = ''
     const fileKeyKey = fileURL.href.replace(config.client.fileServer + '/', '')
-    console.log('uploading dimension for', fileKeyKey)
+
     await API.instance
       .service(staticResourcePath)
       .find({
@@ -692,7 +691,6 @@ const renderMultiViewImages = async (
     //job completed
     FileThumbnailJobState.removeCurrentJob()
   } catch (error) {
-    console.log('error in renderMultiViewImages', error)
     onError(error)
   }
 }
