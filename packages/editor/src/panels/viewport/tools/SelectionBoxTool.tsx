@@ -36,7 +36,14 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { defineState, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import {
+  defineState,
+  getMutableState,
+  getState,
+  syncStateWithLocalStorage,
+  useHookstate,
+  useMutableState
+} from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial/src/ReferenceSpaceState'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
@@ -51,11 +58,13 @@ import React from 'react'
 import { Box2, Frustum, Plane, Vector2, Vector3 } from 'three'
 import { EditorState } from '../../../services/EditorServices'
 import { SelectionState } from '../../../services/SelectionServices'
+
 export const SelectionBoxState = defineState({
   name: 'selectionBox State',
   initial: () => ({
     selectionBoxEnabled: false
-  })
+  }),
+  extension: syncStateWithLocalStorage(['selectionBoxEnabled'])
 })
 
 const _size = new Vector2()

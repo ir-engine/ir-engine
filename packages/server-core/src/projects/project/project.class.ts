@@ -73,6 +73,7 @@ const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projec
 
 export interface ProjectParams extends KnexAdapterParams<ProjectQuery>, ProjectUpdateParams {
   appJWT?: string
+  isDependency?: boolean
 }
 
 export type ProjectParamsClient = Omit<ProjectParams, 'user'>

@@ -478,7 +478,7 @@ export class GCSStorage extends BaseStorageProvider implements StorageProviderIn
     const newFilePath = path.join(newPath, newName)
     const listResponse = await this.listObjects(oldFilePath + (isDirectory ? '/' : ''), false, undefined, isDirectory)
 
-    if (listResponse.Contents.length > 0)
+    if (listResponse.Contents.length > 0) {
       return await Promise.all([
         ...listResponse.Contents.map(async (file) => {
           const relativePath = file.Key.replace(oldFilePath, '')
@@ -488,11 +488,6 @@ export class GCSStorage extends BaseStorageProvider implements StorageProviderIn
           else return await this.provider.bucket(this.bucket).file(file.Key).move(key, {})
         })
       ])
-    else {
-      const oldPath = path.join(oldFilePath, '/')
-      const newPath = path.join(newFilePath, '/')
-      if (isCopy) return await this.provider.bucket(this.bucket).file(oldPath).copy(newPath, {})
-      else return await this.provider.bucket(this.bucket).file(oldPath).move(newPath, {})
     }
   }
 }
