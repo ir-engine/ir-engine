@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { hookstate, none, State } from '@hookstate/core'
+import { destroy, hookstate, none, State } from '@hookstate/core'
 import React, { Profiler, Suspense, useTransition } from 'react'
 import Reconciler, { Fiber, FiberRoot } from 'react-reconciler'
 import { ConcurrentRoot, DefaultEventPriority } from 'react-reconciler/constants'
@@ -270,6 +270,9 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
     reactorRoot.cleanupFunctions.forEach((fn) => fn())
     reactorRoot.cleanupFunctions.clear()
     ReactorRenderCounterState[reactorRoot.uuid].set(none)
+    destroy(reactorRoot.isRunning)
+    destroy(reactorRoot.errors)
+    destroy(reactorRoot.suspended)
   }
 
   const reflection = () => {
