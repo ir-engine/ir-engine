@@ -251,12 +251,12 @@ const email = {
   },
   from: `${process.env.SMTP_FROM_NAME}` + ` <${process.env.SMTP_FROM_EMAIL}>`,
   subject: {
-    'new-user': 'Napster Spaces Signup',
-    location: 'Napster Spaces Location invitation',
-    instance: 'Napster Spaces Location invitation',
-    login: 'Napster Spaces Login link',
-    friend: 'Napster Spaces Friend request',
-    channel: 'Napster Spaces Channel invitation'
+    'new-user': 'Napster 3D Studio Signup',
+    location: 'Napster 3D Studio Location invitation',
+    instance: 'Napster 3D Studio Location invitation',
+    login: 'Napster 3D Studio Login link',
+    friend: 'Napster 3D Studio Friend request',
+    channel: 'Napster 3D Studio Channel invitation'
   },
   smsNameCharacterLimit: 20
 }
