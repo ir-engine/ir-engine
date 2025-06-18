@@ -31,6 +31,7 @@ import {
   getMutableState,
   getState,
   hookstate,
+  none,
   useHookstate
 } from '@ir-engine/hyperflux'
 import { v4 as uuidv4 } from 'uuid'
@@ -155,11 +156,11 @@ export const UUIDComponent = defineComponent({
     destroy(getState(EntitiesByUUIDState)[layer][uuid])
     delete getState(EntitiesByUUIDState)[layer][uuid]
 
-    const source = component.value.entitySourceID
+    const source = component.value.entitySourceID.toString() as SourceID
     const entities = getState(EntitiesBySourceState)[layer][source].filter((currentEntity) => currentEntity !== entity)
     const layerState = getMutableState(EntitiesBySourceState)[layer]
     if (entities.length === 0) {
-      destroy(layerState[source])
+      layerState[source].set(none)
     } else {
       layerState[source].set(entities)
     }

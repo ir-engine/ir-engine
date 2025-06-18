@@ -261,8 +261,11 @@ export function startReactor(Reactor: React.FC, label?: string): ReactorRoot {
     ReactorReconciler.updateContainer(<ReactorContainer />, fiberRoot)
   }
 
+  let stopped = false
+
   const stop = () => {
-    if (!reactorRoot.isRunning.value) return Promise.resolve()
+    if (!reactorRoot.isRunning.value || stopped) return Promise.resolve()
+    stopped = true
     ReactorReconciler.updateContainer(null, fiberRoot)
     reactorRoot.isRunning.set(false)
     HyperFlux.store.activeReactors.delete(reactorRoot.uuid)
