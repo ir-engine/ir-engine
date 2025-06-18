@@ -23,6 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+// LightmapperMaterial implementation
+// https://github.com/lucas-jones/three-lightmap-baker
+
 import { Matrix4, ShaderMaterial, Texture, Vector3 } from 'three'
 import { MeshBVH, MeshBVHUniformStruct, shaderIntersectFunction, shaderStructs } from 'three-mesh-bvh'
 

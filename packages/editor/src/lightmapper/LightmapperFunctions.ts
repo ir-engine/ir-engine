@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, getComponent } from '@ir-engine/ecs'
+import { Entity, getComponent, getSimulationCounterpart, setComponent } from '@ir-engine/ecs'
 import { convertImageDataToKTX2Blob } from '@ir-engine/engine/src/scene/classes/ImageUtils'
 import { mergeGeometries } from '@ir-engine/engine/src/scene/util/meshUtils'
 import { getState } from '@ir-engine/hyperflux'
@@ -49,6 +49,8 @@ import {
 import { MeshBVH } from 'three-mesh-bvh'
 import { uploadProjectFiles } from '../functions/assetFunctions'
 import { EditorState } from '../services/EditorServices'
+import { AtlasingFunctions } from './AtlasingFunctions'
+import { LightmapBakeComponent } from './LightmapBakeComponent'
 import { LightmapperMaterial } from './LightmapperMaterial'
 
 export type RaycastOptions = {
@@ -197,9 +199,56 @@ const uploadLightmapTexture = async (renderTarget: WebGLRenderTarget, entity: En
   return urls[0]?.[0] || null
 }
 
+/**
+ * Kicks off lightmap baking
+ * @param entity the lightmap bake entity
+ * @param entities the atlased entities to bake
+ * @param resolution the resolution of the lightmap, must be power of 2
+ * @param samples the number of samples to take, higher numbers take longer but yield better results
+ */
+const handleBakeLightmap = (entity: Entity, entities: Entity[], resolution: number, samples: number) => {
+  if (!entities.length) console.error('No atlased entities to bake')
+
+  const textures = AtlasingFunctions.renderAtlas(
+    getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!,
+    entities.map((entity) => getComponent(entity, MeshComponent)),
+    resolution,
+    true
+  )
+
+  const [renderTexture, raycastMesh, orthographicCamera, raycastMaterial] = Lightmapper.initialize(
+    getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!,
+    textures.positionTexture,
+    textures.normalTexture,
+    Lightmapper.getBakeBVH(entities as Entity[]),
+    {
+      resolution,
+      casts: 1,
+      lightPosition: new Vector3(),
+      lightSize: 1,
+      filterMode: LinearFilter,
+      directLightEnabled: false,
+      indirectLightEnabled: true,
+      ambientLightEnabled: true,
+      ambientDistance: 1
+    }
+  )
+
+  setComponent(getSimulationCounterpart(entity), LightmapBakeComponent, {
+    entities: entities as Entity[],
+    renderTarget: renderTexture,
+    raycastMesh,
+    orthographicCamera,
+    raycastMaterial,
+    totalSamples: samples,
+    currentSamples: 0
+  })
+}
+
 export const Lightmapper = {
   initialize: initializeLightmapper,
   sample: sampleLightmap,
   getBakeBVH,
-  uploadLightmapTexture
+  uploadLightmapTexture,
+  handleBakeLightmap
 }

@@ -32,6 +32,7 @@ import {
   getChildrenWithComponents,
   getComponent,
   getMutableComponent,
+  getSimulationCounterpart,
   hasComponent,
   removeEntityNodeRecursively,
   setComponent,
@@ -39,7 +40,9 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { exportGLTFScene } from '@ir-engine/engine/src/gltf/exportGLTFScene'
+import { LightmapComponent } from '@ir-engine/engine/src/lightmap/LightmapComponent'
 import { defineState, getState } from '@ir-engine/hyperflux'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
@@ -62,7 +65,9 @@ import {
   WebGLRenderTarget
 } from 'three'
 import { UVUnwrapper } from 'xatlas-three'
+import { commitProperty } from '../components/properties/Util'
 import { uploadProjectFiles } from '../functions/assetFunctions'
+import { EditorState } from '../services/EditorServices'
 
 export const UV2UnwrapperState = defineState({
   name: 'ir.engine.UV2AtlasState',
@@ -350,8 +355,30 @@ const renderAtlas = (renderer: WebGLRenderer, meshs: Mesh[], resolution: number,
   }
 }
 
+/** Asynchronously handles atlas generation and export, returns the entities that were atlased
+ * @param entity The entity to generate the atlas for
+ * @param uvChannel The UV channel to use for the atlas
+ * @returns The entities that were atlased
+ */
+const handleGenerateAtlas = async (entity: Entity, uvChannel: UVChannel = 'uv2') => {
+  const entities = await AtlasingFunctions.generateAtlas(getSimulationCounterpart(entity), uvChannel)
+  if (!entities) return
+  const editorState = getState(EditorState)
+  const atlasSrc = await AtlasingFunctions.exportAtlasData(
+    entities,
+    editorState.projectName!,
+    'public/scenes/lightmap/' + editorState.sceneName?.substring(0, editorState.sceneName!.lastIndexOf('.')),
+    getComponent(entity, NameComponent)
+  )
+
+  commitProperty(LightmapComponent, 'atlasSrc', [entity])(atlasSrc)
+
+  return entities
+}
+
 export const AtlasingFunctions = {
   generateAtlas,
   exportAtlasData,
-  renderAtlas
+  renderAtlas,
+  handleGenerateAtlas
 }
