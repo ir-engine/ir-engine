@@ -28,8 +28,8 @@ import { defineState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
 export const MultiplayerState = defineState({
   name: 'ir.client.user.MultiplayerState',
   initial: () => ({
-    enabled: false,
-    video: false
+    world: false,
+    media: false
   }),
-  extension: syncStateWithLocalStorage(['enabled', 'video'])
+  extension: syncStateWithLocalStorage(['world', 'media'])
 })

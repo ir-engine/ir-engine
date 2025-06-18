@@ -43,7 +43,7 @@ interface ScreenProps {
 
 const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
   const audioState = useMutableState(AudioState)
-  const { enabled: multiplayer, video } = useMutableState(MultiplayerState)
+  const { world, media } = useMutableState(MultiplayerState)
 
   return (
     <div className="space-y-4">
@@ -53,9 +53,9 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
         <Divider />
         <ToggleItem
           label="Video Communication"
-          checked={video.value}
+          checked={media.value}
           onClick={() => {
-            video.set(!video.value)
+            media.set(!media.value)
           }}
         />
       </Section>
@@ -75,11 +75,7 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
 
       {/* World & Account Section */}
       <Section>
-        <ToggleItem
-          label="Multiplayer"
-          checked={multiplayer.value}
-          onClick={() => multiplayer.set(!multiplayer.value)}
-        />
+        <ToggleItem label="Multiplayer" checked={world.value} onClick={() => world.set(!world.value)} />
         <Divider />
         <MenuItem label="Account" onClick={() => navigateTo('Settings', 'account')} hasChevron />
         <Divider />
