@@ -415,7 +415,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
     if (scene.value !== location?.sceneId) updateSceneID = scene.value
 
     try {
-      if (updateSceneID && !(getState(ReferenceSpaceState).originEntity === UndefinedEntity)) {
+      if (updateSceneID && getState(ReferenceSpaceState).originEntity !== UndefinedEntity) {
         await SceneThumbnailState.createThumbnail()
         await SceneThumbnailState.uploadThumbnail()
       }
