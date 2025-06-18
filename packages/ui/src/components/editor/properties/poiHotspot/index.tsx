@@ -41,7 +41,7 @@ export const PoiHotspotNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor
       {...props}
-      name={t('editor:properties.poiHotspot.name', 'POI Hotspot')}
+      name={t('editor:properties.poiHotspot.name', 'Guided Hotspot')}
       description={t('editor:properties.poiHotspot.description', 'Settings for a hotspot within a point of interest')}
       Icon={PoiHotspotNodeEditor.iconComponent}
       entity={props.entity}

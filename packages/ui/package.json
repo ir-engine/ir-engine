@@ -1,6 +1,6 @@
 {
   "name": "@ir-engine/ui",
-  "version": "1.6.0",
+  "version": "1.0.3",
   "description": "A declarative way to build 3D/VR/AR/XR apps that scale. Built with tooling web developers will love, using conventions that game developers and creative coders will find straightforward familiar.",
   "homepage": "https://github.com/ir-engine/ir-engine#readme",
   "author": {
@@ -38,10 +38,10 @@
     "chromatic": "chromatic --exit-zero-on-changes"
   },
   "dependencies": {
-    "@ir-engine/common": "^1.6.0",
-    "@ir-engine/engine": "^1.6.0",
-    "@ir-engine/hyperflux": "^1.6.0",
-    "@ir-engine/projects": "^1.6.0",
+    "@ir-engine/common": "^1.0.3",
+    "@ir-engine/engine": "^1.0.3",
+    "@ir-engine/hyperflux": "^1.0.3",
+    "@ir-engine/projects": "^1.0.3",
     "@pixiv/three-vrm": "^2.0.6",
     "autoprefixer": "^10.4.14",
     "country-state-city": "^3.2.1",

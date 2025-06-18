@@ -1,7 +1,7 @@
 {
   "name": "@ir-engine/server",
   "description": "API Server for Infinite Reality Engine",
-  "version": "1.6.0",
+  "version": "1.0.3",
   "private": true,
   "homepage": "",
   "main": "dist/index.js",
@@ -42,7 +42,7 @@
   },
   "types": "lib/",
   "dependencies": {
-    "@ir-engine/server-core": "^1.6.0",
+    "@ir-engine/server-core": "^1.0.3",
     "@feathersjs/koa": "5.0.5",
     "@feathersjs/transport-commons": "5.0.5",
     "app-root-path": "^3.1.0",

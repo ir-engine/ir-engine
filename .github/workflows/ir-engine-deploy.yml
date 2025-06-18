@@ -31,25 +31,23 @@ jobs:
 
       - name: Generate GitHub App Token
         id: app-token
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v2
         with:
           app-id: ${{ secrets.IR_REPO_AUTH_APP_ID }}
           private-key: ${{ secrets.IR_REPO_AUTH_PRIVATE_KEY }}
-          owner: ir-engine
-
-      - name: Send Remote Dispatch to Deploy IR-Engine
-        run: |
-          curl -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
-            -H 'Accept: application/vnd.github.everest-preview+json' \
-            ${{ secrets.IR_ENGINE_OPS_API_URL }} \
-            -d '{"event_type": "deploy-ir-engine", "client_payload": {"environment": "${{ env.TARGET_BRANCH_NAME }}"}}'
+          owner: theinfinitereality
 
       - name: Send Remote Dispatch to Deploy GCP IR-Engine
-        run: |
-          curl -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
-            -H 'Accept: application/vnd.github.everest-preview+json' \
-            ${{ secrets.IR_ENGINE_OPS_GCP_API_URL }} \
-            -d '{"event_type": "deploy-ir-engine", "client_payload": {"environment": "${{ env.TARGET_BRANCH_NAME }}"}}'
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          repository: ${{ secrets.IR_ENGINE_OPS_GCP_REPO }}
+          event-type: deploy-ir-engine
+          client-payload: |
+            {
+              "environment": "dev"
+            }
+
       - name: Detect changes in packages/ui
         id: check_changes
         run: |

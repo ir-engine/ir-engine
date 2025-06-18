@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { BadRequest, Forbidden } from '@feathersjs/errors'
+import { BadRequest, Forbidden, NotFound } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { createAppAuth } from '@octokit/auth-app'
 import { createOAuthAppAuth } from '@octokit/auth-oauth-app'
@@ -580,44 +580,69 @@ export const getOctokitForToken = async (app: Application, token: string) => {
 export const getOctokitForChecking = async (app: Application, url: string, params: ProjectParams) => {
   url = url.toLowerCase()
 
-  const githubIdentityProvider = (await app.service(identityProviderPath)._find({
-    query: {
-      userId: params!.user!.id,
-      type: 'github',
-      $limit: 1
-    }
-  })) as Paginated<IdentityProviderType>
-
-  if (githubIdentityProvider.data.length === 0)
-    throw new Forbidden('You must have a connected GitHub account to access public repos')
   const { owner, repo } = getGithubOwnerRepo(url)
-  const retryOctokit = Octokit.plugin(retry)
-  let octoKit = new retryOctokit({
-    auth: githubIdentityProvider.data[0].oauthToken,
-    retry: { enabled: process.env.TEST !== 'true' }
-  })
-  const authenticationSettings = await fetchAuthenticationSettings(app)
-  let token = githubIdentityProvider.data[0].oauthToken
-  try {
+  let token, octoKit
+
+  if (params?.appJWT) {
+    octoKit = new Octokit({ auth: params.appJWT })
+    let repoInstallation
+    try {
+      const urlParts = url.split('/')
+      repoInstallation = await octoKit.rest.apps.getRepoInstallation({
+        owner: urlParts[urlParts.length - 2],
+        repo: urlParts[urlParts.length - 1]
+      })
+    } catch (err) {
+      console.log(err)
+      throw new NotFound(
+        'The GitHub App associated with this deployment has not been installed with access to that repository, or that repository does not exist'
+      )
+    }
+    const installationAccessToken = await octoKit.rest.apps.createInstallationAccessToken({
+      installation_id: repoInstallation.data.id
+    })
+    token = installationAccessToken.data.token
+    octoKit = new Octokit({ auth: token })
+  } else {
+    const githubIdentityProvider = (await app.service(identityProviderPath)._find({
+      query: {
+        userId: params!.user!.id,
+        type: 'github',
+        $limit: 1
+      }
+    })) as Paginated<IdentityProviderType>
+
+    if (githubIdentityProvider.data.length === 0)
+      throw new Forbidden('You must have a connected GitHub account to access public repos')
     const retryOctokit = Octokit.plugin(retry)
-    const checkerOctokit = new retryOctokit({
-      authStrategy: createOAuthAppAuth,
-      auth: {
-        clientType: 'oauth-app',
-        clientId: authenticationSettings?.oauth!.github!.key,
-        clientSecret: authenticationSettings?.oauth!.github!.secret
-      },
+    octoKit = new retryOctokit({
+      auth: githubIdentityProvider.data[0].oauthToken,
       retry: { enabled: process.env.TEST !== 'true' }
     })
-    await checkerOctokit.rest.apps.checkToken({
-      client_id: authenticationSettings.oauth!.github!.key,
-      access_token: token!
-    })
-  } catch (err) {
-    token = await refreshToken(authenticationSettings, token!, app)
-    const retryOctokit = Octokit.plugin(retry)
-    octoKit = new retryOctokit({ auth: token, retry: { enabled: process.env.TEST !== 'true' } })
+    const authenticationSettings = await fetchAuthenticationSettings(app)
+    token = githubIdentityProvider.data[0].oauthToken
+    try {
+      const retryOctokit = Octokit.plugin(retry)
+      const checkerOctokit = new retryOctokit({
+        authStrategy: createOAuthAppAuth,
+        auth: {
+          clientType: 'oauth-app',
+          clientId: authenticationSettings?.oauth!.github!.key,
+          clientSecret: authenticationSettings?.oauth!.github!.secret
+        },
+        retry: { enabled: process.env.TEST !== 'true' }
+      })
+      await checkerOctokit.rest.apps.checkToken({
+        client_id: authenticationSettings.oauth!.github!.key,
+        access_token: token!
+      })
+    } catch (err) {
+      token = await refreshToken(authenticationSettings, token!, app)
+      const retryOctokit = Octokit.plugin(retry)
+      octoKit = new retryOctokit({ auth: token, retry: { enabled: process.env.TEST !== 'true' } })
+    }
   }
+
   return {
     owner,
     repo,

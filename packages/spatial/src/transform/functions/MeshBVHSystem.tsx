@@ -156,13 +156,6 @@ SkinnedMesh.prototype.raycast = () => {}
 BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree
 BufferGeometry.prototype.computeBoundsTree = computeBoundsTree
 
-const edgeMaterial = new LineBasicMaterial({
-  color: 0x00ff88,
-  transparent: true,
-  opacity: 0.3,
-  depthWrite: false
-})
-
 const MeshBVHReactor = () => {
   const entity = useEntityContext()
   const bvhDebug = useHookstate(getMutableState(RendererState).bvhDebug)
@@ -188,6 +181,13 @@ const MeshBVHReactor = () => {
     if (!bvhDebug.value || !hasMeshBVH.value) return
 
     const mesh = getComponent(entity, MeshComponent)
+
+    const edgeMaterial = new LineBasicMaterial({
+      color: 0x00ff88,
+      transparent: true,
+      opacity: 0.3,
+      depthWrite: false
+    })
 
     const meshBVHVisualizer = new MeshBVHHelper(mesh)
     meshBVHVisualizer.edgeMaterial = edgeMaterial

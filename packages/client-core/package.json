@@ -1,6 +1,6 @@
 {
   "name": "@ir-engine/client-core",
-  "version": "1.6.0",
+  "version": "1.0.3",
   "repository": {
     "type": "git",
     "url": "git://github.com/ir-engine/ir-engine.git"
@@ -32,10 +32,10 @@
     "@feathersjs/client": "5.0.5",
     "@feathersjs/primus-client": "4.5.15",
     "@feathersjs/rest-client": "5.0.5",
-    "@ir-engine/common": "^1.6.0",
-    "@ir-engine/engine": "^1.6.0",
-    "@ir-engine/hyperflux": "^1.6.0",
-    "@ir-engine/ui": "^1.6.0",
+    "@ir-engine/common": "^1.0.3",
+    "@ir-engine/engine": "^1.0.3",
+    "@ir-engine/hyperflux": "^1.0.3",
+    "@ir-engine/ui": "^1.0.3",
     "@storybook/react": "^8.6.14",
     "@uiw/react-color-sketch": "^2.1.1",
     "axios": "1.3.4",
