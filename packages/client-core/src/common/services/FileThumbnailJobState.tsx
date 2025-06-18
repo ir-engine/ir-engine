@@ -66,7 +66,7 @@ import {
   BoundingBoxComponent,
   updateBoundingBox
 } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
-import React, { Suspense, useEffect } from 'react'
+import React, { Suspense, useEffect, useRef } from 'react'
 import { Color, Euler, Material, Mesh, Quaternion, SphereGeometry } from 'three'
 
 import { useFind } from '@ir-engine/common'
@@ -138,6 +138,7 @@ const drawToCanvas = (source: CanvasImageSource): Promise<HTMLCanvasElement | nu
 }
 export const uploadDimension = async (modelEntity: Entity, src: string, projectName: string) => {
   try {
+    console.log('uploading dimension for11', src)
     setComponent(modelEntity, BoundingBoxComponent)
     updateBoundingBox(modelEntity)
     const boundingBox = getComponent(modelEntity, BoundingBoxComponent).box
@@ -148,6 +149,7 @@ export const uploadDimension = async (modelEntity: Entity, src: string, projectN
     fileURL.search = ''
     fileURL.hash = ''
     const fileKeyKey = fileURL.href.replace(config.client.fileServer + '/', '')
+    console.log('uploading dimension for', fileKeyKey)
     await API.instance
       .service(staticResourcePath)
       .find({
@@ -690,6 +692,7 @@ const renderMultiViewImages = async (
     //job completed
     FileThumbnailJobState.removeCurrentJob()
   } catch (error) {
+    console.log('error in renderMultiViewImages', error)
     onError(error)
   }
 }
@@ -792,6 +795,24 @@ const RenderModelThumbnail = (props: RenderThumbnailProps) => {
   const [entity, lightEntity, skyboxEntity, cameraEntity] = useRenderEntities(src)
   const errors = ErrorComponent.useComponentErrors(entity, GLTFComponent)
   const loaded = GLTFComponent.useSceneLoaded(entity)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    // Set a 10 second timeout
+    timeoutRef.current = setTimeout(() => {
+      if (!loaded && !errors) {
+        console.warn(`Thumbnail generation timed out after 10 seconds for ${src}`)
+        FileThumbnailJobState.removeCurrentJob()
+      }
+    }, 10000) // 10 seconds
+
+    // Clear timeout on unmount
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [src])
 
   useEffect(() => {
     if (!entity || !lightEntity || !skyboxEntity || !cameraEntity) return
@@ -799,6 +820,13 @@ const RenderModelThumbnail = (props: RenderThumbnailProps) => {
   }, [entity, lightEntity, skyboxEntity, cameraEntity])
 
   useEffect(() => {
+    if (loaded || errors) {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
+      }
+    }
+
     if (!loaded) return
     if (jobType === 'dimension') {
       tryCatch(
