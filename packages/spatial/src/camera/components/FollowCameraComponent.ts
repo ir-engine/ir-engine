@@ -384,9 +384,15 @@ const _targetPosition = new Vector3()
 const initialCameraPlacement = (entity: Entity) => {
   const followCamera = getComponent(entity, FollowCameraComponent)
   const followTransform = getComponent(entity, TransformComponent)
+  const target = getOptionalComponent(entity, TargetCameraRotationComponent)
 
   followCamera.phi = followCamera.defaultPhi
   followCamera.theta = followCamera.defaultTheta
+
+  if (target) {
+    target.phi = followCamera.defaultPhi
+    target.theta = followCamera.defaultTheta
+  }
 
   const thetaRad = MathUtils.degToRad(followCamera.theta)
   const phiRad = MathUtils.degToRad(followCamera.phi)
