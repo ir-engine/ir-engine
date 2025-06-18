@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 /** Camera Modes. */
 export const CameraMode = {
   FOLLOW: 'FOLLOW' as const,
-  POI: 'POI' as const
+  GUIDED: 'GUIDED' as const
 }
 
 export type CameraModeType = (typeof CameraMode)[keyof typeof CameraMode]
