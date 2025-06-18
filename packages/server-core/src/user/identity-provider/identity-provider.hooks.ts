@@ -245,7 +245,8 @@ async function addIdentityProviderType(context: HookContext<IdentityProviderServ
 async function createNewUser(context: HookContext<IdentityProviderService>) {
   const isGuest = (context.actualData as IdentityProviderType).type === 'guest'
   context.existingUser = await context.app.service(userPath).create({
-    isGuest
+    isGuest,
+    ageVerified: isGuest ? false : true
   })
 }
 
