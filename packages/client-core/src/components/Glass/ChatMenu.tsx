@@ -32,6 +32,7 @@ import { twMerge } from 'tailwind-merge'
 import { Send01Md } from '@ir-engine/ui/src/icons'
 import { AuthState } from '../../user/services/AuthService'
 import { useChatProvider } from './ChatProvider'
+import { useNavigationProvider } from './NavigationProvider'
 
 const messageBaseStyles = `
   inline-grid
@@ -135,13 +136,15 @@ const inputOuterStyles = `
   pb-4 px-4 pt-4
 `
 
-export const ChatMenu = ({ navigateTo }: { navigateTo: (screenKey: string, historyKey: string) => void }) => {
+export const ChatMenu = () => {
   const user = useMutableState(AuthState).user
 
   const isGuest = user.isGuest.value
-  const onCTAClicked = () => navigateTo('Settings', 'signup')
 
   const { messageGroupedBySender, inputRef, handleInputChange, sendMessage, composedMessage } = useChatProvider()
+  const { navigateTo } = useNavigationProvider()
+
+  const onCTAClicked = () => navigateTo('/settings/sign-up')
 
   if (isGuest) {
     return (

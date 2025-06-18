@@ -26,27 +26,25 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 
 import Divider from '@ir-engine/ui/src/components/viewer/Divider'
+import { NavigateFuncProps } from '../Glass/NavigationProvider'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
 
 // Define types for screen components
-interface ScreenProps {
-  navigateTo: (screenKey: string, historyKey: string) => void
-  navigateClose?: () => void
-}
+type ScreenProps = NavigateFuncProps & {}
 
 const AccountSettings: React.FC<ScreenProps> = ({ navigateTo }) => (
   <div className="h-full space-y-4">
     <Section>
-      <MenuItem label="Display Name" onClick={() => navigateTo('Settings', 'displayName')} hasChevron />
+      <MenuItem label="Display Name" onClick={() => navigateTo('settings/display')} hasChevron />
       <Divider />
-      <MenuItem label="Permissions" onClick={() => navigateTo('Settings', 'permissions')} hasChevron />
+      <MenuItem label="Permissions" onClick={() => navigateTo('settings/permissions')} hasChevron />
     </Section>
 
     <Section>
-      <MenuItem label="Single Sign On" onClick={() => navigateTo('Settings', 'sso')} hasChevron />
+      <MenuItem label="Single Sign On" onClick={() => navigateTo('settings/sso')} hasChevron />
       <Divider />
-      <MenuItem label="Delete My Account" onClick={() => navigateTo('Settings', 'deleteAccount')} hasChevron />
+      <MenuItem label="Delete My Account" onClick={() => navigateTo('settings/delete')} hasChevron />
     </Section>
   </div>
 )

@@ -27,12 +27,10 @@ import { useMutableState } from '@ir-engine/hyperflux'
 import { motion } from 'motion/react'
 import React from 'react'
 import { AuthService, AuthState } from '../../user/services/AuthService'
+import { NavigateFuncProps } from '../Glass/NavigationProvider'
 import ButtonGroup from './ButtonGroup'
 
-interface DeleteAccountScreenProps {
-  navigateTo: (screenKey: string, historyKey: string) => void
-  navigateClose: () => void
-}
+type DeleteAccountScreenProps = NavigateFuncProps & {}
 
 const DeleteAccountScreen: React.FC<DeleteAccountScreenProps> = ({ navigateTo, navigateClose }) => {
   const { id } = useMutableState(AuthState).user
@@ -44,7 +42,7 @@ const DeleteAccountScreen: React.FC<DeleteAccountScreenProps> = ({ navigateTo, n
   }
 
   const handleStayHere = () => {
-    navigateTo('Settings', 'account')
+    navigateTo('/settings/account')
   }
 
   return (

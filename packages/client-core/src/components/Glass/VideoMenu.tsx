@@ -160,6 +160,7 @@ const Video = ({ peerID, type }: WindowType) => {
   })
 
   const { isCamVideoEnabled, isCamAudioEnabled } = useMultimediaStateProvider()
+
   const { navigateTo } = useNavigationProvider()
 
   const ref = useRef<HTMLVideoElement>(null)
@@ -174,7 +175,7 @@ const Video = ({ peerID, type }: WindowType) => {
 
   const reportUser = () => {
     ReportUserState.setReportedPeerId(peerID)
-    navigateTo('ReportUser', '')
+    navigateTo('report')
   }
 
   return (

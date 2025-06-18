@@ -44,7 +44,6 @@ import { LocationState } from '../../social/services/LocationService'
 import { ReportUserState } from '../../util/ReportUserState'
 import { uploadToFeathersService } from '../../util/upload'
 import { smallIconButtonStyles } from '../Glass/Buttons'
-import { useNavigationProvider } from '../Glass/NavigationProvider'
 
 const backButtonStyles = `
   left-4
@@ -82,7 +81,6 @@ const ReportUserMenu = (props: ReportMenuProps) => {
   const currentLocation = getState(LocationState).currentLocation.location
   const reportedLocationId = currentLocation.id
   const userReportsMutation = useMutation(moderationPath)
-  const { activeHistoryKey, sidebarKey, navigateClose, navigateTo } = useNavigationProvider()
 
   const [content, setContent] = useState<string>(REPORT_INPROGRESS) // REPORT_INPROGRESS | REPORT_SUCCESS
   const fileInputRef = useRef<HTMLInputElement>(null)

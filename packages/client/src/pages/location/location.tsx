@@ -57,7 +57,7 @@ const LocationRoutes = () => {
     <Suspense>
       {projectsLoaded && (
         <Routes>
-          <Route path=":locationName" element={<LocationPage online={multiplayer.value} />} />
+          <Route path=":locationName/*" element={<LocationPage online={multiplayer.value} />} />
         </Routes>
       )}
       {!ready && (

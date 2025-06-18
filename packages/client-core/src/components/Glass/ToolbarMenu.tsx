@@ -155,7 +155,6 @@ export const VerticalMenu = ({ children }) => {
         top-1/2
         z-10
         -translate-x-full
-        
         -translate-y-1/2
         sm:max-lg:hidden
       `}
@@ -262,7 +261,7 @@ const arrowButtonStyles = `
   sm:max-lg:-mb-2
 `
 
-export const ToolbarMenu = ({ onMessageClick, onShareClick, onSettingsClick, activeKey }) => {
+export const ToolbarMenu = ({ onMessageClick, onShareClick, onSettingsClick, activePath }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { unreadMessages } = useChatProvider()
   const showMessagesBadge = unreadMessages.value
@@ -320,7 +319,7 @@ export const ToolbarMenu = ({ onMessageClick, onShareClick, onSettingsClick, act
         {showFirstDivider && <Divider />}
 
         <div className={isMultiMediaOpen ? collapsableSectionOpenStyles : collapsableSectionCloseStyles}>
-          <ChatButton badge={{ show: showMessagesBadge }} active={activeKey === `Chat`} onClick={onMessageClick} />
+          <ChatButton badge={{ show: showMessagesBadge }} active={activePath === `chat`} onClick={onMessageClick} />
           <MicButton />
           <CamButton />
           <MultiVideoButton />

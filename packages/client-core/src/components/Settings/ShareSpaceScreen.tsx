@@ -29,11 +29,10 @@ import { QRCodeSVG } from 'qrcode.react'
 import React from 'react'
 import { createPortal } from 'react-dom'
 import { useShareMenu } from '../../hooks/useShareMenu'
+import { NavigateFuncProps } from '../Glass/NavigationProvider'
 import ShareDrawer from './ShareDrawer'
 
-interface ShareSpaceScreenProps {
-  navigateTo: (screen: string) => void
-}
+type ShareSpaceScreenProps = NavigateFuncProps & {}
 
 const ShareSpaceScreen: React.FC<ShareSpaceScreenProps> = () => {
   const { shareLink, copyLinkToClipboard, questLink, inviteLink } = useShareMenu()

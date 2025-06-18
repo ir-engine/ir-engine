@@ -26,12 +26,11 @@ Infinite Reality Engine. All Rights Reserved.
 import { MediaStreamState, useMutableState } from '@ir-engine/hyperflux'
 import Divider from '@ir-engine/ui/src/components/viewer/Divider'
 import React from 'react'
+import { NavigateFuncProps } from '../Glass/NavigationProvider'
 import { Section } from './Section'
 import ToggleItem from './ToggleItem'
 
-interface PermissionsScreenProps {
-  navigateTo: (screen: string) => void
-}
+type PermissionsScreenProps = NavigateFuncProps & {}
 
 const PermissionsScreen: React.FC<PermissionsScreenProps> = () => {
   const { microphoneEnabled, webcamEnabled } = useMutableState(MediaStreamState)

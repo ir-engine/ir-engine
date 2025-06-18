@@ -38,11 +38,11 @@ type TabProps = {
 }
 
 type HeaderProps = {
-  heading: string
+  title: string
   tabs?: TabProps[]
   handleSidebarClose: () => void
   handleSidebarBack: () => void
-  hasHistory: boolean
+  showBack: boolean
 }
 
 type ToolbarAndSidebarProps = HeaderProps & {
@@ -95,7 +95,6 @@ const headerInnerStyles = `
 
 const buttonContainer_base = `
   absolute z-10
-  right-0
   top-1/2
 
   inline-flex items-center
@@ -151,7 +150,7 @@ const headerBackButtonStyles = `
   lg:block
 `
 
-const Header = ({ tabs = [], heading, handleSidebarClose, handleSidebarBack, hasHistory }: HeaderProps) => {
+const Header = ({ tabs = [], title, handleSidebarClose, handleSidebarBack, showBack }: HeaderProps) => {
   const backButton = (
     <button className={twMerge(smallIconButtonStyles, `shadow`)} onClick={handleSidebarBack}>
       <ChevronLeftMd />
@@ -161,15 +160,15 @@ const Header = ({ tabs = [], heading, handleSidebarClose, handleSidebarBack, has
   return (
     <div className={headerContainerStyles}>
       <div className={headerInnerStyles}>
-        {hasHistory ? <div className={twMerge(buttonContainer_base, backButtonStyles)}>{backButton}</div> : <></>}
+        {showBack ? <div className={twMerge(buttonContainer_base, backButtonStyles)}>{backButton}</div> : <></>}
         <div className={twMerge(buttonContainer_base, closeButtonStyles)}>
           <MenuButton className={`text-3xl`} onClick={handleSidebarClose}>
             <XCloseLg />
           </MenuButton>
         </div>
         <div style={{ textShadow: `0 0.025em 0.08em hsla(0, 0%, 0%, 0.2)` }} className={headingsStyles}>
-          {hasHistory ? <div className={headerBackButtonStyles}>{backButton}</div> : <></>}
-          <h2 className={twMerge(`lg:block`, tabs.length ? `hidden` : ``)}>{heading}</h2>
+          {showBack ? <div className={headerBackButtonStyles}>{backButton}</div> : <></>}
+          <h2 className={twMerge(`lg:block`, tabs.length ? `hidden` : ``)}>{title}</h2>
           {tabs.map((tabProps) => {
             return <Tab {...tabProps} />
           })}
@@ -227,14 +226,14 @@ const contentFakeSpacer = `
 export const ToolbarAndSidebar = ({
   toolbar,
   content,
-  heading,
+  title,
   tabs = [],
   handleSidebarClose,
   handleSidebarBack,
-  hasHistory,
+  showBack,
   isSidebarOpen
 }: ToolbarAndSidebarProps) => {
-  tabs = (tabs as TabProps[]) || [{ heading } as TabProps]
+  tabs = (tabs as TabProps[]) || [{ heading: title } as TabProps]
 
   return (
     <>
@@ -243,8 +242,8 @@ export const ToolbarAndSidebar = ({
         <div className={sidebarContainerStyles}>
           <Header
             tabs={tabs}
-            heading={heading}
-            hasHistory={hasHistory}
+            title={title}
+            showBack={showBack}
             handleSidebarClose={handleSidebarClose}
             handleSidebarBack={handleSidebarBack}
           />

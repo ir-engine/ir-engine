@@ -34,12 +34,11 @@ import React, { useEffect, useMemo } from 'react'
 import { AuthState } from '../../user/services/AuthService'
 import { AvatarService } from '../../user/services/AvatarService'
 import { clientContextParams } from '../../util/ClientContextState'
+import { NavigateFuncProps } from '../Glass/NavigationProvider'
 import FieldItem from './FieldItem'
 import { Section } from './Section'
 
-interface DisplayNameScreenProps {
-  navigateTo: (screenKey: string, historyKey) => void
-}
+type DisplayNameScreenProps = NavigateFuncProps & {}
 const logger = multiLogger.child({ component: 'engine:ecs:DisplayName', modifier: clientContextParams })
 
 const DisplayNameScreen: React.FC<DisplayNameScreenProps> = () => {
