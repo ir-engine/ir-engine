@@ -48,7 +48,7 @@ export const CameraSettingsComponent = defineComponent({
     fov: S.Number({ default: 60 }),
 
     cameraMode: S.Enum(CameraMode, {
-      $comment: "An indexed enum, ie. the numeric index of a value in the following sequence: 'FOLLOW', 'POI' ",
+      $comment: "An indexed enum, ie. the numeric index of a value in the following sequence: 'FOLLOW', 'GUIDED' ",
       default: CameraMode.FOLLOW
     }),
 
@@ -84,7 +84,7 @@ export const CameraSettingsComponent = defineComponent({
     topDownMaxDistance: S.Number({ default: 70 }),
     topDownDefaultDistance: S.Number({ default: 40 }),
 
-    // Fields for POI camera mode
+    // Fields for Guided camera mode
     poiEntities: S.Array(S.EntityUUID()),
     poiLerpSpeed: S.Number({ default: 0.5 }),
     scrollDeadzone: S.Number({ default: 1.0 }),
