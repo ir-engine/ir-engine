@@ -197,6 +197,7 @@ export default function UserTable({
             <ActionButton
               icon={Trash04Lg}
               title={t('admin:components.common.delete')}
+              disabled={row.isDeactivated}
               onClick={() => {
                 ModalState.openModal(
                   <ConfirmDialog

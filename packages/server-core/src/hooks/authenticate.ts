@@ -146,6 +146,11 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
 
     if (key.data.length > 0) {
       const user = await context.app.service(userPath).get(key.data[0].userId)
+
+      if (user.isDeactivated) {
+        throw new NotAuthenticated('User account has been deactivated')
+      }
+
       context.params.user = user
       asyncLocalStorage.enterWith({ user })
       return next()
