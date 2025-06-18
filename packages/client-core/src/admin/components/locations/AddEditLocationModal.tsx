@@ -39,7 +39,7 @@ import {
   LocationType,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
-import { Entity, getComponent, hasComponent, iterateEntityNode, setComponent } from '@ir-engine/ecs'
+import { Entity, getComponent, hasComponent, iterateEntityNode, setComponent, UndefinedEntity } from '@ir-engine/ecs'
 import { defaultLODs, LODVariantDescriptor } from '@ir-engine/editor/src/constants/GLTFPresets'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import exportGLTF from '@ir-engine/editor/src/functions/exportGLTF'
@@ -51,6 +51,7 @@ import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Button, DropdownItem, Input, Select, Tooltip } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
@@ -414,7 +415,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
     if (scene.value !== location?.sceneId) updateSceneID = scene.value
 
     try {
-      if (updateSceneID) {
+      if (updateSceneID && getState(ReferenceSpaceState).originEntity !== UndefinedEntity) {
         await SceneThumbnailState.createThumbnail()
         await SceneThumbnailState.uploadThumbnail()
       }
