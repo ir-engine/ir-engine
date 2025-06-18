@@ -455,22 +455,6 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
     follow.targetDistance = newZoomDistance
   }
 
-  const triggerZoomShift = follow.accumulatedZoomTriggerDebounceTime > MODE_SWITCH_DEBOUNCE
-
-  const minSpringFactor =
-    Math.min(
-      Math.sqrt(Math.abs(follow.targetDistance - follow.effectiveMinDistance)) *
-        Math.sign(follow.targetDistance - follow.effectiveMinDistance),
-      0
-    ) * 0.5
-
-  const maxSpringFactor =
-    Math.max(
-      Math.sqrt(Math.abs(follow.targetDistance - follow.effectiveMaxDistance)) *
-        Math.sign(follow.targetDistance - follow.effectiveMaxDistance),
-      0
-    ) * 0.5
-
   const resetMode = {
     [FollowCameraMode.FirstPerson]: () => resetCameraFirstPerson(),
     [FollowCameraMode.ThirdPerson]: () => resetCameraThirdPerson(),
@@ -543,6 +527,9 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
     follow.lastCameraAdjustmentTime = -1
   }
 
+  const transitionDistanceThreshold = 0.5
+  const triggerZoomShift = follow.accumulatedZoomTriggerDebounceTime > MODE_SWITCH_DEBOUNCE
+
   if (follow.mode === FollowCameraMode.FirstPerson) {
     newZoomDistance = Math.sqrt(follow.targetDistance) * 0.5
 
@@ -567,7 +554,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
       }
     }
   } else if (follow.mode === FollowCameraMode.ThirdPerson) {
-    newZoomDistance = newZoomDistance + minSpringFactor + maxSpringFactor
+    //newZoomDistance = newZoomDistance + minSpringFactor + maxSpringFactor
 
     if (
       !follow.allowedModes.includes(FollowCameraMode.FirstPerson) &&
@@ -588,15 +575,15 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
       if (
         // Move from third person mode to first person mode
         follow.allowedModes.includes(FollowCameraMode.FirstPerson) &&
-        follow.targetDistance < follow.effectiveMinDistance - follow.effectiveMaxDistance * 0.05 &&
-        Math.abs(follow.lastZoomStartDistance - follow.effectiveMinDistance) < follow.effectiveMaxDistance * 0.05
+        follow.targetDistance < follow.effectiveMinDistance &&
+        Math.abs(follow.lastZoomStartDistance - follow.effectiveMinDistance) < transitionDistanceThreshold
       ) {
         switchToFirstPerson()
       } else if (
         // Move from third person mode to top down mode
         follow.allowedModes.includes(FollowCameraMode.TopDown) &&
-        follow.targetDistance > follow.effectiveMaxDistance + follow.effectiveMaxDistance * 0.02 &&
-        Math.abs(follow.lastZoomStartDistance - follow.effectiveMaxDistance) < follow.effectiveMaxDistance * 0.02
+        follow.targetDistance > follow.effectiveMaxDistance &&
+        Math.abs(follow.lastZoomStartDistance - follow.effectiveMaxDistance) < transitionDistanceThreshold
       ) {
         switchToTopDown()
       } else {
@@ -607,7 +594,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
       }
     }
   } else if (follow.mode === FollowCameraMode.TopDown) {
-    newZoomDistance += minSpringFactor + maxSpringFactor * 0.1
+    //newZoomDistance += minSpringFactor + maxSpringFactor * 0.1
 
     if (
       !follow.allowedModes.includes(FollowCameraMode.FirstPerson) &&
@@ -625,8 +612,8 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
     if (triggerZoomShift) {
       follow.accumulatedZoomTriggerDebounceTime = -1
       const isExitingTopDown =
-        newZoomDistance < follow.effectiveMaxDistance * 0.98 &&
-        Math.abs(follow.lastZoomStartDistance - follow.effectiveMinDistance) < 0.05 * follow.effectiveMaxDistance
+        newZoomDistance < follow.effectiveMaxDistance &&
+        Math.abs(follow.lastZoomStartDistance - follow.effectiveMinDistance) < transitionDistanceThreshold
       if (follow.allowedModes.includes(FollowCameraMode.ThirdPerson) && isExitingTopDown) {
         switchToThirdPerson()
       } else if (follow.allowedModes.includes(FollowCameraMode.FirstPerson) && isExitingTopDown) {
