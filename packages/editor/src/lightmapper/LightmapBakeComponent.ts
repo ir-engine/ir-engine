@@ -27,6 +27,7 @@ import { defineComponent, S } from '@ir-engine/ecs'
 import { Mesh, OrthographicCamera, WebGLRenderTarget } from 'three'
 import { LightmapperMaterial } from './LightmapperMaterial'
 
+/** Temporary component used for configuring and baking lightmaps in LightmapSystem */
 export const LightmapBakeComponent = defineComponent({
   name: 'LightmapBakeComponent',
 
@@ -37,6 +38,7 @@ export const LightmapBakeComponent = defineComponent({
     orthographicCamera: S.Type<OrthographicCamera>({ serialized: false }),
     raycastMaterial: S.Type<LightmapperMaterial>({ serialized: false }),
     totalSamples: S.Number({ default: 1000 }),
-    currentSamples: S.Number({ default: 0 })
+    currentSamples: S.Number({ default: 0 }),
+    resolution: S.Number({ default: 1024 })
   })
 })

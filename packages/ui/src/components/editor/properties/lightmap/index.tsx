@@ -31,7 +31,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdLightbulb } from 'react-icons/md'
 
-import { AtlasingFunctions, UV2UnwrapperState } from '@ir-engine/editor/src/lightmapper/AtlasingFunctions'
+import { AtlasingFunctions, UV2UnwrapperState, UVChannel } from '@ir-engine/editor/src/lightmapper/AtlasingFunctions'
 import { LightmapBakeComponent } from '@ir-engine/editor/src/lightmapper/LightmapBakeComponent'
 import { Lightmapper } from '@ir-engine/editor/src/lightmapper/LightmapperFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
@@ -42,6 +42,9 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { LinearFilter, Vector3 } from 'three'
+import InputGroup from '../../input/Group'
+import NumericInput from '../../input/Numeric'
+import SelectInput from '../../input/Select'
 
 const resolutionOptions = [
   { label: '256', value: 256 },
@@ -55,8 +58,14 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
 
   const atlasedEntities = useHookstate([] as Entity[])
 
+  const resolutionState = useHookstate(1024)
+
+  const uvChannelState = useHookstate('uv2' as UVChannel)
+
+  const sampleState = useHookstate(1000)
+
   const handleGenerateAtlas = async () => {
-    const entities = await AtlasingFunctions.generateAtlas(getSimulationCounterpart(props.entity))
+    const entities = await AtlasingFunctions.generateAtlas(getSimulationCounterpart(props.entity), uvChannelState.value)
     if (!entities) return
     const editorState = getState(EditorState)
     const atlasSrc = await AtlasingFunctions.exportAtlasData(
@@ -75,7 +84,7 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
     if (!atlasedEntities.value.length) console.error('No atlased entities to bake')
     const entities = atlasedEntities.value
 
-    const resolution = 1024
+    const resolution = resolutionState.value
 
     const textures = AtlasingFunctions.renderAtlas(
       getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!,
@@ -108,7 +117,7 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
       raycastMesh,
       orthographicCamera,
       raycastMaterial,
-      totalSamples: 1000,
+      totalSamples: sampleState.value,
       currentSamples: 0
     })
   }
@@ -128,24 +137,36 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.lightmap.description') || 'Lightmap settings for static objects'}
       Icon={LightmapNodeEditor.iconComponent}
     >
-      {/* <InputGroup name="Resolution" label={t('editor:properties.lightmap.lbl-resolution') || 'Resolution'}>
+      <InputGroup name="Resolution" label={t('editor:properties.lightmap.lbl-resolution') || 'Resolution'}>
         <SelectInput
           options={resolutionOptions}
-          value={lightmapComponent.resolution.value}
-          onChange={commitProperty(LightmapComponent, 'resolution')}
+          value={resolutionState.value}
+          onChange={(value) => resolutionState.set(value as number)}
         />
       </InputGroup>
-
-      <InputGroup name="Intensity" label={t('editor:properties.lightmap.lbl-intensity') || 'Intensity'}>
-        <NumericInput
-          min={0}
-          smallStep={0.1}
-          mediumStep={0.5}
-          largeStep={1.0}
-          value={lightmapComponent.intensity.value}
-          onChange={commitProperty(LightmapComponent, 'intensity')}
+      <InputGroup name="UV Channel" label={t('editor:properties.lightmap.lbl-uv-channel') || 'UV Channel'}>
+        <SelectInput
+          options={[
+            { label: 'UV0', value: '' },
+            { label: 'UV1', value: 'uv1' },
+            { label: 'UV2', value: 'uv2' },
+            { label: 'UV3', value: 'uv3' }
+          ]}
+          value={uvChannelState.value}
+          onChange={(value) => uvChannelState.set(value as UVChannel)}
         />
-      </InputGroup> */}
+      </InputGroup>
+      <InputGroup name="Samples" label={t('editor:properties.lightmap.lbl-samples') || 'Samples'}>
+        <NumericInput
+          min={1}
+          max={10000}
+          smallStep={1}
+          mediumStep={10}
+          largeStep={100}
+          value={sampleState.value}
+          onChange={(value) => sampleState.set(value as number)}
+        />
+      </InputGroup>
 
       <div className="mt-2 flex flex-col gap-2">
         <Button onClick={handleGenerateAtlas} disabled={!unwrapperLoaded.value}>

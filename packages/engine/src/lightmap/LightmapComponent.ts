@@ -73,7 +73,14 @@ export const LightmapComponent = defineComponent({
           const atlasedMeshComponent = getComponent(atlasedChildEntity, MeshComponent)
           if (!correspondingEntity) continue
           const correspondingMeshComponent = getComponent(correspondingEntity, MeshComponent)
-          correspondingMeshComponent.geometry.setAttribute('uv2', atlasedMeshComponent.geometry.getAttribute('uv2'))
+
+          for (let i = 0; i < 3; i++)
+            if (atlasedMeshComponent.geometry.hasAttribute('uv' + i))
+              correspondingMeshComponent.geometry.setAttribute(
+                'uv' + i,
+                atlasedMeshComponent.geometry.getAttribute('uv' + i)
+              )
+
           correspondingMeshComponent.geometry.setAttribute(
             'position',
             atlasedMeshComponent.geometry.getAttribute('position')
@@ -82,7 +89,6 @@ export const LightmapComponent = defineComponent({
             'normal',
             atlasedMeshComponent.geometry.getAttribute('normal')
           )
-          correspondingMeshComponent.geometry.setAttribute('uv', atlasedMeshComponent.geometry.getAttribute('uv'))
           correspondingMeshComponent.geometry.index = atlasedMeshComponent.geometry.index
 
           // keep track of atlased entities for atlas texture application and cleanup

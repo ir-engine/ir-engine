@@ -101,7 +101,9 @@ export const UV2UnwrapperState = defineState({
   }
 })
 
-const generateAtlas = async function (entity: Entity) {
+export type UVChannel = 'uv' | 'uv1' | 'uv2' | 'uv3'
+
+const generateAtlas = async function (entity: Entity, uvChannel: UVChannel = 'uv2') {
   const unwrapper = getState(UV2UnwrapperState)
 
   if (!unwrapper.isLoaded) {
@@ -124,9 +126,10 @@ const generateAtlas = async function (entity: Entity) {
   }
   const geometries = filteredMeshEntities.map((entity) => getComponent(entity, MeshComponent).geometry)
 
+  // todo figure out if padding is needed
   // unwrapper.packOptions.padding = 1
 
-  await unwrapper.packAtlas(geometries, 'uv2', 'uv')
+  await unwrapper.packAtlas(geometries, uvChannel as any, 'uv')
 
   return filteredMeshEntities
 }
