@@ -90,7 +90,6 @@ const restrictUserPatch = async (context: HookContext<UserService>) => {
     if (typeof item.ageVerified !== 'undefined') data.ageVerified = item.ageVerified
     // Allow users to deactivate their own accounts
     if (typeof item.isDeactivated !== 'undefined') data.isDeactivated = item.isDeactivated
-    if (typeof item.deactivatedAt !== 'undefined') data.deactivatedAt = item.deactivatedAt
 
     return data
   }

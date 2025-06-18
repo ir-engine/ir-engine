@@ -65,8 +65,8 @@ export const userDataResolver = resolve<UserType, HookContext>({
 
 export const userPatchResolver = resolve<UserType, HookContext>({
   updatedAt: getDateTimeSql,
-  deactivatedAt: async (deactivatedAt) => {
-    if (deactivatedAt) {
+  deactivatedAt: async (_, userData) => {
+    if (userData.isDeactivated) {
       return getDateTimeSql()
     }
     return undefined

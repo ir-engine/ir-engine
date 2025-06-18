@@ -61,8 +61,7 @@ export const deactivateUsers = async (
   await Promise.all(
     users.map((user) => {
       adminUserPatch(user.id, {
-        isDeactivated: true,
-        deactivatedAt: new Date().toISOString()
+        isDeactivated: true
       })
     })
   )
@@ -95,7 +94,6 @@ export default function UserTable({
   const adminUserQuery = useFind(userPath, {
     query: {
       isGuest: skipGuests ? false : undefined,
-      isDeactivated: false,
       $skip: 0,
       $limit: 20,
       $sort: {
@@ -185,6 +183,7 @@ export default function UserTable({
           <FaRegCircleXmark className="h-5 w-5 " />
         ),
         isGuest: row.isGuest.toString(),
+        isDeactivated: row.isDeactivated ? 'true' : 'false',
         createdAt: toDisplayDateTime(row.createdAt),
         action: (
           <div className="flex items-center justify-start gap-3">

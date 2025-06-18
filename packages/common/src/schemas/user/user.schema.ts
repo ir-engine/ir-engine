@@ -41,7 +41,7 @@ export type { UserID }
 
 export const userPath = 'user'
 
-export const userMethods = ['get', 'find', 'create', 'patch', 'remove'] as const
+export const userMethods = ['get', 'find', 'create', 'patch'] as const
 
 export const userScopeSchema = Type.Object(
   {
