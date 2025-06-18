@@ -403,7 +403,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
     follow.mode === FollowCameraMode.FirstPerson
       ? follow.firstPersonOffset
       : follow.thirdPersonOffset.y === 0
-      ? follow.targetOffset.set(0, cameraTransform.position.y, 0)
+      ? follow.targetOffset.set(0, 0, 0)
       : follow.thirdPersonOffset
 
   const lerpstart =
