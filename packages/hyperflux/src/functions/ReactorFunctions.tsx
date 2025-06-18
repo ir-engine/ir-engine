@@ -203,9 +203,9 @@ const calculateFiberNodes = (uuid: string) => {
   return countFiberNodesRecursively(fiberRoot)
 }
 
-const trackStats = false //isDev
+const trackStats = isDev
 
-export function startReactor(Reactor: React.FC): ReactorRoot {
+export function startReactor(Reactor: React.FC, label?: string): ReactorRoot {
   const isStrictMode = false
   const concurrentUpdatesByDefaultOverride = true
   const identifierPrefix = ''
@@ -225,8 +225,7 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
     null
   )
 
-  if (!Reactor['__name'] && Reactor.name) Reactor['__name'] = Reactor.name
-  if (!Reactor['__name']) Reactor['__name'] = 'HyperFluxReactor'
+  Reactor['__name'] = label || Reactor['__name'] || Reactor.name || 'Unlabelled Reactor'
 
   const ReactorContainer = () => {
     const [isPending] = useTransition()

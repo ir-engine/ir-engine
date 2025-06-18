@@ -29,7 +29,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 export class WorkerPool {
   limit: number
-  queue = [] as Array<{ resolve: any; msg: any; transfer: Transferable[] }>
+  queue = [] as Array<{ resolve: any; msg: any; transfer: Transferable[]; signal?: AbortSignal }>
   workers = [] as Worker[]
   workersResolve = [] as Array<any>
   workerStatus = 0
@@ -60,12 +60,20 @@ export class WorkerPool {
     this.workersResolve[workerId] = null
 
     if (this.queue.length) {
-      const { resolve, msg, transfer } = this.queue.shift() as any
-      this.workersResolve[workerId] = resolve
-      this.workers[workerId].postMessage(msg, transfer)
+      this._postWorker(workerId)
     } else {
       this.workerStatus ^= 1 << workerId
     }
+  }
+
+  _postWorker(workerId: number) {
+    const { resolve, msg, transfer, signal } = this.queue.shift() as any
+    if (signal?.aborted) {
+      if (this.queue.length) this._postWorker(workerId)
+      return
+    }
+    this.workersResolve[workerId] = resolve
+    this.workers[workerId].postMessage(msg, transfer)
   }
 
   setWorkerCreator(workerCreator: () => Worker) {
@@ -76,7 +84,7 @@ export class WorkerPool {
     this.limit = pool
   }
 
-  postMessage<T = any>(msg: any, transfer: Transferable[]): Promise<MessageEvent<T>> {
+  postMessage<T = any>(msg: any, transfer: Transferable[], signal?: AbortSignal): Promise<MessageEvent<T>> {
     return new Promise((resolve) => {
       const workerId = this._getIdleWorker()
 
@@ -86,7 +94,7 @@ export class WorkerPool {
         this.workersResolve[workerId] = resolve
         this.workers[workerId].postMessage(msg, transfer)
       } else {
-        this.queue.push({ resolve, msg, transfer })
+        this.queue.push({ resolve, msg, transfer, signal })
       }
     })
   }

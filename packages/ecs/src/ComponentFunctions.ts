@@ -566,7 +566,7 @@ export const setComponent = <C extends Component>(
         Components: [component],
         ChildEntityReactor: component.reactor as any
       })
-    }) as ReactorRoot
+    }, `Component - ${component.name}`) as ReactorRoot
     root.cleanupFunctions.add(() => {
       component.reactorRoot = undefined
     })

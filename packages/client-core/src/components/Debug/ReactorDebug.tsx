@@ -78,6 +78,16 @@ const execute = () => {
   }
 }
 
+const labelRenderer = (data: Record<string | number, any>) => {
+  return (keyPath: (string | number)[], ...args) => {
+    const key = keyPath[0]
+    if (keyPath.length === 2) {
+      return data[key].name
+    }
+    return key
+  }
+}
+
 const ReactorFrequencySystem = defineSystem({
   uuid: 'ir.client.debug.ReactorFrequencySystem',
   insert: { after: PresentationSystemGroup },
@@ -131,8 +141,9 @@ export function ReactorDebug() {
     )
     .map(([key, val]) => {
       return [
-        val.name,
+        key,
         {
+          name: val.name,
           uuid: key,
           renderCount: val.count,
           renderTime: val.time,
@@ -157,6 +168,7 @@ export function ReactorDebug() {
       </div>
       <JSONTree
         data={state}
+        labelRenderer={labelRenderer(state)}
         shouldExpandNodeInitially={shouldExpandNodeInitially}
         sortObjectKeys={(a: string, b: string) => {
           const valA = state[a as keyof typeof state] as

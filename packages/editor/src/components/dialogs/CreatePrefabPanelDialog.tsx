@@ -188,7 +188,7 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
       }, [gltfComponent])
 
       return null
-    })
+    }, `CreatePrefabPanel - ${entityUUID}`)
   }
 
   const onExportPrefab = async () => {

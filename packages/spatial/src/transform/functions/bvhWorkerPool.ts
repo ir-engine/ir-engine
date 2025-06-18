@@ -46,7 +46,6 @@ const createWorker = () => {
   } else {
     const path = require('path')
     const workerPath = path.resolve(__dirname, './generateBVHAsync.register.js')
-    console.log({ workerPath })
     return new Worker(workerPath, { type: 'module' })
   }
 }
@@ -86,8 +85,11 @@ export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options =
       groups: geometry.groups ? [...geometry.groups] : undefined,
       options
     },
-    transferrables.map((arr: any) => arr.buffer)
+    transferrables.map((arr: any) => arr.buffer),
+    signal
   )
+
+  if (signal.aborted) return
 
   const { error, serialized, groups } = response.data
 
