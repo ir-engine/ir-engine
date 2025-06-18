@@ -95,7 +95,7 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
         lightPosition: new Vector3(),
         lightSize: 1,
         filterMode: LinearFilter,
-        directLightEnabled: true,
+        directLightEnabled: false,
         indirectLightEnabled: true,
         ambientLightEnabled: true,
         ambientDistance: 1
@@ -107,7 +107,9 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
       renderTarget: renderTexture,
       raycastMesh,
       orthographicCamera,
-      raycastMaterial
+      raycastMaterial,
+      totalSamples: 1000,
+      currentSamples: 0
     })
   }
 

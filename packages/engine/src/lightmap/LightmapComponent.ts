@@ -23,8 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useHookstate } from '@hookstate/core'
 import {
   defineComponent,
+  Entity,
   EntityUUID,
   getAncestorWithComponents,
   getChildrenWithComponents,
@@ -37,6 +39,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { useEffect } from 'react'
+import { useTexture } from '../assets/functions/resourceLoaderHooks'
 import { AssetState } from '../gltf/GLTFState'
 
 declare module 'xatlas-three' {
@@ -50,11 +53,14 @@ export const LightmapComponent = defineComponent({
   jsonID: 'IR_lightmap',
 
   schema: S.Object({
-    atlasSrc: S.String({ default: '' })
+    atlasSrc: S.String({ default: '' }),
+    lightmapSrc: S.String({ default: '' })
   }),
 
   reactor: ({ entity }) => {
     const lightmapComponent = useComponent(entity, LightmapComponent)
+    const [lightmapTexture] = useTexture(lightmapComponent.lightmapSrc.value, entity)
+    const atlasedEntities = useHookstate([] as Entity[])
 
     useEffect(() => {
       if (!lightmapComponent.atlasSrc.value) return
@@ -78,10 +84,18 @@ export const LightmapComponent = defineComponent({
           )
           correspondingMeshComponent.geometry.setAttribute('uv', atlasedMeshComponent.geometry.getAttribute('uv'))
           correspondingMeshComponent.geometry.index = atlasedMeshComponent.geometry.index
+
+          // keep track of atlased entities for atlas texture application and cleanup
+          atlasedEntities.merge([correspondingEntity])
         }
         removeEntityNodeRecursively(atlasEntity)
       })
-    }, [])
+    }, [lightmapTexture])
+
+    // useEffect(() => {
+    //   if (!lightmapTexture) return
+
+    // }, [lightmapTexture, atlasedEntities])
 
     return null
   }

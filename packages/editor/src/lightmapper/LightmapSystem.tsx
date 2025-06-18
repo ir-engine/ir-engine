@@ -27,103 +27,71 @@ import {
   defineSystem,
   Entity,
   getComponent,
-  Layers,
+  LayerFunctions,
   PresentationSystemGroup,
-  removeComponent,
-  useChildrenWithComponents,
-  useComponent
+  removeComponent
 } from '@ir-engine/ecs'
-import { defineQuery, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
-import { LightmapComponent } from '@ir-engine/engine/src/lightmap/LightmapComponent'
+import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { getState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
-import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import React, { useEffect } from 'react'
+import {
+  MaterialInstanceComponent,
+  MaterialStateComponent,
+  SerializedTexture
+} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { MeshStandardMaterial } from 'three'
 import { commitProperty } from '../components/properties/Util'
 import { LightmapBakeComponent } from './LightmapBakeComponent'
 import { Lightmapper } from './LightmapperFunctions'
 
-const MaterialReactor = (props: { lightmapEntity: Entity; entity: Entity }) => {
-  const { lightmapEntity, entity } = props
-  const materialState = useComponent(entity, MaterialStateComponent)
-  const lightmapComponent = useComponent(lightmapEntity, LightmapComponent)
-
-  const material = materialState.material.value as MeshStandardMaterial
-
-  // const lightmapRenderTarget = useHookstate(
-  //   new WebGLRenderTarget(lightmapComponent.resolution, lightmapComponent.resolution)
-  // )
-
-  useEffect(() => {
-    // Lightmapper.initialize(new WebGLRenderer(), )
-  }, [])
-
-  useEffect(() => {
-    // material.map = lightmapRenderTarget.get(NO_PROXY).texture
-    // material.color = new Color(1,0,0)
-    // material.needsUpdate = true
-  }, [material])
-
-  useEffect(() => {
-    if (!material) return
-
-    //debug only
-    // commitProperty(MaterialStateComponent, 'parameters.map.source' as any, [entity])(
-    //   config.client.fileServer + '/projects/ir-engine/default-project/assets/UV.png'
-    // )
-    commitProperty(MaterialStateComponent, 'parameters.map.channel' as any, [entity])(2)
-
-    material.needsUpdate = true
-  }, [material])
-
-  return null
-}
-
-const LightmapReactor = ({ entity }) => {
-  // temporarily hierarchy based, todo use volumes
-  const childMaterials = useChildrenWithComponents(entity, [MaterialStateComponent])
-
-  return (
-    <>
-      {childMaterials.map((materialEntity) => (
-        <MaterialReactor key={materialEntity} entity={materialEntity} lightmapEntity={entity} />
-      ))}
-    </>
-  )
-}
-
 const lightmapQuery = defineQuery([LightmapBakeComponent])
 
-let i = 0
 const execute = () => {
   for (const entity of lightmapQuery()) {
-    const { renderTarget, raycastMesh, orthographicCamera, raycastMaterial, entities } = getComponent(
-      entity,
-      LightmapBakeComponent
-    )
+    const { renderTarget, raycastMesh, orthographicCamera, raycastMaterial, entities, currentSamples, totalSamples } =
+      getComponent(entity, LightmapBakeComponent)
 
-    if (i < 1000) {
-      i = Lightmapper.sample(
+    if (currentSamples < totalSamples) {
+      getComponent(entity, LightmapBakeComponent).currentSamples = Lightmapper.sample(
         raycastMesh,
         renderTarget,
         raycastMaterial,
         orthographicCamera,
         getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!,
-        i
+        currentSamples
       )
     } else {
+      Lightmapper.uploadLightmapTexture(renderTarget, entity)
+        .then((uploadedUrl) => {
+          if (uploadedUrl) {
+            const materials = [] as Entity[]
+            for (const entity of entities) {
+              const materialEntities = getComponent(entity, MaterialInstanceComponent).entities
+              materials.push(...materialEntities)
+            }
+            for (const materialEntity of materials) {
+              commitProperty(MaterialStateComponent, 'parameters.aoMap' as any, [
+                LayerFunctions.getAuthoringCounterpart(materialEntity)
+              ])({ source: uploadedUrl, channel: 2 } as SerializedTexture)
+              commitProperty(MaterialStateComponent, 'parameters.aoMapIntensity' as any, [
+                LayerFunctions.getAuthoringCounterpart(materialEntity)
+              ])(1)
+            }
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to upload lightmap texture:', error)
+        })
+
       removeComponent(entity, LightmapBakeComponent)
     }
 
-    // debugging
+    // inelegant way to preview the progressive render todo support material arrays
     entities.map((entity) => {
       ;(getComponent(entity, MeshComponent).material as MeshStandardMaterial).aoMap = renderTarget.texture
-
-      /**@ts-ignore */
-      ;(getComponent(entity, MeshComponent).material as MeshStandardMaterial).aoMap.channel = 2
+      ;(getComponent(entity, MeshComponent).material as MeshStandardMaterial).aoMap!.channel = 2
     })
   }
 }
@@ -131,8 +99,5 @@ const execute = () => {
 export const LightmapSystem = defineSystem({
   uuid: 'ee.engine.LightmapSystem',
   insert: { with: PresentationSystemGroup },
-  execute,
-  reactor: () => (
-    <QueryReactor Components={[LightmapComponent]} ChildEntityReactor={LightmapReactor} layer={Layers.Authoring} />
-  )
+  execute
 })

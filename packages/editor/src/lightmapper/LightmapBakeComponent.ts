@@ -35,6 +35,8 @@ export const LightmapBakeComponent = defineComponent({
     renderTarget: S.Type<WebGLRenderTarget>({ serialized: false }),
     raycastMesh: S.Type<Mesh>({ serialized: false }),
     orthographicCamera: S.Type<OrthographicCamera>({ serialized: false }),
-    raycastMaterial: S.Type<LightmapperMaterial>({ serialized: false })
+    raycastMaterial: S.Type<LightmapperMaterial>({ serialized: false }),
+    totalSamples: S.Number({ default: 1000 }),
+    currentSamples: S.Number({ default: 0 })
   })
 })

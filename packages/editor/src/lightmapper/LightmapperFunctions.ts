@@ -23,20 +23,20 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createEntity, Entity, EntityTreeComponent, getComponent, setComponent } from '@ir-engine/ecs'
+import { Entity, getComponent } from '@ir-engine/ecs'
+import { convertImageDataToKTX2Blob } from '@ir-engine/engine/src/scene/classes/ImageUtils'
 import { mergeGeometries } from '@ir-engine/engine/src/scene/util/meshUtils'
 import { getState } from '@ir-engine/hyperflux'
-import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import {
   FloatType,
   LinearFilter,
   LinearMipMapLinearFilter,
   Matrix4,
   Mesh,
-  MeshStandardMaterial,
   OrthographicCamera,
   PlaneGeometry,
   ShaderMaterial,
@@ -47,6 +47,8 @@ import {
   WebGLRenderTarget
 } from 'three'
 import { MeshBVH } from 'three-mesh-bvh'
+import { uploadProjectFiles } from '../functions/assetFunctions'
+import { EditorState } from '../services/EditorServices'
 import { LightmapperMaterial } from './LightmapperMaterial'
 
 export type RaycastOptions = {
@@ -62,6 +64,10 @@ export type RaycastOptions = {
   ambientDistance: number
 }
 
+/**
+ * Initialize the lightmapper, creates and sets up a render target plane to render the lightmap shader to
+ * This is run to set up the render target and material for sampling
+ */
 const initializeLightmapper = (
   renderer: WebGLRenderer,
   positions: Texture,
@@ -73,7 +79,8 @@ const initializeLightmapper = (
     type: FloatType,
     minFilter: LinearMipMapLinearFilter,
     magFilter: LinearFilter,
-    generateMipmaps: true
+    generateMipmaps: true,
+    colorSpace: 'srgb'
   })
   renderer.setRenderTarget(renderTexture)
   renderer.setClearColor(0xff0000, 0)
@@ -104,6 +111,9 @@ const initializeLightmapper = (
   return [renderTexture, raycastMesh, orthographicCamera, raycastMaterial]
 }
 
+/**
+ * Render the lightmap shader
+ */
 const sampleLightmap = (
   raycastMesh: Mesh,
   renderTexture: WebGLRenderTarget,
@@ -123,6 +133,9 @@ const sampleLightmap = (
   return totalSamples
 }
 
+/**
+ * Creates a merged mesh BVH from the entities provided
+ */
 const getBakeBVH = (entities: Entity[]) => {
   const meshComponents = entities.map((entity) => getComponent(entity, MeshComponent))
   const geometries = meshComponents.map((meshComponent) => meshComponent.geometry.clone())
@@ -131,21 +144,62 @@ const getBakeBVH = (entities: Entity[]) => {
   }
   const merged = mergeGeometries(geometries)!
 
-  //debug visualize merged geometry
-  const mergedEntity = createEntity()
-  setComponent(mergedEntity, NameComponent, 'merged')
-  setComponent(mergedEntity, TransformComponent)
-  setComponent(mergedEntity, MeshComponent, new Mesh(merged, new MeshStandardMaterial({ color: 0xff0000 })))
-  setComponent(mergedEntity, VisibleComponent)
-  setComponent(mergedEntity, EntityTreeComponent, {
-    parentEntity: getComponent(getState(ReferenceSpaceState).originEntity, EntityTreeComponent).parentEntity
-  })
-
   return new MeshBVH(merged)
+}
+
+/**
+ * Convert the lightmapper render target texture to ImageData and upload it to the project files
+ */
+const uploadLightmapTexture = async (renderTarget: WebGLRenderTarget, entity: Entity): Promise<string | null> => {
+  const editorState = getState(EditorState)!
+  const projectName = editorState.projectName!
+  const sceneName = editorState.sceneName!
+
+  if (!projectName || !sceneName) {
+    console.warn('Project name or scene name not available for lightmap upload')
+    return null
+  }
+
+  const renderer = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!
+
+  const floatPixels = new Float32Array(4 * renderTarget.width * renderTarget.height)
+  renderer.readRenderTargetPixels(renderTarget, 0, 0, renderTarget.width, renderTarget.height, floatPixels)
+
+  const uint8Pixels = new Uint8ClampedArray(floatPixels.length)
+  for (let i = 0; i < floatPixels.length; i++) {
+    const linearValue = Math.max(0, Math.min(1, floatPixels[i]))
+    // sRGB gamma correction
+    const srgbValue = linearValue <= 0.0031308 ? linearValue * 12.92 : 1.055 * Math.pow(linearValue, 1.0 / 2.4) - 0.055
+    uint8Pixels[i] = Math.floor(srgbValue * 255)
+  }
+
+  const imageData = new ImageData(uint8Pixels, renderTarget.width, renderTarget.height)
+
+  const blob = await convertImageDataToKTX2Blob(imageData)
+  if (!blob) {
+    console.error('Failed to convert image data to KTX2 blob')
+    return null
+  }
+
+  const filename = `${getComponent(entity, NameComponent)}.ktx2`
+  const file = new File([blob], filename, { type: 'image/ktx2' })
+
+  const lightmapPath = `public/scenes/lightmap/${sceneName.substring(0, sceneName.lastIndexOf('.'))}`
+
+  const uploadResult = uploadProjectFiles(
+    projectName,
+    [file],
+    [lightmapPath],
+    [{ contentType: 'image/ktx2', type: 'asset' }]
+  )
+
+  const urls = await Promise.all(uploadResult.promises)
+  return urls[0]?.[0] || null
 }
 
 export const Lightmapper = {
   initialize: initializeLightmapper,
   sample: sampleLightmap,
-  getBakeBVH
+  getBakeBVH,
+  uploadLightmapTexture
 }
