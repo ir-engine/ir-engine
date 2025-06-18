@@ -128,6 +128,7 @@ export const projectQuerySchema = Type.Intersect(
         destinationURL: Type.Optional(Type.String()),
         existingProject: Type.Optional(Type.Boolean()),
         inputProjectURL: Type.Optional(Type.String()),
+        returnJob: Type.Optional(Type.Boolean()),
         selectedSHA: Type.Optional(Type.String()),
         allowed: Type.Optional(Type.Boolean()),
         reset: Type.Optional(Type.Boolean()),

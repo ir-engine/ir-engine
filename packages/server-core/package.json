@@ -1,7 +1,7 @@
 {
   "name": "@ir-engine/server-core",
   "description": "Shared components for Infinite Reality Engine server",
-  "version": "1.6.0",
+  "version": "1.0.3",
   "repository": {
     "type": "git",
     "url": "git://github.com/ir-engine/ir-engine.git"
@@ -64,9 +64,9 @@
     "@google-cloud/compute": "^4.11.0",
     "@google-cloud/networkservices": "^0.7.0",
     "@google-cloud/storage": "^7.15.0",
-    "@ir-engine/common": "^1.6.0",
-    "@ir-engine/engine": "^1.6.0",
-    "@ir-engine/matchmaking": "^1.6.0",
+    "@ir-engine/common": "^1.0.3",
+    "@ir-engine/engine": "^1.0.3",
+    "@ir-engine/matchmaking": "^1.0.3",
     "@koa/multer": "^3.0.2",
     "@kubernetes/client-node": "1.0.0",
     "@octokit/rest": "^19.0.11",

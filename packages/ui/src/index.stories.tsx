@@ -40,7 +40,7 @@ export const Default: StoryObj = {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-transparent">
         <div className="max-[30ch] rounded-md bg-white/60 p-4">
-          Toggle the IR Engine and Location butons in the toolbar to change the scene
+          Toggle the Napster Engine and Location butons in the toolbar to change the scene
         </div>
       </div>
     )

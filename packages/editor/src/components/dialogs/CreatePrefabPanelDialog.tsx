@@ -49,7 +49,7 @@ import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
 import { getMutableState, getState, NO_PROXY, none, startReactor, useHookstate } from '@ir-engine/hyperflux'
-import { DirectionalLightComponent, HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
+import { HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
@@ -62,6 +62,7 @@ import { HiOutlineXMark } from 'react-icons/hi2'
 import { Quaternion, Scene, Vector3 } from 'three'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
+import { AssetsRefreshState } from '../../panels/assets/hooks'
 import { EditorState } from '../../services/EditorServices'
 import { ImportSettingsState } from '../../services/ImportSettingsState'
 import { SelectionState } from '../../services/SelectionServices'
@@ -90,15 +91,11 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
     isOverwriteModalVisible.set(false)
     isOverwriteConfirmed.set(false)
     ModalState.openModal(<PrefabConfirmationPanelDialog />)
+    AssetsRefreshState.triggerRefresh()
   }
 
   const exportLookDevPrefab = async (srcProject: string, fileName: string) => {
-    const lookDevComponent: Component[] = [
-      SkyboxComponent,
-      HemisphereLightComponent,
-      DirectionalLightComponent,
-      PostProcessingComponent
-    ]
+    const lookDevComponent: Component[] = [SkyboxComponent, HemisphereLightComponent, PostProcessingComponent]
 
     const prefabEntity = createEntity()
     const sceneObject = new Scene()

@@ -776,6 +776,14 @@
         "start": "Start",
         "remove": "Remove"
       },
+      "rotation": {
+        "axisAngle": "Axis Angle",
+        "euler": "Euler",
+        "randomQuaternion": "Random Quaternion",
+        "axis": "Axis",
+        "angle": "Angle",
+        "anglePosition": "Angle {{position}}"
+      },
       "emission-over-time": "Emission Over Time",
       "render-mode": "Render Mode",
       "render-mode-type": {
@@ -1691,7 +1699,7 @@
       "optionButtons": {
         "defaultEditor": {
           "title": "Blank Scene",
-          "description": "Use the advanced iR Spaces Editor to create your Space from the ground up. Recommended for experienced 3D creators.",
+          "description": "Use the advanced Worlds Editor to create your Space from the ground up. Recommended for experienced 3D creators.",
           "submitButtonText": "Continue in Editor"
         }
       }

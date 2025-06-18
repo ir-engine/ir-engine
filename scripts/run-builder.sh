@@ -73,7 +73,7 @@ validate_required_vars() {
 
 wait_for_builds_finished() {
   sleep $BUILD_WAIT_INTERVAL
-  
+
   # Get pod information for all services
   API_SLICE=($(kubectl get pods | grep ir-engine-kaniko-api || echo "NOT_FOUND - - -"))
   API_STATUS=${API_SLICE[2]:-"NOT_FOUND"}
@@ -149,7 +149,7 @@ wait_for_builds_finished() {
         cp instanceserver-build-logs.txt instanceserver-build-error.txt
       fi
     fi
-    
+
     return 0
   else
     wait_for_builds_finished

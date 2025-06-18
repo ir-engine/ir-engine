@@ -44,7 +44,12 @@ import path from 'path'
 import semver from 'semver'
 import { promisify } from 'util'
 
-import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX } from '@ir-engine/common/src/regex'
+import {
+  BUILDER_CHART_REGEX,
+  INSTALLATION_SIGNED_REGEX,
+  NPM_GIT_REFERENCE,
+  PUBLIC_SIGNED_REGEX
+} from '@ir-engine/common/src/regex'
 import { AssetType, FileToAssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
 
 import { ManifestJson } from '@ir-engine/common/src/interfaces/ManifestJson'
@@ -74,7 +79,6 @@ import { ProjectConfigInterface, ProjectEventHooks } from '@ir-engine/projects/P
 
 import { google } from '@google-cloud/artifact-registry/build/protos/protos'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
-import { BUILDER_CHART_REGEX } from '@ir-engine/common/src/regex'
 import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { retry } from '@octokit/plugin-retry'
 import { Application } from '../../../declarations'
@@ -94,6 +98,25 @@ import { useGit } from '../../util/gitHelperFunctions'
 import { getAuthenticatedRepo, getOctokitForChecking, getUserRepos } from './github-helper'
 import { ProjectParams } from './project.class'
 import IDockerImage = google.devtools.artifactregistry.v1.IDockerImage
+
+// Types for dependency resolution
+type DependencySpec =
+  | string
+  | {
+      name: string
+      repository?: string
+      commit?: string
+      tag?: string
+      branch?: string
+    }
+
+type ResolvedDependency = {
+  name: string
+  ref: string
+  refType: 'branch' | 'commit' | 'tag'
+  repository: string
+  manifest?: ManifestJson
+}
 
 export const dockerHubRegex = /^[\w\d\s\-_]+\/[\w\d\s\-_]+:([\w\d\s\-_.]+)$/
 export const publicECRRepoRegex = /^public.ecr.aws\/[a-zA-Z0-9]+\/([a-z0-9\-_\\]+)$/
@@ -351,8 +374,13 @@ export const getProjectManifestFromRemote = async (
       Buffer.from((blobResponse.data as { content: string }).content, 'base64').toString()
     ) as ManifestJson
   } catch (err) {
-    logger.error("Error getting commit's package.json %s/%s %s", owner, repo, err.toString())
-    return Promise.reject(err)
+    logger.error("Error getting commit's manifest.json %s/%s %s", owner, repo, err.toString())
+    return {
+      name: `${owner}/${repo}`,
+      version: '1.0.0',
+      engineVersion: '1.0.0',
+      repoEmpty: true
+    }
   }
 }
 
@@ -423,7 +451,14 @@ export const checkUnfetchedSourceCommit = async (app: Application, sourceURL: st
     } as ProjectCheckUnfetchedCommitType
   } catch (err) {
     logger.error("Error getting commit's manifest.json %s/%s %s", owner, repo, err.toString())
-    return Promise.reject(err)
+    return {
+      error: 'Manifest Fetch failed',
+      text: err.toString(),
+      commitSHA: '',
+      name: `${owner}/${repo}`,
+      version: '1.0.0',
+      engineVersion: '1.0.0'
+    }
   }
 }
 
@@ -601,8 +636,12 @@ export const checkDestination = async (app: Application, url: string, params?: P
       logger.error('destination package fetch error %o', err)
       if (err.status !== 404) throw err
     }
-    if (destinationManifest) returned.projectName = destinationManifest.name
-    else returned.repoEmpty = true
+    if (destinationManifest) {
+      if (destinationManifest.repoEmpty) {
+        delete destinationManifest.repoEmpty
+        returned.repoEmpty = true
+      } else returned.projectName = destinationManifest.name
+    } else returned.repoEmpty = true
 
     if (inputProjectURL?.length > 0) {
       const projectOctokitResponse = await getOctokitForChecking(app, inputProjectURL, params!)
@@ -1009,7 +1048,8 @@ export async function getProjectUpdateJobBody(
   app: Application,
   jobId: string,
   userId?: string,
-  token?: string
+  token?: string,
+  isDependency = false
 ): Promise<V1Job> {
   const command = [
     'npx',
@@ -1025,7 +1065,9 @@ export async function getProjectUpdateJobBody(
     '--sourceBranch',
     data.sourceBranch,
     '--jobId',
-    jobId
+    jobId,
+    '--isDependency',
+    isDependency.toString()
   ]
   if (data.updateType) {
     command.push('--updateType')
@@ -1324,6 +1366,222 @@ export const copyDefaultProject = () => {
   )
 }
 
+/**
+ * Fetches a manifest.json file from a remote GitHub repository
+ */
+const fetchRemoteManifest = async (
+  app: Application,
+  repository: string,
+  ref: string,
+  refType: 'branch' | 'commit' | 'tag',
+  params?: ProjectParams
+): Promise<ManifestJson> => {
+  const url = repository.replace('.git', '')
+  const { owner, repo, octoKit } = await getOctokitForChecking(app, url, params!)
+
+  try {
+    let sha: string | undefined
+
+    if (refType === 'commit') {
+      sha = ref
+    } else if (refType === 'tag') {
+      const tagResponse = await octoKit.rest.git.getRef({
+        owner,
+        repo,
+        ref: `tags/${ref}`
+      })
+      sha = tagResponse.data.object.sha
+    } else {
+      // branch
+      const branchResponse = await octoKit.rest.repos.getBranch({
+        owner,
+        repo,
+        branch: ref
+      })
+      sha = branchResponse.data.commit.sha
+    }
+
+    if (!owner) throw new Error('Missing owner')
+    if (!repo) throw new Error('Missing repo')
+    return await getProjectManifestFromRemote(octoKit, owner, repo, sha)
+  } catch (err) {
+    logger.error(`Error fetching manifest from ${repository} at ${refType} ${ref}:`, err)
+    throw new Error(err)
+  }
+}
+
+/**
+ * Normalizes a dependency specification into a resolved dependency
+ */
+const normalizeDependency = (dep: DependencySpec): Omit<ResolvedDependency, 'manifest'> => {
+  if (typeof dep === 'string') {
+    if (NPM_GIT_REFERENCE.test(dep)) {
+      const url = dep.split('+')[1].replace('.git', '')
+      return {
+        name: url.replace('https://github.com/', ''),
+        repository: url,
+        ref: 'main',
+        refType: 'branch'
+      }
+    }
+    return {
+      name: dep,
+      repository: `https://github.com/${dep}`,
+      ref: 'main',
+      refType: 'branch'
+    }
+  }
+
+  let { name, commit, tag, branch } = dep
+  let repository: string
+  let ref: string
+  let refType: 'branch' | 'commit' | 'tag'
+
+  if (NPM_GIT_REFERENCE.test(name)) {
+    repository = name.split('+')[1].replace('.git', '')
+    name = repository.replace('https://github.com/', '')
+  } else repository = `https://github.com/${dep.name}`
+
+  // Determine ref and refType based on priority: tag > commit > branch
+  if (tag) {
+    ref = tag
+    refType = 'tag'
+  } else if (commit) {
+    ref = commit
+    refType = 'commit'
+  } else {
+    ref = branch || 'main'
+    refType = 'branch'
+  }
+
+  return {
+    name,
+    repository,
+    ref,
+    refType
+  }
+}
+
+/**
+ * Resolves all dependencies recursively and checks for conflicts
+ */
+/**
+ * Resolves a branch reference to its HEAD commit SHA
+ */
+const resolveBranchToCommit = async (
+  app: Application,
+  repository: string,
+  branch: string,
+  params?: ProjectParams
+): Promise<string> => {
+  const url = repository.replace('.git', '')
+  const { owner, repo, octoKit } = await getOctokitForChecking(app, url, params!)
+
+  try {
+    const branchResponse = await octoKit.rest.repos.getBranch({
+      owner,
+      repo,
+      branch
+    })
+    return branchResponse.data.commit.sha
+  } catch (err) {
+    logger.error(`Error resolving branch ${branch} to commit for ${repository}:`, err)
+    throw new Error(`Failed to resolve branch ${branch} for ${repository}: ${err.message}`)
+  }
+}
+
+const resolveDependencies = async (
+  app: Application,
+  initialManifest: ManifestJson,
+  params?: ProjectParams
+): Promise<{ dependencies: ResolvedDependency[]; conflicts: string[] }> => {
+  const resolvedDeps = new Map<string, ResolvedDependency>()
+  const conflicts: string[] = []
+  const visited = new Set<string>()
+
+  const processDependencies = async (manifest: ManifestJson, projectName: string) => {
+    if (visited.has(projectName)) return
+    visited.add(projectName)
+
+    if (!manifest.dependencies) return
+
+    for (const dep of manifest.dependencies) {
+      const normalized = normalizeDependency(dep)
+      const existing = resolvedDeps.get(normalized.name)
+
+      if (existing) {
+        // Resolve both dependencies to commit SHAs for accurate conflict detection
+        let existingCommitSha = existing.ref
+        let normalizedCommitSha = normalized.ref
+
+        // If existing dependency is a branch, resolve to commit SHA
+        if (existing.refType === 'branch') {
+          try {
+            existingCommitSha = await resolveBranchToCommit(app, existing.repository, existing.ref, params)
+          } catch (err) {
+            logger.warn(`Could not resolve existing branch ${existing.ref} to commit for conflict detection:`, err)
+          }
+        }
+
+        // If new dependency is a branch, resolve to commit SHA
+        if (normalized.refType === 'branch') {
+          try {
+            normalizedCommitSha = await resolveBranchToCommit(app, normalized.repository, normalized.ref, params)
+          } catch (err) {
+            logger.warn(`Could not resolve new branch ${normalized.ref} to commit for conflict detection:`, err)
+          }
+        }
+
+        // Check for conflicts using resolved commit SHAs
+        if (existingCommitSha !== normalizedCommitSha) {
+          const existingDesc =
+            existing.refType === 'branch'
+              ? `${existing.refType} ${existing.ref} (${existingCommitSha})`
+              : `${existing.refType} ${existing.ref}`
+          const normalizedDesc =
+            normalized.refType === 'branch'
+              ? `${normalized.refType} ${normalized.ref} (${normalizedCommitSha})`
+              : `${normalized.refType} ${normalized.ref}`
+
+          conflicts.push(`Conflict for ${normalized.name}: ${existingDesc} vs ${normalizedDesc}`)
+        }
+        continue
+      }
+
+      try {
+        // Fetch the dependency's manifest
+        const depManifest = await fetchRemoteManifest(
+          app,
+          normalized.repository,
+          normalized.ref,
+          normalized.refType,
+          params
+        )
+
+        const resolvedDep: ResolvedDependency = {
+          ...normalized,
+          manifest: depManifest
+        }
+
+        resolvedDeps.set(normalized.name, resolvedDep)
+
+        // Recursively process this dependency's dependencies
+        await processDependencies(depManifest, normalized.name)
+      } catch (err) {
+        logger.error(`Failed to resolve dependency ${normalized.name}:`, err)
+        throw err
+      }
+    }
+  }
+
+  await processDependencies(initialManifest, initialManifest.name)
+
+  return {
+    dependencies: Array.from(resolvedDeps.values()),
+    conflicts
+  }
+}
+
 export const getGitProjectData = (project) => {
   const response = {
     repositoryPath: '',
@@ -1496,6 +1754,126 @@ export const updateProject = async (
     }
     logger.error(err)
     throw err
+  }
+
+  // Handle project dependencies
+  let dependencyUpdatePromises: Promise<any>[] = []
+
+  if (!params?.isDependency)
+    try {
+      const manifest = getProjectManifest(projectName)
+
+      if (manifest.dependencies && manifest.dependencies.length > 0) {
+        logger.info(`Resolving dependencies for project ${projectName}`)
+
+        const { dependencies, conflicts } = await resolveDependencies(app, manifest, params)
+
+        if (conflicts.length > 0) {
+          const conflictMessage = `Dependency conflicts detected:\n${conflicts.join('\n')}`
+          logger.error(conflictMessage)
+
+          if (params?.jobId) {
+            const date = await getDateTimeSql()
+            await app.service(apiJobPath).patch(params.jobId as string, {
+              status: 'failed',
+              returnData: conflictMessage,
+              endTime: date
+            })
+          }
+
+          throw new Error(conflictMessage)
+        }
+
+        if (dependencies.length > 0) {
+          logger.info(
+            `Found ${dependencies.length} dependencies to install: ${dependencies.map((d) => d.name).join(', ')}`
+          )
+
+          // Create update promises for all dependencies
+          dependencyUpdatePromises = dependencies.map(async (dep) => {
+            const depExists = await app.service(projectPath).find({
+              query: {
+                action: 'admin',
+                name: dep.name,
+                $limit: 1
+              }
+            })
+            if (depExists.total > 0) {
+              const project = depExists.data[0]
+              let commitSHA = dep.ref
+              if (dep.refType === 'branch')
+                commitSHA = await resolveBranchToCommit(app, dep.repository, dep.ref, params)
+              if (project.commitSHA === commitSHA) {
+                logger.info(`Dependency ${dep.name} is already up to date, skipping`)
+                return Promise.resolve()
+              }
+            }
+
+            const depParams = {
+              ...params,
+              isJob: false, // Ensure this doesn't create a job
+              isDependency: true
+            }
+
+            const depData = {
+              sourceURL: `https://github.com/${dep.name}`,
+              destinationURL: `https://github.com/${dep.name}`,
+              name: dep.name, // Extract project name from namespace/project
+              needsRebuild: true,
+              reset: true,
+              updateType: 'none' as ProjectType['updateType'],
+              updateSchedule: '',
+              sourceBranch: dep.refType === 'branch' ? dep.ref : 'main',
+              ...(dep.refType === 'commit' && { commitSHA: dep.ref })
+            }
+
+            logger.info(`Starting dependency update for ${dep.name} (${dep.refType}: ${dep.ref})`)
+
+            try {
+              return await app.service(projectPath).update('', depData, depParams)
+            } catch (error) {
+              logger.error(`Failed to update dependency ${dep.name}:`, error)
+              throw new Error(`Failed to update dependency ${dep.name}: ${error.message}`)
+            }
+          })
+        }
+      }
+    } catch (error) {
+      logger.error('Error processing dependencies:', error)
+
+      if (params?.jobId) {
+        const date = await getDateTimeSql()
+        await app.service(apiJobPath).patch(params.jobId as string, {
+          status: 'failed',
+          returnData: error.message,
+          endTime: date
+        })
+      }
+
+      throw error
+    }
+
+  // Wait for all dependency updates to complete before finishing
+  if (dependencyUpdatePromises.length > 0) {
+    logger.info(`Waiting for ${dependencyUpdatePromises.length} dependency updates to complete...`)
+
+    try {
+      await Promise.all(dependencyUpdatePromises)
+      logger.info(`All dependency updates completed successfully for project ${projectName}`)
+    } catch (error) {
+      logger.error(`One or more dependency updates failed for project ${projectName}:`, error)
+
+      if (params?.jobId) {
+        const date = await getDateTimeSql()
+        await app.service(apiJobPath).patch(params.jobId as string, {
+          status: 'failed',
+          returnData: `Dependency update failed: ${error.message}`,
+          endTime: date
+        })
+      }
+
+      throw error
+    }
   }
 
   const { assetsOnly } = await uploadLocalProjectToProvider(app, projectName)

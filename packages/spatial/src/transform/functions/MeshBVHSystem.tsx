@@ -49,23 +49,14 @@ import {
   removeEntityNodeRecursively,
   useEntityContext
 } from '@ir-engine/ecs'
-import {
-  getComponent,
-  Layers,
-  setComponent,
-  useComponent,
-  useOptionalComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, Layers, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { getMutableState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import {
-  ObjectLayerComponents,
-  ObjectLayerMaskComponent
-} from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '../components/TransformComponent'
@@ -165,28 +156,21 @@ SkinnedMesh.prototype.raycast = () => {}
 BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree
 BufferGeometry.prototype.computeBoundsTree = computeBoundsTree
 
-const edgeMaterial = new LineBasicMaterial({
-  color: 0x00ff88,
-  transparent: true,
-  opacity: 0.3,
-  depthWrite: false
-})
-
 const MeshBVHReactor = () => {
   const entity = useEntityContext()
   const bvhDebug = useHookstate(getMutableState(RendererState).bvhDebug)
   const mesh = useComponent(entity, MeshComponent).get(NO_PROXY) as Mesh
   const hasMeshBVH = useHookstate(false)
-  const sceneLayer = useOptionalComponent(entity, ObjectLayerComponents[ObjectLayers.Scene])
 
   useEffect(() => {
+    if (!ValidMeshForBVH(mesh)) return
+
     const abortController = new AbortController()
-    if (ValidMeshForBVH(mesh)) {
-      generateMeshBVH(mesh!, abortController.signal).then(() => {
-        if (abortController.signal.aborted) return
-        hasMeshBVH.set(true)
-      })
-    }
+    generateMeshBVH(mesh!, abortController.signal).then(() => {
+      if (abortController.signal.aborted) return
+      hasMeshBVH.set(true)
+    })
+
     return () => {
       hasMeshBVH.set(false)
       abortController.abort()
@@ -194,9 +178,16 @@ const MeshBVHReactor = () => {
   }, [mesh])
 
   useEffect(() => {
-    if (!bvhDebug.value || !hasMeshBVH.value) return // || !sceneLayer) return
+    if (!bvhDebug.value || !hasMeshBVH.value) return
 
     const mesh = getComponent(entity, MeshComponent)
+
+    const edgeMaterial = new LineBasicMaterial({
+      color: 0x00ff88,
+      transparent: true,
+      opacity: 0.3,
+      depthWrite: false
+    })
 
     const meshBVHVisualizer = new MeshBVHHelper(mesh)
     meshBVHVisualizer.edgeMaterial = edgeMaterial
@@ -220,7 +211,7 @@ const MeshBVHReactor = () => {
       meshBVHVisualizer.dispose()
       removeEntityNodeRecursively(helperEntity)
     }
-  }, [bvhDebug.value, hasMeshBVH.value, sceneLayer])
+  }, [bvhDebug.value, hasMeshBVH.value])
 
   return null
 }

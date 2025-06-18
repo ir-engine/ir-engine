@@ -192,7 +192,7 @@ const loadDependencies = {
   [GLTFComponent.jsonID]: [
     {
       key: 'progress',
-      eval: (progress: number) => progress === 100
+      eval: (progress: number, entity: Entity) => progress === 100 || getComponent(entity, GLTFComponent).src === ''
     }
   ],
   [ColliderComponent.jsonID]: [

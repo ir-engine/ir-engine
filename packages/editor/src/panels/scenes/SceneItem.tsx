@@ -26,8 +26,7 @@ import { ModalState } from '@ir-engine/client-core/src/common/services/ModalStat
 import { ThemeState } from '@ir-engine/client-core/src/common/services/ThemeService'
 import { clientContextParams } from '@ir-engine/client-core/src/util/ClientContextState'
 import { cloneScene, deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
-import IRLogoModalDark from '@ir-engine/client/src/assets/iR-logo-Modal-dark.png'
-import IRLogoModalLight from '@ir-engine/client/src/assets/iR-logo-Modal-light.png'
+import NapsterLogoModalDark from '@ir-engine/client/src/assets/napster-logo-modal-dark.png'
 import { API } from '@ir-engine/common'
 import multiLogger from '@ir-engine/common/src/logger'
 import { locationPath, StaticResourceType } from '@ir-engine/common/src/schema.type.module'
@@ -92,7 +91,7 @@ export default function SceneItem({
     ModalState.closeModal()
   }
 
-  const defaultThumbnail = theme?.value === 'dark' ? IRLogoModalLight : IRLogoModalDark
+  const defaultThumbnail = NapsterLogoModalDark
   const sceneItemMoreOptions = useMutableState(UIAddonsState).editor.sceneItemMoreOptions.get(NO_PROXY)
 
   const actionProps = [
