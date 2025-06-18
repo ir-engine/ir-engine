@@ -73,6 +73,7 @@ export default function SceneHelpersTool() {
   const isVolumeVisibilityOn = editorHelperState.volumeVisibility.value === VolumeVisibility.On
 
   const onToggleGridVisible = () => {
+    rendererState.nodeHelperVisibility.set(!editorHelperState.gridVisibility.value)
     editorHelperState.gridVisibility.set(!editorHelperState.gridVisibility.value)
   }
 
