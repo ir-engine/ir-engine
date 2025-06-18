@@ -256,6 +256,18 @@ export const FollowCameraComponent = defineComponent({
       follow.raycastProps.rayLength.set(maxDistance)
     }
 
+    const reconcileMode = () => {
+      const mode = follow.mode.value
+      if (!follow.allowedModes.value.includes(follow.mode.value)) {
+        if (follow.allowedModes.length > 0) {
+          follow.mode.set(follow.allowedModes.value[0])
+        } else {
+          follow.mode.set(FollowCameraMode.ThirdPerson)
+        }
+      }
+      return mode !== follow.mode.value
+    }
+
     useImmediateEffect(() => {
       const cameraSettings = cameraSettingsState.value
 
@@ -290,6 +302,7 @@ export const FollowCameraComponent = defineComponent({
       }
       follow.allowedModes.set(allowedModes)
 
+      reconcileMode()
       setupMode[follow.mode.value]()
       initialCameraPlacement(entity)
     }, [cameraSettingsState])
@@ -347,24 +360,11 @@ export const FollowCameraComponent = defineComponent({
     }, [follow.pointerLock.value, !!rendererComponent?.canvas])
 
     useEffect(() => {
-      //follow.lerpValue.set(0)
-      //const followCamera = getComponent(entity, FollowCameraComponent)
-      //const followTransform = getComponent(entity, TransformComponent)
-      //followCamera.originalPosition.copy(followTransform.position)
-      //followCamera.originalRotation.copy(followTransform.rotation)
-      //followCamera.originalOffset?.copy(Vector3_Zero)
-      //follow.currentTargetPosition.value.copy(followCamera.originalPosition)
-      //follow.currentOffset.value.copy(Vector3_Zero)
-      //initialCameraPlacement(entity)
+      follow.lerpValue.set(0)
     }, [follow.targetEntity])
 
     useEffect(() => {
-      if (!follow.allowedModes.value.includes(follow.mode.value)) {
-        if (follow.allowedModes.length > 0) {
-          follow.mode.set(follow.allowedModes.value[0])
-        } else {
-          follow.mode.set(FollowCameraMode.ThirdPerson)
-        }
+      if (reconcileMode()) {
         setupMode[follow.mode.value]()
         initialCameraPlacement(entity)
       }
@@ -384,6 +384,9 @@ const _targetPosition = new Vector3()
 const initialCameraPlacement = (entity: Entity) => {
   const followCamera = getComponent(entity, FollowCameraComponent)
   const followTransform = getComponent(entity, TransformComponent)
+
+  followCamera.phi = followCamera.defaultPhi
+  followCamera.theta = followCamera.defaultTheta
 
   const thetaRad = MathUtils.degToRad(followCamera.theta)
   const phiRad = MathUtils.degToRad(followCamera.phi)
