@@ -278,7 +278,7 @@ export const FollowCameraComponent = defineComponent({
       }
       follow.raycastProps.cameraRays.set(cameraRays)
 
-      let allowedModes: FollowCameraMode[] = []
+      const allowedModes: FollowCameraMode[] = []
       if (cameraSettings.canCameraFirstPerson) {
         allowedModes.push(FollowCameraMode.FirstPerson)
       }
@@ -291,6 +291,7 @@ export const FollowCameraComponent = defineComponent({
       follow.allowedModes.set(allowedModes)
 
       setupMode[follow.mode.value]()
+      initialCameraPlacement(entity)
     }, [cameraSettingsState])
 
     useEffect(() => {
@@ -346,14 +347,15 @@ export const FollowCameraComponent = defineComponent({
     }, [follow.pointerLock.value, !!rendererComponent?.canvas])
 
     useEffect(() => {
-      follow.lerpValue.set(0)
-      const followCamera = getComponent(entity, FollowCameraComponent)
-      const followTransform = getComponent(entity, TransformComponent)
-      followCamera.originalPosition.copy(followTransform.position)
-      followCamera.originalRotation.copy(followTransform.rotation)
-      followCamera.originalOffset?.copy(Vector3_Zero)
-      follow.currentTargetPosition.value.copy(followCamera.originalPosition)
-      follow.currentOffset.value.copy(Vector3_Zero)
+      //follow.lerpValue.set(0)
+      //const followCamera = getComponent(entity, FollowCameraComponent)
+      //const followTransform = getComponent(entity, TransformComponent)
+      //followCamera.originalPosition.copy(followTransform.position)
+      //followCamera.originalRotation.copy(followTransform.rotation)
+      //followCamera.originalOffset?.copy(Vector3_Zero)
+      //follow.currentTargetPosition.value.copy(followCamera.originalPosition)
+      //follow.currentOffset.value.copy(Vector3_Zero)
+      //initialCameraPlacement(entity)
     }, [follow.targetEntity])
 
     useEffect(() => {
@@ -364,6 +366,7 @@ export const FollowCameraComponent = defineComponent({
           follow.mode.set(FollowCameraMode.ThirdPerson)
         }
         setupMode[follow.mode.value]()
+        initialCameraPlacement(entity)
       }
     }, [follow.allowedModes.length, follow.allowedModes.value])
 
@@ -377,6 +380,36 @@ const MODE_SWITCH_DEBOUNCE = 0.03
 const LERP_TIME = 1
 const _targetRotation = new Quaternion()
 const _targetPosition = new Vector3()
+
+const initialCameraPlacement = (entity: Entity) => {
+  const followCamera = getComponent(entity, FollowCameraComponent)
+  const followTransform = getComponent(entity, TransformComponent)
+
+  const thetaRad = MathUtils.degToRad(followCamera.theta)
+  const phiRad = MathUtils.degToRad(followCamera.phi)
+  followCamera.direction.set(
+    Math.sin(thetaRad) * Math.cos(phiRad),
+    Math.sin(phiRad),
+    Math.cos(thetaRad) * Math.cos(phiRad)
+  )
+
+  const newPosition = new Vector3()
+    .copy(followCamera.targetOffset)
+    .applyQuaternion(TransformComponent.getWorldRotation(followCamera.targetEntity, _targetRotation))
+    .add(TransformComponent.getWorldPosition(followCamera.targetEntity, _targetPosition))
+
+  followTransform.position.set(newPosition.x, newPosition.y, newPosition.z)
+  followCamera.lookAtMatrix.lookAt(followCamera.direction, Vector3_Zero, Vector3_Up)
+
+  //slerp using rotationLerp value, this is reset to zero every time the follow target changes
+  followCamera.targetRotation.setFromRotationMatrix(followCamera.lookAtMatrix)
+  followTransform.rotation.copy(followCamera.targetRotation)
+  followCamera.originalRotation.copy(followCamera.targetRotation)
+
+  followCamera.originalPosition.copy(followTransform.position)
+  followCamera.currentTargetPosition.copy(followTransform.position)
+  followCamera.lastCyclePosition.copy(followTransform.position)
+}
 
 const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   const follow = getComponent(cameraEntity, FollowCameraComponent)
@@ -629,8 +662,9 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   //multiplying by lerpVal (always between 0 and 1) so we don't instantly apply followdistance to the camera transform when changing targets, but eventually maintain the full value.
   //multiplying by 3 and clamping to 1 so that the follow distance is achieved faster than the rest of the lerp
   follow.distance =
+    follow.distance +
     Math.min(lerpVal * 3, 1) *
-    smoothDamp(follow.distance, newZoomDistance, follow.zoomVelocity, smoothingSpeed, deltaSeconds)
+      smoothDamp(0, newZoomDistance - follow.distance, follow.zoomVelocity, smoothingSpeed, deltaSeconds)
 
   const thetaRad = MathUtils.degToRad(follow.theta)
   const phiRad = MathUtils.degToRad(follow.phi)
