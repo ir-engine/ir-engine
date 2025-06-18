@@ -141,7 +141,11 @@ export default function SceneHelpersTool() {
           selected={editorHelperState.gridVisibility.value}
         />
       </Tooltip>
-      <Tooltip content={t('editor:toolbar.helpersToggle.info-helpers')} position="bottom">
+      <Tooltip
+        title={t('editor:toolbar.helpersToggle.lbl-colliderHelpers')}
+        content={t('editor:toolbar.helpersToggle.info-helpers')}
+        position="bottom"
+      >
         <ViewportButton
           lean={true}
           onClick={() => rendererState.physicsDebug.set(!rendererState.physicsDebug.value)}
