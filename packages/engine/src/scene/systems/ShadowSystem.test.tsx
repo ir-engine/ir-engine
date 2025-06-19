@@ -84,10 +84,12 @@ import {
   MeshStandardMaterial,
   Quaternion,
   Raycaster,
+  Texture,
   Vector2,
   Vector3
 } from 'three'
 import { getTextureAsync } from '../../assets/functions/resourceLoaderHooks'
+import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
@@ -1643,6 +1645,11 @@ describe('ShadowSystem', async () => {
       createEngine()
       mockSpatialEngine()
       testEntity = createEntity()
+      getMutableState(AssetLoaderState).ktx2Loader.set({
+        load: (url, onLoad) => {
+          onLoad(new Texture())
+        }
+      } as any)
     })
 
     afterEach(() => {
