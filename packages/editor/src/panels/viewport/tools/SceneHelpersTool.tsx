@@ -30,7 +30,7 @@ import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
-import { CubeOutlineLg, Cursor03Lg, Edit01Md, GridDotsMd, RulerUnitsMd, SunMd } from '@ir-engine/ui/src/icons'
+import { CubeOutlineLg, Cursor03Lg, GridDotsMd, RulerUnitsMd, SunMd } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -141,7 +141,11 @@ export default function SceneHelpersTool() {
           selected={editorHelperState.gridVisibility.value}
         />
       </Tooltip>
-      <Tooltip content={t('editor:toolbar.helpersToggle.info-helpers')} position="bottom">
+      <Tooltip
+        title={t('editor:toolbar.helpersToggle.lbl-colliderHelpers')}
+        content={t('editor:toolbar.helpersToggle.info-helpers')}
+        position="bottom"
+      >
         <ViewportButton
           lean={true}
           onClick={() => rendererState.physicsDebug.set(!rendererState.physicsDebug.value)}
@@ -150,9 +154,9 @@ export default function SceneHelpersTool() {
           icon={RulerUnitsMd}
         />
       </Tooltip>
-      <Tooltip content={t('editor:toolbar.helpersToggle.lbl-directManipulation')} position="bottom">
+      {/* <Tooltip content={t('editor:toolbar.helpersToggle.lbl-directManipulation')} position="bottom">
         <ViewportButton lean={true} onClick={() => {}} disabled={true} selected={false} icon={Edit01Md} />
-      </Tooltip>
+      </Tooltip> */}
     </div>
   )
 }
