@@ -235,6 +235,7 @@
       "lbl-helperVolumes": "Helpers Volumes",
       "info-helperVolumes": "Helper geometry that helps components have visibility in the Scene when inactive.",
       "lbl-axisHelpers": "Axis Helpers",
+      "lbl-colliderHelpers": "Collider Helpers",
       "lbl-directManipulation": "Direct Manipulation"
     },
     "sceneScreenshot": {
