@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, getComponent, getSimulationCounterpart, setComponent } from '@ir-engine/ecs'
+import { Entity, getComponent, getOptionalComponent, getSimulationCounterpart, setComponent } from '@ir-engine/ecs'
 import { convertImageDataToKTX2Blob } from '@ir-engine/engine/src/scene/classes/ImageUtils'
 import { mergeGeometries } from '@ir-engine/engine/src/scene/util/meshUtils'
 import { getState } from '@ir-engine/hyperflux'
@@ -32,6 +32,12 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import {
+  MaterialInstanceComponent,
+  MaterialStateComponent
+} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import {
+  BufferAttribute,
+  BufferGeometry,
   FloatType,
   LinearFilter,
   LinearMipMapLinearFilter,
@@ -136,11 +142,132 @@ const sampleLightmap = (
 }
 
 /**
- * Creates a merged mesh BVH from the entities provided
+ * Creates a new BufferGeometry containing only the specified groups from the source geometry
+ * This will be removed once the lightmapper considers material types
  */
+const createGeometryFromGroups = (
+  sourceGeometry: BufferGeometry,
+  groups: Array<{ start: number; count: number; materialIndex?: number }>
+) => {
+  const newGeometry = new BufferGeometry()
+  const index = sourceGeometry.index
+
+  if (!index) {
+    console.warn('createGeometryFromGroups: Source geometry must be indexed')
+    return sourceGeometry.clone()
+  }
+
+  const totalIndices = groups.reduce((sum, group) => sum + group.count, 0)
+
+  const newIndices = new (index.array.constructor as any)(totalIndices)
+  let newIndexOffset = 0
+
+  const usedVertices = new Set<number>()
+
+  for (const group of groups) {
+    for (let i = 0; i < group.count; i++) {
+      const originalIndex = index.getX(group.start + i)
+      newIndices[newIndexOffset + i] = originalIndex
+      usedVertices.add(originalIndex)
+    }
+    newIndexOffset += group.count
+  }
+
+  const vertexMap = new Map<number, number>()
+  const sortedVertices = Array.from(usedVertices).sort((a, b) => a - b)
+  sortedVertices.forEach((oldIndex, newIndex) => {
+    vertexMap.set(oldIndex, newIndex)
+  })
+
+  for (let i = 0; i < newIndices.length; i++) {
+    newIndices[i] = vertexMap.get(newIndices[i])!
+  }
+
+  newGeometry.setIndex(new BufferAttribute(newIndices, 1))
+
+  for (const attributeName in sourceGeometry.attributes) {
+    const sourceAttribute = sourceGeometry.attributes[attributeName]
+    const itemSize = sourceAttribute.itemSize
+    const newArray = new (sourceAttribute.array.constructor as any)(sortedVertices.length * itemSize)
+
+    sortedVertices.forEach((oldVertexIndex, newVertexIndex) => {
+      for (let i = 0; i < itemSize; i++) {
+        newArray[newVertexIndex * itemSize + i] = sourceAttribute.array[oldVertexIndex * itemSize + i]
+      }
+    })
+
+    newGeometry.setAttribute(attributeName, new BufferAttribute(newArray, itemSize))
+  }
+
+  let groupStart = 0
+  for (const group of groups) {
+    newGeometry.addGroup(groupStart, group.count, group.materialIndex)
+    groupStart += group.count
+  }
+
+  return newGeometry
+}
+
+/**
+ * Creates a merged mesh BVH from the entities provided,
+ * and removes any transparent materials from the BVH,
+ * transparent materials are not yet supported by the lightmapper
+ * @todo add material consideration to the lightmapper shader */
 const getBakeBVH = (entities: Entity[]) => {
   const meshComponents = entities.map((entity) => getComponent(entity, MeshComponent))
-  const geometries = meshComponents.map((meshComponent) => meshComponent.geometry.clone())
+  const geometries = meshComponents
+    .map((meshComponent, index) => {
+      const clonedGeometry = meshComponent.geometry.clone()
+
+      // remove any groups/geometries that use transparency materials for now
+      const entity = entities[index]
+      const materialInstanceComponent = getOptionalComponent(entity, MaterialInstanceComponent)
+      if (materialInstanceComponent) {
+        const materialEntities = materialInstanceComponent.entities
+
+        if (clonedGeometry.groups.length > 0) {
+          const transparentGroupIndices = new Set<number>()
+
+          materialEntities.forEach((materialEntity, materialIndex) => {
+            const materialStateComponent = getOptionalComponent(materialEntity, MaterialStateComponent)
+            if (materialStateComponent) {
+              const material = materialStateComponent.material
+              if (material.transparent || material.opacity < 1.0) {
+                transparentGroupIndices.add(materialIndex)
+              }
+            }
+          })
+
+          if (transparentGroupIndices.size > 0) {
+            const filteredGroups = clonedGeometry.groups.filter((group, groupIndex) => {
+              return !transparentGroupIndices.has(group.materialIndex || groupIndex)
+            })
+
+            if (filteredGroups.length === 0) {
+              return null
+            }
+
+            const newGeometry = createGeometryFromGroups(clonedGeometry, filteredGroups)
+            return newGeometry
+          }
+        } else {
+          if (materialEntities.length > 0) {
+            const materialEntity = materialEntities[0]
+            const materialStateComponent = getOptionalComponent(materialEntity, MaterialStateComponent)
+            if (materialStateComponent) {
+              const material = materialStateComponent.material
+              if (material.transparent || material.opacity < 1.0) {
+                return null
+              }
+            }
+          }
+        }
+      }
+
+      return clonedGeometry
+    })
+    .filter((geometry) => geometry !== null) // Remove null geometries (transparent single materials)
+
   for (let i = 0; i < geometries.length; i++) {
     geometries[i].applyMatrix4(meshComponents[i].matrixWorld)
   }

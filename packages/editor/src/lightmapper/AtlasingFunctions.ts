@@ -179,7 +179,11 @@ async function exportAtlasData(
       geometry.setIndex(originalGeometry.index.clone())
     }
 
-    setComponent(atlasEntity, MeshComponent, new Mesh(geometry))
+    // for (let i = 0; i < originalGeometry.groups.length; i++) {
+    //   geometry.groups[i] = originalGeometry.groups[i]
+    // }
+
+    setComponent(atlasEntity, MeshComponent, new Mesh(originalMesh.geometry.clone()))
 
     return atlasEntity
   })

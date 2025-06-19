@@ -91,6 +91,9 @@ export const LightmapComponent = defineComponent({
           )
           correspondingMeshComponent.geometry.index = atlasedMeshComponent.geometry.index
 
+          // if(atlasedMeshComponent.geometry.groups.length > 0)
+          // correspondingMeshComponent.geometry.groups = atlasedMeshComponent.geometry.groups
+
           // keep track of atlased entities for atlas texture application and cleanup
           atlasedEntities.merge([correspondingEntity])
         }
