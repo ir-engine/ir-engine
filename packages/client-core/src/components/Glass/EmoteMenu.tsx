@@ -29,47 +29,50 @@ import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarC
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import { dispatchAction } from '@ir-engine/hyperflux'
 import React from 'react'
+
+import {
+  CustomEmoteCabbagePatch,
+  CustomEmoteClapHands,
+  CustomEmoteMacarena,
+  CustomEmoteRunningMan,
+  CustomEmoteTwistAndShout,
+  CustomEmoteWaveHand
+} from '@ir-engine/ui/src/icons'
 import { MenuIconButton } from './buttons/MenuIconButton'
-import CabbagePatch from './icons/CabbagePatch'
-import ClapHands from './icons/ClapHands'
-import Macarena from './icons/Macarena'
-import RunningMan from './icons/RunningMan'
-import TwistAndShout from './icons/TwistAndShout'
-import WaveHand from './icons/WaveHand'
 
 const icons = [
   {
-    Icon: ClapHands,
-    stateName: 'clap',
-    description: 'Clap Hands'
-  },
-
-  {
-    Icon: WaveHand,
+    Icon: CustomEmoteWaveHand,
     stateName: 'wave',
     description: 'Wave hand'
   },
 
   {
-    Icon: RunningMan,
+    Icon: CustomEmoteClapHands,
+    stateName: 'clap',
+    description: 'Clap Hands'
+  },
+
+  {
+    Icon: CustomEmoteRunningMan,
     stateName: 'dance4',
     description: 'Dances - Running Man'
   },
 
   {
-    Icon: CabbagePatch,
+    Icon: CustomEmoteCabbagePatch,
     stateName: 'dance1',
     description: 'Dances - Cabbage Patch'
   },
 
   {
-    Icon: TwistAndShout,
+    Icon: CustomEmoteTwistAndShout,
     stateName: 'dance3',
     description: 'Dances - Twist and Shout Dance'
   },
 
   {
-    Icon: Macarena,
+    Icon: CustomEmoteMacarena,
     stateName: 'dance2',
     description: 'Dances - Macarena'
   }

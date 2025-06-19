@@ -30,7 +30,7 @@ import { cva, VariantProps } from 'class-variance-authority'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
-import { Badge, BaseBadgeProps } from '../Badge'
+import { Badge, BadgeProps } from '../Badge'
 
 const containerStyles = cva(
   `
@@ -38,13 +38,14 @@ const containerStyles = cva(
   inline-flex
   items-center
   justify-center
+  text-xl
+  text-white
 
   rounded-full
   -m-2 p-2
 
   transition-[background]
   transition-transform
-  text-inherit
 
   hover:scale-[1.05]
   hover:bg-white/10
@@ -99,7 +100,7 @@ interface MenuButtonProps extends React.HTMLAttributes<HTMLButtonElement>, Conta
     title: string
     position?: TooltipProps['position']
   }
-  badge?: BaseBadgeProps
+  badge?: BadgeProps
 }
 
 export const MenuIconButton = ({ active, tooltip, badge, loading, children, className, ...props }: MenuButtonProps) => {

@@ -23,7 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Expand01Md, VolumeMinMd, VolumeXMd } from '@ir-engine/ui/src/icons'
+import { Expand06Md as FullscreenIcon } from '@ir-engine/ui/src/icons'
+
+import { HiSpeakerXMark as VolumeOffIcon, HiSpeakerWave as VolumeOnIcon } from 'react-icons/hi2'
+
 import { useMotionValueEvent, useScroll } from 'motion/react'
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
@@ -386,9 +389,11 @@ export const VideoCarousel = ({ handleSidebarOpen, videoElements, videoMediaStre
       </div>
       {showBottomButtons ? (
         <div className={bottomButtonsStyles}>
-          <IconButton onClick={() => setMuted((prev) => !prev)}>{muted ? <VolumeXMd /> : <VolumeMinMd />}</IconButton>
-          <IconButton onClick={handleSidebarOpen}>
-            <Expand01Md />
+          <IconButton fade={`dark`} onClick={() => setMuted((prev) => !prev)}>
+            {muted ? <VolumeOffIcon /> : <VolumeOnIcon />}
+          </IconButton>
+          <IconButton fade={`dark`} onClick={handleSidebarOpen}>
+            <FullscreenIcon />
           </IconButton>
         </div>
       ) : (
