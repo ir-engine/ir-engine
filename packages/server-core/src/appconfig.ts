@@ -463,6 +463,20 @@ const metabase = {
 }
 
 /**
+ * Monitoring
+ */
+const monitoring = {
+  metrics: {
+    enabled: process.env.PROMETHEUS_METRICS_ENABLED === 'true',
+    endpoint: process.env.METRICS_ENDPOINT || '/metrics',
+    // For GCP Cloud Monitoring integration
+    gcpProject: process.env.GCP_PROJECT,
+    useCloudMonitoring: process.env.USE_CLOUD_MONITORING === 'true'
+  }
+  // Note: Tracing configuration will be added in a separate PR
+}
+
+/**
  * Full config
  */
 const config = {
@@ -495,7 +509,8 @@ const config = {
     typeof process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'undefined' || process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'true',
   fsProjectSyncEnabled: process.env.FS_PROJECT_SYNC_ENABLED === 'false' ? false : true,
   zendesk,
-  metabase
+  metabase,
+  monitoring
 }
 
 chargebeeInst.configure({

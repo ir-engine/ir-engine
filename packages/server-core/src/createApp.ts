@@ -55,6 +55,7 @@ import authenticate from './hooks/authenticate'
 import { logError } from './hooks/log-error'
 import persistHeaders from './hooks/persist-headers'
 import { createDefaultStorageProvider } from './media/storageprovider/storageprovider'
+import monitoringServices from './monitoring'
 import mysql from './mysql'
 import services from './services'
 import authentication from './user/authentication'
@@ -101,6 +102,11 @@ export const configurePrimus =
       'ionic://' + appConfig.server.clientHost
     ]
     if (!instanceserver) origin.push('https://localhost:3001')
+
+    // Get metrics service if it exists
+    const metricsService = app.get('metricsService')
+    const metricsEnabled = process.env.PROMETHEUS_METRICS_ENABLED === 'true'
+
     app.configure(
       primus(
         {
@@ -119,6 +125,35 @@ export const configurePrimus =
             ;(message as any).feathers.forwarded = message.forwarded
             next()
           })
+
+          // Add event handlers for tracking WebSocket connections and messages if metrics service exists
+          if (metricsService && metricsEnabled) {
+            primus.on('connection', (spark) => {
+              metricsService.trackWebSocketConnection('connected')
+
+              // Track WebSocket messages
+              spark.on('data', (data) => {
+                metricsService.trackWebSocketMessage(
+                  'incoming',
+                  typeof data === 'object' ? data.type || 'unknown' : 'unknown'
+                )
+              })
+
+              // Track outgoing messages
+              spark.on('outgoing::data', (data) => {
+                metricsService.trackWebSocketMessage(
+                  'outgoing',
+                  typeof data === 'object' ? data.type || 'unknown' : 'unknown'
+                )
+              })
+            })
+
+            primus.on('disconnection', () => {
+              metricsService.trackWebSocketConnection('disconnected')
+            })
+
+            logger.info('WebSocket metrics tracking enabled for Primus')
+          }
         }
       )
     )
@@ -165,9 +200,24 @@ export const configureK8s = () => (app: Application) => {
   return app
 }
 
-export const serverPipe = pipe(configureOpenAPI(), configurePrimus(), configureRedis(), configureK8s()) as (
-  app: Application
-) => Application
+export const configureMonitoring = () => (app: Application) => {
+  // Set app name for monitoring
+  const serviceName = appConfig.monitoring?.metrics ? 'ir-engine-api' : 'ir-engine-api'
+  app.set('name', serviceName)
+
+  // Configure monitoring services
+  monitoringServices.forEach((service) => app.configure(service()))
+
+  return app
+}
+
+export const serverPipe = pipe(
+  configureOpenAPI(),
+  configureMonitoring(),
+  configurePrimus(),
+  configureRedis(),
+  configureK8s()
+) as (app: Application) => Application
 
 export const serverJobPipe = pipe(configurePrimus(), configureK8s()) as (app: Application) => Application
 
