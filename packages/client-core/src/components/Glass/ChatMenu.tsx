@@ -139,7 +139,8 @@ export const ChatMenu = ({ navigateTo }: { navigateTo: (screenKey: string, histo
   const user = useMutableState(AuthState).user
 
   const isGuest = user.isGuest.value
-  const onCTAClicked = () => navigateTo('Settings', 'signup')
+  const onSignUpClicked = () => navigateTo('Settings', 'signup')
+  const onSignInClicked = () => navigateTo('Settings', 'login')
 
   const { messageGroupedBySender, inputRef, handleInputChange, sendMessage, composedMessage } = useChatProvider()
 
@@ -148,8 +149,11 @@ export const ChatMenu = ({ navigateTo }: { navigateTo: (screenKey: string, histo
       <div className="flex h-full w-full max-w-screen-sm flex-col items-center justify-center gap-8 font-dm-sans">
         <HiChatBubbleLeftRight className="mx-auto h-[5.5rem] w-[5.5rem]" />
         <div className="text-shadow font-manrope text-2xl text-white">Want to chat with others?</div>
-        <GlassButton className={'w-[90%]'} onClick={onCTAClicked}>
+        <GlassButton className={'w-[90%]'} onClick={onSignUpClicked}>
           Create an Account
+        </GlassButton>
+        <GlassButton className={'w-[90%]'} onClick={onSignInClicked}>
+          Sign In
         </GlassButton>
       </div>
     )

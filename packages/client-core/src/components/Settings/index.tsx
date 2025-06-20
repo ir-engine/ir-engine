@@ -45,6 +45,7 @@ import AvatarScreen from './AvatarScreen'
 import ControlsScreen from './ControlsScreen'
 import DeleteAccountScreen from './DeleteAccountScreen'
 import DisplayNameScreen from './DisplayNameScreen'
+import LoginScreen from './LoginScreen'
 import PermissionsScreen from './PermissionsScreen'
 import ShareSpaceScreen from './ShareSpaceScreen'
 import SignUpScreen from './SignUpScreen'
@@ -67,6 +68,10 @@ export const screens: Record<string, ScreenDefinition> = {
   account: { component: AccountSettings, title: 'Account' },
   graphics: { component: GraphicsSettings, title: 'Graphics' },
   audio: { component: AudioScreen, title: 'Audio' },
+  login: {
+    title: 'Sign In',
+    component: LoginScreen
+  },
   signup: {
     title: 'Sign Up',
     component: SignUpScreen
