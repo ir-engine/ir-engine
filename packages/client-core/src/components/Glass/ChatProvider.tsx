@@ -68,6 +68,17 @@ const useChatMessages = (): ChatMessagesType => {
     }
   })
 
+  // Poll for new messages every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      messagesResponse.refetch()
+    }, 5000) // 5 seconds
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [messagesResponse.refetch])
+
   const setNewMessage = (messageId: MessageType['id']) => {
     newMessages.merge({ [messageId]: true })
     const lightenMessageBackground = setTimeout(() => {
