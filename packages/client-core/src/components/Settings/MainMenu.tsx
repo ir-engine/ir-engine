@@ -23,11 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useState } from 'react'
+import React from 'react'
 
 import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import Divider from '@ir-engine/ui/src/components/viewer/Divider'
+import { MultiplayerState } from '../../common/services/MultiplayerState'
 import { AuthService, AuthState } from '../../user/services/AuthService'
 import ButtonGroup from './ButtonGroup'
 import { MenuItem } from './MenuItem'
@@ -42,9 +43,8 @@ interface ScreenProps {
 }
 
 const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
-  const [videoCommunication, setVideoCommunication] = useState(false)
-  const [multiplayer, setMultiplayer] = useState(false)
   const audioState = useMutableState(AudioState)
+  const { world, media } = useMutableState(MultiplayerState)
   const isGuest = useMutableState(AuthState).user.isGuest.value
   const confirmLogout = useHookstate(false)
 
@@ -72,8 +72,10 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
         <Divider />
         <ToggleItem
           label="Video Communication"
-          checked={videoCommunication}
-          onClick={() => setVideoCommunication(!videoCommunication)}
+          checked={media.value}
+          onClick={() => {
+            media.set(!media.value)
+          }}
         />
       </Section>
       <Section>
@@ -92,7 +94,7 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
 
       {/* World & Account Section */}
       <Section>
-        <ToggleItem label="Multiplayer" checked={multiplayer} onClick={() => setMultiplayer(!multiplayer)} />
+        <ToggleItem label="Multiplayer" checked={world.value} onClick={() => world.set(!world.value)} />
         <Divider />
         <MenuItem label="Account" onClick={() => navigateTo('Settings', 'account')} hasChevron />
         <Divider />
