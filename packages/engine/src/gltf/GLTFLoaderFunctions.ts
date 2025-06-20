@@ -1591,24 +1591,20 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const sceneDef = json.scenes?.[sceneIndex] ?? ({} as GLTF.IScene)
   const nodeIds = sceneDef.nodes || []
 
-  const pending = [] as Promise<Entity>[]
-  const dependencyPromises = [] as Promise<any>[]
-  const animationPromises = [] as Promise<AnimationClip>[]
-
   const abortEvent = () => {
-    Promise.allSettled([...pending, ...dependencyPromises, ...animationPromises]).then(() => {
-      unloadScene(options.url, rootEntity)
-      unloadEntities(sourceID, layer)
-    })
+    unloadScene(options.url, rootEntity)
+    unloadEntities(sourceID, layer)
   }
 
   const signal = options.signal
   signal.addEventListener('abort', abortEvent, { once: true })
 
+  const pending = [] as Promise<Entity>[]
   for (let i = 0, il = nodeIds.length; i < il; i++) {
     pending.push(getDependency(options, 'node', nodeIds[i]))
   }
 
+  const animationPromises = [] as Promise<AnimationClip>[]
   const animations = json.animations || []
   for (let i = 0, il = animations.length; i < il; i++) {
     const animation = getDependency(options, 'animation', i)
@@ -1616,15 +1612,11 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   }
 
   try {
-    const loadedNodeEntities = await Promise.allSettled(pending)
-    if (signal.aborted) return
-    dependencyPromises.push(...loadGLTFDependencies(options))
-    await Promise.allSettled(dependencyPromises)
+    const loadedNodeEntities = await Promise.all(pending)
+    await Promise.all(loadGLTFDependencies(options))
     if (signal.aborted) return
 
-    for (const entityResult of loadedNodeEntities) {
-      if (entityResult.status === 'rejected') continue
-      const entity = entityResult.value
+    for (const entity of loadedNodeEntities) {
       setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity })
       iterateEntityNode(entity, (e) => {
         if (hasComponent(e, TransformComponent)) {
@@ -1640,15 +1632,10 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
       setComponent(rootEntity, ObjectComponent, obj3d)
     }
 
-    const animationClips = await Promise.allSettled(animationPromises)
+    const animationClips = await Promise.all(animationPromises)
     if (signal.aborted) return
 
-    setAnimationClips(
-      rootEntity,
-      animationClips
-        .map((result) => (result.status === 'fulfilled' ? result.value : undefined))
-        .filter(Boolean) as AnimationClip[]
-    )
+    setAnimationClips(rootEntity, animationClips)
   } finally {
     // dereference body non-reactively if it exists
     getComponent(options.entity, GLTFComponent).body = null
