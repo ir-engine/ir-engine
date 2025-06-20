@@ -139,7 +139,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
       <div id={`callback-list`}>
         {interactableComponent.callbacks.map((callback, index) => {
           const targetOption = callbackQuery.find((o) => o.value === callback.target.value)
-          if (!targetOption) return null
+          //if (!targetOption) return null
           const target = targetOption ? targetOption.value : 'Self'
           return (
             <div key={'callback' + index} className="space-y-2">
