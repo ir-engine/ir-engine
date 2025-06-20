@@ -431,7 +431,7 @@ export class FileBrowserService
       const oldItemPath = path.join(oldPath, item.name)
       const newItemPath = path.join(newPath, item.name)
 
-      if (item.type === 'directory') {
+      if (item.type === 'folder') {
         await this.moveFolderRecursively(storageProvider, oldItemPath, newItemPath, isCopy)
       } else {
         //The local storage provider requires the file extension because it interacts with the filesystem and needs the full path, including the extension.
