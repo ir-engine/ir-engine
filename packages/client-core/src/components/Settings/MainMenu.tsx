@@ -28,7 +28,7 @@ import React, { useState } from 'react'
 import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
 import { useMutableState } from '@ir-engine/hyperflux'
 import Divider from '@ir-engine/ui/src/components/viewer/Divider'
-import { AuthService } from '../../user/services/AuthService'
+import { AuthService, AuthState } from '../../user/services/AuthService'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
 import SliderItem from './SliderItem'
@@ -44,6 +44,7 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
   const [videoCommunication, setVideoCommunication] = useState(false)
   const [multiplayer, setMultiplayer] = useState(false)
   const audioState = useMutableState(AudioState)
+  const isGuest = useMutableState(AuthState).user.isGuest.value
 
   return (
     <div className="space-y-4">
@@ -86,7 +87,7 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
         <Divider />
         <MenuItem label="Graphics" onClick={() => navigateTo('Settings', 'graphics')} hasChevron />
         <MenuItem label="Audio" onClick={() => navigateTo('Settings', 'audio')} hasChevron />
-        <MenuItem label="Log Out" onClick={AuthService.logoutUser} />
+        {!isGuest && <MenuItem label="Log Out" onClick={AuthService.logoutUser} />}
       </Section>
     </div>
   )
