@@ -30,8 +30,7 @@ import { PlusCircleMd } from '@ir-engine/ui/src/icons'
 import { Divider } from '@ir-engine/ui/viewer'
 import React, { useEffect } from 'react'
 import { FaApple, FaGithub, FaGoogle, FaLink, FaMicrosoft } from 'react-icons/fa'
-import { NotificationService } from '../../common/services/NotificationService'
-import { useAuthSettings, useOAuthState } from '../../hooks/useAuthSetting'
+import { useAuthSettings } from '../../hooks/useAuthSetting'
 import { useMagicLink } from '../../hooks/useMagicLink'
 import { AuthService } from '../../user/services/AuthService'
 import FieldItem from './FieldItem'
@@ -63,8 +62,8 @@ const LoginSocials = [
 ]
 
 export default function LoginScreen() {
-  const username = useHookstate('User12342')
-  const email = useHookstate('email@gmail.com')
+  const username = useHookstate('')
+  const email = useHookstate('')
   const isValid = useHookstate(false)
 
   const { pending, handleMagicLink, sent } = useMagicLink()
@@ -72,14 +71,12 @@ export default function LoginScreen() {
   const onMagicLinkClick = async () => {
     sent.set(true)
     await handleMagicLink(email.value, false) // false for login, not signup
-    NotificationService.dispatchNotify('Check your email for a magic link', { variant: 'success' })
   }
 
   useEffect(() => {
     isValid.set(validateEmail(email.value))
   }, [email.value])
 
-  const oauthConnectedState = useOAuthState()
   const authSettings = useAuthSettings()
 
   const handleProviderClick = (client: string) => {

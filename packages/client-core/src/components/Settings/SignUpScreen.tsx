@@ -32,7 +32,6 @@ import { PlusCircleMd } from '@ir-engine/ui/src/icons'
 import { Divider, Link } from '@ir-engine/ui/viewer'
 import React, { useEffect, useState } from 'react'
 import { FaLink } from 'react-icons/fa'
-import { NotificationService } from '../../common/services/NotificationService'
 import { useAuthSettings, useOAuthState } from '../../hooks/useAuthSetting'
 import { useMagicLink } from '../../hooks/useMagicLink'
 import { AuthService } from '../../user/services/AuthService'
@@ -54,7 +53,6 @@ export default function SignupScreen() {
   const onMagicLinkClick = async () => {
     sent.set(true)
     await handleMagicLink(email.value, true, username.value)
-    NotificationService.dispatchNotify('Check your email for a magic link', { variant: 'success' })
   }
 
   useEffect(() => {
