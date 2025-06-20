@@ -104,7 +104,7 @@ export const loadResource = <T extends ResourceAssetType>(
       signal.addEventListener(
         'abort',
         () => {
-          ResourceProgressComponent.setResource(entity, url, 0, 0)
+          ResourceProgressComponent.removeResource(entity, url)
         },
         { once: true }
       )
@@ -118,6 +118,7 @@ export const loadResource = <T extends ResourceAssetType>(
     (response: T) => {
       if (!resource || !resource.value) {
         console.warn(`ResourceState:load Resource removed before load finished: ${url} for entity: ${entity}`)
+        onError(new Error('Resource removed before load finished'))
         return
       }
       resource.asset.set(response)
