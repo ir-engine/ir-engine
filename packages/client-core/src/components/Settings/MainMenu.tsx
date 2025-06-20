@@ -26,9 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useState } from 'react'
 
 import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
-import { useMutableState } from '@ir-engine/hyperflux'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import Divider from '@ir-engine/ui/src/components/viewer/Divider'
 import { AuthService, AuthState } from '../../user/services/AuthService'
+import ButtonGroup from './ButtonGroup'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
 import SliderItem from './SliderItem'
@@ -45,6 +46,23 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
   const [multiplayer, setMultiplayer] = useState(false)
   const audioState = useMutableState(AudioState)
   const isGuest = useMutableState(AuthState).user.isGuest.value
+  const confirmLogout = useHookstate(false)
+
+  if (confirmLogout.value) {
+    return (
+      <div className="mx-auto flex h-full max-w-sm flex-col items-center justify-between pb-2">
+        <div className="text-dm-sans m-auto flex w-full flex-1 flex-col justify-center text-center text-2xl text-white">
+          Are you sure you want to logout?
+        </div>
+        <ButtonGroup
+          options={[
+            { label: 'Logout', onClick: () => AuthService.logoutUser() },
+            { label: 'Nevermind', onClick: () => confirmLogout.set(false) }
+          ]}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4">
@@ -87,7 +105,7 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
         <Divider />
         <MenuItem label="Graphics" onClick={() => navigateTo('Settings', 'graphics')} hasChevron />
         <MenuItem label="Audio" onClick={() => navigateTo('Settings', 'audio')} hasChevron />
-        {!isGuest && <MenuItem label="Log Out" onClick={AuthService.logoutUser} />}
+        {!isGuest && <MenuItem label="Log Out" onClick={() => confirmLogout.set(true)} />}
       </Section>
     </div>
   )
