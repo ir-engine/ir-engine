@@ -31,7 +31,6 @@ import React from 'react'
 import { FaApple, FaGithub, FaGoogle, FaMinusCircle } from 'react-icons/fa'
 import { useAuthSettings, useOAuthState } from '../../hooks/useAuthSetting'
 import { AuthService } from '../../user/services/AuthService'
-import { useNavigationProvider } from '../Glass/NavigationProvider'
 import ButtonGroup from './ButtonGroup'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
@@ -60,7 +59,6 @@ const SSOScreen: React.FC<SSOScreenProps> = () => {
   const oauthConnectedState = useOAuthState()
   const authSettings = useAuthSettings()
   const deleteSSO = useHookstate('')
-  const { navigateTo } = useNavigationProvider()
 
   const connectProvider = (client: string) => {
     AuthService.loginUserByOAuth(client, location, true, location.href)
