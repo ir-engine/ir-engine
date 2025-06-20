@@ -81,7 +81,13 @@ export default function RenameSceneModal({ sceneName, onRenameScene, scene, refe
         state={inputError.value ? 'error' : undefined}
         helperText={inputError.value}
         data-testid="scene-panel-scene-rename-input"
+        fullWidth
       />
+
+      <p className="mt-2 text-xs text-text-secondary">
+        Scene name must be 4–64 characters, start and end with a letter or number, and may include letters, numbers,
+        spaces, underscores, hyphens, and periods.
+      </p>
     </Modal>
   )
 }

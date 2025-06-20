@@ -44,7 +44,8 @@ import {
   getComponent,
   hasComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from './ComponentFunctions'
 import { Entity, EntityID, EntityUUID, EntityUUIDPair, SourceID, UndefinedEntity } from './Entity'
 import { S } from './schemas/JSONSchemas'
@@ -240,6 +241,11 @@ export const UUIDComponent = defineComponent({
 
   /** Construct a new SourceID from the concatenated values of the source entity */
   getAsSourceID: (entity: Entity) => UUIDComponent.join(getComponent(entity, UUIDComponent)) as any as SourceID,
+
+  useAsSourceID: (entity: Entity) => {
+    const uuidComponent = useOptionalComponent(entity, UUIDComponent)
+    return uuidComponent ? (UUIDComponent.join(uuidComponent.value) as any as SourceID) : ('' as SourceID)
+  },
 
   /** Gets a UUID as a string */
   get: (entity: Entity) => UUIDComponent.join(getComponent(entity, UUIDComponent)),
