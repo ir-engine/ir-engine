@@ -91,12 +91,12 @@ export default function LoginScreen() {
     <div className="flex h-full flex-col gap-4">
       {/* Username Field */}
       <Section>
-        <FieldItem type="text" label="Username" placeholder="Username" onChange={username.set} value={username.value} />
+        <FieldItem type="text" label="Username" onChange={username.set} value={username.value} />
       </Section>
 
       {/* Email Field */}
       <Section>
-        <FieldItem type="email" label="Email" placeholder="email@gmail.com" onChange={email.set} value={email.value} />
+        <FieldItem type="email" label="Email" onChange={email.set} value={email.value} />
       </Section>
 
       {/* Magic Link Button */}

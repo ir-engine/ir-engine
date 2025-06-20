@@ -92,7 +92,7 @@ export default function SignupScreen() {
         />
       </Section>
       <Section disabled={!agreedToAll}>
-        <FieldItem type="text" label="Username" placeholder="Username" onChange={username.set} value={username.value} />
+        <FieldItem type="text" label="Username" onChange={username.set} value={username.value} />
       </Section>
 
       <div className="mt-2">
