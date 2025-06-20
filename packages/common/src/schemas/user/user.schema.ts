@@ -75,7 +75,7 @@ export const userSchema = Type.Object(
 export interface UserType extends Static<typeof userSchema> {}
 
 // Schema for creating new entries
-export const userDataSchema = Type.Partial(Type.Pick(userSchema, ['name', 'isGuest', 'inviteCode']), {
+export const userDataSchema = Type.Partial(Type.Pick(userSchema, ['name', 'isGuest', 'inviteCode', 'ageVerified']), {
   $id: 'UserData'
 })
 export interface UserData extends Static<typeof userDataSchema> {}

@@ -252,7 +252,7 @@
       "publishDate": "✓ Published {{formattedDate}} at {{formattedTime}}",
       "notYetPublished": "Not Published Yet",
       "multiplayerFeatures": "Multiplayer Features",
-      "multiplayerDescription": "Choose which features visitors can use when visiting your Published Space with other users.",
+      "multiplayerDescription": "Choose which features visitors can use when visiting your Published World with other users.",
       "copy": "Copy",
       "copyPublicUrl": "Copy Public URL",
       "publicUrl": "Public URL",
