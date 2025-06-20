@@ -147,7 +147,9 @@ export const useVideoStream = (videoElement, videoMediaStream) => {
         tracks.forEach((track) => {
           try {
             track.stop()
-          } catch (_) {}
+          } catch (error) {
+            console.debug('Track already stopped:', error)
+          }
         })
         videoElement.pause?.()
         videoElement.srcObject = null
