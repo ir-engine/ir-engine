@@ -27,8 +27,8 @@ import React from 'react'
 
 import { ChevronLeftMd, XCloseLg } from '@ir-engine/ui/src/icons'
 import { twMerge } from 'tailwind-merge'
-import { smallIconButtonStyles } from './Buttons'
-import { MenuButton } from './MenuButton'
+import { IconButton } from './buttons/IconButton'
+import { MenuIconButton } from './buttons/MenuIconButton'
 import { HorizontalMenu, VerticalMenu } from './ToolbarMenu'
 
 type TabProps = {
@@ -152,9 +152,9 @@ const headerBackButtonStyles = `
 
 const Header = ({ tabs = [], title, handleSidebarClose, handleSidebarBack, showBack }: HeaderProps) => {
   const backButton = (
-    <button className={twMerge(smallIconButtonStyles, `shadow`)} onClick={handleSidebarBack}>
+    <IconButton size={'small'} onClick={handleSidebarBack}>
       <ChevronLeftMd />
-    </button>
+    </IconButton>
   )
 
   return (
@@ -162,9 +162,9 @@ const Header = ({ tabs = [], title, handleSidebarClose, handleSidebarBack, showB
       <div className={headerInnerStyles}>
         {showBack ? <div className={twMerge(buttonContainer_base, backButtonStyles)}>{backButton}</div> : <></>}
         <div className={twMerge(buttonContainer_base, closeButtonStyles)}>
-          <MenuButton className={`text-3xl`} onClick={handleSidebarClose}>
+          <MenuIconButton className={`text-3xl`} onClick={handleSidebarClose}>
             <XCloseLg />
-          </MenuButton>
+          </MenuIconButton>
         </div>
         <div style={{ textShadow: `0 0.025em 0.08em hsla(0, 0%, 0%, 0.2)` }} className={headingsStyles}>
           {showBack ? <div className={headerBackButtonStyles}>{backButton}</div> : <></>}

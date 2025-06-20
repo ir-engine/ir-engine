@@ -28,7 +28,7 @@ import { useMotionValueEvent, useScroll } from 'motion/react'
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { largeIconButtonStyles } from './Buttons'
+import { IconButton } from './buttons/IconButton'
 import { useVideoStream } from './VideoMenu'
 
 function interpolateRange(value, [fromMax, fromMin], [toMax, toMin]) {
@@ -386,12 +386,10 @@ export const VideoCarousel = ({ handleSidebarOpen, videoElements, videoMediaStre
       </div>
       {showBottomButtons ? (
         <div className={bottomButtonsStyles}>
-          <button onClick={() => setMuted((prev) => !prev)} className={twMerge(largeIconButtonStyles, ``)}>
-            {muted ? <VolumeXMd /> : <VolumeMinMd />}
-          </button>
-          <button onClick={handleSidebarOpen} className={twMerge(largeIconButtonStyles, ``)}>
+          <IconButton onClick={() => setMuted((prev) => !prev)}>{muted ? <VolumeXMd /> : <VolumeMinMd />}</IconButton>
+          <IconButton onClick={handleSidebarOpen}>
             <Expand01Md />
-          </button>
+          </IconButton>
         </div>
       ) : (
         <></>

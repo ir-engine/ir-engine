@@ -43,7 +43,7 @@ import { NotificationService } from '../../common/services/NotificationService'
 import { LocationState } from '../../social/services/LocationService'
 import { ReportUserState } from '../../util/ReportUserState'
 import { uploadToFeathersService } from '../../util/upload'
-import { smallIconButtonStyles } from '../Glass/Buttons'
+import { IconButton } from '../Glass/buttons/IconButton'
 
 const backButtonStyles = `
   left-4
@@ -278,9 +278,9 @@ const ReportUserMenu = (props: ReportMenuProps) => {
   const reportSucess = (
     <div className="relative flex h-screen w-full flex-col items-center justify-center gap-4 text-center text-white">
       <div className="block">
-        <button className={twMerge(smallIconButtonStyles, backButtonStyles, `shadow`)}>
+        <IconButton size={'small'} className={backButtonStyles}>
           <CheckLg fontSize={'lg'} />
-        </button>
+        </IconButton>
       </div>
       <div
         className="text-center font-['DM_Sans'] text-[1.25rem] font-medium leading-[1.875rem] tracking-[-0.014rem] text-white"

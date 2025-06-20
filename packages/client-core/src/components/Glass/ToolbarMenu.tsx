@@ -28,17 +28,17 @@ import React, { useState } from 'react'
 import { ChevronDownMd, ChevronLeftMd, CogMd, EmoteM, MessageTextSquare01Sm } from '@ir-engine/ui/src/icons'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
-import { Badge } from './Badge'
+import { Badge, BaseBadgeProps } from './Badge'
+import { MenuIconButton } from './buttons/MenuIconButton'
 import { useChatProvider } from './ChatProvider'
 import { EmoteMenu } from './EmoteMenu'
-import { MenuButton } from './MenuButton'
 import { useMultimediaStateProvider } from './MultimediaStateProvider'
 
 export const ChatButton = ({ badge, onClick, active }) => {
   return (
-    <MenuButton badge={badge} onClick={onClick} active={active}>
+    <MenuIconButton badge={badge} onClick={onClick} active={active}>
       <MessageTextSquare01Sm className={'relative top-[0.04em]'} />
-    </MenuButton>
+    </MenuIconButton>
   )
 }
 
@@ -46,9 +46,9 @@ export const MicButton = () => {
   const { onMicClick, _MicIcon, isMicReady } = useMultimediaStateProvider()
 
   return isMicReady ? (
-    <MenuButton onClick={onMicClick}>
+    <MenuIconButton onClick={onMicClick}>
       <_MicIcon />
-    </MenuButton>
+    </MenuIconButton>
   ) : (
     <></>
   )
@@ -58,9 +58,9 @@ export const CamButton = () => {
   const { onCamClick, _CamIcon, isCamReady, isCamLoading } = useMultimediaStateProvider()
 
   return isCamReady ? (
-    <MenuButton loading={isCamLoading} onClick={onCamClick}>
+    <MenuIconButton loading={!!isCamLoading} onClick={onCamClick}>
       <_CamIcon />
-    </MenuButton>
+    </MenuIconButton>
   ) : (
     <></>
   )
@@ -70,9 +70,9 @@ export const ScreenshareButton = () => {
   const { onScreenshareClick, _ScreenshareIcon, isScreenshareReady } = useMultimediaStateProvider()
 
   return isScreenshareReady ? (
-    <MenuButton onClick={onScreenshareClick}>
+    <MenuIconButton onClick={onScreenshareClick}>
       <_ScreenshareIcon />
-    </MenuButton>
+    </MenuIconButton>
   ) : (
     <></>
   )
@@ -82,7 +82,7 @@ export const MultiVideoButton = () => {
   const { onMultiVideoClick, _MultiVideoIcon, isMultiVideoReady } = useMultimediaStateProvider()
 
   return isMultiVideoReady ? (
-    <MenuButton
+    <MenuIconButton
       tooltip={{
         title: 'user:menu.cycleCamera',
         position: 'left'
@@ -90,7 +90,7 @@ export const MultiVideoButton = () => {
       onClick={onMultiVideoClick}
     >
       <_MultiVideoIcon />
-    </MenuButton>
+    </MenuIconButton>
   ) : (
     <></>
   )
@@ -102,7 +102,7 @@ export const VRButton = () => {
   const { onVRClick, _VRIcon, isVRReady } = useMultimediaStateProvider()
 
   return isVRReady ? (
-    <MenuButton
+    <MenuIconButton
       tooltip={{
         title: 'user:menu.enterVR',
         position: 'left'
@@ -110,7 +110,7 @@ export const VRButton = () => {
       onClick={onVRClick}
     >
       <_VRIcon />
-    </MenuButton>
+    </MenuIconButton>
   ) : (
     <></>
   )
@@ -196,7 +196,7 @@ export const containerStyles = `
   
   rounded-full
   border-y-2 border-white/5
-  bg-black/[0.05]
+  bg-black/10
   
   shadow-[0_0.1rem_2.3rem_-0.5rem_hsla(0,0%,0%,0.15)]
   backdrop-blur-xl transition-transform
@@ -287,14 +287,14 @@ export const ToolbarMenu = ({ onMessageClick, onShareClick, onSettingsClick, act
       <div className={gridStyles}>
         <Badge show={showBadge} />
 
-        <MenuButton className={isEmoteMenuOpen ? `` : arrowButtonStyles} onClick={onArrowClick}>
+        <MenuIconButton className={isEmoteMenuOpen ? `` : arrowButtonStyles} onClick={onArrowClick}>
           <ChevronDownMd
             className={twMerge(isDefaultArrowDirection ? `scale-[1.2]` : `-scale-[1.2]`, 'sm:max-lg:hidden')}
           />
           <ChevronLeftMd
             className={twMerge(isDefaultArrowDirection ? `scale-[1.2]` : `-scale-[1.2]`, 'hidden sm:max-lg:block')}
           />
-        </MenuButton>
+        </MenuIconButton>
 
         <div
           className={twMerge(
@@ -302,18 +302,20 @@ export const ToolbarMenu = ({ onMessageClick, onShareClick, onSettingsClick, act
             isMainMenuOpen ? collapsableSectionOpenStyles : collapsableSectionCloseStyles
           )}
         >
-          <MenuButton onClick={onSettingsClick}>
+          <MenuIconButton onClick={onSettingsClick}>
             <CogMd />
-          </MenuButton>
-          <MenuButton
+          </MenuIconButton>
+          <MenuIconButton
             onClick={handleOpenEmoteMenu}
-            badge={{
-              show: showEmoteBadge,
-              number: emoteBadgeNumber
-            }}
+            badge={
+              {
+                show: showEmoteBadge,
+                number: emoteBadgeNumber
+              } as BaseBadgeProps
+            }
           >
             <EmoteM className={'relative sm:max-lg:-top-[0.075em]'} />
-          </MenuButton>
+          </MenuIconButton>
         </div>
 
         {showFirstDivider && <Divider />}

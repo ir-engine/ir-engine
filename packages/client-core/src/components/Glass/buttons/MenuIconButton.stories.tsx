@@ -23,54 +23,42 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { cva, VariantProps } from 'class-variance-authority'
+import { CogMd, ShoppingBag03Lg } from '@ir-engine/ui/src/icons'
 import React from 'react'
-import { twMerge } from 'tailwind-merge'
 
-const containerStyles = cva(
-  `
-  absolute right-0 z-40
-  
-  flex items-center justify-center 
+import type { Meta, StoryObj } from '@storybook/react'
 
-  h-4 w-4
+import { MenuIconButton as Component } from './MenuIconButton'
 
-  rounded-full
-  text-xs
-  text-white
-  
-  bg-blue-500
-`,
-  {
-    variants: {
-      show: {
-        true: ``,
-        false: `collapse`
-      },
-      position: {
-        bottom: `bottom-0`,
-        top: `top-0`
-      }
-    },
-    defaultVariants: {
-      show: false,
-      position: 'bottom' as 'bottom' | 'top'
+const meta: Meta<typeof Component> = {
+  title: 'ClientCore/Buttons/MenuIconButton',
+  component: Component,
+  parameters: {
+    backgrounds: {
+      default: 'dark'
     }
   }
-)
+}
+export default meta
 
-type Variants = VariantProps<typeof containerStyles>
+type Story = StoryObj<typeof meta>
 
-export type BaseBadgeProps = {
-  number?: number
+export const Default: Story = {
+  args: {
+    active: false,
+    loading: false,
+    children: <ShoppingBag03Lg />
+  }
 }
 
-interface BadgeProps extends React.ButtonHTMLAttributes<HTMLDivElement>, BaseBadgeProps, Variants {}
-
-export const Badge = ({ number, position, show, className }: BadgeProps) => {
-  return (
-    <div className={twMerge(containerStyles({ show, position }), className)}>
-      <span className={'relative'}>{number}</span>
-    </div>
-  )
+export const WithBadge: Story = {
+  args: {
+    active: false,
+    loading: false,
+    badge: {
+      number: 5,
+      show: true
+    },
+    children: <CogMd />
+  }
 }

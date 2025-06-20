@@ -104,7 +104,7 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
         <MenuItem label="Controls" onClick={() => navigateTo('settings/controls')} hasChevron />
         <Divider />
         <MenuItem label="Graphics" onClick={() => navigateTo('settings/graphics')} hasChevron />
-        <MenuItem label="Audio" onClick={() => navigateTo('settings/avatar')} hasChevron />
+        <MenuItem label="Audio" onClick={() => navigateTo('settings/audio')} hasChevron />
         {!isGuest && <MenuItem label="Log Out" onClick={() => confirmLogout.set(true)} />}
       </Section>
     </div>
