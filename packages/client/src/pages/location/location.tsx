@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { Suspense, useEffect, useRef } from 'react'
+import React, { Suspense, useRef } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
 import '../../engine'
@@ -53,10 +53,6 @@ const LocationRoutes = () => {
   const projectsLoaded = useEngineInjection()
 
   const multiplayer = useMutableState(MultiplayerState).world
-  useEffect(() => {
-    multiplayer.set(true)
-  }, [])
-
   return (
     <Suspense>
       {projectsLoaded && (
