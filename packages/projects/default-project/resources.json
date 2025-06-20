@@ -131,14 +131,14 @@
     "dependencies": [],
     "name": "default-silhouette.svg"
   },
-  "assets/drop-shadow.png": {
+  "assets/drop-shadow.ktx2": {
     "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": [],
-    "name": "drop-shadow.png",
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsdrop-shadow.png-thumbnail.png",
+    "name": "drop-shadow.ktx2",
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsdrop-shadow.ktx2-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/galaxyTexture.jpg": {

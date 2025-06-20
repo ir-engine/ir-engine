@@ -203,7 +203,7 @@ const calculateFiberNodes = (uuid: string) => {
   return countFiberNodesRecursively(fiberRoot)
 }
 
-const trackStats = false //isDev
+const trackStats = isDev
 
 export function startReactor(Reactor: React.FC): ReactorRoot {
   const isStrictMode = false

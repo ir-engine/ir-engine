@@ -31,6 +31,7 @@ import {
   ComponentJSONIDMap,
   defineComponent,
   Entity,
+  entityExists,
   EntityID,
   EntityUUID,
   getAncestorWithComponents,
@@ -338,7 +339,8 @@ const ResourceReactor = (props: { documentID: SourceID; entity: Entity; document
 
 const ChildResourceReactor = (props: { rootEntity: Entity; sourceEntities: Entity[] }) => {
   const { rootEntity, sourceEntities } = props
-  const resourceProgress = ResourceProgressComponent.useResourcesProgressForEntities([rootEntity, ...sourceEntities])
+  const entities = [rootEntity, ...sourceEntities]
+  const resourceProgress = ResourceProgressComponent.useResourcesProgressForEntities(entities)
   const dependenciesLoaded = GLTFComponent.useDependenciesLoaded(rootEntity)
 
   useEffect(() => {
@@ -349,8 +351,9 @@ const ChildResourceReactor = (props: { rootEntity: Entity; sourceEntities: Entit
   useEffect(() => {
     if (resourceProgress !== 100) return
 
-    removeComponent(rootEntity, ResourceProgressComponent)
-    for (const entity of sourceEntities) {
+    const resourceEntities = entities.filter((entity) => hasComponent(entity, ResourceProgressComponent))
+
+    for (const entity of resourceEntities) {
       removeComponent(entity, ResourceProgressComponent)
     }
   }, [resourceProgress])
@@ -572,7 +575,8 @@ const useGLTFDocument = (entity: Entity) => {
 
     return () => {
       abortController.abort()
-      if (!hasComponent(entity, GLTFComponent)) return
+      if (!entityExists(entity) || !hasComponent(entity, GLTFComponent)) return
+      const gltfComponent = getMutableComponent(entity, GLTFComponent)
       gltfComponent.document.set(null)
       gltfComponent.body.set(null)
       gltfComponent.progress.set(0)
