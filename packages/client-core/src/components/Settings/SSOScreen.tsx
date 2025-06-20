@@ -31,6 +31,7 @@ import React from 'react'
 import { FaApple, FaGithub, FaGoogle, FaMinusCircle } from 'react-icons/fa'
 import { useAuthSettings, useOAuthState } from '../../hooks/useAuthSetting'
 import { AuthService } from '../../user/services/AuthService'
+import { useNavigationProvider } from '../Glass/NavigationProvider'
 import ButtonGroup from './ButtonGroup'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
@@ -59,15 +60,21 @@ const SSOScreen: React.FC<SSOScreenProps> = () => {
   const oauthConnectedState = useOAuthState()
   const authSettings = useAuthSettings()
   const deleteSSO = useHookstate('')
+  const { navigateTo } = useNavigationProvider()
 
-  const handleProviderClick = (client: string) => {
+  const connectProvider = (client: string) => {
     AuthService.loginUserByOAuth(client, location, true, location.href)
+  }
+
+  const disconnectProvider = async (client: string) => {
+    await AuthService.removeUserOAuth(client)
+    deleteSSO.set('')
   }
 
   const connectedProviders = Socials.filter((p) => oauthConnectedState[p.client].value && authSettings[p.client])
   const disconnectedProviders = Socials.filter((p) => !oauthConnectedState[p.client].value && authSettings[p.client])
 
-  const disableProvider = (client: string) => {
+  const confirmDeletion = (client: string) => {
     deleteSSO.set(client)
   }
 
@@ -79,7 +86,7 @@ const SSOScreen: React.FC<SSOScreenProps> = () => {
         </div>
         <ButtonGroup
           options={[
-            { label: 'Remove', onClick: () => AuthService.removeUserOAuth(deleteSSO.value) },
+            { label: 'Remove', onClick: () => disconnectProvider(deleteSSO.value) },
             { label: 'Nevermind', onClick: () => deleteSSO.set('') }
           ]}
         />
@@ -100,7 +107,7 @@ const SSOScreen: React.FC<SSOScreenProps> = () => {
               <React.Fragment key={provider.client}>
                 <MenuItem
                   label={provider.label}
-                  onClick={() => disableProvider(provider.client)}
+                  onClick={() => confirmDeletion(provider.client)}
                   leftIcon={provider.icon}
                   rightIcon={<FaMinusCircle />}
                 />
@@ -122,7 +129,7 @@ const SSOScreen: React.FC<SSOScreenProps> = () => {
               <React.Fragment key={provider.client}>
                 <MenuItem
                   label={provider.label}
-                  onClick={() => handleProviderClick(provider.client)}
+                  onClick={() => connectProvider(provider.client)}
                   leftIcon={provider.icon}
                   rightIcon={<PlusCircleMd />}
                   hasChevron
