@@ -216,7 +216,7 @@ NumericInput.defaultProps = {
   min: -Infinity,
   max: Infinity,
   displayPrecision: 0.001,
-  precision: Number.EPSILON
+  precision: 0.00001
 }
 
 export default NumericInput

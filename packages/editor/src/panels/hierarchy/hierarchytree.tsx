@@ -128,7 +128,7 @@ export function Contents() {
     return result
   }
 
-  const visibleNodes = getVisibleNodes([...allNodes])
+  const visibleNodes = getVisibleNodes([...nodes])
 
   /**
    * for the entity click function to expand + scroll to the item (scrollToItem) on
