@@ -23,15 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import {
   defineComponent,
-  Entity,
   EntityUUID,
   getAncestorWithComponents,
   getChildrenWithComponents,
   getComponent,
   removeEntityNodeRecursively,
+  setComponent,
   useComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
@@ -39,7 +38,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { useEffect } from 'react'
-import { useTexture } from '../assets/functions/resourceLoaderHooks'
+import { Mesh } from 'three'
 import { AssetState } from '../gltf/GLTFState'
 
 declare module 'xatlas-three' {
@@ -59,8 +58,6 @@ export const LightmapComponent = defineComponent({
 
   reactor: ({ entity }) => {
     const lightmapComponent = useComponent(entity, LightmapComponent)
-    const [lightmapTexture] = useTexture(lightmapComponent.lightmapSrc.value, entity)
-    const atlasedEntities = useHookstate([] as Entity[])
 
     useEffect(() => {
       if (!lightmapComponent.atlasSrc.value) return
@@ -70,41 +67,16 @@ export const LightmapComponent = defineComponent({
           const correspondingEntity = UUIDComponent.getEntityByUUID(
             (sceneUUID + getComponent(atlasedChildEntity, UUIDComponent).entityID) as EntityUUID
           )
+
           const atlasedMeshComponent = getComponent(atlasedChildEntity, MeshComponent)
           if (!correspondingEntity) continue
-          const correspondingMeshComponent = getComponent(correspondingEntity, MeshComponent)
+          const correspondingMeshComponent = new Mesh(atlasedMeshComponent.geometry.clone())
 
-          for (let i = 0; i < 3; i++)
-            if (atlasedMeshComponent.geometry.hasAttribute('uv' + i))
-              correspondingMeshComponent.geometry.setAttribute(
-                'uv' + i,
-                atlasedMeshComponent.geometry.getAttribute('uv' + i)
-              )
-
-          correspondingMeshComponent.geometry.setAttribute(
-            'position',
-            atlasedMeshComponent.geometry.getAttribute('position')
-          )
-          correspondingMeshComponent.geometry.setAttribute(
-            'normal',
-            atlasedMeshComponent.geometry.getAttribute('normal')
-          )
-          correspondingMeshComponent.geometry.index = atlasedMeshComponent.geometry.index
-
-          // if(atlasedMeshComponent.geometry.groups.length > 0)
-          // correspondingMeshComponent.geometry.groups = atlasedMeshComponent.geometry.groups
-
-          // keep track of atlased entities for atlas texture application and cleanup
-          atlasedEntities.merge([correspondingEntity])
+          setComponent(correspondingEntity, MeshComponent, correspondingMeshComponent)
         }
         removeEntityNodeRecursively(atlasEntity)
       })
-    }, [lightmapTexture])
-
-    // useEffect(() => {
-    //   if (!lightmapTexture) return
-
-    // }, [lightmapTexture, atlasedEntities])
+    }, [lightmapComponent.atlasSrc])
 
     return null
   }
