@@ -256,6 +256,18 @@ export const FollowCameraComponent = defineComponent({
       follow.raycastProps.rayLength.set(maxDistance)
     }
 
+    const reconcileMode = () => {
+      const mode = follow.mode.value
+      if (!follow.allowedModes.value.includes(follow.mode.value)) {
+        if (follow.allowedModes.length > 0) {
+          follow.mode.set(follow.allowedModes.value[0])
+        } else {
+          follow.mode.set(FollowCameraMode.ThirdPerson)
+        }
+      }
+      return mode !== follow.mode.value
+    }
+
     useImmediateEffect(() => {
       const cameraSettings = cameraSettingsState.value
 
@@ -278,7 +290,7 @@ export const FollowCameraComponent = defineComponent({
       }
       follow.raycastProps.cameraRays.set(cameraRays)
 
-      let allowedModes: FollowCameraMode[] = []
+      const allowedModes: FollowCameraMode[] = []
       if (cameraSettings.canCameraFirstPerson) {
         allowedModes.push(FollowCameraMode.FirstPerson)
       }
@@ -290,7 +302,9 @@ export const FollowCameraComponent = defineComponent({
       }
       follow.allowedModes.set(allowedModes)
 
+      reconcileMode()
       setupMode[follow.mode.value]()
+      initialCameraPlacement(entity)
     }, [cameraSettingsState])
 
     useEffect(() => {
@@ -347,23 +361,12 @@ export const FollowCameraComponent = defineComponent({
 
     useEffect(() => {
       follow.lerpValue.set(0)
-      const followCamera = getComponent(entity, FollowCameraComponent)
-      const followTransform = getComponent(entity, TransformComponent)
-      followCamera.originalPosition.copy(followTransform.position)
-      followCamera.originalRotation.copy(followTransform.rotation)
-      followCamera.originalOffset?.copy(Vector3_Zero)
-      follow.currentTargetPosition.value.copy(followCamera.originalPosition)
-      follow.currentOffset.value.copy(Vector3_Zero)
     }, [follow.targetEntity])
 
     useEffect(() => {
-      if (!follow.allowedModes.value.includes(follow.mode.value)) {
-        if (follow.allowedModes.length > 0) {
-          follow.mode.set(follow.allowedModes.value[0])
-        } else {
-          follow.mode.set(FollowCameraMode.ThirdPerson)
-        }
+      if (reconcileMode()) {
         setupMode[follow.mode.value]()
+        initialCameraPlacement(entity)
       }
     }, [follow.allowedModes.length, follow.allowedModes.value])
 
@@ -377,6 +380,45 @@ const MODE_SWITCH_DEBOUNCE = 0.03
 const LERP_TIME = 1
 const _targetRotation = new Quaternion()
 const _targetPosition = new Vector3()
+
+const initialCameraPlacement = (entity: Entity) => {
+  const followCamera = getComponent(entity, FollowCameraComponent)
+  const followTransform = getComponent(entity, TransformComponent)
+  const target = getOptionalComponent(entity, TargetCameraRotationComponent)
+
+  followCamera.phi = followCamera.defaultPhi
+  followCamera.theta = followCamera.defaultTheta
+
+  if (target) {
+    target.phi = followCamera.defaultPhi
+    target.theta = followCamera.defaultTheta
+  }
+
+  const thetaRad = MathUtils.degToRad(followCamera.theta)
+  const phiRad = MathUtils.degToRad(followCamera.phi)
+  followCamera.direction.set(
+    Math.sin(thetaRad) * Math.cos(phiRad),
+    Math.sin(phiRad),
+    Math.cos(thetaRad) * Math.cos(phiRad)
+  )
+
+  const newPosition = new Vector3()
+    .copy(followCamera.targetOffset)
+    .applyQuaternion(TransformComponent.getWorldRotation(followCamera.targetEntity, _targetRotation))
+    .add(TransformComponent.getWorldPosition(followCamera.targetEntity, _targetPosition))
+
+  followTransform.position.set(newPosition.x, newPosition.y, newPosition.z)
+  followCamera.lookAtMatrix.lookAt(followCamera.direction, Vector3_Zero, Vector3_Up)
+
+  //slerp using rotationLerp value, this is reset to zero every time the follow target changes
+  followCamera.targetRotation.setFromRotationMatrix(followCamera.lookAtMatrix)
+  followTransform.rotation.copy(followCamera.targetRotation)
+  followCamera.originalRotation.copy(followCamera.targetRotation)
+
+  followCamera.originalPosition.copy(followTransform.position)
+  followCamera.currentTargetPosition.copy(followTransform.position)
+  followCamera.lastCyclePosition.copy(followTransform.position)
+}
 
 const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   const follow = getComponent(cameraEntity, FollowCameraComponent)
@@ -403,7 +445,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
     follow.mode === FollowCameraMode.FirstPerson
       ? follow.firstPersonOffset
       : follow.thirdPersonOffset.y === 0
-      ? follow.targetOffset.set(0, cameraTransform.position.y, 0)
+      ? follow.targetOffset.set(0, 0, 0)
       : follow.thirdPersonOffset
 
   const lerpstart =
@@ -454,22 +496,6 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   if (constrainTargetDistance) {
     follow.targetDistance = newZoomDistance
   }
-
-  const triggerZoomShift = follow.accumulatedZoomTriggerDebounceTime > MODE_SWITCH_DEBOUNCE
-
-  const minSpringFactor =
-    Math.min(
-      Math.sqrt(Math.abs(follow.targetDistance - follow.effectiveMinDistance)) *
-        Math.sign(follow.targetDistance - follow.effectiveMinDistance),
-      0
-    ) * 0.5
-
-  const maxSpringFactor =
-    Math.max(
-      Math.sqrt(Math.abs(follow.targetDistance - follow.effectiveMaxDistance)) *
-        Math.sign(follow.targetDistance - follow.effectiveMaxDistance),
-      0
-    ) * 0.5
 
   const resetMode = {
     [FollowCameraMode.FirstPerson]: () => resetCameraFirstPerson(),
@@ -543,6 +569,9 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
     follow.lastCameraAdjustmentTime = -1
   }
 
+  const transitionDistanceThreshold = 0.5
+  const triggerZoomShift = follow.accumulatedZoomTriggerDebounceTime > MODE_SWITCH_DEBOUNCE
+
   if (follow.mode === FollowCameraMode.FirstPerson) {
     newZoomDistance = Math.sqrt(follow.targetDistance) * 0.5
 
@@ -567,7 +596,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
       }
     }
   } else if (follow.mode === FollowCameraMode.ThirdPerson) {
-    newZoomDistance = newZoomDistance + minSpringFactor + maxSpringFactor
+    //newZoomDistance = newZoomDistance + minSpringFactor + maxSpringFactor
 
     if (
       !follow.allowedModes.includes(FollowCameraMode.FirstPerson) &&
@@ -588,15 +617,15 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
       if (
         // Move from third person mode to first person mode
         follow.allowedModes.includes(FollowCameraMode.FirstPerson) &&
-        follow.targetDistance < follow.effectiveMinDistance - follow.effectiveMaxDistance * 0.05 &&
-        Math.abs(follow.lastZoomStartDistance - follow.effectiveMinDistance) < follow.effectiveMaxDistance * 0.05
+        follow.targetDistance < follow.effectiveMinDistance &&
+        Math.abs(follow.lastZoomStartDistance - follow.effectiveMinDistance) < transitionDistanceThreshold
       ) {
         switchToFirstPerson()
       } else if (
         // Move from third person mode to top down mode
         follow.allowedModes.includes(FollowCameraMode.TopDown) &&
-        follow.targetDistance > follow.effectiveMaxDistance + follow.effectiveMaxDistance * 0.02 &&
-        Math.abs(follow.lastZoomStartDistance - follow.effectiveMaxDistance) < follow.effectiveMaxDistance * 0.02
+        follow.targetDistance > follow.effectiveMaxDistance &&
+        Math.abs(follow.lastZoomStartDistance - follow.effectiveMaxDistance) < transitionDistanceThreshold
       ) {
         switchToTopDown()
       } else {
@@ -607,7 +636,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
       }
     }
   } else if (follow.mode === FollowCameraMode.TopDown) {
-    newZoomDistance += minSpringFactor + maxSpringFactor * 0.1
+    //newZoomDistance += minSpringFactor + maxSpringFactor * 0.1
 
     if (
       !follow.allowedModes.includes(FollowCameraMode.FirstPerson) &&
@@ -625,8 +654,8 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
     if (triggerZoomShift) {
       follow.accumulatedZoomTriggerDebounceTime = -1
       const isExitingTopDown =
-        newZoomDistance < follow.effectiveMaxDistance * 0.98 &&
-        Math.abs(follow.lastZoomStartDistance - follow.effectiveMinDistance) < 0.05 * follow.effectiveMaxDistance
+        newZoomDistance < follow.effectiveMaxDistance &&
+        Math.abs(follow.lastZoomStartDistance - follow.effectiveMinDistance) < transitionDistanceThreshold
       if (follow.allowedModes.includes(FollowCameraMode.ThirdPerson) && isExitingTopDown) {
         switchToThirdPerson()
       } else if (follow.allowedModes.includes(FollowCameraMode.FirstPerson) && isExitingTopDown) {
@@ -642,8 +671,9 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   //multiplying by lerpVal (always between 0 and 1) so we don't instantly apply followdistance to the camera transform when changing targets, but eventually maintain the full value.
   //multiplying by 3 and clamping to 1 so that the follow distance is achieved faster than the rest of the lerp
   follow.distance =
+    follow.distance +
     Math.min(lerpVal * 3, 1) *
-    smoothDamp(follow.distance, newZoomDistance, follow.zoomVelocity, smoothingSpeed, deltaSeconds)
+      smoothDamp(0, newZoomDistance - follow.distance, follow.zoomVelocity, smoothingSpeed, deltaSeconds)
 
   const thetaRad = MathUtils.degToRad(follow.theta)
   const phiRad = MathUtils.degToRad(follow.phi)

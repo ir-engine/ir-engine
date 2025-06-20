@@ -46,7 +46,10 @@ import {
 
 import { WindowType } from '../../user/VideoWindows'
 import { useUserMediaWindowHook } from '../../user/VideoWindows/hook'
+import { ReportUserState } from '../../util/ReportUserState'
+
 import { smallIconButtonStyles } from './Buttons'
+import { useNavigationProvider } from './NavigationProvider'
 
 const toolbarContainerStyles = `
   flex
@@ -157,6 +160,7 @@ const Video = ({ peerID, type }: WindowType) => {
   })
 
   const { isCamVideoEnabled, isCamAudioEnabled } = useMultimediaStateProvider()
+  const { navigateTo } = useNavigationProvider()
 
   const ref = useRef<HTMLVideoElement>(null)
 
@@ -167,6 +171,11 @@ const Video = ({ peerID, type }: WindowType) => {
 
   const camVideoOn = isSelf ? isCamVideoEnabled : !videoStreamPaused
   const camAudioOn = isSelf ? isCamAudioEnabled : !audioStreamPaused
+
+  const reportUser = () => {
+    ReportUserState.setReportedPeerId(peerID)
+    navigateTo('ReportUser', '')
+  }
 
   return (
     <div className={twMerge(videoContainer)}>
@@ -189,7 +198,7 @@ const Video = ({ peerID, type }: WindowType) => {
           <button onClick={toggleAudio} className={`cursor-pointer`}>
             {camAudioOn ? <Microphone01Md /> : <MicrophoneOff />}
           </button>
-          <button onClick={() => {}} className={`cursor-pointer`}>
+          <button onClick={reportUser} className={`cursor-pointer`}>
             <BsFillExclamationTriangleFill />
           </button>
         </div>

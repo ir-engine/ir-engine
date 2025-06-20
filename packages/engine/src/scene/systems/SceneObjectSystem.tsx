@@ -34,7 +34,7 @@ import {
   useHasComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, SourceID } from '@ir-engine/ecs/src/Entity'
+import { Entity } from '@ir-engine/ecs/src/Entity'
 import { defineQuery, EntityArrayBoundary, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
@@ -109,7 +109,7 @@ const execute = () => {
 
 const ModelEntityReactor = (props: { entity: Entity }) => {
   const entity = props.entity
-  const sourceID = hasComponent(entity, UUIDComponent) ? UUIDComponent.getAsSourceID(entity) : ('' as SourceID)
+  const sourceID = UUIDComponent.useAsSourceID(entity)
   const childEntities = UUIDComponent.useEntitiesBySource(sourceID)
 
   return (
@@ -141,9 +141,13 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
   const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
   useEffect(() => {
     if (!isMesh || !isVisible) return
-    if (shadowComponent) {
-      if (!isUnlit) setComponent(props.entity, ShadowComponent, getComponent(props.parentEntity, ShadowComponent))
-      else removeComponent(props.entity, ShadowComponent)
+    if (!shadowComponent) return
+
+    if (!isUnlit) setComponent(props.entity, ShadowComponent, getComponent(props.parentEntity, ShadowComponent))
+    else removeComponent(props.entity, ShadowComponent)
+
+    return () => {
+      removeComponent(props.entity, ShadowComponent)
     }
   }, [isVisible, isMesh, isUnlit, shadowComponent?.cast, shadowComponent?.receive])
 
@@ -153,7 +157,7 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
 const reactor = () => {
   return (
     <>
-      <QueryReactor Components={[GLTFComponent]} ChildEntityReactor={ModelEntityReactor} />
+      <QueryReactor Components={[GLTFComponent, UUIDComponent]} ChildEntityReactor={ModelEntityReactor} />
     </>
   )
 }

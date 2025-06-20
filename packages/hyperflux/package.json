@@ -1,6 +1,6 @@
 {
   "name": "@ir-engine/hyperflux",
-  "version": "1.6.0",
+  "version": "1.0.3",
   "main": "index.ts",
   "description": "Agent Centric Reactive Data Management for Infinite Reality Engine",
   "publishConfig": {

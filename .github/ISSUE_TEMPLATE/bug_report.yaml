@@ -14,8 +14,8 @@ body:
     id: version
     attributes:
       label: Version
-      description: What version or commit of EE are you running?
-      value: 08c3b70(1.6.0)
+      description: What version or commit of IR-Engine are you running?
+      value: 01e8e455be(1.0.3)
     validations:
       required: true
   - type: checkboxes

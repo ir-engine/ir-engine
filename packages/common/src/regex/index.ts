@@ -161,3 +161,5 @@ export const UNIQUEIFIED_VITE_KEY_REGEX = /[.-]{1}[a-zA-Z0-9-_]{8}.(js|css)(.map
 export const REMOVE_EDGE_SLASH_REGEX = /^\/+|\/+$/g
 
 export const TRAILING_SLASH_REGEX = /\/+$/
+
+export const NPM_GIT_REFERENCE = /^git\+https:\/\/github\.com\/[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+\.git$/

@@ -235,6 +235,7 @@
       "lbl-helperVolumes": "Helpers Volumes",
       "info-helperVolumes": "Helper geometry that helps components have visibility in the Scene when inactive.",
       "lbl-axisHelpers": "Axis Helpers",
+      "lbl-colliderHelpers": "Collider Helpers",
       "lbl-directManipulation": "Direct Manipulation"
     },
     "sceneScreenshot": {
@@ -775,6 +776,14 @@
         "opacity": "Opacity",
         "start": "Start",
         "remove": "Remove"
+      },
+      "rotation": {
+        "axisAngle": "Axis Angle",
+        "euler": "Euler",
+        "randomQuaternion": "Random Quaternion",
+        "axis": "Axis",
+        "angle": "Angle",
+        "anglePosition": "Angle {{position}}"
       },
       "emission-over-time": "Emission Over Time",
       "render-mode": "Render Mode",
