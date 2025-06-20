@@ -109,7 +109,7 @@ const execute = () => {
 
 const ModelEntityReactor = (props: { entity: Entity }) => {
   const entity = props.entity
-  const sourceID = UUIDComponent.getAsSourceID(entity)
+  const sourceID = UUIDComponent.useAsSourceID(entity)
   const childEntities = UUIDComponent.useEntitiesBySource(sourceID)
 
   return (
