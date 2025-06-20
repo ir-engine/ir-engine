@@ -35,11 +35,11 @@ import { FaLink } from 'react-icons/fa'
 import { useAuthSettings, useOAuthState } from '../../hooks/useAuthSetting'
 import { useMagicLink } from '../../hooks/useMagicLink'
 import { AuthService } from '../../user/services/AuthService'
+import CheckboxItem from './CheckboxItem'
 import FieldItem from './FieldItem'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
 import { Socials } from './SSOScreen'
-import ToggleItem from './ToggleItem'
 
 export default function SignupScreen() {
   const [tosAgreed, setTosAgreed] = useState(false)
@@ -77,15 +77,15 @@ export default function SignupScreen() {
     <div className="flex h-full flex-col gap-4">
       <div className="font-dm-sans">By signing up, you agree to the following:</div>
       <Section className="font-figtree">
-        <ToggleItem checked={tosAgreed} onClick={() => setTosAgreed(!tosAgreed)}>
+        <CheckboxItem checked={tosAgreed} onClick={() => setTosAgreed(!tosAgreed)}>
           <span>
             I agree to the{' '}
             <Link target="_blank" href={clientSetting?.data?.termsOfService ?? ''}>
               Infinite Reality Terms of Service
             </Link>
           </span>
-        </ToggleItem>
-        <ToggleItem
+        </CheckboxItem>
+        <CheckboxItem
           checked={ageAgreed}
           onClick={() => setAgeAgreed(!ageAgreed)}
           label="I am 18 years of age or older"
