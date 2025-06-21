@@ -25,15 +25,16 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   createEntity,
+  defineQuery,
   Entity,
   EntityID,
   EntityTreeComponent,
   getAncestorWithComponents,
-  getChildrenWithComponents,
   getComponent,
   getMutableComponent,
   getSimulationCounterpart,
   hasComponent,
+  Layers,
   removeEntityNodeRecursively,
   setComponent,
   SourceID,
@@ -47,6 +48,7 @@ import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/Col
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import {
   BufferAttribute,
@@ -108,7 +110,24 @@ export const UV2UnwrapperState = defineState({
 
 export type UVChannel = 'uv' | 'uv1' | 'uv2' | 'uv3'
 
+const meshQuery = defineQuery([MeshComponent, VisibleComponent], Layers.Authoring)
+
 const generateAtlas = async function (entity: Entity, uvChannel: UVChannel = 'uv2') {
+  const filteredMeshEntities = [] as Entity[]
+  for (const meshEntity of meshQuery()) {
+    const mesh = getComponent(meshEntity, MeshComponent)
+    const isValidMesh = mesh.geometry.index && !hasComponent(meshEntity, ColliderComponent)
+    const box = getComponent(entity, BoundingBoxComponent).box
+    const transform = getComponent(entity, TransformComponent)
+    box.max.set(1, 1, 1).applyMatrix4(transform.matrixWorld)
+    box.min.set(-1, -1, -1).applyMatrix4(transform.matrixWorld)
+    const intersectsVolume = getComponent(entity, BoundingBoxComponent).box.containsBox(mesh.geometry.boundingBox!)
+    console.log(getComponent(meshEntity, NameComponent), 'isvalid', isValidMesh, 'intersects', intersectsVolume)
+    if (isValidMesh && intersectsVolume) {
+      filteredMeshEntities.push(meshEntity)
+    }
+  }
+
   const unwrapper = getState(UV2UnwrapperState)
 
   if (!unwrapper.isLoaded) {
@@ -116,19 +135,6 @@ const generateAtlas = async function (entity: Entity, uvChannel: UVChannel = 'uv
     return
   }
 
-  // this should not be hierarchy based, todo replace with volumetric query possibly using three mesh bvh's box3 override
-  const meshEntities = getChildrenWithComponents(entity, [MeshComponent])
-  const filteredMeshEntities = [] as Entity[]
-  for (const entity of meshEntities) {
-    const meshComponent = getComponent(entity, MeshComponent)
-    if (
-      meshComponent.geometry.index &&
-      !hasComponent(entity, ColliderComponent) &&
-      hasComponent(entity, VisibleComponent)
-    ) {
-      filteredMeshEntities.push(entity)
-    }
-  }
   const geometries = filteredMeshEntities.map((entity) => getComponent(entity, MeshComponent).geometry)
 
   // todo figure out if padding is needed

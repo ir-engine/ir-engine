@@ -76,7 +76,7 @@ describe('LightmapComponent', () => {
       expect(component.lightmapSrc).toBe('')
     })
 
-    it('should accept values', () => {
+    it('should set values', () => {
       const testAtlasSrc = '/test/atlas.gltf'
       const testLightmapSrc = '/test/lightmap.jpg'
 

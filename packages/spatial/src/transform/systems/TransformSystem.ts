@@ -43,6 +43,7 @@ import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { insertionSort } from '../../common/functions/insertionSort'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
+import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { XRState } from '../../xr/XRState'
 import { BoundingBoxComponent, updateBoundingBox } from '../components/BoundingBoxComponent'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
@@ -53,7 +54,7 @@ import { TransformSerialization } from '../TransformSerialization'
 const transformQuery = defineQuery([TransformComponent])
 const computedTransformQuery = defineQuery([ComputedTransformComponent])
 
-const boundingBoxQuery = defineQuery([BoundingBoxComponent])
+const boundingBoxQuery = defineQuery([BoundingBoxComponent, MeshComponent])
 
 const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
 const frustumCulledQuery = defineQuery([TransformComponent, FrustumCullCameraComponent])
@@ -190,6 +191,7 @@ const execute = () => {
       ? _frustum.intersectsBox(boundingBox)
       : _frustum.containsPoint(TransformComponent.getWorldPosition(entity, _worldPos))
     FrustumCullCameraComponent.isCulled[entity] = shouldNotCull ? 0 : 1
+    console.log(entity, 'should not cull', shouldNotCull)
   }
 }
 
