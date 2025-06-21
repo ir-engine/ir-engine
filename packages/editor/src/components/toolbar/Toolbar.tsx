@@ -30,8 +30,8 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import { RouterState } from '@ir-engine/client-core/src/common/services/RouterService'
 import { ThemeState } from '@ir-engine/client-core/src/common/services/ThemeService'
 import { useProjectPermissions } from '@ir-engine/client-core/src/hooks/useUserProjectPermission'
-import irStudioIconDark from '@ir-engine/client/src/assets/ir-studio-icon-dark.svg'
-import irStudioIconLight from '@ir-engine/client/src/assets/ir-studio-icon-light.svg'
+import studioIconDark from '@ir-engine/client/src/assets/studio-icon-dark.svg'
+import studioIconLight from '@ir-engine/client/src/assets/studio-icon-light.svg'
 import { useFind } from '@ir-engine/common'
 import { ScopeType, locationPath, scopePath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs'
@@ -213,7 +213,7 @@ export default function Toolbar() {
         <div className="flex items-center">
           <div className="cursor-pointer" data-testid="back-to-dashboard-button" onClick={onCloseProject}>
             <img
-              src={themeState.theme.value === 'dark' ? irStudioIconDark : irStudioIconLight}
+              src={themeState.theme.value === 'dark' ? studioIconDark : studioIconLight}
               alt="Napster Engine Logo"
               className="h-6 w-6"
             />

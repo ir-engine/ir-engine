@@ -23,12 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useState } from 'react'
+import React from 'react'
 
 import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
-import { useMutableState } from '@ir-engine/hyperflux'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import Divider from '@ir-engine/ui/src/components/viewer/Divider'
-import { AuthService } from '../../user/services/AuthService'
+import { MultiplayerState } from '../../common/services/MultiplayerState'
+import { AuthService, AuthState } from '../../user/services/AuthService'
+import ButtonGroup from './ButtonGroup'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
 import SliderItem from './SliderItem'
@@ -41,9 +43,26 @@ interface ScreenProps {
 }
 
 const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
-  const [videoCommunication, setVideoCommunication] = useState(false)
-  const [multiplayer, setMultiplayer] = useState(false)
   const audioState = useMutableState(AudioState)
+  const { world, media } = useMutableState(MultiplayerState)
+  const isGuest = useMutableState(AuthState).user.isGuest.value
+  const confirmLogout = useHookstate(false)
+
+  if (confirmLogout.value) {
+    return (
+      <div className="mx-auto flex h-full max-w-sm flex-col items-center justify-between pb-2">
+        <div className="text-dm-sans m-auto flex w-full flex-1 flex-col justify-center text-center text-2xl text-white">
+          Are you sure you want to logout?
+        </div>
+        <ButtonGroup
+          options={[
+            { label: 'Logout', onClick: () => AuthService.logoutUser() },
+            { label: 'Nevermind', onClick: () => confirmLogout.set(false) }
+          ]}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4">
@@ -53,8 +72,10 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
         <Divider />
         <ToggleItem
           label="Video Communication"
-          checked={videoCommunication}
-          onClick={() => setVideoCommunication(!videoCommunication)}
+          checked={media.value}
+          onClick={() => {
+            media.set(!media.value)
+          }}
         />
       </Section>
       <Section>
@@ -73,7 +94,7 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
 
       {/* World & Account Section */}
       <Section>
-        <ToggleItem label="Multiplayer" checked={multiplayer} onClick={() => setMultiplayer(!multiplayer)} />
+        <ToggleItem label="Multiplayer" checked={world.value} onClick={() => world.set(!world.value)} />
         <Divider />
         <MenuItem label="Account" onClick={() => navigateTo('Settings', 'account')} hasChevron />
         <Divider />
@@ -86,7 +107,7 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
         <Divider />
         <MenuItem label="Graphics" onClick={() => navigateTo('Settings', 'graphics')} hasChevron />
         <MenuItem label="Audio" onClick={() => navigateTo('Settings', 'audio')} hasChevron />
-        <MenuItem label="Log Out" onClick={AuthService.logoutUser} />
+        {!isGuest && <MenuItem label="Log Out" onClick={() => confirmLogout.set(true)} />}
       </Section>
     </div>
   )
