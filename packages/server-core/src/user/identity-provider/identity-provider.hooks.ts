@@ -245,7 +245,8 @@ async function addIdentityProviderType(context: HookContext<IdentityProviderServ
 async function createNewUser(context: HookContext<IdentityProviderService>) {
   const isGuest = (context.actualData as IdentityProviderType).type === 'guest'
   context.existingUser = await context.app.service(userPath).create({
-    isGuest
+    isGuest,
+    ageVerified: isGuest ? false : true
   })
 }
 
@@ -264,7 +265,7 @@ async function addScopes(context: HookContext<IdentityProviderService>) {
 
     await context.app.service(scopePath).create(data)
 
-    await context.app.service(userPath).patch(context.existingUser!.id, { isGuest: false })
+    await context.app.service(userPath).patch(context.existingUser!.id, { isGuest: false, ageVerified: true })
   }
 }
 

@@ -87,17 +87,9 @@ export const screens: Record<string, ScreenDefinition> = {
     component: DisplayNameScreen,
     title: 'Display Name'
   },
-  userId: {
-    component: (props) => <PlaceholderScreen {...props} title="User ID" />,
-    title: 'User ID'
-  },
   permissions: {
     component: PermissionsScreen,
     title: 'Permissions'
-  },
-  shadowMapResolution: {
-    component: (props) => <PlaceholderScreen {...props} title="Shadow Map Resolution" />,
-    title: 'Shadow Map Resolution'
   },
   sso: {
     component: SSOScreen,

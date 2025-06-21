@@ -36,9 +36,10 @@ import { useSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { useEngineCanvas } from '@ir-engine/spatial/src/renderer/functions/useEngineCanvas'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 
+import { MultiplayerState } from '@ir-engine/client-core/src/common/services/MultiplayerState'
 import { useEngineInjection } from '@ir-engine/client-core/src/components/World/EngineHooks'
 import { LoadingUISystemState } from '@ir-engine/client-core/src/systems/LoadingUISystem'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import '../styles.scss'
 
 const LocationRoutes = () => {
@@ -51,11 +52,12 @@ const LocationRoutes = () => {
 
   const projectsLoaded = useEngineInjection()
 
+  const multiplayer = useMutableState(MultiplayerState).world
   return (
     <Suspense>
       {projectsLoaded && (
         <Routes>
-          <Route path=":locationName" element={<LocationPage online />} />
+          <Route path=":locationName" element={<LocationPage online={multiplayer.value} />} />
         </Routes>
       )}
       {!ready && (
