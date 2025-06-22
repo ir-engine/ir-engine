@@ -225,10 +225,10 @@ const ActiveHelperReactor: React.FC<ComponentHelperEntry> = (helper) => {
 
   InputComponent.useExecuteWithInput(inputExecutionCallback, InputExecutionOrder.Before, true)
 
+  const preExistingBoundingBoxes = useRef<Entity[]>([])
+
   useEffect(() => {
     if (effectiveHelper?.volume === undefined) return
-
-    const preExistingBoundingBoxes = useRef<Entity[]>([])
 
     const updateBoundingBoxVisibility = () => {
       const { volumeVisibility } = editorHelperState

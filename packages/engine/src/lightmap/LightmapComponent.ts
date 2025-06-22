@@ -24,31 +24,27 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
-  createEntity,
   defineComponent,
-  EntityTreeComponent,
   EntityUUID,
   getAncestorWithComponents,
   getAuthoringCounterpart,
   getChildrenWithComponents,
   getComponent,
-  removeEntity,
+  getOptionalComponent,
   removeEntityNodeRecursively,
   setComponent,
+  useAncestorWithComponents,
   useComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
-import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import { useEffect } from 'react'
-import { Box3, Box3Helper, BufferGeometry, Mesh, Vector3 } from 'three'
+import { Box3, Vector3 } from 'three'
+import { useTexture } from '../assets/functions/resourceLoaderHooks'
+import { GLTFComponent } from '../gltf/GLTFComponent'
 import { AssetState } from '../gltf/GLTFState'
 
 declare module 'xatlas-three' {
@@ -68,28 +64,22 @@ export const LightmapComponent = defineComponent({
 
   reactor: ({ entity }) => {
     const lightmapComponent = useComponent(entity, LightmapComponent)
+    const [lightmapTexture] = useTexture(lightmapComponent.lightmapSrc.value, entity)
 
-    //create box3 lightmap volume helper
     useEffect(() => {
       setComponent(entity, BoundingBoxComponent, {
         box: new Box3(new Vector3(-0.5, -0.5, -0.5), new Vector3(0.5, 0.5, 0.5))
       })
-      const helperEntity = createEntity()
-      const helper = new Box3Helper(getComponent(entity, BoundingBoxComponent).box, 0xff0000)
-      helper.name = `lightmap-volume-helper-${entity}`
-      setComponent(helperEntity, NameComponent, helper.name)
-      setComponent(helperEntity, VisibleComponent)
-      setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
-      setComponent(helperEntity, ObjectComponent, helper)
-      ObjectLayerMaskComponent.setLayer(helperEntity, ObjectLayers.NodeHelper)
-
-      return () => {
-        removeEntity(helperEntity)
-      }
     }, [])
 
+    const sceneEntity = useAncestorWithComponents(entity, [SceneComponent])
+    const sceneLoaded = useComponent(getAuthoringCounterpart(sceneEntity) ?? sceneEntity, GLTFComponent).progress
+
+    console.log(sceneLoaded.value)
+
     useEffect(() => {
-      if (!lightmapComponent.atlasSrc.value) return
+      if (!lightmapComponent.atlasSrc.value || sceneLoaded.value !== 100) return
+
       AssetState.loadAsync(lightmapComponent.atlasSrc.value, false, UUIDComponent.generate()).then((atlasEntity) => {
         const sceneUUID = UUIDComponent.get(getAncestorWithComponents(entity, [SceneComponent]))
         for (const atlasedChildEntity of getChildrenWithComponents(atlasEntity, [MeshComponent])) {
@@ -98,21 +88,32 @@ export const LightmapComponent = defineComponent({
           )
           const atlasedMeshComponent = getComponent(atlasedChildEntity, MeshComponent)
           if (!correspondingEntity) continue
-          const correspondingMesh = new Mesh(new BufferGeometry().copy(atlasedMeshComponent.geometry))
+          const correspondingMeshComponent = getOptionalComponent(correspondingEntity, MeshComponent)
 
-          setComponent(correspondingEntity, MeshComponent, correspondingMesh)
-          const authoringCounterpart = getAuthoringCounterpart(correspondingEntity)
-          if (authoringCounterpart) {
-            setComponent(
-              authoringCounterpart,
-              MeshComponent,
-              new Mesh(new BufferGeometry().copy(atlasedMeshComponent.geometry))
-            )
+          if (!correspondingMeshComponent) continue
+          for (let i = 0; i < 3; i++) {
+            let attribute = 'uv'
+            if (i > 0) attribute += i
+            if (atlasedMeshComponent.geometry.hasAttribute(attribute))
+              correspondingMeshComponent.geometry.setAttribute(
+                attribute,
+                atlasedMeshComponent.geometry.getAttribute(attribute)
+              )
           }
+
+          correspondingMeshComponent.geometry.setAttribute(
+            'position',
+            atlasedMeshComponent.geometry.getAttribute('position')
+          )
+          correspondingMeshComponent.geometry.setAttribute(
+            'normal',
+            atlasedMeshComponent.geometry.getAttribute('normal')
+          )
+          correspondingMeshComponent.geometry.index = atlasedMeshComponent.geometry.index
         }
         removeEntityNodeRecursively(atlasEntity)
       })
-    }, [lightmapComponent.atlasSrc])
+    }, [lightmapTexture, sceneLoaded])
 
     return null
   }

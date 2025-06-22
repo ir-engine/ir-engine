@@ -151,6 +151,8 @@ async function exportAtlasData(
   relativePath: string,
   assetName: string
 ): Promise<string> {
+  const sanitizedAssetName = assetName.replace(/\s+/g, '-')
+
   const rootEntity = createEntity()
   setComponent(rootEntity, UUIDComponent, { entitySourceID: 'atlas-root' as SourceID, entityID: 'root' as EntityID })
   setComponent(rootEntity, TransformComponent)
@@ -159,7 +161,6 @@ async function exportAtlasData(
   const sceneRootUUID = UUIDComponent.get(getAncestorWithComponents(entities[0], [SceneComponent]))
 
   entities.map((entity) => {
-    console.log(entity)
     let entityUUID = UUIDComponent.get(entity) as string
     //if entity uuid starts with sceneRootUUID, remove that part
     if (entityUUID.startsWith(sceneRootUUID)) entityUUID = entityUUID.slice(sceneRootUUID.length)
@@ -189,11 +190,11 @@ async function exportAtlasData(
     return atlasEntity
   })
 
-  const [gltf, ...files] = await exportGLTFScene(rootEntity, projectName, assetName + '.gltf', false)
+  const [gltf, ...files] = await exportGLTFScene(rootEntity, projectName, sanitizedAssetName + '.gltf', false)
 
   const blob = [new Blob([JSON.stringify(gltf)], { type: 'model/gltf+json' })]
-  const gltfFile = new File(blob, assetName + '.gltf')
-  const binFile = new File([files[0] as File], assetName + '.bin')
+  const gltfFile = new File(blob, sanitizedAssetName + '.gltf')
+  const binFile = new File([files[0] as File], sanitizedAssetName + '.bin')
 
   const [url] = await Promise.all(
     uploadProjectFiles(
