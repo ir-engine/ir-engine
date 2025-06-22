@@ -34,7 +34,6 @@ import {
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { getState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
-import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import {
   MaterialInstanceComponent,
@@ -50,8 +49,16 @@ const lightmapQuery = defineQuery([LightmapBakeComponent])
 
 const execute = () => {
   for (const entity of lightmapQuery()) {
-    const { renderTarget, raycastMesh, orthographicCamera, raycastMaterial, entities, currentSamples, totalSamples } =
-      getComponent(entity, LightmapBakeComponent)
+    const {
+      renderTarget,
+      raycastMesh,
+      orthographicCamera,
+      raycastMaterial,
+      entities,
+      currentSamples,
+      totalSamples,
+      channel
+    } = getComponent(entity, LightmapBakeComponent)
 
     if (currentSamples < totalSamples) {
       getComponent(entity, LightmapBakeComponent).currentSamples = Lightmapper.sample(
@@ -74,7 +81,7 @@ const execute = () => {
             for (const materialEntity of materials) {
               commitProperty(MaterialStateComponent, 'parameters.aoMap' as any, [
                 LayerFunctions.getAuthoringCounterpart(materialEntity)
-              ])({ source: uploadedUrl, channel: 2 } as SerializedTexture)
+              ])({ source: uploadedUrl, channel } as SerializedTexture)
               commitProperty(MaterialStateComponent, 'parameters.aoMapIntensity' as any, [
                 LayerFunctions.getAuthoringCounterpart(materialEntity)
               ])(1)
@@ -90,8 +97,14 @@ const execute = () => {
 
     // inelegant way to preview the progressive render todo support material arrays
     entities.map((entity) => {
-      ;(getComponent(entity, MeshComponent).material as MeshStandardMaterial).aoMap = renderTarget.texture
-      ;(getComponent(entity, MeshComponent).material as MeshStandardMaterial).aoMap!.channel = 2
+      console.log(entity)
+      const materialInstanceComponent = getComponent(entity, MaterialInstanceComponent)
+      for (const materialEntity of materialInstanceComponent.entities) {
+        const material = getComponent(materialEntity, MaterialStateComponent).material as MeshStandardMaterial
+
+        material.aoMap = renderTarget.texture
+        material.aoMap!.channel = channel
+      }
     })
   }
 }

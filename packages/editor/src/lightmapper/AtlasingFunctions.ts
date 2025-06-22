@@ -124,7 +124,7 @@ const generateAtlas = async function (entity: Entity, uvChannel: UVChannel = 'uv
     const intersectsVolume = getComponent(entity, BoundingBoxComponent).box.containsBox(mesh.geometry.boundingBox!)
     console.log(getComponent(meshEntity, NameComponent), 'isvalid', isValidMesh, 'intersects', intersectsVolume)
     if (isValidMesh && intersectsVolume) {
-      filteredMeshEntities.push(meshEntity)
+      filteredMeshEntities.push(getSimulationCounterpart(meshEntity))
     }
   }
 
@@ -159,14 +159,13 @@ async function exportAtlasData(
   const sceneRootUUID = UUIDComponent.get(getAncestorWithComponents(entities[0], [SceneComponent]))
 
   entities.map((entity) => {
+    console.log(entity)
     let entityUUID = UUIDComponent.get(entity) as string
     //if entity uuid starts with sceneRootUUID, remove that part
     if (entityUUID.startsWith(sceneRootUUID)) entityUUID = entityUUID.slice(sceneRootUUID.length)
 
     const atlasEntity = UUIDComponent.create(rootEntity, entityUUID as EntityID)
     setComponent(atlasEntity, TransformComponent)
-
-    setComponent(atlasEntity, EntityTreeComponent, { parentEntity: rootEntity })
 
     getMutableComponent(rootEntity, EntityTreeComponent).children.merge([atlasEntity])
 
@@ -185,11 +184,7 @@ async function exportAtlasData(
       geometry.setIndex(originalGeometry.index.clone())
     }
 
-    // for (let i = 0; i < originalGeometry.groups.length; i++) {
-    //   geometry.groups[i] = originalGeometry.groups[i]
-    // }
-
-    setComponent(atlasEntity, MeshComponent, new Mesh(originalMesh.geometry.clone()))
+    setComponent(atlasEntity, MeshComponent, new Mesh(geometry))
 
     return atlasEntity
   })

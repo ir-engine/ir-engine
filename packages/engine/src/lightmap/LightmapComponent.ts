@@ -29,6 +29,7 @@ import {
   EntityTreeComponent,
   EntityUUID,
   getAncestorWithComponents,
+  getAuthoringCounterpart,
   getChildrenWithComponents,
   getComponent,
   removeEntity,
@@ -100,14 +101,14 @@ export const LightmapComponent = defineComponent({
           const correspondingMesh = new Mesh(new BufferGeometry().copy(atlasedMeshComponent.geometry))
 
           setComponent(correspondingEntity, MeshComponent, correspondingMesh)
-          // const authoringCounterpart = getAuthoringCounterpart(correspondingEntity)
-          // if (authoringCounterpart) {
-          //   setComponent(
-          //     authoringCounterpart,
-          //     MeshComponent,
-          //     new Mesh(new BufferGeometry().copy(atlasedMeshComponent.geometry))
-          //   )
-          // }
+          const authoringCounterpart = getAuthoringCounterpart(correspondingEntity)
+          if (authoringCounterpart) {
+            setComponent(
+              authoringCounterpart,
+              MeshComponent,
+              new Mesh(new BufferGeometry().copy(atlasedMeshComponent.geometry))
+            )
+          }
         }
         removeEntityNodeRecursively(atlasEntity)
       })

@@ -333,12 +333,20 @@ const uploadLightmapTexture = async (renderTarget: WebGLRenderTarget, entity: En
  * @param resolution the resolution of the lightmap, must be power of 2
  * @param samples the number of samples to take, higher numbers take longer but yield better results
  */
-const handleBakeLightmap = (entity: Entity, entities: Entity[], resolution: number, samples: number) => {
+const handleBakeLightmap = (
+  entity: Entity,
+  entities: Entity[],
+  resolution: number,
+  samples: number,
+  channel: number
+) => {
   if (!entities.length) console.error('No atlased entities to bake')
+
+  const simulationEntities = entities.map(getSimulationCounterpart)
 
   const textures = AtlasingFunctions.renderAtlas(
     getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!,
-    entities.map((entity) => getComponent(entity, MeshComponent)),
+    simulationEntities.map((entity) => getComponent(entity, MeshComponent)),
     resolution,
     true
   )
@@ -347,7 +355,7 @@ const handleBakeLightmap = (entity: Entity, entities: Entity[], resolution: numb
     getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!,
     textures.positionTexture,
     textures.normalTexture,
-    Lightmapper.getBakeBVH(entities as Entity[]),
+    Lightmapper.getBakeBVH(simulationEntities as Entity[]),
     {
       resolution,
       casts: 1,
@@ -362,13 +370,14 @@ const handleBakeLightmap = (entity: Entity, entities: Entity[], resolution: numb
   )
 
   setComponent(getSimulationCounterpart(entity), LightmapBakeComponent, {
-    entities: entities as Entity[],
+    entities: simulationEntities as Entity[],
     renderTarget: renderTexture,
     raycastMesh,
     orthographicCamera,
     raycastMaterial,
     totalSamples: samples,
-    currentSamples: 0
+    currentSamples: 0,
+    channel
   })
 }
 

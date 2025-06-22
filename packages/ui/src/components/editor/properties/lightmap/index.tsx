@@ -119,7 +119,8 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
               props.entity,
               atlasedEntities.value as Entity[],
               resolutionState.value,
-              sampleState.value
+              sampleState.value,
+              uvChannelState.value === 'uv' ? 0 : Number(uvChannelState.value.replace('uv', ''))
             )
           }
           disabled={!unwrapperLoaded.value}

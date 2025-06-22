@@ -39,6 +39,7 @@ export const LightmapBakeComponent = defineComponent({
     raycastMaterial: S.Type<LightmapperMaterial>({ serialized: false }),
     totalSamples: S.Number({ default: 1000 }),
     currentSamples: S.Number({ default: 0 }),
-    resolution: S.Number({ default: 1024 })
+    resolution: S.Number({ default: 1024 }),
+    channel: S.Number({ default: 2 })
   })
 })
