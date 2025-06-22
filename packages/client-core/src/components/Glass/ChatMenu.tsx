@@ -144,7 +144,7 @@ export const ChatMenu = () => {
   const { messageGroupedBySender, inputRef, handleInputChange, sendMessage, composedMessage } = useChatProvider()
   const { navigateTo } = useNavigationProvider()
 
-  const onCTAClicked = () => navigateTo('/settings/sign-up')
+  const onCTAClicked = () => navigateTo('settings/sign-up')
 
   if (isGuest) {
     return (

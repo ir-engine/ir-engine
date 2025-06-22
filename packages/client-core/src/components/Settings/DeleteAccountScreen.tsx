@@ -42,7 +42,7 @@ const DeleteAccountScreen: React.FC<DeleteAccountScreenProps> = ({ navigateTo, n
   }
 
   const handleStayHere = () => {
-    navigateTo('/settings/account')
+    navigateTo('settings/account')
   }
 
   return (
