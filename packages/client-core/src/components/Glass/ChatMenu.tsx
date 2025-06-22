@@ -30,9 +30,10 @@ import { twMerge } from 'tailwind-merge'
 
 import { Send01Md } from '@ir-engine/ui/src/icons'
 import { AuthState } from '../../user/services/AuthService'
+import { TextButton } from './buttons/TextButton'
 import { useChatProvider } from './ChatProvider'
 import { useNavigationProvider } from './NavigationProvider'
-import { TextButton } from './buttons/TextButton'
+import { Inner } from './ToolbarAndSidebar'
 
 const messageBaseStyles = `
   inline-grid
@@ -148,7 +149,7 @@ export const ChatMenu = () => {
 
   if (isGuest) {
     return (
-      <div className="flex h-full w-full max-w-screen-sm flex-col items-center justify-center gap-8 font-dm-sans">
+      <div className="flex min-h-full w-full max-w-screen-sm flex-col items-center justify-center gap-8 font-dm-sans">
         <HiChatBubbleLeftRight className="mx-auto h-[5.5rem] w-[5.5rem]" />
         <div className="text-shadow font-manrope text-2xl text-white">Want to chat with others?</div>
         <TextButton className={'w-[90%]'} onClick={onCTAClicked}>
@@ -167,7 +168,7 @@ export const ChatMenu = () => {
   const hasInputText = !!composedMessage.value
 
   return (
-    <>
+    <Inner className={`mb-20`}>
       {messageGroupedBySender.map((group, groupIndex) => {
         const [firstMessage] = group
         const isOwnGroup = firstMessage.senderId === user.id.value
@@ -204,6 +205,6 @@ export const ChatMenu = () => {
       </div>
 
       <BottomSpacer />
-    </>
+    </Inner>
   )
 }
