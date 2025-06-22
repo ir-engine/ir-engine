@@ -81,10 +81,10 @@ export default function ColorGenerator({ path, scope, value, onChange }: ColorGe
 
     return (
       <>
-        <InputGroup name="A" label="A">
+        <InputGroup name="A" label="A" containerClassName="pl-0">
           <ColorJSONInput value={range.a} onChange={onChange(path + '.a')} />
         </InputGroup>
-        <InputGroup name="B" label="B">
+        <InputGroup name="B" label="B" containerClassName="pl-0">
           <ColorJSONInput value={range.b} onChange={onChange(path + '.b')} />
         </InputGroup>
       </>
@@ -97,10 +97,10 @@ export default function ColorGenerator({ path, scope, value, onChange }: ColorGe
 
     return (
       <>
-        <InputGroup name="A" label="A">
+        <InputGroup name="A" label="A" containerClassName="pl-0">
           <ColorJSONInput value={random.a} onChange={onChange(path + '.a')} />
         </InputGroup>
-        <InputGroup name="B" label="B">
+        <InputGroup name="B" label="B" containerClassName="pl-0">
           <ColorJSONInput value={random.b} onChange={onChange(path + '.b')} />
         </InputGroup>
       </>
@@ -146,7 +146,7 @@ export default function ColorGenerator({ path, scope, value, onChange }: ColorGe
 
   return (
     <div>
-      <InputGroup name="type" label={t('editor:properties.particle-system.startColor.type')}>
+      <InputGroup name="type" label={t('editor:properties.particle-system.startColor.type')} containerClassName="pl-0">
         <SelectInput value={value.type} options={colorOptions} onChange={onChangeType()} />
       </InputGroup>
       {colorInputs[value.type]()}

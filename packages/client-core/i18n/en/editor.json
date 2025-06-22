@@ -786,6 +786,8 @@
         "anglePosition": "Angle {{position}}"
       },
       "emission-over-time": "Emission Over Time",
+      "trailLength": "Trail Length",
+      "followLocalOrigin": "Follow Local Origin",
       "render-mode": "Render Mode",
       "render-mode-type": {
         "billboard": "Billboard",

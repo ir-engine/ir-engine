@@ -319,7 +319,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       {particleSystem.systemParameters.renderMode === RenderMode.Trail && (
         <>
-          <InputGroup name="Trail Length" label={t('editor:properties.particle-system.trail-length')}>
+          <InputGroup name="Trail Length" label={t('editor:properties.particle-system.trailLength')}>
             <ValueGenerator
               path="systemParameters.rendererEmitterSettings.startLength"
               value={particleSystem.systemParameters.rendererEmitterSettings.startLength as ValueGeneratorJSON}
@@ -330,7 +330,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
               onChange={onSetState}
             />
           </InputGroup>
-          <InputGroup name="Follow Local Origin" label={t('editor:properties.particle-system.follow-local-origin')}>
+          <InputGroup name="Follow Local Origin" label={t('editor:properties.particle-system.followLocalOrigin')}>
             <Checkbox
               checked={particleSystem.systemParameters.rendererEmitterSettings.followLocalOrigin}
               onChange={onSetState('systemParameters.rendererEmitterSettings.followLocalOrigin')}
