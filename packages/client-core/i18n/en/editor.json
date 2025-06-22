@@ -801,6 +801,19 @@
       "blending": "Blending",
       "transparent": "Transparent",
       "world-space": "Use World Space",
+      "valueGenerator": {
+        "value": "Value",
+        "min": "Min",
+        "max": "Max",
+        "addBezier": "Add Bezier",
+        "pIndex": "P{{index}}",
+        "start": "Start",
+        "remove": "Remove",
+        "type": "Type",
+        "constant": "Constant",
+        "interval": "Interval",
+        "bezier": "Bezier"
+      },
       "blending-type": {
         "normal": "Normal",
         "additive": "Additive",
