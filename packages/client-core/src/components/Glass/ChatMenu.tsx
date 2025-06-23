@@ -33,6 +33,7 @@ import { AuthState } from '../../user/services/AuthService'
 import ButtonGroup from '../Settings/ButtonGroup'
 import { useChatProvider } from './ChatProvider'
 import { useNavigationProvider } from './NavigationProvider'
+import { Inner } from './ToolbarAndSidebar'
 
 const messageBaseStyles = `
   inline-grid
@@ -140,7 +141,7 @@ export const ChatMenu = () => {
   const user = useMutableState(AuthState).user
 
   const isGuest = user.isGuest.value
-  const onSignUpClicked = () => navigateTo('Settings/sign-up')
+  const onSignUpClicked = () => navigateTo('Settings/signup')
   const onSignInClicked = () => navigateTo('Settings/login')
 
   const { messageGroupedBySender, inputRef, handleInputChange, sendMessage, composedMessage } = useChatProvider()
@@ -173,7 +174,7 @@ export const ChatMenu = () => {
   const hasInputText = !!composedMessage.value
 
   return (
-    <>
+    <Inner className={`mb-20`}>
       {messageGroupedBySender.map((group, groupIndex) => {
         const [firstMessage] = group
         const isOwnGroup = firstMessage.senderId === user.id.value
@@ -210,6 +211,6 @@ export const ChatMenu = () => {
       </div>
 
       <BottomSpacer />
-    </>
+    </Inner>
   )
 }

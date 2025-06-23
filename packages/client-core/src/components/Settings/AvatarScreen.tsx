@@ -43,6 +43,7 @@ import AvatarModifyMenu from '../../user/menus/avatar/AvatarModifyMenu'
 import { AuthService, AuthState } from '../../user/services/AuthService'
 import { AVATAR_PAGE_LIMIT } from '../../user/services/AvatarService'
 import { NavigateFuncProps } from '../Glass/NavigationProvider'
+import { Inner } from '../Glass/ToolbarAndSidebar'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
 
@@ -96,7 +97,7 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({ navigateTo }) => {
   }
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <Inner className="flex min-h-full flex-col gap-4">
       {/* Avatar Display Section */}
       <Section>
         <div className="relative aspect-square max-h-[250px] w-full overflow-hidden ">
@@ -144,7 +145,7 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({ navigateTo }) => {
           ))}
         </div>
       </div>
-    </div>
+    </Inner>
   )
 }
 

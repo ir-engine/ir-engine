@@ -27,6 +27,7 @@ import React from 'react'
 
 import Divider from '@ir-engine/ui/src/components/viewer/Divider'
 import { NavigateFuncProps } from '../Glass/NavigationProvider'
+import { Inner } from '../Glass/ToolbarAndSidebar'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
 
@@ -34,7 +35,7 @@ import { Section } from './Section'
 type ScreenProps = NavigateFuncProps & {}
 
 const AccountSettings: React.FC<ScreenProps> = ({ navigateTo }) => (
-  <div className="h-full space-y-4">
+  <Inner className="min-h-full space-y-4">
     <Section>
       <MenuItem label="Display Name" onClick={() => navigateTo('settings/display')} hasChevron />
       <Divider />
@@ -46,7 +47,7 @@ const AccountSettings: React.FC<ScreenProps> = ({ navigateTo }) => (
       <Divider />
       <MenuItem label="Delete My Account" onClick={() => navigateTo('settings/delete')} hasChevron />
     </Section>
-  </div>
+  </Inner>
 )
 
 export default AccountSettings

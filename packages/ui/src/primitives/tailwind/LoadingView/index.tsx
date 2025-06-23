@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
-import LoadingAnimation from './assets/logo.svg'
+import LoadingAnimation from './assets/animation_logo_black.webp'
 
 const LoadingView = ({
   title,

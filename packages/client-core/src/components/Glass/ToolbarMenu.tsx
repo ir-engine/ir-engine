@@ -25,8 +25,15 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useState } from 'react'
 
-import { ChevronDownMd, ChevronLeftMd, CogMd, EmoteM, MessageTextSquare01Sm } from '@ir-engine/ui/src/icons'
+import {
+  ChevronDownMd as ArrowDownIcon,
+  ChevronLeftMd as ArrowLeftIcon,
+  EmoteM as EmoteIcon
+} from '@ir-engine/ui/src/icons'
 import { useTranslation } from 'react-i18next'
+import { BsChatLeftTextFill as MessageIcon } from 'react-icons/bs'
+import { IoSettingsSharp as SettingsIcon } from 'react-icons/io5'
+import { RiShareForwardFill as ShareIcon } from 'react-icons/ri'
 import { twMerge } from 'tailwind-merge'
 import { Badge, BaseBadgeProps } from './Badge'
 import { MenuIconButton } from './buttons/MenuIconButton'
@@ -37,7 +44,7 @@ import { useMultimediaStateProvider } from './MultimediaStateProvider'
 export const ChatButton = ({ badge, onClick, active }) => {
   return (
     <MenuIconButton badge={badge} onClick={onClick} active={active}>
-      <MessageTextSquare01Sm className={'relative top-[0.04em]'} />
+      <MessageIcon className={'relative top-[0.04em]'} />
     </MenuIconButton>
   )
 }
@@ -288,10 +295,10 @@ export const ToolbarMenu = ({ onMessageClick, onShareClick, onSettingsClick, act
         <Badge show={showBadge} />
 
         <MenuIconButton className={isEmoteMenuOpen ? `` : arrowButtonStyles} onClick={onArrowClick}>
-          <ChevronDownMd
+          <ArrowDownIcon
             className={twMerge(isDefaultArrowDirection ? `scale-[1.2]` : `-scale-[1.2]`, 'sm:max-lg:hidden')}
           />
-          <ChevronLeftMd
+          <ArrowLeftIcon
             className={twMerge(isDefaultArrowDirection ? `scale-[1.2]` : `-scale-[1.2]`, 'hidden sm:max-lg:block')}
           />
         </MenuIconButton>
@@ -303,7 +310,10 @@ export const ToolbarMenu = ({ onMessageClick, onShareClick, onSettingsClick, act
           )}
         >
           <MenuIconButton onClick={onSettingsClick}>
-            <CogMd />
+            <SettingsIcon />
+          </MenuIconButton>
+          <MenuIconButton onClick={onShareClick}>
+            <ShareIcon />
           </MenuIconButton>
           <MenuIconButton
             onClick={handleOpenEmoteMenu}
@@ -314,7 +324,7 @@ export const ToolbarMenu = ({ onMessageClick, onShareClick, onSettingsClick, act
               } as BaseBadgeProps
             }
           >
-            <EmoteM className={'relative sm:max-lg:-top-[0.075em]'} />
+            <EmoteIcon className={'relative'} />
           </MenuIconButton>
         </div>
 
