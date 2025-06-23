@@ -35,6 +35,7 @@ import {
   setComponent,
   useAncestorWithComponents,
   useComponent,
+  useOptionalComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -42,7 +43,7 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import { useEffect } from 'react'
-import { Box3, Vector3 } from 'three'
+import { Box3, Mesh, Vector3 } from 'three'
 import { useTexture } from '../assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '../gltf/GLTFComponent'
 import { AssetState } from '../gltf/GLTFState'
@@ -73,12 +74,13 @@ export const LightmapComponent = defineComponent({
     }, [])
 
     const sceneEntity = useAncestorWithComponents(entity, [SceneComponent])
-    const sceneLoaded = useComponent(getAuthoringCounterpart(sceneEntity) ?? sceneEntity, GLTFComponent).progress
+    const sceneLoaded = useOptionalComponent(getAuthoringCounterpart(sceneEntity) || sceneEntity, GLTFComponent)
+      ?.progress
 
-    console.log(sceneLoaded.value)
+    console.log(sceneLoaded?.value)
 
     useEffect(() => {
-      if (!lightmapComponent.atlasSrc.value || sceneLoaded.value !== 100) return
+      if (!lightmapComponent.atlasSrc.value || sceneLoaded?.value !== 100) return
 
       AssetState.loadAsync(lightmapComponent.atlasSrc.value, false, UUIDComponent.generate()).then((atlasEntity) => {
         const sceneUUID = UUIDComponent.get(getAncestorWithComponents(entity, [SceneComponent]))
@@ -89,27 +91,19 @@ export const LightmapComponent = defineComponent({
           const atlasedMeshComponent = getComponent(atlasedChildEntity, MeshComponent)
           if (!correspondingEntity) continue
           const correspondingMeshComponent = getOptionalComponent(correspondingEntity, MeshComponent)
-
           if (!correspondingMeshComponent) continue
-          for (let i = 0; i < 3; i++) {
-            let attribute = 'uv'
-            if (i > 0) attribute += i
-            if (atlasedMeshComponent.geometry.hasAttribute(attribute))
-              correspondingMeshComponent.geometry.setAttribute(
-                attribute,
-                atlasedMeshComponent.geometry.getAttribute(attribute)
-              )
+          //transfer all attributes from atlas to corresponding mesh
+          for (const attributeName in atlasedMeshComponent.geometry.attributes) {
+            correspondingMeshComponent.geometry.setAttribute(
+              attributeName,
+              atlasedMeshComponent.geometry.getAttribute(attributeName)
+            )
           }
-
-          correspondingMeshComponent.geometry.setAttribute(
-            'position',
-            atlasedMeshComponent.geometry.getAttribute('position')
-          )
-          correspondingMeshComponent.geometry.setAttribute(
-            'normal',
-            atlasedMeshComponent.geometry.getAttribute('normal')
-          )
           correspondingMeshComponent.geometry.index = atlasedMeshComponent.geometry.index
+          //update all attributes
+
+          if (!getAuthoringCounterpart(correspondingEntity))
+            setComponent(correspondingEntity, MeshComponent, new Mesh(correspondingMeshComponent.geometry.clone()))
         }
         removeEntityNodeRecursively(atlasEntity)
       })

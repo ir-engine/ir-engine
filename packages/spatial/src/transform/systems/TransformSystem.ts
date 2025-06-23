@@ -191,7 +191,6 @@ const execute = () => {
       ? _frustum.intersectsBox(boundingBox)
       : _frustum.containsPoint(TransformComponent.getWorldPosition(entity, _worldPos))
     FrustumCullCameraComponent.isCulled[entity] = shouldNotCull ? 0 : 1
-    console.log(entity, 'should not cull', shouldNotCull)
   }
 }
 
