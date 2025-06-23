@@ -95,7 +95,11 @@ const RenderModeTool = () => {
         <ViewportButton
           lean={true}
           selected={rendererState.renderMode.value === RenderModes.SHADOW}
-          onClick={() => rendererState.renderMode.set(RenderModes.SHADOW)}
+          onClick={() =>
+            rendererState.renderMode.value === RenderModes.SHADOW
+              ? rendererState.renderMode.set(RenderModes.LIT)
+              : rendererState.renderMode.set(RenderModes.SHADOW)
+          }
           icon={ShadowMd}
         />
       </Tooltip>
