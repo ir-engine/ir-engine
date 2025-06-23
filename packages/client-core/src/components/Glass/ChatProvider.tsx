@@ -40,7 +40,6 @@ type ChatMessagesType = {
   unreadMessages: State<boolean>
   newMessages: State<{ [mid: MessageType['id']]: boolean }>
   setNewMessage: (messageId: MessageType['id']) => void
-  userIdToNameMap: Map<string, string>
 }
 type ChatInputType = {
   handleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void
@@ -169,8 +168,7 @@ const useChatMessages = (): ChatMessagesType => {
     newMessages,
     unreadMessages,
     setNewMessage,
-    messageGroupedBySender,
-    userIdToNameMap
+    messageGroupedBySender
   }
 }
 
