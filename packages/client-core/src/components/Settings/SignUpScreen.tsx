@@ -36,6 +36,7 @@ import { useAuthSettings, useOAuthState } from '../../hooks/useAuthSetting'
 import { useMagicLink } from '../../hooks/useMagicLink'
 import { AuthService } from '../../user/services/AuthService'
 import { TextButton } from '../Glass/buttons/TextButton'
+import { Inner } from '../Glass/ToolbarAndSidebar'
 import FieldItem from './FieldItem'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
@@ -76,7 +77,7 @@ export default function SignupScreen() {
   const disableMagicLink = !agreedToAll || pending.value || sent.value || !isValid.value
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <Inner className="flex min-h-full flex-col gap-4">
       <div className="font-dm-sans">By signing up, you agree to the following:</div>
       <Section className="font-figtree">
         <ToggleItem checked={tosAgreed} onClick={() => setTosAgreed(!tosAgreed)}>
@@ -127,6 +128,6 @@ export default function SignupScreen() {
           </React.Fragment>
         ))}
       </Section>
-    </div>
+    </Inner>
   )
 }

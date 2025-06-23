@@ -184,18 +184,22 @@ const contentStyles = `
 
   flex flex-col items-center
   gap-y-7
-  overflow-y-auto
-  
-  px-6 mb-20 pt-0
 
   text-xl
   text-white
+
   scrollbar-hide
-  
+  overflow-y-auto
+`
+
+export const innerStyles = `
+  px-6 pt-0 pb-12
+
   lg:px-14
   lg:pt-12
-
 `
+
+export const Inner = ({ className, ...props }) => <div className={twMerge(innerStyles, className)} {...props} />
 
 const contentContainerStyles = `
   relative

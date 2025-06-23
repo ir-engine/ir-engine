@@ -32,6 +32,7 @@ import Divider from '@ir-engine/ui/src/components/viewer/Divider'
 import { Dropdown } from '@ir-engine/ui/viewer'
 import { clientContextParams } from '../../util/ClientContextState'
 import { NavigateFuncProps } from '../Glass/NavigationProvider'
+import { Inner } from '../Glass/ToolbarAndSidebar'
 import { Section } from './Section'
 import SliderItem from './SliderItem'
 import ToggleItem from './ToggleItem'
@@ -74,7 +75,7 @@ const GraphicsSettings: React.FC<ScreenProps> = ({ navigateTo }) => {
   }
 
   return (
-    <div className="space-y-4">
+    <Inner className="space-y-4">
       <Section>
         <SliderItem
           label="Quality Preset"
@@ -101,7 +102,7 @@ const GraphicsSettings: React.FC<ScreenProps> = ({ navigateTo }) => {
           ]}
         />
       </Section>
-    </div>
+    </Inner>
   )
 }
 
