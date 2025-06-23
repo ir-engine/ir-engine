@@ -67,11 +67,16 @@ export const NetworkObjectComponent = defineComponent({
     /** The peer who is authority over this object. */
     authorityPeerID: S.PeerID(),
     /** The network id for this object (this id is only unique per owner) */
-    networkId: S.Proxy(NetworkSchema.NetworkID(), proxyNetworkId)
+    networkId: S.Proxy(NetworkSchema.NetworkID())
   }),
 
   storage: {
     networkId: createResizableTypeArray(Uint32Array)
+  },
+
+  onInit(entity, initial) {
+    proxyNetworkId(entity, 'networkId', initial)
+    return initial
   },
 
   reactor: function () {

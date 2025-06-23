@@ -47,7 +47,7 @@ describe('createThreejsProxy', () => {
     const Vector3Component = defineComponent({
       name: 'Vector3Component',
       schema: S.Object({
-        position: T.Vec3(assignVector3)
+        position: T.Vec3()
       }),
       storage: {
         position: {
@@ -55,6 +55,10 @@ describe('createThreejsProxy', () => {
           y: createResizableTypeArray(Float64Array),
           z: createResizableTypeArray(Float64Array)
         }
+      },
+      onInit(entity, initial) {
+        initial.position = assignVector3(entity)
+        return initial
       }
     })
 

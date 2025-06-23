@@ -45,7 +45,7 @@ type ComputedTransformComponentData = {
   computeFunction: (() => void) | undefined
 }
 
-const defaultSchemaFunction = CreateSchemaValue(UndefinedEntity, S.Call())
+const defaultSchemaFunction = CreateSchemaValue(S.Call())
 
 const ComputedTransformComponentDefaults: ComputedTransformComponentData = {
   referenceEntities: [] as Entity[],
