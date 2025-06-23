@@ -1138,18 +1138,18 @@ describe('ClientInputHooks', () => {
           listeners[0](event)
         }
 
-        // Check that we always get the same pointer entity (with consistent pointerId = 0)
-        const pointerEntity = InputPointerComponent.getPointerByID(testEntity, 0)
+        // Check that we always get the same pointer entity (with consistent pointerId = 1000)
+        const pointerEntity = InputPointerComponent.getPointerByID(testEntity, 1000)
 
         if (pointerEntity !== UndefinedEntity) {
           createdPointerEntities.push(pointerEntity)
           const pointerComponent = getComponent(pointerEntity, InputPointerComponent)
 
-          // Verify that the pointerId is always 0 (our consistent emulated pointer ID)
+          // Verify that the pointerId is always 1000 (our consistent emulated pointer ID base)
           assert.equal(
             pointerComponent.pointerId,
-            0,
-            `Expected consistent pointerId 0, but got ${pointerComponent.pointerId} for event ${eventData.type}`
+            1000,
+            `Expected consistent pointerId 1000, but got ${pointerComponent.pointerId} for event ${eventData.type}`
           )
         }
       }

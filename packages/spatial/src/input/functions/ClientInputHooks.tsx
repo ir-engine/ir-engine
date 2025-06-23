@@ -220,7 +220,7 @@ export const useXRInputSources = () => {
 }
 
 const emulatedInputPointerEntityName = 'InputSource-emulated-pointer'
-const EMULATED_POINTER_ID = 0 // Consistent pointer ID for emulated input
+const EMULATED_POINTER_ID_BASE = 1000 // Start from a high number to avoid conflicts with real pointer IDs
 
 export const CanvasInputReactor = () => {
   const cameraEntity = useEntityContext()
@@ -233,8 +233,9 @@ export const CanvasInputReactor = () => {
     const canvas = rendererComponent.canvas.value as HTMLCanvasElement
     if (!canvas) return
 
-    // Map browser pointer IDs to our emulated pointer ID for single-touch scenarios
+    // Map browser pointer IDs to our emulated pointer IDs
     const pointerIdMap = new Map<number, number>()
+    let nextEmulatedPointerId = EMULATED_POINTER_ID_BASE + 1
 
     /** Clear mouse events */
     const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick'] as AnyButton[]
@@ -248,9 +249,14 @@ export const CanvasInputReactor = () => {
     }
 
     const getMappedPointerId = (browserPointerId: number): number => {
-      // For emulated pointer, always use consistent ID
       if (!pointerIdMap.has(browserPointerId)) {
-        pointerIdMap.set(browserPointerId, EMULATED_POINTER_ID)
+        // For single-touch scenarios, use consistent base ID to maintain compatibility
+        if (pointerIdMap.size === 0) {
+          pointerIdMap.set(browserPointerId, EMULATED_POINTER_ID_BASE)
+        } else {
+          // For multi-touch, assign unique IDs to track each touch independently
+          pointerIdMap.set(browserPointerId, nextEmulatedPointerId++)
+        }
       }
       return pointerIdMap.get(browserPointerId)!
     }
@@ -290,8 +296,14 @@ export const CanvasInputReactor = () => {
       const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, mappedPointerId)
       ClientInputFunctions.redirectPointerEventsToXRUI(cameraEntity, event)
       clearPointerState(pointerEntity)
+
       // Clean up the mapping when pointer leaves
       pointerIdMap.delete(event.pointerId)
+
+      // Reset counter if no active touches to maintain single-touch consistency
+      if (pointerIdMap.size === 0) {
+        nextEmulatedPointerId = EMULATED_POINTER_ID_BASE + 1
+      }
     }
 
     const onPointerClick = (event: PointerEvent) => {
