@@ -39,6 +39,7 @@ import {
   removeEntity,
   setComponent,
   SourceID,
+  UndefinedEntity,
   useAncestorWithComponents,
   useComponent,
   useEntityContext,
@@ -219,6 +220,7 @@ export const useXRInputSources = () => {
 }
 
 const emulatedInputPointerEntityName = 'InputSource-emulated-pointer'
+const EMULATED_POINTER_ID = 0 // Consistent pointer ID for emulated input
 
 export const CanvasInputReactor = () => {
   const cameraEntity = useEntityContext()
@@ -231,6 +233,9 @@ export const CanvasInputReactor = () => {
     const canvas = rendererComponent.canvas.value as HTMLCanvasElement
     if (!canvas) return
 
+    // Map browser pointer IDs to our emulated pointer ID for single-touch scenarios
+    const pointerIdMap = new Map<number, number>()
+
     /** Clear mouse events */
     const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick'] as AnyButton[]
     const clearPointerState = (entity: Entity) => {
@@ -242,18 +247,33 @@ export const CanvasInputReactor = () => {
       }
     }
 
+    const getMappedPointerId = (browserPointerId: number): number => {
+      // For emulated pointer, always use consistent ID
+      if (!pointerIdMap.has(browserPointerId)) {
+        pointerIdMap.set(browserPointerId, EMULATED_POINTER_ID)
+      }
+      return pointerIdMap.get(browserPointerId)!
+    }
+
     const onPointerEnter = (event: PointerEvent) => {
+      const mappedPointerId = getMappedPointerId(event.pointerId)
+
+      const existingPointerEntity = InputPointerComponent.getPointerByID(cameraEntity, mappedPointerId)
       const pointerEntity =
-        InputPointerComponent.getPointersForCamera(cameraEntity).find(
-          (e) => getOptionalComponent(e, NameComponent) === emulatedInputPointerEntityName
-        ) ?? createEntity()
-      setComponent(pointerEntity, NameComponent, emulatedInputPointerEntityName)
-      setComponent(pointerEntity, TransformComponent)
-      setComponent(pointerEntity, InputSourceComponent, { sourceEntity: cameraEntity })
-      setComponent(pointerEntity, InputPointerComponent, {
-        pointerId: event.pointerId,
-        cameraEntity
-      })
+        existingPointerEntity !== UndefinedEntity
+          ? existingPointerEntity
+          : (() => {
+              const entity = createEntity()
+              setComponent(entity, NameComponent, emulatedInputPointerEntityName)
+              setComponent(entity, TransformComponent)
+              setComponent(entity, InputSourceComponent, { sourceEntity: cameraEntity })
+              setComponent(entity, InputPointerComponent, {
+                pointerId: mappedPointerId,
+                cameraEntity
+              })
+              return entity
+            })()
+
       ClientInputFunctions.redirectPointerEventsToXRUI(cameraEntity, event)
     }
 
@@ -266,13 +286,17 @@ export const CanvasInputReactor = () => {
     }
 
     const onPointerLeave = (event: PointerEvent) => {
-      const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, event.pointerId)
+      const mappedPointerId = getMappedPointerId(event.pointerId)
+      const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, mappedPointerId)
       ClientInputFunctions.redirectPointerEventsToXRUI(cameraEntity, event)
       clearPointerState(pointerEntity)
+      // Clean up the mapping when pointer leaves
+      pointerIdMap.delete(event.pointerId)
     }
 
     const onPointerClick = (event: PointerEvent) => {
-      const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, event.pointerId)
+      const mappedPointerId = getMappedPointerId(event.pointerId)
+      const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, mappedPointerId)
       const inputSourceComponent = getOptionalComponent(pointerEntity, InputSourceComponent)
       if (!inputSourceComponent) return
 
@@ -309,7 +333,8 @@ export const CanvasInputReactor = () => {
     }
 
     const onPointerMove = (event: PointerEvent) => {
-      const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, event.pointerId)
+      const mappedPointerId = getMappedPointerId(event.pointerId)
+      const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, mappedPointerId)
       const pointerComponent = getOptionalComponent(pointerEntity, InputPointerComponent)
       if (!pointerComponent) return
 
