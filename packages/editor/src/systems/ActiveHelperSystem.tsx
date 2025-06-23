@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 
 import { defineQuery, EngineState, Entity, entityExists, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
 import {
@@ -225,65 +225,53 @@ const ActiveHelperReactor: React.FC<ComponentHelperEntry> = (helper) => {
 
   InputComponent.useExecuteWithInput(inputExecutionCallback, InputExecutionOrder.Before, true)
 
-  const preExistingBoundingBoxes = useRef<Entity[]>([])
-
   useEffect(() => {
     if (effectiveHelper?.volume === undefined) return
 
-    const updateBoundingBoxVisibility = () => {
-      const { volumeVisibility } = editorHelperState
+    const { volumeVisibility } = editorHelperState
+    const hasPreexistingBoundingBoxComponent = hasComponent(entity, BoundingBoxComponent)
+    switch (volumeVisibility.value) {
+      case VolumeVisibility.On: {
+        if (!hasPreexistingBoundingBoxComponent) {
+          setComponent(entity, BoundingBoxComponent)
+        } else {
+          updateBoundingBox(entity)
+        }
 
-      switch (volumeVisibility.value) {
-        case VolumeVisibility.On: {
-          if (!hasComponent(entity, BoundingBoxComponent)) {
+        const color = selected.value
+          ? BOUNDING_BOX_COLORS.SELECTED
+          : hovered.value
+          ? BOUNDING_BOX_COLORS.HOVERED
+          : undefined
+
+        if (color) {
+          setComponent(entity, BoundingBoxComponent, { color })
+        }
+        break
+      }
+
+      case VolumeVisibility.Auto:
+        if (selected.value || hovered.value) {
+          if (!hasPreexistingBoundingBoxComponent) {
             setComponent(entity, BoundingBoxComponent)
           } else {
-            preExistingBoundingBoxes.current.push(entity)
             updateBoundingBox(entity)
           }
 
-          const color = selected.value
-            ? BOUNDING_BOX_COLORS.SELECTED
-            : hovered.value
-            ? BOUNDING_BOX_COLORS.HOVERED
-            : undefined
+          const autoColor = selected.value ? BOUNDING_BOX_COLORS.SELECTED : BOUNDING_BOX_COLORS.HOVERED
 
-          if (color) {
-            setComponent(entity, BoundingBoxComponent, { color })
-          }
-          break
+          setComponent(entity, BoundingBoxComponent, { color: autoColor })
         }
+        break
 
-        case VolumeVisibility.Auto:
-          if (selected.value || hovered.value) {
-            if (!hasComponent(entity, BoundingBoxComponent)) {
-              setComponent(entity, BoundingBoxComponent)
-            } else {
-              preExistingBoundingBoxes.current.push(entity)
-              updateBoundingBox(entity)
-            }
-
-            const autoColor = selected.value ? BOUNDING_BOX_COLORS.SELECTED : BOUNDING_BOX_COLORS.HOVERED
-
-            setComponent(entity, BoundingBoxComponent, { color: autoColor })
-          }
-          break
-
-        case VolumeVisibility.Off:
-        default:
-          break
-      }
+      case VolumeVisibility.Off:
+      default:
+        break
     }
 
-    updateBoundingBoxVisibility()
-
     return () => {
-      if (preExistingBoundingBoxes.current.includes(entity)) {
-        preExistingBoundingBoxes.current = preExistingBoundingBoxes.current.filter((e) => e !== entity)
-      } else {
-        if (hasComponent(entity, BoundingBoxComponent)) {
-          removeComponent(entity, BoundingBoxComponent)
-        }
+      if (!hasPreexistingBoundingBoxComponent && hasComponent(entity, BoundingBoxComponent)) {
+        removeComponent(entity, BoundingBoxComponent)
       }
     }
   }, [selected, hovered, effectiveHelper?.volume, visibility, editorHelperState.volumeVisibility, entity])
