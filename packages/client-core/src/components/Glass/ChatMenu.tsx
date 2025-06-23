@@ -25,10 +25,12 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useMutableState } from '@ir-engine/hyperflux'
 import React from 'react'
+import { HiChatBubbleLeftRight } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
 
 import { Send01Md } from '@ir-engine/ui/src/icons'
 import { AuthState } from '../../user/services/AuthService'
+import { TextButton } from './buttons/TextButton'
 import { useChatProvider } from './ChatProvider'
 import { useNavigationProvider } from './NavigationProvider'
 import { Inner } from './ToolbarAndSidebar'
@@ -145,17 +147,17 @@ export const ChatMenu = () => {
 
   const onCTAClicked = () => navigateTo('settings/signup')
 
-  // if (isGuest) {
-  //   return (
-  //     <div className="flex min-h-full w-full max-w-screen-sm flex-col items-center justify-center gap-8 font-dm-sans">
-  //       <HiChatBubbleLeftRight className="mx-auto h-[5.5rem] w-[5.5rem]" />
-  //       <div className="text-shadow font-manrope text-2xl text-white">Want to chat with others?</div>
-  //       <TextButton className={'w-[90%]'} onClick={onCTAClicked}>
-  //         Create an Account
-  //       </TextButton>
-  //     </div>
-  //   )
-  // }
+  if (isGuest) {
+    return (
+      <div className="flex min-h-full w-full max-w-screen-sm flex-col items-center justify-center gap-8 font-dm-sans">
+        <HiChatBubbleLeftRight className="mx-auto h-[5.5rem] w-[5.5rem]" />
+        <div className="text-shadow font-manrope text-2xl text-white">Want to chat with others?</div>
+        <TextButton className={'w-[90%]'} onClick={onCTAClicked}>
+          Create an Account
+        </TextButton>
+      </div>
+    )
+  }
 
   const onSubmit = (ev) => {
     ev.preventDefault()
