@@ -457,19 +457,22 @@ export const applyCommandsToECS = (sourceID: SourceID, currentState: SourceData,
           const materialComponent = getMutableComponent(entity, MaterialStateComponent)
           const { material, parameters } = materialComponent.get(NO_PROXY)
           const args = getState(MaterialPrototypeDefinitions)[material.type].arguments
+          let asyncUpdateCount = 0
           for (const [key, val] of Object.entries(parameters)) {
             if (typeof val === 'undefined' || typeof material[key] === 'undefined') continue
             // set property on material too, since it does't get serialized but also doesn't get update from parameters
             if (args[key].type === 'texture') {
               if (!val || (material[key]?.isTexture && val === material[key].userData?.url)) continue
+              asyncUpdateCount += 1
               getTextureAsync(val).then(([texture]) => {
+                asyncUpdateCount -= 1
                 if (texture?.isTexture) {
                   texture.flipY = false
                   texture.needsUpdate = true
                   texture.colorSpace = SRGBColorSpace
                   materialComponent.material[key].set(texture ?? null)
-                  ;(materialComponent.material.get(NO_PROXY) as Material).needsUpdate = true
                 }
+                if (!asyncUpdateCount) (materialComponent.material.get(NO_PROXY) as Material).needsUpdate = true
               })
             } else if (args[key].type === 'color') {
               materialComponent.material[key].set(val.isColor ? val : new Color(val))
@@ -495,6 +498,7 @@ export const applyCommandsToECS = (sourceID: SourceID, currentState: SourceData,
               materialComponent.material[key].set(_default)
             }
           }
+          if (!asyncUpdateCount) (materialComponent.material.get(NO_PROXY) as Material).needsUpdate = true
         }
       }
       if (currentState[nodeID]) {
