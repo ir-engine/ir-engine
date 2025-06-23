@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -23,21 +23,58 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+export const distanceVariant = {
+  none: ``,
+  low: `shadow-lg`,
+  high: `shadow-xl`
+}
 
-export const TargetCameraRotationComponent = defineComponent({
-  name: 'TargetCameraRotationComponent',
+export const fadeVariant = {
+  darker: `
+    bg-black/20
+    hover:bg-black/30
+    active:bg-black/50
+  `,
+  dark: `
+    bg-black/10
+    hover:bg-black/20
+    active:bg-black/40
+  `,
+  clear: `
+    border-0
+    hover:bg-white/20
+    active:bg-white/40
+  `,
+  light: `
+    bg-white/10
+    hover:bg-white/20
+    active:bg-white/40
+  `,
+  lighter: `
+    bg-white/20
+    hover:bg-white/30
+    active:bg-white/50
+  `
+}
 
-  schema: S.Object({
-    phi: S.Number(),
-    theta: S.Number(),
-    time: S.Number()
-  }),
+export const blurVariant = {
+  none: ``,
+  small: `backdrop-blur-md`,
+  medium: `backdrop-blur-lg`,
+  large: `backdrop-blur-3xl`
+}
 
-  onInit: (entity, initial) => ({
-    ...initial,
-    phiVelocity: { value: 0 },
-    thetaVelocity: { value: 0 }
-  })
-})
+export const baseButtonStyles = `
+  flex
+  items-center
+  justify-center
+  
+  text-white
+  text-center
+  font-bold
+  
+  rounded-full
+  border-2
+  border-white/10
+  transition-colors
+`

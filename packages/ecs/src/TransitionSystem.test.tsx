@@ -41,7 +41,6 @@ describe('TransitionSystem', () => {
     jsonID: 'EE_test',
     schema: S.Object({
       position: S.SerializedClass(
-        () => new Vector3(),
         {
           x: S.Number(),
           y: S.Number(),
@@ -49,6 +48,7 @@ describe('TransitionSystem', () => {
         },
         {
           deserialize: (curr, value) => curr.copy(value),
+          default: () => new Vector3(),
           id: 'Vec3'
         }
       ),

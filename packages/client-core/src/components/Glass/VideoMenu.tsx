@@ -48,7 +48,7 @@ import { WindowType } from '../../user/VideoWindows'
 import { useUserMediaWindowHook } from '../../user/VideoWindows/hook'
 import { ReportUserState } from '../../util/ReportUserState'
 
-import { smallIconButtonStyles } from './Buttons'
+import { IconButton } from './buttons/IconButton'
 import { useNavigationProvider } from './NavigationProvider'
 
 const toolbarContainerStyles = `
@@ -177,6 +177,7 @@ const Video = ({ peerID, type }: WindowType) => {
   })
 
   const { isCamVideoEnabled, isCamAudioEnabled } = useMultimediaStateProvider()
+
   const { navigateTo } = useNavigationProvider()
 
   const ref = useRef<HTMLVideoElement>(null)
@@ -191,7 +192,7 @@ const Video = ({ peerID, type }: WindowType) => {
 
   const reportUser = () => {
     ReportUserState.setReportedPeerId(peerID)
-    navigateTo('ReportUser', '')
+    navigateTo('report')
   }
 
   return (
@@ -306,12 +307,13 @@ export const VideoMenu = ({ videos = [] }: { videos: WindowType[] }) => {
       <div className={videosContainer}>{videoEls}</div>
 
       <div className={arrowsContainer}>
-        <button
+        <IconButton
+          size={'small'}
           onClick={() => setPageIndex(pageIndex - 1)}
-          className={twMerge(smallIconButtonStyles, pageIndex === 0 ? `collapse` : ``)}
+          className={pageIndex === 0 ? `collapse` : ``}
         >
           <ChevronLeftMd />
-        </button>
+        </IconButton>
         <div
           className={`
           flex items-center
@@ -320,12 +322,13 @@ export const VideoMenu = ({ videos = [] }: { videos: WindowType[] }) => {
         `}
         >
           {`${pageIndex + 1}/${numPages}`}
-          <button
+          <IconButton
+            size={'small'}
             onClick={() => setPageIndex(pageIndex + 1)}
-            className={twMerge(smallIconButtonStyles, pageIndex === numPages - 1 ? `hidden` : ``)}
+            className={pageIndex === numPages - 1 ? `hidden` : ``}
           >
             <ChevronRightMd />
-          </button>
+          </IconButton>
         </div>
       </div>
 

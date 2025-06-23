@@ -31,6 +31,7 @@ import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import Divider from '@ir-engine/ui/src/components/viewer/Divider'
 import { Dropdown } from '@ir-engine/ui/viewer'
 import { clientContextParams } from '../../util/ClientContextState'
+import { NavigateFuncProps } from '../Glass/NavigationProvider'
 import { Section } from './Section'
 import SliderItem from './SliderItem'
 import ToggleItem from './ToggleItem'
@@ -38,10 +39,7 @@ import ToggleItem from './ToggleItem'
 const logger = multiLogger.child({ component: 'system:settings-menu', modifier: clientContextParams })
 
 // Define types for screen components
-interface ScreenProps {
-  navigateTo: (screenKey: string, historyKey: string) => void
-  navigateClose?: () => void
-}
+type ScreenProps = NavigateFuncProps & {}
 
 const GraphicsSettings: React.FC<ScreenProps> = ({ navigateTo }) => {
   const { qualityLevel, usePostProcessing, useShadows, automatic, shadowMapResolution } = useMutableState(RendererState)

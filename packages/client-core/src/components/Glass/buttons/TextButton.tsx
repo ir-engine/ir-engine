@@ -23,14 +23,43 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { cva, VariantProps } from 'class-variance-authority'
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
+import { baseButtonStyles, blurVariant, distanceVariant, fadeVariant } from './Button.styles'
 
-export const GlassButton = (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => {
-  const { className, disabled } = props
-  const style = `
-  flex items-center justify-center rounded-full border border-white/20 bg-white/15 px-6 py-4 text-lg font-bold text-white/90 shadow-lg drop-shadow-xl backdrop-blur-sm
-  ${disabled ? 'cursor-not-allowed opacity-50' : ''}
+const styles = cva(
+  [
+    baseButtonStyles,
+    `
+    px-6 py-3
+    text-lg
+    min-w-32
+    
   `
-  return <button {...props} className={twMerge(style, className)} />
-}
+  ],
+  {
+    variants: {
+      disabled: {
+        true: `cursor-not-allowed opacity-50`,
+        false: ``
+      },
+      fade: fadeVariant,
+      distance: distanceVariant,
+      blur: blurVariant
+    },
+    defaultVariants: {
+      disabled: false,
+      fade: 'light' as keyof typeof fadeVariant,
+      distance: 'none' as keyof typeof distanceVariant,
+      blur: 'none' as keyof typeof blurVariant
+    }
+  }
+)
+export type Variants = VariantProps<typeof styles>
+
+interface TextButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'disabled'>, Variants {}
+
+export const TextButton: React.FC<TextButtonProps> = ({ className, disabled, fade, distance, blur, ...args }) => (
+  <button disabled={!!disabled} className={twMerge(styles({ fade, disabled, distance, blur }), className)} {...args} />
+)

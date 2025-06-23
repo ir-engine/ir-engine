@@ -29,7 +29,7 @@ import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarC
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import { dispatchAction } from '@ir-engine/hyperflux'
 import React from 'react'
-import { MenuButton } from './MenuButton'
+import { MenuIconButton } from './buttons/MenuIconButton'
 import CabbagePatch from './icons/CabbagePatch'
 import ClapHands from './icons/ClapHands'
 import Macarena from './icons/Macarena'
@@ -93,14 +93,14 @@ export function EmoteMenu() {
     <>
       {icons.map(({ Icon, stateName }, index) => {
         return (
-          <MenuButton
+          <MenuIconButton
             key={index}
             onClick={() => {
               playAnimation(emoteAnimations[stateName])
             }}
           >
             <Icon />
-          </MenuButton>
+          </MenuIconButton>
         )
       })}
     </>
