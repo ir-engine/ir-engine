@@ -31,6 +31,7 @@ import React from 'react'
 import { FaApple, FaGithub, FaGoogle, FaMinusCircle } from 'react-icons/fa'
 import { useAuthSettings, useOAuthState } from '../../hooks/useAuthSetting'
 import { AuthService } from '../../user/services/AuthService'
+import { Inner } from '../Glass/ToolbarAndSidebar'
 import ButtonGroup from './ButtonGroup'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
@@ -93,7 +94,7 @@ const SSOScreen: React.FC<SSOScreenProps> = () => {
   }
 
   return (
-    <div className="h-full space-y-4">
+    <Inner className="min-h-full space-y-4">
       {/* Connected Section */}
       {connectedProviders.length > 0 && (
         <>
@@ -138,7 +139,7 @@ const SSOScreen: React.FC<SSOScreenProps> = () => {
           </Section>
         </>
       )}
-    </div>
+    </Inner>
   )
 }
 

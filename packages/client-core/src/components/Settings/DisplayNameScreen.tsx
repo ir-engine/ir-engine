@@ -34,6 +34,7 @@ import { AuthState } from '../../user/services/AuthService'
 import { AvatarService } from '../../user/services/AvatarService'
 import { clientContextParams } from '../../util/ClientContextState'
 import { NavigateFuncProps } from '../Glass/NavigationProvider'
+import { Inner } from '../Glass/ToolbarAndSidebar'
 import { TextButton } from '../Glass/buttons/TextButton'
 import FieldItem from './FieldItem'
 import { Section } from './Section'
@@ -71,7 +72,7 @@ const DisplayNameScreen: React.FC<DisplayNameScreenProps> = () => {
   }, [saved.value])
 
   return (
-    <div className="flex h-full flex-col justify-between gap-4">
+    <Inner className="flex min-h-full flex-col justify-between gap-4">
       <Section>
         <FieldItem
           label="Display Name"
@@ -86,7 +87,7 @@ const DisplayNameScreen: React.FC<DisplayNameScreenProps> = () => {
       <TextButton disabled={!isUsernameValid} onClick={onSave} className="mx-auto justify-self-end">
         {saved.value ? 'Saved!' : 'Save'}
       </TextButton>
-    </div>
+    </Inner>
   )
 }
 
