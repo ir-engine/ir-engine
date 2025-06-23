@@ -234,7 +234,5 @@ export interface TProxySchema<T extends Schema> extends Schema {
   [Kind]: 'Proxy'
   static: Static<T>
   properties: T
-  options: Options<this['static']> & {
-    create: (entity: Entity, property: string, obj: object) => PropertyDescriptor
-  }
+  options: Options<this['static']>
 }

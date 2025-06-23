@@ -32,6 +32,7 @@ import { Send01Md } from '@ir-engine/ui/src/icons'
 import { AuthState } from '../../user/services/AuthService'
 import ButtonGroup from '../Settings/ButtonGroup'
 import { useChatProvider } from './ChatProvider'
+import { useNavigationProvider } from './NavigationProvider'
 
 const messageBaseStyles = `
   inline-grid
@@ -135,14 +136,15 @@ const inputOuterStyles = `
   pb-4 px-4 pt-4
 `
 
-export const ChatMenu = ({ navigateTo }: { navigateTo: (screenKey: string, historyKey: string) => void }) => {
+export const ChatMenu = () => {
   const user = useMutableState(AuthState).user
 
   const isGuest = user.isGuest.value
-  const onSignUpClicked = () => navigateTo('Settings', 'signup')
-  const onSignInClicked = () => navigateTo('Settings', 'login')
+  const onSignUpClicked = () => navigateTo('Settings/sign-up')
+  const onSignInClicked = () => navigateTo('Settings/login')
 
   const { messageGroupedBySender, inputRef, handleInputChange, sendMessage, composedMessage } = useChatProvider()
+  const { navigateTo } = useNavigationProvider()
 
   if (isGuest) {
     return (

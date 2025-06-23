@@ -42,7 +42,8 @@ export const CameraComponent = defineComponent({
     far: S.Number({ default: 1000 })
   }),
 
-  onInit: (initial) => new ArrayCamera([new PerspectiveCamera(initial.fov, initial.aspect, initial.near, initial.far)]),
+  onInit: (entity, initial) =>
+    new ArrayCamera([new PerspectiveCamera(initial.fov, initial.aspect, initial.near, initial.far)]),
 
   reactor: () => {
     const entity = useEntityContext()

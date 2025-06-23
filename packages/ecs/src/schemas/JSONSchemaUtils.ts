@@ -27,7 +27,6 @@ import { Entity } from '../Entity'
 import {
   Kind,
   NonSerializable,
-  Options,
   Schema,
   Static,
   TArraySchema,
@@ -44,24 +43,16 @@ import {
   TUnionSchema
 } from './JSONSchemaTypes'
 
-const CreateDefault = (entity: Entity, def) => {
-  const res = typeof def === 'function' ? def(entity) : structuredClone(def)
+const CreateDefault = (def) => {
+  const res = typeof def === 'function' ? def() : structuredClone(def)
   return res
 }
 
-const CreateObject = (entity: Entity, props?: TProperties) => {
+const CreateObject = (props?: TProperties) => {
   const obj = {}
   for (const key in props) {
     const schema = props[key]
-    if (schema[Kind] === 'Proxy') {
-      const options = schema.options as Options & {
-        create: (entity: Entity, property: string, obj: object) => PropertyDescriptor
-      }
-      const res = options.create(entity, key, obj)
-      obj[key] = res
-    } else {
-      obj[key] = CreateSchemaValue(entity, schema)
-    }
+    obj[key] = CreateSchemaValue(schema)
   }
   return obj
 }
@@ -101,12 +92,7 @@ export const HasSchemaDeserializers = <T extends Schema>(schema: T): boolean => 
   return IterateSchema(schema, (curr) => !!curr.options?.deserialize)
 }
 
-export const DeserializeSchemaValue = <T extends Schema, Val>(
-  entity: Entity,
-  schema: T,
-  curr: Val,
-  value: Val
-): Val | undefined => {
+export const DeserializeSchemaValue = <T extends Schema, Val>(schema: T, curr: Val, value: Val): Val | undefined => {
   if (validValue(value) && schema.options?.deserialize) return schema.options.deserialize(curr, value) as Val
 
   switch (schema[Kind]) {
@@ -136,12 +122,12 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(
       const currentLength = _curr.length
       if (currentLength < value.length) {
         for (let i = currentLength; i < value.length; i++) {
-          _curr.push(CreateSchemaValue(entity, props))
+          _curr.push(CreateSchemaValue(props))
         }
       }
       try {
         return value
-          .map((item, i) => DeserializeSchemaValue(entity, props, curr[i], item))
+          .map((item, i) => DeserializeSchemaValue(props, curr[i], item))
           .filter((item) => validValue(item)) as Val
       } catch (e) {
         console.log(e)
@@ -152,13 +138,13 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(
       if (!validValue(value)) return value
       if (!Array.isArray(value)) return undefined
       const props = schema.properties as TTupleSchema<Schema[]>['properties']
-      return value.map((item, i) => DeserializeSchemaValue(entity, props[i], curr[i], item) ?? curr[i]) as Val
+      return value.map((item, i) => DeserializeSchemaValue(props[i], curr[i], item) ?? curr[i]) as Val
     }
     case 'Union': {
       if (!validValue(value)) return value
       const props = schema.properties as TUnionSchema<Schema[]>['properties']
       for (const prop of props) {
-        const deserializedValue = DeserializeSchemaValue(entity, prop, curr, value)
+        const deserializedValue = DeserializeSchemaValue(prop, curr, value)
         if (validValue(deserializedValue)) return deserializedValue
       }
       return undefined
@@ -175,7 +161,7 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(
         if (!props[key]) continue
         newValue[key] = curr[key]
         if (validValue(value![key])) {
-          const deserializedValue = DeserializeSchemaValue(entity, props[key], curr[key], value![key])
+          const deserializedValue = DeserializeSchemaValue(props[key], curr[key], value![key])
           if (typeof deserializedValue !== 'undefined') newValue[key] = deserializedValue
         }
       }
@@ -191,7 +177,7 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(
 
       for (const key of propKeys) {
         /** @todo should we be mutating value here? */
-        if (validValue(value[key])) value[key] = DeserializeSchemaValue(entity, props[key], curr[key], value[key])
+        if (validValue(value[key])) value[key] = DeserializeSchemaValue(props[key], curr[key], value[key])
         else value[key] = curr[key]
       }
 
@@ -201,7 +187,7 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(
     case 'Proxy':
     case 'Partial': {
       const props = schema.properties as TPartialSchema<Schema>['properties'] | TProxySchema<Schema>['properties']
-      return DeserializeSchemaValue(entity, props, curr, value)
+      return DeserializeSchemaValue(props, curr, value)
     }
 
     default:
@@ -326,8 +312,8 @@ export const IsSingleValueSchema = <T extends Schema>(schema?: T): boolean => {
   }
 }
 
-export const CreateSchemaValue = <T extends Schema>(entity: Entity, schema: T): Static<T> => {
-  if (schema.options && 'default' in schema.options) return CreateDefault(entity, schema.options.default)
+export const CreateSchemaValue = <T extends Schema>(schema: T): Static<T> => {
+  if (schema.options && 'default' in schema.options) return CreateDefault(schema.options.default)
 
   switch (schema[Kind]) {
     case 'Null':
@@ -348,7 +334,7 @@ export const CreateSchemaValue = <T extends Schema>(entity: Entity, schema: T): 
     case 'Object':
     case 'Class': {
       const props = schema.properties as TProperties
-      return CreateObject(entity, props)
+      return CreateObject(props)
     }
 
     case 'Any':
@@ -361,11 +347,11 @@ export const CreateSchemaValue = <T extends Schema>(entity: Entity, schema: T): 
     case 'Union': {
       const props = schema.properties as TUnionSchema<Schema[]>['properties']
       if (!props.length) return null
-      return CreateSchemaValue(entity, props[0])
+      return CreateSchemaValue(props[0])
     }
     case 'Func': {
       const props = schema.properties as TFuncSchema<Schema[], Schema>['properties']
-      return () => CreateSchemaValue(entity, props.return)
+      return () => CreateSchemaValue(props.return)
     }
     default:
       return undefined

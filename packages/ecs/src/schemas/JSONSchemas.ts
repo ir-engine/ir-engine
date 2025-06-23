@@ -50,7 +50,7 @@ import {
   TVoidSchema
 } from './JSONSchemaTypes'
 
-const buildOptions = (kind: Kinds, options?: Options): Options => {
+const buildOptions = (options?: Options): Options => {
   const defaultOptions = {
     serialized: true
   }
@@ -61,7 +61,7 @@ const buildOptions = (kind: Kinds, options?: Options): Options => {
 const buildSchema = <Opt extends Options>(kind: Kinds, options?: Opt) => {
   return {
     [Kind]: kind,
-    options: buildOptions(kind, options)
+    options: buildOptions(options)
   }
 }
 
@@ -215,13 +215,9 @@ export const S = {
    * if properties are passed in, those values will be serialized, otherwise it will not be serialized
    * Can provide a serializer function that can be used for custom serialization
    */
-  SerializedClass: <T extends TProperties, Class>(
-    init: (entity: Entity) => Class,
-    items: T,
-    options?: TClassSchema<T, Class>['options']
-  ) =>
+  SerializedClass: <T extends TProperties, Class>(items: T, options?: TClassSchema<T, Class>['options']) =>
     ({
-      ...buildSchema('Class', { serialized: true, id: 'SerializedClass', default: init, ...options }),
+      ...buildSchema('Class', { serialized: true, id: 'SerializedClass', ...options }),
       properties: items
     }) as TClassSchema<T, Class>,
 
@@ -264,7 +260,7 @@ export const S = {
    * @returns
    */
   Type: <T>(options?: TTypedSchema<T>['options'], props?: TProperties) =>
-    S.SerializedClass(options?.default as () => T, props ?? {}, options) as unknown as TTypedSchema<T>,
+    S.SerializedClass(props ?? {}, { default: () => undefined, ...options }) as unknown as TTypedSchema<T>,
 
   /**
    * Create a schema object that infers as an any type, the value is serialized
@@ -298,9 +294,9 @@ export const S = {
   PeerID: (options?: TTypedSchema<PeerID>['options']) =>
     S.String({ serialized: true, ...options, id: 'PeerUUID' }) as unknown as TTypedSchema<PeerID>,
 
-  Proxy: <T extends Schema>(schema: T, proxy: (entity: Entity, property: string, obj: object) => PropertyDescriptor) =>
+  Proxy: <T extends Schema>(schema: T) =>
     ({
-      ...buildSchema('Proxy', { create: proxy, serialized: true }),
+      ...buildSchema('Proxy', { serialized: true }),
       properties: schema
     }) as TProxySchema<T>
 }

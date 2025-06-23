@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { GlassButton } from '@ir-engine/ui/src/components/viewer/Button'
 import { motion } from 'motion/react'
 import React from 'react'
+import { TextButton } from '../Glass/buttons/TextButton'
 
 interface ButtonOption {
   label: string
@@ -71,12 +71,12 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({ options, className = '' }) =>
     >
       {options.map((option, index) => (
         <motion.div key={index} variants={itemVariants} className="w-full">
-          <GlassButton
+          <TextButton
             onClick={option.onClick}
             className="w-full rounded-xl py-3.5 font-medium text-white transition-all hover:scale-105"
           >
             {option.label}
-          </GlassButton>
+          </TextButton>
         </motion.div>
       ))}
     </motion.div>
