@@ -40,7 +40,7 @@ import { useTexture } from './resourceLoaderHooks'
 describe.skip('ResourceLoaderHooks', () => {
   // const gltfURL = '/packages/projects/default-project/assets/collisioncube.glb'
   // const gltfURL2 = '/packages/projects/default-project/assets/portal_frame.glb'
-  const texURL = '/packages/projects/default-project/assets/drop-shadow.png'
+  const texURL = '/packages/projects/default-project/assets/drop-shadow.ktx2'
   const texURL2 = '/packages/projects/default-project/assets/galaxyTexture.jpg'
 
   overrideFileLoaderLoad()

@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { defineQuery, EngineState, Entity, entityExists, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
 import {
@@ -228,6 +228,8 @@ const ActiveHelperReactor: React.FC<ComponentHelperEntry> = (helper) => {
   useEffect(() => {
     if (effectiveHelper?.volume === undefined) return
 
+    const preExistingBoundingBoxes = useRef<Entity[]>([])
+
     const updateBoundingBoxVisibility = () => {
       const { volumeVisibility } = editorHelperState
 
@@ -236,6 +238,7 @@ const ActiveHelperReactor: React.FC<ComponentHelperEntry> = (helper) => {
           if (!hasComponent(entity, BoundingBoxComponent)) {
             setComponent(entity, BoundingBoxComponent)
           } else {
+            preExistingBoundingBoxes.current.push(entity)
             updateBoundingBox(entity)
           }
 
@@ -256,6 +259,7 @@ const ActiveHelperReactor: React.FC<ComponentHelperEntry> = (helper) => {
             if (!hasComponent(entity, BoundingBoxComponent)) {
               setComponent(entity, BoundingBoxComponent)
             } else {
+              preExistingBoundingBoxes.current.push(entity)
               updateBoundingBox(entity)
             }
 
@@ -274,8 +278,12 @@ const ActiveHelperReactor: React.FC<ComponentHelperEntry> = (helper) => {
     updateBoundingBoxVisibility()
 
     return () => {
-      if (hasComponent(entity, BoundingBoxComponent)) {
-        removeComponent(entity, BoundingBoxComponent)
+      if (preExistingBoundingBoxes.current.includes(entity)) {
+        preExistingBoundingBoxes.current = preExistingBoundingBoxes.current.filter((e) => e !== entity)
+      } else {
+        if (hasComponent(entity, BoundingBoxComponent)) {
+          removeComponent(entity, BoundingBoxComponent)
+        }
       }
     }
   }, [selected, hovered, effectiveHelper?.volume, visibility, editorHelperState.volumeVisibility, entity])

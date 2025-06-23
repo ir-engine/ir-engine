@@ -29,11 +29,11 @@ import { QRCodeSVG } from 'qrcode.react'
 import React from 'react'
 import { createPortal } from 'react-dom'
 import { useShareMenu } from '../../hooks/useShareMenu'
+import { TextButton } from '../Glass/buttons/TextButton'
+import { NavigateFuncProps } from '../Glass/NavigationProvider'
 import ShareDrawer from './ShareDrawer'
 
-interface ShareSpaceScreenProps {
-  navigateTo: (screen: string) => void
-}
+type ShareSpaceScreenProps = NavigateFuncProps & {}
 
 const ShareSpaceScreen: React.FC<ShareSpaceScreenProps> = () => {
   const { shareLink, copyLinkToClipboard, questLink, inviteLink } = useShareMenu()
@@ -56,26 +56,17 @@ const ShareSpaceScreen: React.FC<ShareSpaceScreenProps> = () => {
 
       {/* Action Buttons */}
       <div className="flex w-full flex-col gap-3">
-        <button
-          onClick={() => copyLinkToClipboard(inviteLink)}
-          className="w-full rounded-full bg-white/20 py-3 text-center text-white hover:bg-white/30"
-        >
+        <TextButton onClick={() => copyLinkToClipboard(inviteLink)} className="w-full" fade={`lighter`}>
           Copy Direct Link
-        </button>
+        </TextButton>
 
-        <button
-          onClick={() => copyLinkToClipboard(questLink)}
-          className="w-full rounded-full bg-white/20 py-3 text-center text-white hover:bg-white/30"
-        >
+        <TextButton onClick={() => copyLinkToClipboard(questLink)} className="w-full" fade={`lighter`}>
           Share to Meta Quest
-        </button>
+        </TextButton>
 
-        <button
-          onClick={() => openDrawer.set(!openDrawer.value)}
-          className="w-full rounded-full bg-white/20 py-3 text-center text-white hover:bg-white/30"
-        >
+        <TextButton onClick={() => openDrawer.set(!openDrawer.value)} className="w-full" fade={`lighter`}>
           Share by email or phone
-        </button>
+        </TextButton>
       </div>
       {portal}
     </div>

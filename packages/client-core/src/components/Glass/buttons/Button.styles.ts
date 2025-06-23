@@ -23,54 +23,58 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { cva, VariantProps } from 'class-variance-authority'
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
+export const distanceVariant = {
+  none: ``,
+  low: `shadow-lg`,
+  high: `shadow-xl`
+}
 
-const containerStyles = cva(
+export const fadeVariant = {
+  darker: `
+    bg-black/20
+    hover:bg-black/30
+    active:bg-black/50
+  `,
+  dark: `
+    bg-black/10
+    hover:bg-black/20
+    active:bg-black/40
+  `,
+  clear: `
+    border-0
+    hover:bg-white/20
+    active:bg-white/40
+  `,
+  light: `
+    bg-white/10
+    hover:bg-white/20
+    active:bg-white/40
+  `,
+  lighter: `
+    bg-white/20
+    hover:bg-white/30
+    active:bg-white/50
   `
-  absolute right-0 z-40
+}
+
+export const blurVariant = {
+  none: ``,
+  small: `backdrop-blur-md`,
+  medium: `backdrop-blur-lg`,
+  large: `backdrop-blur-3xl`
+}
+
+export const baseButtonStyles = `
+  flex
+  items-center
+  justify-center
   
-  flex items-center justify-center 
-
-  h-4 w-4
-
-  rounded-full
-  text-xs
   text-white
+  text-center
+  font-bold
   
-  bg-blue-500
-`,
-  {
-    variants: {
-      show: {
-        true: ``,
-        false: `collapse`
-      },
-      position: {
-        bottom: `bottom-0`,
-        top: `top-0`
-      }
-    },
-    defaultVariants: {
-      show: false,
-      position: 'bottom' as 'bottom' | 'top'
-    }
-  }
-)
-
-type Variants = VariantProps<typeof containerStyles>
-
-export type BaseBadgeProps = {
-  number?: number
-}
-
-interface BadgeProps extends React.ButtonHTMLAttributes<HTMLDivElement>, BaseBadgeProps, Variants {}
-
-export const Badge = ({ number, position, show, className }: BadgeProps) => {
-  return (
-    <div className={twMerge(containerStyles({ show, position }), className)}>
-      <span className={'relative'}>{number}</span>
-    </div>
-  )
-}
+  rounded-full
+  border-2
+  border-white/10
+  transition-colors
+`

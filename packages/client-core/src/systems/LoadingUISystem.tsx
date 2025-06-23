@@ -37,7 +37,8 @@ import {
   removeEntity,
   setComponent,
   useChildrenWithComponents,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Engine } from '@ir-engine/ecs/src/Engine'
@@ -65,8 +66,10 @@ import type { WebLayer3D } from '@ir-engine/xrui'
 import { EngineState } from '@ir-engine/ecs'
 import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
+import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/CameraSettingsComponent'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { SpectateEntityState } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
+import { CameraMode } from '@ir-engine/spatial/src/camera/types/CameraMode'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { useRemoveEngineCanvas } from '@ir-engine/spatial/src/renderer/functions/useEngineCanvas'
 import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
@@ -159,7 +162,11 @@ const LoadingReactor = (props: { sceneEntity: Entity }) => {
   const avatarLoaded = AvatarRigComponent.useAvatarLoaded(avatarEntity)
   const userID = useMutableState(EngineState).userID.value
   const spectatorLoaded = !!useMutableState(SpectateEntityState).value[userID]
-  const viewerReady = (avatarLoaded || spectatorLoaded) && sceneLoaded
+  const [cameraSettingsEntity] = useChildrenWithComponents(sceneEntity, [CameraSettingsComponent])
+  const cameraSettings = useOptionalComponent(cameraSettingsEntity, CameraSettingsComponent)
+  const followMode = cameraSettings && cameraSettings?.cameraMode.value === CameraMode.FOLLOW
+  const cameraReady = followMode ? avatarLoaded || spectatorLoaded : true
+  const viewerReady = cameraReady && sceneLoaded
   const locationState = useMutableState(LocationState)
   const state = useMutableState(LoadingUISystemState)
 

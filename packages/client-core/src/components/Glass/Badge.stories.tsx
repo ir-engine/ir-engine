@@ -23,54 +23,27 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { cva, VariantProps } from 'class-variance-authority'
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
+import type { Meta, StoryObj } from '@storybook/react'
 
-const containerStyles = cva(
-  `
-  absolute right-0 z-40
-  
-  flex items-center justify-center 
+import { Badge as Component } from './Badge'
 
-  h-4 w-4
-
-  rounded-full
-  text-xs
-  text-white
-  
-  bg-blue-500
-`,
-  {
-    variants: {
-      show: {
-        true: ``,
-        false: `collapse`
-      },
-      position: {
-        bottom: `bottom-0`,
-        top: `top-0`
-      }
-    },
-    defaultVariants: {
-      show: false,
-      position: 'bottom' as 'bottom' | 'top'
+const meta: Meta<typeof Component> = {
+  title: 'ClientCore/Badge',
+  component: Component,
+  parameters: {
+    backgrounds: {
+      default: 'dark'
     }
   }
-)
-
-type Variants = VariantProps<typeof containerStyles>
-
-export type BaseBadgeProps = {
-  number?: number
 }
+export default meta
 
-interface BadgeProps extends React.ButtonHTMLAttributes<HTMLDivElement>, BaseBadgeProps, Variants {}
+type Story = StoryObj<typeof meta>
 
-export const Badge = ({ number, position, show, className }: BadgeProps) => {
-  return (
-    <div className={twMerge(containerStyles({ show, position }), className)}>
-      <span className={'relative'}>{number}</span>
-    </div>
-  )
+export const Default: Story = {
+  args: {
+    number: 5,
+    position: 'top' as 'bottom' | 'top',
+    show: true
+  }
 }

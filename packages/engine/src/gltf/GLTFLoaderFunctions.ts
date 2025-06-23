@@ -104,7 +104,7 @@ import {
   Vector3,
   VectorKeyframeTrack
 } from 'three'
-import { loadResource, unloadResourcesForEntity } from '../assets/functions/resourceLoaderFunctions'
+import { loadResource, unloadResource } from '../assets/functions/resourceLoaderFunctions'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { Loader } from '../assets/loaders/base/Loader'
 import { ResourceCache } from '../assets/loaders/base/ResourceCache'
@@ -1644,7 +1644,7 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
 
 const unloadScene = (url: string, entity: Entity) => {
   // handle reference counting
-  unloadResourcesForEntity(entity)
+  unloadResource(url, entity)
   // if no more references to this url, remove from cache
   const resourceCacheState = getState(ResourceCacheState)
   if (!resourceCacheState[url]) {

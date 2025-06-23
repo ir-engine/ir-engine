@@ -19,34 +19,46 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { CogMd, ShoppingBag03Lg } from '@ir-engine/ui/src/icons'
 import React from 'react'
 
-import Divider from '@ir-engine/ui/src/components/viewer/Divider'
-import { NavigateFuncProps } from '../Glass/NavigationProvider'
-import { MenuItem } from './MenuItem'
-import { Section } from './Section'
+import type { Meta, StoryObj } from '@storybook/react'
 
-// Define types for screen components
-type ScreenProps = NavigateFuncProps & {}
+import { MenuIconButton as Component } from './MenuIconButton'
 
-const AccountSettings: React.FC<ScreenProps> = ({ navigateTo }) => (
-  <div className="h-full space-y-4">
-    <Section>
-      <MenuItem label="Display Name" onClick={() => navigateTo('settings/display')} hasChevron />
-      <Divider />
-      <MenuItem label="Permissions" onClick={() => navigateTo('settings/permissions')} hasChevron />
-    </Section>
+const meta: Meta<typeof Component> = {
+  title: 'ClientCore/Buttons/MenuIconButton',
+  component: Component,
+  parameters: {
+    backgrounds: {
+      default: 'dark'
+    }
+  }
+}
+export default meta
 
-    <Section>
-      <MenuItem label="Single Sign On" onClick={() => navigateTo('settings/sso')} hasChevron />
-      <Divider />
-      <MenuItem label="Delete My Account" onClick={() => navigateTo('settings/delete')} hasChevron />
-    </Section>
-  </div>
-)
+type Story = StoryObj<typeof meta>
 
-export default AccountSettings
+export const Default: Story = {
+  args: {
+    active: false,
+    loading: false,
+    children: <ShoppingBag03Lg />
+  }
+}
+
+export const WithBadge: Story = {
+  args: {
+    active: false,
+    loading: false,
+    badge: {
+      number: 5,
+      show: true
+    },
+    children: <CogMd />
+  }
+}

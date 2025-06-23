@@ -653,7 +653,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
             />
           </InputGroup>
 
-          {cameraSettings.poiScrollTransitionType.value === PoiScrollTransition.Snapping && (
+          {/* hidden until the UI is ready {cameraSettings.poiScrollTransitionType.value === PoiScrollTransition.Snapping && (
             <InputGroup
               name="enableTransitionButtons"
               label={t('editor:properties.cameraSettings.lbl-enableTransitionButtons', 'Enable Transition Buttons')}
@@ -668,7 +668,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
                 onChange={commitProperty(CameraSettingsComponent, 'enableTransitionButtons')}
               />
             </InputGroup>
-          )}
+          )} */}
         </>
       )}
     </NodeEditor>
