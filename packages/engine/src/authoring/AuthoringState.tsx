@@ -75,7 +75,7 @@ import {
 import React, { Suspense, useEffect } from 'react'
 import { applyPatch, createPatch, Operation, Patch } from 'rfc6902'
 import { AddOperation } from 'rfc6902/diff'
-import { Color, SRGBColorSpace, Vector2, Vector3 } from 'three'
+import { Color, Material, SRGBColorSpace, Vector2, Vector3 } from 'three'
 import { getTextureAsync } from '../assets/functions/resourceLoaderHooks'
 import { squashOperations } from './squashOperations'
 
@@ -468,6 +468,7 @@ export const applyCommandsToECS = (sourceID: SourceID, currentState: SourceData,
                   texture.needsUpdate = true
                   texture.colorSpace = SRGBColorSpace
                   materialComponent.material[key].set(texture ?? null)
+                  ;(materialComponent.material.get(NO_PROXY) as Material).needsUpdate = true
                 }
               })
             } else if (args[key].type === 'color') {
