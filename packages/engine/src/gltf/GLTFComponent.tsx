@@ -56,7 +56,16 @@ import {
 } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
-import { getMutableState, getState, NO_PROXY, NO_PROXY_STEALTH, none, SceneUser, State, useMutableState } from '@ir-engine/hyperflux'
+import {
+  getMutableState,
+  getState,
+  NO_PROXY,
+  NO_PROXY_STEALTH,
+  none,
+  SceneUser,
+  State,
+  useMutableState
+} from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
@@ -267,9 +276,10 @@ export const GLTFComponentReactor = () => {
 
   useEffect(() => {
     return () => {
-      gltfComponent.loaded.set(false)
       if (hasComponent(entity, GLTFComponent)) {
-        getMutableComponent(entity, GLTFComponent).progress.set(0)
+        const component = getMutableComponent(entity, GLTFComponent)
+        component.loaded.set(false)
+        component.progress.set(0)
       }
     }
   }, [])
@@ -536,17 +546,22 @@ const useGLTFDocument = (entity: Entity) => {
 
           GLTFLoaderFunctions.loadScene(options, sceneIndex)
             .then(() => {
-              // Scene loading is now handled in useGLTFDocument, so we just set documentLoaded
-              state.loaded.set(true)
-              // force transform update for all entities in the model.
-              // required to propagate dirty update auth to sim layers
-              TransformComponent.dirty[entity] = 1
               if (signal.aborted) return
+              // Check if component still exists before setting state
+              if (hasComponent(entity, GLTFComponent)) {
+                // Scene loading is now handled in useGLTFDocument, so we just set documentLoaded
+                getMutableComponent(entity, GLTFComponent).loaded.set(true)
+                // force transform update for all entities in the model.
+                // required to propagate dirty update auth to sim layers
+                TransformComponent.dirty[entity] = 1
+              }
               // Scene loading is complete, body can now be garbage collected
             })
             .catch((error) => {
               console.error('Error loading GLTF scene:', error)
-              addError(entity, GLTFComponent, 'LOADING_ERROR', 'Error loading GLTF scene: ' + error.message)
+              if (hasComponent(entity, GLTFComponent)) {
+                addError(entity, GLTFComponent, 'LOADING_ERROR', 'Error loading GLTF scene: ' + error.message)
+              }
             })
         }
       },
@@ -561,8 +576,9 @@ const useGLTFDocument = (entity: Entity) => {
     return () => {
       abortController.abort()
       if (!hasComponent(entity, GLTFComponent)) return
-      gltfComponent.document.set(null)
-      gltfComponent.progress.set(0)
+      const component = getMutableComponent(entity, GLTFComponent)
+      component.document.set(null)
+      component.progress.set(0)
     }
   }, [url, dynamicLoadAndNotEditing])
 }

@@ -36,6 +36,7 @@ import {
   setComponent,
   useComponent,
   useEntityContext,
+  useOptionalComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } from '@ir-engine/spatial'
@@ -72,7 +73,8 @@ export const KHRLightsPunctualComponent = defineComponent({
     const component = useComponent(entity, KHRLightsPunctualComponent)
 
     const gltfEntity = getAncestorWithComponents(entity, [GLTFComponent])
-    const json = useComponent(gltfEntity, GLTFComponent).document.value
+    const gltfComponent = useOptionalComponent(gltfEntity, GLTFComponent)
+    const json = gltfComponent?.document.value
     const extensions: {
       lights?: KHRPunctualLight[]
     } = (json?.extensions && json.extensions[KHRLightsPunctualComponent.jsonID]) || {}
