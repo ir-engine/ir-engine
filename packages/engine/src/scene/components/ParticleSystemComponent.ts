@@ -36,7 +36,8 @@ import {
   getAncestorWithComponents,
   getChildrenWithComponents,
   removeEntity,
-  useEntityContext
+  useEntityContext,
+  useQuery
 } from '@ir-engine/ecs'
 import {
   defineComponent,
@@ -155,12 +156,11 @@ export const ParticleSystemComponent = defineComponent({
     systemParameters: JSON.parse(JSON.stringify(component.systemParameters)),
     behaviorParameters: JSON.parse(JSON.stringify(component.behaviorParameters))
   }),
-
   reactor: function () {
     const entity = useEntityContext()
     const componentState = useComponent(entity, ParticleSystemComponent)
     const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
-
+    const particleSystemQuery = useQuery([ParticleSystemComponent])
     // for particle meshes
     const geoDependencyEntity = useGLTFComponent(componentState.value.systemParameters.instancingGeometry, entity)
 
@@ -266,7 +266,7 @@ export const ParticleSystemComponent = defineComponent({
     const visible = useHasComponent(entity, VisibleComponent)
 
     useEffect(() => {
-      if (!dependenciesLoaded || !rendererEntity || !visible) return
+      if (!dependenciesLoaded || !visible) return
 
       const component = componentState.get(NO_PROXY)
       const rendererInstance = createBatchedRenderer(entity)
@@ -328,7 +328,8 @@ export const ParticleSystemComponent = defineComponent({
       componentState.behaviorParameters,
       dependenciesLoaded,
       rendererEntity,
-      visible
+      visible,
+      particleSystemQuery.length
     ])
 
     return null

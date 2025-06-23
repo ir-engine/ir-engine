@@ -23,56 +23,64 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { cva, VariantProps } from 'class-variance-authority'
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
+export const distanceVariant = {
+  none: ``,
+  low: `shadow-lg`,
+  high: `shadow-xl`
+}
 
-const containerStyles = cva(
+export const fadeVariant = {
+  darker: `
+    border-2
+    bg-black/20
+    border-black/10
+    hover:bg-transparent
+    active:bg-white/10
+  `,
+  dark: `
+    border-2
+    bg-black/10
+    border-white/[0.05]
+    hover:bg-transparent
+    active:bg-white/10
+  `,
+  clear: `
+    border-0
+    hover:bg-white/20
+    active:bg-white/30
+  `,
+  light: `
+    border-2
+    bg-white/10
+    border-white/10
+    hover:bg-white/20
+    active:bg-white/30
+  `,
+  lighter: `
+    border-2
+    bg-white/20
+    border-white/10
+    hover:bg-white/30
+    active:bg-white/40
   `
-  absolute right-0 z-40
+}
+
+export const blurVariant = {
+  none: ``,
+  small: `backdrop-blur-md`,
+  medium: `backdrop-blur-lg`,
+  large: `backdrop-blur-3xl`
+}
+
+export const baseButtonStyles = `
+  flex
+  items-center
+  justify-center
   
-  flex items-center justify-center 
-
-  h-4 w-4
-
-  rounded-full
-  text-xs
   text-white
+  text-center
+  font-bold
   
-  bg-blue-500
-`,
-  {
-    variants: {
-      show: {
-        true: ``,
-        false: `collapse`
-      },
-      position: {
-        bottom: `bottom-0`,
-        top: `top-0`
-      }
-    },
-    defaultVariants: {
-      show: false,
-      position: 'bottom' as 'bottom' | 'top'
-    }
-  }
-)
-
-type Variants = VariantProps<typeof containerStyles>
-
-export type BaseBadgeProps = {
-  number?: number
-}
-
-export type BadgeProps = BaseBadgeProps & Variants
-
-interface ComponentProps extends React.HTMLAttributes<HTMLDivElement>, BadgeProps {}
-
-export const Badge = ({ number, position, show, className }: ComponentProps) => {
-  return (
-    <div className={twMerge(containerStyles({ show, position }), className)}>
-      <span className={'relative'}>{number}</span>
-    </div>
-  )
-}
+  rounded-full
+  transition-colors
+`

@@ -47,15 +47,10 @@ const options = {
   deserialize: (curr, value) => curr.copy(value)
 }
 
-const assignVec3 =
-  (property: string) =>
-  (entity: Entity): Vector3 =>
-    proxifyVector3(RigidBodyComponent[property], entity)
+const assignVec3 = (property: string, entity: Entity): Vector3 => proxifyVector3(RigidBodyComponent[property], entity)
 
-const assignQuat =
-  (property: string) =>
-  (entity: Entity): Quaternion =>
-    proxifyQuaternion(RigidBodyComponent[property], entity)
+const assignQuat = (property: string, entity: Entity): Quaternion =>
+  proxifyQuaternion(RigidBodyComponent[property], entity)
 
 export const RigidBodyComponent = defineComponent({
   name: 'RigidBodyComponent',
@@ -74,14 +69,14 @@ export const RigidBodyComponent = defineComponent({
     // internal
     /** @deprecated  @todo make the physics api properly reactive to remove this property  */
     initialized: S.Bool({ default: false, serialized: false }),
-    previousPosition: T.Vec3(assignVec3('previousPosition'), { serialized: false }),
-    previousRotation: T.Quaternion(assignQuat('previousRotation'), { serialized: false }),
-    position: T.Vec3(assignVec3('position'), { serialized: false }),
-    rotation: T.Quaternion(assignQuat('rotation'), { serialized: false }),
-    targetKinematicPosition: T.Vec3(assignVec3('targetKinematicPosition'), { serialized: false }),
-    targetKinematicRotation: T.Quaternion(assignQuat('targetKinematicRotation'), { serialized: false }),
-    linearVelocity: T.Vec3(assignVec3('linearVelocity'), { serialized: false }),
-    angularVelocity: T.Vec3(assignVec3('angularVelocity'), { serialized: false }),
+    previousPosition: T.Vec3(undefined, { serialized: false }),
+    previousRotation: T.Quaternion(undefined, { serialized: false }),
+    position: T.Vec3(undefined, { serialized: false }),
+    rotation: T.Quaternion(undefined, { serialized: false }),
+    targetKinematicPosition: T.Vec3(undefined, { serialized: false }),
+    targetKinematicRotation: T.Quaternion(undefined, { serialized: false }),
+    linearVelocity: T.Vec3(undefined, { serialized: false }),
+    angularVelocity: T.Vec3(undefined, { serialized: false }),
     /** If multiplier is 0, ridigbody moves immediately to target pose, linearly interpolating between substeps */
     targetKinematicLerpMultiplier: S.Number({ default: 0, serialized: false })
   }),
@@ -130,6 +125,18 @@ export const RigidBodyComponent = defineComponent({
       y: createResizableTypeArray(Float64Array),
       z: createResizableTypeArray(Float64Array)
     }
+  },
+
+  onInit(entity, initial) {
+    initial.previousPosition = assignVec3('previousPosition', entity)
+    initial.previousRotation = assignQuat('previousRotation', entity)
+    initial.position = assignVec3('position', entity)
+    initial.rotation = assignQuat('rotation', entity)
+    initial.targetKinematicPosition = assignVec3('targetKinematicPosition', entity)
+    initial.targetKinematicRotation = assignQuat('targetKinematicRotation', entity)
+    initial.linearVelocity = assignVec3('linearVelocity', entity)
+    initial.angularVelocity = assignVec3('angularVelocity', entity)
+    return initial
   },
 
   reactor: () => {
