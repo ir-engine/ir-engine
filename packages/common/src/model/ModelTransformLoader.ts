@@ -99,7 +99,7 @@ export const createComponentExtension = (component: ComponentType<any>) => {
     }
 
     protected getDefaults(): Nullable<any> {
-      return Object.assign(CreateSchemaValue(component.schema))
+      return Object.assign(component.schema ? CreateSchemaValue(component.schema) : {})
     }
   }
 
@@ -127,7 +127,7 @@ export const createComponentExtension = (component: ComponentType<any>) => {
           readerContext.nodes[idx].setExtension(component.jsonID, extensionGraphNode)
 
           const extensionDef = def.extensions[component.jsonID] as ComponentExtensionProperty
-          if (componentSchema?.type === 'Object' && componentSchema.properties) {
+          if (componentSchema?.type === 'object' && componentSchema.properties) {
             for (const prop of Object.keys(componentSchema?.properties)) {
               if (extensionDef[prop] !== undefined) {
                 extensionGraphNode[prop] = extensionDef[prop]
@@ -145,17 +145,15 @@ export const createComponentExtension = (component: ComponentType<any>) => {
         .getRoot()
         .listNodes()
         .forEach((node) => {
-          const eeCollider = node.getExtension<ComponentExtensionProperty>(component.jsonID)
-          if (eeCollider) {
+          const extensionDef = node.getExtension<ComponentExtensionProperty>(component.jsonID)
+          if (extensionDef) {
             const nodeIdx = writerContext.nodeIndexMap.get(node)!
             const nodeDef = json.json.nodes![nodeIdx]
             nodeDef.extensions = nodeDef.extensions || {}
 
             nodeDef.extensions[component.jsonID] =
-              componentSchema?.type === 'Object' && componentSchema.properties
-                ? Object.fromEntries(
-                    Object.entries(componentSchema?.properties).filter(([key]) => [key, eeCollider[key]])
-                  )
+              componentSchema?.type === 'object' && componentSchema.properties
+                ? Object.fromEntries(Object.keys(componentSchema?.properties).map((key) => [key, extensionDef[key]]))
                 : {}
           }
         })
