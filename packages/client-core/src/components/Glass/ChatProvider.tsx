@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useFind, useMutation } from '@ir-engine/common'
-import { InstanceID, messagePath, MessageType } from '@ir-engine/common/src/schema.type.module'
+import { InstanceID, messagePath, MessageType, userPath } from '@ir-engine/common/src/schema.type.module'
 import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
 import { dispatchAction, NetworkState, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import React, { createContext, RefObject, useContext, useEffect, useRef } from 'react'
@@ -40,6 +40,7 @@ type ChatMessagesType = {
   unreadMessages: State<boolean>
   newMessages: State<{ [mid: MessageType['id']]: boolean }>
   setNewMessage: (messageId: MessageType['id']) => void
+  userIdToNameMap: Map<string, string>
 }
 type ChatInputType = {
   handleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void
@@ -68,16 +69,44 @@ const useChatMessages = (): ChatMessagesType => {
     }
   })
 
-  // Poll for new messages every 10 seconds
+  // Extract unique sender IDs from messages
+  const uniqueSenderIds = React.useMemo(() => {
+    if (['error', 'pending'].includes(messagesResponse.status) || !messagesResponse.data) return []
+    const senderIds = messagesResponse.data
+      .filter((message) => !message.isNotification && message.senderId)
+      .map((message) => message.senderId)
+    return [...new Set(senderIds)]
+  }, [messagesResponse.data, messagesResponse.status])
+
+  // Fetch usernames for all unique sender IDs
+  const usersResponse = useFind(userPath, {
+    query: {
+      id: {
+        $in: uniqueSenderIds
+      },
+      $select: ['id', 'name']
+    }
+  })
+
+  // Create a map of user IDs to usernames
+  const userIdToNameMap = React.useMemo(() => {
+    if (['error', 'pending'].includes(usersResponse.status) || !usersResponse.data) return new Map()
+    const map = new Map()
+    usersResponse.data.forEach((user: any) => {
+      map.set(user.id, user.name)
+    })
+    return map
+  }, [usersResponse.data, usersResponse.status])
+
   useEffect(() => {
     const interval = setInterval(() => {
-      messagesResponse.refetch()
-    }, 5000) // 5 seconds
+      usersResponse.refetch()
+    }, 10000)
 
     return () => {
       clearInterval(interval)
     }
-  }, [messagesResponse.refetch])
+  }, [usersResponse.refetch])
 
   const setNewMessage = (messageId: MessageType['id']) => {
     newMessages.merge({ [messageId]: true })
@@ -90,6 +119,9 @@ const useChatMessages = (): ChatMessagesType => {
   useEffect(() => {
     if (['error', 'pending'].includes(messagesResponse.status)) return
     messages.set(messagesResponse.data.toReversed())
+    messages.forEach((message) => {
+      message.sender.name.set(userIdToNameMap.get(message.senderId.value) || '')
+    })
     messagesResponse.data.forEach((message) => {
       if (!(message.id in newMessages.value)) {
         setNewMessage(message.id)
@@ -98,7 +130,7 @@ const useChatMessages = (): ChatMessagesType => {
         }
       }
     })
-  }, [messagesResponse.data, messagesResponse.status])
+  }, [messagesResponse.data, messagesResponse.status, userIdToNameMap])
 
   useEffect(() => {
     if (!isChatOpen && messages.at(-1)?.senderId.value !== user.id.value && channelState.messageCreated.value) {
@@ -137,7 +169,8 @@ const useChatMessages = (): ChatMessagesType => {
     newMessages,
     unreadMessages,
     setNewMessage,
-    messageGroupedBySender
+    messageGroupedBySender,
+    userIdToNameMap
   }
 }
 
