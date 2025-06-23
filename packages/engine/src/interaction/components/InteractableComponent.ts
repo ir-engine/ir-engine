@@ -298,15 +298,7 @@ export const InteractableComponent = defineComponent({
         if (!interactableComponent.canInteract.value) return
         const buttons = InputComponent.getButtons(entity)
 
-        let hasInteraction = false
-        if (interactableComponent.uiActivationType.value === XRUIActivationType.proximity) {
-          hasInteraction =
-            (interactableComponent.clickInteract.value && !!buttons.PrimaryClick?.up) || !!buttons.KeyE?.up
-        } else if (interactableComponent.uiActivationType.value === XRUIActivationType.hover) {
-          hasInteraction = !!buttons.PrimaryClick?.up || !!buttons.KeyE?.up
-        }
-
-        if (!buttons.Interact?.dragging && hasInteraction) {
+        if (!!buttons.Interact?.up && !buttons.Interact?.dragging) {
           callInteractCallbacks(entity)
         }
       },
