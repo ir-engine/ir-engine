@@ -128,15 +128,32 @@ const videoButtonsInner = `
 
 export const useVideoStream = (videoElement, videoMediaStream) => {
   useEffect(() => {
-    if (!videoElement || videoElement.srcObject || !videoMediaStream) return
+    if (!videoElement) return
 
-    videoElement.autoplay = true
-    videoElement.muted = true
-    videoElement.setAttribute('playsinline', 'true')
+    if (videoMediaStream && !videoElement.srcObject) {
+      videoElement.autoplay = true
+      videoElement.muted = true
+      videoElement.setAttribute('playsinline', 'true')
 
-    const newVideoTrack = videoMediaStream.getVideoTracks()[0].clone()
-    videoElement.srcObject = new MediaStream([newVideoTrack])
-    videoElement.play()
+      const newVideoTrack = videoMediaStream.getVideoTracks()[0].clone()
+      videoElement.srcObject = new MediaStream([newVideoTrack])
+      videoElement.play()
+    }
+
+    return () => {
+      if (videoElement.srcObject instanceof MediaStream) {
+        const tracks = videoElement.srcObject.getTracks()
+        tracks.forEach((track) => {
+          try {
+            track.stop()
+          } catch (error) {
+            console.debug('Track already stopped:', error)
+          }
+        })
+        videoElement.pause?.()
+        videoElement.srcObject = null
+      }
+    }
   }, [videoElement, videoMediaStream])
 }
 

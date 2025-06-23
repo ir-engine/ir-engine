@@ -141,8 +141,8 @@ export const ChatMenu = () => {
   const user = useMutableState(AuthState).user
 
   const isGuest = user.isGuest.value
-  const onSignUpClicked = () => navigateTo('Settings/signup')
-  const onSignInClicked = () => navigateTo('Settings/login')
+  const onSignUpClicked = () => navigateTo('settings/signup')
+  const onSignInClicked = () => navigateTo('settings/login')
 
   const { messageGroupedBySender, inputRef, handleInputChange, sendMessage, composedMessage } = useChatProvider()
   const { navigateTo } = useNavigationProvider()

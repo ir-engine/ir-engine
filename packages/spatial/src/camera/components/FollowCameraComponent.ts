@@ -478,12 +478,13 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
 
   if (follow.mode === FollowCameraMode.FirstPerson) {
     follow.effectiveMinDistance = follow.effectiveMaxDistance = 0
-  } else if (follow.mode === FollowCameraMode.ThirdPerson || follow.mode === FollowCameraMode.ShoulderCam) {
+  } else if (
+    follow.mode === FollowCameraMode.ThirdPerson ||
+    follow.mode === FollowCameraMode.ShoulderCam ||
+    follow.mode === FollowCameraMode.TopDown
+  ) {
     follow.effectiveMaxDistance = Math.min(obstacleDistance * (obstacleHit ? 0.8 : 1), follow.maxDistance)
     follow.effectiveMinDistance = Math.min(follow.minDistance, follow.effectiveMaxDistance)
-  } else if (follow.mode === FollowCameraMode.TopDown) {
-    follow.effectiveMaxDistance = Math.min(obstacleDistance * (obstacleHit ? 0.8 : 1), follow.maxDistance)
-    follow.effectiveMinDistance = Math.min(obstacleDistance * (obstacleHit ? 0.9 : 1), follow.minDistance)
   }
 
   let newZoomDistance = Math.max(
@@ -654,7 +655,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
     if (triggerZoomShift) {
       follow.accumulatedZoomTriggerDebounceTime = -1
       const isExitingTopDown =
-        newZoomDistance < follow.effectiveMaxDistance &&
+        follow.targetDistance < follow.effectiveMaxDistance &&
         Math.abs(follow.lastZoomStartDistance - follow.effectiveMinDistance) < transitionDistanceThreshold
       if (follow.allowedModes.includes(FollowCameraMode.ThirdPerson) && isExitingTopDown) {
         switchToThirdPerson()

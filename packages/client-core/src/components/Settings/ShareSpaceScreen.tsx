@@ -64,7 +64,7 @@ const ShareSpaceScreen: React.FC<ShareSpaceScreenProps> = () => {
           </TextButton>
         </div>
       </Inner>
-      <AnimatePresence>{openDrawer.value && <ShareDrawer onClose={() => openDrawer.set(false)} />}</AnimatePresence>,
+      <AnimatePresence>{openDrawer.value && <ShareDrawer onClose={() => openDrawer.set(false)} />}</AnimatePresence>
     </>
   )
 }
