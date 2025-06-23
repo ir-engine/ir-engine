@@ -74,7 +74,7 @@ export const RendererComponent = defineComponent({
     { serialized: false }
   ),
 
-  onInit(initial) {
+  onInit(entity, initial) {
     initial.scene.matrixAutoUpdate = false
     initial.scene.matrixWorldAutoUpdate = false
     initial.scene.layers.set(ObjectLayers.Scene)

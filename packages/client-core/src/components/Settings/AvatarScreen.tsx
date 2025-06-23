@@ -42,13 +42,11 @@ import AvatarCreatorMenu, { SupportedSdks } from '../../user/menus/avatar/Avatar
 import AvatarModifyMenu from '../../user/menus/avatar/AvatarModifyMenu'
 import { AuthService, AuthState } from '../../user/services/AuthService'
 import { AVATAR_PAGE_LIMIT } from '../../user/services/AvatarService'
+import { NavigateFuncProps } from '../Glass/NavigationProvider'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
 
-interface AvatarScreenProps {
-  navigateTo: (screen: string) => void
-  onClose?: () => void
-}
+type AvatarScreenProps = NavigateFuncProps & {}
 
 const AvatarScreen: React.FC<AvatarScreenProps> = ({ navigateTo }) => {
   const search = useHookstate('')

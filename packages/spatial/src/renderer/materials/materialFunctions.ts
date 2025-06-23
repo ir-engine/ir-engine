@@ -67,10 +67,12 @@ export const setMeshMaterial = (groupEntity: Entity, newMaterialEntities: Entity
   )
   if (!Array.isArray(mesh.material)) {
     const materialEntity = newMaterialEntities[0] ?? fallbackMaterial
+    if (!materialEntity || !hasComponent(materialEntity, MaterialStateComponent)) return
     mesh.material = getComponent(materialEntity, MaterialStateComponent).material
   } else {
     for (let i = 0; i < (mesh.material as Material[]).length; i++) {
       const materialEntity = newMaterialEntities[i] ?? fallbackMaterial
+      if (!materialEntity || !hasComponent(materialEntity, MaterialStateComponent)) continue
       mesh.material[i] = getComponent(materialEntity, MaterialStateComponent).material
     }
   }

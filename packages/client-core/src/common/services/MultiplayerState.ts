@@ -23,21 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { defineState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
 
-export const TargetCameraRotationComponent = defineComponent({
-  name: 'TargetCameraRotationComponent',
-
-  schema: S.Object({
-    phi: S.Number(),
-    theta: S.Number(),
-    time: S.Number()
+export const MultiplayerState = defineState({
+  name: 'ir.client.user.MultiplayerState',
+  initial: () => ({
+    world: true,
+    media: true
   }),
-
-  onInit: (entity, initial) => ({
-    ...initial,
-    phiVelocity: { value: 0 },
-    thetaVelocity: { value: 0 }
-  })
+  extension: syncStateWithLocalStorage(['world', 'media'])
 })
