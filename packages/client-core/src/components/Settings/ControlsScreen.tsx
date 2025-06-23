@@ -30,13 +30,14 @@ import React from 'react'
 import ControllerMappingImage from '../../user/menus/images/controller-mapping.png'
 import KeyboardMappingImage from '../../user/menus/images/keyboard-mapping.png'
 import MouseMappingImage from '../../user/menus/images/mouse-mapping.png'
+import { Inner } from '../Glass/ToolbarAndSidebar'
 
 export default function ControlsScreen() {
   const xrSupportedModes = useMutableState(XRState).supportedSessionModes
   const xrSupported = xrSupportedModes['immersive-ar'].value || xrSupportedModes['immersive-vr'].value
 
   return (
-    <div className="flex flex-col">
+    <Inner className="flex flex-col">
       {!isMobile && !xrSupported && (
         <>
           <img
@@ -62,6 +63,6 @@ export default function ControlsScreen() {
         </>
       )}
       {isMobile && <img src={ControllerMappingImage} alt="Mobile Controls" />}
-    </div>
+    </Inner>
   )
 }

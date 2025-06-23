@@ -23,10 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { setTransformMode } from '@ir-engine/editor/src/functions/transformFunctions'
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
 import { ObjectGridSnapState } from '@ir-engine/editor/src/systems/ObjectGridSnapSystem'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { SnapMode } from '@ir-engine/spatial/src/common/constants/TransformConstants'
+import { SnapMode, TransformMode } from '@ir-engine/spatial/src/common/constants/TransformConstants'
 import { Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
 import { MoveMd, Refresh1Md, Scale02Md } from '@ir-engine/ui/src/icons'
@@ -105,7 +106,12 @@ const TransformSnapTool = () => {
 
       <div className="flex items-center gap-x-2">
         <Tooltip content={t('editor:toolbar.transformSnapTool.lbl-translate')} position="bottom">
-          <ViewportButton lean={true} selected={false} icon={MoveMd} />
+          <ViewportButton
+            lean={true}
+            selected={editorHelperState.transformMode.value === TransformMode.translate}
+            icon={MoveMd}
+            onClick={() => setTransformMode(TransformMode.translate)}
+          />
         </Tooltip>
         <ToolbarDropdown
           tooltipContent={t('editor:toolbar.transformSnapTool.info-translate')}
@@ -121,7 +127,12 @@ const TransformSnapTool = () => {
 
       <div className="flex items-center gap-x-2">
         <Tooltip content={t('editor:toolbar.transformSnapTool.lbl-rotate')} position="bottom">
-          <ViewportButton lean={true} selected={false} icon={Refresh1Md} />
+          <ViewportButton
+            lean={true}
+            selected={editorHelperState.transformMode.value === TransformMode.rotate}
+            icon={Refresh1Md}
+            onClick={() => setTransformMode(TransformMode.rotate)}
+          />
         </Tooltip>
         <ToolbarDropdown
           tooltipContent={t('editor:toolbar.transformSnapTool.info-rotate')}
@@ -137,7 +148,12 @@ const TransformSnapTool = () => {
 
       <div className="flex items-center gap-x-2">
         <Tooltip content={t('editor:toolbar.transformSnapTool.lbl-scale')} position="bottom">
-          <ViewportButton lean={true} selected={false} icon={Scale02Md} />
+          <ViewportButton
+            lean={true}
+            selected={editorHelperState.transformMode.value === TransformMode.scale}
+            icon={Scale02Md}
+            onClick={() => setTransformMode(TransformMode.scale)}
+          />
         </Tooltip>
         <ToolbarDropdown
           tooltipContent={t('editor:toolbar.transformSnapTool.info-scale')}

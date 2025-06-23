@@ -101,9 +101,13 @@ export const loadResource = <T extends ResourceAssetType>(
   if (entity) {
     ResourceProgressComponent.setResource(entity, url, 0, 0)
     if (signal) {
-      signal.addEventListener('abort', () => {
-        ResourceProgressComponent.removeResource(entity, url)
-      })
+      signal.addEventListener(
+        'abort',
+        () => {
+          ResourceProgressComponent.removeResource(entity, url)
+        },
+        { once: true }
+      )
     }
   }
 

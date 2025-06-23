@@ -23,10 +23,20 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { forwardRef, SVGProps } from 'react'
+import React, { forwardRef, Ref, SVGProps } from 'react'
 
-const RunningMan = (props: SVGProps<SVGSVGElement>) => (
-  <svg width="1em" height="1em" viewBox="0 0 22 23" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+const Icon = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
+  <svg
+    width="1em"
+    height="1em"
+    viewBox="0 0 22 23"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    fill="none"
+    stroke="none"
+    ref={ref}
+    {...props}
+  >
     <path
       d="M15.5323 7.89373V12.0585C16.1098 13.7913 16.9915 17.5001 15.2282 20.1449C14.9546 20.5705 14.3162 20.6312 13.9211 20.2665C13.6171 19.9929 13.5866 19.5369 13.7995 19.2025C14.9851 17.3785 14.4683 14.5817 13.7995 12.5145L11.9755 17.8345C11.7627 18.5033 10.9115 18.7465 10.3643 18.2905L7.50668 15.7977C7.14192 15.4937 7.11149 14.9769 7.41552 14.6121C7.7195 14.2473 8.26671 14.2169 8.60111 14.5209L10.5771 16.1929L11.5499 12.5449V8.07618C10.6683 8.04575 9.69548 8.01532 8.7835 7.98496C8.11469 7.95452 7.59791 7.37694 7.6587 6.67778L8.0539 2.02659C8.17549 1.69219 8.54032 1.47939 8.87472 1.47939C9.42187 1.47939 9.87786 2.02659 9.72591 2.57379L9.42187 5.0362C9.36108 5.46176 9.72591 5.85695 10.1515 5.85695H15.1674C15.4107 5.85695 15.6234 5.7658 15.7451 5.58334C16.4443 4.67136 16.9002 3.21217 17.1434 2.14816C17.3259 1.60099 17.6906 1.47939 18.0858 1.47939C18.5723 1.54019 18.9067 2.02659 18.8154 2.513C18.481 4.03299 17.5994 7.01218 15.5323 7.89373Z"
       fill="#F7F8FA"
@@ -46,5 +56,5 @@ const RunningMan = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 )
 
-const ForwardRef = forwardRef(RunningMan)
+const ForwardRef = forwardRef(Icon)
 export default ForwardRef
