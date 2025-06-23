@@ -36,6 +36,7 @@ import { smsPath } from '@ir-engine/common/src/schemas/user/sms.schema'
 
 import { BadRequest } from '@feathersjs/errors'
 import { EMAIL_REGEX } from '@ir-engine/common/src/regex'
+import { userPath } from '@ir-engine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
@@ -152,6 +153,21 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
         }
       })
     ).data
+
+    if (identityProviders.length > 0) {
+      try {
+        const user = await this.app.service(userPath).get(identityProviders[0].userId)
+        if (user.isDeactivated) {
+          identityProviders.length = 0
+        }
+      } catch (error) {
+        if (error.code === 404) {
+          identityProviders.length = 0
+        } else {
+          logger.error('Error checking user deactivation status:', error)
+        }
+      }
+    }
 
     const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
       { accessToken: data.accessToken },

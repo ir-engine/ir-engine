@@ -286,7 +286,9 @@ export class GithubStrategy extends CustomOAuthStrategy {
     const entity: string = this.configuration.entity
     const { provider, ...params } = originalParams
     const profile = await super.getProfile(authentication, params)
-    const existingEntity = (await super.findEntity(profile, params)) || (await super.getCurrentEntity(params))
+
+    let existingEntity = (await super.findEntity(profile, params)) || (await super.getCurrentEntity(params))
+    existingEntity = await this.checkDeactivatedUser(existingEntity)
 
     const authEntity = !existingEntity
       ? await this.createEntity(profile, params)
