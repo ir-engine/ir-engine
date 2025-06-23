@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useHookstate } from '@hookstate/core'
 import { validateEmail } from '@ir-engine/common/src/config'
-import { GlassButton } from '@ir-engine/ui/src/components/viewer/Button'
 import { PlusCircleMd } from '@ir-engine/ui/src/icons'
 import { Divider } from '@ir-engine/ui/viewer'
 import React, { useEffect } from 'react'
@@ -33,6 +32,7 @@ import { FaApple, FaGithub, FaGoogle, FaLink, FaMicrosoft } from 'react-icons/fa
 import { useAuthSettings } from '../../hooks/useAuthSetting'
 import { useMagicLink } from '../../hooks/useMagicLink'
 import { AuthService } from '../../user/services/AuthService'
+import { TextButton } from '../Glass/buttons/TextButton'
 import FieldItem from './FieldItem'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
@@ -100,14 +100,14 @@ export default function LoginScreen() {
       </Section>
 
       {/* Magic Link Button */}
-      <GlassButton
+      <TextButton
         disabled={disableMagicLink}
         onClick={onMagicLinkClick}
         className="text-md mx-auto mt-4 flex w-full justify-center gap-2"
       >
         {sent.value ? 'Sent!' : 'Send magic link'}
         <FaLink />
-      </GlassButton>
+      </TextButton>
 
       {/* Or Connect to Section */}
       <div className="mt-4">Or Connect to:</div>

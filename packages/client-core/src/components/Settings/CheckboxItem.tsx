@@ -40,17 +40,28 @@ const CheckboxItem: React.FC<CheckboxItemProps> = ({ label, checked = false, onC
       {children || <span className="font-medium">{label}</span>}
       <div className="relative">
         <button
-          className={`relative h-6 w-6 rounded-md border-2 transition-colors duration-200 ${
-            checked ? 'border-[hsla(211,47%,53%,1)] bg-[hsla(211,47%,53%,1)]' : 'border-white/30 bg-white/10'
-          } ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+          className={`relative h-6 w-6 ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
           onClick={disabled ? undefined : onClick}
           aria-checked={checked}
           role="checkbox"
           disabled={disabled}
-          style={{
-            boxShadow: checked ? 'inset 0px 4px 4px 0px rgba(0,0,0,0.25)' : 'inset 0px 2px 2px 0px rgba(0,0,0,0.14)'
-          }}
         >
+          {/* Box border that fades out and shrinks when checked */}
+          <motion.div
+            className="absolute inset-0 rounded-md border-2 border-white"
+            initial={false}
+            animate={{
+              scale: checked ? 0.8 : 1,
+              opacity: checked ? 0 : 1
+            }}
+            transition={{
+              type: 'tween',
+              ease: 'circOut',
+              duration: 0.15
+            }}
+          />
+
+          {/* Checkmark that appears when checked */}
           <motion.div
             className="absolute inset-0 flex items-center justify-center"
             initial={false}
@@ -61,10 +72,11 @@ const CheckboxItem: React.FC<CheckboxItemProps> = ({ label, checked = false, onC
             transition={{
               type: 'tween',
               ease: 'circOut',
-              duration: 0.2
+              duration: 0.2,
+              delay: checked ? 0.05 : 0
             }}
           >
-            <CheckLg className="h-4 w-4 text-white" strokeWidth={2.5} />
+            <CheckLg className="h-7 w-7 text-white" strokeWidth={2.5} />
           </motion.div>
         </button>
       </div>
