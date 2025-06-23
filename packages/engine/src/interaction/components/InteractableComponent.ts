@@ -303,7 +303,6 @@ export const InteractableComponent = defineComponent({
           hasInteraction =
             (interactableComponent.clickInteract.value && !!buttons.PrimaryClick?.up) || !!buttons.KeyE?.up
         } else if (interactableComponent.uiActivationType.value === XRUIActivationType.hover) {
-          console.log('hover', buttons.PrimaryClick?.up, buttons.KeyE?.up)
           hasInteraction = !!buttons.PrimaryClick?.up || !!buttons.KeyE?.up
         }
 
