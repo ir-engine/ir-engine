@@ -50,7 +50,7 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
 
   if (confirmLogout.value) {
     return (
-      <div className="mx-auto flex h-full max-w-sm flex-col items-center justify-between pb-2">
+      <div className="mx-auto flex h-full max-w-sm flex-col items-center justify-between pb-20">
         <div className="text-dm-sans m-auto flex w-full flex-1 flex-col justify-center text-center text-2xl text-white">
           Are you sure you want to logout?
         </div>
