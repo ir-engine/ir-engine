@@ -23,43 +23,45 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export const smallIconButtonStyles = `
-  rounded-full
-  text-white
-  text-3xl
-  font-bold
-  w-10
-  h-10
-  flex
-  items-center
-  justify-center
-  border-2
-  border-b-white/0
-  border-white/10
-  shadow-lg
-  
-  bg-white/10
-  
-  hover:bg-white/20
-`
+import { cva, VariantProps } from 'class-variance-authority'
+import React from 'react'
+import { twMerge } from 'tailwind-merge'
 
-export const largeIconButtonStyles = `
-  rounded-full
-  text-white
-  text-3xl
-  font-bold
-  w-14
-  h-14
-  flex
-  items-center
-  justify-center
-  border-2
-  border-b-white/0
-  border-white/10
-  shadow-xl
-  
-  bg-white/10
-  backdrop-blur-lg
-  
-  hover:bg-white/20
-`
+import { baseButtonStyles, distanceVariant, fadeVariant } from './Button.styles'
+
+const styles = cva(
+  [
+    baseButtonStyles,
+    `
+      text-3xl
+    `
+  ],
+  {
+    variants: {
+      size: {
+        small: `
+          w-10
+          h-10
+        `,
+        large: `
+          w-14
+          h-14
+          backdrop-blur-lg
+        `
+      },
+      distance: distanceVariant,
+      fade: fadeVariant
+    },
+    defaultVariants: {
+      size: `large` as 'small' | 'large',
+      distance: 'low' as keyof typeof distanceVariant,
+      fade: 'light' as keyof typeof fadeVariant
+    }
+  }
+)
+export type Variants = VariantProps<typeof styles>
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, Variants {}
+
+export const IconButton: React.FC<ButtonProps> = ({ className, size, fade, distance, ...props }) => (
+  <button className={twMerge(styles({ size, fade, distance }), className)} {...props} />
+)

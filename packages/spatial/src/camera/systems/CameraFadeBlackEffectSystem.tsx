@@ -58,11 +58,38 @@ const CameraFadeBlackEffectSystemState = defineState({
   }
 })
 
-const execute = () => {
-  const { transition, mesh, entity } = getState(CameraFadeBlackEffectSystemState)
-  if (!entity) return
+const createFadeEntity = () => {
+  const geometry = new SphereGeometry(10)
+  const material = new MeshBasicMaterial({
+    transparent: true,
+    side: DoubleSide,
+    depthWrite: true,
+    depthTest: false
+  })
 
+  const mesh = new Mesh(geometry, material)
+  mesh.layers.set(ObjectLayers.Camera)
+  mesh.scale.set(-1, 1, -1)
+  mesh.name = 'Camera Fade Transition'
+  const entity = createEntity()
+  setComponent(entity, NameComponent, mesh.name)
+  addObjectToGroup(entity, mesh)
+  mesh.renderOrder = 1
+  setObjectLayers(mesh, ObjectLayers.Camera)
+  const transition = createTransitionState(0.25, 'OUT')
+
+  getMutableState(CameraFadeBlackEffectSystemState).set({
+    transition,
+    mesh,
+    entity
+  })
+}
+
+const execute = () => {
   for (const action of fadeToBlackQueue()) {
+    /** Lazily create entity as needed */
+    if (!getState(CameraFadeBlackEffectSystemState).entity) createFadeEntity()
+    const { transition, mesh, entity } = getState(CameraFadeBlackEffectSystemState)
     transition.setState(action.in ? 'IN' : 'OUT')
     if (action.in) {
       setComponent(entity, ComputedTransformComponent, {
@@ -80,6 +107,10 @@ const execute = () => {
     mesh.material.needsUpdate = true
   }
 
+  if (!getState(CameraFadeBlackEffectSystemState).entity) return
+
+  const { entity, transition, mesh } = getState(CameraFadeBlackEffectSystemState)
+
   const deltaSeconds = getState(ECSState).deltaSeconds
   transition.update(deltaSeconds, (alpha) => {
     mesh.material.opacity = alpha
@@ -89,32 +120,8 @@ const execute = () => {
 
 const Reactor = () => {
   useEffect(() => {
-    const geometry = new SphereGeometry(10)
-    const material = new MeshBasicMaterial({
-      transparent: true,
-      side: DoubleSide,
-      depthWrite: true,
-      depthTest: false
-    })
-
-    const mesh = new Mesh(geometry, material)
-    mesh.layers.set(ObjectLayers.Camera)
-    mesh.scale.set(-1, 1, -1)
-    mesh.name = 'Camera Fade Transition'
-    const entity = createEntity()
-    setComponent(entity, NameComponent, mesh.name)
-    addObjectToGroup(entity, mesh)
-    mesh.renderOrder = 1
-    setObjectLayers(mesh, ObjectLayers.Camera)
-    const transition = createTransitionState(0.25, 'OUT')
-
-    getMutableState(CameraFadeBlackEffectSystemState).set({
-      transition,
-      mesh,
-      entity
-    })
-
     return () => {
+      const { entity } = getState(CameraFadeBlackEffectSystemState)
       if (entityExists(entity)) removeEntity(entity)
       getMutableState(CameraFadeBlackEffectSystemState).set({} as any)
     }

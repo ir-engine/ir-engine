@@ -23,16 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  ChevronLeftMd,
-  ChevronRightMd,
-  Microphone01Md,
-  MicrophoneOff,
-  VideoRecorderMd,
-  VideoRecorderOffMd
-} from '@ir-engine/ui/src/icons'
+import { ChevronLeftMd as ArrowLeftIcon, ChevronRightMd as ArrowRightIcon } from '@ir-engine/ui/src/icons'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { BsFillExclamationTriangleFill } from 'react-icons/bs'
+import {
+  BsEyeSlashFill as CameraOffIcon,
+  BsEyeFill as CameraOnIcon,
+  BsMicMuteFill as MicrophoneOffIcon,
+  BsMicFill as MicrophoneOnIcon,
+  BsFillExclamationTriangleFill as ReportIcon
+} from 'react-icons/bs'
 import { twMerge } from 'tailwind-merge'
 import { MultimediaStateProvider, useMultimediaStateProvider } from './MultimediaStateProvider'
 import {
@@ -48,7 +47,7 @@ import { WindowType } from '../../user/VideoWindows'
 import { useUserMediaWindowHook } from '../../user/VideoWindows/hook'
 import { ReportUserState } from '../../util/ReportUserState'
 
-import { smallIconButtonStyles } from './Buttons'
+import { IconButton } from './buttons/IconButton'
 import { useNavigationProvider } from './NavigationProvider'
 
 const toolbarContainerStyles = `
@@ -160,6 +159,7 @@ const Video = ({ peerID, type }: WindowType) => {
   })
 
   const { isCamVideoEnabled, isCamAudioEnabled } = useMultimediaStateProvider()
+
   const { navigateTo } = useNavigationProvider()
 
   const ref = useRef<HTMLVideoElement>(null)
@@ -174,7 +174,7 @@ const Video = ({ peerID, type }: WindowType) => {
 
   const reportUser = () => {
     ReportUserState.setReportedPeerId(peerID)
-    navigateTo('ReportUser', '')
+    navigateTo('report')
   }
 
   return (
@@ -193,13 +193,13 @@ const Video = ({ peerID, type }: WindowType) => {
       <div className={twMerge(videoButtonsContainer)}>
         <div className={twMerge(videoButtonsInner)}>
           <button onClick={toggleVideo} className={`cursor-pointer`}>
-            {camVideoOn ? <VideoRecorderMd /> : <VideoRecorderOffMd />}
+            {camVideoOn ? <CameraOnIcon /> : <CameraOffIcon />}
           </button>
           <button onClick={toggleAudio} className={`cursor-pointer`}>
-            {camAudioOn ? <Microphone01Md /> : <MicrophoneOff />}
+            {camAudioOn ? <MicrophoneOnIcon /> : <MicrophoneOffIcon />}
           </button>
           <button onClick={reportUser} className={`cursor-pointer`}>
-            <BsFillExclamationTriangleFill />
+            <ReportIcon />
           </button>
         </div>
       </div>
@@ -289,12 +289,13 @@ export const VideoMenu = ({ videos = [] }: { videos: WindowType[] }) => {
       <div className={videosContainer}>{videoEls}</div>
 
       <div className={arrowsContainer}>
-        <button
+        <IconButton
+          size={'small'}
           onClick={() => setPageIndex(pageIndex - 1)}
-          className={twMerge(smallIconButtonStyles, pageIndex === 0 ? `collapse` : ``)}
+          className={pageIndex === 0 ? `collapse` : ``}
         >
-          <ChevronLeftMd />
-        </button>
+          <ArrowLeftIcon />
+        </IconButton>
         <div
           className={`
           flex items-center
@@ -303,12 +304,13 @@ export const VideoMenu = ({ videos = [] }: { videos: WindowType[] }) => {
         `}
         >
           {`${pageIndex + 1}/${numPages}`}
-          <button
+          <IconButton
+            size={'small'}
             onClick={() => setPageIndex(pageIndex + 1)}
-            className={twMerge(smallIconButtonStyles, pageIndex === numPages - 1 ? `hidden` : ``)}
+            className={pageIndex === numPages - 1 ? `hidden` : ``}
           >
-            <ChevronRightMd />
-          </button>
+            <ArrowRightIcon />
+          </IconButton>
         </div>
       </div>
 

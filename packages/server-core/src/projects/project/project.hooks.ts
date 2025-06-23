@@ -539,7 +539,11 @@ const updateProjectJob = async (context: HookContext) => {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
+  const returnJob = context.params.query?.returnJob
+  delete context.params.query?.returnJob
+
   const data: ProjectBuildUpdateItemType = context.data as ProjectBuildUpdateItemType
+
   if (!config.kubernetes.enabled || context.params?.isJob)
     context.result = await updateProject(context.app, context.data, context.params)
   else {
@@ -563,13 +567,18 @@ const updateProjectJob = async (context: HookContext) => {
       context.app,
       newJob.id,
       context.params!.user?.id,
-      context.params!.appJWT
+      context.params!.appJWT,
+      context.params!.isDependency
     )
     await context.app.service(apiJobPath).patch(newJob.id, {
       name: jobBody.metadata!.name
     })
     const jobLabelSelector = `ir-engine/projectField=${projectJobName},ir-engine/release=${process.env.RELEASE_NAME},ir-engine/autoUpdate=false`
     const jobFinishedPromise = createExecutorJob(context.app, jobBody, jobLabelSelector, 1000, newJob.id)
+    if (returnJob) {
+      context.result = await context.app.service(apiJobPath).get(newJob.id)
+      return
+    }
     try {
       await jobFinishedPromise
       const result = (await context.app.service(projectPath).find({
@@ -587,8 +596,8 @@ const updateProjectJob = async (context: HookContext) => {
       returned.hasLocalChanges = false
       context.result = returned
     } catch (err) {
-      console.log('Error: project did not exist after completing update', projectName, err)
-      throw err
+      console.log('Error: project did not update properly', projectName, err)
+      return new BadRequest(`Project ${projectName} did not update properly`, err)
     }
   }
 }

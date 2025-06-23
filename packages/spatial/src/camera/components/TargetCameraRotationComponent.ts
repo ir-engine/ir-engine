@@ -35,7 +35,7 @@ export const TargetCameraRotationComponent = defineComponent({
     time: S.Number()
   }),
 
-  onInit: (initial) => ({
+  onInit: (entity, initial) => ({
     ...initial,
     phiVelocity: { value: 0 },
     thetaVelocity: { value: 0 }

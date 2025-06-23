@@ -59,9 +59,9 @@ export const TransformComponent = defineComponent({
   jsonID: 'IR_transform',
 
   schema: S.Object({
-    position: T.Vec3(assignPosition),
-    rotation: T.Quaternion(assignRotation),
-    scale: T.Vec3(assignScale),
+    position: T.Vec3(),
+    rotation: T.Quaternion(),
+    scale: T.Vec3(),
     matrix: T.Mat4(undefined, { serialized: false }),
     matrixWorld: T.Mat4(undefined, { serialized: false })
   }),
@@ -84,6 +84,13 @@ export const TransformComponent = defineComponent({
       z: createResizableTypeArray(Float64Array)
     },
     dirty: createResizableTypeArray(Uint8Array)
+  },
+
+  onInit(entity, initial) {
+    initial.position = assignPosition(entity)
+    initial.rotation = assignRotation(entity)
+    initial.scale = assignScale(entity)
+    return initial
   },
 
   onSet: (entity, component, json) => {

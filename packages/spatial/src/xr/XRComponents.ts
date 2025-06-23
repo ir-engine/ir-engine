@@ -189,7 +189,7 @@ export const XRLeftHandComponent = defineComponent({
     rotations: S.Class(() => new Float32Array(4 * 19))
   }),
 
-  onInit: (initial) => {
+  onInit: (entity, initial) => {
     return {
       ...initial,
       hand: null! as XRHand
@@ -204,7 +204,7 @@ export const XRRightHandComponent = defineComponent({
     rotations: S.Class(() => new Float32Array(4 * 19))
   }),
 
-  onInit: (initial) => {
+  onInit: (entity, initial) => {
     return {
       ...initial,
       hand: null! as XRHand

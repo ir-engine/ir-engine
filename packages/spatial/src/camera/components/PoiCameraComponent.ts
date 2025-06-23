@@ -27,15 +27,15 @@ import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
 /**
- * Component for POI (Point of Interest) camera behavior.
- * This component manages camera state specific to POI mode navigation.
+ * Component for Guided (Point of Interest) camera behavior.
+ * This component manages camera state specific to Guided mode navigation.
  */
 export const PoiCameraComponent = defineComponent({
   name: 'PoiCameraComponent',
   jsonID: 'IR_poi_camera',
 
   schema: S.Object({
-    // Current POI navigation state
+    // Current Guided navigation state
     currentPoiIndex: S.Number({ default: -1 }),
     targetPoiIndex: S.Number({ default: -1 }),
     poiLerpValue: S.Number({ default: 0 }),

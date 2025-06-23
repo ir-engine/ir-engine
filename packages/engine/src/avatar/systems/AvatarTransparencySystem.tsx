@@ -31,7 +31,6 @@ import {
   UUIDComponent,
   defineQuery,
   defineSystem,
-  entityExists,
   getComponent,
   getOptionalComponent,
   setComponent,
@@ -101,9 +100,7 @@ export const AvatarTransparencySystem = defineSystem({
 
 const AvatarReactor = (props: { entity: Entity }) => {
   const entity = props.entity
-  if (!entityExists(entity)) return null // Return if the avatar is being removed
-
-  const sourceID = UUIDComponent.getAsSourceID(entity)
+  const sourceID = UUIDComponent.useAsSourceID(entity)
   const childEntities = UUIDComponent.useEntitiesBySource(sourceID)
 
   return (

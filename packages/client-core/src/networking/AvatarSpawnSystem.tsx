@@ -198,7 +198,7 @@ const CameraSettingsReactor = (props: {
   useEffect(() => {
     const cameraEntity = referenceSpaceState.viewerEntity.value
 
-    if (engineState.isEditing.value || !cameraEntity || cameraMode !== CameraMode.POI) return
+    if (engineState.isEditing.value || !cameraEntity || cameraMode !== CameraMode.GUIDED) return
 
     setComponent(cameraEntity, PoiCameraComponent)
 

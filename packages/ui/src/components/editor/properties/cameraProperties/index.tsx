@@ -201,7 +201,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
           onChange={commitProperty(CameraSettingsComponent, 'cameraMode')}
           options={[
             { label: 'FOLLOW', value: CameraMode.FOLLOW },
-            { label: 'POI', value: CameraMode.POI }
+            { label: 'GUIDED', value: CameraMode.GUIDED }
           ]}
         />
       </InputGroup>
@@ -548,8 +548,8 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
         </>
       )}
 
-      {/* POI Camera Mode Settings */}
-      {cameraSettings.cameraMode.value === CameraMode.POI && (
+      {/* Guided Camera Mode Settings */}
+      {cameraSettings.cameraMode.value === CameraMode.GUIDED && (
         <>
           <InputGroup name="poiEntities" label={t('editor:properties.cameraSettings.lbl-poiEntities', 'POI Entities')}>
             <EntityListInput
@@ -653,7 +653,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
             />
           </InputGroup>
 
-          {cameraSettings.poiScrollTransitionType.value === PoiScrollTransition.Snapping && (
+          {/* hidden until the UI is ready {cameraSettings.poiScrollTransitionType.value === PoiScrollTransition.Snapping && (
             <InputGroup
               name="enableTransitionButtons"
               label={t('editor:properties.cameraSettings.lbl-enableTransitionButtons', 'Enable Transition Buttons')}
@@ -668,7 +668,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
                 onChange={commitProperty(CameraSettingsComponent, 'enableTransitionButtons')}
               />
             </InputGroup>
-          )}
+          )} */}
         </>
       )}
     </NodeEditor>

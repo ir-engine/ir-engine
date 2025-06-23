@@ -32,6 +32,7 @@ import {
   apiJobQueryValidator
 } from '@ir-engine/common/src/schemas/cluster/api-job.schema'
 
+import { isSignedByAppJWT } from '../../hooks/is-signed-by-app-jwt.ts'
 import verifyScope from '../../hooks/verify-scope'
 import {
   apiJobDataResolver,
@@ -49,7 +50,7 @@ export default {
   before: {
     all: [schemaHooks.validateQuery(apiJobQueryValidator), schemaHooks.resolveQuery(apiJobQueryResolver)],
     find: [iff(isProvider('external'), verifyScope('server', 'read'))],
-    get: [iff(isProvider('external'), verifyScope('server', 'read'))],
+    get: [iff(isProvider('external') && !isSignedByAppJWT(), verifyScope('server', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('server', 'write')),
       schemaHooks.validateData(apiJobDataValidator),
