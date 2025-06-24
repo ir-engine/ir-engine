@@ -46,7 +46,8 @@ export const userResolver = resolve<UserType, HookContext>({
 
 export const userExternalResolver = resolve<UserType, HookContext>({
   // https://stackoverflow.com/a/56523892/2077741
-  isGuest: async (value, user) => !!user.isGuest
+  isGuest: async (value, user) => !!user.isGuest,
+  isDeactivated: async (value, user) => !!user.isDeactivated
 })
 
 export const userDataResolver = resolve<UserType, HookContext>({
