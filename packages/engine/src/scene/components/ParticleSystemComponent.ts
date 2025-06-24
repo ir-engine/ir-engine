@@ -263,18 +263,7 @@ export const ParticleSystemComponent = defineComponent({
     const rendererEntity = useRendererEntity(entity)
     const visible = useHasComponent(entity, VisibleComponent)
 
-    console.log(
-      'ParticleSystemComponent render',
-      entity,
-      getComponent(entity, NameComponent),
-      rendererEntity,
-      visible,
-      dependenciesLoaded
-    )
-
     useEffect(() => {
-      console.log('in ParticleSystemComponent main reactor')
-
       if (!dependenciesLoaded || !visible || !rendererEntity) return
 
       const component = componentState.get(NO_PROXY)
@@ -312,9 +301,7 @@ export const ParticleSystemComponent = defineComponent({
       componentState.system.set(system)
 
       return () => {
-        console.log('in ParticleSystemComponent cleanup reactor', entity)
         const index = renderer.systemToBatchIndex.get(system)
-        console.log('ParticleSystemComponent cleanup index', index, renderer.systemToBatchIndex)
         if (typeof index !== 'undefined') {
           renderer.deleteSystem(system)
           renderer.systemToBatchIndex.clear()
