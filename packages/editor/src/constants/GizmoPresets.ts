@@ -49,6 +49,8 @@ import {
   Vector3
 } from 'three'
 
+const iconGizmoTransitionTimeout = 1000 // ms
+
 const gizmoMaterial = new MeshBasicMaterial({
   depthTest: false,
   depthWrite: false,
@@ -502,6 +504,7 @@ export {
   helperTranslate,
   iconGizmoArrow,
   iconGizmoHelper,
+  iconGizmoTransitionTimeout,
   iconGizmoYHelper,
   matBlue,
   matBlueTransparent,

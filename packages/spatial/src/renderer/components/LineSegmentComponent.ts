@@ -39,12 +39,14 @@ import { setVisibleComponent } from './VisibleComponent'
 
 export const LineSegmentComponent = defineComponent({
   name: 'LineSegmentComponent',
+  jsonID: 'EE_line_segment',
 
   schema: S.Object({
     name: S.String({ default: 'line-segment' }),
     geometry: S.Type<BufferGeometry>({ required: true }),
     material: S.Class(() => new LineBasicMaterial() as Material),
     color: S.Optional(T.Color()),
+    opacity: S.Optional(S.Number({ default: 1 })),
     layerMask: S.Type<ObjectLayerMask>({ default: ObjectLayerMasks.NodeHelper })
   }),
 
@@ -84,6 +86,19 @@ export const LineSegmentComponent = defineComponent({
         mat.needsUpdate = true
       }
     }, [component.color.value])
+
+    useEffect(() => {
+      const opacity = component.opacity.value
+      if (opacity === undefined) return
+      const mat = component.material.get(NO_PROXY) as Material & {
+        opacity?: number
+        transparent?: boolean
+      }
+
+      mat.transparent = opacity < 1
+      mat.opacity = opacity
+      mat.needsUpdate = true
+    }, [component.opacity.value])
 
     useEffect(() => {
       const geo = component.geometry.get(NO_PROXY) as BufferGeometry<NormalBufferAttributes>
