@@ -23,7 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useFind } from '@ir-engine/common'
+import { scopePath } from '@ir-engine/common/src/schema.type.module'
+import { toSocketIo } from '@mswjs/socket.io-binding'
 import { Meta, StoryObj } from '@storybook/react/*'
+import { ws } from 'msw'
 import React from 'react'
 const meta = {
   title: 'UI/Viewer',
@@ -44,5 +48,55 @@ export const Default: StoryObj = {
         </div>
       </div>
     )
+  }
+}
+
+const primus = ws.link(/primus/g)
+
+export const WSS: StoryObj = {
+  render: () => {
+    const scopeQuery = useFind(scopePath, { query: { userId: 0, type: 'admin:admin' } })
+
+    return <div>{JSON.stringify({ ...scopeQuery, scopePath })}</div>
+  },
+  parameters: {
+    msw: {
+      handlers: [
+        primus.addEventListener('connection', (socket) => {
+          const io = toSocketIo(socket)
+          io.client.on('data', () => {
+            console.log('DATA')
+          })
+          socket.client.addEventListener('message', () => {
+            console.log('RAW')
+
+            // Mock response for scope service find method
+            const response = {
+              id: 1,
+              type: 1,
+              data: [
+                null,
+                {
+                  total: 1,
+                  limit: 10,
+                  skip: 0,
+                  data: [
+                    {
+                      id: '5bfb0678-7bda-4381-8eff-8e27c6cf6bad',
+                      userId: 'a3561f56-175d-4049-a2ba-057c4231b6f4',
+                      type: 'admin:admin',
+                      accountId: null,
+                      createdAt: '2025-06-24T20:20:28.000Z',
+                      updatedAt: '2025-06-24T20:20:28.000Z'
+                    }
+                  ]
+                }
+              ]
+            }
+            socket.client.send(JSON.stringify(response))
+          })
+        })
+      ]
+    }
   }
 }

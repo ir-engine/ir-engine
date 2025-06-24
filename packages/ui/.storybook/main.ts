@@ -30,7 +30,7 @@ import { mergeConfig } from 'vite'
 
 const stories = globby.sync(
   [
-    // '../src/**/*.stories.tsx',
+    '../src/index.stories.tsx',
     '../../client-core/src/components/Settings/*.stories.tsx',
     '../../client-core/src/components/Glass/**/*.stories.tsx'
   ],
