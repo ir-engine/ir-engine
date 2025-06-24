@@ -108,6 +108,8 @@ const ensureProjectPermissionAndPublicOrAssetsDirectory = async (
     app: app
   } as any)
 
+  if (params.isInternal) return
+
   const resolvedPath = path.resolve(inputPath)
   const resolvedProjectPath = path.resolve('projects', projectName)
   const publicRegExp = new RegExp(`^${resolvedProjectPath}/public/`)
@@ -353,7 +355,9 @@ export class FileBrowserService
 
     const staticResources = (await this.app.service(staticResourcePath).find({
       query: {
-        key: { $like: `%${path.join(oldDirectory, oldName)}%` },
+        key: {
+          $like: `%${path.join(oldDirectory, oldName)}%`
+        },
         paginate: false
       } as any
     })) as unknown as StaticResourceType[]
@@ -361,6 +365,10 @@ export class FileBrowserService
     const results = [] as StaticResourceType[]
     for (const resource of staticResources) {
       const newKey = resource.key.replace(path.join(oldDirectory, oldName), path.join(newDirectory, fileName))
+      const newThumbnailKey = resource.thumbnailKey?.replace(
+        path.join(oldDirectory, oldName),
+        path.join(newDirectory, fileName)
+      )
 
       if (data.isCopy) {
         const result = await this.app.service(staticResourcePath).create(
@@ -376,7 +384,7 @@ export class FileBrowserService
             licensing: resource.licensing,
             description: resource.description,
             attribution: resource.attribution,
-            thumbnailKey: resource.thumbnailKey,
+            thumbnailKey: newThumbnailKey,
             thumbnailMode: resource.thumbnailMode
           },
           { isInternal: true }
@@ -431,7 +439,7 @@ export class FileBrowserService
       const oldItemPath = path.join(oldPath, item.name)
       const newItemPath = path.join(newPath, item.name)
 
-      if (item.type === 'directory') {
+      if (item.type === 'folder') {
         await this.moveFolderRecursively(storageProvider, oldItemPath, newItemPath, isCopy)
       } else {
         //The local storage provider requires the file extension because it interacts with the filesystem and needs the full path, including the extension.
