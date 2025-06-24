@@ -42,7 +42,7 @@ import { distanceVariant, fadeVariant } from './Button.styles'
 import { IconButton as Component, Variants } from './IconButton'
 
 const meta: Meta<typeof Component> = {
-  title: 'ClientCore/Buttons/IconButton',
+  title: 'Viewer/Buttons/IconButton',
   component: Component,
   parameters: {
     backgrounds: {

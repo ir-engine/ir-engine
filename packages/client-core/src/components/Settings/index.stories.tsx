@@ -32,7 +32,7 @@ import SettingsMenu, { screens } from '.'
 const primusWs = ws.link(/primus/g)
 
 const meta = {
-  title: 'UI/Settings Menu',
+  title: 'Viewer/Settings Menu',
   component: SettingsMenu,
   parameters: {
     layout: 'fullscreen',
