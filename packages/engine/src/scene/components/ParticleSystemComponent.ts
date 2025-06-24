@@ -36,8 +36,7 @@ import {
   getAncestorWithComponents,
   getChildrenWithComponents,
   removeEntity,
-  useEntityContext,
-  useQuery
+  useEntityContext
 } from '@ir-engine/ecs'
 import {
   defineComponent,
@@ -160,7 +159,6 @@ export const ParticleSystemComponent = defineComponent({
     const entity = useEntityContext()
     const componentState = useComponent(entity, ParticleSystemComponent)
     const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
-    const particleSystemQuery = useQuery([ParticleSystemComponent])
     // for particle meshes
     const geoDependencyEntity = useGLTFComponent(componentState.value.systemParameters.instancingGeometry, entity)
 
@@ -265,15 +263,26 @@ export const ParticleSystemComponent = defineComponent({
     const rendererEntity = useRendererEntity(entity)
     const visible = useHasComponent(entity, VisibleComponent)
 
+    console.log(
+      'ParticleSystemComponent render',
+      entity,
+      getComponent(entity, NameComponent),
+      rendererEntity,
+      visible,
+      dependenciesLoaded
+    )
+
     useEffect(() => {
-      if (!dependenciesLoaded || !visible) return
+      console.log('in ParticleSystemComponent main reactor')
+
+      if (!dependenciesLoaded || !visible || !rendererEntity) return
 
       const component = componentState.get(NO_PROXY)
       const rendererInstance = createBatchedRenderer(entity)
       const renderer = rendererInstance.renderer
 
       const systemParameters = JSON.parse(JSON.stringify(component.systemParameters)) as ExpandedSystemJSON
-      const system = ParticleSystem.fromJSON(systemParameters, metadata.value as ParticleSystemMetadata, {})
+      const system = ParticleSystem.fromJSON(systemParameters, metadata.get(NO_PROXY) as ParticleSystemMetadata, {})
       renderer.addSystem(system)
       const behaviors = component.behaviorParameters.map((behaviorJSON) => {
         const behavior = BehaviorFromJSON(behaviorJSON, system)!
@@ -303,12 +312,11 @@ export const ParticleSystemComponent = defineComponent({
       componentState.system.set(system)
 
       return () => {
+        console.log('in ParticleSystemComponent cleanup reactor', entity)
         const index = renderer.systemToBatchIndex.get(system)
+        console.log('ParticleSystemComponent cleanup index', index, renderer.systemToBatchIndex)
         if (typeof index !== 'undefined') {
           renderer.deleteSystem(system)
-          renderer.children.splice(index, 1)
-          const [batch] = renderer.batches.splice(index, 1)
-          batch.dispose()
           renderer.systemToBatchIndex.clear()
           for (let i = 0; i < renderer.batches.length; i++) {
             for (const system of renderer.batches[i].systems) {
@@ -321,15 +329,16 @@ export const ParticleSystemComponent = defineComponent({
 
         system.dispose()
         emitterAsObj3D.dispose()
-        removeBatchedRenderer(rendererEntity!)
+        if (entityExists(entity) && rendererEntity && entityExists(rendererEntity)) {
+          removeBatchedRenderer(rendererEntity)
+        }
       }
     }, [
       componentState.systemParameters,
       componentState.behaviorParameters,
       dependenciesLoaded,
       rendererEntity,
-      visible,
-      particleSystemQuery.length
+      visible
     ])
 
     return null
