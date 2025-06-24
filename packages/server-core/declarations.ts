@@ -33,7 +33,7 @@ import '@feathersjs/transport-commons'
 
 import { ServiceTypes } from '@ir-engine/common/declarations'
 import { NetworkConnectionParams } from '@ir-engine/common/src/interfaces/NetworkInterfaces'
-import { UserType } from '@ir-engine/common/src/schemas/user/user.schema'
+import { UserType } from '@ir-engine/common/src/schema.type.module'
 
 export type PrimusType = Primus & {
   forEach(cb: (spark: Primus.Spark, id: string, connections: { [id: string]: Primus.Spark }) => boolean | void): Primus

@@ -105,5 +105,5 @@ export function createAvatarModeWidget() {
     }, [widgetEnabled])
 
     return null
-  })
+  }, `createAvatarModeWidget`)
 }

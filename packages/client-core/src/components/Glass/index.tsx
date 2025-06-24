@@ -23,14 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useLayoutEffect, useRef } from 'react'
-
 import { TouchGamepad } from '@ir-engine/client-core/src/common/components/TouchGamepad'
 import { EngineState } from '@ir-engine/ecs'
-import { getMutableState, NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { useTranslation } from 'react-i18next'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import _ from 'lodash'
+import React, { useLayoutEffect, useRef } from 'react'
 import { LoadingSystemState } from '../../systems/state/LoadingState'
-import { ViewerMenuState } from '../../util/ViewerMenuState'
 import { ARPlacement } from '../ARPlacement'
 import { XRLoading } from '../XRLoading'
 
@@ -40,12 +38,12 @@ import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { useMediaWindows } from '../../user/VideoWindows'
 import { useUserMediaWindowsHook } from '../../user/VideoWindows/hook'
 import ReportUserMenu from '../ReportUser'
-import Settings, { screens as settingsScreens } from '../Settings'
+import Settings from '../Settings'
 import { ChatMenu } from './ChatMenu'
 import { ChatProvider } from './ChatProvider'
 import { MultimediaStateProvider } from './MultimediaStateProvider'
 import { VideoCarousel } from './MultiVideo'
-import { NavigationProvider, useNavigationProvider } from './NavigationProvider'
+import { NavigationProvider, NavigationService, useNavigationProvider } from './NavigationProvider'
 import { ToolbarMenu } from './ToolbarMenu'
 import { VideoMenu } from './VideoMenu'
 
@@ -69,91 +67,104 @@ const useIsPortrait = () => {
   return isPortrait
 }
 
+NavigationService.addRoutes([
+  {
+    path: `chat`,
+    title: 'Chat',
+    Component: ChatMenu
+  },
+  {
+    path: `video`,
+    title: 'Video',
+    Component: VideoMenu
+  },
+  {
+    path: `settings`,
+    title: `Settings`,
+    Component: Settings
+  },
+  {
+    path: `report`,
+    title: `Report User`,
+    Component: ReportUserMenu
+  }
+])
+
 const Menu = () => {
   const isPortrait = useIsPortrait()
   const loadingScreenVisible = useHookstate(getMutableState(LoadingSystemState).loadingScreenVisible).value
-  const { t } = useTranslation()
-  const externalInjectedMenus = useMutableState(ViewerMenuState).externalInjectedMenus.get(NO_PROXY)
+
   const locationContainer = useRef<HTMLDivElement>(null)
   const windows = useMediaWindows()
 
   const {
-    activeHistoryKey,
-    sidebarKey,
-    setSidebarKey,
-    createToggleSidebarKey,
+    current,
+    routes,
+    direction,
+    first,
     isSidebarOpen,
-    navigateClose,
-    navigateBack,
     hasHistory,
-    navigateTo
+    hasUp,
+
+    navigateBack,
+    navigateTo,
+    navigateClose,
+    togglePath_factory
   } = useNavigationProvider()
+
+  const { title, Component = () => <></> } = routes[first] || {}
+
+  const injectedButtons = _.filter(routes, ({ Button }) => !!Button).map(({ Button = () => <></> }, index) => {
+    return <Button key={index} navigateTo={navigateTo} />
+  })
+
+  const tabs = {
+    chat: [
+      {
+        heading: `Video`,
+        onClick: () => navigateTo(`video`)
+      },
+      {
+        heading: `Chat`,
+        onClick: () => navigateTo(`chat`),
+        active: true
+      }
+    ],
+    video: [
+      {
+        heading: `Video`,
+        onClick: () => navigateTo(`video`),
+        active: true
+      },
+      {
+        heading: `Chat`,
+        onClick: () => navigateTo(`chat`)
+      }
+    ]
+  }
+
+  const onMessageClick = togglePath_factory(`chat`)
+  const onShareClick = togglePath_factory(`settings/share`)
+  const onFullscreenVideosClick = togglePath_factory(`video`)
+  const onSettingsClick = togglePath_factory(`settings`)
+
+  const sidebarTabs = tabs[current] || []
+
+  const { videoElements, videoMediaStreams } = useUserMediaWindowsHook(windows)
+  const showBack = hasHistory || hasUp
 
   useLayoutEffect(() => {
     if (locationContainer.current) locationContainer.current.style.opacity = '0'
   }, [locationContainer])
 
-  const headings = {
-    Chat: `Chat`,
-    Video: `Video`,
-    Cart: `Cart`,
-    Share: `Share`,
-    Settings: `Settings`,
-    ReportUser: `Report User`
-  }
-
-  const tabs = {
-    Chat: [
-      {
-        heading: `Video`,
-        onClick: () => setSidebarKey(`Video`)
-      },
-      {
-        heading: `Chat`,
-        onClick: () => setSidebarKey(`Chat`),
-        active: true
-      }
-    ],
-    Video: [
-      {
-        heading: `Video`,
-        onClick: () => setSidebarKey(`Video`),
-        active: true
-      },
-      {
-        heading: `Chat`,
-        onClick: () => setSidebarKey(`Chat`)
-      }
-    ]
-  }
-
-  const contents = {
-    Chat: <ChatMenu navigateTo={navigateTo} />,
-    Video: <VideoMenu videos={windows} />,
-    Settings: <Settings />,
-    ReportUser: <ReportUserMenu type="user" />
-  }
-
-  const onMessageClick = createToggleSidebarKey(`Chat`)
-  const onShareClick = createToggleSidebarKey(`Share`)
-  const onFullscreenVideosClick = createToggleSidebarKey(`Video`)
-  const onSettingsClick = createToggleSidebarKey(`Settings`)
-
-  const { videoElements, videoMediaStreams } = useUserMediaWindowsHook(windows)
-
   const toolbar = (
     <ToolbarMenu
       onMessageClick={onMessageClick}
       onShareClick={onShareClick}
-      activeKey={sidebarKey}
       onSettingsClick={onSettingsClick}
+      activePath={current}
     />
   )
-  const sidebarHeadingFromHistory = settingsScreens[activeHistoryKey]?.title
-
-  const sidebarTabs = tabs[sidebarKey] || []
-  const sidebarHeading = sidebarHeadingFromHistory || headings[sidebarKey]
-  const sidebarContent = isSidebarOpen && contents[sidebarKey]
 
   return (
     <div id="location-container" ref={locationContainer} className="fixed h-dvh w-full">
@@ -167,12 +178,14 @@ const Menu = () => {
         handleSidebarClose={navigateClose}
         handleSidebarBack={navigateBack}
         isSidebarOpen={isSidebarOpen}
-        content={sidebarContent}
-        heading={sidebarHeading}
+        content={<Component />}
+        title={title}
         tabs={sidebarTabs}
         toolbar={toolbar}
-        hasHistory={hasHistory}
+        showBack={showBack}
       />
+
+      {injectedButtons}
 
       <ARPlacement />
       <XRLoading />

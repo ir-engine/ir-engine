@@ -132,7 +132,7 @@ export interface ComponentPartial<
    * @param initial the initial value created from the component's schema.
    * @returns The shape of the component's runtime data.
    */
-  onInit?: (initial: InitializationType) => ComponentType & OnInitValidateNotState<ComponentType>
+  onInit?: (entity: Entity, initial: InitializationType) => ComponentType & OnInitValidateNotState<ComponentType>
   /**
    * @description
    * Serializer function called when the component is saved to a snapshot or scene file.
@@ -189,7 +189,7 @@ export interface Component<
   name: string
   jsonID?: string
   schema?: Schema
-  onInit?: (initial: InitializationType) => ComponentType & OnInitValidateNotState<ComponentType>
+  onInit?: (entity: Entity, initial: InitializationType) => ComponentType & OnInitValidateNotState<ComponentType>
   toJSON: (component: ComponentType) => JSON
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
@@ -458,11 +458,11 @@ export const createInitialComponentValue = <
   component: Component<Schema, InitializationType, ComponentType, JSON, SetJSON, unknown>
 ): ComponentType => {
   if (!component.schema) {
-    if (component.onInit) return component.onInit(undefined as InitializationType) as ComponentType
+    if (component.onInit) return component.onInit(entity, undefined!) as ComponentType
     return true as ComponentType // true as tag component
   }
-  const schema = CreateSchemaValue(entity, component.schema) as InitializationType
-  if (component.onInit) return component.onInit(schema) as ComponentType
+  const schema = CreateSchemaValue(component.schema) as InitializationType
+  if (component.onInit) return component.onInit(entity, schema) as ComponentType
   else return schema as unknown as ComponentType
 }
 
@@ -566,7 +566,7 @@ export const setComponent = <C extends Component>(
         Components: [component],
         ChildEntityReactor: component.reactor as any
       })
-    }) as ReactorRoot
+    }, `Component - ${component.name}`) as ReactorRoot
     root.cleanupFunctions.add(() => {
       component.reactorRoot = undefined
     })
@@ -620,7 +620,6 @@ export const removeComponent = <C extends Component>(entity: Entity, component: 
 
   bitECS.removeComponent(HyperFlux.store, entity, component)
   component.onRemove(entity, component.stateMap[entity]!)
-  /** clear state data after reactor stops, to ensure hookstate is still referenceable */
   component.stateMap[entity]?.set(none)
   destroy(component.stateMap[entity])
   delete component.stateMap[entity]
@@ -702,7 +701,7 @@ export const deserializeComponent = <C extends Component>(
 
   const component = getComponent(entity, Component)
 
-  const args = Component.schema ? DeserializeSchemaValue(entity, Component.schema, component, json) : json
+  const args = Component.schema ? DeserializeSchemaValue(Component.schema, component, json) : json
 
   if (Component.schema && HasSchemaValidators(Component.schema)) {
     const [valid, key] = HasValidSchemaValues(Component.schema, args, component, entity)
@@ -1367,7 +1366,7 @@ export const TransitionComponent = defineComponent({
       (t) => t.componentJsonID === target.componentJsonID && t.propertyPath === target.propertyPath
     )
     if (!transition) {
-      const t = CreateSchemaValue(entity, TransitionComponent.schema.properties)
+      const t = CreateSchemaValue(TransitionComponent.schema.properties)
       transitions.push(t)
       transition = transitions[transitions.length - 1]
       transition.componentJsonID = target.componentJsonID

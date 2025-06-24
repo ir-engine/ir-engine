@@ -27,7 +27,6 @@ import { useHookstate } from '@hookstate/core'
 import { validateEmail } from '@ir-engine/common/src/config'
 import useEngineSetting from '@ir-engine/common/src/hooks/useEngineSetting'
 import { ClientEngineSettingType } from '@ir-engine/server-core/src/appconfig'
-import { GlassButton } from '@ir-engine/ui/src/components/viewer/Button'
 import { PlusCircleMd } from '@ir-engine/ui/src/icons'
 import { Divider, Link } from '@ir-engine/ui/viewer'
 import React, { useEffect, useState } from 'react'
@@ -36,6 +35,8 @@ import { NotificationService } from '../../common/services/NotificationService'
 import { useAuthSettings, useOAuthState } from '../../hooks/useAuthSetting'
 import { useMagicLink } from '../../hooks/useMagicLink'
 import { AuthService } from '../../user/services/AuthService'
+import { TextButton } from '../Glass/buttons/TextButton'
+import { Inner } from '../Glass/ToolbarAndSidebar'
 import FieldItem from './FieldItem'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
@@ -76,7 +77,7 @@ export default function SignupScreen() {
   const disableMagicLink = !agreedToAll || pending.value || sent.value || !isValid.value
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <Inner className="flex min-h-full flex-col gap-4">
       <div className="font-dm-sans">By signing up, you agree to the following:</div>
       <Section className="font-figtree">
         <ToggleItem checked={tosAgreed} onClick={() => setTosAgreed(!tosAgreed)}>
@@ -102,14 +103,14 @@ export default function SignupScreen() {
           <FieldItem type="email" label="Email" onChange={email.set} value={email.value} />
         </Section>
 
-        <GlassButton
+        <TextButton
           disabled={disableMagicLink}
           onClick={onMagicLinkClick}
           className={`text-md mx-auto mt-4 flex w-full justify-center gap-2`}
         >
           {sent.value ? 'Sent!' : 'Send magic link'}
           <FaLink />
-        </GlassButton>
+        </TextButton>
       </div>
 
       <div className={`mt-4 ${agreedToAll ? '' : 'opacity-50'}`}>Or Connect to:</div>
@@ -127,6 +128,6 @@ export default function SignupScreen() {
           </React.Fragment>
         ))}
       </Section>
-    </div>
+    </Inner>
   )
 }

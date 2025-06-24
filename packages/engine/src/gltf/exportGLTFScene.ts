@@ -485,7 +485,7 @@ const awaitMaterial = (materialEntity: Entity, context: GLTFSceneExportContext) 
         }
       }, [material])
       return null
-    })
+    }, `awaitMaterial - ${materialEntity}`)
   })
 }
 

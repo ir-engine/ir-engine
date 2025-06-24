@@ -23,43 +23,56 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { cva, VariantProps } from 'class-variance-authority'
 import React from 'react'
-import { ClassNameValue, twMerge } from 'tailwind-merge'
+import { twMerge } from 'tailwind-merge'
 
-export type BaseBadgeProps = {
-  number?: number | undefined
-  position?: 'top' | 'bottom'
-  show?: boolean | undefined
-}
-
-type BadgeProps = BaseBadgeProps & {
-  className?: string
-}
-
-const containerStyles = `
-  absolute z-40
-  right-0
+const containerStyles = cva(
+  `
+  absolute right-0 z-40
   
   flex items-center justify-center 
+
   h-4 w-4
 
   rounded-full
+  text-xs
+  text-white
   
-  text-xs text-white
   bg-blue-500
-`
+`,
+  {
+    variants: {
+      show: {
+        true: ``,
+        false: `collapse`
+      },
+      position: {
+        bottom: `bottom-0`,
+        top: `top-0`
+      }
+    },
+    defaultVariants: {
+      show: false,
+      position: 'bottom' as 'bottom' | 'top'
+    }
+  }
+)
 
-export const Badge = ({ number, position, show, className = '' }: BadgeProps) => {
+type Variants = VariantProps<typeof containerStyles>
+
+export type BaseBadgeProps = {
+  number?: number
+}
+
+export type BadgeProps = BaseBadgeProps & Variants
+
+interface ComponentProps extends React.HTMLAttributes<HTMLDivElement>, BadgeProps {}
+
+export const Badge = ({ number, position, show, className }: ComponentProps) => {
   return (
-    <div
-      className={twMerge(
-        containerStyles,
-        show ? `` : `collapse`,
-        position === `bottom` ? `bottom-0` : `top-0`,
-        className as ClassNameValue
-      )}
-    >
-      <span className={'relative top-[0.025rem]'}>{number}</span>
+    <div className={twMerge(containerStyles({ show, position }), className)}>
+      <span className={'relative'}>{number}</span>
     </div>
   )
 }

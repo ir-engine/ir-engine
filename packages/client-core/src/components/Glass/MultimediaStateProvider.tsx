@@ -36,17 +36,14 @@ import { SpectateEntityState } from '@ir-engine/spatial/src/camera/systems/Spect
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { endXRSession, requestXRSession } from '@ir-engine/spatial/src/xr/XRSessionFunctions'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
-import {
-  Microphone01Lg,
-  Microphone01Md,
-  MicrophoneOff,
-  Monitor01Md,
-  VideoRecorderLg,
-  VideoRecorderMd,
-  VideoRecorderOffLg,
-  VideoRecorderOffMd
-} from '@ir-engine/ui/src/icons'
+import { CustomScreenshare as ScreenshareIcon } from '@ir-engine/ui/src/icons'
 import { useTranslation } from 'react-i18next'
+import {
+  BsCameraVideoOffFill as CameraOffIcon,
+  BsCameraVideoFill as CameraOnIcon,
+  BsMicMuteFill as MicrophoneOffIcon,
+  BsMicFill as MicrophoneOnIcon
+} from 'react-icons/bs'
 import { MdFlipCameraAndroid } from 'react-icons/md'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
@@ -168,17 +165,11 @@ const useMultimediaState = () => {
   const isSpectateReady = spectating
   const isMultiVideoReady = isCamReady && isCamVideoEnabled && numVideoDevices > 1
 
-  const _MicIcon = isCamAudioEnabled ? (isMobile ? Microphone01Md : Microphone01Lg) : MicrophoneOff
+  const _MicIcon = isCamAudioEnabled ? MicrophoneOnIcon : MicrophoneOffIcon
 
-  const _CamIcon = isCamVideoEnabled
-    ? isMobile
-      ? VideoRecorderMd
-      : VideoRecorderLg
-    : isMobile
-    ? VideoRecorderOffMd
-    : VideoRecorderOffLg
+  const _CamIcon = isCamVideoEnabled ? CameraOnIcon : CameraOffIcon
 
-  const _ScreenshareIcon = Monitor01Md
+  const _ScreenshareIcon = ScreenshareIcon
   const _VRIcon = VrIcon
   const _MultiVideoIcon = MdFlipCameraAndroid
 

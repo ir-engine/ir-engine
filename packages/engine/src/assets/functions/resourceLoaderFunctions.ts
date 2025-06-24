@@ -101,9 +101,13 @@ export const loadResource = <T extends ResourceAssetType>(
   if (entity) {
     ResourceProgressComponent.setResource(entity, url, 0, 0)
     if (signal) {
-      signal.addEventListener('abort', () => {
-        ResourceProgressComponent.removeResource(entity, url)
-      })
+      signal.addEventListener(
+        'abort',
+        () => {
+          ResourceProgressComponent.removeResource(entity, url)
+        },
+        { once: true }
+      )
     }
   }
 
@@ -117,7 +121,10 @@ export const loadResource = <T extends ResourceAssetType>(
         onError(new Error('Resource removed before load finished'))
         return
       }
-      resource.asset.set(response)
+      // only store cloneable assets
+      if (isCloneable(resourceType)) {
+        resource.asset.set(response)
+      }
       resource.status.set(ResourceStatus.Loaded)
       ResourceState.debugLog(`ResourceState:load Loaded resource: ${url} for entity: ${entity}`)
       ResourceState.checkBudgets()
