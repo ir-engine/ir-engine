@@ -149,7 +149,7 @@ export const ChatMenu = () => {
 
   if (isGuest) {
     return (
-      <div className="mx-auto flex h-full w-full max-w-screen-sm flex-col items-center gap-8 font-dm-sans">
+      <div className="mx-auto flex min-h-full w-full max-w-screen-sm flex-col items-center gap-8 font-dm-sans">
         <div className="flex flex-1 flex-col items-center justify-center gap-4">
           <HiChatBubbleLeftRight className="mx-auto h-[5.5rem] w-[5.5rem]" />
           <div className="text-shadow font-manrope text-2xl text-white">Want to chat with others?</div>

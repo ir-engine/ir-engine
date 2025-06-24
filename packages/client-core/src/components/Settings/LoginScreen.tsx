@@ -88,7 +88,7 @@ export default function LoginScreen() {
   const disableMagicLink = pending.value || sent.value || !isValid.value
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className="flex min-h-full flex-col gap-4">
       {/* Username Field */}
       <Section>
         <FieldItem type="text" label="Username" onChange={username.set} value={username.value} />

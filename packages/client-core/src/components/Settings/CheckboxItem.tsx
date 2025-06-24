@@ -40,7 +40,7 @@ const CheckboxItem: React.FC<CheckboxItemProps> = ({ label, checked = false, onC
       {children || <span className="font-medium">{label}</span>}
       <div className="relative">
         <button
-          className={`relative h-6 w-6 ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+          className={`relative h-6 w-6 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50`}
           onClick={disabled ? undefined : onClick}
           aria-checked={checked}
           role="checkbox"
