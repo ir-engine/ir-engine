@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { StaticResourceType } from '@ir-engine/common/src/schemas/media/static-resource.schema'
+import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import AddEditResourceModal from './AddEditResourceModal'
 
 export default {
