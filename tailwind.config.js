@@ -28,13 +28,14 @@ const defaultTheme = require('tailwindcss/defaultTheme')
 module.exports = {
   mode: 'jit',
   content: [
-    '../client/**/*.{ts,tsx}',
-    '../client-core/**/*.{ts,tsx}',
-    '../common/**/*.{ts,tsx}',
-    '../engine/**/*.{ts,tsx}',
-    '../editor/**/*.{ts,tsx}',
-    '../projects/projects/**/*.{ts,tsx}',
-    '../ui/**/*.{ts,tsx}'
+    './packages/client/**/*.{ts,tsx}',
+    './packages/client-core/**/*.{ts,tsx}',
+    './packages/common/**/*.{ts,tsx}',
+    './packages/engine/**/*.{ts,tsx}',
+    './packages/editor/**/*.{ts,tsx}',
+    './packages/projects/projects/**/*.{ts,tsx}',
+    './packages/ui/**/*.{ts,tsx}',
+    '!**/node_modules/**'
   ],
   darkMode: ['class', '[data-theme="dark"]'],
   important: true, // important in prod is must be
