@@ -196,9 +196,6 @@ export const updateInteractableUI = (entity: Entity) => {
   }
   const deltaSeconds = getState(ECSState).deltaSeconds
   transition.update(deltaSeconds, (opacity) => {
-    if (opacity === 0) {
-      removeComponent(interactable.uiEntity, VisibleComponent)
-    }
     xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
       const mat = layer.contentMesh.material as MeshBasicMaterial
       mat.opacity = opacity
