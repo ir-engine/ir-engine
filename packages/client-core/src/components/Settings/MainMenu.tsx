@@ -28,7 +28,6 @@ import React from 'react'
 import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import Divider from '@ir-engine/ui/src/components/viewer/Divider'
-import { MultiplayerState } from '../../common/services/MultiplayerState'
 import { AuthService, AuthState } from '../../user/services/AuthService'
 import { NavigateFuncProps } from '../Glass/NavigationProvider'
 import { Inner } from '../Glass/ToolbarAndSidebar'
@@ -36,14 +35,12 @@ import ButtonGroup from './ButtonGroup'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
 import SliderItem from './SliderItem'
-import ToggleItem from './ToggleItem'
 
 // Define types for screen components
 type ScreenProps = NavigateFuncProps & {}
 
 const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
   const audioState = useMutableState(AudioState)
-  const { world, media } = useMutableState(MultiplayerState)
   const isGuest = useMutableState(AuthState).user.isGuest.value
   const confirmLogout = useHookstate(false)
 
@@ -68,14 +65,6 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
       {/* Communication Section */}
       <Section>
         <MenuItem label="Share Space" onClick={() => navigateTo('settings/share')} hasChevron />
-        <Divider />
-        <ToggleItem
-          label="Video Communication"
-          checked={media.value}
-          onClick={() => {
-            media.set(!media.value)
-          }}
-        />
       </Section>
       <Section>
         <SliderItem
@@ -93,8 +82,6 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
 
       {/* World & Account Section */}
       <Section>
-        <ToggleItem label="Multiplayer" checked={world.value} onClick={() => world.set(!world.value)} />
-        <Divider />
         <MenuItem label="Account" onClick={() => navigateTo('settings/account')} hasChevron />
         <Divider />
         <MenuItem label="Avatar" onClick={() => navigateTo('settings/avatar')} hasChevron />
