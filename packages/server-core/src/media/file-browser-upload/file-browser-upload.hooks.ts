@@ -31,6 +31,89 @@ import { HookContext } from '../../../declarations'
 import verifyScope from '../../hooks/verify-scope'
 import { isValidFileType } from '../FileUtil'
 
+/**
+ * Track file browser upload metrics and tracing
+ */
+const trackFileBrowserUpload = async (context: HookContext) => {
+  if (!context.result) return context
+
+  const metricsService = context.app.get('metricsService')
+  const createFileUploadSpan = context.app.get('createFileUploadSpan')
+
+  if (!metricsService && !createFileUploadSpan) return context
+
+  try {
+    const files = context.params?.files || []
+    const data =
+      typeof context.arguments?.[0]?.args === 'string'
+        ? JSON.parse(context.arguments[0].args)
+        : context.arguments?.[0]?.args || []
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      const fileData = data[i] || {}
+
+      if (!file) continue
+
+      const fileName = file.originalname || fileData.path?.split('/').pop() || 'unknown'
+      const mimeType = file.mimetype || fileData.contentType || 'application/octet-stream'
+      const sizeBytes = file.size || file.buffer?.length || 0
+      const fileExtension = fileName.includes('.') ? fileName.split('.').pop() || '' : ''
+      const project = fileData.project
+
+      // Calculate upload duration (approximate)
+      const uploadDuration = context.params?.uploadStartTime ? (Date.now() - context.params.uploadStartTime) / 1000 : 0
+
+      // Track with Prometheus metrics
+      if (metricsService) {
+        metricsService.trackFileUpload(
+          'file-browser',
+          mimeType,
+          fileExtension,
+          sizeBytes,
+          uploadDuration,
+          project,
+          'success'
+        )
+      }
+
+      // Track with OpenTelemetry (detailed logging)
+      if (createFileUploadSpan) {
+        await createFileUploadSpan(fileName, 'file-browser', mimeType, sizeBytes, project, async (span: any) => {
+          // Add additional attributes to the span
+          span.setAttributes({
+            'upload.path': fileData.path || 'unknown',
+            'upload.duration_seconds': uploadDuration,
+            'user.id': context.params?.user?.id || 'unknown',
+            'upload.service': 'file-browser-upload'
+          })
+
+          // Log the upload event
+          span.addEvent('file_browser_upload_completed', {
+            'file.name': fileName,
+            'file.size_bytes': sizeBytes,
+            'upload.status': 'success'
+          })
+
+          return file
+        })
+      }
+    }
+  } catch (error) {
+    console.error('Error tracking file browser upload metrics:', error)
+  }
+
+  return context
+}
+
+/**
+ * Capture upload start time for duration calculation
+ */
+const captureUploadStartTime = async (context: HookContext) => {
+  context.params.uploadStartTime = Date.now()
+  return context
+}
+
 // An example of calculating the remaining space left on a hypothetical project max size
 // const projectNameRegex = /projects\/([^/]+)/
 // const PROJECT_MAX_SIZE = 100 * 1000 * 1000 //100 MB
@@ -67,6 +150,7 @@ export default {
     find: [],
     get: [],
     create: [
+      captureUploadStartTime,
       (context) => {
         context[SYNC] = false
         return context
@@ -75,6 +159,7 @@ export default {
     ],
     update: [],
     patch: [
+      captureUploadStartTime,
       (context) => {
         context[SYNC] = false
         return context
@@ -87,9 +172,9 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [trackFileBrowserUpload],
     update: [],
-    patch: [],
+    patch: [trackFileBrowserUpload],
     remove: []
   },
   error: {

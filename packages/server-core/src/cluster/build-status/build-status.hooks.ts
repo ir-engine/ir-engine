@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -23,16 +23,19 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { HookContext } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   buildStatusDataValidator,
   buildStatusPatchValidator,
-  buildStatusQueryValidator
+  buildStatusQueryValidator,
+  BuildStatusType
 } from '@ir-engine/common/src/schemas/cluster/build-status.schema'
 
 import verifyScope from '../../hooks/verify-scope'
+import { BuildStatusService } from './build-status.class'
 import {
   buildStatusDataResolver,
   buildStatusExternalResolver,
@@ -68,9 +71,44 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [
+      (context: HookContext<BuildStatusService>) => {
+        // Track build start in metrics
+        const metricsService = context.app.get('metricsService') as any
+        if (metricsService && typeof metricsService.trackBuildStart === 'function') {
+          metricsService.trackBuildStart()
+        }
+        return context
+      }
+    ],
     update: [],
-    patch: [],
+    patch: [
+      (context: HookContext<BuildStatusService>) => {
+        // Track build completion in metrics if status is changed from pending
+        const metricsService = context.app.get('metricsService') as any
+        if (!metricsService || typeof metricsService.trackBuildCompletion !== 'function') return context
+
+        const data = context.data as Partial<BuildStatusType>
+        const buildStatus = context.result as BuildStatusType
+
+        // Only track completion if status is being updated and it's not 'pending'
+        if (data.status && data.status !== 'pending') {
+          // Calculate duration if both dateStarted and dateEnded are available
+          if (buildStatus.dateStarted && buildStatus.dateEnded) {
+            const startDate = new Date(buildStatus.dateStarted)
+            const endDate = new Date(buildStatus.dateEnded)
+            const durationSeconds = (endDate.getTime() - startDate.getTime()) / 1000
+
+            metricsService.trackBuildCompletion(data.status, durationSeconds)
+          } else {
+            // If we can't calculate duration, still track the status change
+            metricsService.trackBuildCompletion(data.status, 0)
+          }
+        }
+
+        return context
+      }
+    ],
     remove: []
   },
 

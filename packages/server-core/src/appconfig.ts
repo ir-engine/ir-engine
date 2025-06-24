@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -439,6 +439,29 @@ const redis = {
   password: process.env.REDIS_PASSWORD == '' || process.env.REDIS_PASSWORD == null ? null! : process.env.REDIS_PASSWORD!
 }
 
+/**
+ * Monitoring
+ */
+const monitoring = {
+  metrics: {
+    enabled: process.env.PROMETHEUS_METRICS_ENABLED === 'true',
+    endpoint: process.env.METRICS_ENDPOINT || '/metrics',
+    // For GCP Cloud Monitoring integration
+    gcpProject: process.env.GCP_PROJECT,
+    useCloudMonitoring: process.env.USE_CLOUD_MONITORING === 'true'
+  },
+  tracing: {
+    enabled: process.env.TRACING_ENABLED === 'true',
+    endpoint: process.env.TRACING_ENDPOINT || 'http://localhost:4318/v1/traces',
+    samplingRatio: parseFloat(process.env.TRACING_SAMPLING_RATIO || '0.1'), // 10% sampling by default
+    serviceName: process.env.TRACING_SERVICE_NAME || 'ir-engine-api',
+    // For GCP Cloud Trace integration
+    useCloudTrace: process.env.USE_CLOUD_TRACE === 'true'
+  },
+  // Environment type to determine which monitoring infrastructure to use
+  environment: process.env.MONITORING_ENVIRONMENT || 'local' // 'local', 'docker', 'gcp'
+}
+
 const scopes = {
   guest: process.env.DEFAULT_GUEST_SCOPES?.split(',') || [],
   user: process.env.DEFAULT_USER_SCOPES?.split(',') || []
@@ -482,6 +505,7 @@ const config = {
   redis,
   scopes,
   blockchain,
+  monitoring,
   kubernetes: {
     enabled: kubernetesEnabled,
     serviceHost: process.env.KUBERNETES_SERVICE_HOST!,

@@ -50,6 +50,94 @@ import {
   staticResourceResolver
 } from './static-resource.resolvers'
 
+/**
+ * Track file upload metrics and tracing
+ */
+const trackFileUpload = async (context: HookContext<StaticResourceService>) => {
+  if (!context.result || context.method !== 'create') return context
+
+  const metricsService = context.app.get('metricsService')
+  const createFileUploadSpan = context.app.get('createFileUploadSpan')
+
+  if (!metricsService && !createFileUploadSpan) return context
+
+  const data = Array.isArray(context.result)
+    ? context.result
+    : 'data' in context.result
+    ? context.result.data
+    : [context.result]
+
+  if (!data) return context
+
+  for (const resource of data) {
+    if (!resource) continue
+
+    try {
+      // Extract file information
+      const fileName = resource.name || resource.key?.split('/').pop() || 'unknown'
+      const fileType = resource.type || 'unknown'
+      const mimeType = resource.mimeType || 'application/octet-stream'
+      const sizeBytes = resource.stats?.size || 0
+      const project = resource.project
+      const fileExtension = fileName.includes('.') ? fileName.split('.').pop() || '' : ''
+
+      // Calculate upload duration (approximate - from resource creation time)
+      const uploadDuration = context.params?.uploadStartTime ? (Date.now() - context.params.uploadStartTime) / 1000 : 0
+
+      // Track with Prometheus metrics
+      if (metricsService) {
+        metricsService.trackFileUpload(fileType, mimeType, fileExtension, sizeBytes, uploadDuration, project, 'success')
+      }
+
+      // Track with OpenTelemetry (detailed logging)
+      if (createFileUploadSpan) {
+        await createFileUploadSpan(fileName, fileType, mimeType, sizeBytes, project, async (span: any) => {
+          // Add additional attributes to the span
+          span.setAttributes({
+            'file.hash': resource.hash,
+            'file.key': resource.key,
+            'upload.duration_seconds': uploadDuration,
+            'user.id': context.params?.user?.id || 'unknown'
+          })
+
+          // Log the upload event
+          span.addEvent('file_upload_completed', {
+            'file.name': fileName,
+            'file.size_bytes': sizeBytes,
+            'upload.status': 'success'
+          })
+
+          return resource
+        })
+      }
+    } catch (error) {
+      console.error('Error tracking file upload metrics:', error)
+
+      // Track failed upload with metrics
+      if (metricsService) {
+        const fileName = resource?.name || 'unknown'
+        const fileType = resource?.type || 'unknown'
+        const mimeType = resource?.mimeType || 'application/octet-stream'
+        const fileExtension = fileName.includes('.') ? fileName.split('.').pop() || '' : ''
+
+        metricsService.trackFileUpload(fileType, mimeType, fileExtension, 0, 0, resource?.project, 'failed')
+      }
+    }
+  }
+
+  return context
+}
+
+/**
+ * Capture upload start time for duration calculation
+ */
+const captureUploadStartTime = async (context: HookContext<StaticResourceService>) => {
+  if (context.method === 'create') {
+    context.params.uploadStartTime = Date.now()
+  }
+  return context
+}
+
 const ensureProject = async (context: HookContext<StaticResourceService>) => {
   if (!context.data || !(context.method === 'create' || context.method === 'update')) {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
@@ -392,6 +480,7 @@ export default {
     ],
     get: [],
     create: [
+      captureUploadStartTime,
       ensureProject,
       iff(
         isProvider('external'),
@@ -473,7 +562,7 @@ export default {
         )
       )
     ],
-    create: [updateResourcesJson],
+    create: [updateResourcesJson, trackFileUpload],
     update: [updateResourcesJson],
     patch: [updateResourcesJson, (context) => addLog(context, 'patch')],
     remove: [removeResourcesJson, (context) => addLog(context, 'delete')]
