@@ -157,7 +157,7 @@ export const UUIDComponent = defineComponent({
     destroy(getState(EntitiesByUUIDState)[layer][uuid])
     delete getState(EntitiesByUUIDState)[layer][uuid]
 
-    const source = component.value.entitySourceID.toString()
+    const source = component.value.entitySourceID.toString() as SourceID
     const entities = getState(EntitiesBySourceState)[layer][source].filter((currentEntity) => currentEntity !== entity)
     const layerState = getMutableState(EntitiesBySourceState)[layer]
     if (entities.length === 0) {

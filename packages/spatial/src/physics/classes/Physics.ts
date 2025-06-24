@@ -43,6 +43,7 @@ import RAPIER, {
 import {
   Box3,
   BufferAttribute,
+  InterleavedBufferAttribute,
   Matrix4,
   OrthographicCamera,
   PerspectiveCamera,
@@ -61,6 +62,7 @@ import {
   useAncestorWithComponents
 } from '@ir-engine/ecs'
 import { NO_PROXY, defineState, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
+import { deinterleaveAttribute } from '../../common/classes/BufferGeometryUtils'
 import { Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
 import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
@@ -613,8 +615,13 @@ function createColliderDesc(
       if (!mesh?.geometry)
         return console.warn('[Physics]: Tried to load tri mesh but did not find a geometry', mesh) as any
       try {
+        /** @todo add support for interleaved buffers */
         const _buff = mesh.geometry.clone().scale(scale.x, scale.y, scale.z)
-        const vertices = new Float32Array((_buff.attributes.position as BufferAttribute).array)
+        let positionAttr = _buff.attributes.position
+        if ((positionAttr as InterleavedBufferAttribute).isInterleavedBufferAttribute) {
+          positionAttr = deinterleaveAttribute(positionAttr as InterleavedBufferAttribute)
+        }
+        const vertices = Float32Array.from(positionAttr.array)
         const indices = new Uint32Array(_buff.index!.array)
         colliderDesc = ColliderDesc.trimesh(vertices, indices)
         colliderDesc.setRotation(quaternionRelativeToRoot)

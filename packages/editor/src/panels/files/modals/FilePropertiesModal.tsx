@@ -114,38 +114,41 @@ export default function FilePropertiesModal() {
           project: resource.project
         })
       }
-      const reactor = startReactor(() => {
-        const updatedResources = useFind(staticResourcePath, {
-          query: {
-            key: {
-              $like: undefined,
-              $or: files.map(({ key }) => ({
-                key
-              }))
-            },
-            $limit: 10000
+      const reactor = startReactor(
+        () => {
+          const updatedResources = useFind(staticResourcePath, {
+            query: {
+              key: {
+                $like: undefined,
+                $or: files.map(({ key }) => ({
+                  key
+                }))
+              },
+              $limit: 10000
+            }
+          })
+          for (const resource of updatedResources.data) {
+            const oldTags = resource.tags ?? []
+            const newTags = Array.from(new Set([...addedTags, ...oldTags.filter((tag) => !removedTags.includes(tag))]))
+            if (
+              resource.tags?.length === newTags.length &&
+              resource.tags.every((val, index) => val === newTags[index]) &&
+              resource.name === resourceDigest.name.value &&
+              resource.licensing === resourceDigest.licensing.value &&
+              resource.attribution === resourceDigest.attribution.value &&
+              resource.description === resourceDigest.description.value
+            ) {
+              console.log('All properties successfully updated')
+              modifiedFields.set([])
+              ModalState.closeModal()
+              ModalState.closeModal()
+              reactor.stop()
+            }
           }
-        })
-        for (const resource of updatedResources.data) {
-          const oldTags = resource.tags ?? []
-          const newTags = Array.from(new Set([...addedTags, ...oldTags.filter((tag) => !removedTags.includes(tag))]))
-          if (
-            resource.tags?.length === newTags.length &&
-            resource.tags.every((val, index) => val === newTags[index]) &&
-            resource.name === resourceDigest.name.value &&
-            resource.licensing === resourceDigest.licensing.value &&
-            resource.attribution === resourceDigest.attribution.value &&
-            resource.description === resourceDigest.description.value
-          ) {
-            console.log('All properties successfully updated')
-            modifiedFields.set([])
-            ModalState.closeModal()
-            ModalState.closeModal()
-            reactor.stop()
-          }
-        }
-        return null
-      })
+          return null
+        },
+        `FilePropertiesModal - ${files.map((f) => f.key).join(', ')}`
+      )
     } else {
       ModalState.closeModal()
       ModalState.closeModal()

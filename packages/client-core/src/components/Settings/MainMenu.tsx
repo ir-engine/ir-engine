@@ -30,6 +30,8 @@ import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import Divider from '@ir-engine/ui/src/components/viewer/Divider'
 import { MultiplayerState } from '../../common/services/MultiplayerState'
 import { AuthService, AuthState } from '../../user/services/AuthService'
+import { NavigateFuncProps } from '../Glass/NavigationProvider'
+import { Inner } from '../Glass/ToolbarAndSidebar'
 import ButtonGroup from './ButtonGroup'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
@@ -37,10 +39,7 @@ import SliderItem from './SliderItem'
 import ToggleItem from './ToggleItem'
 
 // Define types for screen components
-interface ScreenProps {
-  navigateTo: (screenKey: string, historyKey: string) => void
-  navigateClose?: () => void
-}
+type ScreenProps = NavigateFuncProps & {}
 
 const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
   const audioState = useMutableState(AudioState)
@@ -50,7 +49,7 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
 
   if (confirmLogout.value) {
     return (
-      <div className="mx-auto flex h-full max-w-sm flex-col items-center justify-between pb-2">
+      <Inner className="mx-auto flex min-h-full max-w-sm flex-col items-center justify-between">
         <div className="text-dm-sans m-auto flex w-full flex-1 flex-col justify-center text-center text-2xl text-white">
           Are you sure you want to logout?
         </div>
@@ -60,15 +59,15 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
             { label: 'Nevermind', onClick: () => confirmLogout.set(false) }
           ]}
         />
-      </div>
+      </Inner>
     )
   }
 
   return (
-    <div className="space-y-4">
+    <Inner className="space-y-4">
       {/* Communication Section */}
       <Section>
-        <MenuItem label="Share Space" onClick={() => navigateTo('Settings', 'shareSpace')} hasChevron />
+        <MenuItem label="Share Space" onClick={() => navigateTo('settings/share')} hasChevron />
         <Divider />
         <ToggleItem
           label="Video Communication"
@@ -96,20 +95,20 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
       <Section>
         <ToggleItem label="Multiplayer" checked={world.value} onClick={() => world.set(!world.value)} />
         <Divider />
-        <MenuItem label="Account" onClick={() => navigateTo('Settings', 'account')} hasChevron />
+        <MenuItem label="Account" onClick={() => navigateTo('settings/account')} hasChevron />
         <Divider />
-        <MenuItem label="Avatar" onClick={() => navigateTo('Settings', 'avatar')} hasChevron />
+        <MenuItem label="Avatar" onClick={() => navigateTo('settings/avatar')} hasChevron />
       </Section>
 
       {/* System Section */}
       <Section>
-        <MenuItem label="Controls" onClick={() => navigateTo('Settings', 'controls')} hasChevron />
+        <MenuItem label="Controls" onClick={() => navigateTo('settings/controls')} hasChevron />
         <Divider />
-        <MenuItem label="Graphics" onClick={() => navigateTo('Settings', 'graphics')} hasChevron />
-        <MenuItem label="Audio" onClick={() => navigateTo('Settings', 'audio')} hasChevron />
+        <MenuItem label="Graphics" onClick={() => navigateTo('settings/graphics')} hasChevron />
+        <MenuItem label="Audio" onClick={() => navigateTo('settings/audio')} hasChevron />
         {!isGuest && <MenuItem label="Log Out" onClick={() => confirmLogout.set(true)} />}
       </Section>
-    </div>
+    </Inner>
   )
 }
 

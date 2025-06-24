@@ -28,37 +28,44 @@ import globby from 'globby'
 import { dirname, join, resolve } from 'path'
 import { mergeConfig } from 'vite'
 
-const stories = globby.sync(['../src/**/*.stories.tsx', '../../client-core/src/components/Settings/*.stories.tsx'], {
-  ignore: [
-    '../src/primitives/tailwind/TruncatedText/**/*.stories.tsx',
-    '../src/components/tailwind/Header/**/*.stories.tsx',
-    '../src/pages/Capture/index.stories.tsx',
-    '../src/components/editor/ComponentDropdown/index.stories.tsx',
-    '../src/primitives/tailwind/AvatarImage/*.stories.tsx',
-    '../src/components/editor/input/Folder/index.stories.tsx',
-    '../src/components/editor/input/FileBrowser/index.stories.tsx',
-    '../src/components/editor/input/Model/*.stories.tsx',
-    '../src/components/editor/input/Prefab/*.stories.tsx',
-    '../src/components/editor/input/Texture/*.stories.tsx',
-    '../src/components/editor/properties/animation/*.stories.tsx',
-    '../src/components/editor/properties/envMapBake/**/*.stories.tsx',
-    '../src/components/editor/properties/envmap/*.stories.tsx',
-    '../src/components/editor/properties/gallery/*.stories.tsx',
-    '../src/components/editor/properties/image/**/*.stories.tsx',
-    '../src/components/editor/properties/imageGrid/*.stories.tsx',
-    '../src/components/editor/properties/particle/*.stories.tsx',
-    '../src/components/editor/properties/portal/*.stories.tsx',
-    '../src/components/editor/properties/reflectionProbe/*.stories.tsx',
-    '../src/components/editor/properties/skybox/*.stories.tsx',
-    '../src/components/editor/properties/light/**/*.stories.tsx',
-    '../src/components/editor/properties/media/*.stories.tsx',
-    '../src/components/editor/properties/video/*.stories.tsx',
-    '../src/components/editor/properties/xruiPlayback/*.stories.tsx',
-    '../src/components/editor/properties/scene/**/*.stories.tsx',
-    '../src/components/editor/input/Audio/*.stories.tsx'
+const stories = globby.sync(
+  [
+    '../src/**/*.stories.tsx',
+    '../../client-core/src/components/Settings/*.stories.tsx',
+    '../../client-core/src/components/Glass/**/*.stories.tsx'
   ],
-  cwd: resolve(__dirname)
-})
+  {
+    ignore: [
+      '../src/primitives/tailwind/TruncatedText/**/*.stories.tsx',
+      '../src/components/tailwind/Header/**/*.stories.tsx',
+      '../src/pages/Capture/index.stories.tsx',
+      '../src/components/editor/ComponentDropdown/index.stories.tsx',
+      '../src/primitives/tailwind/AvatarImage/*.stories.tsx',
+      '../src/components/editor/input/Folder/index.stories.tsx',
+      '../src/components/editor/input/FileBrowser/index.stories.tsx',
+      '../src/components/editor/input/Model/*.stories.tsx',
+      '../src/components/editor/input/Prefab/*.stories.tsx',
+      '../src/components/editor/input/Texture/*.stories.tsx',
+      '../src/components/editor/properties/animation/*.stories.tsx',
+      '../src/components/editor/properties/envMapBake/**/*.stories.tsx',
+      '../src/components/editor/properties/envmap/*.stories.tsx',
+      '../src/components/editor/properties/gallery/*.stories.tsx',
+      '../src/components/editor/properties/image/**/*.stories.tsx',
+      '../src/components/editor/properties/imageGrid/*.stories.tsx',
+      '../src/components/editor/properties/particle/*.stories.tsx',
+      '../src/components/editor/properties/portal/*.stories.tsx',
+      '../src/components/editor/properties/reflectionProbe/*.stories.tsx',
+      '../src/components/editor/properties/skybox/*.stories.tsx',
+      '../src/components/editor/properties/light/**/*.stories.tsx',
+      '../src/components/editor/properties/media/*.stories.tsx',
+      '../src/components/editor/properties/video/*.stories.tsx',
+      '../src/components/editor/properties/xruiPlayback/*.stories.tsx',
+      '../src/components/editor/properties/scene/**/*.stories.tsx',
+      '../src/components/editor/input/Audio/*.stories.tsx'
+    ],
+    cwd: resolve(__dirname)
+  }
+)
 
 const config: StorybookConfig = {
   env: (config) => ({
