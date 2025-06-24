@@ -44,6 +44,7 @@ import { LocationState } from '../../social/services/LocationService'
 import { ReportUserState } from '../../util/ReportUserState'
 import { uploadToFeathersService } from '../../util/upload'
 import { IconButton } from '../Glass/buttons/IconButton'
+import { Inner } from '../Glass/ToolbarAndSidebar'
 
 const backButtonStyles = `
   left-4
@@ -309,7 +310,7 @@ const ReportUserMenu = (props: ReportMenuProps) => {
     }
   }
 
-  return <div className="w-full">{showContents()}</div>
+  return <Inner className="w-full">{showContents()}</Inner>
 }
 
 export default ReportUserMenu
