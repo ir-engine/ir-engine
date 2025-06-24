@@ -115,6 +115,7 @@ export const DirectionalLightHelperReactor: React.FC = (props: { parentEntity; i
       color: directionalLight.color.value,
       opacity: 0
     })
+    // @ts-ignore causes issues with the type system value inferred as never
 
     LineSegmentComponent.setTransition(helperEntity, 'opacity', 1, {
       duration: iconGizmoTransitionTimeout,
@@ -124,6 +125,8 @@ export const DirectionalLightHelperReactor: React.FC = (props: { parentEntity; i
     directionalLightHelperEntity.set(helperEntity)
 
     return () => {
+      // @ts-ignore causes issues with the type system value inferred as never
+
       LineSegmentComponent.setTransition(helperEntity, 'opacity', 0, {
         duration: iconGizmoTransitionTimeout,
         easing: Easing.quadratic.inOut

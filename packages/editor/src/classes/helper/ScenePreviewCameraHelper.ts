@@ -192,12 +192,14 @@ export const ScenePreviewCameraHelperReactor: React.FC = (props: { parentEntity;
 
     cameraHelperEntity.set(helperEntity)
 
+    // @ts-ignore causes issues with the type system value inferred as never
     LineSegmentComponent.setTransition(helperEntity, 'opacity', 1, {
       duration: iconGizmoTransitionTimeout,
       easing: Easing.quadratic.inOut
     })
 
     return () => {
+      // @ts-ignore causes issues with the type system value inferred as never
       LineSegmentComponent.setTransition(helperEntity, 'opacity', 0, {
         duration: iconGizmoTransitionTimeout,
         easing: Easing.quadratic.inOut

@@ -150,6 +150,7 @@ export const HemiSphereLightHelperReactor: React.FC = (props: { parentEntity; ic
       opacity: 0
     })
 
+    // @ts-ignore causes issues with the type system value inferred as never
     LineSegmentComponent.setTransition(helperEntity, 'opacity', 1, {
       duration: iconGizmoTransitionTimeout,
       easing: Easing.quadratic.inOut
@@ -158,6 +159,7 @@ export const HemiSphereLightHelperReactor: React.FC = (props: { parentEntity; ic
     hemisphereLightHelperEntity.set(helperEntity)
 
     return () => {
+      // @ts-ignore causes issues with the type system value inferred as never
       LineSegmentComponent.setTransition(helperEntity, 'opacity', 0, {
         duration: iconGizmoTransitionTimeout,
         easing: Easing.quadratic.inOut
