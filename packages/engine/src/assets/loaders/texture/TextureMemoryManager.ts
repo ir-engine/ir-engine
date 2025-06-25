@@ -249,8 +249,8 @@ export async function getTextureCacheSize(): Promise<number> {
   if (!ResourceCache) return 0
 
   try {
-    const textures = await ResourceCache.textures.toArray()
-    return textures.length
+    const textures = await ResourceCache.textures.count()
+    return textures
   } catch (error) {
     console.error(`Error getting texture cache size: ${error}`)
     return 0
