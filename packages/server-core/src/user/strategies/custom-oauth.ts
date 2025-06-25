@@ -142,6 +142,33 @@ export class CustomOAuthStrategy extends OAuthStrategy {
       return null
     }
   }
+
+  /**
+   * Filters existing identity providers to exclude those associated with deactivated users
+   * @param existingIdentityProviders Array of identity providers to filter
+   * @returns Array of identity providers with active users only
+   */
+  protected async filterActiveIdentityProviders(existingIdentityProviders: any[]): Promise<any[]> {
+    if (!existingIdentityProviders || existingIdentityProviders.length === 0) {
+      return []
+    }
+
+    const activeProviders: any[] = []
+    for (const provider of existingIdentityProviders) {
+      try {
+        const user = await this.app.service(userPath).get(provider.userId)
+        if (!user.isDeactivated) {
+          activeProviders.push(provider)
+        }
+      } catch (error) {
+        if (error.code !== 404) {
+          logger.error('Error checking user deactivation status for identity provider:', error)
+        }
+        // Skip providers with missing or errored users
+      }
+    }
+    return activeProviders
+  }
 }
 
 export default CustomOAuthStrategy
