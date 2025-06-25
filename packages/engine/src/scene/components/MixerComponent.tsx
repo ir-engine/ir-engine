@@ -56,14 +56,7 @@ import { Color, Quaternion, Vector2, Vector3, Vector4 } from 'three'
 /**
  * Enum defining the types of values that can be mixed/interpolated
  */
-export enum MixableType {
-  Number,
-  Vector2,
-  Vector3,
-  Vector4,
-  Quaternion,
-  Color
-}
+export type MixableType = 'number' | 'Vector2' | 'Vector3' | 'Vector4' | 'Color' | 'Quaternion'
 
 /**
  * Union type of all possible mixable value types
@@ -85,37 +78,37 @@ type MixFunc<M> = {
  * Implementation of mixing functions for each supported type
  */
 const mixFuncs: Record<MixableType, MixFunc<any>> = {
-  [MixableType.Number]: {
+  number: {
     create: (a) => a ?? 0,
     lerp: (a: number, b: number, p) => a * (1 - p) + b * p,
     fromNumberList: (a: number[]) => a[0],
     toNumberList: (a: number) => [a]
   },
-  [MixableType.Vector2]: {
+  Vector2: {
     create: (a?: number[]) => new Vector2(...(a ?? [])),
     lerp: (a: Vector2, b: Vector2, p) => a.clone().lerp(b, p),
     fromNumberList: (a: number[]) => new Vector2(...a),
     toNumberList: (a: Vector2) => [...a]
   },
-  [MixableType.Vector3]: {
+  Vector3: {
     create: (a?: number[]) => new Vector3(...(a ?? [])),
     lerp: (a: Vector3, b: Vector3, p) => a.clone().lerp(b, p),
     fromNumberList: (a: number[]) => new Vector3(...a),
     toNumberList: (a: Vector3) => [...a]
   },
-  [MixableType.Vector4]: {
+  Vector4: {
     create: (a?: number[]) => new Vector4(...(a ?? [])),
     lerp: (a: Vector4, b: Vector4, p) => a.clone().lerp(b, p),
     fromNumberList: (a: number[]) => new Vector4(...a),
     toNumberList: (a: Vector4) => [...a]
   },
-  [MixableType.Color]: {
+  Color: {
     create: (a?: number[]) => new Color(...(a ?? [])),
     lerp: (a: Color, b: Color, p) => a.clone().lerp(b, p),
     fromNumberList: (a: number[]) => new Color(...a),
     toNumberList: (a: Color) => [...a]
   },
-  [MixableType.Quaternion]: {
+  Quaternion: {
     create: (a?: number[]) => new Quaternion(...(a ?? [])),
     lerp: (a: Quaternion, b: Quaternion, p) => a.clone().slerp(b, p), // Note: Uses slerp for quaternions
     fromNumberList: (a: number[]) => new Quaternion(...a),
@@ -181,28 +174,28 @@ const getPropertySchema = (basisSchema: any, propertyPath: string): any => {
  * @returns The determined MixableType
  */
 const getMixableTypeFromSchema = (schema: any): MixableType => {
-  if (!schema) return MixableType.Number
+  if (!schema) return 'number'
 
   const kind = schema[Kind]
 
   // Handle simple number type
   if (kind === 'Number') {
-    return MixableType.Number
+    return 'number'
   }
 
   // Check for Vector types from T.Vec2, T.Vec3, etc.
   if (kind === 'Class' || kind === 'SerializedClass') {
     switch (schema.options?.id) {
       case 'Vec2':
-        return MixableType.Vector2
+        return 'Vector2'
       case 'Vec3':
-        return MixableType.Vector3
+        return 'Vector3'
       case 'Vec4':
-        return MixableType.Vector4
+        return 'Vector4'
       case 'Color':
-        return MixableType.Color
+        return 'Color'
       case 'Quaternion':
-        return MixableType.Quaternion
+        return 'Quaternion'
     }
   }
 
@@ -212,19 +205,19 @@ const getMixableTypeFromSchema = (schema: any): MixableType => {
 
     // Detect vector types by their properties
     if (props.includes('x') && props.includes('y')) {
-      if (!props.includes('z')) return MixableType.Vector2
-      if (!props.includes('w')) return MixableType.Vector3
-      return MixableType.Vector4
+      if (!props.includes('z')) return 'Vector2'
+      if (!props.includes('w')) return 'Vector3'
+      return 'Vector4'
     }
 
     // Detect color type by its properties
     if (props.includes('r') && props.includes('g') && props.includes('b')) {
-      return MixableType.Color
+      return 'Color'
     }
   }
 
   // Default to number if no specific type is detected
-  return MixableType.Number
+  return 'number'
 }
 
 /**
@@ -303,7 +296,14 @@ const schema = S.Object({
       entityID: S.EntityID(),
       componentID: S.String(),
       propertyPath: S.String(),
-      type: S.Enum(MixableType),
+      type: S.Union([
+        S.Literal('number'),
+        S.Literal('Vector2'),
+        S.Literal('Vector3'),
+        S.Literal('Vector4'),
+        S.Literal('Color'),
+        S.Literal('Quaternion')
+      ]),
       address: S.String()
     })
   ),

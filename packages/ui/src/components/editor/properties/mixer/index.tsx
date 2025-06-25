@@ -51,7 +51,7 @@ const renderPropertyInput = (
   updatePropertyValue: (newValue: any) => void
 ) => {
   switch (type) {
-    case MixableType.Number:
+    case 'number':
       return (
         <NumericInput
           value={currentValue[0]}
@@ -62,16 +62,16 @@ const renderPropertyInput = (
         />
       )
 
-    case MixableType.Vector2:
+    case 'Vector2':
       return <Vector2Input value={new Vector2(...currentValue)} onChange={(value) => updatePropertyValue(value)} />
 
-    case MixableType.Vector3:
+    case 'Vector3':
       return <Vector3Input value={new Vector3(...currentValue)} onChange={(value) => updatePropertyValue(value)} />
 
-    case MixableType.Vector4:
+    case 'Vector4':
       return <Vector4Input value={new Vector4(...currentValue)} onChange={(value) => updatePropertyValue(value)} />
 
-    case MixableType.Quaternion:
+    case 'Quaternion':
       return (
         <EulerInput
           quaternion={new Quaternion(...currentValue)}
@@ -80,7 +80,7 @@ const renderPropertyInput = (
         />
       )
 
-    case MixableType.Color:
+    case 'Color':
       return <ColorInput value={new Color(...currentValue)} onChange={(color) => updatePropertyValue(color)} />
   }
 }
