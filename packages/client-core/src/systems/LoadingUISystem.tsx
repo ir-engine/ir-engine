@@ -38,8 +38,7 @@ import {
   setComponent,
   useChildrenWithComponents,
   useComponent,
-  useOptionalComponent,
-  useQueryBySource
+  useOptionalComponent
 } from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Engine } from '@ir-engine/ecs/src/Engine'
@@ -231,7 +230,7 @@ const LoadingReactor = (props: { sceneEntity: Entity }) => {
 }
 
 const SceneSettingsReactor = (props: { sceneEntity: Entity }) => {
-  const [sceneSettingsEntity] = useQueryBySource(props.sceneEntity, [SceneSettingsComponent])
+  const [sceneSettingsEntity] = useChildrenWithComponents(props.sceneEntity, [SceneSettingsComponent])
   if (!sceneSettingsEntity) return null
   return <SceneSettingsChildReactor entity={sceneSettingsEntity} key={sceneSettingsEntity} />
 }
