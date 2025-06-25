@@ -59,8 +59,6 @@ import { applyInputSourcePoseToIKTargets } from '../functions/applyInputSourcePo
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 
 import { EngineState, Entity } from '@ir-engine/ecs'
-import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
-import { FollowCameraMode } from '@ir-engine/spatial/src/camera/types/FollowCameraMode'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { getThumbstickOrThumbpadAxes } from '@ir-engine/spatial/src/input/functions/getThumbstickOrThumbpadAxes'
 
@@ -265,13 +263,6 @@ const execute = () => {
     (buttons.ArrowDown?.pressed ? 1 : 0) +
     (buttons[StandardGamepadButton.StandardGamepadDPadUp]?.pressed ? -1 : 0) +
     (buttons[StandardGamepadButton.StandardGamepadDPadDown]?.pressed ? -1 : 0)
-
-  if (keyDeltaZ === 1) {
-    // todo: auto-adjust target distance in follow camera system based on target velocity
-    const follow = getOptionalComponent(controller.cameraEntity, FollowCameraComponent)
-    if (follow?.mode === FollowCameraMode.ThirdPerson || follow?.mode === FollowCameraMode.ShoulderCam)
-      follow.targetDistance = Math.max(follow.targetDistance, follow.effectiveMaxDistance * 0.5)
-  }
 
   controller.gamepadLocalInput.set(keyDeltaX, 0, keyDeltaZ).normalize()
 
