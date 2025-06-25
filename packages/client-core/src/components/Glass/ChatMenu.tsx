@@ -39,7 +39,6 @@ import { Inner } from './ToolbarAndSidebar'
 
 const messageBaseStyles = `
   inline-grid
-  max-w-full
   px-4 py-1
 
   border-2
@@ -49,6 +48,7 @@ const messageBaseStyles = `
 
   break-words
   max-w-[80%]
+  text-center
 `
 
 const blueGradientStyles = `
@@ -80,19 +80,17 @@ const OwnMessage = ({ children }) => (
   <div className={twMerge(messageBaseStyles, blueGradientStyles, `self-end`)}>{children}</div>
 )
 
-const OtherMessage = ({ children }) => (
-  <div className={twMerge(messageBaseStyles, `bg-black/30 text-left`)}>{children}</div>
-)
+const OtherMessage = ({ children }) => <div className={twMerge(messageBaseStyles, `bg-black/30`)}>{children}</div>
 
 const OtherName = ({ senderId }: { senderId: string }) => {
   const name = useGet(userPath, senderId).data?.name ?? ''
   return <div>{name}</div>
 }
 
-const OtherChat = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
+const OtherChat = ({ children }: { children: React.ReactNode }) => (
   <div
     className={`
-      flex flex-col items-start ${className}
+      mb-6 flex flex-col items-start
     `}
   >
     {children}
@@ -193,7 +191,7 @@ export const ChatMenu = () => {
             {groupedMessage}
           </div>
         ) : (
-          <OtherChat key={groupIndex} className="mb-6">
+          <OtherChat key={groupIndex}>
             <OtherName senderId={firstMessage.senderId} />
             {groupedMessage}
           </OtherChat>
