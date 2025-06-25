@@ -53,11 +53,6 @@ interface ScreenDefinition {
   title: string
 }
 
-// Define placeholder screen component
-const PlaceholderScreen: React.FC<ScreenProps & { title: string }> = ({ title }) => (
-  <div className="p-2">{title} Settings</div>
-)
-
 // Define all screens
 export const screens: Record<string, ScreenDefinition> = {
   main: { component: MainMenu, title: 'Settings' },

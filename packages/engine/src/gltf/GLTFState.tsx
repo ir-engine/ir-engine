@@ -149,7 +149,7 @@ export const AssetState = defineState({
           if (progress === 100) reactor.stop()
         }, [progress])
         return null
-      })
+      }, `GLTF loadAsync - ${assetEntity}`)
     })
   }
 })

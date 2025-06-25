@@ -65,9 +65,11 @@ export type BaseBadgeProps = {
   number?: number
 }
 
-interface BadgeProps extends React.ButtonHTMLAttributes<HTMLDivElement>, BaseBadgeProps, Variants {}
+export type BadgeProps = BaseBadgeProps & Variants
 
-export const Badge = ({ number, position, show, className }: BadgeProps) => {
+interface ComponentProps extends React.HTMLAttributes<HTMLDivElement>, BadgeProps {}
+
+export const Badge = ({ number, position, show, className }: ComponentProps) => {
   return (
     <div className={twMerge(containerStyles({ show, position }), className)}>
       <span className={'relative'}>{number}</span>

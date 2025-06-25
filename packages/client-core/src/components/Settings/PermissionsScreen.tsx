@@ -27,6 +27,7 @@ import { MediaStreamState, useMutableState } from '@ir-engine/hyperflux'
 import Divider from '@ir-engine/ui/src/components/viewer/Divider'
 import React from 'react'
 import { NavigateFuncProps } from '../Glass/NavigationProvider'
+import { Inner } from '../Glass/ToolbarAndSidebar'
 import { Section } from './Section'
 import ToggleItem from './ToggleItem'
 
@@ -36,7 +37,7 @@ const PermissionsScreen: React.FC<PermissionsScreenProps> = () => {
   const { microphoneEnabled, webcamEnabled } = useMutableState(MediaStreamState)
 
   return (
-    <div className="flex h-full flex-col justify-between space-y-6">
+    <Inner className="flex min-h-full flex-col justify-between space-y-6">
       {/* Permissions Section */}
       <div className="space-y-4">
         <Section>
@@ -57,7 +58,7 @@ const PermissionsScreen: React.FC<PermissionsScreenProps> = () => {
           />
         </Section>
       </div>
-    </div>
+    </Inner>
   )
 }
 

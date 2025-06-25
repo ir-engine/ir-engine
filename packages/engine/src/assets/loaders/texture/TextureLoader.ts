@@ -94,7 +94,7 @@ class TextureLoader extends Loader<Texture> {
       if (signal?.aborted) return
       const isBitmap = i instanceof ImageBitmap
       const image = this.maxResolution && isBitmap ? getScaledBitmap(i, this.maxResolution) : i
-      if (!isBitmap) texture.flipY = this.flipped
+      texture.flipY = isBitmap ? !this.flipped : this.flipped
       texture.source.data = image
       texture.needsUpdate = true
       onLoad(texture)

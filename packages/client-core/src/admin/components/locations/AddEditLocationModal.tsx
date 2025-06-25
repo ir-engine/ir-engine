@@ -28,6 +28,7 @@ import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { ModelTransformStatus, safeCompressGLTFWeb } from '@ir-engine/common/src/model/ModelTransformFunctions'
 import {
   engineSettingPath,
+  fileBrowserPath,
   LocationData,
   LocationID,
   LocationPatch,
@@ -35,7 +36,6 @@ import {
   LocationType,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
-import { fileBrowserPath } from '@ir-engine/common/src/schemas/media/file-browser.schema'
 import { Entity, getComponent, hasComponent, iterateEntityNode, setComponent, UndefinedEntity } from '@ir-engine/ecs'
 import { defaultLODs, LODVariantDescriptor } from '@ir-engine/editor/src/constants/GLTFPresets'
 import { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'

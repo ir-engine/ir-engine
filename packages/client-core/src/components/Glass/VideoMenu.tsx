@@ -23,16 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  ChevronLeftMd,
-  ChevronRightMd,
-  Microphone01Md,
-  MicrophoneOff,
-  VideoRecorderMd,
-  VideoRecorderOffMd
-} from '@ir-engine/ui/src/icons'
+import { ChevronLeftMd as ArrowLeftIcon, ChevronRightMd as ArrowRightIcon } from '@ir-engine/ui/src/icons'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { BsFillExclamationTriangleFill } from 'react-icons/bs'
+import {
+  BsEyeSlashFill as CameraOffIcon,
+  BsEyeFill as CameraOnIcon,
+  BsMicMuteFill as MicrophoneOffIcon,
+  BsMicFill as MicrophoneOnIcon,
+  BsFillExclamationTriangleFill as ReportIcon
+} from 'react-icons/bs'
 import { twMerge } from 'tailwind-merge'
 import { MultimediaStateProvider, useMultimediaStateProvider } from './MultimediaStateProvider'
 import {
@@ -129,15 +128,32 @@ const videoButtonsInner = `
 
 export const useVideoStream = (videoElement, videoMediaStream) => {
   useEffect(() => {
-    if (!videoElement || videoElement.srcObject || !videoMediaStream) return
+    if (!videoElement) return
 
-    videoElement.autoplay = true
-    videoElement.muted = true
-    videoElement.setAttribute('playsinline', 'true')
+    if (videoMediaStream && !videoElement.srcObject) {
+      videoElement.autoplay = true
+      videoElement.muted = true
+      videoElement.setAttribute('playsinline', 'true')
 
-    const newVideoTrack = videoMediaStream.getVideoTracks()[0].clone()
-    videoElement.srcObject = new MediaStream([newVideoTrack])
-    videoElement.play()
+      const newVideoTrack = videoMediaStream.getVideoTracks()[0].clone()
+      videoElement.srcObject = new MediaStream([newVideoTrack])
+      videoElement.play()
+    }
+
+    return () => {
+      if (videoElement.srcObject instanceof MediaStream) {
+        const tracks = videoElement.srcObject.getTracks()
+        tracks.forEach((track) => {
+          try {
+            track.stop()
+          } catch (error) {
+            console.debug('Track already stopped:', error)
+          }
+        })
+        videoElement.pause?.()
+        videoElement.srcObject = null
+      }
+    }
   }, [videoElement, videoMediaStream])
 }
 
@@ -194,13 +210,13 @@ const Video = ({ peerID, type }: WindowType) => {
       <div className={twMerge(videoButtonsContainer)}>
         <div className={twMerge(videoButtonsInner)}>
           <button onClick={toggleVideo} className={`cursor-pointer`}>
-            {camVideoOn ? <VideoRecorderMd /> : <VideoRecorderOffMd />}
+            {camVideoOn ? <CameraOnIcon /> : <CameraOffIcon />}
           </button>
           <button onClick={toggleAudio} className={`cursor-pointer`}>
-            {camAudioOn ? <Microphone01Md /> : <MicrophoneOff />}
+            {camAudioOn ? <MicrophoneOnIcon /> : <MicrophoneOffIcon />}
           </button>
           <button onClick={reportUser} className={`cursor-pointer`}>
-            <BsFillExclamationTriangleFill />
+            <ReportIcon />
           </button>
         </div>
       </div>
@@ -295,7 +311,7 @@ export const VideoMenu = ({ videos = [] }: { videos: WindowType[] }) => {
           onClick={() => setPageIndex(pageIndex - 1)}
           className={pageIndex === 0 ? `collapse` : ``}
         >
-          <ChevronLeftMd />
+          <ArrowLeftIcon />
         </IconButton>
         <div
           className={`
@@ -310,7 +326,7 @@ export const VideoMenu = ({ videos = [] }: { videos: WindowType[] }) => {
             onClick={() => setPageIndex(pageIndex + 1)}
             className={pageIndex === numPages - 1 ? `hidden` : ``}
           >
-            <ChevronRightMd />
+            <ArrowRightIcon />
           </IconButton>
         </div>
       </div>

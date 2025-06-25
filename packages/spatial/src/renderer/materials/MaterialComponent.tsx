@@ -23,15 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { IUniform, Material, Shader } from 'three'
+import { FrontSide, IUniform, Material, MeshStandardMaterial as MeshStandardMaterial0, Shader } from 'three'
 
 import {
   ComponentType,
   UUIDComponent,
+  createEntity,
   defineComponent,
   getComponent,
   getOptionalComponent,
   hasComponent,
+  setComponent,
   useEntityContext,
   useOptionalComponent
 } from '@ir-engine/ecs'
@@ -107,9 +109,25 @@ export const MaterialStateComponent = defineComponent({
   } as EntityUUIDPair,
 
   fallbackMaterial: () => {
-    const fallbackMaterialEntity = UUIDComponent.getEntityByUUID(
+    let fallbackMaterialEntity = UUIDComponent.getEntityByUUID(
       UUIDComponent.join(MaterialStateComponent.fallbackMaterialUUIDPair)
     )
+    if (!fallbackMaterialEntity) {
+      fallbackMaterialEntity = createEntity()
+      const fallbackMaterial = new MeshStandardMaterial0({
+        name: 'Fallback Material',
+        color: 0xffffff,
+        emissive: 0x000000,
+        metalness: 1,
+        roughness: 1,
+        transparent: false,
+        depthTest: true,
+        side: FrontSide
+      })
+      setComponent(fallbackMaterialEntity, UUIDComponent, MaterialStateComponent.fallbackMaterialUUIDPair)
+      setComponent(fallbackMaterialEntity, NameComponent, 'Fallback Material')
+      setComponent(fallbackMaterialEntity, MaterialStateComponent, { material: fallbackMaterial })
+    }
     return fallbackMaterialEntity
   },
 
