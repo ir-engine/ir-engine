@@ -1413,7 +1413,7 @@ const fetchRemoteManifest = async (
 /**
  * Normalizes a dependency specification into a resolved dependency
  */
-const normalizeDependency = (dep: DependencySpec): Omit<ResolvedDependency, 'manifest'> => {
+export const normalizeDependency = (dep: DependencySpec): Omit<ResolvedDependency, 'manifest'> => {
   if (typeof dep === 'string') {
     if (NPM_GIT_REFERENCE.test(dep)) {
       const url = dep.split('+')[1].replace('.git', '')
