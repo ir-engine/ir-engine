@@ -65,7 +65,7 @@ const AdminTopBar = () => {
 
   return (
     <div className="pointer-events-auto flex h-16 w-full items-center justify-between px-8 py-4">
-      <a href="/dashboard">
+      <a href="/">
         <img
           src="static/app_logo.svg"
           alt="Napster Engine Logo"
