@@ -38,7 +38,6 @@ import AvatarScreen from './AvatarScreen'
 import ControlsScreen from './ControlsScreen'
 import DeleteAccountScreen from './DeleteAccountScreen'
 import DisplayNameScreen from './DisplayNameScreen'
-import PermissionsScreen from './PermissionsScreen'
 import ShareSpaceScreen from './ShareSpaceScreen'
 import SignUpScreen from './SignUpScreen'
 import SSOScreen from './SSOScreen'
@@ -78,10 +77,6 @@ export const screens: Record<string, ScreenDefinition> = {
   display: {
     component: DisplayNameScreen,
     title: 'Display Name'
-  },
-  permissions: {
-    component: PermissionsScreen,
-    title: 'Permissions'
   },
   sso: {
     component: SSOScreen,
