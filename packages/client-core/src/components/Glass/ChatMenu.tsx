@@ -28,6 +28,8 @@ import React from 'react'
 import { HiChatBubbleLeftRight } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
 
+import { useGet } from '@ir-engine/common'
+import { userPath } from '@ir-engine/common/src/schema.type.module'
 import { Send01Md } from '@ir-engine/ui/src/icons'
 import { AuthState } from '../../user/services/AuthService'
 import { TextButton } from './buttons/TextButton'
@@ -82,7 +84,10 @@ const OwnMessage = ({ children }) => (
 
 const OtherMessage = ({ children }) => <div className={twMerge(messageBaseStyles, `bg-black/30`)}>{children}</div>
 
-const OtherName = ({ children }) => <div className={``}>{children}</div>
+const OtherName = ({ senderId }: { senderId: string }) => {
+  const name = useGet(userPath, senderId).data?.name ?? ''
+  return <div>{name}</div>
+}
 
 const OtherChat = ({ children }) => (
   <div
@@ -184,7 +189,7 @@ export const ChatMenu = () => {
           groupedMessage
         ) : (
           <OtherChat key={groupIndex}>
-            <OtherName>{firstMessage.sender.name}</OtherName>
+            <OtherName senderId={firstMessage.senderId} />
             {groupedMessage}
           </OtherChat>
         )

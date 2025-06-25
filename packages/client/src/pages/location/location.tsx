@@ -53,6 +53,7 @@ const LocationRoutes = () => {
   const projectsLoaded = useEngineInjection()
 
   const multiplayer = useMutableState(MultiplayerState).world
+
   return (
     <Suspense>
       {projectsLoaded && (

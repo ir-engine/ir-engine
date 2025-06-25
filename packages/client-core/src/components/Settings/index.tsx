@@ -38,7 +38,6 @@ import AvatarScreen from './AvatarScreen'
 import ControlsScreen from './ControlsScreen'
 import DeleteAccountScreen from './DeleteAccountScreen'
 import DisplayNameScreen from './DisplayNameScreen'
-import PermissionsScreen from './PermissionsScreen'
 import ShareSpaceScreen from './ShareSpaceScreen'
 import SignUpScreen from './SignUpScreen'
 import SSOScreen from './SSOScreen'
@@ -52,11 +51,6 @@ interface ScreenDefinition {
   component: React.ComponentType<ScreenProps>
   title: string
 }
-
-// Define placeholder screen component
-const PlaceholderScreen: React.FC<ScreenProps & { title: string }> = ({ title }) => (
-  <div className="p-2">{title} Settings</div>
-)
 
 // Define all screens
 export const screens: Record<string, ScreenDefinition> = {
@@ -83,10 +77,6 @@ export const screens: Record<string, ScreenDefinition> = {
   display: {
     component: DisplayNameScreen,
     title: 'Display Name'
-  },
-  permissions: {
-    component: PermissionsScreen,
-    title: 'Permissions'
   },
   sso: {
     component: SSOScreen,
