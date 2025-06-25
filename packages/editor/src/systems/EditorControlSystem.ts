@@ -359,6 +359,13 @@ const execute = () => {
         closestIntersection = intersection
       }
 
+      const selectedEntities = SelectionState.getSelectedEntities()
+      if (selectedEntities.length > 0) {
+        clickStartEntity = selectedEntities[0]
+      } else {
+        clickStartEntity = UndefinedEntity
+      }
+
       closestIntersection.entity = getAuthoringCounterpart(closestIntersection.entity)
 
       // Get top most parent entity from the GLTF document
