@@ -87,7 +87,7 @@ const OtherName = ({ senderId }: { senderId: string }) => {
   return <div>{name}</div>
 }
 
-const OtherChat = ({ children }: { children: React.ReactNode }) => (
+const OtherChat = ({ children }) => (
   <div
     className={`
       mb-6 flex flex-col items-start
