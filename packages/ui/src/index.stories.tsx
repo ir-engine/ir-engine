@@ -26,11 +26,11 @@ Infinite Reality Engine. All Rights Reserved.
 import { useFind } from '@ir-engine/common'
 import { scopePath } from '@ir-engine/common/src/schema.type.module'
 import { Meta, StoryObj } from '@storybook/react/*'
-import { ws } from 'msw'
 import React from 'react'
+import { handleMocks } from '../.storybook/util'
 
 const meta = {
-  title: 'UI/Viewer',
+  title: 'Engine',
   parameters: {
     layout: 'fullscreen'
   },
@@ -51,49 +51,35 @@ export const Default: StoryObj = {
   }
 }
 
-const primus = ws.link(/primus/g)
-
 export const WSS: StoryObj = {
   render: () => {
     const scopeQuery = useFind(scopePath, { query: { userId: 0, type: 'admin:admin' } })
 
-    return <div>{JSON.stringify({ ...scopeQuery, scopePath })}</div>
+    return (
+      <div>
+        Below is a demo of a mocked websocket response <br /> {JSON.stringify({ ...scopeQuery, scopePath })}
+      </div>
+    )
   },
   parameters: {
     msw: {
-      handlers: [
-        primus.addEventListener('connection', ({ client }) => {
-          client.addEventListener('message', (message) => {
-            const messageData = JSON.parse(message.data.toString())
-            const { id, data } = messageData
-            const [method, path, input] = data
-            // Mock response for scope service find method
-            const response = {
-              id,
-              type: 1,
-              data: [
-                null,
-                {
-                  total: 1,
-                  limit: 10,
-                  skip: 0,
-                  data: [
-                    {
-                      id: '5bfb0678-7bda-4381-8eff-8e27c6cf6bad',
-                      userId: 'a3561f56-175d-4049-a2ba-057c4231b6f4',
-                      type: 'admin:admin',
-                      accountId: null,
-                      createdAt: '2025-06-24T20:20:28.000Z',
-                      updatedAt: '2025-06-24T20:20:28.000Z'
-                    }
-                  ]
-                }
-              ]
+      handlers: handleMocks({
+        'scope.find': () => ({
+          total: 1,
+          limit: 10,
+          skip: 0,
+          data: [
+            {
+              id: '5bfb0678-7bda-4381-8eff-8e27c6cf6bad',
+              userId: 'a3561f56-175d-4049-a2ba-057c4231b6f4',
+              type: 'admin:admin',
+              accountId: null,
+              createdAt: '2025-06-24T20:20:28.000Z',
+              updatedAt: '2025-06-24T20:20:28.000Z'
             }
-            client.send(JSON.stringify(response))
-          })
+          ]
         })
-      ]
+      })
     }
   }
 }
