@@ -406,7 +406,6 @@ const execute = () => {
     const editorHelperState = getState(EditorHelperState)
     if (!getState(ClickPlacementState).placementEntity && editorHelperState.gizmoEnabled) {
       const selectedEntities = SelectionState.getSelectedEntities()
-      const clickParentEntity = getAncestorWithComponents(clickStartEntity, [GLTFComponent])
 
       if (selectedEntities.length === 1 && selectedEntities[0] === clickStartEntity) {
         onFocusCamera(viewerEntity)
