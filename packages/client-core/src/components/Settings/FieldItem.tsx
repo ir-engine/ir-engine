@@ -49,7 +49,7 @@ const FieldItem: React.FC<FieldItemProps> = ({
           ref.current?.setSelectionRange(value.length, value.length)
         }
       }}
-      className={`flex w-full items-center justify-between px-4 py-3.5 text-white/90 transition-colors hover:bg-white/5 ${className}`}
+      className={`flex w-full items-center justify-between bg-black/10 px-4 py-3.5 text-white/90 transition-colors hover:bg-black/5 ${className}`}
     >
       <span className="text-sm font-medium">{label}</span>
       <InputField

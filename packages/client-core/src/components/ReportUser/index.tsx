@@ -55,8 +55,8 @@ const actionButtonStyles = `
   items-center self-stretch
   text-white
   rounded-full
-  bg-[rgba(255,255,255,0.2)]
-  shadow-[inset_0px_1px_1px_rgba(255,255,255,0.25),inset_0px_-1px_1px_rgba(255,255,255,0.1),0px_8px_6px_rgba(0,0,0,0.05)]
+  bg-black/10
+  shadow-md
 `
 
 const baseContainerStyles = `
@@ -220,7 +220,7 @@ const ReportUserMenu = (props: ReportMenuProps) => {
           onChange={(e) => handleChange(e.target.value, 'details')}
           placeholder={fieldOptions.details.placeholder}
           className={twMerge(
-            'transparent-1/2 min-h-[120px] w-full border-0 bg-black/20 backdrop-blur-xl',
+            'transparent-1/2 min-h-[120px] w-full border-0 bg-black/20 backdrop-blur-xl placeholder:text-white/70',
             errors.details.value && 'border-ui-error'
           )}
         />

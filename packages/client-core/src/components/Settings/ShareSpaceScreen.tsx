@@ -51,15 +51,15 @@ const ShareSpaceScreen: React.FC<ShareSpaceScreenProps> = () => {
 
         {/* Action Buttons */}
         <div className="flex w-full flex-col gap-3">
-          <TextButton onClick={() => copyLinkToClipboard(inviteLink)} className="w-full" fade={`lighter`}>
+          <TextButton onClick={() => copyLinkToClipboard(inviteLink)} className="w-full" fade={`dark`}>
             Copy Direct Link
           </TextButton>
 
-          <TextButton onClick={() => copyLinkToClipboard(questLink)} className="w-full" fade={`lighter`}>
+          <TextButton onClick={() => copyLinkToClipboard(questLink)} className="w-full" fade={`dark`}>
             Share to Meta Quest
           </TextButton>
 
-          <TextButton onClick={() => openDrawer.set(!openDrawer.value)} className="w-full" fade={`lighter`}>
+          <TextButton onClick={() => openDrawer.set(!openDrawer.value)} className="w-full" fade={`dark`}>
             Share by email or phone
           </TextButton>
         </div>
