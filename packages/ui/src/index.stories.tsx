@@ -25,10 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useFind } from '@ir-engine/common'
 import { scopePath } from '@ir-engine/common/src/schema.type.module'
-import { toSocketIo } from '@mswjs/socket.io-binding'
 import { Meta, StoryObj } from '@storybook/react/*'
 import { ws } from 'msw'
 import React from 'react'
+
 const meta = {
   title: 'UI/Viewer',
   parameters: {
@@ -62,17 +62,14 @@ export const WSS: StoryObj = {
   parameters: {
     msw: {
       handlers: [
-        primus.addEventListener('connection', (socket) => {
-          const io = toSocketIo(socket)
-          io.client.on('data', () => {
-            console.log('DATA')
-          })
-          socket.client.addEventListener('message', () => {
-            console.log('RAW')
-
+        primus.addEventListener('connection', ({ client }) => {
+          client.addEventListener('message', (message) => {
+            const messageData = JSON.parse(message.data.toString())
+            const { id, data } = messageData
+            const [method, path, input] = data
             // Mock response for scope service find method
             const response = {
-              id: 1,
+              id,
               type: 1,
               data: [
                 null,
@@ -93,7 +90,7 @@ export const WSS: StoryObj = {
                 }
               ]
             }
-            socket.client.send(JSON.stringify(response))
+            client.send(JSON.stringify(response))
           })
         })
       ]

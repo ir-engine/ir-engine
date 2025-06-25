@@ -42,7 +42,6 @@
     "@ir-engine/engine": "^1.0.3",
     "@ir-engine/hyperflux": "^1.0.3",
     "@ir-engine/projects": "^1.0.3",
-    "@mswjs/socket.io-binding": "^0.2.0",
     "@pixiv/three-vrm": "^2.0.6",
     "autoprefixer": "^10.4.14",
     "country-state-city": "^3.2.1",
