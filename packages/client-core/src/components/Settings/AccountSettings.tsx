@@ -38,8 +38,6 @@ const AccountSettings: React.FC<ScreenProps> = ({ navigateTo }) => (
   <Inner className="min-h-full space-y-4">
     <Section>
       <MenuItem label="Display Name" onClick={() => navigateTo('settings/display')} hasChevron />
-      <Divider />
-      <MenuItem label="Permissions" onClick={() => navigateTo('settings/permissions')} hasChevron />
     </Section>
 
     <Section>
