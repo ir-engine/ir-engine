@@ -88,9 +88,7 @@ class ImageBitmapLoader extends Loader<ImageBitmap> {
       try {
         createImageBitmap(blob, {
           ...options,
-          colorSpaceConversion: 'none' as ColorSpaceConversion,
-          premultiplyAlpha: 'premultiply', // Try different premultiply setting
-          imageOrientation: 'none' // Try without orientation
+          colorSpaceConversion: 'none' as ColorSpaceConversion
         })
           .then(function (imageBitmap) {
             Cache.add(url, imageBitmap)
