@@ -566,7 +566,7 @@ export const setComponent = <C extends Component>(
         Components: [component],
         ChildEntityReactor: component.reactor as any
       })
-    }) as ReactorRoot
+    }, `Component - ${component.name}`) as ReactorRoot
     root.cleanupFunctions.add(() => {
       component.reactorRoot = undefined
     })
@@ -620,7 +620,6 @@ export const removeComponent = <C extends Component>(entity: Entity, component: 
 
   bitECS.removeComponent(HyperFlux.store, entity, component)
   component.onRemove(entity, component.stateMap[entity]!)
-  /** clear state data after reactor stops, to ensure hookstate is still referenceable */
   component.stateMap[entity]?.set(none)
   destroy(component.stateMap[entity])
   delete component.stateMap[entity]

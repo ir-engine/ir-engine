@@ -113,5 +113,5 @@ export function createAnchorWidget() {
     }, [sessionMode])
 
     return null
-  })
+  }, `createAnchorWidget`)
 }
