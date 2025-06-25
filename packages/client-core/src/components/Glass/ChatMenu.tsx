@@ -48,9 +48,7 @@ const messageBaseStyles = `
   shadow-lg
 
   break-words
-  text-center
-  
-  sm:max-w-md
+  max-w-[80%]
 `
 
 const blueGradientStyles = `
@@ -82,17 +80,19 @@ const OwnMessage = ({ children }) => (
   <div className={twMerge(messageBaseStyles, blueGradientStyles, `self-end`)}>{children}</div>
 )
 
-const OtherMessage = ({ children }) => <div className={twMerge(messageBaseStyles, `bg-black/30`)}>{children}</div>
+const OtherMessage = ({ children }) => (
+  <div className={twMerge(messageBaseStyles, `bg-black/30 text-left`)}>{children}</div>
+)
 
 const OtherName = ({ senderId }: { senderId: string }) => {
   const name = useGet(userPath, senderId).data?.name ?? ''
   return <div>{name}</div>
 }
 
-const OtherChat = ({ children }) => (
+const OtherChat = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
   <div
     className={`
-      flex flex-col gap-y-1
+      flex flex-col items-start ${className}
     `}
   >
     {children}
@@ -186,9 +186,14 @@ export const ChatMenu = () => {
         })
 
         return isOwnGroup || isNotification ? (
-          groupedMessage
+          <div
+            key={groupIndex}
+            className={twMerge('mb-6 flex w-full flex-col gap-y-2', isOwnGroup ? 'items-end' : 'items-center')}
+          >
+            {groupedMessage}
+          </div>
         ) : (
-          <OtherChat key={groupIndex}>
+          <OtherChat key={groupIndex} className="mb-6">
             <OtherName senderId={firstMessage.senderId} />
             {groupedMessage}
           </OtherChat>
