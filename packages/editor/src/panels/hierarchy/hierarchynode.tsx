@@ -49,7 +49,6 @@ import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFLoaderFunctions } from '@ir-engine/engine/src/gltf/GLTFLoaderFunctions'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, none, useHookstate, useMutableState, useState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
@@ -74,7 +73,7 @@ import { isEntityGlb } from '../../functions/utils'
 import { EditorHelperState, PlacementMode } from '../../services/EditorHelperState'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
-import { deleteNode, HierarchyTreeNodeType } from './helpers'
+import { HierarchyTreeNodeType } from './helpers'
 import {
   useHierarchyNodes,
   useHierarchyTreeContextMenu,
@@ -112,7 +111,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const { rootEntity } = useMutableState(EditorState).value
   const { collapseChildren, expandChildren, collapseNode, expandNode } = useNodeCollapseExpand()
   const renamingNode = useRenamingNode()
-  const { expandedNodes, firstSelectedEntity } = useMutableState(HierarchyTreeState)
+  const { expandedNodes, firstSelectedEntity, manualCollapseExpand } = useMutableState(HierarchyTreeState)
   const sourceID = GLTFComponent.useSourceID(rootEntity)
   const currentRenameNode = useHookstate(getComponent(entity, NameComponent))
   const { setMenu } = useHierarchyTreeContextMenu()
@@ -200,76 +199,6 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
 
-  const onKeyDown = (event: KeyboardEvent) => {
-    const nodeIndex = nodes.findIndex((node) => node.entity === entity)
-    const entityTree = getComponent(entity, EntityTreeComponent)
-    switch (event.key) {
-      case 'ArrowDown': {
-        event.preventDefault()
-        if (entity === rootEntity) return
-
-        const nextNode = nodeIndex !== -1 && nodes[nodeIndex + 1]
-        if (!nextNode) return
-
-        if (event.shiftKey) {
-          EditorControlFunctions.addToSelection([UUIDComponent.get(nextNode.entity)])
-        }
-
-        const nextNodeEl = document.getElementById(getNodeElId(nextNode))
-        if (nextNodeEl) {
-          nextNodeEl.focus()
-        }
-        break
-      }
-      case 'ArrowUp': {
-        event.preventDefault()
-        if (entity === rootEntity) return
-
-        const prevNode = nodeIndex !== -1 && nodes[nodeIndex - 1]
-        if (!prevNode) return
-
-        if (event.shiftKey) {
-          EditorControlFunctions.addToSelection([UUIDComponent.get(prevNode.entity)])
-        }
-
-        const prevNodeEl = document.getElementById(getNodeElId(prevNode))
-        if (prevNodeEl) {
-          prevNodeEl.focus()
-        }
-        break
-      }
-      case 'ArrowLeft': {
-        if (entityTree && (!entityTree.children || entityTree.children.length === 0)) return
-
-        if (event.shiftKey) collapseChildren(entity)
-        else collapseNode(entity)
-        break
-      }
-      case 'ArrowRight': {
-        if (entityTree && (!entityTree.children || entityTree.children.length === 0)) return
-
-        if (event.shiftKey) expandChildren(entity)
-        else expandNode(entity)
-        break
-      }
-      case 'Enter': {
-        if (entity === rootEntity) return
-        if (event.shiftKey) {
-          EditorControlFunctions.toggleSelection([UUIDComponent.get(entity)])
-        } else {
-          EditorControlFunctions.replaceSelection([UUIDComponent.get(entity)])
-        }
-        break
-      }
-      case 'Delete':
-      case 'Backspace': {
-        if (entity === rootEntity) return
-        if (selected && renamingNode.entity !== entity) deleteNode(entity)
-        break
-      }
-    }
-  }
-
   const onClickNode = (event: React.MouseEvent) => {
     if (renamingNode.entity !== entity) {
       renamingNode.clear()
@@ -277,9 +206,6 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     if (event.detail === 1) {
       // Exit click placement mode when anything in the hierarchy is selected
       getMutableState(EditorHelperState).placementMode.set(PlacementMode.DRAG)
-      // Deselect material entity since we've just clicked on a hierarchy node
-      getMutableState(MaterialSelectionState).selectedMaterial.set(null)
-      const uuid = UUIDComponent.get(entity)
       if (usesCtrlKey() ? event.ctrlKey : event.metaKey) {
         if (entity === rootEntity) return
         EditorControlFunctions.toggleSelection([uuid])
@@ -294,6 +220,12 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
         if (!selected) {
           EditorControlFunctions.replaceSelection([uuid])
         }
+        const node = nodes.find((node) => node.entity === entity)
+        if (node) {
+          const nodeEl = document.getElementById(getNodeElId(node))
+          nodeEl?.focus()
+        }
+
         firstSelectedEntity.set(entity)
       }
     } else if (event.detail === 2) {
@@ -309,6 +241,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
 
   const onCollapseExpandNode = (event: React.MouseEvent) => {
     event.stopPropagation()
+    getMutableState(HierarchyTreeState).manualCollapseExpand.set(true)
     if (expandedNodes.value[sourceID][entity]) collapseNode(entity)
     else expandNode(entity)
   }
@@ -401,7 +334,13 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   return (
     <li
       key={node.depth + ' ' + props.index + ' ' + entity}
-      style={fixedSizeListStyles}
+      style={{
+        ...fixedSizeListStyles,
+        ...{
+          borderTop: '2px solid var(--surface-1)',
+          borderBottom: '2px solid var(--surface-1)'
+        }
+      }}
       className={twMerge(
         'inline-flex w-auto min-w-full items-center',
         'cursor-pointer text-text-secondary hover:bg-ui-hover-background hover:text-text-primary',
@@ -417,7 +356,6 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
         ref={drag}
         id={getNodeElId(node)}
         tabIndex={0}
-        onKeyDown={onKeyDown}
         onClick={onClickNode}
         onContextMenu={(event) => {
           event.preventDefault()
@@ -434,10 +372,10 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
         />
         <div
           className={twMerge(
-            'flex w-full items-center justify-between gap-x-2 bg-inherit pr-2',
-            rootEntity === entity ? 'p-2' : 'py-1 pl-10 pr-2'
+            'flex items-center justify-between gap-x-2 bg-inherit pr-2',
+            rootEntity === entity ? 'p-2' : 'py-1 pr-2'
           )}
-          style={{ marginLeft: `${node.depth * 0.75}rem` }}
+          style={{ marginLeft: `${node.depth * 1.75}rem` }}
           ref={onDropTarget}
         >
           {node.isLeaf ? (
@@ -456,7 +394,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
             </button>
           )}
 
-          <div className="grid h-full w-full grid-cols-[max-content_auto_max-content_max-content] items-center gap-2 bg-inherit">
+          <div className="grid h-full w-full grid-cols-[max-content_auto_max-content_max-content_max-content] items-center gap-2 bg-inherit">
             <IconComponent entity={entity} />
             {renamingNode.entity === entity ? (
               <Input
@@ -480,7 +418,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
             ) : (
               <div className="grid min-w-0 text-nowrap rounded bg-transparent px-0.5 py-0 ">
                 <span
-                  className="overflow-x-auto text-nowrap text-sm"
+                  className="overflow-x-auto truncate text-nowrap text-sm"
                   style={{ scrollbarWidth: `none` }}
                   data-testid="hierarchy-panel-scene-item-name"
                 >
@@ -526,7 +464,6 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
                 </Button>
               </div>
             )}
-
             <button
               type="button"
               className="m-0 h-5 w-5 flex-shrink-0 border-none p-0 hover:opacity-80"

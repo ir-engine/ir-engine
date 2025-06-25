@@ -70,183 +70,194 @@ export type ButtonState = {
 /**
  * Mouse buttons
  */
-export enum MouseButton {
-  'PrimaryClick' = 'PrimaryClick',
-  'AuxiliaryClick' = 'AuxiliaryClick',
-  'SecondaryClick' = 'SecondaryClick'
+export const MouseButton = {
+  PrimaryClick: 'PrimaryClick' as const,
+  AuxiliaryClick: 'AuxiliaryClick' as const,
+  SecondaryClick: 'SecondaryClick' as const
 }
 
-export enum MouseScroll {
-  'HorizontalScroll' = 0,
-  'VerticalScroll' = 1
+export const MouseScroll = {
+  HorizontalScroll: 0 as const,
+  VerticalScroll: 1 as const
 }
+
+export type MouseButton = (typeof MouseButton)[keyof typeof MouseButton]
+export type MouseScroll = (typeof MouseScroll)[keyof typeof MouseScroll]
 
 /**
  * Keyboard button codes
  * https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code/code_values
  */
-export enum KeyboardButton {
-  'Backspace' = 'Backspace', // 8 backspace
-  'Tab' = 'Tab', // 9 tab
-  'Enter' = 'Enter', // 13 enter
-  'ShiftLeft' = 'ShiftLeft', // 16 shift (left)
-  'ShiftRight' = 'ShiftRight', // 16 shift (right)
-  'ControlLeft' = 'ControlLeft', // 17 ctrl (left)
-  'ControlRight' = 'ControlRight', // 17 ctrl (right)
-  'AltLeft' = 'AltLeft', // 18 alt (left)
-  'AltRight' = 'AltRight', // 18 alt (right)
-  'Pause' = 'Pause', // 19 pause /break
-  'CapsLock' = 'CapsLock', // 20 caps  lock
-  'Escape' = 'Escape', // 27 escape
-  'Space' = 'Space', // 32 space
-  'PageUp' = 'PageUp', // 33 page up
-  'PageDown' = 'PageDown', // 34 page down
-  'End' = 'End', // 35 end
-  'Home' = 'Home', // 36 home
-  'ArrowLeft' = 'ArrowLeft', // 37 left arrow
-  'ArrowUp' = 'ArrowUp', // 38 up arrow
-  'ArrowRight' = 'ArrowRight', // 39 right arrow
-  'ArrowDown' = 'ArrowDown', // 40 down arrow
-  'PrintScreen' = 'PrintScreen', // 44 print screen
-  'Insert' = 'Insert', // 45 insert
-  'Delete' = 'Delete', // 46 delete
-  'Digit0' = 'Digit0', // 48 0
-  'Digit1' = 'Digit1', // 49 1
-  'Digit2' = 'Digit2', // 50 2
-  'Digit3' = 'Digit3', // 51 3
-  'Digit4' = 'Digit4', // 52 4
-  'Digit5' = 'Digit5', // 53 5
-  'Digit6' = 'Digit6', // 54 6
-  'Digit7' = 'Digit7', // 55 7
-  'Digit8' = 'Digit8', // 56 8
-  'Digit9' = 'Digit9', // 57 9
-  'KeyA' = 'KeyA', // 65 a
-  'KeyB' = 'KeyB', // 66 b
-  'KeyC' = 'KeyC', // 67 c
-  'KeyD' = 'KeyD', // 68 d
-  'KeyE' = 'KeyE', // 69 e
-  'KeyF' = 'KeyF', // 70 f
-  'KeyG' = 'KeyG', // 71 g
-  'KeyH' = 'KeyH', // 72 h
-  'KeyI' = 'KeyI', // 73 i
-  'KeyJ' = 'KeyJ', // 74 j
-  'KeyK' = 'KeyK', // 75 k
-  'KeyL' = 'KeyL', // 76 l
-  'KeyM' = 'KeyM', // 77 m
-  'KeyN' = 'KeyN', // 78 n
-  'KeyO' = 'KeyO', // 79 o
-  'KeyP' = 'KeyP', // 80 p
-  'KeyQ' = 'KeyQ', // 81 q
-  'KeyR' = 'KeyR', // 82 r
-  'KeyS' = 'KeyS', // 83 s
-  'KeyT' = 'KeyT', // 84 t
-  'KeyU' = 'KeyU', // 85 u
-  'KeyV' = 'KeyV', // 86 v
-  'KeyW' = 'KeyW', // 87 w
-  'KeyX' = 'KeyX', // 88 x
-  'KeyY' = 'KeyY', // 89 y
-  'KeyZ' = 'KeyZ', // 90 z
-  'MetaLeft' = 'MetaLeft', // 91 left windowkey
-  'MetaRight' = 'MetaRight', // 92 right windowkey
-  'ContextMenu' = 'ContextMenu', // 93 select key
-  'Numpad0' = 'Numpad0', // 96 numpad 0
-  'Numpad1' = 'Numpad1', // 97 numpad 1
-  'Numpad2' = 'Numpad2', // 98 numpad 2
-  'Numpad3' = 'Numpad3', // 99 numpad 3
-  'Numpad4' = 'Numpad4', // 100 numpad 4
-  'Numpad5' = 'Numpad5', // 101 numpad 5
-  'Numpad6' = 'Numpad6', // 102 numpad 6
-  'Numpad7' = 'Numpad7', // 103 numpad 7
-  'Numpad8' = 'Numpad8', // 104 numpad 8
-  'Numpad9' = 'Numpad9', // 105 numpad 9
-  'NumpadMultiply' = 'NumpadMultiply', // 106 multiply
-  'NumpadAdd' = 'NumpadAdd', // 107 add
-  'NumpadSubtract' = 'NumpadSubtract', // 109 subtract
-  'NumpadDecimal' = 'NumpadDecimal', // 110 decimal point
-  'NumpadDivide' = 'NumpadDivide', // 111 divide
-  'F1' = 'F1', // 112 f1
-  'F2' = 'F2', // 113 f2
-  'F3' = 'F3', // 114 f3
-  'F4' = 'F4', // 115 f4
-  'F5' = 'F5', // 116 f5
-  'F6' = 'F6', // 117 f6
-  'F7' = 'F7', // 118 f7
-  'F8' = 'F8', // 119 f8
-  'F9' = 'F9', // 120 f9
-  'F10' = 'F10', // 121 f10
-  'F11' = 'F11', // 122 f11
-  'F12' = 'F12', // 123 f12
-  'NumLock' = 'NumLock', // 144 num lock
-  'ScrollLock' = 'ScrollLock', // 145 scroll lock
-  'AudioVolumeMute' = 'AudioVolumeMute', // 173 audio volume mute
-  'AudioVolumeDown' = 'AudioVolumeDown', // 174 audio volume down
-  'AudioVolumeUp' = 'AudioVolumeUp', // 175 audio volume up
-  'LaunchMediaPlayer' = 'LaunchMediaPlayer', // 181 media player
-  'LaunchApplication1' = 'LaunchApplication1', // 182 launch application 1
-  'LaunchApplication2' = 'LaunchApplication2', // 183 launch application 2
-  'Semicolon' = 'Semicolon', // 186 semi - colon
-  'Equal' = 'Equal', // 187 equal sign
-  'Comma' = 'Comma', // 188 comma
-  'Minus' = 'Minus', // 189 dash
-  'Period' = 'Period', // 190 period
-  'Slash' = 'Slash', // 191 forward slash
-  'Backquote' = 'Backquote', // 192 Backquote / Grave accent
-  'BracketLeft' = 'BracketLeft', // 219 open bracket
-  'Backslash' = 'Backslash', // 220 back slash
-  'BracketRight' = 'BracketRight', // 221 close bracket
-  'Quote' = 'Quote' // 222 single quote
+export const KeyboardButton = {
+  Backspace: 'Backspace' as const, // 8 backspace
+  Tab: 'Tab' as const, // 9 tab
+  Enter: 'Enter' as const, // 13 enter
+  ShiftLeft: 'ShiftLeft' as const, // 16 shift (left)
+  ShiftRight: 'ShiftRight' as const, // 16 shift (right)
+  ControlLeft: 'ControlLeft' as const, // 17 ctrl (left)
+  ControlRight: 'ControlRight' as const, // 17 ctrl (right)
+  AltLeft: 'AltLeft' as const, // 18 alt (left)
+  AltRight: 'AltRight' as const, // 18 alt (right)
+  Pause: 'Pause' as const, // 19 pause /break
+  CapsLock: 'CapsLock' as const, // 20 caps  lock
+  Escape: 'Escape' as const, // 27 escape
+  Space: 'Space' as const, // 32 space
+  PageUp: 'PageUp' as const, // 33 page up
+  PageDown: 'PageDown' as const, // 34 page down
+  End: 'End' as const, // 35 end
+  Home: 'Home' as const, // 36 home
+  ArrowLeft: 'ArrowLeft' as const, // 37 left arrow
+  ArrowUp: 'ArrowUp' as const, // 38 up arrow
+  ArrowRight: 'ArrowRight' as const, // 39 right arrow
+  ArrowDown: 'ArrowDown' as const, // 40 down arrow
+  PrintScreen: 'PrintScreen' as const, // 44 print screen
+  Insert: 'Insert' as const, // 45 insert
+  Delete: 'Delete' as const, // 46 delete
+  Digit0: 'Digit0' as const, // 48 0
+  Digit1: 'Digit1' as const, // 49 1
+  Digit2: 'Digit2' as const, // 50 2
+  Digit3: 'Digit3' as const, // 51 3
+  Digit4: 'Digit4' as const, // 52 4
+  Digit5: 'Digit5' as const, // 53 5
+  Digit6: 'Digit6' as const, // 54 6
+  Digit7: 'Digit7' as const, // 55 7
+  Digit8: 'Digit8' as const, // 56 8
+  Digit9: 'Digit9' as const, // 57 9
+  KeyA: 'KeyA' as const, // 65 a
+  KeyB: 'KeyB' as const, // 66 b
+  KeyC: 'KeyC' as const, // 67 c
+  KeyD: 'KeyD' as const, // 68 d
+  KeyE: 'KeyE' as const, // 69 e
+  KeyF: 'KeyF' as const, // 70 f
+  KeyG: 'KeyG' as const, // 71 g
+  KeyH: 'KeyH' as const, // 72 h
+  KeyI: 'KeyI' as const, // 73 i
+  KeyJ: 'KeyJ' as const, // 74 j
+  KeyK: 'KeyK' as const, // 75 k
+  KeyL: 'KeyL' as const, // 76 l
+  KeyM: 'KeyM' as const, // 77 m
+  KeyN: 'KeyN' as const, // 78 n
+  KeyO: 'KeyO' as const, // 79 o
+  KeyP: 'KeyP' as const, // 80 p
+  KeyQ: 'KeyQ' as const, // 81 q
+  KeyR: 'KeyR' as const, // 82 r
+  KeyS: 'KeyS' as const, // 83 s
+  KeyT: 'KeyT' as const, // 84 t
+  KeyU: 'KeyU' as const, // 85 u
+  KeyV: 'KeyV' as const, // 86 v
+  KeyW: 'KeyW' as const, // 87 w
+  KeyX: 'KeyX' as const, // 88 x
+  KeyY: 'KeyY' as const, // 89 y
+  KeyZ: 'KeyZ' as const, // 90 z
+  MetaLeft: 'MetaLeft' as const, // 91 left windowkey
+  MetaRight: 'MetaRight' as const, // 92 right windowkey
+  ContextMenu: 'ContextMenu' as const, // 93 select key
+  Numpad0: 'Numpad0' as const, // 96 numpad 0
+  Numpad1: 'Numpad1' as const, // 97 numpad 1
+  Numpad2: 'Numpad2' as const, // 98 numpad 2
+  Numpad3: 'Numpad3' as const, // 99 numpad 3
+  Numpad4: 'Numpad4' as const, // 100 numpad 4
+  Numpad5: 'Numpad5' as const, // 101 numpad 5
+  Numpad6: 'Numpad6' as const, // 102 numpad 6
+  Numpad7: 'Numpad7' as const, // 103 numpad 7
+  Numpad8: 'Numpad8' as const, // 104 numpad 8
+  Numpad9: 'Numpad9' as const, // 105 numpad 9
+  NumpadMultiply: 'NumpadMultiply' as const, // 106 multiply
+  NumpadAdd: 'NumpadAdd' as const, // 107 add
+  NumpadSubtract: 'NumpadSubtract' as const, // 109 subtract
+  NumpadDecimal: 'NumpadDecimal' as const, // 110 decimal point
+  NumpadDivide: 'NumpadDivide' as const, // 111 divide
+  F1: 'F1' as const, // 112 f1
+  F2: 'F2' as const, // 113 f2
+  F3: 'F3' as const, // 114 f3
+  F4: 'F4' as const, // 115 f4
+  F5: 'F5' as const, // 116 f5
+  F6: 'F6' as const, // 117 f6
+  F7: 'F7' as const, // 118 f7
+  F8: 'F8' as const, // 119 f8
+  F9: 'F9' as const, // 120 f9
+  F10: 'F10' as const, // 121 f10
+  F11: 'F11' as const, // 122 f11
+  F12: 'F12' as const, // 123 f12
+  NumLock: 'NumLock' as const, // 144 num lock
+  ScrollLock: 'ScrollLock' as const, // 145 scroll lock
+  AudioVolumeMute: 'AudioVolumeMute' as const, // 173 audio volume mute
+  AudioVolumeDown: 'AudioVolumeDown' as const, // 174 audio volume down
+  AudioVolumeUp: 'AudioVolumeUp' as const, // 175 audio volume up
+  LaunchMediaPlayer: 'LaunchMediaPlayer' as const, // 181 media player
+  LaunchApplication1: 'LaunchApplication1' as const, // 182 launch application 1
+  LaunchApplication2: 'LaunchApplication2' as const, // 183 launch application 2
+  Semicolon: 'Semicolon' as const, // 186 semi - colon
+  Equal: 'Equal' as const, // 187 equal sign
+  Comma: 'Comma' as const, // 188 comma
+  Minus: 'Minus' as const, // 189 dash
+  Period: 'Period' as const, // 190 period
+  Slash: 'Slash' as const, // 191 forward slash
+  Backquote: 'Backquote' as const, // 192 Backquote / Grave accent
+  BracketLeft: 'BracketLeft' as const, // 219 open bracket
+  Backslash: 'Backslash' as const, // 220 back slash
+  BracketRight: 'BracketRight' as const, // 221 close bracket
+  Quote: 'Quote' as const // 222 single quote
 }
 
 /**
  * Standard gampepad button mapping
  * https://www.w3.org/TR/gamepad/#dfn-standard-gamepad
  */
-export enum StandardGamepadButton {
-  'StandardGamepadButtonA' = 0, // X
-  'StandardGamepadButtonB' = 1, // Circle
-  'StandardGamepadButtonX' = 2, // Square
-  'StandardGamepadButtonY' = 3, // Triangle
-  'StandardGamepadLeft1' = 4,
-  'StandardGamepadRight1' = 5,
-  'StandardGamepadLeft2' = 6,
-  'StandardGamepadRight2' = 7,
-  'StandardGamepadButtonBack' = 8,
-  'StandardGamepadButtonStart' = 9,
-  'StandardGamepadLeftStick' = 10,
-  'StandardGamepadRightStick' = 11,
-  'StandardGamepadDPadUp' = 12,
-  'StandardGamepadDPadDown' = 13,
-  'StandardGamepadDPadLeft' = 14,
-  'StandardGamepadDPadRight' = 15,
-  'StandardGamepadButtonHome' = 16
+export const StandardGamepadButton = {
+  StandardGamepadButtonA: 0 as const, // X
+  StandardGamepadButtonB: 1 as const, // Circle
+  StandardGamepadButtonX: 2 as const, // Square
+  StandardGamepadButtonY: 3 as const, // Triangle
+  StandardGamepadLeft1: 4 as const,
+  StandardGamepadRight1: 5 as const,
+  StandardGamepadLeft2: 6 as const,
+  StandardGamepadRight2: 7 as const,
+  StandardGamepadButtonBack: 8 as const,
+  StandardGamepadButtonStart: 9 as const,
+  StandardGamepadLeftStick: 10 as const,
+  StandardGamepadRightStick: 11 as const,
+  StandardGamepadDPadUp: 12 as const,
+  StandardGamepadDPadDown: 13 as const,
+  StandardGamepadDPadLeft: 14 as const,
+  StandardGamepadDPadRight: 15 as const,
+  StandardGamepadButtonHome: 16 as const
 }
 
-export enum StandardGamepadAxes {
-  'StandardGamepadLeftStickX' = 0,
-  'StandardGamepadLeftStickY' = 1,
-  'StandardGamepadRightStickX' = 2,
-  'StandardGamepadRightStickY' = 3
+export type StandardGamepadButton = (typeof StandardGamepadButton)[keyof typeof StandardGamepadButton]
+
+export const StandardGamepadAxes = {
+  StandardGamepadLeftStickX: 0 as const,
+  StandardGamepadLeftStickY: 1 as const,
+  StandardGamepadRightStickX: 2 as const,
+  StandardGamepadRightStickY: 3 as const
 }
+
+export type StandardGamepadAxes = (typeof StandardGamepadAxes)[keyof typeof StandardGamepadAxes]
 
 /**
  * XR standard gamepad button mapping
  * https://www.w3.org/TR/webxr-gamepads-module-1/#xr-standard-gamepad-mapping
  */
-export enum XRStandardGamepadButton {
-  'XRStandardGamepadTrigger' = 0,
-  'XRStandardGamepadSqueeze' = 1,
-  'XRStandardGamepadPad' = 2,
-  'XRStandardGamepadStick' = 3,
-  'XRStandardGamepadButtonA' = 4,
-  'XRStandardGamepadButtonB' = 5
+export const XRStandardGamepadButton = {
+  XRStandardGamepadTrigger: 0 as const,
+  XRStandardGamepadSqueeze: 1 as const,
+  XRStandardGamepadPad: 2 as const,
+  XRStandardGamepadStick: 3 as const,
+  XRStandardGamepadButtonA: 4 as const,
+  XRStandardGamepadButtonB: 5 as const
 }
 
-export enum XRStandardGamepadAxes {
-  'XRStandardGamepadTouchpadX' = 0,
-  'XRStandardGamepadTouchpadY' = 1,
-  'XRStandardGamepadThumbstickX' = 2,
-  'XRStandardGamepadThumbstickY' = 3
+export type XRStandardGamepadButton = (typeof XRStandardGamepadButton)[keyof typeof XRStandardGamepadButton]
+
+export const XRStandardGamepadAxes = {
+  XRStandardGamepadTouchpadX: 0 as const,
+  XRStandardGamepadTouchpadY: 1 as const,
+  XRStandardGamepadThumbstickX: 2 as const,
+  XRStandardGamepadThumbstickY: 3 as const
 }
+
+export type XRStandardGamepadAxes = (typeof XRStandardGamepadAxes)[keyof typeof XRStandardGamepadAxes]
 
 export type AnyButton =
   | keyof typeof MouseButton

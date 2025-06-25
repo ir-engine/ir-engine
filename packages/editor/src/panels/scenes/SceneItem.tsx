@@ -22,21 +22,20 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
-import { CopyEmbedCodePopover } from '@ir-engine/client-core/src/common/components/popovers/CopyEmbedCodePopover'
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { ThemeState } from '@ir-engine/client-core/src/common/services/ThemeService'
 import { clientContextParams } from '@ir-engine/client-core/src/util/ClientContextState'
 import { cloneScene, deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
-import IRLogoModalDark from '@ir-engine/client/src/assets/iR-logo-Modal-dark.png'
-import IRLogoModalLight from '@ir-engine/client/src/assets/iR-logo-Modal-light.png'
-import config from '@ir-engine/common/src/config'
+import NapsterLogoModalDark from '@ir-engine/client/src/assets/napster-logo-modal-dark.png'
+import { API } from '@ir-engine/common'
 import multiLogger from '@ir-engine/common/src/logger'
-import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
+import { locationPath, StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
 import RenameSceneModal from '@ir-engine/editor/src/panels/scenes/RenameSceneModal'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
+import InputDialog from '@ir-engine/ui/src/components/tailwind/InputDialog'
 import MoreOptionsMenu from '@ir-engine/ui/src/components/tailwind/MoreOptionsMenu'
 import { CodeSnippet01Sm, Copy02Sm, Edit01Sm, Trash04Sm } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -92,7 +91,7 @@ export default function SceneItem({
     ModalState.closeModal()
   }
 
-  const defaultThumbnail = theme?.value === 'dark' ? IRLogoModalLight : IRLogoModalDark
+  const defaultThumbnail = NapsterLogoModalDark
   const sceneItemMoreOptions = useMutableState(UIAddonsState).editor.sceneItemMoreOptions.get(NO_PROXY)
 
   const actionProps = [
@@ -115,9 +114,33 @@ export default function SceneItem({
       label: t('editor:hierarchy.lbl-copyEmbedCode'),
       disabled: false,
       icon: <CodeSnippet01Sm fontSize={16} />,
-      onClick: () => {
-        const sceneName = scene.key.split('/').pop()!.replace('.gltf', '')
-        ModalState.openModal(<CopyEmbedCodePopover url={`${config.client.clientUrl}/location/${sceneName}`} />)
+      onClick: async () => {
+        const location = await API.instance.service(locationPath).find({
+          query: {
+            sceneId: scene.id,
+            action: 'account',
+            $limit: 1
+          }
+        })
+        ModalState.openModal(
+          <InputDialog
+            title={t('editor:hierarchy.lbl-copyEmbedCode')}
+            fields={[
+              {
+                id: 'embedCode',
+                label: location.data.length > 0 ? t('common:components.embed') : '',
+                type: 'codefield',
+                url: location.data[0]?.url || '',
+                readOnly: true,
+                showLabel: location.data.length > 0
+              }
+            ]}
+            onSubmit={async () => {}}
+            modalProps={{
+              submitButtonText: t('common:components.close')
+            }}
+          />
+        )
       }
     },
     {
@@ -170,7 +193,7 @@ export default function SceneItem({
   }
 
   return (
-    <SceneCard data-testid="scene-container" className="cursor-pointer items-start justify-start gap-3 bg-white p-3">
+    <SceneCard className="cursor-pointer items-start justify-start gap-3 bg-white p-3">
       <div className="flex max-h-40 shrink grow basis-0 items-center justify-center self-stretch rounded bg-surface-4">
         <img
           className={twMerge(

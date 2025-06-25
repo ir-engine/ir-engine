@@ -33,6 +33,9 @@ import { isProvider } from 'feathers-hooks-common'
 import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 
+import { apiJobPath } from '@ir-engine/common/src/schemas/cluster/api-job.schema.ts'
+import { projectPath } from '@ir-engine/common/src/schemas/projects/project.schema.ts'
+import { retry } from '@octokit/plugin-retry'
 import { JwtPayload, verify } from 'jsonwebtoken'
 import { Application } from '../../declarations'
 import config from '../appconfig'
@@ -67,7 +70,7 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
     return next()
   }
 
-  if (context.arguments[1]?.token && context.path === 'project' && context.method === 'update') {
+  if (context.arguments[1]?.token && context.path === projectPath && context.method === 'update') {
     const appId = config.authentication.oauth.github.appId ? parseInt(config.authentication.oauth.github.appId) : null
     const token = context.arguments[1].token
     if (!config.authentication.oauth.github.privateKey) throw new NotAuthenticated('No GitHub private key configured')
@@ -76,7 +79,8 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
     })! as JwtPayload
     if (jwtDecoded.iss == null || parseInt(jwtDecoded.iss) !== appId)
       throw new NotAuthenticated('Invalid app credentials')
-    const octoKit = new Octokit({ auth: token })
+    const retryOctokit = Octokit.plugin(retry)
+    const octoKit = new retryOctokit({ auth: token, retry: { enabled: process.env.TEST !== 'true' } })
     let appResponse
     try {
       appResponse = await octoKit.rest.apps.getAuthenticated()
@@ -102,6 +106,35 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
   let authSplit
   if (authHeader) {
     authSplit = authHeader.split(' ')
+  }
+
+  // Outside jobs that update projects need to long-poll the api-job service to see if the job has completed.
+  // This change was made because, with project dependency installation, the time to complete a whole project
+  // update may cause timeouts in the networking, and leaving a request running for several minutes is not
+  // good practice.
+  // They can now also use a JWT signed by the app to access the api-job service.
+  if (context.path === apiJobPath && context.method === 'get' && context.params.query.signedByAppJWT === 'true') {
+    const appId = config.authentication.oauth.github.appId ? parseInt(config.authentication.oauth.github.appId) : null
+    const token = authSplit[1]
+    if (!config.authentication.oauth.github.privateKey) throw new NotAuthenticated('No GitHub private key configured')
+    const jwtDecoded = verify(token, config.authentication.oauth.github.privateKey, {
+      algorithms: ['RS256']
+    })! as JwtPayload
+    if (jwtDecoded.iss == null || parseInt(jwtDecoded.iss) !== appId)
+      throw new NotAuthenticated('Invalid app credentials')
+    const retryOctokit = Octokit.plugin(retry)
+    const octoKit = new retryOctokit({ auth: token, retry: { enabled: process.env.TEST !== 'true' } })
+    let appResponse
+    try {
+      appResponse = await octoKit.rest.apps.getAuthenticated()
+    } catch (err) {
+      throw new NotAuthenticated('Invalid app credentials')
+    }
+    if (appResponse.data.id !== appId) throw new NotAuthenticated('App ID of JWT does not match installed App ID')
+    context.params.appJWT = token
+    context.params.signedByAppJWT = true
+    delete context.params.query.signedByAppJWT
+    return next()
   }
 
   if (authSplit && authSplit.length > 1 && authSplit[1]) {

@@ -35,8 +35,8 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { useVisualScriptRunner } from '../systems/useVisualScriptRunner'
 
-export enum VisualScriptDomain {
-  'ECS' = 'ECS'
+export const VisualScriptDomain = {
+  ECS: 'ECS' as const
 }
 
 export const VisualScriptComponent = defineComponent({
@@ -45,7 +45,7 @@ export const VisualScriptComponent = defineComponent({
 
   schema: S.Object({
     domain: S.Enum(VisualScriptDomain, {
-      $comment: "Likely a string enum, ie. one of the following values: 'ECS'",
+      $comment: "A string enum, ie. one of the following values: 'ECS'",
       default: VisualScriptDomain.ECS
     }),
     visualScript: S.Type<GraphJSON | null>({

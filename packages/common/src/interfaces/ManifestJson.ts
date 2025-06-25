@@ -40,6 +40,7 @@ export type ManifestJson = {
    * @example "A simple project"
    */
   description?: string
+  repoEmpty?: boolean
   /**
    * An optional thumbnail image
    * @example "https://example.com/thumbnail.jpg"
@@ -47,8 +48,17 @@ export type ManifestJson = {
   thumbnail?: string
   /**
    * The dependencies of this project. Specify other projects that are to be installed alongside this one.
-   * @todo
-   * @example { "orgname/reponame": "0.1.2" }
+   * Can be either a string in the format 'namespace/project-name' or an object with detailed configuration.
+   * @example ["orgname/reponame", { "name": "orgname/another-repo", "commitHash": "abc123", "branch": "main" }]
+   * The solo string or name can also be in the format `git+<url>.git
    */
-  // dependencies?: Record<string, string>
+  dependencies?: (
+    | string
+    | {
+        name: string
+        commit?: string
+        tag?: string
+        branch?: string
+      }
+  )[]
 }

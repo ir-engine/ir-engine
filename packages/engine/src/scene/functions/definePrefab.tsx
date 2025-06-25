@@ -40,7 +40,8 @@ import {
   TProperties,
   useComponent,
   useHasComponent,
-  UUIDComponent
+  UUIDComponent,
+  WorldNetworkAction
 } from '@ir-engine/ecs'
 
 import {
@@ -49,6 +50,8 @@ import {
   dispatchAction,
   getMutableState,
   matches,
+  NetworkState,
+  NetworkTopics,
   NO_PROXY,
   none,
   useHookstate,
@@ -56,7 +59,6 @@ import {
   useMutableState,
   Validator
 } from '@ir-engine/hyperflux'
-import { NetworkState, NetworkTopics, WorldNetworkAction } from '@ir-engine/network'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { SpawnObjectActions } from '@ir-engine/spatial/src/transform/SpawnObjectActions'
 import { Quaternion, Vector3 } from 'three'

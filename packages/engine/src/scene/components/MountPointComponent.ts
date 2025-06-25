@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { ArrowHelper, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
 import { UndefinedEntity, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
 import {
@@ -33,8 +33,7 @@ import {
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  setComponent,
-  useOptionalComponent
+  setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { dispatchAction, getState, useMutableState } from '@ir-engine/hyperflux'
@@ -42,8 +41,6 @@ import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
-import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -156,11 +153,6 @@ export const MountPointComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
-    const debugEnabled =
-      activeHelperComponent !== undefined &&
-      activeHelperComponent.enabled.value &&
-      (activeHelperComponent.selected.value || activeHelperComponent.hovered.value)
     const mountedEntities = useMutableState(MountPointState)
 
     useEffect(() => {
@@ -169,7 +161,7 @@ export const MountPointComponent = defineComponent({
 
     useEffect(() => {
       // manually hide interactable's XRUI when mounted through visibleComponent - (as interactable uses opacity to toggle visibility)
-      const interactableComponent = getComponent(entity, InteractableComponent)
+      const interactableComponent = getOptionalComponent(entity, InteractableComponent)
       if (interactableComponent) {
         interactableComponent.uiVisibilityOverride =
           UUIDComponent.get(entity) in mountedEntities.mountsToMountedEntities.value
@@ -177,8 +169,6 @@ export const MountPointComponent = defineComponent({
             : XRUIVisibilityOverride.none
       }
     }, [mountedEntities.mountsToMountedEntities])
-
-    useHelperEntity(entity, () => new ArrowHelper(), debugEnabled)
 
     return null
   }

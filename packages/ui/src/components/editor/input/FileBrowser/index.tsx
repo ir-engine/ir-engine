@@ -103,7 +103,7 @@ export function FileBrowserInput({
   })
 
   return (
-    <div className={twMerge('inline-block', isOver ? 'border-4 border-dashed border-ui-outline' : '')}>
+    <div className={twMerge('w-full', isOver ? 'border-4 border-dashed border-ui-outline' : '')}>
       <ControlledStringInput ref={dropRef} value={value} onRelease={onRelease} {...rest} />
       {/*assetIsExternal && (
         <IconButton

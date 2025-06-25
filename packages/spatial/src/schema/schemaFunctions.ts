@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Box3, Color, ColorRepresentation, Matrix4, Quaternion, Vector2, Vector3 } from 'three'
 
-import { Entity } from '@ir-engine/ecs'
 import { Options, TProperties } from '@ir-engine/ecs/src/schemas/JSONSchemaTypes'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
@@ -55,13 +54,12 @@ export const NonEmptyArray = (errMsg: string) => {
   }
 }
 
-type Init<T> = T | ((entity: Entity) => T)
+type Init<T> = T
 
 export const T = {
   /** Vector3 type schema helper, defaults to { x: 0, y: 0, z: 0 } */
   Vec3: (init = { x: 0, y: 0, z: 0 } as Init<Vector3>, options?: Options<Vector3>) =>
     S.SerializedClass(
-      typeof init === 'function' ? init : () => new Vector3(init.x, init.y, init.z),
       {
         x: S.Number(),
         y: S.Number(),
@@ -69,6 +67,7 @@ export const T = {
       },
       {
         deserialize: (curr, value) => curr.copy(value),
+        default: () => new Vector3(init.x, init.y, init.z),
         ...options,
         id: 'Vec3'
       }
@@ -77,13 +76,13 @@ export const T = {
   /** Vector2 type schema helper, defaults to { x: 0, y: 0 } */
   Vec2: (init = { x: 0, y: 0 } as Init<Vector2>, options?: Options<Vector2>) =>
     S.SerializedClass(
-      typeof init === 'function' ? init : () => new Vector2(init.x, init.y),
       {
         x: S.Number(),
         y: S.Number()
       },
       {
         deserialize: (curr, value) => curr.copy(value),
+        default: () => new Vector2(init.x, init.y),
         ...options,
         id: 'Vec2'
       }
@@ -92,7 +91,6 @@ export const T = {
   /** Quaternion type schema helper, defaults to { x: 0, y: 0, z: 0, w: 1 } */
   Quaternion: (init = { x: 0, y: 0, z: 0, w: 1 } as Init<Quaternion>, options?: Options<Quaternion>) =>
     S.SerializedClass(
-      typeof init === 'function' ? init : () => new Quaternion(init.x, init.y, init.z, init.w),
       {
         x: S.Number(),
         y: S.Number(),
@@ -102,6 +100,7 @@ export const T = {
       {
         serialize: (value) => value.toJSON(),
         deserialize: (curr, value) => curr.copy(value),
+        default: () => new Quaternion(init.x, init.y, init.z, init.w),
         ...options,
         id: 'Quaternion'
       }
@@ -110,7 +109,6 @@ export const T = {
   /** Matrix4 type schema helper, defaults to idenity matrix */
   Mat4: (init = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], options?: Options<Matrix4>) =>
     S.SerializedClass(
-      () => new Matrix4().fromArray(init),
       {
         elements: S.Array(S.Number(), {
           maxItems: 16,
@@ -119,6 +117,7 @@ export const T = {
       },
       {
         deserialize: (curr, value) => curr.copy(value),
+        default: () => new Matrix4().fromArray(init),
         ...options,
         id: 'Mat4'
       }
@@ -127,13 +126,13 @@ export const T = {
   /** Vector3 type schema helper, defaults to { x: 0, y: 0, z: 0 } */
   Box3: (init?: Init<Box3>, options?: Options<Box3>) =>
     S.SerializedClass(
-      typeof init === 'function' ? init : () => new Box3(init?.min, init?.max),
       {
         min: T.Vec3(),
         max: T.Vec3()
       },
       {
         deserialize: (curr, value) => curr.copy(value),
+        default: () => new Box3(init?.min, init?.max),
         ...options,
         id: 'Box3'
       }
@@ -150,9 +149,6 @@ export const T = {
    */
   Color: (init?: Init<ColorRepresentation>, options?: Options<ColorRepresentation>) =>
     S.SerializedClass<TProperties, ColorRepresentation>(
-      typeof init === 'function'
-        ? init
-        : () => (isColorObj(init) ? new Color(init.r, init.g, init.b) : new Color(init)),
       {
         r: S.Number(),
         g: S.Number(),
@@ -161,6 +157,7 @@ export const T = {
       {
         deserialize: (curr, value) => (curr instanceof Color ? curr.set(value) : new Color(value)),
         serialize: (value) => (value instanceof Color ? value.getHex() : new Color(value).getHex()),
+        default: () => (isColorObj(init) ? new Color(init.r, init.g, init.b) : new Color(init)),
         ...options,
         id: 'Color'
       }

@@ -14,6 +14,7 @@
   "savingError": "Error saving Project",
   "savingErrorMsg": "An error occurred when saving the Project. Please try again or contact support.",
   "savingSceneErrorMsg": "The Scene did not load properly. Please try reloading the Scene.",
+  "savingLoadingSceneErrorMsg": "The Scene is not finished loading. Please wait for it to finish loading before saving.",
   "duplicating": "Duplicating Project",
   "exporting": "Exporting Project",
   "exportingError": "Error exporting the Project",
@@ -89,7 +90,7 @@
   },
   "warnings": {
     "addChildToGlbError": "Re-parenting was canceled - Adding children to glb model prefabs is currently not supported.",
-    "rigidbodyDropWarning" : "Re-parenting was canceled - Entities with a rigidbody are not allowed to have an ancestor with a rigidbody. Please remove one of the rigidbodies and try again.",
+    "rigidbodyDropWarning": "Re-parenting was canceled - Entities with a rigidbody are not allowed to have an ancestor with a rigidbody. Please remove one of the rigidbodies and try again.",
     "sceneComplexity": "Scene complexity is {{sceneComplexity}}. Consider optimizing your Scene for better performance. Refer to our docs for optimization guidelines."
   },
   "viewport": {
@@ -119,7 +120,7 @@
       "calls": "Calls",
       "sceneTriangles": "Scene Triangles",
       "triangles": "Render Triangles",
-      "trianglesTooltip": "Number of triangles currently being rendered, post processing effects will affect this number.",
+      "trianglesTooltip": "Number of triangles currently being rendered. Shadows and post processing effects will affect this number.",
       "points": "Points",
       "lines": "Lines",
       "shaderComplexity": "Shader Complexity",
@@ -144,6 +145,9 @@
     "transformSpace": {
       "description": "Sets your transform control to be oriented to the object (selection) or World",
       "lbl-world": "World",
+      "lbl-space": "Space",
+      "lbl-global": "[Z] Global",
+      "lbl-local": "[Z] Local",
       "info-world": "World Space relates to the entire Scene's orientation",
       "lbl-selection": "Object",
       "info-selection": "Object Space (your selection) relates to transforms made to a specific object in relation to the World Space.",
@@ -151,20 +155,27 @@
     },
     "transformPivot": {
       "toggleTransformPivot": "[X] Toggle Transform Pivot",
-      "lbl-selection": "Selection",
-      "info-selection": "The center pivot of the first entity you selected in the sequence.",
-      "lbl-center": "Center",
+      "lbl-pivot": "Pivot",
+      "lbl-singleOrigin": "Single Origin",
+      "info-singleOrigin": "The center pivot of the first entity you selected in the sequence.",
+      "lbl-center": "Bounding Box Center",
       "info-center": "A pivot that uses the center point of a bounding box containing all selected entities' positions.",
-      "lbl-bottom": "Bottom",
-      "info-bottom": "A pivot that sits at the center of the bottom face of a bounding box containing all selected entities' positions.",
-      "lbl-origin": "Origin",
-      "info-origin": "Sets the pivot mode to the world origin (0,0,0)."
+      "lbl-floor": "Bounding Box Floor Center",
+      "info-floor": "A pivot that sits at the center of the bottom face of a bounding box containing all selected entities' positions.",
+      "lbl-worldOrigin": "World Origin",
+      "info-worldOrigin": "Sets the pivot mode to the world origin (0,0,0)."
     },
     "transformSnapTool": {
+      "lbl-snaps": "Snaps",
+      "info-snaps": "Move, Scale, and Rotate snapping with adjustable increments",
+      "lbl-translate": "Translate",
+      "info-translate": "Snap translation size (meters)",
+      "lbl-scale": "Scale",
+      "info-scale": "Snap scale size",
+      "lbl-rotate": "Rotate",
+      "info-rotate": "Snap rotation angle",
       "toggleBBoxSnap": "[B] Toggle Bounding Box Snap",
-      "toggleSnapMode": "[C] Toggle Grid Snap",
-      "info-translate": "Grid and translation snap size (meters).",
-      "info-rotate": "Snap rotation angle"
+      "toggleSnapMode": "[C] Toggle Grid Snap"
     },
     "placement": {
       "click": "Point & Click Placement",
@@ -197,6 +208,7 @@
       "info-usePostProcessing": "Enables Post Processing",
       "lbl-shadowMapResolution": "Shadow Map Resolution",
       "info-shadowMapResolution": "Set Shadow Map resolution",
+      "lbl-shadows": "Shadows",
       "lbl-renderMode": "Render Mode",
       "info-renderMode": "Choose Render Mode"
     },
@@ -212,14 +224,19 @@
       "info": "Show stats about the Scene and provide an overview of how optimized your Scene is."
     },
     "helpersToggle": {
-      "lbl-helpers": "Toggle Helpers",
+      "lbl-helpers": "Helpers",
       "info-helpers": "View hidden information about your Scene, e.g., colliders.",
       "lbl-nodeHelpers": "Toggle Node Helpers",
       "info-nodeHelpers": "Helper geometry that helps components have visibility in the scene when inactive.",
       "lbl-nodeIcons": "Toggle Node Icons",
       "lbl-nodeVolume": "Toggle Node Volume",
-      "info-nodeVolume": "Helper geometry that helps visualize bounding box of assets in the scene"
-
+      "info-nodeVolume": "Helper geometry that helps visualize bounding box of assets in the scene",
+      "lbl-helperIcons": "Helpers Icons",
+      "lbl-helperVolumes": "Helpers Volumes",
+      "info-helperVolumes": "Helper geometry that helps components have visibility in the Scene when inactive.",
+      "lbl-axisHelpers": "Axis Helpers",
+      "lbl-colliderHelpers": "Collider Helpers",
+      "lbl-directManipulation": "Direct Manipulation"
     },
     "sceneScreenshot": {
       "lbl": "Screenshot",
@@ -235,14 +252,18 @@
       "publishDate": "✓ Published {{formattedDate}} at {{formattedTime}}",
       "notYetPublished": "Not Published Yet",
       "multiplayerFeatures": "Multiplayer Features",
-      "multiplayerDescription": "Choose which features visitors can use when visiting your Published Space with other users.",
+      "multiplayerDescription": "Choose which features visitors can use when visiting your Published World with other users.",
       "copy": "Copy",
       "copyPublicUrl": "Copy Public URL",
       "publicUrl": "Public URL",
       "publishSuccess": "Space Published Successfully",
       "noThumbnailPlaceholder": "Publish Scene to Generate a Preview Image",
       "createCompressedScenePublish": "Compress and Publish",
-      "createCompressedScenePublishInfo": "This is a beta feature that optimizes your space for mobile devices. If you encounter errors, please refresh your browser and try again, or use the regular “Publish” function for now."
+      "createCompressedScenePublishInfo": "This is a beta feature that optimizes your space for mobile devices. If you encounter errors, please refresh your browser and try again, or use the regular “Publish” function for now.",
+      "jumpControlFeature": "Jump Control",
+      "jumpControlFeatureDesc": "Enable your avatar’s ability to jump.",
+      "vrCapabilitiesFeature": "VR Capabilities",
+      "vrCapabilitiesFeatureDesc": "Enable your eligible devices to render AR experiences."
     }
   },
   "properties": {
@@ -270,8 +291,7 @@
       "lbl-textureType": "Texture Type",
       "lbl-textureUrl": "Texture URL",
       "lbl-intensity": "Envmap Intensity",
-      "info-intensity": "Visual intensity may vary depending on material, shader, and environment map type configuration.",
-      "bake-reflection-probes": "Bake Probes"
+      "info-intensity": "Visual intensity may vary depending on material, shader, and environment map type configuration."
     },
     "trigger": {
       "name": "Trigger",
@@ -564,7 +584,7 @@
         "lodLevelNumber": "LOD Level {{index}}",
         "compress": "Compress",
         "compressionComplete": "Compress Complete",
-        "compressionError": "Error during compression",
+        "compressionError": "Compression failed on {{file}}",
         "compressImage": "Compress Image",
         "applyPresetConfirmation": "Would you like to apply this preset?",
         "savePreset": "Save Preset",
@@ -731,6 +751,11 @@
         "donut": "Donut",
         "mesh": "Mesh"
       },
+      "poiComponent": {
+        "name": "POI Component",
+        "description": "Settings for a point of interest camera view",
+        "lbl-poiHotspotEntities": "POI Hotspot Entities"
+      },
       "emission-bursts": "Emission Bursts",
       "add-burst": "Add Burst",
       "remove-burst": "Remove Burst",
@@ -740,7 +765,26 @@
       "start-size": "Start Size",
       "start-speed": "Start Speed",
       "start-rotation": "Start Rotation",
-      "start-color": "Start Color",
+      "startColor": {
+        "title": "Start Color",
+        "type": "Type",
+        "constant": "Constant",
+        "range": "Range",
+        "random": "Random",
+        "gradient": "Gradient",
+        "color": "Color",
+        "opacity": "Opacity",
+        "start": "Start",
+        "remove": "Remove"
+      },
+      "rotation": {
+        "axisAngle": "Axis Angle",
+        "euler": "Euler",
+        "randomQuaternion": "Random Quaternion",
+        "axis": "Axis",
+        "angle": "Angle",
+        "anglePosition": "Angle {{position}}"
+      },
       "emission-over-time": "Emission Over Time",
       "render-mode": "Render Mode",
       "render-mode-type": {
@@ -773,6 +817,7 @@
         "probability": "Burst Probability"
       },
       "addBehavior": "Add Behavior",
+      "behaviors": "Behaviors",
       "remove": "Remove"
     },
     "clouds": {
@@ -883,11 +928,28 @@
       "lbl-clippingPlanes": "Clipping Planes",
       "lbl-nearClip": "Near",
       "lbl-farClip": "Far ",
-      "lbl-minCamDist": "Min",
-      "lbl-maxCamDist": "Max",
+      "lbl-minCamDist": "Min Distance",
+      "lbl-maxCamDist": "Max Distance",
       "lbl-cameraDistance": "Camera Distance",
-      "lbl-startCameraDistance": "Start Camera Distance",
-      "lbl-phi": "Phi"
+      "lbl-enableTransitionButtons": "Transition Buttons",
+      "lbl-enableTransitionButtonsDescription": "Show UI buttons for navigating between POIs.",
+      "lbl-phi": "Phi",
+      "lbl-cameraMode": "Camera Mode",
+      "lbl-avatar": "Avatar",
+      "lbl-avatarVisible": "Avatar is Visible",
+      "lbl-scrollingSpeed": "Scolling Speed",
+      "lbl-followCameraModes": "Follow Camera Modes",
+      "lbl-followCameraFristPerson": "First Person Camera",
+      "lbl-followCameraThirdPerson": "Third Person Camera",
+      "lbl-followCameraTopDown": "Top-Down Camera",
+      "lbl-followCameraError": "You need to select at least one Follow Camera Mode",
+      "lbl-firstPersonSettings": "First Person Camera Settings",
+      "lbl-thirdPersonSettings": "Third Person Camera Settings",
+      "lbl-topDownSettings": "Top-Down Camera Settings",
+      "lbl-defaultDistance": "Default Distance",
+      "lbl-freeCamera": "Free Camera",
+      "lbl-cameraLimits": "Camera Limits",
+      "lbl-cameraReset": "Camera Reset"
     },
     "cameraComponent": {
       "name": "Camera",
@@ -943,11 +1005,6 @@
       "lbl-bassMultiplier": "Bass Multiplier",
       "lbl-trebleMultiplier": "Treble Multiplier",
       "lbl-midMultiplier": "Mid Multiplier"
-    },
-    "reflectionProbe": {
-      "name": "Reflection Probe",
-      "description": "A reflection probe that captures the environment and uses it for reflection.",
-      "src": "Source"
     },
     "renderSettings": {
       "name": "Render Settings",
@@ -1261,6 +1318,20 @@
       "assets": "Assets"
     }
   },
+  "inspector": {
+    "switchInspector": "Switch to Inspector tab for asset selection",
+    "title": "Inspector",
+    "assetType": "Type",
+    "assetAuthor": "Author",
+    "assetDateCreated": "Date Created",
+    "assetFileSize": "File Size",
+    "assetDimensions": "Dimensions",
+    "assetMeshComplexity": "Mesh Complexity",
+    "assetResources": "Resources",
+    "assetTags": "Tags",
+    "addToScene": "Add to Scene",
+    "noAssetSelected": "No asset selected"
+  },
   "projects": {
     "createProject": {
       "header": "New Project",
@@ -1366,7 +1437,6 @@
         "loop-animation": "Configures the animation associated with your 3D model, loaded from a glTF URL of file.",
         "shadow": "Allows your object to cast and receive shadows in the scene.",
         "lookAt": "Makes an entity face the user or another entity in the scene.",
-        "reflectionProbe": "Captures the environment and uses it for reflection.",
         "fog": "Adds fog to the entity.",
         "ecommerce-product": "Adds a product to the entity from a preconfigured store provider.",
         "text-spatial": "Adds spatial 3D text to the entity.",
@@ -1423,6 +1493,7 @@
       "search-placeholder": "Search",
       "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
       "generatingDimension": "Generating Dimensions ({{count}} remaining)",
+      "generatingMultiView": "Generating Multi-View ({{count}} remaining)",
       "file": "File",
       "directory": "Directory",
       "fileNameLengthError": "File name must be between 4 and 64 characters.",
@@ -1494,6 +1565,7 @@
     "lbl-edited": "Edited",
     "lbl-duplicate": "Duplicate",
     "lbl-group": "Group",
+    "lbl-ungroup": "Ungroup",
     "lbl-cloneScene": "Clone Scene",
     "lbl-cloneSceneToProject": "Clone Scene to Project",
     "lbl-cloneOptions": "Please select the clone action you want to perform",
@@ -1628,7 +1700,7 @@
       "optionButtons": {
         "defaultEditor": {
           "title": "Blank Scene",
-          "description": "Use the advanced iR Spaces Editor to create your Space from the ground up. Recommended for experienced 3D creators.",
+          "description": "Use the advanced Worlds Editor to create your Space from the ground up. Recommended for experienced 3D creators.",
           "submitButtonText": "Continue in Editor"
         }
       }

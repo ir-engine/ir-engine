@@ -5,8 +5,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
@@ -77,24 +77,60 @@ class ImageBitmapLoader extends Loader<ImageBitmap> {
     loader.setRequestHeader(this.requestHeader)
     loader.setWithCredentials(this.withCredentials)
 
-    function onFile(blob: Blob) {
-      createImageBitmap(blob, Object.assign(options, { colorSpaceConversion: 'none' }))
-        .then(function (imageBitmap) {
-          Cache.add(url, imageBitmap)
-
-          if (onLoad) onLoad(imageBitmap)
-
-          manager.itemEnd(url)
-        })
-        .catch(function (e) {
-          if (onError) onError(e)
-
-          manager.itemError(url)
-          manager.itemEnd(url)
-        })
+    const handleFileError = (error) => {
+      console.warn(`Error loading image file from URL: ${url}`, error)
+      if (onError) onError(error)
+      manager.itemError(url)
+      manager.itemEnd(url)
     }
 
-    loader.load(url, onFile, onProgress, onError)
+    function onFile(blob: Blob) {
+      try {
+        createImageBitmap(blob, {
+          ...options,
+          colorSpaceConversion: 'none' as ColorSpaceConversion
+        })
+          .then(function (imageBitmap) {
+            Cache.add(url, imageBitmap)
+            if (onLoad) onLoad(imageBitmap)
+            manager.itemEnd(url)
+          })
+          .catch(function (e) {
+            // Log detailed error information
+            console.error(`Error creating ImageBitmap from blob for URL: ${url}`, {
+              error: e,
+              errorName: e.name,
+              errorMessage: e.message,
+              blobType: blob.type,
+              blobSize: blob.size
+            })
+
+            // Try to read the blob as text to see if it contains an error message
+            const reader = new FileReader()
+            reader.onload = function () {
+              const text = reader.result as string
+              // Only log the first 200 characters to avoid flooding the console
+              // console.log(`Blob content preview for ${url}:`, text.substring(0, 200))
+            }
+            reader.onerror = function () {
+              console.log(`Could not read blob content for ${url}`)
+            }
+
+            // Only try to read as text if it might be a text response
+            if (blob.type.includes('text') || blob.type.includes('json')) {
+              reader.readAsText(blob)
+            }
+
+            if (onError) onError(e)
+            manager.itemError(url)
+            manager.itemEnd(url)
+          })
+      } catch (error) {
+        handleFileError(error)
+      }
+    }
+
+    loader.load(url, onFile, onProgress, handleFileError)
 
     manager.itemStart(url)
   }

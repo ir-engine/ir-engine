@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { Entity, EntityTreeComponent, getOptionalComponent, Layers, removeEntity, UUIDComponent } from '@ir-engine/ecs'
+import { Entity, EntityTreeComponent, getOptionalComponent, Layers, UUIDComponent } from '@ir-engine/ecs'
 import { AllFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
 
@@ -44,6 +44,7 @@ export type HierarchyTreeNodeType = {
   isLeaf?: boolean
   isCollapsed?: boolean
   isRendered?: boolean
+  parentEntity?: Entity
 }
 
 /* COMMON */
@@ -57,15 +58,19 @@ export const uploadOptions = {
 
 /* NODE FUNCTIONALITIES */
 
-const getSelectedEntities = (entity?: Entity) => {
+export const getSelectedEntities = (entity?: Entity) => {
   const selected = entity ? getState(SelectionState).selectedEntities.includes(UUIDComponent.get(entity)) : true
   const selectedEntities = selected ? SelectionState.getSelectedEntities() : [entity!]
   return selectedEntities
 }
 
+export function getNodeElId(node: HierarchyTreeNodeType) {
+  return 'hierarchy-node-' + node.entity
+}
+
 export const deleteNode = (entity: Entity) => {
   const entities = getSelectedEntities(entity)
-  entities.map(removeEntity)
+  EditorControlFunctions.removeObject(entities)
   AuthoringState.snapshotEntities(entities)
 }
 
@@ -79,6 +84,12 @@ export const groupNodes = (entity?: Entity) => {
   const entities = getSelectedEntities(entity)
   EditorControlFunctions.groupObjects(entities)
   AuthoringState.snapshotEntities
+}
+
+export const ungroupNodes = (entity?: Entity) => {
+  const entities = getSelectedEntities(entity)
+  EditorControlFunctions.ungroupObjects(entities)
+  AuthoringState.snapshotEntities(entities)
 }
 
 export const copyNodes = (entity?: Entity) => {
@@ -134,6 +145,7 @@ export function ecsHierarchyTreeWalker(rootEntity: Entity, enableHideGlbChildren
   while (frontier.length > 0) {
     const { entity, depth, lastChild, isRendered: originalIsRendered } = frontier.pop()!
     const eTree = getOptionalComponent(entity, EntityTreeComponent)
+    const parentEntity = eTree?.parentEntity
 
     if (!eTree) continue
     const childIndex = eTree.childIndex ?? 0
@@ -152,7 +164,8 @@ export function ecsHierarchyTreeWalker(rootEntity: Entity, enableHideGlbChildren
       lastChild,
       isLeaf,
       isCollapsed,
-      isRendered: originalIsRendered
+      isRendered: originalIsRendered,
+      parentEntity
     })
     if (children && !hideChildren) {
       //do not push children of glb

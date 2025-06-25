@@ -36,17 +36,25 @@ import {
   EntityUUID,
   getComponent,
   Layers,
+  S,
   setComponent,
   SourceID,
   UndefinedEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { getMutableState, getState, UserID } from '@ir-engine/hyperflux'
+import { applyIncomingActions, getMutableState, getState, UserID } from '@ir-engine/hyperflux'
+import { flushAll } from '@ir-engine/hyperflux/tests/utils/flushAll'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
 import { AddOperation } from 'rfc6902/diff'
-import { Quaternion, Vector3 } from 'three'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { Cache, Quaternion, Vector3 } from 'three'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { startEngineReactor } from '../../tests/startEngineReactor'
+import { GLTFComponent } from '../gltf/GLTFComponent'
+import { AssetState, SceneState } from '../gltf/GLTFState'
+import { OVERRIDE_EXTENSION_NAME } from '../gltf/overrideExporterExtension'
 import {
   applyCommandsToECS,
   AuthoringActions,
@@ -824,6 +832,232 @@ describe('AuthoringState', () => {
       expect(action.ops[sourceID1]).toHaveLength(1)
       expect(action.ops[sourceID2]).toBeDefined()
       expect(action.ops[sourceID2]).toHaveLength(1)
+    })
+  })
+
+  describe('should successfully migrate scene deltas to override format using operations', () => {
+    beforeEach(async () => {
+      Cache.enabled = true
+      createEngine()
+      mockSpatialEngine()
+      startEngineReactor()
+    })
+
+    afterEach(() => {
+      Cache.enabled = false
+      return destroyEngine()
+    })
+
+    it('should migrate scene deltas to override format using operations', async () => {
+      const MaterialCustomPlugin = defineComponent({
+        name: 'MaterialCustomPlugin',
+        jsonID: 'IR_material_custom',
+        schema: S.Object({
+          customMap: S.String()
+        })
+      })
+
+      const sceneGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'node',
+            extensions: {
+              [UUIDComponent.jsonID]: 'node' as any,
+              [GLTFComponent.jsonID]: {
+                src: 'https://fake.com/child.gltf'
+              },
+              [VisibleComponent.jsonID]: true
+            }
+          }
+        ],
+        extensions: {
+          IR_scene_delta: {
+            node: {
+              'material-0': {
+                IR_material_custom: {
+                  customMap: '/custom-map.png'
+                }
+              },
+              nested: {
+                IR_transform: {
+                  position: {
+                    x: 0,
+                    y: 5
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      const childGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'nested',
+            extensions: {
+              [UUIDComponent.jsonID]: 'nested'
+            }
+          }
+        ],
+        materials: [
+          {
+            name: 'material'
+          }
+        ],
+        extensionsUsed: [UUIDComponent.jsonID]
+      }
+
+      // invoke state initially to make sure it's reactor starts
+      getState(AuthoringState)
+
+      Cache.add('/test.gltf', sceneGLTF)
+      Cache.add('https://fake.com/child.gltf', childGLTF)
+      SceneState.loadScene('/test.gltf', 'test' as EntityID, undefined, Layers.Authoring)
+      const rootEntity = getState(SceneState)['/test.gltf']
+
+      await vi.waitUntil(() => GLTFComponent.isSceneLoaded(rootEntity), { timeout: 5000 })
+      await flushAll()
+      applyIncomingActions()
+      await vi.waitUntil(() => getState(AssetState)[GLTFComponent.getSourceID(rootEntity)])
+
+      await flushAll()
+      applyIncomingActions()
+
+      const nodeEntity = GLTFComponent.getEntityBySourceAndID(rootEntity, 'node' as EntityID, Layers.Authoring)!
+      const nestedEntity = GLTFComponent.getEntityBySourceAndID(nodeEntity, 'nested' as EntityID, Layers.Authoring)!
+      const materialEntity = GLTFComponent.getEntityBySourceAndID(
+        nodeEntity,
+        'material-0' as EntityID,
+        Layers.Authoring
+      )!
+
+      expect(getComponent(nestedEntity, TransformComponent).position.y).toBe(5)
+      expect(getComponent(materialEntity, MaterialCustomPlugin).customMap).toBe('/custom-map.png')
+    })
+  })
+
+  describe('should load overrides into scene loaded in the simulation layer', () => {
+    beforeEach(async () => {
+      Cache.enabled = true
+      createEngine()
+      mockSpatialEngine()
+      startEngineReactor()
+    })
+
+    afterEach(() => {
+      Cache.enabled = false
+      return destroyEngine()
+    })
+
+    it('should load overrides into scene loaded in the simulation layer', async () => {
+      const MaterialCustomPlugin = defineComponent({
+        name: 'MaterialCustomPlugin',
+        jsonID: 'IR_material_custom',
+        schema: S.Object({
+          customMap: S.String()
+        })
+      })
+
+      const sceneGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'node',
+            extensions: {
+              [UUIDComponent.jsonID]: 'node' as any,
+              [GLTFComponent.jsonID]: {
+                src: 'https://fake.com/child.gltf'
+              },
+              [VisibleComponent.jsonID]: true
+            }
+          }
+        ],
+        extensions: {
+          [OVERRIDE_EXTENSION_NAME]: {
+            node: [
+              {
+                op: 'add',
+                path: '/material-0/IR_material_custom',
+                value: {
+                  customMap: '/custom-map.png'
+                }
+              },
+              {
+                op: 'replace',
+                path: '/nested/IR_transform/position/y',
+                value: 5
+              }
+            ]
+          }
+        },
+        extensionsUsed: [UUIDComponent.jsonID, VisibleComponent.jsonID, GLTFComponent.jsonID, OVERRIDE_EXTENSION_NAME]
+      }
+
+      const childGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'nested',
+            extensions: {
+              [UUIDComponent.jsonID]: 'nested'
+            }
+          }
+        ],
+        materials: [
+          {
+            name: 'material'
+          }
+        ],
+        extensionsUsed: [UUIDComponent.jsonID]
+      }
+
+      // invoke state initially to make sure it's reactor starts
+      getState(AuthoringState)
+
+      Cache.add('/test.gltf', sceneGLTF)
+      Cache.add('https://fake.com/child.gltf', childGLTF)
+      SceneState.loadScene('/test.gltf', 'test' as EntityID, undefined, Layers.Simulation)
+      const rootEntity = getState(SceneState)['/test.gltf']
+
+      await flushAll()
+      applyIncomingActions()
+
+      await vi.waitUntil(() => GLTFComponent.isSceneLoaded(rootEntity), { timeout: 5000 })
+      await flushAll()
+      applyIncomingActions()
+
+      await flushAll()
+      applyIncomingActions()
+
+      const nodeEntity = GLTFComponent.getEntityBySourceAndID(rootEntity, 'node' as EntityID, Layers.Simulation)!
+      const nestedEntity = GLTFComponent.getEntityBySourceAndID(nodeEntity, 'nested' as EntityID, Layers.Simulation)!
+      const materialEntity = GLTFComponent.getEntityBySourceAndID(
+        nodeEntity,
+        'material-0' as EntityID,
+        Layers.Simulation
+      )!
+
+      expect(getComponent(nestedEntity, TransformComponent).position.y).toBe(5)
+      expect(getComponent(materialEntity, MaterialCustomPlugin).customMap).toBe('/custom-map.png')
     })
   })
 })

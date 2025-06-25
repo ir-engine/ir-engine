@@ -32,9 +32,13 @@ import {
   EntityTreeComponent,
   EntityUUID,
   getAllComponents,
+  getAuthoringCounterpart,
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
+  LayerComponent,
+  LayerID,
   Layers,
   QueryReactor,
   removeComponent,
@@ -42,6 +46,9 @@ import {
   serializeComponent,
   setComponent,
   SourceID,
+  UndefinedEntity,
+  useAncestorWithComponents,
+  useHasComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
@@ -60,8 +67,16 @@ import {
   UserID,
   Validator
 } from '@ir-engine/hyperflux'
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import {
+  MaterialPrototypeDefinitions,
+  MaterialStateComponent
+} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import React, { Suspense, useEffect } from 'react'
 import { applyPatch, createPatch, Operation, Patch } from 'rfc6902'
+import { AddOperation } from 'rfc6902/diff'
+import { Color, Material, SRGBColorSpace, Vector2, Vector3 } from 'three'
+import { getTextureAsync } from '../assets/functions/resourceLoaderHooks'
 import { squashOperations } from './squashOperations'
 
 export type SourceData = Record<EntityID, object>
@@ -172,7 +187,7 @@ export const AuthoringState = defineState({
 
     return (
       <>
-        <QueryReactor Components={[GLTFComponent]} ChildEntityReactor={SourceReactor} layer={Layers.Authoring} />
+        <QueryReactor Components={[GLTFComponent]} ChildEntityReactor={SourceReactor} />
         {state.sources.keys.map((sourceID: SourceID) => (
           <ErrorBoundary key={sourceID}>
             <Suspense>
@@ -210,24 +225,31 @@ export const AuthoringState = defineState({
     return doneStack.length > 0
   },
 
-  snapshot: (sourceID: SourceID) => {
-    const newData = getSourceSnapshot(sourceID)
-    const patch = createPatch(getState(AuthoringState).sources[sourceID].latest, newData)
-    dispatchAction(AuthoringActions.ops({ ops: { [sourceID]: patch } }))
+  snapshot: (sourceID: SourceID, layer: LayerID = Layers.Authoring) => {
+    const newData = getSourceSnapshot(sourceID, layer)
+    const source = getState(AuthoringState).sources[sourceID]
+    if (source) {
+      const patch = createPatch(source.latest, newData)
+      dispatchAction(AuthoringActions.ops({ ops: { [sourceID]: patch } }))
+    }
   },
 
-  snapshotEntities: (entities: Entity[]) => {
+  snapshotEntities: (entities: Entity[], layer: LayerID = Layers.Authoring) => {
     const affectedSources = new Set<SourceID>(
       entities
         .filter((entity) => hasComponent(entity, UUIDComponent))
         .map((entity) => getComponent(entity, UUIDComponent).entitySourceID)
     )
     if (affectedSources.size === 0) return
+    AuthoringState.snapshotSources(affectedSources)
+  },
+
+  snapshotSources: (sources: Set<SourceID>, layer: LayerID = Layers.Authoring) => {
     const ops = {} as Record<SourceID, Operation[]>
-    for (const sourceID of affectedSources) {
+    for (const sourceID of sources) {
       if (!sourceID) continue
       if (!getState(AuthoringState).sources[sourceID]) continue
-      const newData = getSourceSnapshot(sourceID)
+      const newData = getSourceSnapshot(sourceID, layer)
       const patch = createPatch(getState(AuthoringState).sources[sourceID].latest, newData)
       ops[sourceID] = patch
     }
@@ -251,20 +273,35 @@ export const AuthoringState = defineState({
 })
 
 const SourceReactor = (props: { entity: Entity }) => {
-  const loaded = GLTFComponent.useSceneLoaded(props.entity)
+  const authoringEntity = getAuthoringCounterpart(props.entity)
+
+  /**
+   * Allow only entities that are part of a scene or are loaded by the scene and are children of a scene
+   * - this eliminates things like detached models and avatars, which are not part of a scene thus not authorable
+   */
+  const hasScene = useHasComponent(props.entity, SceneComponent)
+  const isChildOfScene = useAncestorWithComponents(props.entity, [SceneComponent, GLTFComponent])
+  const isLoadedByScene =
+    UUIDComponent.getRootSource(props.entity) === isChildOfScene && isChildOfScene !== UndefinedEntity
+
+  const valid = authoringEntity || hasScene || isLoadedByScene
+
+  const entity = authoringEntity || props.entity
+  const loaded = GLTFComponent.useSceneLoaded(entity)
 
   useEffect(() => {
-    if (!loaded) return
+    if (!loaded || !valid) return
 
-    const sourceID = UUIDComponent.getAsSourceID(props.entity)
-    const sourceData = getSourceSnapshot(sourceID)
+    const layer = authoringEntity ? Layers.Authoring : Layers.Simulation
+    const sourceID = UUIDComponent.getAsSourceID(entity)
+    const sourceData = getSourceSnapshot(sourceID, layer)
 
     dispatchAction(AuthoringActions.initialize({ sourceID, partialState: sourceData }))
 
     return () => {
       dispatchAction(AuthoringActions.uninitialize({ sourceID }))
     }
-  }, [loaded])
+  }, [loaded && valid])
 
   return null
 }
@@ -296,7 +333,36 @@ const SourceHistoryReactor = (props: { sourceID: SourceID }) => {
 
     // get the final state of the history
     const finalState = structuredClone(readonlyState.initial)
-    applyPatch(finalState, operations)
+    const filteredOperations = [] as Operation[]
+    for (const operation of operations) {
+      if (operation.op === 'add') {
+        const { path, value } = operation as AddOperation
+        if (value !== 'MIGRATE_SYMBOL') {
+          filteredOperations.push(operation)
+          continue /** @todo this metadata operation should be removed from the state somehow */
+        }
+        const resolveObjFromPath = (obj: any, path: string[]) => {
+          for (const key of path) {
+            if (!(key in obj)) return obj
+            obj = obj[key]
+          }
+          return obj
+        }
+        const paths = path.split('/')
+        const obj = resolveObjFromPath(finalState, paths.slice(0, -1).filter(Boolean))
+        const finalPath = paths.at(-1)!
+        if (!(finalPath in obj)) obj[finalPath] = {}
+      } else {
+        filteredOperations.push(operation)
+      }
+    }
+    const validation = applyPatch(finalState, filteredOperations)
+    if (validation.length) {
+      for (const error of validation) {
+        if (error === null) continue
+        console.error(error)
+      }
+    }
 
     // update the state to the ECS
     applyCommandsToECS(props.sourceID, readonlyState.latest, finalState)
@@ -351,15 +417,18 @@ export const computeCommands = (commands: HistoryCommand[], sourceID?: SourceID)
  * @param finalState
  */
 export const applyCommandsToECS = (sourceID: SourceID, currentState: SourceData, finalState: SourceData) => {
-  const sourceEntity = UUIDComponent.getEntityByUUID(sourceID as any as EntityUUID, Layers.Authoring)
+  const sourceSimulationEntity = UUIDComponent.getEntityByUUID(sourceID as any as EntityUUID)
+  const sourceEntity = getAuthoringCounterpart(sourceSimulationEntity) || sourceSimulationEntity
+  const layer = LayerComponent.get(sourceEntity)
+
   for (const nodeID of Object.keys(finalState) as EntityID[]) {
     if (finalState[nodeID]) {
       const uuid = UUIDComponent.join({ entitySourceID: sourceID, entityID: nodeID })
-      if (!currentState[nodeID] && !UUIDComponent.getEntityByUUID(uuid, Layers.Authoring)) {
+      if (!currentState[nodeID] && !UUIDComponent.getEntityByUUID(uuid, layer)) {
         // entity does not exist, add entity
-        UUIDComponent.create(sourceEntity, nodeID as any as EntityID, Layers.Authoring)
+        UUIDComponent.create(sourceEntity, nodeID as any as EntityID, layer)
       }
-      const entity = UUIDComponent.getEntityByUUID(uuid, Layers.Authoring)
+      const entity = UUIDComponent.getEntityByUUID(uuid, layer)
       for (const [componentJsonID, componentData] of Object.entries(finalState[nodeID])) {
         const Component = ComponentJSONIDMap.get(componentJsonID)
         if (!Component) continue
@@ -372,7 +441,7 @@ export const applyCommandsToECS = (sourceID: SourceID, currentState: SourceData,
                 ? sourceEntity
                 : UUIDComponent.getEntityByUUID(
                     UUIDComponent.join({ entitySourceID: sourceID, entityID: componentData.parentEntity }),
-                    Layers.Authoring
+                    layer
                   )
               : undefined
           setComponent(entity, EntityTreeComponent, {
@@ -382,6 +451,55 @@ export const applyCommandsToECS = (sourceID: SourceID, currentState: SourceData,
           continue
         }
         deserializeComponent(entity, Component, componentData)
+        // annoying necessity to ensure ops from scene deltas get applied
+        /** @todo this will be removed once material plugins handle all materials */
+        if (Component === MaterialStateComponent) {
+          const materialComponent = getMutableComponent(entity, MaterialStateComponent)
+          const { material, parameters } = materialComponent.get(NO_PROXY)
+          const args = getState(MaterialPrototypeDefinitions)[material.type].arguments
+          let asyncUpdateCount = 0
+          for (const [key, val] of Object.entries(parameters)) {
+            if (typeof val === 'undefined' || typeof material[key] === 'undefined') continue
+            // set property on material too, since it does't get serialized but also doesn't get update from parameters
+            if (args[key].type === 'texture') {
+              if (!val || (material[key]?.isTexture && val === material[key].userData?.url)) continue
+              asyncUpdateCount += 1
+              getTextureAsync(val).then(([texture]) => {
+                asyncUpdateCount -= 1
+                if (texture?.isTexture) {
+                  texture.flipY = false
+                  texture.needsUpdate = true
+                  texture.colorSpace = SRGBColorSpace
+                  materialComponent.material[key].set(texture ?? null)
+                }
+                if (!asyncUpdateCount) (materialComponent.material.get(NO_PROXY) as Material).needsUpdate = true
+              })
+            } else if (args[key].type === 'color') {
+              materialComponent.material[key].set(val.isColor ? val : new Color(val))
+            } else if (args[key].type === 'vec2') {
+              materialComponent.material[key].set(val.isVector2 ? val : new Vector2().fromArray(val))
+            } else if (args[key].type === 'vec3') {
+              materialComponent.material[key].set(val.isVector3 ? val : new Vector3().fromArray(val))
+            } else {
+              materialComponent.material[key].set(val)
+            }
+          }
+          for (const [key, val] of Object.entries(args)) {
+            if (typeof val === 'undefined' || typeof material[key] === 'undefined') continue
+            if (parameters[key]) continue
+            const _default = args[key].default
+            if (args[key].type === 'color') {
+              materialComponent.material[key].set(_default.isColor ? _default : new Color(_default))
+            } else if (args[key].type === 'vec2') {
+              materialComponent.material[key].set(_default.isVector2 ? _default : new Vector2().fromArray(_default))
+            } else if (args[key].type === 'vec3') {
+              materialComponent.material[key].set(_default.isVector3 ? _default : new Vector3().fromArray(_default))
+            } else {
+              materialComponent.material[key].set(_default)
+            }
+          }
+          if (!asyncUpdateCount) (materialComponent.material.get(NO_PROXY) as Material).needsUpdate = true
+        }
       }
       if (currentState[nodeID]) {
         for (const componentJsonID of Object.keys(currentState[nodeID])) {
@@ -399,7 +517,7 @@ export const applyCommandsToECS = (sourceID: SourceID, currentState: SourceData,
     if (!finalState[nodeID]) {
       // entity does not exist, remove entity
       const uuid = UUIDComponent.join({ entitySourceID: sourceID, entityID: nodeID })
-      const entity = UUIDComponent.getEntityByUUID(uuid, Layers.Authoring)
+      const entity = UUIDComponent.getEntityByUUID(uuid, layer)
       // ensure the entity has actually been removed, and not moved to another source
       if (getOptionalComponent(entity, UUIDComponent)?.entitySourceID === sourceID) {
         removeEntity(entity)
@@ -408,9 +526,9 @@ export const applyCommandsToECS = (sourceID: SourceID, currentState: SourceData,
   }
 }
 
-export const getSourceSnapshot = (sourceID: SourceID) => {
-  const sourceEntity = UUIDComponent.getEntityByUUID(sourceID as string as EntityUUID, Layers.Authoring)
-  const sourceEntities = UUIDComponent.getEntitiesBySource(sourceID, Layers.Authoring)
+export const getSourceSnapshot = (sourceID: SourceID, layer: LayerID = Layers.Authoring) => {
+  const sourceEntity = UUIDComponent.getEntityByUUID(sourceID as string as EntityUUID, layer)
+  const sourceEntities = UUIDComponent.getEntitiesBySource(sourceID, layer)
 
   const sourceData = {} as SourceData
 

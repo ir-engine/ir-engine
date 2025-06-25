@@ -40,7 +40,6 @@ import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/
 import { PlaylistComponent } from '@ir-engine/engine/src/scene/components/PlaylistComponent'
 import { PortalComponent } from '@ir-engine/engine/src/scene/components/PortalComponent'
 import { PrimitiveGeometryComponent } from '@ir-engine/engine/src/scene/components/PrimitiveGeometryComponent'
-import { ReflectionProbeComponent } from '@ir-engine/engine/src/scene/components/ReflectionProbeComponent'
 import { RenderSettingsComponent } from '@ir-engine/engine/src/scene/components/RenderSettingsComponent'
 import { SDFComponent } from '@ir-engine/engine/src/scene/components/SDFComponent'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
@@ -103,7 +102,6 @@ import OverlayNodeEditor from '@ir-engine/ui/src/components/editor/properties/ov
 import ParticleSystemNodeEditor from '@ir-engine/ui/src/components/editor/properties/particle'
 import PortalNodeEditor from '@ir-engine/ui/src/components/editor/properties/portal'
 import PostProcessingSettingsEditor from '@ir-engine/ui/src/components/editor/properties/postProcessing'
-import ReflectionProbeNodeEditor from '@ir-engine/ui/src/components/editor/properties/reflectionProbe'
 import RenderSettingsEditor from '@ir-engine/ui/src/components/editor/properties/render'
 import RigidBodyComponentEditor from '@ir-engine/ui/src/components/editor/properties/rigidBody'
 import ScenePreviewCameraNodeEditor from '@ir-engine/ui/src/components/editor/properties/scene/previewCamera'
@@ -120,6 +118,7 @@ import { LookAtComponent } from '@ir-engine/engine/src/scene/components/LookAtCo
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { MixerComponent } from '@ir-engine/engine/src/scene/components/MixerComponent'
 import { OverlayComponent } from '@ir-engine/engine/src/scene/components/OverlayComponent'
+import { PoiComponent } from '@ir-engine/engine/src/scene/components/PoiComponent'
 import { TriggerCallbackComponent } from '@ir-engine/engine/src/scene/components/TriggerCallbackComponent'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import MediaNodeEditor from '@ir-engine/ui/src/components/editor/properties/media'
@@ -133,6 +132,7 @@ import VideoNodeEditor from '@ir-engine/ui/src/components/editor/properties/vide
 import VisualScriptNodeEditor from '@ir-engine/ui/src/components/editor/properties/visualScript'
 import VolumetricNodeEditor from '@ir-engine/ui/src/components/editor/properties/volumetric'
 import LegacyVolumetricNodeEditor from '@ir-engine/ui/src/components/editor/properties/volumetric/legacy'
+import PoiNodeEditor from '../../../ui/src/components/editor/properties/cameraPoi'
 import { EditorComponentType } from '../components/properties/Util'
 
 export const ComponentEditorsState = defineState({
@@ -188,9 +188,10 @@ export const ComponentEditorsState = defineState({
       [ScreenshareTargetComponent.name]: ScreenshareTargetNodeEditor,
       [TextComponent.name]: TextNodeEditor,
       [LookAtComponent.name]: LookAtNodeEditor,
-      [ReflectionProbeComponent.name]: ReflectionProbeNodeEditor,
       [MediaComponent.name]: MediaNodeEditor,
-      [MixerComponent.name]: MixerNodeEditor
+      [MixerComponent.name]: MixerNodeEditor,
+      [PoiComponent.name]: PoiNodeEditor
+      //[PoiHotspotComponent.name]: PoiHotspotNodeEditor
     } as Record<string, EditorComponentType>
   }
 })

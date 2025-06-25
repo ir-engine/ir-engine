@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Vector3 } from 'three'
+import { MeshBasicMaterial, Vector3 } from 'three'
 
 import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import {
@@ -67,7 +67,7 @@ export const createMediaControlsUI = (entity: Entity, aspectRatio: number = 1) =
   setComponent(ui.entity, TransformComponent, { rotation: mediaTransform.rotation })
 
   ui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-    const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
+    const mat = layer.contentMesh.material as MeshBasicMaterial
     mat.transparent = true
   })
 
@@ -77,7 +77,8 @@ export const createMediaControlsUI = (entity: Entity, aspectRatio: number = 1) =
 const onUpdate = (entity: Entity) => {
   const mediaComponent = getMutableComponent(entity, MediaComponent)
   if (!mediaComponent.controls.value) return
-  const xrui = getComponent(mediaComponent.xruiEntity.value, XRUIComponent)
+  const xrui = getOptionalComponent(mediaComponent.xruiEntity.value, XRUIComponent)
+  if (!xrui) return
   const transition = MediaFadeTransitions.get(entity)!
   const buttonLayer = xrui.rootLayer.querySelector('#button')
 
@@ -130,7 +131,7 @@ const onUpdate = (entity: Entity) => {
   transition.update(deltaSeconds, (opacity) => {
     buttonLayer?.scale.setScalar(0.9 + 0.1 * opacity * opacity)
     xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-      const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
+      const mat = layer.contentMesh.material as MeshBasicMaterial
       mat.opacity = opacity
     })
   })

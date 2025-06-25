@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { hookstate, none, State } from '@hookstate/core'
+import { destroy, hookstate, none, State } from '@hookstate/core'
 import React, { Profiler, Suspense, useTransition } from 'react'
 import Reconciler, { Fiber, FiberRoot } from 'react-reconciler'
 import { ConcurrentRoot, DefaultEventPriority } from 'react-reconciler/constants'
@@ -166,10 +166,46 @@ export function useReactorRootContext(): ReactorRoot {
 
 /** @todo cyclical import means this can't be a hyperflux state */
 export const ReactorRenderCounterState = hookstate(
-  {} as Record<string, { count: number; name: string; time: number; stack: string[]; lastRender: number }>
+  {} as Record<
+    string,
+    {
+      count: number
+      name: string
+      time: number
+      stack: string[]
+      lastRender: number
+      fiberCount: number
+      peakFiberCount: number
+    }
+  >
 )
 
-export function startReactor(Reactor: React.FC): ReactorRoot {
+const countFiberNodesRecursively = (fiber: any): number => {
+  if (!fiber) return 0
+
+  let count = 1
+
+  if (fiber.child) {
+    count += countFiberNodesRecursively(fiber.child)
+  }
+
+  if (fiber.sibling) {
+    count += countFiberNodesRecursively(fiber.sibling)
+  }
+
+  return count
+}
+
+const calculateFiberNodes = (uuid: string) => {
+  const reactorRoot = HyperFlux.store.activeReactors.get(uuid)
+  if (!reactorRoot) return 0
+  const fiberRoot = reactorRoot.fiber.current
+  return countFiberNodesRecursively(fiberRoot)
+}
+
+const trackStats = isDev
+
+export function startReactor(Reactor: React.FC, label?: string): ReactorRoot {
   const isStrictMode = false
   const concurrentUpdatesByDefaultOverride = true
   const identifierPrefix = ''
@@ -189,35 +225,24 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
     null
   )
 
-  if (!Reactor['__name'] && Reactor.name) Reactor['__name'] = Reactor.name
-  if (!Reactor['__name']) Reactor['__name'] = 'HyperFluxReactor'
+  Reactor['__name'] = label || Reactor['__name'] || Reactor.name || 'Unlabelled Reactor'
 
   const ReactorContainer = () => {
     const [isPending] = useTransition()
     reactorRoot.suspended.set(isPending)
     const onRender = (id, phase, actualDuration, baseDuration, startTime, commitTime) => {
-      const uuid = reactorRoot.uuid
-      if (!ReactorRenderCounterState.value[uuid]) {
-        const trace = { stack: '' }
-        Error.captureStackTrace?.(trace, startReactor) // In firefox captureStackTrace is undefined
-        const stack = trace.stack.split('\n')
-        stack.shift()
-        ReactorRenderCounterState[uuid].set({
-          count: 0,
-          lastRender: commitTime,
-          time: actualDuration,
-          stack,
-          name: Reactor['__name']
-        })
-      }
       ReactorRenderCounterState[uuid].count.set((v) => v + 1)
       ReactorRenderCounterState[uuid].time.set(actualDuration)
+      ReactorRenderCounterState[uuid].lastRender.set(commitTime)
+      const fiberCount = calculateFiberNodes(uuid)
+      ReactorRenderCounterState[uuid].fiberCount.set(fiberCount)
+      ReactorRenderCounterState[uuid].peakFiberCount.set((curr) => Math.max(curr, fiberCount))
     }
     return (
       <ReactorRootContext.Provider value={reactorRoot}>
         <Suspense fallback={<></>}>
           <ReactorErrorBoundary key="reactor-error-boundary" reactorRoot={reactorRoot}>
-            {isDev ? (
+            {trackStats ? (
               <Profiler id={Reactor.name} onRender={onRender}>
                 <Reactor />
               </Profiler>
@@ -232,18 +257,24 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
 
   const run = () => {
     reactorRoot.isRunning.set(true)
-    HyperFlux.store.activeReactors.add(reactorRoot)
+    HyperFlux.store.activeReactors.set(reactorRoot.uuid, reactorRoot)
     ReactorReconciler.updateContainer(<ReactorContainer />, fiberRoot)
   }
 
+  let stopped = false
+
   const stop = () => {
-    if (!reactorRoot.isRunning.value) return Promise.resolve()
+    if (!reactorRoot.isRunning.value || stopped) return Promise.resolve()
+    stopped = true
     ReactorReconciler.updateContainer(null, fiberRoot)
     reactorRoot.isRunning.set(false)
-    HyperFlux.store.activeReactors.delete(reactorRoot)
+    HyperFlux.store.activeReactors.delete(reactorRoot.uuid)
     reactorRoot.cleanupFunctions.forEach((fn) => fn())
     reactorRoot.cleanupFunctions.clear()
     ReactorRenderCounterState[reactorRoot.uuid].set(none)
+    destroy(reactorRoot.isRunning)
+    destroy(reactorRoot.errors)
+    destroy(reactorRoot.suspended)
   }
 
   const reflection = () => {
@@ -267,13 +298,30 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
     reflection
   } as ReactorRoot
 
+  const uuid = reactorRoot.uuid
+  if (trackStats && !ReactorRenderCounterState.value[uuid]) {
+    const trace = { stack: '' }
+    Error.captureStackTrace?.(trace, startReactor) // In firefox captureStackTrace is undefined
+    const stack = trace.stack.split('\n')
+    stack.shift()
+    ReactorRenderCounterState[uuid].set({
+      count: 0,
+      lastRender: 0,
+      time: 0,
+      fiberCount: 0,
+      peakFiberCount: 0,
+      stack,
+      name: Reactor['__name']
+    })
+  }
+
   reactorRoot.run()
 
   return reactorRoot
 }
 
 export const stopAllReactors = (store = HyperFlux.store) => {
-  for (const reactor of store.activeReactors) {
+  for (const reactor of store.activeReactors.values()) {
     ReactorReconciler.flushSync(() => reactor.stop())
   }
 }

@@ -107,18 +107,18 @@ export const TouchGamepad = () => {
 
   return (
     <>
-      <div className="pointer-events-auto fixed bottom-[15%] left-[15%] select-none [&>div]:m-auto">
+      <div className="pointer-events-auto fixed bottom-[10%] left-[10%] select-none [&>div]:m-auto">
         <Joystick
-          baseImage={`${config.client.clientUrl}/static/stickypad.svg`}
-          stickImage={`${config.client.clientUrl}/static/basepad.svg`}
-          size={27}
+          baseImage={`${config.client.clientUrl}/static/joysticksticky.svg`}
+          stickImage={`${config.client.clientUrl}/static/joystickring.svg`}
+          size={80}
           stickSize={80}
           throttle={100}
           minDistance={40}
           move={handleMove}
           stop={handleStop}
-          baseColor="rgba(255, 255, 255, 0.5)"
-          stickColor="rgba(255, 255, 255, 0.8)"
+          baseColor="rgba(255, 255, 255, 0.8)"
+          stickColor="rgba(255, 255, 255, 1)"
         />
       </div>
       {availableInteractable && (

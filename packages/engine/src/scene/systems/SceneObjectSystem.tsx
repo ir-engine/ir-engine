@@ -34,13 +34,10 @@ import {
   useHasComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { ECSState } from '@ir-engine/ecs/src/ECSState'
-import { Entity, SourceID } from '@ir-engine/ecs/src/Entity'
+import { Entity } from '@ir-engine/ecs/src/Entity'
 import { defineQuery, EntityArrayBoundary, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getState } from '@ir-engine/hyperflux'
-import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
@@ -51,7 +48,6 @@ import {
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { KHRUnlitExtensionComponent } from '../../gltf/MaterialExtensionComponents'
-import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 
 import { UUIDComponent } from '@ir-engine/ecs'
 import { ShadowComponent } from '../components/ShadowComponent'
@@ -92,16 +88,10 @@ export const disposeObject3D = (obj: Object3D) => {
 }
 
 const visibleObjectQuery = defineQuery([ObjectComponent, VisibleComponent])
-const updatableQuery = defineQuery([UpdatableComponent, CallbackComponent])
 
 const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
 
 const execute = () => {
-  const delta = getState(ECSState).deltaSeconds
-  for (const entity of updatableQuery()) {
-    const callbacks = getComponent(entity, CallbackComponent)
-    callbacks.get(UpdatableCallback)?.(delta)
-  }
   for (const entity of visibleObjectQuery()) {
     const obj = getComponent(entity, ObjectComponent)
     const hasDistance = hasComponent(entity, DistanceFromCameraComponent)
@@ -119,7 +109,7 @@ const execute = () => {
 
 const ModelEntityReactor = (props: { entity: Entity }) => {
   const entity = props.entity
-  const sourceID = hasComponent(entity, UUIDComponent) ? UUIDComponent.getAsSourceID(entity) : ('' as SourceID)
+  const sourceID = UUIDComponent.useAsSourceID(entity)
   const childEntities = UUIDComponent.useEntitiesBySource(sourceID)
 
   return (
@@ -151,9 +141,13 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
   const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
   useEffect(() => {
     if (!isMesh || !isVisible) return
-    if (shadowComponent) {
-      if (!isUnlit) setComponent(props.entity, ShadowComponent, getComponent(props.parentEntity, ShadowComponent))
-      else removeComponent(props.entity, ShadowComponent)
+    if (!shadowComponent) return
+
+    if (!isUnlit) setComponent(props.entity, ShadowComponent, getComponent(props.parentEntity, ShadowComponent))
+    else removeComponent(props.entity, ShadowComponent)
+
+    return () => {
+      removeComponent(props.entity, ShadowComponent)
     }
   }, [isVisible, isMesh, isUnlit, shadowComponent?.cast, shadowComponent?.receive])
 
@@ -163,7 +157,7 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
 const reactor = () => {
   return (
     <>
-      <QueryReactor Components={[GLTFComponent]} ChildEntityReactor={ModelEntityReactor} />
+      <QueryReactor Components={[GLTFComponent, UUIDComponent]} ChildEntityReactor={ModelEntityReactor} />
     </>
   )
 }

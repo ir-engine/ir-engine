@@ -26,9 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useLayoutEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { EntityUUID, setComponent, UUIDComponent } from '@ir-engine/ecs'
+import { EntityUUID, setComponent, UUIDComponent, WorldNetworkAction } from '@ir-engine/ecs'
 import { defineState, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { WorldNetworkAction } from '@ir-engine/network'
 
 import { TransformComponent } from './components/TransformComponent'
 import { SpawnObjectActions } from './SpawnObjectActions'

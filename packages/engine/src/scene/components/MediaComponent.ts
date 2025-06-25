@@ -40,25 +40,19 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, State, getState, isClient, useMutableState } from '@ir-engine/hyperflux'
 import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
-import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import type Hls from 'hls.js'
 import { useEffect, useLayoutEffect } from 'react'
-import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AudioState } from '../../audio/AudioState'
 import { removePannerNode } from '../../audio/PositionalAudioFunctions'
 import { PlayMode } from '../constants/PlayMode'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
 import isHLS from '../functions/isHLS'
-
-const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png'
 
 export const AudioNodeGroups = new WeakMap<HTMLMediaElement | MediaStream, AudioNodeGroup>()
 
@@ -540,15 +534,6 @@ export function MediaReactor() {
       }
     },
     [mediaElement, media.isMusic]
-  )
-
-  const rendererState = useMutableState(RendererState)
-  const [audioHelperTexture] = useTexture(rendererState.nodeHelperVisibility.value ? AUDIO_TEXTURE_PATH : '', entity)
-
-  useHelperEntity(
-    entity,
-    () => new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide })),
-    rendererState.nodeHelperVisibility.value && !!audioHelperTexture
   )
 
   useEffect(() => {

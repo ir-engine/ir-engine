@@ -36,6 +36,7 @@ import { ServerMode } from '@ir-engine/server-core/src/ServerState'
 import config from '@ir-engine/server-core/src/appconfig'
 import { createFeathersKoaApp, serverJobPipe } from '@ir-engine/server-core/src/createApp'
 import { updateAppConfig } from '@ir-engine/server-core/src/updateAppConfig'
+import { retry } from '@octokit/plugin-retry'
 import { Octokit } from '@octokit/rest'
 import { JwtPayload, verify } from 'jsonwebtoken'
 
@@ -70,7 +71,8 @@ const options = cli.parse({
   updateType: [false, 'Type of updating for project', 'string'],
   updateSchedule: [false, 'Schedule for auto-updating project', 'string'],
   jobId: [false, 'ID of Job record', 'string'],
-  token: [false, 'GitHub JWT', 'string']
+  token: [false, 'GitHub JWT', 'string'],
+  isDependency: [false, 'Whether this is a dependency update', 'string']
 })
 
 cli.main(async () => {
@@ -81,7 +83,13 @@ cli.main(async () => {
     const { userId, jobId, ...data } = options
     data.reset = data.reset === 'true'
     data.needsRebuild = data.needsRebuild === 'true'
-    const params = { isJob: true, jobId, appJWT: data.token, signedByAppJWT: true } as any
+    const params = {
+      isJob: true,
+      jobId,
+      appJWT: data.token,
+      signedByAppJWT: true,
+      isDependency: data.isDependency === 'true'
+    } as any
     if (data.token) {
       const appId = config.authentication.oauth.github.appId ? parseInt(config.authentication.oauth.github.appId) : null
       const token = data.token
@@ -91,7 +99,8 @@ cli.main(async () => {
       })! as JwtPayload
       if (jwtDecoded.iss == null || parseInt(jwtDecoded.iss) !== appId)
         throw new NotAuthenticated('Invalid app credentials')
-      const octoKit = new Octokit({ auth: token })
+      const retryOctokit = Octokit.plugin(retry)
+      const octoKit = new retryOctokit({ auth: token, retry: { enabled: process.env.TEST !== 'true' } })
       let appResponse
       try {
         appResponse = await octoKit.rest.apps.getAuthenticated()

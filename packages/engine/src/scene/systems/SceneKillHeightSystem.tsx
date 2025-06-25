@@ -26,9 +26,15 @@ Infinite Reality Engine. All Rights Reserved.
 import { Not } from '@ir-engine/ecs'
 import { Vector3 } from 'three'
 
-import { defineQuery, defineSystem, getComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
+import {
+  defineQuery,
+  defineSystem,
+  getComponent,
+  NetworkObjectAuthorityTag,
+  setComponent,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
-import { NetworkObjectAuthorityTag } from '@ir-engine/network'
 import {
   RigidBodyComponent,
   RigidBodyFixedTagComponent
@@ -65,8 +71,8 @@ const execute = () => {
 
   for (const entity of killableEntities) {
     const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
-    const sceneHeight = sceneKillHeights.find(([scene]) => scene === sceneEntity)?.[1]
-    if (typeof sceneHeight !== 'number') continue
+    let sceneHeight = sceneKillHeights.find(([scene]) => scene === sceneEntity)?.[1]
+    if (typeof sceneHeight !== 'number') sceneHeight = -100
 
     const rigidBodyPosition = getComponent(entity, RigidBodyComponent).position
     if (rigidBodyPosition.y < sceneHeight) {

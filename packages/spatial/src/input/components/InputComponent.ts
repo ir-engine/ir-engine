@@ -95,11 +95,11 @@ const ButtonSchema = S.Union([
   }),
   S.Enum(StandardGamepadButton, {
     $comment:
-      "Likely an indexed enum, ie. the numeric index of a value in the following sequence: 'StandardGamepadButtonA', 'StandardGamepadButtonB', 'StandardGamepadButtonX', 'StandardGamepadButtonY', 'StandardGamepadLeft1', 'StandardGamepadRight1', 'StandardGamepadLeft2', 'StandardGamepadRight2', 'StandardGamepadButtonBack', 'StandardGamepadButtonStart', 'StandardGamepadLeftStick', 'StandardGamepadRightStick', 'StandardGamepadDPadUp', 'StandardGamepadDPadDown', 'StandardGamepadDPadLeft', 'StandardGamepadDPadRight', 'StandardGamepadButtonHome'"
+      "A number enum, where: 0 represents 'StandardGamepadButtonA', 1 represents 'StandardGamepadButtonB', 2 represents 'StandardGamepadButtonX', 3 represents 'StandardGamepadButtonY', 4 represents 'StandardGamepadLeft1', 5 represents 'StandardGamepadRight1', 6 represents 'StandardGamepadLeft2', 7 represents 'StandardGamepadRight2', 8 represents 'StandardGamepadButtonBack', 9 represents 'StandardGamepadButtonStart', 10 represents 'StandardGamepadLeftStick', 11 represents 'StandardGamepadRightStick', 12 represents 'StandardGamepadDPadUp', 13 represents 'StandardGamepadDPadDown', 14 represents 'StandardGamepadDPadLeft', 15 represents 'StandardGamepadDPadRight', 16 represents 'StandardGamepadButtonHome'"
   }),
   S.Enum(XRStandardGamepadButton, {
     $comment:
-      "Likely an indexed enum, ie. the numeric index of a value in the following sequence: 'XRStandardGamepadTrigger', 'XRStandardGamepadSqueeze', 'XRStandardGamepadPad', 'XRStandardGamepadStick', 'XRStandardGamepadButtonA', 'XRStandardGamepadButtonB'"
+      "A number enum, where: 0 represents 'XRStandardGamepadTrigger', 1 represents 'XRStandardGamepadSqueeze', 2 represents 'XRStandardGamepadPad', 3 represents 'XRStandardGamepadStick', 4 represents 'XRStandardGamepadButtonA', 5 represents 'XRStandardGamepadButtonB'"
   })
 ])
 
@@ -163,7 +163,7 @@ export const InputComponent = defineComponent({
     highlight: S.Bool({ default: false }),
     grow: S.Bool({ default: false }),
     buttonBindings: S.Record(S.String(), S.Array(S.Union([ButtonSchema, S.Array(ButtonSchema)])), {
-      ...DefaultButtonBindings
+      default: { ...DefaultButtonBindings }
     }),
     //internal
     /** populated automatically by ClientInputSystem */
@@ -173,115 +173,114 @@ export const InputComponent = defineComponent({
     /** if true, the input component will automatically capture input when a button is consumed */
     autoCapture: S.Bool({ default: false }),
 
-    buttons: S.SerializedClass(
-      (entity) => {
-        // Helper function to find first unconsumed button state
-        const findButtonState = (button: AnyButton): ButtonState | undefined => {
-          const inputComponent = getComponent(entity, InputComponent)
-          for (const sourceEntity of inputComponent.inputSources) {
-            const inputSourceComponent = getOptionalComponent(sourceEntity, InputSourceComponent)
-            if (!inputSourceComponent) continue
-            const state = inputSourceComponent.buttons[button] as ButtonState
-            // if (state?.consumed)
-            //   console.warn(
-            //     `button ${button} checked by ${entity} - ${getComponent(entity, NameComponent)} consumed by ${
-            //       state.consumed
-            //     } - ${getComponent(state.consumed, NameComponent)}`
-            //   )
-            if (state && !state.consumed) {
-              return state
-            }
-          }
-          return undefined
+    buttons: S.Type<ButtonStateMap<any>>({ serialized: false })
+  }),
+
+  onInit(entity, initial) {
+    // Helper function to find first unconsumed button state
+    const findButtonState = (button: AnyButton): ButtonState | undefined => {
+      const inputComponent = getComponent(entity, InputComponent)
+      for (const sourceEntity of inputComponent.inputSources) {
+        const inputSourceComponent = getOptionalComponent(sourceEntity, InputSourceComponent)
+        if (!inputSourceComponent) continue
+        const state = inputSourceComponent.buttons[button] as ButtonState
+        // if (state?.consumed)
+        //   console.warn(
+        //     `button ${button} checked by ${entity} - ${getComponent(entity, NameComponent)} consumed by ${
+        //       state.consumed
+        //     } - ${getComponent(state.consumed, NameComponent)}`
+        //   )
+        if (state && !state.consumed) {
+          return state
         }
+      }
+      return undefined
+    }
 
-        return new Proxy(
-          {},
-          {
-            get: (target: ButtonStateMap<any>, prop: string) => {
-              if (typeof prop === 'symbol') {
-                return target[prop]
-              }
+    initial.buttons = new Proxy(
+      {},
+      {
+        get: (target: ButtonStateMap<any>, prop: string) => {
+          if (typeof prop === 'symbol') {
+            return target[prop]
+          }
 
-              // Check cache first
-              const inputComponent = getComponent(entity, InputComponent)
-              const cachedButtons = inputComponent.cachedButtons
-              if (Object.hasOwn(cachedButtons, prop)) {
-                if (!cachedButtons[prop]) return undefined
-                if (cachedButtons[prop] && cachedButtons[prop].consumed) {
-                  if (inputComponent.autoCapture && cachedButtons[prop].pressed) {
-                    InputState.setCapturingEntity(entity)
-                  }
-                  return cachedButtons[prop]
-                }
-              }
-
-              let result = cachedButtons[prop]
-
-              // First check mapped button states since they define the mapping from alias to actual buttons
-              const buttonBindings = inputComponent.buttonBindings
-              if (buttonBindings && prop in buttonBindings) {
-                const bindings = buttonBindings[prop]
-                for (const b of bindings) {
-                  if (Array.isArray(b)) {
-                    // For combo buttons, check if all buttons in the combo are available
-                    const states = b.map(findButtonState).filter((s): s is ButtonState => s !== undefined)
-
-                    const isActive = states.length === b.length
-
-                    if (!result && isActive) {
-                      // All buttons in combo are active and not consumed, consume them and set the result
-                      states.forEach((s) => (s.consumed = entity))
-                      result = cachedButtons[prop] = createInitialButtonState(states[0].inputSourceEntity)
-                    }
-
-                    if (result && isActive) {
-                      result.down = states.some((s) => s.down)
-                      result.pressed = states.every((s) => s.pressed)
-                      result.touched = states.every((s) => s.touched)
-                      result.value = Math.max(...states.map((s) => s.value))
-                      result.dragging = states.some((s) => s.dragging)
-                      result.rotating = states.some((s) => s.rotating)
-                      result.up = false
-                      result.consumed = entity
-                      if (inputComponent.autoCapture && result?.pressed) {
-                        InputState.setCapturingEntity(entity)
-                      }
-                      return result
-                    } else if (result) {
-                      result.up = true
-                      result.consumed = entity
-                    }
-                  } else {
-                    // For single button bindings, just return that button
-                    result = cachedButtons[prop] = findButtonState(b)
-                    if (result) result.consumed = entity
-                    if (inputComponent.autoCapture && result?.pressed) {
-                      InputState.setCapturingEntity(entity)
-                    }
-                    return result
-                  }
-
-                  // If we get here, the button in the binding is not available, so set the state to undefined
-                  return (cachedButtons[prop] = undefined)
-                }
-              }
-
-              // Otherwise check if this exact button exists and is not consumed
-              const rawState = (cachedButtons[prop] = findButtonState(prop as AnyButton))
-              if (rawState) rawState.consumed = entity
-              if (rawState && inputComponent.autoCapture && rawState.pressed) {
+          // Check cache first
+          const inputComponent = getComponent(entity, InputComponent)
+          const cachedButtons = inputComponent.cachedButtons
+          if (Object.hasOwn(cachedButtons, prop)) {
+            if (!cachedButtons[prop]) return undefined
+            if (cachedButtons[prop] && cachedButtons[prop].consumed) {
+              if (inputComponent.autoCapture && cachedButtons[prop].pressed) {
                 InputState.setCapturingEntity(entity)
               }
-              return rawState
+              return cachedButtons[prop]
             }
           }
-        )
-      },
-      {},
-      { serialized: false }
+
+          let result = cachedButtons[prop]
+
+          // First check mapped button states since they define the mapping from alias to actual buttons
+          const buttonBindings = inputComponent.buttonBindings
+          if (buttonBindings && prop in buttonBindings) {
+            const bindings = buttonBindings[prop]
+            for (const b of bindings) {
+              if (Array.isArray(b)) {
+                // For combo buttons, check if all buttons in the combo are available
+                const states = b.map(findButtonState).filter((s): s is ButtonState => s !== undefined)
+
+                const isActive = states.length === b.length
+
+                if (!result && isActive) {
+                  // All buttons in combo are active and not consumed, consume them and set the result
+                  states.forEach((s) => (s.consumed = entity))
+                  result = cachedButtons[prop] = createInitialButtonState(states[0].inputSourceEntity)
+                }
+
+                if (result && isActive) {
+                  result.down = states.some((s) => s.down)
+                  result.pressed = states.every((s) => s.pressed)
+                  result.touched = states.every((s) => s.touched)
+                  result.value = Math.max(...states.map((s) => s.value))
+                  result.dragging = states.some((s) => s.dragging)
+                  result.rotating = states.some((s) => s.rotating)
+                  result.up = false
+                  result.consumed = entity
+                  if (inputComponent.autoCapture && result?.pressed) {
+                    InputState.setCapturingEntity(entity)
+                  }
+                  return result
+                } else if (result) {
+                  result.up = true
+                  result.consumed = entity
+                }
+              } else {
+                // For single button bindings, just return that button
+                result = cachedButtons[prop] = findButtonState(b)
+                if (result) result.consumed = entity
+                if (inputComponent.autoCapture && result?.pressed) {
+                  InputState.setCapturingEntity(entity)
+                }
+                if (result !== undefined) return result
+              }
+            }
+            // If we get here, the button in the binding is not available, so set the state to undefined
+            return (cachedButtons[prop] = undefined)
+          }
+
+          // Otherwise check if this exact button exists and is not consumed
+          const rawState = (cachedButtons[prop] = findButtonState(prop as AnyButton))
+          if (rawState) rawState.consumed = entity
+          if (rawState && inputComponent.autoCapture && rawState.pressed) {
+            InputState.setCapturingEntity(entity)
+          }
+          return rawState
+        }
+      }
     )
-  }),
+
+    return initial
+  },
 
   getInputEntity(entityContext: Entity): Entity {
     const closestInputEntity = getAncestorWithComponents(entityContext, [InputComponent], true, true)
@@ -334,7 +333,7 @@ export const InputComponent = defineComponent({
         for (let i = 0; i < 4; i++) {
           const newAxis = inputSource.source.gamepad.axes[i] ?? 0
           axes[i] = getLargestMagnitudeNumber(axes[i] ?? 0, newAxis)
-          axes[mapping[i]] = axes[i]
+          axes[Object.keys(mapping)[i]] = axes[i]
         }
       }
     }
@@ -367,8 +366,8 @@ export const InputComponent = defineComponent({
 
   useExecuteWithInput,
 
-  useHasFocus() {
-    const entity = useEntityContext()
+  useHasFocus(entityContext?: Entity) {
+    const entity = entityContext ?? useEntityContext()
     const hasFocus = useHookstate(() => {
       return InputComponent.getInputSourceEntities(entity).length > 0
     })
@@ -423,25 +422,12 @@ export const InputComponent = defineComponent({
     //   // collider.collisionLayer.set(collider.collisionLayer.value | CollisionGroups.Input)
     // }, [])
 
-    /** @todo - fix */
-    // useLayoutEffect(() => {
-    //   if (!input.inputSources.length || !input.grow.value) return
-    //   setComponent(entity, AnimateScaleComponent)
-    //   return () => {
-    //     removeComponent(entity, AnimateScaleComponent)
-    //   }
-    // }, [input.inputSources, input.grow])
-
     return null
   }
 })
 
 function getLargestMagnitudeNumber(a: number, b: number) {
   return Math.abs(a) > Math.abs(b) ? a : b
-}
-
-function filterInputEntities(entity: Entity, index: number, arr: Entity[]) {
-  return arr.indexOf(entity) === index && entity !== UndefinedEntity
 }
 
 export const enum InputExecutionOrder {
@@ -466,13 +452,3 @@ export const InputExecutionSystemGroup = defineSystem({
   uuid: 'ee.engine.InputExecutionSystemGroup',
   insert: { with: InputSystemGroup }
 })
-
-const mapInputButtons = (eid: Entity) => getComponent(eid, InputSourceComponent).buttons
-
-const inputSinkComponentQueryComponents = [InputSinkComponent]
-const inputComponentQueryComponents = [InputComponent]
-
-const reduceInputEntities = (prev: Entity[], eid: Entity) => {
-  prev.push(...getComponent(eid, InputComponent).inputSources)
-  return prev
-}

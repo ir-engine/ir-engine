@@ -32,14 +32,19 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 import { WidgetAppActions } from './WidgetAppService'
 
-import { Engine, EntityTreeComponent, EntityUUID, UUIDComponent, iterateEntityNode } from '@ir-engine/ecs'
+import {
+  Engine,
+  EntityNetworkState,
+  EntityTreeComponent,
+  EntityUUID,
+  UUIDComponent,
+  iterateEntityNode
+} from '@ir-engine/ecs'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { translateAndRotateAvatar, updateLocalAvatarPosition } from '@ir-engine/engine/src/avatar/functions/moveAvatar'
 import { respawnAvatar } from '@ir-engine/engine/src/avatar/functions/respawnAvatar'
-import { EntityNetworkState } from '@ir-engine/network'
-import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { User01Lg } from '@ir-engine/ui/src/icons'
 import { Quaternion, Vector3 } from 'three'
 import { Widget, Widgets } from './Widgets'
@@ -100,5 +105,5 @@ export function createAvatarModeWidget() {
     }, [widgetEnabled])
 
     return null
-  })
+  }, `createAvatarModeWidget`)
 }

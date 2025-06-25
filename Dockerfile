@@ -19,7 +19,6 @@ COPY packages/engine/package.json ./packages/engine/
 COPY packages/instanceserver/package.json ./packages/instanceserver/
 COPY packages/hyperflux/package.json ./packages/hyperflux/
 COPY packages/matchmaking/package.json ./packages/matchmaking/
-COPY packages/network/package.json ./packages/network/
 COPY packages/server/package.json ./packages/server/
 COPY packages/server-core/package.json ./packages/server-core/
 COPY packages/spatial/package.json ./packages/spatial/
@@ -47,6 +46,7 @@ ARG MYSQL_PASSWORD
 ARG MYSQL_DATABASE
 ARG SERVER_HOST
 ARG SERVER_PORT
+ARG VITE_AGENT_API_URL
 ARG VITE_APP_HOST
 ARG VITE_APP_PORT
 ARG VITE_SERVER_HOST
@@ -82,6 +82,7 @@ ENV MYSQL_PASSWORD=$MYSQL_PASSWORD
 ENV MYSQL_DATABASE=$MYSQL_DATABASE
 ENV SERVER_HOST=$SERVER_HOST
 ENV SERVER_PORT=$SERVER_PORT
+ENV VITE_AGENT_API_URL=$VITE_AGENT_API_URL
 ENV VITE_APP_HOST=$VITE_APP_HOST
 ENV VITE_APP_PORT=$VITE_APP_PORT
 ENV VITE_SERVER_HOST=$VITE_SERVER_HOST

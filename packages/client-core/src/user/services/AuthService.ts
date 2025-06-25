@@ -440,13 +440,20 @@ export const AuthService = {
   /**
    * Logs in the current user based on an OAuth response.
    */
-  async loginUserByOAuth(service: string, location: any, isSignUp: boolean, redirectUrl?: string) {
+  async loginUserByOAuth(
+    service: string,
+    location: any,
+    isSignUp: boolean,
+    redirectUrl?: string,
+    signupUsername?: string
+  ) {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     const token = getState(AuthState).authUser.accessToken
     const path = redirectUrl || new URLSearchParams(location.search).get('redirectUrl') || location.pathname
 
     const redirectConfig = {
-      path
+      path,
+      signupUsername
     } as Record<string, string>
 
     const currentUrl = new URL(window.location.href)
@@ -680,12 +687,12 @@ export const AuthService = {
     try {
       const identityProviders = await API.instance.service(identityProviderPath).find({
         query: {
-          email: email.toLowerCase(),
+          email,
           type: 'email'
         }
       })
 
-      return identityProviders.data.some((provider) => provider.email === email.toLowerCase())
+      return identityProviders.data.some((provider) => provider.email?.toLowerCase() === email.toLowerCase())
     } catch (error) {
       return false
     }

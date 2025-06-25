@@ -1,7 +1,7 @@
 {
     "info": {
-      "title": "iR Engine API Surface",
-      "description": "APIs for the iR Engine application",
+      "title": "Napster Engine API Surface",
+      "description": "APIs for the Napster Engine application",
       "version": "1.0.0"
     },
     "paths": {

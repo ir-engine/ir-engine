@@ -30,7 +30,7 @@ import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/Obje
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useMutableState } from '@ir-engine/hyperflux'
-import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
+import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
@@ -51,7 +51,7 @@ const redMeshMaterial = () => new MeshBasicMaterial({ color: 'red', opacity: 0.2
 
 export const SplineHelperComponent = defineComponent({
   name: 'SplineHelperComponent',
-  schema: S.Object({ layerMask: S.Number(ObjectLayerMasks.NodeHelper) }),
+  schema: S.Object({ layerMask: S.Number({ default: ObjectLayerMasks.NodeHelper }) }),
 
   reactor: function () {
     const entity = useEntityContext()

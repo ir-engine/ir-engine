@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export enum EnvMapBakeTypes {
-  Realtime = 'Realtime',
-  Baked = 'Baked'
+export const EnvMapBakeTypes = {
+  Realtime: 'Realtime' as const,
+  Baked: 'Baked' as const
 }

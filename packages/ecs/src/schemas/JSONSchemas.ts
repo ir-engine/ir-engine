@@ -32,7 +32,6 @@ import {
   TArraySchema,
   TBoolSchema,
   TClassSchema,
-  TEnumSchema,
   TFuncSchema,
   TLiteralSchema,
   TLiteralValue,
@@ -51,7 +50,7 @@ import {
   TVoidSchema
 } from './JSONSchemaTypes'
 
-const buildOptions = (kind: Kinds, options?: Options): Options => {
+const buildOptions = (options?: Options): Options => {
   const defaultOptions = {
     serialized: true
   }
@@ -62,7 +61,7 @@ const buildOptions = (kind: Kinds, options?: Options): Options => {
 const buildSchema = <Opt extends Options>(kind: Kinds, options?: Opt) => {
   return {
     [Kind]: kind,
-    options: buildOptions(kind, options)
+    options: buildOptions(options)
   }
 }
 
@@ -104,13 +103,29 @@ export const S = {
     }) as TStringSchema,
 
   /**
-   * Schema that infers as a enum, requires that the enum to infer as be passed in, default to the first value of the enum
+   * Schema that infers as the const values of an object, requires that the object to infer as be passed in, default to the first value of the object
    */
-  Enum: <T extends Record<string, string | number>>(item: T, options?: TEnumSchema<T>['options']) =>
-    ({
-      ...buildSchema('Enum', options),
-      properties: item
-    }) as TEnumSchema<T>,
+  Enum: <Value extends TLiteralValue>(
+    item: Record<string, Value>,
+    options?: TUnionSchema<TLiteralSchema<Value>[]>['options']
+  ) => {
+    const defaultItem = Object.values(item)[0]
+    let deserialize
+    if (typeof defaultItem === 'string') {
+      // Handle migration from enum index to object value, eventually remove this
+      deserialize = (curr, value) => {
+        if (typeof value === 'number') return Object.values(item)[value]
+        return value
+      }
+    }
+
+    return S.LiteralUnion(Object.values(item), {
+      default: defaultItem,
+      deserialize: deserialize,
+      ...options,
+      metadata: { objectRef: item, ...options?.metadata }
+    })
+  },
 
   /**
    * Schema that infers as a literal value
@@ -200,13 +215,9 @@ export const S = {
    * if properties are passed in, those values will be serialized, otherwise it will not be serialized
    * Can provide a serializer function that can be used for custom serialization
    */
-  SerializedClass: <T extends TProperties, Class>(
-    init: (entity: Entity) => Class,
-    items: T,
-    options?: TClassSchema<T, Class>['options']
-  ) =>
+  SerializedClass: <T extends TProperties, Class>(items: T, options?: TClassSchema<T, Class>['options']) =>
     ({
-      ...buildSchema('Class', { serialized: true, id: 'SerializedClass', default: init, ...options }),
+      ...buildSchema('Class', { serialized: true, id: 'SerializedClass', ...options }),
       properties: items
     }) as TClassSchema<T, Class>,
 
@@ -249,7 +260,7 @@ export const S = {
    * @returns
    */
   Type: <T>(options?: TTypedSchema<T>['options'], props?: TProperties) =>
-    S.SerializedClass(options?.default as () => T, props ?? {}, options) as unknown as TTypedSchema<T>,
+    S.SerializedClass(props ?? {}, { default: () => undefined, ...options }) as unknown as TTypedSchema<T>,
 
   /**
    * Create a schema object that infers as an any type, the value is serialized
@@ -283,9 +294,9 @@ export const S = {
   PeerID: (options?: TTypedSchema<PeerID>['options']) =>
     S.String({ serialized: true, ...options, id: 'PeerUUID' }) as unknown as TTypedSchema<PeerID>,
 
-  Proxy: <T extends Schema>(schema: T, proxy: (entity: Entity, property: string, obj: object) => PropertyDescriptor) =>
+  Proxy: <T extends Schema>(schema: T) =>
     ({
-      ...buildSchema('Proxy', { create: proxy, serialized: true }),
+      ...buildSchema('Proxy', { serialized: true }),
       properties: schema
     }) as TProxySchema<T>
 }

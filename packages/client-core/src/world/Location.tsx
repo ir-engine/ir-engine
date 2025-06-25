@@ -24,11 +24,12 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect, useLayoutEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 
 import { useLoadLocation, useLoadScene } from '@ir-engine/client-core/src/components/World/LoadLocationScene'
 import { AuthService, AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { ViewerInteractions as GlassViewerInteractions } from '../components/Glass'
 import { ViewerInteractions } from '../components/ViewerInteractions'
 
 import '@ir-engine/client-core/src/util/GlobalStyle.css'
@@ -45,6 +46,9 @@ import { LocationService } from '../social/services/LocationService'
 import { LoadingUISystemState } from '../systems/LoadingUISystem'
 import { clientContextParams } from '../util/ClientContextState'
 
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
+
 const logger = multiLogger.child({ component: 'system:location', modifier: clientContextParams })
 
 type Props = {
@@ -54,7 +58,11 @@ type Props = {
 const LocationPage = ({ online }: Props) => {
   const { t } = useTranslation()
   const params = useParams()
+  const [searchParams] = useSearchParams()
   const ready = useMutableState(LoadingUISystemState).ready
+
+  let [glassDisabled] = useFeatureFlags([FeatureFlags.Client.Glass])
+  glassDisabled = glassDisabled && searchParams.get('glassUI') === null
 
   useNetwork({ online })
 
@@ -93,7 +101,7 @@ const LocationPage = ({ online }: Props) => {
 
   return (
     <>
-      <ViewerInteractions />
+      {glassDisabled ? <ViewerInteractions /> : <GlassViewerInteractions />}
       {isAuthenticated && <CheckBanned />}
     </>
   )

@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   Entity,
   EntityTreeComponent,
+  NetworkSchemaState,
   SimulationSystemGroup,
   SystemDefinitions,
   SystemUUID,
@@ -38,7 +39,6 @@ import {
 } from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { getState, startReactor } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { Vector3 } from 'three'
@@ -257,27 +257,27 @@ describe('PhysicsSystem', () => {
 
       const physicsSystemReactor = SystemDefinitions.get(PhysicsSystem)!.reactor!
 
-      it('should set NetworkState.networkSchema[PhysicsSerialization.ID] when it mounts', async () => {
-        const before = getState(NetworkState).networkSchema[PhysicsSerialization.ID]
+      it('should set NetworkSchemaState[PhysicsSerialization.ID] when it mounts', async () => {
+        const before = getState(NetworkSchemaState)[PhysicsSerialization.ID]
         assert.equal(before, undefined)
         // Run and Check the result
         const root = startReactor(physicsSystemReactor)
         await act(() => render(null))
-        const after = getState(NetworkState).networkSchema[PhysicsSerialization.ID]
+        const after = getState(NetworkSchemaState)[PhysicsSerialization.ID]
         assert.notEqual(after, undefined)
       })
 
-      it('should set NetworkState.networkSchema[PhysicsSerialization.ID] to none when it unmounts', async () => {
-        const before = getState(NetworkState).networkSchema[PhysicsSerialization.ID]
+      it('should set NetworkSchemaState[PhysicsSerialization.ID] to none when it unmounts', async () => {
+        const before = getState(NetworkSchemaState)[PhysicsSerialization.ID]
         assert.equal(before, undefined)
         // Run and Check the result
         const root = startReactor(physicsSystemReactor)
         await act(() => render(null))
-        const after = getState(NetworkState).networkSchema[PhysicsSerialization.ID]
+        const after = getState(NetworkSchemaState)[PhysicsSerialization.ID]
         assert.notEqual(after, undefined)
         root.stop()
         await act(() => render(null))
-        const result = getState(NetworkState).networkSchema[PhysicsSerialization.ID]
+        const result = getState(NetworkSchemaState)[PhysicsSerialization.ID]
         assert.equal(result, undefined)
       })
     }) //:: mount/unmount
@@ -312,7 +312,7 @@ describe('PhysicsSystem', () => {
         assert.equal(hasComponent(physicsWorldEntity, SceneComponent), false)
         assert.throws(() => Physics.destroyWorld(physicsWorldEntity))
         // Run and Check the result
-        setComponent(physicsWorldEntity, SceneComponent, { active: true })
+        setComponent(physicsWorldEntity, SceneComponent)
         await act(() => render(null))
 
         await vi.waitFor(

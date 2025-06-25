@@ -29,44 +29,39 @@ import {
   PresentationSystemGroup,
   QueryReactor,
   defineSystem,
-  getAuthoringCounterpart,
-  removeEntityNodeRecursively,
+  removeEntity,
   useComponent,
-  useHasComponent,
-  useOptionalComponent
+  useHasComponent
 } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { createLoadingSpinner } from '@ir-engine/engine/src/scene/functions/spatialLoadingSpinner'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 
 const LoadingSpinnerReactor = (props: { entity: Entity }) => {
   const { entity } = props
-  const authoringCounterpart = getAuthoringCounterpart(entity)
-  const gltfComponent = useComponent(authoringCounterpart, GLTFComponent)
-  const errors = !!useOptionalComponent(authoringCounterpart, ErrorComponent)?.value?.[GLTFComponent.name]
-  const loaded = GLTFComponent.useSceneLoaded(authoringCounterpart)
+  const gltfComponent = useComponent(props.entity, GLTFComponent)
+  const errors = !!ErrorComponent.useComponentErrors(props.entity, GLTFComponent)?.value
+  const loaded = GLTFComponent.useSceneLoaded(props.entity)
   const isScene = useHasComponent(entity, SceneComponent)
-  const spinnerEntity = useRef<Entity | null>(null)
-  const shouldHaveSpinned = !isScene && !!gltfComponent.src.value && !errors && !loaded
+  const shouldHaveSpinner = !isScene && !!gltfComponent.src.value && !errors && !loaded
 
   useEffect(() => {
-    if (!shouldHaveSpinned) return
-    spinnerEntity.current = createLoadingSpinner(`loading ${gltfComponent.src.value}`, entity)
+    if (!shouldHaveSpinner) return
+    const spinnerEntity = createLoadingSpinner(`loading ${gltfComponent.src.value}`, entity)
     return () => {
-      removeEntityNodeRecursively(spinnerEntity?.current!)
-      spinnerEntity.current = null
+      removeEntity(spinnerEntity)
     }
-  }, [shouldHaveSpinned])
+  }, [shouldHaveSpinner])
 
   return null
 }
 
 export const ModelLoadingSpinnerSystem = defineSystem({
   uuid: 'ee.editor.ModelLoadingSpinnerSystem',
-  insert: { before: PresentationSystemGroup },
+  insert: { after: PresentationSystemGroup },
   reactor: () => (
-    <QueryReactor ChildEntityReactor={LoadingSpinnerReactor} Components={[GLTFComponent]} layer={Layers.Simulation} />
+    <QueryReactor ChildEntityReactor={LoadingSpinnerReactor} Components={[GLTFComponent]} layer={Layers.Authoring} />
   )
 })

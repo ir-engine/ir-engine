@@ -216,7 +216,14 @@ const execute = () => {
 }
 
 const Reactor = () => {
+  const { scenePlacementMode, session: xrSession } = useMutableState(XRState).value
+
+  /** Lazily create scene placement entity only once xr session starts, but persist indefinitely */
   useEffect(() => {
+    if (!xrSession) return
+
+    if (getState(XRAnchorSystemState).scenePlacementEntity) return
+
     const scenePlacementEntity = createEntity()
     setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
     setComponent(scenePlacementEntity, XRScenePlacementComponent)
@@ -248,9 +255,8 @@ const Reactor = () => {
     setComponent(originAnchorEntity, EntityTreeComponent, { parentEntity: getState(ReferenceSpaceState).originEntity })
 
     getMutableState(XRAnchorSystemState).set({ scenePlacementEntity, originAnchorEntity })
-  }, [])
+  }, [xrSession])
 
-  const { scenePlacementMode, session: xrSession } = useMutableState(XRState).value
   const { scenePlacementEntity, originAnchorEntity } = useMutableState(XRAnchorSystemState).value
   const hitTest = useOptionalComponent(scenePlacementEntity, XRHitTestComponent)
 

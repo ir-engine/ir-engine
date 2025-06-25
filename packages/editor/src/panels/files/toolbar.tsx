@@ -23,10 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { generateMultiViewThumbnails } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { REMOVE_EDGE_SLASH_REGEX } from '@ir-engine/common/src/regex'
-import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
+import { getState, NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { Button, Input, Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
 import {
@@ -35,6 +36,7 @@ import {
   FolderPlusSm,
   FolderSm,
   Grid01Sm,
+  Image01Sm,
   PlusCircleSm,
   Refresh1Sm,
   SearchSmSm,
@@ -52,7 +54,7 @@ import {
 } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { FilesState, FilesViewModeState } from '../../services/FilesState'
-import { useAssetsQuery } from '../assets/hooks'
+import { AssetsRefreshState } from '../assets/hooks'
 import { useCurrentFiles } from './helpers'
 import { handleDownloadProject } from './loaders'
 
@@ -80,7 +82,12 @@ export const showMultipleFileModal = (projectName: string, directoryPath: string
 
   ModalState.openModal(
     <>
-      <Modal title={'test'} className="w-[50vw] max-w-2xl" onSubmit={onSubmit} onClose={ModalState.closeModal}>
+      <Modal
+        title={'GIF Conversion Confirmation'}
+        className="w-[50vw] max-w-2xl"
+        onSubmit={onSubmit}
+        onClose={ModalState.closeModal}
+      >
         <div className="flex flex-col rounded-lg bg-[#0e0f11] px-5 py-10 text-center">
           Warning: You will overwrite existing files by uploading these. Do you wish to continue? <br />
           {fileNames.length > 0 && `Files: ${fileNames.join(', ')}`}
@@ -91,12 +98,11 @@ export const showMultipleFileModal = (projectName: string, directoryPath: string
 }
 
 export const GifFileConfirmationModal = ({ projectName, directoryPath, files, onClose }) => {
-  const { refetchResources } = useAssetsQuery()
   const fileNames = files.map((file) => file.name)
 
   const onSubmit = async () => {
     await handleConvertGifFileToVideoAndUpload(projectName, directoryPath, files)
-    await refetchResources(true) // Refresh assets after conversion
+    AssetsRefreshState.triggerRefresh()
     onClose()
   }
 
@@ -120,7 +126,35 @@ export const showGifFileConfimation = (projectName: string, directoryPath: strin
     />
   )
 }
+export const generateMultiView = (resources: any[]): void => {
+  try {
+    const projectName = getState(EditorState).projectName
+    if (!projectName) {
+      NotificationService.dispatchNotify('No project selected', { variant: 'error' })
+      return
+    }
 
+    if (!resources || resources.length === 0) {
+      NotificationService.dispatchNotify('No assets found', { variant: 'error' })
+      return
+    }
+
+    // Filter for 3D model files
+    const modelFiles = resources.filter((file: any) => file.type === 'gltf' || file.type === 'glb')
+
+    if (modelFiles.length > 0) {
+      modelFiles.forEach((modelFile: any) => {
+        generateMultiViewThumbnails(modelFile.url, projectName as string)
+      })
+    } else {
+      NotificationService.dispatchNotify('No 3D model files (GLTF or GLB) found in the current directory.', {
+        variant: 'error'
+      })
+    }
+  } catch (err) {
+    NotificationService.dispatchNotify(err.message, { variant: 'error' })
+  }
+}
 function BreadcrumbItems() {
   const filesState = useMutableState(FilesState)
   const { changeDirectoryByPath } = useCurrentFiles()
@@ -192,7 +226,7 @@ export default function FilesToolbar() {
     filesState.selectedDirectory.value.startsWith('/projects/' + filesState.projectName.value + '/public/') ||
     filesState.selectedDirectory.value.startsWith('/projects/' + filesState.projectName.value + '/assets/')
 
-  const { backDirectory, refreshDirectory } = useCurrentFiles()
+  const { backDirectory, refreshDirectory, files } = useCurrentFiles()
 
   return (
     <PanelToolbar
@@ -302,6 +336,18 @@ export default function FilesToolbar() {
           >
             <FolderSm />
             <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFolder')}</span>
+          </Button>
+
+          <Button
+            size="l"
+            variant="tertiary"
+            disabled={!showUploadButtons}
+            className="disabled:bg-[#212226]"
+            onClick={() => generateMultiView(files)}
+            data-testid="files-panel-generate-multiview-button"
+          >
+            <Image01Sm />
+            <span className="text-nowrap">Generate Multi-View</span>
           </Button>
         </>
       }

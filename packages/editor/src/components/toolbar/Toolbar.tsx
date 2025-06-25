@@ -30,8 +30,8 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import { RouterState } from '@ir-engine/client-core/src/common/services/RouterService'
 import { ThemeState } from '@ir-engine/client-core/src/common/services/ThemeService'
 import { useProjectPermissions } from '@ir-engine/client-core/src/hooks/useUserProjectPermission'
-import irStudioIconDark from '@ir-engine/client/src/assets/ir-studio-icon-dark.svg'
-import irStudioIconLight from '@ir-engine/client/src/assets/ir-studio-icon-light.svg'
+import studioIconDark from '@ir-engine/client/src/assets/studio-icon-dark.svg'
+import studioIconLight from '@ir-engine/client/src/assets/studio-icon-light.svg'
 import { useFind } from '@ir-engine/common'
 import { ScopeType, locationPath, scopePath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs'
@@ -44,7 +44,13 @@ import { ChevronDownSm, File04Sm, UploadCloud02Sm } from '@ir-engine/ui/src/icon
 import { t } from 'i18next'
 import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
-import { confirmSceneExists, onNewScene, onSaveScene, saveSceneGLTF } from '../../functions/sceneFunctions'
+import {
+  confirmSceneExists,
+  onNewScene,
+  onSaveScene,
+  saveSceneGLTF,
+  useCanSaveScene
+} from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { uploadFiles } from '../../panels/assets/topbar'
 import { EditorState } from '../../services/EditorServices'
@@ -124,11 +130,15 @@ const generateToolbarMenu = () => {
     {
       name: t('editor:menubar.saveScene'),
       hotkey: `${cmdOrCtrlString}+s`,
-      action: onSaveScene
+      action: onSaveScene,
+      enabledHook: useCanSaveScene,
+      showSpinner: true
     },
     {
       name: t('editor:menubar.saveAs'),
-      action: () => ModalState.openModal(<SaveNewSceneDialog />)
+      action: () => ModalState.openModal(<SaveNewSceneDialog />),
+      enabledHook: useCanSaveScene,
+      showSpinner: true
     },
     {
       name: t('editor:menubar.importSettings'),
@@ -191,18 +201,25 @@ export default function Toolbar() {
   const locationQuery = useFind(locationPath, { query: { action: 'studio', sceneId: sceneAssetID.value } })
   const currentLocation = locationQuery.data[0]
 
+  // This is fine as long as toolbarMenu is a static object
+  const toolbarItemsEnabled = toolbarMenu.map((item) => {
+    if (!item.enabledHook) return true
+    return item.enabledHook()
+  })
+
   return (
     <>
       <div className="flex h-10 items-center justify-between px-4 py-0.5">
         <div className="flex items-center">
-          <div className="cursor-pointer" onClick={onCloseProject}>
+          <div className="cursor-pointer" data-testid="back-to-dashboard-button" onClick={onCloseProject}>
             <img
-              src={themeState.theme.value === 'dark' ? irStudioIconDark : irStudioIconLight}
-              alt="iR Engine Logo"
+              src={themeState.theme.value === 'dark' ? studioIconDark : studioIconLight}
+              alt="Napster Engine Logo"
               className="h-6 w-6"
             />
           </div>
           <button
+            data-testid="editor-main-menu-button"
             onClick={(event) => {
               anchorPosition.set({ left: event.clientX - 20, top: event.clientY - 20 })
               anchorEvent.set(event)
@@ -216,15 +233,19 @@ export default function Toolbar() {
           <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-simple')}</div>
           <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
         </div> */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5" data-testid="editor-breadcrumbs-container">
           <File04Sm />
           {projectName.value!.split('/').map((part, index) => (
             <Fragment key={index}>
-              <span className="text-text-secondary">{part}</span>
+              <span className="text-text-secondary" data-testid="editor-breadcrumbs-item">
+                {part}
+              </span>
               <span className="text-text-secondary">{' / '}</span>
             </Fragment>
           ))}
-          <span className="text-text-primary">{sceneNameSimplified}</span>
+          <span className="text-text-primary" data-testid="editor-breadcrumbs-scene-name">
+            {sceneNameSimplified}
+          </span>
         </div>
 
         <div className="flex items-center justify-center gap-2">
@@ -262,13 +283,17 @@ export default function Toolbar() {
         onClose={() => anchorEvent.set(null)}
       >
         <div className="w-[180px]" tabIndex={0}>
-          {toolbarMenu.map(({ name, href, action = () => {}, hotkey }, index) => (
+          {toolbarMenu.map(({ name, href, action = () => {}, hotkey, showSpinner = false }, index) => (
             <DropdownItem
               key={name + '' + index}
+              disabled={!toolbarItemsEnabled[index]}
+              showSpinner={showSpinner}
               label={name}
               href={href}
               secondaryText={hotkey}
+              data-testid={`editor-main-menu-item-${name.toLowerCase().replace(/\s+/g, '-')}`}
               onClick={() => {
+                if (!toolbarItemsEnabled[index]) return
                 action()
                 anchorEvent.set(null)
               }}

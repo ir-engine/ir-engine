@@ -27,15 +27,20 @@ import { Entity } from '@ir-engine/ecs'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { ResourceAssetType, ResourceState, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 
+import { ResourceProgressComponent } from '../../gltf/ResourceProgressComponent'
 import { AssetLoader } from '../classes/AssetLoader'
 import { Loader } from '../loaders/base/Loader'
-import { AssetCacheState, ResourceStatus } from '../state/AssetCacheState'
-
+import { ResourceCacheState, ResourceStatus } from '../state/ResourceCacheState'
 interface Cloneable<T> {
   clone?: () => T
 }
 
-const pending: Record<string, Set<(response) => void>> = {}
+type PendingResponse = {
+  onLoad: (response) => void
+  entity: Entity
+}
+
+const pending: Record<string, Set<PendingResponse>> = {}
 
 const isCloneable = (resourceType: ResourceType): boolean => {
   /** @todo Add cloning for GLTF data */
@@ -44,7 +49,8 @@ const isCloneable = (resourceType: ResourceType): boolean => {
 
 const cloneAsset = <T>(asset: Cloneable<T> | undefined, onLoad: (T) => void): boolean => {
   if (asset && typeof asset.clone === 'function') {
-    onLoad(asset.clone())
+    const clone = asset.clone()
+    onLoad(clone)
     return true
   }
 
@@ -61,9 +67,9 @@ export const loadResource = <T extends ResourceAssetType>(
   signal: AbortSignal,
   loader?: Loader
 ) => {
-  const assetCacheState = getMutableState(AssetCacheState)
-  if (!assetCacheState[url].value) {
-    assetCacheState.merge({
+  const resourceCacheState = getMutableState(ResourceCacheState)
+  if (!resourceCacheState[url].value) {
+    resourceCacheState.merge({
       [url]: {
         id: url,
         status: ResourceStatus.Unloaded,
@@ -74,15 +80,15 @@ export const loadResource = <T extends ResourceAssetType>(
       }
     })
   } else {
-    getMutableState(AssetCacheState)[url].references.merge([entity])
-    const resource = getState(AssetCacheState)[url]
+    getMutableState(ResourceCacheState)[url].references.merge([entity])
+    const resource = getState(ResourceCacheState)[url]
     const asset = resource.asset as Cloneable<T> | undefined
     if (
       (resource.status === ResourceStatus.Unloaded || resource.status === ResourceStatus.Loading) &&
       isCloneable(resourceType)
     ) {
       if (!pending[url]) pending[url] = new Set()
-      pending[url].add(onLoad)
+      pending[url].add({ onLoad, entity })
       return
     }
     // If asset already exists clone it to share GPU memory
@@ -92,31 +98,55 @@ export const loadResource = <T extends ResourceAssetType>(
     }
   }
 
-  const resource = assetCacheState[url]
+  if (entity) {
+    ResourceProgressComponent.setResource(entity, url, 0, 0)
+    if (signal) {
+      signal.addEventListener(
+        'abort',
+        () => {
+          ResourceProgressComponent.removeResource(entity, url)
+        },
+        { once: true }
+      )
+    }
+  }
+
+  const resource = resourceCacheState[url]
   ResourceState.debugLog(`ResourceState:load Loading resource: ${url} for entity: ${entity}`)
   AssetLoader.loadAsset<T>(
     url,
     (response: T) => {
       if (!resource || !resource.value) {
         console.warn(`ResourceState:load Resource removed before load finished: ${url} for entity: ${entity}`)
+        onError(new Error('Resource removed before load finished'))
         return
       }
-      resource.asset.set(response)
+      // only store cloneable assets
+      if (isCloneable(resourceType)) {
+        resource.asset.set(response)
+      }
       resource.status.set(ResourceStatus.Loaded)
       ResourceState.debugLog(`ResourceState:load Loaded resource: ${url} for entity: ${entity}`)
       ResourceState.checkBudgets()
+      if (entity) ResourceProgressComponent.setResource(entity, url, 100, 100)
       onLoad(response)
 
       if (pending[url]) {
         for (const pendingLoad of pending[url]) {
-          if (!cloneAsset(response as Cloneable<T>, pendingLoad))
+          const pendingOnLoad = pendingLoad.onLoad
+          const entity = pendingLoad.entity
+          if (!cloneAsset(response as Cloneable<T>, pendingOnLoad))
             console.warn(`ResourceState:load unable to clone asset for pending response: ${url}`)
-          else ResourceState.debugLog(`ResourceState:load cloning pending asset: ${url}`)
+          else {
+            if (entity) ResourceProgressComponent.setResource(entity, url, 100, 100)
+            ResourceState.debugLog(`ResourceState:load cloning pending asset: ${url}`)
+          }
         }
         pending[url].clear()
       }
     },
     (request) => {
+      if (entity) ResourceProgressComponent.setResource(entity, url, request.loaded, request.total)
       onProgress(request)
     },
     (error) => {
@@ -124,6 +154,7 @@ export const loadResource = <T extends ResourceAssetType>(
       if (resource && resource.value) {
         resource.status.set(ResourceStatus.Error)
       }
+      if (entity) ResourceProgressComponent.removeResource(entity, url)
       onError(error)
     },
     signal,
@@ -132,8 +163,8 @@ export const loadResource = <T extends ResourceAssetType>(
 }
 
 export const unloadResource = (url: string, entity: Entity) => {
-  const assetCacheState = getMutableState(AssetCacheState)
-  const resource = assetCacheState[url]
+  const resourceCacheState = getMutableState(ResourceCacheState)
+  const resource = resourceCacheState[url]
   if (!resource.value) {
     console.warn(`ResourceState:unload No resource found to unload for url: ${url}`)
     return
@@ -151,8 +182,8 @@ export const unloadResource = (url: string, entity: Entity) => {
 }
 
 export const unloadResourcesForEntity = (entity: Entity) => {
-  const assetCacheState = getState(AssetCacheState)
-  for (const [url, resource] of Object.entries(assetCacheState)) {
+  const resourceCacheState = getState(ResourceCacheState)
+  for (const [url, resource] of Object.entries(resourceCacheState)) {
     if (resource.references.includes(entity)) {
       unloadResource(url, entity)
     }

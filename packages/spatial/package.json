@@ -1,6 +1,6 @@
 {
   "name": "@ir-engine/spatial",
-  "version": "1.6.0",
+  "version": "1.0.3",
   "main": "index.ts",
   "publishConfig": {
     "access": "public"
@@ -20,17 +20,16 @@
   "dependencies": {
     "detect-gpu": "^5.0.38",
     "@dimforge/rapier3d-compat": "0.11.2",
-    "@ir-engine/ecs": "^1.6.0",
-    "@ir-engine/hyperflux": "^1.6.0",
-    "@ir-engine/network": "^1.6.0",
+    "@ir-engine/ecs": "^1.0.3",
+    "@ir-engine/hyperflux": "^1.0.3",
     "@tweenjs/tween.js": "^23.1.2",
     "lodash": "4.17.21",
     "noisejs": "2.1.0",
-    "postprocessing": "6.34.1",
+    "postprocessing": "6.37.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "three": "0.158.0",
-    "three-mesh-bvh": "0.7.6",
+    "three": "0.176.0",
+    "three-mesh-bvh": "0.9.0",
     "ts-matches": "5.3.0",
     "web-worker": "1.2.0"
   },

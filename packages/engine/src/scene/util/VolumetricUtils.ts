@@ -84,7 +84,7 @@ export const getGLTFGeometrySize = (mesh: Mesh) => {
 export const getKTX2TextureSize = (texture: CompressedTexture) => {
   let size = 0
   if (texture.image) {
-    texture.mipmaps.map((mipmap) => {
+    texture.mipmaps!.map((mipmap) => {
       size += mipmap.data.byteLength
     })
   }
@@ -408,12 +408,12 @@ interface GetResourceURLBasicProps {
 
 interface GetResourceURLCortoGeometryProps extends GetResourceURLBasicProps {
   type: 'geometry'
-  geometryType: GeometryType.Corto
+  geometryType: typeof GeometryType.Corto
 }
 
 interface GetResourceURLNewGeometryProps extends GetResourceURLBasicProps {
   type: 'geometry'
-  geometryType: GeometryType.Draco | GeometryType.Unify
+  geometryType: typeof GeometryType.Draco | typeof GeometryType.Unify
   path: string
   target: string
   index: number
@@ -519,16 +519,16 @@ interface GetGeometryModernProps extends GetGeometryBaseProps {
 }
 
 interface GetGeometryUnifyProps extends GetGeometryModernProps {
-  geometryType: GeometryType.Unify
+  geometryType: typeof GeometryType.Unify
   keyframeName: 'keyframeA' | 'keyframeB'
 }
 
 interface GetGeometryNonUnifyProps extends GetGeometryModernProps {
-  geometryType: GeometryType.Draco
+  geometryType: typeof GeometryType.Draco
 }
 
 interface GetGeometryCortoProps extends GetGeometryBaseProps {
-  geometryType: GeometryType.Corto
+  geometryType: typeof GeometryType.Corto
   frameRate: number
 }
 
@@ -644,13 +644,13 @@ export const getTexture = ({
   return false
 }
 
-interface handleAutoplayProps {
+interface HandleAutoplayProps {
   audioContext: AudioContext
   media: HTMLMediaElement
   paused: State<boolean>
 }
 
-export const handleMediaAutoplay = ({ audioContext, media, paused }: handleAutoplayProps) => {
+export const handleMediaAutoplay = ({ audioContext, media, paused }: HandleAutoplayProps) => {
   const attachEventListeners = () => {
     const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).canvas!
     const playMedia = () => {

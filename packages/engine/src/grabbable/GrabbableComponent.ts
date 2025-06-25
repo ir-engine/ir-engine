@@ -34,7 +34,7 @@ import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/In
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { NetworkTopics } from '@ir-engine/network'
+import { NetworkTopics } from '@ir-engine/hyperflux'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { InteractableComponent, XRUIVisibilityOverride } from '../interaction/components/InteractableComponent'
 

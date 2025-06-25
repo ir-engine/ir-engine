@@ -134,6 +134,9 @@ export const saveSceneGLTF = async (
     projectName,
     sceneAssetID: result.data[0].id
   })
+
+  const sourceID = GLTFComponent.getSourceID(rootEntity)
+  getMutableState(AssetModifiedState)[sourceID].set(none)
 }
 
 export const logNewScene = (authoringApp: string, entryPoint: string = 'editor') => {
@@ -190,6 +193,14 @@ export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
   }
 }
 
+export const useCanSaveScene = () => {
+  return GLTFComponent.useSceneLoaded(getState(EditorState).rootEntity)
+}
+
+export const canSaveScene = () => {
+  return GLTFComponent.isSceneLoaded(getState(EditorState).rootEntity)
+}
+
 /**
  * onSaveScene
  *
@@ -197,6 +208,13 @@ export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
  */
 export const onSaveScene = async () => {
   const { sceneAssetID, projectName, sceneName, rootEntity } = getState(EditorState)
+
+  if (!canSaveScene()) {
+    ModalState.openModal(
+      <ErrorDialog title={i18n.t('editor:savingError')} description={i18n.t('editor:savingLoadingSceneErrorMsg')} />
+    )
+    return
+  }
 
   try {
     await SceneThumbnailState.createThumbnail()
@@ -210,9 +228,6 @@ export const onSaveScene = async () => {
   try {
     await saveSceneGLTF(sceneAssetID!, projectName!, sceneName!, abortController.signal)
     NotificationService.dispatchNotify(`${i18n.t('editor:dialog.saveScene.info-save-success')}`, { variant: 'success' })
-    const sourceID = GLTFComponent.getSourceID(rootEntity)
-    getMutableState(AssetModifiedState)[sourceID].set(none)
-
     ModalState.closeModal()
   } catch (error) {
     console.error(error)

@@ -35,7 +35,8 @@ export const FeatureFlags = {
       MotionCapture: 'ir.client.location.menu.motionCapture',
       XR: 'ir.client.menu.xr',
       ShareToQuest: 'ir.client.menu.shareToQuest'
-    }
+    },
+    Glass: 'ir.client.glass'
   },
   Studio: {
     Model: {
@@ -45,7 +46,8 @@ export const FeatureFlags = {
       LegacyVolumetric: 'ir.studio.components.legacyVolumetric',
       Volumetric: 'ir.studio.components.volumetric',
       AudioAnalysis: 'ir.studio.components.audioAnalysis',
-      ScreenshareTarget: 'ir.studio.components.screenshareTarget'
+      ScreenshareTarget: 'ir.studio.components.screenshareTarget',
+      Spline: 'ir.studio.components.spline'
     },
     Panel: {
       VisualScript: 'ir.editor.panel.visualScript',
@@ -58,7 +60,8 @@ export const FeatureFlags = {
       Hierarchy: {
         ShowGlbChildren: 'ir.editor.ui.hierarchy.showGlbChildren'
       },
-      PointClick: 'ir.editor.ui.pointClick'
+      PointClick: 'ir.editor.ui.pointClick',
+      CompressOnPublish: 'ir.editor.ui.compressOnPublish'
     }
   }
 }

@@ -22,6 +22,7 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
+const defaultTheme = require('tailwindcss/defaultTheme')
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -44,7 +45,13 @@ module.exports = {
         smh: { raw: '(min-height: 700px)' },
         mdh: { raw: '(min-height: 900px)' },
         lgh: { raw: '(min-height: 1100px)' },
-        xlh: { raw: '(min-height: 1300px)' }
+        xlh: { raw: '(min-height: 1300px)' },
+
+        'max-sm': { raw: `not all and (min-width: ${defaultTheme.screens.sm})` },
+        'max-md': { raw: `not all and (min-width: ${defaultTheme.screens.md})` },
+        'max-lg': { raw: `not all and (min-width: ${defaultTheme.screens.lg})` },
+        'max-xl': { raw: `not all and (min-width: ${defaultTheme.screens.xl})` },
+        'max-2xl': { raw: `not all and (min-width: ${defaultTheme.screens['2xl']})` }
       },
       height: {
         'table-size-xs': 'calc(100vh - 436px)',
@@ -146,12 +153,17 @@ module.exports = {
         'chart-1000': 'var(--chart-1000)',
         'chart-1100': 'var(--chart-1100)',
         'chart-1200': 'var(--chart-1200)',
-        'chart-1300': 'var(--chart-1300)'
+        'chart-1300': 'var(--chart-1300)',
+
+        'primary-blue': 'hsla(211, 47%, 53%, 1)',
+        'inactive-input': 'rgba(0, 0, 0, 0.14)'
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
         figtree: ['Figtree', 'sans-serif'],
-        campton: ['Campton', 'sans-serif']
+        campton: ['Campton', 'sans-serif'],
+        'dm-sans': ['"DM Sans"', 'sans-serif'],
+        manrope: ['Manrope', 'sans-serif']
       },
       keyframes: {
         twinkling: {
@@ -160,13 +172,13 @@ module.exports = {
           '100%': { opacity: '0.6' }
         },
         slideIn: {
-          "0%": { opacity: 0, transform: "translateY(20px)" },
-          "100%": { opacity: 1, transform: "translateY(0)" },
-        },
+          '0%': { opacity: 0, transform: 'translateY(20px)' },
+          '100%': { opacity: 1, transform: 'translateY(0)' }
+        }
       },
       animation: {
         twinkling: 'twinkling 5s alternate infinite',
-        slideIn: "slideIn 0.3s ease-out forwards",
+        slideIn: 'slideIn 0.3s ease-out forwards'
       }
     }
   },

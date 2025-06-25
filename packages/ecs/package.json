@@ -1,6 +1,6 @@
 {
   "name": "@ir-engine/ecs",
-  "version": "1.6.0",
+  "version": "1.0.3",
   "main": "index.ts",
   "description": "Fast and reactive ECS for the Infinite Reality Engine",
   "publishConfig": {
@@ -22,9 +22,8 @@
   "author": "Infinite Reality Engine",
   "license": "CPAL",
   "dependencies": {
-    "@ir-engine/hyperflux": "^1.6.0",
+    "@ir-engine/hyperflux": "^1.0.3",
     "bitecs": "github:NateTheGreatt/bitECS#rc-0-4-0",
-    "rfc6902": "^5.1.2",
     "uuid": "9.0.0"
   },
   "devDependencies": {

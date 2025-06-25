@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
-import { getMutableState, NO_PROXY } from '@ir-engine/hyperflux'
+import { getMutableState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import { TabData } from 'rc-dock'
 import React, { useEffect } from 'react'
@@ -35,6 +34,7 @@ import FileBrowser from '../files/filebrowser'
 import { CurrentFilesQueryProvider } from '../files/helpers'
 import FilesToolbar from '../files/toolbar'
 import CategoriesList, { VerticalDivider } from './categories'
+import { AssetsQueryProvider } from './hooks'
 import Resources from './resources'
 import Topbar from './topbar'
 
@@ -56,7 +56,11 @@ export const AssetsPanelTab: TabData = {
   id: 'assetsPanel',
   closable: true,
   title: <AssetsPanelTitle />,
-  content: <AssetsContainer />
+  content: (
+    <AssetsQueryProvider>
+      <AssetsContainer />
+    </AssetsQueryProvider>
+  )
 }
 
 enum SidebarType {

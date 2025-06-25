@@ -85,7 +85,7 @@ const updateReflection = () => {
 
   const textureProperties = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!.properties.get(
     xrLightProbeState.environment
-  )
+  ) as any
 
   if (textureProperties) {
     const cubeMap = xrLightProbeState.xrWebGLBinding!.getReflectionCubeMap?.(xrLightProbeState.probe)

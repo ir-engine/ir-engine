@@ -24,20 +24,20 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
-  Entity,
-  EntityTreeComponent,
-  PresentationSystemGroup,
-  QueryReactor,
-  QuerySubReactor,
-  UUIDComponent,
   defineSystem,
+  Entity,
+  EntityArrayBoundary,
+  EntityTreeComponent,
   getComponent,
   hasComponent,
+  PresentationSystemGroup,
+  QueryReactor,
   useComponent,
-  useEntityContext
+  useEntityContext,
+  UUIDComponent,
+  WorldNetworkAction
 } from '@ir-engine/ecs'
-import { dispatchAction, useHookstate } from '@ir-engine/hyperflux'
-import { NetworkState, ScenePeer, SceneUser, WorldNetworkAction } from '@ir-engine/network'
+import { dispatchAction, NetworkState, ScenePeer, SceneUser, useHookstate } from '@ir-engine/hyperflux'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import React, { useEffect } from 'react'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
@@ -86,26 +86,22 @@ const SourcedSceneReactor = () => {
   const sourcedEntities = UUIDComponent.useEntitiesBySource(sourceID)
 
   return (
-    <>
-      {sourcedEntities.filter(filterSpatialEntities).map((sourcedEntity) => (
-        <QuerySubReactor key={sourcedEntity} entity={sourcedEntity} ChildEntityReactor={SourcedEntityReactor} />
-      ))}
-    </>
+    <EntityArrayBoundary
+      entities={sourcedEntities.filter(filterSpatialEntities)}
+      ChildEntityReactor={SourcedEntityReactor}
+    />
   )
 }
 
+/**
+ * @todo - we only want one level of depth currently, not each entity in nested models
+ */
 const SceneReactor = () => {
   const entity = useEntityContext()
   const sourceID = UUIDComponent.getAsSourceID(entity)
   const sourcedEntities = UUIDComponent.useEntitiesBySource(sourceID)
 
-  return (
-    <>
-      {sourcedEntities.map((sourcedEntity) => (
-        <QuerySubReactor key={sourcedEntity} entity={sourcedEntity} ChildEntityReactor={SourcedSceneReactor} />
-      ))}
-    </>
-  )
+  return <EntityArrayBoundary entities={sourcedEntities} ChildEntityReactor={SourcedSceneReactor} />
 }
 
 const reactor = () => {
@@ -113,7 +109,7 @@ const reactor = () => {
 
   if (!ready) return null
 
-  return <QueryReactor ChildEntityReactor={SceneReactor} Components={[SceneComponent, GLTFComponent]} />
+  return <QueryReactor ChildEntityReactor={SourcedSceneReactor} Components={[SceneComponent, GLTFComponent]} />
 }
 
 export const SceneNetworkSystem = defineSystem({

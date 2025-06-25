@@ -27,7 +27,6 @@ import { cleanup, fireEvent, render, RenderResult, screen } from '@testing-libra
 import { afterEach, beforeEach, describe, expect, it, TestContext, vi } from 'vitest'
 
 import { createEngine, destroyEngine, Engine, EngineState, Entity } from '@ir-engine/ecs'
-import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
 import React from 'react'
 import { MediaIconsBox } from './index'
 
@@ -38,11 +37,15 @@ import {
   dispatchAction,
   getMutableState,
   getState,
+  joinNetwork,
+  MediaStreamState,
+  NetworkActions,
   NetworkID,
+  NetworkState,
+  NetworkTopics,
   UserID
 } from '@ir-engine/hyperflux'
-import { addNetwork, createNetwork, NetworkActions, NetworkState, NetworkTopics } from '@ir-engine/network'
-import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
+import { createMockNetwork } from '@ir-engine/hyperflux/tests/createMockNetwork'
 import { MemoryRouter } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 import { MediaInstanceState } from '../../common/services/MediaInstanceConnectionService'
@@ -97,8 +100,7 @@ describe('MediaIconsBox component', () => {
     getMutableState(EngineState).userID.set(hostUserID)
 
     createMockNetwork(NetworkTopics.world, peerID, hostUserID)
-    const network = createNetwork(instanceID, peerID, NetworkTopics.world)
-    addNetwork(network)
+    const network = joinNetwork(instanceID, peerID, NetworkTopics.world)
     dispatchAction(
       NetworkActions.peerJoined({
         $network: network.id,
@@ -128,6 +130,9 @@ describe('MediaIconsBox component', () => {
       screenSharingEnabled: true,
       faceStreamingEnabled: false,
       videoEnabled: true,
+      /** @todo: Re-enable this when the engine has a working jump control/vr capabilities */
+      // jumpControlEnabled: true,
+      // vrEnabled: true,
       createdAt: '',
       updatedAt: ''
     })

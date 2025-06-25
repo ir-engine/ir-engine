@@ -180,7 +180,7 @@ describe('ComponentFunctions', async () => {
       setComponent(entity, Vector3Component)
       const vector3Component = getComponent(entity, Vector3Component)
       const json = Vector3Component.toJSON(vector3Component)
-      const fromSchema = CreateSchemaValue(entity, Vector3Component.schema)
+      const fromSchema = CreateSchemaValue(Vector3Component.schema)
       assert.deepEqual(vector3Component, fromSchema)
       assert.deepEqual(json, fromSchema)
       assert.deepEqual(json, vector3Component)
@@ -202,7 +202,7 @@ describe('ComponentFunctions', async () => {
       const vector3Component = getComponent(entity, Vector3Component)
       assert(CheckSchemaValue(Vector3Component.schema, vector3Component))
       assert(vector3Component.x === setValue.x && vector3Component.y === setValue.y)
-      assert(vector3Component.z === CreateSchemaValue(entity, Vector3Component.schema).z)
+      assert(vector3Component.z === CreateSchemaValue(Vector3Component.schema).z)
     })
 
     it('should override runtime data if onInit is specified', () => {
@@ -213,14 +213,14 @@ describe('ComponentFunctions', async () => {
           y: S.Number(),
           z: S.Number({ default: 4 })
         }),
-        onInit: (initial) => new Vector3(initial.x, initial.y, initial.z)
+        onInit: (entity, initial) => new Vector3(initial.x, initial.y, initial.z)
       })
 
       const setValue = { x: 12, y: 24 }
       const entity = createEntity()
       setComponent(entity, Vector3Component, setValue)
       const vector3Component = getComponent(entity, Vector3Component)
-      const fromSchema = CreateSchemaValue(entity, Vector3Component.schema)
+      const fromSchema = CreateSchemaValue(Vector3Component.schema)
       assert(vector3Component instanceof Vector3)
       assert(vector3Component.isVector3)
       assert(vector3Component.x === setValue.x && vector3Component.y === setValue.y)
@@ -236,7 +236,7 @@ describe('ComponentFunctions', async () => {
           y: S.Number(),
           z: S.Number({ default: 4 })
         }),
-        onInit: (initial) => new Vector3(initial.x, initial.y, initial.z)
+        onInit: (entity, initial) => new Vector3(initial.x, initial.y, initial.z)
       })
 
       const setValue = { x: 12, y: 24 }
@@ -259,7 +259,7 @@ describe('ComponentFunctions', async () => {
           y: S.Number(),
           z: S.Number({ default: 4 })
         }),
-        onInit: (initial) => new Vector3(initial.x, initial.y, initial.z)
+        onInit: (entity, initial) => new Vector3(initial.x, initial.y, initial.z)
       })
 
       const setValue = new Vector3(12, 15, 74)
@@ -373,7 +373,6 @@ describe('ComponentFunctions', async () => {
       const Vec3Component = defineComponent({
         name: 'Vector3Component',
         schema: S.SerializedClass(
-          () => new Vector3(),
           {
             x: S.Number(),
             y: S.Number(),
@@ -381,6 +380,7 @@ describe('ComponentFunctions', async () => {
           },
           {
             deserialize: (curr, value) => curr.copy(value),
+            default: () => new Vector3(),
             id: 'Vec3'
           }
         )
@@ -424,10 +424,14 @@ describe('ComponentFunctions', async () => {
       const ProxyComponent = defineComponent({
         name: 'ProxyComponent',
         schema: S.Object({
-          x: S.Proxy(S.Number(), proxyNumber)
+          x: S.Proxy(S.Number())
         }),
         storage: {
           x: createResizableTypeArray(Float32Array)
+        },
+        onInit(entity, initial) {
+          proxyNumber(entity, 'x', initial)
+          return initial
         }
       })
 
@@ -445,12 +449,16 @@ describe('ComponentFunctions', async () => {
       const ProxyComponent = defineComponent({
         name: 'ProxyComponent',
         schema: S.Object({
-          position: S.SerializedClass(assignProxy, { x: S.Number() })
+          position: S.SerializedClass({ x: S.Number() })
         }),
         storage: {
           position: {
             x: createResizableTypeArray(Float32Array)
           }
+        },
+        onInit(entity, initial) {
+          initial.position = assignProxy(entity)
+          return initial
         }
       })
 

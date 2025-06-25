@@ -29,12 +29,12 @@ import { VariableJSON } from '@ir-engine/visual-script'
 
 import { useVisualScriptFlow } from './useVisualScriptFlow'
 
-type visualScriptFlow = ReturnType<typeof useVisualScriptFlow>
+type VisualScriptFlow = ReturnType<typeof useVisualScriptFlow>
 
 export const useVariableHandler = ({
   variables,
   setVariables
-}: Pick<visualScriptFlow, 'variables' | 'setVariables'>) => {
+}: Pick<VisualScriptFlow, 'variables' | 'setVariables'>) => {
   const createVariable = (): VariableJSON => ({
     id: uuidv4(),
     name: 'variable ' + Math.random().toString(36).slice(-6),

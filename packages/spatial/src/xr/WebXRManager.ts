@@ -35,8 +35,7 @@ import {
   Vector4,
   WebGLMultiviewRenderTarget,
   WebGLRenderer,
-  WebGLRenderTarget,
-  WebGLRenderTargetOptions
+  WebGLRenderTarget
 } from 'three'
 
 import { getComponent } from '@ir-engine/ecs'
@@ -65,7 +64,7 @@ declare module 'three/src/renderers/WebGLRenderer.js' {
 
 declare module 'three' {
   class WebGLMultiviewRenderTarget extends WebGLRenderTarget {
-    constructor(width: number, height: number, numViews: number, options: WebGLRenderTargetOptions)
+    constructor(width: number, height: number, numViews: number, options)
     numViews: number
     static isWebGLMultiviewRenderTarget: true
   }
@@ -290,7 +289,7 @@ function createRenderTarget(
     result = new WebGLRenderTarget(glProjLayer.textureWidth, glProjLayer.textureHeight, rtOptions)
   }
   const renderTargetProperties = renderer.properties.get(result)
-  renderTargetProperties.__ignoreDepthValues = glProjLayer.ignoreDepthValues
+  //renderTargetProperties.__ignoreDepthValues = glProjLayer.ignoreDepthValues
 
   return result
 }

@@ -24,17 +24,13 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Q_IDENTITY } from '@ir-engine/spatial/src/common/constants/MathConstants'
-import React from 'react'
+import React, { useRef } from 'react'
 import { Euler, Quaternion, MathUtils as _Math } from 'three'
 import NumericInput from '../Numeric'
 import { Vector3Scrubber } from '../Vector3'
 
 const { RAD2DEG, DEG2RAD } = _Math
-/**
- * Type aliase created EulerInputProps.
- *
- * @type {Object}
- */
+
 type EulerInputProps = {
   quaternion: Quaternion
   onChange: (quat: Quaternion) => any
@@ -42,6 +38,7 @@ type EulerInputProps = {
   unit?: string
   disabled?: boolean
 }
+
 const getBoundedRoundedAngle = (angle: number) => {
   const multiplier = Math.ceil(Math.abs(angle) / 360)
   angle += multiplier * 360
@@ -49,19 +46,49 @@ const getBoundedRoundedAngle = (angle: number) => {
   return Math.round(angle * 1000) / 1000
 }
 
-const tempEuler = new Euler() // we need the persistance, the hookstate doesnt register the dynamically allocated euler and quat value otherwise, thus we cannot assign new variable to the same
+const tempEuler = new Euler()
+
 export const EulerInput = ({ disabled, quaternion, onRelease, unit, onChange, ...rest }: EulerInputProps) => {
+  const prevAnglesRef = useRef({ x: 0, y: 0, z: 0 })
+
   tempEuler.setFromQuaternion(quaternion, 'YXZ')
-  const angle = {
+
+  const rawAngles = {
     x: getBoundedRoundedAngle(tempEuler.x * RAD2DEG),
     y: getBoundedRoundedAngle(tempEuler.y * RAD2DEG),
     z: getBoundedRoundedAngle(tempEuler.z * RAD2DEG)
   }
 
-  const onSetEuler = (angleCoordinate: 'x' | 'y' | 'z') => (angleInDegree: number) => {
-    angle[angleCoordinate] = getBoundedRoundedAngle(angleInDegree)
+  const getSmoothedAngles = (newAngles: { x: number; y: number; z: number }) => {
+    const smoothed = { ...newAngles }
+    const prev = prevAnglesRef.current
 
-    const euler = new Euler(angle.x * DEG2RAD, angle.y * DEG2RAD, angle.z * DEG2RAD, 'YXZ')
+    Object.keys(smoothed).forEach((axisKey) => {
+      const axis = axisKey as keyof typeof smoothed
+      let diff = Math.abs(smoothed[axis] - prev[axis])
+
+      if (diff > 180) {
+        diff = 360 - diff
+      }
+
+      if (diff > 90) {
+        smoothed[axis] = prev[axis]
+      }
+    })
+
+    prevAnglesRef.current = { ...smoothed }
+    return smoothed
+  }
+
+  const angle = getSmoothedAngles(rawAngles)
+
+  const onSetEuler = (angleCoordinate: 'x' | 'y' | 'z') => (angleInDegree: number) => {
+    const newAngles = { ...angle }
+    newAngles[angleCoordinate] = getBoundedRoundedAngle(angleInDegree)
+
+    prevAnglesRef.current[angleCoordinate] = newAngles[angleCoordinate]
+
+    const euler = new Euler(newAngles.x * DEG2RAD, newAngles.y * DEG2RAD, newAngles.z * DEG2RAD, 'YXZ')
     const quaternion = new Quaternion().setFromEuler(euler)
     onChange?.(quaternion)
   }
@@ -127,4 +154,5 @@ EulerInput.defaultProps = {
   quaternion: Q_IDENTITY,
   disabled: false
 }
+
 export default EulerInput

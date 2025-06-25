@@ -55,12 +55,13 @@ export function mockGLTF(generator = '@ir-engine/MockGLTF', version = '2.0'): GL
  * @returns GLTFParserOptions object for testing
  */
 export function mockGLTFOptions(gltf: GLTF.IGLTF, url = 'test.gltf'): GLTFParserOptions {
-  // Ensure the dependency cache is set up for this URL
-  if (!DependencyCache.has(url)) DependencyCache.set(url, new Map())
-
   const entity = createEntity()
   setComponent(entity, UUIDComponent, { entitySourceID: 'test' as SourceID, entityID: 'test' as EntityID })
   setComponent(entity, GLTFComponent, { src: url, document: gltf })
+
+  // Ensure the dependency cache is set up for this URL
+  const cacheKey = `${entity}${url}`
+  if (!DependencyCache.has(cacheKey)) DependencyCache.set(cacheKey, new Map())
 
   return {
     url,
@@ -69,6 +70,7 @@ export function mockGLTFOptions(gltf: GLTF.IGLTF, url = 'test.gltf'): GLTFParser
     body: null,
     manager: new LoadingManager(),
     path: '',
-    requestHeader: {}
+    requestHeader: {},
+    signal: new AbortController().signal
   }
 }

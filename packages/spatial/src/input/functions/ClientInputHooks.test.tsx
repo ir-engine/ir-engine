@@ -30,6 +30,7 @@ import {
   Entity,
   EntityContext,
   EntityTreeComponent,
+  getComponent,
   removeComponent,
   removeEntity,
   setComponent,
@@ -48,6 +49,7 @@ import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
 import { InputComponent } from '../components/InputComponent'
+import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputState } from '../state/InputState'
 import ClientInputHooks from './ClientInputHooks'
 
@@ -1104,6 +1106,64 @@ describe.skip('ClientInputHooks', () => {
       root.run()
       assert.notEqual(getState(XRState).session, null)
       assert.equal(ev.hasEvent(EvName), false)
+    })
+
+    it('should maintain consistent pointerId for emulated pointer across multiple touch events', () => {
+      // Ensure XR session is not active
+      getMutableState(XRState).session.set(null)
+
+      // Run the reactor
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+
+      // Simulate multiple pointer events with different browser pointer IDs (as would happen on mobile)
+      const pointerEvents = [
+        { pointerId: 1, clientX: 100, clientY: 100, button: 0, type: 'pointerenter' },
+        { pointerId: 2, clientX: 150, clientY: 150, button: 0, type: 'pointerdown' },
+        { pointerId: 3, clientX: 200, clientY: 200, button: 0, type: 'pointermove' },
+        { pointerId: 4, clientX: 250, clientY: 250, button: 0, type: 'pointerup' }
+      ]
+
+      const createdPointerEntities: Entity[] = []
+
+      for (const eventData of pointerEvents) {
+        // Trigger the event
+        const listeners = ev.listeners[eventData.type]
+        if (listeners && listeners.length > 0) {
+          const event = new PointerEvent(eventData.type, eventData)
+          listeners[0](event)
+        }
+
+        // Check that we always get the same pointer entity (with consistent pointerId = 1000)
+        const pointerEntity = InputPointerComponent.getPointerByID(testEntity, 1000)
+
+        if (pointerEntity !== UndefinedEntity) {
+          createdPointerEntities.push(pointerEntity)
+          const pointerComponent = getComponent(pointerEntity, InputPointerComponent)
+
+          // Verify that the pointerId is always 1000 (our consistent emulated pointer ID base)
+          assert.equal(
+            pointerComponent.pointerId,
+            1000,
+            `Expected consistent pointerId 1000, but got ${pointerComponent.pointerId} for event ${eventData.type}`
+          )
+        }
+      }
+
+      // Verify that all events used the same pointer entity
+      const uniqueEntities = new Set(createdPointerEntities)
+      assert.equal(
+        uniqueEntities.size <= 1,
+        true,
+        `Expected all events to use the same pointer entity, but found ${uniqueEntities.size} different entities`
+      )
+
+      root.stop()
     })
   })
 

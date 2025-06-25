@@ -19,44 +19,27 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Effect, EffectComposer, EffectPass, NormalPass, OutlineEffect, Pass, RenderPass } from 'postprocessing'
-import { ArrayCamera, Scene, SRGBColorSpace, WebGLRenderer, WebGLRendererParameters } from 'three'
-
-import { defineComponent, Entity, getComponent, hasComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { defineComponent, Entity, getComponent, hasComponent, S, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { getState, NO_PROXY, none, State, useMutableState } from '@ir-engine/hyperflux'
+import { Effect, EffectComposer, EffectPass, NormalPass, OutlineEffect, Pass, RenderPass } from 'postprocessing'
 import { useEffect } from 'react'
-
+import { ArrayCamera, Scene, SRGBColorSpace, WebGLRenderer, WebGLRendererParameters } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { createWebXRManager, WebXRManager } from '../../xr/WebXRManager'
+import { ObjectLayers } from '../constants/ObjectLayers'
+import CSMHelper from '../csm/CSMHelper'
 import { HighlightState } from '../HighlightState'
 import { RendererState } from '../RendererState'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { CSM } from '../csm/CSM'
-import CSMHelper from '../csm/CSMHelper'
 
-declare module 'postprocessing' {
-  interface EffectComposer {
-    EffectPass: EffectPass
-    OutlineEffect: OutlineEffect
-  }
-  interface Effect {
-    isActive: boolean
-  }
-}
-
-export type PassCount = {
+export const EffectSchema = S.Union([S.Any(), S.Type<Effect>(undefined, { isActive: S.Bool() })])
+type PassCount = {
   pass: Pass
   count: number
 }
-
-// Define the EffectSchema
-export const EffectSchema = S.Union([S.Any(), S.Type<Effect>(undefined, { isActive: S.Bool() })])
-
 export const RendererComponent = defineComponent({
   name: 'RendererComponent',
 
@@ -86,13 +69,12 @@ export const RendererComponent = defineComponent({
       xrManager: S.Type<WebXRManager | null>(),
       webGLLostContext: S.Type<WEBGL_lose_context | null>(),
 
-      csm: S.Type<CSM | null>(),
       csmHelper: S.Type<CSMHelper | null>()
     },
     { serialized: false }
   ),
 
-  onInit(initial) {
+  onInit(entity, initial) {
     initial.scene.matrixAutoUpdate = false
     initial.scene.matrixWorldAutoUpdate = false
     initial.scene.layers.set(ObjectLayers.Scene)
@@ -217,7 +199,7 @@ export const RendererComponent = defineComponent({
       rendererComponent.renderPass.set(renderPass)
 
       // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
-      renderer.debug.checkShaderErrors = false
+      renderer.debug.checkShaderErrors = false //isDev
 
       const xrManager = createWebXRManager(renderer)
       renderer.xr = xrManager as any
@@ -285,8 +267,8 @@ export const RendererComponent = defineComponent({
       if (!rendererComponent.effectComposer.value) return
 
       const scene = rendererComponent.scene.value as Scene
+
       const outlineEffect = new OutlineEffect(scene, camera, getState(HighlightState))
-      outlineEffect.selectionLayer = ObjectLayers.HighlightEffect
       rendererComponent.effectInstances.OutlineEffect.set(outlineEffect)
 
       return () => {
@@ -346,7 +328,7 @@ export const RendererComponent = defineComponent({
       }
     }, [
       rendererComponent.effects,
-      // rendererComponent.effectComposer.value,
+      rendererComponent.effectComposer.value,
       rendererComponent?.effectInstances?.OutlineEffect.value,
       renderSettings.usePostProcessing.value
     ])

@@ -64,6 +64,7 @@ const GridTool = () => {
     <div className="flex items-center gap-x-1">
       <Tooltip content={t('editor:toolbar.grid.info-toggleGridVisibility')} position="bottom">
         <ViewportButton
+          lean={true}
           onClick={onToggleGridVisible}
           icon={GridDotsMd}
           selected={editorHelperState.gridVisibility.value}

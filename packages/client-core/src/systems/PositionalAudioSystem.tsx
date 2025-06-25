@@ -26,14 +26,20 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { Vector3 } from 'three'
 
-import { ECSState, Not, useEntityContext } from '@ir-engine/ecs'
+import { ECSState, NetworkObjectComponent, NetworkObjectOwnedTag, Not, useEntityContext } from '@ir-engine/ecs'
 import { ComponentType, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { QueryReactor, defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
-import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
-import { NetworkObjectComponent, NetworkObjectOwnedTag, NetworkState } from '@ir-engine/network'
+import {
+  MediaChannelState,
+  NetworkState,
+  getMutableState,
+  getState,
+  useHookstate,
+  webcamVideoMediaChannelType
+} from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { hasComponent } from '@ir-engine/ecs'
@@ -51,7 +57,6 @@ import {
   MediaElementComponent,
   createAudioNodeGroup
 } from '@ir-engine/engine/src/scene/components/MediaComponent'
-import { PeerMediaChannelState } from '@ir-engine/network/src/media/PeerMediaChannelState'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 
 const _vec3 = new Vector3()
@@ -88,7 +93,7 @@ const execute = () => {
    */
   if (audioContext.state !== 'running') return
 
-  const peerMediaState = getState(PeerMediaChannelState)
+  const peerMediaState = getState(MediaChannelState)
 
   /**
    * Avatars
@@ -108,11 +113,16 @@ const execute = () => {
       continue
     }
 
-    const audioMediaStream = peerMediaState[peer.peerID].cam.audioMediaStream
-    const track = audioMediaStream?.getAudioTracks()[0]
+    const videoMediaStream = peerMediaState[peer.peerID][webcamVideoMediaChannelType].stream
+    if (!videoMediaStream) {
+      if (avatarAudioStreams.has(networkObject)) avatarAudioStreams.delete(networkObject)
+      continue
+    }
+    const track = videoMediaStream.getVideoTracks()[0]
+    const audioTrack = videoMediaStream.getAudioTracks()[0]
 
     // avatar still exists but audio stream does not
-    if (!track) {
+    if (!track || !audioTrack) {
       if (avatarAudioStreams.has(networkObject)) avatarAudioStreams.delete(networkObject)
       continue
     }
@@ -129,7 +139,7 @@ const execute = () => {
       continue
     }
 
-    const existingAudioObject = peerMediaState[peer.peerID].cam.audioElement
+    const existingAudioObject = peerMediaState[peer.peerID][webcamVideoMediaChannelType].element
     if (!existingAudioObject) continue
 
     // mute existing stream

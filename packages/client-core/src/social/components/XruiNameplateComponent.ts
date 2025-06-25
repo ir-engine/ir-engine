@@ -34,6 +34,7 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
+  NetworkObjectComponent,
   removeComponent,
   removeEntity,
   S,
@@ -45,7 +46,6 @@ import {
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { createUI } from '@ir-engine/engine/src/interaction/functions/createUI'
 import { getState } from '@ir-engine/hyperflux'
-import { NetworkObjectComponent } from '@ir-engine/network'
 import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { inFrustum } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
@@ -56,7 +56,7 @@ import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/com
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 import { WebLayer3D } from '@ir-engine/xrui'
 import { useEffect } from 'react'
-import { MathUtils, Vector3 } from 'three'
+import { MathUtils, MeshBasicMaterial, Vector3 } from 'three'
 import { XruiNameplateState } from '../XruiNameplateState'
 
 const _vec3 = new Vector3()
@@ -200,7 +200,7 @@ export const updateNameplateUI = (entity: Entity) => {
         xruiTransform.scale.setScalar(MathUtils.clamp(opacity * opacity * 1.2, 0.01, 1)) //scale changes slightly faster than f(n^2)
       }
       xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-        const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
+        const mat = layer.contentMesh.material as MeshBasicMaterial
         mat.opacity = opacity
       })
     })

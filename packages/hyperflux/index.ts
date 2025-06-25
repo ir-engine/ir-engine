@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -36,6 +36,15 @@ export * from './src/hooks/useForceUpdate'
 export * from './src/hooks/useImmediateEffect'
 export * from './src/hooks/usePrevious'
 export * from './src/hooks/useReactiveRef'
+export * from './src/media/DataChannelRegistry'
+export * from './src/media/MediaChannelState'
+export * from './src/media/MediaStreamState'
+export * from './src/media/VideoConstants'
+export * from './src/media/WebRTCPeerConnection'
+export * from './src/media/WebRTCTransportFunctions'
+export * from './src/network/NetworkActionFunctions'
+export * from './src/network/NetworkPeerState'
+export * from './src/network/NetworkState'
 
 export type * from './src/types/DeepReadonly'
 export type * from './src/types/OpaqueType'

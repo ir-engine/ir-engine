@@ -43,9 +43,8 @@ import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileIcon } from '../files/fileicon'
 import { FileUploadProgress } from '../files/loaders'
 import DeleteFileModal from '../files/modals/DeleteFileModal'
-import { AssetCategoryNode } from './categories'
 import { ASSETS_PAGE_LIMIT, calculateItemsToFetch } from './helpers'
-import { useAssetsCategory, useAssetsQuery } from './hooks'
+import { AssetsRefreshState, useAssetsQuery } from './hooks'
 
 interface MetadataTableRowProps {
   label: string
@@ -85,8 +84,6 @@ function ResourceFileContextMenu({
 }) {
   const { t } = useTranslation()
   const userID = useMutableState(AuthState).user.id.value
-  const { refetchResources, staticResourcesPagination } = useAssetsQuery()
-
   const splitResourceKey = resource.key.split('/')
   const name = resource.name || splitResourceKey.at(-1)!
   const path = splitResourceKey.slice(0, -1).join('/') + '/'
@@ -130,7 +127,7 @@ function ResourceFileContextMenu({
                   onComplete={(err?: unknown) => {
                     if (!err) {
                       removeFromFileThumbnailsSeen([resource.key])
-                      refetchResources(true)
+                      AssetsRefreshState.triggerRefresh()
                     }
                   }}
                 />
@@ -175,13 +172,13 @@ export function FileCard({
         data-testid={dataTestIdJson?.fileItemId}
       >
         <div
-          className={twMerge(
-            `box-border h-20 w-16 rounded font-figtree text-sm`,
-            isSelected
-              ? 'rounded border border-ui-primary bg-ui-select-background p-1'
-              : 'group-hover:bg-ui-hover-background'
-          )}
+          className={isSelected ? 'rounded border border-ui-primary bg-ui-select-background p-1' : ''}
           data-testid={dataTestIdJson?.fileIconId}
+          style={{
+            height: 100,
+            width: 100,
+            fontSize: 100
+          }}
         >
           <FileIcon
             thumbnailURL={thumbnailURL}
@@ -235,6 +232,23 @@ function ResourceFile({
     multiple: false
   }))
 
+  const metadata = {
+    thumbnail: resource.thumbnailURL,
+    name: resource.name,
+    type: assetType,
+    author: '',
+    dateCreated: resource.createdAt,
+    fileSize: '',
+    dimensions: {
+      height: resource.height,
+      width: resource.width,
+      depth: resource.depth
+    },
+    mesh: '',
+    resources: '',
+    tags: resource.tags
+  }
+
   useEffect(() => {
     if (preview) preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
@@ -256,7 +270,10 @@ function ResourceFile({
         <FileCard
           item={resource}
           name={name}
-          onClick={() => ClickPlacementState.setSelectedAsset(resource.url)}
+          onClick={() => {
+            ClickPlacementState.setSelectedAsset(resource.url)
+            ClickPlacementState.setSelectedAssetData(metadata)
+          }}
           onContextMenu={(event) => {
             event.preventDefault()
             event.stopPropagation()
@@ -378,9 +395,7 @@ function BottomPaginationNavBar({ handleScrollToPage }) {
 
 function ResourceItems() {
   const { t } = useTranslation()
-  const { resourcesLoading, resources, staticResourcesPagination, refetchResources } = useAssetsQuery()
-  const { currentCategoryPath } = useAssetsCategory()
-  const currentCategory = currentCategoryPath.get({ noproxy: true }) as AssetCategoryNode
+  const { category, resourcesLoading, resources, staticResourcesPagination } = useAssetsQuery()
   const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]) // Create a ref array
   const fileIconsLoaded = useHookstate(0)
@@ -407,13 +422,13 @@ function ResourceItems() {
 
   useEffect(() => {
     if (isLoading.value) return
-    refetchResources()
+    AssetsRefreshState.triggerRefresh()
   }, [isLoading.value])
 
   useEffect(() => {
     fileIconsToLoad.set(0)
     fileIconsLoaded.set(0)
-  }, [currentCategory?.path])
+  }, [category.currentCategoryPath])
 
   return (
     <div className="relative flex w-full ">
@@ -496,7 +511,7 @@ function ResourceItems() {
 }
 
 export default function Resources() {
-  const { resourcesLoading, staticResourcesPagination, refetchResources } = useAssetsQuery()
+  const { resourcesLoading, staticResourcesPagination } = useAssetsQuery()
 
   return (
     <div id="asset-panel" className="relative flex h-full w-full flex-col overflow-auto bg-surface-1">
@@ -509,7 +524,7 @@ export default function Resources() {
           )
             return
           staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT + calculateItemsToFetch())
-          refetchResources()
+          AssetsRefreshState.triggerRefresh(false)
         }}
       >
         <div

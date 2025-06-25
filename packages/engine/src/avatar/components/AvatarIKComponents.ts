@@ -25,18 +25,16 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AxesHelper, Quaternion, Vector3 } from 'three'
 
-import { S, UUIDComponent, useEntityContext } from '@ir-engine/ecs'
+import { NetworkObjectComponent, S, UUIDComponent, useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityID, SourceID } from '@ir-engine/ecs/src/Entity'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { NetworkObjectComponent } from '@ir-engine/network'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
-import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
+import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
@@ -85,7 +83,9 @@ type HandTargetReturn = { position: Vector3; rotation: Quaternion } | null
 export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetReturn => {
   const networkComponent = getComponent(entity, NetworkObjectComponent)
 
-  const targetEntity = NameComponent.getEntitiesByName(networkComponent.ownerId + '_' + hand)[0] // todo, how should be choose which one to use?
+  const targetEntity = UUIDComponent.getEntityByUUID(
+    UUIDComponent.join({ entitySourceID: networkComponent.ownerId as string as SourceID, entityID: hand as EntityID })
+  )
   if (targetEntity && AvatarIKTargetComponent.blendWeight[targetEntity] > 0)
     return getComponent(targetEntity, TransformComponent)
 

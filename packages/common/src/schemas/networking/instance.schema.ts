@@ -52,9 +52,14 @@ export const instanceSchema = Type.Object(
         format: 'uuid'
       })
     ),
-    projectId: Type.String({
-      format: 'uuid'
-    }),
+    projectId: Type.Optional(
+      Type.Union([
+        Type.Null(),
+        Type.String({
+          format: 'uuid'
+        })
+      ])
+    ),
     podName: Type.Optional(Type.String()),
     currentUsers: Type.Integer(),
     ended: Type.Optional(Type.Boolean()),

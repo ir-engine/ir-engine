@@ -28,7 +28,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createEntity, removeEntity } from '../ComponentFunctions'
 import { createEngine, destroyEngine } from '../Engine'
 import { Entity, UndefinedEntity } from '../Entity'
-import { Kind, NonSerializable, Schema, TArraySchema, TEnumSchema } from './JSONSchemaTypes'
+import { Kind, NonSerializable, Schema, TArraySchema } from './JSONSchemaTypes'
 import {
   CheckSchemaValue,
   CloneSerializable,
@@ -87,7 +87,7 @@ describe('DeserializeSchemaValue', () => {
     const curr = {}
     const value = {}
 
-    const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+    const result = DeserializeSchemaValue(schema, curr, value)
 
     expect(result).toBe(Expected)
   })
@@ -102,7 +102,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -114,7 +114,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -126,7 +126,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = false
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -138,7 +138,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -155,7 +155,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -167,7 +167,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -179,7 +179,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = 'IncorrectValue'
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -191,7 +191,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -209,7 +209,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -221,7 +221,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -233,7 +233,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = false
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -245,7 +245,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = '__proto__'
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -257,48 +257,22 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
   }) //:: Kind.String
 
-  describe('case: Kind.Enum', () => {
-    const TestSchemaKind = 'Enum'
-
-    it('should return `@param value` when it is null', () => {
-      const Expected = null
-
-      const schema = { [Kind]: TestSchemaKind, options: { deserialize: undefined } } as Schema
-      const curr = {}
-      const value = Expected
-
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
-
-      expect(result).toBe(Expected)
-    })
-
-    it('should return `@param value` when it is undefined', () => {
-      const Expected = undefined
-
-      const schema = { [Kind]: TestSchemaKind, options: { deserialize: undefined } } as Schema
-      const curr = {}
-      const value = Expected
-
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
-
-      expect(result).toBe(Expected)
-    })
-
+  describe('case: S.Enum', () => {
     it("should return undefined when `@param value` is not contained in the enum's schema", () => {
       const Expected = undefined
 
-      const properties = {} as TEnumSchema<Record<string, string | number>>['properties']
-      const schema = { [Kind]: TestSchemaKind, options: { deserialize: undefined }, properties: properties } as Schema
+      const properties = {}
+      const schema = S.Enum(properties, { deserialize: undefined })
       const curr = {}
       const value = 42
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -306,12 +280,12 @@ describe('DeserializeSchemaValue', () => {
     it("should return `@param value` when its value is contained in the enum's schema", () => {
       const Expected = 42
 
-      const properties = { one: 1, two: Expected } as TEnumSchema<Record<string, string | number>>['properties']
-      const schema = { [Kind]: TestSchemaKind, options: { deserialize: undefined }, properties: properties } as Schema
+      const properties = { one: 1, two: Expected }
+      const schema = S.Enum(properties, { deserialize: undefined })
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -327,7 +301,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -339,7 +313,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -352,7 +326,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = 42
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -365,7 +339,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = properties
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -381,7 +355,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -393,7 +367,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -405,7 +379,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = 42
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -428,7 +402,7 @@ describe('DeserializeSchemaValue', () => {
       ]
       const value = [40, 41, 42, 43, 44]
 
-      DeserializeSchemaValue(testEntity, schema, curr, value)
+      DeserializeSchemaValue(schema, curr, value)
       const result = curr
 
       expect(result.length).toEqual(Expected.length)
@@ -444,7 +418,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = [1, 2, 3, 4, 5]
       const value = [...Expected, undefined, null]
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)!
+      const result = DeserializeSchemaValue(schema, curr, value)!
 
       expect(result.length).toEqual(Expected.length)
       expect(result).toEqual(Expected)
@@ -459,7 +433,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = Expected
       const value = [0, 1, 2, 3, 4]
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)!
+      const result = DeserializeSchemaValue(schema, curr, value)!
 
       expect(result).toBe(Expected)
     })
@@ -475,7 +449,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -487,7 +461,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -499,7 +473,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = 42
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -518,7 +492,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = [0, Expected[1], 2, Expected[3], true]
       const value = [Expected[0], undefined, Expected[2], null, Expected[4]]
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toEqual(Expected)
     })
@@ -535,7 +509,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -547,7 +521,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -559,7 +533,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = 'IncorrectValue'
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -576,7 +550,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = { valid1: 1, valid2: true, valid3: 'String', ignore: 'IgnoredField' }
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toEqual(Expected)
     })
@@ -600,7 +574,7 @@ describe('DeserializeSchemaValue', () => {
         ignore: 'IgnoredField'
       } as any
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toEqual(Expected)
     })
@@ -623,7 +597,7 @@ describe('DeserializeSchemaValue', () => {
         invalid2: null
       }
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toEqual(Expected)
     })
@@ -641,7 +615,7 @@ describe('DeserializeSchemaValue', () => {
       const invalid = 42
       const value = { valid1: Expected.valid1, valid2: Expected.valid2, valid3: invalid }
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toEqual(Expected)
     })
@@ -657,7 +631,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -669,7 +643,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -691,7 +665,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = { test: { one: 21, two: 22 } }
       const value = { test: { one: 4 as unknown, two: 5 as unknown } }
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(value)
       expect(result).toEqual(Expected)
@@ -707,7 +681,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = { test: Expected.test }
       const value = { test: undefined } as any
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(value)
       expect(result).toEqual(Expected)
@@ -723,7 +697,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -740,7 +714,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -757,7 +731,7 @@ describe('DeserializeSchemaValue', () => {
       const curr = {}
       const value = Expected
 
-      const result = DeserializeSchemaValue(testEntity, schema, curr, value)
+      const result = DeserializeSchemaValue(schema, curr, value)
 
       expect(result).toBe(Expected)
     })
@@ -1058,7 +1032,6 @@ describe('IsSingleValueSchema', () => {
     'Number',
     'Bool',
     'String',
-    'Enum',
     'Literal',
     'Class',
     'Array',
@@ -1356,9 +1329,8 @@ describe('CreateSchemaValue', () => {
 
     const defaultField = structuredClone(Expected)
     const schema = { options: { default: defaultField } } as Schema
-    const testEntity = 12345 as Entity
 
-    const result = CreateSchemaValue(testEntity, schema)
+    const result = CreateSchemaValue(schema)
 
     expect(result).not.toBe(Expected)
     expect(result).toEqual(Expected)
@@ -1368,9 +1340,8 @@ describe('CreateSchemaValue', () => {
     const Expected = { one: 41, two: 42 }
 
     const schema = { options: { default: () => Expected } } as Schema
-    const testEntity = 12345 as Entity
 
-    const result = CreateSchemaValue(testEntity, schema)
+    const result = CreateSchemaValue(schema)
 
     expect(result).toBe(Expected)
     expect(result).toEqual(Expected)
@@ -1385,23 +1356,20 @@ describe('CreateSchemaValue', () => {
     ['', 'String']
   ])('should return %s when `@param schema`[Kind] is %s', (Expected, kind) => {
     const schema = { [Kind]: kind } as Schema
-    const testEntity = 12345 as Entity
 
-    const result = CreateSchemaValue(testEntity, schema)
+    const result = CreateSchemaValue(schema)
 
     expect(result).toBe(Expected)
     expect(result).toEqual(Expected)
   })
 
-  it("should return the first value that can be represented by the `@param schema`.properties enum when schema[Kind] is 'Enum'", () => {
+  it("should return the first value that can be represented by the `@param schema`.properties enum when schema[Kind] is 'Const'", () => {
     const Expected = 42
 
-    const kind = 'Enum'
     const properties = { expectedValue: Expected, One: 1, Two: 2 }
-    const schema = { [Kind]: kind, properties: properties } as Schema
-    const testEntity = 12345 as Entity
+    const schema = S.Enum(properties)
 
-    const result = CreateSchemaValue(testEntity, schema)
+    const result = CreateSchemaValue(schema)
 
     expect(result).toBe(Expected)
     expect(result).toEqual(Expected)
@@ -1413,9 +1381,8 @@ describe('CreateSchemaValue', () => {
     const kind = 'Literal'
     const properties = Expected
     const schema = { [Kind]: kind, properties: properties } as Schema
-    const testEntity = 12345 as Entity
 
-    const result = CreateSchemaValue(testEntity, schema)
+    const result = CreateSchemaValue(schema)
 
     expect(result).toBe(Expected)
     expect(result).toEqual(Expected)
@@ -1432,7 +1399,7 @@ describe('CreateSchemaValue', () => {
           one: {
             [Kind]: 'Proxy',
             options: {
-              create: () => {
+              default: () => {
                 return Expected.one
               }
             },
@@ -1441,7 +1408,7 @@ describe('CreateSchemaValue', () => {
           two: {
             [Kind]: 'Proxy',
             options: {
-              create: () => {
+              default: () => {
                 return Expected.two
               }
             },
@@ -1449,9 +1416,8 @@ describe('CreateSchemaValue', () => {
           } as unknown as Schema
         }
       } as Schema
-      const testEntity = 12345 as Entity
 
-      const result = CreateSchemaValue(testEntity, schema)
+      const result = CreateSchemaValue(schema)
 
       expect(result).not.toBe(Expected)
       expect(result).toEqual(Expected)
@@ -1464,9 +1430,8 @@ describe('CreateSchemaValue', () => {
       const Expected = {}
 
       const schema = { [Kind]: kind } as Schema
-      const testEntity = 12345 as Entity
 
-      const result = CreateSchemaValue(testEntity, schema)
+      const result = CreateSchemaValue(schema)
 
       expect(typeof result).toBe(typeof Expected)
       expect(result).toEqual(Expected)
@@ -1477,9 +1442,8 @@ describe('CreateSchemaValue', () => {
     const Expected = []
 
     const schema = { [Kind]: kind } as Schema
-    const testEntity = 12345 as Entity
 
-    const result = CreateSchemaValue(testEntity, schema)
+    const result = CreateSchemaValue(schema)
 
     expect(Array.isArray(result)).toBeTruthy()
     expect(result).toEqual(Expected)
@@ -1491,9 +1455,8 @@ describe('CreateSchemaValue', () => {
     const kind = 'Union'
     const properties = []
     const schema = { [Kind]: kind, properties: properties } as Schema
-    const testEntity = 12345 as Entity
 
-    const result = CreateSchemaValue(testEntity, schema)
+    const result = CreateSchemaValue(schema)
 
     expect(result).toBe(Expected)
     expect(result).toEqual(Expected)
@@ -1505,9 +1468,8 @@ describe('CreateSchemaValue', () => {
     const kind = 'Union'
     const properties = [{ [Kind]: 'Number' } as Schema, { [Kind]: 'String' } as Schema]
     const schema = { [Kind]: kind, properties: properties } as Schema
-    const testEntity = 12345 as Entity
 
-    const result = CreateSchemaValue(testEntity, schema)
+    const result = CreateSchemaValue(schema)
 
     expect(result).toBe(Expected)
     expect(result).toEqual(Expected)
@@ -1521,9 +1483,8 @@ describe('CreateSchemaValue', () => {
     const returnSchema = { [Kind]: 'Number' } as Schema
     const properties = { params: [], return: returnSchema }
     const schema = { [Kind]: kind, properties: properties } as Schema
-    const testEntity = 12345 as Entity
 
-    const result = (CreateSchemaValue(testEntity, schema) as any)()
+    const result = (CreateSchemaValue(schema) as any)()
 
     expect(result).toBe(Expected)
     expect(result).not.toEqual('')
@@ -1535,9 +1496,8 @@ describe('CreateSchemaValue', () => {
     const kind = 'UnknownKind' as any
     const properties = { [Kind]: 'Union', properties: [{ [Kind]: 'Number' } as Schema, { [Kind]: 'String' } as Schema] }
     const schema = { [Kind]: kind, properties: properties, options: { serialized: true } } as Schema
-    const testEntity = 12345 as Entity
 
-    const result = CreateSchemaValue(testEntity, schema)
+    const result = CreateSchemaValue(schema)
 
     expect(result).toBe(Expected)
     expect(result).toEqual(Expected)
@@ -1598,14 +1558,12 @@ describe('CheckSchemaValue', () => {
   }) //:: Kind.Number
 
   describe('case Kind.Enum', () => {
-    const TestSchemaKind = 'Enum'
-
     it('should return true if `@param schema`.properties includes `@param value`', () => {
       const Expected = true
 
       const value = 42
       const properties = { expectedValue: value, One: 1, Two: 2 }
-      const schema = { [Kind]: TestSchemaKind, properties: properties } as Schema
+      const schema = S.Enum(properties)
 
       const result = CheckSchemaValue(schema, value)
 
@@ -1617,7 +1575,7 @@ describe('CheckSchemaValue', () => {
 
       const value = 42
       const properties = { One: 1, Two: 2 }
-      const schema = { [Kind]: TestSchemaKind, properties: properties } as Schema
+      const schema = S.Enum(properties)
 
       const result = CheckSchemaValue(schema, value)
 
@@ -2121,7 +2079,7 @@ describe('ConvertToSchema', () => {
   })
 
   describe('when `@param schema`.options.serialize is falsy ..', () => {
-    it.todo.each(['Null', 'Undefined', 'Void', 'Number', 'Bool', 'String', 'Enum', 'Literal', 'Any'])(
+    it.todo.each(['Null', 'Undefined', 'Void', 'Number', 'Bool', 'String', 'Literal', 'Any'])(
       "should return `@param value` when `@param schema`[Kind] is '%s'",
       (kind) => {
         const Expected = { one: 42 }
@@ -2463,11 +2421,14 @@ describe('GenerateJSONSchema', () => {
     expect(jsonSchema).toEqual({ type: 'string' })
   })
 
-  it('should generate schema for Enum type', () => {
+  it('should generate schema for Const type', () => {
     const schema = S.Enum({ A: 'a', B: 'b' })
     const jsonSchema = GenerateJSONSchema(schema)
     expect(jsonSchema).toEqual({
-      enum: ['a', 'b']
+      enum: ['a', 'b'],
+      metadata: {
+        enumKeys: ['A', 'B']
+      }
     })
   })
 
@@ -2543,7 +2504,7 @@ describe('GenerateJSONSchema', () => {
   })
 
   it('should generate schema for Array type', () => {
-    const schema = S.Array(S.Number(), { minItem: 1, maxItem: 10 })
+    const schema = S.Array(S.Number(), { minItems: 1, maxItems: 10 })
     const jsonSchema = GenerateJSONSchema(schema)
     expect(jsonSchema).toEqual({
       type: 'array',
@@ -2608,7 +2569,7 @@ describe('GenerateJSONSchema', () => {
   })
 
   it('should generate schema for Proxy type', () => {
-    const schema = S.Proxy(S.String(), () => ({}))
+    const schema = S.Proxy(S.String())
     const jsonSchema = GenerateJSONSchema(schema)
     expect(jsonSchema).toEqual({ type: 'string' })
   })

@@ -5,8 +5,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
@@ -18,31 +18,38 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { EmbedCodeField } from '@ir-engine/client-core/src/common/components/EmbedCodeField'
 import { ModalState } from '@ir-engine/client-core/src/common/services/ModalState'
 import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
-import { useFind, useMutation } from '@ir-engine/common'
-import { config } from '@ir-engine/common/src/config'
-import { ModelTransformStatus, transformModel } from '@ir-engine/common/src/model/ModelTransformFunctions'
+import { API, useFind, useMutation } from '@ir-engine/common'
+import config from '@ir-engine/common/src/config'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
+import { ModelTransformStatus, safeCompressGLTFWeb } from '@ir-engine/common/src/model/ModelTransformFunctions'
 import {
+  engineSettingPath,
+  fileBrowserPath,
   LocationData,
   LocationID,
   LocationPatch,
-  LocationType,
   locationPath,
+  LocationType,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
-import { Entity, getComponent, hasComponent, iterateEntityNode } from '@ir-engine/ecs'
-import { LODVariantDescriptor, defaultLODs } from '@ir-engine/editor/src/constants/GLTFPresets'
-import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import { Entity, getComponent, hasComponent, iterateEntityNode, setComponent, UndefinedEntity } from '@ir-engine/ecs'
+import { defaultLODs, LODVariantDescriptor } from '@ir-engine/editor/src/constants/GLTFPresets'
 import { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
 import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/ModelTransform'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
+import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Button, DropdownItem, Input, Select, Tooltip } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
@@ -53,6 +60,7 @@ import React, { lazy, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineInformationCircle } from 'react-icons/hi2'
 import { NotificationService } from '../../../common/services/NotificationService'
+import useFeatureFlags from '../../../hooks/useFeatureFlags'
 import { CompressedPublishConfirmation, ProgressState } from './CompressedPublishConfirmation'
 
 function formatPublishedDate(isoString) {
@@ -105,17 +113,25 @@ type AddEditLocationModalProps = Readonly<{
 export default function AddEditLocationModal(props: AddEditLocationModalProps) {
   const { t } = useTranslation()
   const locationID = useHookstate(props.location?.id || null)
+  const fileService = useMutation(fileBrowserPath)
   const params = {
     query: {
       id: locationID.value,
       action: props.action
     }
   }
-
   const locationQuery = useFind(locationPath, locationID.value ? params : undefined)
   const location = locationID.value ? locationQuery.data[0] : undefined
 
   const locationMutation = useMutation(locationPath)
+
+  const instanceEngineSettings = useFind(engineSettingPath, {
+    query: {
+      category: 'instance-server',
+      key: EngineSettings.InstanceServer.MaxUsersPerInstance,
+      paginate: false
+    }
+  })
 
   const publishLoading = useHookstate(false)
   const unPublishLoading = useHookstate(false)
@@ -130,10 +146,17 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
   const scene = useHookstate((location ? location.sceneId : props.sceneID) || '')
   const videoEnabled = useHookstate<boolean>(location?.locationSetting.videoEnabled || true)
   const audioEnabled = useHookstate<boolean>(location?.locationSetting.audioEnabled || true)
+  /** @todo: Re-enable this when the engine has a working jump control/vr capabilities */
+  // const jumpControlEnabled = useHookstate<boolean>(location?.locationSetting.jumpControlEnabled || true)
+  // const vrEnabled = useHookstate<boolean>(location?.locationSetting.vrEnabled || true)
   const screenSharingEnabled = useHookstate<boolean>(location?.locationSetting.screenSharingEnabled || true)
   const locationType = useHookstate(location?.locationSetting.locationType || 'public')
   const progressState = useHookstate(getMutableState(ProgressState))
   const lods = useHookstate<LODVariantDescriptor[]>([])
+  const [xrEnabled] = useFeatureFlags([FeatureFlags.Client.Menu.XR])
+
+  const [compressOnPublishEnabled] = useFeatureFlags([FeatureFlags.Studio.UI.CompressOnPublish])
+
   useEffect(() => {
     if (location) {
       name.set(location.name)
@@ -142,6 +165,9 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
       audioEnabled.set(location.locationSetting.audioEnabled)
       screenSharingEnabled.set(location.locationSetting.screenSharingEnabled)
       locationType.set(location.locationSetting.locationType)
+      /** @todo: Re-enable this when the engine has a working jump control/vr capabilities */
+      // jumpControlEnabled.set(location.locationSetting.jumpControlEnabled)
+      // vrEnabled.set(location.locationSetting.vrEnabled)
 
       if (!props.sceneID) scene.set(location.sceneId)
     }
@@ -186,8 +212,10 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
     if (!maxUsers.value) {
       errors.maxUsers.set(t('admin:components.location.maxUserCantEmpty'))
     }
-    if (maxUsers.value > LOCATION_MAX) {
-      errors.maxUsers.set(t('admin:components.location.maxUserExceeded'))
+    if (maxUsers.value > parseInt(instanceEngineSettings.data[0].value)) {
+      errors.maxUsers.set(
+        t('admin:components.location.maxUserExceeded', { maxUsers: instanceEngineSettings?.data[0].value })
+      )
     }
     if (!scene.value) {
       errors.scene.set(t('admin:components.location.sceneCantEmpty'))
@@ -217,76 +245,101 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
         // Find all entities with GLTFComponent and compress them
         const entitiesToCompress = [] as Entity[]
         iterateEntityNode(rootEntity, (entity) => {
+          if (entity === rootEntity) return
           if (hasComponent(entity, GLTFComponent)) {
             entitiesToCompress.push(entity)
           }
         })
 
-        // Process each GLTF entity
+        // Process each child GLTF entity
         for (const gltfEntity of entitiesToCompress) {
           const gltfComponent = getComponent(gltfEntity, GLTFComponent)
           const srcURL = gltfComponent.src
           if (!srcURL) continue
-
           // Set up compression for this entity
           const fileName = srcURL.split('/').pop()!.split('.').shift()!
-          const destPath = `${saveScenePath.value}/${scenename}/${fileName}-compressed.gltf`
-
-          // Export the entity to the publish folder
-          await exportRelativeGLTF(
-            gltfEntity,
-            projectName,
-            'public/publish/' + scenename + '/' + fileName + '-compressed.gltf',
-            false
-          )
-
-          // Apply model transformation/compression
-          const transformMetadata: Record<string, any>[] = []
-          const progressCaptions: Record<ModelTransformStatus, string> = {
-            [ModelTransformStatus.TransformingModels]: 'editor:properties.model.transform.status.transformingmodels',
-            [ModelTransformStatus.ProcessingTexture]: 'editor:properties.model.transform.status.processingtexture',
-            [ModelTransformStatus.WritingFiles]: 'editor:properties.model.transform.status.writingfiles',
-            [ModelTransformStatus.Complete]: 'editor:properties.model.transform.status.complete'
-          }
-
-          // Create LOD parameters for this model
-          const lodParams: ModelTransformParameters = {
-            ...defaultLODs[2].params,
-            dst: fileName + defaultLODs[2].suffix,
-            modelFormat: srcURL.endsWith('.gltf') ? 'gltf' : srcURL.endsWith('.vrm') ? 'vrm' : 'glb',
-            resourceUri: '',
-            adaptiveSimplification: true
-          }
-
-          progressState.set({
-            progress: progressState.value.progress,
-            caption: `Compressing ${fileName}...`
-          })
-          // transform each of them seperately
-          await transformModel(
-            pathJoin(config.client.fileServer, destPath),
-            [lodParams],
-            (i, key, data) => {
-              if (!transformMetadata[i]) transformMetadata[i] = {}
-              transformMetadata[i][key] = data
-            },
-            (progress, status, numerator, denominator) => {
-              const caption = t(progressCaptions[status]!, {
-                numerator: numerator! + 1,
-                denominator
-              })
-              progressState.set({
-                progress: progressState.value.progress + progress / entitiesToCompress.length,
-                caption
-              })
+          try {
+            const extension = new URL(srcURL).pathname.split('.').pop()!
+            const modelFormat = extension === 'gltf' ? 'gltf' : extension === 'vrm' ? 'vrm' : 'glb'
+            const destPath = `${saveScenePath.value}/${scenename}/${fileName}-compressed-published.${extension}`
+            // remove old optimized scene if it exists
+            try {
+              await fileService.remove(destPath.replace('-compressed-published', ''))
+              await fileService.remove(destPath)
+            } catch (e) {
+              console.log('Tried to remove ', destPath, ' but no file was found')
             }
-          )
 
-          // Update the entity to use the compressed version
-          EditorControlFunctions.modifyProperty([gltfEntity], GLTFComponent, {
-            src: pathJoin(config.client.fileServer, destPath)
-          })
+            /** If a GLTF file, re-export GLTF to the publish folder such that it has a copy of it's relative referenced assets. */
+            if (modelFormat === 'gltf') {
+              await exportRelativeGLTF(
+                gltfEntity,
+                projectName,
+                'public/publish/' + scenename + '/' + fileName + '.gltf',
+                false
+              )
+            }
+
+            // Apply model transformation/compression
+            const progressCaptions: Record<ModelTransformStatus, string> = {
+              [ModelTransformStatus.TransformingModels]: 'editor:properties.model.transform.status.transformingmodels',
+              [ModelTransformStatus.ProcessingTexture]: 'editor:properties.model.transform.status.processingtexture',
+              [ModelTransformStatus.WritingFiles]: 'editor:properties.model.transform.status.writingfiles',
+              [ModelTransformStatus.Complete]: 'editor:properties.model.transform.status.complete'
+            }
+            // Create LOD parameters for this model
+            const lodParams: ModelTransformParameters = {
+              ...defaultLODs[2].params,
+              dst: fileName + '-compressed-published',
+              modelFormat: modelFormat,
+              resourceUri: '',
+              adaptiveSimplification: true,
+              maxTextureSize: 1024
+            }
+
+            progressState.set({
+              progress: progressState.value.progress,
+              caption: `Compressing ${fileName}...`
+            })
+
+            const { cloudDomain } = getState(DomainConfigState)
+            const compressedGLTFPath = `${cloudDomain}/projects/${projectName}/public/publish/${scenename}/${fileName}.gltf`
+
+            await safeCompressGLTFWeb(
+              modelFormat === 'gltf' ? compressedGLTFPath : gltfComponent.src,
+              destPath,
+              lodParams,
+              (progress, status, numerator, denominator) => {
+                const caption = t(progressCaptions[status]!, {
+                  numerator: (numerator ?? 0) + 1,
+                  denominator
+                })
+                progressState.set({
+                  progress: progressState.value.progress + progress / entitiesToCompress.length,
+                  caption
+                })
+              }
+            )
+            // find newly created file from static resources to get with hash
+            const newResource = await API.instance.service(staticResourcePath).find({
+              query: { key: destPath, $limit: 1 }
+            })
+
+            const newGLTFURL = newResource?.data?.[0]?.url
+              ? newResource.data[0].url
+              : pathJoin(config.client.fileServer, destPath)
+
+            setComponent(gltfEntity, NameComponent, fileName + '-compressed')
+            setComponent(gltfEntity, GLTFComponent, { src: newGLTFURL })
+          } catch (error) {
+            console.error(error)
+          }
         }
+        // Increase wait time to ensure files are fully processed
+        progressState.set({
+          progress: progressState.value.progress,
+          caption: `Waiting for files to be processed...`
+        })
         //save duplicated scene and publish that
         await saveSceneGLTF(
           sceneAssetID!,
@@ -297,13 +350,11 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
           saveScenePath.value + '/' + scenename
         )
         await handlePublish(true)
-        //re-open the original scene
-        const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${scenePath}`
-        window.open(studioUrl, '_blank')?.focus()
         ModalState.closeModal()
         progressState.set({ progress: 0, caption: '' })
       }
     } catch (error) {
+      console.error(error)
       progressState.set({ progress: 0, caption: '' })
       ModalState.closeModal()
       ModalState.openModal(
@@ -336,10 +387,12 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
     }
     publishLoading.set(true)
 
-    const updateSceneID = getState(EditorState).sceneAssetID
+    let updateSceneID = getState(EditorState).sceneAssetID
+
+    if (location?.sceneId && scene.value !== location?.sceneId) updateSceneID = scene.value
 
     try {
-      if (updateSceneID) {
+      if (updateSceneID && getState(ReferenceSpaceState).originEntity !== UndefinedEntity) {
         await SceneThumbnailState.createThumbnail()
         await SceneThumbnailState.uploadThumbnail()
       }
@@ -368,6 +421,9 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
         screenSharingEnabled: Boolean(screenSharingEnabled.value),
         faceStreamingEnabled: false,
         videoEnabled: Boolean(videoEnabled.value)
+        /** @todo: Re-enable this when the engine has a working jump control/vr capabilities */
+        // jumpControlEnabled: Boolean(jumpControlEnabled.value),
+        // vrEnabled: Boolean(vrEnabled.value)
       },
       isLobby: false,
       isFeatured: false
@@ -412,6 +468,14 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
     }
   }, [location, props.onPublishSuccess, isNewPublished.value])
 
+  const setMaxUsers = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const maxU = parseInt(event.currentTarget.value, 0)
+    maxUsers.set(Math.max(maxU, 0))
+    if (maxU < 2) {
+      videoEnabled.set(false)
+    }
+  }
+
   return (
     <div
       className="absolute z-50 rounded-xl border border-surface-1 bg-white px-8 pt-6 shadow-lg dark:bg-surface-1"
@@ -439,7 +503,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
         </div>
 
         <div className="h-fit max-h-[60vh] w-full overflow-y-auto">
-          <div className="relative grid w-full gap-6">
+          <div className="relative grid w-full gap-4">
             {errors.serverError.value && <p className="mb-3 text-red-700">{errors.serverError.value}</p>}
             {
               <div className={location ? 'border-y border-y-ui-outline' : ''}>
@@ -497,6 +561,46 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
               )}
 
               <div className="grid h-full grid-rows-[auto,1fr] gap-5">
+                {xrEnabled ? (
+                  <>
+                    <div className="flex h-auto flex-col self-start">
+                      <h5>{t('editor:toolbar.publishLocation.jumpControlFeature')}</h5>
+                      <span className="text-xs">{t('editor:toolbar.publishLocation.jumpControlFeatureDesc')}</span>
+                    </div>
+                    <div className="flex flex-col gap-5">
+                      <Toggle
+                        label={t('admin:components.location.lbl-je')}
+                        /** @todo: Re-enable this when the engine has a working jump control/vr capabilities */
+                        value={false}
+                        onChange={() => {}}
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  ''
+                )}
+
+                {xrEnabled ? (
+                  <>
+                    <div className="flex h-auto flex-col self-start">
+                      <h5>{t('editor:toolbar.publishLocation.vrCapabilitiesFeature')}</h5>
+                      <span className="text-xs">{t('editor:toolbar.publishLocation.vrCapabilitiesFeatureDesc')}</span>
+                    </div>
+                    <div className="flex flex-col gap-5">
+                      <Toggle
+                        label={t('admin:components.location.lbl-vre')}
+                        /** @todo: Re-enable this when the engine has a working jump control/vr capabilities */
+                        value={false}
+                        onChange={() => {}}
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  ''
+                )}
+
                 <div className="flex h-auto flex-col self-start">
                   <h5>{t('editor:toolbar.publishLocation.multiplayerFeatures')}</h5>
                   <span className="text-xs">{t('editor:toolbar.publishLocation.multiplayerDescription')}</span>
@@ -508,36 +612,48 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
                     labelProps={{ text: t('admin:components.location.lbl-maxuser'), position: 'top' }}
                     value={maxUsers.value}
                     data-testid="publish-panel-location-max-users"
-                    onChange={(event) => maxUsers.set(Math.max(parseInt(event.target.value, 0), 0))}
+                    onChange={setMaxUsers}
                     state={errors.maxUsers.value ? 'error' : undefined}
                     helperText={errors.maxUsers.value}
                     disabled={isLoading}
                     fullWidth
                     height="xl"
                     placeholder="5 - Default"
-                    max={LOCATION_MAX}
+                    max={parseInt(instanceEngineSettings?.data[0]?.value)}
                   />
                   <Toggle
                     label={t('admin:components.location.lbl-ve')}
                     value={videoEnabled.value}
                     onChange={videoEnabled.set}
-                    disabled={isLoading}
+                    disabled={isLoading || maxUsers.value < 2}
                   />
-                  <Toggle
-                    label={t('admin:components.location.lbl-ae')}
-                    value={audioEnabled.value}
-                    onChange={audioEnabled.set}
-                    disabled={isLoading}
-                  />
-                  <Toggle
-                    label={t('admin:components.location.lbl-se')}
-                    value={screenSharingEnabled.value}
-                    onChange={screenSharingEnabled.set}
-                    disabled={isLoading}
-                  />
+                  {videoEnabled.value && (
+                    <>
+                      <div className="pl-4">
+                        <Toggle
+                          label={t('admin:components.location.lbl-se')}
+                          value={screenSharingEnabled.value}
+                          onChange={screenSharingEnabled.set}
+                          disabled={isLoading}
+                          className="pl-4"
+                        />
+                      </div>
+                      <Toggle
+                        label={t('admin:components.location.lbl-ae')}
+                        value={audioEnabled.value}
+                        onChange={audioEnabled.set}
+                        disabled={isLoading}
+                      />
+                    </>
+                  )}
                 </div>
               </div>
             </div>
+            {location?.url && (
+              <div className="border-t border-t-ui-outline py-6">
+                <EmbedCodeField url={location.url} />
+              </div>
+            )}
           </div>
         </div>
 
@@ -561,6 +677,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
               <Button
                 className="bg-[#2F3A4D]"
                 data-testid="publish-panel-compress-and-publish-button"
+                disabled={isLoading || !compressOnPublishEnabled}
                 onClick={handlePublishFolder}
               >
                 <HiOutlineInformationCircle />

@@ -78,7 +78,8 @@ export class Googlestrategy extends CustomOAuthStrategy {
         const newUser = await this.app.service(userPath).create({
           name: '' as UserName,
           isGuest: false,
-          inviteCode: code
+          inviteCode: code,
+          ageVerified: true
         })
         entity.userId = newUser.id
         await this.app.service(identityProviderPath).patch(entity.id, {
@@ -186,7 +187,7 @@ export class Googlestrategy extends CustomOAuthStrategy {
     } catch {
       redirectConfig = {}
     }
-    let { domain: redirectDomain, path: redirectPath, instanceId: redirectInstanceId } = redirectConfig
+    let { domain: redirectDomain, path: redirectPath, instanceId: redirectInstanceId, signupUsername } = redirectConfig
     redirectDomain = redirectDomain ? `${redirectDomain}/auth/oauth/google` : config.authentication.callback.google
 
     if (data instanceof Error || Object.getPrototypeOf(data) === Error.prototype) {

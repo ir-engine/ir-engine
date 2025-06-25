@@ -25,6 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   Entity,
+  EntityID,
+  SourceID,
   UUIDComponent,
   UndefinedEntity,
   createEngine,
@@ -36,7 +38,6 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
-import { getMutableState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import sinon from 'sinon'
 import { BoxGeometry, Color, Material, Mesh, Texture } from 'three'
@@ -45,21 +46,11 @@ import { assertArray } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { TransformComponent } from '../RendererModule'
 import { MeshComponent } from '../components/MeshComponent'
+import { MaterialInstanceComponent, MaterialStateComponent, PrototypeArgumentValue } from './MaterialComponent'
 import {
-  MaterialInstanceComponent,
-  MaterialPrototypeDefinitions,
-  MaterialStateComponent,
-  PrototypeArgument,
-  PrototypeArgumentValue
-} from './MaterialComponent'
-import {
-  MaterialNotFoundError,
-  PrototypeNotFoundError,
-  extractDefaults,
   formatMaterialArgs,
   getMaterialIndices,
   hasPlugin,
-  injectMaterialDefaults,
   removePlugin,
   setMeshMaterial,
   setPlugin
@@ -81,6 +72,10 @@ describe('materialFunctions', () => {
       createEngine()
       mockSpatialEngine()
       testEntity = createEntity()
+      setComponent(testEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'id' as EntityID
+      })
     })
 
     afterEach(() => {
@@ -91,9 +86,17 @@ describe('materialFunctions', () => {
     it('should add the first item of `@param newMaterialEntities` to MeshComponent.material when MeshComponent.material is not an array', () => {
       const materialEntity = createEntity()
       const otherMaterialEntity = createEntity()
+      setComponent(materialEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'id1' as EntityID
+      })
+      setComponent(otherMaterialEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'id2' as EntityID
+      })
       const newMaterialEntities = [materialEntity, otherMaterialEntity]
       const material = new Material()
-      const expectedUUID = material.uuid
+      const expectedUUID = UUIDComponent.get(materialEntity)
 
       // Set the data as expected
       setComponent(testEntity, MeshComponent, new Mesh(new BoxGeometry()))
@@ -106,9 +109,9 @@ describe('materialFunctions', () => {
 
       // Run and Check the result
       setMeshMaterial(testEntity, newMaterialEntities)
-      const result = getComponent(testEntity, MeshComponent).material
+      const result = getComponent(testEntity, MeshComponent).material as Material
       assert.equal(Array.isArray(result), false)
-      assert.equal((result as Material).uuid, expectedUUID)
+      assert.equal(result.uuid, expectedUUID)
     })
 
     it('should add all items of `@param newMaterialEntities` to MeshComponent.material when MeshComponent.material is an array', () => {
@@ -117,15 +120,27 @@ describe('materialFunctions', () => {
       const fallbackUUID = MaterialStateComponent.fallbackMaterialUUIDPair
       const fallbackEntity = createEntity()
       setComponent(fallbackEntity, UUIDComponent, fallbackUUID)
-      setComponent(fallbackEntity, MaterialStateComponent, { instances: [UndefinedEntity], material: fallbackMaterial })
+      setComponent(fallbackEntity, MaterialStateComponent, { material: fallbackMaterial })
 
       // Generate the Materials and Entities
       const material1 = new Material()
       const material2 = new Material()
-      const dummyMaterial = new Material()
+
       const materialEntity1 = createEntity()
       const materialEntity2 = createEntity()
       const dummyEntity = createEntity()
+      setComponent(materialEntity1, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'id1' as EntityID
+      })
+      setComponent(materialEntity2, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'id2' as EntityID
+      })
+      setComponent(dummyEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'id3' as EntityID
+      })
       const newMaterialEntities = [materialEntity1, materialEntity2, dummyEntity]
       const expectedMaterialEntities = [materialEntity1, materialEntity2]
 
@@ -163,7 +178,15 @@ describe('materialFunctions', () => {
 
     it('should not do anything when `@param groupEntity` is falsy', () => {
       const materialEntity = createEntity()
+      setComponent(materialEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'id1' as EntityID
+      })
       const otherMaterialEntity = createEntity()
+      setComponent(otherMaterialEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'id2' as EntityID
+      })
       const newMaterialEntities = [materialEntity, otherMaterialEntity]
       const material = new Material()
       const expectedUUID = material.uuid
@@ -186,7 +209,15 @@ describe('materialFunctions', () => {
 
     it('should not do anything when `@param groupEntity` does not have a MeshComponent', () => {
       const materialEntity = createEntity()
+      setComponent(materialEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'id1' as EntityID
+      })
       const otherMaterialEntity = createEntity()
+      setComponent(otherMaterialEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'id2' as EntityID
+      })
       const newMaterialEntities = [materialEntity, otherMaterialEntity]
       const material = new Material()
 
@@ -209,6 +240,10 @@ describe('materialFunctions', () => {
     it('should not do anything when `@param newMaterialEntities` is empty', () => {
       const newMaterialEntities = [] as Entity[]
       const materialEntity = createEntity()
+      setComponent(materialEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'id1' as EntityID
+      })
       const material = new Material()
       const expectedUUID = material.uuid
 
@@ -236,6 +271,10 @@ describe('materialFunctions', () => {
       createEngine()
       mockSpatialEngine()
       testEntity = createEntity()
+      setComponent(testEntity, UUIDComponent, {
+        entitySourceID: 'source' as SourceID,
+        entityID: 'id' as EntityID
+      })
     })
 
     afterEach(() => {
@@ -410,82 +449,6 @@ describe('materialFunctions', () => {
     })
   }) //:: getMaterialIndices
 
-  describe('injectMaterialDefaults', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(() => {
-      createEngine()
-      mockSpatialEngine()
-      testEntity = createEntity()
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should return an object that contains all of the expected keys/values', () => {
-      const type = 'stereotomy'
-      const key = 'voyager'
-      const prototypeArgumentValue = {
-        type,
-        default: {},
-        min: 42,
-        max: 43,
-        options: []
-      }
-      const prototypeArguments = { [key]: prototypeArgumentValue }
-      const materialParameters = { [key]: { thing: 42 } }
-      getMutableState(MaterialPrototypeDefinitions)[type].set({
-        arguments: prototypeArguments,
-        prototypeConstructor: Material
-      })
-      const Expected = { ...prototypeArguments }
-      Expected[key].default = materialParameters[key]
-
-      // Set the data as expected
-      const material = new Material()
-      material.type = type
-      const materialEntity = createEntity()
-      setComponent(materialEntity, MaterialStateComponent, {
-        material: material,
-        parameters: materialParameters
-      })
-
-      // Run and Check the result
-      const result = injectMaterialDefaults(materialEntity)
-      assert.deepEqual(result, Expected)
-    })
-  }) //:: injectMaterialDefaults
-
-  describe('MaterialNotFoundError', () => {
-    it('should assign the expected name to the error when it is instanced', () => {
-      const Expected = 'MaterialNotFound'
-      const result = new MaterialNotFoundError('thing')
-      assert.equal(result.name, Expected)
-    })
-
-    it('should assign the expected message to the error when it is instanced', () => {
-      const Expected = 'thing'
-      const result = new MaterialNotFoundError(Expected)
-      assert.equal(result.message, Expected)
-    })
-  }) //:: MaterialNotFoundError
-
-  describe('PrototypeNotFoundError', () => {
-    it('should assign the expected name to the error when it is instanced', () => {
-      const Expected = 'PrototypeNotFound'
-      const result = new PrototypeNotFoundError('thing')
-      assert.equal(result.name, Expected)
-    })
-
-    it('should assign the expected message to the error when it is instanced', () => {
-      const Expected = 'thing'
-      const result = new PrototypeNotFoundError(Expected)
-      assert.equal(result.message, Expected)
-    })
-  }) //:: PrototypeNotFoundError
-
   describe('formatMaterialArgs', () => {
     it('should return `@param args` if it is falsy', () => {
       // Set the data as expected
@@ -566,23 +529,4 @@ describe('materialFunctions', () => {
       })
     })
   }) //:: formatMaterialArgs
-
-  describe('extractDefaults', () => {
-    it('should return an object that has all of the `@param defaultArgs`.default properties', () => {
-      // Set the data as expected
-      const defaultArg1 = { str: '0x111111', num: 0xff1111, col: new Color(0, 0, 0.1), one: 1 }
-      const defaultArg2 = { str: '0x222222', num: 0xff2222, col: new Color(0, 0, 0.2), two: 2 }
-      const defaultArg3 = { str: '0x333333', num: 0xff3333, col: new Color(0, 0, 0.3), three: 3 }
-      const defaultArg4 = { str: '0x444444', num: 0xff4444, col: new Color(0, 0, 0.4), four: 4 }
-      const arg1: PrototypeArgumentValue = { ...prototypeDefaultArgs, default: defaultArg1 }
-      const arg2: PrototypeArgumentValue = { ...prototypeDefaultArgs, default: defaultArg2 }
-      const arg3: PrototypeArgumentValue = { ...prototypeDefaultArgs, default: defaultArg3 }
-      const arg4: PrototypeArgumentValue = { ...prototypeDefaultArgs, default: defaultArg4 }
-      const defaultArgs: PrototypeArgument = { arg1: arg1, arg2: arg2, arg3: arg3, arg4: arg4 }
-      const Expected = { arg1: defaultArg1, arg2: defaultArg2, arg3: defaultArg3, arg4: defaultArg4 }
-      // Run and Check the result
-      const result = extractDefaults(defaultArgs)
-      assert.deepEqual(result, Expected)
-    })
-  }) //:: extractDefaults
 }) //:: materialFunctions

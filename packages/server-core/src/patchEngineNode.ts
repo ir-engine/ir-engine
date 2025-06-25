@@ -30,7 +30,7 @@ Infinite Reality Engine. All Rights Reserved.
 import 'jsdom-global/register'
 
 /** Ensure hookstate is always imported first and overrides react */
-import '@hookstate/core'
+import '@ir-engine/hyperflux'
 
 import { Blob } from 'buffer'
 import fetch, { Headers, Request, Response } from 'node-fetch'

@@ -38,7 +38,7 @@ import { createLocations } from '@ir-engine/projects/createLocations'
 import { ProjectEventHooks } from '@ir-engine/projects/ProjectConfigInterface'
 import { Application } from '@ir-engine/server-core/declarations'
 
-import { routePath } from '@ir-engine/common/src/schemas/route/route.schema'
+import { routePath } from '@ir-engine/common/src/schema.type.module'
 import { activateRoute } from '@ir-engine/server-core/src/route/route/route'
 import updateAvatarRecords from '@ir-engine/server-core/src/util/updateAvatarRecords'
 import manifestJson from './manifest.json'
@@ -111,7 +111,9 @@ const config = {
     await createLocations(app, manifestJson.name, {
       apartment: 'public/scenes/apartment.gltf',
       default: 'public/scenes/default.gltf',
-      ['sky-station']: 'public/scenes/sky-station.gltf'
+      ['sky-station']: 'public/scenes/sky-station.gltf',
+      test: 'public/scenes/test.gltf',
+      sponza: 'public/scenes/sponza.gltf'
     })
 
     await activateRoute(app.service(routePath))({

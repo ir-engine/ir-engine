@@ -30,7 +30,6 @@ import fs, { readFileSync, writeFileSync } from 'fs'
 import { mergeWith } from 'lodash'
 import path from 'path'
 import { UserConfig, defineConfig } from 'vite'
-import vitePluginCliBrowserBridge from 'vite-plugin-cli-browser-bridge'
 import viteCompression from 'vite-plugin-compression2'
 import { ViteEjsPlugin } from 'vite-plugin-ejs'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
@@ -263,7 +262,7 @@ export default defineConfig(async () => {
       process.env.VITE_PWA_ENABLED === 'true' ? PWA(clientSetting) : undefined,
       ViteEjsPlugin({
         ...manifest,
-        title: clientSetting.title || 'iR Engine',
+        title: clientSetting.title || 'Napster Engine',
         description: clientSetting?.siteDescription || 'Connected Worlds for Everyone',
         // short_name: clientSetting?.shortName || 'EE',
         // theme_color: clientSetting?.themeColor || '#ffffff',
@@ -298,9 +297,6 @@ export default defineConfig(async () => {
       }),
       viteCommonjs({
         include: ['use-sync-external-store']
-      }),
-      vitePluginCliBrowserBridge({
-        port: 3333
       })
     ].filter(Boolean),
     resolve: {
