@@ -33,12 +33,14 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   setComponent,
+  useComponent,
   useOptionalComponent,
   useQueryBySource
 } from '@ir-engine/ecs'
-import { getState } from '@ir-engine/hyperflux'
+import { getState, none } from '@ir-engine/hyperflux'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
@@ -117,17 +119,20 @@ const AvatarReactor = (props: { entity: Entity }) => {
 
 const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   const entity = props.entity
+  const material = useComponent(entity, MaterialStateComponent)
 
   useEffect(() => {
     getMutableComponent(props.rootEntity, TransparencyDitheringRootComponent).materials.merge([props.entity])
     setComponent(entity, TransparencyDitheringPluginComponent)
     return () => {
-      getMutableComponent(props.rootEntity, TransparencyDitheringRootComponent).materials.set((current) =>
-        current.splice(current.indexOf(props.entity), 1)
-      )
+      if (hasComponent(props.rootEntity, TransparencyDitheringRootComponent)) {
+        const ditherRootMaterials = getMutableComponent(props.rootEntity, TransparencyDitheringRootComponent).materials
+        const index = ditherRootMaterials.value.indexOf(props.entity)
+        if (index >= 0) ditherRootMaterials[index].set(none)
+      }
       removeComponent(entity, TransparencyDitheringPluginComponent)
     }
-  }, [])
+  }, [material.value])
 
   return null
 }
