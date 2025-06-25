@@ -36,8 +36,7 @@ import {
   getAncestorWithComponents,
   getChildrenWithComponents,
   removeEntity,
-  useEntityContext,
-  useQuery
+  useEntityContext
 } from '@ir-engine/ecs'
 import {
   defineComponent,
@@ -160,7 +159,6 @@ export const ParticleSystemComponent = defineComponent({
     const entity = useEntityContext()
     const componentState = useComponent(entity, ParticleSystemComponent)
     const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
-    const particleSystemQuery = useQuery([ParticleSystemComponent])
     // for particle meshes
     const geoDependencyEntity = useGLTFComponent(componentState.value.systemParameters.instancingGeometry, entity)
 
@@ -266,7 +264,7 @@ export const ParticleSystemComponent = defineComponent({
     const visible = useHasComponent(entity, VisibleComponent)
 
     useEffect(() => {
-      if (!dependenciesLoaded || !visible) return
+      if (!dependenciesLoaded || !visible || !rendererEntity) return
 
       const component = componentState.get(NO_PROXY)
       const rendererInstance = createBatchedRenderer(entity)
@@ -306,9 +304,6 @@ export const ParticleSystemComponent = defineComponent({
         const index = renderer.systemToBatchIndex.get(system)
         if (typeof index !== 'undefined') {
           renderer.deleteSystem(system)
-          renderer.children.splice(index, 1)
-          const [batch] = renderer.batches.splice(index, 1)
-          batch.dispose()
           renderer.systemToBatchIndex.clear()
           for (let i = 0; i < renderer.batches.length; i++) {
             for (const system of renderer.batches[i].systems) {
@@ -321,15 +316,16 @@ export const ParticleSystemComponent = defineComponent({
 
         system.dispose()
         emitterAsObj3D.dispose()
-        removeBatchedRenderer(rendererEntity!)
+        if (entityExists(entity) && rendererEntity && entityExists(rendererEntity)) {
+          removeBatchedRenderer(rendererEntity)
+        }
       }
     }, [
       componentState.systemParameters,
       componentState.behaviorParameters,
       dependenciesLoaded,
       rendererEntity,
-      visible,
-      particleSystemQuery.length
+      visible
     ])
 
     return null
