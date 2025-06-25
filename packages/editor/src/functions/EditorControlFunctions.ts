@@ -481,7 +481,7 @@ const groupObjects = (entities: Entity[]) => {
   const firstEntity = entities[0]
   if (hasComponent(firstEntity, SceneComponent)) return
   const parentEntity = getComponent(firstEntity, EntityTreeComponent).parentEntity
-  const gltfEntity = getAncestorWithComponents(firstEntity, [GLTFComponent])
+  const gltfEntity = getAncestorWithComponents(firstEntity, [GLTFComponent], true, false)
   const newParent = UUIDComponent.create(gltfEntity, UUIDComponent.generateUUID(), Layers.Authoring)
   setComponent(newParent, NameComponent, 'New Group')
   setComponent(newParent, EntityTreeComponent, { parentEntity })

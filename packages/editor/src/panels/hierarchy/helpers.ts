@@ -83,7 +83,7 @@ export const duplicateNode = (entity?: Entity) => {
 export const groupNodes = (entity?: Entity) => {
   const entities = getSelectedEntities(entity)
   EditorControlFunctions.groupObjects(entities)
-  AuthoringState.snapshotEntities
+  AuthoringState.snapshotEntities(entities)
 }
 
 export const ungroupNodes = (entity?: Entity) => {
