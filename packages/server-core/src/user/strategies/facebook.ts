@@ -95,7 +95,8 @@ export class FacebookStrategy extends CustomOAuthStrategy {
     await makeInitialAdmin(this.app, user.id)
     if (user.isGuest)
       await this.app.service(userPath).patch(entity.userId, {
-        isGuest: false
+        isGuest: false,
+        ageVerified: true
       })
     const apiKey = (await this.app.service(userApiKeyPath).find({
       query: {

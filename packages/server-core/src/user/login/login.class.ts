@@ -171,7 +171,8 @@ export class LoginService implements ServiceInterface {
       // if (isValidId(loginToken.id)) await this.app.service(loginTokenPath).remove(loginToken.id)
       await this.app.service(userPath).patch(identityProvider.userId, {
         name: params.query?.username as UserName,
-        isGuest: false
+        isGuest: false,
+        ageVerified: true
       })
 
       // Create a user-login record
