@@ -786,14 +786,15 @@
         "anglePosition": "Angle {{position}}"
       },
       "emission-over-time": "Emission Over Time",
-      "trailLength": "Trail Length",
-      "followLocalOrigin": "Follow Local Origin",
-      "render-mode": "Render Mode",
-      "render-mode-type": {
+      "renderMode": {
+        "title": "Render Mode",
         "billboard": "Billboard",
         "stretched-billboard": "Stretched Billboard",
         "mesh": "Mesh",
-        "trail": "Trail"
+        "trail": "Trail",
+        "speedFactor": "Speed Factor",
+        "lengthFactor": "Length Factor",
+        "trailLength": "Trail Length"
       },
       "texture": "Particle Texture",
       "u-tiles": "U Tiles",
