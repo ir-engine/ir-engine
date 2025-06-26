@@ -41,21 +41,17 @@ import {
 import {
   Engine,
   Entity,
-  QueryReactor,
   UUIDComponent,
   getAncestorWithComponents,
   getAuthoringCounterpart,
   getComponent,
   getOptionalComponent,
-  hasComponent,
-  useComponent,
-  useEntityContext
+  hasComponent
 } from '@ir-engine/ecs'
 
 import { NO_PROXY, State, defineState, getMutableState, getState, none, useMutableState } from '@ir-engine/hyperflux'
-import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { Geometry } from '../common/constants/Geometry'
 import iterateObject3D from '../common/functions/iterateObject3D'
@@ -745,19 +741,5 @@ export const ResourceState = defineState({
     useVisibleVertexCount
   },
   /** Removes a resource even if it is still being referenced, needed for updating assets in the studio */
-  __unsafeRemoveResource: removeResource,
-
-  reactor: () => {
-    return (
-      <>
-        <QueryReactor Components={[ObjectComponent]} ChildEntityReactor={ObjectReactor} />
-      </>
-    )
-  }
+  __unsafeRemoveResource: removeResource
 })
-
-const ObjectReactor = () => {
-  const entity = useEntityContext()
-  ResourceState.useEntityResource(entity, useComponent(entity, ObjectComponent) as any as State<ResourceAssetType>)
-  return null
-}

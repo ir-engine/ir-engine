@@ -44,6 +44,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { removeCallback, setCallback } from '../../common/CallbackComponent'
 import { NameComponent } from '../../common/NameComponent'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
+import { ResourceState } from '../../resources/ResourceState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Layer, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { VisibleComponent } from './VisibleComponent'
@@ -56,6 +57,7 @@ export const ObjectComponent = defineComponent({
   onSet(entity, component, obj: Object3D) {
     if (!obj?.isObject3D) throw new Error('ObjectComponent requires an Object3D')
 
+    ResourceState.addEntityResource(entity, obj)
     setComponent(entity, TransformComponent)
 
     obj.entity = entity
@@ -161,6 +163,7 @@ export const ObjectComponent = defineComponent({
   },
 
   onRemove(entity: Entity, component) {
+    ResourceState.removeEntityResource(entity, component.value)
     component.set(none)
     removeCallback(entity, 'setVisible')
     removeCallback(entity, 'setInvisible')
