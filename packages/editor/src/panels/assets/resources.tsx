@@ -422,7 +422,7 @@ function ResourceItems() {
 
   useEffect(() => {
     if (isLoading.value) return
-    // AssetsRefreshState.triggerRefresh()
+    AssetsRefreshState.triggerRefresh()
   }, [isLoading.value])
 
   useEffect(() => {
