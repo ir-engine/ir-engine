@@ -60,17 +60,16 @@ import NumericInput from '../Numeric'
 import SelectInput from '../Select'
 import Vector3Input from '../Vector3'
 
-export default function BehaviorInput({
-  path,
-  scope,
-  value,
-  onChange
-}: {
+type BehaviorInputProps = Readonly<{
   path: string
   scope: State<BehaviorJSON>
   value: BehaviorJSON
   onChange: (path: string) => (value: any) => void
-}) {
+}>
+
+export default function BehaviorInput({ path, scope, value, onChange }: BehaviorInputProps) {
+  const { t } = useTranslation()
+
   const onChangeBehaviorType = useCallback(() => {
     const onChangeType = onChange(path + '.type')
     return (type: typeof value.type) => {
@@ -119,8 +118,8 @@ export default function BehaviorInput({
           <InputGroup name="frequency" label="Frequency">
             <Vector3Input value={new Vector3(...value.frequency)} onChange={onChangeVec3(path + '.frequency')} />
           </InputGroup>
-          <InputGroup name="power" label="Power">
-            <Vector3Input value={new Vector3(...value.power)} onChange={onChange(path + '.power')} />
+          <InputGroup name="power" label={t('editor:properties.particle-system.behavior.Power')}>
+            <Vector3Input value={new Vector3(...value.power)} onChange={onChangeVec3(path + '.power')} />
           </InputGroup>
           <InputGroup name="positionAmount" label="positionAmount">
             <NumericInput value={value.positionAmount} onChange={onChange(path + '.positionAmount')} />
