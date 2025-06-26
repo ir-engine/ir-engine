@@ -359,6 +359,13 @@ const execute = () => {
         closestIntersection = intersection
       }
 
+      const selectedEntities = SelectionState.getSelectedEntities()
+      if (selectedEntities.length > 0) {
+        clickStartEntity = selectedEntities[0]
+      } else {
+        clickStartEntity = UndefinedEntity
+      }
+
       closestIntersection.entity = getAuthoringCounterpart(closestIntersection.entity)
 
       // Get top most parent entity from the GLTF document
@@ -399,7 +406,6 @@ const execute = () => {
     const editorHelperState = getState(EditorHelperState)
     if (!getState(ClickPlacementState).placementEntity && editorHelperState.gizmoEnabled) {
       const selectedEntities = SelectionState.getSelectedEntities()
-      const clickParentEntity = getAncestorWithComponents(clickStartEntity, [GLTFComponent])
 
       if (selectedEntities.length === 1 && selectedEntities[0] === clickStartEntity) {
         onFocusCamera(viewerEntity)

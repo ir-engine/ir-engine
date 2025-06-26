@@ -670,6 +670,7 @@
         "lastLogin": "Last Login",
         "ageVerified": "Age Verified (13 or above)",
         "isGuest": "Is Guest",
+        "isDeactivated": "Is Deactivated",
         "createdAt": "Created",
         "action": "Action"
       },
@@ -697,6 +698,7 @@
       "confirmUserDelete": "Are you sure you want to delete this user?",
       "confirmMultiUserDelete": "Are you sure you want to delete all these users?",
       "isGuest": "Is Guest",
+      "isDeactivated": "Is Deactivated",
       "selectAllScopes": "Select All Scopes",
       "clearAllScopes": "Clear All Scopes",
       "userSearch": "User by id, name or account identifier",

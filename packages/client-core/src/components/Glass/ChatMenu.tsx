@@ -32,7 +32,7 @@ import { useGet } from '@ir-engine/common'
 import { userPath } from '@ir-engine/common/src/schema.type.module'
 import { Send01Md } from '@ir-engine/ui/src/icons'
 import { AuthState } from '../../user/services/AuthService'
-import { TextButton } from './buttons/TextButton'
+import ButtonGroup from '../Settings/ButtonGroup'
 import { useChatProvider } from './ChatProvider'
 import { useNavigationProvider } from './NavigationProvider'
 import { Inner } from './ToolbarAndSidebar'
@@ -146,20 +146,26 @@ export const ChatMenu = () => {
   const user = useMutableState(AuthState).user
 
   const isGuest = user.isGuest.value
+  const onSignUpClicked = () => navigateTo('settings/signup')
+  const onSignInClicked = () => navigateTo('settings/login')
 
   const { messageGroupedBySender, inputRef, handleInputChange, sendMessage, composedMessage } = useChatProvider()
   const { navigateTo } = useNavigationProvider()
 
-  const onCTAClicked = () => navigateTo('settings/signup')
-
   if (isGuest) {
     return (
-      <div className="flex min-h-full w-full max-w-screen-sm flex-col items-center justify-center gap-8 font-dm-sans">
-        <HiChatBubbleLeftRight className="mx-auto h-[5.5rem] w-[5.5rem]" />
-        <div className="text-shadow font-manrope text-2xl text-white">Want to chat with others?</div>
-        <TextButton className={'w-[90%]'} onClick={onCTAClicked}>
-          Create an Account
-        </TextButton>
+      <div className="mx-auto flex min-h-full w-full max-w-screen-sm flex-col items-center gap-8 font-dm-sans">
+        <div className="flex flex-1 flex-col items-center justify-center gap-4">
+          <HiChatBubbleLeftRight className="mx-auto h-[5.5rem] w-[5.5rem]" />
+          <div className="text-shadow font-manrope text-2xl text-white">Want to chat with others?</div>
+        </div>
+        <ButtonGroup
+          className="pb-20"
+          options={[
+            { label: 'Create an Account', onClick: onSignUpClicked },
+            { label: 'Sign In', onClick: onSignInClicked }
+          ]}
+        />
       </div>
     )
   }

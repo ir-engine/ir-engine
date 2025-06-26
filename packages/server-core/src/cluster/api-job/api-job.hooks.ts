@@ -32,7 +32,7 @@ import {
   apiJobQueryValidator
 } from '@ir-engine/common/src/schemas/cluster/api-job.schema'
 
-import { isSignedByAppJWT } from '../../hooks/is-signed-by-app-jwt.ts'
+import { isSignedByAppJWT } from '../../hooks/is-signed-by-app-jwt'
 import verifyScope from '../../hooks/verify-scope'
 import {
   apiJobDataResolver,
