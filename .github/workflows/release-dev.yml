@@ -25,8 +25,8 @@ jobs:
 
       - name: Setup Git User
         run: |
-          git config user.name ${{ github.event.pull_request.merged_by.name }}
-          git config user.email "${{ github.event.pull_request.merged_by.email }}"
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
 
       - name: Update Test Branch
         env:
@@ -34,5 +34,4 @@ jobs:
         run: |
           git fetch origin
           git switch dev
-          git cherry-pick ${{ github.event.pull_request.merge_commit_sha }}
-          git push origin dev
+          git cherry-pick ${{ github.event.pull_request.merge_commit_sha }} && git push origin dev
