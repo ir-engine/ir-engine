@@ -42,7 +42,7 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 
-import { Identifiable, State } from '@ir-engine/hyperflux'
+import { Identifiable, NO_PROXY, State } from '@ir-engine/hyperflux'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { ResourceState } from '@ir-engine/spatial/src/resources/ResourceState'
@@ -56,6 +56,7 @@ import {
   MeshStandardMaterial,
   RGBAFormat,
   SRGBColorSpace,
+  Texture,
   Vector3
 } from 'three'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
@@ -153,9 +154,11 @@ const EnvMapSkyboxReactor = (props: { entity: Entity; rootEntity: Entity }) => {
       }
     }
   }, [])
+
   let i = 0
   for (i; i < backgroundQuery.length; i++) if (haveCommonAncestor(entity, backgroundQuery[i])) break
   const backgroundComponent = useOptionalComponent(backgroundQuery[i], BackgroundComponent)
+
   useEffect(() => {
     if (!materialState || !backgroundComponent) return
 
@@ -163,9 +166,9 @@ const EnvMapSkyboxReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     if (disallowedMaterials.has(materialState.type.value)) return
 
     const material = materialState.value as MeshStandardMaterial
-    material.envMap = backgroundComponent.value.clone() as any
+    material.envMap = backgroundComponent.get(NO_PROXY) as Texture
     ResourceState.addEntityResource(entity, material.envMap!)
-  }, [backgroundComponent?.value, materialState.value])
+  }, [backgroundComponent, materialState])
 
   return <IntensityReactor entity={entity} rootEntity={rootEntity} />
 }

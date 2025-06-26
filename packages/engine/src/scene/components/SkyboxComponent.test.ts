@@ -37,7 +37,6 @@ import {
   Texture
 } from 'three'
 import { assert, describe, expect, vi } from 'vitest'
-import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
 import { SkyboxComponent } from './SkyboxComponent'
 
@@ -190,15 +189,12 @@ describe('SkyboxComponent', () => {
 
     it('should set Sky properties correctly when skyboxProps change', async ({ entity }) => {
       mockSpatialEngine()
-      // Create a Sky instance
-      const sky = new Sky()
 
       setComponent(Engine.instance.viewerEntity, RendererComponent)
 
       // Set initial component with default skyboxProps
       setComponent(entity, SkyboxComponent, {
         backgroundType: SkyTypeEnum.skybox,
-        sky,
         skyboxProps: {
           turbidity: 10,
           rayleigh: 1,
