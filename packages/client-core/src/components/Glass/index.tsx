@@ -276,6 +276,8 @@ const Menu = () => {
     if (locationContainer.current) locationContainer.current.style.opacity = '0'
   }, [locationContainer])
 
+  const ReportUserRoute = () => <ReportUserMenu type="user" />
+
   useEffect(() => {
     NavigationService.addRoutes([
       {
@@ -291,7 +293,7 @@ const Menu = () => {
       {
         path: `report`,
         title: `Report User`,
-        Component: ReportUserMenu
+        Component: ReportUserRoute
       }
     ])
   }, [])
