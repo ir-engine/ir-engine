@@ -422,7 +422,7 @@ function ResourceItems() {
 
   useEffect(() => {
     if (isLoading.value) return
-    AssetsRefreshState.triggerRefresh()
+    // AssetsRefreshState.triggerRefresh()
   }, [isLoading.value])
 
   useEffect(() => {
@@ -517,6 +517,7 @@ export default function Resources() {
     <div id="asset-panel" className="relative flex h-full w-full flex-col overflow-auto bg-surface-1">
       <InfiniteScroll
         disableEvent={staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || resourcesLoading}
+        threshold={0.1} // Lower threshold to trigger earlier
         onScrollBottom={() => {
           if (
             staticResourcesPagination.skip.value + ASSETS_PAGE_LIMIT + calculateItemsToFetch() >
@@ -524,7 +525,7 @@ export default function Resources() {
           )
             return
           staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT + calculateItemsToFetch())
-          AssetsRefreshState.triggerRefresh(false)
+          AssetsRefreshState.triggerRefresh(false) // Uncomment this line
         }}
       >
         <div
@@ -533,6 +534,8 @@ export default function Resources() {
         >
           <ResourceItems />
         </div>
+        {/* Add a visible element with height to ensure the observer has space */}
+        <div className="h-10 w-full" />
       </InfiniteScroll>
       <div className="mx-auto mb-10" />
     </div>
