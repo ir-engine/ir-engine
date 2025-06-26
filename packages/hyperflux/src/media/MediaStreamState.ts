@@ -141,11 +141,16 @@ export const MediaStreamState = defineState({
       enumerateDevices()
 
       // Re-enumerate devices when device list changes (e.g., permissions granted)
-      const handleDeviceChange = () => enumerateDevices()
-      navigator.mediaDevices.addEventListener('devicechange', handleDeviceChange)
+      // Check if addEventListener exists (not available in test environments)
+      if (navigator.mediaDevices && typeof navigator.mediaDevices.addEventListener === 'function') {
+        const handleDeviceChange = () => enumerateDevices()
+        navigator.mediaDevices.addEventListener('devicechange', handleDeviceChange)
 
-      return () => {
-        navigator.mediaDevices.removeEventListener('devicechange', handleDeviceChange)
+        return () => {
+          if (typeof navigator.mediaDevices.removeEventListener === 'function') {
+            navigator.mediaDevices.removeEventListener('devicechange', handleDeviceChange)
+          }
+        }
       }
     }, [])
 
