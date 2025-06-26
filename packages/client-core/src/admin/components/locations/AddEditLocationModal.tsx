@@ -105,7 +105,7 @@ type AddEditLocationModalProps = Readonly<{
   sceneModified?: boolean
   inStudio?: boolean
   projectFullName?: string
-  wizardState?: any
+  onNewGltfUrl?: (newGltfUrl: string) => void
 
   onPublish?: () => Promise<void>
   onPublishSuccess?: (location: LocationType) => void
@@ -333,7 +333,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
 
             setComponent(gltfEntity, NameComponent, fileName + '-compressed')
             setComponent(gltfEntity, GLTFComponent, { src: newGLTFURL })
-            props?.wizardState && fileName !== scenename && props.wizardState.templateFile.set(newGLTFURL)
+            props?.onNewGltfUrl && fileName !== scenename && props.onNewGltfUrl(newGLTFURL)
           } catch (error) {
             console.error(error)
           }
