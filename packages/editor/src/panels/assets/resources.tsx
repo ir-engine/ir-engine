@@ -525,7 +525,7 @@ export default function Resources() {
           )
             return
           staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT + calculateItemsToFetch())
-          AssetsRefreshState.triggerRefresh(false) // Uncomment this line
+          AssetsRefreshState.triggerRefresh(false)
         }}
       >
         <div
