@@ -23,14 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { setTransformMode } from '@ir-engine/editor/src/functions/transformFunctions'
+import { setTransformMode, toggleSnapMode } from '@ir-engine/editor/src/functions/transformFunctions'
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
 import { ObjectGridSnapState } from '@ir-engine/editor/src/systems/ObjectGridSnapSystem'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { SnapMode, TransformMode } from '@ir-engine/spatial/src/common/constants/TransformConstants'
 import { Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
-import { MoveMd, Refresh1Md, Scale02Md } from '@ir-engine/ui/src/icons'
+import { MoveMd, Refresh1Md, Scale02Md, SnappingToolMd } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -132,6 +132,13 @@ const TransformSnapTool = () => {
             selected={editorHelperState.transformMode.value === TransformMode.rotate}
             icon={Refresh1Md}
             onClick={() => setTransformMode(TransformMode.rotate)}
+          />
+        </Tooltip>
+        <Tooltip content={t('editor:toolbar.transformSnapTool.toggleSnapMode')} position="bottom">
+          <ViewportButton
+            onClick={toggleSnapMode}
+            selected={editorHelperState.gridSnap.value === SnapMode.Grid}
+            icon={SnappingToolMd}
           />
         </Tooltip>
         <ToolbarDropdown

@@ -30,6 +30,7 @@ import {
   ComponentJSONIDMap,
   getAuthoringCounterpart,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -186,6 +187,7 @@ const ActiveHelperReactor: React.FC<ComponentHelperEntry> = (helper) => {
     if (studioIconEntity === UndefinedEntity || !entityExists(studioIconEntity)) return
     if (entity === UndefinedEntity || !entityExists(entity)) return
     if (!engineState.isEditing.value || !editorHelperState.gizmoEnabled.value) return
+    if (getOptionalComponent(entity, UUIDComponent)) return
 
     gizmoIconUpdate(entity, studioIconEntity, [...directionalEntitiesState.get(NO_PROXY_STEALTH)], iconSize.value)
 

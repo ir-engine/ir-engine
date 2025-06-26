@@ -484,6 +484,12 @@ export class GCSStorage extends BaseStorageProvider implements StorageProviderIn
           const relativePath = file.Key.replace(oldFilePath, '')
           const key = newFilePath + relativePath
 
+          if (file.Type === 'folder') {
+            return await this.putObject({ Key: key } as StorageObjectInterface, {
+              isDirectory: true
+            })
+          }
+
           if (isCopy) return await this.provider.bucket(this.bucket).file(file.Key).copy(key, {})
           else return await this.provider.bucket(this.bucket).file(file.Key).move(key, {})
         })

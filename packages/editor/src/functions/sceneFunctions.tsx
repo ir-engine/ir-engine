@@ -134,6 +134,9 @@ export const saveSceneGLTF = async (
     projectName,
     sceneAssetID: result.data[0].id
   })
+
+  const sourceID = GLTFComponent.getSourceID(rootEntity)
+  getMutableState(AssetModifiedState)[sourceID].set(none)
 }
 
 export const logNewScene = (authoringApp: string, entryPoint: string = 'editor') => {
@@ -225,9 +228,6 @@ export const onSaveScene = async () => {
   try {
     await saveSceneGLTF(sceneAssetID!, projectName!, sceneName!, abortController.signal)
     NotificationService.dispatchNotify(`${i18n.t('editor:dialog.saveScene.info-save-success')}`, { variant: 'success' })
-    const sourceID = GLTFComponent.getSourceID(rootEntity)
-    getMutableState(AssetModifiedState)[sourceID].set(none)
-
     ModalState.closeModal()
   } catch (error) {
     console.error(error)
