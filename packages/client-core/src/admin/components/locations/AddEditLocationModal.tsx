@@ -105,6 +105,7 @@ type AddEditLocationModalProps = Readonly<{
   sceneModified?: boolean
   inStudio?: boolean
   projectFullName?: string
+  wizardState?: any
 
   onPublish?: () => Promise<void>
   onPublishSuccess?: (location: LocationType) => void
@@ -258,6 +259,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
           if (!srcURL) continue
           // Set up compression for this entity
           const fileName = srcURL.split('/').pop()!.split('.').shift()!
+          if (fileName === 'platform') continue
           try {
             const extension = new URL(srcURL).pathname.split('.').pop()!
             const modelFormat = extension === 'gltf' ? 'gltf' : extension === 'vrm' ? 'vrm' : 'glb'
@@ -331,6 +333,7 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
 
             setComponent(gltfEntity, NameComponent, fileName + '-compressed')
             setComponent(gltfEntity, GLTFComponent, { src: newGLTFURL })
+            props?.wizardState && fileName !== scenename && props.wizardState.templateFile.set(newGLTFURL)
           } catch (error) {
             console.error(error)
           }
