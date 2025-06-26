@@ -177,7 +177,7 @@ export const ChatMenu = () => {
   const hasInputText = !!composedMessage.value
 
   return (
-    <Inner className={`mb-20`}>
+    <Inner className={`mb-20 w-full`}>
       {messageGroupedBySender.map((group, groupIndex) => {
         const [firstMessage] = group
         const isOwnGroup = firstMessage.senderId === user.id.value
@@ -192,7 +192,7 @@ export const ChatMenu = () => {
         return isOwnGroup || isNotification ? (
           <div
             key={groupIndex}
-            className={twMerge('mb-6 flex w-full flex-col gap-y-2', isOwnGroup ? 'items-end' : 'items-center')}
+            className={twMerge('mb-6 flex w-full flex-col gap-y-2', isNotification ? 'items-center' : 'items-end')}
           >
             {groupedMessage}
           </div>
