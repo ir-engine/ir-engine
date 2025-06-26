@@ -33,6 +33,7 @@ import {
   getChildrenWithComponents,
   iterateEntityNode,
   removeEntity,
+  removeEntityNodeRecursively,
   UUIDComponent
 } from '@ir-engine/ecs'
 import {
@@ -224,13 +225,12 @@ export async function addMediaNode(
       /**
        * Load the lookdev object and override or attach it to the current scene
        */
-      AssetState.loadAsync(url, false, UUIDComponent.generateUUID(), UndefinedEntity, Layers.Authoring as LayerID).then(
+      AssetState.loadAsync(url, false, UUIDComponent.generate(), UndefinedEntity, Layers.Authoring as LayerID).then(
         (entity) => {
           const firstChild = getComponent(entity, EntityTreeComponent).children[0]
           const json = serializeEntity(firstChild)
-
           EditorControlFunctions.overwriteLookdevObject([...json, ...extraComponentJson], parent!, before)
-          removeEntity(entity)
+          removeEntityNodeRecursively(entity)
           const rootEntity = getState(EditorState).rootEntity
           const newSource = GLTFComponent.getSourceID(rootEntity)
           AuthoringState.snapshot(newSource)

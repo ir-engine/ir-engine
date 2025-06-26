@@ -141,7 +141,7 @@ const modifyProperty = <C extends Component<any, any>>(
   return affectedNodes
 }
 
-const lookDevComponent: Component[] = [
+export const lookDevComponent: Component[] = [
   SkyboxComponent,
   HemisphereLightComponent,
   DirectionalLightComponent,
@@ -160,10 +160,16 @@ const overwriteLookdevObject = (
     const sceneEntitiesWithComponent = getChildrenWithComponents(parentEntity, [lookDevComp])
     if (sceneEntitiesWithComponent.length) {
       deserializeComponent(sceneEntitiesWithComponent[0], lookDevComp, props)
-      EditorState.markModifiedScene(parentEntity)
     } else {
-      createObjectFromSceneElement(componentJson, parentEntity, beforeEntity)
+      const vec3 = new Vector3()
+      createObjectFromSceneElement(
+        [comp, { name: TransformComponent.jsonID, props: { position: vec3 } }],
+        parentEntity,
+        beforeEntity,
+        name?.split('_').slice(1).join('-')
+      )
     }
+    EditorState.markModifiedScene(parentEntity)
   }
 }
 
