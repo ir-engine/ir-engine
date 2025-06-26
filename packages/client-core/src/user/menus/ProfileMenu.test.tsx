@@ -219,10 +219,4 @@ describe('ProfileMenu component', () => {
     // @ts-expect-error
     expect(openProfileMenuButton).toBeInTheDocument()
   })
-
-  it('should render a button with the data-testid attribute "profile-menu-delete-account-button"', () => {
-    const openProfileMenuButton = screen.getByTestId('profile-menu-delete-account-button')
-    // @ts-expect-error
-    expect(openProfileMenuButton).toBeInTheDocument()
-  })
 })

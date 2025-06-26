@@ -35,6 +35,7 @@ type IdType =
   | 'lastLogin'
   | 'ageVerified'
   | 'isGuest'
+  | 'isDeactivated'
   | 'createdAt'
   | 'action'
   | 'avatar'
@@ -53,6 +54,7 @@ export const userColumns: IUserColumn[] = [
   { id: 'lastLogin', label: t('admin:components.user.columns.lastLogin') },
   { id: 'ageVerified', sortable: true, label: t('admin:components.user.columns.ageVerified') },
   { id: 'isGuest', sortable: true, label: t('admin:components.user.columns.isGuest') },
+  { id: 'isDeactivated', sortable: true, label: t('admin:components.user.columns.isDeactivated') },
   { id: 'createdAt', sortable: true, label: t('admin:components.user.columns.createdAt') },
   { id: 'action', label: t('admin:components.user.columns.action') }
 ]

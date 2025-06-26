@@ -788,11 +788,6 @@ export const AuthService = {
     AuthService.loadUserData(userId)
   },
 
-  async removeUser(userId: UserID) {
-    await API.instance.service(userPath).remove(userId)
-    AuthService.logoutUser()
-  },
-
   async updateApiKey() {
     const userApiKey = (await API.instance.service(userApiKeyPath).find()) as Paginated<UserApiKeyType>
 

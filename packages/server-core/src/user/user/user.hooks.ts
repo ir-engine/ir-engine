@@ -82,12 +82,14 @@ const restrictUserPatch = async (context: HookContext<UserService>) => {
   if (loggedInUser.id !== context.id)
     throw new Error("Must be an admin with user:write scope to patch another user's data")
 
-  // If a user without admin and user:write scope is patching themself, only allow changes to avatarId and name
+  // If a user without admin and user:write scope is patching themself, only allow changes to specific properties
   const process = (item: UserType) => {
     const data = {} as UserPatch
     // selective define allowed props as not to accidentally pass an undefined value (which will be interpreted as NULL)
     if (typeof item.name !== 'undefined') data.name = item.name
     if (typeof item.ageVerified !== 'undefined') data.ageVerified = item.ageVerified
+    // Allow users to deactivate their own accounts
+    if (typeof item.isDeactivated !== 'undefined') data.isDeactivated = item.isDeactivated
 
     return data
   }
