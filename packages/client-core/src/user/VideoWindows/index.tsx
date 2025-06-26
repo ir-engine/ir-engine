@@ -67,7 +67,7 @@ import { AuthState } from '../services/AuthService'
 import { useUserMediaWindowHook } from './hook'
 import { SingleVideoWindow, SingleVideoWindowWidget } from './window'
 
-export type WindowType = { peerID: PeerID; type: 'cam' | 'screen' }
+export type WindowType = { peerID: PeerID; userID: UserID; type: 'cam' | 'screen' }
 
 const sortScreensBeforeCameras = (a: WindowType, b: WindowType) => {
   if (a.type === 'screen' && b.type === 'cam') return -1
@@ -109,13 +109,13 @@ export const useMediaWindows = () => {
             Object.entries(streams).find(([, c]) => c.stream)
         )
         .map(([peerID]) => {
-          return { peerID, type: 'cam' as const }
+          return { peerID, userID, type: 'cam' as const }
         })
 
       const userScreens = consumers
         .filter(([peerID, streams]) => peerIDs.includes(peerID) && streams[screenshareVideoMediaChannelType]?.stream)
         .map(([peerID]) => {
-          return { peerID, type: 'screen' as const }
+          return { peerID, userID, type: 'screen' as const }
         })
 
       const userWindows = [...userScreens, ...userCams]
@@ -123,8 +123,8 @@ export const useMediaWindows = () => {
         if (isSelfWindows) acc.unshift(...userWindows)
         else acc.push(...userWindows)
       } else {
-        if (isSelfWindows) acc.unshift({ peerID: peerIDs[0], type: 'cam' })
-        else acc.push({ peerID: peerIDs[0], type: 'cam' })
+        if (isSelfWindows) acc.unshift({ peerID: peerIDs[0], userID, type: 'cam' })
+        else acc.push({ peerID: peerIDs[0], userID, type: 'cam' })
       }
       return acc
     }, [] as WindowType[])
@@ -137,7 +137,7 @@ export const useMediaWindows = () => {
     mediaNetwork.users?.[selfUserID] &&
     !windows.find(({ peerID }) => mediaNetwork.users[selfUserID]?.includes(peerID))
   ) {
-    windows.unshift({ peerID: selfPeerID, type: 'cam' })
+    windows.unshift({ peerID: selfPeerID, userID: selfUser.id.value, type: 'cam' })
   }
 
   const filteredUsersState = useMutableState(FilteredUsersState)

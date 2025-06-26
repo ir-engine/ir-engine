@@ -49,6 +49,8 @@ import { WindowType } from '../../user/VideoWindows'
 import { useUserMediaWindowHook } from '../../user/VideoWindows/hook'
 import { ReportUserState } from '../../util/ReportUserState'
 
+import { useGet } from '@ir-engine/common'
+import { userPath } from '@ir-engine/common/src/schema.type.module'
 import { IconButton } from './buttons/IconButton'
 import { useNavigationProvider } from './NavigationProvider'
 
@@ -177,7 +179,7 @@ type VideoType = WindowType & {
   isSpeaking: boolean
 }
 
-const Video = ({ peerID, type, isSpeaking }: VideoType) => {
+const Video = ({ peerID, type, userID, isSpeaking }: VideoType) => {
   const {
     isSelf,
     isPiP,
@@ -209,6 +211,8 @@ const Video = ({ peerID, type, isSpeaking }: VideoType) => {
   const camVideoOn = isSelf ? isCamVideoEnabled : !videoStreamPaused
   const camAudioOn = isSelf ? isCamAudioEnabled : !audioStreamPaused
 
+  const user = useGet(userPath, userID)
+
   const reportUser = () => {
     ReportUserState.setReportedPeerId(peerID)
     navigateTo('report')
@@ -218,6 +222,12 @@ const Video = ({ peerID, type, isSpeaking }: VideoType) => {
     <div className={twMerge(videoContainer, isSpeaking ? `` : `before:hidden`)}>
       <div className={twMerge(videoInner)}>
         {showVideo ? <video className={videoStyles} ref={ref} /> : <img className={``} src={avatarThumbnail} />}
+        <span
+          className={`absolute left-2 top-1 text-[1rem] font-light`}
+          style={{ textShadow: `0px 2px 2px rgba(0, 0, 0, 0.25)` }}
+        >
+          {user?.data?.name}
+        </span>
         <div className={twMerge(videoButtonsContainer)}>
           <div className={twMerge(videoButtonsInner)}>
             <button onClick={toggleVideo} className={`cursor-pointer`}>
@@ -288,10 +298,10 @@ export const VideoMenu = ({
     })
 
     const videosByPage = videoPages.map((page, i) => {
-      return page.map(({ peerID, type }, j) => {
+      return page.map(({ peerID, type, userID }, j) => {
         const isSpeaking = soundIndicators.value[peerID]
 
-        return <Video key={`${peerID}-${type}`} peerID={peerID} type={type} isSpeaking={isSpeaking} />
+        return <Video key={`${peerID}-${type}`} userID={userID} peerID={peerID} type={type} isSpeaking={isSpeaking} />
       })
     })
 

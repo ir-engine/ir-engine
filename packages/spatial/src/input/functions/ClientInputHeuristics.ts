@@ -32,6 +32,8 @@ import {
   EngineState,
   Entity,
   EntityUUID,
+  getAncestorWithComponents,
+  getAuthoringCounterpart,
   getComponent,
   getOptionalComponent,
   hasComponent,
@@ -55,7 +57,6 @@ import { XRScenePlacementComponent } from '../../xr/XRScenePlacementComponent'
 import { XRState } from '../../xr/XRState'
 import { InputComponent } from '../components/InputComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
-import { InputState } from '../state/InputState'
 
 const _worldPosInputSourceComponent = new Vector3()
 const _worldPosInputComponent = new Vector3()
@@ -166,6 +167,8 @@ const sortDistance = (a: IntersectionData, b: IntersectionData) => {
 const hitTarget = new Vector3()
 const ray = new Ray()
 
+const boundingBoxQuery = defineQuery([VisibleComponent, BoundingBoxComponent])
+
 export function boundingBoxHeuristic(
   viewerEntity: Entity,
   intersectionData: Set<IntersectionData>,
@@ -178,9 +181,10 @@ export function boundingBoxHeuristic(
   ray.origin.copy(position)
   ray.direction.copy(direction)
 
-  const inputState = getState(InputState)
-  for (const entity of inputState.inputBoundingBoxes) {
-    if (!filterEntitiesByViewer(entity, viewerEntity)) continue
+  const boxEntities = boundingBoxQuery()
+    .filter(filterEntitiesByInput)
+    .filter((e) => filterEntitiesByViewer(e, viewerEntity))
+  for (const entity of boxEntities) {
     const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
     if (!boundingBox) continue
     const hit = ray.intersectBox(boundingBox.box, hitTarget)
@@ -200,10 +204,10 @@ export function meshHeuristic(
   position: Vector3,
   direction: Vector3
 ) {
-  const isEditing = getState(EngineState).isEditing
-  const inputState = getState(InputState)
-  const objects = (isEditing ? meshesQuery() : Array.from(inputState.inputMeshes))
+  const entities = meshesQuery()
+    .filter(filterEntitiesByInput)
     .filter((eid) => filterEntitiesByViewer(eid, viewerEntity))
+  const objects = entities
     .filter((eid) => hasComponent(eid, ObjectComponent))
     .map((eid) => getComponent(eid, ObjectComponent))
 
@@ -244,4 +248,18 @@ export function filterEntitiesByViewer(entity: Entity, viewerEntity: Entity) {
     }
   })
   return isRendered
+}
+
+const inputComponentArray = [InputComponent]
+
+/**
+ * Filters entities by input
+ * - return all meshes when authoring
+ * - iterate parent hierarchy until we find one with an input component
+ * @param entity
+ * @returns
+ */
+export function filterEntitiesByInput(entity: Entity) {
+  if (getAuthoringCounterpart(entity)) return true
+  return !!getAncestorWithComponents(entity, inputComponentArray)
 }

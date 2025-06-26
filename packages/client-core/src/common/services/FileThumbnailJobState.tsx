@@ -39,8 +39,8 @@ import {
   getComponent,
   removeEntity,
   setComponent,
-  useChildrenWithComponents,
-  useOptionalComponent
+  useOptionalComponent,
+  useQueryBySource
 } from '@ir-engine/ecs'
 import {
   ErrorBoundary,
@@ -926,7 +926,7 @@ const RenderLookDevThumbnail = (props: RenderThumbnailProps) => {
   const { src, onError } = props
   const [entity, lightEntity, skyboxEntity, cameraEntity] = useRenderEntities(src)
   const errors = ErrorComponent.useComponentErrors(entity, GLTFComponent)
-  const [lookdevSkybox] = useChildrenWithComponents(entity, [SkyboxComponent])
+  const [lookdevSkybox] = useQueryBySource(entity, [SkyboxComponent])
   const backgroundComponent = useOptionalComponent(lookdevSkybox, BackgroundComponent)
 
   useEffect(() => {

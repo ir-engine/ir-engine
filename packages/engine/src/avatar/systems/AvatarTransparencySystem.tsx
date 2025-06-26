@@ -28,21 +28,25 @@ import {
   Entity,
   EntityArrayBoundary,
   QueryReactor,
-  UUIDComponent,
   defineQuery,
   defineSystem,
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
+  hasComponent,
+  removeComponent,
   setComponent,
-  useOptionalComponent
+  useComponent,
+  useOptionalComponent,
+  useQueryBySource
 } from '@ir-engine/ecs'
-import { getState } from '@ir-engine/hyperflux'
+import { getState, none } from '@ir-engine/hyperflux'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
 import { ReferenceSpaceState } from '@ir-engine/spatial'
-import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import React, { useEffect } from 'react'
 import {
   DitherCalculationType,
@@ -100,12 +104,13 @@ export const AvatarTransparencySystem = defineSystem({
 
 const AvatarReactor = (props: { entity: Entity }) => {
   const entity = props.entity
-  const sourceID = UUIDComponent.useAsSourceID(entity)
-  const childEntities = UUIDComponent.useEntitiesBySource(sourceID)
+  const materialChildren = useQueryBySource(entity, [MaterialStateComponent])
+  const rootDitheringComponent = useOptionalComponent(entity, TransparencyDitheringRootComponent)
+  if (!rootDitheringComponent) return null
 
   return (
     <EntityArrayBoundary
-      entities={childEntities}
+      entities={materialChildren}
       ChildEntityReactor={DitherChildReactor}
       props={{ rootEntity: entity }}
     />
@@ -114,18 +119,20 @@ const AvatarReactor = (props: { entity: Entity }) => {
 
 const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   const entity = props.entity
-  const materialComponentEntities = useOptionalComponent(entity, MaterialInstanceComponent)?.entities
-  const rootDitheringComponent = useOptionalComponent(props.rootEntity, TransparencyDitheringRootComponent)
+  const material = useComponent(entity, MaterialStateComponent)
 
   useEffect(() => {
-    if (!materialComponentEntities?.length || !rootDitheringComponent) return
-    for (const entity of materialComponentEntities.value) {
-      if (!entity) continue
-      if (!rootDitheringComponent.materials.value.includes(entity))
-        rootDitheringComponent.materials.set([...rootDitheringComponent.materials.value, entity])
-      setComponent(entity, TransparencyDitheringPluginComponent)
+    getMutableComponent(props.rootEntity, TransparencyDitheringRootComponent).materials.merge([props.entity])
+    setComponent(entity, TransparencyDitheringPluginComponent)
+    return () => {
+      if (hasComponent(props.rootEntity, TransparencyDitheringRootComponent)) {
+        const ditherRootMaterials = getMutableComponent(props.rootEntity, TransparencyDitheringRootComponent).materials
+        const index = ditherRootMaterials.value.indexOf(props.entity)
+        if (index >= 0) ditherRootMaterials[index].set(none)
+      }
+      removeComponent(entity, TransparencyDitheringPluginComponent)
     }
-  }, [materialComponentEntities, !!rootDitheringComponent])
+  }, [material.value])
 
   return null
 }

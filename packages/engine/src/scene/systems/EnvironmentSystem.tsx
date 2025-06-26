@@ -35,10 +35,10 @@ import {
   removeComponent,
   setComponent,
   UndefinedEntity,
-  useChildrenWithComponents,
   useComponent,
   useOptionalComponent,
   useQuery,
+  useQueryBySource,
   UUIDComponent
 } from '@ir-engine/ecs'
 
@@ -67,7 +67,7 @@ import { addError, removeError } from '../functions/ErrorFunctions'
 const EnvMapReactor = (props: { entity: Entity }) => {
   const { entity } = props
   const envMapComponent = useComponent(entity, EnvMapComponent).type.value
-  const materialComponentEntities = useChildrenWithComponents(entity, [MaterialStateComponent])
+  const materialComponentEntities = useQueryBySource(entity, [MaterialStateComponent])
   return (
     <>
       {materialComponentEntities.map((materialComponentEntity, index) => {
