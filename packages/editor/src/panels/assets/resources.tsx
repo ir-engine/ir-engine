@@ -534,7 +534,6 @@ export default function Resources() {
         >
           <ResourceItems />
         </div>
-        {/* Add a visible element with height to ensure the observer has space */}
         <div className="h-10 w-full" />
       </InfiniteScroll>
       <div className="mx-auto mb-10" />
