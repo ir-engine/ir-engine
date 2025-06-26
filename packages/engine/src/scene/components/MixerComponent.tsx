@@ -42,7 +42,7 @@ import {
   ComponentJSONIDMap,
   defineComponent,
   Entity,
-  EntityUUID,
+  EntityID,
   getComponent,
   S,
   setComponent,
@@ -56,14 +56,7 @@ import { Color, Quaternion, Vector2, Vector3, Vector4 } from 'three'
 /**
  * Enum defining the types of values that can be mixed/interpolated
  */
-enum MixableType {
-  Number,
-  Vector2,
-  Vector3,
-  Vector4,
-  Quaternion,
-  Color
-}
+export type MixableType = 'number' | 'Vector2' | 'Vector3' | 'Vector4' | 'Color' | 'Quaternion'
 
 /**
  * Union type of all possible mixable value types
@@ -85,37 +78,37 @@ type MixFunc<M> = {
  * Implementation of mixing functions for each supported type
  */
 const mixFuncs: Record<MixableType, MixFunc<any>> = {
-  [MixableType.Number]: {
+  number: {
     create: (a) => a ?? 0,
     lerp: (a: number, b: number, p) => a * (1 - p) + b * p,
     fromNumberList: (a: number[]) => a[0],
     toNumberList: (a: number) => [a]
   },
-  [MixableType.Vector2]: {
+  Vector2: {
     create: (a?: number[]) => new Vector2(...(a ?? [])),
     lerp: (a: Vector2, b: Vector2, p) => a.clone().lerp(b, p),
     fromNumberList: (a: number[]) => new Vector2(...a),
     toNumberList: (a: Vector2) => [...a]
   },
-  [MixableType.Vector3]: {
+  Vector3: {
     create: (a?: number[]) => new Vector3(...(a ?? [])),
     lerp: (a: Vector3, b: Vector3, p) => a.clone().lerp(b, p),
     fromNumberList: (a: number[]) => new Vector3(...a),
     toNumberList: (a: Vector3) => [...a]
   },
-  [MixableType.Vector4]: {
+  Vector4: {
     create: (a?: number[]) => new Vector4(...(a ?? [])),
     lerp: (a: Vector4, b: Vector4, p) => a.clone().lerp(b, p),
     fromNumberList: (a: number[]) => new Vector4(...a),
     toNumberList: (a: Vector4) => [...a]
   },
-  [MixableType.Color]: {
+  Color: {
     create: (a?: number[]) => new Color(...(a ?? [])),
     lerp: (a: Color, b: Color, p) => a.clone().lerp(b, p),
     fromNumberList: (a: number[]) => new Color(...a),
     toNumberList: (a: Color) => [...a]
   },
-  [MixableType.Quaternion]: {
+  Quaternion: {
     create: (a?: number[]) => new Quaternion(...(a ?? [])),
     lerp: (a: Quaternion, b: Quaternion, p) => a.clone().slerp(b, p), // Note: Uses slerp for quaternions
     fromNumberList: (a: number[]) => new Quaternion(...a),
@@ -126,29 +119,26 @@ const mixFuncs: Record<MixableType, MixFunc<any>> = {
 type AnyComponent = Component<any, any, any, any, any, any>
 type AnyComponentWithID = AnyComponent & { jsonID: string }
 
-const toEntityUUID = (entity: Entity | EntityUUID): EntityUUID =>
-  typeof entity === 'string' ? entity : UUIDComponent.get(entity)
-const toEntity = (entity: Entity | EntityUUID): Entity =>
-  typeof entity === 'string' ? UUIDComponent.getEntityByUUID(entity) : entity
-
 const toComponentID = (targetComponent: AnyComponentWithID | string): string | undefined =>
   typeof targetComponent === 'string' ? targetComponent : targetComponent.jsonID
 const toComponent = (targetComponent: AnyComponentWithID | string): AnyComponent | undefined =>
   typeof targetComponent === 'string' ? ComponentJSONIDMap.get(targetComponent) : targetComponent
 
-type PropertyAddress = [EntityUUID, string, string]
-
 const packAddress = (
-  targetEntity: Entity | EntityUUID,
+  targetEntityID: EntityID,
   targetComponent: AnyComponentWithID | string,
   propertyPath: string
-): string => `${toEntityUUID(targetEntity)}::${toComponentID(targetComponent)}::${propertyPath}`
-
-const unpackAddress = (packedAddress: string): PropertyAddress =>
-  packedAddress.split('::') as [EntityUUID, string, string]
+): string => `/${targetEntityID}/${toComponentID(targetComponent)}/${propertyPath}`
 
 type Entry = Record<string, number[]>
-type Property = { type: MixableType; address: PropertyAddress }
+
+type Property = {
+  entityID: EntityID
+  componentID: string
+  propertyPath: string
+  type: MixableType
+  address: string
+}
 
 /**
  * Retrieves the schema for a property, supporting nested properties via dot notation
@@ -184,28 +174,28 @@ const getPropertySchema = (basisSchema: any, propertyPath: string): any => {
  * @returns The determined MixableType
  */
 const getMixableTypeFromSchema = (schema: any): MixableType => {
-  if (!schema) return MixableType.Number
+  if (!schema) return 'number'
 
   const kind = schema[Kind]
 
   // Handle simple number type
   if (kind === 'Number') {
-    return MixableType.Number
+    return 'number'
   }
 
   // Check for Vector types from T.Vec2, T.Vec3, etc.
   if (kind === 'Class' || kind === 'SerializedClass') {
     switch (schema.options?.id) {
       case 'Vec2':
-        return MixableType.Vector2
+        return 'Vector2'
       case 'Vec3':
-        return MixableType.Vector3
+        return 'Vector3'
       case 'Vec4':
-        return MixableType.Vector4
+        return 'Vector4'
       case 'Color':
-        return MixableType.Color
+        return 'Color'
       case 'Quaternion':
-        return MixableType.Quaternion
+        return 'Quaternion'
     }
   }
 
@@ -215,19 +205,19 @@ const getMixableTypeFromSchema = (schema: any): MixableType => {
 
     // Detect vector types by their properties
     if (props.includes('x') && props.includes('y')) {
-      if (!props.includes('z')) return MixableType.Vector2
-      if (!props.includes('w')) return MixableType.Vector3
-      return MixableType.Vector4
+      if (!props.includes('z')) return 'Vector2'
+      if (!props.includes('w')) return 'Vector3'
+      return 'Vector4'
     }
 
     // Detect color type by its properties
     if (props.includes('r') && props.includes('g') && props.includes('b')) {
-      return MixableType.Color
+      return 'Color'
     }
   }
 
   // Default to number if no specific type is detected
-  return MixableType.Number
+  return 'number'
 }
 
 /**
@@ -255,13 +245,14 @@ const setPropertyValue = (obj: any, path: string, value: Mixable): any => {
 
 /**
  * Creates a Property object for a specific property on a target entity/component
- * @param targetEntity The entity containing the property
+ * @param targetEntityID The entity containing the property
  * @param targetComponent The component containing the property
  * @param propertyPath The path to the property
  * @returns A Property object or null if the property cannot be created
  */
 const createProperty = (
-  targetEntity: Entity | EntityUUID,
+  mixerEntity: Entity,
+  targetEntityID: EntityID,
   targetComponent: AnyComponentWithID | string,
   propertyPath: string
 ): Property | null => {
@@ -272,7 +263,7 @@ const createProperty = (
   if (Component == null) return null
 
   // Validate entity and component instance
-  const entity = toEntity(targetEntity)
+  const entity = UUIDComponent.getEntityFromSameSourceByID(mixerEntity, targetEntityID)
   if (entity == null) return null
   const component = getComponent(entity, Component)
   if (component == null) return null
@@ -284,30 +275,40 @@ const createProperty = (
   // Determine the mixable type from the schema
   const type = getMixableTypeFromSchema(propertySchema)
 
-  return {
-    type,
-    address: [toEntityUUID(targetEntity), componentID, propertyPath]
-  }
-}
+  const address = packAddress(targetEntityID, targetComponent, propertyPath)
 
-/**
- * Internal state maintained by the MixerComponent
- */
-type MixerState = {
-  properties: Map<string, Property> // Map of property addresses to Property objects
-  entriesByCoord: Map<number, [Entry, number]> // Map of coordinates to entries and their indices
-  sortedEntries: [number, Entry][] // Cached sorted array of entries by coordinate
-  needsUpdate: boolean // Flag indicating if sortedEntries needs updating
+  return {
+    entityID: targetEntityID,
+    componentID,
+    propertyPath,
+    type,
+    address
+  }
 }
 
 /**
  * Schema definition for the MixerComponent
  */
 const schema = S.Object({
-  state: S.Type<MixerState>({ serialized: false }), // Runtime state (not serialized)
   coord: S.Number(), // Current coordinate position
-  properties: S.Array(S.String()), // Array of property addresses
-  entries: S.Array(S.Tuple([S.Number(), S.Record(S.String(), S.Array(S.Number()))])) // Array of [coord, entry] tuples
+  properties: S.Array(
+    S.Object({
+      entityID: S.EntityID(),
+      componentID: S.String(),
+      propertyPath: S.String(),
+      type: S.Union([
+        S.Literal('number'),
+        S.Literal('Vector2'),
+        S.Literal('Vector3'),
+        S.Literal('Vector4'),
+        S.Literal('Color'),
+        S.Literal('Quaternion')
+      ]),
+      address: S.String()
+    })
+  ),
+  entries: S.Array(S.Tuple([S.Number(), S.Record(S.String(), S.Array(S.Number()))])), // Array of [coord, entry] tuples
+  initialized: S.Bool({ default: false, serialized: false })
 })
 
 /**
@@ -332,38 +333,23 @@ export const MixerComponent = defineComponent({
 
     // Initialize component state on first render
     useEffect(() => {
-      if (mixerComp.state.value != null) return
+      const mixerComp = getComponent(entity, MixerComponent)
+      if (mixerComp.initialized) return
 
-      // Create property map from serialized property addresses
-      const properties = new Map<string, Property>(
-        mixerComp.properties.value
-          .map((address: string): [string, Property] | null => {
-            const [entityUUID, componentID, propertyPath] = unpackAddress(address)
-            const property = createProperty(entityUUID, componentID, propertyPath)
-            return property == null ? null : [address, property]
-          })
-          .filter((p) => p != null) // TODO: address missing properties somehow
-      )
-
-      // Create entries map from serialized entries
-      const compEntries = mixerComp.entries.value as [number, Entry][]
-      const entriesByCoord = new Map<number, [Entry, number]>(
-        compEntries.map(([coord, entry], index) => [coord, [entry, index]])
-      )
-
-      // Set initial state
-      mixerComp.state.set({
-        properties,
-        entriesByCoord,
-        sortedEntries: [],
-        needsUpdate: true
+      setComponent(entity, MixerComponent, {
+        initialized: true,
+        properties: mixerComp.properties.map((initialProperty) => {
+          const { entityID, componentID, propertyPath } = initialProperty
+          return createProperty(entity, entityID, componentID, propertyPath) ?? initialProperty
+        }),
+        entries: mixerComp.entries.toSorted(([coord1], [coord2]) => coord1 - coord2)
       })
     }, [])
 
     // Trigger mixing when relevant properties change
     useEffect(() => {
       MixerComponent.mix(entity)
-    }, [mixerComp.coord, mixerComp.properties, mixerComp.entries, mixerComp.state])
+    }, [mixerComp.coord, mixerComp.properties, mixerComp.entries])
 
     return null
   },
@@ -377,21 +363,19 @@ export const MixerComponent = defineComponent({
     const mixed = MixerComponent.getMixedEntry(mixerEntity, mixerComp.coord)
 
     // Group properties by entity and component to minimize setComponent calls
-    const updates = new Map<EntityUUID, Map<string, any>>()
+    const updates = new Map<EntityID, Map<string, any>>()
 
     // Process each property
-    for (const [propertyAddress, property] of mixerComp.state.properties) {
-      const {
-        type,
-        address: [entityUUID, componentID, propertyPath]
-      } = property
-      const mixedValue = mixFuncs[type].fromNumberList(mixed[propertyAddress])
+    for (const property of mixerComp.properties) {
+      const { entityID, componentID, propertyPath, type, address } = property
+
+      const mixedValue = mixFuncs[type].fromNumberList(mixed[address])
 
       // Organize updates by entity and component
-      if (!updates.has(entityUUID)) {
-        updates.set(entityUUID, new Map())
+      if (!updates.has(entityID)) {
+        updates.set(entityID, new Map())
       }
-      const entityUpdates = updates.get(entityUUID)!
+      const entityUpdates = updates.get(entityID)!
       if (!entityUpdates.has(componentID)) {
         entityUpdates.set(componentID, {})
       }
@@ -399,12 +383,12 @@ export const MixerComponent = defineComponent({
       // Build the updated component data
       const componentUpdate = entityUpdates.get(componentID)
       const updatedComponent = setPropertyValue(componentUpdate, propertyPath, mixedValue)
-      updates.get(entityUUID)!.set(componentID, updatedComponent)
+      updates.get(entityID)!.set(componentID, updatedComponent)
     }
 
     // Apply all updates
-    for (const [entityUUID, componentUpdates] of updates) {
-      const entity = UUIDComponent.getEntityByUUID(entityUUID)
+    for (const [entityID, componentUpdates] of updates) {
+      const entity = UUIDComponent.getEntityFromSameSourceByID(mixerEntity, entityID)
       for (const [componentID, update] of componentUpdates) {
         setComponent(entity, ComponentJSONIDMap.get(componentID)!, update)
       }
@@ -420,26 +404,21 @@ export const MixerComponent = defineComponent({
   getMixedEntry: (mixerEntity: Entity, coord: number): Entry => {
     const mixerComp = getComponent(mixerEntity, MixerComponent)
 
-    // Update sorted entries cache if needed
-    if (mixerComp.state.needsUpdate) {
-      mixerComp.state.sortedEntries = mixerComp.entries.toSorted(([aCoord], [bCoord]) => aCoord - bCoord)
-      mixerComp.state.needsUpdate = false
-    }
-    const sortedEntries = mixerComp.state.sortedEntries
+    const entries = mixerComp.entries
 
     // Handle edge cases
-    if (sortedEntries.length === 0) return MixerComponent.getDefaultEntry(mixerEntity)
-    if (sortedEntries.length === 1)
-      return Object.fromEntries(Object.entries(sortedEntries[0][1]).map(([key, value]) => [key, [...value]]))
+    if (entries.length === 0) return MixerComponent.getDefaultEntry(mixerEntity)
+    if (entries.length === 1)
+      return Object.fromEntries(Object.entries(entries[0][1]).map(([key, value]) => [key, [...value]]))
 
     // Find the entries to interpolate between using binary search
-    const lastCoord = sortedEntries.length - 1
+    const lastCoord = entries.length - 1
     let left = 0,
       right = lastCoord,
       mid = 0
     while (left <= right) {
       mid = Math.floor((left + right) / 2)
-      const midCoord = sortedEntries[mid][0]
+      const midCoord = entries[mid][0]
       if (midCoord < coord) {
         left = mid + 1
       } else if (midCoord > coord) {
@@ -448,26 +427,27 @@ export const MixerComponent = defineComponent({
         break
       }
     }
-    if (sortedEntries[mid][0] > coord) {
+    if (entries[mid][0] > coord && mid > 0) {
       mid--
     }
     const from = mid
     const to = Math.min(lastCoord, from + 1)
 
     // Get the entries and calculate interpolation factor
-    const [fromCoord, fromEntry] = sortedEntries[from]
-    const [toCoord, toEntry] = sortedEntries[to]
+    const [fromCoord, fromEntry] = entries[from]
+    const [toCoord, toEntry] = entries[to]
     const p = from === to ? 1 : (coord - fromCoord) / (toCoord - fromCoord)
 
     // Interpolate each property
+
     return Object.fromEntries(
-      mixerComp.state.properties.entries().map(([propertyAddress, { type }]) => {
-        const [fromValue, toValue] = [fromEntry[propertyAddress], toEntry[propertyAddress]]
+      mixerComp.properties.map(({ address, type }) => {
+        const [fromValue, toValue] = [fromEntry[address], toEntry[address]]
         const value =
           fromValue == null || toValue == null
             ? mixFuncs[type].create(fromValue ?? toValue)
-            : mixFuncs[type].lerp(fromValue, toValue, p)
-        return [propertyAddress, mixFuncs[type].toNumberList(value)]
+            : mixFuncs[type].lerp(mixFuncs[type].fromNumberList(fromValue), mixFuncs[type].fromNumberList(toValue), p)
+        return [address, mixFuncs[type].toNumberList(value)]
       })
     )
   },
@@ -475,85 +455,105 @@ export const MixerComponent = defineComponent({
   /**
    * Adds a property to be tracked by the mixer
    * @param mixerEntity The entity with the MixerComponent
-   * @param targetEntity The entity containing the property to track
+   * @param targetEntityID The entity containing the property to track
    * @param targetComponent The component containing the property to track
    * @param propertyPath The path to the property to track
    * @returns A function to set values for this property in entries, or null if the property couldn't be added
    */
   addProperty: (
     mixerEntity: Entity,
-    targetEntity: Entity | EntityUUID,
+    targetEntityID: EntityID,
     targetComponent: AnyComponentWithID | string,
     propertyPath: string
   ) => {
     const mixerComp = getComponent(mixerEntity, MixerComponent)
 
-    // Check if property is already tracked
-    const packedAddress = packAddress(targetEntity, targetComponent, propertyPath)
-    if (mixerComp.state.properties.has(packedAddress)) {
-      return MixerComponent.propertySetter(mixerEntity, targetEntity, targetComponent, propertyPath)
-    }
+    const packedAddress = packAddress(targetEntityID, targetComponent, propertyPath)
+    const existingProperty = mixerComp.properties.find((p) => p.address === packedAddress)
+    if (existingProperty != null)
+      return MixerComponent.propertySetter(mixerEntity, targetEntityID, targetComponent, propertyPath)
 
     // Create the property
-    const property = createProperty(targetEntity, targetComponent, propertyPath)
+    const property = createProperty(mixerEntity, targetEntityID, targetComponent, propertyPath)
     if (property == null) return null
 
     // Add to tracked properties
-    mixerComp.state.properties.set(packedAddress, property)
-    mixerComp.properties.push(packedAddress)
+    const newProperties = [...mixerComp.properties, property]
 
     // Initialize property in all existing entries
-    for (const [_coord, entry] of mixerComp.entries) {
-      entry[packedAddress] = mixFuncs[property.type].toNumberList(mixFuncs[property.type].create())
-    }
+    const newEntries: [number, Entry][] = mixerComp.entries.map(([coord, entry]) => {
+      const value = mixFuncs[property.type].toNumberList(mixFuncs[property.type].create())
+      return [coord, { ...entry, [packedAddress]: value }]
+    })
 
-    return MixerComponent.propertySetter(mixerEntity, targetEntity, targetComponent, propertyPath)
+    setComponent(mixerEntity, MixerComponent, {
+      properties: newProperties,
+      entries: newEntries
+    })
+
+    return MixerComponent.propertySetter(mixerEntity, targetEntityID, targetComponent, propertyPath)
   },
 
   /**
    * Creates a function that generates entry data for a specific property
    * @param mixerEntity The entity with the MixerComponent
-   * @param targetEntity The entity containing the property
+   * @param targetEntityID The entity containing the property
    * @param targetComponent The component containing the property
    * @param propertyPath The path to the property
    * @returns A function that takes a value and returns entry data for the property, or null if the property isn't tracked
    */
   propertySetter: (
     mixerEntity: Entity,
-    targetEntity: Entity | EntityUUID,
+    targetEntityID: EntityID,
     targetComponent: AnyComponentWithID | string,
     propertyPath: string
   ): ((value: Mixable) => Entry) | null => {
     const mixerComp = getComponent(mixerEntity, MixerComponent)
-    const packedAddress = packAddress(targetEntity, targetComponent, propertyPath)
-
-    const property = mixerComp.state.properties.get(packedAddress)
+    const packedAddress = packAddress(targetEntityID, targetComponent, propertyPath)
+    const property = mixerComp.properties.find((p) => p.address === packedAddress)
     if (property == null) return null
-
     return (value: Mixable) => ({ [packedAddress]: mixFuncs[property.type].toNumberList(value) })
   },
 
   /**
    * Removes a property from being tracked by the mixer
    * @param mixerEntity The entity with the MixerComponent
-   * @param targetEntity The entity containing the property
+   * @param targetEntityID The entity containing the property
    * @param targetComponent The component containing the property
    * @param propertyPath The path to the property
    */
   removeProperty: (
     mixerEntity: Entity,
-    targetEntity: Entity | EntityUUID,
+    targetEntityID: EntityID,
     targetComponent: AnyComponentWithID | string,
     propertyPath: string
   ) => {
     const mixerComp = getComponent(mixerEntity, MixerComponent)
-    const packedAddress = packAddress(targetEntity, targetComponent, propertyPath)
+    const packedAddress = packAddress(targetEntityID, targetComponent, propertyPath)
+    const index = mixerComp.properties.findIndex((p) => p.address === packedAddress)
+    if (index === -1) return
+    const newProperties = mixerComp.properties.toSpliced(index, 1)
 
-    if (!mixerComp.state.properties.has(packedAddress)) return
+    setComponent(mixerEntity, MixerComponent, {
+      properties: newProperties
+    })
+  },
 
+  /**
+   * Removes a property at a specific index from the mixer (useful for UI)
+   * @param mixerEntity The entity with the MixerComponent
+   * @param index The index of the property to remove
+   */
+  removePropertyAtIndex: (mixerEntity: Entity, index: number) => {
+    const mixerComp = getComponent(mixerEntity, MixerComponent)
+    if (index < 0 || index >= mixerComp.properties.length) return
+    const packedAddress = mixerComp.properties[index]
     // Remove from tracked properties
-    mixerComp.state.properties.delete(packedAddress)
-    mixerComp.properties = mixerComp.properties.filter((p) => p !== packedAddress)
+    const newProperties = mixerComp.properties.filter((p) => p !== packedAddress)
+
+    setComponent(mixerEntity, MixerComponent, {
+      properties: newProperties
+    })
   },
 
   /**
@@ -564,7 +564,8 @@ export const MixerComponent = defineComponent({
    */
   getEntry: (mixerEntity: Entity, coord: number): Entry | null => {
     const mixerComp = getComponent(mixerEntity, MixerComponent)
-    return mixerComp.state.entriesByCoord.get(coord)?.[0] ?? null
+    const [, entry] = mixerComp.entries.find(([entryCoord]) => entryCoord === coord) ?? [null, null]
+    return entry
   },
 
   /**
@@ -575,9 +576,7 @@ export const MixerComponent = defineComponent({
   getDefaultEntry: (mixerEntity: Entity): Entry => {
     const mixerComp = getComponent(mixerEntity, MixerComponent)
     return Object.fromEntries(
-      mixerComp.state.properties
-        .entries()
-        .map(([propertyAddress, { type }]) => [propertyAddress, mixFuncs[type].toNumberList(mixFuncs[type].create())])
+      mixerComp.properties.map(({ address, type }) => [address, mixFuncs[type].toNumberList(mixFuncs[type].create())])
     )
   },
 
@@ -592,14 +591,23 @@ export const MixerComponent = defineComponent({
     // Merge with default values for any unspecified properties
     entry = { ...MixerComponent.getDefaultEntry(mixerEntity), ...entry }
     const mixerComp = getComponent(mixerEntity, MixerComponent)
-
-    // Get existing entry index or use the end of the array
-    const index = mixerComp.state.entriesByCoord.get(coord)?.[1] ?? mixerComp.entries.length
-
-    // Update the entry
-    mixerComp.state.entriesByCoord.set(coord, [entry, index])
-    mixerComp.entries[index] = [coord, entry]
-    mixerComp.state.needsUpdate = true
+    const newEntries = [...mixerComp.entries]
+    appendEntries: {
+      for (const [index, [entryCoord]] of newEntries.entries()) {
+        if (entryCoord === coord) {
+          newEntries[index] = [coord, entry]
+          break appendEntries
+        }
+        if (entryCoord > coord) {
+          newEntries.splice(index, 0, [coord, entry])
+          break appendEntries
+        }
+      }
+      newEntries.push([coord, entry])
+    }
+    setComponent(mixerEntity, MixerComponent, {
+      entries: newEntries
+    })
     return entry
   },
 
@@ -625,23 +633,11 @@ export const MixerComponent = defineComponent({
    */
   deleteEntry: (mixerEntity: Entity, coord: number) => {
     const mixerComp = getComponent(mixerEntity, MixerComponent)
-    const index = mixerComp.state.entriesByCoord.get(coord)?.[1]
-    if (index == null) return
-
-    // Remove from entriesByCoord map
-    mixerComp.state.entriesByCoord.delete(coord)
-
-    // Remove from entries array
-    if (index === mixerComp.entries.length - 1) {
-      // If it's the last entry, just pop it
-      mixerComp.entries.pop()
-    } else {
-      // Otherwise, move the last entry to this position to avoid holes
-      mixerComp.entries[index] = mixerComp.entries.pop()!
-      // Update the index in entriesByCoord
-      mixerComp.state.entriesByCoord.set(mixerComp.entries[index][0], [mixerComp.entries[index][1], index])
-    }
-
-    mixerComp.state.needsUpdate = true
+    const index = mixerComp.entries.findIndex(([entryCoord]) => entryCoord === coord)
+    if (index === -1) return
+    const newEntries = mixerComp.entries.toSpliced(index, 1)
+    setComponent(mixerEntity, MixerComponent, {
+      entries: newEntries
+    })
   }
 })

@@ -25,7 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
+import { useMutableState } from '@ir-engine/hyperflux'
 import Divider from '@ir-engine/ui/src/components/viewer/Divider'
+import { AuthState } from '../../user/services/AuthService'
 import { NavigateFuncProps } from '../Glass/NavigationProvider'
 import { Inner } from '../Glass/ToolbarAndSidebar'
 import { MenuItem } from './MenuItem'
@@ -34,20 +36,32 @@ import { Section } from './Section'
 // Define types for screen components
 type ScreenProps = NavigateFuncProps & {}
 
-const AccountSettings: React.FC<ScreenProps> = ({ navigateTo }) => (
-  <Inner className="min-h-full space-y-4">
-    <Section>
-      <MenuItem label="Display Name" onClick={() => navigateTo('settings/display')} hasChevron />
-      <Divider />
-      <MenuItem label="Permissions" onClick={() => navigateTo('settings/permissions')} hasChevron />
-    </Section>
+const AccountSettings: React.FC<ScreenProps> = ({ navigateTo }) => {
+  const isGuest = useMutableState(AuthState).user.isGuest.value
 
-    <Section>
-      <MenuItem label="Single Sign On" onClick={() => navigateTo('settings/sso')} hasChevron />
-      <Divider />
-      <MenuItem label="Delete My Account" onClick={() => navigateTo('settings/delete')} hasChevron />
-    </Section>
-  </Inner>
-)
+  return (
+    <Inner className="min-h-full space-y-4">
+      <Section>
+        <MenuItem label="Display Name" onClick={() => navigateTo('settings/display')} hasChevron />
+        {isGuest && (
+          <>
+            <Divider />
+            <MenuItem label="Sign Up" onClick={() => navigateTo('settings/signup')} hasChevron />
+          </>
+        )}
+      </Section>
+
+      <Section>
+        {!isGuest && (
+          <>
+            <MenuItem label="Single Sign On" onClick={() => navigateTo('settings/sso')} hasChevron />
+            <Divider />
+          </>
+        )}
+        <MenuItem label="Delete My Account" onClick={() => navigateTo('settings/delete')} hasChevron />
+      </Section>
+    </Inner>
+  )
+}
 
 export default AccountSettings
