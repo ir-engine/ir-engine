@@ -98,21 +98,25 @@ const useMultimediaState = () => {
   const currentLocation = useHookstate(getMutableState(LocationState).currentLocation.location)
   const networkState = useMutableState(NetworkState)
   const mediaNetworkState = useMediaNetwork()
-  const mediaNetworkReady = mediaNetworkState?.ready?.value
-  const videoEnabled = currentLocation?.locationSetting?.value
-    ? currentLocation?.locationSetting?.videoEnabled?.value
-    : false
-  const audioEnabled = currentLocation?.locationSetting?.value
-    ? currentLocation?.locationSetting?.audioEnabled?.value
-    : false
-  const screenshareEnabled = currentLocation?.locationSetting?.value
-    ? currentLocation?.locationSetting?.screenSharingEnabled?.value
-    : false
+  const mediaNetworkReady = mediaNetworkState?.ready?.value ?? false
+  const mediaNetworkConfigEnabled = networkState.config.media.value
+
+  // Default these to true when location setting is not available yet
+  const locationSetting = currentLocation?.locationSetting?.value
+  const videoEnabled = locationSetting ? currentLocation?.locationSetting?.videoEnabled?.value : true
+  const audioEnabled = locationSetting ? currentLocation?.locationSetting?.audioEnabled?.value : true
+  const screenshareEnabled = locationSetting ? currentLocation?.locationSetting?.screenSharingEnabled?.value : true
 
   const mediaStreamState = useMutableState(MediaStreamState)
   const numVideoDevices = mediaStreamState.availableVideoDevices.value.length
   const hasAudioDevice = mediaStreamState.availableAudioDevices.value.length > 0
   const hasVideoDevice = numVideoDevices > 0
+
+  // Fallback device detection - assume devices exist if browser supports getUserMedia
+  const browserSupportsAudio = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+  const browserSupportsVideo = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+  const hasAudioDeviceFallback = hasAudioDevice || browserSupportsAudio
+  const hasVideoDeviceFallback = hasVideoDevice || browserSupportsVideo
   const isMotionCaptureEnabled = mediaStreamState.faceTracking.value
   const isCamVideoEnabled = !!mediaStreamState.webcamMediaStream.value && mediaStreamState.webcamEnabled.value
   const isCamAudioEnabled = !!mediaStreamState.microphoneMediaStream.value && mediaStreamState.microphoneEnabled.value
@@ -144,16 +148,16 @@ const useMultimediaState = () => {
     setSearch(params)
   }
 
-  const isNetworkLoading = networkState.config.media.value && !mediaNetworkState?.ready?.value
+  const isNetworkLoading = mediaNetworkConfigEnabled && !mediaNetworkReady
   const isLoading = isNetworkLoading
 
   const isCamLoading = !!mediaStreamState.webcamMediaStream.value !== mediaStreamState.webcamEnabled.value
 
-  const isNetworkReady = mediaNetworkReady && mediaNetworkState?.ready?.value
+  const isNetworkReady = mediaNetworkConfigEnabled && mediaNetworkReady
 
-  const isMicReady = audioEnabled && hasAudioDevice && isNetworkReady
+  const isMicReady = audioEnabled && hasAudioDeviceFallback && isNetworkReady
 
-  const isCamReady = videoEnabled && hasVideoDevice && isNetworkReady
+  const isCamReady = videoEnabled && hasVideoDeviceFallback && isNetworkReady
 
   const isScreenshareReady =
     !isMobile &&
@@ -163,7 +167,7 @@ const useMultimediaState = () => {
 
   const isVRReady = supportsVR && xrEnabled
   const isSpectateReady = spectating
-  const isMultiVideoReady = isCamReady && isCamVideoEnabled && numVideoDevices > 1
+  const isMultiVideoReady = isCamReady && isCamVideoEnabled && (numVideoDevices > 1 || hasVideoDeviceFallback)
 
   const _MicIcon = isCamAudioEnabled ? MicrophoneOnIcon : MicrophoneOffIcon
 

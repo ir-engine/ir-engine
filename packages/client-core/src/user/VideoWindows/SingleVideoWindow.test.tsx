@@ -99,7 +99,9 @@ Object.defineProperty(global.navigator, 'mediaDevices', {
   writable: true,
   value: {
     enumerateDevices: vi.fn().mockResolvedValue([]),
-    getUserMedia: vi.fn().mockResolvedValue(new MediaStream())
+    getUserMedia: vi.fn().mockResolvedValue(new MediaStream()),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn()
   }
 })
 
@@ -225,12 +227,6 @@ describe('SingleVideoWindow component', () => {
           quality: 'smallest',
           paused: false,
           element: document.createElement('video')
-        },
-        [screenshareVideoMediaChannelType]: {
-          stream: new MediaStream(),
-          quality: 'smallest',
-          paused: false,
-          element: document.createElement('audio')
         }
       }
     })
