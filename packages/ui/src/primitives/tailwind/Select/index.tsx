@@ -391,6 +391,7 @@ const Select = ({
       contentStyle={{
         padding: '0px',
         border: 'none',
+        zIndex: 60,
         ...positionStyle
       }}
       onOpen={() => onOpen?.(true)}
@@ -398,7 +399,7 @@ const Select = ({
     >
       <div
         ref={contentRef}
-        className={`z-50 flex flex-col overflow-y-auto overflow-x-hidden rounded-lg`}
+        className={`z-[60] flex flex-col overflow-y-auto overflow-x-hidden rounded-lg border border-ui-outline bg-ui-background shadow-lg`}
         style={{
           width: triggerWidth,
           maxHeight: positioning.maxHeight
@@ -443,6 +444,10 @@ const Select = ({
                 selected={localValue.value === currentValue}
                 active={index === activeIndex}
                 onMouseDown={(e) => {
+                  e.stopPropagation()
+                  e.preventDefault()
+                }}
+                onClick={(e) => {
                   e.stopPropagation()
                   e.preventDefault()
                   closePopup()
