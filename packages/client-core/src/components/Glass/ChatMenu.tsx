@@ -152,13 +152,12 @@ export const ChatMenu = () => {
 
   if (isGuest) {
     return (
-      <div className="mx-auto flex min-h-full w-full max-w-screen-sm flex-col items-center gap-8 font-dm-sans">
+      <div className="mx-auto flex min-h-full w-full max-w-screen-sm flex-col items-center gap-8 pb-20 font-dm-sans">
         <div className="flex flex-1 flex-col items-center justify-center gap-4">
           <HiChatBubbleLeftRight className="mx-auto h-[5.5rem] w-[5.5rem]" />
-          <div className="text-shadow font-manrope text-2xl text-white">Want to chat with others?</div>
+          <div className="text-shadow font-manrope text-white">Want to chat with others?</div>
         </div>
         <ButtonGroup
-          className="pb-20"
           options={[
             { label: 'Create an Account', onClick: onSignUpClicked },
             { label: 'Sign In', onClick: onSignInClicked }

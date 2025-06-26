@@ -118,7 +118,7 @@ const backButtonStyles = `
 const Tab = ({ onClick, heading, active }: TabProps) => {
   return (
     <button className={`group`} onClick={onClick}>
-      <h2 className={`lg:text-shadow-md grid gap-y-1`}>
+      <h2 className={`grid gap-y-1 font-dm-sans text-base`}>
         {heading}
         <div
           className={twMerge(
