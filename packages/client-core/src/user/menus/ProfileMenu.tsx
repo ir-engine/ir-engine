@@ -72,7 +72,6 @@ import {
   Refresh1Lg,
   ReportWebsiteDefaullg,
   Send01Lg,
-  Trash04Lg,
   TwitterOriginalFalse,
   XCloseMd
 } from '@ir-engine/ui/src/icons'
@@ -702,34 +701,6 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
           >
             <LogIn01Lg />
             {t('user:usermenu.profile.logout.submit')}
-          </button>
-
-          <button
-            className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
-            data-testid="profile-menu-delete-account-button"
-            onClick={() => {
-              ModalState.closeModal() // Close the ProfileMenu popover
-              ModalState.openModal(
-                <ConfirmDialog
-                  title={t('user:usermenu.profile.delete.finalDeleteConfirm')}
-                  text={t('user:usermenu.profile.delete.finalDeleteText')}
-                  onSubmit={async () => {
-                    AuthService.removeUser(userId)
-                    AuthService.logoutUser()
-                  }}
-                  onClose={() => {
-                    ModalState.openModal(<ProfileMenu />)
-                  }}
-                />,
-                () => {
-                  ModalState.closeModal()
-                  ModalState.openModal(<ProfileMenu />)
-                }
-              )
-            }}
-          >
-            <Trash04Lg />
-            {t('user:usermenu.profile.delete.deleteAccount')}
           </button>
         </div>
       )}
