@@ -103,6 +103,7 @@ export const SkyboxComponent = defineComponent({
       texture.colorSpace = SRGBColorSpace
       texture.mapping = EquirectangularReflectionMapping
       texture.minFilter = LinearFilter
+      texture.generateMipmaps = false
       setComponent(entity, BackgroundComponent, texture)
     }, [texture, skyboxState.backgroundType])
 
@@ -125,6 +126,7 @@ export const SkyboxComponent = defineComponent({
       colorTexture.needsUpdate = true
       colorTexture.colorSpace = SRGBColorSpace
       colorTexture.mapping = EquirectangularReflectionMapping
+      colorTexture.generateMipmaps = false
       setComponent(entity, BackgroundComponent, colorTexture)
 
       return () => {
@@ -139,6 +141,7 @@ export const SkyboxComponent = defineComponent({
       const onLoad = (cubeTexture: CubeTexture) => {
         cubeTexture.colorSpace = SRGBColorSpace
         cubeTexture.mapping = CubeReflectionMapping
+        cubeTexture.generateMipmaps = false
         cubemapTexture.set(cubeTexture)
         setComponent(entity, BackgroundComponent, cubeTexture)
         removeError(entity, SkyboxComponent, 'FILE_ERROR')
@@ -192,6 +195,7 @@ export const SkyboxComponent = defineComponent({
       const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
       const generatedTexture = sky.generateSkyboxTextureCube(renderer.renderer!)
       generatedTexture.mapping = CubeReflectionMapping
+      generatedTexture.generateMipmaps = false
 
       setComponent(entity, BackgroundComponent, generatedTexture)
       sky.dispose()

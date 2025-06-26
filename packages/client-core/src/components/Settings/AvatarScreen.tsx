@@ -29,7 +29,7 @@ import { useHookstate } from '@hookstate/core'
 import { useFind, useMutation } from '@ir-engine/common'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { AvatarID, avatarPath, userAvatarPath } from '@ir-engine/common/src/schema.type.module'
-import { hasComponent, useOptionalComponent } from '@ir-engine/ecs'
+import { hasComponent } from '@ir-engine/ecs'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { SpawnEffectComponent } from '@ir-engine/engine/src/avatar/components/SpawnEffectComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
@@ -49,7 +49,7 @@ import { Section } from './Section'
 
 type AvatarScreenProps = NavigateFuncProps & {}
 
-const AvatarScreen: React.FC<AvatarScreenProps> = ({ navigateTo }) => {
+const AvatarScreen: React.FC<AvatarScreenProps> = ({ navigateTo, navigateClose }) => {
   const search = useHookstate('')
   const page = useHookstate(0)
 
@@ -64,8 +64,10 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({ navigateTo }) => {
     }
   })
 
-  const initialAvatar = useFind(avatarPath, { query: { userId } }).data?.at(0)
-  const selectedAvatarId = useHookstate(initialAvatar?.id || ('' as AvatarID))
+  const avatar = useFind(userAvatarPath, { query: { userId } }).data[0]
+  const userAvatarId = avatar?.avatarId
+
+  const selectedAvatarId = useHookstate('' as AvatarID)
   const selectedAvatar = avatars.find((avatar) => avatar.id === selectedAvatarId.value)
 
   const [createAvatarEnabled, uploadAvatarEnabled] = useFeatureFlags([
@@ -74,27 +76,32 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({ navigateTo }) => {
   ])
 
   useEffect(() => {
-    if (initialAvatar) {
-      selectedAvatarId.set(initialAvatar.id)
-    }
-  }, [initialAvatar])
+    if (!userAvatarId) return
+    if (!selectedAvatarId.value) selectedAvatarId.set(userAvatarId)
+  }, [userAvatarId, selectedAvatarId])
 
   AuthService.useAPIListeners()
 
   const userAvatarMutation = useMutation(userAvatarPath)
   const avatarEntity = AvatarComponent.useSelfAvatarEntity()
-  const selfAvatarLoaded = useOptionalComponent(avatarEntity, GLTFComponent)?.progress?.value === 100
+  const selfAvatarLoaded = GLTFComponent.useSceneLoaded(avatarEntity)
 
   const onAvatarThumbnailClicked = async (id: AvatarID) => {
     if (selectedAvatarId.value === id) return
-
-    const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-    if (!selfAvatarEntity || !hasComponent(selfAvatarEntity, SpawnEffectComponent)) {
-      await userAvatarMutation.patch(null, { avatarId: selectedAvatarId.value }, { query: { userId } })
-    }
-
     selectedAvatarId.set(id)
   }
+
+  useEffect(() => {
+    return () => {
+      const avatarId = selectedAvatarId.value
+      if (avatarId == userAvatarId) return
+
+      const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+      if (!selfAvatarEntity || !hasComponent(selfAvatarEntity, SpawnEffectComponent)) {
+        userAvatarMutation.patch(null, { avatarId: selectedAvatarId.value }, { query: { userId } })
+      }
+    }
+  }, [])
 
   return (
     <Inner className="flex min-h-full flex-col gap-4">
