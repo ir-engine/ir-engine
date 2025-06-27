@@ -118,7 +118,7 @@ const backButtonStyles = `
 const Tab = ({ onClick, heading, active }: TabProps) => {
   return (
     <button className={`group`} onClick={onClick}>
-      <h2 className={`lg:text-shadow-md grid gap-y-1`}>
+      <h2 className={`lg:text-shadow-md text-shadow grid gap-y-1 font-dm-sans text-base lg:text-4xl`}>
         {heading}
         <div
           className={twMerge(
@@ -136,12 +136,13 @@ const headingsStyles = `
 
   gap-x-8
   py-8
-  text-2xl
+  text-[1.25rem]
+  text-shadow lg:text-shadow-md
   
   lg:justify-start
   lg:py-4
   lg:pl-2
-  lg:text-5xl
+  lg:text-4xl
   lg:gap-x-8
 `
 
@@ -168,7 +169,7 @@ const Header = ({ tabs = [], title, handleSidebarClose, handleSidebarBack, showB
             <XCloseLg />
           </MenuIconButton>
         </div>
-        <div style={{ textShadow: `0 0.025em 0.08em hsla(0, 0%, 0%, 0.2)` }} className={headingsStyles}>
+        <div className={headingsStyles}>
           {showBack ? <div className={headerBackButtonStyles}>{backButton}</div> : <></>}
           {hasTabs ? (
             tabs.map((tabProps) => {
