@@ -33,6 +33,7 @@ import { useAuthSettings } from '../../hooks/useAuthSetting'
 import { useMagicLink } from '../../hooks/useMagicLink'
 import { AuthService } from '../../user/services/AuthService'
 import { TextButton } from '../Glass/buttons/TextButton'
+import { Inner } from '../Glass/ToolbarAndSidebar'
 import FieldItem from './FieldItem'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
@@ -88,7 +89,7 @@ export default function LoginScreen() {
   const disableMagicLink = pending.value || sent.value || !isValid.value
 
   return (
-    <div className="flex min-h-full flex-col gap-4">
+    <Inner className="flex min-h-full flex-col gap-4">
       {/* Username Field */}
       <Section>
         <FieldItem type="text" label="Username" onChange={username.set} value={username.value} />
@@ -125,6 +126,6 @@ export default function LoginScreen() {
           </React.Fragment>
         ))}
       </Section>
-    </div>
+    </Inner>
   )
 }
