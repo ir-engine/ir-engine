@@ -51,15 +51,11 @@ const AccountSettings: React.FC<ScreenProps> = ({ navigateTo }) => {
         )}
       </Section>
 
-      <Section>
-        {!isGuest && (
-          <>
-            <MenuItem label="Single Sign On" onClick={() => navigateTo('settings/sso')} hasChevron />
-            <Divider />
-          </>
-        )}
-        <MenuItem label="Delete My Account" onClick={() => navigateTo('settings/delete')} hasChevron />
-      </Section>
+      {!isGuest && (
+        <Section>
+          <MenuItem label="Single Sign On" onClick={() => navigateTo('settings/sso')} hasChevron />
+        </Section>
+      )}
     </Inner>
   )
 }
