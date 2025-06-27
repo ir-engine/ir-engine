@@ -48,6 +48,7 @@ import { QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { InputHeuristicState, IntersectionData } from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import {
@@ -160,6 +161,9 @@ const ActiveHelperReactor: React.FC<ComponentHelperEntry> = (helper) => {
 
     if (effectiveHelper?.directional) {
       const directionalEntities = setupGizmo(entity, iconGizmoArrow, ObjectLayers.NodeIcon)
+      directionalEntities.forEach((directionalEntity) => {
+        setComponent(directionalEntity, ObjectLayerMaskComponent, ObjectLayerMasks.NodeIcon)
+      })
       directionalEntitiesState.set(directionalEntities)
     }
 
@@ -168,6 +172,9 @@ const ActiveHelperReactor: React.FC<ComponentHelperEntry> = (helper) => {
     }
 
     const lineEntities = setupGizmo(getState(ReferenceSpaceState).originEntity, iconGizmoYHelper, ObjectLayers.NodeIcon)
+    lineEntities.forEach((lineEntity) => {
+      setComponent(lineEntity, ObjectLayerMaskComponent, ObjectLayerMasks.NodeIcon)
+    })
     lineEntitiesState.set(lineEntities)
     return iconGizmo
   }, [entity, effectiveHelper, directionalEntitiesState, lineEntitiesState])
