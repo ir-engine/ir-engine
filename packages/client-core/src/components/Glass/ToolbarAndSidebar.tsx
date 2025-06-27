@@ -137,6 +137,7 @@ const headingsStyles = `
   gap-x-8
   py-8
   text-[1.25rem]
+  text-shadow lg:text-shadow-md
   
   lg:justify-start
   lg:py-4
@@ -168,7 +169,7 @@ const Header = ({ tabs = [], title, handleSidebarClose, handleSidebarBack, showB
             <XCloseLg />
           </MenuIconButton>
         </div>
-        <div style={{ textShadow: `0 0.025em 0.08em hsla(0, 0%, 0%, 0.2)` }} className={headingsStyles}>
+        <div className={headingsStyles}>
           {showBack ? <div className={headerBackButtonStyles}>{backButton}</div> : <></>}
           {hasTabs ? (
             tabs.map((tabProps) => {
