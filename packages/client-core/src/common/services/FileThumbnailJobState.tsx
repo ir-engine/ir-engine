@@ -286,8 +286,8 @@ const uploadThumbnail = async (src: string, projectName: string, blob: Blob | nu
         }
       })
       .catch((e) => console.error(e))
-  } catch {
-    ;(e) => console.error(e)
+  } catch (e) {
+    console.error(e)
   }
 }
 const useGenerateHelper = (
