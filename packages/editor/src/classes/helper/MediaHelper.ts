@@ -46,7 +46,7 @@ export const MediaHelperReactor: React.FC = (props: { parentEntity; iconEntity; 
         depthWrite: false
       })
 
-      const plane = new PlaneGeometry(1, 1)
+      const plane = new PlaneGeometry()
 
       return new Mesh(plane, material)
     },
