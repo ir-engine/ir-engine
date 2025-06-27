@@ -136,12 +136,12 @@ const headingsStyles = `
 
   gap-x-8
   py-8
-  text-2xl
+  text-[1.25rem]
   
   lg:justify-start
   lg:py-4
   lg:pl-2
-  lg:text-5xl
+  lg:text-4xl
   lg:gap-x-8
 `
 
