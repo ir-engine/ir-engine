@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { hookstate, none, State } from '@hookstate/core'
+import { destroy, hookstate, State } from '@hookstate/core'
 import React, { Profiler, Suspense, useTransition } from 'react'
 import Reconciler, { Fiber, FiberRoot } from 'react-reconciler'
 import { ConcurrentRoot, DefaultEventPriority } from 'react-reconciler/constants'
@@ -176,6 +176,7 @@ export const ReactorRenderCounterState = hookstate(
       lastRender: number
       fiberCount: number
       peakFiberCount: number
+      ended: boolean
     }
   >
 )
@@ -205,7 +206,7 @@ const calculateFiberNodes = (uuid: string) => {
 
 const trackStats = isDev
 
-export function startReactor(Reactor: React.FC): ReactorRoot {
+export function startReactor(Reactor: React.FC, label?: string): ReactorRoot {
   const isStrictMode = false
   const concurrentUpdatesByDefaultOverride = true
   const identifierPrefix = ''
@@ -225,8 +226,7 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
     null
   )
 
-  if (!Reactor['__name'] && Reactor.name) Reactor['__name'] = Reactor.name
-  if (!Reactor['__name']) Reactor['__name'] = 'HyperFluxReactor'
+  Reactor['__name'] = label || Reactor['__name'] || Reactor.name || 'Unlabelled Reactor'
 
   const ReactorContainer = () => {
     const [isPending] = useTransition()
@@ -262,14 +262,20 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
     ReactorReconciler.updateContainer(<ReactorContainer />, fiberRoot)
   }
 
+  let stopped = false
+
   const stop = () => {
-    if (!reactorRoot.isRunning.value) return Promise.resolve()
+    if (!reactorRoot.isRunning.value || stopped) return Promise.resolve()
+    stopped = true
     ReactorReconciler.updateContainer(null, fiberRoot)
     reactorRoot.isRunning.set(false)
     HyperFlux.store.activeReactors.delete(reactorRoot.uuid)
     reactorRoot.cleanupFunctions.forEach((fn) => fn())
     reactorRoot.cleanupFunctions.clear()
-    ReactorRenderCounterState[reactorRoot.uuid].set(none)
+    ReactorRenderCounterState[reactorRoot.uuid]?.ended?.set(true)
+    destroy(reactorRoot.isRunning)
+    destroy(reactorRoot.errors)
+    destroy(reactorRoot.suspended)
   }
 
   const reflection = () => {
@@ -306,7 +312,8 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
       fiberCount: 0,
       peakFiberCount: 0,
       stack,
-      name: Reactor['__name']
+      name: Reactor['__name'],
+      ended: false
     })
   }
 

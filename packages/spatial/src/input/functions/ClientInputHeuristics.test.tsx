@@ -58,7 +58,6 @@ import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComp
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
 import { InputComponent } from '../components/InputComponent'
-import { InputState } from '../state/InputState'
 
 describe('ClientInputHeuristics', () => {
   describe('findRaycastedInput', () => {
@@ -107,8 +106,7 @@ describe('ClientInputHeuristics', () => {
     describe('for every entity stored in the InputState.inputBoundingBoxes Set<Entity> ...', () => {
       it('... should not run if casting the `@param ray` towards `@param hitTarget` would not intersect the boundingBox of the entity', () => {
         setComponent(testEntity, BoundingBoxComponent)
-        const inputState = getMutableState(InputState)
-        inputState.inputBoundingBoxes.set(new Set([testEntity]))
+        setComponent(testEntity, VisibleComponent)
 
         const rayOrigin = new Vector3()
         const rayDirection = new Vector3()
@@ -122,8 +120,6 @@ describe('ClientInputHeuristics', () => {
 
       it('... should not run if the entity does not have a BoundingBoxComponent', () => {
         // setComponent(testEntity, BoundingBoxComponent)  // Dont add the component this time
-        const inputState = getMutableState(InputState)
-        inputState.inputBoundingBoxes.set(new Set([testEntity]))
 
         const rayOrigin = new Vector3()
         const rayDirection = new Vector3(2, 2, 2)
@@ -139,11 +135,10 @@ describe('ClientInputHeuristics', () => {
         const boxMax = new Vector3(3, 3, 3)
         const box = new Box3(boxMin, boxMax)
 
+        setComponent(testEntity, VisibleComponent)
         setComponent(testEntity, BoundingBoxComponent)
+        setComponent(testEntity, InputComponent)
         getMutableComponent(testEntity, BoundingBoxComponent).box.set(box)
-
-        const inputState = getMutableState(InputState)
-        inputState.inputBoundingBoxes.set(new Set([testEntity]))
 
         const rayOrigin = new Vector3(0, 2, 2)
         const rayDirection = new Vector3(1, 0, 0).normalize()
@@ -175,12 +170,11 @@ describe('ClientInputHeuristics', () => {
         ] as OwnedBox[]
 
         for (const box of boxes) {
+          setComponent(box.entity, VisibleComponent)
           setComponent(box.entity, BoundingBoxComponent)
+          setComponent(box.entity, InputComponent)
           getMutableComponent(box.entity, BoundingBoxComponent).box.set(box.box)
         }
-
-        const inputState = getMutableState(InputState)
-        inputState.inputBoundingBoxes.set(new Set([testEntity, otherEntity]))
 
         const rayOrigin = new Vector3()
         const rayDirection = new Vector3(2, 2, 2)
@@ -222,6 +216,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(one, VisibleComponent)
         setComponent(one, MeshComponent, box1)
         setComponent(one, EntityTreeComponent, { parentEntity: viewerEntity })
+        setComponent(one, InputComponent)
 
         const box2 = new Mesh(new BoxGeometry(0.5, 0.5, 0.5))
         const two = createEntity()
@@ -229,6 +224,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(two, VisibleComponent)
         setComponent(two, MeshComponent, box2)
         setComponent(two, EntityTreeComponent, { parentEntity: viewerEntity })
+        setComponent(two, InputComponent)
         const KnownEntities = [one, two]
 
         getMutableState(EngineState).isEditing.set(true)
@@ -254,19 +250,20 @@ describe('ClientInputHeuristics', () => {
         const box1 = new Mesh(new BoxGeometry(2, 2, 2))
         const one = createEntity()
         setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
-        // setComponent(one, VisibleComponent)  // Do not make it visible, so it doesn't hit the meshesQuery
+        setComponent(one, VisibleComponent)
         setComponent(one, MeshComponent, box1)
         setComponent(one, ObjectComponent, box1)
         setComponent(one, EntityTreeComponent, { parentEntity: viewerEntity })
+        setComponent(one, InputComponent)
         const box2 = new Mesh(new BoxGeometry(2, 2, 2))
         const two = createEntity()
         setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
-        // setComponent(two, VisibleComponent)  // Do not make it visible, so it doesn't hit the meshesQuery
+        setComponent(two, VisibleComponent)
         setComponent(two, MeshComponent, box2)
         setComponent(two, ObjectComponent, box2)
         setComponent(two, EntityTreeComponent, { parentEntity: viewerEntity })
+        setComponent(two, InputComponent)
         const KnownEntities = [one, two]
-        getMutableState(InputState).inputMeshes.set(new Set(KnownEntities))
 
         const data = new Set<IntersectionData>()
 

@@ -27,6 +27,7 @@ import { isShareAvailable } from '@ir-engine/spatial/src/common/functions/Detect
 import { motion, Variant } from 'motion/react'
 import React, { useEffect, useRef } from 'react'
 import { useShareMenu } from '../../hooks/useShareMenu'
+import { TextButton } from '../Glass/buttons/TextButton'
 
 interface ShareDrawerProps {
   onClose?: () => void
@@ -106,28 +107,19 @@ export default function ShareDrawer({ onClose }: ShareDrawerProps) {
     >
       <div className="flex flex-col gap-3 p-6">
         {/* Share by Email Button */}
-        <button
-          onClick={handleShareByEmail}
-          className="w-full rounded-xl bg-gray-700 py-4 text-center font-medium text-white transition-colors hover:bg-gray-600"
-        >
+        <TextButton onClick={handleShareByEmail} className="w-full" fade={'lighter'}>
           Share by Email
-        </button>
+        </TextButton>
 
         {/* Share by Phone Button */}
-        <button
-          onClick={handleShareByPhone}
-          className="w-full rounded-xl bg-gray-700 py-4 text-center font-medium text-white transition-colors hover:bg-gray-600"
-        >
+        <TextButton onClick={handleShareByPhone} className="w-full" fade={'lighter'}>
           Share by Phone
-        </button>
+        </TextButton>
 
         {/* Cancel Button */}
-        <button
-          onClick={handleCancel}
-          className="w-full rounded-xl bg-transparent py-4 text-center font-medium text-white transition-colors hover:bg-gray-700"
-        >
+        <TextButton onClick={handleCancel} className="w-full" fade={'clear'}>
           Cancel
-        </button>
+        </TextButton>
       </div>
     </motion.div>
   )

@@ -30,6 +30,7 @@ import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { clientContextParams } from '../../util/ClientContextState'
+import { Inner } from '../Glass/ToolbarAndSidebar'
 import { Section } from './Section'
 import SliderItem from './SliderItem'
 
@@ -41,7 +42,7 @@ export default function AudioScreen() {
   const audioState = useMutableState(AudioState)
 
   return (
-    <div className="flex h-full w-full flex-col gap-4">
+    <Inner className="flex min-h-full w-full flex-col gap-4">
       {isChromeDesktop && (
         <div className="py-2 text-xs">
           {t('user:usermenu.setting.chromeAEC')}
@@ -83,6 +84,6 @@ export default function AudioScreen() {
           }}
         />
       </Section>
-    </div>
+    </Inner>
   )
 }

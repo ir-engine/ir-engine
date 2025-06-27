@@ -584,7 +584,8 @@ export const getOctokitForChecking = async (app: Application, url: string, param
   let token, octoKit
 
   if (params?.appJWT) {
-    octoKit = new Octokit({ auth: params.appJWT })
+    const retryOctokit = Octokit.plugin(retry)
+    octoKit = new retryOctokit({ auth: params.appJWT, retry: { enabled: process.env.TEST !== 'true' } })
     let repoInstallation
     try {
       const urlParts = url.split('/')
@@ -602,7 +603,7 @@ export const getOctokitForChecking = async (app: Application, url: string, param
       installation_id: repoInstallation.data.id
     })
     token = installationAccessToken.data.token
-    octoKit = new Octokit({ auth: token })
+    octoKit = new retryOctokit({ auth: token, retry: { enabled: process.env.TEST !== 'true' } })
   } else {
     const githubIdentityProvider = (await app.service(identityProviderPath)._find({
       query: {

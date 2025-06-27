@@ -31,6 +31,8 @@ import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import Divider from '@ir-engine/ui/src/components/viewer/Divider'
 import { Dropdown } from '@ir-engine/ui/viewer'
 import { clientContextParams } from '../../util/ClientContextState'
+import { NavigateFuncProps } from '../Glass/NavigationProvider'
+import { Inner } from '../Glass/ToolbarAndSidebar'
 import { Section } from './Section'
 import SliderItem from './SliderItem'
 import ToggleItem from './ToggleItem'
@@ -38,10 +40,7 @@ import ToggleItem from './ToggleItem'
 const logger = multiLogger.child({ component: 'system:settings-menu', modifier: clientContextParams })
 
 // Define types for screen components
-interface ScreenProps {
-  navigateTo: (screenKey: string, historyKey: string) => void
-  navigateClose?: () => void
-}
+type ScreenProps = NavigateFuncProps & {}
 
 const GraphicsSettings: React.FC<ScreenProps> = ({ navigateTo }) => {
   const { qualityLevel, usePostProcessing, useShadows, automatic, shadowMapResolution } = useMutableState(RendererState)
@@ -76,13 +75,14 @@ const GraphicsSettings: React.FC<ScreenProps> = ({ navigateTo }) => {
   }
 
   return (
-    <div className="space-y-4">
+    <Inner className="space-y-4">
       <Section>
         <SliderItem
           label="Quality Preset"
           min={0}
           step={1}
           max={5}
+          value={qualityLevel.value}
           defaultValue={qualityLevel.value}
           onChange={onQualityChange}
         />
@@ -92,6 +92,7 @@ const GraphicsSettings: React.FC<ScreenProps> = ({ navigateTo }) => {
         <ToggleItem label="Shadows" checked={useShadows.value} onClick={onShadowToggle} />
         <Divider />
         <Dropdown
+          backgroundColor={`black`}
           onChange={onShadowMapResolutionChange}
           value={shadowMapResolution.value}
           options={[
@@ -103,7 +104,7 @@ const GraphicsSettings: React.FC<ScreenProps> = ({ navigateTo }) => {
           ]}
         />
       </Section>
-    </div>
+    </Inner>
   )
 }
 

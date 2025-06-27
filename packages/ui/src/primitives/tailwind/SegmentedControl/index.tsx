@@ -52,17 +52,22 @@ const SegmentedControl = ({ options, onChange, value, layout }: SegmentedControl
             tabIndex={0}
             className={twMerge(
               'relative my-0 grid w-full items-center gap-1 rounded-md bg-surface-1 !px-0.5 !py-0.5 focus:outline-none',
-              (layout === undefined || layout === 'single-row') && ' grid-flow-col grid-rows-1 ',
+              (layout === undefined || layout === 'single-row') && ' grid-flow-col grid-rows-1',
               layout === 'two-row' && ' grid-flow-col grid-rows-2',
               layout === 'vertical' && ' grid-cols-1 '
             )}
+            style={
+              layout === undefined || layout === 'single-row'
+                ? { gridTemplateColumns: `repeat(${options.length}, 1fr)` }
+                : undefined
+            }
           >
             {options.length > 0 ? (
               options.map(({ value: currentValue, ...optionProps }, index) => (
                 <button
                   key={index}
                   className={twMerge(
-                    '!mx-0 !my-0 h-full flex-auto rounded-md px-10 py-1 text-sm',
+                    '!mx-0 !my-0 h-full flex-auto rounded-md py-1 text-center text-sm ',
                     currentValue === localValue ? 'bg-surface-4 text-text-primary' : 'bg-surface-2 text-text-inactive'
                   )}
                   onClick={() => {

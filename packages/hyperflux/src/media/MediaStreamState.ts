@@ -128,13 +128,30 @@ export const MediaStreamState = defineState({
       )
     }, [state.screenshareMediaStream.value, state.screenshareEnabled.value, state.screenShareAudioPaused.value])
 
-    useEffect(() => {
+    const enumerateDevices = () => {
       navigator.mediaDevices.enumerateDevices().then((devices) => {
         const videoDevices = devices.filter((device) => device.kind === 'videoinput')
         state.availableVideoDevices.set(videoDevices)
         const audioDevices = devices.filter((device) => device.kind === 'audioinput')
         state.availableAudioDevices.set(audioDevices)
       })
+    }
+
+    useEffect(() => {
+      enumerateDevices()
+
+      // Re-enumerate devices when device list changes (e.g., permissions granted)
+      // Check if addEventListener exists (not available in test environments)
+      if (navigator.mediaDevices && typeof navigator.mediaDevices.addEventListener === 'function') {
+        const handleDeviceChange = () => enumerateDevices()
+        navigator.mediaDevices.addEventListener('devicechange', handleDeviceChange)
+
+        return () => {
+          if (typeof navigator.mediaDevices.removeEventListener === 'function') {
+            navigator.mediaDevices.removeEventListener('devicechange', handleDeviceChange)
+          }
+        }
+      }
     }, [])
 
     useEffect(() => {

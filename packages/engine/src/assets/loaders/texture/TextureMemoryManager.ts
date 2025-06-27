@@ -24,10 +24,12 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { getState } from '@ir-engine/hyperflux'
-import { CompressedPixelFormat, CompressedTexture, Texture } from 'three'
+import { CompressedPixelFormat, CompressedTexture, CubeTexture, Source, Texture } from 'three'
 import { AssetLoaderState } from '../../state/AssetLoaderState'
 import { ResourceCache, TextureData } from '../base/ResourceCache'
 import { TextureLoader } from './TextureLoader'
+
+type DiscardableSource = Source & { discarded?: boolean }
 
 const cachePromises = {} as Record<string, Promise<boolean>>
 
@@ -53,12 +55,30 @@ export async function offloadTextureData(texture: Texture): Promise<boolean> {
   const mipmaps = texture.mipmaps
   const data = texture.source.data
   texture.mipmaps = []
-  texture.source.data = {}
+  texture.source.data = { width: data.width, height: data.height }
+  ;(texture.source as DiscardableSource).discarded = true
+
+  const cleanup = () => {
+    if (mipmaps) {
+      for (const mipmap of mipmaps) {
+        const mipTexture = mipmap as CubeTexture
+        mipTexture.source?.data?.close?.()
+      }
+    }
+
+    data.close?.()
+  }
 
   const cachePromise = cachePromises[url]
-  if (cachePromise) return cachePromise
+  if (cachePromise) {
+    cleanup()
+    return cachePromise
+  }
 
-  if (await ResourceCache.hasTexture(url)) return false
+  if (await ResourceCache.hasTexture(url)) {
+    cleanup()
+    return false
+  }
 
   const promise = new Promise<boolean>(async (resolve, reject) => {
     if ((texture as CompressedTexture).isCompressedTexture) {
@@ -91,7 +111,6 @@ export async function offloadTextureData(texture: Texture): Promise<boolean> {
           format: texture.format,
           type: texture.type
         })
-        data.close()
       }
     } else {
       console.warn('Texture data is not a supported type, cannot offload')
@@ -106,6 +125,7 @@ export async function offloadTextureData(texture: Texture): Promise<boolean> {
   })
 
   promise.then(() => {
+    cleanup()
     delete cachePromises[url]
   })
 
@@ -123,17 +143,12 @@ export async function restoreTextureData(texture: Texture): Promise<boolean> {
   const url = texture.userData?.url
   if (!url) return false
 
-  if (
-    texture.source.data &&
-    typeof texture.source.data === 'object' &&
-    Object.keys(texture.source.data).length > 0 &&
-    !(texture.source.data instanceof Object && Object.keys(texture.source.data).length === 0)
-  ) {
+  if (!(texture.source as DiscardableSource).discarded) {
     return false
   }
 
   if (!ResourceCache) return false
-
+  ;(texture.source as DiscardableSource).discarded = false
   try {
     const textureData = await ResourceCache.getTexture(url)
     if (!textureData) {
@@ -217,7 +232,7 @@ async function loadFromURL(texture: Texture | CompressedTexture): Promise<boolea
  * @returns True if the texture needs restoration
  */
 export function textureNeedsRestoration(texture: Texture): boolean {
-  return !texture.source.data || isEmpty(texture.source.data)
+  return !!(texture.source as DiscardableSource).discarded
 }
 
 function isEmpty(obj) {
@@ -234,8 +249,8 @@ export async function getTextureCacheSize(): Promise<number> {
   if (!ResourceCache) return 0
 
   try {
-    const textures = await ResourceCache.textures.toArray()
-    return textures.length
+    const textures = await ResourceCache.textures.count()
+    return textures
   } catch (error) {
     console.error(`Error getting texture cache size: ${error}`)
     return 0

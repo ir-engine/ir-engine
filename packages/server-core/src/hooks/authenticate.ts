@@ -33,8 +33,8 @@ import { isProvider } from 'feathers-hooks-common'
 import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 
-import { apiJobPath } from '@ir-engine/common/src/schemas/cluster/api-job.schema.ts'
-import { projectPath } from '@ir-engine/common/src/schemas/projects/project.schema.ts'
+import { apiJobPath } from '@ir-engine/common/src/schemas/cluster/api-job.schema'
+import { projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
 import { retry } from '@octokit/plugin-retry'
 import { JwtPayload, verify } from 'jsonwebtoken'
 import { Application } from '../../declarations'
@@ -146,6 +146,11 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
 
     if (key.data.length > 0) {
       const user = await context.app.service(userPath).get(key.data[0].userId)
+
+      if (user.isDeactivated) {
+        throw new NotAuthenticated('User account has been deactivated')
+      }
+
       context.params.user = user
       asyncLocalStorage.enterWith({ user })
       return next()

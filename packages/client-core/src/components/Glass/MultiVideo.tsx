@@ -23,12 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Expand01Md, VolumeMinMd, VolumeXMd } from '@ir-engine/ui/src/icons'
+import { Expand06Md as FullscreenIcon } from '@ir-engine/ui/src/icons'
+
+import { HiSpeakerXMark as VolumeOffIcon, HiSpeakerWave as VolumeOnIcon } from 'react-icons/hi2'
+
 import { useMotionValueEvent, useScroll } from 'motion/react'
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { largeIconButtonStyles } from './Buttons'
+import { IconButton } from './buttons/IconButton'
 import { useVideoStream } from './VideoMenu'
 
 function interpolateRange(value, [fromMax, fromMin], [toMax, toMin]) {
@@ -164,7 +167,7 @@ export const VideoCarousel = ({ handleSidebarOpen, videoElements, videoMediaStre
   const numVideos = videoElements.length
   const showVideos = numVideos > 0
 
-  const hasEnoughVideosForCarousel = numVideos > 1
+  const hasEnoughVideosForCarousel = numVideos > 0
 
   const showBottomButtons = !collapsed && hasEnoughVideosForCarousel
 
@@ -183,7 +186,6 @@ export const VideoCarousel = ({ handleSidebarOpen, videoElements, videoMediaStre
     if (videosRef.current.children.length === numVideos) {
       return
     }
-    console.log('creating')
 
     setMounted(true)
 
@@ -386,12 +388,12 @@ export const VideoCarousel = ({ handleSidebarOpen, videoElements, videoMediaStre
       </div>
       {showBottomButtons ? (
         <div className={bottomButtonsStyles}>
-          <button onClick={() => setMuted((prev) => !prev)} className={twMerge(largeIconButtonStyles, ``)}>
-            {muted ? <VolumeXMd /> : <VolumeMinMd />}
-          </button>
-          <button onClick={handleSidebarOpen} className={twMerge(largeIconButtonStyles, ``)}>
-            <Expand01Md />
-          </button>
+          <IconButton fade={`dark`} onClick={() => setMuted((prev) => !prev)}>
+            {muted ? <VolumeOffIcon /> : <VolumeOnIcon />}
+          </IconButton>
+          <IconButton fade={`dark`} onClick={handleSidebarOpen}>
+            <FullscreenIcon />
+          </IconButton>
         </div>
       ) : (
         <></>

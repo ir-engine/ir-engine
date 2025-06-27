@@ -72,7 +72,7 @@ export function useRendererEntity(entity: Entity) {
 
     const root = startReactor(function useQueryReactor() {
       return <ParentSubReactor entity={entity} key={entity} />
-    })
+    }, `useRendererEntity - ${entity}`)
     return () => {
       unmounted = true
       root.stop()

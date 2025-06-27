@@ -23,10 +23,20 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { forwardRef, SVGProps } from 'react'
+import React, { forwardRef, Ref, SVGProps } from 'react'
 
-const WaveHand = (props: SVGProps<SVGSVGElement>) => (
-  <svg width="1em" height="1em" viewBox="0 0 22 23" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+const Icon = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
+  <svg
+    width="1em"
+    height="1em"
+    viewBox="0 0 22 23"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    fill="none"
+    stroke="none"
+    ref={ref}
+    {...props}
+  >
     <path
       fillRule="evenodd"
       clipRule="evenodd"
@@ -40,5 +50,5 @@ const WaveHand = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 )
 
-const ForwardRef = forwardRef(WaveHand)
+const ForwardRef = forwardRef(Icon)
 export default ForwardRef

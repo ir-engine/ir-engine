@@ -43,8 +43,8 @@ import { NotificationService } from '../../common/services/NotificationService'
 import { LocationState } from '../../social/services/LocationService'
 import { ReportUserState } from '../../util/ReportUserState'
 import { uploadToFeathersService } from '../../util/upload'
-import { smallIconButtonStyles } from '../Glass/Buttons'
-import { useNavigationProvider } from '../Glass/NavigationProvider'
+import { IconButton } from '../Glass/buttons/IconButton'
+import { Inner } from '../Glass/ToolbarAndSidebar'
 
 const backButtonStyles = `
   left-4
@@ -55,8 +55,8 @@ const actionButtonStyles = `
   items-center self-stretch
   text-white
   rounded-full
-  bg-[rgba(255,255,255,0.2)]
-  shadow-[inset_0px_1px_1px_rgba(255,255,255,0.25),inset_0px_-1px_1px_rgba(255,255,255,0.1),0px_8px_6px_rgba(0,0,0,0.05)]
+  bg-black/10
+  shadow-md
 `
 
 const baseContainerStyles = `
@@ -82,7 +82,6 @@ const ReportUserMenu = (props: ReportMenuProps) => {
   const currentLocation = getState(LocationState).currentLocation.location
   const reportedLocationId = currentLocation.id
   const userReportsMutation = useMutation(moderationPath)
-  const { activeHistoryKey, sidebarKey, navigateClose, navigateTo } = useNavigationProvider()
 
   const [content, setContent] = useState<string>(REPORT_INPROGRESS) // REPORT_INPROGRESS | REPORT_SUCCESS
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -221,7 +220,7 @@ const ReportUserMenu = (props: ReportMenuProps) => {
           onChange={(e) => handleChange(e.target.value, 'details')}
           placeholder={fieldOptions.details.placeholder}
           className={twMerge(
-            'transparent-1/2 min-h-[120px] w-full border-0 bg-black/20 backdrop-blur-xl',
+            'transparent-1/2 min-h-[120px] w-full border-0 bg-black/20 backdrop-blur-xl placeholder:text-white/70',
             errors.details.value && 'border-ui-error'
           )}
         />
@@ -280,9 +279,9 @@ const ReportUserMenu = (props: ReportMenuProps) => {
   const reportSucess = (
     <div className="relative flex h-screen w-full flex-col items-center justify-center gap-4 text-center text-white">
       <div className="block">
-        <button className={twMerge(smallIconButtonStyles, backButtonStyles, `shadow`)}>
+        <IconButton size={'small'} className={backButtonStyles}>
           <CheckLg fontSize={'lg'} />
-        </button>
+        </IconButton>
       </div>
       <div
         className="text-center font-['DM_Sans'] text-[1.25rem] font-medium leading-[1.875rem] tracking-[-0.014rem] text-white"
@@ -311,7 +310,7 @@ const ReportUserMenu = (props: ReportMenuProps) => {
     }
   }
 
-  return <div className="w-full">{showContents()}</div>
+  return <Inner className="w-full">{showContents()}</Inner>
 }
 
 export default ReportUserMenu

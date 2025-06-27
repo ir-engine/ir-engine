@@ -46,7 +46,6 @@ import {
   hasComponent,
   removeEntity,
   setComponent,
-  useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, none, startReactor } from '@ir-engine/hyperflux'
@@ -136,7 +135,7 @@ export const AssetState = defineState({
       const assetEntity = AssetState.load(source, uuid, parentEntity, layer)
 
       const reactor = startReactor(() => {
-        const progress = useOptionalComponent(assetEntity, GLTFComponent)?.progress?.value
+        const loaded = GLTFComponent.useSceneLoaded(assetEntity)
 
         useEffect(() => {
           return () => {
@@ -146,10 +145,10 @@ export const AssetState = defineState({
         }, [])
 
         useEffect(() => {
-          if (progress === 100) reactor.stop()
-        }, [progress])
+          if (loaded) reactor.stop()
+        }, [loaded])
         return null
-      })
+      }, `GLTF loadAsync - ${assetEntity}`)
     })
   }
 })

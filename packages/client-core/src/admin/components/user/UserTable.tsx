@@ -48,19 +48,21 @@ import ActionButton from '../ActionButton'
 import AccountIdentifiers from './AccountIdentifiers'
 import AddEditUserModal from './AddEditUserModal'
 
-export const removeUsers = async (
+export const deactivateUsers = async (
   modalProcessing: State<boolean>,
-  adminUserRemove: {
-    (id: Id): Promise<UserType>
-    (id: null): Promise<UserType[]>
-    (id: NullableId): Promise<any>
+  adminUserPatch: {
+    (id: Id, data: Partial<UserType>): Promise<UserType>
+    (id: null, data: Partial<UserType>): Promise<UserType[]>
+    (id: NullableId, data: Partial<UserType>): Promise<any>
   },
   users: UserType[]
 ) => {
   modalProcessing.set(true)
   await Promise.all(
     users.map((user) => {
-      adminUserRemove(user.id)
+      adminUserPatch(user.id, {
+        isDeactivated: true
+      })
     })
   )
   ModalState.closeModal()
@@ -108,7 +110,7 @@ export default function UserTable({
     search
   )
 
-  const adminUserRemove = useMutation(userPath).remove
+  const adminUserPatch = useMutation(userPath).patch
   const modalProcessing = useHookstate(false)
 
   const createRows = (rows: readonly UserType[]): UserRowType[] =>
@@ -181,6 +183,7 @@ export default function UserTable({
           <FaRegCircleXmark className="h-5 w-5 " />
         ),
         isGuest: row.isGuest.toString(),
+        isDeactivated: row.isDeactivated ? 'true' : 'false',
         createdAt: toDisplayDateTime(row.createdAt),
         action: (
           <div className="flex items-center justify-start gap-3">
@@ -194,12 +197,13 @@ export default function UserTable({
             <ActionButton
               icon={Trash04Lg}
               title={t('admin:components.common.delete')}
+              disabled={row.isDeactivated}
               onClick={() => {
                 ModalState.openModal(
                   <ConfirmDialog
                     text={`${t('admin:components.user.confirmUserDelete')} '${row.name}'?`}
                     onSubmit={async () => {
-                      await removeUsers(modalProcessing, adminUserRemove, [row])
+                      await deactivateUsers(modalProcessing, adminUserPatch, [row])
                     }}
                   />
                 )

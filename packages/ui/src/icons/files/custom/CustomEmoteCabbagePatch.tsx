@@ -23,10 +23,20 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { forwardRef, SVGProps } from 'react'
+import React, { forwardRef, Ref, SVGProps } from 'react'
 
-const CabbagePatch = (props: SVGProps<SVGSVGElement>) => (
-  <svg width="1em" height="1em" viewBox="0 0 27 23" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+const Icon = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
+  <svg
+    width="1em"
+    height="1em"
+    viewBox="0 0 27 23"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    fill="none"
+    stroke="none"
+    ref={ref}
+    {...props}
+  >
     <path
       d="M17.3799 7.89373V12.0585C17.9575 13.7913 18.8391 17.5001 17.0759 20.1449C16.8023 20.5704 16.1639 20.6312 15.7687 20.2665C15.4647 19.9929 15.4343 19.5369 15.6471 19.2025C16.8327 17.3785 16.3159 14.5817 15.6471 12.5145L13.8232 17.8345C13.6103 18.5033 12.7592 18.7465 12.2119 18.2905L9.35434 15.7977C8.98957 15.4937 8.95914 14.9769 9.26318 14.6121C9.56715 14.2473 10.1144 14.2169 10.4488 14.5209L12.4248 16.1929L13.3975 12.5449V8.07618C12.5159 8.04575 11.5431 8.01532 10.6312 7.98495C9.96235 7.95452 9.44556 7.37694 9.50636 6.67778L9.90155 2.02659C10.0231 1.69219 10.388 1.47939 10.7224 1.47939C11.2695 1.47939 11.7255 2.02659 11.5736 2.57379L11.2695 5.0362C11.2087 5.46176 11.5736 5.85695 11.9991 5.85695H17.0151C17.2583 5.85695 17.4711 5.7658 17.5927 5.58334C18.2919 4.67136 18.7479 3.21216 18.9911 2.14816C19.1735 1.60099 19.5383 1.47939 19.9335 1.47939C20.4199 1.54019 20.7543 2.02659 20.6631 2.513C20.3287 4.03299 19.4471 7.01218 17.3799 7.89373Z"
       fill="#F7F8FA"
@@ -45,5 +55,5 @@ const CabbagePatch = (props: SVGProps<SVGSVGElement>) => (
     />
   </svg>
 )
-const ForwardRef = forwardRef(CabbagePatch)
+const ForwardRef = forwardRef(Icon)
 export default ForwardRef

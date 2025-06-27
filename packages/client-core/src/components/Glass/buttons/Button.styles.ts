@@ -23,14 +23,64 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
-
-export const GlassButton = (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => {
-  const { className, disabled } = props
-  const style = `
-  flex items-center justify-center rounded-full border border-white/20 bg-white/15 px-6 py-4 text-lg font-bold text-white/90 shadow-lg drop-shadow-xl backdrop-blur-sm
-  ${disabled ? 'cursor-not-allowed opacity-50' : ''}
-  `
-  return <button {...props} className={twMerge(style, className)} />
+export const distanceVariant = {
+  none: ``,
+  low: `shadow-lg`,
+  high: `shadow-xl`
 }
+
+export const fadeVariant = {
+  darker: `
+    border-2
+    bg-black/20
+    border-black/10
+    hover:bg-transparent
+    active:bg-white/10
+  `,
+  dark: `
+    border-2
+    bg-black/10
+    border-white/[0.05]
+    hover:bg-black/5
+    active:bg-white/10
+  `,
+  clear: `
+    border-0
+    hover:bg-white/20
+    active:bg-white/30
+  `,
+  light: `
+    border-2
+    bg-white/10
+    border-white/10
+    hover:bg-white/20
+    active:bg-white/30
+  `,
+  lighter: `
+    border-2
+    bg-white/20
+    border-white/10
+    hover:bg-white/30
+    active:bg-white/40
+  `
+}
+
+export const blurVariant = {
+  none: ``,
+  small: `backdrop-blur-md`,
+  medium: `backdrop-blur-lg`,
+  large: `backdrop-blur-3xl`
+}
+
+export const baseButtonStyles = `
+  flex
+  items-center
+  justify-center
+  
+  text-white
+  text-center
+  font-bold
+  
+  rounded-full
+  transition-colors
+`

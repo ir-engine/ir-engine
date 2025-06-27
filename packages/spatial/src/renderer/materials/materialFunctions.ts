@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Color, Material, Mesh, Shader, Texture } from 'three'
 
-import { Entity, getComponent, getMutableComponent, hasComponent, UUIDComponent } from '@ir-engine/ecs'
+import { Entity, getComponent, getMutableComponent, hasComponent } from '@ir-engine/ecs'
 
 import { getState } from '@ir-engine/hyperflux'
 import { MeshComponent } from '../components/MeshComponent'
@@ -62,15 +62,15 @@ export const setMeshMaterial = (groupEntity: Entity, newMaterialEntities: Entity
   if (newMaterialEntities.length === 0) return
 
   const mesh = getComponent(groupEntity, MeshComponent) as Mesh
-  const fallbackMaterial = UUIDComponent.getEntityByUUID(
-    UUIDComponent.join(MaterialStateComponent.fallbackMaterialUUIDPair)
-  )
+  const fallbackMaterial = MaterialStateComponent.fallbackMaterial()
   if (!Array.isArray(mesh.material)) {
     const materialEntity = newMaterialEntities[0] ?? fallbackMaterial
+    if (!materialEntity || !hasComponent(materialEntity, MaterialStateComponent)) return
     mesh.material = getComponent(materialEntity, MaterialStateComponent).material
   } else {
     for (let i = 0; i < (mesh.material as Material[]).length; i++) {
       const materialEntity = newMaterialEntities[i] ?? fallbackMaterial
+      if (!materialEntity || !hasComponent(materialEntity, MaterialStateComponent)) continue
       mesh.material[i] = getComponent(materialEntity, MaterialStateComponent).material
     }
   }

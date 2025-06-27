@@ -30,6 +30,7 @@ import {
   ComponentJSONIDMap,
   getAuthoringCounterpart,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -186,6 +187,7 @@ const ActiveHelperReactor: React.FC<ComponentHelperEntry> = (helper) => {
     if (studioIconEntity === UndefinedEntity || !entityExists(studioIconEntity)) return
     if (entity === UndefinedEntity || !entityExists(entity)) return
     if (!engineState.isEditing.value || !editorHelperState.gizmoEnabled.value) return
+    if (getOptionalComponent(entity, UUIDComponent)) return
 
     gizmoIconUpdate(entity, studioIconEntity, [...directionalEntitiesState.get(NO_PROXY_STEALTH)], iconSize.value)
 
@@ -228,53 +230,49 @@ const ActiveHelperReactor: React.FC<ComponentHelperEntry> = (helper) => {
   useEffect(() => {
     if (effectiveHelper?.volume === undefined) return
 
-    const updateBoundingBoxVisibility = () => {
-      const { volumeVisibility } = editorHelperState
+    const { volumeVisibility } = editorHelperState
+    const hasPreexistingBoundingBoxComponent = hasComponent(entity, BoundingBoxComponent)
+    switch (volumeVisibility.value) {
+      case VolumeVisibility.On: {
+        if (!hasPreexistingBoundingBoxComponent) {
+          setComponent(entity, BoundingBoxComponent)
+        } else {
+          updateBoundingBox(entity)
+        }
 
-      switch (volumeVisibility.value) {
-        case VolumeVisibility.On: {
-          if (!hasComponent(entity, BoundingBoxComponent)) {
+        const color = selected.value
+          ? BOUNDING_BOX_COLORS.SELECTED
+          : hovered.value
+          ? BOUNDING_BOX_COLORS.HOVERED
+          : undefined
+
+        if (color) {
+          setComponent(entity, BoundingBoxComponent, { color })
+        }
+        break
+      }
+
+      case VolumeVisibility.Auto:
+        if (selected.value || hovered.value) {
+          if (!hasPreexistingBoundingBoxComponent) {
             setComponent(entity, BoundingBoxComponent)
           } else {
             updateBoundingBox(entity)
           }
 
-          const color = selected.value
-            ? BOUNDING_BOX_COLORS.SELECTED
-            : hovered.value
-            ? BOUNDING_BOX_COLORS.HOVERED
-            : undefined
+          const autoColor = selected.value ? BOUNDING_BOX_COLORS.SELECTED : BOUNDING_BOX_COLORS.HOVERED
 
-          if (color) {
-            setComponent(entity, BoundingBoxComponent, { color })
-          }
-          break
+          setComponent(entity, BoundingBoxComponent, { color: autoColor })
         }
+        break
 
-        case VolumeVisibility.Auto:
-          if (selected.value || hovered.value) {
-            if (!hasComponent(entity, BoundingBoxComponent)) {
-              setComponent(entity, BoundingBoxComponent)
-            } else {
-              updateBoundingBox(entity)
-            }
-
-            const autoColor = selected.value ? BOUNDING_BOX_COLORS.SELECTED : BOUNDING_BOX_COLORS.HOVERED
-
-            setComponent(entity, BoundingBoxComponent, { color: autoColor })
-          }
-          break
-
-        case VolumeVisibility.Off:
-        default:
-          break
-      }
+      case VolumeVisibility.Off:
+      default:
+        break
     }
 
-    updateBoundingBoxVisibility()
-
     return () => {
-      if (hasComponent(entity, BoundingBoxComponent)) {
+      if (!hasPreexistingBoundingBoxComponent && hasComponent(entity, BoundingBoxComponent)) {
         removeComponent(entity, BoundingBoxComponent)
       }
     }

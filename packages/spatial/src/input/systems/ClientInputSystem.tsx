@@ -36,9 +36,7 @@ import { getMutableState, getState, isClient } from '@ir-engine/hyperflux'
 import { Not, entityExists, removeEntity } from '@ir-engine/ecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/MathConstants'
-import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { RendererComponent } from '../../renderer/components/RendererComponent'
-import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { XRState } from '../../xr/XRState'
@@ -149,8 +147,6 @@ const reactor = () => {
   return (
     <>
       <QueryReactor Components={[RendererComponent]} ChildEntityReactor={ClientInputHooks.CanvasInputReactor} />
-      <QueryReactor Components={[MeshComponent]} ChildEntityReactor={ClientInputHooks.MeshInputReactor} />
-      <QueryReactor Components={[BoundingBoxComponent]} ChildEntityReactor={ClientInputHooks.BoundingBoxInputReactor} />
     </>
   )
 }

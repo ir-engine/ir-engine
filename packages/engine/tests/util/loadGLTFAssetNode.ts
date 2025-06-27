@@ -74,7 +74,8 @@ export function overrideTextureLoaderLoad() {
       try {
         const assetPathAbsolute = path.join(appRootPath.path, url)
         const buffer = toArrayBuffer(fs.readFileSync(assetPathAbsolute))
-        const texture = new DataTexture(buffer)
+        const data = new Uint8Array(buffer)
+        const texture = new DataTexture(data)
         onLoad(texture)
       } catch (e) {
         onError?.(e)

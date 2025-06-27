@@ -24,18 +24,21 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useMutableState } from '@ir-engine/hyperflux'
-import { GlassButton } from '@ir-engine/ui/src/components/viewer/Button'
 import React from 'react'
 import { HiChatBubbleLeftRight } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
 
+import { useGet } from '@ir-engine/common'
+import { userPath } from '@ir-engine/common/src/schema.type.module'
 import { Send01Md } from '@ir-engine/ui/src/icons'
 import { AuthState } from '../../user/services/AuthService'
+import ButtonGroup from '../Settings/ButtonGroup'
 import { useChatProvider } from './ChatProvider'
+import { useNavigationProvider } from './NavigationProvider'
+import { Inner } from './ToolbarAndSidebar'
 
 const messageBaseStyles = `
   inline-grid
-  max-w-full
   px-4 py-1
 
   border-2
@@ -44,9 +47,8 @@ const messageBaseStyles = `
   shadow-lg
 
   break-words
+  max-w-[80%]
   text-center
-  
-  sm:max-w-md
 `
 
 const blueGradientStyles = `
@@ -80,12 +82,15 @@ const OwnMessage = ({ children }) => (
 
 const OtherMessage = ({ children }) => <div className={twMerge(messageBaseStyles, `bg-black/30`)}>{children}</div>
 
-const OtherName = ({ children }) => <div className={``}>{children}</div>
+const OtherName = ({ senderId }: { senderId: string }) => {
+  const name = useGet(userPath, senderId).data?.name ?? ''
+  return <div>{name}</div>
+}
 
 const OtherChat = ({ children }) => (
   <div
     className={`
-      flex flex-col gap-y-1
+      mb-6 flex flex-col items-start
     `}
   >
     {children}
@@ -135,22 +140,30 @@ const inputOuterStyles = `
   pb-4 px-4 pt-4
 `
 
-export const ChatMenu = ({ navigateTo }: { navigateTo: (screenKey: string, historyKey: string) => void }) => {
+export const ChatMenu = () => {
   const user = useMutableState(AuthState).user
 
   const isGuest = user.isGuest.value
-  const onCTAClicked = () => navigateTo('Settings', 'signup')
+  const onSignUpClicked = () => navigateTo('settings/signup')
+  const onSignInClicked = () => navigateTo('settings/login')
 
   const { messageGroupedBySender, inputRef, handleInputChange, sendMessage, composedMessage } = useChatProvider()
+  const { navigateTo } = useNavigationProvider()
 
   if (isGuest) {
     return (
-      <div className="flex h-full w-full max-w-screen-sm flex-col items-center justify-center gap-8 font-dm-sans">
-        <HiChatBubbleLeftRight className="mx-auto h-[5.5rem] w-[5.5rem]" />
-        <div className="text-shadow font-manrope text-2xl text-white">Want to chat with others?</div>
-        <GlassButton className={'w-[90%]'} onClick={onCTAClicked}>
-          Create an Account
-        </GlassButton>
+      <div className="mx-auto flex min-h-full w-full max-w-screen-sm flex-col items-center gap-8 font-dm-sans">
+        <div className="flex flex-1 flex-col items-center justify-center gap-4">
+          <HiChatBubbleLeftRight className="mx-auto h-[5.5rem] w-[5.5rem]" />
+          <div className="text-shadow font-manrope text-2xl text-white">Want to chat with others?</div>
+        </div>
+        <ButtonGroup
+          className="pb-20"
+          options={[
+            { label: 'Create an Account', onClick: onSignUpClicked },
+            { label: 'Sign In', onClick: onSignInClicked }
+          ]}
+        />
       </div>
     )
   }
@@ -164,7 +177,7 @@ export const ChatMenu = ({ navigateTo }: { navigateTo: (screenKey: string, histo
   const hasInputText = !!composedMessage.value
 
   return (
-    <>
+    <Inner className={`mb-20 w-full`}>
       {messageGroupedBySender.map((group, groupIndex) => {
         const [firstMessage] = group
         const isOwnGroup = firstMessage.senderId === user.id.value
@@ -177,10 +190,15 @@ export const ChatMenu = ({ navigateTo }: { navigateTo: (screenKey: string, histo
         })
 
         return isOwnGroup || isNotification ? (
-          groupedMessage
+          <div
+            key={groupIndex}
+            className={twMerge('mb-6 flex w-full flex-col gap-y-2', isNotification ? 'items-center' : 'items-end')}
+          >
+            {groupedMessage}
+          </div>
         ) : (
           <OtherChat key={groupIndex}>
-            <OtherName>{firstMessage.sender.name}</OtherName>
+            <OtherName senderId={firstMessage.senderId} />
             {groupedMessage}
           </OtherChat>
         )
@@ -201,6 +219,6 @@ export const ChatMenu = ({ navigateTo }: { navigateTo: (screenKey: string, histo
       </div>
 
       <BottomSpacer />
-    </>
+    </Inner>
   )
 }

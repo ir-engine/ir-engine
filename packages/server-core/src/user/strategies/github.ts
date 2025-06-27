@@ -117,7 +117,8 @@ export class GithubStrategy extends CustomOAuthStrategy {
         const newUser = await this.app.service(userPath).create({
           name: '' as UserName,
           isGuest: false,
-          inviteCode: code
+          inviteCode: code,
+          ageVerified: true
         })
         entity.userId = newUser.id
         await this.app.service(identityProviderPath)._patch(entity.id, {
@@ -138,7 +139,8 @@ export class GithubStrategy extends CustomOAuthStrategy {
     await makeInitialAdmin(this.app, user.id)
     if (user.isGuest)
       await this.app.service(userPath).patch(entity.userId, {
-        isGuest: false
+        isGuest: false,
+        ageVerified: true
       })
     const apiKey = (await this.app.service(userApiKeyPath).find({
       query: {
@@ -191,17 +193,22 @@ export class GithubStrategy extends CustomOAuthStrategy {
             }
           })
           if (existingIdentityProviders.total > 0) {
-            const loginToken = await this.app.service(loginTokenPath).create({
-              identityProviderId: newIP.id,
-              associateUserId: existingIdentityProviders.data[0].userId,
-              expiresAt: toDateTimeSql(moment().utc().add(10, 'minutes').toDate())
-            })
-            return {
-              ...entity,
-              associateEmail: profileEmail,
-              loginId: loginToken.id,
-              loginToken: loginToken.token,
-              promptForConnection: true
+            // Filter out identity providers associated with deactivated users
+            const activeIdentityProviders = await this.filterActiveIdentityProviders(existingIdentityProviders.data)
+
+            if (activeIdentityProviders.length > 0) {
+              const loginToken = await this.app.service(loginTokenPath).create({
+                identityProviderId: newIP.id,
+                associateUserId: activeIdentityProviders[0].userId,
+                expiresAt: toDateTimeSql(moment().utc().add(10, 'minutes').toDate())
+              })
+              return {
+                ...entity,
+                associateEmail: profileEmail,
+                loginId: loginToken.id,
+                loginToken: loginToken.token,
+                promptForConnection: true
+              }
             }
           }
         }
@@ -285,7 +292,9 @@ export class GithubStrategy extends CustomOAuthStrategy {
     const entity: string = this.configuration.entity
     const { provider, ...params } = originalParams
     const profile = await super.getProfile(authentication, params)
-    const existingEntity = (await super.findEntity(profile, params)) || (await super.getCurrentEntity(params))
+
+    let existingEntity = (await super.findEntity(profile, params)) || (await super.getCurrentEntity(params))
+    existingEntity = await this.checkDeactivatedUser(existingEntity)
 
     const authEntity = !existingEntity
       ? await this.createEntity(profile, params)

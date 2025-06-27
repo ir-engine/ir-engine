@@ -103,6 +103,7 @@ export const SkyboxComponent = defineComponent({
       texture.colorSpace = SRGBColorSpace
       texture.mapping = EquirectangularReflectionMapping
       texture.minFilter = LinearFilter
+      texture.generateMipmaps = false
       setComponent(entity, BackgroundComponent, texture)
     }, [texture, skyboxState.backgroundType])
 
@@ -120,27 +121,29 @@ export const SkyboxComponent = defineComponent({
       const col = skyboxState.backgroundColor.value ?? tempColor
       const resolution = 64 // Min value required
       /** @todo track this in resource manager */
-      const texture = new DataTexture(getRGBArray(new Color(col)), resolution, resolution, RGBAFormat)
+      const colorTexture = new DataTexture(getRGBArray(new Color(col)), resolution, resolution, RGBAFormat)
       // ResourceState.addResource(texture, texture.uuid, entity)
-      texture.needsUpdate = true
-      texture.colorSpace = SRGBColorSpace
-      texture.mapping = EquirectangularReflectionMapping
-      setComponent(entity, BackgroundComponent, texture)
+      colorTexture.needsUpdate = true
+      colorTexture.colorSpace = SRGBColorSpace
+      colorTexture.mapping = EquirectangularReflectionMapping
+      colorTexture.generateMipmaps = false
+      setComponent(entity, BackgroundComponent, colorTexture)
 
       return () => {
         // ResourceState.unload(texture.uuid, entity)
-        texture.dispose()
+        colorTexture.dispose()
         removeComponent(entity, BackgroundComponent)
       }
     }, [skyboxState.backgroundType, skyboxState.backgroundColor])
 
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.cubemap) return
-      const onLoad = (texture: CubeTexture) => {
-        texture.colorSpace = SRGBColorSpace
-        texture.mapping = CubeReflectionMapping
-        cubemapTexture.set(texture)
-        setComponent(entity, BackgroundComponent, texture)
+      const onLoad = (cubeTexture: CubeTexture) => {
+        cubeTexture.colorSpace = SRGBColorSpace
+        cubeTexture.mapping = CubeReflectionMapping
+        cubeTexture.generateMipmaps = false
+        cubemapTexture.set(cubeTexture)
+        setComponent(entity, BackgroundComponent, cubeTexture)
         removeError(entity, SkyboxComponent, 'FILE_ERROR')
       }
       const loadArgs: [
@@ -190,10 +193,11 @@ export const SkyboxComponent = defineComponent({
       sky.luminance = skyboxState.skyboxProps.value.luminance
 
       const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
-      const texture = sky.generateSkyboxTextureCube(renderer.renderer!)
-      texture.mapping = CubeReflectionMapping
+      const generatedTexture = sky.generateSkyboxTextureCube(renderer.renderer!)
+      generatedTexture.mapping = CubeReflectionMapping
+      generatedTexture.generateMipmaps = false
 
-      setComponent(entity, BackgroundComponent, texture)
+      setComponent(entity, BackgroundComponent, generatedTexture)
       sky.dispose()
     }, [
       skyboxState.backgroundType,

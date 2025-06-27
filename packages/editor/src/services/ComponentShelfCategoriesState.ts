@@ -41,6 +41,7 @@ import { LegacyVolumetricComponent } from '@ir-engine/engine/src/scene/component
 import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkComponent'
 import { LookAtComponent } from '@ir-engine/engine/src/scene/components/LookAtComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
+import { MixerComponent } from '@ir-engine/engine/src/scene/components/MixerComponent'
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
 import { OverlayComponent } from '@ir-engine/engine/src/scene/components/OverlayComponent'
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
@@ -98,7 +99,14 @@ export const ComponentShelfCategoriesState = defineState({
         DirectionalLightComponent,
         HemisphereLightComponent
       ],
-      FX: [LoopAnimationComponent, ShadowComponent, ParticleSystemComponent, EnvMapComponent, PostProcessingComponent],
+      FX: [
+        LoopAnimationComponent,
+        ShadowComponent,
+        ParticleSystemComponent,
+        EnvMapComponent,
+        PostProcessingComponent,
+        MixerComponent
+      ],
       Scripting: [],
       Settings: [
         SceneSettingsComponent,

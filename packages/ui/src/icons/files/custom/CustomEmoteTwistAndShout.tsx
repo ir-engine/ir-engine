@@ -23,10 +23,20 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { forwardRef, SVGProps } from 'react'
+import React, { forwardRef, Ref, SVGProps } from 'react'
 
-const TwistAndShout = (props: SVGProps<SVGSVGElement>) => (
-  <svg width="1em" height="1em" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+const Icon = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
+  <svg
+    width="1em"
+    height="1em"
+    viewBox="0 0 23 23"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    fill="none"
+    stroke="none"
+    ref={ref}
+    {...props}
+  >
     <path
       d="M15.193 7.87129V12.023C15.7687 13.7503 16.6476 17.4475 14.8899 20.084C14.6171 20.5082 13.9808 20.5688 13.5868 20.2052C13.2838 19.9324 13.2534 19.4779 13.4656 19.1445C14.6475 17.3263 14.1323 14.5383 13.4656 12.4775L11.6474 17.7808C11.4352 18.4475 10.5867 18.6899 10.0412 18.2354L7.19258 15.7505C6.82896 15.4474 6.79862 14.9322 7.10171 14.5686C7.40472 14.2049 7.95022 14.1746 8.28357 14.4776L10.2533 16.1444L11.2231 12.5079V8.05316C10.3442 8.02283 9.3745 7.99249 8.46538 7.96222C7.79868 7.93189 7.28352 7.35612 7.34412 6.65915L7.73807 2.02258C7.85928 1.68923 8.22297 1.4771 8.55632 1.4771C9.10175 1.4771 9.55631 2.02258 9.40483 2.56806L9.10175 5.02273C9.04114 5.44695 9.40483 5.84091 9.82906 5.84091H14.8293C15.0717 5.84091 15.2838 5.75004 15.4051 5.56816C16.1021 4.65904 16.5566 3.20443 16.799 2.14377C16.9809 1.59832 17.3445 1.4771 17.7385 1.4771C18.2234 1.53771 18.5567 2.02258 18.4658 2.50746C18.1324 4.02268 17.2536 6.99251 15.193 7.87129Z"
       fill="#F7F8FA"
@@ -46,5 +56,5 @@ const TwistAndShout = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 )
 
-const ForwardRef = forwardRef(TwistAndShout)
+const ForwardRef = forwardRef(Icon)
 export default ForwardRef

@@ -196,9 +196,6 @@ export const updateInteractableUI = (entity: Entity) => {
   }
   const deltaSeconds = getState(ECSState).deltaSeconds
   transition.update(deltaSeconds, (opacity) => {
-    if (opacity === 0) {
-      removeComponent(interactable.uiEntity, VisibleComponent)
-    }
     xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
       const mat = layer.contentMesh.material as MeshBasicMaterial
       mat.opacity = opacity
@@ -295,9 +292,10 @@ export const InteractableComponent = defineComponent({
 
     InputComponent.useExecuteWithInput(
       () => {
+        if (!interactableComponent.canInteract.value) return
         const buttons = InputComponent.getButtons(entity)
-        if (!interactableComponent.clickInteract.value) return
-        if (buttons.Interact?.up && !buttons.Interact.dragging) {
+
+        if (buttons.Interact?.up && !buttons.Interact?.dragging) {
           callInteractCallbacks(entity)
         }
       },

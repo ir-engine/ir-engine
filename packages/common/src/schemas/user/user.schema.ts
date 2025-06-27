@@ -41,7 +41,7 @@ export type { UserID }
 
 export const userPath = 'user'
 
-export const userMethods = ['get', 'find', 'create', 'patch', 'remove'] as const
+export const userMethods = ['get', 'find', 'create', 'patch'] as const
 
 export const userScopeSchema = Type.Object(
   {
@@ -68,14 +68,16 @@ export const userSchema = Type.Object(
     inviteCode: Type.Optional(TypedString<InviteCode>()),
     lastLogin: Type.Optional(Type.Ref(userLoginSchema)),
     createdAt: Type.String({ format: 'date-time' }),
-    updatedAt: Type.String({ format: 'date-time' })
+    updatedAt: Type.String({ format: 'date-time' }),
+    isDeactivated: Type.Optional(Type.Boolean()),
+    deactivatedAt: Type.Optional(Type.String({ format: 'date-time' }))
   },
   { $id: 'User', additionalProperties: false }
 )
 export interface UserType extends Static<typeof userSchema> {}
 
 // Schema for creating new entries
-export const userDataSchema = Type.Partial(Type.Pick(userSchema, ['name', 'isGuest', 'inviteCode']), {
+export const userDataSchema = Type.Partial(Type.Pick(userSchema, ['name', 'isGuest', 'inviteCode', 'ageVerified']), {
   $id: 'UserData'
 })
 export interface UserData extends Static<typeof userDataSchema> {}
@@ -103,6 +105,7 @@ export const userQuerySchema = Type.Intersect(
     // Add additional query properties here
     Type.Object(
       {
+        isDeactivated: Type.Optional(Type.Boolean()),
         search: Type.Optional(Type.String()),
         skipAvatar: Type.Optional(Type.Boolean())
       },

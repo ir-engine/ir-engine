@@ -23,29 +23,29 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useLayoutEffect, useRef } from 'react'
-
 import { TouchGamepad } from '@ir-engine/client-core/src/common/components/TouchGamepad'
 import { EngineState } from '@ir-engine/ecs'
-import { getMutableState, NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { useTranslation } from 'react-i18next'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import _ from 'lodash'
+import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import { LoadingSystemState } from '../../systems/state/LoadingState'
-import { ViewerMenuState } from '../../util/ViewerMenuState'
 import { ARPlacement } from '../ARPlacement'
 import { XRLoading } from '../XRLoading'
 
 import { ToolbarAndSidebar } from './ToolbarAndSidebar'
 
+import { applyScreenshareToTexture } from '@ir-engine/engine/src/scene/functions/applyScreenshareToTexture'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
+import hark from 'hark'
 import { useMediaWindows } from '../../user/VideoWindows'
-import { useUserMediaWindowsHook } from '../../user/VideoWindows/hook'
+import { addValue, useUserMediaWindowsHook } from '../../user/VideoWindows/hook'
 import ReportUserMenu from '../ReportUser'
-import Settings, { screens as settingsScreens } from '../Settings'
+import Settings from '../Settings'
 import { ChatMenu } from './ChatMenu'
 import { ChatProvider } from './ChatProvider'
 import { MultimediaStateProvider } from './MultimediaStateProvider'
 import { VideoCarousel } from './MultiVideo'
-import { NavigationProvider, useNavigationProvider } from './NavigationProvider'
+import { NavigationProvider, NavigationService, useNavigationProvider } from './NavigationProvider'
 import { ToolbarMenu } from './ToolbarMenu'
 import { VideoMenu } from './VideoMenu'
 
@@ -69,110 +69,260 @@ const useIsPortrait = () => {
   return isPortrait
 }
 
-const Menu = () => {
-  const isPortrait = useIsPortrait()
-  const loadingScreenVisible = useHookstate(getMutableState(LoadingSystemState).loadingScreenVisible).value
-  const { t } = useTranslation()
-  const externalInjectedMenus = useMutableState(ViewerMenuState).externalInjectedMenus.get(NO_PROXY)
-  const locationContainer = useRef<HTMLDivElement>(null)
+const VideoStreamManager = ({
+  videoMediaStream,
+  audioMediaStream,
+  handleScreenshareTexture,
+  audioStreamPaused,
+  handleAudioPause,
+  audioElement,
+  videoElement,
+  soundIndicators,
+  type,
+  peerID,
+  isSelf,
+  volume
+}) => {
+  const harkListener = useHookstate(null as ReturnType<typeof hark> | null)
+
+  const isScreen = type === 'screen'
+
+  const play = () => {
+    videoElement?.play()
+    audioElement?.play()
+    harkListener?.value?.resume()
+  }
+
+  useEffect(() => {
+    if (!videoMediaStream) {
+      return
+    }
+
+    handleScreenshareTexture()
+  }, [videoMediaStream])
+
+  useEffect(() => {
+    handleAudioPause()
+  }, [audioStreamPaused])
+
+  useEffect(() => {
+    window.addEventListener('pointerup', play)
+    return () => {
+      window.removeEventListener('pointerup', play)
+    }
+  }, [videoElement, audioElement, harkListener?.value])
+
+  useEffect(() => {
+    if (!audioMediaStream || !audioMediaStream.getAudioTracks().length) return
+
+    audioElement.id = `${peerID}_audio`
+    audioElement.autoplay = true
+    audioElement.setAttribute('playsinline', 'true')
+    audioElement.muted = audioStreamPaused || isSelf
+    audioElement.volume = audioStreamPaused || isSelf ? 0 : volume
+
+    audioElement.srcObject = audioMediaStream
+
+    let unmounted = false
+    const newHark = hark(audioElement.srcObject, { play: false })
+    newHark.on('speaking', () => {
+      if (unmounted) return
+      soundIndicators.set(addValue(soundIndicators.value, peerID, true))
+    })
+    newHark.on('stopped_speaking', () => {
+      if (unmounted) return
+      soundIndicators.set(addValue(soundIndicators.value, peerID, false))
+    })
+    harkListener.set(newHark)
+
+    return () => {
+      unmounted = true
+      newHark.stop()
+    }
+  }, [audioMediaStream])
+
+  useEffect(() => {
+    if (!audioElement) {
+      return
+    }
+
+    audioElement.muted = audioStreamPaused || isSelf
+    audioElement.volume = volume
+  }, [audioStreamPaused, audioElement, volume])
+
+  useEffect(() => {
+    if (!videoMediaStream) return
+
+    videoElement.id = `${peerID}_video`
+    videoElement.autoplay = true
+    videoElement.muted = true
+    videoElement.setAttribute('playsinline', 'true')
+    videoElement.srcObject = videoMediaStream
+
+    if (isScreen) {
+      applyScreenshareToTexture(videoElement as HTMLVideoElement)
+    }
+  }, [videoMediaStream])
+
+  return <></>
+}
+
+const VideoComponents = () => {
+  const { togglePath_factory } = useNavigationProvider()
   const windows = useMediaWindows()
 
-  const {
-    activeHistoryKey,
-    sidebarKey,
-    setSidebarKey,
-    createToggleSidebarKey,
-    isSidebarOpen,
-    navigateClose,
-    navigateBack,
-    hasHistory,
-    navigateTo
-  } = useNavigationProvider()
+  const onFullscreenVideosClick = togglePath_factory(`video`)
+  const { _windows, soundIndicators } = useUserMediaWindowsHook(windows)
 
-  useLayoutEffect(() => {
-    if (locationContainer.current) locationContainer.current.style.opacity = '0'
-  }, [locationContainer])
+  const videoMediaStreams = _windows.map(({ videoMediaStream }) => {
+    return videoMediaStream
+  })
 
-  const headings = {
-    Chat: `Chat`,
-    Video: `Video`,
-    Cart: `Cart`,
-    Share: `Share`,
-    Settings: `Settings`,
-    ReportUser: `Report User`
-  }
+  const videoElements = _windows.map(({ videoElement }) => {
+    return videoElement
+  })
 
-  const tabs = {
-    Chat: [
-      {
-        heading: `Video`,
-        onClick: () => setSidebarKey(`Video`)
-      },
-      {
-        heading: `Chat`,
-        onClick: () => setSidebarKey(`Chat`),
-        active: true
-      }
-    ],
-    Video: [
-      {
-        heading: `Video`,
-        onClick: () => setSidebarKey(`Video`),
-        active: true
-      },
-      {
-        heading: `Chat`,
-        onClick: () => setSidebarKey(`Chat`)
-      }
-    ]
-  }
-
-  const contents = {
-    Chat: <ChatMenu navigateTo={navigateTo} />,
-    Video: <VideoMenu videos={windows} />,
-    Settings: <Settings />,
-    ReportUser: <ReportUserMenu type="user" />
-  }
-
-  const onMessageClick = createToggleSidebarKey(`Chat`)
-  const onShareClick = createToggleSidebarKey(`Share`)
-  const onFullscreenVideosClick = createToggleSidebarKey(`Video`)
-  const onSettingsClick = createToggleSidebarKey(`Settings`)
-
-  const { videoElements, videoMediaStreams } = useUserMediaWindowsHook(windows)
-
-  const toolbar = (
-    <ToolbarMenu
-      onMessageClick={onMessageClick}
-      onShareClick={onShareClick}
-      activeKey={sidebarKey}
-      onSettingsClick={onSettingsClick}
-    />
-  )
-  const sidebarHeadingFromHistory = settingsScreens[activeHistoryKey]?.title
-
-  const sidebarTabs = tabs[sidebarKey] || []
-  const sidebarHeading = sidebarHeadingFromHistory || headings[sidebarKey]
-  const sidebarContent = isSidebarOpen && contents[sidebarKey]
+  useEffect(() => {
+    NavigationService.addRoute({
+      path: `video`,
+      title: 'Video',
+      Component: () => <VideoMenu videos={windows} soundIndicators={soundIndicators} />
+    })
+  }, [windows, soundIndicators])
 
   return (
-    <div id="location-container" ref={locationContainer} className="fixed h-dvh w-full">
+    <>
+      {_windows.map(({ peerID, type, ...rest }) => {
+        return (
+          <VideoStreamManager
+            key={`${peerID}-${type}`}
+            peerID={peerID}
+            type={type}
+            soundIndicators={soundIndicators}
+            {...rest}
+          />
+        )
+      })}
       <VideoCarousel
         handleSidebarOpen={onFullscreenVideosClick}
         videoElements={videoElements}
         videoMediaStreams={videoMediaStreams}
       />
+    </>
+  )
+}
+
+const Menu = () => {
+  const isPortrait = useIsPortrait()
+  const loadingScreenVisible = useHookstate(getMutableState(LoadingSystemState).loadingScreenVisible).value
+
+  const locationContainer = useRef<HTMLDivElement>(null)
+
+  const {
+    current,
+    routes,
+    direction,
+    first,
+    isSidebarOpen,
+    hasHistory,
+    hasUp,
+
+    navigateBack,
+    navigateTo,
+    navigateClose,
+    togglePath_factory
+  } = useNavigationProvider()
+
+  const { title, Component = () => <></> } = routes[first] || {}
+
+  const injectedButtons = _.filter(routes, ({ Button }) => !!Button).map(({ Button = () => <></> }, index) => {
+    return <Button key={index} navigateTo={navigateTo} />
+  })
+
+  const tabs = {
+    chat: [
+      {
+        heading: `Video`,
+        onClick: () => navigateTo(`video`)
+      },
+      {
+        heading: `Chat`,
+        onClick: () => navigateTo(`chat`),
+        active: true
+      }
+    ],
+    video: [
+      {
+        heading: `Video`,
+        onClick: () => navigateTo(`video`),
+        active: true
+      },
+      {
+        heading: `Chat`,
+        onClick: () => navigateTo(`chat`)
+      }
+    ]
+  }
+
+  const onMessageClick = togglePath_factory(`chat`)
+  const onShareClick = togglePath_factory(`settings/share`)
+  const onSettingsClick = togglePath_factory(`settings`)
+
+  const sidebarTabs = tabs[current] || []
+
+  const showBack = hasHistory || hasUp
+
+  useLayoutEffect(() => {
+    if (locationContainer.current) locationContainer.current.style.opacity = '0'
+  }, [locationContainer])
+
+  const ReportUserRoute = () => <ReportUserMenu type="user" />
+
+  useEffect(() => {
+    NavigationService.addRoutes([
+      {
+        path: `chat`,
+        title: 'Chat',
+        Component: ChatMenu
+      },
+      {
+        path: `settings`,
+        title: `Settings`,
+        Component: Settings
+      },
+      {
+        path: `report`,
+        title: `Report User`,
+        Component: ReportUserRoute
+      }
+    ])
+  }, [])
+
+  const toolbar = (
+    <ToolbarMenu
+      onMessageClick={onMessageClick}
+      onShareClick={onShareClick}
+      onSettingsClick={onSettingsClick}
+      activePath={current}
+    />
+  )
+
+  return (
+    <div id="location-container" ref={locationContainer} className="fixed h-dvh w-full">
+      <VideoComponents />
 
       <ToolbarAndSidebar
         handleSidebarClose={navigateClose}
         handleSidebarBack={navigateBack}
         isSidebarOpen={isSidebarOpen}
-        content={sidebarContent}
-        heading={sidebarHeading}
+        content={<Component />}
+        title={title}
         tabs={sidebarTabs}
         toolbar={toolbar}
-        hasHistory={hasHistory}
+        showBack={showBack}
       />
+
+      {injectedButtons}
 
       <ARPlacement />
       <XRLoading />

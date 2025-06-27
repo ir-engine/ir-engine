@@ -39,19 +39,19 @@ import {
   removeEntity,
   setComponent,
   SourceID,
-  useAncestorWithComponents,
+  UndefinedEntity,
   useComponent,
   useEntityContext,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { Vector2 } from 'three'
 import { NameComponent } from '../../common/NameComponent'
 import { RendererComponent } from '../../renderer/components/RendererComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
-import { DefaultButtonBindings, InputComponent } from '../components/InputComponent'
+import { DefaultButtonBindings } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import {
@@ -63,7 +63,6 @@ import {
   MouseScroll,
   XRStandardGamepadAxes
 } from '../state/ButtonState'
-import { InputState } from '../state/InputState'
 import ClientInputFunctions from './ClientInputFunctions'
 import normalizeWheel from './normalizeWheel'
 
@@ -219,6 +218,7 @@ export const useXRInputSources = () => {
 }
 
 const emulatedInputPointerEntityName = 'InputSource-emulated-pointer'
+const EMULATED_POINTER_ID_BASE = 1000 // Start from a high number to avoid conflicts with real pointer IDs
 
 export const CanvasInputReactor = () => {
   const cameraEntity = useEntityContext()
@@ -231,6 +231,10 @@ export const CanvasInputReactor = () => {
     const canvas = rendererComponent.canvas.value as HTMLCanvasElement
     if (!canvas) return
 
+    // Map browser pointer IDs to our emulated pointer IDs
+    const pointerIdMap = new Map<number, number>()
+    let nextEmulatedPointerId = EMULATED_POINTER_ID_BASE + 1
+
     /** Clear mouse events */
     const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick'] as AnyButton[]
     const clearPointerState = (entity: Entity) => {
@@ -242,18 +246,38 @@ export const CanvasInputReactor = () => {
       }
     }
 
+    const getMappedPointerId = (browserPointerId: number): number => {
+      if (!pointerIdMap.has(browserPointerId)) {
+        // For single-touch scenarios, use consistent base ID to maintain compatibility
+        if (pointerIdMap.size === 0) {
+          pointerIdMap.set(browserPointerId, EMULATED_POINTER_ID_BASE)
+        } else {
+          // For multi-touch, assign unique IDs to track each touch independently
+          pointerIdMap.set(browserPointerId, nextEmulatedPointerId++)
+        }
+      }
+      return pointerIdMap.get(browserPointerId)!
+    }
+
     const onPointerEnter = (event: PointerEvent) => {
+      const mappedPointerId = getMappedPointerId(event.pointerId)
+
+      const existingPointerEntity = InputPointerComponent.getPointerByID(cameraEntity, mappedPointerId)
       const pointerEntity =
-        InputPointerComponent.getPointersForCamera(cameraEntity).find(
-          (e) => getOptionalComponent(e, NameComponent) === emulatedInputPointerEntityName
-        ) ?? createEntity()
-      setComponent(pointerEntity, NameComponent, emulatedInputPointerEntityName)
-      setComponent(pointerEntity, TransformComponent)
-      setComponent(pointerEntity, InputSourceComponent, { sourceEntity: cameraEntity })
-      setComponent(pointerEntity, InputPointerComponent, {
-        pointerId: event.pointerId,
-        cameraEntity
-      })
+        existingPointerEntity !== UndefinedEntity
+          ? existingPointerEntity
+          : (() => {
+              const entity = createEntity()
+              setComponent(entity, NameComponent, emulatedInputPointerEntityName)
+              setComponent(entity, TransformComponent)
+              setComponent(entity, InputSourceComponent, { sourceEntity: cameraEntity })
+              setComponent(entity, InputPointerComponent, {
+                pointerId: mappedPointerId,
+                cameraEntity
+              })
+              return entity
+            })()
+
       ClientInputFunctions.redirectPointerEventsToXRUI(cameraEntity, event)
     }
 
@@ -266,13 +290,23 @@ export const CanvasInputReactor = () => {
     }
 
     const onPointerLeave = (event: PointerEvent) => {
-      const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, event.pointerId)
+      const mappedPointerId = getMappedPointerId(event.pointerId)
+      const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, mappedPointerId)
       ClientInputFunctions.redirectPointerEventsToXRUI(cameraEntity, event)
       clearPointerState(pointerEntity)
+
+      // Clean up the mapping when pointer leaves
+      pointerIdMap.delete(event.pointerId)
+
+      // Reset counter if no active touches to maintain single-touch consistency
+      if (pointerIdMap.size === 0) {
+        nextEmulatedPointerId = EMULATED_POINTER_ID_BASE + 1
+      }
     }
 
     const onPointerClick = (event: PointerEvent) => {
-      const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, event.pointerId)
+      const mappedPointerId = getMappedPointerId(event.pointerId)
+      const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, mappedPointerId)
       const inputSourceComponent = getOptionalComponent(pointerEntity, InputSourceComponent)
       if (!inputSourceComponent) return
 
@@ -309,7 +343,8 @@ export const CanvasInputReactor = () => {
     }
 
     const onPointerMove = (event: PointerEvent) => {
-      const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, event.pointerId)
+      const mappedPointerId = getMappedPointerId(event.pointerId)
+      const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, mappedPointerId)
       const pointerComponent = getOptionalComponent(pointerEntity, InputPointerComponent)
       if (!pointerComponent) return
 
@@ -392,35 +427,10 @@ export const CanvasInputReactor = () => {
   return null
 }
 
-export const MeshInputReactor = () => {
-  const entity = useEntityContext()
-  const shouldReceiveInput = useAncestorWithComponents(entity, [InputComponent])
-
-  useImmediateEffect(() => {
-    const inputState = getState(InputState)
-    if (shouldReceiveInput) inputState.inputMeshes.add(entity)
-    else inputState.inputMeshes.delete(entity)
-  }, [shouldReceiveInput])
-  return null
-}
-
-export const BoundingBoxInputReactor = () => {
-  const entity = useEntityContext()
-  const shouldReceiveInput = useAncestorWithComponents(entity, [InputComponent])
-  useImmediateEffect(() => {
-    const inputState = getState(InputState)
-    if (shouldReceiveInput) inputState.inputBoundingBoxes.add(entity)
-    else inputState.inputBoundingBoxes.delete(entity)
-  }, [shouldReceiveInput])
-  return null
-}
-
 export const ClientInputHooks = {
   useNonSpatialInputSources,
   useGamepadInputSources,
   useXRInputSources,
-  CanvasInputReactor,
-  MeshInputReactor,
-  BoundingBoxInputReactor
+  CanvasInputReactor
 }
 export default ClientInputHooks

@@ -29,17 +29,17 @@ import multiLogger from '@ir-engine/common/src/logger'
 import { INVALID_USER_NAME_REGEX } from '@ir-engine/common/src/regex'
 import { UserName } from '@ir-engine/common/src/schema.type.module'
 import { useMutableState } from '@ir-engine/hyperflux'
-import { GlassButton } from '@ir-engine/ui/src/components/viewer/Button'
 import React, { useEffect, useMemo } from 'react'
 import { AuthState } from '../../user/services/AuthService'
 import { AvatarService } from '../../user/services/AvatarService'
 import { clientContextParams } from '../../util/ClientContextState'
+import { NavigateFuncProps } from '../Glass/NavigationProvider'
+import { Inner } from '../Glass/ToolbarAndSidebar'
+import { TextButton } from '../Glass/buttons/TextButton'
 import FieldItem from './FieldItem'
 import { Section } from './Section'
 
-interface DisplayNameScreenProps {
-  navigateTo: (screenKey: string, historyKey) => void
-}
+type DisplayNameScreenProps = NavigateFuncProps & {}
 const logger = multiLogger.child({ component: 'engine:ecs:DisplayName', modifier: clientContextParams })
 
 const DisplayNameScreen: React.FC<DisplayNameScreenProps> = () => {
@@ -72,7 +72,7 @@ const DisplayNameScreen: React.FC<DisplayNameScreenProps> = () => {
   }, [saved.value])
 
   return (
-    <div className="flex h-full flex-col justify-between gap-4">
+    <Inner className="flex min-h-full flex-col justify-between gap-4">
       <Section>
         <FieldItem
           label="Display Name"
@@ -84,10 +84,10 @@ const DisplayNameScreen: React.FC<DisplayNameScreenProps> = () => {
           onReset={() => displayName.set(name.value as string)}
         />
       </Section>
-      <GlassButton disabled={!isUsernameValid} onClick={onSave} className="mx-auto justify-self-end">
+      <TextButton disabled={!isUsernameValid} onClick={onSave} className="mx-auto justify-self-end">
         {saved.value ? 'Saved!' : 'Save'}
-      </GlassButton>
-    </div>
+      </TextButton>
+    </Inner>
   )
 }
 

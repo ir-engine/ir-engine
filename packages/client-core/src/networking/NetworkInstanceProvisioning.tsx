@@ -75,12 +75,10 @@ export const WorldInstanceProvisioning = () => {
   // Once we have the location, provision the instance server
   useEffect(() => {
     const currentLocation = locationState.currentLocation.location
-    const hasJoined = !!worldNetwork
 
     if (
       !currentLocation.id?.value ||
       isUserBanned ||
-      hasJoined ||
       locationInstances.keys.length ||
       Object.values(locationInstances).find((instance) => instance.locationId.value === currentLocation.id?.value)
     )

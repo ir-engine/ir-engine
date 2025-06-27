@@ -27,8 +27,8 @@ import React from 'react'
 
 import { ChevronLeftMd, XCloseLg } from '@ir-engine/ui/src/icons'
 import { twMerge } from 'tailwind-merge'
-import { smallIconButtonStyles } from './Buttons'
-import { MenuButton } from './MenuButton'
+import { IconButton } from './buttons/IconButton'
+import { MenuIconButton } from './buttons/MenuIconButton'
 import { HorizontalMenu, VerticalMenu } from './ToolbarMenu'
 
 type TabProps = {
@@ -38,11 +38,11 @@ type TabProps = {
 }
 
 type HeaderProps = {
-  heading: string
+  title: string
   tabs?: TabProps[]
   handleSidebarClose: () => void
   handleSidebarBack: () => void
-  hasHistory: boolean
+  showBack: boolean
 }
 
 type ToolbarAndSidebarProps = HeaderProps & {
@@ -95,7 +95,6 @@ const headerInnerStyles = `
 
 const buttonContainer_base = `
   absolute z-10
-  right-0
   top-1/2
 
   inline-flex items-center
@@ -118,13 +117,13 @@ const backButtonStyles = `
 
 const Tab = ({ onClick, heading, active }: TabProps) => {
   return (
-    <button className={`group lg:hidden`} onClick={onClick}>
-      <h2 className={`grid gap-y-1`}>
+    <button className={`group`} onClick={onClick}>
+      <h2 className={`lg:text-shadow-md grid gap-y-1`}>
         {heading}
         <div
           className={twMerge(
-            `h-[0.14em] w-full rounded-full group-hover:bg-white/80`,
-            active ? `bg-white/80` : `bg-transparent`
+            `h-[0.14em] w-full rounded-full group-hover:bg-white/80 lg:h-[0.08em]`,
+            active ? `bg-white/80 lg:bg-white/90 lg:shadow-md` : `bg-transparent`
           )}
         />
       </h2>
@@ -135,7 +134,7 @@ const Tab = ({ onClick, heading, active }: TabProps) => {
 const headingsStyles = `
   flex items-center justify-center
 
-  gap-x-12
+  gap-x-8
   py-8
   text-2xl
   
@@ -143,7 +142,7 @@ const headingsStyles = `
   lg:py-4
   lg:pl-2
   lg:text-5xl
-  lg:gap-x-4
+  lg:gap-x-8
 `
 
 const headerBackButtonStyles = `
@@ -151,28 +150,33 @@ const headerBackButtonStyles = `
   lg:block
 `
 
-const Header = ({ tabs = [], heading, handleSidebarClose, handleSidebarBack, hasHistory }: HeaderProps) => {
+const Header = ({ tabs = [], title, handleSidebarClose, handleSidebarBack, showBack }: HeaderProps) => {
   const backButton = (
-    <button className={twMerge(smallIconButtonStyles, `shadow`)} onClick={handleSidebarBack}>
+    <IconButton size={'small'} onClick={handleSidebarBack}>
       <ChevronLeftMd />
-    </button>
+    </IconButton>
   )
+
+  const hasTabs = !!tabs.length
 
   return (
     <div className={headerContainerStyles}>
       <div className={headerInnerStyles}>
-        {hasHistory ? <div className={twMerge(buttonContainer_base, backButtonStyles)}>{backButton}</div> : <></>}
+        {showBack ? <div className={twMerge(buttonContainer_base, backButtonStyles)}>{backButton}</div> : <></>}
         <div className={twMerge(buttonContainer_base, closeButtonStyles)}>
-          <MenuButton className={`text-3xl`} onClick={handleSidebarClose}>
+          <MenuIconButton className={`text-3xl`} onClick={handleSidebarClose}>
             <XCloseLg />
-          </MenuButton>
+          </MenuIconButton>
         </div>
         <div style={{ textShadow: `0 0.025em 0.08em hsla(0, 0%, 0%, 0.2)` }} className={headingsStyles}>
-          {hasHistory ? <div className={headerBackButtonStyles}>{backButton}</div> : <></>}
-          <h2 className={twMerge(`lg:block`, tabs.length ? `hidden` : ``)}>{heading}</h2>
-          {tabs.map((tabProps) => {
-            return <Tab {...tabProps} />
-          })}
+          {showBack ? <div className={headerBackButtonStyles}>{backButton}</div> : <></>}
+          {hasTabs ? (
+            tabs.map((tabProps) => {
+              return <Tab {...tabProps} />
+            })
+          ) : (
+            <h2 className={twMerge(`lg:block`, tabs.length ? `hidden` : ``)}>{title}</h2>
+          )}
         </div>
       </div>
     </div>
@@ -185,18 +189,22 @@ const contentStyles = `
 
   flex flex-col items-center
   gap-y-7
-  overflow-y-auto
-  
-  px-6 mb-20 pt-0
 
   text-xl
   text-white
+
   scrollbar-hide
-  
+  overflow-y-auto
+`
+
+export const innerStyles = `
+  px-6 pt-0 pb-12
+
   lg:px-14
   lg:pt-12
-
 `
+
+export const Inner = ({ className, ...props }) => <div className={twMerge(innerStyles, className)} {...props} />
 
 const contentContainerStyles = `
   relative
@@ -227,14 +235,14 @@ const contentFakeSpacer = `
 export const ToolbarAndSidebar = ({
   toolbar,
   content,
-  heading,
+  title,
   tabs = [],
   handleSidebarClose,
   handleSidebarBack,
-  hasHistory,
+  showBack,
   isSidebarOpen
 }: ToolbarAndSidebarProps) => {
-  tabs = (tabs as TabProps[]) || [{ heading } as TabProps]
+  tabs = (tabs as TabProps[]) || [{ heading: title } as TabProps]
 
   return (
     <>
@@ -243,8 +251,8 @@ export const ToolbarAndSidebar = ({
         <div className={sidebarContainerStyles}>
           <Header
             tabs={tabs}
-            heading={heading}
-            hasHistory={hasHistory}
+            title={title}
+            showBack={showBack}
             handleSidebarClose={handleSidebarClose}
             handleSidebarBack={handleSidebarBack}
           />

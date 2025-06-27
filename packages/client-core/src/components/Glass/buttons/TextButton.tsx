@@ -23,43 +23,43 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { MediaStreamState, useMutableState } from '@ir-engine/hyperflux'
-import Divider from '@ir-engine/ui/src/components/viewer/Divider'
+import { cva, VariantProps } from 'class-variance-authority'
 import React from 'react'
-import { Section } from './Section'
-import ToggleItem from './ToggleItem'
+import { twMerge } from 'tailwind-merge'
+import { baseButtonStyles, blurVariant, distanceVariant, fadeVariant } from './Button.styles'
 
-interface PermissionsScreenProps {
-  navigateTo: (screen: string) => void
-}
+const styles = cva(
+  [
+    baseButtonStyles,
+    `
+    px-6 py-3
+    text-lg
+    min-w-32
+    
+  `
+  ],
+  {
+    variants: {
+      disabled: {
+        true: `cursor-not-allowed opacity-50`,
+        false: ``
+      },
+      fade: fadeVariant,
+      distance: distanceVariant,
+      blur: blurVariant
+    },
+    defaultVariants: {
+      disabled: false,
+      fade: 'light' as keyof typeof fadeVariant,
+      distance: 'none' as keyof typeof distanceVariant,
+      blur: 'none' as keyof typeof blurVariant
+    }
+  }
+)
+export type Variants = VariantProps<typeof styles>
 
-const PermissionsScreen: React.FC<PermissionsScreenProps> = () => {
-  const { microphoneEnabled, webcamEnabled } = useMutableState(MediaStreamState)
+interface TextButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'disabled'>, Variants {}
 
-  return (
-    <div className="flex h-full flex-col justify-between space-y-6">
-      {/* Permissions Section */}
-      <div className="space-y-4">
-        <Section>
-          <ToggleItem
-            label="Camera"
-            checked={webcamEnabled.value}
-            onClick={() => {
-              webcamEnabled.set(!webcamEnabled.value)
-            }}
-          />
-          <Divider />
-          <ToggleItem
-            label="Microphone"
-            checked={microphoneEnabled.value}
-            onClick={() => {
-              microphoneEnabled.set(!microphoneEnabled.value)
-            }}
-          />
-        </Section>
-      </div>
-    </div>
-  )
-}
-
-export default PermissionsScreen
+export const TextButton: React.FC<TextButtonProps> = ({ className, disabled, fade, distance, blur, ...args }) => (
+  <button disabled={!!disabled} className={twMerge(styles({ fade, disabled, distance, blur }), className)} {...args} />
+)
