@@ -41,7 +41,7 @@ const ShareSpaceScreen: React.FC<ShareSpaceScreenProps> = () => {
 
   return (
     <>
-      <Inner className="xs:gap-6 mx-auto flex min-h-full max-w-screen-sm flex-col items-center justify-between pb-[80px]">
+      <Inner className="xs:gap-6 mx-auto flex min-h-full max-w-screen-sm flex-col items-center justify-between pb-[5rem]">
         {/* QR Code */}
         <div className={'flex flex-1 flex-col justify-center'}>
           <div className="rounded-lg bg-white p-4">
