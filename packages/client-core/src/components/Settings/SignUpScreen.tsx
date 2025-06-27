@@ -65,7 +65,7 @@ export default function SignupScreen() {
   const authSettings = useAuthSettings()
 
   const handleProviderClick = (client: string) => {
-    AuthService.loginUserByOAuth(client, location, true, location.href, username.value)
+    AuthService.loginUserByOAuth(client, location, true, undefined, username.value)
   }
 
   const clientSetting = useEngineSetting<ClientEngineSettingType>('client')
