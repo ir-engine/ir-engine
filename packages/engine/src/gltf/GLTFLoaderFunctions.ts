@@ -1653,6 +1653,8 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
     DependencyCache.set(`${rootEntity}${options.url}`, new Map<string, Promise<any>>())
   }
 
+  // Validate GLTF cache and then store metadata for future validation
+  await validateGLTFCache(options.url)
   await storeGLTFMetadata(options.url, json)
 
   migrateSceneDeltas(rootEntity, options.document)

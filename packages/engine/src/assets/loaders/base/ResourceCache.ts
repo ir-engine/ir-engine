@@ -186,7 +186,6 @@ class ResourceCacheDatabase extends Dexie {
   async invalidateGLTFDependencies(url: string): Promise<void> {
     const normalizedUrl = normalizeURLForCache(url)
     const metadata = await this.getGLTFMetadata(normalizedUrl)
-    console.log('Invalidating gltf dependencies', normalizedUrl, metadata)
     if (!metadata) return
 
     let deletePromises = [] as Promise<void>[]

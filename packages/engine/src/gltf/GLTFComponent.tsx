@@ -85,7 +85,7 @@ import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { ErrorComponent } from '../scene/components/ErrorComponent'
 import { SceneDynamicLoadComponent } from '../scene/components/SceneDynamicLoadComponent'
 import { addError, removeError } from '../scene/functions/ErrorFunctions'
-import { GLTFLoaderFunctions, GLTFParserOptions, validateGLTFCache } from './GLTFLoaderFunctions'
+import { GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
 import { AssetState } from './GLTFState'
 import { migrateEEMaterial } from './migrateEEMaterial'
 import { OVERRIDE_EXTENSION_NAME } from './overrideExporterExtension'
@@ -533,15 +533,8 @@ const useGLTFDocument = (entity: Entity) => {
       url,
       ResourceType.ArrayBuffer,
       entity,
-      async (response) => {
+      (response) => {
         if (signal.aborted) return
-
-        // dropped this validation into the gltf component for now,
-        // just needs to happen before anything gets loaded
-        const cacheValid = await validateGLTFCache(url)
-        if (!cacheValid) {
-          console.log(`Cache invalidated for GLTF: ${url}`)
-        }
 
         const [gltf, body] = parseGLTFFile(response, onError)
 
