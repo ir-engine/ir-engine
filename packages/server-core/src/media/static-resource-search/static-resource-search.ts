@@ -19,30 +19,33 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025 
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import ffmpeg from './ffmpeg/ffmpeg'
-import FileBrowserUpload from './file-browser-upload/file-browser-upload'
-import FileBrowser from './file-browser/file-browser'
-import Invalidation from './invalidation/invalidation'
-import OEmbed from './oembed/oembed'
-import Archiver from './recursive-archiver/archiver'
-import StaticResourceSearch from './static-resource-search/static-resource-search'
-import StaticResourceVector from './static-resource-vector/static-resource-vector'
-import StaticResource from './static-resource/static-resource'
-import Upload from './upload-asset/upload-asset.service'
+import {
+  staticResourceSearchMethods,
+  staticResourceSearchPath
+} from '@ir-engine/common/src/schemas/media/static-resource-search.schema'
+import { Application } from '../../../declarations'
+import { StaticResourceSearchService } from './static-resource-search.class'
+import hooks from './static-resource-search.hooks'
 
-export default [
-  Invalidation,
-  StaticResource,
-  StaticResourceVector,
-  StaticResourceSearch,
-  FileBrowser,
-  FileBrowserUpload,
-  OEmbed,
-  Upload,
-  Archiver,
-  ffmpeg
-]
+declare module '@ir-engine/common/declarations' {
+  interface ServiceTypes {
+    [staticResourceSearchPath]: StaticResourceSearchService
+  }
+}
+
+export default (app: Application): void => {
+  // Initialize our service
+  app.use(staticResourceSearchPath, new StaticResourceSearchService(app), {
+    // Only expose the find method
+    methods: staticResourceSearchMethods,
+    // Custom events for search analytics
+    events: ['search-performed']
+  })
+
+  // Initialize hooks
+  app.service(staticResourceSearchPath).hooks(hooks)
+}
