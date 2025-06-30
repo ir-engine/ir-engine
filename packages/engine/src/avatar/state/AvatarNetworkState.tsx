@@ -38,7 +38,7 @@ import {
 import { AvatarColliderComponent } from '@ir-engine/engine/src/avatar/components/AvatarControllerComponent'
 import { spawnAvatarReceptor } from '@ir-engine/engine/src/avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
-import { defineState, getMutableState, none, useHookstate } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
@@ -75,7 +75,7 @@ export const AvatarState = defineState({
   },
 
   reactor: () => {
-    const avatarState = getMutableState(AvatarState)
+    const avatarState = useMutableState(AvatarState)
     return (
       <>
         {avatarState.keys.map((entityUUID: EntityUUID) => (
