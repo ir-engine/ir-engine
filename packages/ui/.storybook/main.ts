@@ -32,7 +32,8 @@ const stories = globby.sync(
   [
     '../src/index.stories.tsx',
     '../../client-core/src/components/Settings/*.stories.tsx',
-    '../../client-core/src/components/Glass/**/*.stories.tsx'
+    '../../client-core/src/components/Glass/**/*.stories.tsx',
+    './**/*.stories.tsx'
   ],
   {
     ignore: [

@@ -27,7 +27,8 @@ import { useFind } from '@ir-engine/common'
 import { scopePath } from '@ir-engine/common/src/schema.type.module'
 import { Meta, StoryObj } from '@storybook/react/*'
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { SimpleRouterDecorator } from '../.storybook/decorators/RouterDecorator'
 import { handleMocks } from '../.storybook/util'
 
 const meta = {
@@ -53,11 +54,14 @@ export const Default: StoryObj = {
 }
 
 export const Navigation: StoryObj = {
+  decorators: [SimpleRouterDecorator],
   render: () => {
     const navigate = useNavigate()
+    const location = useLocation()
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-transparent">
         <button onClick={() => navigate('/chat')}>Navigate</button>
+        <div>Current path: {location.pathname}</div>
       </div>
     )
   }

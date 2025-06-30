@@ -42,15 +42,15 @@ import '../../client/src/themes/utilities.css'
 // @ts-ignore
 import keycardGLB from '../../projects/default-project/assets/keycard.glb?url'
 // @ts-ignore
-import { withRouter } from 'storybook-addon-remix-react-router'
+import { reactRouterOutlet, reactRouterParameters } from 'storybook-addon-remix-react-router'
 // @ts-ignore
 import apartmentGLTF from '../../projects/default-project/public/scenes/apartment.gltf?raw'
 import EngineDecorator from './decorators/EngineDecorator'
 import i18n from './i18n'
+import { RouterOutlet } from './router/CustomStorybookRouter'
 initialize()
 
 export const decorators: Decorator[] = [
-  withRouter,
   (Story) => {
     return (
       <I18nextProvider i18n={i18n}>
@@ -119,6 +119,7 @@ const preview: Preview = {
   },
   parameters: {
     layout: 'fullscreen',
+    reactRouter: reactRouterParameters({ routing: reactRouterOutlet(<RouterOutlet />) }),
     controls: {
       matchers: {
         color: /(background|color)$/i,
