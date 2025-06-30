@@ -31,17 +31,16 @@ import { PlusCircleMd } from '@ir-engine/ui/src/icons'
 import { Divider, Link } from '@ir-engine/ui/viewer'
 import React, { useEffect, useState } from 'react'
 import { FaLink } from 'react-icons/fa'
-import { NotificationService } from '../../common/services/NotificationService'
 import { useAuthSettings, useOAuthState } from '../../hooks/useAuthSetting'
 import { useMagicLink } from '../../hooks/useMagicLink'
 import { AuthService } from '../../user/services/AuthService'
 import { TextButton } from '../Glass/buttons/TextButton'
 import { Inner } from '../Glass/ToolbarAndSidebar'
+import CheckboxItem from './CheckboxItem'
 import FieldItem from './FieldItem'
 import { MenuItem } from './MenuItem'
 import { Section } from './Section'
 import { Socials } from './SSOScreen'
-import ToggleItem from './ToggleItem'
 
 export default function SignupScreen() {
   const [tosAgreed, setTosAgreed] = useState(false)
@@ -55,7 +54,6 @@ export default function SignupScreen() {
   const onMagicLinkClick = async () => {
     sent.set(true)
     await handleMagicLink(email.value, true, username.value)
-    NotificationService.dispatchNotify('Check your email for a magic link', { variant: 'success' })
   }
 
   useEffect(() => {
@@ -67,7 +65,7 @@ export default function SignupScreen() {
   const authSettings = useAuthSettings()
 
   const handleProviderClick = (client: string) => {
-    AuthService.loginUserByOAuth(client, location, true, location.href, username.value)
+    AuthService.loginUserByOAuth(client, location, true, undefined, username.value)
   }
 
   const clientSetting = useEngineSetting<ClientEngineSettingType>('client')
@@ -80,22 +78,22 @@ export default function SignupScreen() {
     <Inner className="flex min-h-full flex-col gap-4">
       <div className="font-dm-sans">By signing up, you agree to the following:</div>
       <Section className="font-figtree">
-        <ToggleItem checked={tosAgreed} onClick={() => setTosAgreed(!tosAgreed)}>
+        <CheckboxItem checked={tosAgreed} onClick={() => setTosAgreed(!tosAgreed)}>
           <span>
             I agree to the{' '}
             <Link target="_blank" href={clientSetting?.data?.termsOfService ?? ''}>
               Infinite Reality Terms of Service
             </Link>
           </span>
-        </ToggleItem>
-        <ToggleItem
+        </CheckboxItem>
+        <CheckboxItem
           checked={ageAgreed}
           onClick={() => setAgeAgreed(!ageAgreed)}
           label="I am 18 years of age or older"
         />
       </Section>
       <Section disabled={!agreedToAll}>
-        <FieldItem type="text" label="Username" placeholder="Username" onChange={username.set} value={username.value} />
+        <FieldItem type="text" label="Username" onChange={username.set} value={username.value} />
       </Section>
 
       <div className="mt-2">

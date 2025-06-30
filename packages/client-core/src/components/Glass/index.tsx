@@ -27,16 +27,18 @@ import { TouchGamepad } from '@ir-engine/client-core/src/common/components/Touch
 import { EngineState } from '@ir-engine/ecs'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import _ from 'lodash'
-import React, { useLayoutEffect, useRef } from 'react'
+import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import { LoadingSystemState } from '../../systems/state/LoadingState'
 import { ARPlacement } from '../ARPlacement'
 import { XRLoading } from '../XRLoading'
 
 import { ToolbarAndSidebar } from './ToolbarAndSidebar'
 
+import { applyScreenshareToTexture } from '@ir-engine/engine/src/scene/functions/applyScreenshareToTexture'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
+import hark from 'hark'
 import { useMediaWindows } from '../../user/VideoWindows'
-import { useUserMediaWindowsHook } from '../../user/VideoWindows/hook'
+import { addValue, useUserMediaWindowsHook } from '../../user/VideoWindows/hook'
 import ReportUserMenu from '../ReportUser'
 import Settings from '../Settings'
 import { ChatMenu } from './ChatMenu'
@@ -67,35 +69,154 @@ const useIsPortrait = () => {
   return isPortrait
 }
 
-NavigationService.addRoutes([
-  {
-    path: `chat`,
-    title: 'Chat',
-    Component: ChatMenu
-  },
-  {
-    path: `video`,
-    title: 'Video',
-    Component: VideoMenu
-  },
-  {
-    path: `settings`,
-    title: `Settings`,
-    Component: Settings
-  },
-  {
-    path: `report`,
-    title: `Report User`,
-    Component: ReportUserMenu
+const VideoStreamManager = ({
+  videoMediaStream,
+  audioMediaStream,
+  handleScreenshareTexture,
+  audioStreamPaused,
+  handleAudioPause,
+  audioElement,
+  videoElement,
+  soundIndicators,
+  type,
+  peerID,
+  isSelf,
+  volume
+}) => {
+  const harkListener = useHookstate(null as ReturnType<typeof hark> | null)
+
+  const isScreen = type === 'screen'
+
+  const play = () => {
+    videoElement?.play()
+    audioElement?.play()
+    harkListener?.value?.resume()
   }
-])
+
+  useEffect(() => {
+    if (!videoMediaStream) {
+      return
+    }
+
+    handleScreenshareTexture()
+  }, [videoMediaStream])
+
+  useEffect(() => {
+    handleAudioPause()
+  }, [audioStreamPaused])
+
+  useEffect(() => {
+    window.addEventListener('pointerup', play)
+    return () => {
+      window.removeEventListener('pointerup', play)
+    }
+  }, [videoElement, audioElement, harkListener?.value])
+
+  useEffect(() => {
+    if (!audioMediaStream || !audioMediaStream.getAudioTracks().length) return
+
+    audioElement.id = `${peerID}_audio`
+    audioElement.autoplay = true
+    audioElement.setAttribute('playsinline', 'true')
+    audioElement.muted = audioStreamPaused || isSelf
+    audioElement.volume = audioStreamPaused || isSelf ? 0 : volume
+
+    audioElement.srcObject = audioMediaStream
+
+    let unmounted = false
+    const newHark = hark(audioElement.srcObject, { play: false })
+    newHark.on('speaking', () => {
+      if (unmounted) return
+      soundIndicators.set(addValue(soundIndicators.value, peerID, true))
+    })
+    newHark.on('stopped_speaking', () => {
+      if (unmounted) return
+      soundIndicators.set(addValue(soundIndicators.value, peerID, false))
+    })
+    harkListener.set(newHark)
+
+    return () => {
+      unmounted = true
+      newHark.stop()
+    }
+  }, [audioMediaStream])
+
+  useEffect(() => {
+    if (!audioElement) {
+      return
+    }
+
+    audioElement.muted = audioStreamPaused || isSelf
+    audioElement.volume = volume
+  }, [audioStreamPaused, audioElement, volume])
+
+  useEffect(() => {
+    if (!videoMediaStream) return
+
+    videoElement.id = `${peerID}_video`
+    videoElement.autoplay = true
+    videoElement.muted = true
+    videoElement.setAttribute('playsinline', 'true')
+    videoElement.srcObject = videoMediaStream
+
+    if (isScreen) {
+      applyScreenshareToTexture(videoElement as HTMLVideoElement)
+    }
+  }, [videoMediaStream])
+
+  return <></>
+}
+
+const VideoComponents = () => {
+  const { togglePath_factory } = useNavigationProvider()
+  const windows = useMediaWindows()
+
+  const onFullscreenVideosClick = togglePath_factory(`video`)
+  const { _windows, soundIndicators } = useUserMediaWindowsHook(windows)
+
+  const videoMediaStreams = _windows.map(({ videoMediaStream }) => {
+    return videoMediaStream
+  })
+
+  const videoElements = _windows.map(({ videoElement }) => {
+    return videoElement
+  })
+
+  useEffect(() => {
+    NavigationService.addRoute({
+      path: `video`,
+      title: 'Video',
+      Component: () => <VideoMenu videos={windows} soundIndicators={soundIndicators} />
+    })
+  }, [windows, soundIndicators])
+
+  return (
+    <>
+      {_windows.map(({ peerID, type, ...rest }) => {
+        return (
+          <VideoStreamManager
+            key={`${peerID}-${type}`}
+            peerID={peerID}
+            type={type}
+            soundIndicators={soundIndicators}
+            {...rest}
+          />
+        )
+      })}
+      <VideoCarousel
+        handleSidebarOpen={onFullscreenVideosClick}
+        videoElements={videoElements}
+        videoMediaStreams={videoMediaStreams}
+      />
+    </>
+  )
+}
 
 const Menu = () => {
   const isPortrait = useIsPortrait()
   const loadingScreenVisible = useHookstate(getMutableState(LoadingSystemState).loadingScreenVisible).value
 
   const locationContainer = useRef<HTMLDivElement>(null)
-  const windows = useMediaWindows()
 
   const {
     current,
@@ -145,17 +266,37 @@ const Menu = () => {
 
   const onMessageClick = togglePath_factory(`chat`)
   const onShareClick = togglePath_factory(`settings/share`)
-  const onFullscreenVideosClick = togglePath_factory(`video`)
   const onSettingsClick = togglePath_factory(`settings`)
 
   const sidebarTabs = tabs[current] || []
 
-  const { videoElements, videoMediaStreams } = useUserMediaWindowsHook(windows)
   const showBack = hasHistory || hasUp
 
   useLayoutEffect(() => {
     if (locationContainer.current) locationContainer.current.style.opacity = '0'
   }, [locationContainer])
+
+  const ReportUserRoute = () => <ReportUserMenu type="user" />
+
+  useEffect(() => {
+    NavigationService.addRoutes([
+      {
+        path: `chat`,
+        title: 'Chat',
+        Component: ChatMenu
+      },
+      {
+        path: `settings`,
+        title: `Settings`,
+        Component: Settings
+      },
+      {
+        path: `report`,
+        title: `Report User`,
+        Component: ReportUserRoute
+      }
+    ])
+  }, [])
 
   const toolbar = (
     <ToolbarMenu
@@ -168,11 +309,7 @@ const Menu = () => {
 
   return (
     <div id="location-container" ref={locationContainer} className="fixed h-dvh w-full">
-      <VideoCarousel
-        handleSidebarOpen={onFullscreenVideosClick}
-        videoElements={videoElements}
-        videoMediaStreams={videoMediaStreams}
-      />
+      <VideoComponents />
 
       <ToolbarAndSidebar
         handleSidebarClose={navigateClose}

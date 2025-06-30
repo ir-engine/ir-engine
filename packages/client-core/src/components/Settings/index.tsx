@@ -36,8 +36,8 @@ import { NavigateFuncProps, useNavigationProvider } from '../Glass/NavigationPro
 import AudioScreen from './AudioScreen'
 import AvatarScreen from './AvatarScreen'
 import ControlsScreen from './ControlsScreen'
-import DeleteAccountScreen from './DeleteAccountScreen'
 import DisplayNameScreen from './DisplayNameScreen'
+import LoginScreen from './LoginScreen'
 import ShareSpaceScreen from './ShareSpaceScreen'
 import SignUpScreen from './SignUpScreen'
 import SSOScreen from './SSOScreen'
@@ -58,6 +58,10 @@ export const screens: Record<string, ScreenDefinition> = {
   account: { component: AccountSettings, title: 'Account' },
   graphics: { component: GraphicsSettings, title: 'Graphics' },
   audio: { component: AudioScreen, title: 'Audio' },
+  login: {
+    title: 'Sign In',
+    component: LoginScreen
+  },
   signup: {
     title: 'Sign Up',
     component: SignUpScreen
@@ -81,10 +85,6 @@ export const screens: Record<string, ScreenDefinition> = {
   sso: {
     component: SSOScreen,
     title: 'Single Sign On'
-  },
-  delete: {
-    component: DeleteAccountScreen,
-    title: 'Delete My Account'
   }
 }
 

@@ -167,7 +167,7 @@ export const VideoCarousel = ({ handleSidebarOpen, videoElements, videoMediaStre
   const numVideos = videoElements.length
   const showVideos = numVideos > 0
 
-  const hasEnoughVideosForCarousel = numVideos > 1
+  const hasEnoughVideosForCarousel = numVideos > 0
 
   const showBottomButtons = !collapsed && hasEnoughVideosForCarousel
 
@@ -186,7 +186,6 @@ export const VideoCarousel = ({ handleSidebarOpen, videoElements, videoMediaStre
     if (videosRef.current.children.length === numVideos) {
       return
     }
-    console.log('creating')
 
     setMounted(true)
 

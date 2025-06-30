@@ -32,12 +32,11 @@ import { afterEach, beforeEach, describe, it } from 'vitest'
 import {
   getComponent,
   getMutableComponent,
-  hasComponent,
   serializeComponent,
   setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { ReactorReconciler, ReactorRoot, getMutableState, getState, startReactor } from '@ir-engine/hyperflux'
+import { ReactorRoot, getMutableState, getState, startReactor } from '@ir-engine/hyperflux'
 import { flushAll } from '@ir-engine/hyperflux/tests/utils/flushAll'
 
 import {
@@ -55,9 +54,7 @@ import {
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { vi } from 'vitest'
 import { assertArray } from '../../../tests/util/assert'
-import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { initializeSpatialEngine, initializeSpatialViewer } from '../../initializeEngine'
-import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import ClientInputFunctions from '../functions/ClientInputFunctions'
 import { AnyAxis, KeyboardButton, MouseButton, MouseScroll, createInitialButtonState } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
@@ -745,29 +742,6 @@ describe('InputComponent', () => {
       })
     })
   })
-
-  describe('reactor', () => {
-    it('should add a HighlightComponent to the entity when the InputComponent is set with `highlight: true`', async () => {
-      const entity = getState(ReferenceSpaceState).localFloorEntity
-
-      const Expected = { highlight: true, grow: true }
-      ReactorReconciler.flushSync(() => {
-        setComponent(entity, InputComponent, Expected)
-      })
-      const result = getComponent(entity, InputComponent)
-
-      assert.equal(result.grow, Expected.grow)
-      assert.equal(result.highlight, Expected.highlight)
-
-      ReactorReconciler.flushSync(() => {
-        getMutableComponent(entity, InputComponent).inputSources.merge([entity])
-      })
-
-      await flushAll()
-
-      assert(hasComponent(entity, HighlightComponent))
-    })
-  }) // << reactor
 })
 
 describe('InputExecutionOrder', () => {

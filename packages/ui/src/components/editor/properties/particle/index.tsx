@@ -302,38 +302,63 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           onChange={onSetState}
         />
       </InputGroup>
-      <InputGroup name="Render Mode" label={t('editor:properties.particle-system.render-mode')}>
+      <InputGroup name="Render Mode" label={t('editor:properties.particle-system.renderMode.title')}>
         <SelectInput
           value={particleSystem.systemParameters.renderMode}
-          onChange={onSetSystemParm('renderMode')}
+          onChange={(value) => {
+            if (value === RenderMode.StretchedBillBoard) {
+              onSetState('systemParameters.rendererEmitterSettings.speedFactor')(1)
+              onSetState('systemParameters.rendererEmitterSettings.lengthFactor')(1)
+            } else if (value === RenderMode.Trail) {
+              onSetState('systemParameters.rendererEmitterSettings.startLength')({
+                type: 'ConstantValue',
+                value: 5,
+                a: 0,
+                b: 1,
+                functions: []
+              })
+              onSetState('systemParameters.rendererEmitterSettings.followLocalOrigin')(false)
+            }
+            onSetSystemParm('renderMode')(value)
+          }}
           options={[
-            { label: t('editor:properties.particle-system.render-mode-type.billboard'), value: RenderMode.BillBoard },
+            { label: t('editor:properties.particle-system.renderMode.billboard'), value: RenderMode.BillBoard },
             {
-              label: t('editor:properties.particle-system.render-mode-type.stretched-billboard'),
+              label: t('editor:properties.particle-system.renderMode.stretched-billboard'),
               value: RenderMode.StretchedBillBoard
             },
-            { label: t('editor:properties.particle-system.render-mode-type.mesh'), value: RenderMode.Mesh },
-            { label: t('editor:properties.particle-system.render-mode-type.trail'), value: RenderMode.Trail }
+            { label: t('editor:properties.particle-system.renderMode.mesh'), value: RenderMode.Mesh },
+            { label: t('editor:properties.particle-system.renderMode.trail'), value: RenderMode.Trail }
           ]}
         />
       </InputGroup>
+      {particleSystem.systemParameters.renderMode === RenderMode.StretchedBillBoard && (
+        <>
+          <InputGroup name="Speed Factor" label={t('editor:properties.particle-system.renderMode.speedFactor')}>
+            <NumericInput
+              value={particleSystem.systemParameters.rendererEmitterSettings?.speedFactor}
+              onChange={onSetState('systemParameters.rendererEmitterSettings.speedFactor')}
+            />
+          </InputGroup>
+          <InputGroup name="Length Factor" label={t('editor:properties.particle-system.renderMode.lengthFactor')}>
+            <NumericInput
+              value={particleSystem.systemParameters.rendererEmitterSettings?.lengthFactor}
+              onChange={onSetState('systemParameters.rendererEmitterSettings.lengthFactor')}
+            />
+          </InputGroup>
+        </>
+      )}
       {particleSystem.systemParameters.renderMode === RenderMode.Trail && (
         <>
-          <InputGroup name="Trail Length" label={t('editor:properties.particle-system.trail-length')}>
+          <InputGroup name="Trail Length" label={t('editor:properties.particle-system.renderMode.trailLength')}>
             <ValueGenerator
               path="systemParameters.rendererEmitterSettings.startLength"
-              value={particleSystem.systemParameters.rendererEmitterSettings.startLength as ValueGeneratorJSON}
+              value={particleSystem.systemParameters.rendererEmitterSettings?.startLength as ValueGeneratorJSON}
               scope={
                 (particleSystemState.systemParameters.rendererEmitterSettings as any)
                   .startLength as unknown as State<ValueGeneratorJSON>
               }
               onChange={onSetState}
-            />
-          </InputGroup>
-          <InputGroup name="Follow Local Origin" label={t('editor:properties.particle-system.follow-local-origin')}>
-            <Checkbox
-              checked={particleSystem.systemParameters.rendererEmitterSettings.followLocalOrigin}
-              onChange={onSetState('systemParameters.rendererEmitterSettings.followLocalOrigin')}
             />
           </InputGroup>
         </>

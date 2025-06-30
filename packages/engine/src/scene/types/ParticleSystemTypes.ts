@@ -574,8 +574,13 @@ export type ParticleSystemRendererInstance = {
 }
 
 export type RendererSettingsJSON = {
-  startLength: ValueGeneratorJSON
-  followLocalOrigin: boolean
+  // Trail mode settings
+  startLength?: ValueGeneratorJSON
+  followLocalOrigin?: boolean
+
+  // StretchedBillBoard mode settings
+  speedFactor?: number
+  lengthFactor?: number
 }
 
 export type ExtraSystemJSON = {
@@ -705,16 +710,15 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS = S.Object({
     })
   ),
   onlyUsedByOther: S.Bool({ default: false }),
-  rendererEmitterSettings: S.Object({
-    startLength: S.Object({
-      type: S.String({ default: 'ConstantValue' }),
-      value: S.Number({ default: 1 }),
-      a: S.Number({ default: 0 }),
-      b: S.Number({ default: 1 }),
-      functions: S.Array(S.Type<BezierFunctionJSON>())
-    }),
-    followLocalOrigin: S.Bool({ default: true })
-  }),
+  rendererEmitterSettings: S.Optional(
+    S.Object({
+      startLength: S.Optional(S.Type<ValueGeneratorJSON>()),
+      followLocalOrigin: S.Optional(S.Bool({ default: false })),
+
+      speedFactor: S.Optional(S.Number({ default: 1 })),
+      lengthFactor: S.Optional(S.Number({ default: 1 }))
+    })
+  ),
   renderMode: S.LiteralUnion(Object.values(RenderMode), {
     $comment:
       "A number enum, where: 0 represents 'BillBoard', 1 represents 'StretchedBillBoard', 2 represents 'Mesh', 3 represents 'Trail'",

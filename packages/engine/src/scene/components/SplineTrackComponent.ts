@@ -26,9 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { EngineState, EntityTreeComponent, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
+import { EntityTreeComponent, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
+  getAuthoringCounterpart,
   getComponent,
   getOptionalComponent,
   useComponent
@@ -64,15 +65,15 @@ export const SplineTrackComponent = defineComponent({
 
   reactor: function (props) {
     const entity = useEntityContext()
-    const component = useComponent(entity, SplineTrackComponent)
+    const componentState = useComponent(entity, SplineTrackComponent)
 
     useExecute(
       () => {
-        const { isEditing } = getState(EngineState)
+        if (getAuthoringCounterpart(entity)) return
         const { deltaSeconds } = getState(ECSState)
-        if (isEditing) return
-        if (!component.splineEntityUUID.value) return
-        const splineTargetEntity = UUIDComponent.getEntityFromSameSourceByID(entity, component.splineEntityUUID.value)
+        const component = getComponent(entity, SplineTrackComponent)
+        if (!component.splineEntityUUID) return
+        const splineTargetEntity = UUIDComponent.getEntityFromSameSourceByID(entity, component.splineEntityUUID)
         if (!splineTargetEntity) return
 
         const splineComponent = getOptionalComponent(splineTargetEntity, SplineComponent)
@@ -85,24 +86,22 @@ export const SplineTrackComponent = defineComponent({
         const elements = splineComponent.elements
         if (elements.length < 1) return
 
-        if (Math.floor(component.alpha.value) > elements.length - 1) {
-          if (!component.loop.value) {
+        if (Math.floor(component.alpha) > elements.length - 1) {
+          if (!component.loop) {
             //emit an event here?
             return
           }
-          component.alpha.set(0)
+          component.alpha = 0
         }
-        component.alpha.set(
-          (alpha) => alpha + (deltaSeconds * component.velocity.value) / splineComponent.curve.getLength() // todo cache length to avoid recalculating every frame
-        )
+        component.alpha = component.alpha + (deltaSeconds * component.velocity) / splineComponent.curve.getLength() // todo cache length to avoid recalculating every frame
 
         // move along spline
-        const alpha = component.alpha.value
-        const index = Math.floor(component.alpha.value)
+        const alpha = component.alpha
+        const index = Math.floor(component.alpha)
         const nextIndex = index + 1 > elements.length - 1 ? 0 : index + 1
 
         // prevent a possible loop around hiccup; if no loop then do not permit modulo 0
-        if (!component.loop.value && index > nextIndex) return
+        if (!component.loop && index > nextIndex) return
 
         const splineTransform = getComponent(splineTargetEntity, TransformComponent)
 
@@ -114,8 +113,8 @@ export const SplineTrackComponent = defineComponent({
         const q1 = elements[index].rotation
         const q2 = elements[nextIndex].rotation
 
-        if (component.enableRotation.value) {
-          if (component.lockToXZPlane.value) {
+        if (component.enableRotation) {
+          if (component.lockToXZPlane) {
             // get X and Y rotation only
             _euler.setFromQuaternion(q1)
             _euler.z = 0
@@ -151,13 +150,16 @@ export const SplineTrackComponent = defineComponent({
     )
 
     useEffect(() => {
-      if (!component.splineEntityUUID.value) return
-      const splineTargetEntity = UUIDComponent.getEntityFromSameSourceByID(entity, component.splineEntityUUID.value)
+      if (!componentState.splineEntityUUID.value) return
+      const splineTargetEntity = UUIDComponent.getEntityFromSameSourceByID(
+        entity,
+        componentState.splineEntityUUID.value
+      )
       if (!splineTargetEntity) return
       const splineComponent = getOptionalComponent(splineTargetEntity, SplineComponent)
       if (!splineComponent) return
-      splineComponent.curve.closed = component.loop.value
-    }, [component.loop])
+      splineComponent.curve.closed = componentState.loop.value
+    }, [componentState.loop.value])
 
     return null
   }

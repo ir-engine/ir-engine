@@ -147,7 +147,7 @@ export function useQuery(components: bitECS.QueryTerm[], layer: LayerID = Layers
         }, [])
 
         return null
-      })
+      }, 'useQuery ' + key)
 
       UseQuerySubreactorCache[key] = subreactor
     }
@@ -215,7 +215,7 @@ const QuerySubReactor = memo(
       if (queryTerm.isComponent) {
         components.push(queryTerm)
       } else {
-        const q = queryTerm() as OpReturnType
+        const q = queryTerm[$opType] ? queryTerm : (queryTerm() as OpReturnType)
         const type = q[$opType]
         if (type === 'Or' || type === 'And') {
           components.push(...q[$opTerms])

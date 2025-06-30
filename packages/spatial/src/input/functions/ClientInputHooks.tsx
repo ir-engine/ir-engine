@@ -40,19 +40,18 @@ import {
   setComponent,
   SourceID,
   UndefinedEntity,
-  useAncestorWithComponents,
   useComponent,
   useEntityContext,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { Vector2 } from 'three'
 import { NameComponent } from '../../common/NameComponent'
 import { RendererComponent } from '../../renderer/components/RendererComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
-import { DefaultButtonBindings, InputComponent } from '../components/InputComponent'
+import { DefaultButtonBindings } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import {
@@ -64,7 +63,6 @@ import {
   MouseScroll,
   XRStandardGamepadAxes
 } from '../state/ButtonState'
-import { InputState } from '../state/InputState'
 import ClientInputFunctions from './ClientInputFunctions'
 import normalizeWheel from './normalizeWheel'
 
@@ -429,35 +427,10 @@ export const CanvasInputReactor = () => {
   return null
 }
 
-export const MeshInputReactor = () => {
-  const entity = useEntityContext()
-  const shouldReceiveInput = useAncestorWithComponents(entity, [InputComponent])
-
-  useImmediateEffect(() => {
-    const inputState = getState(InputState)
-    if (shouldReceiveInput) inputState.inputMeshes.add(entity)
-    else inputState.inputMeshes.delete(entity)
-  }, [shouldReceiveInput])
-  return null
-}
-
-export const BoundingBoxInputReactor = () => {
-  const entity = useEntityContext()
-  const shouldReceiveInput = useAncestorWithComponents(entity, [InputComponent])
-  useImmediateEffect(() => {
-    const inputState = getState(InputState)
-    if (shouldReceiveInput) inputState.inputBoundingBoxes.add(entity)
-    else inputState.inputBoundingBoxes.delete(entity)
-  }, [shouldReceiveInput])
-  return null
-}
-
 export const ClientInputHooks = {
   useNonSpatialInputSources,
   useGamepadInputSources,
   useXRInputSources,
-  CanvasInputReactor,
-  MeshInputReactor,
-  BoundingBoxInputReactor
+  CanvasInputReactor
 }
 export default ClientInputHooks

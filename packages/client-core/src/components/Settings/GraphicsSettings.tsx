@@ -82,6 +82,7 @@ const GraphicsSettings: React.FC<ScreenProps> = ({ navigateTo }) => {
           min={0}
           step={1}
           max={5}
+          value={qualityLevel.value}
           defaultValue={qualityLevel.value}
           onChange={onQualityChange}
         />
@@ -91,6 +92,7 @@ const GraphicsSettings: React.FC<ScreenProps> = ({ navigateTo }) => {
         <ToggleItem label="Shadows" checked={useShadows.value} onClick={onShadowToggle} />
         <Divider />
         <Dropdown
+          backgroundColor={`black`}
           onChange={onShadowMapResolutionChange}
           value={shadowMapResolution.value}
           options={[

@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { destroy, hookstate, none, State } from '@hookstate/core'
+import { destroy, hookstate, State } from '@hookstate/core'
 import React, { Profiler, Suspense, useTransition } from 'react'
 import Reconciler, { Fiber, FiberRoot } from 'react-reconciler'
 import { ConcurrentRoot, DefaultEventPriority } from 'react-reconciler/constants'
@@ -176,6 +176,7 @@ export const ReactorRenderCounterState = hookstate(
       lastRender: number
       fiberCount: number
       peakFiberCount: number
+      ended: boolean
     }
   >
 )
@@ -271,7 +272,7 @@ export function startReactor(Reactor: React.FC, label?: string): ReactorRoot {
     HyperFlux.store.activeReactors.delete(reactorRoot.uuid)
     reactorRoot.cleanupFunctions.forEach((fn) => fn())
     reactorRoot.cleanupFunctions.clear()
-    ReactorRenderCounterState[reactorRoot.uuid].set(none)
+    ReactorRenderCounterState[reactorRoot.uuid]?.ended?.set(true)
     destroy(reactorRoot.isRunning)
     destroy(reactorRoot.errors)
     destroy(reactorRoot.suspended)
@@ -311,7 +312,8 @@ export function startReactor(Reactor: React.FC, label?: string): ReactorRoot {
       fiberCount: 0,
       peakFiberCount: 0,
       stack,
-      name: Reactor['__name']
+      name: Reactor['__name'],
+      ended: false
     })
   }
 
