@@ -48,6 +48,7 @@ import {
   dispatchAction,
   getMutableState,
   getState,
+  NetworkPeerState,
   NetworkState,
   useHookstate,
   useImmediateEffect,
@@ -128,15 +129,18 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
     })
 
     return () => {
-      const network = NetworkState.worldNetwork
+      const selfAvatarUUID = AvatarComponent.getSelfAvatarUUID()
 
-      const peersCountForUser = network?.users?.[userID]?.length
+      const currentNetwork = NetworkState.worldNetwork
+      if (!currentNetwork) return
 
-      // if we are the last peer in the world for this user, destroy the object
-      if (!peersCountForUser || peersCountForUser === 1) {
+      const networkPeerState = getState(NetworkPeerState)[currentNetwork.id]
+      const peersCountForUser = networkPeerState?.users?.[userID]?.length || 0
+
+      if (peersCountForUser <= 1) {
         dispatchAction(
           WorldNetworkAction.destroyEntity({
-            entityUUID: AvatarComponent.getSelfAvatarUUID()
+            entityUUID: selfAvatarUUID
           })
         )
       }
