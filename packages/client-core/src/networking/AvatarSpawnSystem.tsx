@@ -34,8 +34,9 @@ import {
   PresentationSystemGroup,
   removeComponent,
   setComponent,
-  useComponent,
+  UndefinedEntity,
   useHasComponent,
+  useOptionalComponent,
   UUIDComponent,
   WorldNetworkAction
 } from '@ir-engine/ecs'
@@ -180,16 +181,12 @@ const CameraSettingsReactor = (props: {
 }) => {
   const { cameraSettingsEntity, onCameraModeChange } = props
 
-  if (!cameraSettingsEntity) {
-    onCameraModeChange?.(CameraMode.FOLLOW)
-    return null
-  }
-
-  const cameraSettingsComponent = useComponent(cameraSettingsEntity, CameraSettingsComponent)
   const engineState = useMutableState(EngineState)
   const referenceSpaceState = useMutableState(ReferenceSpaceState)
 
-  const cameraMode = cameraSettingsComponent.cameraMode.value
+  const cameraSettingsComponent = useOptionalComponent(cameraSettingsEntity ?? UndefinedEntity, CameraSettingsComponent)
+
+  const cameraMode = cameraSettingsComponent?.cameraMode.value ?? CameraMode.FOLLOW
 
   useEffect(() => {
     onCameraModeChange?.(cameraMode)

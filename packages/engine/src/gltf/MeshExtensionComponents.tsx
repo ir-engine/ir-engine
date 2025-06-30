@@ -36,15 +36,15 @@ import {
   setComponent,
   useComponent,
   useEntityContext,
+  useOptionalComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { useHookstate } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } from '@ir-engine/spatial'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { useEffect } from 'react'
 import { BufferAttribute, Color, InstancedBufferAttribute, InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
 import { InstancingComponent } from '../scene/components/InstancingComponent'
-import { getGLTFOptions, GLTFComponent } from './GLTFComponent'
+import { GLTFComponent } from './GLTFComponent'
 import { WEBGL_CONSTANTS } from './GLTFConstants'
 import { getDependency, getNodeID, GLTFParserOptions } from './GLTFLoaderFunctions'
 
@@ -72,21 +72,14 @@ export const KHRLightsPunctualComponent = defineComponent({
     useComponent(entity, EntityTreeComponent)
     const component = useComponent(entity, KHRLightsPunctualComponent)
 
-    const abortController = useHookstate(() => new AbortController())
     const gltfEntity = getAncestorWithComponents(entity, [GLTFComponent])
-    const options = getGLTFOptions(gltfEntity, abortController.value.signal)
-    const json = options.document
+    const gltfComponent = useOptionalComponent(gltfEntity, GLTFComponent)
+    const json = gltfComponent?.document.value
     const extensions: {
       lights?: KHRPunctualLight[]
-    } = (json.extensions && json.extensions[KHRLightsPunctualComponent.jsonID]) || {}
+    } = (json?.extensions && json.extensions[KHRLightsPunctualComponent.jsonID]) || {}
     const lightDefs = extensions.lights
     const lightDef = lightDefs && component.light.value !== undefined ? lightDefs[component.light.value] : undefined
-
-    useEffect(() => {
-      return () => {
-        abortController.value.abort()
-      }
-    }, [])
 
     useEffect(() => {
       return () => {

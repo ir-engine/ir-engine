@@ -46,6 +46,7 @@ type ChatInputType = {
   sendMessage: () => void
   inputRef: RefObject<HTMLInputElement>
   composedMessage: State<string>
+  canSendMessage: boolean
 }
 
 type ChatProviderType = ChatMessagesType & ChatInputType
@@ -57,9 +58,10 @@ const useChatMessages = (): ChatMessagesType => {
   const newMessages = useHookstate<{ [mid: MessageType['id']]: boolean }>({})
   const unreadMessages = useHookstate(false)
   const user = useMutableState(AuthState).user
-  const targetChannelId = useMutableState(ChannelState).targetChannelId
   const channelState = useMutableState(ChannelState)
+  const targetChannelId = channelState.targetChannelId
   const isChatOpen = true
+
   const messagesResponse = useFind(messagePath, {
     query: {
       channelId: targetChannelId.value,
@@ -137,6 +139,9 @@ const useChatInput = ({ setNewMessage, messages }): ChatInputType => {
   const usersTyping = useMutableState(AvatarUIState).usersTyping[user?.id.value].value
   const messageMutation = useMutation(messagePath, false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const instanceId = NetworkState.worldNetwork?.id as InstanceID
+
+  const canSendMessage = !!instanceId
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const message = event.target.value
@@ -157,7 +162,6 @@ const useChatInput = ({ setNewMessage, messages }): ChatInputType => {
   }
 
   const sendMessage = () => {
-    const instanceId = NetworkState.worldNetwork.id as InstanceID
     if (!composedMessage.value.trim().length || !instanceId) {
       return
     }
@@ -195,6 +199,7 @@ const useChatInput = ({ setNewMessage, messages }): ChatInputType => {
   }, [composedMessage.value])
 
   return {
+    canSendMessage,
     handleInputChange,
     sendMessage,
     inputRef,

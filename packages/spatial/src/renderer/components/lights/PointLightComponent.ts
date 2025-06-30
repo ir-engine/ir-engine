@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { PointLight } from 'three'
+import { Color, PointLight } from 'three'
 
 import { S, defineComponent, removeComponent, setComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
@@ -65,6 +65,10 @@ export const PointLightComponent = defineComponent({
         removeComponent(entity, ObjectComponent)
       }
     }, [])
+
+    useEffect(() => {
+      light.color = new Color(pointLightComponent.color.value)
+    }, [pointLightComponent.color])
 
     useEffect(() => {
       light.intensity = pointLightComponent.intensity.value

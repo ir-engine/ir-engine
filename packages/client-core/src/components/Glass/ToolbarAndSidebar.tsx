@@ -117,13 +117,13 @@ const backButtonStyles = `
 
 const Tab = ({ onClick, heading, active }: TabProps) => {
   return (
-    <button className={`group lg:hidden`} onClick={onClick}>
-      <h2 className={`grid gap-y-1`}>
+    <button className={`group`} onClick={onClick}>
+      <h2 className={`lg:text-shadow-md text-shadow grid gap-y-1 font-dm-sans text-base lg:text-4xl`}>
         {heading}
         <div
           className={twMerge(
-            `h-[0.14em] w-full rounded-full group-hover:bg-white/80`,
-            active ? `bg-white/80` : `bg-transparent`
+            `h-[0.14em] w-full rounded-full group-hover:bg-white/80 lg:h-[0.08em]`,
+            active ? `bg-white/80 lg:bg-white/90 lg:shadow-md` : `bg-transparent`
           )}
         />
       </h2>
@@ -134,15 +134,16 @@ const Tab = ({ onClick, heading, active }: TabProps) => {
 const headingsStyles = `
   flex items-center justify-center
 
-  gap-x-12
+  gap-x-8
   py-8
-  text-2xl
+  text-[1.25rem]
+  text-shadow lg:text-shadow-md
   
   lg:justify-start
   lg:py-4
   lg:pl-2
-  lg:text-5xl
-  lg:gap-x-4
+  lg:text-4xl
+  lg:gap-x-8
 `
 
 const headerBackButtonStyles = `
@@ -157,6 +158,8 @@ const Header = ({ tabs = [], title, handleSidebarClose, handleSidebarBack, showB
     </IconButton>
   )
 
+  const hasTabs = !!tabs.length
+
   return (
     <div className={headerContainerStyles}>
       <div className={headerInnerStyles}>
@@ -166,12 +169,15 @@ const Header = ({ tabs = [], title, handleSidebarClose, handleSidebarBack, showB
             <XCloseLg />
           </MenuIconButton>
         </div>
-        <div style={{ textShadow: `0 0.025em 0.08em hsla(0, 0%, 0%, 0.2)` }} className={headingsStyles}>
+        <div className={headingsStyles}>
           {showBack ? <div className={headerBackButtonStyles}>{backButton}</div> : <></>}
-          <h2 className={twMerge(`lg:block`, tabs.length ? `hidden` : ``)}>{title}</h2>
-          {tabs.map((tabProps) => {
-            return <Tab {...tabProps} />
-          })}
+          {hasTabs ? (
+            tabs.map((tabProps) => {
+              return <Tab {...tabProps} />
+            })
+          ) : (
+            <h2 className={twMerge(`lg:block`, tabs.length ? `hidden` : ``)}>{title}</h2>
+          )}
         </div>
       </div>
     </div>

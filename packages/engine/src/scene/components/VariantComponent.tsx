@@ -35,8 +35,8 @@ import {
   UndefinedEntity,
   createEntity,
   removeEntity,
-  useChildrenWithComponents,
-  useEntityContext
+  useEntityContext,
+  useQueryBySource
 } from '@ir-engine/ecs'
 import {
   defineComponent,
@@ -240,7 +240,7 @@ const VariantInstanceLoadReactor = (props: { entity: Entity; level: number }) =>
     }
   }, [])
 
-  const childMeshEntities = useChildrenWithComponents(modelEntity, [MeshComponent])
+  const childMeshEntities = useQueryBySource(modelEntity, [MeshComponent])
 
   return (
     <>

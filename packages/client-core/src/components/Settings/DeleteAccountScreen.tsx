@@ -37,7 +37,8 @@ const DeleteAccountScreen: React.FC<DeleteAccountScreenProps> = ({ navigateTo, n
   const { id } = useMutableState(AuthState).user
 
   const handleDelete = () => {
-    AuthService.removeUser(id.value)
+    // TODO: This is no longer supported
+    // AuthService.removeUser(id.value)
     // This will force a full page reload
     AuthService.logoutUser()
   }

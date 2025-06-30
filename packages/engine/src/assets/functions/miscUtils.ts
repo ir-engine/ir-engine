@@ -38,9 +38,11 @@ export function isNumber(value: string | number): boolean {
   return value != null && value !== '' && !isNaN(Number(value.toString()))
 }
 
-export function toPrecision(value, precision) {
-  const p = 1 / precision
-  return Math.round(value * p) / p
+export function toPrecision(value: number, precision: number): number {
+  const p = precision > 0 ? precision : 1
+  const f = 1 / p
+  const n = Math.round(value * f) / f
+  return parseFloat(n.toFixed(Math.max(0, Math.ceil(-Math.log10(p)))))
 }
 
 export function combine(first, second, third) {

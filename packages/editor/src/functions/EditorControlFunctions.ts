@@ -141,7 +141,7 @@ const modifyProperty = <C extends Component<any, any>>(
   return affectedNodes
 }
 
-const lookDevComponent: Component[] = [
+export const lookDevComponent: Component[] = [
   SkyboxComponent,
   HemisphereLightComponent,
   DirectionalLightComponent,
@@ -160,10 +160,16 @@ const overwriteLookdevObject = (
     const sceneEntitiesWithComponent = getChildrenWithComponents(parentEntity, [lookDevComp])
     if (sceneEntitiesWithComponent.length) {
       deserializeComponent(sceneEntitiesWithComponent[0], lookDevComp, props)
-      EditorState.markModifiedScene(parentEntity)
     } else {
-      createObjectFromSceneElement(componentJson, parentEntity, beforeEntity)
+      const vec3 = new Vector3()
+      createObjectFromSceneElement(
+        [comp, { name: TransformComponent.jsonID, props: { position: vec3 } }],
+        parentEntity,
+        beforeEntity,
+        name?.split('_').slice(1).join('-')
+      )
     }
+    EditorState.markModifiedScene(parentEntity)
   }
 }
 
@@ -481,7 +487,7 @@ const groupObjects = (entities: Entity[]) => {
   const firstEntity = entities[0]
   if (hasComponent(firstEntity, SceneComponent)) return
   const parentEntity = getComponent(firstEntity, EntityTreeComponent).parentEntity
-  const gltfEntity = getAncestorWithComponents(firstEntity, [GLTFComponent])
+  const gltfEntity = getAncestorWithComponents(firstEntity, [GLTFComponent], true, false)
   const newParent = UUIDComponent.create(gltfEntity, UUIDComponent.generateUUID(), Layers.Authoring)
   setComponent(newParent, NameComponent, 'New Group')
   setComponent(newParent, EntityTreeComponent, { parentEntity })

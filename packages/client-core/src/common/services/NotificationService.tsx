@@ -90,7 +90,7 @@ export const NotificationService = {
       autoHideDuration: options.autoHideDuration ?? 5000
     })
   },
-  closeNotification(key: SnackbarKey) {
+  closeNotification(key?: SnackbarKey) {
     const state = getState(NotificationState)
     state.snackbar?.closeSnackbar(key)
   }

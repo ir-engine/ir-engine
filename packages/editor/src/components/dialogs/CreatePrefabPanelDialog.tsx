@@ -30,7 +30,6 @@ import config from '@ir-engine/common/src/config'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { isValidFileName } from '@ir-engine/common/src/utils/validateFileName'
 import {
-  Component,
   createEntity,
   Entity,
   EntityID,
@@ -47,12 +46,10 @@ import {
 import PrefabConfirmationPanelDialog from '@ir-engine/editor/src/components/dialogs/PrefabConfirmationPanelDialog'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
 import { getMutableState, getState, NO_PROXY, none, startReactor, useHookstate } from '@ir-engine/hyperflux'
-import { HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
+import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
-import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
 import { Button, Input } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import { uniqueId } from 'lodash'
@@ -60,7 +57,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineXMark } from 'react-icons/hi2'
 import { Quaternion, Scene, Vector3 } from 'three'
-import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { EditorControlFunctions, lookDevComponent } from '../../functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { AssetsRefreshState } from '../../panels/assets/hooks'
 import { EditorState } from '../../services/EditorServices'
@@ -95,8 +92,6 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
   }
 
   const exportLookDevPrefab = async (srcProject: string, fileName: string) => {
-    const lookDevComponent: Component[] = [SkyboxComponent, HemisphereLightComponent, PostProcessingComponent]
-
     const prefabEntity = createEntity()
     const sceneObject = new Scene()
 
@@ -188,7 +183,7 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
       }, [gltfComponent])
 
       return null
-    })
+    }, `CreatePrefabPanel - ${entityUUID}`)
   }
 
   const onExportPrefab = async () => {

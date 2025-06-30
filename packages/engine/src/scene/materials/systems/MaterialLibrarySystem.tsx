@@ -52,27 +52,9 @@ import { getMaterialIndices } from '@ir-engine/spatial/src/renderer/materials/ma
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import React from 'react'
-import { FrontSide, MeshLambertMaterial, MeshPhysicalMaterial, MeshStandardMaterial } from 'three'
+import { MeshLambertMaterial, MeshPhysicalMaterial } from 'three'
 
 const reactor = () => {
-  useEffect(() => {
-    // default material according to GLTF spec. see https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#default-material
-    const fallbackMaterial = new MeshStandardMaterial({
-      name: 'Fallback Material',
-      color: 0xffffff,
-      emissive: 0x000000,
-      metalness: 1,
-      roughness: 1,
-      transparent: false,
-      depthTest: true,
-      side: FrontSide
-    })
-    const fallbackMaterialEntity = createEntity()
-    setComponent(fallbackMaterialEntity, UUIDComponent, MaterialStateComponent.fallbackMaterialUUIDPair)
-    setComponent(fallbackMaterialEntity, NameComponent, 'Fallback Material')
-    setComponent(fallbackMaterialEntity, MaterialStateComponent, { material: fallbackMaterial })
-  }, [])
-
   const rendererState = useMutableState(RendererState)
   useEffect(() => {
     if (rendererState.qualityLevel.value === 0) rendererState.forceBasicMaterials.set(true)

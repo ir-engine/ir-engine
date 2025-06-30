@@ -43,9 +43,9 @@ type ScreenProps = NavigateFuncProps & {}
 
 const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
   const audioState = useMutableState(AudioState)
-  const { world, media } = useMutableState(MultiplayerState)
   const isGuest = useMutableState(AuthState).user.isGuest.value
   const confirmLogout = useHookstate(false)
+  const { world } = useMutableState(MultiplayerState)
 
   if (confirmLogout.value) {
     return (
@@ -68,14 +68,6 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
       {/* Communication Section */}
       <Section>
         <MenuItem label="Share Space" onClick={() => navigateTo('settings/share')} hasChevron />
-        <Divider />
-        <ToggleItem
-          label="Video Communication"
-          checked={media.value}
-          onClick={() => {
-            media.set(!media.value)
-          }}
-        />
       </Section>
       <Section>
         <SliderItem
@@ -105,8 +97,14 @@ const MainMenu: React.FC<ScreenProps> = ({ navigateTo }) => {
         <MenuItem label="Controls" onClick={() => navigateTo('settings/controls')} hasChevron />
         <Divider />
         <MenuItem label="Graphics" onClick={() => navigateTo('settings/graphics')} hasChevron />
+        <Divider />
         <MenuItem label="Audio" onClick={() => navigateTo('settings/audio')} hasChevron />
-        {!isGuest && <MenuItem label="Log Out" onClick={() => confirmLogout.set(true)} />}
+        {!isGuest && (
+          <>
+            <Divider />
+            <MenuItem label="Log Out" onClick={() => confirmLogout.set(true)} />
+          </>
+        )}
       </Section>
     </Inner>
   )
