@@ -121,6 +121,7 @@ const preview: Preview = {
   },
   parameters: {
     layout: 'fullscreen',
+    chromatic: { disableSnapshot: true },
     reactRouter: reactRouterParameters({ routing: reactRouterOutlet(<RouterOutlet />) }),
     controls: {
       matchers: {
