@@ -26,22 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import { Meta, StoryObj } from '@storybook/react'
 import React from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { createRouterParameters } from '../router/RouterUtils'
-import {
-  AdminRouterDecorator,
-  BasicRouterDecorator,
-  createRouterDecorator,
-  LocationRouterDecorator,
-  SimpleRouterDecorator
-} from './RouterDecorator'
 
 const meta: Meta = {
-  title: 'Router/Decorators',
+  title: 'Router/SimpleExample',
   parameters: {
     layout: 'fullscreen',
     docs: {
       description: {
-        component: 'Examples demonstrating different router decorators for Storybook stories'
+        component: 'Example demonstrating the SimpleRouterDecorator for Storybook stories'
       }
     }
   }
@@ -50,13 +42,13 @@ const meta: Meta = {
 export default meta
 
 // Test component that shows current route and provides navigation
-const RouterTestComponent: React.FC<{ title?: string }> = ({ title = 'Router Test' }) => {
+const RouterTestComponent: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
 
   return (
     <div className="mx-auto max-w-4xl space-y-4 p-6">
-      <h1 className="text-3xl font-bold text-gray-800">{title}</h1>
+      <h1 className="text-3xl font-bold text-gray-800">Simple Router Example</h1>
       <div className="rounded-lg bg-gray-100 p-4">
         <p className="text-lg font-semibold">
           Current Path: <span className="text-blue-600">{location.pathname}</span>
@@ -106,72 +98,41 @@ const RouterTestComponent: React.FC<{ title?: string }> = ({ title = 'Router Tes
           <Link to="/admin" className="text-blue-600 hover:underline">
             Admin Link
           </Link>
-          <Link to="/admin/users" className="text-blue-600 hover:underline">
-            Admin Users
-          </Link>
-          <Link to="/admin/settings" className="text-blue-600 hover:underline">
-            Admin Settings
-          </Link>
-          <Link to="/location" className="text-blue-600 hover:underline">
-            Location
-          </Link>
-          <Link to="/location/123" className="text-blue-600 hover:underline">
-            Location 123
-          </Link>
         </div>
       </div>
 
       <div className="rounded-lg bg-yellow-50 p-4">
         <h4 className="font-semibold text-yellow-800">Try navigating to different routes!</h4>
-        <p className="text-sm text-yellow-700">Each story uses a different router decorator with predefined routes.</p>
+        <p className="text-sm text-yellow-700">
+          This story uses the SimpleRouterDecorator which provides basic React Router functionality.
+        </p>
       </div>
     </div>
   )
 }
 
-// Stories using different decorators
+// Stories demonstrating the SimpleRouterDecorator
 
-export const DefaultRouter: StoryObj = {
-  render: () => <RouterTestComponent title="Default Router (Simple)" />,
-  decorators: [SimpleRouterDecorator]
+export const Default: StoryObj = {
+  render: () => <RouterTestComponent />
 }
 
-export const BasicRouter: StoryObj = {
-  render: () => <RouterTestComponent title="Basic Router with Home/About/Contact" />,
-  decorators: [BasicRouterDecorator]
+export const WithCustomInitialRoute: StoryObj = {
+  render: () => <RouterTestComponent />,
+  parameters: {
+    router: {
+      initialEntries: ['/about'],
+      initialIndex: 0
+    }
+  }
 }
 
-export const AdminRouter: StoryObj = {
-  render: () => <RouterTestComponent title="Admin Router" />,
-  decorators: [AdminRouterDecorator]
-}
-
-export const LocationRouter: StoryObj = {
-  render: () => <RouterTestComponent title="Location Router" />,
-  decorators: [LocationRouterDecorator]
-}
-
-export const CustomRouter: StoryObj = {
-  render: () => <RouterTestComponent title="Custom Router Configuration" />,
-  decorators: [
-    createRouterDecorator({
-      initialEntries: ['/dashboard'],
-      routes: [
-        { path: '/dashboard', element: <div className="bg-indigo-100 p-4">Custom Dashboard</div> },
-        { path: '/profile', element: <div className="bg-pink-100 p-4">User Profile</div> },
-        { path: '/settings', element: <div className="bg-orange-100 p-4">App Settings</div> }
-      ]
-    })
-  ]
-}
-
-export const ParameterBasedRouter: StoryObj = {
-  render: () => <RouterTestComponent title="Parameter-based Router" />,
-  parameters: createRouterParameters({
-    initialEntries: ['/custom'],
-    routes: [
-      { path: '/custom', element: <div className="bg-teal-100 p-4">Custom Route from Parameters</div> },
-      { path: '/api', element: <div className="bg-cyan-100 p-4">API Documentation</div> }
-    ]
-  })
+export const WithMultipleRoutes: StoryObj = {
+  render: () => <RouterTestComponent />,
+  parameters: {
+    router: {
+      initialEntries: ['/', '/about', '/contact'],
+      initialIndex: 1
+    }
+  }
 }

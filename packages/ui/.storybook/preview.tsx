@@ -46,11 +46,13 @@ import { reactRouterOutlet, reactRouterParameters } from 'storybook-addon-remix-
 // @ts-ignore
 import apartmentGLTF from '../../projects/default-project/public/scenes/apartment.gltf?raw'
 import EngineDecorator from './decorators/EngineDecorator'
+import { SimpleRouterDecorator } from './decorators/RouterDecorator'
 import i18n from './i18n'
-import { RouterOutlet } from './router/CustomStorybookRouter'
+import { RouterOutlet } from './router/RouterOutlet'
 initialize()
 
 export const decorators: Decorator[] = [
+  SimpleRouterDecorator,
   (Story) => {
     return (
       <I18nextProvider i18n={i18n}>

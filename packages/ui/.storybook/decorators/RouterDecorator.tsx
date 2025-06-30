@@ -25,101 +25,30 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Decorator } from '@storybook/react'
 import React from 'react'
-import { CustomStorybookRouter, SimpleStorybookRouter } from '../router/CustomStorybookRouter'
-import { RouterConfig } from '../router/RouterUtils'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 /**
- * Enhanced Router Decorator for Storybook
- * Uses CustomStorybookRouter to provide flexible routing setup with context support
- */
-const RouterDecorator: Decorator = (Story, context) => {
-  // Get router configuration from story parameters
-  const routerConfig = context.parameters?.router as RouterConfig | undefined
-
-  // If no router config is provided, use simple router
-  if (!routerConfig) {
-    return (
-      <SimpleStorybookRouter>
-        <Story />
-      </SimpleStorybookRouter>
-    )
-  }
-
-  // Use CustomStorybookRouter with full configuration
-  return (
-    <CustomStorybookRouter config={routerConfig}>
-      <Story />
-    </CustomStorybookRouter>
-  )
-}
-
-/**
- * Alternative decorator that always uses SimpleStorybookRouter
- * Useful for stories that need basic routing without custom configuration
+ * Simple Router Decorator for Storybook
+ * Provides basic routing functionality using MemoryRouter
  */
 export const SimpleRouterDecorator: Decorator = (Story, context) => {
-  const routerConfig = context.parameters?.router as { initialEntries?: string[]; initialIndex?: number } | undefined
+  const routerConfig = context.parameters?.router as
+    | {
+        initialEntries?: string[]
+        initialIndex?: number
+      }
+    | undefined
+
+  const initialEntries = routerConfig?.initialEntries || ['/']
+  const initialIndex = routerConfig?.initialIndex || 0
 
   return (
-    <SimpleStorybookRouter initialEntries={routerConfig?.initialEntries} initialIndex={routerConfig?.initialIndex}>
-      <Story />
-    </SimpleStorybookRouter>
+    <MemoryRouter initialEntries={initialEntries} initialIndex={initialIndex}>
+      <Routes>
+        <Route path="*" element={<Story />} />
+      </Routes>
+    </MemoryRouter>
   )
 }
 
-/**
- * Decorator factory that creates a router decorator with predefined configuration
- */
-export const createRouterDecorator = (defaultConfig: RouterConfig): Decorator => {
-  return (Story, context) => {
-    const routerConfig = context.parameters?.router as RouterConfig | undefined
-
-    // Merge default config with story-specific config
-    const mergedConfig: RouterConfig = {
-      ...defaultConfig,
-      ...routerConfig,
-      routes: [...(defaultConfig.routes || []), ...(routerConfig?.routes || [])]
-    }
-
-    return (
-      <CustomStorybookRouter config={mergedConfig}>
-        <Story />
-      </CustomStorybookRouter>
-    )
-  }
-}
-
-/**
- * Predefined decorators for common scenarios
- */
-
-// Admin routes decorator
-export const AdminRouterDecorator = createRouterDecorator({
-  initialEntries: ['/admin'],
-  routes: [
-    { path: '/admin', element: <div className="bg-blue-100 p-4">Admin Dashboard</div> },
-    { path: '/admin/users', element: <div className="bg-green-100 p-4">User Management</div> },
-    { path: '/admin/settings', element: <div className="bg-yellow-100 p-4">Settings</div> }
-  ]
-})
-
-// Location routes decorator
-export const LocationRouterDecorator = createRouterDecorator({
-  initialEntries: ['/location'],
-  routes: [
-    { path: '/location', element: <div className="bg-purple-100 p-4">Location</div> },
-    { path: '/location/:id', element: <div className="bg-pink-100 p-4">Location Details</div> }
-  ]
-})
-
-// Basic navigation decorator
-export const BasicRouterDecorator = createRouterDecorator({
-  initialEntries: ['/'],
-  routes: [
-    { path: '/', element: <div className="bg-gray-100 p-4">Home</div> },
-    { path: '/about', element: <div className="bg-blue-100 p-4">About</div> },
-    { path: '/contact', element: <div className="bg-green-100 p-4">Contact</div> }
-  ]
-})
-
-export default RouterDecorator
+export default SimpleRouterDecorator

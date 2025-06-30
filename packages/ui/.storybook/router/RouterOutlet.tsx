@@ -23,34 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-// Export all router components and utilities
-export {
-  CustomStorybookRouter,
-  RouterOutlet,
-  SimpleStorybookRouter,
-  useStorybookRouter,
-  type StorybookRouterContextType
-} from './CustomStorybookRouter'
+import React from 'react'
 
-export {
-  commonRoutes,
-  createNavigationActions,
-  createRouterParameters,
-  createStorybookHistory,
-  mergeRoutes,
-  type RouteConfig,
-  type RouterConfig
-} from './RouterUtils'
+/**
+ * Router Outlet component for use with storybook-addon-remix-react-router
+ */
+export const RouterOutlet: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
+  return <div className="router-outlet">{children}</div>
+}
 
-// Export router decorators
-export {
-  AdminRouterDecorator,
-  BasicRouterDecorator,
-  LocationRouterDecorator,
-  default as RouterDecorator,
-  SimpleRouterDecorator,
-  createRouterDecorator
-} from '../decorators/RouterDecorator'
-
-// Re-export commonly used React Router components for convenience
-export { Link, NavLink, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
+export default RouterOutlet
