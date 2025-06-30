@@ -28,7 +28,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { Badge as Component } from './Badge'
 
 const meta: Meta<typeof Component> = {
-  title: 'Viewer/Badge',
+  title: 'Components/Badge',
   component: Component,
   parameters: {
     backgrounds: {

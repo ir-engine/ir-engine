@@ -31,7 +31,7 @@ import SettingsMenu, { screens } from '.'
 import { ViewerInteractions } from '../Glass'
 
 const meta = {
-  title: 'Viewer/Settings Menu',
+  title: 'Viewer/Toolbar',
   component: SettingsMenu,
   parameters: {
     layout: 'fullscreen',
