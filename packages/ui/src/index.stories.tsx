@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { TextButton } from '@ir-engine/client-core/src/components/Glass/buttons/TextButton'
 import { useFind } from '@ir-engine/common'
 import { scopePath } from '@ir-engine/common/src/schema.type.module'
 import { Meta, StoryObj } from '@storybook/react/*'
@@ -31,7 +32,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { handleMocks } from '../.storybook/util'
 
 const meta = {
-  title: 'Engine',
+  title: 'Base/Engine',
   parameters: {
     layout: 'fullscreen'
   },
@@ -57,8 +58,13 @@ export const Navigation: StoryObj = {
     const navigate = useNavigate()
     const location = useLocation()
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-transparent">
-        <button onClick={() => navigate('/chat')}>Navigate</button>
+      <div className="flex h-screen w-screen flex-col items-center justify-center gap-6 bg-transparent">
+        <TextButton fade={'darker'} onClick={() => navigate('/chat')}>
+          Navigate To /chat
+        </TextButton>
+        <TextButton fade={'darker'} onClick={() => navigate('/')}>
+          Navigate To /
+        </TextButton>
         <div>Current path: {location.pathname}</div>
       </div>
     )

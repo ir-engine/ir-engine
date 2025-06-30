@@ -36,7 +36,7 @@ interface CheckboxItemProps {
 }
 
 const meta = {
-  title: 'Components/Settings/CheckboxItem',
+  title: 'Components/Checkbox',
   component: CheckboxItem,
   parameters: {
     layout: 'centered',

@@ -61,6 +61,9 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
+  globals: {
+    backgrounds: { value: 'rgb(30 30 30)' }
+  },
   render: () => {
     getMutableState(EngineState).userID.set('1' as UserID)
     useEffect(() => {
