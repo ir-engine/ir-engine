@@ -27,6 +27,7 @@ import { useFind } from '@ir-engine/common'
 import { scopePath } from '@ir-engine/common/src/schema.type.module'
 import { Meta, StoryObj } from '@storybook/react/*'
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import { handleMocks } from '../.storybook/util'
 
 const meta = {
@@ -46,6 +47,17 @@ export const Default: StoryObj = {
         <div className="max-[30ch] rounded-md bg-white/60 p-4">
           Toggle the Napster Engine and Location butons in the toolbar to change the scene
         </div>
+      </div>
+    )
+  }
+}
+
+export const Navigation: StoryObj = {
+  render: () => {
+    const navigate = useNavigate()
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-transparent">
+        <button onClick={() => navigate('/chat')}>Navigate</button>
       </div>
     )
   }
