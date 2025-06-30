@@ -23,9 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { EngineState } from '@ir-engine/ecs'
+import { getMutableState, UserID } from '@ir-engine/hyperflux'
 import type { Meta, StoryObj } from '@storybook/react'
-import React, { useState } from 'react'
+import React, { useEffect } from 'react'
 import SettingsMenu, { screens } from '.'
+import { ViewerInteractions } from '../Glass'
 
 const meta = {
   title: 'Viewer/Settings Menu',
@@ -58,28 +61,13 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
-  args: {
-    initScreen: 'account'
-  },
+  render: () => {
+    getMutableState(EngineState).userID.set('1' as UserID)
+    useEffect(() => {
+      const el = document.getElementById('location-container')
+      if (el) el.style.opacity = '1'
+    }, [])
 
-  parameters: {
-    screen: 'main'
-  },
-
-  render: (args, context) => {
-    const [open, setOpen] = useState(!!context.args.initScreen)
-
-    return (
-      <div className="flex h-screen w-screen items-center justify-center bg-slate-700 bg-center">
-        <button
-          hidden={open}
-          className="rounded-md bg-gradient-to-r from-pink-500 to-rose-500 px-6 py-3 font-bold text-white shadow-lg transition-all hover:scale-105"
-          onClick={() => setOpen(!open)}
-        >
-          {open ? 'Close Settings' : 'Open Settings'}
-        </button>
-        {open && <SettingsMenu initScreen={context.args.initScreen} {...args} onClose={() => setOpen(false)} />}
-      </div>
-    )
+    return <ViewerInteractions />
   }
 }
