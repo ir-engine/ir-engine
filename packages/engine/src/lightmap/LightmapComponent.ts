@@ -43,7 +43,7 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import { useEffect } from 'react'
-import { Box3, Mesh, Vector3 } from 'three'
+import { Box3, Vector3 } from 'three'
 import { useTexture } from '../assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '../gltf/GLTFComponent'
 import { AssetState } from '../gltf/GLTFState'
@@ -100,10 +100,6 @@ export const LightmapComponent = defineComponent({
             )
           }
           correspondingMeshComponent.geometry.index = atlasedMeshComponent.geometry.index
-          //update all attributes
-
-          if (!getAuthoringCounterpart(correspondingEntity))
-            setComponent(correspondingEntity, MeshComponent, new Mesh(correspondingMeshComponent.geometry.clone()))
         }
         removeEntityNodeRecursively(atlasEntity)
       })
