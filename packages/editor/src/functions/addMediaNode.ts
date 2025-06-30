@@ -33,6 +33,7 @@ import {
   getChildrenWithComponents,
   iterateEntityNode,
   removeEntity,
+  useChildrenWithComponents,
   UUIDComponent
 } from '@ir-engine/ecs'
 import {
@@ -41,6 +42,7 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  getSimulationCounterpart,
   hasComponent,
   LayerID,
   Layers,
@@ -63,17 +65,19 @@ import { serializeEntity } from '@ir-engine/engine/src/scene/functions/serialize
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 
 import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
-import { getState } from '@ir-engine/hyperflux'
+import { getState, startReactor } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { useEffect } from 'react'
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
@@ -230,7 +234,23 @@ export async function addMediaNode(
           const json = serializeEntity(firstChild)
 
           EditorControlFunctions.overwriteLookdevObject([...json, ...extraComponentJson], parent!, before)
-          removeEntity(entity)
+
+          // Can remove this after reference counting is added back,
+          // otherwise we need to wait for the background to load before we can remove the lookdev entity to avoid disposal race condition
+          const simulationEntity = getSimulationCounterpart(entity)
+          const reactor = startReactor(() => {
+            const backgrounds = useChildrenWithComponents(simulationEntity, [BackgroundComponent])
+
+            useEffect(() => {
+              if (backgrounds.length) {
+                removeEntity(entity)
+                reactor.stop()
+              }
+            }, [backgrounds.length])
+
+            return null
+          })
+
           const rootEntity = getState(EditorState).rootEntity
           const newSource = GLTFComponent.getSourceID(rootEntity)
           AuthoringState.snapshot(newSource)
