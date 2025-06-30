@@ -51,6 +51,7 @@ import { State } from '@ir-engine/hyperflux'
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
 import { Checkbox } from '@ir-engine/ui'
 import React, { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Texture, Vector2, Vector3 } from 'three'
 import ColorGenerator from '../Generator/Color'
 import RotationGenerator from '../Generator/Rotation'
@@ -60,17 +61,16 @@ import NumericInput from '../Numeric'
 import SelectInput from '../Select'
 import Vector3Input from '../Vector3'
 
-export default function BehaviorInput({
-  path,
-  scope,
-  value,
-  onChange
-}: {
+type BehaviorInputProps = Readonly<{
   path: string
   scope: State<BehaviorJSON>
   value: BehaviorJSON
   onChange: (path: string) => (value: any) => void
-}) {
+}>
+
+export default function BehaviorInput({ path, scope, value, onChange }: BehaviorInputProps) {
+  const { t } = useTranslation()
+
   const onChangeBehaviorType = useCallback(() => {
     const onChangeType = onChange(path + '.type')
     return (type: typeof value.type) => {
@@ -93,10 +93,10 @@ export default function BehaviorInput({
       const value = forceScope.value
       return (
         <>
-          <InputGroup name="force" label="Force">
+          <InputGroup name="force" label={t('editor:properties.particle-system.behavior.force')}>
             <Vector3Input value={new Vector3(...value.direction)} onChange={onChangeVec3(path + '.direction')} />
           </InputGroup>
-          <InputGroup name="magnitude" label="Magnitude">
+          <InputGroup name="magnitude" label={t('editor:properties.particle-system.behavior.magnitude')}>
             <ValueGenerator
               path={path + '.magnitude'}
               scope={forceScope.magnitude}
@@ -116,16 +116,16 @@ export default function BehaviorInput({
       const value = noiseScope.value
       return (
         <>
-          <InputGroup name="frequency" label="Frequency">
+          <InputGroup name="frequency" label={t('editor:properties.particle-system.behavior.frequency')}>
             <Vector3Input value={new Vector3(...value.frequency)} onChange={onChangeVec3(path + '.frequency')} />
           </InputGroup>
-          <InputGroup name="power" label="Power">
-            <Vector3Input value={new Vector3(...value.power)} onChange={onChange(path + '.power')} />
+          <InputGroup name="power" label={t('editor:properties.particle-system.behavior.Power')}>
+            <Vector3Input value={new Vector3(...value.power)} onChange={onChangeVec3(path + '.power')} />
           </InputGroup>
-          <InputGroup name="positionAmount" label="positionAmount">
+          <InputGroup name="positionAmount" label={t('editor:properties.particle-system.behavior.positionAmount')}>
             <NumericInput value={value.positionAmount} onChange={onChange(path + '.positionAmount')} />
           </InputGroup>
-          <InputGroup name="rotationAmount" label="rotation Amount">
+          <InputGroup name="rotationAmount" label={t('editor:properties.particle-system.behavior.rotationAmount')}>
             <NumericInput value={value.rotationAmount} onChange={onChange(path + '.rotationAmount')} />
           </InputGroup>
         </>
@@ -140,19 +140,22 @@ export default function BehaviorInput({
       const value = turbulenceScope.value
       return (
         <>
-          <InputGroup name="scale" label="Scale">
+          <InputGroup name="scale" label={t('editor:properties.particle-system.behavior.scale')}>
             <Vector3Input value={new Vector3(...value.scale)} onChange={onChangeVec3(path + '.scale')} />
           </InputGroup>
-          <InputGroup name="octaves" label="Octaves">
+          <InputGroup name="octaves" label={t('editor:properties.particle-system.behavior.octaves')}>
             <NumericInput value={value.octaves} onChange={onChange(path + '.octaves')} />
           </InputGroup>
-          <InputGroup name="velocityMultiplier" label="Velocity Multiplier">
+          <InputGroup
+            name="velocityMultiplier"
+            label={t('editor:properties.particle-system.behavior.velocityMultiplier')}
+          >
             <Vector3Input
               value={new Vector3(...value.velocityMultiplier)}
               onChange={onChangeVec3(path + '.velocityMultiplier')}
             />
           </InputGroup>
-          <InputGroup name="timeScale" label="Time Scale">
+          <InputGroup name="timeScale" label={t('editor:properties.particle-system.behavior.timeScale')}>
             <Vector3Input value={new Vector3(...value.timeScale)} onChange={onChangeVec3(path + '.timeScale')} />
           </InputGroup>
         </>
@@ -167,10 +170,10 @@ export default function BehaviorInput({
       const value = gravityScope.value
       return (
         <>
-          <InputGroup name="center" label="Center">
+          <InputGroup name="center" label={t('editor:properties.particle-system.behavior.center')}>
             <Vector3Input value={new Vector3(...value.center)} onChange={onChangeVec3(path + '.center')} />
           </InputGroup>
-          <InputGroup name="magnitude" label="Magnitude">
+          <InputGroup name="magnitude" label={t('editor:properties.particle-system.behavior.magnitude')}>
             <NumericInput value={value.magnitude} onChange={onChange(path + '.magnitude')} />
           </InputGroup>
         </>
@@ -185,7 +188,7 @@ export default function BehaviorInput({
       const value = colorScope.value
       return (
         <>
-          <InputGroup name="color" label="Color">
+          <InputGroup name="color" label={t('editor:properties.particle-system.behavior.color')}>
             <ColorGenerator
               path={path + '.color'}
               scope={colorScope.color}
@@ -205,7 +208,7 @@ export default function BehaviorInput({
       const value = rotationScope.value
       return (
         <>
-          <InputGroup name="angularVelocity" label="Angular Velocity">
+          <InputGroup name="angularVelocity" label={t('editor:properties.particle-system.behavior.angularVelocity')}>
             <ValueGenerator
               path={path + '.angularVelocity'}
               scope={rotationScope.angularVelocity}
@@ -225,7 +228,7 @@ export default function BehaviorInput({
       const rotation3D = rotation3DScope.value
       return (
         <>
-          <InputGroup name="angularVelocity" label="Angular Velocity">
+          <InputGroup name="angularVelocity" label={t('editor:properties.particle-system.behavior.angularVelocity')}>
             <RotationGenerator
               path={path + '.angularVelocity'}
               scope={rotation3DScope.angularVelocity}
@@ -233,7 +236,7 @@ export default function BehaviorInput({
               onChange={onChange}
             />
           </InputGroup>
-          <InputGroup name="dynamic" label="Dynamic">
+          <InputGroup name="dynamic" label={t('editor:properties.particle-system.behavior.dynamic')}>
             <Checkbox checked={rotation3D.dynamic} onChange={onChange(path + '.dynamic')} />
           </InputGroup>
         </>
@@ -248,7 +251,7 @@ export default function BehaviorInput({
       const value = sizeScope.value
       return (
         <>
-          <InputGroup name="size" label="Size">
+          <InputGroup name="size" label={t('editor:properties.particle-system.behavior.size')}>
             <ValueGenerator
               path={path + '.size'}
               scope={sizeScope.size}
@@ -268,7 +271,7 @@ export default function BehaviorInput({
       const value = speedScope.value
       return (
         <>
-          <InputGroup name="speed" label="Speed">
+          <InputGroup name="speed" label={t('editor:properties.particle-system.behavior.speed')}>
             <ValueGenerator
               path={path + '.speed'}
               scope={speedScope.speed}
@@ -288,7 +291,7 @@ export default function BehaviorInput({
       const value = frameScope.value
       return (
         <>
-          <InputGroup name="frame" label="Frame">
+          <InputGroup name="frame" label={t('editor:properties.particle-system.behavior.frame')}>
             <ValueGenerator
               path={path + '.frame'}
               scope={frameScope.frame}
@@ -308,7 +311,7 @@ export default function BehaviorInput({
       const value = orbitScope.value
       return (
         <>
-          <InputGroup name="orbit" label="Orbit">
+          <InputGroup name="orbit" label={t('editor:properties.particle-system.behavior.orbit')}>
             <ValueGenerator
               path={path + '.orbitSpeed'}
               scope={orbitScope.orbitSpeed}
@@ -316,7 +319,7 @@ export default function BehaviorInput({
               onChange={onChange}
             />
           </InputGroup>
-          <InputGroup name="axis" label="Axis">
+          <InputGroup name="axis" label={t('editor:properties.particle-system.behavior.axis')}>
             <Vector3Input value={new Vector3(...value.axis)} onChange={onChangeVec3(path + '.axis')} />
           </InputGroup>
         </>
@@ -331,7 +334,7 @@ export default function BehaviorInput({
       const value = widthScope.value
       return (
         <>
-          <InputGroup name="width" label="Width">
+          <InputGroup name="width" label={t('editor:properties.particle-system.behavior.width')}>
             <ValueGenerator
               path={path + '.width'}
               scope={widthScope.width}
@@ -351,7 +354,7 @@ export default function BehaviorInput({
       const value = changeEmitDirectionScope.value
       return (
         <>
-          <InputGroup name="angle" label="Angle">
+          <InputGroup name="angle" label={t('editor:properties.particle-system.behavior.angle')}>
             <ValueGenerator
               path={path + '.angle'}
               scope={changeEmitDirectionScope.angle}
@@ -371,7 +374,10 @@ export default function BehaviorInput({
       const value = emitSubParticleSystemScope.value
       return (
         <>
-          <InputGroup name="subParticleSystem" label="Sub Particle System">
+          <InputGroup
+            name="subParticleSystem"
+            label={t('editor:properties.particle-system.behavior.subParticleSystem')}
+          >
             <></>
             {/*  @todo */}
             {/* <SceneObjectInput
@@ -520,24 +526,48 @@ export default function BehaviorInput({
 
   return (
     <>
-      <InputGroup name="type" label="Type">
+      <InputGroup name="type" label={t('editor:properties.particle-system.behavior.type')}>
         <SelectInput
           value={value.type}
           options={[
-            { label: 'Apply Force', value: 'ApplyForce' },
-            { label: 'Noise', value: 'Noise' },
-            { label: 'Turbulence Field', value: 'TurbulenceField' },
-            { label: 'Gravity', value: 'GravityForce' },
-            { label: 'Color Over Lifetime', value: 'ColorOverLife' },
-            { label: 'Rotation Over Lifetime', value: 'RotationOverLife' },
-            { label: 'Rotation3D Over Lifetime', value: 'Rotation3DOverLife' },
-            { label: 'Size Over Lifetime', value: 'SizeOverLife' },
-            { label: 'Speed Over Lifetime', value: 'SpeedOverLife' },
-            { label: 'Frame Over Lifetime', value: 'FrameOverLife' },
-            { label: 'Orbit Over Lifetime', value: 'OrbitOverLife' },
-            { label: 'Width Over Length', value: 'WidthOverLength' },
-            { label: 'Change Emit Direction', value: 'ChangeEmitDirection' },
-            { label: 'Emit Sub Particle System', value: 'EmitSubParticleSystem' }
+            { label: t('editor:properties.particle-system.behavior.applyForce'), value: 'ApplyForce' },
+            { label: t('editor:properties.particle-system.behavior.noise'), value: 'Noise' },
+            { label: t('editor:properties.particle-system.behavior.turbulenceField'), value: 'TurbulenceField' },
+            { label: t('editor:properties.particle-system.behavior.gravity'), value: 'GravityForce' },
+            {
+              label: t('editor:properties.particle-system.behavior.dynamic', { type: 'Color' }),
+              value: 'ColorOverLife'
+            },
+            {
+              label: t('editor:properties.particle-system.behavior.dynamic', { type: 'Rotation' }),
+              value: 'RotationOverLife'
+            },
+            {
+              label: t('editor:properties.particle-system.behavior.dynamic', { type: 'Rotation3D' }),
+              value: 'Rotation3DOverLife'
+            },
+            { label: t('editor:properties.particle-system.behavior.dynamic', { type: 'Size' }), value: 'SizeOverLife' },
+            {
+              label: t('editor:properties.particle-system.behavior.dynamic', { type: 'Speed' }),
+              value: 'SpeedOverLife'
+            },
+            {
+              label: t('editor:properties.particle-system.behavior.dynamic', { type: 'Frame' }),
+              value: 'FrameOverLife'
+            },
+            {
+              label: t('editor:properties.particle-system.behavior.dynamic', { type: 'Color' }),
+              value: 'OrbitOverLife'
+            },
+            { label: t('editor:properties.particle-system.behavior.widthOverLength'), value: 'WidthOverLength' },
+            {
+              label: t('editor:properties.particle-system.behavior.changeEmitDirection'),
+              value: 'ChangeEmitDirection'
+            },
+            {
+              label: t('editor:properties.particle-system.behavior.emitSubParticleSystem'),
+              value: 'EmitSubParticleSystem'
+            }
           ]}
           onChange={onChangeBehaviorType()}
         />

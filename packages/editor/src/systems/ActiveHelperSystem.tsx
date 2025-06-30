@@ -49,8 +49,10 @@ import { QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { InputHeuristicState, IntersectionData } from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import {
   BOUNDING_BOX_COLORS,
   BoundingBoxComponent,
@@ -126,6 +128,8 @@ const ActiveHelperReactor: React.FC<ComponentHelperEntry> = (helper) => {
   const entity = useEntityContext()
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
   const engineState = useHookstate(getMutableState(EngineState))
+  const engineRendererSettings = useMutableState(RendererState)
+
   const selectedEntities = SelectionState.useSelectedEntities()
   const selected = useHookstate<boolean>(false)
   const lineEntitiesState = useHookstate<Entity[]>([])
@@ -161,6 +165,9 @@ const ActiveHelperReactor: React.FC<ComponentHelperEntry> = (helper) => {
 
     if (effectiveHelper?.directional) {
       const directionalEntities = setupGizmo(entity, iconGizmoArrow, ObjectLayers.NodeIcon)
+      directionalEntities.forEach((directionalEntity) => {
+        setComponent(directionalEntity, ObjectLayerMaskComponent, ObjectLayerMasks.NodeIcon)
+      })
       directionalEntitiesState.set(directionalEntities)
     }
 
@@ -169,6 +176,9 @@ const ActiveHelperReactor: React.FC<ComponentHelperEntry> = (helper) => {
     }
 
     const lineEntities = setupGizmo(getState(ReferenceSpaceState).originEntity, iconGizmoYHelper, ObjectLayers.NodeIcon)
+    lineEntities.forEach((lineEntity) => {
+      setComponent(lineEntity, ObjectLayerMaskComponent, ObjectLayerMasks.NodeIcon)
+    })
     lineEntitiesState.set(lineEntities)
     return iconGizmo
   }, [entity, effectiveHelper, directionalEntitiesState, lineEntitiesState])
@@ -181,8 +191,15 @@ const ActiveHelperReactor: React.FC<ComponentHelperEntry> = (helper) => {
     'icon-helper'
   )
 
+  // manage input state
   const hovered = InputComponent.useHasFocus(studioIconEntity)
+  useEffect(() => {
+    const authoringEntity = getAuthoringCounterpart(entity)
+    const isSelected = selectedEntities.some((e) => e === authoringEntity)
+    selected.set(isSelected)
+  }, [selectedEntities, entity, selected])
 
+  // manage input execution
   const inputExecutionCallback = useCallback(() => {
     if (studioIconEntity === UndefinedEntity || !entityExists(studioIconEntity)) return
     if (entity === UndefinedEntity || !entityExists(entity)) return
@@ -224,9 +241,35 @@ const ActiveHelperReactor: React.FC<ComponentHelperEntry> = (helper) => {
     lineEntitiesState.value,
     selected.value
   ])
-
   InputComponent.useExecuteWithInput(inputExecutionCallback, InputExecutionOrder.Before, true)
 
+  //manage icon visibility
+  useEffect(() => {
+    const setGizmoVisibility = (visible: boolean) => {
+      if (studioIconEntity === UndefinedEntity) return
+
+      const entitiesToUpdate = [studioIconEntity, ...directionalEntitiesState.value, ...lineEntitiesState.value]
+
+      for (const entityToUpdate of entitiesToUpdate) {
+        setVisibleComponent(entityToUpdate, visible)
+      }
+    }
+
+    const shouldBeVisible =
+      engineState.isEditing.value &&
+      editorHelperState.gizmoEnabled.value &&
+      engineRendererSettings.nodeIconVisibility.value
+    setGizmoVisibility(shouldBeVisible)
+  }, [
+    engineState.isEditing.value,
+    editorHelperState.gizmoEnabled.value,
+    engineRendererSettings.nodeIconVisibility.value,
+    studioIconEntity,
+    directionalEntitiesState.value,
+    lineEntitiesState.value
+  ])
+
+  //manage volume visibility
   useEffect(() => {
     if (effectiveHelper?.volume === undefined) return
 
@@ -277,33 +320,6 @@ const ActiveHelperReactor: React.FC<ComponentHelperEntry> = (helper) => {
       }
     }
   }, [selected, hovered, effectiveHelper?.volume, visibility, editorHelperState.volumeVisibility, entity])
-
-  useEffect(() => {
-    const authoringEntity = getAuthoringCounterpart(entity)
-    const isSelected = selectedEntities.some((e) => e === authoringEntity)
-    selected.set(isSelected)
-  }, [selectedEntities, entity, selected])
-
-  useEffect(() => {
-    const setGizmoVisibility = (visible: boolean) => {
-      if (studioIconEntity === UndefinedEntity) return
-
-      const entitiesToUpdate = [studioIconEntity, ...directionalEntitiesState.value, ...lineEntitiesState.value]
-
-      for (const entityToUpdate of entitiesToUpdate) {
-        setVisibleComponent(entityToUpdate, visible)
-      }
-    }
-
-    const shouldBeVisible = engineState.isEditing.value && editorHelperState.gizmoEnabled.value
-    setGizmoVisibility(shouldBeVisible)
-  }, [
-    engineState.isEditing.value,
-    editorHelperState.gizmoEnabled.value,
-    studioIconEntity,
-    directionalEntitiesState.value,
-    lineEntitiesState.value
-  ])
 
   if (!effectiveHelper.reactor) return null
 
