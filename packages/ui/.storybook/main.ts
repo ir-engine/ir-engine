@@ -87,7 +87,7 @@ const config: StorybookConfig = {
     getAbsolutePath('@storybook/addon-a11y'),
     getAbsolutePath('@storybook/addon-jest'),
     getAbsolutePath('storybook-addon-sass-postcss'),
-    'storybook-addon-rmeix-react-router'
+    'storybook-addon-remix-react-router'
   ],
   staticDirs: ['../public', '../../client/public'],
   core: {},

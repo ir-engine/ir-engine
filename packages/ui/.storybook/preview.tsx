@@ -42,7 +42,7 @@ import '../../client/src/themes/utilities.css'
 // @ts-ignore
 import keycardGLB from '../../projects/default-project/assets/keycard.glb?url'
 // @ts-ignore
-import { reactRouterParameters, withRouter } from 'storybook-addon-remix-react-router'
+import { withRouter } from 'storybook-addon-remix-react-router'
 // @ts-ignore
 import apartmentGLTF from '../../projects/default-project/public/scenes/apartment.gltf?raw'
 import EngineDecorator from './decorators/EngineDecorator'
@@ -118,10 +118,6 @@ const preview: Preview = {
     }
   },
   parameters: {
-    reactRouter: reactRouterParameters({
-      location: { pathParams: { screen: 'main' } },
-      routing: { path: '/' }
-    }),
     layout: 'fullscreen',
     controls: {
       matchers: {
