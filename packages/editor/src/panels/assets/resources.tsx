@@ -517,6 +517,7 @@ export default function Resources() {
     <div id="asset-panel" className="relative flex h-full w-full flex-col overflow-auto bg-surface-1">
       <InfiniteScroll
         disableEvent={staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || resourcesLoading}
+        threshold={0.1}
         onScrollBottom={() => {
           if (
             staticResourcesPagination.skip.value + ASSETS_PAGE_LIMIT + calculateItemsToFetch() >
@@ -533,6 +534,7 @@ export default function Resources() {
         >
           <ResourceItems />
         </div>
+        <div className="h-10 w-full" />
       </InfiniteScroll>
       <div className="mx-auto mb-10" />
     </div>

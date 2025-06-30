@@ -117,6 +117,7 @@
     "pino-pretty": "^10.0.0",
     "pino-socket": "^7.3.0",
     "primus": "^8.0.6",
+    "prom-client": "^15.1.0",
     "primus-emitter": "^3.1.1",
     "probe-image-size": "^7.2.3",
     "pug": "^3.0.2",

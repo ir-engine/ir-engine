@@ -67,11 +67,15 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({ options, className = '' }) =>
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className={`flex w-full max-w-xs flex-col items-center space-y-3 ${className}`}
+      className={`flex w-full max-w-xs flex-col items-center gap-6 ${className}`}
     >
       {options.map((option, index) => (
         <motion.div key={index} variants={itemVariants} className="w-full">
-          <TextButton onClick={option.onClick} className="w-full text-white transition-all hover:scale-105">
+          <TextButton
+            fade={`dark`}
+            onClick={option.onClick}
+            className="w-full text-sm text-white transition-all hover:scale-105"
+          >
             {option.label}
           </TextButton>
         </motion.div>

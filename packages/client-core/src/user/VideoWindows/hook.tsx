@@ -68,19 +68,24 @@ function addItem<T>(array: readonly T[], i: number, value: T): T[] {
   return newArray
 }
 
+export function addValue<T>(obj: Readonly<Record<string, T>>, key: string, value: T): Record<string, T> {
+  return {
+    ...obj,
+    [key]: value
+  }
+}
+
 export const useUserMediaWindowsHook = (windows: WindowType[]) => {
   const mediaChannelState = useHookstate(getMutableState(MediaChannelState))
   const mediaStreamState = useMutableState(MediaStreamState)
   const mediaSettingState = useMutableState(MediaSettingsState)
 
-  const soundIndicators = useHookstate<boolean[]>([])
   const isPiP = useHookstate(false)
   const resumeVideoOnUnhide = useRef<boolean>(false)
   const resumeAudioOnUnhide = useRef<boolean>(false)
   const audioState = useMutableState(AudioState)
-  const volumes = useHookstate<number[]>([])
-
-  const harkListeners = useHookstate<ReturnType<typeof hark>[]>([])
+  const volumes = useHookstate<Record<string, number>>({})
+  const soundIndicators = useHookstate<Record<string, boolean>>({})
 
   const selfUser = useMutableState(AuthState).user.get(NO_PROXY)
   const mediaNetwork = NetworkState.mediaNetwork
@@ -135,7 +140,7 @@ export const useUserMediaWindowsHook = (windows: WindowType[]) => {
       const userId = isSelf ? selfUser?.id : userIdsByPeerId[peerID]
       const user = users.find(({ id }) => id === userId)
 
-      const _volume = volumes.value[i] || 1
+      const _volume = volumes.value[peerID] || 1
 
       const volume = isSelf ? audioState.microphoneGain.value : _volume
       const isScreen = type === 'screen'
@@ -184,7 +189,7 @@ export const useUserMediaWindowsHook = (windows: WindowType[]) => {
           audioElement!.volume = value
         }
 
-        volumes.set(addItem(volumes.value, i, value))
+        volumes.set(addValue(volumes.value, peerID, value))
       }
 
       const handleVisibilityChange = () => {
@@ -218,38 +223,6 @@ export const useUserMediaWindowsHook = (windows: WindowType[]) => {
         mediaChannelState[peerID][videoChannelType].quality.set(isPiP.value ? 'largest' : 'smallest')
       }
 
-      const play = () => {
-        videoElement?.play()
-        audioElement?.play()
-        harkListeners.value[i]?.resume()
-      }
-
-      const handleHark = (mounted) => {
-        if (!audioMediaStream || !audioMediaStream.getAudioTracks().length) return
-
-        audioElement.id = `${peerID}_audio`
-        audioElement.autoplay = true
-        audioElement.setAttribute('playsinline', 'true')
-        audioElement.muted = audioStreamPaused || isSelf
-        audioElement.volume = audioStreamPaused || isSelf ? 0 : volume
-
-        audioElement.srcObject = audioMediaStream
-
-        const newHark = hark(audioElement.srcObject, { play: false })
-        newHark.on('speaking', () => {
-          if (mounted) return
-
-          soundIndicators.set(addItem(soundIndicators.value, i, true))
-        })
-        newHark.on('stopped_speaking', () => {
-          if (mounted) return
-          soundIndicators.set(addItem(soundIndicators.value, i, false))
-        })
-        harkListeners.set(addItem(harkListeners.value, i, newHark))
-
-        return newHark
-      }
-
       const handleAudioPause = () => {
         audioElement.muted = audioStreamPaused || isSelf
         audioElement.volume = _volume
@@ -272,11 +245,10 @@ export const useUserMediaWindowsHook = (windows: WindowType[]) => {
       return {
         peerID,
         type,
-        handleVisibilityChange,
+        volume,
         adjustVolume,
         toggleVideo,
         toggleAudio,
-        harkListeners,
         audioElement,
         videoElement,
         audioMediaStream,
@@ -285,8 +257,7 @@ export const useUserMediaWindowsHook = (windows: WindowType[]) => {
         isSelf,
         isScreen,
         switchQualityByPiP,
-        play,
-        handleHark,
+        handleVisibilityChange,
         handleAudioPause,
         handleScreenshareTexture
       }
@@ -294,26 +265,6 @@ export const useUserMediaWindowsHook = (windows: WindowType[]) => {
     .filter(({ audioMediaStream, videoMediaStream }) => {
       return audioMediaStream || videoMediaStream
     })
-
-  const videoMediaStreams = _windows.map(({ videoMediaStream }) => {
-    return videoMediaStream
-  })
-
-  const audioMediaStreams = _windows.map(({ audioMediaStream }) => {
-    return audioMediaStream
-  })
-
-  const audioStreamPauseds = _windows.map(({ audioStreamPaused }) => {
-    return audioStreamPaused
-  })
-
-  const videoElements = _windows.map(({ videoElement }) => {
-    return videoElement
-  })
-
-  const audioElements = _windows.map(({ audioElement }) => {
-    return audioElement
-  })
 
   const togglePiP = () => isPiP.set(!isPiP.value)
 
@@ -325,62 +276,7 @@ export const useUserMediaWindowsHook = (windows: WindowType[]) => {
     )
   }, [audioState.microphoneGain.value])
 
-  useEffect(() => {
-    function onUserInteraction() {
-      _windows.forEach(({ play }) => play())
-    }
-    window.addEventListener('pointerup', onUserInteraction)
-    return () => {
-      window.removeEventListener('pointerup', onUserInteraction)
-    }
-  }, [videoElements, audioElements])
-
-  useEffect(() => {
-    if (!audioMediaStreams.length) {
-      return
-    }
-
-    let mounted = _windows.map(() => false)
-
-    const newHarks = _windows.map(({ handleHark }, i) => {
-      return handleHark(mounted[i])
-    })
-
-    return () => {
-      mounted = mounted.map(() => true)
-      newHarks.map((newHark) => {
-        newHark?.stop()
-      })
-    }
-  }, [audioMediaStreams])
-
-  useEffect(() => {
-    _windows.map(({ handleAudioPause }) => handleAudioPause())
-  }, [audioStreamPauseds])
-
-  useEffect(() => {
-    _windows.map(({ handleScreenshareTexture }) => handleScreenshareTexture())
-  }, [videoMediaStreams])
-
-  useEffect(() => {
-    _windows.map(({ switchQualityByPiP }) => switchQualityByPiP())
-  }, [isPiP.value])
-
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      _windows.forEach(({ handleVisibilityChange }) => handleVisibilityChange())
-    }
-
-    if (isMobile) {
-      document.addEventListener('visibilitychange', handleVisibilityChange)
-
-      return () => {
-        document.removeEventListener('visibilitychange', handleVisibilityChange)
-      }
-    }
-  }, [_windows])
-
-  return { videoElements, videoMediaStreams }
+  return { _windows, soundIndicators }
 }
 
 export const useUserMediaWindowHook = ({ peerID, type }: WindowType) => {
@@ -451,7 +347,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: WindowType) => {
     audioElement.autoplay = true
     audioElement.setAttribute('playsinline', 'true')
     audioElement.muted = audioStreamPaused || isSelf
-    audioElement.volume = audioStreamPaused || isSelf ? 0 : volume
+    audioElement.volume = audioStreamPaused || isSelf ? 0 : volume * audioState.mediaStreamVolume.value
 
     audioElement.srcObject = audioMediaStream
 
@@ -472,7 +368,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: WindowType) => {
       unmounted = true
       newHark.stop()
     }
-  }, [audioMediaStream])
+  }, [audioMediaStream, audioState.mediaStreamVolume])
 
   useEffect(() => {
     audioElement.muted = audioStreamPaused || isSelf

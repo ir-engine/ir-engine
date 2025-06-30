@@ -62,7 +62,7 @@ const SSOScreen: React.FC<SSOScreenProps> = () => {
   const deleteSSO = useHookstate('')
 
   const connectProvider = (client: string) => {
-    AuthService.loginUserByOAuth(client, location, true, location.href)
+    AuthService.loginUserByOAuth(client, location, false)
   }
 
   const disconnectProvider = async (client: string) => {

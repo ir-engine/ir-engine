@@ -41,7 +41,7 @@ export const fadeVariant = {
     border-2
     bg-black/10
     border-white/[0.05]
-    hover:bg-transparent
+    hover:bg-black/5
     active:bg-white/10
   `,
   clear: `

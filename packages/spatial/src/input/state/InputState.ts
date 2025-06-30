@@ -35,9 +35,7 @@ export const InputState = defineState({
     /** A screenspace raycaster for the pointer */
     pointerScreenRaycaster: new Raycaster(),
     scroll: new Vector2(),
-    capturingEntity: UndefinedEntity,
-    inputMeshes: new Set<Entity>(),
-    inputBoundingBoxes: new Set<Entity>()
+    capturingEntity: UndefinedEntity
   }),
   extension: syncStateWithLocalStorage(['preferredHand']),
   setCapturingEntity: (entity: Entity, force = false) => {

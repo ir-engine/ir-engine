@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent, useChildrenWithComponents, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, useComponent, useEntityContext, useQueryBySource } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useEffect } from 'react'
 import { computeTransformPivot } from '../../common/functions/TransformPivot'
@@ -40,7 +40,7 @@ export const AssetPreviewCameraComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const previewCameraComponent = useComponent(entity, AssetPreviewCameraComponent)
-    const childMeshEntities = useChildrenWithComponents(previewCameraComponent.targetModelEntity.value, [MeshComponent])
+    const childMeshEntities = useQueryBySource(previewCameraComponent.targetModelEntity.value, [MeshComponent])
     const cameraOrbitComponent = useComponent(entity, CameraOrbitComponent)
 
     useEffect(() => {
