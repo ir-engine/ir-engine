@@ -190,10 +190,14 @@ export const ParticleSystemComponent = defineComponent({
       const scale = getNestedScale(mesh)
       scaledGeometry.scale(scale.x, scale.y, scale.z)
       if (scaledGeometry) {
-        metadata.geometries.nested(componentState.value.systemParameters.instancingGeometry).set(scaledGeometry)
+        const geometryKey = componentState.value.systemParameters.instancingGeometry
+        metadata.geometries.nested(geometryKey).set(scaledGeometry)
 
         return () => {
-          metadata.geometries.nested(componentState.value.systemParameters.instancingGeometry).set(none)
+          // Check if metadata state is still valid before cleanup
+          if (metadata.geometries.value && geometryKey) {
+            metadata.geometries.nested(geometryKey).set(none)
+          }
         }
       }
     }, [geoDependencyEntity])
@@ -218,12 +222,14 @@ export const ParticleSystemComponent = defineComponent({
       const mergedGeometry = mergeGeometries(geometries)
 
       if (mergedGeometry) {
-        componentState.systemParameters.shape.geometry.set(componentState.value.systemParameters.shape.mesh!)
-        metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(mergedGeometry)
+        const shapeMeshKey = componentState.value.systemParameters.shape.mesh!
+        componentState.systemParameters.shape.geometry.set(shapeMeshKey)
+        metadata.geometries.nested(shapeMeshKey).set(mergedGeometry)
 
         return () => {
-          if (componentState.value.systemParameters.shape.mesh) {
-            metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(none)
+          // Check if metadata state is still valid before cleanup
+          if (metadata.geometries.value && shapeMeshKey) {
+            metadata.geometries.nested(shapeMeshKey).set(none)
           }
         }
       }
@@ -231,7 +237,11 @@ export const ParticleSystemComponent = defineComponent({
 
     const [texture] = useTexture(componentState.value.systemParameters.texture!, entity, (url) => {
       if (!entityExists(entity)) return
-      metadata.textures.nested(url).set(none)
+      // Check if metadata state is still valid before cleanup
+      if (metadata.textures.value && url) {
+        metadata.textures.nested(url).set(none)
+      }
+
       dudMaterial.map = null
     })
 

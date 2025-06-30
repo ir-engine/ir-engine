@@ -123,11 +123,6 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
   )
 
   useEffect(() => {
-    console.log(
-      entity,
-      rendererSettingsState.primaryLight.value,
-      UUIDComponent.getEntityFromSameSourceByID(entity, rendererSettingsState.primaryLight.value)
-    )
     if (!UUIDComponent.getEntityFromSameSourceByID(entity, rendererSettingsState.primaryLight.value)) {
       setComponent(entity, RenderSettingsComponent, {
         csm: false,

@@ -31,6 +31,7 @@ import { twMerge } from 'tailwind-merge'
 import { useGet } from '@ir-engine/common'
 import { userPath } from '@ir-engine/common/src/schema.type.module'
 import { Send01Md } from '@ir-engine/ui/src/icons'
+import { cva } from 'class-variance-authority'
 import { AuthState } from '../../user/services/AuthService'
 import ButtonGroup from '../Settings/ButtonGroup'
 import { useChatProvider } from './ChatProvider'
@@ -39,7 +40,6 @@ import { Inner } from './ToolbarAndSidebar'
 
 const messageBaseStyles = `
   inline-grid
-  max-w-full
   px-4 py-1
 
   border-2
@@ -48,9 +48,8 @@ const messageBaseStyles = `
   shadow-lg
 
   break-words
+  max-w-[80%]
   text-center
-  
-  sm:max-w-md
 `
 
 const blueGradientStyles = `
@@ -92,7 +91,7 @@ const OtherName = ({ senderId }: { senderId: string }) => {
 const OtherChat = ({ children }) => (
   <div
     className={`
-      flex flex-col gap-y-1
+      mb-6 flex flex-col items-start
     `}
   >
     {children}
@@ -119,19 +118,38 @@ const inputStyles = `
   w-full
 `
 
-const sendButtonStyles = `
+const sendButtonStyles = cva(
+  `
   flex items-center
   
   p-2
-  
+
   rounded-full
-  text-white
   text-xl
-  bg-blue-500
   border
   border-white/10
-  shadow
-`
+`,
+  {
+    variants: {
+      disabled: {
+        true: `
+        bg-gray-400
+        text-gray-300
+        cursor-text
+      `,
+        false: `
+        ${blueGradientStyles}
+        text-white
+        shadow
+      `
+      },
+      show: {
+        true: ``,
+        false: `invisible`
+      }
+    }
+  }
+)
 
 const inputOuterStyles = `
   fixed
@@ -149,18 +167,18 @@ export const ChatMenu = () => {
   const onSignUpClicked = () => navigateTo('settings/signup')
   const onSignInClicked = () => navigateTo('settings/login')
 
-  const { messageGroupedBySender, inputRef, handleInputChange, sendMessage, composedMessage } = useChatProvider()
+  const { messageGroupedBySender, inputRef, handleInputChange, sendMessage, canSendMessage, composedMessage } =
+    useChatProvider()
   const { navigateTo } = useNavigationProvider()
 
   if (isGuest) {
     return (
-      <div className="mx-auto flex min-h-full w-full max-w-screen-sm flex-col items-center gap-8 font-dm-sans">
+      <div className="mx-auto flex min-h-full w-full max-w-screen-sm flex-col items-center gap-8 pb-20 font-dm-sans">
         <div className="flex flex-1 flex-col items-center justify-center gap-4">
           <HiChatBubbleLeftRight className="mx-auto h-[5.5rem] w-[5.5rem]" />
-          <div className="text-shadow font-manrope text-2xl text-white">Want to chat with others?</div>
+          <div className="text-shadow font-manrope text-white">Want to chat with others?</div>
         </div>
         <ButtonGroup
-          className="pb-20"
           options={[
             { label: 'Create an Account', onClick: onSignUpClicked },
             { label: 'Sign In', onClick: onSignInClicked }
@@ -179,7 +197,7 @@ export const ChatMenu = () => {
   const hasInputText = !!composedMessage.value
 
   return (
-    <Inner className={`mb-20`}>
+    <Inner className={`mb-20 w-full`}>
       {messageGroupedBySender.map((group, groupIndex) => {
         const [firstMessage] = group
         const isOwnGroup = firstMessage.senderId === user.id.value
@@ -192,7 +210,12 @@ export const ChatMenu = () => {
         })
 
         return isOwnGroup || isNotification ? (
-          groupedMessage
+          <div
+            key={groupIndex}
+            className={twMerge('mb-6 flex w-full flex-col gap-y-2', isNotification ? 'items-center' : 'items-end')}
+          >
+            {groupedMessage}
+          </div>
         ) : (
           <OtherChat key={groupIndex}>
             <OtherName senderId={firstMessage.senderId} />
@@ -206,7 +229,10 @@ export const ChatMenu = () => {
           <div className={inputContainerStyles}>
             <input className={inputStyles} onChange={handleInputChange} ref={inputRef} value={composedMessage.value} />
             <button
-              className={twMerge(blueGradientStyles, sendButtonStyles, hasInputText ? `` : `invisible`)}
+              className={sendButtonStyles({
+                show: hasInputText,
+                disabled: !canSendMessage
+              })}
               type={'submit'}
             >
               <Send01Md />

@@ -27,7 +27,16 @@ import { render } from '@testing-library/react'
 import React, { useEffect } from 'react'
 import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
-import { createEntity, entityExists, EntityUUID, hasComponents, removeEntity, S, UUIDComponent } from '@ir-engine/ecs'
+import {
+  createEntity,
+  entityExists,
+  EntityUUID,
+  hasComponents,
+  Not,
+  removeEntity,
+  S,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -1386,11 +1395,10 @@ describe('useChildrenWithComponents', () => {
     const child_1 = createEntity()
     const child_2 = createEntity()
     let results = [UndefinedEntity]
-    const components = [ComponentA, ComponentB]
-    const exclude = [ComponentD]
+    const components = [ComponentA, ComponentB, Not(ComponentD)]
 
     const Reactor = () => {
-      const entities = useChildrenWithComponents(rootEntity, components, exclude)
+      const entities = useChildrenWithComponents(rootEntity, components)
       useEffect(() => {
         results = entities
       }, [entities])
@@ -1402,14 +1410,12 @@ describe('useChildrenWithComponents', () => {
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
     setComponent(child_2, EntityTreeComponent, { parentEntity: rootEntity })
 
-    for (const component of components) {
-      setComponent(child_1, component)
-      setComponent(child_2, component)
-    }
+    setComponent(child_1, ComponentA)
+    setComponent(child_2, ComponentA)
+    setComponent(child_1, ComponentB)
+    setComponent(child_2, ComponentB)
 
-    for (const component of exclude) {
-      setComponent(child_2, component)
-    }
+    setComponent(child_2, ComponentD)
 
     const { rerender, unmount } = render(tag)
 
@@ -1423,11 +1429,10 @@ describe('useChildrenWithComponents', () => {
     const child_1 = createEntity()
     const child_2 = createEntity()
     let results = [UndefinedEntity]
-    const components = [ComponentA, ComponentB]
-    const exclude = [ComponentC, ComponentD]
+    const components = [ComponentA, ComponentB, Not(ComponentC)]
 
     const Reactor = () => {
-      const entities = useChildrenWithComponents(rootEntity, components, exclude)
+      const entities = useChildrenWithComponents(rootEntity, components)
       useEffect(() => {
         results = entities
       }, [entities])
@@ -1439,12 +1444,12 @@ describe('useChildrenWithComponents', () => {
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
     setComponent(child_2, EntityTreeComponent, { parentEntity: rootEntity })
 
-    for (const component of components) {
-      setComponent(child_1, component)
-      setComponent(child_2, component)
-    }
+    setComponent(child_1, ComponentA)
+    setComponent(child_2, ComponentA)
+    setComponent(child_1, ComponentB)
+    setComponent(child_2, ComponentB)
 
-    setComponent(child_2, exclude[0])
+    setComponent(child_2, ComponentC)
 
     const { rerender, unmount } = render(tag)
 
@@ -1458,11 +1463,10 @@ describe('useChildrenWithComponents', () => {
     const child_1 = createEntity()
     const child_2 = createEntity()
     let results = [UndefinedEntity]
-    const components = [ComponentA, ComponentB]
-    const exclude = [ComponentD]
+    const components = [ComponentA, ComponentB, Not(ComponentD)]
 
     const Reactor = () => {
-      const entities = useChildrenWithComponents(rootEntity, components, exclude)
+      const entities = useChildrenWithComponents(rootEntity, components)
       useEffect(() => {
         results = entities
       }, [entities])
@@ -1474,10 +1478,10 @@ describe('useChildrenWithComponents', () => {
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
     setComponent(child_2, EntityTreeComponent, { parentEntity: rootEntity })
 
-    for (const component of components) {
-      setComponent(child_1, component)
-      setComponent(child_2, component)
-    }
+    setComponent(child_1, ComponentA)
+    setComponent(child_2, ComponentA)
+    setComponent(child_1, ComponentB)
+    setComponent(child_2, ComponentB)
 
     const { rerender, unmount } = render(tag)
 

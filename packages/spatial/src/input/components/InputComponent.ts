@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useLayoutEffect } from 'react'
-
 import {
+  AnimationSystemGroup,
+  defineQuery,
   defineSystem,
   EngineState,
   getComponent,
@@ -38,9 +38,9 @@ import {
   defineComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
-  setComponent,
-  useComponent
+  setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityID } from '@ir-engine/ecs/src/Entity'
 import { getState, NO_PROXY_STEALTH, useHookstate } from '@ir-engine/hyperflux'
@@ -381,48 +381,6 @@ export const InputComponent = defineComponent({
       { after: InputSystemGroup }
     )
     return hasFocus
-  },
-
-  reactor: () => {
-    const entity = useEntityContext()
-    const input = useComponent(entity, InputComponent)
-
-    useLayoutEffect(() => {
-      if (!input.inputSources.length || !input.highlight.value) return
-      setComponent(entity, HighlightComponent)
-      return () => {
-        removeComponent(entity, HighlightComponent)
-      }
-    }, [input.inputSources, input.highlight])
-
-    // useEffect(() => {
-    //   // perhaps we don't need to create a rigidbody; we just want to be able to add anything in this tree to the `input` layer,
-    //   // whether or not it's a rigidbody or a mesh
-    //
-    //   //then we might just need to abandon the Input layer raycast, leave that as-is, add the distance heuristic and call it a day
-    //
-    //   // the input system can still perform physics and mesh bvh raycasts on things that have an InputComponent as an entity ancestor
-    //   // I think I know how this can work
-    //   //awesome
-    //
-    //   //techincally if we add the distance heuristic a rigidbody / collider are not needed
-    //
-    //   // after entity tree has loaded (how do we check for this...)
-    //   // create an input rigidbody if one doesn't exist
-    //   // if (!hasComponent(entity, RigidBodyComponent)) {
-    //   //   setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed }) //assume kinematic if it had no rigidbody before
-    //   // }
-    //   // // create an input colliderComponent if one doesn't exist
-    //   // if (!hasComponent(entity, ColliderComponent)) {
-    //   //   //TODO - check if we have a mesh, if we do, use the mesh as a collider type....if not then generate a bounding sphere
-    //   //   setComponent(entity, ColliderComponent)
-    //   // }
-    //   // const hasMesh = hasComponent(entity, MeshComponent)
-    //   // const collider = getMutableComponent(entity, ColliderComponent)
-    //   // collider.collisionLayer.set(collider.collisionLayer.value | CollisionGroups.Input)
-    // }, [])
-
-    return null
   }
 })
 
@@ -451,4 +409,23 @@ function getInputExecutionInsert(order: InputExecutionOrder) {
 export const InputExecutionSystemGroup = defineSystem({
   uuid: 'ee.engine.InputExecutionSystemGroup',
   insert: { with: InputSystemGroup }
+})
+
+const inputQuery = defineQuery([InputComponent])
+
+const execute = () => {
+  for (const entity of inputQuery()) {
+    const component = getComponent(entity, InputComponent)
+    const highlight = component.highlight && component.inputSources.length
+    if (highlight) {
+      if (!hasComponent(entity, HighlightComponent)) setComponent(entity, HighlightComponent)
+    } else removeComponent(entity, HighlightComponent)
+  }
+}
+
+/** System for inserting subsystems*/
+export const InputHighlightSystem = defineSystem({
+  uuid: 'ee.engine.InputHighlightSystem',
+  insert: { with: AnimationSystemGroup },
+  execute
 })
