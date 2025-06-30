@@ -313,7 +313,7 @@ const validateFileIntegrity = async (files: File[]): Promise<File[]> => {
       validFiles.push(file)
     } catch (error) {
       console.warn(`Corrupted file detected: ${file.name}`, error)
-      NotificationService.dispatchNotify(`File "${file.name}" appears to be corrupted and will be skipped.`, {
+      NotificationService.dispatchNotify(`File "${file.name}" appears to be corrupted, please try a different file.`, {
         variant: 'warning'
       })
     }
