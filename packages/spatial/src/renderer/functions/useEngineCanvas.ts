@@ -31,7 +31,7 @@ import { useEffect, useRef } from 'react'
 import { RendererComponent } from '../components/RendererComponent'
 
 export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
-  const canvasRef = useRef(document.getElementById('engine-renderer-canvas') as HTMLCanvasElement)
+  const canvasRef = useRef(document.getElementById('engine-renderer-canvas') as HTMLCanvasElement | null)
 
   useEffect(() => {
     if (!ref) return
@@ -66,6 +66,7 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
     initializeSpatialViewer(canvas)
     return () => {
       if (!Engine.instance) return
+      canvasRef.current = null
       destroySpatialViewer()
     }
   }, [])
