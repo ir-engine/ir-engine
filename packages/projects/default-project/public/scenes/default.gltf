@@ -11,11 +11,6 @@
           "entityID": "0d5a20e1-abe2-455e-9963-d5e1e19fca19"
         },
         "EE_envmapbake": {
-          "bakePosition": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
           "bakePositionOffset": {
             "x": 0,
             "y": 0,
@@ -42,16 +37,41 @@
           "height": 0.05
         },
         "EE_camera_settings": {
-          "fov": 50,
           "cameraNearClip": 0.1,
           "cameraFarClip": 1000,
           "projectionType": 1,
-          "minCameraDistance": 1,
-          "maxCameraDistance": 50,
-          "startCameraDistance": 3,
+          "fov": 50,
           "cameraMode": "FOLLOW",
           "minPhi": -70,
-          "maxPhi": 85
+          "maxPhi": 85,
+          "isAvatarVisible": true,
+          "followCameraScrollSensitivity": 1,
+          "canCameraFirstPerson": true,
+          "canCameraThirdPerson": true,
+          "canCameraTopDown": true,
+          "isFistPersonFreeCamera": true,
+          "isThirdPersonFreeCamera": true,
+          "isTopDownFreeCamera": false,
+          "firstPersonCameraLimits": 360,
+          "thirdPersonCameraLimits": 360,
+          "topDownCameraLimits": 360,
+          "isFirstPersonCameraReset": true,
+          "isThirdPersonCameraReset": true,
+          "isTopDownCameraReset": true,
+          "thirdPersonMinDistance": 1.5,
+          "thirdPersonMaxDistance": 50,
+          "thirdPersonDefaultDistance": 3,
+          "topDownMinDistance": 10,
+          "topDownMaxDistance": 70,
+          "topDownDefaultDistance": 40,
+          "poiEntities": [],
+          "poiLerpSpeed": 0.5,
+          "scrollDeadzone": 1,
+          "scrollSensitivity": 0.1,
+          "scrollDistancePerPoi": 3,
+          "scrollBehavior": "Clamp",
+          "poiScrollTransitionType": "Scrolling",
+          "enableTransitionButtons": false
         },
         "EE_postprocessing": {
           "enabled": false,
@@ -377,7 +397,7 @@
           "backgroundColor": 3026478,
           "equirectangularPath": "__$project$__/ir-engine/default-project/assets/generic_midday_02.ktx2?hash=19535b",
           "cubemapPath": "__$project$__/ir-engine/default-project/assets/skyboxsun25deg/",
-          "backgroundType": 2,
+          "backgroundType": 1,
           "skyboxProps": {
             "turbidity": 10,
             "rayleigh": 1,
