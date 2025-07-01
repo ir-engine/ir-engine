@@ -1,0 +1,135 @@
+import {
+  defineSystem,
+  Entity,
+  EntityArrayBoundary,
+  getComponent,
+  Layers,
+  Not,
+  removeEntity,
+  setComponent,
+  UndefinedEntity,
+  useComponent,
+  useHasComponent,
+  useQuery
+} from '@ir-engine/ecs'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import React, { useEffect } from 'react'
+import { Box3, BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
+import { OrientedBoundingBoxComponent, updateBoundingBox } from '../components/OrientedBoundingBoxComponent'
+import { TransformSystem } from './TransformSystem'
+// Alternative for thicker lines (uncomment if needed):
+// import { Line2 } from 'three/examples/jsm/lines/Line2.js'
+// import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js'
+// import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js'
+import { useHookstate } from '@hookstate/core'
+import { SelectTagComponent } from '@ir-engine/engine/src/scene/components/SelectTagComponent'
+import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
+import { ObjectComponent } from '../../renderer/components/ObjectComponent'
+import { ObjectLayerMaskComponent } from '../../renderer/components/ObjectLayerComponent'
+import { SceneComponent } from '../../renderer/components/SceneComponents'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
+
+// Create a wireframe box geometry that matches the given Box3
+function createWireframeBoxGeometry(box: Box3): BufferGeometry {
+  const geometry = new BufferGeometry()
+
+  // Get the 8 corners of the box
+  const min = box.min
+  const max = box.max
+
+  // Define the 8 vertices of the box
+  const vertices = new Float32Array([
+    // Bottom face vertices
+    min.x,
+    min.y,
+    min.z, // 0
+    max.x,
+    min.y,
+    min.z, // 1
+    max.x,
+    min.y,
+    max.z, // 2
+    min.x,
+    min.y,
+    max.z, // 3
+    // Top face vertices
+    min.x,
+    max.y,
+    min.z, // 4
+    max.x,
+    max.y,
+    min.z, // 5
+    max.x,
+    max.y,
+    max.z, // 6
+    min.x,
+    max.y,
+    max.z // 7
+  ])
+
+  // Define the 12 edges of the box (24 indices for 12 line segments)
+  const indices = [
+    // Bottom face edges
+    0, 1, 1, 2, 2, 3, 3, 0,
+    // Top face edges
+    4, 5, 5, 6, 6, 7, 7, 4,
+    // Vertical edges
+    0, 4, 1, 5, 2, 6, 3, 7
+  ]
+
+  geometry.setAttribute('position', new BufferAttribute(vertices, 3))
+  geometry.setIndex(indices)
+
+  return geometry
+}
+
+export const OrientedBoundingBoxSystem = defineSystem({
+  uuid: 'napster.engine.OrientedBoundingBoxSystem',
+  insert: { after: TransformSystem },
+  reactor: () => {
+    const gltfQuery = useQuery([GLTFComponent, Not(SceneComponent)], Layers.Authoring)
+    return <EntityArrayBoundary entities={gltfQuery} ChildEntityReactor={OrientedBoundingBoxReactor} />
+  }
+})
+
+const OrientedBoundingBoxReactor = (props: { entity: Entity }) => {
+  const entity = props.entity
+  const gltf = useComponent(entity, GLTFComponent)
+  const selected = useHasComponent(entity, SelectTagComponent)
+  const loaded = GLTFComponent.useSceneLoaded(entity)
+  const helperEntityState = useHookstate(UndefinedEntity)
+
+  useEffect(() => {
+    if (!loaded) return
+    if (gltf.src.value) {
+      setComponent(entity, OrientedBoundingBoxComponent)
+      updateBoundingBox(entity)
+      const helperEntity = createSceneEntity('OrientedBoundingBoxHelper', entity)
+      const orientedBoundingBox = getComponent(entity, OrientedBoundingBoxComponent)
+
+      // Create custom wireframe geometry that matches the bounding box
+      const wireframeGeometry = createWireframeBoxGeometry(orientedBoundingBox.box)
+      const wireframeMaterial = new LineBasicMaterial({ color: 'red', opacity: 0.5, transparent: true, linewidth: 3 })
+      const wireframeHelper = new LineSegments(wireframeGeometry, wireframeMaterial)
+      ObjectLayerMaskComponent.setLayer(helperEntity, ObjectLayers.NodeHelper)
+
+      setComponent(helperEntity, ObjectComponent, wireframeHelper)
+      helperEntityState.set(helperEntity)
+
+      return () => {
+        removeEntity(helperEntity)
+        helperEntityState.set(UndefinedEntity)
+      }
+    }
+  }, [gltf.src, loaded])
+
+  useEffect(() => {
+    if (helperEntityState.value === UndefinedEntity) return
+    const helperEntity = helperEntityState.value
+    const helperObject = getComponent(helperEntity, ObjectComponent) as any as LineSegments
+    const material = helperObject.material as LineBasicMaterial
+    material.color.set(selected ? 'green' : 'red')
+  }, [helperEntityState, selected])
+
+  return null
+}
