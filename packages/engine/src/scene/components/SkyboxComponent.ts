@@ -49,6 +49,7 @@ import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/Re
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { Sky } from '../classes/Sky'
@@ -56,7 +57,7 @@ import { SkyTypeEnum } from '../constants/SkyTypeEnum'
 import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
 
-const tempColor = new Color()
+const tempColor = new Color(0.7, 0.8, 1)
 
 export const SkyboxComponent = defineComponent({
   name: 'SkyboxComponent',
@@ -86,7 +87,9 @@ export const SkyboxComponent = defineComponent({
     const skyboxState = useComponent(entity, SkyboxComponent)
     const cubemapTexture = useHookstate<undefined | CubeTexture>(undefined)
     const [texture, error] = useTexture(
-      skyboxState.backgroundType.value === SkyTypeEnum.equirectangular ? skyboxState.equirectangularPath.value : '',
+      skyboxState.backgroundType.value === SkyTypeEnum.equirectangular && !iOS
+        ? skyboxState.equirectangularPath.value
+        : '',
       entity
     )
 
@@ -98,7 +101,7 @@ export const SkyboxComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      if (skyboxState.backgroundType.value !== SkyTypeEnum.equirectangular || !texture) return
+      if (skyboxState.backgroundType.value !== SkyTypeEnum.equirectangular || !texture || iOS) return
 
       texture.colorSpace = SRGBColorSpace
       texture.mapping = EquirectangularReflectionMapping
@@ -116,7 +119,7 @@ export const SkyboxComponent = defineComponent({
     }, [error])
 
     useEffect(() => {
-      if (skyboxState.backgroundType.value !== SkyTypeEnum.color) return
+      if (skyboxState.backgroundType.value !== SkyTypeEnum.color || !iOS) return
 
       const col = skyboxState.backgroundColor.value ?? tempColor
       const resolution = 64 // Min value required
