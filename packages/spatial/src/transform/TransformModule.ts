@@ -23,10 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { OrientedBoundingBoxSystem } from '@ir-engine/engine/src/scene/components/OrientedBoundingBoxSystem'
 import { Object3DUtils } from './Object3DUtils'
 import { SpawnPoseState } from './SpawnPoseState'
 import { MeshBVHSystem } from './functions/MeshBVHSystem'
-import { OrientedBoundingBoxSystem } from './systems/OrientedBoundingBoxSystem'
 import { TransformSystem } from './systems/TransformSystem'
 
 export { MeshBVHSystem, Object3DUtils, OrientedBoundingBoxSystem, SpawnPoseState, TransformSystem }

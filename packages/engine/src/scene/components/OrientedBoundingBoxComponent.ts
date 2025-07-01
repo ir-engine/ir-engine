@@ -30,11 +30,11 @@ import { defineComponent, getOptionalComponent, setComponent } from '@ir-engine/
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { MeshComponent } from '../../renderer/components/MeshComponent'
-import { T } from '../../schema/schemaFunctions'
-import { expandBoxByObject } from './BoundingBoxComponent'
-import { TransformComponent } from './TransformComponent'
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
+import { expandBoxByObject } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 export const OrientedBoundingBoxComponent = defineComponent({
   name: 'OrientedBoundingBoxComponent',

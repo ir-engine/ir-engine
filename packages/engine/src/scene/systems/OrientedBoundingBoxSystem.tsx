@@ -38,10 +38,13 @@ import {
   useQuery
 } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import {
+  OrientedBoundingBoxComponent,
+  updateBoundingBox
+} from '@ir-engine/engine/src/scene/components/OrientedBoundingBoxComponent'
+import { TransformSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import React, { useEffect } from 'react'
 import { Box3, BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
-import { OrientedBoundingBoxComponent, updateBoundingBox } from '../components/OrientedBoundingBoxComponent'
-import { TransformSystem } from './TransformSystem'
 // Alternative for thicker lines (uncomment if needed):
 // import { Line2 } from 'three/examples/jsm/lines/Line2.js'
 // import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js'
@@ -49,10 +52,10 @@ import { TransformSystem } from './TransformSystem'
 import { useHookstate } from '@hookstate/core'
 import { SelectTagComponent } from '@ir-engine/engine/src/scene/components/SelectTagComponent'
 import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
-import { ObjectComponent } from '../../renderer/components/ObjectComponent'
-import { ObjectLayerMaskComponent } from '../../renderer/components/ObjectLayerComponent'
-import { SceneComponent } from '../../renderer/components/SceneComponents'
-import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 
 // Create a wireframe box geometry that matches the given Box3
 function createWireframeBoxGeometry(box: Box3): BufferGeometry {
