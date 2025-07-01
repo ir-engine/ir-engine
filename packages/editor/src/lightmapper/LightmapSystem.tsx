@@ -101,7 +101,7 @@ const execute = () => {
       const materialInstanceComponent = getComponent(entity, MaterialInstanceComponent)
       for (const materialEntity of materialInstanceComponent.entities) {
         const material = getComponent(materialEntity, MaterialStateComponent).material as MeshStandardMaterial
-
+        material.aoMapIntensity = 1
         material.aoMap = renderTarget.texture
         material.aoMap!.channel = channel
       }
