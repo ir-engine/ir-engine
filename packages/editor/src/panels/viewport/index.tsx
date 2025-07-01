@@ -195,7 +195,7 @@ export function ViewportContainer() {
   const ref = React.useRef<HTMLDivElement>(null)
   const toolbarRef = React.useRef<HTMLDivElement>(null)
   const itemsRef = React.useRef<HTMLDivElement>(null)
-  const canvasReactRef = React.useRef<HTMLDivElement>(null)
+  const canvasReactRef = React.useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     if (!canvasReactRef.current) return
@@ -382,7 +382,7 @@ export function ViewportContainer() {
         {sceneName.value ? <SelectionBox viewportRef={ref} toolbarRef={toolbarRef} /> : null}
         {sceneName.value ? <TransformGizmoTool /> : null}
         {sceneName.value ? <CameraGizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
-        <div id="engine-renderer-canvas-container" ref={canvasReactRef} className="absolute z-10 h-full w-full" />
+        <canvas id="engine-renderer-canvas" ref={canvasReactRef}></canvas>
         {sceneName.value ? (
           <>{rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}</>
         ) : (

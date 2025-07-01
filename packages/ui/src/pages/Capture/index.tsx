@@ -409,11 +409,11 @@ const VideoPlayback = (props: {
 }
 
 const EngineCanvas = () => {
-  const ref = useRef(null as null | HTMLDivElement)
-  useEngineCanvas(ref)
+  const canvasRef = useRef(null as null | HTMLCanvasElement)
+  useEngineCanvas(canvasRef)
   return (
     <div className="relative aspect-[2/3] h-full w-auto">
-      <div ref={ref} className="h-full w-full" />
+      <canvas id="engine-renderer-canvas" className="h-full w-full" tabIndex={1} ref={canvasRef}></canvas>
     </div>
   )
 }

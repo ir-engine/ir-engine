@@ -38,18 +38,14 @@ const ThemeProvider = () => {
   return null
 }
 
-const CanvasEngine = () => {
-  const ref = useRef(document.getElementById('storybook-root'))
-  useEngineCanvas(ref)
-
-  return <></>
-}
-
 export default function EngineDecorator({ children, sceneName }: React.PropsWithChildren<{ sceneName?: string }>) {
+  const canvasRef = useRef(null as null | HTMLCanvasElement)
+  useEngineCanvas(canvasRef)
+
   return (
     <>
       <ThemeProvider />
-      <CanvasEngine />
+      <canvas id="engine-renderer-canvas" tabIndex={1} ref={canvasRef}></canvas>
       {sceneName && <SceneDecorator sceneName={sceneName} />}
       {children}
     </>

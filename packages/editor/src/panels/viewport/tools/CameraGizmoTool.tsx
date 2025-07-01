@@ -82,7 +82,7 @@ export default function CameraGizmoTool({
   }, [])
 
   return (
-    <div className="z-[4] ml-auto h-20 w-20 ">
+    <div className="absolute bottom-0 right-0 z-[4] h-20 w-20 ">
       <canvas id="camera-gizmo-tool" ref={panelRef} style={{ pointerEvents: 'all' }} />
     </div>
   )

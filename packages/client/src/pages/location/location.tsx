@@ -43,11 +43,11 @@ import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyper
 import '../styles.scss'
 
 const LocationRoutes = () => {
-  const ref = useRef<HTMLElement>(document.body)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const ready = useHookstate(getMutableState(LoadingUISystemState).ready).value
 
   useSpatialEngine()
-  useEngineCanvas(ref)
+  useEngineCanvas(canvasRef)
   useBrowserCheck()
 
   const projectsLoaded = useEngineInjection()
@@ -66,6 +66,21 @@ const LocationRoutes = () => {
           <LoadingView fullScreen animated title={t('common:loader.loadingApp')} titleClassname="text-black" />
         </div>
       )}
+      <canvas
+        id="engine-renderer-canvas"
+        tabIndex={1}
+        style={{
+          outline: 'none',
+          zIndex: 0,
+          width: '100%',
+          height: '100%',
+          position: 'fixed',
+          WebkitUserSelect: 'none',
+          pointerEvents: 'auto',
+          userSelect: 'none'
+        }}
+        ref={canvasRef}
+      ></canvas>
       <Debug />
     </Suspense>
   )

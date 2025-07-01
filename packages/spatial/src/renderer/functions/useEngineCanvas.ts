@@ -33,39 +33,25 @@ import { RendererComponent } from '../components/RendererComponent'
 export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
   useEffect(() => {
     if (!ref) return
-    const parent = ref.current as HTMLElement
-    if (!parent) return
-    const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
+    const canvas = ref.current as HTMLCanvasElement
 
     const originalParent = canvas.parentElement!
     canvas.hidden = false
 
-    parent.appendChild(canvas)
+    initializeSpatialViewer(canvas)
 
     const observer = new ResizeObserver(() => {
       getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).needsResize = true
     })
 
-    observer.observe(parent)
+    observer.observe(originalParent)
 
     return () => {
       observer.disconnect()
-      const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
-      if (!parent.contains(canvas)) return
-      parent.removeChild(canvas)
-      originalParent.appendChild(canvas)
       canvas.hidden = true
-    }
-  }, [ref?.current])
-
-  useEffect(() => {
-    const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
-    initializeSpatialViewer(canvas)
-    return () => {
-      if (!Engine.instance) return
       destroySpatialViewer()
     }
-  }, [])
+  }, [ref?.current])
 
   /**
    * Since the viewer and XR reference spaces can technically exist without the other,
