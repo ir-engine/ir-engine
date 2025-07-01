@@ -59,6 +59,19 @@ export const staticResourceSearchResultSchema = Type.Object(
 
 export interface StaticResourceSearchResultType extends Static<typeof staticResourceSearchResultSchema> {}
 
+export type StaticResourceSearchFieldType =
+  | 'caption'
+  | 'description'
+  | 'tags'
+  | 'material'
+  | 'style'
+  | 'kit_type'
+  | 'object_type'
+  | 'type'
+  | 'location'
+  | 'color'
+  | 'combined'
+
 // Search query schema
 export const staticResourceSearchQuerySchema = Type.Object(
   {

@@ -23,12 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { staticResourceSearchPath } from '@ir-engine/common/src/schemas/media/static-resource-search.schema'
+import {
+  StaticResourceSearchFieldType,
+  staticResourceSearchPath
+} from '@ir-engine/common/src/schemas/media/static-resource-search.schema'
 import { staticResourceVectorPath } from '@ir-engine/common/src/schemas/media/static-resource-vector.schema'
 import { staticResourcePath } from '@ir-engine/common/src/schemas/media/static-resource.schema'
 import { v4 as uuidv4 } from 'uuid'
-import { createFeathersKoaApp } from '../../../createApp'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { Application } from '../../../declarations'
+import { createFeathersKoaApp } from '../../createApp'
 
 describe('static-resource-search service', () => {
   let app: Application
@@ -36,7 +40,7 @@ describe('static-resource-search service', () => {
   let testVectorEntryId: string
 
   beforeAll(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
   })
 
@@ -177,7 +181,7 @@ describe('static-resource-search service', () => {
       const results = await searchService.find({
         query: {
           query: 'test',
-          searchField: field,
+          searchField: field as StaticResourceSearchFieldType,
           $limit: 5
         },
         isInternal: true
@@ -265,6 +269,7 @@ describe('static-resource-search service', () => {
 
     await expect(
       searchService.find({
+        //@ts-ignore
         query: {
           $limit: 10
         },
