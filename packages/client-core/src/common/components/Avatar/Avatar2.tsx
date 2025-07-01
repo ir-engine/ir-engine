@@ -78,7 +78,7 @@ const Avatar = ({
         <div
           className={twMerge(
             'relative overflow-hidden rounded-2xl bg-gradient-to-b from-blue-400 to-blue-600',
-            size ? `w-[${size}px] h-[${size}px]` : 'h-32 w-32',
+            size ? `w-[${size}px] h-[${size}px]` : '',
             isSelected ? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-gray-900' : ''
           )}
         >
