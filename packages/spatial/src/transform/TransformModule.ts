@@ -28,4 +28,4 @@ import { SpawnPoseState } from './SpawnPoseState'
 import { MeshBVHSystem } from './functions/MeshBVHSystem'
 import { TransformSystem } from './systems/TransformSystem'
 
-export { MeshBVHSystem, Object3DUtils, OrientedBoundingBoxSystem, SpawnPoseState, TransformSystem }
+export { MeshBVHSystem, Object3DUtils, SpawnPoseState, TransformSystem }
