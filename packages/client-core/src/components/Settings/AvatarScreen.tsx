@@ -117,7 +117,6 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({ navigateTo, navigateClose }
 
       {/* Action Buttons */}
       <Section className={createAvatarEnabled || uploadAvatarEnabled ? '' : 'hidden'}>
-        <div className="h-px bg-white/10"></div>
         <MenuItem
           label="Create Avatar"
           onClick={() => {
