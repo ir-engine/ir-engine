@@ -349,6 +349,15 @@
         "lbl-callbackID": "Callback ID"
       }
     },
+    "lightmap": {
+      "name": "Lightmap",
+      "description": "Generate lightmaps for static lighting in your scene.",
+      "lbl-resolution": "Resolution",
+      "lbl-uv-channel": "UV Channel",
+      "lbl-samples": "Samples",
+      "btn-generateAtlas": "Generate Atlas",
+      "btn-bakeLightmap": "Bake Lightmap"
+    },
     "lookAt": {
       "name": "LookAt",
       "description": "A component that makes the entity always face the user, or another entity.",

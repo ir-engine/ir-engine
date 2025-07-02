@@ -95,15 +95,16 @@ const execute = () => {
       removeComponent(entity, LightmapBakeComponent)
     }
 
-    // inelegant way to preview the progressive render todo support material arrays
+    // inelegant way to preview the progressive render
+    // data assigned to material here will be overwritten by AuthoringState when the overrides are applied
     entities.map((entity) => {
-      console.log(entity)
       const materialInstanceComponent = getComponent(entity, MaterialInstanceComponent)
       for (const materialEntity of materialInstanceComponent.entities) {
         const material = getComponent(materialEntity, MaterialStateComponent).material as MeshStandardMaterial
         material.aoMapIntensity = 1
         material.aoMap = renderTarget.texture
         material.aoMap!.channel = channel
+        material.needsUpdate = true
       }
     })
   }

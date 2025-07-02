@@ -48,7 +48,7 @@ const resolutionOptions = [
 export const LightmapNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const atlasedEntities = useHookstate([] as Entity[])
+  const atlasedEntities = useHookstate(AtlasingFunctions.getEntities(props.entity))
 
   const resolutionState = useHookstate(1024)
 
@@ -67,21 +67,21 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor
       {...props}
-      name={t('editor:properties.lightmap.name') || 'Lightmap'}
-      description={t('editor:properties.lightmap.description') || 'Lightmap settings for static objects'}
+      name={t('editor:properties.lightmap.name')}
+      description={t('editor:properties.lightmap.description')}
       Icon={LightmapNodeEditor.iconComponent}
     >
-      <InputGroup name="Resolution" label={t('editor:properties.lightmap.lbl-resolution') || 'Resolution'}>
+      <InputGroup name="Resolution" label={t('editor:properties.lightmap.lbl-resolution')}>
         <SelectInput
           options={resolutionOptions}
           value={resolutionState.value}
           onChange={(value) => resolutionState.set(value as number)}
         />
       </InputGroup>
-      <InputGroup name="UV Channel" label={t('editor:properties.lightmap.lbl-uv-channel') || 'UV Channel'}>
+      <InputGroup name="UV Channel" label={t('editor:properties.lightmap.lbl-uv-channel')}>
         <SelectInput
           options={[
-            { label: 'UV0', value: '' },
+            { label: 'UV0', value: 'uv' },
             { label: 'UV1', value: 'uv1' },
             { label: 'UV2', value: 'uv2' },
             { label: 'UV3', value: 'uv3' }
@@ -90,7 +90,7 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
           onChange={(value) => uvChannelState.set(value as UVChannel)}
         />
       </InputGroup>
-      <InputGroup name="Samples" label={t('editor:properties.lightmap.lbl-samples') || 'Samples'}>
+      <InputGroup name="Samples" label={t('editor:properties.lightmap.lbl-samples')}>
         <NumericInput
           min={1}
           max={10000}
@@ -105,13 +105,11 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
       <div className="mt-2 flex flex-col gap-2">
         <Button
           onClick={(e) =>
-            AtlasingFunctions.handleGenerateAtlas(props.entity, uvChannelState.value).then((entities) =>
-              atlasedEntities.set(entities ?? [])
-            )
+            AtlasingFunctions.handleGenerateAtlas(atlasedEntities.value as Entity[], props.entity, uvChannelState.value)
           }
           disabled={!unwrapperLoaded.value}
         >
-          {t('editor:properties.lightmap.btn-generateAtlas') || 'Generate UV2 Atlas'}
+          {t('editor:properties.lightmap.btn-generateAtlas')}
         </Button>
         <Button
           onClick={(e) =>
@@ -125,7 +123,7 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
           }
           disabled={!unwrapperLoaded.value}
         >
-          {t('editor:properties.lightmap.btn-bakeLightmap') || 'Bake Lightmap'}
+          {t('editor:properties.lightmap.btn-bakeLightmap')}
         </Button>
       </div>
     </NodeEditor>

@@ -75,8 +75,14 @@ export type RaycastOptions = {
 /**
  * Initialize the lightmapper, creates and sets up a render target plane to render the lightmap shader to
  * This is run to set up the render target and material for sampling
+ * @param renderer The renderer to use, in most cases this will be the viewer entity's renderer
+ * @param positions The atlas texture containing the world positions of each pixel
+ * @param normals The atlas texture containing the world normals of each pixel
+ * @param bvh The BVH of the entities to bake
+ * @param options The raycast options
+ * @returns The render target, raycast mesh, orthographic camera, and raycast material
  */
-const initializeLightmapper = (
+const initialize = (
   renderer: WebGLRenderer,
   positions: Texture,
   normals: Texture,
@@ -121,8 +127,15 @@ const initializeLightmapper = (
 
 /**
  * Render the lightmap shader
+ * @param raycastMesh The flat plane mesh to render
+ * @param renderTexture The render target to render to
+ * @param raycastMaterial The material to render
+ * @param orthographicCamera The camera to render with
+ * @param renderer The renderer to use
+ * @param totalSamples The total number of samples to render
+ * @returns The number of samples rendered
  */
-const sampleLightmap = (
+const sample = (
   raycastMesh: Mesh,
   renderTexture: WebGLRenderTarget,
   raycastMaterial: ShaderMaterial,
@@ -143,7 +156,10 @@ const sampleLightmap = (
 
 /**
  * Creates a new BufferGeometry containing only the specified groups from the source geometry
- * This will be removed once the lightmapper considers material types
+ * Currently used as a workaround for transparent materials occluding light
+ * This will be removed once the lightmapper considers material data and transparency
+ * @param sourceGeometry The source geometry to create the new geometry from
+ * @param groups The groups to include in the new geometry
  */
 const createGeometryFromGroups = (
   sourceGeometry: BufferGeometry,
@@ -212,6 +228,7 @@ const createGeometryFromGroups = (
  * Creates a merged mesh BVH from the entities provided,
  * and removes any transparent materials from the BVH,
  * transparent materials are not yet supported by the lightmapper
+ * @param entities The mesh entities to create the BVH from
  * @todo add material consideration to the lightmapper shader */
 const getBakeBVH = (entities: Entity[]) => {
   const meshComponents = entities.map((entity) => getComponent(entity, MeshComponent))
@@ -278,6 +295,9 @@ const getBakeBVH = (entities: Entity[]) => {
 
 /**
  * Convert the lightmapper render target texture to ImageData and upload it to the project files
+ * @param renderTarget The render target to upload
+ * @param entity The entity to upload the lightmap for
+ * @returns The URL of the uploaded lightmap texture
  */
 const uploadLightmapTexture = async (renderTarget: WebGLRenderTarget, entity: Entity): Promise<string | null> => {
   const editorState = getState(EditorState)!
@@ -344,7 +364,7 @@ const handleBakeLightmap = (
 
   const simulationEntities = entities.map(getSimulationCounterpart)
 
-  const textures = AtlasingFunctions.renderAtlas(
+  const textures = AtlasingFunctions.renderAtlasTextures(
     getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!,
     simulationEntities.map((entity) => getComponent(entity, MeshComponent)),
     resolution,
@@ -382,8 +402,8 @@ const handleBakeLightmap = (
 }
 
 export const Lightmapper = {
-  initialize: initializeLightmapper,
-  sample: sampleLightmap,
+  initialize,
+  sample,
   getBakeBVH,
   uploadLightmapTexture,
   handleBakeLightmap
