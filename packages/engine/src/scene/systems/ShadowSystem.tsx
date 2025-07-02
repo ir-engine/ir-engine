@@ -136,6 +136,12 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
   const directionalLight = directionalLightComponent?.light.get(NO_PROXY) as DirectionalLight
 
   useEffect(() => {
+    console.log(
+      'ShadowSystem.ts useEffect 0 | directionalLightComponent | directionalLight',
+      directionalLightComponent,
+      directionalLight
+    )
+
     if (!directionalLightComponent || !directionalLight) return
     if (!directionalLightComponent.castShadow.value) return
     const params = {
@@ -169,6 +175,8 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
   useEffect(() => {
     setComponent(rendererEntity, CSMComponent)
     const csmComponent = getMutableComponent(rendererEntity, CSMComponent)
+
+    console.log('ShadowSystem.ts useEffect 1 csmComponent', csmComponent)
     if (!directionalLightComponent?.castShadow.value || !directionalLight) return
 
     csmComponent.shadowBias.set(directionalLight.shadow.bias)
@@ -196,6 +204,8 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
   useEffect(() => {
     setComponent(rendererEntity, CSMComponent)
     const csmComponent = getMutableComponent(rendererEntity, CSMComponent)
+
+    console.log('ShadowSystem.ts useEffect 2 csmComponent', csmComponent)
 
     csmComponent.cascades.set(renderSettingsComponent.cascades.value)
     csmComponent.needsUpdate.set(true)
@@ -427,6 +437,7 @@ const RendererShadowReactor = () => {
     const renderer = getComponent(entity, RendererComponent).renderer
     if (!renderer) return
     renderer.shadowMap.enabled = renderer.shadowMap.autoUpdate = useShadows
+    console.log('RenderSettingsComponent.ts, renderer')
   }, [useShadows, rendererComponent.renderer])
 
   return null

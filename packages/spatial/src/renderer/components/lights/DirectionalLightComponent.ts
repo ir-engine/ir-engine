@@ -91,9 +91,25 @@ export const DirectionalLightComponent = defineComponent({
 
     useEffect(() => {
       light.shadow.radius = directionalLightComponent.shadowRadius.value
+      console.log(
+        'DirectionalLightComponent.ts, light.shadow.radius = directionalLightComponent.shadowRadius.value',
+        directionalLightComponent.shadowRadius.value,
+        light,
+        directionalLightComponent
+      )
+
+      if (light.shadow.map) {
+        light.shadow.map.dispose()
+        light.shadow.map = null as any
+      }
+
+      light.shadow.needsUpdate = true
     }, [directionalLightComponent.shadowRadius])
 
     useEffect(() => {
+      console.log(
+        'DirectionalLightComponent.ts if (light.shadow.mapSize.x !== renderState.shadowMapResolution.value) {'
+      )
       if (light.shadow.mapSize.x !== renderState.shadowMapResolution.value) {
         light.shadow.mapSize.setScalar(renderState.shadowMapResolution.value)
         light.shadow.map?.dispose()

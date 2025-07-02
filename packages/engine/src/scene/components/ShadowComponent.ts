@@ -54,8 +54,10 @@ export const ShadowComponent = defineComponent({
     }, [])
 
     useEffect(() => {
+      console.log('shadowComponent.cast.value', shadowComponent.cast.value)
       object.castShadow = shadowComponent.cast.value
       object.receiveShadow = shadowComponent.receive.value
+      console.log('shadowComponent object', object)
     }, [!!object, shadowComponent.cast, shadowComponent.receive])
 
     return null

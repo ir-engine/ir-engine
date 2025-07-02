@@ -128,6 +128,7 @@ function createLight(i: number, rendererEntity: Entity): void {
   const csm = getMutableComponent(rendererEntity, CSMComponent)
 
   const light = new DirectionalLight(csm.lightColor.value, csm.lightIntensity.value)
+
   light.castShadow = true
   light.frustumCulled = false
 
@@ -153,11 +154,16 @@ function createLight(i: number, rendererEntity: Entity): void {
 
   light.name = 'CSM_' + light.name
   light.target.name = 'CSM_' + light.target.name
+
+  console.log('createLight light', light)
+  console.log('createLight csm', csm)
 }
 
 function createLights(sourceLight?: DirectionalLight, rendererEntity?: Entity): void {
   const entity = rendererEntity || Engine.instance.viewerEntity
   const csm = getMutableComponent(entity, CSMComponent)
+
+  console.log('createLightS | entity | csm', entity, csm)
 
   /**@todo why aren't these being cleared after the component is ostensibly removed and reset??? */
   csm.lights.set([])

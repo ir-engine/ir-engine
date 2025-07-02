@@ -87,6 +87,7 @@ export const RenderSettingsComponent = defineComponent({
       const renderer = getComponent(rendererEntity, RendererComponent).renderer!
       renderer.shadowMap.type = component.shadowMapType.value
       renderer.shadowMap.needsUpdate = true
+      console.log('RenderSettingsComponent.ts', rendererEntity, renderer, component)
     }, [component.shadowMapType, rendererEntity])
 
     return null
