@@ -27,7 +27,7 @@ import type * as V0VRM from '@pixiv/types-vrm-0.0'
 
 import { AnimationAction, Euler, Group, Matrix4, Object3D, Quaternion } from 'three'
 
-import { EntityTreeComponent, UUIDComponent, entityExists, iterateEntityNode } from '@ir-engine/ecs'
+import { EntityTreeComponent, UUIDComponent, iterateEntityNode } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -90,9 +90,8 @@ export const AvatarRigComponent = defineComponent({
   },
 
   setPose: (toRigEntity: Entity, boneEntity: Entity, boneName: VRMHumanBoneName) => {
-    const entityTreeComponent = getOptionalComponent(boneEntity, EntityTreeComponent)
-    const transformComponent = getOptionalComponent(boneEntity, TransformComponent)
-    if (!entityTreeComponent || !transformComponent) return
+    const entityTreeComponent = getComponent(boneEntity, EntityTreeComponent)
+    const transformComponent = getComponent(boneEntity, TransformComponent)
 
     const parent = entityTreeComponent.parentEntity
 
@@ -114,10 +113,9 @@ export const AvatarRigComponent = defineComponent({
 const yFlip = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 
 export function createVRM(rootEntity: Entity) {
-  const gltfComponent = getOptionalComponent(rootEntity, GLTFComponent)
-  if (!entityExists(rootEntity) || !gltfComponent?.document) return
+  const gltfComponent = getComponent(rootEntity, GLTFComponent)
 
-  const gltf = gltfComponent.document
+  const gltf = gltfComponent.document!
 
   if (!hasComponent(rootEntity, ObjectComponent)) {
     const obj3d = new Group()
@@ -168,20 +166,11 @@ export function createVRM(rootEntity: Entity) {
     AvatarRigComponent.setPose(rootEntity, entity, bone.bone as VRMHumanBoneName)
   }
 
-  const rigComponent = getOptionalComponent(rootEntity, AvatarRigComponent)
-  if (!rigComponent) return
-
-  const hipsEntity = rigComponent.bonesToEntities.hips
-
-  const hipsEntityTreeComponent = getOptionalComponent(hipsEntity, EntityTreeComponent)
-  if (!hipsEntityTreeComponent) return
-
-  const root = hipsEntityTreeComponent.parentEntity
-
-  const rootTransformComponent = getOptionalComponent(root, TransformComponent)
-  if (!rootTransformComponent) return
-
-  rootTransformComponent.rotation.multiply(yFlip)
+  const root = getComponent(
+    getComponent(rootEntity, AvatarRigComponent).bonesToEntities.hips,
+    EntityTreeComponent
+  ).parentEntity
+  getComponent(root, TransformComponent).rotation.multiply(yFlip)
 }
 
 export const createVRMFromGLTF = (rootEntity: Entity) => {
@@ -201,8 +190,8 @@ export const createVRMFromGLTF = (rootEntity: Entity) => {
   const hipsName = getComponent(hipsEntity, NameComponent)
 
   const hipsParent = getOptionalComponent(hipsEntity, EntityTreeComponent)?.parentEntity
-  if (hipsParent && entityExists(hipsParent) && !hasComponent(hipsParent, ObjectComponent)) {
-    setComponent(hipsParent, ObjectComponent, new Object3D())
+  if (!hasComponent(hipsParent!, ObjectComponent)) {
+    setComponent(hipsParent!, ObjectComponent, new Object3D())
   }
   const bones = {} as VRMHumanBones
   const mixamoPrefix = hipsName.includes('mixamorig') ? '' : 'mixamorig'

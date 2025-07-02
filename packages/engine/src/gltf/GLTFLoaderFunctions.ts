@@ -38,7 +38,6 @@ import {
   SourceID,
   UUIDComponent,
   deserializeComponent,
-  entityExists,
   getComponent,
   getMutableComponent,
   hasComponent,
@@ -1697,11 +1696,9 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
     if (signal.aborted) return
 
     for (const entity of loadedNodeEntities) {
-      if (!entityExists(entity) || !entityExists(rootEntity)) return
-
       setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity })
       iterateEntityNode(entity, (e) => {
-        if (entityExists(e) && hasComponent(e, TransformComponent)) {
+        if (hasComponent(e, TransformComponent)) {
           TransformComponent.computeTransformMatrix(e)
           TransformComponent.dirty[e] = 1
         }
@@ -1709,7 +1706,7 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
     }
 
     /** @todo this is a temporary hack */
-    if (entityExists(rootEntity) && !hasComponent(rootEntity, ObjectComponent)) {
+    if (!hasComponent(rootEntity, ObjectComponent)) {
       const obj3d = new Object3D()
       setComponent(rootEntity, ObjectComponent, obj3d)
     }
@@ -1717,11 +1714,7 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
     const animationClips = await Promise.all(animationPromises)
     if (signal.aborted) return
 
-    if (entityExists(rootEntity)) {
-      setAnimationClips(rootEntity, animationClips)
-    } else {
-      console.warn(`[GLTFLoader] Root entity ${rootEntity} no longer exists, skipping animation clips setup`)
-    }
+    setAnimationClips(rootEntity, animationClips)
   } catch (error) {
     console.error('Error loading GLTF scene:', error)
     throw error
