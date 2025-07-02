@@ -71,7 +71,7 @@ export const Navigation: StoryObj = {
   }
 }
 
-export const WSS: StoryObj = {
+export const Websockets: StoryObj = {
   render: () => {
     const scopeQuery = useFind(scopePath, { query: { userId: 0, type: 'admin:admin' } })
 
