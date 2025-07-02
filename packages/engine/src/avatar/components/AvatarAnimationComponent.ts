@@ -84,23 +84,17 @@ export const AvatarRigComponent = defineComponent({
   }),
 
   setBone: (toRigEntity: Entity, boneEntity: Entity, boneName: VRMHumanBoneName) => {
-    // Check if entities exist before setting bone mapping
-    if (!entityExists(toRigEntity) || !entityExists(boneEntity)) return
-
     const rigComponent = getMutableComponent(toRigEntity, AvatarRigComponent)
     rigComponent.bonesToEntities[boneName].set(boneEntity)
     rigComponent.entitiesToBones[boneEntity].set(boneName)
   },
 
   setPose: (toRigEntity: Entity, boneEntity: Entity, boneName: VRMHumanBoneName) => {
-    if (!entityExists(toRigEntity) || !entityExists(boneEntity)) return
-
     const entityTreeComponent = getOptionalComponent(boneEntity, EntityTreeComponent)
     const transformComponent = getOptionalComponent(boneEntity, TransformComponent)
     if (!entityTreeComponent || !transformComponent) return
 
     const parent = entityTreeComponent.parentEntity
-    if (!entityExists(parent)) return
 
     const rigComponent = getMutableComponent(toRigEntity, AvatarRigComponent)
     rigComponent.parentWorldRotationInverses[boneName].set(
@@ -178,13 +172,11 @@ export function createVRM(rootEntity: Entity) {
   if (!rigComponent) return
 
   const hipsEntity = rigComponent.bonesToEntities.hips
-  if (!hipsEntity || !entityExists(hipsEntity)) return
 
   const hipsEntityTreeComponent = getOptionalComponent(hipsEntity, EntityTreeComponent)
   if (!hipsEntityTreeComponent) return
 
   const root = hipsEntityTreeComponent.parentEntity
-  if (!root || !entityExists(root)) return
 
   const rootTransformComponent = getOptionalComponent(root, TransformComponent)
   if (!rootTransformComponent) return
@@ -193,8 +185,6 @@ export function createVRM(rootEntity: Entity) {
 }
 
 export const createVRMFromGLTF = (rootEntity: Entity) => {
-  if (!entityExists(rootEntity)) return
-
   const hipsEntity = iterateEntityNode(
     rootEntity,
     (entity) => entity,
@@ -203,17 +193,13 @@ export const createVRMFromGLTF = (rootEntity: Entity) => {
     true
   )?.[0]
 
-  if (!hipsEntity || !entityExists(hipsEntity)) return
-
   setComponent(rootEntity, AvatarRigComponent, {
     bonesToEntities: {} as Record<VRMHumanBoneName, Entity>,
     entitiesToBones: {} as Record<Entity, VRMHumanBoneName>
   })
 
-  const hipsNameComponent = getOptionalComponent(hipsEntity, NameComponent)
-  if (!hipsNameComponent) return
+  const hipsName = getComponent(hipsEntity, NameComponent)
 
-  const hipsName = hipsNameComponent
   const hipsParent = getOptionalComponent(hipsEntity, EntityTreeComponent)?.parentEntity
   if (hipsParent && entityExists(hipsParent) && !hasComponent(hipsParent, ObjectComponent)) {
     setComponent(hipsParent, ObjectComponent, new Object3D())
@@ -269,35 +255,25 @@ const toesAngle = new Euler(Math.PI / 6, 0, 0)
 
 /**Rewrites avatar's bone quaternions and matrices to create a T-Pose, assuming all bones are the identity quaternion */
 export const enforceTPose = (entity: Entity) => {
-  const rigComponent = getOptionalComponent(entity, AvatarRigComponent)
-  if (!entityExists(entity) || !rigComponent) {
-    return
-  }
+  const rigComponent = getComponent(entity, AvatarRigComponent)
 
   const bones = rigComponent.bonesToEntities
 
   for (const bone in bones) {
     const boneEntity = bones[bone]
-    if (entityExists(boneEntity)) {
-      getOptionalComponent(boneEntity, TransformComponent)?.rotation.set(0, 0, 0, 1)
-      getOptionalComponent(boneEntity, TransformComponent)?.matrixWorld.identity()
-    }
+    getOptionalComponent(boneEntity, TransformComponent)?.rotation.set(0, 0, 0, 1)
+    getOptionalComponent(boneEntity, TransformComponent)?.matrixWorld.identity()
   }
 
   const poseArm = (side: 'left' | 'right') => {
     const shoulder = bones[`${side}Shoulder`]
-    const shoulderTransform = getOptionalComponent(shoulder, TransformComponent)
-    if (!shoulder || !entityExists(shoulder) || !shoulderTransform) return
+    const shoulderTransform = getComponent(shoulder, TransformComponent)
 
     const angle = shoulderAngle[`${side}ShoulderAngle`]
     shoulderTransform.rotation.setFromEuler(angle)
     iterateEntityNode(shoulder, (entity) => {
-      if (entityExists(entity)) {
-        const boneComponent = getOptionalComponent(entity, BoneComponent)
-        if (boneComponent) {
-          boneComponent.matrixWorld.makeRotationFromEuler(angle)
-        }
-      }
+      const boneComponent = getComponent(entity, BoneComponent)
+      boneComponent.matrixWorld.makeRotationFromEuler(angle)
     })
   }
 
