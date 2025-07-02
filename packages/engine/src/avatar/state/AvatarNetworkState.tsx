@@ -76,6 +76,7 @@ export const AvatarState = defineState({
 
   reactor: () => {
     const avatarState = useMutableState(AvatarState)
+
     return (
       <>
         {avatarState.keys.map((entityUUID: EntityUUID) => (
@@ -92,9 +93,9 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   const hasTransformComponent = useOptionalComponent(entity, TransformComponent)
 
   useLayoutEffect(() => {
-    if (!entity || !hasTransformComponent) return
+    if (!entity) return
     spawnAvatarReceptor(entityUUID)
-  }, [entity, hasTransformComponent])
+  }, [entity])
 
   useEffect(() => {
     if (!entity || !avatarURL.value) return
