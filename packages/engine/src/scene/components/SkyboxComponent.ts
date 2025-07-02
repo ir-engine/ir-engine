@@ -105,6 +105,7 @@ export const SkyboxComponent = defineComponent({
       // temporary logic to force solid color on iOS. We use a separate variable to keep track of this
       // so we can fall back to a sensical default value (in spite of bad serialized color data)
       // in the event the user did not set up a color themselves
+      /**@todo implement smart asset LOD system to load lower resolution skybox textures on iOS */
       if (iOS) forceColorFallback.set(true)
     }, [])
 
