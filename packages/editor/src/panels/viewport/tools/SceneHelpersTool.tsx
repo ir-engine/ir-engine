@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
+import { EngineState } from '@ir-engine/ecs'
 import { EditorHelperState, PlacementMode } from '@ir-engine/editor/src/services/EditorHelperState'
 import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
@@ -45,9 +46,19 @@ const volumeVisbilityDescriptions = {
 
 export default function SceneHelpersTool() {
   const { t } = useTranslation()
+  const engineState = useMutableState(EngineState)
   const editorHelperState = useMutableState(EditorHelperState)
   const rendererState = useMutableState(RendererState)
   const [pointClickEnabled] = useFeatureFlags([FeatureFlags.Studio.UI.PointClick])
+
+  useEffect(() => {
+    if (engineState.isEditing.value) {
+      rendererState.gridVisibility.set(editorHelperState.gridVisibility.value)
+      rendererState.gridHeight.set(editorHelperState.gridHeight.value)
+    } else {
+      rendererState.gridVisibility.set(false)
+    }
+  }, [editorHelperState.gridVisibility, editorHelperState.gridHeight, engineState.isEditing])
 
   useEffect(() => {
     getMutableState(RendererState).nodeHelperVisibility.set(
@@ -73,7 +84,6 @@ export default function SceneHelpersTool() {
   const isVolumeVisibilityOn = editorHelperState.volumeVisibility.value === VolumeVisibility.On
 
   const onToggleGridVisible = () => {
-    rendererState.gridVisibility.set(!editorHelperState.gridVisibility.value)
     editorHelperState.gridVisibility.set(!editorHelperState.gridVisibility.value)
   }
 

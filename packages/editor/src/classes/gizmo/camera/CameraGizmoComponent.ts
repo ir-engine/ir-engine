@@ -89,6 +89,7 @@ export const CameraGizmoComponent = defineComponent({
       })
       setComponent(gizmoVisualEntity, CameraGizmoTagComponent)
       setComponent(gizmoVisualEntity, VisibleComponent)
+
       cameraGizmoComponent.visualEntity.set(gizmoVisualEntity)
       return () => {
         removeComponent(gizmoVisualEntity, CameraGizmoVisualComponent)
@@ -110,13 +111,15 @@ export const CameraGizmoComponent = defineComponent({
 
     InputComponent.useExecuteWithInput(
       () => {
-        if (!cameraGizmoComponent.enabled.value || !cameraGizmoComponent.visualEntity.value) return
-        if (!cameraGizmoComponent.cameraEntity.value || !getState(ReferenceSpaceState).viewerEntity) return
+        const cameraGizmoComponent = getComponent(entity, CameraGizmoComponent)
+        if (!cameraGizmoComponent) return
+        if (!cameraGizmoComponent.enabled || !cameraGizmoComponent.visualEntity) return
+        if (!cameraGizmoComponent.cameraEntity || !getState(ReferenceSpaceState).viewerEntity) return
 
         onPointerHover(entity)
 
         const pickerButtons = InputComponent.getButtons(
-          getComponent(cameraGizmoComponent.visualEntity.value, CameraGizmoVisualComponent).picker
+          getComponent(cameraGizmoComponent.visualEntity, CameraGizmoVisualComponent).picker
         )
 
         //pointer down
@@ -129,8 +132,8 @@ export const CameraGizmoComponent = defineComponent({
           onPointerLost(entity)
         }
       },
-      true,
-      InputExecutionOrder.Before
+      InputExecutionOrder.Before,
+      true
     )
 
     return null

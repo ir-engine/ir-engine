@@ -15,6 +15,24 @@
   "nodes": [
     {
       "name": "Hemisphere Light",
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0.5,
+        0,
+        1
+      ],
       "extensions": {
         "EE_uuid": "ec27fd9e-6ab9-46dd-a49e-9c0edff54cd4",
         "EE_visible": true,

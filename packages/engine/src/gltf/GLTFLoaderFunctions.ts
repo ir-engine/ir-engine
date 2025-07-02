@@ -107,7 +107,7 @@ import {
 import { loadResource, unloadResource } from '../assets/functions/resourceLoaderFunctions'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { Loader } from '../assets/loaders/base/Loader'
-import { ResourceCache } from '../assets/loaders/base/ResourceCache'
+import { ResourceCache, extractHashFromURL } from '../assets/loaders/base/ResourceCache'
 import { TextureLoader } from '../assets/loaders/texture/TextureLoader'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { ResourceCacheState } from '../assets/state/ResourceCacheState'
@@ -152,6 +152,81 @@ export function getImageURIMimeType(uri) {
   if (uri.search(/\.webp($|\?)/i) > 0 || uri.search(/^data:image\/webp/) === 0) return 'image/webp'
 
   return 'image/png'
+}
+
+/**
+ * Validate GLTF cache and invalidate if necessary
+ * @param url The GLTF URL with hash parameter
+ * @returns Promise resolving to true if cache was valid, false if invalidated
+ */
+export async function validateGLTFCache(url: string): Promise<boolean> {
+  try {
+    const currentHash = extractHashFromURL(url)
+    if (!currentHash) {
+      return false
+    }
+
+    const isValid = await ResourceCache?.isGLTFCacheValid(url, currentHash)
+
+    if (!isValid) {
+      await ResourceCache?.invalidateGLTFDependencies(url)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.warn('Error validating GLTF cache:', error)
+    return false
+  }
+}
+
+/**
+ * Store GLTF metadata for future cache validation
+ * @param url The GLTF URL with hash parameter
+ * @param document The parsed GLTF document
+ */
+export async function storeGLTFMetadata(url: string, document: GLTF.IGLTF): Promise<void> {
+  try {
+    const hash = extractHashFromURL(url)
+    if (!hash) {
+      console.warn('No hash found in GLTF URL, cannot store metadata:', url)
+      return
+    }
+
+    const dependencies = extractGLTFDependencies(url, document)
+    await ResourceCache?.putGLTFMetadata(url, hash, dependencies)
+  } catch (error) {
+    console.warn('Error storing GLTF metadata:', error)
+  }
+}
+
+/**
+ * Extract all dependency URLs from a GLTF document
+ * @param baseUrl The base URL of the GLTF file
+ * @param document The GLTF document
+ * @returns Array of dependency URLs
+ */
+function extractGLTFDependencies(baseUrl: string, document: GLTF.IGLTF): string[] {
+  const dependencies: string[] = []
+  const basePath = LoaderUtils.extractUrlBase(baseUrl)
+
+  if (document.buffers) {
+    for (const buffer of document.buffers) {
+      if (buffer.uri && !buffer.uri.startsWith('data:')) {
+        dependencies.push(LoaderUtils.resolveURL(buffer.uri, basePath))
+      }
+    }
+  }
+
+  if (document.images) {
+    for (const image of document.images) {
+      if (image.uri && !image.uri.startsWith('data:')) {
+        dependencies.push(LoaderUtils.resolveURL(image.uri, basePath))
+      }
+    }
+  }
+
+  return dependencies
 }
 
 const loadPrimitives = async (options: GLTFParserOptions, meshIndex: number): Promise<[BufferGeometry, Entity[]]> => {
@@ -1578,6 +1653,10 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
     DependencyCache.set(`${rootEntity}${options.url}`, new Map<string, Promise<any>>())
   }
 
+  // Validate GLTF cache and then store metadata for future validation
+  await validateGLTFCache(options.url)
+  await storeGLTFMetadata(options.url, json)
+
   migrateSceneDeltas(rootEntity, options.document)
 
   const overrides = json.extensions?.[OVERRIDE_EXTENSION_NAME]
@@ -1678,7 +1757,8 @@ export const GLTFLoaderFunctions = {
   loadNode,
   loadScene,
   loadSkin,
-  unloadScene
+  unloadScene,
+  validateGLTFCache
 }
 
 export const DependencyCache = new Map<string, Map<string, Promise<any>>>()
