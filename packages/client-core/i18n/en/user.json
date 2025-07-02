@@ -37,7 +37,7 @@
       "agree": "I agree to the ",
       "terms": "Terms & Conditions",
       "lbl-submit": "Send Login Link",
-      "email-sent-msg": "A login magic link has been sent. Please check your email.",
+      "email-sent-msg": "Check your inbox - we've just sent you a magic link",
       "success-msg": "A login magic link has been sent. Please check your email or SMS.",
       "sms-sent-msg": "A login magic link has been sent. Please check your SMS."
     },
