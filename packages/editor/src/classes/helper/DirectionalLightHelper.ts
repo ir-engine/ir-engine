@@ -37,9 +37,9 @@ import {
 import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 import { LineSegmentComponent } from '@ir-engine/spatial/src/renderer/components/LineSegmentComponent'
 import { DirectionalLightComponent } from '@ir-engine/spatial/src/SpatialModule'
-import { BOUNDING_BOX_COLORS } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import { useEffect } from 'react'
 import { BufferGeometry, Float32BufferAttribute } from 'three'
+import { BOUNDING_BOX_COLORS } from './BoundingBoxHelper'
 
 const size = 3
 const lightPlaneGeometry = new BufferGeometry()

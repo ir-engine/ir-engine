@@ -39,7 +39,7 @@ import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/Buf
 import { LineSegmentComponent } from '@ir-engine/spatial/src/renderer/components/LineSegmentComponent'
 import { useEffect } from 'react'
 import { BufferGeometry, Float32BufferAttribute } from 'three'
-import { BOUNDING_BOX_COLORS } from '../../../../spatial/src/transform/components/BoundingBoxComponent'
+import { BOUNDING_BOX_COLORS } from './BoundingBoxHelper'
 
 function createHemisphereDomeGeometry(size: number = 10): BufferGeometry {
   const positions: number[] = []

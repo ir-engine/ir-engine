@@ -44,7 +44,7 @@ export const RendererState = defineState({
     avatarDebug: false,
     renderMode: RenderModes.SHADOW as RenderModesType,
     nodeHelperVisibility: false,
-    nodeIconVisibility: true,
+    nodeIconVisibility: false,
     gridVisibility: false,
     gridHeight: 0,
     forceBasicMaterials: false,

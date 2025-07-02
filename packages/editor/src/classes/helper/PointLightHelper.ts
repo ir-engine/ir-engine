@@ -37,9 +37,9 @@ import {
 import { PointLightComponent } from '@ir-engine/spatial'
 import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 import { LineSegmentComponent } from '@ir-engine/spatial/src/renderer/components/LineSegmentComponent'
-import { BOUNDING_BOX_COLORS } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import { useEffect } from 'react'
 import { BufferGeometry, Float32BufferAttribute } from 'three'
+import { BOUNDING_BOX_COLORS } from './BoundingBoxHelper'
 
 function createPointLightSphereGeometry(range: number): BufferGeometry {
   const positions: number[] = []

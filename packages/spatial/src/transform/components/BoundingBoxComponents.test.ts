@@ -31,26 +31,17 @@ import {
   createEntity,
   destroyEngine,
   getComponent,
-  getOptionalComponent,
   hasComponent,
-  removeComponent,
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
 
 import assert from 'assert'
 import { Box3, BoxGeometry, Mesh, Vector3 } from 'three'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 import { assertVec } from '../../../tests/util/assert'
-import { NameComponent } from '../../common/NameComponent'
-import { RendererState } from '../../renderer/RendererState'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
-import { ObjectComponent } from '../../renderer/components/ObjectComponent'
-import { VisibleComponent } from '../../renderer/components/VisibleComponent'
-import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { BoundingBoxComponent, BoundingBoxComponentFunctions, updateBoundingBox } from './BoundingBoxComponent'
-import { TransformComponent } from './TransformComponent'
 
 function createEntityWithBoxAndParent(parent: Entity): Entity {
   const result = createEntity()
@@ -133,202 +124,6 @@ describe('BoundingBoxComponent', () => {
       assertBoundingBoxComponentEq(after, Expected)
     })
   }) //:: onSet
-
-  describe('reactor', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-      getMutableState(RendererState).nodeHelperVisibility.set(false)
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    describe('when BoundingBoxComponent is mounted or RendererState.nodeHelperVisibility changes', () => {
-      describe('should set BoundingBoxComponent.helper to a new helperEntity that ...', () => {
-        beforeEach(() => {
-          setComponent(testEntity, BoundingBoxComponent)
-          getMutableState(RendererState).nodeHelperVisibility.set(true)
-        })
-
-        it('... has a VisibleComponent', async () => {
-          const Expected = true
-          // Run and Check the result
-
-          await vi.waitFor(() => {
-            const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
-            expect(helperEntity).not.toBe(UndefinedEntity)
-          })
-          const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
-          assert.notEqual(helperEntity, UndefinedEntity)
-          const result = hasComponent(helperEntity, VisibleComponent)
-          assert.equal(result, Expected)
-        })
-
-        it('... has a NameComponent with the value `bounding-box-helper-${entity}`', async () => {
-          const Expected = `bounding-box-helper-${testEntity}`
-          // Run and Check the result
-
-          await vi.waitFor(() => {
-            const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
-            expect(helperEntity).not.toBe(UndefinedEntity)
-          })
-          const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
-          assert.notEqual(helperEntity, UndefinedEntity)
-          assert.equal(hasComponent(helperEntity, NameComponent), true)
-          const result = getComponent(helperEntity, NameComponent)
-          assert.equal(result, Expected)
-        })
-
-        it('... has an EntityTreeComponent with the entityContext as its parentEntity', async () => {
-          const Expected = testEntity
-          // Run and Check the result
-
-          await vi.waitFor(() => {
-            const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
-            expect(helperEntity).not.toBe(UndefinedEntity)
-          })
-          const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
-          assert.notEqual(helperEntity, UndefinedEntity)
-          assert.equal(hasComponent(helperEntity, EntityTreeComponent), true)
-          const result = getComponent(helperEntity, EntityTreeComponent).parentEntity
-          assert.equal(result, Expected)
-        })
-
-        it("... has a Box3Helper which's name is the same as the helperEntity.NameComponent", async () => {
-          const Expected = `bounding-box-helper-${testEntity}`
-          // Run and Check the result
-
-          await vi.waitFor(() => {
-            const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
-            expect(helperEntity).not.toBe(UndefinedEntity)
-          })
-          const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
-          assert.notEqual(helperEntity, UndefinedEntity)
-          assert.equal(hasComponent(helperEntity, NameComponent), true)
-          assert.equal(hasComponent(helperEntity, TransformComponent), true)
-          assert.equal(hasComponent(helperEntity, ObjectComponent), true)
-          const result = getComponent(helperEntity, ObjectComponent).name
-          assert.equal(result, Expected)
-        })
-
-        it('... has a Box3Helper with the ObjectLayers.NodeHelper layer enabled', async () => {
-          const Expected = true
-          // Run and Check the result
-
-          await vi.waitFor(() => {
-            const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
-            expect(helperEntity).not.toBe(UndefinedEntity)
-          })
-          const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
-          assert.notEqual(helperEntity, UndefinedEntity)
-          assert.equal(hasComponent(helperEntity, NameComponent), true)
-          assert.equal(hasComponent(helperEntity, TransformComponent), true)
-          assert.equal(hasComponent(helperEntity, ObjectComponent), true)
-          const result = getComponent(helperEntity, ObjectComponent).layers.isEnabled(ObjectLayers.NodeHelper)
-          console.log(
-            getComponent(helperEntity, ObjectComponent).layers,
-            getComponent(helperEntity, ObjectComponent).layers.mask,
-            getComponent(helperEntity, ObjectComponent).layers.isEnabled(ObjectLayers.NodeHelper)
-          )
-          assert.equal(result, Expected)
-        })
-      })
-
-      it('should not set the BoundingBoxComponent.helper entity when RendererState.nodeHelperVisibility is false', async () => {
-        const Expected = UndefinedEntity
-        // Set the data as expected
-        setComponent(testEntity, BoundingBoxComponent)
-        // Sanity check before running
-        assert.equal(getState(RendererState).nodeHelperVisibility, false)
-        // Run and Check the result
-
-        await vi.waitFor(() => {
-          expect(getComponent(testEntity, BoundingBoxComponent)).toBeDefined()
-        })
-        const result = getComponent(testEntity, BoundingBoxComponent).helper
-        assert.equal(result, Expected)
-      })
-
-      it('should call updateBoundingBox on the entityContext whenever the value of RendererState.nodeHelperVisibility changes', async () => {
-        // Set the data as expected
-        const box = new Box3(new Vector3(1, 2, 3), new Vector3(4, 5, 6))
-        setComponent(testEntity, BoundingBoxComponent, { box: box })
-        setComponent(testEntity, MeshComponent, new Mesh(new BoxGeometry()))
-        const one = createEntityWithBoxAndParent(testEntity)
-        const two = createEntityWithBoxAndParent(one)
-        const entityList: Entity[] = [testEntity, one, two]
-        // Sanity check before running
-        assert.equal(getState(RendererState).nodeHelperVisibility, false)
-        for (const entity of entityList) assert.equal(getComponent(entity, MeshComponent).geometry.boundingBox, null)
-        // Run and Check the result
-        getMutableState(RendererState).nodeHelperVisibility.set(true)
-        assert.equal(getState(RendererState).nodeHelperVisibility, true)
-
-        await vi.waitFor(() => {
-          for (const entity of entityList) {
-            expect(getComponent(entity, MeshComponent).geometry.boundingBox).not.toBeNull()
-          }
-        })
-        for (const entity of entityList) assert.notEqual(getComponent(entity, MeshComponent).geometry.boundingBox, null)
-      })
-    })
-
-    describe('when BoundingBoxComponent is unmounted ...', () => {
-      beforeEach(() => {
-        getMutableState(RendererState).nodeHelperVisibility.set(true)
-      })
-
-      it('... should set the entityContext.BoundingBoxComponent.helper entity to UndefinedEntity', async () => {
-        const Expected = undefined
-        // Set the data as expected
-        setComponent(testEntity, BoundingBoxComponent)
-        // Sanity check before running
-        assert.equal(getState(RendererState).nodeHelperVisibility, true)
-
-        await vi.waitFor(() => {
-          const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
-          expect(helperEntity).not.toBe(UndefinedEntity)
-        })
-        const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
-        assert.notEqual(helperEntity, UndefinedEntity)
-        // Run and Check the result
-        removeComponent(testEntity, BoundingBoxComponent)
-        const result = getOptionalComponent(testEntity, BoundingBoxComponent)?.helper
-        assert.equal(result, Expected)
-      })
-
-      it('... should remove the helperEntity', async () => {
-        // Set the data as expected
-        setComponent(testEntity, BoundingBoxComponent)
-        // Sanity check before running
-        assert.equal(getState(RendererState).nodeHelperVisibility, true)
-
-        await vi.waitFor(() => {
-          const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
-          expect(helperEntity).not.toBe(UndefinedEntity)
-        })
-        const helperEntity = getComponent(testEntity, BoundingBoxComponent).helper
-        assert.notEqual(helperEntity, UndefinedEntity)
-        assert.equal(hasComponent(helperEntity, NameComponent), true)
-        assert.equal(hasComponent(helperEntity, TransformComponent), true)
-        assert.equal(hasComponent(helperEntity, ObjectComponent), true)
-        // Run and Check the result
-        removeComponent(testEntity, BoundingBoxComponent)
-        await vi.waitFor(() => {
-          expect(hasComponent(helperEntity, VisibleComponent)).toBe(false)
-        })
-        assert.equal(hasComponent(helperEntity, VisibleComponent), false)
-        assert.equal(hasComponent(helperEntity, NameComponent), false)
-        assert.equal(hasComponent(helperEntity, TransformComponent), false)
-        assert.equal(hasComponent(helperEntity, ObjectComponent), false)
-      })
-    })
-  }) //:: reactor
 }) //:: BoundingBoxComponent
 
 describe('updateBoundingBox', () => {

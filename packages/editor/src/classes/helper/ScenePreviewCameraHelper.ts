@@ -37,9 +37,9 @@ import {
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
 import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 import { LineSegmentComponent } from '@ir-engine/spatial/src/renderer/components/LineSegmentComponent'
-import { BOUNDING_BOX_COLORS } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import { useEffect } from 'react'
 import { BufferGeometry, Float32BufferAttribute, PerspectiveCamera } from 'three'
+import { BOUNDING_BOX_COLORS } from './BoundingBoxHelper'
 
 function createCameraFrustumGeometry(camera: PerspectiveCamera, maxDistance = 10): BufferGeometry {
   const { fov, aspect, near } = camera
