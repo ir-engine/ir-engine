@@ -57,7 +57,7 @@ import { SkyTypeEnum } from '../constants/SkyTypeEnum'
 import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
 
-const tempColor = new Color(0.7, 0.8, 1)
+const tempColor = new Color(0.65, 0.8, 1)
 
 export const SkyboxComponent = defineComponent({
   name: 'SkyboxComponent',
@@ -100,8 +100,16 @@ export const SkyboxComponent = defineComponent({
       }
     }, [])
 
+    const forceColorFallback = useHookstate(false)
     useEffect(() => {
-      if (skyboxState.backgroundType.value !== SkyTypeEnum.equirectangular || !texture || iOS) return
+      // temporary logic to force solid color on iOS. We use a separate variable to keep track of this
+      // so we can fall back to a sensical default value (in spite of bad serialized color data)
+      // in the event the user did not set up a color themselves
+      if (iOS) forceColorFallback.set(true)
+    }, [])
+
+    useEffect(() => {
+      if (skyboxState.backgroundType.value !== SkyTypeEnum.equirectangular || !texture) return
 
       texture.colorSpace = SRGBColorSpace
       texture.mapping = EquirectangularReflectionMapping
@@ -119,9 +127,12 @@ export const SkyboxComponent = defineComponent({
     }, [error])
 
     useEffect(() => {
-      if (skyboxState.backgroundType.value !== SkyTypeEnum.color || !iOS) return
+      if (skyboxState.backgroundType.value !== SkyTypeEnum.color && !forceColorFallback.value) return
 
-      const col = skyboxState.backgroundColor.value ?? tempColor
+      const col =
+        forceColorFallback.value && skyboxState.backgroundType.value !== SkyTypeEnum.color
+          ? tempColor
+          : skyboxState.backgroundColor.value
       const resolution = 64 // Min value required
       /** @todo track this in resource manager */
       const colorTexture = new DataTexture(getRGBArray(new Color(col)), resolution, resolution, RGBAFormat)
@@ -137,7 +148,7 @@ export const SkyboxComponent = defineComponent({
         colorTexture.dispose()
         removeComponent(entity, BackgroundComponent)
       }
-    }, [skyboxState.backgroundType, skyboxState.backgroundColor])
+    }, [skyboxState.backgroundType, skyboxState.backgroundColor, forceColorFallback])
 
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.cubemap) return
