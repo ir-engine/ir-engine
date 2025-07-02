@@ -27,15 +27,17 @@ import { Engine, getComponent, getOptionalMutableComponent, hasComponent } from 
 import { getState, none, useMutableState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { destroySpatialViewer, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { RendererComponent } from '../components/RendererComponent'
 
 export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
+  const canvasRef = useRef(document.getElementById('engine-renderer-canvas') as HTMLCanvasElement | null)
+
   useEffect(() => {
     if (!ref) return
     const parent = ref.current as HTMLElement
     if (!parent) return
-    const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
+    const canvas = (document.getElementById('engine-renderer-canvas') as HTMLCanvasElement) ?? canvasRef.current
 
     const originalParent = canvas.parentElement!
     canvas.hidden = false
@@ -60,9 +62,11 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
 
   useEffect(() => {
     const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
+    canvasRef.current = canvas
     initializeSpatialViewer(canvas)
     return () => {
       if (!Engine.instance) return
+      canvasRef.current = null
       destroySpatialViewer()
     }
   }, [])
