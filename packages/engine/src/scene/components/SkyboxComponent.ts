@@ -49,6 +49,7 @@ import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/Re
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { Sky } from '../classes/Sky'
@@ -56,7 +57,7 @@ import { SkyTypeEnum } from '../constants/SkyTypeEnum'
 import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
 
-const tempColor = new Color()
+const tempColor = new Color(0.65, 0.8, 1)
 
 export const SkyboxComponent = defineComponent({
   name: 'SkyboxComponent',
@@ -86,7 +87,9 @@ export const SkyboxComponent = defineComponent({
     const skyboxState = useComponent(entity, SkyboxComponent)
     const cubemapTexture = useHookstate<undefined | CubeTexture>(undefined)
     const [texture, error] = useTexture(
-      skyboxState.backgroundType.value === SkyTypeEnum.equirectangular ? skyboxState.equirectangularPath.value : '',
+      skyboxState.backgroundType.value === SkyTypeEnum.equirectangular && !iOS
+        ? skyboxState.equirectangularPath.value
+        : '',
       entity
     )
 
@@ -95,6 +98,15 @@ export const SkyboxComponent = defineComponent({
         if (entityExists(entity) && hasComponent(entity, BackgroundComponent))
           removeComponent(entity, BackgroundComponent)
       }
+    }, [])
+
+    const forceColorFallback = useHookstate(false)
+    useEffect(() => {
+      // temporary logic to force solid color on iOS. We use a separate variable to keep track of this
+      // so we can fall back to a sensical default value (in spite of bad serialized color data)
+      // in the event the user did not set up a color themselves
+      /**@todo implement smart asset LOD system to load lower resolution skybox textures on iOS */
+      if (iOS) forceColorFallback.set(true)
     }, [])
 
     useEffect(() => {
@@ -116,9 +128,12 @@ export const SkyboxComponent = defineComponent({
     }, [error])
 
     useEffect(() => {
-      if (skyboxState.backgroundType.value !== SkyTypeEnum.color) return
+      if (skyboxState.backgroundType.value !== SkyTypeEnum.color && !forceColorFallback.value) return
 
-      const col = skyboxState.backgroundColor.value ?? tempColor
+      const col =
+        forceColorFallback.value && skyboxState.backgroundType.value !== SkyTypeEnum.color
+          ? tempColor
+          : skyboxState.backgroundColor.value
       const resolution = 64 // Min value required
       /** @todo track this in resource manager */
       const colorTexture = new DataTexture(getRGBArray(new Color(col)), resolution, resolution, RGBAFormat)
@@ -134,7 +149,7 @@ export const SkyboxComponent = defineComponent({
         colorTexture.dispose()
         removeComponent(entity, BackgroundComponent)
       }
-    }, [skyboxState.backgroundType, skyboxState.backgroundColor])
+    }, [skyboxState.backgroundType, skyboxState.backgroundColor, forceColorFallback])
 
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.cubemap) return
