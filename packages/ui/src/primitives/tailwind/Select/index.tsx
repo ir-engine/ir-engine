@@ -391,7 +391,6 @@ const Select = ({
       contentStyle={{
         padding: '0px',
         border: 'none',
-        zIndex: 60,
         ...positionStyle
       }}
       onOpen={() => onOpen?.(true)}
