@@ -63,7 +63,11 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
   const RenderAction = () => {
     if (projectHistory.action === 'LOCATION_PUBLISHED' || projectHistory.action === 'LOCATION_UNPUBLISHED') {
-      const actionDetail = projectHistory.actionDetail as any as {
+      const actionDetail = (
+        typeof projectHistory.actionDetail === 'string'
+          ? JSON.parse(projectHistory.actionDetail)
+          : (projectHistory.actionDetail as any)
+      ) as {
         locationName: string
         sceneURL: string
         sceneId: string
@@ -97,7 +101,11 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
         </>
       )
     } else if (projectHistory.action === 'LOCATION_MODIFIED') {
-      const actionDetail = projectHistory.actionDetail as any as {
+      const actionDetail = (
+        typeof projectHistory.actionDetail === 'string'
+          ? JSON.parse(projectHistory.actionDetail)
+          : (projectHistory.actionDetail as any)
+      ) as {
         locationName: string
       }
 
@@ -113,7 +121,11 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
         </>
       )
     } else if (projectHistory.action === 'PERMISSION_CREATED' || projectHistory.action === 'PERMISSION_REMOVED') {
-      const actionDetail = projectHistory.actionDetail as any as {
+      const actionDetail = (
+        typeof projectHistory.actionDetail === 'string'
+          ? JSON.parse(projectHistory.actionDetail)
+          : (projectHistory.actionDetail as any)
+      ) as {
         userName: string
         userId: string
         permissionType: string
@@ -137,7 +149,11 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
         </>
       )
     } else if (projectHistory.action === 'PERMISSION_MODIFIED') {
-      const actionDetail = projectHistory.actionDetail as any as {
+      const actionDetail = (
+        typeof projectHistory.actionDetail === 'string'
+          ? JSON.parse(projectHistory.actionDetail)
+          : (projectHistory.actionDetail as any)
+      ) as {
         userName: string
         userId: string
         oldPermissionType: string
@@ -179,7 +195,11 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
           ? t('admin:components.history.resource')
           : t('admin:components.history.scene')
 
-      const actionDetail = projectHistory.actionDetail as any as {
+      const actionDetail = (
+        typeof projectHistory.actionDetail === 'string'
+          ? JSON.parse(projectHistory.actionDetail)
+          : (projectHistory.actionDetail as any)
+      ) as {
         url: string
       }
 
@@ -205,7 +225,11 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
       )
     } else if (projectHistory.action === 'RESOURCE_RENAMED' || projectHistory.action === 'SCENE_RENAMED') {
       const object = projectHistory.action === 'RESOURCE_RENAMED' ? 'resource' : 'scene'
-      const actionDetail = projectHistory.actionDetail as any as {
+      const actionDetail = (
+        typeof projectHistory.actionDetail === 'string'
+          ? JSON.parse(projectHistory.actionDetail)
+          : (projectHistory.actionDetail as any)
+      ) as {
         oldURL: string
         newURL: string
       }
@@ -241,7 +265,11 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
         projectHistory.action === 'RESOURCE_MODIFIED'
           ? t('admin:components.history.resource')
           : t('admin:components.history.scene')
-      const actionDetail = projectHistory.actionDetail as any as {
+      const actionDetail = (
+        typeof projectHistory.actionDetail === 'string'
+          ? JSON.parse(projectHistory.actionDetail)
+          : (projectHistory.actionDetail as any)
+      ) as {
         url: string
       }
 
@@ -258,7 +286,11 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
         </>
       )
     } else if (projectHistory.action === 'TAGS_MODIFIED') {
-      const actionDetail = projectHistory.actionDetail as any as {
+      const actionDetail = (
+        typeof projectHistory.actionDetail === 'string'
+          ? JSON.parse(projectHistory.actionDetail)
+          : (projectHistory.actionDetail as any)
+      ) as {
         url: string
       }
 
@@ -273,7 +305,11 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
         </>
       )
     } else if (projectHistory.action === 'THUMBNAIL_CREATED') {
-      const actionDetail = projectHistory.actionDetail as any as {
+      const actionDetail = (
+        typeof projectHistory.actionDetail === 'string'
+          ? JSON.parse(projectHistory.actionDetail)
+          : (projectHistory.actionDetail as any)
+      ) as {
         thumbnailURL: string
         url: string
       }
@@ -304,7 +340,11 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
         </>
       )
     } else if (projectHistory.action === 'THUMBNAIL_MODIFIED') {
-      const actionDetail = projectHistory.actionDetail as any as {
+      const actionDetail = (
+        typeof projectHistory.actionDetail === 'string'
+          ? JSON.parse(projectHistory.actionDetail)
+          : (projectHistory.actionDetail as any)
+      ) as {
         oldThumbnailURL: string
         newThumbnailURL: string
         url: string
@@ -336,7 +376,11 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
         </>
       )
     } else if (projectHistory.action === 'THUMBNAIL_REMOVED') {
-      const actionDetail = projectHistory.actionDetail as any as {
+      const actionDetail = (
+        typeof projectHistory.actionDetail === 'string'
+          ? JSON.parse(projectHistory.actionDetail)
+          : (projectHistory.actionDetail as any)
+      ) as {
         url: string
       }
 
