@@ -72,7 +72,7 @@ export default function AudioScreen() {
             logger.analytics({ event_name: `set_user_volume`, event_value: value })
           }}
         />
-        <SliderItem
+        {/* <SliderItem
           label={t('user:usermenu.setting.lbl-background-music-volume')}
           value={audioState.backgroundMusicVolume.value}
           min={0}
@@ -82,7 +82,7 @@ export default function AudioScreen() {
             audioState.backgroundMusicVolume.set(value)
             logger.analytics({ event_name: `set_music_volume`, event_value: value })
           }}
-        />
+        /> */}
       </Section>
     </Inner>
   )

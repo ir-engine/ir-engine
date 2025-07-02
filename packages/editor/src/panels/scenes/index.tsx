@@ -108,7 +108,9 @@ function ScenesPanel() {
                   }}
                   disableDeleteScene={editorState.sceneAssetID.value === scene.id}
                   onRenameScene={(newName) => {
-                    editorState.scenePath.set(newName)
+                    if (editorState.sceneAssetID.value === scene.id) {
+                      editorState.scenePath.set(newName)
+                    }
                   }}
                   handleOpenScene={() => onClickScene(scene)}
                   refetchProjectsData={scenesQuery.refetch}

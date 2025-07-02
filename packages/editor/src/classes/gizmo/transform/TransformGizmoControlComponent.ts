@@ -31,6 +31,7 @@ import {
   defineComponent,
   Entity,
   EntityTreeComponent,
+  getComponent,
   getOptionalComponent,
   hasComponent,
   removeEntity,
@@ -52,7 +53,7 @@ import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
-import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
@@ -153,7 +154,6 @@ export const TransformGizmoControlComponent = defineComponent({
 
     useEffect(() => {
       if (!originEntity) return
-
       // create the entities once
       const gizmoVisualEntity = createTransformGizmoVisualEntity(originEntity)
       const gizmoPlaneEntity = createTransformGizmoPlaneEntity(originEntity)
@@ -161,7 +161,7 @@ export const TransformGizmoControlComponent = defineComponent({
 
       const gizmoControlEntity = createEntity()
       setComponent(gizmoControlEntity, EntityTreeComponent, { parentEntity: originEntity })
-      setComponent(gizmoControlEntity, NameComponent, 'gizmoControlEntity')
+      setComponent(gizmoControlEntity, NameComponent, 'transformGizmoControlEntity')
       setComponent(gizmoControlEntity, TransformGizmoControlComponent, {
         visualEntity: gizmoVisualEntity,
         planeEntity: gizmoPlaneEntity,
@@ -182,8 +182,15 @@ export const TransformGizmoControlComponent = defineComponent({
     }, [originEntity])
 
     useEffect(() => {
-      if (!gizmoEntity.value || !controlledEntity) return
-      if (!hasComponent(controlledEntity, TransformComponent)) return
+      if (!gizmoEntity.value) return
+
+      const gizmoPlaneEntity = getComponent(gizmoEntity.value, TransformGizmoControlComponent).planeEntity
+      const gizmoVisualEntity = getComponent(gizmoEntity.value, TransformGizmoControlComponent).visualEntity
+
+      setVisibleComponent(gizmoVisualEntity, controlledEntities.length > 0)
+      setVisibleComponent(gizmoPlaneEntity, controlledEntities.length > 0)
+
+      if (!controlledEntity || !hasComponent(controlledEntity, TransformComponent)) return
 
       setComponent(gizmoEntity.value, TransformGizmoControlComponent, {
         controlledEntities: controlledEntities

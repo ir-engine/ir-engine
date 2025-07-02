@@ -37,7 +37,19 @@ export const MediaHelperReactor: React.FC = (props: { parentEntity; iconEntity; 
 
   useHelperEntity(
     parentEntity,
-    () => new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide })),
+    () => {
+      const material = new MeshBasicMaterial({
+        transparent: true,
+        opacity: 0.3,
+        side: DoubleSide,
+        depthTest: false,
+        depthWrite: false
+      })
+
+      const plane = new PlaneGeometry()
+
+      return new Mesh(plane, material)
+    },
     debugEnabled && !!audioHelperTexture
   )
   return null

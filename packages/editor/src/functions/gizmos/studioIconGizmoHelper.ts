@@ -32,7 +32,7 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@ir-engine/spatial/src/SpatialModule'
-import { Line, Raycaster, Sprite, SpriteMaterial, TextureLoader } from 'three'
+import { Line, Raycaster, Sprite, SpriteMaterial, TextureLoader, Vector3 } from 'three'
 import { Vector3_One, Vector3_Zero } from '../../../../spatial/src/common/constants/MathConstants'
 import { EditorHelperState } from '../../services/EditorHelperState'
 import { getCameraFactor, intersectObjectWithRay } from './gizmoCommonFunctions'
@@ -43,6 +43,8 @@ _raycaster.firstHitOnly = true
 
 const _interpolationFactor = 0.3 // used for the hover grow effect
 
+const _parentWorldPositon = new Vector3()
+const _parentWorldScale = new Vector3()
 export const VolumeVisibility = {
   Off: 'Off' as const,
   Auto: 'Auto' as const,
@@ -83,13 +85,14 @@ export function gizmoIconHelperUpdate(helperEntity, start, end) {
 
 export function gizmoIconUpdate(parentEntity: Entity, iconEntity: Entity, directionalEntities: Entity[], currentsize) {
   const transform = getComponent(iconEntity, TransformComponent)
-  const parentTransform = getComponent(parentEntity, TransformComponent)
+  TransformComponent.getWorldPosition(parentEntity, _parentWorldPositon)
+  TransformComponent.getWorldScale(parentEntity, _parentWorldScale)
   const size = transform.scale
   const finalSize = size
     .set(1, 1, 1)
-    .multiplyScalar(getCameraFactor(parentTransform.position, currentsize))
+    .multiplyScalar(getCameraFactor(_parentWorldPositon, currentsize))
     .max(Vector3_One)
-    .divide(parentTransform.scale)
+    .divide(_parentWorldScale)
 
   setComponent(iconEntity, TransformComponent, { position: Vector3_Zero, scale: finalSize })
   for (const entity of directionalEntities) {

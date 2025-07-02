@@ -31,33 +31,23 @@
   }
 
   .text-shadow-sm {
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    text-shadow: 0 0.0625em 0.125em rgba(0, 0, 0, 0.05);
   }
 
   .text-shadow {
-    text-shadow: 0 2px 2px rgba(0, 0, 0, 0.25);
+    text-shadow: 0 0.125em 0.125em rgba(0, 0, 0, 0.25);
   }
 
   .text-shadow-md {
     text-shadow:
-      0 4px 6px rgba(0, 0, 0, 0.07),
-      0 2px 4px rgba(0, 0, 0, 0.06);
+      0 0.25em 0.375em rgba(0, 0, 0, 0.07),
+      0 0.125em 0.25em rgba(0, 0, 0, 0.06);
   }
 
   .text-shadow-lg {
     text-shadow:
-      0 10px 15px rgba(0, 0, 0, 0.1),
-      0 4px 6px rgba(0, 0, 0, 0.05);
-  }
-
-  .text-shadow-xl {
-    text-shadow:
-      0 20px 25px rgba(0, 0, 0, 0.1),
-      0 10px 10px rgba(0, 0, 0, 0.04);
-  }
-
-  .text-shadow-2xl {
-    text-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+      0 0.625em 1em rgba(0, 0, 0, 0.1),
+      0 0.25em 0.375em rgba(0, 0, 0, 0.05);
   }
 
   .inset-shadow {
