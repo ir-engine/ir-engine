@@ -46,6 +46,17 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  testdb-vector:
+    image: pgvector/pgvector:pg16
+    container_name: ir-engine_vector_test_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DATABASE: vector-db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
 
   ollama:
     image: ollama/ollama:latest
@@ -102,6 +113,9 @@ services:
 
 volumes:
   postgres_data:
+    driver: local
+
+  postgres_test_data:
     driver: local
 
   ollama_storage:

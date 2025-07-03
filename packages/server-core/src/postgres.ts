@@ -84,14 +84,7 @@ export default (app: Application): void => {
           })
       })
 
-      promise
-        .then(() => {
-          return oldSetup.apply(this, args)
-        })
-        .catch((error) => {
-          logger.error('Error in PostgreSQL setup: %s', error)
-          throw error
-        })
+      return oldSetup.apply(this, args)
     }
 
     app.set('vectorDbClient', vectorDb)

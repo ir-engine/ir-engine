@@ -34,4 +34,5 @@ class MeshoptDecoderConstructor {
   decodeGltfBufferAsync?: (count: number, stride: number, source: Uint8Array, mode: number, filter: number) => Promise<{ buffer: ArrayBuffer }>;
 }
 
-export const MeshoptDecoder: MeshoptDecoderConstructor;
+declare const MeshoptDecoder: MeshoptDecoderConstructor;
+export { MeshoptDecoder };

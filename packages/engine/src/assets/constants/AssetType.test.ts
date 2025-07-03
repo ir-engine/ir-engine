@@ -47,22 +47,22 @@ describe('AssetType', () => {
 
     const badExt = FileToAssetExt(badURl2)
     for (const ext of exts) {
-      assert(badExt !== <AssetExt>ext)
+      assert(badExt !== (ext as AssetExt))
     }
 
     for (const ext of exts) {
       const url = 'https://localhost:3000/test.' + ext
-      assert(FileToAssetExt(url) === <AssetExt>ext)
+      assert(FileToAssetExt(url) === (ext as AssetExt))
     }
 
     for (const ext of exts) {
       const url = 'https://localhost:3000/test.' + ext.toUpperCase()
-      assert(FileToAssetExt(url) === <AssetExt>ext)
+      assert(FileToAssetExt(url) === (ext as AssetExt))
     }
 
     for (const ext of exts) {
       const url = 'localhost:3000/test.' + ext
-      assert(FileToAssetExt(url) === <AssetExt>ext)
+      assert(FileToAssetExt(url) === (ext as AssetExt))
     }
   })
 
