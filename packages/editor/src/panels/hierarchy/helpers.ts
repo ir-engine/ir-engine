@@ -104,8 +104,9 @@ export const pasteNodes = (parentEntity?: Entity) => {
 
   const ProcessEntityData = (parentEntity: Entity | undefined, nodeEntitiesData: EntityCopyDataType[]) => {
     nodeEntitiesData.forEach((nodeEntityData) => {
-      const components = nodeEntityData.components.map((c) => ({ name: c.name, props: c.json }) as ComponentJsonType)
-      delete components[UUIDComponent.jsonID]
+      const components = nodeEntityData.components
+        .filter((c) => c.name !== UUIDComponent.jsonID)
+        .map((c) => ({ name: c.name, props: c.json }) as ComponentJsonType)
 
       const entityData = EditorControlFunctions.createObjectFromSceneElement(
         components,
