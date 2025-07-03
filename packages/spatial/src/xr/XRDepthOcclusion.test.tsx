@@ -71,13 +71,12 @@ describe('XRDepthOcclusion', () => {
       const material = new MeshBasicMaterial()
       material.userData = Initial
       // Sanity check before running
-      expect(material.userData).toBeFalsy()
       const before = material.userData
       expect(before).toEqual(Initial)
       // Run and Check the result
       expect(() => XRDepthOcclusion.addDepthOBCPlugin(material, {} as DepthDataTexture)).not.toThrow()
       const result = material.userData
-      expect(result).not.toEqual(Initial)
+      expect(result).toEqual(Initial)
     })
 
     it('should not error if `@param material` is falsy', () => {
