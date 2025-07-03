@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useHookstate } from '@hookstate/core'
 import {
+  Easing,
   Entity,
   EntityTreeComponent,
   UndefinedEntity,
@@ -40,6 +41,7 @@ import { LineSegmentComponent } from '@ir-engine/spatial/src/renderer/components
 import { useEffect } from 'react'
 import { BufferGeometry, Float32BufferAttribute } from 'three'
 import { BOUNDING_BOX_COLORS } from '../../../../spatial/src/transform/components/BoundingBoxComponent'
+import { iconGizmoTransitionTimeout } from '../../constants/GizmoPresets'
 
 function createHemisphereDomeGeometry(size: number = 10): BufferGeometry {
   const positions: number[] = []
@@ -144,14 +146,29 @@ export const HemiSphereLightHelperReactor: React.FC = (props: { parentEntity; ic
     setComponent(helperEntity, LineSegmentComponent, {
       name: 'hemisphere-light-helper',
       geometry: gizmoGeometry?.clone(),
-      color: hemisphereLightComponent.skyColor.value
+      color: hemisphereLightComponent.skyColor.value,
+      opacity: 0
+    })
+
+    // @ts-ignore causes issues with the type system value inferred as never
+    LineSegmentComponent.setTransition(helperEntity, 'opacity', 1, {
+      duration: iconGizmoTransitionTimeout,
+      easing: Easing.quadratic.inOut
     })
 
     hemisphereLightHelperEntity.set(helperEntity)
 
     return () => {
-      removeEntity(helperEntity)
-      hemisphereLightHelperEntity.set(UndefinedEntity)
+      // @ts-ignore causes issues with the type system value inferred as never
+      LineSegmentComponent.setTransition(helperEntity, 'opacity', 0, {
+        duration: iconGizmoTransitionTimeout,
+        easing: Easing.quadratic.inOut
+      })
+
+      setTimeout(() => {
+        removeEntity(helperEntity)
+        hemisphereLightHelperEntity.set(UndefinedEntity)
+      }, iconGizmoTransitionTimeout)
     }
   }, [selected, hovered])
 

@@ -49,10 +49,18 @@ export function ColorJSONInput({ value, onChange }: ColorJSONInputProps) {
 
   return (
     <>
-      <InputGroup name="color" label={t('editor:properties.particle-system.startColor.color')}>
+      <InputGroup
+        name="color"
+        label={t('editor:properties.particle-system.startColor.color')}
+        containerClassName="pl-0"
+      >
         <ColorInput value={new Color(value.r, value.g, value.b)} onChange={handleChangeColor} />
       </InputGroup>
-      <InputGroup name="opacity" label={t('editor:properties.particle-system.startColor.opacity')}>
+      <InputGroup
+        name="opacity"
+        label={t('editor:properties.particle-system.startColor.opacity')}
+        containerClassName="pl-0"
+      >
         <NumericInput value={value.a} onChange={handleChangeGradient} />
       </InputGroup>
     </>

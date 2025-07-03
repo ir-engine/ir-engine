@@ -786,12 +786,15 @@
         "anglePosition": "Angle {{position}}"
       },
       "emission-over-time": "Emission Over Time",
-      "render-mode": "Render Mode",
-      "render-mode-type": {
+      "renderMode": {
+        "title": "Render Mode",
         "billboard": "Billboard",
         "stretched-billboard": "Stretched Billboard",
         "mesh": "Mesh",
-        "trail": "Trail"
+        "trail": "Trail",
+        "speedFactor": "Speed Factor",
+        "lengthFactor": "Length Factor",
+        "trailLength": "Trail Length"
       },
       "texture": "Particle Texture",
       "u-tiles": "U Tiles",
@@ -801,6 +804,19 @@
       "blending": "Blending",
       "transparent": "Transparent",
       "world-space": "Use World Space",
+      "valueGenerator": {
+        "value": "Value",
+        "min": "Min",
+        "max": "Max",
+        "addBezier": "Add Bezier",
+        "pIndex": "P{{index}}",
+        "start": "Start",
+        "remove": "Remove",
+        "type": "Type",
+        "constant": "Constant",
+        "interval": "Interval",
+        "bezier": "Bezier"
+      },
       "blending-type": {
         "normal": "Normal",
         "additive": "Additive",
@@ -818,6 +834,39 @@
       },
       "addBehavior": "Add Behavior",
       "behaviors": "Behaviors",
+      "behavior": {
+        "force": "Force",
+        "magnitude": "Magnitude",
+        "frequency": "Frequency",
+        "Power": "Power",
+        "positionAmount": "Position Amount",
+        "rotationAmount": "Rotation Amount",
+        "scale": "Scale",
+        "octaves": "Octaves",
+        "velocityMultiplier": "Velocity Multiplier",
+        "timeScale": "Time Scale",
+        "center": "Center",
+        "color": "Color",
+        "angularVelocity": "Angular Velocity",
+        "dynamic": "Dynamic",
+        "size": "Size",
+        "speed": "Speed",
+        "frame": "Frame",
+        "orbit": "Orbit",
+        "axis": "Axis",
+        "width": "Width",
+        "angle": "Angle",
+        "subParticleSystem": "Sub Particle System",
+        "type": "Type",
+        "applyForce": "Apply Force",
+        "noise": "Noise",
+        "turbulenceField": "Turbulence Field",
+        "gravity": "Gravity",
+        "typeOverLifetime": "{{type}} Over Lifetime",
+        "widthOverLength": "Width Over Length",
+        "changeEmitDirection": "Change Emit Direction",
+        "emitSubParticleSystem": "Emit Sub Particle System"
+      },
       "remove": "Remove"
     },
     "clouds": {

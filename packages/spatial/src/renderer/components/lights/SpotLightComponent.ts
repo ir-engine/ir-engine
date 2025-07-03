@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { SpotLight } from 'three'
+import { Color, SpotLight } from 'three'
 
 import { S, useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -109,6 +109,10 @@ export const SpotLightComponent = defineComponent({
     useEffect(() => {
       light.castShadow = spotLightComponent.castShadow.value
     }, [spotLightComponent.castShadow])
+
+    useEffect(() => {
+      light.color = new Color(spotLightComponent.color.value)
+    }, [spotLightComponent.color.value])
 
     useEffect(() => {
       if (light.shadow.mapSize.x !== renderState.shadowMapResolution.value) {

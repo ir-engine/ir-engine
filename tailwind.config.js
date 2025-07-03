@@ -34,7 +34,8 @@ module.exports = {
     '../engine/**/*.{ts,tsx}',
     '../editor/**/*.{ts,tsx}',
     '../projects/projects/**/*.{ts,tsx}',
-    '../ui/**/*.{ts,tsx}'
+    '../ui/**/*.{ts,tsx}',
+    '!**/node_modules/**'
   ],
   darkMode: ['class', '[data-theme="dark"]'],
   important: true, // important in prod is must be

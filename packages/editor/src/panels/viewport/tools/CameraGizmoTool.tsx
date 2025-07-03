@@ -28,7 +28,6 @@ import {
   createEntity,
   EntityID,
   EntityTreeComponent,
-  getComponent,
   removeComponent,
   setComponent,
   SourceID,
@@ -36,11 +35,9 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { AmbientLightComponent, TransformComponent } from '@ir-engine/spatial'
-import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import React, { useEffect, useRef } from 'react'
 import { Vector3 } from 'three'
 import { CameraGizmoComponent } from '../../../classes/gizmo/camera/CameraGizmoComponent'
@@ -70,9 +67,6 @@ export default function CameraGizmoTool({
     removeComponent(cameraEntity, CameraOrbitComponent)
     setComponent(cameraEntity, TransformComponent, { position: new Vector3(0, 0, 2) })
 
-    const camera = getComponent(cameraEntity, CameraComponent)
-    camera.layers.set(ObjectLayers.Gizmos)
-
     const lightEntity = createEntity()
     setComponent(lightEntity, AmbientLightComponent)
     setComponent(lightEntity, TransformComponent)
@@ -82,7 +76,7 @@ export default function CameraGizmoTool({
   }, [])
 
   return (
-    <div className="z-[4] ml-auto h-20 w-20 ">
+    <div className="z-20 ml-auto h-20 w-20 ">
       <canvas id="camera-gizmo-tool" ref={panelRef} style={{ pointerEvents: 'all' }} />
     </div>
   )

@@ -23,27 +23,30 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Meta, StoryObj } from '@storybook/react'
+import { ws } from 'msw'
 
-import { Badge as Component } from './Badge'
+const primus = ws.link(/primus/g)
 
-const meta: Meta<typeof Component> = {
-  title: 'Components/Badge',
-  component: Component,
-  parameters: {
-    backgrounds: {
-      default: 'dark'
-    }
-  }
-}
-export default meta
+// Keys should be shaped like `scope.find`, etc..
+type MockCollection = Record<string, (input: object) => object>
 
-type Story = StoryObj<typeof meta>
-
-export const Default: Story = {
-  args: {
-    number: 5,
-    position: 'top' as 'bottom' | 'top',
-    show: true
-  }
+export const handleMocks = (handlers: MockCollection) => {
+  return [
+    primus.addEventListener('connection', ({ client }) => {
+      client.addEventListener('message', (message) => {
+        const messageData = JSON.parse(message.data.toString())
+        const { id, data } = messageData
+        const [method, path, input] = data
+        const handler = handlers[`${path}.${method}`]
+        if (!handler) return
+        const responseData = handler(input)
+        const response = {
+          id,
+          type: 1,
+          data: [null, responseData]
+        }
+        client.send(JSON.stringify(response))
+      })
+    })
+  ]
 }

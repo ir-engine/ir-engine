@@ -57,7 +57,7 @@ const CheckboxItem: React.FC<CheckboxItemProps> = ({ label, checked = false, onC
             transition={{
               type: 'tween',
               ease: 'circOut',
-              duration: 0.15
+              duration: 0.1
             }}
           />
 
@@ -72,7 +72,7 @@ const CheckboxItem: React.FC<CheckboxItemProps> = ({ label, checked = false, onC
             transition={{
               type: 'tween',
               ease: 'circOut',
-              duration: 0.2,
+              duration: checked ? 0.15 : 0.1,
               delay: checked ? 0.05 : 0
             }}
           >

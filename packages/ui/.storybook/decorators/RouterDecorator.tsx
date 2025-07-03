@@ -23,34 +23,32 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
-import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
-import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
+import { Decorator } from '@storybook/react'
+import React from 'react'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
-const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png'
+/**
+ * Simple Router Decorator for Storybook
+ * Provides basic routing functionality using MemoryRouter
+ */
+export const SimpleRouterDecorator: Decorator = (Story, context) => {
+  const routerConfig = context.parameters?.router as
+    | {
+        initialEntries?: string[]
+        initialIndex?: number
+      }
+    | undefined
 
-export const MediaHelperReactor: React.FC = (props: { parentEntity; iconEntity; selected; hovered }) => {
-  const { parentEntity, iconEntity, selected, hovered } = props
+  const initialEntries = routerConfig?.initialEntries || ['/']
+  const initialIndex = routerConfig?.initialIndex || 0
 
-  const debugEnabled = selected || hovered
-  const [audioHelperTexture] = useTexture(debugEnabled ? AUDIO_TEXTURE_PATH : '', parentEntity)
-
-  useHelperEntity(
-    parentEntity,
-    () => {
-      const material = new MeshBasicMaterial({
-        transparent: true,
-        opacity: 0.3,
-        side: DoubleSide,
-        depthTest: false,
-        depthWrite: false
-      })
-
-      const plane = new PlaneGeometry()
-
-      return new Mesh(plane, material)
-    },
-    debugEnabled && !!audioHelperTexture
+  return (
+    <MemoryRouter initialEntries={initialEntries} initialIndex={initialIndex}>
+      <Routes>
+        <Route path="*" element={<Story />} />
+      </Routes>
+    </MemoryRouter>
   )
-  return null
 }
+
+export default SimpleRouterDecorator

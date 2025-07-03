@@ -23,34 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
-import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
-import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
+import React from 'react'
 
-const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png'
-
-export const MediaHelperReactor: React.FC = (props: { parentEntity; iconEntity; selected; hovered }) => {
-  const { parentEntity, iconEntity, selected, hovered } = props
-
-  const debugEnabled = selected || hovered
-  const [audioHelperTexture] = useTexture(debugEnabled ? AUDIO_TEXTURE_PATH : '', parentEntity)
-
-  useHelperEntity(
-    parentEntity,
-    () => {
-      const material = new MeshBasicMaterial({
-        transparent: true,
-        opacity: 0.3,
-        side: DoubleSide,
-        depthTest: false,
-        depthWrite: false
-      })
-
-      const plane = new PlaneGeometry()
-
-      return new Mesh(plane, material)
-    },
-    debugEnabled && !!audioHelperTexture
-  )
-  return null
+/**
+ * Router Outlet component for use with storybook-addon-remix-react-router
+ */
+export const RouterOutlet: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
+  return <div className="router-outlet">{children}</div>
 }
+
+export default RouterOutlet

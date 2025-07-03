@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useHookstate } from '@hookstate/core'
 import {
   createEntity,
+  Easing,
   Entity,
   EntityTreeComponent,
   getMutableComponent,
@@ -40,6 +41,7 @@ import { DirectionalLightComponent } from '@ir-engine/spatial/src/SpatialModule'
 import { BOUNDING_BOX_COLORS } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import { useEffect } from 'react'
 import { BufferGeometry, Float32BufferAttribute } from 'three'
+import { iconGizmoTransitionTimeout } from '../../constants/GizmoPresets'
 
 const size = 3
 const lightPlaneGeometry = new BufferGeometry()
@@ -110,13 +112,31 @@ export const DirectionalLightHelperReactor: React.FC = (props: { parentEntity; i
     setComponent(helperEntity, LineSegmentComponent, {
       name: 'directional-light-helper',
       geometry: mergedGeometry?.clone(),
-      color: directionalLight.color.value
+      color: directionalLight.color.value,
+      opacity: 0
     })
+    // @ts-ignore causes issues with the type system value inferred as never
+
+    LineSegmentComponent.setTransition(helperEntity, 'opacity', 1, {
+      duration: iconGizmoTransitionTimeout,
+      easing: Easing.quadratic.inOut
+    })
+
     directionalLightHelperEntity.set(helperEntity)
 
     return () => {
-      removeEntity(helperEntity)
-      directionalLightHelperEntity.set(UndefinedEntity)
+      // @ts-ignore causes issues with the type system value inferred as never
+
+      LineSegmentComponent.setTransition(helperEntity, 'opacity', 0, {
+        duration: iconGizmoTransitionTimeout,
+        easing: Easing.quadratic.inOut
+      })
+
+      // Delay removal until after fade-out completes
+      setTimeout(() => {
+        removeEntity(helperEntity)
+        directionalLightHelperEntity.set(UndefinedEntity)
+      }, iconGizmoTransitionTimeout)
     }
   }, [selected, hovered])
 

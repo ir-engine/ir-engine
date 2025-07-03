@@ -56,9 +56,9 @@ export const AvatarState = defineState({
 
   receptors: {
     onSpawn: AvatarNetworkAction.spawn.receive((action) => {
-      getMutableState(AvatarState)[
-        UUIDComponent.join({ entitySourceID: action.entitySourceID!, entityID: action.entityID })
-      ].set({
+      const avatarUUID = UUIDComponent.join({ entitySourceID: action.entitySourceID!, entityID: action.entityID })
+
+      getMutableState(AvatarState)[avatarUUID].merge({
         avatarURL: action.avatarURL,
         name: action.name
       })
@@ -76,6 +76,7 @@ export const AvatarState = defineState({
 
   reactor: () => {
     const avatarState = useMutableState(AvatarState)
+
     return (
       <>
         {avatarState.keys.map((entityUUID: EntityUUID) => (
@@ -92,9 +93,9 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   const hasTransformComponent = useOptionalComponent(entity, TransformComponent)
 
   useLayoutEffect(() => {
-    if (!entity || !hasTransformComponent) return
+    if (!entity) return
     spawnAvatarReceptor(entityUUID)
-  }, [entity, hasTransformComponent])
+  }, [entity])
 
   useEffect(() => {
     if (!entity || !avatarURL.value) return

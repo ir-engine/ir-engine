@@ -36,7 +36,7 @@ interface CheckboxItemProps {
 }
 
 const meta = {
-  title: 'Components/Settings/CheckboxItem',
+  title: 'Components/Checkbox',
   component: CheckboxItem,
   parameters: {
     layout: 'centered',
@@ -92,88 +92,4 @@ const CheckboxItemRenderer = (args: CheckboxItemProps) => {
 export const Default: Story = {
   name: 'Default',
   render: CheckboxItemRenderer
-}
-
-export const Checked: Story = {
-  name: 'Checked',
-  args: {
-    checked: true
-  },
-  render: CheckboxItemRenderer
-}
-
-export const Disabled: Story = {
-  name: 'Disabled',
-  args: {
-    disabled: true
-  },
-  render: CheckboxItemRenderer
-}
-
-export const DisabledChecked: Story = {
-  name: 'Disabled Checked',
-  args: {
-    checked: true,
-    disabled: true
-  },
-  render: CheckboxItemRenderer
-}
-
-export const AgeVerification: Story = {
-  name: 'Age Verification',
-  args: {
-    label: 'I am 18 years of age or older'
-  },
-  render: CheckboxItemRenderer
-}
-
-export const WithCustomContent: Story = {
-  name: 'With Custom Content',
-  render: (args) => {
-    const [currentArgs, updateArgs] = useArgs<{ checked: boolean }>()
-
-    return (
-      <div className="w-96 rounded-lg bg-gradient-to-br from-pink-500 via-purple-500 to-orange-400 p-4">
-        <CheckboxItem
-          {...args}
-          checked={currentArgs.checked}
-          onClick={() => updateArgs({ checked: !currentArgs.checked })}
-        >
-          <div className="flex flex-col">
-            <span className="font-medium">Custom Content</span>
-            <span className="text-sm text-white/70">This checkbox has custom children content</span>
-          </div>
-        </CheckboxItem>
-      </div>
-    )
-  }
-}
-
-export const MultipleItems: Story = {
-  name: 'Multiple Items',
-  render: () => {
-    const [termsChecked, setTermsChecked] = React.useState(false)
-    const [ageChecked, setAgeChecked] = React.useState(false)
-    const [newsletterChecked, setNewsletterChecked] = React.useState(true)
-
-    return (
-      <div className="w-96 space-y-2 rounded-lg bg-gradient-to-br from-pink-500 via-purple-500 to-orange-400 p-4">
-        <CheckboxItem
-          label="I agree to the Infinite Reality Terms of Service"
-          checked={termsChecked}
-          onClick={() => setTermsChecked(!termsChecked)}
-        />
-        <CheckboxItem
-          label="I am 18 years of age or older"
-          checked={ageChecked}
-          onClick={() => setAgeChecked(!ageChecked)}
-        />
-        <CheckboxItem
-          label="Subscribe to newsletter"
-          checked={newsletterChecked}
-          onClick={() => setNewsletterChecked(!newsletterChecked)}
-        />
-      </div>
-    )
-  }
 }
