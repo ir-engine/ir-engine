@@ -539,7 +539,7 @@ const createFileUploader = ({
       } catch (err) {
         reject(err)
       } finally {
-        el.remove()
+        cleanup()
       }
     }
 
