@@ -92,7 +92,6 @@ export const SceneThumbnailState = defineState({
     }
 
     try {
-      // First, find the main resource
       const resourceQuery = await API.instance.service(staticResourcePath).find({
         query: { key }
       })
@@ -103,8 +102,6 @@ export const SceneThumbnailState = defineState({
       }
 
       const resource = resourceQuery.data[0]
-
-      // If the resource has a thumbnailKey, fetch the thumbnail resource
       if (resource.thumbnailKey) {
         const thumbnailQuery = await API.instance.service(staticResourcePath).find({
           query: {
@@ -124,8 +121,6 @@ export const SceneThumbnailState = defineState({
           }
         }
       }
-
-      // Return resource info even if no thumbnail is found
       return null
     } catch (error) {
       console.error('Error fetching thumbnail from StaticResources:', error)
