@@ -393,8 +393,11 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
 
     try {
       if (updateSceneID && getState(ReferenceSpaceState).originEntity !== UndefinedEntity) {
-        await SceneThumbnailState.createThumbnail()
-        await SceneThumbnailState.uploadThumbnail()
+        const thumbnailInfo = await SceneThumbnailState.getThumbnail()
+        if (!thumbnailInfo) {
+          await SceneThumbnailState.createThumbnail()
+          await SceneThumbnailState.uploadThumbnail()
+        }
       }
     } catch (e) {
       errors.serverError.set(e.message)
