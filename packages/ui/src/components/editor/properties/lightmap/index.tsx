@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity } from '@ir-engine/ecs'
+import { getSimulationCounterpart } from '@ir-engine/ecs'
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { Button } from '@ir-engine/ui'
@@ -48,8 +48,6 @@ const resolutionOptions = [
 export const LightmapNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const atlasedEntities = useHookstate(AtlasingFunctions.getEntities(props.entity))
-
   const resolutionState = useHookstate(1024)
 
   const uvChannelState = useHookstate('uv2' as UVChannel)
@@ -63,6 +61,8 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
       UV2UnwrapperState.loadUnwrapper().then(() => unwrapperLoaded.set(true))
     }
   }, [])
+
+  const simulationCounterpart = getSimulationCounterpart(props.entity)
 
   return (
     <NodeEditor
@@ -105,7 +105,11 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
       <div className="mt-2 flex flex-col gap-2">
         <Button
           onClick={(e) =>
-            AtlasingFunctions.handleGenerateAtlas(atlasedEntities.value as Entity[], props.entity, uvChannelState.value)
+            AtlasingFunctions.handleGenerateAtlas(
+              AtlasingFunctions.getEntities(simulationCounterpart),
+              props.entity,
+              uvChannelState.value
+            )
           }
           disabled={!unwrapperLoaded.value}
         >
@@ -114,8 +118,8 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
         <Button
           onClick={(e) =>
             Lightmapper.handleBakeLightmap(
-              props.entity,
-              atlasedEntities.value as Entity[],
+              simulationCounterpart,
+              AtlasingFunctions.getEntities(simulationCounterpart),
               resolutionState.value,
               sampleState.value,
               uvChannelState.value === 'uv' ? 0 : Number(uvChannelState.value.replace('uv', ''))

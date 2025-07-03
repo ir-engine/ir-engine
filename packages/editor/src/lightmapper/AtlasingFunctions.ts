@@ -113,7 +113,7 @@ export type UVChannel = 'uv' | 'uv1' | 'uv2' | 'uv3'
 const meshQuery = defineQuery([MeshComponent, VisibleComponent], Layers.Authoring)
 
 /**
- * Gets all atlas eligible entities from the provided bounding box entity
+ * Gets all atlas eligible simulation entities from the provided bounding box entity
  * @param entity the bounding box entity to query from
  * @returns an array of entities that are eligible for atlasing
  */

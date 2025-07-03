@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, getComponent, getOptionalComponent, getSimulationCounterpart, setComponent } from '@ir-engine/ecs'
+import { Entity, getComponent, getOptionalComponent, setComponent } from '@ir-engine/ecs'
 import { convertImageDataToKTX2Blob } from '@ir-engine/engine/src/scene/classes/ImageUtils'
 import { mergeGeometries } from '@ir-engine/engine/src/scene/util/meshUtils'
 import { getState } from '@ir-engine/hyperflux'
@@ -347,7 +347,7 @@ const uploadLightmapTexture = async (renderTarget: WebGLRenderTarget, entity: En
 }
 
 /**
- * Kicks off lightmap baking
+ * Kicks off lightmap baking using the simulation layer entity
  * @param entity the lightmap bake entity
  * @param entities the atlased entities to bake
  * @param resolution the resolution of the lightmap, must be power of 2
@@ -362,11 +362,9 @@ const handleBakeLightmap = (
 ) => {
   if (!entities.length) console.error('No atlased entities to bake')
 
-  const simulationEntities = entities.map(getSimulationCounterpart)
-
   const textures = AtlasingFunctions.renderAtlasTextures(
     getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!,
-    simulationEntities.map((entity) => getComponent(entity, MeshComponent)),
+    entities.map((entity) => getComponent(entity, MeshComponent)),
     resolution,
     true
   )
@@ -375,7 +373,7 @@ const handleBakeLightmap = (
     getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!,
     textures.positionTexture,
     textures.normalTexture,
-    Lightmapper.getBakeBVH(simulationEntities as Entity[]),
+    Lightmapper.getBakeBVH(entities as Entity[]),
     {
       resolution,
       casts: 1,
@@ -389,8 +387,8 @@ const handleBakeLightmap = (
     }
   )
 
-  setComponent(getSimulationCounterpart(entity), LightmapBakeComponent, {
-    entities: simulationEntities as Entity[],
+  setComponent(entity, LightmapBakeComponent, {
+    entities: entities as Entity[],
     renderTarget: renderTexture,
     raycastMesh,
     orthographicCamera,
