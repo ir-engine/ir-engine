@@ -147,8 +147,8 @@ export const staticResourceVectorResolver = resolve<StaticResourceVectorType, Ho
     }
     return value
   }),
-  createdAt: virtual(async (value) => fromDateTimeSql(value)),
-  updatedAt: virtual(async (value) => fromDateTimeSql(value))
+  createdAt: virtual(async (staticResourceVector) => fromDateTimeSql(staticResourceVector.createdAt)),
+  updatedAt: virtual(async (staticResourceVector) => fromDateTimeSql(staticResourceVector.updatedAt))
 })
 
 export const staticResourceVectorExternalResolver = resolve<StaticResourceVectorType, HookContext<Application>>({
@@ -167,7 +167,9 @@ export const staticResourceVectorExternalResolver = resolve<StaticResourceVector
 })
 
 export const staticResourceVectorDataResolver = resolve<StaticResourceVectorData, HookContext<Application>>({
-  id: async () => uuidv4(),
+  id: async () => {
+    return uuidv4()
+  },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql,
   // Convert embedding arrays to strings for database storage
