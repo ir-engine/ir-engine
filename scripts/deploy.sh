@@ -24,24 +24,22 @@ TASKSERVER_REPO_NAME=$DESTINATION_REPO_NAME_STEM-taskserver
 PROJECT_ID=""
 
 if [ "$DESTINATION_REPO_PROVIDER" = "gcp" ]; then
-  # Determine suffix based on APP_HOST
-  if [[ "$APP_HOST" =~ "studio" ]] || [[ "$APP_HOST" =~ "mt-stg" ]]; then
-    SUFFIX="-mt"
-  elif [[ "$APP_HOST" =~ "mt-rc" ]]; then
+  # Apply environment-specific suffixes based on RELEASE_NAME
+  if [[ "$RELEASE_NAME" = "mt-rc" ]]; then
     SUFFIX="-mt-rc"
-  elif [[ "$APP_HOST" =~ "mt-int" ]]; then
+  elif [[ "$RELEASE_NAME" = "mt-int" ]]; then
     SUFFIX="-mt-int"
-  elif [[ "$APP_HOST" =~ "mt-qat" ]]; then
+  elif [[ "$RELEASE_NAME" = "mt-qat-dev" ]]; then
     SUFFIX="-mt-qat"
-  elif [[ "$APP_HOST" =~ "qat" ]]; then
+  elif [[ "$RELEASE_NAME" = "qat-dev" ]]; then
     SUFFIX="-qat"
-  elif [[ "$APP_HOST" =~ "mt-nightly" ]]; then
+  elif [[ "$RELEASE_NAME" = "mt-nightly" ]]; then
     SUFFIX="-mt-nightly"
-  elif [[ "$APP_HOST" =~ "mt-weekly" ]]; then
+  elif [[ "$RELEASE_NAME" = "mt-weekly" ]]; then
     SUFFIX="-mt-weekly"
-  elif [[ "$APP_HOST" =~ "mt-prdmirr" ]]; then
+  elif [[ "$RELEASE_NAME" = "mt-prdmirr" ]]; then
     SUFFIX="-mt-prdmirr"
-  elif [[ "$APP_HOST" =~ "mt" ]]; then
+  elif [[ "$RELEASE_NAME" = "mt-prd" ]] || [[ "$RELEASE_NAME" =~ "mt-dev" ]] || [[ "$RELEASE_NAME" = "mt-stg" ]]; then
     SUFFIX="-mt"
   else
     SUFFIX=""
