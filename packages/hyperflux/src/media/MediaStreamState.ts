@@ -28,6 +28,7 @@ import {
   getMutableState,
   getState,
   HyperFlux,
+  NO_PROXY,
   useMutableState,
   VIDEO_CONSTRAINTS
 } from '@ir-engine/hyperflux'
@@ -64,6 +65,7 @@ export const MediaStreamState = defineState({
     microphoneDestinationNode: null as MediaStreamAudioDestinationNode | null,
     /** Audio Gain to be applied on media stream. */
     microphoneGainNode: null as GainNode | null,
+    microphoneGainValue: 1,
     /** Local screen container. */
     screenshareMediaStream: null as MediaStream | null,
     screenshareEnabled: false,
@@ -212,7 +214,7 @@ export const MediaStreamState = defineState({
           const src = ctx.createMediaStreamSource(new MediaStream([audioTrack]))
           const dst = ctx.createMediaStreamDestination()
           const gainNode = ctx.createGain()
-          gainNode.gain.value = 1
+          gainNode.gain.value = state.microphoneGainValue.value
           ;[src, gainNode, dst].reduce((a, b) => a && (a.connect(b) as any))
           state.microphoneGainNode.set(gainNode)
           state.microphoneDestinationNode.set(dst)
@@ -233,6 +235,18 @@ export const MediaStreamState = defineState({
         state.microphoneDestinationNode.set(null)
       }
     }, [state.microphoneEnabled.value])
+
+    useEffect(() => {
+      if (!state.microphoneGainNode.value) return
+
+      const gainNode = state.microphoneGainNode.get(NO_PROXY) as GainNode | null
+      if (!gainNode) return
+
+      gainNode.gain.exponentialRampToValueAtTime(
+        state.microphoneGainValue.value,
+        state.microphoneGainNode.value.context.currentTime + 0.01
+      )
+    }, [state.microphoneGainValue.value])
 
     useEffect(() => {
       if (!state.screenshareEnabled.value) return

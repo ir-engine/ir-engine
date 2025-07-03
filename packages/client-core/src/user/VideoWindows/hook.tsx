@@ -269,11 +269,7 @@ export const useUserMediaWindowsHook = (windows: WindowType[]) => {
   const togglePiP = () => isPiP.set(!isPiP.value)
 
   useEffect(() => {
-    mediaStreamState.microphoneGainNode.value?.gain.setTargetAtTime(
-      audioState.microphoneGain.value,
-      audioState.audioContext.currentTime.value,
-      0.01
-    )
+    mediaStreamState.microphoneGainValue.set(audioState.microphoneGain.value)
   }, [audioState.microphoneGain.value])
 
   return { _windows, soundIndicators }
