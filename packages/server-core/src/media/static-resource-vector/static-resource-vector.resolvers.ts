@@ -172,141 +172,140 @@ export const staticResourceVectorDataResolver = resolve<StaticResourceVectorData
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql,
-  // Convert embedding arrays to strings for database storage
+  // Convert embedding arrays to vector format for database storage
   captionEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   },
   descriptionEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   },
   tagsEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   },
   materialEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   },
   styleEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   },
   kit_typeEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   },
   object_typeEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   },
   typeEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   },
   locationEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   },
   colorEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   },
   combinedEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   }
 })
 
 export const staticResourceVectorPatchResolver = resolve<StaticResourceVectorPatch, HookContext<Application>>({
-  updatedAt: getDateTimeSql,
-  // Convert embedding arrays to strings for database storage
+  // Convert embedding arrays to vector format for database storage
   captionEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   },
   descriptionEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   },
   tagsEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   },
   materialEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   },
   styleEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   },
   kit_typeEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   },
   object_typeEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   },
   typeEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   },
   locationEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   },
   colorEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   },
   combinedEmbedding: async (value) => {
     if (Array.isArray(value)) {
-      return JSON.stringify(value)
+      return `[${value.join(',')}]`
     }
     return value
   }

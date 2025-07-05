@@ -54,7 +54,6 @@ import { default as appConfig } from './appconfig'
 import authenticate from './hooks/authenticate'
 import { logError } from './hooks/log-error'
 import persistHeaders from './hooks/persist-headers'
-import { runVectorDbMigrations } from './media/static-resource-vector/vector-db-migrations'
 import { createDefaultStorageProvider } from './media/storageprovider/storageprovider'
 import monitoringServices from './monitoring'
 import mysql from './mysql'
@@ -312,14 +311,6 @@ export const createFeathersKoaApp = async (
 
   // Set up our services (see `services/index.js`)
   await services(app)
-
-  // Run vector database migrations after services are set up
-  try {
-    await runVectorDbMigrations(app)
-  } catch (error) {
-    logger.error('Failed to run vector database migrations:', error)
-    // Don't throw error to avoid breaking app startup
-  }
 
   // Store headers across internal service calls
   app.hooks({

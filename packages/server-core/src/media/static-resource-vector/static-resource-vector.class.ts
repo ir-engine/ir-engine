@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+import { KnexAdapterOptions, KnexAdapterParams, KnexService } from '@feathersjs/knex'
 import {
   StaticResourceVectorData,
   StaticResourceVectorPatch,
@@ -55,7 +55,7 @@ export class StaticResourceVectorService<
   app: Application
   textEmbeddingModel: Ollama
 
-  constructor(options: any, app: Application) {
+  constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
 
@@ -91,10 +91,13 @@ export class StaticResourceVectorService<
 
     const embeddingField = `${field}Embedding`
 
+    // Convert query embedding to PostgreSQL vector format
+    const queryVector = `[${queryEmbedding.join(',')}]`
+
     // Perform vector similarity search using cosine distance
     const results = await this.Model.raw(
       `
-      SELECT *, 
+      SELECT *,
              1 - ("${embeddingField}" <=> ?) as similarity
       FROM "static-resource-vector"
       WHERE "${embeddingField}" IS NOT NULL
@@ -102,7 +105,7 @@ export class StaticResourceVectorService<
       ORDER BY "${embeddingField}" <=> ?
       LIMIT ?
     `,
-      [queryEmbedding, queryEmbedding, threshold, queryEmbedding, limit]
+      [queryVector, queryVector, threshold, queryVector, limit]
     )
 
     return results.rows || []

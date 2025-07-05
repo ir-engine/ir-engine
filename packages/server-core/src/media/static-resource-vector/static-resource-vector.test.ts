@@ -19,15 +19,18 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
 import { staticResourceVectorPath } from '@ir-engine/common/src/schemas/media/static-resource-vector.schema'
+import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { v4 as uuidv4 } from 'uuid'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 describe('static-resource-vector service', () => {
   let app: Application
@@ -38,7 +41,8 @@ describe('static-resource-vector service', () => {
   })
 
   afterAll(async () => {
-    await app.teardown()
+    await tearDownAPI()
+    destroyEngine()
   })
 
   it('should be registered', () => {

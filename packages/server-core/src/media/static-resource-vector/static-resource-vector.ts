@@ -39,9 +39,9 @@ declare module '@ir-engine/common/declarations' {
 
 export default (app: Application): void => {
   const options = {
-    Model: app.get('vectorDbClient'),
     name: staticResourceVectorPath,
     paginate: app.get('paginate'),
+    Model: app.get('vectorDbClient'),
     multi: true
   }
 

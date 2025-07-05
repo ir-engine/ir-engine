@@ -23,20 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import path from 'path'
 import { Application } from '../../../declarations'
 import multiLogger from '../../ServerLogger'
 
-import { isDev } from '@ir-engine/common/src/config'
 import appConfig from '@ir-engine/server-core/src/appconfig'
 
 const logger = multiLogger.child({ component: 'server-core:vector-db-migrations' })
 
 import { Client } from 'pg'
 
-const { forceRefresh } = appConfig.vectordb
-
-async function createDatabase(dbName: string) {
+export async function createDatabase(dbName: string) {
   const client = new Client({
     user: appConfig.vectordb.username,
     password: appConfig.vectordb.password,
@@ -66,18 +62,9 @@ async function createDatabase(dbName: string) {
 }
 
 /**
- * Run vector database migrations
+ * Run vector database migrations manually
  */
 export const runVectorDbMigrations = async (app: Application): Promise<void> => {
-  // Create vector database if it does not exist
-  if (forceRefresh || isDev) {
-    try {
-      await createDatabase(appConfig.vectordb.database)
-    } catch (error) {
-      logger.error('Error creating vector database: %s', error)
-    }
-  }
-
   try {
     const vectorDb = app.get('vectorDbClient')
     if (!vectorDb) {
@@ -87,35 +74,53 @@ export const runVectorDbMigrations = async (app: Application): Promise<void> => 
 
     logger.info('Running vector database migrations...')
 
-    // Get the migrations directory
-    const migrationsDir = path.join(__dirname, 'migrations')
-
-    // Configure knex migrations for vector database
-    const migrationConfig = {
-      directory: migrationsDir,
-      tableName: 'knex_migrations_vector',
-      extension: 'ts'
+    // Check if migrations table exists
+    const migrationsTableExists = await vectorDb.schema.hasTable('knex_migrations_vector')
+    if (!migrationsTableExists) {
+      await vectorDb.schema.createTable('knex_migrations_vector', (table: any) => {
+        table.increments('id')
+        table.string('name')
+        table.integer('batch')
+        table.timestamp('migration_time').defaultTo(vectorDb.fn.now())
+      })
+      logger.info('Created vector migrations table')
     }
 
-    // Run migrations
-    const [batchNo, log] = await vectorDb.migrate.latest(migrationConfig)
+    // Import and run the migration manually
+    try {
+      const { up } = await import('./migrations/20250122000000_static-resource-vector')
 
-    if (log.length === 0) {
-      logger.info('Vector database is already up to date')
-    } else {
-      logger.info(`Vector database migrations completed. Batch ${batchNo} run: ${log.length} migrations`)
-      log.forEach((migration: string) => {
-        logger.info(`Migration applied: ${migration}`)
-      })
+      // Check if this migration has already been run
+      const existingMigration = await vectorDb('knex_migrations_vector')
+        .where('name', '20250122000000_static-resource-vector.ts')
+        .first()
+
+      if (!existingMigration) {
+        logger.info('Running static-resource-vector migration...')
+        await up(vectorDb)
+
+        // Record the migration
+        await vectorDb('knex_migrations_vector').insert({
+          name: '20250122000000_static-resource-vector.ts',
+          batch: 1
+        })
+
+        logger.info('Vector database migration completed successfully')
+      } else {
+        logger.info('Vector database is already up to date')
+      }
+    } catch (migrationError) {
+      logger.error('Error running vector database migration:', migrationError)
+      throw migrationError
     }
   } catch (error) {
-    logger.error('Error running vector database migrations:', error)
+    logger.error('Error setting up vector database migrations:', error)
     throw error
   }
 }
 
 /**
- * Rollback vector database migrations
+ * Rollback vector database migrations manually
  */
 export const rollbackVectorDbMigrations = async (app: Application): Promise<void> => {
   try {
@@ -127,28 +132,28 @@ export const rollbackVectorDbMigrations = async (app: Application): Promise<void
 
     logger.info('Rolling back vector database migrations...')
 
-    // Get the migrations directory
-    const migrationsDir = path.join(__dirname, 'migrations')
+    // Check if the migration exists
+    const existingMigration = await vectorDb('knex_migrations_vector')
+      .where('name', '20250122000000_static-resource-vector.ts')
+      .first()
 
-    // Configure knex migrations for vector database
-    const migrationConfig = {
-      directory: migrationsDir,
-      tableName: 'knex_migrations_vector',
-      extension: 'ts'
-    }
+    if (existingMigration) {
+      try {
+        const { down } = await import('./migrations/20250122000000_static-resource-vector')
 
-    // Rollback migrations
-    const [batchNo, log] = await vectorDb.migrate.rollback(migrationConfig)
+        logger.info('Rolling back static-resource-vector migration...')
+        await down(vectorDb)
 
-    if (log.length === 0) {
-      logger.info('No vector database migrations to rollback')
+        // Remove the migration record
+        await vectorDb('knex_migrations_vector').where('name', '20250122000000_static-resource-vector.ts').del()
+
+        logger.info('Vector database migration rollback completed successfully')
+      } catch (migrationError) {
+        logger.error('Error rolling back vector database migration:', migrationError)
+        throw migrationError
+      }
     } else {
-      logger.info(
-        `Vector database migrations rollback completed. Batch ${batchNo} rolled back: ${log.length} migrations`
-      )
-      log.forEach((migration: string) => {
-        logger.info(`Migration rolled back: ${migration}`)
-      })
+      logger.info('No vector database migrations to rollback')
     }
   } catch (error) {
     logger.error('Error rolling back vector database migrations:', error)
@@ -167,26 +172,24 @@ export const getVectorDbMigrationStatus = async (app: Application): Promise<any>
       return { status: 'unavailable' }
     }
 
-    // Get the migrations directory
-    const migrationsDir = path.join(__dirname, 'migrations')
-
-    // Configure knex migrations for vector database
-    const migrationConfig = {
-      directory: migrationsDir,
-      tableName: 'knex_migrations_vector',
-      extension: 'ts'
+    // Check if migrations table exists
+    const migrationsTableExists = await vectorDb.schema.hasTable('knex_migrations_vector')
+    if (!migrationsTableExists) {
+      return {
+        status: 'available',
+        currentVersion: 'none',
+        completedMigrations: []
+      }
     }
 
-    // Get current version
-    const currentVersion = await vectorDb.migrate.currentVersion(migrationConfig)
-
     // Get list of completed migrations
-    const completedMigrations = await vectorDb.migrate.list(migrationConfig)
+    const completedMigrations = await vectorDb('knex_migrations_vector').select('*').orderBy('id')
 
     return {
       status: 'available',
-      currentVersion,
-      completedMigrations
+      currentVersion:
+        completedMigrations.length > 0 ? completedMigrations[completedMigrations.length - 1].name : 'none',
+      completedMigrations: completedMigrations.map((m: any) => m.name)
     }
   } catch (error) {
     logger.error('Error getting vector database migration status:', error)
