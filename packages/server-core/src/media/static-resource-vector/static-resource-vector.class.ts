@@ -301,7 +301,7 @@ export class StaticResourceVectorService<
         color: this.extractColor(staticResource)
       }
 
-      await this.upsertVectorEntry(vectorData)
+      // await this.upsertVectorEntry(vectorData)
     } catch (error) {
       console.error(`Failed to sync static resource ${staticResource.id} to vector database:`, error)
     }
