@@ -31,57 +31,81 @@ import {
 } from '@ir-engine/common/src/schemas/media/static-resource-search.schema'
 import { staticResourceVectorPath } from '@ir-engine/common/src/schemas/media/static-resource-vector.schema'
 import { staticResourcePath } from '@ir-engine/common/src/schemas/media/static-resource.schema'
+import { projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
+import { ScopeType, scopePath } from '@ir-engine/common/src/schemas/scope/scope.schema'
+import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { UserApiKeyType, userApiKeyPath } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
+import { UserName, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
+import { destroyEngine } from '@ir-engine/ecs'
 import { v4 as uuidv4 } from 'uuid'
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { Application, HookContext } from '../../../declarations'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
+import { identityProviderDataResolver } from '../../user/identity-provider/identity-provider.resolvers'
 
 describe('static-resource-search service', () => {
   let app: Application
+  let testUserApiKey: UserApiKeyType
+  let testProject
   let testStaticResourceId: string
   let testVectorEntryId: string
 
-  beforeAll(async () => {
-    app = await createFeathersKoaApp()
-    await app.setup()
-  })
-
-  afterAll(async () => {
-    // Clean up test data
-    if (testVectorEntryId) {
-      try {
-        await app.service(staticResourceVectorPath).remove(testVectorEntryId)
-      } catch (error) {
-        // Ignore cleanup errors
-      }
+  const getProjectParams = () => ({
+    provider: 'rest',
+    headers: {
+      authorization: `Bearer ${testUserApiKey.token}`
     }
-
-    if (testStaticResourceId) {
-      try {
-        await app.service(staticResourcePath).remove(testStaticResourceId)
-      } catch (error) {
-        // Ignore cleanup errors
-      }
-    }
-
-    await app.teardown()
   })
 
   beforeEach(async () => {
+    app = await createFeathersKoaApp()
+    await app.setup()
+
+    const name = ('test-project-user-name-' + uuidv4()) as UserName
+
+    const testUser = await app.service(userPath).create({
+      name,
+      isGuest: false
+    })
+
+    await app.service(scopePath).create({ userId: testUser.id, type: 'editor:write' as ScopeType })
+
+    testUserApiKey = await app.service(userApiKeyPath).create({ userId: testUser.id })
+
+    await app.service(identityProviderPath)._create(
+      await identityProviderDataResolver.resolve(
+        {
+          type: 'github',
+          token: `test-token-${Math.round(Math.random() * 1000)}`,
+          userId: testUser.id
+        },
+        {} as HookContext
+      )
+    )
+
+    // Create test project
+    const projectName = `testorg/test-project-${uuidv4().slice(0, 8)}`
+    testProject = await app.service(projectPath).create(
+      {
+        name: projectName
+      },
+      getProjectParams()
+    )
+
     // Create test static resource
-    testStaticResourceId = uuidv4()
     const testStaticResource = {
-      id: testStaticResourceId,
       key: 'test/red-sports-car.glb',
       name: 'red-sports-car.glb',
       description: 'A beautiful red sports car model',
       type: 'model',
       mimeType: 'model/gltf-binary',
-      project: 'test-project',
+      project: testProject.name,
       hash: 'test-hash-123'
     }
 
-    await app.service(staticResourcePath).create(testStaticResource, { isInternal: true })
+    const resourceResult = await app.service(staticResourcePath).create(testStaticResource)
+
+    testStaticResourceId = resourceResult.id
 
     // Create corresponding vector entry
     const testVectorEntry = {
@@ -93,7 +117,7 @@ describe('static-resource-search service', () => {
       color: 'red'
     }
 
-    const vectorResult = await app.service(staticResourceVectorPath).create(testVectorEntry, { isInternal: true })
+    const vectorResult = await app.service(staticResourceVectorPath).create(testVectorEntry)
     testVectorEntryId = vectorResult.id
   })
 
@@ -114,6 +138,9 @@ describe('static-resource-search service', () => {
         // Ignore cleanup errors
       }
     }
+
+    await tearDownAPI()
+    destroyEngine()
   })
 
   it('should be registered', () => {
@@ -300,10 +327,12 @@ describe('static-resource-search service', () => {
   it('should not support unsupported methods', async () => {
     const searchService = app.service(staticResourceSearchPath)
 
-    await expect(searchService.get('test-id')).rejects.toThrow('NotImplemented')
-    await expect(searchService.create({})).rejects.toThrow('NotImplemented')
-    await expect(searchService.update('test-id', {})).rejects.toThrow('NotImplemented')
-    await expect(searchService.patch('test-id', {})).rejects.toThrow('NotImplemented')
-    await expect(searchService.remove('test-id')).rejects.toThrow('NotImplemented')
+    await expect(searchService.get('test-id')).rejects.toThrow('Get method is not supported for search service')
+    await expect(searchService.create({})).rejects.toThrow('Create method is not supported for search service')
+    await expect(searchService.update('test-id', {})).rejects.toThrow(
+      'Update method is not supported for search service'
+    )
+    await expect(searchService.patch('test-id', {})).rejects.toThrow('Patch method is not supported for search service')
+    await expect(searchService.remove('test-id')).rejects.toThrow('Remove method is not supported for search service')
   })
 })
