@@ -54,7 +54,7 @@ export const staticResourceSearchResultSchema = Type.Object(
     matchedField: Type.String(),
     matchedContent: Type.Optional(Type.String())
   },
-  { $id: 'StaticResourceSearchResult', additionalProperties: false }
+  { $id: 'StaticResourceSearchResult', additionalProperties: true }
 )
 
 export interface StaticResourceSearchResultType extends Static<typeof staticResourceSearchResultSchema> {}
@@ -113,7 +113,7 @@ export const staticResourceSearchQuerySchema = Type.Object(
     // Skip pagination offset
     $skip: Type.Optional(Type.Integer({ minimum: 0 }))
   },
-  { $id: 'StaticResourceSearchQuery', additionalProperties: false }
+  { $id: 'StaticResourceSearchQuery', additionalProperties: true }
 )
 
 export interface StaticResourceSearchQueryType extends Static<typeof staticResourceSearchQuerySchema> {}
@@ -126,7 +126,7 @@ export const staticResourceSearchResponseSchema = Type.Object(
     skip: Type.Integer({ minimum: 0 }),
     data: Type.Array(staticResourceSearchResultSchema)
   },
-  { $id: 'StaticResourceSearchResponse', additionalProperties: false }
+  { $id: 'StaticResourceSearchResponse', additionalProperties: true }
 )
 
 export interface StaticResourceSearchResponseType extends Static<typeof staticResourceSearchResponseSchema> {}
