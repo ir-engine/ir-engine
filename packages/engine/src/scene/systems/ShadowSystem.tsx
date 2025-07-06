@@ -128,7 +128,6 @@ const _raycasterPosition = new Vector3()
 const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; renderSettingsEntity: Entity }) => {
   const { entity, rendererEntity, renderSettingsEntity } = props
   const renderSettingsComponent = useComponent(renderSettingsEntity, RenderSettingsComponent)
-  const renderer = getComponent(rendererEntity, RendererComponent).renderer!
 
   const directionalLightComponent = useOptionalComponent(entity, DirectionalLightComponent)
 
@@ -151,8 +150,6 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
     } as CSMParams
 
     CSM.initCSM(params, rendererEntity)
-
-    console.log('renderSettingsComponent.shadowMapType.type', renderSettingsComponent)
 
     return () => {
       CSM.dispose(rendererEntity)
