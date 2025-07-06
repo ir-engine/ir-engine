@@ -160,7 +160,12 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
     return () => {
       CSM.dispose(rendererEntity)
     }
-  }, [directionalLightComponent?.castShadow.value, renderSettingsComponent.cascades.value, !!directionalLight])
+  }, [
+    directionalLightComponent?.castShadow.value,
+    renderSettingsComponent.cascades.value,
+    renderSettingsComponent.shadowMapType.type,
+    !!directionalLight
+  ])
 
   /** Must run after scene object system to ensure source light is not lit */
   useExecute(
@@ -176,7 +181,6 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
     setComponent(rendererEntity, CSMComponent)
     const csmComponent = getMutableComponent(rendererEntity, CSMComponent)
 
-    console.log('ShadowSystem.ts useEffect 1 csmComponent', csmComponent)
     if (!directionalLightComponent?.castShadow.value || !directionalLight) return
 
     csmComponent.shadowBias.set(directionalLight.shadow.bias)
@@ -204,8 +208,6 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
   useEffect(() => {
     setComponent(rendererEntity, CSMComponent)
     const csmComponent = getMutableComponent(rendererEntity, CSMComponent)
-
-    console.log('ShadowSystem.ts useEffect 2 csmComponent', csmComponent)
 
     csmComponent.cascades.set(renderSettingsComponent.cascades.value)
     csmComponent.needsUpdate.set(true)
@@ -437,7 +439,6 @@ const RendererShadowReactor = () => {
     const renderer = getComponent(entity, RendererComponent).renderer
     if (!renderer) return
     renderer.shadowMap.enabled = renderer.shadowMap.autoUpdate = useShadows
-    console.log('RenderSettingsComponent.ts, renderer')
   }, [useShadows, rendererComponent.renderer])
 
   return null

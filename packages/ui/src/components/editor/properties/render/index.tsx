@@ -41,7 +41,6 @@ import {
   BasicShadowMap,
   CineonToneMapping,
   LinearToneMapping,
-  NoToneMapping,
   PCFShadowMap,
   PCFSoftShadowMap,
   ReinhardToneMapping,
@@ -51,10 +50,6 @@ import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
 
 const ToneMappingOptions = [
-  {
-    label: 'No Tone Mapping',
-    value: NoToneMapping
-  },
   {
     label: 'Linear Tone Mapping',
     value: LinearToneMapping
