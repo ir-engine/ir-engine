@@ -75,10 +75,6 @@ const ToneMappingOptions = [
  */
 const ShadowTypeOptions = [
   {
-    label: 'No Shadow Map',
-    value: -1
-  },
-  {
     label: 'Basic Shadow Map',
     value: BasicShadowMap
   },
