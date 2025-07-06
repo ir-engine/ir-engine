@@ -31,7 +31,7 @@ import {
   StaticResourceVectorQuery,
   StaticResourceVectorType
 } from '@ir-engine/common/src/schemas/media/static-resource-vector.schema'
-import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { fromDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { v4 as uuidv4 } from 'uuid'
 import type { Application } from '../../../declarations'
 
@@ -166,149 +166,41 @@ export const staticResourceVectorExternalResolver = resolve<StaticResourceVector
   combinedEmbedding: async () => undefined
 })
 
-export const staticResourceVectorDataResolver = resolve<StaticResourceVectorData, HookContext<Application>>({
-  id: async () => {
-    return uuidv4()
-  },
-  createdAt: getDateTimeSql,
-  updatedAt: getDateTimeSql,
-  // Convert embedding arrays to vector format for database storage
-  captionEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
-  },
-  descriptionEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
-  },
-  tagsEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
-  },
-  materialEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
-  },
-  styleEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
-  },
-  kit_typeEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
-  },
-  object_typeEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
-  },
-  typeEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
-  },
-  locationEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
-  },
-  colorEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
-  },
-  combinedEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
+// Helper function to convert embedding arrays to vector format
+const convertEmbeddingToVector = (value: any) => {
+  if (Array.isArray(value)) {
+    return `[${value.join(',')}]`
   }
+  return value
+}
+
+export const staticResourceVectorDataResolver = resolve<StaticResourceVectorData, HookContext<Application>>({
+  id: async () => uuidv4(),
+  captionEmbedding: async (value) => convertEmbeddingToVector(value),
+  descriptionEmbedding: async (value) => convertEmbeddingToVector(value),
+  tagsEmbedding: async (value) => convertEmbeddingToVector(value),
+  materialEmbedding: async (value) => convertEmbeddingToVector(value),
+  styleEmbedding: async (value) => convertEmbeddingToVector(value),
+  kit_typeEmbedding: async (value) => convertEmbeddingToVector(value),
+  object_typeEmbedding: async (value) => convertEmbeddingToVector(value),
+  typeEmbedding: async (value) => convertEmbeddingToVector(value),
+  locationEmbedding: async (value) => convertEmbeddingToVector(value),
+  colorEmbedding: async (value) => convertEmbeddingToVector(value),
+  combinedEmbedding: async (value) => convertEmbeddingToVector(value)
 })
 
 export const staticResourceVectorPatchResolver = resolve<StaticResourceVectorPatch, HookContext<Application>>({
-  // Convert embedding arrays to vector format for database storage
-  captionEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
-  },
-  descriptionEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
-  },
-  tagsEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
-  },
-  materialEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
-  },
-  styleEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
-  },
-  kit_typeEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
-  },
-  object_typeEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
-  },
-  typeEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
-  },
-  locationEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
-  },
-  colorEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
-  },
-  combinedEmbedding: async (value) => {
-    if (Array.isArray(value)) {
-      return `[${value.join(',')}]`
-    }
-    return value
-  }
+  captionEmbedding: async (value) => convertEmbeddingToVector(value),
+  descriptionEmbedding: async (value) => convertEmbeddingToVector(value),
+  tagsEmbedding: async (value) => convertEmbeddingToVector(value),
+  materialEmbedding: async (value) => convertEmbeddingToVector(value),
+  styleEmbedding: async (value) => convertEmbeddingToVector(value),
+  kit_typeEmbedding: async (value) => convertEmbeddingToVector(value),
+  object_typeEmbedding: async (value) => convertEmbeddingToVector(value),
+  typeEmbedding: async (value) => convertEmbeddingToVector(value),
+  locationEmbedding: async (value) => convertEmbeddingToVector(value),
+  colorEmbedding: async (value) => convertEmbeddingToVector(value),
+  combinedEmbedding: async (value) => convertEmbeddingToVector(value)
 })
 
 export const staticResourceVectorQueryResolver = resolve<StaticResourceVectorQuery, HookContext<Application>>({})
