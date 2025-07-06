@@ -40,7 +40,7 @@ export interface StaticResourceSearchParams extends Params {
   query?: StaticResourceSearchQueryType
 }
 
-export class StaticResourceSearchService implements Partial<ServiceMethods<StaticResourceSearchResultType>> {
+export class StaticResourceSearchService implements Partial<ServiceMethods<StaticResourceSearchResponseType>> {
   app: Application
 
   constructor(app: Application) {
@@ -68,7 +68,7 @@ export class StaticResourceSearchService implements Partial<ServiceMethods<Stati
 
     try {
       // Get the vector service
-      const vectorService = this.app.service(staticResourceVectorPath)
+      const vectorService = this.app.service(staticResourceVectorPath) as any
       if (!vectorService) {
         throw new BadRequest('Vector search service not available')
       }
@@ -118,7 +118,7 @@ export class StaticResourceSearchService implements Partial<ServiceMethods<Stati
       if (mimeType) staticResourceQuery.mimeType = mimeType
 
       // Get static resources
-      const staticResourceService = this.app.service(staticResourcePath)
+      const staticResourceService = this.app.service(staticResourcePath) as any
       const staticResourceResults = await staticResourceService.find({
         query: staticResourceQuery,
         paginate: false,
@@ -170,7 +170,7 @@ export class StaticResourceSearchService implements Partial<ServiceMethods<Stati
           updatedAt: staticResource.updatedAt,
 
           // Search metadata
-          searchScore: vectorResult.similarity || 0,
+          searchScore: (vectorResult as any).similarity || 0,
           matchedField,
           matchedContent
         })
@@ -231,23 +231,23 @@ export class StaticResourceSearchService implements Partial<ServiceMethods<Stati
   }
 
   // Throw NotImplemented for unsupported methods
-  async get(id: Id, params?: Params): Promise<StaticResourceSearchResultType> {
+  async get(id: Id, params?: Params): Promise<StaticResourceSearchResponseType> {
     throw new NotImplemented('Get method is not supported for search service')
   }
 
-  async create(data: any, params?: Params): Promise<StaticResourceSearchResultType> {
+  async create(data: any, params?: Params): Promise<StaticResourceSearchResponseType> {
     throw new NotImplemented('Create method is not supported for search service')
   }
 
-  async update(id: NullableId, data: any, params?: Params): Promise<StaticResourceSearchResultType> {
+  async update(id: NullableId, data: any, params?: Params): Promise<StaticResourceSearchResponseType> {
     throw new NotImplemented('Update method is not supported for search service')
   }
 
-  async patch(id: NullableId, data: any, params?: Params): Promise<StaticResourceSearchResultType> {
+  async patch(id: NullableId, data: any, params?: Params): Promise<StaticResourceSearchResponseType> {
     throw new NotImplemented('Patch method is not supported for search service')
   }
 
-  async remove(id: NullableId, params?: Params): Promise<StaticResourceSearchResultType> {
+  async remove(id: NullableId, params?: Params): Promise<StaticResourceSearchResponseType> {
     throw new NotImplemented('Remove method is not supported for search service')
   }
 }
