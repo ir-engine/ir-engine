@@ -136,12 +136,6 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
   const directionalLight = directionalLightComponent?.light.get(NO_PROXY) as DirectionalLight
 
   useEffect(() => {
-    console.log(
-      'ShadowSystem.ts useEffect 0 | directionalLightComponent | directionalLight',
-      directionalLightComponent,
-      directionalLight
-    )
-
     if (!directionalLightComponent || !directionalLight) return
     if (!directionalLightComponent.castShadow.value) return
     const params = {
