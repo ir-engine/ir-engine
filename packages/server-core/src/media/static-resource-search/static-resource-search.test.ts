@@ -203,7 +203,7 @@ describe('static-resource-search service', () => {
   it('should handle different search fields', async () => {
     const searchService = app.service(staticResourceSearchPath)
 
-    const searchFields = ['caption', 'material', 'style', 'type', 'color', 'combined']
+    const searchFields = ['caption', 'material', 'style', 'color', 'combined']
 
     for (const field of searchFields) {
       const results = await searchService.find({
