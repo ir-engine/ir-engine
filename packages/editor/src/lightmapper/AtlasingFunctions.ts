@@ -94,7 +94,7 @@ export const UV2UnwrapperState = defineState({
       maxBoundaryLength: 0,
       maxChartArea: 0,
       maxCost: 2,
-      maxIterations: 1,
+      maxIterations: 2,
       normalDeviationWeight: 2,
       normalSeamWeight: 4,
       roundnessWeight: 0.009999999776482582,
@@ -132,27 +132,6 @@ const getEntities = (entity: Entity) => {
     }
   }
   return filteredMeshEntities
-}
-
-/**
- * Generates a UV atlas for the specified uv channel on the provided entities
- * @param entities The entities to generate the atlas for
- * @param uvChannel The UV channel to write the atlas to
- */
-const generateAtlas = async function (entities: Entity[], uvChannel: UVChannel = 'uv2') {
-  const unwrapper = getState(UV2UnwrapperState)
-
-  if (!unwrapper.isLoaded) {
-    console.warn('XAtlas not loaded')
-    return
-  }
-
-  const geometries = entities.map((entity) => getComponent(entity, MeshComponent).geometry)
-
-  // Padding doesn't seem necessary yet, but it may be needed in the future with fine detailed geometry
-  // unwrapper.packOptions.padding = 1
-
-  await unwrapper.packAtlas(geometries, uvChannel as any, 'uv')
 }
 
 /**
@@ -391,8 +370,21 @@ const renderAtlasTextures = (renderer: WebGLRenderer, meshs: Mesh[], resolution:
  * @param uvChannel The UV channel to use for the atlas
  * @returns The entities that were atlased
  */
-const handleGenerateAtlas = async (entities: Entity[], entity: Entity, uvChannel: UVChannel = 'uv2') => {
-  await AtlasingFunctions.generateAtlas(entities, uvChannel)
+const generateAtlas = async (entities: Entity[], entity: Entity, uvChannel: UVChannel = 'uv2') => {
+  const unwrapper = getState(UV2UnwrapperState)
+
+  if (!unwrapper.isLoaded) {
+    console.warn('XAtlas not loaded')
+    return
+  }
+
+  const geometries = entities.map((entity) => getComponent(entity, MeshComponent).geometry)
+
+  // Padding doesn't seem necessary yet, but it may be needed in the future with fine detailed geometry
+  // unwrapper.packOptions.padding = 1
+
+  await unwrapper.packAtlas(geometries, uvChannel as any, 'uv')
+
   if (!entities) return
   const editorState = getState(EditorState)
   const atlasSrc = await AtlasingFunctions.exportAtlasData(
@@ -408,9 +400,8 @@ const handleGenerateAtlas = async (entities: Entity[], entity: Entity, uvChannel
 }
 
 export const AtlasingFunctions = {
-  generateAtlas,
   exportAtlasData,
   renderAtlasTextures,
-  handleGenerateAtlas,
+  generateAtlas,
   getEntities
 }

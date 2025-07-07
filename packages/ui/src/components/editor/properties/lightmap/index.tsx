@@ -23,10 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getSimulationCounterpart } from '@ir-engine/ecs'
+import { getSimulationCounterpart, useOptionalComponent } from '@ir-engine/ecs'
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
+import { LightmapBakeComponent } from '@ir-engine/editor/src/lightmapper/LightmapBakeComponent'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { Button } from '@ir-engine/ui'
+import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdLightbulb } from 'react-icons/md'
@@ -56,6 +58,8 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
 
   const unwrapperLoaded = useMutableState(UV2UnwrapperState).isLoaded
 
+  const isGeneratingAtlas = useHookstate(false)
+
   useEffect(() => {
     if (!unwrapperLoaded.value) {
       UV2UnwrapperState.loadUnwrapper().then(() => unwrapperLoaded.set(true))
@@ -63,6 +67,23 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   const simulationCounterpart = getSimulationCounterpart(props.entity)
+
+  // Check if lightmap baking is in progress
+  const lightmapBakeComponent = useOptionalComponent(simulationCounterpart, LightmapBakeComponent)
+  const isLightmapBaking = !!lightmapBakeComponent?.value
+
+  // Check if any operation is in progress
+  const isOperationInProgress = isLightmapBaking || isGeneratingAtlas.value
+
+  const handleGenerateAtlasClick = async () => {
+    isGeneratingAtlas.set(true)
+    await AtlasingFunctions.generateAtlas(
+      AtlasingFunctions.getEntities(simulationCounterpart),
+      props.entity,
+      uvChannelState.value
+    )
+    isGeneratingAtlas.set(false)
+  }
 
   return (
     <NodeEditor
@@ -76,6 +97,7 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
           options={resolutionOptions}
           value={resolutionState.value}
           onChange={(value) => resolutionState.set(value as number)}
+          disabled={isOperationInProgress}
         />
       </InputGroup>
       <InputGroup name="UV Channel" label={t('editor:properties.lightmap.lbl-uv-channel')}>
@@ -88,6 +110,7 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
           ]}
           value={uvChannelState.value}
           onChange={(value) => uvChannelState.set(value as UVChannel)}
+          disabled={isOperationInProgress}
         />
       </InputGroup>
       <InputGroup name="Samples" label={t('editor:properties.lightmap.lbl-samples')}>
@@ -99,24 +122,21 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
           largeStep={100}
           value={sampleState.value}
           onChange={(value) => sampleState.set(value as number)}
+          disabled={isOperationInProgress}
         />
       </InputGroup>
 
-      <div className="mt-2 flex flex-col gap-2">
+      <div className="flex w-full flex-col gap-y-2 py-1.5 pl-8 pr-3.5">
+        {isOperationInProgress && <LoadingView spinnerOnly className="h-4 w-4 items-center" />}
         <Button
-          onClick={(e) =>
-            AtlasingFunctions.handleGenerateAtlas(
-              AtlasingFunctions.getEntities(simulationCounterpart),
-              props.entity,
-              uvChannelState.value
-            )
-          }
-          disabled={!unwrapperLoaded.value}
+          onClick={handleGenerateAtlasClick}
+          disabled={!unwrapperLoaded.value || isOperationInProgress}
+          className="mb-2 flex w-full items-center"
         >
           {t('editor:properties.lightmap.btn-generateAtlas')}
         </Button>
         <Button
-          onClick={(e) =>
+          onClick={() =>
             Lightmapper.handleBakeLightmap(
               simulationCounterpart,
               AtlasingFunctions.getEntities(simulationCounterpart),
@@ -125,7 +145,8 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
               uvChannelState.value === 'uv' ? 0 : Number(uvChannelState.value.replace('uv', ''))
             )
           }
-          disabled={!unwrapperLoaded.value}
+          disabled={!unwrapperLoaded.value || isOperationInProgress}
+          className="mb-2 flex w-full items-center gap-2"
         >
           {t('editor:properties.lightmap.btn-bakeLightmap')}
         </Button>

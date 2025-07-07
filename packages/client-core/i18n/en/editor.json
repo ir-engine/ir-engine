@@ -356,7 +356,8 @@
       "lbl-uv-channel": "UV Channel",
       "lbl-samples": "Samples",
       "btn-generateAtlas": "Generate Atlas",
-      "btn-bakeLightmap": "Bake Lightmap"
+      "btn-bakeLightmap": "Bake Lightmap",
+      "baking-progress": "Baking Progress"
     },
     "lookAt": {
       "name": "LookAt",
