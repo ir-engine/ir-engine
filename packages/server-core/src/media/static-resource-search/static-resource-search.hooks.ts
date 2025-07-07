@@ -29,6 +29,7 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { staticResourceSearchQueryValidator } from '@ir-engine/common/src/schemas/media/static-resource-search.schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '../../hooks/verify-scope'
+import logger from '../../ServerLogger'
 import {
   staticResourceSearchQueryResolver,
   staticResourceSearchResultResolver
@@ -45,7 +46,7 @@ const rateLimitSearch = async (context: HookContext) => {
 
   // For now, just log the search request
   // In production, implement proper rate limiting
-  console.log(`Search request from ${key}: "${context.params.query?.query}"`)
+  logger.info(`Search request from ${key}: "${context.params.query?.semanticSearch}"`)
 
   return context
 }
@@ -79,7 +80,7 @@ const logSearchAnalytics = async (context: HookContext) => {
     const userId = context.params.user?.id
 
     // Log search for analytics (in production, send to analytics service)
-    console.log('Search Analytics:', {
+    logger.info('Search Analytics: %o', {
       semanticSearch,
       searchField,
       resultCount,
@@ -88,7 +89,7 @@ const logSearchAnalytics = async (context: HookContext) => {
     })
   } catch (error) {
     // Don't fail the request if analytics logging fails
-    console.error('Failed to log search analytics:', error)
+    logger.error('Failed to log search analytics:', error)
   }
 
   return context
