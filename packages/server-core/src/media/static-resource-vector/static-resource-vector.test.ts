@@ -57,7 +57,6 @@ describe('static-resource-vector service', () => {
       caption: 'A beautiful red sports car',
       material: 'metal',
       style: 'modern',
-      type: 'model',
       color: 'red'
     }
 
@@ -68,7 +67,6 @@ describe('static-resource-vector service', () => {
     expect(result.caption).toBe('A beautiful red sports car')
     expect(result.material).toBe('metal')
     expect(result.style).toBe('modern')
-    expect(result.type).toBe('model')
     expect(result.color).toBe('red')
   })
 
@@ -91,7 +89,6 @@ describe('static-resource-vector service', () => {
       id: staticResourceId,
       name: 'test-model.glb',
       description: 'A test 3D model',
-      type: 'model/gltf-binary',
       mimeType: 'model/gltf-binary',
       tags: ['material:wood', 'style:rustic', 'color:brown']
     }
@@ -108,7 +105,6 @@ describe('static-resource-vector service', () => {
     expect(syncedEntry).toBeTruthy()
     expect(syncedEntry.staticResourceId).toBe(staticResourceId)
     expect(syncedEntry.caption).toBe('A test 3D model')
-    expect(syncedEntry.type).toBe('model/gltf-binary')
     */
   })
 
@@ -119,8 +115,7 @@ describe('static-resource-vector service', () => {
     // Create a vector entry
     await vectorService.create({
       staticResourceId,
-      caption: 'Test entry to delete',
-      type: 'test'
+      caption: 'Test entry to delete'
     })
 
     // Delete by static resource ID
@@ -170,8 +165,7 @@ describe('static-resource-vector service', () => {
     // Create a vector entry with old ID
     await vectorService.create({
       staticResourceId: oldStaticResourceId,
-      caption: 'Test entry for reference update',
-      type: 'test'
+      caption: 'Test entry for reference update'
     })
 
     // Update the reference
@@ -202,14 +196,12 @@ describe('static-resource-vector service', () => {
       {
         id: uuidv4(),
         name: 'model1.glb',
-        description: 'First test model',
-        type: 'model/gltf-binary'
+        description: 'First test model'
       },
       {
         id: uuidv4(),
         name: 'model2.glb',
-        description: 'Second test model',
-        type: 'model/gltf-binary'
+        description: 'Second test model'
       }
     ]
 
