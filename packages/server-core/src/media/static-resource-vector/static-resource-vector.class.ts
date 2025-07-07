@@ -292,6 +292,7 @@ export class StaticResourceVectorService<
   async syncStaticResource(staticResource: any): Promise<void> {
     try {
       // Extract searchable fields from static resource
+      /*
       const vectorData = {
         staticResourceId: staticResource.id,
         caption: staticResource.description || staticResource.name || '',
@@ -300,7 +301,7 @@ export class StaticResourceVectorService<
         type: staticResource.type || staticResource.mimeType || '',
         color: this.extractColor(staticResource)
       }
-
+      */
       // await this.upsertVectorEntry(vectorData)
     } catch (error) {
       console.error(`Failed to sync static resource ${staticResource.id} to vector database:`, error)
@@ -310,6 +311,7 @@ export class StaticResourceVectorService<
   /**
    * Extract material information from static resource
    */
+  /*
   private extractMaterial(staticResource: any): string {
     // Try to extract material from tags, metadata, or other fields
     if (staticResource.tags && Array.isArray(staticResource.tags)) {
@@ -325,10 +327,12 @@ export class StaticResourceVectorService<
     if (staticResource.stats?.material) return staticResource.stats.material
     return ''
   }
+  */
 
   /**
    * Extract style information from static resource
    */
+  /*
   private extractStyle(staticResource: any): string {
     // Try to extract style from tags, metadata, or other fields
     if (staticResource.tags && Array.isArray(staticResource.tags)) {
@@ -344,10 +348,12 @@ export class StaticResourceVectorService<
     if (staticResource.stats?.style) return staticResource.stats.style
     return ''
   }
+  */
 
   /**
    * Extract color information from static resource
    */
+  /*
   private extractColor(staticResource: any): string {
     // Try to extract color from tags, metadata, or other fields
     if (staticResource.tags && Array.isArray(staticResource.tags)) {
@@ -360,6 +366,7 @@ export class StaticResourceVectorService<
     if (staticResource.stats?.color) return staticResource.stats.color
     return ''
   }
+  */
 
   /**
    * Batch sync multiple static resources
