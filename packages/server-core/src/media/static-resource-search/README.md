@@ -145,12 +145,15 @@ searchResults.data.forEach(result => {
 
 ### REST API
 
+Replace <JWT_TOKEN> with your JWT token, which you can get from browser console by running following command:
+localStorage.getItem('ir.hyperflux.AuthState.authUser')
+
 ```bash
 # Basic search
-curl "https://localhost:3030/static-resource-search?query=red%20car"
+curl -k "https://localhost:3030/static-resource-search?semanticSearch=red%20car" -H "Authorization: Bearer <JWT_TOKEN>"
 
 # Advanced search
-curl "https://localhost:3030/static-resource-search?query=wooden%20furniture&searchField=material&similarityThreshold=0.8&type=model&\$limit=5"
+curl -k "https://localhost:3030/static-resource-search?semanticSearch=wooden%20furniture&searchField=material&similarityThreshold=0.8&type=model&\$limit=5" -H "Authorization: Bearer <JWT_TOKEN>"
 ```
 
 ## Search Fields
