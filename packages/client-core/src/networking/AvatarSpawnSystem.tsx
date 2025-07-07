@@ -216,6 +216,8 @@ const reactor = () => {
   const locationSceneURL = useHookstate(getMutableState(LocationState).currentLocation.location.sceneURL).value
   const sceneEntity = useLoadedSceneEntity(locationSceneURL)
   const gltfLoaded = GLTFComponent.useSceneLoaded(sceneEntity)
+  const engineState = useMutableState(EngineState)
+  const isEditing = engineState.isEditing.value
 
   const cameraSettingsComponents = useChildrenWithComponents(sceneEntity, [CameraSettingsComponent])
   const cameraSettingsEntity = cameraSettingsComponents.length > 0 ? cameraSettingsComponents[0] : null
@@ -225,12 +227,26 @@ const reactor = () => {
     currentCameraMode.set(cameraMode)
   }
 
+  // Remove avatar when entering edit mode
+  useEffect(() => {
+    if (isEditing) {
+      const selfAvatarUUID = AvatarComponent.getSelfAvatarUUID()
+      if (selfAvatarUUID) {
+        dispatchAction(
+          WorldNetworkAction.destroyEntity({
+            entityUUID: selfAvatarUUID
+          })
+        )
+      }
+    }
+  }, [isEditing])
+
   if (!gltfLoaded || !userID) return null
 
   return (
     <>
       <CameraSettingsReactor cameraSettingsEntity={cameraSettingsEntity} onCameraModeChange={handleCameraModeChange} />
-      {currentCameraMode.value === CameraMode.FOLLOW && (
+      {currentCameraMode.value === CameraMode.FOLLOW && !isEditing && (
         <AvatarSpawnReactor key={sceneEntity} sceneEntity={sceneEntity} />
       )}
     </>
