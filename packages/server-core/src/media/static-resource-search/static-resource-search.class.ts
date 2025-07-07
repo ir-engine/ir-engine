@@ -51,7 +51,7 @@ export class StaticResourceSearchService implements Partial<ServiceMethods<Stati
    * Find static resources using semantic search
    */
   async find(params?: StaticResourceSearchParams): Promise<StaticResourceSearchResponseType> {
-    if (!params?.query?.query) {
+    if (!params?.query?.semanticSearch) {
       throw new BadRequest('Search query is required')
     }
 
