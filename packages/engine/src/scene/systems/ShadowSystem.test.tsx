@@ -1003,6 +1003,44 @@ describe('EntityCSMReactor', async () => {
         expect(result).toBe(Expected)
       })
     })
+
+    it('should update CSM on every change of shadow map type selection', async () => {
+      const Expected = true
+      const Initial = !Expected
+
+      CSM.initCSM({}, rendererEntity)
+      const csmComponent = getMutableComponent(rendererEntity, CSMComponent)
+      csmComponent.needsUpdate.set(Initial)
+
+      const renderSettingsEntity = createEntity()
+      setComponent(renderSettingsEntity, RenderSettingsComponent)
+      const renderSettings = getMutableComponent(renderSettingsEntity, RenderSettingsComponent)
+      renderSettings.shadowMapType.set(1)
+
+      setComponent(testEntity, DirectionalLightComponent, { castShadow: true })
+
+      const Reactor = () => {
+        return React.createElement(ShadowSystemReactors.EntityCSMReactor, {
+          entity: testEntity,
+          rendererEntity: rendererEntity,
+          renderSettingsEntity: renderSettingsEntity
+        })
+      }
+      const root = startReactor(Reactor)
+
+      await act(() => render(null))
+
+      act(() => {
+        renderSettings.shadowMapType.set(2)
+      })
+
+      await vi.waitFor(() => {
+        expect(root.reflection().hasSuspendedOrTimeoutInTree).toBeFalsy()
+        const result = getComponent(rendererEntity, CSMComponent)?.needsUpdate
+        expect(result).not.toBe(Initial)
+        expect(result).toBe(Expected)
+      })
+    })
   })
 
   describe('on change [csm, renderSettingsComponent.cascades]', async () => {
