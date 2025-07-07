@@ -61,7 +61,6 @@ export async function up(knex: Knex): Promise<void> {
       table.string('style', 255).nullable()
       table.string('kit_type', 255).nullable()
       table.string('object_type', 255).nullable()
-      table.string('type', 255).nullable()
       table.string('location', 255).nullable()
       table.string('color', 255).nullable()
 
@@ -73,7 +72,6 @@ export async function up(knex: Knex): Promise<void> {
       table.specificType('styleEmbedding', `vector(${vectorSize})`).nullable()
       table.specificType('kit_typeEmbedding', `vector(${vectorSize})`).nullable()
       table.specificType('object_typeEmbedding', `vector(${vectorSize})`).nullable()
-      table.specificType('typeEmbedding', `vector(${vectorSize})`).nullable()
       table.specificType('locationEmbedding', `vector(${vectorSize})`).nullable()
       table.specificType('colorEmbedding', `vector(${vectorSize})`).nullable()
       table.specificType('combinedEmbedding', `vector(${vectorSize})`).nullable()
@@ -123,12 +121,6 @@ export async function up(knex: Knex): Promise<void> {
     await knex.raw(`
       CREATE INDEX IF NOT EXISTS idx_static_resource_vector_object_type_embedding 
       ON "${staticResourceVectorPath}" USING ivfflat ("object_typeEmbedding" vector_cosine_ops) 
-      WITH (lists = 100)
-    `)
-
-    await knex.raw(`
-      CREATE INDEX IF NOT EXISTS idx_static_resource_vector_type_embedding 
-      ON "${staticResourceVectorPath}" USING ivfflat ("typeEmbedding" vector_cosine_ops) 
       WITH (lists = 100)
     `)
 
@@ -184,11 +176,6 @@ export async function up(knex: Knex): Promise<void> {
     await knex.raw(`
       CREATE INDEX IF NOT EXISTS idx_static_resource_vector_object_type_text 
       ON "${staticResourceVectorPath}" (object_type)
-    `)
-
-    await knex.raw(`
-      CREATE INDEX IF NOT EXISTS idx_static_resource_vector_type_text 
-      ON "${staticResourceVectorPath}" (type)
     `)
 
     await knex.raw(`

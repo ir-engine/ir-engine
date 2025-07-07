@@ -7,7 +7,7 @@ This service provides a client-facing API for performing semantic search on stat
 The Static Resource Search service acts as a bridge between clients and the vector database, providing:
 
 - **Semantic Search**: Natural language queries across static resources
-- **Field-Specific Search**: Target specific fields like caption, description, tags, material, style, kit_type, object_type, type, location, or color
+- **Field-Specific Search**: Target specific fields like caption, description, tags, material, style, kit_type, object_type, location, or color
 - **Relevance Scoring**: Results sorted by similarity to the search query
 - **Filtering**: Additional filters by project, type, or mime type
 - **Pagination**: Standard pagination support with limit and skip
@@ -23,7 +23,7 @@ The Static Resource Search service acts as a bridge between clients and the vect
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
 | `semanticSearch` | string | Yes | - | Search query (1-500 characters) |
-| `searchField` | string | No | `combined` | Field to search in: `caption`, `description`, `tags`, `material`, `style`, `kit_type`, `object_type`, `type`, `location`, `color`, `combined` |
+| `searchField` | string | No | `combined` | Field to search in: `caption`, `description`, `tags`, `material`, `style`, `kit_type`, `object_type`, `location`, `color`, `combined` |
 | `similarityThreshold` | number | No | `0.7` | Minimum similarity score (0-1) |
 | `$limit` | number | No | `20` | Maximum results to return (1-100) |
 | `$skip` | number | No | `0` | Number of results to skip |
@@ -164,7 +164,6 @@ curl "https://localhost:3030/static-resource-search?query=wooden%20furniture&sea
 | `style` | Style or aesthetic | "modern", "rustic", "minimalist" |
 | `kit_type` | Resource kit type | "commercial" |
 | `object_type` | Resource object type | "vehicle" |
-| `type` | Resource type | "asset", "image" |
 | `location` | Color information | "red", "blue", "multicolor" |
 | `color` | Color information | "red", "blue", "multicolor" |
 | `combined` | All fields combined | Searches across all available text |

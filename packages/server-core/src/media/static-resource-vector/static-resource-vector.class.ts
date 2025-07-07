@@ -75,7 +75,6 @@ export class StaticResourceVectorService<
       | 'style'
       | 'kit_type'
       | 'object_type'
-      | 'type'
       | 'location'
       | 'color'
       | 'combined' = 'combined',
@@ -146,7 +145,6 @@ export class StaticResourceVectorService<
     style?: string
     kit_type?: string
     object_type?: string
-    type?: string
     location?: string
     color?: string
   }): Promise<StaticResourceVectorType> {
@@ -180,9 +178,6 @@ export class StaticResourceVectorService<
     if (data.object_type) {
       embeddings.object_typeEmbedding = await this.generateEmbedding(data.object_type)
     }
-    if (data.type) {
-      embeddings.typeEmbedding = await this.generateEmbedding(data.type)
-    }
     if (data.location) {
       embeddings.locationEmbedding = await this.generateEmbedding(data.location)
     }
@@ -199,7 +194,6 @@ export class StaticResourceVectorService<
       data.style,
       data.kit_type,
       data.object_type,
-      data.type,
       data.location,
       data.color
     ]

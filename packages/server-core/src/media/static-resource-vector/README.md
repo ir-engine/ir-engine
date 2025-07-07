@@ -9,7 +9,7 @@ The vector database system creates a complementary table to the main static reso
 ## Features
 
 - **Semantic Search**: Search static resources using natural language queries
-- **Multiple Search Fields**: Search across caption, description, tags, material, style, type, kit_type, object_type, type, location, and color fields
+- **Multiple Search Fields**: Search across caption, description, tags, material, style, type, kit_type, object_type, location, and color fields
 - **Vector Embeddings**: Stores high-dimensional vector representations for similarity search
 - **Automatic Sync**: Automatically keeps vector database in sync with static resource changes
 - **Batch Operations**: Supports batch synchronization for performance
@@ -27,7 +27,6 @@ The vector database table includes:
 - `style`: Style description (e.g., "modern", "rustic", "minimalist")
 - `kit_type`: Kit type (e.g., "residential", "living room furniture", "commercial spaces")
 - `object_type`: Object type (e.g., "armchair", "seating", "furniture")
-- `type`: Resource type (e.g., "asset", "file", "thumbnail")
 - `location`: Expected locations information (e.g., "living room", "lounge", "modern office")
 - `color`: Color scheme information (e.g., "red", "blue", "multicolor")
 - Vector embeddings for each field (1024-dimensional vectors)
@@ -51,7 +50,6 @@ const vectorEntry = await vectorService.create({
   style: 'modern, contemporary',
   kit_type: 'residential, living room furniture',
   object_type: 'armchair, furniture',
-  type: 'asset',
   location: 'living room, lounge',
   color: 'light brown, tan'
 })

@@ -67,7 +67,6 @@ export type StaticResourceSearchFieldType =
   | 'style'
   | 'kit_type'
   | 'object_type'
-  | 'type'
   | 'location'
   | 'color'
   | 'combined'
@@ -88,7 +87,6 @@ export const staticResourceSearchQuerySchema = Type.Object(
         Type.Literal('style'),
         Type.Literal('kit_type'),
         Type.Literal('object_type'),
-        Type.Literal('type'),
         Type.Literal('location'),
         Type.Literal('color'),
         Type.Literal('combined')
@@ -146,7 +144,6 @@ export const SEARCH_FIELDS = [
   'style',
   'kit_type',
   'object_type',
-  'type',
   'location',
   'color',
   'combined'

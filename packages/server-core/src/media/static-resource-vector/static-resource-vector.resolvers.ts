@@ -107,16 +107,6 @@ export const staticResourceVectorResolver = resolve<StaticResourceVectorType, Ho
     }
     return value
   }),
-  typeEmbedding: virtual(async (value, obj) => {
-    if (typeof value === 'string') {
-      try {
-        return JSON.parse(value)
-      } catch {
-        return null
-      }
-    }
-    return value
-  }),
   locationEmbedding: virtual(async (value, obj) => {
     if (typeof value === 'string') {
       try {
@@ -160,7 +150,6 @@ export const staticResourceVectorExternalResolver = resolve<StaticResourceVector
   styleEmbedding: async () => undefined,
   kit_typeEmbedding: async () => undefined,
   object_typeEmbedding: async () => undefined,
-  typeEmbedding: async () => undefined,
   locationEmbedding: async () => undefined,
   colorEmbedding: async () => undefined,
   combinedEmbedding: async () => undefined
@@ -183,7 +172,6 @@ export const staticResourceVectorDataResolver = resolve<StaticResourceVectorData
   styleEmbedding: async (value) => convertEmbeddingToVector(value),
   kit_typeEmbedding: async (value) => convertEmbeddingToVector(value),
   object_typeEmbedding: async (value) => convertEmbeddingToVector(value),
-  typeEmbedding: async (value) => convertEmbeddingToVector(value),
   locationEmbedding: async (value) => convertEmbeddingToVector(value),
   colorEmbedding: async (value) => convertEmbeddingToVector(value),
   combinedEmbedding: async (value) => convertEmbeddingToVector(value)
@@ -197,7 +185,6 @@ export const staticResourceVectorPatchResolver = resolve<StaticResourceVectorPat
   styleEmbedding: async (value) => convertEmbeddingToVector(value),
   kit_typeEmbedding: async (value) => convertEmbeddingToVector(value),
   object_typeEmbedding: async (value) => convertEmbeddingToVector(value),
-  typeEmbedding: async (value) => convertEmbeddingToVector(value),
   locationEmbedding: async (value) => convertEmbeddingToVector(value),
   colorEmbedding: async (value) => convertEmbeddingToVector(value),
   combinedEmbedding: async (value) => convertEmbeddingToVector(value)
