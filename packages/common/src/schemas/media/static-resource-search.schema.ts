@@ -61,7 +61,6 @@ export interface StaticResourceSearchResultType extends Static<typeof staticReso
 
 export type StaticResourceSearchFieldType =
   | 'caption'
-  | 'description'
   | 'tags'
   | 'material'
   | 'style'
@@ -80,7 +79,6 @@ export const staticResourceSearchQuerySchema = Type.Object(
     searchField: Type.Optional(
       Type.Union([
         Type.Literal('caption'),
-        Type.Literal('description'),
         Type.Literal('tags'),
         Type.Literal('material'),
         Type.Literal('style'),
@@ -136,7 +134,6 @@ export const staticResourceSearchQueryValidator = /* @__PURE__ */ getValidator(
 // Export search field options for client use
 export const SEARCH_FIELDS = [
   'caption',
-  'description',
   'tags',
   'material',
   'style',

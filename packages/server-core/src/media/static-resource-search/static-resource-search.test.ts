@@ -113,7 +113,6 @@ describe('static-resource-search service', () => {
       caption: 'A beautiful red sports car model',
       material: 'metal',
       style: 'modern',
-      type: 'model',
       color: 'red'
     }
 

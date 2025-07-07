@@ -42,7 +42,6 @@ export const staticResourceVectorSchema = Type.Object(
     }),
     // Searchable text fields
     caption: Type.Optional(Type.String()),
-    description: Type.Optional(Type.String()),
     tags: Type.Optional(Type.String()),
     material: Type.Optional(Type.String()),
     style: Type.Optional(Type.String()),
@@ -51,7 +50,6 @@ export const staticResourceVectorSchema = Type.Object(
     color: Type.Optional(Type.String()),
     // Vector embeddings for semantic search (stored as arrays in schema, strings in DB)
     captionEmbedding: Type.Optional(Type.Array(Type.Number())),
-    descriptionEmbedding: Type.Optional(Type.Array(Type.Number())),
     tagsEmbedding: Type.Optional(Type.Array(Type.Number())),
     materialEmbedding: Type.Optional(Type.Array(Type.Number())),
     styleEmbedding: Type.Optional(Type.Array(Type.Number())),
@@ -73,7 +71,6 @@ export interface StaticResourceVectorDatabaseType
   extends Omit<
     StaticResourceVectorType,
     | 'captionEmbedding'
-    | 'descriptionEmbedding'
     | 'tagsEmbedding'
     | 'materialEmbedding'
     | 'styleEmbedding'
@@ -83,7 +80,6 @@ export interface StaticResourceVectorDatabaseType
     | 'combinedEmbedding'
   > {
   captionEmbedding: string | null
-  descriptionEmbedding: string | null
   tagsEmbedding: string | null
   materialEmbedding: string | null
   styleEmbedding: string | null
@@ -99,7 +95,6 @@ export const staticResourceVectorDataSchema = Type.Partial(
     'id',
     'staticResourceId',
     'caption',
-    'description',
     'tags',
     'material',
     'style',
@@ -107,7 +102,6 @@ export const staticResourceVectorDataSchema = Type.Partial(
     'location',
     'color',
     'captionEmbedding',
-    'descriptionEmbedding',
     'tagsEmbedding',
     'materialEmbedding',
     'styleEmbedding',
@@ -125,7 +119,6 @@ export const staticResourceVectorPatchSchema = Type.Partial(
   Type.Pick(staticResourceVectorSchema, [
     'staticResourceId',
     'caption',
-    'description',
     'tags',
     'material',
     'style',
@@ -133,7 +126,6 @@ export const staticResourceVectorPatchSchema = Type.Partial(
     'location',
     'color',
     'captionEmbedding',
-    'descriptionEmbedding',
     'tagsEmbedding',
     'materialEmbedding',
     'styleEmbedding',
@@ -151,7 +143,6 @@ export const staticResourceVectorQueryProperties = Type.Pick(staticResourceVecto
   'id',
   'staticResourceId',
   'caption',
-  'description',
   'tags',
   'material',
   'style',
@@ -174,7 +165,6 @@ export const staticResourceVectorQuerySchema = Type.Intersect(
         searchField: Type.Optional(
           Type.Union([
             Type.Literal('caption'),
-            Type.Literal('description'),
             Type.Literal('tags'),
             Type.Literal('material'),
             Type.Literal('style'),

@@ -67,16 +67,7 @@ export class StaticResourceVectorService<
    */
   async semanticSearch(
     query: string,
-    field:
-      | 'caption'
-      | 'description'
-      | 'tags'
-      | 'material'
-      | 'style'
-      | 'object_type'
-      | 'location'
-      | 'color'
-      | 'combined' = 'combined',
+    field: 'caption' | 'tags' | 'material' | 'style' | 'object_type' | 'location' | 'color' | 'combined' = 'combined',
     threshold: number = 0.7,
     limit: number = 10
   ): Promise<StaticResourceVectorType[]> {
@@ -138,7 +129,6 @@ export class StaticResourceVectorService<
   async upsertVectorEntry(data: {
     staticResourceId: string
     caption?: string
-    description?: string
     tags?: string
     material?: string
     style?: string
@@ -157,9 +147,6 @@ export class StaticResourceVectorService<
 
     if (data.caption) {
       embeddings.captionEmbedding = await this.generateEmbedding(data.caption)
-    }
-    if (data.description) {
-      embeddings.descriptionEmbedding = await this.generateEmbedding(data.description)
     }
     if (data.tags) {
       embeddings.tagsEmbedding = await this.generateEmbedding(data.tags)
@@ -183,7 +170,6 @@ export class StaticResourceVectorService<
     // Generate combined embedding from all text fields
     const combinedText = [
       data.caption,
-      data.description,
       data.tags,
       data.material,
       data.style,

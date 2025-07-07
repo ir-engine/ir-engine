@@ -47,16 +47,6 @@ export const staticResourceVectorResolver = resolve<StaticResourceVectorType, Ho
     }
     return value
   }),
-  descriptionEmbedding: virtual(async (value, obj) => {
-    if (typeof value === 'string') {
-      try {
-        return JSON.parse(value)
-      } catch {
-        return null
-      }
-    }
-    return value
-  }),
   tagsEmbedding: virtual(async (value, obj) => {
     if (typeof value === 'string') {
       try {
@@ -134,7 +124,6 @@ export const staticResourceVectorResolver = resolve<StaticResourceVectorType, Ho
 export const staticResourceVectorExternalResolver = resolve<StaticResourceVectorType, HookContext<Application>>({
   // Hide embeddings from external responses by default for performance
   captionEmbedding: async () => undefined,
-  descriptionEmbedding: async () => undefined,
   tagsEmbedding: async () => undefined,
   materialEmbedding: async () => undefined,
   styleEmbedding: async () => undefined,
@@ -155,7 +144,6 @@ const convertEmbeddingToVector = (value: any) => {
 export const staticResourceVectorDataResolver = resolve<StaticResourceVectorData, HookContext<Application>>({
   id: async () => uuidv4(),
   captionEmbedding: async (value) => convertEmbeddingToVector(value),
-  descriptionEmbedding: async (value) => convertEmbeddingToVector(value),
   tagsEmbedding: async (value) => convertEmbeddingToVector(value),
   materialEmbedding: async (value) => convertEmbeddingToVector(value),
   styleEmbedding: async (value) => convertEmbeddingToVector(value),
@@ -167,7 +155,6 @@ export const staticResourceVectorDataResolver = resolve<StaticResourceVectorData
 
 export const staticResourceVectorPatchResolver = resolve<StaticResourceVectorPatch, HookContext<Application>>({
   captionEmbedding: async (value) => convertEmbeddingToVector(value),
-  descriptionEmbedding: async (value) => convertEmbeddingToVector(value),
   tagsEmbedding: async (value) => convertEmbeddingToVector(value),
   materialEmbedding: async (value) => convertEmbeddingToVector(value),
   styleEmbedding: async (value) => convertEmbeddingToVector(value),

@@ -54,8 +54,7 @@ export async function up(knex: Knex): Promise<void> {
       table.index('staticResourceId')
 
       // Searchable text fields
-      table.text('caption').nullable()
-      table.string('description', 1023).nullable()
+      table.string('caption', 1023).nullable()
       table.string('tags', 255).nullable()
       table.string('material', 255).nullable()
       table.string('style', 255).nullable()
@@ -65,7 +64,6 @@ export async function up(knex: Knex): Promise<void> {
 
       // Vector embeddings (using pgvector extension)
       table.specificType('captionEmbedding', `vector(${vectorSize})`).nullable()
-      table.specificType('descriptionEmbedding', `vector(${vectorSize})`).nullable()
       table.specificType('tagsEmbedding', `vector(${vectorSize})`).nullable()
       table.specificType('materialEmbedding', `vector(${vectorSize})`).nullable()
       table.specificType('styleEmbedding', `vector(${vectorSize})`).nullable()
@@ -83,12 +81,6 @@ export async function up(knex: Knex): Promise<void> {
     await knex.raw(`
       CREATE INDEX IF NOT EXISTS idx_static_resource_vector_caption_embedding 
       ON "${staticResourceVectorPath}" USING ivfflat ("captionEmbedding" vector_cosine_ops) 
-      WITH (lists = 100)
-    `)
-
-    await knex.raw(`
-      CREATE INDEX IF NOT EXISTS idx_static_resource_vector_description_embedding 
-      ON "${staticResourceVectorPath}" USING ivfflat ("descriptionEmbedding" vector_cosine_ops) 
       WITH (lists = 100)
     `)
 
@@ -138,11 +130,6 @@ export async function up(knex: Knex): Promise<void> {
     await knex.raw(`
       CREATE INDEX IF NOT EXISTS idx_static_resource_vector_caption_text 
       ON "${staticResourceVectorPath}" USING gin(to_tsvector('english', caption))
-    `)
-
-    await knex.raw(`
-      CREATE INDEX IF NOT EXISTS idx_static_resource_vector_description_text 
-      ON "${staticResourceVectorPath}" (description)
     `)
 
     await knex.raw(`
