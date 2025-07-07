@@ -77,7 +77,8 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   const userID = useMutableState(EngineState).userID.value
   const { sceneEntity } = props
   const searchParams = useMutableState(SearchParamState)
-
+  const engineState = useMutableState(EngineState)
+  const isEditing = engineState.isEditing.value
   const spectateEntity = useHookstate(getSearchParamFromURL('spectate') as EntityID)
 
   const settingsQuery = useChildrenWithComponents(sceneEntity, [SceneSettingsComponent])
@@ -132,9 +133,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
       const selfAvatarUUID = AvatarComponent.getSelfAvatarUUID()
 
       const currentNetwork = NetworkState.worldNetwork
-      if (!currentNetwork) return
-
-      const networkPeerState = getState(NetworkPeerState)[currentNetwork.id]
+      const networkPeerState = getState(NetworkPeerState)[currentNetwork?.id]
       const peersCountForUser = networkPeerState?.users?.[userID]?.length || 0
 
       if (peersCountForUser <= 1) {
@@ -216,8 +215,6 @@ const reactor = () => {
   const locationSceneURL = useHookstate(getMutableState(LocationState).currentLocation.location.sceneURL).value
   const sceneEntity = useLoadedSceneEntity(locationSceneURL)
   const gltfLoaded = GLTFComponent.useSceneLoaded(sceneEntity)
-  const engineState = useMutableState(EngineState)
-  const isEditing = engineState.isEditing.value
 
   const cameraSettingsComponents = useChildrenWithComponents(sceneEntity, [CameraSettingsComponent])
   const cameraSettingsEntity = cameraSettingsComponents.length > 0 ? cameraSettingsComponents[0] : null
@@ -227,26 +224,12 @@ const reactor = () => {
     currentCameraMode.set(cameraMode)
   }
 
-  // Remove avatar when entering edit mode
-  useEffect(() => {
-    if (isEditing) {
-      const selfAvatarUUID = AvatarComponent.getSelfAvatarUUID()
-      if (selfAvatarUUID) {
-        dispatchAction(
-          WorldNetworkAction.destroyEntity({
-            entityUUID: selfAvatarUUID
-          })
-        )
-      }
-    }
-  }, [isEditing])
-
   if (!gltfLoaded || !userID) return null
 
   return (
     <>
       <CameraSettingsReactor cameraSettingsEntity={cameraSettingsEntity} onCameraModeChange={handleCameraModeChange} />
-      {currentCameraMode.value === CameraMode.FOLLOW && !isEditing && (
+      {currentCameraMode.value === CameraMode.FOLLOW && (
         <AvatarSpawnReactor key={sceneEntity} sceneEntity={sceneEntity} />
       )}
     </>
