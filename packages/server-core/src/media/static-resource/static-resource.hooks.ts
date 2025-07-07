@@ -28,6 +28,7 @@ import { projectHistoryPath, projectPath } from '@ir-engine/common/src/schema.ty
 import { staticResourceVectorPath } from '@ir-engine/common/src/schemas/media/static-resource-vector.schema'
 import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schemas/media/static-resource.schema'
 import { isValidId } from '@ir-engine/common/src/utils/isValidId'
+import { AssetType, FileToAssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 import { isEmpty } from 'lodash'
 import { HookContext } from '../../../declarations'
@@ -371,8 +372,12 @@ const syncToVectorDatabase = async (context: HookContext<StaticResourceService>)
   try {
     const vectorService = context.app.service(staticResourceVectorPath)
     if (vectorService && typeof vectorService.syncStaticResource === 'function') {
-      const staticResource = context.result
-      await vectorService.syncStaticResource(staticResource)
+      const staticResource = context.result as StaticResourceType
+      const assetClass = FileToAssetType(staticResource.key)
+
+      if (assetClass === AssetType.Material || assetClass === AssetType.Model) {
+        await vectorService.syncStaticResource(staticResource)
+      }
     }
   } catch (error) {
     console.error('Error syncing to vector database:', error)
