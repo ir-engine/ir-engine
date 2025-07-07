@@ -73,7 +73,6 @@ export class StaticResourceVectorService<
       | 'tags'
       | 'material'
       | 'style'
-      | 'kit_type'
       | 'object_type'
       | 'location'
       | 'color'
@@ -143,7 +142,6 @@ export class StaticResourceVectorService<
     tags?: string
     material?: string
     style?: string
-    kit_type?: string
     object_type?: string
     location?: string
     color?: string
@@ -172,9 +170,6 @@ export class StaticResourceVectorService<
     if (data.style) {
       embeddings.styleEmbedding = await this.generateEmbedding(data.style)
     }
-    if (data.kit_type) {
-      embeddings.kit_typeEmbedding = await this.generateEmbedding(data.kit_type)
-    }
     if (data.object_type) {
       embeddings.object_typeEmbedding = await this.generateEmbedding(data.object_type)
     }
@@ -192,7 +187,6 @@ export class StaticResourceVectorService<
       data.tags,
       data.material,
       data.style,
-      data.kit_type,
       data.object_type,
       data.location,
       data.color

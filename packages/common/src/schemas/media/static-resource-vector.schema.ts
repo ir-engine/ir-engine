@@ -46,7 +46,6 @@ export const staticResourceVectorSchema = Type.Object(
     tags: Type.Optional(Type.String()),
     material: Type.Optional(Type.String()),
     style: Type.Optional(Type.String()),
-    kit_type: Type.Optional(Type.String()),
     object_type: Type.Optional(Type.String()),
     location: Type.Optional(Type.String()),
     color: Type.Optional(Type.String()),
@@ -56,7 +55,6 @@ export const staticResourceVectorSchema = Type.Object(
     tagsEmbedding: Type.Optional(Type.Array(Type.Number())),
     materialEmbedding: Type.Optional(Type.Array(Type.Number())),
     styleEmbedding: Type.Optional(Type.Array(Type.Number())),
-    kit_typeEmbedding: Type.Optional(Type.Array(Type.Number())),
     object_typeEmbedding: Type.Optional(Type.Array(Type.Number())),
     locationEmbedding: Type.Optional(Type.Array(Type.Number())),
     colorEmbedding: Type.Optional(Type.Array(Type.Number())),
@@ -79,7 +77,6 @@ export interface StaticResourceVectorDatabaseType
     | 'tagsEmbedding'
     | 'materialEmbedding'
     | 'styleEmbedding'
-    | 'kit_typeEmbedding'
     | 'object_typeEmbedding'
     | 'locationEmbedding'
     | 'colorEmbedding'
@@ -90,7 +87,6 @@ export interface StaticResourceVectorDatabaseType
   tagsEmbedding: string | null
   materialEmbedding: string | null
   styleEmbedding: string | null
-  kit_typeEmbedding: string | null
   object_typeEmbedding: string | null
   locationEmbedding: string | null
   colorEmbedding: string | null
@@ -107,7 +103,6 @@ export const staticResourceVectorDataSchema = Type.Partial(
     'tags',
     'material',
     'style',
-    'kit_type',
     'object_type',
     'location',
     'color',
@@ -116,7 +111,6 @@ export const staticResourceVectorDataSchema = Type.Partial(
     'tagsEmbedding',
     'materialEmbedding',
     'styleEmbedding',
-    'kit_typeEmbedding',
     'object_typeEmbedding',
     'locationEmbedding',
     'colorEmbedding',
@@ -135,7 +129,6 @@ export const staticResourceVectorPatchSchema = Type.Partial(
     'tags',
     'material',
     'style',
-    'kit_type',
     'object_type',
     'location',
     'color',
@@ -144,7 +137,6 @@ export const staticResourceVectorPatchSchema = Type.Partial(
     'tagsEmbedding',
     'materialEmbedding',
     'styleEmbedding',
-    'kit_typeEmbedding',
     'object_typeEmbedding',
     'locationEmbedding',
     'colorEmbedding',
@@ -163,7 +155,6 @@ export const staticResourceVectorQueryProperties = Type.Pick(staticResourceVecto
   'tags',
   'material',
   'style',
-  'kit_type',
   'object_type',
   'location',
   'color',
@@ -187,7 +178,6 @@ export const staticResourceVectorQuerySchema = Type.Intersect(
             Type.Literal('tags'),
             Type.Literal('material'),
             Type.Literal('style'),
-            Type.Literal('kit_type'),
             Type.Literal('object_type'),
             Type.Literal('location'),
             Type.Literal('color'),

@@ -87,16 +87,6 @@ export const staticResourceVectorResolver = resolve<StaticResourceVectorType, Ho
     }
     return value
   }),
-  kit_typeEmbedding: virtual(async (value, obj) => {
-    if (typeof value === 'string') {
-      try {
-        return JSON.parse(value)
-      } catch {
-        return null
-      }
-    }
-    return value
-  }),
   object_typeEmbedding: virtual(async (value, obj) => {
     if (typeof value === 'string') {
       try {
@@ -148,7 +138,6 @@ export const staticResourceVectorExternalResolver = resolve<StaticResourceVector
   tagsEmbedding: async () => undefined,
   materialEmbedding: async () => undefined,
   styleEmbedding: async () => undefined,
-  kit_typeEmbedding: async () => undefined,
   object_typeEmbedding: async () => undefined,
   locationEmbedding: async () => undefined,
   colorEmbedding: async () => undefined,
@@ -170,7 +159,6 @@ export const staticResourceVectorDataResolver = resolve<StaticResourceVectorData
   tagsEmbedding: async (value) => convertEmbeddingToVector(value),
   materialEmbedding: async (value) => convertEmbeddingToVector(value),
   styleEmbedding: async (value) => convertEmbeddingToVector(value),
-  kit_typeEmbedding: async (value) => convertEmbeddingToVector(value),
   object_typeEmbedding: async (value) => convertEmbeddingToVector(value),
   locationEmbedding: async (value) => convertEmbeddingToVector(value),
   colorEmbedding: async (value) => convertEmbeddingToVector(value),
@@ -183,7 +171,6 @@ export const staticResourceVectorPatchResolver = resolve<StaticResourceVectorPat
   tagsEmbedding: async (value) => convertEmbeddingToVector(value),
   materialEmbedding: async (value) => convertEmbeddingToVector(value),
   styleEmbedding: async (value) => convertEmbeddingToVector(value),
-  kit_typeEmbedding: async (value) => convertEmbeddingToVector(value),
   object_typeEmbedding: async (value) => convertEmbeddingToVector(value),
   locationEmbedding: async (value) => convertEmbeddingToVector(value),
   colorEmbedding: async (value) => convertEmbeddingToVector(value),
