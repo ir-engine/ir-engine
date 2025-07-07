@@ -56,12 +56,12 @@ const rateLimitSearch = async (context: HookContext) => {
 const validateSearchParams = async (context: HookContext) => {
   const query = context.params.query
 
-  if (!query?.query) {
+  if (!query?.semanticSearch) {
     throw new BadRequest('Search query is required')
   }
 
   // Additional validation can be added here
-  if (query.query.length < 2) {
+  if (query.semanticSearch.length < 2) {
     throw new BadRequest('Search query must be at least 2 characters long')
   }
 
