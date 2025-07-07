@@ -58,7 +58,7 @@ export const staticResourceSearchQueryResolver = resolve<StaticResourceSearchQue
   $skip: async (value) => Math.max(value || 0, 0), // Ensure non-negative
 
   // Sanitize search query
-  query: async (value) => {
+  semanticSearch: async (value) => {
     if (typeof value !== 'string') {
       throw new Error('Search query must be a string')
     }

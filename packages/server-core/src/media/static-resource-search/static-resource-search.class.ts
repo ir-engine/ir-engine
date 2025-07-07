@@ -56,7 +56,7 @@ export class StaticResourceSearchService implements Partial<ServiceMethods<Stati
     }
 
     const {
-      query: searchQuery,
+      semanticSearch: searchQuery,
       searchField = DEFAULT_SEARCH_PARAMS.searchField,
       similarityThreshold = DEFAULT_SEARCH_PARAMS.similarityThreshold,
       $limit = DEFAULT_SEARCH_PARAMS.limit,

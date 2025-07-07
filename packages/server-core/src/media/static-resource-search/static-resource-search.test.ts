@@ -172,7 +172,7 @@ describe('static-resource-search service', () => {
 
     const results = await searchService.find({
       query: {
-        query: 'sports car',
+        semanticSearch: 'sports car',
         searchField: 'caption',
         $limit: 5
       },
@@ -209,7 +209,7 @@ describe('static-resource-search service', () => {
     for (const field of searchFields) {
       const results = await searchService.find({
         query: {
-          query: 'test',
+          semanticSearch: 'test',
           searchField: field as StaticResourceSearchFieldType,
           $limit: 5
         },

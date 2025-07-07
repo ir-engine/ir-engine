@@ -22,7 +22,7 @@ The Static Resource Search service acts as a bridge between clients and the vect
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `query` | string | Yes | - | Search query (1-500 characters) |
+| `semanticSearch` | string | Yes | - | Search query (1-500 characters) |
 | `searchField` | string | No | `combined` | Field to search in: `caption`, `description`, `tags`, `material`, `style`, `kit_type`, `object_type`, `type`, `location`, `color`, `combined` |
 | `similarityThreshold` | number | No | `0.7` | Minimum similarity score (0-1) |
 | `$limit` | number | No | `20` | Maximum results to return (1-100) |
@@ -83,7 +83,7 @@ const results = await app.service('static-resource-search').find({
 // Search only in material field
 const results = await app.service('static-resource-search').find({
   query: {
-    query: 'wood',
+    semanticSearch: 'wood',
     searchField: 'material'
   }
 })
@@ -95,7 +95,7 @@ const results = await app.service('static-resource-search').find({
 // Search for models in a specific project with high similarity
 const results = await app.service('static-resource-search').find({
   query: {
-    query: 'futuristic spaceship',
+    semanticSearch: 'futuristic spaceship',
     searchField: 'caption',
     similarityThreshold: 0.8,
     type: 'asset',
@@ -131,7 +131,7 @@ const app = feathers()
 // Perform search
 const searchResults = await app.service('static-resource-search').find({
   query: {
-    query: 'wooden chair',
+    semanticSearch: 'wooden chair',
     searchField: 'combined',
     $limit: 10
   }

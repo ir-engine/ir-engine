@@ -73,14 +73,14 @@ const validateSearchParams = async (context: HookContext) => {
  */
 const logSearchAnalytics = async (context: HookContext) => {
   try {
-    const query = context.params.query?.query
+    const semanticSearch = context.params.query?.semanticSearch
     const searchField = context.params.query?.searchField
     const resultCount = context.result?.data?.length || 0
     const userId = context.params.user?.id
 
     // Log search for analytics (in production, send to analytics service)
     console.log('Search Analytics:', {
-      query,
+      semanticSearch,
       searchField,
       resultCount,
       userId,

@@ -76,7 +76,7 @@ export type StaticResourceSearchFieldType =
 export const staticResourceSearchQuerySchema = Type.Object(
   {
     // Required search query
-    query: Type.String({ minLength: 1, maxLength: 500 }),
+    semanticSearch: Type.String({ minLength: 1, maxLength: 500 }),
 
     // Optional search field specification
     searchField: Type.Optional(
