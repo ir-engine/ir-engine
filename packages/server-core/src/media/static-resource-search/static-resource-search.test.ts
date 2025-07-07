@@ -153,7 +153,7 @@ describe('static-resource-search service', () => {
 
     const results = await searchService.find({
       query: {
-        query: 'red car',
+        semanticSearch: 'red car',
         $limit: 10
       },
       isInternal: true
@@ -227,7 +227,7 @@ describe('static-resource-search service', () => {
 
     const results = await searchService.find({
       query: {
-        query: 'model',
+        semanticSearch: 'model',
         $limit: 3,
         $skip: 1
       },
@@ -244,7 +244,7 @@ describe('static-resource-search service', () => {
 
     const results = await searchService.find({
       query: {
-        query: 'car',
+        semanticSearch: 'car',
         similarityThreshold: 0.9, // High threshold
         $limit: 10
       },
@@ -261,7 +261,7 @@ describe('static-resource-search service', () => {
 
     const results = await searchService.find({
       query: {
-        query: 'model',
+        semanticSearch: 'model',
         type: 'model',
         project: 'test-project',
         $limit: 10
@@ -285,7 +285,7 @@ describe('static-resource-search service', () => {
     await expect(
       searchService.find({
         query: {
-          query: '',
+          semanticSearch: '',
           $limit: 10
         },
         isInternal: true
@@ -316,7 +316,7 @@ describe('static-resource-search service', () => {
     await expect(
       searchService.find({
         query: {
-          query: longQuery,
+          semanticSearch: longQuery,
           $limit: 10
         },
         isInternal: true
