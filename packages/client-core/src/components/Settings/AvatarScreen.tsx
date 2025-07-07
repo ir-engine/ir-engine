@@ -42,6 +42,7 @@ import AvatarCreatorMenu, { SupportedSdks } from '../../user/menus/avatar/Avatar
 import AvatarModifyMenu from '../../user/menus/avatar/AvatarModifyMenu'
 import { AuthService, AuthState } from '../../user/services/AuthService'
 import { AVATAR_PAGE_LIMIT } from '../../user/services/AvatarService'
+import { TextButton } from '../Glass/buttons/TextButton'
 import { NavigateFuncProps } from '../Glass/NavigationProvider'
 import { Inner } from '../Glass/ToolbarAndSidebar'
 import { MenuItem } from './MenuItem'
@@ -86,22 +87,19 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({ navigateTo, navigateClose }
   const avatarEntity = AvatarComponent.useSelfAvatarEntity()
   const selfAvatarLoaded = GLTFComponent.useSceneLoaded(avatarEntity)
 
+  function setUserAvatar(id: AvatarID) {
+    if (id == userAvatarId) return
+
+    const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+    if (!selfAvatarEntity || !hasComponent(selfAvatarEntity, SpawnEffectComponent)) {
+      userAvatarMutation.patch(null, { avatarId: id }, { query: { userId } })
+    }
+  }
+
   const onAvatarThumbnailClicked = async (id: AvatarID) => {
     if (selectedAvatarId.value === id) return
     selectedAvatarId.set(id)
   }
-
-  useEffect(() => {
-    return () => {
-      const avatarId = selectedAvatarId.value
-      if (avatarId == userAvatarId) return
-
-      const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-      if (!selfAvatarEntity || !hasComponent(selfAvatarEntity, SpawnEffectComponent)) {
-        userAvatarMutation.patch(null, { avatarId: selectedAvatarId.value }, { query: { userId } })
-      }
-    }
-  }, [])
 
   return (
     <Inner className="flex min-h-full flex-col gap-4">
@@ -152,6 +150,14 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({ navigateTo, navigateClose }
           ))}
         </div>
       </div>
+      <TextButton
+        onClick={() => setUserAvatar(selectedAvatarId.value)}
+        className="w-full"
+        fade={`dark`}
+        disabled={selectedAvatarId.value === userAvatarId}
+      >
+        Confirm
+      </TextButton>
     </Inner>
   )
 }

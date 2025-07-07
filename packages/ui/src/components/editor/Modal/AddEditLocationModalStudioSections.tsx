@@ -40,6 +40,7 @@ export default function AddEditLocationModalStudioSections() {
     try {
       isGenerating.set(true)
       await SceneThumbnailState.createThumbnail()
+      await SceneThumbnailState.uploadThumbnail()
     } catch (e) {
       NotificationService.dispatchNotify(e, { variant: 'error' })
       console.log(e)
