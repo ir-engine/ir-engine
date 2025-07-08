@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import hark from 'hark'
 import { decode, encode } from 'msgpackr'
 import React, { useEffect } from 'react'
 import { dispatchAction } from '../functions/ActionFunctions'
@@ -31,6 +32,7 @@ import { HyperFlux } from '../functions/StoreFunctions'
 import { NetworkActions } from '../network/NetworkPeerState'
 import { Network, NetworkState, NetworkTopics } from '../network/NetworkState'
 import { NetworkID, PeerID, UserID } from '../types/Types'
+import { AudioDuckingState } from './AudioDuckingSystem'
 import { DataChannelRegistryState, DataChannelType } from './DataChannelRegistry'
 import {
   createPeerMediaChannels,
@@ -396,6 +398,29 @@ export const MediaReceiveChannelReactor = (props: {
 
     WebRTCTransportFunctions.requestVideoQuality(sendMessage, props.networkID, props.peerID, stream, scale, maxBitrate)
   }, [stream, maxResolution, isPiP])
+
+  useEffect(() => {
+    if (!stream || !isAudio) return
+
+    const peer = props.peerID
+    let unmounted = false
+    const harkEvents = hark(stream, { play: false })
+
+    harkEvents.on('speaking', () => {
+      if (unmounted) return
+      AudioDuckingState.addEvent(peer)
+    })
+
+    const cleanup = () => {
+      unmounted = true
+      AudioDuckingState.addEvent(peer)
+      harkEvents.stop()
+    }
+
+    harkEvents.on('stopped_speaking', cleanup)
+
+    return cleanup
+  })
 
   return null
 }
