@@ -630,25 +630,21 @@ export default function AddEditLocationModal(props: AddEditLocationModalProps) {
                     onChange={videoEnabled.set}
                     disabled={isLoading || maxUsers.value < 2}
                   />
-                  {videoEnabled.value && (
-                    <>
-                      <div className="pl-4">
-                        <Toggle
-                          label={t('admin:components.location.lbl-se')}
-                          value={screenSharingEnabled.value}
-                          onChange={screenSharingEnabled.set}
-                          disabled={isLoading}
-                          className="pl-4"
-                        />
-                      </div>
-                      <Toggle
-                        label={t('admin:components.location.lbl-ae')}
-                        value={audioEnabled.value}
-                        onChange={audioEnabled.set}
-                        disabled={isLoading}
-                      />
-                    </>
-                  )}
+
+                  <Toggle
+                    label={t('admin:components.location.lbl-se')}
+                    value={screenSharingEnabled.value}
+                    onChange={screenSharingEnabled.set}
+                    disabled={isLoading}
+                    className="pl-4"
+                  />
+
+                  <Toggle
+                    label={t('admin:components.location.lbl-ae')}
+                    value={audioEnabled.value}
+                    onChange={audioEnabled.set}
+                    disabled={isLoading}
+                  />
                 </div>
               </div>
             </div>
