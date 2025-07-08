@@ -44,7 +44,7 @@ import { EmoteMenu } from '../EmoteMenu'
 import { containerStyles, gridStyles_base, sectionStyles_base } from '../ToolbarMenu'
 import { MenuIconButton as Component } from './MenuIconButton'
 const meta: Meta<typeof Component> = {
-  title: 'ClientCore/Buttons/MenuIconButton',
+  title: 'Components/Buttons/MenuIconButton',
   component: Component,
   parameters: {
     backgrounds: {

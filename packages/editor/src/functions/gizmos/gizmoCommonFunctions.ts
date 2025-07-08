@@ -72,6 +72,7 @@ export function getCameraFactor(
   multiplier = 0.3,
   camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent)
 ) {
+  if (!camera) return size * multiplier
   const factor = (camera as any).isOrthographicCamera
     ? ((camera as any).top - (camera as any).bottom) / camera.zoom
     : position.distanceTo(camera.position) * Math.min((1.9 * Math.tan((Math.PI * camera.fov) / 360)) / camera.zoom, 7)

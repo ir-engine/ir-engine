@@ -49,6 +49,9 @@ import {
   Vector3
 } from 'three'
 
+const iconGizmoTransitionTimeout = 1000 // ms
+const iconGizmoGrowInterpolationFactor = 0.3 // ms
+
 const gizmoMaterial = new MeshBasicMaterial({
   depthTest: false,
   depthWrite: false,
@@ -104,6 +107,7 @@ matInvisible.visible = false
 
 const matHelper = gizmoLineMaterial.clone()
 matHelper.opacity = gizmoMaterialProperties[GizmoMaterial.HELPER].opacity
+matHelper.transparent = true
 
 const matHelperRed = gizmoLineMaterial.clone()
 matHelperRed.color.setHex(gizmoMaterialProperties[GizmoMaterial.RED].color)
@@ -125,22 +129,26 @@ matBlue.color.setHex(gizmoMaterialProperties[GizmoMaterial.BLUE].color)
 const matRedTransparent = gizmoMaterial.clone()
 matRedTransparent.color.setHex(gizmoMaterialProperties[GizmoMaterial.RED_TRANSPARENT].color)
 matRedTransparent.opacity = gizmoMaterialProperties[GizmoMaterial.RED_TRANSPARENT].opacity
+matRedTransparent.transparent = true
 
 const matGreenTransparent = gizmoMaterial.clone()
 matGreenTransparent.color.setHex(gizmoMaterialProperties[GizmoMaterial.GREEN_TRANSPARENT].color)
 matGreenTransparent.opacity = gizmoMaterialProperties[GizmoMaterial.GREEN_TRANSPARENT].opacity
+matGreenTransparent.transparent = true
 
 const matBlueTransparent = gizmoMaterial.clone()
 matBlueTransparent.color.setHex(gizmoMaterialProperties[GizmoMaterial.BLUE_TRANSPARENT].color)
 matBlueTransparent.opacity = gizmoMaterialProperties[GizmoMaterial.BLUE_TRANSPARENT].opacity
+matBlueTransparent.transparent = true
 
 const matWhiteTransparent = gizmoMaterial.clone()
 matWhiteTransparent.opacity = gizmoMaterialProperties[GizmoMaterial.WHITE_TRANSPARENT].opacity
+matWhiteTransparent.transparent = true
 
 const matYellowTransparent = gizmoMaterial.clone()
 matYellowTransparent.color.setHex(gizmoMaterialProperties[GizmoMaterial.YELLOW_TRANSPARENT].color)
 matYellowTransparent.opacity = gizmoMaterialProperties[GizmoMaterial.YELLOW_TRANSPARENT].opacity
-
+matYellowTransparent.transparent = true
 // const matYellow = gizmoMaterial.clone()
 //matYellow.color.setHex(materialProperties[GizmoMaterial.YELLOW].color)
 
@@ -501,7 +509,9 @@ export {
   helperScale,
   helperTranslate,
   iconGizmoArrow,
+  iconGizmoGrowInterpolationFactor,
   iconGizmoHelper,
+  iconGizmoTransitionTimeout,
   iconGizmoYHelper,
   matBlue,
   matBlueTransparent,

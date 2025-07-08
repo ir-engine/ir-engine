@@ -53,6 +53,19 @@ export const setupAvatarProportions = (entity: Entity) => {
 
   const worldHeight = TransformComponent.getWorldPosition(entity, new Vector3()).y
   const rig = getComponent(entity, AvatarRigComponent).bonesToEntities
+  if (!rig) return
+
+  const requiredBones = ['hips', 'head', 'leftFoot', 'rightFoot', 'leftLowerLeg', 'leftUpperLeg'] as const
+  for (const boneName of requiredBones) {
+    const boneEntity = rig[boneName]
+    if (!boneEntity || !hasComponent(boneEntity, TransformComponent)) return
+
+    const transform = getComponent(boneEntity, TransformComponent)
+    if (!transform.matrixWorld) return
+
+    TransformComponent.computeTransformMatrix(boneEntity)
+  }
+
   TransformComponent.getWorldPosition(rig.hips, hipsPos)
   TransformComponent.getWorldPosition(rig.head, headPos)
   TransformComponent.getWorldPosition(rig.leftFoot, leftFootPos)

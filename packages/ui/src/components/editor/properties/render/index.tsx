@@ -41,7 +41,6 @@ import {
   BasicShadowMap,
   CineonToneMapping,
   LinearToneMapping,
-  NoToneMapping,
   PCFShadowMap,
   PCFSoftShadowMap,
   ReinhardToneMapping,
@@ -51,10 +50,6 @@ import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
 
 const ToneMappingOptions = [
-  {
-    label: 'No Tone Mapping',
-    value: NoToneMapping
-  },
   {
     label: 'Linear Tone Mapping',
     value: LinearToneMapping
@@ -79,10 +74,6 @@ const ToneMappingOptions = [
  * @type {Array}
  */
 const ShadowTypeOptions = [
-  {
-    label: 'No Shadow Map',
-    value: -1
-  },
   {
     label: 'Basic Shadow Map',
     value: BasicShadowMap
