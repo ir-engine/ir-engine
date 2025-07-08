@@ -25,11 +25,17 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useTranslation } from 'react-i18next'
 
-import { getComponent, iterateEntityNode } from '@ir-engine/ecs'
-import { Component, getOptionalComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, iterateEntityNode, useQuery } from '@ir-engine/ecs'
+import {
+  Component,
+  getOptionalComponent,
+  useComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { RenderSettingsComponent } from '@ir-engine/engine/src/scene/components/RenderSettingsComponent'
 import { getState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
@@ -37,7 +43,7 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { Button, Checkbox } from '@ir-engine/ui'
 import React from 'react'
-import { Box3, Vector3 } from 'three'
+import { Box3, PCFSoftShadowMap, Vector3 } from 'three'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 
@@ -55,6 +61,8 @@ type LightShadowPropertiesProps = {
 export const LightShadowProperties: EditorComponentType = (props: LightShadowPropertiesProps) => {
   const { t } = useTranslation()
   const shadowMapResolution = getState(RendererState).shadowMapResolution
+  const rendererEntity = useQuery([RenderSettingsComponent])[0]
+  const shadowMapType = useOptionalComponent(rendererEntity, RenderSettingsComponent)?.shadowMapType.value
   const cameraEntity = getState(ReferenceSpaceState).viewerEntity
   const camera = getComponent(cameraEntity, CameraComponent)
   const lightComponent = useComponent(props.entity, props.component) as any
@@ -103,17 +111,19 @@ export const LightShadowProperties: EditorComponentType = (props: LightShadowPro
           {t('editor:properties.directionalLight.lbl-calculateShadowBias')}
         </Button>
       </InputGroup>
-      <InputGroup name="Shadow Radius" label={t('editor:properties.directionalLight.lbl-shadowRadius')}>
-        <NumericInput
-          mediumStep={0.01}
-          smallStep={0.1}
-          largeStep={1}
-          displayPrecision={0.0001}
-          value={lightComponent.shadowRadius.value}
-          onChange={updateProperty(props.component, 'shadowRadius')}
-          onRelease={commitProperty(props.component, 'shadowRadius')}
-        />
-      </InputGroup>
+      {shadowMapType !== PCFSoftShadowMap && ( // PCFSoftShadowMap doesn't support shadow radius
+        <InputGroup name="Shadow Radius" label={t('editor:properties.directionalLight.lbl-shadowRadius')}>
+          <NumericInput
+            mediumStep={0.01}
+            smallStep={0.1}
+            largeStep={1}
+            displayPrecision={0.0001}
+            value={lightComponent.shadowRadius.value}
+            onChange={updateProperty(props.component, 'shadowRadius')}
+            onRelease={commitProperty(props.component, 'shadowRadius')}
+          />
+        </InputGroup>
+      )}
     </>
   )
 }

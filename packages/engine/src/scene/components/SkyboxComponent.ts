@@ -117,6 +117,9 @@ export const SkyboxComponent = defineComponent({
       texture.minFilter = LinearFilter
       texture.generateMipmaps = false
       setComponent(entity, BackgroundComponent, texture)
+      return () => {
+        texture.dispose()
+      }
     }, [texture, skyboxState.backgroundType])
 
     useEffect(() => {
