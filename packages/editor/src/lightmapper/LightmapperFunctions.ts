@@ -281,6 +281,10 @@ const getBakeBVH = (entities: Entity[]) => {
         }
       }
 
+      const positionNormalized = clonedGeometry.attributes.position.normalized
+      const normalNormalized = clonedGeometry.attributes.normal.normalized
+      const indexNormalized = clonedGeometry.index?.normalized
+      console.log(clonedGeometry, positionNormalized, normalNormalized, indexNormalized)
       return clonedGeometry
     })
     .filter((geometry) => geometry !== null) // Remove null geometries (transparent single materials)
@@ -288,8 +292,18 @@ const getBakeBVH = (entities: Entity[]) => {
   for (let i = 0; i < geometries.length; i++) {
     geometries[i].applyMatrix4(meshComponents[i].matrixWorld)
   }
-  const merged = mergeGeometries(geometries)!
+  //remove all geometry attributes except position and normal
+  for (let i = 0; i < geometries.length; i++) {
+    const geometry = geometries[i]
+    const attributes = geometry.attributes
+    for (const attributeName in attributes) {
+      if (attributeName !== 'position') {
+        geometry.deleteAttribute(attributeName)
+      }
+    }
+  }
 
+  const merged = mergeGeometries(geometries)!
   return new MeshBVH(merged)
 }
 

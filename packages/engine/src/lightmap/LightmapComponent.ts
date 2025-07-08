@@ -27,15 +27,14 @@ import {
   defineComponent,
   EntityUUID,
   getAncestorWithComponents,
-  getAuthoringCounterpart,
   getChildrenWithComponents,
   getComponent,
   getOptionalComponent,
+  LayerFunctions,
   removeEntityNodeRecursively,
   setComponent,
   useAncestorWithComponents,
   useComponent,
-  useOptionalComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -74,13 +73,10 @@ export const LightmapComponent = defineComponent({
     }, [])
 
     const sceneEntity = useAncestorWithComponents(entity, [SceneComponent])
-    const sceneLoaded = useOptionalComponent(getAuthoringCounterpart(sceneEntity) || sceneEntity, GLTFComponent)
-      ?.progress
-
-    console.log(sceneLoaded?.value)
+    const sceneLoaded = GLTFComponent.useSceneLoaded(LayerFunctions.getAuthoringCounterpart(sceneEntity) || sceneEntity)
 
     useEffect(() => {
-      if (!lightmapComponent.atlasSrc.value || sceneLoaded?.value !== 100) return
+      if (!lightmapComponent.atlasSrc.value) return
 
       AssetState.loadAsync(lightmapComponent.atlasSrc.value, false, UUIDComponent.generate()).then((atlasEntity) => {
         const sceneUUID = UUIDComponent.get(getAncestorWithComponents(entity, [SceneComponent]))

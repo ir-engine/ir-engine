@@ -90,7 +90,7 @@ export const UV2UnwrapperState = defineState({
     )
 
     unwrapper.chartOptions = {
-      fixWinding: false,
+      fixWinding: true,
       maxBoundaryLength: 0,
       maxChartArea: 0,
       maxCost: 2,
