@@ -413,7 +413,7 @@ export const MediaReceiveChannelReactor = (props: {
 
     const cleanup = () => {
       unmounted = true
-      AudioDuckingState.addEvent(peer)
+      AudioDuckingState.removeEvent(peer)
       harkEvents.stop()
     }
 

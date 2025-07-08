@@ -23,14 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineState, getMutableState } from '../functions/StateFunctions'
+import { useEffect } from 'react'
+import { defineState, getMutableState, useMutableState } from '../functions/StateFunctions'
 import { PeerID } from '../types/Types'
 
 export const AudioDuckingState = defineState({
   name: 'AudioDuckingState',
   initial: () => ({
-    duckingLevel: 0.3,
-    fadeDuration: 0.2,
+    duckingModifier: 0.3,
     events: new Set<PeerID>()
   }),
 
@@ -46,5 +46,25 @@ export const AudioDuckingState = defineState({
       prev.delete(peerID)
       return prev
     })
+  },
+
+  useDuckAudioEnabled: (): boolean => {
+    const state = useMutableState(AudioDuckingState)
+    return state.events.value.size > 0
+  },
+
+  useAudioDucking: (element: HTMLMediaElement) => {
+    const state = useMutableState(AudioDuckingState)
+    const duckingEnabled = AudioDuckingState.useDuckAudioEnabled()
+
+    useEffect(() => {
+      if (!element || !duckingEnabled) return
+
+      const prevVolume = element.volume
+      element.volume = prevVolume * state.duckingModifier.value
+      return () => {
+        element.volume = prevVolume
+      }
+    }, [duckingEnabled, state.duckingModifier.value])
   }
 })
