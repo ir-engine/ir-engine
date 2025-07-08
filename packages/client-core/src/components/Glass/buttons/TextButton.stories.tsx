@@ -29,7 +29,7 @@ import { distanceVariant, fadeVariant } from './Button.styles'
 import { TextButton as Component } from './TextButton'
 
 const meta: Meta<typeof Component> = {
-  title: 'ClientCore/Buttons/TextButton',
+  title: 'Components/Buttons/TextButton',
   component: Component,
   parameters: {
     backgrounds: {

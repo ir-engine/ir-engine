@@ -145,25 +145,27 @@ export function Browser() {
           filesQuery?.setLimit(filesQuery.limit + FILES_PAGE_LIMIT)
         }}
       >
-        {sortedFiles.map((file, idx) => {
-          const backgroundColor = idx % 2 === 0 ? 'bg-surface-1' : 'bg-surface-0'
-          return (
-            <FileItem
-              file={{ ...file, ...staticResourceData.value[file?.key] }}
-              onContextMenu={(event) => {
-                event.preventDefault()
-                event.stopPropagation()
-                if (!selectedFiles.value.find((selectedFile) => selectedFile.key === file.key)) {
-                  selectedFiles.set([file])
-                }
-                setAnchorEvent(event)
-              }}
-              key={file.key}
-              data-testid="files-panel-file-item"
-              className={`${isListView ? `${backgroundColor}` : ''}`}
-            />
-          )
-        })}
+        <div className="flex h-full w-full flex-wrap">
+          {sortedFiles.map((file, idx) => {
+            const backgroundColor = idx % 2 === 0 ? 'bg-surface-1' : 'bg-surface-0'
+            return (
+              <FileItem
+                file={{ ...file, ...staticResourceData.value[file?.key] }}
+                onContextMenu={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  if (!selectedFiles.value.find((selectedFile) => selectedFile.key === file.key)) {
+                    selectedFiles.set([file])
+                  }
+                  setAnchorEvent(event)
+                }}
+                key={file.key}
+                data-testid="files-panel-file-item"
+                className={`${isListView ? `${backgroundColor}` : ''}`}
+              />
+            )
+          })}
+        </div>
       </InfiniteScroll>
     </>
   )

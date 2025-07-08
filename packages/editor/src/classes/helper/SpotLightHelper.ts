@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useHookstate } from '@hookstate/core'
 import {
+  Easing,
   Entity,
   EntityTreeComponent,
   UndefinedEntity,
@@ -40,6 +41,7 @@ import { LineSegmentComponent } from '@ir-engine/spatial/src/renderer/components
 import { BOUNDING_BOX_COLORS } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import { useEffect } from 'react'
 import { BufferGeometry, Float32BufferAttribute } from 'three'
+import { iconGizmoTransitionTimeout } from '../../constants/GizmoPresets'
 
 function createSpotLightConeGeometry(angle: number, range: number): BufferGeometry {
   const segments = 16
@@ -136,14 +138,29 @@ export const SpotLightHelperReactor: React.FC = (props: { parentEntity; iconEnti
     setComponent(helperEntity, LineSegmentComponent, {
       name: 'spot-light-helper',
       geometry: gizmoGeometry?.clone(),
-      color: spotLightComponent.color.value
+      color: spotLightComponent.color.value,
+      opacity: 0
     })
 
     spotLightHelperEntity.set(helperEntity)
 
+    // @ts-ignore causes issues with the type system value inferred as never
+    LineSegmentComponent.setTransition(helperEntity, 'opacity', 1, {
+      duration: iconGizmoTransitionTimeout,
+      easing: Easing.quadratic.inOut
+    })
+
     return () => {
-      removeEntity(helperEntity)
-      spotLightHelperEntity.set(UndefinedEntity)
+      // @ts-ignore causes issues with the type system value inferred as never
+      LineSegmentComponent.setTransition(helperEntity, 'opacity', 0, {
+        duration: iconGizmoTransitionTimeout,
+        easing: Easing.quadratic.inOut
+      })
+
+      setTimeout(() => {
+        removeEntity(helperEntity)
+        spotLightHelperEntity.set(UndefinedEntity)
+      }, iconGizmoTransitionTimeout)
     }
   }, [selected, hovered])
 

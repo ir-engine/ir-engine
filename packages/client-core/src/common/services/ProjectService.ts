@@ -27,6 +27,7 @@ import { Paginated } from '@feathersjs/feathers'
 import { useEffect } from 'react'
 
 import { API } from '@ir-engine/common'
+import packageJson from '@ir-engine/common/package.json'
 import multiLogger from '@ir-engine/common/src/logger'
 import {
   builderInfoPath,
@@ -68,7 +69,7 @@ export const ProjectState = defineState({
     failed: false,
     builderTags: [] as Array<ProjectBuilderTagsType>,
     builderInfo: {
-      engineVersion: '1.0.2',
+      engineVersion: packageJson.version,
       engineCommit: ''
     },
     refreshingGithubRepoAccess: false
@@ -342,14 +343,16 @@ export const ProjectService = {
     }
   },
 
-  getBuilderInfo: async () => {
-    try {
-      const result = await API.instance.service(builderInfoPath).get()
-      getMutableState(ProjectState).builderInfo.set(result)
-    } catch (err) {
-      logger.error('Error with getting engine info', err)
-      throw err
-    }
+  getBuilderInfo: () => {
+    API.instance
+      .service(builderInfoPath)
+      .get()
+      .then((result) => {
+        getMutableState(ProjectState).builderInfo.set(result)
+      })
+      .catch((err) => {
+        logger.error('Error with getting engine info', err)
+      })
   },
 
   refreshGithubRepoAccess: async () => {

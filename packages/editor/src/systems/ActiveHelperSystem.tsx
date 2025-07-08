@@ -40,7 +40,7 @@ import {
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, getState, NO_PROXY_STEALTH, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
 import React from 'react'
@@ -61,14 +61,8 @@ import {
 import { Raycaster, Vector3 } from 'three'
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
 import { ComponentHelperEntry, ComponentHelperState } from '../classes/helper/ComponentHelperState'
-import { iconGizmoArrow, iconGizmoYHelper, setupGizmo } from '../constants/GizmoPresets'
-import {
-  getIconGizmo,
-  gizmoIconHelperYAxisUpdate,
-  gizmoIconUpdate,
-  setIconSize,
-  VolumeVisibility
-} from '../functions/gizmos/studioIconGizmoHelper'
+import { iconGizmoArrow, setupGizmo } from '../constants/GizmoPresets'
+import { getIconGizmo, gizmoIconUpdate, setIconSize, VolumeVisibility } from '../functions/gizmos/studioIconGizmoHelper'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
 import { transformGizmoControllerQuery } from './TransformGizmoSystem'
@@ -174,12 +168,6 @@ const ActiveHelperReactor: React.FC<ComponentHelperEntry> = (helper) => {
     if (effectiveHelper?.volume) {
       setComponent(entity, BoundingBoxComponent)
     }
-
-    const lineEntities = setupGizmo(getState(ReferenceSpaceState).originEntity, iconGizmoYHelper, ObjectLayers.NodeIcon)
-    lineEntities.forEach((lineEntity) => {
-      setComponent(lineEntity, ObjectLayerMaskComponent, ObjectLayerMasks.NodeIcon)
-    })
-    lineEntitiesState.set(lineEntities)
     return iconGizmo
   }, [entity, effectiveHelper, directionalEntitiesState, lineEntitiesState])
 
@@ -213,7 +201,6 @@ const ActiveHelperReactor: React.FC<ComponentHelperEntry> = (helper) => {
     const isEditing = getState(EngineState).isEditing
     for (const lineEntity of lineEntitiesState.value) {
       setVisibleComponent(lineEntity, hovered.value && isEditing)
-      gizmoIconHelperYAxisUpdate(lineEntity, getComponent(entity, TransformComponent).position)
     }
 
     if (selected.value) {

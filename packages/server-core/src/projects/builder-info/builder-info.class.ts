@@ -87,7 +87,7 @@ export class BuilderInfoService implements ServiceInterface<BuilderInfoType> {
               : privateECRRegexExec
               ? privateECRRegexExec[2]
               : gcpArtifactRegistryRegexExec
-              ? gcpArtifactRegistryRegexExec[6]
+              ? gcpArtifactRegistryRegexExec[5] || gcpArtifactRegistryRegexExec[6] || ''
               : ''
         }
       }

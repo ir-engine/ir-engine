@@ -5,8 +5,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
@@ -17,10 +17,12 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
+import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
+import { staticResourcePath, StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { useFile } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
-import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
-import React from 'react'
+import { defineState, getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import React, { useEffect } from 'react'
 
 import { IoCubeOutline } from 'react-icons/io5'
 import CameraIcon from './icons/camera.svg?react'
@@ -195,6 +197,51 @@ export const PrefabShelfState = defineState({
     ] as PrefabShelfItem[],
   reactor: () => {
     const shelfState = useHookstate(getMutableState(PrefabShelfState))
+
+    useEffect(() => {
+      // update prefab url to include hash query param
+      const fetchDefaultPrefabs = async () => {
+        console.count('update prefab url to include hash query param')
+        try {
+          const resources = await API.instance.service(staticResourcePath).find({
+            query: {
+              type: 'asset',
+              tags: { $like: '%Default Prefab%' },
+              $limit: 100
+            }
+          })
+          const prefabs = new Map(
+            resources.data.map((resource: StaticResourceType) => {
+              const resourceUrlObj = new URL(resource.url)
+              return [resourceUrlObj.pathname, resource]
+            })
+          )
+
+          const updatedShelfItems = shelfState.get(NO_PROXY).map((item) => {
+            const itemUrlObj = new URL(item.url)
+            const itemPath = itemUrlObj.pathname
+
+            if (!prefabs.has(itemPath)) return item
+
+            const matchingResource = prefabs.get(itemPath)
+            if (matchingResource) {
+              return {
+                ...item,
+                url: matchingResource.url
+              }
+            }
+
+            return item
+          })
+          shelfState.set(updatedShelfItems)
+        } catch (error) {
+          console.error('Failed to fetch default prefabs:', error)
+        }
+      }
+
+      fetchDefaultPrefabs()
+    }, [])
+
     return shelfState.value.map((shelfItem) => <ShelfItemReactor key={shelfItem.url} url={shelfItem.url} />)
   }
 })

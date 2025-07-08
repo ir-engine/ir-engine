@@ -93,7 +93,7 @@ export function Contents() {
   /**an explicit callback is required to rerender changed nodes inside FixedSizeList */
   const MemoTreeNode = useCallback(
     (props: ListChildComponentProps<undefined>) => <HierarchyTreeNode {...props} />,
-    [nodes]
+    [allNodes]
   )
 
   useEffect(() => {

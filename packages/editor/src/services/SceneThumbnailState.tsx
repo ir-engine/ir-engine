@@ -82,6 +82,71 @@ export const SceneThumbnailState = defineState({
       thumbnail: file
     })
   },
+  getThumbnail: async (resourceKey?: string) => {
+    const editorState = getState(EditorState)
+    const key = resourceKey || editorState.scenePath
+
+    if (!key) {
+      console.warn('No resource key or scene path provided for getThumbnail')
+      return null
+    }
+
+    try {
+      const resourceQuery = await API.instance.service(staticResourcePath).find({
+        query: { key }
+      })
+
+      if (!resourceQuery.data || resourceQuery.data.length === 0) {
+        console.warn(`No static resource found for key: ${key}`)
+        return null
+      }
+
+      const resource = resourceQuery.data[0]
+      if (resource.thumbnailKey) {
+        const thumbnailQuery = await API.instance.service(staticResourcePath).find({
+          query: {
+            key: resource.thumbnailKey,
+            type: 'thumbnail'
+          }
+        })
+
+        if (thumbnailQuery.data && thumbnailQuery.data.length > 0) {
+          const thumbnailResource = thumbnailQuery.data[0]
+          return {
+            thumbnailURL: thumbnailResource.url,
+            thumbnailKey: resource.thumbnailKey,
+            thumbnailMode: resource.thumbnailMode,
+            resource: resource,
+            thumbnailResource: thumbnailResource
+          }
+        }
+      }
+      return null
+    } catch (error) {
+      console.error('Error fetching thumbnail from StaticResources:', error)
+      return null
+    }
+  },
+  initializeThumbnailFromStaticResources: async () => {
+    const editorState = getState(EditorState)
+    const scenePath = editorState.scenePath
+
+    if (!scenePath) return
+
+    try {
+      const thumbnailInfo = await SceneThumbnailState.getThumbnail(scenePath)
+
+      if (thumbnailInfo?.thumbnailURL) {
+        const sceneThumbnailState = getMutableState(SceneThumbnailState)
+        sceneThumbnailState.merge({
+          thumbnailURL: thumbnailInfo.thumbnailURL,
+          oldThumbnailURL: sceneThumbnailState.thumbnailURL.value
+        })
+      }
+    } catch (error) {
+      console.error('Error initializing thumbnail from StaticResources:', error)
+    }
+  },
   uploadThumbnail: async (entity?) => {
     const sceneThumbnailState = getMutableState(SceneThumbnailState)
     if (!sceneThumbnailState.thumbnail.value) return
@@ -185,6 +250,7 @@ export const SceneThumbnailState = defineState({
         thumbnail: null,
         loadingScreenImageData: null
       })
+      SceneThumbnailState.initializeThumbnailFromStaticResources()
     }, [editorState.scenePath])
     return null
   }

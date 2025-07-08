@@ -31,12 +31,12 @@ import {
   getAncestorWithComponents,
   getChildrenWithComponents,
   getComponent,
-  getOptionalComponent,
   hasComponent,
   isAncestor,
   Layers,
   traverseEntityNode,
   UndefinedEntity,
+  useOptionalComponent,
   useQuery,
   UUIDComponent
 } from '@ir-engine/ecs'
@@ -148,24 +148,23 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
 
   const ChildEntityReactor = (props: { entity: Entity }) => {
     const entity = props.entity
-    const entityTreeComponent = getOptionalComponent(entity, EntityTreeComponent)
-    const parentEntity = useHookstate(entityTreeComponent?.parentEntity ?? UndefinedEntity)
-    const childIndex = useHookstate(entityTreeComponent?.childIndex ?? undefined)
+    const entityTreeComponent = useOptionalComponent(entity, EntityTreeComponent)
+    const parentEntity = useHookstate(entityTreeComponent?.parentEntity.value ?? UndefinedEntity)
+    const childIndex = useHookstate(entityTreeComponent?.childIndex.value ?? undefined)
 
     useEffect(() => {
-      if (entityTreeComponent && entityTreeComponent.parentEntity !== parentEntity.value) {
-        parentEntity.set(entityTreeComponent.parentEntity)
+      if (entityTreeComponent?.parentEntity.value !== parentEntity.value) {
+        parentEntity.set(entityTreeComponent?.parentEntity.value ?? UndefinedEntity)
         reparentRefresh.set((reparentRefresh.value + 1) % 1000)
       }
-    }, [entityTreeComponent?.parentEntity])
+    }, [entityTreeComponent?.parentEntity.value])
 
     useEffect(() => {
-      if (entityTreeComponent && entityTreeComponent.childIndex !== childIndex.value) {
-        childIndex.set(entityTreeComponent.childIndex)
+      if (entityTreeComponent?.childIndex.value !== childIndex.value) {
+        childIndex.set(entityTreeComponent?.childIndex.value)
         childIndexRefresh.set((childIndexRefresh.value + 1) % 1000)
       }
-    }, [entityTreeComponent?.childIndex])
-
+    }, [entityTreeComponent?.childIndex.value])
     return null
   }
 

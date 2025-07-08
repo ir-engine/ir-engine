@@ -494,7 +494,26 @@ const createFileUploader = ({
     el.accept = acceptedFileTypes
     el.style.display = 'none'
 
+    let isResolved = false
+
+    const cleanup = () => {
+      el.remove()
+    }
+
+    const handleCancel = () => {
+      if (!isResolved) {
+        isResolved = true
+        cleanup()
+        reject(new Error('File selection was canceled'))
+      }
+    }
+
+    el.addEventListener('cancel', handleCancel)
+
     el.onchange = async () => {
+      if (isResolved) return
+      isResolved = true
+
       try {
         if (el.files?.length) {
           const newFiles = validatedFiles(el.files, acceptedFileTypes)
@@ -520,7 +539,7 @@ const createFileUploader = ({
       } catch (err) {
         reject(err)
       } finally {
-        el.remove()
+        cleanup()
       }
     }
 

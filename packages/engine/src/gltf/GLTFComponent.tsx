@@ -535,6 +535,7 @@ const useGLTFDocument = (entity: Entity) => {
       entity,
       (response) => {
         if (signal.aborted) return
+
         const [gltf, body] = parseGLTFFile(response, onError)
 
         if (gltf) {

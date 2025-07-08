@@ -78,9 +78,9 @@ const Avatar = ({
         <div
           className={twMerge(
             'relative overflow-hidden rounded-2xl bg-gradient-to-b from-blue-400 to-blue-600',
-            size ? `w-[${size}px] h-[${size}px]` : 'h-32 w-32',
             isSelected ? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-gray-900' : ''
           )}
+          style={size ? { width: `${size}rem`, height: `${size}rem` } : {}}
         >
           <img className="h-full w-full object-cover" src={imageSrc} alt={alt} crossOrigin="anonymous" />
           <div className="absolute bottom-0 w-full overflow-hidden bg-blue-500/50 px-4 py-1 text-center">

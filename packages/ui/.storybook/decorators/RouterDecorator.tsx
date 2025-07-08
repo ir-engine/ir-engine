@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and
-provide for limited attribution for the Original Developer. In addition,
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -23,27 +23,32 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Meta, StoryObj } from '@storybook/react'
+import { Decorator } from '@storybook/react'
+import React from 'react'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
-import { Badge as Component } from './Badge'
+/**
+ * Simple Router Decorator for Storybook
+ * Provides basic routing functionality using MemoryRouter
+ */
+export const SimpleRouterDecorator: Decorator = (Story, context) => {
+  const routerConfig = context.parameters?.router as
+    | {
+        initialEntries?: string[]
+        initialIndex?: number
+      }
+    | undefined
 
-const meta: Meta<typeof Component> = {
-  title: 'Components/Badge',
-  component: Component,
-  parameters: {
-    backgrounds: {
-      default: 'dark'
-    }
-  }
+  const initialEntries = routerConfig?.initialEntries || ['/']
+  const initialIndex = routerConfig?.initialIndex || 0
+
+  return (
+    <MemoryRouter initialEntries={initialEntries} initialIndex={initialIndex}>
+      <Routes>
+        <Route path="*" element={<Story />} />
+      </Routes>
+    </MemoryRouter>
+  )
 }
-export default meta
 
-type Story = StoryObj<typeof meta>
-
-export const Default: Story = {
-  args: {
-    number: 5,
-    position: 'top' as 'bottom' | 'top',
-    show: true
-  }
-}
+export default SimpleRouterDecorator
