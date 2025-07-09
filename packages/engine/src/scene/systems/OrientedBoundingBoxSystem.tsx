@@ -26,16 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   defineSystem,
   Entity,
-  EntityArrayBoundary,
   getComponent,
-  Layers,
   Not,
+  QueryReactor,
   removeEntity,
   setComponent,
   UndefinedEntity,
   useComponent,
-  useHasComponent,
-  useQuery
+  useHasComponent
 } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import {
@@ -115,8 +113,9 @@ export const OrientedBoundingBoxSystem = defineSystem({
   uuid: 'napster.engine.OrientedBoundingBoxSystem',
   insert: { after: TransformSystem },
   reactor: () => {
-    const gltfQuery = useQuery([GLTFComponent, Not(SceneComponent)], Layers.Authoring)
-    return <EntityArrayBoundary entities={gltfQuery} ChildEntityReactor={OrientedBoundingBoxReactor} />
+    return (
+      <QueryReactor Components={[GLTFComponent, Not(SceneComponent)]} ChildEntityReactor={OrientedBoundingBoxReactor} />
+    )
   }
 })
 
