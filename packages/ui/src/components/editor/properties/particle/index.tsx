@@ -49,6 +49,7 @@ import {
   BurstParametersJSON,
   CONE_SHAPE_DEFAULT,
   ColorGeneratorJSON,
+  DEFAULT_EMISSION_OVER_TIME,
   DONUT_SHAPE_DEFAULT,
   MESH_SHAPE_DEFAULT,
   POINT_SHAPE_DEFAULT,
@@ -141,6 +142,13 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       probability: 1
     }
     const data = [...JSON.parse(JSON.stringify(particleSystem.systemParameters.emissionBursts)), nuBurst]
+
+    // unset emission over time so it doesn't override the bursts
+    onSetState('systemParameters.emissionOverTime')({
+      type: 'ConstantValue',
+      value: 0
+    })
+
     commitProperty(ParticleSystemComponent, 'systemParameters.emissionBursts' as any)(data)
   }, [])
 
@@ -152,6 +160,13 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
         )
       )
       commitProperty(ParticleSystemComponent, 'systemParameters.emissionBursts' as any)(data)
+      if (data.length === 0) {
+        // set default emission over time.
+        onSetState('systemParameters.emissionOverTime')({
+          type: 'ConstantValue',
+          value: DEFAULT_EMISSION_OVER_TIME
+        })
+      }
     }
   }, [])
 
@@ -225,22 +240,10 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
                 />
               </InputGroup>
 
-              <InputGroup name="Cycle" label={t('editor:properties.particle-system.burst.cycle')}>
-                <NumericInput
-                  value={burst.cycle.value}
-                  onChange={onSetState(`systemParameters.emissionBursts.${index}.cycle`)}
-                />
-              </InputGroup>
-
-              <InputGroup name="Interval" label={t('editor:properties.particle-system.burst.interval')}>
-                <NumericInput
-                  value={burst.interval.value}
-                  onChange={onSetState(`systemParameters.emissionBursts.${index}.interval`)}
-                />
-              </InputGroup>
-
               <InputGroup name="Probability" label={t('editor:properties.particle-system.burst.probability')}>
                 <NumericInput
+                  max={1}
+                  min={0}
                   value={burst.probability.value}
                   onChange={onSetState(`systemParameters.emissionBursts.${index}.probability`)}
                 />
