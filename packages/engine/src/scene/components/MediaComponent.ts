@@ -39,7 +39,6 @@ import {
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, State, getState, isClient, useMutableState } from '@ir-engine/hyperflux'
-import { AudioDuckingState } from '@ir-engine/hyperflux/src/media/AudioDuckingSystem'
 import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
@@ -103,8 +102,6 @@ export const MediaElementComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const mediaElementComponent = useComponent(entity, MediaElementComponent)
-
-    AudioDuckingState.useAudioDucking(mediaElementComponent.element.get(NO_PROXY) as HTMLMediaElement)
 
     useLayoutEffect(() => {
       const media = mediaElementComponent.get({ noproxy: true })
