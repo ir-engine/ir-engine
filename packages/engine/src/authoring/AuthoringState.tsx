@@ -469,7 +469,7 @@ export const applyCommandsToECS = (sourceID: SourceID, currentState: SourceData,
                 if (texture?.isTexture) {
                   texture.flipY = false
                   texture.needsUpdate = true
-                  texture.colorSpace = SRGBColorSpace
+                  if (key !== 'normalMap') texture.colorSpace = SRGBColorSpace
                   materialComponent.material[key].set(texture ?? null)
                 }
                 if (!asyncUpdateCount) (materialComponent.material.get(NO_PROXY) as Material).needsUpdate = true
