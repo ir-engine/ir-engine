@@ -278,9 +278,9 @@ const EditorContainer = () => {
     const shouldActivateInspector = activeLowerPanel.value === 'inspector'
 
     if (dock && shouldActivateInspector) {
-      const inspectorTab = dock.find('inspectorPanel')
+      const inspectorTab = dock.find(InspectorPanelTab.id!)
       if (inspectorTab && 'id' in inspectorTab && inspectorTab.parent && 'tabs' in inspectorTab.parent) {
-        dock.dockMove(inspectorTab as any, 'inspectorPanel', inspectorTab.parent as any)
+        dock.updateTab(inspectorTab.id!, null, true)
       }
     }
   }, [metadata.name, activeLowerPanel.value])

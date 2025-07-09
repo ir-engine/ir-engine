@@ -413,7 +413,7 @@ const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: D
   const componentDependencies = Object.entries(dependencies.componentDependencies)
   const deltaDependencies = dependencies.deltaDependencies
 
-  const commands = useMutableState(AuthoringState).commands[SceneUser].get(NO_PROXY) as HistoryCommand[] | undefined
+  const commands = useMutableState(AuthoringState).commands[SceneUser]
 
   useEffect(() => {
     return () => {
@@ -423,9 +423,10 @@ const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: D
   }, [])
 
   useEffect(() => {
-    if (!commands) return
+    const commandArr = commands.get(NO_PROXY) as HistoryCommand[] | undefined
+    if (!commandArr) return
 
-    for (const command of commands) {
+    for (const command of commandArr) {
       for (const overrideUUID in command) {
         if (!deltaDependencies[overrideUUID]) continue
 
