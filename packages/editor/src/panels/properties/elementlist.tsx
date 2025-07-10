@@ -158,7 +158,6 @@ const SceneElementListItem = ({
 }
 
 const useComponentShelfCategories = (search: string) => {
-  useMutableState(ComponentShelfCategoriesState).value
   const hasRenderSettingsEntites = useQuery([RenderSettingsComponent]).length > 0
   const hasSceneSettingsEntites = useQuery([SceneSettingsComponent]).length > 0
   const hasCameraSettingsEntites = useQuery([CameraSettingsComponent]).length > 0
@@ -181,9 +180,13 @@ const useComponentShelfCategories = (search: string) => {
     return Object.entries(getState(ComponentShelfCategoriesState))
       .map(([category, items]) => {
         const filteredItems = items.filter((item) =>
-          ((item.jsonID ? labelRemapping[item.jsonID] : undefined) || item.name)
+          (
+            (item.jsonID ? labelRemapping[item.jsonID] : undefined) ||
+            item.jsonID?.split('_').slice(1).join(' ') ||
+            item.name
+          )
             .toLowerCase()
-            .includes(search.toLowerCase())
+            .includes(search.toLowerCase().trim())
         )
         return [category, filteredItems] as [string, Component[]]
       })
