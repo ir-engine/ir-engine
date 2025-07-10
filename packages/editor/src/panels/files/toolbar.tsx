@@ -56,7 +56,7 @@ import { EditorState } from '../../services/EditorServices'
 import { FilesState, FilesViewModeState } from '../../services/FilesState'
 import { AssetsRefreshState } from '../assets/hooks'
 import { useCurrentFiles } from './helpers'
-import { handleDownloadProject } from './loaders'
+import { handleDownloadProject, ProjectDownloadProgress } from './loaders'
 
 // keeping this here for now, Move this to icons or static folder
 export function BreadCrumbSlash() {
@@ -272,6 +272,7 @@ export default function FilesToolbar() {
               id="downloadProject"
             />
           </Tooltip>
+          <ProjectDownloadProgress />
           <div className="flex h-7 items-center gap-2 rounded p-2">
             <button
               className="p-1 text-text-secondary hover:text-text-primary"

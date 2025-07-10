@@ -29,9 +29,9 @@ COPY scripts/setup_docker.sh .
 COPY scripts/setup_helm.sh .
 RUN chmod +x setup_docker.sh && ./setup_docker.sh true
 
-# Install debugging tools (vim and default-mysql-client) and gcloud prerequisites
+# Install debugging tools (vim, default-mysql-client and postgresql-client) and gcloud prerequisites
 RUN apt-get update && \
-  apt-get install -y vim default-mysql-client apt-transport-https ca-certificates gnupg curl && \
+  apt-get install -y vim default-mysql-client postgresql-client apt-transport-https ca-certificates gnupg curl && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
