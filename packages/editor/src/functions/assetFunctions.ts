@@ -440,6 +440,9 @@ export const inputFileWithAddToScene = ({
   updateThumbnail?: boolean
 }): Promise<null> =>
   new Promise((resolve, reject) => {
+    if (!directoryPath.endsWith('/')) {
+      directoryPath = directoryPath + '/'
+    }
     const el = document.createElement('input')
     el.type = 'file'
     if (preserveDirectory) {
