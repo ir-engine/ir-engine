@@ -372,7 +372,9 @@ const handleBakeLightmap = (
   entities: Entity[],
   resolution: number,
   samples: number,
-  channel: number
+  channel: number,
+  bakeIndirect: boolean = true,
+  bakeAO: boolean = true
 ) => {
   if (!entities.length) console.error('No atlased entities to bake')
 
@@ -395,8 +397,8 @@ const handleBakeLightmap = (
       lightSize: 1,
       filterMode: LinearFilter,
       directLightEnabled: false,
-      indirectLightEnabled: true,
-      ambientLightEnabled: true,
+      indirectLightEnabled: bakeIndirect,
+      ambientLightEnabled: bakeAO,
       ambientDistance: 1
     }
   )

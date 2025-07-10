@@ -355,6 +355,10 @@
       "lbl-resolution": "Resolution",
       "lbl-uv-channel": "UV Channel",
       "lbl-samples": "Samples",
+      "lbl-bake-indirect": "Bake Indirect Lighting",
+      "desc-bake-indirect": "Enable indirect lighting calculation",
+      "lbl-bake-ao": "Bake Ambient Occlusion",
+      "desc-bake-ao": "Enable ambient occlusion calculation",
       "btn-generateAtlas": "Generate Atlas",
       "btn-bakeLightmap": "Bake Lightmap",
       "baking-progress": "Baking Progress"

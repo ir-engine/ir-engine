@@ -27,7 +27,7 @@ import { getSimulationCounterpart, useOptionalComponent } from '@ir-engine/ecs'
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
 import { LightmapBakeComponent } from '@ir-engine/editor/src/lightmapper/LightmapBakeComponent'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { Button } from '@ir-engine/ui'
+import { Button, Checkbox } from '@ir-engine/ui'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -55,6 +55,10 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
   const uvChannelState = useHookstate('uv2' as UVChannel)
 
   const sampleState = useHookstate(1000)
+
+  const bakeIndirectState = useHookstate(true)
+
+  const bakeAOState = useHookstate(true)
 
   const unwrapperLoaded = useMutableState(UV2UnwrapperState).isLoaded
 
@@ -125,6 +129,22 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
           disabled={isOperationInProgress}
         />
       </InputGroup>
+      <InputGroup name="Bake Indirect" label={t('editor:properties.lightmap.lbl-bake-indirect')}>
+        <Checkbox
+          checked={bakeIndirectState.value}
+          onChange={(checked) => bakeIndirectState.set(checked)}
+          disabled={isOperationInProgress}
+          label={t('editor:properties.lightmap.desc-bake-indirect')}
+        />
+      </InputGroup>
+      <InputGroup name="Bake AO" label={t('editor:properties.lightmap.lbl-bake-ao')}>
+        <Checkbox
+          checked={bakeAOState.value}
+          onChange={(checked) => bakeAOState.set(checked)}
+          disabled={isOperationInProgress}
+          label={t('editor:properties.lightmap.desc-bake-ao')}
+        />
+      </InputGroup>
 
       <div className="flex w-full flex-col gap-y-2 py-1.5 pl-8 pr-3.5">
         {isOperationInProgress && <LoadingView spinnerOnly className="h-4 w-4 items-center" />}
@@ -142,7 +162,9 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
               AtlasingFunctions.getEntities(simulationCounterpart),
               resolutionState.value,
               sampleState.value,
-              uvChannelState.value === 'uv' ? 0 : Number(uvChannelState.value.replace('uv', ''))
+              uvChannelState.value === 'uv' ? 0 : Number(uvChannelState.value.replace('uv', '')),
+              bakeIndirectState.value,
+              bakeAOState.value
             )
           }
           disabled={!unwrapperLoaded.value || isOperationInProgress}

@@ -25,7 +25,8 @@
   },
   "peerDependencies": {
     "@types/react": "18.2.0",
-    "react": "18.2.0"
+    "react": "18.2.0",
+    "xatlasjs": "0.2.0"
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "0.11.2",
@@ -50,7 +51,8 @@
     "react-window": "1.8.8",
     "reactflow": "^11.10.1",
     "typescript": "5.6.3",
-    "uuid": "9.0.0"
+    "uuid": "9.0.0",
+    "xatlas-three": "^0.2.1"
   },
   "devDependencies": {
     "@types/node": "18.15.5",

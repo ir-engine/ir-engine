@@ -232,7 +232,7 @@ export const createFeathersKoaApp = async (
   createEngine(createHyperStore())
 
   getMutableState(DomainConfigState).merge({
-    publicDomain: appConfig.client.dist,
+    publicDomain: 'https://172.27.136.37:3000',
     cloudDomain: commonConfig.client.fileServer,
     proxyDomain: commonConfig.client.cors.proxyUrl
   })

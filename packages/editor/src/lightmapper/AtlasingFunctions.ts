@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import config from '@ir-engine/common/src/config'
 import {
   createEntity,
   defineQuery,
@@ -85,16 +86,16 @@ export const UV2UnwrapperState = defineState({
 
     await unwrapper.loadLibrary(
       onProgress,
-      'https://cdn.jsdelivr.net/npm/xatlasjs@0.2.0/dist/xatlas.wasm',
-      'https://cdn.jsdelivr.net/npm/xatlasjs@0.2.0/dist/xatlas.js'
+      config.client.clientUrl + '/atlasing/xatlas.wasm',
+      config.client.clientUrl + '/atlasing/xatlas.js'
     )
 
     unwrapper.chartOptions = {
-      fixWinding: true,
+      fixWinding: false,
       maxBoundaryLength: 0,
       maxChartArea: 0,
       maxCost: 2,
-      maxIterations: 2,
+      maxIterations: 1,
       normalDeviationWeight: 2,
       normalSeamWeight: 4,
       roundnessWeight: 0.009999999776482582,
@@ -126,8 +127,8 @@ const getEntities = (entity: Entity) => {
     const transform = getComponent(entity, TransformComponent)
     box.max.set(1, 1, 1).applyMatrix4(transform.matrixWorld)
     box.min.set(-1, -1, -1).applyMatrix4(transform.matrixWorld)
-    const intersectsVolume = getComponent(entity, BoundingBoxComponent).box.containsBox(mesh.geometry.boundingBox!)
-    if (isValidMesh && intersectsVolume) {
+    // const intersectsVolume = getComponent(entity, BoundingBoxComponent).box.containsBox(mesh.geometry.boundingBox!)
+    if (isValidMesh) {
       filteredMeshEntities.push(getSimulationCounterpart(meshEntity))
     }
   }
@@ -381,7 +382,7 @@ const generateAtlas = async (entities: Entity[], entity: Entity, uvChannel: UVCh
   const geometries = entities.map((entity) => getComponent(entity, MeshComponent).geometry)
 
   // Padding doesn't seem necessary yet, but it may be needed in the future with fine detailed geometry
-  // unwrapper.packOptions.padding = 1
+  unwrapper.packOptions.padding = 1
 
   await unwrapper.packAtlas(geometries, uvChannel as any, 'uv')
 
