@@ -877,28 +877,14 @@ export const materialExtensions = [
   KHRAnisotropyExtensionComponent
 ]
 
-const exportMaterial = async (
-  entity: Entity,
-  gltf: GLTF.IGLTF,
-  context: GLTFSceneExportContext
-): Promise<number | null> => {
-  const material = getComponent(entity, MaterialStateComponent).material
-
-  const cache = context.cache.materials
-  if (cache.has(material)) return cache.get(material)!
-
-  const materialEntityUUID = getComponent(entity, UUIDComponent)
-
-  //do not export fallback material
-  if (
-    materialEntityUUID.entityID === MaterialStateComponent.fallbackMaterialUUIDPair.entityID &&
-    materialEntityUUID.entitySourceID === MaterialStateComponent.fallbackMaterialUUIDPair.entitySourceID
-  )
-    return null
-
+export const materialToMaterialDef = async (
+  material: Material,
+  name: string,
+  handleTexture: ((texture: Texture, field: string) => Promise<number | void> | undefined) | null = null
+) => {
   const materialDef: GLTF.IMaterial = {}
 
-  materialDef.name = getComponent(entity, NameComponent)
+  materialDef.name = name
 
   if (material.transparent) {
     materialDef.alphaMode = 'BLEND'
@@ -923,10 +909,8 @@ const exportMaterial = async (
       }
       const texture = value as Texture
 
-      if (texture.isTexture) {
-        if (field === 'envMap') return //for skipping environment maps which cause errors
-        if ((texture as CubeTexture).isCubeTexture) return //for skipping environment maps which cause errors
-        const textureIndex = await exportTexture(texture, gltf, context)
+      if (texture.isTexture && handleTexture) {
+        const textureIndex = await handleTexture(texture, field)
         if (typeof textureIndex !== 'number') return
         argEntry.contents = {
           index: textureIndex,
@@ -955,6 +939,39 @@ const exportMaterial = async (
     }
   }
 
+  return materialDef
+}
+
+const exportMaterial = async (
+  entity: Entity,
+  gltf: GLTF.IGLTF,
+  context: GLTFSceneExportContext
+): Promise<number | null> => {
+  const material = getComponent(entity, MaterialStateComponent).material
+
+  const cache = context.cache.materials
+  if (cache.has(material)) return cache.get(material)!
+
+  const materialEntityUUID = getComponent(entity, UUIDComponent)
+
+  //do not export fallback material
+  if (
+    materialEntityUUID.entityID === MaterialStateComponent.fallbackMaterialUUIDPair.entityID &&
+    materialEntityUUID.entitySourceID === MaterialStateComponent.fallbackMaterialUUIDPair.entitySourceID
+  )
+    return null
+
+  const materialDef: GLTF.IMaterial = await materialToMaterialDef(
+    material,
+    getComponent(entity, NameComponent),
+    (texture, field) => {
+      if (field === 'envMap') return //for skipping environment maps which cause errors
+      if ((texture as CubeTexture).isCubeTexture) return //for skipping environment maps which cause errors
+      return exportTexture(texture, gltf, context)
+    }
+  )
+
+  materialDef.extensions ??= {}
   const components = getAllComponents(entity)
   for (const component of components) {
     if (!component.jsonID) continue
