@@ -50,9 +50,10 @@ export const CameraSettingsComponent = defineComponent({
     cameraMode: S.Enum(CameraMode, {
       $comment: "An indexed enum, ie. the numeric index of a value in the following sequence: 'FOLLOW', 'GUIDED' ",
       default: CameraMode.FOLLOW,
-      deserialize(curr, value: string) {
-        if (value === 'Dynamic') return CameraMode.FOLLOW
-        if (value === 'POI') return CameraMode.GUIDED
+      deserialize(curr, value) {
+        const strValue = value as string
+        if (strValue === 'Dynamic') return CameraMode.FOLLOW
+        if (strValue === 'POI') return CameraMode.GUIDED
 
         return value
       }
