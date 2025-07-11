@@ -39,7 +39,7 @@ import { Button, Input } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import TextArea from '@ir-engine/ui/src/primitives/tailwind/TextArea'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiPencil, HiPlus, HiXMark } from 'react-icons/hi2'
 import { RiSave2Line } from 'react-icons/ri'
@@ -63,6 +63,7 @@ export default function FilePropertiesModal() {
   const editedField = useHookstate<string | null>(null)
   const tagInput = useHookstate<string>('')
   const sharedTags = useHookstate<string[]>([])
+  const loading = useHookstate(false)
 
   let title: string
   let filename: string
@@ -97,6 +98,7 @@ export default function FilePropertiesModal() {
   }
 
   const handleSubmit = async () => {
+    loading.set(true)
     ModalState.openModal(<FilePropertiesSaveConfirmationModal />)
     if (modifiedFields.value.length > 0) {
       const addedTags: string[] = resourceDigest.tags.value!.filter((tag) => !sharedTags.value.includes(tag))
@@ -142,6 +144,7 @@ export default function FilePropertiesModal() {
               modifiedFields.set([])
               ModalState.closeModal()
               ModalState.closeModal()
+              loading.set(false)
               reactor.stop()
             }
           }
@@ -152,6 +155,7 @@ export default function FilePropertiesModal() {
     } else {
       ModalState.closeModal()
       ModalState.closeModal()
+      loading.set(false)
     }
   }
 
@@ -205,6 +209,12 @@ export default function FilePropertiesModal() {
     resourceDigest.tags.set(resourceDigest.tags.value!.filter((_, i) => i !== index))
   }
 
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleUploadThumbnailClick = () => {
+    fileInputRef.current?.click()
+  }
+
   const handleUploadThumbnail = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -236,9 +246,10 @@ export default function FilePropertiesModal() {
   return (
     <Modal
       title={title}
-      className="w-[50vw] max-w-2xl"
+      className="w-[50vw] max-w-3xl"
       onSubmit={handleSubmit}
       onClose={ModalState.closeModal}
+      submitButtonDisabled={loading.value}
       submitButtonText={t('editor:layout.filebrowser.fileProperties.save-changes')}
       closeButtonText={t('editor:layout.filebrowser.fileProperties.discard')}
     >
@@ -258,19 +269,14 @@ export default function FilePropertiesModal() {
         >
           {t('editor:layout.filebrowser.fileProperties.regenerateThumbnail')}
         </Button>
-        <div className="mt-1 rounded-md px-4 py-1 text-base">
-          {/* Use a label to trigger the file input click, no ref needed */}
-          <label className="mt-1 cursor-pointer text-xs">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleUploadThumbnail} // Directly attach the handler here
-              className="hidden"
-            />
-            {/* Style the button to act as a proxy for the hidden input */}
-            <span className="button">{t('editor:layout.filebrowser.fileProperties.uploadThumbnail')}</span>
-          </label>
-        </div>
+        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleUploadThumbnail} className="hidden" />
+        <Button
+          title={t('editor:layout.filebrowser.fileProperties.uploadThumbnail')}
+          onClick={handleUploadThumbnailClick}
+          className="my-2 text-xs"
+        >
+          {t('editor:layout.filebrowser.fileProperties.uploadThumbnail')}
+        </Button>
       </div>
       <div className="flex flex-col items-center gap-2">
         <div className="grid grid-cols-2 gap-2">
@@ -320,8 +326,10 @@ export default function FilePropertiesModal() {
           </Text>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <Text className="text-end">{'dimensions'}</Text>({resourceDigest.width.value}, {resourceDigest.height.value},{' '}
-          {resourceDigest.depth.value})
+          <Text className="text-end">{'Dimensions'}</Text>
+          <Text className="" data-testid="files-panel-file-item-properties-dimensions">
+            ({resourceDigest.width.value || 0}, {resourceDigest.height.value || 0}, {resourceDigest.depth.value || 0})
+          </Text>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.size')}</Text>
@@ -414,7 +422,9 @@ export default function FilePropertiesModal() {
               {editedField.value === 'description' ? (
                 <>
                   <TextArea
-                    className="resize-vertical max-h-[20em] min-h-[5em] w-full overflow-y-auto rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    variant="outlined"
+                    containerClassName="text-text-secondary"
+                    className="resize-vertical h-20 max-h-[20em] min-h-[5em] w-full overflow-y-auto rounded-lg border border-gray-300 border-ui-tertiary p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-ui-outline dark:bg-surface-2"
                     value={resourceDigest.description.value ?? ''}
                     onChange={onChange('description', resourceDigest.description)}
                     placeholder="Enter description here..."
@@ -467,7 +477,10 @@ export default function FilePropertiesModal() {
               </div>
               <div className="flex h-24 flex-wrap gap-2 overflow-y-auto  p-2">
                 {resourceDigest.tags.value!.map((tag, idx) => (
-                  <span key={idx} className="flex h-fit w-fit items-center rounded bg-[#2C2E33] px-2 py-0.5">
+                  <span
+                    key={idx}
+                    className="flex h-fit w-fit items-center rounded bg-ui-primary px-2 py-0.5 text-text-primary-button"
+                  >
                     {tag} <HiXMark className="ml-1 cursor-pointer" onClick={() => handleRemoveTag(idx)} />
                   </span>
                 ))}
