@@ -256,13 +256,11 @@ export const CanvasInputReactor = () => {
           pointerIdMap.set(browserPointerId, nextEmulatedPointerId++)
         }
       }
-      console.trace('getMappedPointerId pointerIdMap ', browserPointerId, pointerIdMap)
       return pointerIdMap.get(browserPointerId)!
     }
 
     const removeMappedPointerId = (browserPointerId: number) => {
       pointerIdMap.delete(browserPointerId)
-      console.log('pointerIdMap', pointerIdMap)
     }
 
     const clonePointerEventWithNewId = (originalEvent: PointerEvent, newPointerId: number): PointerEvent => {
@@ -432,6 +430,12 @@ export const CanvasInputReactor = () => {
       }
     }
 
+    const onClick = (event: PointerEvent) => {
+      const mappedPointEvent = clonePointerEventWithNewId(event, getMappedPointerId(event.pointerId))
+      ClientInputFunctions.redirectPointerEventsToXRUI(cameraEntity, mappedPointEvent)
+      removeMappedPointerId(event.pointerId)
+    }
+
     const onWheelEvent = (event: WheelEvent) => {
       const pointer = InputPointerComponent.getPointersForCamera(cameraEntity)[0]
       if (!pointer) return
@@ -455,6 +459,7 @@ export const CanvasInputReactor = () => {
     canvas.addEventListener('pointerdown', onPointerClick)
     canvas.addEventListener('blur', onVisibilityChange)
     canvas.addEventListener('visibilitychange', onVisibilityChange)
+    canvas.addEventListener('click', onClick)
     canvas.addEventListener('wheel', onWheelEvent, { passive: false, capture: true })
 
     return () => {
@@ -469,6 +474,7 @@ export const CanvasInputReactor = () => {
       canvas.removeEventListener('pointerdown', onPointerClick)
       canvas.removeEventListener('blur', onVisibilityChange)
       canvas.removeEventListener('visibilitychange', onVisibilityChange)
+      canvas.removeEventListener('click', onClick)
       canvas.removeEventListener('wheel', onWheelEvent)
     }
   }, [xrState.session, rendererComponent.canvas])
