@@ -256,7 +256,13 @@ export const CanvasInputReactor = () => {
           pointerIdMap.set(browserPointerId, nextEmulatedPointerId++)
         }
       }
+      console.trace('getMappedPointerId pointerIdMap ', browserPointerId, pointerIdMap)
       return pointerIdMap.get(browserPointerId)!
+    }
+
+    const removeMappedPointerId = (browserPointerId: number) => {
+      pointerIdMap.delete(browserPointerId)
+      console.log('pointerIdMap', pointerIdMap)
     }
 
     const clonePointerEventWithNewId = (originalEvent: PointerEvent, newPointerId: number): PointerEvent => {
@@ -341,8 +347,7 @@ export const CanvasInputReactor = () => {
       ClientInputFunctions.redirectPointerEventsToXRUI(cameraEntity, mappedPointEvent)
       clearPointerState(pointerEntity)
 
-      // Clean up the mapping when pointer leaves
-      pointerIdMap.delete(event.pointerId)
+      removeMappedPointerId(event.pointerId)
 
       // Reset counter if no active touches to maintain single-touch consistency
       if (pointerIdMap.size === 0) {
@@ -354,7 +359,10 @@ export const CanvasInputReactor = () => {
       const mappedPointEvent = clonePointerEventWithNewId(event, getMappedPointerId(event.pointerId))
       const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, mappedPointEvent.pointerId)
       const inputSourceComponent = getOptionalComponent(pointerEntity, InputSourceComponent)
-      if (!inputSourceComponent) return
+      if (!inputSourceComponent) {
+        onPointerLeave(event)
+        return
+      }
 
       const down = mappedPointEvent.type === 'pointerdown'
 
@@ -383,6 +391,7 @@ export const CanvasInputReactor = () => {
         }
       } else if (state[button]) {
         state[button]!.up = true
+        removeMappedPointerId(event.pointerId)
       }
 
       ClientInputFunctions.redirectPointerEventsToXRUI(cameraEntity, mappedPointEvent)
@@ -423,11 +432,6 @@ export const CanvasInputReactor = () => {
       }
     }
 
-    const onClick = (event: PointerEvent) => {
-      const mappedPointEvent = clonePointerEventWithNewId(event, getMappedPointerId(event.pointerId))
-      ClientInputFunctions.redirectPointerEventsToXRUI(cameraEntity, mappedPointEvent)
-    }
-
     const onWheelEvent = (event: WheelEvent) => {
       const pointer = InputPointerComponent.getPointersForCamera(cameraEntity)[0]
       if (!pointer) return
@@ -451,7 +455,6 @@ export const CanvasInputReactor = () => {
     canvas.addEventListener('pointerdown', onPointerClick)
     canvas.addEventListener('blur', onVisibilityChange)
     canvas.addEventListener('visibilitychange', onVisibilityChange)
-    canvas.addEventListener('click', onClick)
     canvas.addEventListener('wheel', onWheelEvent, { passive: false, capture: true })
 
     return () => {
@@ -466,7 +469,6 @@ export const CanvasInputReactor = () => {
       canvas.removeEventListener('pointerdown', onPointerClick)
       canvas.removeEventListener('blur', onVisibilityChange)
       canvas.removeEventListener('visibilitychange', onVisibilityChange)
-      canvas.removeEventListener('click', onClick)
       canvas.removeEventListener('wheel', onWheelEvent)
     }
   }, [xrState.session, rendererComponent.canvas])
