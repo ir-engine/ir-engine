@@ -137,36 +137,54 @@ export function Browser() {
     return sorted
   }, [files, sortConfig, staticResourceData])
 
-  const FileItems = () => (
-    <>
-      <InfiniteScroll
-        disableEvent={!filesQuery || filesQuery.limit >= filesQuery?.total}
-        onScrollBottom={() => {
-          filesQuery?.setLimit(filesQuery.limit + FILES_PAGE_LIMIT)
-        }}
-      >
-        {sortedFiles.map((file, idx) => {
-          const backgroundColor = idx % 2 === 0 ? 'bg-surface-1' : 'bg-surface-0'
-          return (
-            <FileItem
-              file={{ ...file, ...staticResourceData.value[file?.key] }}
-              onContextMenu={(event) => {
-                event.preventDefault()
-                event.stopPropagation()
-                if (!selectedFiles.value.find((selectedFile) => selectedFile.key === file.key)) {
-                  selectedFiles.set([file])
-                }
-                setAnchorEvent(event)
-              }}
-              key={file.key}
-              data-testid="files-panel-file-item"
-              className={`${isListView ? `${backgroundColor}` : ''}`}
-            />
-          )
-        })}
-      </InfiniteScroll>
-    </>
-  )
+  const FileItems = () => {
+    const FileItemsRender = () => {
+      return (
+        <>
+          {sortedFiles.map((file, idx) => {
+            const backgroundColor = idx % 2 === 0 ? 'bg-surface-1' : 'bg-surface-0'
+            return (
+              <FileItem
+                file={{ ...file, ...staticResourceData.value[file?.key] }}
+                onContextMenu={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  if (!selectedFiles.value.find((selectedFile) => selectedFile.key === file.key)) {
+                    selectedFiles.set([file])
+                  }
+                  setAnchorEvent(event)
+                }}
+                key={file.key}
+                data-testid="files-panel-file-item"
+                className={`${isListView ? `${backgroundColor}` : ''}`}
+              />
+            )
+          })}
+        </>
+      )
+    }
+
+    const FileItemsInsideTable = () => {
+      return (
+        <TableWrapper handleSort={handleSort}>
+          <FileItemsRender />
+        </TableWrapper>
+      )
+    }
+
+    return (
+      <>
+        <InfiniteScroll
+          disableEvent={!filesQuery || filesQuery.limit >= filesQuery?.total}
+          onScrollBottom={() => {
+            filesQuery?.setLimit(filesQuery.limit + FILES_PAGE_LIMIT)
+          }}
+        >
+          {isListView ? <FileItemsInsideTable /> : <FileItemsRender />}
+        </InfiniteScroll>
+      </>
+    )
+  }
 
   return (
     <div
@@ -188,13 +206,7 @@ export function Browser() {
         }}
       >
         <div className={twMerge(!isListView && 'flex flex-wrap gap-2')}>
-          {isListView ? (
-            <TableWrapper handleSort={handleSort}>
-              <FileItems />
-            </TableWrapper>
-          ) : (
-            <FileItems />
-          )}
+          <FileItems />
         </div>
       </div>
       <FileContextMenu anchorEvent={anchorEvent} setAnchorEvent={setAnchorEvent} />

@@ -104,56 +104,44 @@ export const PositionalAudioHelperReactor: React.FC = (props: { parentEntity; ic
     if (!debugEnabled) return
 
     const innerConeEntity = createEntity()
+    const innerConeMesh = new Mesh(
+      createCone(audioComponent.coneInnerAngle.value, audioComponent.maxDistance.value),
+      new MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.4, side: DoubleSide })
+    )
     setComponent(innerConeEntity, VisibleComponent)
     setComponent(innerConeEntity, TransformComponent)
     setComponent(innerConeEntity, EntityTreeComponent, { parentEntity })
-    setComponent(
-      innerConeEntity,
-      MeshComponent,
-      new Mesh(
-        createCone(audioComponent.coneInnerAngle.value, audioComponent.maxDistance.value),
-        new MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.4, side: DoubleSide })
-      )
-    )
+    setComponent(innerConeEntity, MeshComponent, innerConeMesh)
 
     const innerCapEntity = createEntity()
+    const innerCapMesh = new Mesh(
+      createCap(audioComponent.coneInnerAngle.value, audioComponent.maxDistance.value),
+      new MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.4, side: DoubleSide })
+    )
     setComponent(innerCapEntity, VisibleComponent)
     setComponent(innerCapEntity, TransformComponent)
     setComponent(innerCapEntity, EntityTreeComponent, { parentEntity })
-    setComponent(
-      innerCapEntity,
-      MeshComponent,
-      new Mesh(
-        createCap(audioComponent.coneInnerAngle.value, audioComponent.maxDistance.value),
-        new MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.4, side: DoubleSide })
-      )
-    )
+    setComponent(innerCapEntity, MeshComponent, innerCapMesh)
 
     const outerConeEntity = createEntity()
+    const outerConeMesh = new Mesh(
+      createCone(audioComponent.coneOuterAngle.value, audioComponent.maxDistance.value),
+      new MeshBasicMaterial({ color: 0x000080, wireframe: true, side: DoubleSide })
+    )
     setComponent(outerConeEntity, VisibleComponent)
     setComponent(outerConeEntity, TransformComponent)
     setComponent(outerConeEntity, EntityTreeComponent, { parentEntity })
-    setComponent(
-      outerConeEntity,
-      MeshComponent,
-      new Mesh(
-        createCone(audioComponent.coneOuterAngle.value, audioComponent.maxDistance.value),
-        new MeshBasicMaterial({ color: 0x000080, wireframe: true, side: DoubleSide })
-      )
-    )
+    setComponent(outerConeEntity, MeshComponent, outerConeMesh)
 
     const outerCapEntity = createEntity()
+    const outerCapMesh = new Mesh(
+      createCap(audioComponent.coneOuterAngle.value, audioComponent.maxDistance.value),
+      new MeshBasicMaterial({ color: 0x000080, wireframe: true, side: DoubleSide })
+    )
     setComponent(outerCapEntity, VisibleComponent)
     setComponent(outerCapEntity, TransformComponent)
     setComponent(outerCapEntity, EntityTreeComponent, { parentEntity })
-    setComponent(
-      outerCapEntity,
-      MeshComponent,
-      new Mesh(
-        createCap(audioComponent.coneOuterAngle.value, audioComponent.maxDistance.value),
-        new MeshBasicMaterial({ color: 0x000080, wireframe: true, side: DoubleSide })
-      )
-    )
+    setComponent(outerCapEntity, MeshComponent, outerCapMesh)
 
     helperEntities.set({
       innerConeEntity,

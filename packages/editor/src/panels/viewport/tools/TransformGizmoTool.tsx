@@ -72,7 +72,7 @@ export default function TransformGizmoTool() {
   }, [editorHelperState.transformMode])
 
   return (
-    <div id="gizmo-tool" className={`absolute z-[5] flex flex-col items-center rounded-lg bg-surface-0 px-1 pb-1 pt-2`}>
+    <div id="gizmo-tool" className={`absolute z-20 flex flex-col items-center rounded-lg bg-surface-0 px-1 pb-1 pt-2`}>
       <Placer id="gizmo-tool-placer" />
       <div className="mt-2 flex flex-col overflow-hidden rounded bg-surface-3">
         <Tooltip content={t('editor:toolbar.gizmo.pointer')} position="right">

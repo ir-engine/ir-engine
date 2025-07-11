@@ -223,7 +223,6 @@ const PeersReactor = (props: { instanceID: InstanceID }) => {
 }
 
 const sendMessage: SendMessageType = (instanceID: InstanceID, toPeerID: PeerID, message: MessageTypes) => {
-  // console.log('sendMessage', instanceID, toPeerID, message)
   API.instance.service(instanceSignalingPath).patch(null, {
     instanceID,
     targetPeerID: toPeerID,
