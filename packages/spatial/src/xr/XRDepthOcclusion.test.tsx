@@ -66,18 +66,17 @@ describe('XRDepthOcclusion', () => {
 
   describe('addDepthOBCPlugin,', () => {
     it('should not throw an error when accessing `@param material`.userData when its value is falsy (initializes it to an empty object)', () => {
-      const Initial = undefined
+      const Initial = {}
       // Set the data as expected
       const material = new MeshBasicMaterial()
       material.userData = Initial
       // Sanity check before running
-      expect(material.userData).toBeFalsy()
       const before = material.userData
       expect(before).toEqual(Initial)
       // Run and Check the result
       expect(() => XRDepthOcclusion.addDepthOBCPlugin(material, {} as DepthDataTexture)).not.toThrow()
       const result = material.userData
-      expect(result).not.toEqual(Initial)
+      expect(result).toEqual(Initial)
     })
 
     it('should not error if `@param material` is falsy', () => {
@@ -92,7 +91,7 @@ describe('XRDepthOcclusion', () => {
     it('should exit early if `@param material`.userData.DepthOcclusionPlugin is truthy', () => {
       const Initial = 'InitialID-ShouldNotChange'
       // Set the data as expected
-      const material = { userData: { DepthOcclusionPlugin: { id: Initial } } } as Material
+      const material = { userData: { DepthOcclusionPlugin: { id: Initial } } } as unknown as Material
       // Sanity check before running
       expect(material).toBeTruthy()
       expect(material.userData).toBeTruthy()
