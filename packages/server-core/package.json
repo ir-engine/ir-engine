@@ -111,8 +111,6 @@
     "node-fetch": "2.6.9",
     "nodemailer-smtp-transport": "^2.7.4",
     "octokit": "2.0.14",
-    "pg": "^8.16.0",
-    "pgvector": "^0.2.1",
     "pino": "^8.11.0",
     "pino-elasticsearch": "6.6.0",
     "pino-opensearch": "^1.1.0",
@@ -146,7 +144,6 @@
     "@types/node": "18.15.5",
     "@types/node-fetch": "2.6.2",
     "@types/nodemailer-smtp-transport": "2.7.5",
-    "@types/pg": "^8.15.4",
     "@types/pug": "2.0.6",
     "nock": "^13.4.0"
   },

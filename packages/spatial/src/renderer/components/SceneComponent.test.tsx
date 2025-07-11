@@ -32,8 +32,9 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
+import { ImmutableObject } from '@ir-engine/hyperflux'
 import assert from 'assert'
-import { Color, CubeTexture, Fog, FogExp2, Texture } from 'three'
+import { Color, CubeTexture, FogBase, Texture } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { BackgroundComponent, EnvironmentMapComponent, FogComponent, SceneComponent } from './SceneComponents'
 
@@ -45,7 +46,7 @@ describe('SceneComponent', () => {
   }) //:: IDs
 })
 
-type BackgroundComponentData = Color | Texture | CubeTexture
+type BackgroundComponentData = ImmutableObject<Color> | ImmutableObject<Texture> | ImmutableObject<CubeTexture>
 const BackgroundComponentDefaults = undefined! as BackgroundComponentData
 
 function assertBackgroundComponentEq(A: BackgroundComponentData, B: BackgroundComponentData) {
@@ -79,7 +80,7 @@ describe('BackgroundComponent', () => {
     })
 
     it('should initialize the component with the expected default values', () => {
-      const data = getComponent(testEntity, BackgroundComponent as any) as Color | Texture | CubeTexture
+      const data = getComponent(testEntity, BackgroundComponent)
       assertBackgroundComponentEq(data, BackgroundComponentDefaults)
     })
   }) //:: onInit
@@ -99,9 +100,9 @@ describe('BackgroundComponent', () => {
     })
 
     it('should change the values of an initialized BackgroundComponent', () => {
-      const before = getComponent(testEntity, BackgroundComponent as any) as Color | Texture | CubeTexture
+      const before = getComponent(testEntity, BackgroundComponent)
       setComponent(testEntity, BackgroundComponent, new Color('#123456'))
-      const after = getComponent(testEntity, BackgroundComponent as any) as Color | Texture | CubeTexture
+      const after = getComponent(testEntity, BackgroundComponent)
       assertBackgroundComponentNotEq(before, after)
     })
   }) //:: onSet
@@ -167,7 +168,7 @@ describe('EnvironmentMapComponent', () => {
   }) //:: onSet
 }) //:: EnvironmentMapComponent
 
-type FogData = Fog | FogExp2
+type FogData = FogBase
 const FogComponentDefaults = undefined! as FogData
 
 function assertFogComponentEq(A: FogData, B: FogData) {

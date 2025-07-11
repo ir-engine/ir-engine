@@ -50,8 +50,12 @@ export const toDisplayDateTimeUtc = (date: string | null | undefined) => {
 
 // https://stackoverflow.com/a/11150727
 export const fromDateTimeSql = (date: string) => {
-  const dateObj = new Date(date)
-
+  let dateObj: Date
+  if (typeof date === 'string') {
+    dateObj = new Date(date)
+  } else {
+    dateObj = date
+  }
   return (
     dateObj.getFullYear() +
     '-' +

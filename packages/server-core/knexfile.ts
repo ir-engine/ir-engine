@@ -34,9 +34,7 @@ import appConfig from '@ir-engine/server-core/src/appconfig'
 const migrationsDirectories: string[] = []
 
 const parseDirectory = (directoryPath: string) => {
-  const directoryContent = fs
-    .readdirSync(directoryPath, { withFileTypes: true })
-    .filter((dir) => dir.isDirectory() && !dir.name.endsWith('-vector'))
+  const directoryContent = fs.readdirSync(directoryPath, { withFileTypes: true }).filter((dir) => dir.isDirectory())
   for (const directory of directoryContent) {
     const subFolder = path.join(directoryPath, directory.name)
     if (directory.name === 'migrations') {

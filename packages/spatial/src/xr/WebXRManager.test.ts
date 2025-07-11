@@ -1590,7 +1590,7 @@ describe('WebXRManagerFunctions', () => {
         glAttributes,
         renderer,
         manager
-      )?.depthTexture?.type
+      ).depthTexture.type
       expect(result).toBe(Expected)
     })
 
@@ -1610,7 +1610,7 @@ describe('WebXRManagerFunctions', () => {
         glAttributes,
         renderer,
         manager
-      )?.depthTexture?.type
+      ).depthTexture.type
       expect(result).toBe(Expected)
     })
 
@@ -1630,7 +1630,7 @@ describe('WebXRManagerFunctions', () => {
         glAttributes,
         renderer,
         manager
-      )?.depthTexture?.type
+      ).depthTexture.type
       expect(result).toBe(Expected)
     })
 
@@ -1644,7 +1644,7 @@ describe('WebXRManagerFunctions', () => {
         glAttributes,
         renderer,
         manager
-      )?.depthTexture?.mapping
+      ).depthTexture.mapping
       expect(result).toBe(Expected)
     })
 
@@ -1658,7 +1658,7 @@ describe('WebXRManagerFunctions', () => {
         glAttributes,
         renderer,
         manager
-      )?.depthTexture?.wrapS
+      ).depthTexture.wrapS
       expect(result).toBe(Expected)
     })
 
@@ -1672,7 +1672,7 @@ describe('WebXRManagerFunctions', () => {
         glAttributes,
         renderer,
         manager
-      )?.depthTexture?.wrapT
+      ).depthTexture.wrapT
       expect(result).toBe(Expected)
     })
 
@@ -1686,7 +1686,7 @@ describe('WebXRManagerFunctions', () => {
         glAttributes,
         renderer,
         manager
-      )?.depthTexture?.magFilter
+      ).depthTexture.magFilter
       expect(result).toBe(Expected)
     })
 
@@ -1700,7 +1700,7 @@ describe('WebXRManagerFunctions', () => {
         glAttributes,
         renderer,
         manager
-      )?.depthTexture?.minFilter
+      ).depthTexture.minFilter
       expect(result).toBe(Expected)
     })
 
@@ -1714,7 +1714,7 @@ describe('WebXRManagerFunctions', () => {
         glAttributes,
         renderer,
         manager
-      )?.depthTexture?.anisotropy
+      ).depthTexture.anisotropy
       expect(result).toBe(Expected)
     })
 
@@ -1734,7 +1734,7 @@ describe('WebXRManagerFunctions', () => {
         glAttributes,
         renderer,
         manager
-      )?.depthTexture?.format
+      ).depthTexture.format
       expect(result).toBe(Expected)
     })
 
@@ -1753,7 +1753,7 @@ describe('WebXRManagerFunctions', () => {
         glAttributes,
         renderer,
         manager
-      )?.depthTexture?.format
+      ).depthTexture.format
       expect(result).toBe(Expected)
     })
 
@@ -1772,7 +1772,7 @@ describe('WebXRManagerFunctions', () => {
         glAttributes,
         renderer,
         manager
-      )?.depthTexture?.format
+      ).depthTexture.format
       expect(result).toBe(Expected)
     })
 
