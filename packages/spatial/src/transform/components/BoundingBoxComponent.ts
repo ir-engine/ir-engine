@@ -136,7 +136,7 @@ export const updateBoundingBox = (entity: Entity) => {
 
 const _box = new Box3()
 
-const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3) => {
+export const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3) => {
   const geometry = object.geometry
   if (!geometry) return
 

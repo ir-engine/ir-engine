@@ -62,6 +62,7 @@ import { VideoComponent } from './components/VideoComponent'
 import { VolumetricComponent } from './components/VolumetricComponent'
 import { EnvironmentSystem } from './systems/EnvironmentSystem'
 import { LookAtSystem } from './systems/LookAtSystem'
+import { OrientedBoundingBoxSystem } from './systems/OrientedBoundingBoxSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { PortalSystem } from './systems/PortalSystem'
 import { SceneKillHeightSystem } from './systems/SceneKillHeightSystem'
@@ -95,6 +96,7 @@ export const SceneComponents = [
   // MediaSettingsComponent,
   MountPointComponent,
   // OceanComponent,
+
   ParticleSystemComponent,
   PostProcessingComponent,
   PrimitiveGeometryComponent,
@@ -126,6 +128,7 @@ export {
   LookAtSystem,
   MaterialLibrarySystem,
   MountPointSystem,
+  OrientedBoundingBoxSystem,
   ParticleSystem,
   PortalSystem,
   SceneKillHeightSystem,

@@ -623,6 +623,8 @@ const BlendingSchema = S.LiteralUnion(
   { default: AdditiveBlending }
 )
 
+export const DEFAULT_EMISSION_OVER_TIME = 400
+
 export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS = S.Object({
   version: S.String({ default: '1.0' }),
   autoDestroy: S.Bool({ default: false }),
@@ -688,7 +690,7 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS = S.Object({
   }),
   emissionOverTime: S.Object({
     type: S.String({ default: 'ConstantValue' }),
-    value: S.Number({ default: 400 }),
+    value: S.Number({ default: DEFAULT_EMISSION_OVER_TIME }),
     a: S.Number({ default: 0 }),
     b: S.Number({ default: 1 }),
     functions: S.Array(S.Type<BezierFunctionJSON>())

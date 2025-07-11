@@ -131,7 +131,7 @@ export const AssetExtToAssetType = (assetExt: AssetExt | undefined): AssetType =
 export const FileExtToAssetExt = (fileExt: string): AssetExt | undefined => {
   fileExt = fileExt.toLowerCase()
   if (fileExt === 'jpg') return AssetExt.JPEG
-  return <AssetExt>fileExt
+  return fileExt as AssetExt
 }
 
 const dataURLStart = 'data:image'

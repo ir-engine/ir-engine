@@ -44,6 +44,36 @@ else
   MYSQL_DATABASE=$MYSQL_DATABASE
 fi
 
+if [ -z "$POSTGRES_HOST" ]; then
+  POSTGRES_HOST=host.minikube.internal
+else
+  POSTGRES_HOST=$POSTGRES_HOST
+fi
+
+if [ -z "$POSTGRES_PORT" ]; then
+  POSTGRES_PORT=5432
+else
+  POSTGRES_PORT=$POSTGRES_PORT
+fi
+
+if [ -z "$POSTGRES_USER" ]; then
+  POSTGRES_USER=postgres
+else
+  POSTGRES_USER=$POSTGRES_USER
+fi
+
+if [ -z "$POSTGRES_PASSWORD" ]; then
+  POSTGRES_PASSWORD=postgres
+else
+  POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+fi
+
+if [ -z "$POSTGRES_DATABASE" ]; then
+  POSTGRES_DATABASE=vector-db
+else
+  POSTGRES_DATABASE=$POSTGRES_DATABASE
+fi
+
 if [ -z "$VITE_APP_HOST" ]; then
   VITE_APP_HOST=local.ir-engine.org
 else
@@ -149,6 +179,11 @@ docker buildx build \
   --build-arg MYSQL_PASSWORD=$MYSQL_PASSWORD \
   --build-arg MYSQL_USER=$MYSQL_USER \
   --build-arg MYSQL_DATABASE=$MYSQL_DATABASE \
+  --build-arg POSTGRES_HOST=$POSTGRES_HOST \
+  --build-arg POSTGRES_PORT=$POSTGRES_PORT \
+  --build-arg POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+  --build-arg POSTGRES_USER=$POSTGRES_USER \
+  --build-arg POSTGRES_DATABASE=$POSTGRES_DATABASE \
   --build-arg SERVER_HOST=$SERVER_HOST \
   --build-arg SERVER_PORT=$SERVER_PORT \
   --build-arg VITE_APP_HOST=$VITE_APP_HOST \
