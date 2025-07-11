@@ -28,6 +28,7 @@ import {
   staticResourceSearchPath
 } from '@ir-engine/common/src/schemas/media/static-resource-search.schema'
 import { Application } from '../../../declarations'
+import { default as appConfig } from '../../appconfig'
 import { StaticResourceSearchService } from './static-resource-search.class'
 import hooks from './static-resource-search.hooks'
 
@@ -38,14 +39,16 @@ declare module '@ir-engine/common/declarations' {
 }
 
 export default (app: Application): void => {
-  // Initialize our service
-  app.use(staticResourceSearchPath, new StaticResourceSearchService(app), {
-    // Only expose the find method
-    methods: staticResourceSearchMethods,
-    // Custom events for search analytics
-    events: ['search-performed']
-  })
+  if (appConfig.vectordb.enabled) {
+    // Initialize our service
+    app.use(staticResourceSearchPath, new StaticResourceSearchService(app), {
+      // Only expose the find method
+      methods: staticResourceSearchMethods,
+      // Custom events for search analytics
+      events: ['search-performed']
+    })
 
-  // Initialize hooks
-  app.service(staticResourceSearchPath).hooks(hooks)
+    // Initialize hooks
+    app.service(staticResourceSearchPath).hooks(hooks)
+  }
 }
