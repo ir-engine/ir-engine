@@ -358,7 +358,7 @@ export const CanvasInputReactor = () => {
       const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, mappedPointEvent.pointerId)
       const inputSourceComponent = getOptionalComponent(pointerEntity, InputSourceComponent)
       if (!inputSourceComponent) {
-        onPointerLeave(event)
+        removeMappedPointerId(event.pointerId)
         return
       }
 
