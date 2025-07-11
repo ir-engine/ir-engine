@@ -300,8 +300,60 @@ export const handleConvertGifFileToVideoAndUpload = (
   )
 }
 
+const validateFileIntegrity = async (files: File[]): Promise<File[]> => {
+  const validFiles: File[] = []
+
+  for (const file of files) {
+    try {
+      if (file.type.startsWith('image/')) {
+        await validateImageMetadata(file)
+      } else if (file.type.startsWith('video/')) {
+        await validateVideoMetadata(file)
+      }
+      validFiles.push(file)
+    } catch (error) {
+      console.warn(`Corrupted file detected: ${file.name}`, error)
+      NotificationService.dispatchNotify(`File "${file.name}" appears to be corrupted, please try a different file.`, {
+        variant: 'warning'
+      })
+    }
+  }
+
+  return validFiles
+}
+
+const validateImageMetadata = (file: File): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => {
+      URL.revokeObjectURL(img.src)
+      resolve()
+    }
+    img.onerror = () => {
+      URL.revokeObjectURL(img.src)
+      reject(new Error('Invalid image file'))
+    }
+    img.src = URL.createObjectURL(file)
+  })
+}
+
+const validateVideoMetadata = (file: File): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement('video')
+    video.onloadedmetadata = () => {
+      URL.revokeObjectURL(video.src)
+      resolve()
+    }
+    video.onerror = () => {
+      URL.revokeObjectURL(video.src)
+      reject(new Error('Invalid video file'))
+    }
+    video.src = URL.createObjectURL(file)
+  })
+}
+
 // uploads files and returns an array of uploaded urls
-export const handleUploadFiles = (
+export const handleUploadFiles = async (
   projectName: string,
   directoryPath: string,
   files: FileList | File[],
@@ -311,9 +363,11 @@ export const handleUploadFiles = (
   const { ktx2: compressedImage } = CommonKnownContentTypes
   const importSettingsState = getMutableState(ImportSettingsState)
   const errors: Error[] = []
+  const validFiles = await validateFileIntegrity(Array.from(files))
 
+  // Process valid files
   return Promise.all(
-    Array.from(files).map(async (file) => {
+    validFiles.map(async (file) => {
       file = cleanFileNameFile(file)
 
       const ext = file.name.split('.').pop() ?? ''
