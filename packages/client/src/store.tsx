@@ -55,7 +55,7 @@ initializei18n()
 ClientAPI.createAPI()
 
 getMutableState(DomainConfigState).merge({
-  publicDomain: 'https://172.27.136.37:3000',
+  publicDomain,
   cloudDomain: config.client.fileServer,
   proxyDomain: config.client.cors.proxyUrl
 })
