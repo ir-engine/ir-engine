@@ -238,11 +238,14 @@ export const CanvasInputReactor = () => {
     /** Clear mouse events */
     const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick'] as AnyButton[]
     const clearPointerState = (entity: Entity) => {
-      const inputSourceComponent = getComponent(entity, InputSourceComponent)
-      const state = inputSourceComponent.buttons
-      for (const button of pointerButtons) {
-        const val = state[button] as ButtonState
-        if (!val?.up && val?.pressed) (state[button] as ButtonState).up = true
+      if (entity === UndefinedEntity) return
+      const inputSourceComponent = getOptionalComponent(entity, InputSourceComponent)
+      if (inputSourceComponent) {
+        const state = inputSourceComponent.buttons
+        for (const button of pointerButtons) {
+          const val = state[button] as ButtonState
+          if (!val?.up && val?.pressed) (state[button] as ButtonState).up = true
+        }
       }
     }
 
