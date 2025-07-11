@@ -297,7 +297,7 @@ class BatchedMesh extends Mesh {
     this._vertexCount += srcPositionAttribute.count
 
     this._matrices.push(new Matrix4())
-    _identityMatrix.toArray(this._matricesArray ?? undefined, geometryId * 16)
+    _identityMatrix.toArray(this._matricesArray ?? [], geometryId * 16)
     this._matricesTexture!.needsUpdate = true
 
     return geometryId

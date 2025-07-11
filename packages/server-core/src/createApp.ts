@@ -57,6 +57,7 @@ import persistHeaders from './hooks/persist-headers'
 import { createDefaultStorageProvider } from './media/storageprovider/storageprovider'
 import monitoringServices from './monitoring'
 import mysql from './mysql'
+import postgres from './postgres'
 import services from './services'
 import authentication from './user/authentication'
 import primus from './util/primus'
@@ -271,6 +272,7 @@ export const createFeathersKoaApp = async (
   // Doesn't appear anything else uses it.
   app.set('env', 'production')
   app.configure(mysql)
+  app.configure(postgres)
 
   // Enable security, CORS, compression, favicon and body parsing
   app.use(errorHandler()) // in koa no option to pass logger object its a async function instead and must be set first
@@ -328,5 +330,8 @@ export const tearDownAPI = async () => {
 
     const knex = (API.instance as any).get?.('knexClient')
     if (knex) await knex.destroy()
+
+    const vectorDb = (API.instance as any).get?.('vectorDbClient')
+    if (vectorDb) await vectorDb.destroy()
   }
 }
