@@ -826,7 +826,10 @@ const _builtinMaterialDefs = {
   color: (materialDef: GLTF.IMaterial, value: MaterialColorValue) => {
     if (!materialDef.pbrMetallicRoughness) materialDef.pbrMetallicRoughness = {}
     // Set RGB array
-    materialDef.pbrMetallicRoughness.baseColorFactor = value.contents.toArray()
+    if (value.contents.isColor) materialDef.pbrMetallicRoughness.baseColorFactor = value.contents.toArray()
+    else {
+      materialDef.pbrMetallicRoughness.baseColorFactor = new Color(value.contents).toArray()
+    }
     // Set A channel to GLTF default because color is just RGB
     materialDef.pbrMetallicRoughness.baseColorFactor[3] = 1
   },
@@ -854,7 +857,10 @@ const _builtinMaterialDefs = {
     materialDef.pbrMetallicRoughness.metallicRoughnessTexture = value.contents
   },
   emissive: (materialDef: GLTF.IMaterial, value: MaterialColorValue) => {
-    materialDef.emissiveFactor = value.contents.toArray()
+    if (value.contents.isColor) materialDef.emissiveFactor = value.contents.toArray()
+    else {
+      materialDef.emissiveFactor = new Color(value.contents).toArray()
+    }
   },
   emissiveMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {
     materialDef.emissiveTexture = value.contents
@@ -876,6 +882,30 @@ export const materialExtensions = [
   EXTBumpExtensionComponent,
   KHRAnisotropyExtensionComponent
 ]
+
+export const materialValuesToMaterialDef = (materialValues: Record<string, MaterialValue>) => {
+  const materialDef: GLTF.IMaterial = {}
+
+  for (const key in _builtinMaterialDefs) {
+    const resultValue = materialValues[key]
+    if (resultValue?.contents != null) {
+      _builtinMaterialDefs[key](materialDef, resultValue)
+      delete materialValues[key]
+    }
+  }
+
+  materialDef.extensions ??= {}
+  for (const ext of materialExtensions) {
+    if (typeof ext.exportMaterialExtension === 'function') {
+      const extension = ext.exportMaterialExtension(materialValues)
+      if (extension && Object.keys(extension).length > 0) {
+        materialDef.extensions[ext.jsonID] = extension
+      }
+    }
+  }
+
+  return materialDef
+}
 
 export const materialToMaterialDef = async (
   material: Material,
@@ -921,25 +951,7 @@ export const materialToMaterialDef = async (
     })
   )
 
-  for (const key in _builtinMaterialDefs) {
-    const resultValue = result[key]
-    if (resultValue?.contents != null) {
-      _builtinMaterialDefs[key](materialDef, resultValue)
-      delete result[key]
-    }
-  }
-
-  materialDef.extensions ??= {}
-  for (const ext of materialExtensions) {
-    if (typeof ext.exportMaterialExtension === 'function') {
-      const extension = ext.exportMaterialExtension(result)
-      if (extension && Object.keys(extension).length > 0) {
-        materialDef.extensions[ext.jsonID] = extension
-      }
-    }
-  }
-
-  return materialDef
+  return { ...materialDef, ...materialValuesToMaterialDef(result) }
 }
 
 const exportMaterial = async (
