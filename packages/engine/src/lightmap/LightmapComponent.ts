@@ -47,12 +47,6 @@ import { useTexture } from '../assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '../gltf/GLTFComponent'
 import { AssetState } from '../gltf/GLTFState'
 
-declare module 'xatlas-three' {
-  export interface UVUnwrapper {
-    isLoaded: boolean
-  }
-}
-
 export const LightmapComponent = defineComponent({
   name: 'LightmapComponent',
   jsonID: 'IR_lightmap',

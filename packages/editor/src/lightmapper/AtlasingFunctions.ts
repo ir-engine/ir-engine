@@ -72,6 +72,12 @@ import { commitProperty } from '../components/properties/Util'
 import { uploadProjectFiles } from '../functions/assetFunctions'
 import { EditorState } from '../services/EditorServices'
 
+declare module 'xatlas-three' {
+  export interface UVUnwrapper {
+    isLoaded: boolean
+  }
+}
+
 export const UV2UnwrapperState = defineState({
   name: 'ir.engine.UV2AtlasState',
 
