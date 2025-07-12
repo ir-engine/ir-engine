@@ -56,6 +56,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { CameraSettingsState } from '../CameraSettingsState'
 import { setTargetCameraRotation } from '../functions/CameraFunctions'
 import { FollowCameraMode, FollowCameraShoulderSide } from '../types/FollowCameraMode'
+import { CameraOrbitComponent } from './CameraOrbitComponent'
 import { TargetCameraRotationComponent } from './TargetCameraRotationComponent'
 
 const window = 'window' in globalThis ? globalThis.window : ({} as any as Window)
@@ -267,6 +268,14 @@ export const FollowCameraComponent = defineComponent({
       }
       return mode !== follow.mode.value
     }
+
+    //disable orbit camera used for the editor to prevent conflicts / flickering
+    useImmediateEffect(() => {
+      removeComponent(entity, CameraOrbitComponent)
+      return () => {
+        setComponent(entity, CameraOrbitComponent)
+      }
+    }, [])
 
     useImmediateEffect(() => {
       const cameraSettings = cameraSettingsState.value
