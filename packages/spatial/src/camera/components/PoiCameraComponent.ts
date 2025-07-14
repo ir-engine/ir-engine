@@ -23,7 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent, removeComponent, setComponent, useEntityContext } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useEntityContext
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
 import { CameraOrbitComponent } from './CameraOrbitComponent'
@@ -54,9 +60,10 @@ export const PoiCameraComponent = defineComponent({
 
     //disable orbit camera used for the editor to prevent conflicts / flickering
     useImmediateEffect(() => {
-      removeComponent(entity, CameraOrbitComponent)
+      const preexistingOrbit = hasComponent(entity, CameraOrbitComponent)
+      if (preexistingOrbit) removeComponent(entity, CameraOrbitComponent)
       return () => {
-        setComponent(entity, CameraOrbitComponent)
+        if (preexistingOrbit) setComponent(entity, CameraOrbitComponent)
       }
     }, [])
   }

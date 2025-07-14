@@ -271,9 +271,10 @@ export const FollowCameraComponent = defineComponent({
 
     //disable orbit camera used for the editor to prevent conflicts / flickering
     useImmediateEffect(() => {
-      removeComponent(entity, CameraOrbitComponent)
+      const preexistingOrbit = hasComponent(entity, CameraOrbitComponent)
+      if (preexistingOrbit) removeComponent(entity, CameraOrbitComponent)
       return () => {
-        setComponent(entity, CameraOrbitComponent)
+        if (preexistingOrbit) setComponent(entity, CameraOrbitComponent)
       }
     }, [])
 
