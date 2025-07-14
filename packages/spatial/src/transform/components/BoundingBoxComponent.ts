@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Box3, Box3Helper, BufferGeometry, Mesh } from 'three'
+import { Box3, Box3Helper, BufferGeometry, Mesh, Vector3 } from 'three'
 
 import {
   EntityTreeComponent,
@@ -39,7 +39,8 @@ import {
   getComponent,
   getOptionalComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
@@ -64,7 +65,8 @@ export const BoundingBoxComponent = defineComponent({
   schema: S.Object({
     box: T.Box3(),
     helper: S.Entity(),
-    color: T.Color('white')
+    color: T.Color('white'),
+    offset: T.Vec3(new Vector3(0, 0, 0)) // Default offset
   }),
 
   reactor: function () {
@@ -107,22 +109,35 @@ export const BoundingBoxComponent = defineComponent({
 })
 
 export const updateBoundingBox = (entity: Entity) => {
-  const boxComponent = getOptionalComponent(entity, BoundingBoxComponent)
+  const boxComponent = useOptionalComponent(entity, BoundingBoxComponent)
 
   if (!boxComponent) {
     console.error('BoundingBoxComponent not found in updateBoundingBox')
     return
   }
 
-  const box = boxComponent.box
+  const box = boxComponent.box.value
   box.makeEmpty()
 
+  // Collect all meshes first
+  const meshes: Mesh<BufferGeometry>[] = []
   const callback = (child: Entity) => {
-    const obj = getOptionalComponent(child, MeshComponent)
-    if (obj) expandBoxByObject(obj, box)
+    const meshObject = getOptionalComponent(child, MeshComponent)
+    if (meshObject) {
+      meshes.push(meshObject)
+    }
   }
 
   iterateEntityNode(entity, callback)
+
+  // Calculate unified offset based on all meshes
+  const calculatedOffset = calculateUnifiedMeshOffset(meshes)
+  boxComponent.offset.set(calculatedOffset)
+
+  // Apply the unified offset to all meshes
+  for (const meshObject of meshes) {
+    expandBoxByObjectWithOffset(meshObject, box, calculatedOffset)
+  }
 
   /** helper has custom logic in updateMatrixWorld */
   const boundingBox = getComponent(entity, BoundingBoxComponent)
@@ -132,6 +147,31 @@ export const updateBoundingBox = (entity: Entity) => {
   const helperObject = getComponent(helperEntity, ObjectComponent) as any as Box3Helper
   helperObject.updateMatrixWorld(true)
   helperObject.position.set(0, 0, 0)
+}
+
+const calculateUnifiedMeshOffset = (meshes: Mesh<BufferGeometry>[]): Vector3 => {
+  if (meshes.length === 0) return new Vector3()
+
+  // Create a combined bounding box of all geometries in local space
+  const combinedBox = new Box3()
+  combinedBox.makeEmpty()
+
+  for (const meshObject of meshes) {
+    const geometry = meshObject.geometry
+    if (!geometry) continue
+
+    if (geometry.boundingBox === null) {
+      geometry.computeBoundingBox()
+    }
+
+    combinedBox.union(geometry.boundingBox!)
+  }
+
+  // Get the center of the combined geometry bounds
+  const combinedCenter = combinedBox.getCenter(new Vector3())
+
+  // Return negated center to offset bounding box to origin
+  return combinedCenter.negate()
 }
 
 const _box = new Box3()
@@ -149,6 +189,26 @@ export const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3) => {
   box.union(_box)
 }
 
+export const expandBoxByObjectWithOffset = (object: Mesh<BufferGeometry>, box: Box3, offset?: Vector3) => {
+  const geometry = object.geometry
+  if (!geometry) return
+
+  if (geometry.boundingBox === null) {
+    geometry.computeBoundingBox()
+  }
+
+  _box.copy(geometry.boundingBox!)
+
+  // Apply offset before world transform
+  if (offset) {
+    _box.translate(offset)
+  }
+
+  _box.applyMatrix4(object.matrixWorld)
+  box.union(_box)
+}
+
 export const BoundingBoxComponentFunctions = {
-  expandBoxByObject
+  expandBoxByObject,
+  expandBoxByObjectWithOffset
 }
