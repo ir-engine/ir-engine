@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Box3, Box3Helper, BufferGeometry, Mesh } from 'three'
+import { Box3, Box3Helper, BufferGeometry, Mesh, Vector3 } from 'three'
 
 import {
   EntityTreeComponent,
@@ -42,9 +42,11 @@ import {
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
+import { getState } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { ObjectLayerMaskComponent } from '../../renderer/components/ObjectLayerComponent'
@@ -80,7 +82,8 @@ export const BoundingBoxComponent = defineComponent({
       setComponent(helperEntity, NameComponent, helper.name)
       setComponent(helperEntity, VisibleComponent)
 
-      setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
+      const originEntity = getState(ReferenceSpaceState).originEntity
+      setComponent(helperEntity, EntityTreeComponent, { parentEntity: originEntity })
 
       setComponent(helperEntity, ObjectComponent, helper)
       ObjectLayerMaskComponent.setLayer(helperEntity, ObjectLayers.NodeHelper)
@@ -131,7 +134,11 @@ export const updateBoundingBox = (entity: Entity) => {
 
   const helperObject = getComponent(helperEntity, ObjectComponent) as any as Box3Helper
   helperObject.updateMatrixWorld(true)
-  helperObject.position.set(0, 0, 0)
+
+  const helperTransform = getComponent(helperEntity, TransformComponent)
+  const boxCenter = new Vector3()
+  box.getCenter(boxCenter)
+  helperTransform.position.copy(boxCenter)
 }
 
 const _box = new Box3()
