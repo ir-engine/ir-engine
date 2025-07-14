@@ -690,10 +690,6 @@ export const EXTBumpExtensionComponent = defineComponent({
     bumpTexture: S.Optional(TextureInfoSchema)
   }),
 
-  getMaterialType() {
-    return MeshPhysicalMaterial
-  },
-
   extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
     const pending = [] as Promise<any>[]
 
