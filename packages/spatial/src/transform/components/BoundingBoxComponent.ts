@@ -117,24 +117,16 @@ export const updateBoundingBox = (entity: Entity) => {
   const box = boxComponent.box
   box.makeEmpty()
 
-  // Collect all meshes first
-  const meshes: Mesh<BufferGeometry>[] = []
   const callback = (child: Entity) => {
     const meshObject = getOptionalComponent(child, MeshComponent)
     if (meshObject) {
-      meshes.push(meshObject)
+      expandBoxByObject(meshObject, box)
     }
   }
 
   iterateEntityNode(entity, callback)
 
-  // Calculate unified offset based on all meshes
-  const calculatedOffset = calculateUnifiedMeshOffset(meshes)
-
-  // Apply the unified offset to all meshes
-  for (const meshObject of meshes) {
-    expandBoxByObjectWithOffset(meshObject, box, calculatedOffset)
-  }
+  const boxOffset = box.getCenter(new Vector3())
 
   /** helper has custom logic in updateMatrixWorld */
   const boundingBox = getComponent(entity, BoundingBoxComponent)
@@ -143,7 +135,8 @@ export const updateBoundingBox = (entity: Entity) => {
 
   const helperObject = getComponent(helperEntity, ObjectComponent) as any as Box3Helper
   helperObject.updateMatrixWorld(true)
-  helperObject.position.set(0, 0, 0)
+
+  helperObject.position.set(boxOffset.x + 0.5, boxOffset.y, boxOffset.z)
 }
 
 const calculateUnifiedMeshOffset = (meshes: Mesh<BufferGeometry>[]): Vector3 => {
@@ -186,26 +179,6 @@ export const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3) => {
   box.union(_box)
 }
 
-export const expandBoxByObjectWithOffset = (object: Mesh<BufferGeometry>, box: Box3, offset?: Vector3) => {
-  const geometry = object.geometry
-  if (!geometry) return
-
-  if (geometry.boundingBox === null) {
-    geometry.computeBoundingBox()
-  }
-
-  _box.copy(geometry.boundingBox!)
-
-  // Apply offset before world transform
-  if (offset) {
-    _box.translate(offset)
-  }
-
-  _box.applyMatrix4(object.matrixWorld)
-  box.union(_box)
-}
-
 export const BoundingBoxComponentFunctions = {
-  expandBoxByObject,
-  expandBoxByObjectWithOffset
+  expandBoxByObject
 }
