@@ -118,50 +118,23 @@ export const updateBoundingBox = (entity: Entity) => {
   box.makeEmpty()
 
   const callback = (child: Entity) => {
-    const meshObject = getOptionalComponent(child, MeshComponent)
-    if (meshObject) {
-      expandBoxByObject(meshObject, box)
-    }
+    const obj = getOptionalComponent(child, MeshComponent)
+    if (obj) expandBoxByObject(obj, box)
   }
 
   iterateEntityNode(entity, callback)
 
-  const boxOffset = box.getCenter(new Vector3())
-
   /** helper has custom logic in updateMatrixWorld */
+  const transform = getComponent(entity, TransformComponent)
   const boundingBox = getComponent(entity, BoundingBoxComponent)
+  const boxOffset = box.getCenter(new Vector3()).sub(transform.position)
+
   const helperEntity = boundingBox.helper
   if (!helperEntity) return
 
   const helperObject = getComponent(helperEntity, ObjectComponent) as any as Box3Helper
   helperObject.updateMatrixWorld(true)
-
-  helperObject.position.set(boxOffset.x + 0.5, boxOffset.y, boxOffset.z)
-}
-
-const calculateUnifiedMeshOffset = (meshes: Mesh<BufferGeometry>[]): Vector3 => {
-  if (meshes.length === 0) return new Vector3()
-
-  // Create a combined bounding box of all geometries in local space
-  const combinedBox = new Box3()
-  combinedBox.makeEmpty()
-
-  for (const meshObject of meshes) {
-    const geometry = meshObject.geometry
-    if (!geometry) continue
-
-    //if (geometry.boundingBox === null) {
-    geometry.computeBoundingBox()
-    //}
-
-    combinedBox.union(geometry.boundingBox!)
-  }
-
-  // Get the center of the combined geometry bounds
-  const combinedCenter = combinedBox.getCenter(new Vector3())
-
-  // Return negated center to offset bounding box to origin
-  return combinedCenter.negate()
+  helperObject.position.set(boxOffset.x, boxOffset.y, boxOffset.z)
 }
 
 const _box = new Box3()
