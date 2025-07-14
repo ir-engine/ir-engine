@@ -135,6 +135,7 @@ db.url =
  * Vector Database (PostgreSQL with PGVector)
  */
 export const vectordb = {
+  enabled: process.env.VECTORDB_ENABLED === 'true',
   username: testEnabled ? process.env.POSTGRES_TEST_USER! : process.env.POSTGRES_USER!,
   password: testEnabled ? process.env.POSTGRES_TEST_PASSWORD! : process.env.POSTGRES_PASSWORD!,
   database: testEnabled ? process.env.POSTGRES_TEST_DATABASE! : process.env.POSTGRES_DATABASE!,

@@ -13,6 +13,7 @@ services:
 
   testdb-vector:
     image: pgvector/pgvector:pg16
+    profiles: ["vectordb"] # Only starts in vectordb profile
     container_name: ir-engine_vector_test_db
     environment:
       POSTGRES_USER: postgres

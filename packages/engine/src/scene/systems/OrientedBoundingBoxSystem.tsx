@@ -27,6 +27,7 @@ import {
   defineSystem,
   Entity,
   getComponent,
+  Layers,
   Not,
   QueryReactor,
   removeEntity,
@@ -114,7 +115,11 @@ export const OrientedBoundingBoxSystem = defineSystem({
   insert: { after: TransformSystem },
   reactor: () => {
     return (
-      <QueryReactor Components={[GLTFComponent, Not(SceneComponent)]} ChildEntityReactor={OrientedBoundingBoxReactor} />
+      <QueryReactor
+        layer={Layers.Authoring}
+        Components={[GLTFComponent, Not(SceneComponent)]}
+        ChildEntityReactor={OrientedBoundingBoxReactor}
+      />
     )
   }
 })
