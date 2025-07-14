@@ -901,10 +901,11 @@ const RenderMaterialThumbnail = (props: RenderThumbnailProps) => {
   const { src, project, onError } = props
   const [entity, lightEntity, skyboxEntity, cameraEntity] = useRenderEntities(src)
   const gltfEntity = useGLTFComponent(src, entity)
+  const loaded = GLTFComponent.useSceneLoaded(gltfEntity ?? UndefinedEntity)
   const errors = ErrorComponent.useComponentErrors(gltfEntity ?? UndefinedEntity, GLTFComponent)
 
   useEffect(() => {
-    if (!entity || !lightEntity || !skyboxEntity || !cameraEntity || !gltfEntity) return
+    if (!entity || !lightEntity || !skyboxEntity || !cameraEntity || !gltfEntity || !loaded) return
 
     const materialEntity = getChildrenWithComponents(gltfEntity, [MaterialStateComponent])[0]
     if (!materialEntity) {
@@ -926,7 +927,7 @@ const RenderMaterialThumbnail = (props: RenderThumbnailProps) => {
       setComponent(entity, MeshComponent, sphere)
       renderThumbnail(entity, lightEntity, skyboxEntity, cameraEntity, props)
     }, 1000)
-  }, [entity, lightEntity, skyboxEntity, cameraEntity, gltfEntity])
+  }, [entity, lightEntity, skyboxEntity, cameraEntity, gltfEntity, loaded])
 
   useEffect(() => {
     if (!errors) return

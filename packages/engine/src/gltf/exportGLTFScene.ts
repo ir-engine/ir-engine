@@ -366,7 +366,7 @@ export async function exportGLTFScene(
   relativePath: string,
   exportRoot = true,
   exportExtensionTypes: ExportExtension[] = defaultExportExtensionList.map((ext) => ext())
-) {
+): Promise<[GLTF.IGLTF, ...File[]]> {
   const exportExtensions = exportExtensionTypes //.map((ext) => new ext())
 
   const gltf = {
@@ -463,8 +463,6 @@ export async function exportGLTFScene(
 
   // destroy hookstate store
   destroy(context.materialPromises)
-
-  if (!gltf) return []
 
   // const blob = [new Blob([JSON.stringify(gltf, null, 2)], { type: 'application/gltf+json' })]
   // const gltfFile = new File(blob, relativePath)
