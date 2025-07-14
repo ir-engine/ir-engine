@@ -43,9 +43,9 @@ declare module '@feathersjs/client' {
   }
 }
 
-/**@deprecated - use '@ir-engine.common API.instance' instead */
+/**@deprecated use '@ir-engine.common API.instance' instead */
 export class API {
-  /**@deprecated - use '@ir-engine.common API.instance' instead */
+  /**@deprecated use '@ir-engine.common API.instance' instead */
   static instance: API
   client: FeathersApplication<ServiceTypes>
 
