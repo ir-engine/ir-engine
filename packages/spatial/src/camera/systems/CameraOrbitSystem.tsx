@@ -27,14 +27,13 @@ import { Matrix3, Spherical, Vector3 } from 'three'
 
 import {
   defineSystem,
-  EngineState,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   InputSystemGroup,
   query
 } from '@ir-engine/ecs'
-import { getState, isClient } from '@ir-engine/hyperflux'
+import { isClient } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
@@ -53,8 +52,6 @@ const orbitCameraQueryTerms = [RendererComponent, CameraOrbitComponent, InputCom
 
 const execute = () => {
   if (!isClient) return
-
-  if (!getState(EngineState).isEditing) return
 
   for (const cameraEid of query(orbitCameraQueryTerms)) {
     const cameraOrbit = getMutableComponent(cameraEid, CameraOrbitComponent)
