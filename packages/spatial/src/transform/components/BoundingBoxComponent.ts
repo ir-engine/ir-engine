@@ -39,8 +39,7 @@ import {
   getComponent,
   getOptionalComponent,
   setComponent,
-  useComponent,
-  useOptionalComponent
+  useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
@@ -65,8 +64,7 @@ export const BoundingBoxComponent = defineComponent({
   schema: S.Object({
     box: T.Box3(),
     helper: S.Entity(),
-    color: T.Color('white'),
-    offset: T.Vec3(new Vector3(0, 0, 0)) // Default offset
+    color: T.Color('white')
   }),
 
   reactor: function () {
@@ -109,14 +107,14 @@ export const BoundingBoxComponent = defineComponent({
 })
 
 export const updateBoundingBox = (entity: Entity) => {
-  const boxComponent = useOptionalComponent(entity, BoundingBoxComponent)
+  const boxComponent = getOptionalComponent(entity, BoundingBoxComponent)
 
   if (!boxComponent) {
     console.error('BoundingBoxComponent not found in updateBoundingBox')
     return
   }
 
-  const box = boxComponent.box.value
+  const box = boxComponent.box
   box.makeEmpty()
 
   // Collect all meshes first
@@ -132,7 +130,6 @@ export const updateBoundingBox = (entity: Entity) => {
 
   // Calculate unified offset based on all meshes
   const calculatedOffset = calculateUnifiedMeshOffset(meshes)
-  boxComponent.offset.set(calculatedOffset)
 
   // Apply the unified offset to all meshes
   for (const meshObject of meshes) {
@@ -160,9 +157,9 @@ const calculateUnifiedMeshOffset = (meshes: Mesh<BufferGeometry>[]): Vector3 => 
     const geometry = meshObject.geometry
     if (!geometry) continue
 
-    if (geometry.boundingBox === null) {
-      geometry.computeBoundingBox()
-    }
+    //if (geometry.boundingBox === null) {
+    geometry.computeBoundingBox()
+    //}
 
     combinedBox.union(geometry.boundingBox!)
   }
