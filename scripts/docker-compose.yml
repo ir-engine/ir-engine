@@ -37,6 +37,7 @@ services:
       - '6379:6379'
   postgres:
     image: pgvector/pgvector:pg16
+    profiles: ["vectordb"] # Only starts in vectordb profile
     container_name: ir-engine_vector_db
     environment:
       POSTGRES_USER: postgres
@@ -48,6 +49,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
   testdb-vector:
     image: pgvector/pgvector:pg16
+    profiles: ["vectordb"] # Only starts in vectordb profile
     container_name: ir-engine_vector_test_db
     environment:
       POSTGRES_USER: postgres
@@ -60,6 +62,7 @@ services:
 
   ollama:
     image: ollama/ollama:latest
+    profiles: ["vectordb"] # Only starts in vectordb profile
     entrypoint:
       [
         "/bin/bash",

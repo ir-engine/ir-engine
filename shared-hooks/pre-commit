@@ -1,0 +1,47 @@
+#!/bin/sh
+
+# Shared pre-commit hook for nested git repositories
+# This hook runs the same checks as the root project
+# Compatible with Mac, Windows (Git Bash), and Linux
+
+# Find the root project directory (MT WHATEVER)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT_PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Change to root project directory to access node_modules and scripts
+cd "$ROOT_PROJECT_DIR"
+
+# Run the same pre-commit checks as the root project
+echo "Running shared pre-commit hooks from: $ROOT_PROJECT_DIR"
+
+# Determine the correct executable extension for Windows
+if [ -f "./node_modules/.bin/ts-node.cmd" ]; then
+    # Windows
+    TS_NODE="./node_modules/.bin/ts-node.cmd"
+    LINT_STAGED="./node_modules/.bin/lint-staged.cmd"
+else
+    # Mac/Linux
+    TS_NODE="./node_modules/.bin/ts-node"
+    LINT_STAGED="./node_modules/.bin/lint-staged"
+fi
+
+# Run add-license-headers
+echo "Adding license headers..."
+"$TS_NODE" --swc scripts/add-license-headers.ts
+RESULT=$?
+if [ $RESULT -ne 0 ]; then
+    echo "License header check failed"
+    exit 1
+fi
+
+# Run format-staged (lint-staged)
+echo "Running lint-staged..."
+"$LINT_STAGED"
+RESULT=$?
+if [ $RESULT -ne 0 ]; then
+    echo "Lint-staged check failed"
+    exit 1
+fi
+
+echo "All pre-commit checks passed"
+exit 0

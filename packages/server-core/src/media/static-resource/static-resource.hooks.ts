@@ -33,6 +33,7 @@ import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 import { isEmpty } from 'lodash'
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
+import { default as appConfig } from '../../appconfig'
 import allowNullQuery from '../../hooks/allow-null-query'
 import checkScope from '../../hooks/check-scope'
 import enableClientPagination from '../../hooks/enable-client-pagination'
@@ -369,19 +370,21 @@ const addLog = async (context: HookContext<StaticResourceService>, actionType: '
  * Sync static resource to vector database after create/update
  */
 const syncToVectorDatabase = async (context: HookContext<StaticResourceService>) => {
-  try {
-    const vectorService = context.app.service(staticResourceVectorPath)
-    if (vectorService && typeof vectorService.syncStaticResource === 'function') {
-      const staticResource = context.result as StaticResourceType
-      const assetClass = FileToAssetType(staticResource.key)
+  if (appConfig.vectordb.enabled) {
+    try {
+      const vectorService = context.app.service(staticResourceVectorPath)
+      if (vectorService && typeof vectorService.syncStaticResource === 'function') {
+        const staticResource = context.result as StaticResourceType
+        const assetClass = FileToAssetType(staticResource.key)
 
-      if (assetClass === AssetType.Material || assetClass === AssetType.Model) {
-        await vectorService.syncStaticResource(staticResource)
+        if (assetClass === AssetType.Material || assetClass === AssetType.Model) {
+          await vectorService.syncStaticResource(staticResource)
+        }
       }
+    } catch (error) {
+      console.error('Error syncing to vector database:', error)
+      // Don't throw error to avoid breaking the main operation
     }
-  } catch (error) {
-    console.error('Error syncing to vector database:', error)
-    // Don't throw error to avoid breaking the main operation
   }
 }
 
@@ -389,15 +392,17 @@ const syncToVectorDatabase = async (context: HookContext<StaticResourceService>)
  * Remove static resource from vector database after delete
  */
 const removeFromVectorDatabase = async (context: HookContext<StaticResourceService>) => {
-  try {
-    const vectorService = context.app.service(staticResourceVectorPath)
-    if (vectorService && typeof vectorService.deleteByStaticResourceId === 'function') {
-      const staticResourceId = context.id as string
-      await vectorService.deleteByStaticResourceId(staticResourceId)
+  if (appConfig.vectordb.enabled) {
+    try {
+      const vectorService = context.app.service(staticResourceVectorPath)
+      if (vectorService && typeof vectorService.deleteByStaticResourceId === 'function') {
+        const staticResourceId = context.id as string
+        await vectorService.deleteByStaticResourceId(staticResourceId)
+      }
+    } catch (error) {
+      console.error('Error removing from vector database:', error)
+      // Don't throw error to avoid breaking the main operation
     }
-  } catch (error) {
-    console.error('Error removing from vector database:', error)
-    // Don't throw error to avoid breaking the main operation
   }
 }
 
