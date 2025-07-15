@@ -125,7 +125,9 @@ export const updateBoundingBox = (entity: Entity) => {
   iterateEntityNode(entity, callback)
 
   /** helper has custom logic in updateMatrixWorld */
-  const transform = getComponent(entity, TransformComponent)
+  const transform = getOptionalComponent(entity, TransformComponent)
+  if (!transform) return
+
   const boundingBox = getComponent(entity, BoundingBoxComponent)
   const boxOffset = box.getCenter(new Vector3()).sub(transform.position)
 
