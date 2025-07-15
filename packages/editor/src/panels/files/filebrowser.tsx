@@ -179,6 +179,7 @@ export function Browser() {
           onScrollBottom={() => {
             filesQuery?.setLimit(filesQuery.limit + FILES_PAGE_LIMIT)
           }}
+          className={!isListView ? 'grid w-full grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-2' : ''}
         >
           {isListView ? <FileItemsInsideTable /> : <FileItemsRender />}
         </InfiniteScroll>
@@ -188,7 +189,10 @@ export function Browser() {
 
   return (
     <div
-      className={twMerge('h-full overflow-y-auto bg-surface-1', isFileDropOver ? 'border-2 border-gray-300' : '')}
+      className={twMerge(
+        'h-full w-full overflow-y-auto bg-surface-1',
+        isFileDropOver ? 'border-2 border-gray-300' : ''
+      )}
       ref={fileDropRef}
       onContextMenu={(event) => {
         event.preventDefault()
@@ -198,16 +202,14 @@ export function Browser() {
       }}
     >
       <div
-        className={twMerge('mb-2 h-auto pb-6 text-gray-400 ', !isListView && 'flex py-8')}
+        className={twMerge('mb-2 h-auto pb-6 text-gray-400 ', !isListView && 'w-full py-8')}
         onClick={(event) => {
           event.stopPropagation()
           selectedFiles.set([])
           ClickPlacementState.resetSelectedAsset()
         }}
       >
-        <div className={twMerge(!isListView && 'flex flex-wrap gap-2')}>
-          <FileItems />
-        </div>
+        <FileItems />
       </div>
       <FileContextMenu anchorEvent={anchorEvent} setAnchorEvent={setAnchorEvent} />
     </div>
