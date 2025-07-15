@@ -30,7 +30,12 @@ import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunct
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { CameraSettingsState } from '@ir-engine/spatial/src/camera/CameraSettingsState'
-import { CameraMode, CameraScrollBehavior, PoiScrollTransition } from '@ir-engine/spatial/src/camera/types/CameraMode'
+import {
+  CameraMode,
+  CameraModeType,
+  CameraScrollBehavior,
+  PoiScrollTransition
+} from '@ir-engine/spatial/src/camera/types/CameraMode'
 import { ProjectionType } from '@ir-engine/spatial/src/camera/types/ProjectionType'
 
 export const CameraSettingsComponent = defineComponent({
@@ -55,7 +60,13 @@ export const CameraSettingsComponent = defineComponent({
         if (strValue === 'Dynamic') return CameraMode.FOLLOW
         if (strValue === 'POI') return CameraMode.GUIDED
 
-        return value
+        // Check if value is already a valid CameraMode
+        if (Object.values(CameraMode).includes(value as CameraModeType)) {
+          return value as CameraModeType
+        }
+
+        // Fallback to default if invalid
+        return CameraMode.FOLLOW
       }
     }),
 
