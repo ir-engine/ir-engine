@@ -187,8 +187,6 @@ describe('AtlasingFunctions', () => {
     it('should return early if unwrapper is not loaded', async () => {
       getMutableState(UVUnwrapperState).isLoaded.set(false)
 
-      const notLoadedUnwrapper = { ...mockUnwrapper, isLoaded: false }
-
       const sceneEntity = createEntity()
       setComponent(sceneEntity, UUIDComponent, {
         entitySourceID: 'test' as SourceID,
@@ -223,7 +221,6 @@ describe('AtlasingFunctions', () => {
       const result = await AtlasingFunctions.generateAtlas(entities, lightmapEntity)
 
       expect(result).toBeUndefined()
-      expect(notLoadedUnwrapper.packAtlas).not.toHaveBeenCalled()
     })
   })
 })

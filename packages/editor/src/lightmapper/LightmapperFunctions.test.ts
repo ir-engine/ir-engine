@@ -27,11 +27,13 @@ import {
   createEngine,
   createEntity,
   destroyEngine,
+  getComponent,
   setComponent,
   SourceID,
   UndefinedEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
+import { mergeGeometries } from '@ir-engine/engine/src/scene/util/meshUtils'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { destroySpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -42,7 +44,7 @@ import {
 import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
 import { BoxGeometry, BufferAttribute, BufferGeometry, Mesh, MeshStandardMaterial } from 'three'
 import { MeshBVH } from 'three-mesh-bvh'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Lightmapper } from './LightmapperFunctions'
 
 describe('LightmapperFunctions', () => {
@@ -71,22 +73,17 @@ describe('LightmapperFunctions', () => {
   })
 
   describe('getBakeBVH', () => {
-    it('should create BVH from mesh entities and filter out transparent materials', () => {
-      const entity1 = createEntity()
-      const entity2 = createEntity()
-      const entity3 = createEntity() // transparent
+    it('should create BVH from mesh entities and filter out transparent materials', async () => {
+      const meshEntity = createEntity()
+      const mesh1 = new BoxGeometry(1, 1, 1)
+      const mesh2 = new BoxGeometry(2, 2, 2)
+      const mesh3 = new BoxGeometry(3, 3, 3)
 
-      const geometry1 = new BoxGeometry(1, 1, 1)
-      const geometry2 = new BoxGeometry(2, 2, 2)
-      const geometry3 = new BoxGeometry(3, 3, 3)
-
-      const mesh1 = new Mesh(geometry1, new MeshStandardMaterial())
-      const mesh2 = new Mesh(geometry2, new MeshStandardMaterial())
-      const mesh3 = new Mesh(geometry3, new MeshStandardMaterial())
-
-      setComponent(entity1, MeshComponent, mesh1)
-      setComponent(entity2, MeshComponent, mesh2)
-      setComponent(entity3, MeshComponent, mesh3)
+      setComponent(meshEntity, MeshComponent, new Mesh(mergeGeometries([mesh1, mesh2, mesh3], true)!))
+      setComponent(meshEntity, UUIDComponent, {
+        entitySourceID: 'test' as SourceID,
+        entityID: UUIDComponent.generate()
+      })
 
       const transparentMaterialEntity = createEntity()
       setComponent(transparentMaterialEntity, UUIDComponent, {
@@ -95,14 +92,34 @@ describe('LightmapperFunctions', () => {
       })
       const transparentMaterial = new MeshStandardMaterial({ transparent: true, opacity: 0.5 })
       setComponent(transparentMaterialEntity, MaterialStateComponent, { material: transparentMaterial })
-      setComponent(entity3, MaterialInstanceComponent, { entities: [transparentMaterialEntity] })
 
-      const entities = [entity1, entity2, entity3]
-      const bvh = Lightmapper.getBakeBVH(entities)
+      const opaqueMaterial = new MeshStandardMaterial()
+      const opaqueMaterialEntity = createEntity()
+      setComponent(opaqueMaterialEntity, UUIDComponent, {
+        entitySourceID: 'test' as SourceID,
+        entityID: UUIDComponent.generate()
+      })
+      setComponent(opaqueMaterialEntity, MaterialStateComponent, { material: opaqueMaterial })
 
-      // ensure transparent groups are removed
+      setComponent(meshEntity, MaterialInstanceComponent, {
+        entities: [transparentMaterialEntity, opaqueMaterialEntity, opaqueMaterialEntity]
+      })
+
+      await vi.waitFor(
+        async () => {
+          expect((getComponent(meshEntity, MeshComponent).material as MeshStandardMaterial[])[0].transparent).toBe(true)
+        },
+        { timeout: 10000 }
+      )
+
+      // Calculate expected indices length (entity1 + entity2, excluding transparent entity3)
+      const expectedIndicesLength = mesh1.index!.count + mesh2.index!.count
+
+      const bvh = Lightmapper.getBakeBVH([meshEntity])
+
+      // Verify that transparent materials are filtered out by checking indices length
       const mergedGeometry = bvh.geometry
-      expect(mergedGeometry.groups.length).toBe(2)
+      expect(mergedGeometry.index!.count).toBe(expectedIndicesLength)
 
       expect(bvh).toBeInstanceOf(MeshBVH)
     })
@@ -136,7 +153,6 @@ describe('LightmapperFunctions', () => {
         entitySourceID: 'test' as SourceID,
         entityID: UUIDComponent.generate()
       })
-      const t = new MeshStandardMaterial()
       const opaqueMaterial = new MeshStandardMaterial({ transparent: false })
       const transparentMaterial = new MeshStandardMaterial({ transparent: true, opacity: 0.5 })
 
