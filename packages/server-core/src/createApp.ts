@@ -272,7 +272,10 @@ export const createFeathersKoaApp = async (
   // Doesn't appear anything else uses it.
   app.set('env', 'production')
   app.configure(mysql)
-  app.configure(postgres)
+
+  if (appConfig.vectordb.enabled) {
+    app.configure(postgres)
+  }
 
   // Enable security, CORS, compression, favicon and body parsing
   app.use(errorHandler()) // in koa no option to pass logger object its a async function instead and must be set first
