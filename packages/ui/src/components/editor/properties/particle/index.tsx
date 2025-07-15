@@ -25,15 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import {
-  AdditiveBlending,
-  Blending,
-  CustomBlending,
-  MultiplyBlending,
-  NoBlending,
-  NormalBlending,
-  SubtractiveBlending
-} from 'three'
+import { AdditiveBlending, Blending, MultiplyBlending, NoBlending, NormalBlending, SubtractiveBlending } from 'three'
 import { BurstParameters, RenderMode } from 'three.quarks'
 
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -426,7 +418,6 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
             { label: t('editor:properties.particle-system.blending-type.additive'), value: AdditiveBlending },
             { label: t('editor:properties.particle-system.blending-type.subtractive'), value: SubtractiveBlending },
             { label: t('editor:properties.particle-system.blending-type.multiply'), value: MultiplyBlending },
-            { label: t('editor:properties.particle-system.blending-type.custom'), value: CustomBlending },
             { label: t('editor:properties.particle-system.blending-type.no-blending'), value: NoBlending }
           ]}
         />
