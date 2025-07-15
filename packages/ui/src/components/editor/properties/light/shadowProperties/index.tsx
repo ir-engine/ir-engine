@@ -111,6 +111,18 @@ export const LightShadowProperties: EditorComponentType = (props: LightShadowPro
           {t('editor:properties.directionalLight.lbl-calculateShadowBias')}
         </Button>
       </InputGroup>
+      <InputGroup name="Shadow Bias" label={t('editor:properties.directionalLight.lbl-shadowRadius')}>
+        <NumericInput
+          min={0}
+          mediumStep={0.0000001}
+          smallStep={0.000001}
+          largeStep={0.0001}
+          displayPrecision={0.000001}
+          value={lightComponent.shadowRadius.value}
+          onChange={updateProperty(props.component, 'shadowRadius')}
+          onRelease={commitProperty(props.component, 'shadowRadius')}
+        />
+      </InputGroup>
       {shadowMapType !== PCFSoftShadowMap && ( // PCFSoftShadowMap doesn't support shadow radius
         <InputGroup name="Shadow Radius" label={t('editor:properties.directionalLight.lbl-shadowRadius')}>
           <NumericInput
