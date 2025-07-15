@@ -55,6 +55,7 @@ export function ColorInput({
   const [isPickerOpen, setIsPickerOpen] = useState(false)
   const pickerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLDivElement>(null)
+  const [openUp, setOpenUp] = useState<boolean>(false)
 
   const handleTogglePicker = () => {
     if (!isPickerOpen) {
@@ -92,6 +93,17 @@ export function ColorInput({
     }
   }, [hexColor, onRelease])
 
+  // Color picker to pop up depending on placement of the window's inner
+  useEffect(() => {
+    if (!pickerRef.current) return
+
+    const rect = pickerRef.current.getBoundingClientRect()
+    const spaceBelow = window.innerHeight - rect.bottom
+    const spaceAbove = rect.top
+
+    setOpenUp(spaceBelow < 300 && spaceAbove > 300)
+  }, [pickerRef.current])
+
   return (
     <div
       tabIndex={0} // Make the div focusable
@@ -110,7 +122,7 @@ export function ColorInput({
         {isPickerOpen && ( //state to track open/close of color picker
           <div ref={pickerRef}>
             <SketchPicker
-              className={twMerge('absolute right-4 z-10 mt-5 ', sketchPickerClassName)}
+              className={twMerge('absolute right-4 z-10 mt-5 ', openUp ? 'bottom-full' : 'mt-5', sketchPickerClassName)}
               color={hexColor}
               onChange={handleChange}
               disableAlpha={true}
