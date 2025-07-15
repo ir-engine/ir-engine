@@ -364,6 +364,12 @@ export const TransformComponent = defineComponent({
 
   getDistanceSquaredFromTarget: (entity: Entity, targetPosition: Vector3) => {
     return TransformComponent.getWorldPosition(entity, _tempDistSqrVec3).distanceToSquared(targetPosition)
+  },
+
+  getLocalPositionRelativeToEntity: (worldPosition: Vector3, relativeEntity: Entity, outVector: Vector3) => {
+    const relativeTransform = getComponent(relativeEntity, TransformComponent)
+    const inverseMatrix = new Matrix4().copy(relativeTransform.matrixWorld).invert()
+    return outVector.copy(worldPosition).applyMatrix4(inverseMatrix)
   }
 })
 
