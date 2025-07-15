@@ -233,7 +233,7 @@ export const createFeathersKoaApp = async (
   createEngine(createHyperStore())
 
   getMutableState(DomainConfigState).merge({
-    publicDomain: 'https://172.27.136.37:3000',
+    publicDomain: appConfig.client.dist,
     cloudDomain: commonConfig.client.fileServer,
     proxyDomain: commonConfig.client.cors.proxyUrl
   })
@@ -272,10 +272,7 @@ export const createFeathersKoaApp = async (
   // Doesn't appear anything else uses it.
   app.set('env', 'production')
   app.configure(mysql)
-
-  if (appConfig.vectordb.enabled) {
-    app.configure(postgres)
-  }
+  app.configure(postgres)
 
   // Enable security, CORS, compression, favicon and body parsing
   app.use(errorHandler()) // in koa no option to pass logger object its a async function instead and must be set first
