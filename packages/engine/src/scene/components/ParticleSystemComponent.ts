@@ -281,6 +281,20 @@ export const ParticleSystemComponent = defineComponent({
       const renderer = rendererInstance.renderer
 
       const systemParameters = JSON.parse(JSON.stringify(component.systemParameters)) as ExpandedSystemJSON
+
+      if (systemParameters.blending !== undefined) {
+        const materialKey = systemParameters.material || 'particle_material'
+
+        const particleMaterial = new MeshBasicMaterial({
+          color: systemParameters.startColor.color,
+          transparent: systemParameters.transparent,
+          blending: systemParameters.blending as Blending
+        })
+
+        metadata.materials.nested(materialKey).set(particleMaterial)
+        systemParameters.material = materialKey
+      }
+
       const system = ParticleSystem.fromJSON(systemParameters, metadata.value as ParticleSystemMetadata, {})
       renderer.addSystem(system)
       const behaviors = component.behaviorParameters.map((behaviorJSON) => {

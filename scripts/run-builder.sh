@@ -272,24 +272,22 @@ setup_package_environment() {
     return 1
   }
   
-  # Determine suffix based on APP_HOST
-  if [[ "$APP_HOST" =~ "studio" ]] || [[ "$APP_HOST" =~ "mt-stg" ]]; then
-    SUFFIX="mt"
-  elif [[ "$APP_HOST" =~ "mt-rc" ]]; then
+  # Apply environment-specific suffixes based on RELEASE_NAME
+  if [[ "$RELEASE_NAME" = "mt-rc" ]]; then
     SUFFIX="-mt-rc"
-  elif [[ "$APP_HOST" =~ "mt-int" ]]; then
+  elif [[ "$RELEASE_NAME" = "mt-int" ]]; then
     SUFFIX="-mt-int"
-  elif [[ "$APP_HOST" =~ "mt-qat" ]]; then
+  elif [[ "$RELEASE_NAME" = "mt-qat-dev" ]]; then
     SUFFIX="-mt-qat"
-  elif [[ "$APP_HOST" =~ "qat" ]]; then
+  elif [[ "$RELEASE_NAME" = "qat-dev" ]]; then
     SUFFIX="-qat"
-  elif [[ "$APP_HOST" =~ "mt-nightly" ]]; then
+  elif [[ "$RELEASE_NAME" = "mt-nightly" ]]; then
     SUFFIX="-mt-nightly"
-  elif [[ "$APP_HOST" =~ "mt-weekly" ]]; then
+  elif [[ "$RELEASE_NAME" = "mt-weekly" ]]; then
     SUFFIX="-mt-weekly"
-  elif [[ "$APP_HOST" =~ "mt-prdmirr" ]]; then
+  elif [[ "$RELEASE_NAME" = "mt-prdmirr" ]]; then
     SUFFIX="-mt-prdmirr"
-  elif [[ "$APP_HOST" =~ "mt" ]]; then
+  elif [[ "$RELEASE_NAME" = "mt-prd" ]] || [[ "$RELEASE_NAME" =~ "mt-dev" ]] || [[ "$RELEASE_NAME" = "mt-stg" ]]; then
     SUFFIX="-mt"
   else
     SUFFIX=""
@@ -416,26 +414,25 @@ prune_gcp_images() {
 }
 
 determine_gcp_suffix() {
-  local app_host="${APP_HOST:-}"
+  local release_name="${RELEASE_NAME:-}"
   local suffix=""
 
-  if [[ "$app_host" =~ "studio" ]] || [[ "$app_host" =~ "mt-stg" ]]; then
-    suffix="mt"
-  elif [[ "$app_host" =~ "mt-rc" ]]; then
+  # Apply environment-specific suffixes based on RELEASE_NAME
+  if [[ "$release_name" = "mt-rc" ]]; then
     suffix="mt-rc"
-  elif [[ "$app_host" =~ "mt-int" ]]; then
+  elif [[ "$release_name" = "mt-int" ]]; then
     suffix="mt-int"
-  elif [[ "$app_host" =~ "mt-qat" ]]; then
+  elif [[ "$release_name" = "mt-qat-dev" ]]; then
     suffix="mt-qat"
-  elif [[ "$app_host" =~ "qat" ]]; then
+  elif [[ "$release_name" = "qat-dev" ]]; then
     suffix="qat"
-  elif [[ "$app_host" =~ "mt-nightly" ]]; then
+  elif [[ "$release_name" = "mt-nightly" ]]; then
     suffix="mt-nightly"
-  elif [[ "$app_host" =~ "mt-weekly" ]]; then
+  elif [[ "$release_name" = "mt-weekly" ]]; then
     suffix="mt-weekly"
-  elif [[ "$app_host" =~ "mt-prdmirr" ]]; then
+  elif [[ "$release_name" = "mt-prdmirr" ]]; then
     suffix="mt-prdmirr"
-  elif [[ "$app_host" =~ "mt" ]]; then
+  elif [[ "$release_name" = "mt-prd" ]] || [[ "$release_name" =~ "mt-dev" ]] || [[ "$release_name" = "mt-stg" ]]; then
     suffix="mt"
   else
     suffix=""

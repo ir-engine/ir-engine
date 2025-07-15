@@ -36,7 +36,7 @@ import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { FilesState } from '../../services/FilesState'
 import { ImportSettingsState } from '../../services/ImportSettingsState'
-import { handleDownloadProject } from '../files/loaders'
+import { handleDownloadProject, ProjectDownloadProgress } from '../files/loaders'
 import { BreadCrumbSlash, PanelToolbar } from '../files/toolbar'
 import { AssetCategoryNode } from './categories'
 import { findCategoryByPath } from './helpers'
@@ -150,14 +150,17 @@ export default function Topbar() {
         />
       }
       utilsComponent={
-        <Tooltip content={t('editor:layout.filebrowser.downloadProject')}>
-          <ViewportButton
-            onClick={() => handleDownloadProject(filesState.projectName.value, filesState.selectedDirectory.value)}
-            data-testid="files-panel-download-project-button"
-            icon={Download01Sm}
-            id="downloadProject"
-          />
-        </Tooltip>
+        <>
+          <Tooltip content={t('editor:layout.filebrowser.downloadProject')}>
+            <ViewportButton
+              onClick={() => handleDownloadProject(filesState.projectName.value, filesState.selectedDirectory.value)}
+              data-testid="files-panel-download-project-button"
+              icon={Download01Sm}
+              id="downloadProject"
+            />
+          </Tooltip>
+          <ProjectDownloadProgress />
+        </>
       }
       uploadButton={
         <Button

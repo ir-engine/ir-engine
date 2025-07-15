@@ -10,3 +10,20 @@ services:
       MYSQL_PASSWORD: password
     ports:
       - '3305:3306'
+
+  testdb-vector:
+    image: pgvector/pgvector:pg16
+    profiles: ["vectordb"] # Only starts in vectordb profile
+    container_name: ir-engine_vector_test_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DATABASE: vector-db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_test_data:
+    driver: local

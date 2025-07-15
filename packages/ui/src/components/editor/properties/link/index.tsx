@@ -65,17 +65,27 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
         ]
       })
     } else {
+      // We should preserve the user's settings, such as uiActivationType
+      const existingComponent = getComponent(props.entity, InteractableComponent)
+      const hasLinkCallback = existingComponent.callbacks.some(
+        (callback) => callback.callbackID === LinkComponent.linkCallbackName
+      )
+
       EditorControlFunctions.modifyProperty([props.entity], InteractableComponent, {
         label: LinkComponent.interactMessage,
         uiInteractable: false,
         clickInteract: true,
-        uiActivationType: XRUIActivationType.hover,
-        callbacks: [
-          {
-            callbackID: LinkComponent.linkCallbackName,
-            target: getComponent(props.entity, UUIDComponent).entityID
-          }
-        ]
+        ...(hasLinkCallback
+          ? {}
+          : {
+              callbacks: [
+                ...existingComponent.callbacks,
+                {
+                  callbackID: LinkComponent.linkCallbackName,
+                  target: getComponent(props.entity, UUIDComponent).entityID
+                }
+              ]
+            })
       })
     }
   }, [])

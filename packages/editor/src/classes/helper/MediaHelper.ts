@@ -23,7 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useOptionalComponent } from '@ir-engine/ecs'
 import { useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
+import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
@@ -31,8 +33,9 @@ const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png'
 
 export const MediaHelperReactor: React.FC = (props: { parentEntity; iconEntity; selected; hovered }) => {
   const { parentEntity, iconEntity, selected, hovered } = props
-
-  const debugEnabled = selected || hovered
+  const mediaComponent = useOptionalComponent(parentEntity, MediaComponent)
+  const debugEnabled =
+    (selected || hovered) && mediaComponent?.resources.value && mediaComponent.resources.value.length === 0
   const [audioHelperTexture] = useTexture(debugEnabled ? AUDIO_TEXTURE_PATH : '', parentEntity)
 
   useHelperEntity(

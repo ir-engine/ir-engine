@@ -132,9 +132,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
       const selfAvatarUUID = AvatarComponent.getSelfAvatarUUID()
 
       const currentNetwork = NetworkState.worldNetwork
-      if (!currentNetwork) return
-
-      const networkPeerState = getState(NetworkPeerState)[currentNetwork.id]
+      const networkPeerState = getState(NetworkPeerState)[currentNetwork?.id]
       const peersCountForUser = networkPeerState?.users?.[userID]?.length || 0
 
       if (peersCountForUser <= 1) {

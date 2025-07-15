@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { ChevronLeftMd as ArrowLeftIcon, ChevronRightMd as ArrowRightIcon } from '@ir-engine/ui/src/icons'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import {
   BsEyeSlashFill as CameraOffIcon,
   BsEyeFill as CameraOnIcon,
@@ -43,10 +43,13 @@ import {
   sectionStyles_base
 } from './ToolbarMenu'
 
-import { State } from '@ir-engine/hyperflux'
-
-import { WindowType } from '../../user/VideoWindows'
-import { useUserMediaWindowHook } from '../../user/VideoWindows/hook'
+import { useMediaWindows, WindowType } from '../../user/VideoWindows'
+import {
+  SoundIndicatorsType,
+  useUserMediaWindowHook,
+  useUserMediaWindowsHook,
+  WindowStateType
+} from '../../user/VideoWindows/hook'
 import { ReportUserState } from '../../util/ReportUserState'
 
 import { useGet } from '@ir-engine/common'
@@ -88,7 +91,7 @@ const videoContainer = `
 
   before:content-[' ']
   before:absolute
-  before:-inset-[0.5rem]
+  before:-inset-[0.46rem]
   before:border-4
   before:border-white/80
   before:rounded-[1.5rem]
@@ -272,14 +275,36 @@ const arrowsContainer = `
 `
 const numVideosPerPage = 6
 
-export const VideoMenu = ({
-  videos = [],
-  soundIndicators
-}: {
-  videos: WindowType[]
-  soundIndicators: State<Record<string, boolean>>
-}) => {
+const VideosProviderContext = createContext(
+  {} as {
+    soundIndicators: SoundIndicatorsType
+    videos: WindowStateType[]
+  }
+)
+
+export const VideosProvider = ({ children }) => {
+  const windows = useMediaWindows()
+
+  const { _windows: videos, soundIndicators } = useUserMediaWindowsHook(windows)
+
+  return (
+    <VideosProviderContext.Provider
+      value={{
+        videos,
+        soundIndicators
+      }}
+    >
+      {children}
+    </VideosProviderContext.Provider>
+  )
+}
+
+export const useVideosProvider = () => useContext(VideosProviderContext)
+
+export const VideoMenu = () => {
   const [pageIndex, setPageIndex] = useState(0)
+
+  const { videos, soundIndicators } = useVideosProvider()
 
   const videosByPage = useMemo(() => {
     const videoPages: WindowType[][] = []
@@ -306,7 +331,7 @@ export const VideoMenu = ({
     })
 
     return videosByPage
-  }, [videos])
+  }, [videos, soundIndicators])
 
   const numPages = videosByPage.length
   const currentPageVideos = videosByPage[pageIndex] || []

@@ -17,6 +17,11 @@ then
 
     export COMPOSE_IGNORE_ORPHANS=true
 
+    if [[ "${VECTORDB_ENABLED}" == 'true' ]]; then
+        echo -e "\e[32m💾 Enabling VectorDB..."
+        command_to_execute+=" --profile vectordb"
+    fi
+
     eval "$command_to_execute -f docker-compose-core.yml up -d"
     if [[ -z "${DC_minio}" || "${DC_minio}" == 'true' ]]; then
         eval "$command_to_execute -f docker-compose-minio.yml up -d"

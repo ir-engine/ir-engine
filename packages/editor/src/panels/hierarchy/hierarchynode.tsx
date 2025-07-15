@@ -38,7 +38,7 @@ import {
   setComponent,
   useHasComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { EntityHierarchyLockState } from '@ir-engine/editor/src/services/EntityHierarchyLockState'
@@ -104,7 +104,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const node = nodes[props.index]
   const entity = node.entity
   const fixedSizeListStyles = props.style
-  const uuid = UUIDComponent.get(entity)
+  const uuid = hasComponent(entity, UUIDComponent) ? UUIDComponent.get(entity) : (`${entity}` as EntityUUID)
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities).value.includes(uuid)
   const visible = useHasComponent(entity, VisibleComponent)
   const locked = useHookstate(getMutableState(EntityHierarchyLockState).lockedEntities).value[entity] ?? false

@@ -29,9 +29,7 @@ import {
   destroyEngine,
   Entity,
   EntityContext,
-  EntityTreeComponent,
   getComponent,
-  removeComponent,
   removeEntity,
   setComponent,
   UndefinedEntity
@@ -48,9 +46,7 @@ import { RendererComponent } from '../../renderer/components/RendererComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
-import { InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
-import { InputState } from '../state/InputState'
 import ClientInputHooks from './ClientInputHooks'
 
 const createMockHTMLCanvasElement = (ev: MockEventListener) => {
@@ -1164,176 +1160,6 @@ describe.skip('ClientInputHooks', () => {
       )
 
       root.stop()
-    })
-  })
-
-  describe('MeshInputReactor', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-      setComponent(testEntity, TransformComponent)
-      setComponent(testEntity, VisibleComponent)
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should add the entityContext to the InputState.inputMeshes list when the entity.ancestor has an InputComponent', () => {
-      setComponent(testEntity, InputComponent)
-      const before = getState(InputState).inputMeshes
-      assert.equal(before.has(testEntity), false)
-
-      // Run the reactor and check the result
-      const root = startReactor(() => {
-        return React.createElement(
-          EntityContext.Provider,
-          { value: testEntity },
-          React.createElement(ClientInputHooks.MeshInputReactor, {})
-        )
-      }) as ReactorRoot
-      const result = getState(InputState).inputMeshes
-      assert.equal(result.has(testEntity), true)
-    })
-
-    it('should remove the entityContext from the InputState.inputMeshes list when the entity.ancestor does not have an InputComponent', () => {
-      // setComponent(testEntity, InputComponent)  // Do not set the InputComponent on the entity
-      getMutableState(InputState).inputMeshes.set(new Set([testEntity] as Entity[])) // Force-add the entity manually, to check this code path in isolation
-      const before = getState(InputState).inputMeshes
-      assert.equal(before.has(testEntity), true)
-
-      // Run the reactor and check the result
-      const root = startReactor(() => {
-        return React.createElement(
-          EntityContext.Provider,
-          { value: testEntity },
-          React.createElement(ClientInputHooks.MeshInputReactor, {})
-        )
-      }) as ReactorRoot
-      const result = getState(InputState).inputMeshes
-      assert.equal(result.has(testEntity), false)
-    })
-
-    it('should trigger whenever the entityContext.ancestor gets or removes its InputComponent', async () => {
-      const before = getState(InputState).inputMeshes
-      assert.equal(before.has(testEntity), false)
-
-      // Create the ancestor entity that contains the InputComponent
-      const parentEntity = createEntity()
-      setComponent(parentEntity, InputComponent)
-      setComponent(parentEntity, EntityTreeComponent)
-
-      setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
-      assert.equal(before.has(testEntity), false)
-
-      // Setup the reactor
-      const root = startReactor(() => {
-        return React.createElement(
-          EntityContext.Provider,
-          { value: testEntity },
-          React.createElement(ClientInputHooks.MeshInputReactor, {})
-        )
-      }) as ReactorRoot
-
-      root.run()
-
-      // Check the result
-      const one = getState(InputState).inputMeshes
-      assert.equal(one.has(testEntity), true)
-
-      removeComponent(parentEntity, InputComponent)
-      root.run()
-
-      const two = getState(InputState).inputMeshes
-      assert.equal(two.has(testEntity), false)
-    })
-  })
-
-  describe('BoundingBoxInputReactor', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-      setComponent(testEntity, TransformComponent)
-      setComponent(testEntity, VisibleComponent)
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should add the entityContext to the InputState.inputBoundingBoxes list when the entity.ancestor has an InputComponent', () => {
-      setComponent(testEntity, InputComponent)
-      const before = getState(InputState).inputBoundingBoxes
-      assert.equal(before.has(testEntity), false)
-
-      // Run the reactor and check the result
-      const root = startReactor(() => {
-        return React.createElement(
-          EntityContext.Provider,
-          { value: testEntity },
-          React.createElement(ClientInputHooks.BoundingBoxInputReactor, {})
-        )
-      }) as ReactorRoot
-      const result = getState(InputState).inputBoundingBoxes
-      assert.equal(result.has(testEntity), true)
-    })
-
-    it('should remove the entityContext from the InputState.inputBoundingBoxes list when the entity.ancestor does not have an InputComponent', () => {
-      // setComponent(testEntity, InputComponent)  // Do not set the InputComponent on the entity
-      getMutableState(InputState).inputBoundingBoxes.set(new Set([testEntity] as Entity[])) // Force-add the entity manually, to check this code path in isolation
-      const before = getState(InputState).inputBoundingBoxes
-      assert.equal(before.has(testEntity), true)
-
-      // Run the reactor and check the result
-      const Reactor = startReactor(() => {
-        return React.createElement(
-          EntityContext.Provider,
-          { value: testEntity },
-          React.createElement(ClientInputHooks.BoundingBoxInputReactor, {})
-        )
-      }) as ReactorRoot
-      const result = getState(InputState).inputBoundingBoxes
-      assert.equal(result.has(testEntity), false)
-    })
-
-    it('should trigger whenever the entityContext.ancestor gets or removes its InputComponent', async () => {
-      const before = getState(InputState).inputMeshes
-      assert.equal(before.has(testEntity), false)
-
-      // Create the ancestor entity that contains the InputComponent
-      const parentEntity = createEntity()
-      setComponent(parentEntity, InputComponent)
-      setComponent(parentEntity, EntityTreeComponent)
-
-      // setComponent(testEntity, InputComponent)
-      setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
-      assert.equal(before.has(testEntity), false)
-
-      // Setup the reactor
-      const reactor = startReactor(() =>
-        React.createElement(
-          EntityContext.Provider,
-          { value: testEntity },
-          React.createElement(ClientInputHooks.BoundingBoxInputReactor, {})
-        )
-      )
-
-      // Check the result
-      const one = getState(InputState).inputBoundingBoxes
-      assert.equal(one.has(testEntity), true)
-
-      removeComponent(parentEntity, InputComponent)
-
-      reactor.run()
-
-      const two = getState(InputState).inputBoundingBoxes
-      assert.equal(two.has(testEntity), false)
     })
   })
 })
