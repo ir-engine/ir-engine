@@ -52,6 +52,11 @@ export async function offloadTextureData(texture: Texture): Promise<boolean> {
     return false
   }
 
+  if ((texture.source as DiscardableSource).discarded) {
+    console.warn(`Texture is already offloaded: ${url}`)
+    return false
+  }
+
   const mipmaps = texture.mipmaps
   const data = texture.source.data
   texture.mipmaps = []
@@ -148,11 +153,21 @@ export async function restoreTextureData(texture: Texture): Promise<boolean> {
   }
 
   if (!ResourceCache) return false
-  ;(texture.source as DiscardableSource).discarded = false
+
+  const finished = () => {
+    ;(texture.source as DiscardableSource).discarded = false
+  }
+
+  const fallbackLoad = async () => {
+    const loaded = await loadFromURL(texture)
+    finished()
+    return loaded
+  }
+
   try {
     const textureData = await ResourceCache.getTexture(url)
     if (!textureData) {
-      return await loadFromURL(texture)
+      return await fallbackLoad()
     }
 
     if ((texture as CompressedTexture).isCompressedTexture) {
@@ -165,11 +180,12 @@ export async function restoreTextureData(texture: Texture): Promise<boolean> {
           compressedTexture.format = textureData.format as CompressedPixelFormat
           compressedTexture.type = textureData.type
           compressedTexture.needsUpdate = true
+          finished()
           return true
         }
       } catch (e) {
         console.error(`Error parsing texture data: ${e}`)
-        return await loadFromURL(texture)
+        return await fallbackLoad()
       }
     } else {
       try {
@@ -179,14 +195,15 @@ export async function restoreTextureData(texture: Texture): Promise<boolean> {
 
         texture.source.data = imageBitmap
         texture.needsUpdate = true
+        finished()
         return true
       } catch (e) {
-        return await loadFromURL(texture)
+        return await fallbackLoad()
       }
     }
   } catch (error) {
     console.error(`Error restoring texture data: ${error}`)
-    return await loadFromURL(texture)
+    return await fallbackLoad()
   }
 
   return false

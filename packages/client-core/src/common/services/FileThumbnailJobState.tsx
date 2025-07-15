@@ -901,11 +901,10 @@ const RenderMaterialThumbnail = (props: RenderThumbnailProps) => {
   const { src, project, onError } = props
   const [entity, lightEntity, skyboxEntity, cameraEntity] = useRenderEntities(src)
   const gltfEntity = useGLTFComponent(src, entity)
-  const loaded = GLTFComponent.useSceneLoaded(gltfEntity ?? UndefinedEntity)
   const errors = ErrorComponent.useComponentErrors(gltfEntity ?? UndefinedEntity, GLTFComponent)
 
   useEffect(() => {
-    if (!entity || !lightEntity || !skyboxEntity || !cameraEntity || !gltfEntity || !loaded) return
+    if (!entity || !lightEntity || !skyboxEntity || !cameraEntity || !gltfEntity) return
 
     const materialEntity = getChildrenWithComponents(gltfEntity, [MaterialStateComponent])[0]
     if (!materialEntity) {
@@ -918,16 +917,13 @@ const RenderMaterialThumbnail = (props: RenderThumbnailProps) => {
       return
     }
 
-    /** @todo Remove the setTimeout when the GLTF loader refactor has been completed */
-    setTimeout(() => {
-      const sphere = new Mesh(new SphereGeometry(1), material)
-      if (Object.hasOwn(sphere.material, 'flatShading')) {
-        ;(sphere.material as Material & { flatShading: boolean }).flatShading = false
-      }
-      setComponent(entity, MeshComponent, sphere)
-      renderThumbnail(entity, lightEntity, skyboxEntity, cameraEntity, props)
-    }, 1000)
-  }, [entity, lightEntity, skyboxEntity, cameraEntity, gltfEntity, loaded])
+    const sphere = new Mesh(new SphereGeometry(1), material)
+    if (Object.hasOwn(sphere.material, 'flatShading')) {
+      ;(sphere.material as Material & { flatShading: boolean }).flatShading = false
+    }
+    setComponent(entity, MeshComponent, sphere)
+    renderThumbnail(entity, lightEntity, skyboxEntity, cameraEntity, props)
+  }, [entity, lightEntity, skyboxEntity, cameraEntity, gltfEntity])
 
   useEffect(() => {
     if (!errors) return
