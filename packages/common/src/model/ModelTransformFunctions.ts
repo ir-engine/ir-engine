@@ -1017,16 +1017,6 @@ export const transformModel = async (
       const operations = createTextureOperations(document, params, params.resources, textureUsages)
       textureOperations.push(...operations)
     }
-    // Clear primitives of dummy mesh and dummy mesh so reorder skips this mesh
-    document
-      .getRoot()
-      .listNodes()
-      .map((node) => {
-        if (node.getMesh()?.getName() === 'preserve-dummy') {
-          node.getMesh()?.dispose()
-          node.setMesh(null)
-        }
-      })
     // Apply final optimizations
     if (params.reorder) {
       await MeshoptEncoder.ready
