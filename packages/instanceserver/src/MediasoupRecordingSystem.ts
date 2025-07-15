@@ -111,9 +111,9 @@ export const createTransport = async (router: Router, port: number, rtcpPort: nu
 }
 
 export type PeerMediaType = {
-  /** @deprecated - use ProducersConsumerState instead */
+  /** @deprecated use ProducersConsumerState instead */
   paused: boolean
-  /** @deprecated - use ProducersConsumerState instead */
+  /** @deprecated use ProducersConsumerState instead */
   globalMute: boolean
   producerId: string
   encodings: RtpEncodingParameters[]

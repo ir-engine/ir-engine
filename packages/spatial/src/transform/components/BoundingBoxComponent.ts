@@ -129,11 +129,6 @@ export const updateBoundingBox = (entity: Entity) => {
   if (!transform) return
 
   const boundingBox = getComponent(entity, BoundingBoxComponent)
-  // const boxOffset = TransformComponent.getLocalPositionRelativeToEntity(
-  //   box.getCenter(new Vector3()),
-  //   entity,
-  //   new Vector3()
-  // )
   const boxOffset = box.getCenter(new Vector3())
 
   const helperEntity = boundingBox.helper

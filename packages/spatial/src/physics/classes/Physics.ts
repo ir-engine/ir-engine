@@ -808,7 +808,7 @@ function removeCharacterController(world: PhysicsWorld, entity: Entity) {
 }
 
 /**
- * @deprecated - will be populated on AvatarControllerComponent
+ * @deprecated will be populated on AvatarControllerComponent
  */
 function getControllerOffset(world: PhysicsWorld, entity: Entity) {
   const controller = world.Controllers.get(entity)

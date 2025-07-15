@@ -55,7 +55,7 @@ export const MediaStreamState = defineState({
     /** Whether the audio is enabled or not. */
     microphoneEnabled: false,
     /** Whether the face tracking is enabled or not. */
-    /** @deprecated - face tracking has been disabled */
+    /** @deprecated face tracking has been disabled */
     faceTracking: false,
     /** Video stream for streaming data. */
     webcamMediaStream: null as MediaStream | null,

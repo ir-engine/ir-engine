@@ -348,7 +348,7 @@ export const InputComponent = defineComponent({
     return axes as AxisValueMap<BindingsType>
   },
 
-  // @deprecated use getButtons instead
+  /** @deprecated use getButtons instead  */
   getMergedButtons<BindingsType extends InputButtonBindings = typeof DefaultButtonBindings>(
     entityContext: Entity,
     inputBindings: BindingsType = DefaultButtonBindings as unknown as BindingsType
@@ -356,7 +356,7 @@ export const InputComponent = defineComponent({
     return InputComponent.getButtons(entityContext, inputBindings)
   },
 
-  // @deprecated use getAxes instead
+  /** @deprecated use getAxes instead */
   getMergedAxes<BindingsType extends InputAxisBindings = typeof DefaultAxisBindings>(
     entityContext: Entity,
     inputBindings: BindingsType = DefaultAxisBindings as unknown as BindingsType

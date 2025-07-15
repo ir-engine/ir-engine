@@ -4,15 +4,24 @@
 # This hook runs the same checks as the root project
 # Compatible with Mac, Windows (Git Bash), and Linux
 
-# Find the root project directory (MT WHATEVER)
+# Find the root project directory (ir-engine)
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
+# Determine if we're running in the main repo or a nested repo
+CURRENT_REPO="$(pwd)"
+IS_MAIN_REPO=false
+
+if [ "$CURRENT_REPO" = "$ROOT_PROJECT_DIR" ]; then
+    IS_MAIN_REPO=true
+    echo "Running pre-commit hooks in MAIN repository: $ROOT_PROJECT_DIR"
+else
+    echo "Running pre-commit hooks in NESTED repository: $CURRENT_REPO"
+    echo "Main repository: $ROOT_PROJECT_DIR"
+fi
+
 # Change to root project directory to access node_modules and scripts
 cd "$ROOT_PROJECT_DIR"
-
-# Run the same pre-commit checks as the root project
-echo "Running shared pre-commit hooks from: $ROOT_PROJECT_DIR"
 
 # Determine the correct executable extension for Windows
 if [ -f "./node_modules/.bin/ts-node.cmd" ]; then
@@ -25,13 +34,17 @@ else
     LINT_STAGED="./node_modules/.bin/lint-staged"
 fi
 
-# Run add-license-headers
-echo "Adding license headers..."
-"$TS_NODE" --swc scripts/add-license-headers.ts
-RESULT=$?
-if [ $RESULT -ne 0 ]; then
-    echo "License header check failed"
-    exit 1
+# Run add-license-headers (only in main repository)
+if [ "$IS_MAIN_REPO" = true ]; then
+    echo "Adding license headers (main repo only)..."
+    "$TS_NODE" --swc scripts/add-license-headers.ts
+    RESULT=$?
+    if [ $RESULT -ne 0 ]; then
+        echo "License header check failed"
+        exit 1
+    fi
+else
+    echo "Skipping license headers (nested repo - handled by main repo)"
 fi
 
 # Run format-staged (lint-staged)

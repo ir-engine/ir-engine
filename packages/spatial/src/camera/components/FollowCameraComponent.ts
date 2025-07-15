@@ -718,10 +718,10 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   const thetaThreshold = 0.01
 
   if (
-    updatedPosition.distanceTo(follow.lastCyclePosition) > positionThreshold &&
-    Math.abs(updatedDistance - follow.lastCycleDistance) <= distanceThreshold &&
-    Math.abs(updatedPhi - follow.lastCyclePhi) <= phiThreshold &&
-    Math.abs(updatedTheta - follow.lastCycleTheta) <= thetaThreshold
+    updatedPosition.distanceTo(follow.lastCyclePosition) > positionThreshold ||
+    Math.abs(updatedDistance - follow.lastCycleDistance) > distanceThreshold ||
+    Math.abs(updatedPhi - follow.lastCyclePhi) > phiThreshold ||
+    Math.abs(updatedTheta - follow.lastCycleTheta) > thetaThreshold
   ) {
     follow.lastCameraAdjustmentTime = timeInSeconds
   }

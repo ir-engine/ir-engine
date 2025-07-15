@@ -837,6 +837,80 @@ const preserveVertexColors: Transform = (document: Document) => {
       }
     })
 }
+function hasKeywordInExtras(node: Node, keyword: string): boolean {
+  const extras = node.getExtras()
+  if (!extras) return false
+  return Object.keys(extras).some((key) => key.includes(keyword))
+}
+
+function preserveNodesInScene(document: Document, keywords: string[]) {
+  document
+    .getRoot()
+    .listNodes()
+    .forEach((node) => {
+      if (keywords.some((kw) => hasKeywordInExtras(node, kw))) {
+        if (!node.getMesh()) {
+          // Create dummy mesh with a single vertex primitive
+          const dummyMesh = document.createMesh('preserve-dummy')
+          const dummyPrim = document
+            .createPrimitive()
+            .setAttribute(
+              'POSITION',
+              document
+                .createAccessor()
+                .setType('VEC3')
+                .setArray(new Float32Array([0, 0, 0]))
+            )
+            .setIndices(
+              document
+                .createAccessor()
+                .setType('SCALAR')
+                .setArray(new Uint16Array([0]))
+            )
+          dummyMesh.addPrimitive(dummyPrim)
+          node.setMesh(dummyMesh)
+        }
+      }
+    })
+}
+
+async function preserveChildrenHierarchyAroundFlatten(document: Document, keywords: string[]) {
+  const root = document.getRoot()
+
+  //  Find nodes to preserve and map their children names
+  const nodesToPreserve = root.listNodes().filter((node) => keywords.some((kw) => hasKeywordInExtras(node, kw)))
+
+  const preservedChildrenMap = new Map<string, string[]>()
+
+  nodesToPreserve.forEach((parentNode) => {
+    const childNames = parentNode.listChildren().map((child) => child.getName())
+    preservedChildrenMap.set(parentNode.getName(), childNames)
+  })
+
+  // Run flatten
+  await document.transform(flatten())
+
+  //  After flatten, reattach children if they still exist
+  nodesToPreserve.forEach((parentNode) => {
+    const childNames = preservedChildrenMap.get(parentNode.getName())
+    if (!childNames) return
+
+    childNames.forEach((childName) => {
+      const childNode = root.listNodes().find((n) => n.getName() === childName)
+      if (childNode && childNode.getParentNode() !== parentNode) {
+        parentNode.addChild(childNode)
+      }
+    })
+  })
+
+  //  Remove dummy meshes after flatten
+  root.listNodes().forEach((node) => {
+    if (node.getMesh()?.getName() === 'preserve-dummy') {
+      node.getMesh()?.dispose()
+      node.setMesh(null)
+    }
+  })
+}
 
 export const transformModel = async (
   srcURL: string,
@@ -898,13 +972,15 @@ export const transformModel = async (
       }
     }
   }
+  // We want to make sure if node has these keywords in extras, we preserve those nodes
+  const keyWordsToPreserveNode = ['EE_collider', 'EE_rigidbody']
 
   for (let i = 0; i < numDocOperations; i++) {
     const params = modelOperations[i]
     const isGLBFormat = ['glb', 'vrm'].includes(params.modelFormat)
-
     const document = await cloneDocument(srcDocument)
-
+    // Preserve nodes with certain keywords in extras
+    preserveNodesInScene(document, keyWordsToPreserveNode)
     // Preserve vertex colors before applying transformations
     await document.transform(preserveVertexColors)
 
@@ -914,7 +990,7 @@ export const transformModel = async (
     params.combineMaterials && (await document.transform(combineMaterials))
     params.instance && (await document.transform(doInstancing))
     params.dedup && (await document.transform(dedup()))
-    params.flatten && (await document.transform(flatten()))
+    params.flatten && (await preserveChildrenHierarchyAroundFlatten(document, keyWordsToPreserveNode))
     params.join.enabled && (await document.transform(join(params.join.options)))
 
     if (params.simplifyRatio < 1) {
@@ -941,7 +1017,6 @@ export const transformModel = async (
       const operations = createTextureOperations(document, params, params.resources, textureUsages)
       textureOperations.push(...operations)
     }
-
     // Apply final optimizations
     if (params.reorder) {
       await MeshoptEncoder.ready
@@ -951,7 +1026,6 @@ export const transformModel = async (
     if (params.dracoCompression.enabled) {
       await document.transform(draco(params.dracoCompression.options))
     }
-
     documents.push(document)
   }
 
