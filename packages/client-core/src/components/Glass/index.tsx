@@ -37,8 +37,7 @@ import { ToolbarAndSidebar } from './ToolbarAndSidebar'
 import { applyScreenshareToTexture } from '@ir-engine/engine/src/scene/functions/applyScreenshareToTexture'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import hark from 'hark'
-import { useMediaWindows } from '../../user/VideoWindows'
-import { addValue, useUserMediaWindowsHook } from '../../user/VideoWindows/hook'
+import { addValue, SoundIndicatorsType, WindowStateType } from '../../user/VideoWindows/hook'
 import ReportUserMenu from '../ReportUser'
 import Settings from '../Settings'
 import { ChatMenu } from './ChatMenu'
@@ -47,7 +46,7 @@ import { MultimediaStateProvider } from './MultimediaStateProvider'
 import { VideoCarousel } from './MultiVideo'
 import { NavigationProvider, NavigationService, useNavigationProvider } from './NavigationProvider'
 import { ToolbarMenu } from './ToolbarMenu'
-import { VideoMenu } from './VideoMenu'
+import { useVideosProvider, VideoMenu, VideosProvider } from './VideoMenu'
 
 const useIsPortrait = () => {
   const isPortrait = useHookstate(window.matchMedia('(orientation: portrait)').matches)
@@ -82,6 +81,8 @@ const VideoStreamManager = ({
   peerID,
   isSelf,
   volume
+}: WindowStateType & {
+  soundIndicators: SoundIndicatorsType
 }) => {
   const harkListener = useHookstate(null as ReturnType<typeof hark> | null)
 
@@ -169,30 +170,22 @@ const VideoStreamManager = ({
 
 const VideoComponents = () => {
   const { togglePath_factory } = useNavigationProvider()
-  const windows = useMediaWindows()
 
   const onFullscreenVideosClick = togglePath_factory(`video`)
-  const { _windows, soundIndicators } = useUserMediaWindowsHook(windows)
 
-  const videoMediaStreams = _windows.map(({ videoMediaStream }) => {
+  const { videos, soundIndicators } = useVideosProvider()
+
+  const videoMediaStreams = videos.map(({ videoMediaStream }) => {
     return videoMediaStream
   })
 
-  const videoElements = _windows.map(({ videoElement }) => {
+  const videoElements = videos.map(({ videoElement }) => {
     return videoElement
   })
 
-  useEffect(() => {
-    NavigationService.addRoute({
-      path: `video`,
-      title: 'Video',
-      Component: () => <VideoMenu videos={windows} soundIndicators={soundIndicators} />
-    })
-  }, [windows, soundIndicators])
-
   return (
     <>
-      {_windows.map(({ peerID, type, ...rest }) => {
+      {videos.map(({ peerID, type, ...rest }) => {
         return (
           <VideoStreamManager
             key={`${peerID}-${type}`}
@@ -294,6 +287,11 @@ const Menu = () => {
         path: `report`,
         title: `Report User`,
         Component: ReportUserRoute
+      },
+      {
+        path: `video`,
+        title: 'Video',
+        Component: VideoMenu
       }
     ])
   }, [])
@@ -342,9 +340,11 @@ export const ViewerInteractions = () => {
   return (
     <NavigationProvider>
       <MultimediaStateProvider>
-        <ChatProvider>
-          <Menu />
-        </ChatProvider>
+        <VideosProvider>
+          <ChatProvider>
+            <Menu />
+          </ChatProvider>
+        </VideosProvider>
       </MultimediaStateProvider>
     </NavigationProvider>
   )
