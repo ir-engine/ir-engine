@@ -66,7 +66,6 @@ export const migrateEEMaterial = (gltf: GLTF.IGLTF) => {
     const converted = materialValuesToMaterialDef(eeMaterial.args)
     delete material.extensions.EE_material
     Object.assign(material, converted)
-    console.log(material)
   }
 
   return gltf
