@@ -55,9 +55,10 @@ const ShareSpaceScreen: React.FC<ShareSpaceScreenProps> = () => {
             Copy Direct Link
           </TextButton>
 
-          <TextButton onClick={() => copyLinkToClipboard(questLink)} className="w-full" fade={`dark`}>
+          {/** commenting out in case we need to bring this back */}
+          {/* <TextButton onClick={() => copyLinkToClipboard(questLink)} className="w-full" fade={`dark`}>
             Share to Meta Quest
-          </TextButton>
+          </TextButton> */}
 
           <TextButton onClick={() => openDrawer.set(!openDrawer.value)} className="w-full" fade={`dark`}>
             Share by email or phone

@@ -10,21 +10,34 @@ const fs = require('fs');
 // Find the root project directory
 const scriptDir = __dirname;
 const rootProjectDir = path.resolve(scriptDir, '..');
+const currentRepo = process.cwd();
 
-// Change to root project directory
+// Determine if we're running in the main repo or a nested repo
+const isMainRepo = currentRepo === rootProjectDir;
+
+if (isMainRepo) {
+    console.log(`Running pre-commit hooks in MAIN repository: ${rootProjectDir}`);
+} else {
+    console.log(`Running pre-commit hooks in NESTED repository: ${currentRepo}`);
+    console.log(`Main repository: ${rootProjectDir}`);
+}
+
+// Change to root project directory to access node_modules and scripts
 process.chdir(rootProjectDir);
 
-console.log(`Running shared pre-commit hooks from: ${rootProjectDir}`);
-
 try {
-    // Run add-license-headers
-    console.log('Adding license headers...');
-    execSync('npm run add-license-headers', { stdio: 'inherit' });
-    
+    // Run add-license-headers (only in main repository)
+    if (isMainRepo) {
+        console.log('Adding license headers (main repo only)...');
+        execSync('npm run add-license-headers', { stdio: 'inherit' });
+    } else {
+        console.log('Skipping license headers (nested repo - handled by main repo)');
+    }
+
     // Run format-staged (lint-staged)
     console.log('Running lint-staged...');
     execSync('npm run format-staged', { stdio: 'inherit' });
-    
+
     console.log('All pre-commit checks passed');
     process.exit(0);
 } catch (error) {
