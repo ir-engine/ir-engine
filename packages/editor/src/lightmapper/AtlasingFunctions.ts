@@ -78,7 +78,7 @@ declare module 'xatlas-three' {
   }
 }
 
-export const UV2UnwrapperState = defineState({
+export const UVUnwrapperState = defineState({
   name: 'ir.engine.UV2AtlasState',
 
   initial: () => new UVUnwrapper({ BufferAttribute: BufferAttribute }),
@@ -88,7 +88,7 @@ export const UV2UnwrapperState = defineState({
       console.log(`XAtlas ${mode} ${progress}%`)
     }
 
-    const unwrapper = getState(UV2UnwrapperState)
+    const unwrapper = getState(UVUnwrapperState)
 
     await unwrapper.loadLibrary(
       onProgress,
@@ -378,7 +378,7 @@ const renderAtlasTextures = (renderer: WebGLRenderer, meshs: Mesh[], resolution:
  * @returns The entities that were atlased
  */
 const generateAtlas = async (entities: Entity[], entity: Entity, uvChannel: UVChannel = 'uv2') => {
-  const unwrapper = getState(UV2UnwrapperState)
+  const unwrapper = getState(UVUnwrapperState)
 
   if (!unwrapper.isLoaded) {
     console.warn('XAtlas not loaded')
@@ -387,7 +387,6 @@ const generateAtlas = async (entities: Entity[], entity: Entity, uvChannel: UVCh
 
   const geometries = entities.map((entity) => getComponent(entity, MeshComponent).geometry)
 
-  // Padding doesn't seem necessary yet, but it may be needed in the future with fine detailed geometry
   unwrapper.packOptions.padding = 1
 
   await unwrapper.packAtlas(geometries, uvChannel as any, 'uv')

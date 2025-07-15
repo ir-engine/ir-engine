@@ -33,7 +33,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdLightbulb } from 'react-icons/md'
 
-import { AtlasingFunctions, UV2UnwrapperState, UVChannel } from '@ir-engine/editor/src/lightmapper/AtlasingFunctions'
+import { AtlasingFunctions, UVChannel, UVUnwrapperState } from '@ir-engine/editor/src/lightmapper/AtlasingFunctions'
 import { Lightmapper } from '@ir-engine/editor/src/lightmapper/LightmapperFunctions'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import InputGroup from '../../input/Group'
@@ -60,13 +60,13 @@ export const LightmapNodeEditor: EditorComponentType = (props) => {
 
   const bakeAOState = useHookstate(true)
 
-  const unwrapperLoaded = useMutableState(UV2UnwrapperState).isLoaded
+  const unwrapperLoaded = useMutableState(UVUnwrapperState).isLoaded
 
   const isGeneratingAtlas = useHookstate(false)
 
   useEffect(() => {
     if (!unwrapperLoaded.value) {
-      UV2UnwrapperState.loadUnwrapper().then(() => unwrapperLoaded.set(true))
+      UVUnwrapperState.loadUnwrapper().then(() => unwrapperLoaded.set(true))
     }
   }, [])
 

@@ -43,7 +43,6 @@ import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/Scene
 import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import { useEffect } from 'react'
 import { Box3, Vector3 } from 'three'
-import { useTexture } from '../assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '../gltf/GLTFComponent'
 import { AssetState } from '../gltf/GLTFState'
 
@@ -52,13 +51,11 @@ export const LightmapComponent = defineComponent({
   jsonID: 'IR_lightmap',
 
   schema: S.Object({
-    atlasSrc: S.String({ default: '' }),
-    lightmapSrc: S.String({ default: '' })
+    atlasSrc: S.String({ default: '' })
   }),
 
   reactor: ({ entity }) => {
     const lightmapComponent = useComponent(entity, LightmapComponent)
-    const [lightmapTexture] = useTexture(lightmapComponent.lightmapSrc.value, entity)
 
     useEffect(() => {
       setComponent(entity, BoundingBoxComponent, {
@@ -93,7 +90,7 @@ export const LightmapComponent = defineComponent({
         }
         removeEntityNodeRecursively(atlasEntity)
       })
-    }, [lightmapTexture, sceneLoaded])
+    }, [sceneLoaded])
 
     return null
   }
