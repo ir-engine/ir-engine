@@ -94,7 +94,7 @@ import { FileLoader } from '../base/FileLoader';
 import { Loader } from '../base/Loader';
 import { isClient } from '@ir-engine/hyperflux'
 import { CompressedTexture, CompressedArrayTexture } from 'three';
-import { WorkerPool } from '@ir-engine/common/src/utils/WorkerPool'
+import { WorkerPool } from '@ir-engine/spatial/src/common/classes/WorkerPool'
 
 import { DisplayP3ColorSpace, LinearDisplayP3ColorSpace } from '@ir-engine/spatial/src/threejsPatches'
 
