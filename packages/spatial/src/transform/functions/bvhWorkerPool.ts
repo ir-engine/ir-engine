@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { WorkerPool } from '@ir-engine/common/src/utils/WorkerPool'
 import {
   Box3,
   BufferAttribute,
@@ -36,7 +37,6 @@ import { MeshBVH, SerializedBVH } from 'three-mesh-bvh'
 import Worker from 'web-worker'
 
 import { isClient } from '@ir-engine/hyperflux'
-import { WorkerPool } from '@ir-engine/xrui/core/WorkerPool'
 import { deinterleaveAttribute } from '../../common/classes/BufferGeometryUtils'
 
 const createWorker = () => {
