@@ -29,7 +29,6 @@ import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@ir-eng
 import { confirmSceneSaveIfModified } from '@ir-engine/editor/src/components/toolbar/Toolbar'
 import { onNewScene } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
-import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { Button } from '@ir-engine/ui'
 import { AddScene } from '@ir-engine/ui/src/components/editor/AddScene/AddScene'
@@ -53,8 +52,7 @@ function ScenesPanel() {
   const scenesLoading = scenesQuery.status === 'pending'
 
   const onClickScene = async (scene: StaticResourceType) => {
-    const sceneLoaded = GLTFComponent.isSceneLoaded(getState(EditorState).rootEntity)
-    if (!(await confirmSceneSaveIfModified()) || !sceneLoaded) return
+    if (!(await confirmSceneSaveIfModified())) return
 
     getMutableState(EditorState).merge({
       scenePath: scene.key

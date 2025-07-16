@@ -66,6 +66,7 @@
     "format": "prettier --write \"packages/**/*.{ts,tsx}\" \"scripts/*.ts\"",
     "format-scss": "stylelint \"packages/**/*.scss\" --fix",
     "format-staged": "lint-staged",
+    "gltf-texture-converter": "node scripts/gltf-texture-converter.js",
     "init-db-production": "cross-env APP_ENV=production FORCE_DB_REFRESH=true EXIT_ON_DB_INIT=true ts-node --swc packages/server/src/index.ts",
     "install-manifest": "ts-node --swc scripts/install-manifest.ts",
     "lint": "prettier --check \"packages/**/*.{ts,tsx}\" \"scripts/*.ts\"",

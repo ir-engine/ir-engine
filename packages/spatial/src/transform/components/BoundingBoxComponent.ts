@@ -129,14 +129,14 @@ export const updateBoundingBox = (entity: Entity) => {
   if (!transform) return
 
   const boundingBox = getComponent(entity, BoundingBoxComponent)
-  const boxOffset = box.getCenter(new Vector3()).sub(transform.position)
+  const boxOffset = box.getCenter(new Vector3())
 
   const helperEntity = boundingBox.helper
   if (!helperEntity) return
 
   const helperObject = getComponent(helperEntity, ObjectComponent) as any as Box3Helper
-  helperObject.updateMatrixWorld(true)
   helperObject.position.set(boxOffset.x, boxOffset.y, boxOffset.z)
+  helperObject.updateMatrixWorld(true)
 }
 
 const _box = new Box3()
@@ -150,7 +150,7 @@ export const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3) => {
   }
 
   _box.copy(geometry.boundingBox!)
-  _box.applyMatrix4(object.matrixWorld)
+  _box.applyMatrix4(object.matrix)
   box.union(_box)
 }
 
