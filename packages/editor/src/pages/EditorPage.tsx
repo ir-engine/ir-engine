@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEngineInjection } from '@ir-engine/client-core/src/components/World/EngineHooks'
+import { useDocumentTitle } from '@ir-engine/client-core/src/hooks/useDocumentTitle'
 import { useUnsupported } from '@ir-engine/client-core/src/hooks/useUnsupported'
 import { EngineState } from '@ir-engine/ecs'
 import '@ir-engine/engine/src/EngineModule'
@@ -49,6 +50,7 @@ export const useStudioEditor = () => {
 export const EditorPage = () => {
   const [params] = useSearchParams()
   const { scenePath, projectName } = useHookstate(getMutableState(EditorState))
+  useDocumentTitle('Editor')
 
   useImmediateEffect(() => {
     const sceneInParams = params.get('scenePath')
