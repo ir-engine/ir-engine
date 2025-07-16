@@ -66,7 +66,7 @@ export const GeometryTypeParamsEnum = {
   },
 
   [GeometryType.SphereGeometry]: {
-    radius: { default: 1, min: 1 },
+    radius: { default: 1, min: 0.01 },
     widthSegments: { default: 32, min: 3 },
     heightSegments: { default: 16, min: 2 },
     phiStart: { default: 0, min: 0 },
@@ -76,8 +76,8 @@ export const GeometryTypeParamsEnum = {
   },
 
   [GeometryType.CylinderGeometry]: {
-    radiusTop: { default: 1, min: 0 },
-    radiusBottom: { default: 1, min: 0 },
+    radiusTop: { default: 1, min: 0.01 },
+    radiusBottom: { default: 1, min: 0.01 },
     height: { default: 1, min: 1 },
     radialSegments: { default: 8, min: 3 },
     heightSegments: { default: 1, min: 1 },
@@ -87,7 +87,7 @@ export const GeometryTypeParamsEnum = {
   },
 
   [GeometryType.CapsuleGeometry]: {
-    radius: { default: 1, min: 1 },
+    radius: { default: 1, min: 0.01 },
     length: { default: 1, min: 1 },
     capSegments: { default: 4, min: 1 },
     radialSegments: { default: 8, min: 3 }
@@ -99,15 +99,15 @@ export const GeometryTypeParamsEnum = {
   },
 
   [GeometryType.CircleGeometry]: {
-    radius: { default: 1, min: 1 },
+    radius: { default: 1, min: 0.01 },
     segments: { default: 32, min: 0 },
     thetaStart: { default: 0, min: 0 },
     thetaLength: { default: Math.PI * 2, min: 0 }
   },
 
   [GeometryType.RingGeometry]: {
-    innerRadius: { default: 0.5, min: 1 },
-    outerRadius: { default: 1, min: 1 },
+    innerRadius: { default: 0.5, min: 0.01 },
+    outerRadius: { default: 1, min: 0.01 },
     thetaSegments: { default: 32, min: 1 },
     phiSegments: { default: 1, min: 1 },
     thetaStart: { default: 0, min: 0 },
@@ -115,7 +115,7 @@ export const GeometryTypeParamsEnum = {
   },
 
   [GeometryType.TorusGeometry]: {
-    radius: { default: 1, min: 1 },
+    radius: { default: 1, min: 0.01 },
     tube: { default: 0.4, min: 0.1 },
     radialSegments: { default: 8, min: 2 },
     tubularSegments: { default: 6, min: 3 },
@@ -123,27 +123,27 @@ export const GeometryTypeParamsEnum = {
   },
 
   [GeometryType.DodecahedronGeometry]: {
-    radius: { default: 1, min: 1 },
+    radius: { default: 1, min: 0.01 },
     detail: { default: 0, min: 0 }
   },
 
   [GeometryType.IcosahedronGeometry]: {
-    radius: { default: 1, min: 1 },
+    radius: { default: 1, min: 0.01 },
     detail: { default: 0, min: 0 }
   },
 
   [GeometryType.OctahedronGeometry]: {
-    radius: { default: 1, min: 1 },
+    radius: { default: 1, min: 0.01 },
     detail: { default: 0, min: 0 }
   },
 
   [GeometryType.TetrahedronGeometry]: {
-    radius: { default: 1, min: 1 },
+    radius: { default: 1, min: 0.01 },
     detail: { default: 0, min: 0 }
   },
 
   [GeometryType.TorusKnotGeometry]: {
-    radius: { default: 1, min: 1 },
+    radius: { default: 1, min: 0.01 },
     tube: { default: 0.4, min: 0.1 },
     tubularSegments: { default: 64, min: 3 },
     radialSegments: { default: 8, min: 3 },
