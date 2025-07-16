@@ -826,6 +826,7 @@ const _builtinMaterialDefs = {
   color: (materialDef: GLTF.IMaterial, value: MaterialColorValue) => {
     if (!materialDef.pbrMetallicRoughness) materialDef.pbrMetallicRoughness = {}
     // Set RGB array
+    if (!('toArray' in value.contents)) return console.warn('Could not serialize color', value)
     materialDef.pbrMetallicRoughness.baseColorFactor = value.contents.toArray()
     // Set A channel to GLTF default because color is just RGB
     materialDef.pbrMetallicRoughness.baseColorFactor[3] = 1
@@ -854,6 +855,7 @@ const _builtinMaterialDefs = {
     materialDef.pbrMetallicRoughness.metallicRoughnessTexture = value.contents
   },
   emissive: (materialDef: GLTF.IMaterial, value: MaterialColorValue) => {
+    if (!('toArray' in value.contents)) return console.warn('Could not serialize color', value)
     materialDef.emissiveFactor = value.contents.toArray()
   },
   emissiveMap: (materialDef: GLTF.IMaterial, value: MaterialTextureValue) => {

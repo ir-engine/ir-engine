@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 
 import {
   Entity,
@@ -209,7 +209,9 @@ const InstancingVariantReactor = (props: { entity: Entity }) => {
   return (
     <>
       {variantComponent.levels.map((level, index) => (
-        <VariantInstanceLoadReactor entity={props.entity} level={index} key={index} />
+        <Suspense key={index}>
+          <VariantInstanceLoadReactor entity={props.entity} level={index} />
+        </Suspense>
       ))}
     </>
   )
@@ -223,7 +225,7 @@ const VariantInstanceLoadReactor = (props: { entity: Entity; level: number }) =>
   const modelEntity = useHookstate(() => {
     const entity = createEntity()
     setComponent(entity, UUIDComponent, {
-      entitySourceID: getComponent(props.entity, UUIDComponent).entitySourceID,
+      entitySourceID: UUIDComponent.getAsSourceID(props.entity),
       entityID: 'LOD-' + props.level
     } as EntityUUIDPair)
     setComponent(entity, NameComponent, getComponent(props.entity, NameComponent) + ' LOD ' + props.level)
@@ -270,20 +272,8 @@ const ChildMeshReactor = (props: { variantEntity: Entity; modelEntity: Entity; m
     //   color: props.level === 0 ? 0xff0000 : props.level === 1 ? 0x00ff00 : 0x0000ff
     // })
 
-    const instancingComponent = getComponent(props.variantEntity, InstancingComponent)
-
-    //convert to instanced mesh, using existing instance matrix
-    const instancedMesh =
-      mesh instanceof InstancedMesh
-        ? mesh
-        : new InstancedMesh(mesh.geometry.clone(), mesh.material, instancingComponent.instanceMatrix.count)
-    instancedMesh.instanceMatrix.copy(instancingComponent.instanceMatrix)
-    instancedMesh.frustumCulled = false
-
     //add distance culling shader plugin
-    const materials: Material[] = Array.isArray(instancedMesh.material)
-      ? instancedMesh.material
-      : [instancedMesh.material]
+    const materials: Material[] = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
     for (const material of materials) {
       addOBCPlugin(material, {
         id: 'lod-culling',
@@ -311,10 +301,24 @@ uniform float minDistance;`
         }
       })
     }
+  }, [])
+
+  const instanceMatrix = useComponent(props.variantEntity, InstancingComponent).instanceMatrix.value
+  useEffect(() => {
+    const mesh = getComponent(props.meshEntity, MeshComponent)
+    const instancingComponent = getComponent(props.variantEntity, InstancingComponent)
+
+    const instancedMesh = new InstancedMesh(
+      mesh.geometry.clone(),
+      mesh.material,
+      instancingComponent.instanceMatrix.count
+    )
+    instancedMesh.instanceMatrix.copy(instancingComponent.instanceMatrix)
+    instancedMesh.frustumCulled = false
 
     removeComponent(props.meshEntity, MeshComponent)
     setComponent(props.meshEntity, MeshComponent, instancedMesh)
-  }, [])
+  }, [instanceMatrix])
 
   const level = useComponent(props.variantEntity, VariantComponent).levels[props.level].value
 

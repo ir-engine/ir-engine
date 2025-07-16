@@ -219,7 +219,7 @@ export function MaterialEditor(props: { entity: Entity }) {
             path={UUIDComponent.get(entity)}
             values={currentPlugin}
             onChange={(key) => commitProperty(MaterialPluginComponents[selectedPlugin.value], key)}
-            defaults={generateDefaults(currentPlugin)}
+            defaults={generateDefaults(currentPlugin, MaterialPluginComponents[selectedPlugin.value].schema)}
           />
           <Button
             variant="tertiary"

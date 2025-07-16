@@ -35,7 +35,7 @@ import {
   useComponent
 } from '@ir-engine/ecs'
 import { SystemUUID, useExecute } from '@ir-engine/ecs/src/SystemFunctions'
-import { getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { getState, NO_PROXY, State, useHookstate } from '@ir-engine/hyperflux'
 import {
   MaterialPluginComponents,
   MaterialStateComponent
@@ -51,9 +51,9 @@ import { useTexture } from '../assets/functions/resourceLoaderHooks'
  * - `null` for no texture
  */
 export const TextureSchema = () =>
-  S.Union([S.String(), S.Null(), S.Type<Texture>()], { default: null, metadata: { $isTexture: true } })
+  S.Union([S.String(), S.Null(), S.Type<Texture>()], { default: null, metadata: { $isTexture: true } }) // @todo replace $isTexture with $id
 
-const isTextureUniform = (uniformSchema: Schema) => !!uniformSchema.options?.metadata?.$isTexture
+export const isTextureUniform = (uniformSchema: Schema) => !!uniformSchema.options?.metadata?.$isTexture
 
 /**
  *
@@ -105,7 +105,7 @@ export const defineMaterialPlugin = <T extends Schema>({
   uniforms: T
   onApply: (shader: Shader, renderer: WebGLRenderer) => void
   update?: (component: Static<T>, deltaSeconds: number) => void
-  reactor?: any
+  reactor?: (props: { entity: Entity; textureState: State<Record<string, Texture | null>> }) => any
 }) => {
   const PluginComponent = defineComponent({
     name,
@@ -120,11 +120,22 @@ export const defineMaterialPlugin = <T extends Schema>({
 
       const pluginState = useComponent(entity, PluginComponent).get(NO_PROXY) as UniformRecord
 
-      const textureUniforms = Object.fromEntries(
-        Object.entries(uniformSchema.properties!)
-          .filter(([key, value]) => isTextureUniform(value))
-          .map(([key, value]) => [key, new Uniform(null)])
-      ) as Record<keyof UniformRecord, Uniform<Texture | null>>
+      const textureUniformState = useHookstate(
+        () =>
+          Object.fromEntries(
+            Object.entries(uniformSchema.properties!)
+              .filter(([key, value]) => isTextureUniform(value))
+              .map(([key, value]) => [key, new Uniform(null)])
+          ) as Record<keyof UniformRecord, Uniform<Texture | null>>
+      )
+      const textureUniforms = textureUniformState.get(NO_PROXY) as Record<keyof UniformRecord, Uniform<Texture | null>>
+      const textureState = useHookstate(
+        () =>
+          Object.fromEntries(Object.keys(textureUniforms).map((key) => [key, null])) as Record<
+            keyof UniformRecord,
+            Texture | null
+          >
+      )
 
       const uniforms = useHookstate(
         () =>
@@ -139,7 +150,10 @@ export const defineMaterialPlugin = <T extends Schema>({
       for (const key in textureUniforms) {
         const src = pluginState[key]
         const [texture] = useTexture(typeof src === 'string' ? src : '', entity)
-        textureUniforms[key].value = texture
+        useEffect(() => {
+          textureUniformState[key].nested('value').set(texture)
+          textureState[key].set(texture)
+        }, [texture])
       }
 
       useEffect(() => {
@@ -168,7 +182,7 @@ export const defineMaterialPlugin = <T extends Schema>({
         { before: PresentationSystemGroup, uuid: makeMaterialPluginUpdateSystemID(name, entity) }
       )
 
-      return Reactor ? <Reactor entity={entity} /> : null
+      return Reactor ? <Reactor entity={entity} textureState={textureState} /> : null
     }
   })
 

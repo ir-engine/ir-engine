@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -32,7 +32,10 @@ import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/
 import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvMapBakeComponent'
 import { GroundPlaneComponent } from '@ir-engine/engine/src/scene/components/GroundPlaneComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
-import { InstancingComponent } from '@ir-engine/engine/src/scene/components/InstancingComponent'
+import {
+  InstancingComponent,
+  InstancingPlacementComponent
+} from '@ir-engine/engine/src/scene/components/InstancingComponent'
 import { LegacyVolumetricComponent } from '@ir-engine/engine/src/scene/components/LegacyVolumetricComponent'
 import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkComponent'
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
@@ -50,6 +53,7 @@ import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxCo
 import { SpawnPointComponent } from '@ir-engine/engine/src/scene/components/SpawnPointComponent'
 import { SplineComponent } from '@ir-engine/engine/src/scene/components/SplineComponent'
 import { SplineTrackComponent } from '@ir-engine/engine/src/scene/components/SplineTrackComponent'
+import { TerrainMeshComponent } from '@ir-engine/engine/src/scene/components/TerrainMeshComponent'
 import { TextComponent } from '@ir-engine/engine/src/scene/components/TextComponent'
 import { VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
@@ -88,6 +92,7 @@ import GroundPlaneNodeEditor from '@ir-engine/ui/src/components/editor/propertie
 import ImageNodeEditor from '@ir-engine/ui/src/components/editor/properties/image'
 import InputComponentNodeEditor from '@ir-engine/ui/src/components/editor/properties/input'
 import InstancingNodeEditor from '@ir-engine/ui/src/components/editor/properties/instance'
+import InstancingPlacementNodeEditor from '@ir-engine/ui/src/components/editor/properties/instancePlacement'
 import InteractableComponentNodeEditor from '@ir-engine/ui/src/components/editor/properties/interact'
 import AmbientLightNodeEditor from '@ir-engine/ui/src/components/editor/properties/light/ambient'
 import DirectionalLightNodeEditor from '@ir-engine/ui/src/components/editor/properties/light/directional'
@@ -125,6 +130,7 @@ import MediaNodeEditor from '@ir-engine/ui/src/components/editor/properties/medi
 import MixerNodeEditor from '@ir-engine/ui/src/components/editor/properties/mixer'
 import PlaylistNodeEditor from '@ir-engine/ui/src/components/editor/properties/playlist'
 import SplineTrackNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline/track'
+import TerrainMeshNodeEditor from '@ir-engine/ui/src/components/editor/properties/terrainMesh'
 import TextNodeEditor from '@ir-engine/ui/src/components/editor/properties/text'
 import TriggerComponentEditor from '@ir-engine/ui/src/components/editor/properties/trigger'
 import VariantNodeEditor from '@ir-engine/ui/src/components/editor/properties/variant'
@@ -175,10 +181,12 @@ export const ComponentEditorsState = defineState({
       [EnvMapComponent.name]: EnvMapEditor,
       [EnvMapBakeComponent.name]: EnvMapBakeNodeEditor,
       [InstancingComponent.name]: InstancingNodeEditor,
+      [InstancingPlacementComponent.name]: InstancingPlacementNodeEditor,
       [PersistentAnchorComponent.name]: PersistentAnchorNodeEditor,
       [VariantComponent.name]: VariantNodeEditor,
       [SplineComponent.name]: SplineNodeEditor,
       [SplineTrackComponent.name]: SplineTrackNodeEditor,
+      [TerrainMeshComponent.name]: TerrainMeshNodeEditor,
       [VisualScriptComponent.name]: VisualScriptNodeEditor,
       [LinkComponent.name]: LinkNodeEditor,
       [OverlayComponent.name]: OverlayNodeEditor,
