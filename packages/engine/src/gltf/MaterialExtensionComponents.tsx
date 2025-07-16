@@ -67,8 +67,12 @@ export type MaterialValue =
   | MaterialVec3Value
   | MaterialVec2Value
 
-const colorValueToTupleValue = (colorValue: MaterialColorValue) =>
-  colorValue.contents.toArray() as [number, number, number]
+const colorValueToTupleValue = (colorValue: MaterialColorValue) => {
+  if (colorValue.contents.isColor) return colorValue.contents.toArray() as [number, number, number]
+  else {
+    return new Color(colorValue.contents).toArray() as [number, number, number]
+  }
+}
 
 type MaterialExtension<Comp extends Component> = {
   [Key in keyof ComponentType<Comp>]?: MaterialValue['contents']
@@ -119,7 +123,7 @@ export const KHRUnlitExtensionComponent = defineComponent({
         materialParams.opacity = array[3]
       }
 
-      if (metallicRoughness.baseColorTexture !== undefined) {
+      if (metallicRoughness.baseColorTexture != undefined) {
         pending = GLTFLoaderFunctions.assignTexture(options, metallicRoughness.baseColorTexture).then((map) => {
           materialParams.map = map
           if (map) map.colorSpace = SRGBColorSpace
@@ -147,7 +151,7 @@ export const KHREmissiveStrengthExtensionComponent = defineComponent({
     >
     const emissiveStrength = extension.emissiveStrength
 
-    if (emissiveStrength !== undefined) {
+    if (emissiveStrength != undefined) {
       materialParams.emissiveIntensity = emissiveStrength
     }
 
@@ -192,11 +196,11 @@ export const KHRClearcoatExtensionComponent = defineComponent({
       typeof KHRClearcoatExtensionComponent
     >
 
-    if (extension.clearcoatFactor !== undefined) {
+    if (extension.clearcoatFactor != undefined) {
       materialParams.clearcoat = extension.clearcoatFactor
     }
 
-    if (extension.clearcoatTexture !== undefined) {
+    if (extension.clearcoatTexture != undefined) {
       pending.push(
         GLTFLoaderFunctions.assignTexture(options, extension.clearcoatTexture).then((map) => {
           materialParams.clearcoatMap = map
@@ -204,11 +208,11 @@ export const KHRClearcoatExtensionComponent = defineComponent({
       )
     }
 
-    if (extension.clearcoatRoughnessFactor !== undefined) {
+    if (extension.clearcoatRoughnessFactor != undefined) {
       materialParams.clearcoatRoughness = extension.clearcoatRoughnessFactor
     }
 
-    if (extension.clearcoatRoughnessTexture !== undefined) {
+    if (extension.clearcoatRoughnessTexture != undefined) {
       pending.push(
         GLTFLoaderFunctions.assignTexture(options, extension.clearcoatRoughnessTexture).then((map) => {
           materialParams.clearcoatRoughnessMap = map
@@ -216,14 +220,14 @@ export const KHRClearcoatExtensionComponent = defineComponent({
       )
     }
 
-    if (extension.clearcoatNormalTexture?.index !== undefined) {
+    if (extension.clearcoatNormalTexture?.index != undefined) {
       pending.push(
         GLTFLoaderFunctions.assignTexture(options, extension.clearcoatNormalTexture).then((map) => {
           materialParams.clearcoatNormalMap = map
         })
       )
 
-      if (extension.clearcoatNormalTexture.scale !== undefined) {
+      if (extension.clearcoatNormalTexture.scale != undefined) {
         const scale = extension.clearcoatNormalTexture.scale
 
         materialParams.clearcoatNormalScale = new Vector2(scale, scale)
@@ -291,11 +295,11 @@ export const KHRIridescenceExtensionComponent = defineComponent({
     const extension = materialDef.extensions![KHRIridescenceExtensionComponent.jsonID] as ComponentType<
       typeof KHRIridescenceExtensionComponent
     >
-    if (extension.iridescenceFactor !== undefined) {
+    if (extension.iridescenceFactor != undefined) {
       materialParams.iridescence = extension.iridescenceFactor
     }
 
-    if (extension.iridescenceTexture !== undefined) {
+    if (extension.iridescenceTexture != undefined) {
       pending.push(
         GLTFLoaderFunctions.assignTexture(options, extension.iridescenceTexture).then((map) => {
           materialParams.iridescenceMap = map
@@ -303,7 +307,7 @@ export const KHRIridescenceExtensionComponent = defineComponent({
       )
     }
 
-    if (extension.iridescenceIor !== undefined) {
+    if (extension.iridescenceIor != undefined) {
       materialParams.iridescenceIOR = extension.iridescenceIor
     }
 
@@ -311,15 +315,15 @@ export const KHRIridescenceExtensionComponent = defineComponent({
       materialParams.iridescenceThicknessRange = [100, 400]
     }
 
-    if (extension.iridescenceThicknessMinimum !== undefined) {
+    if (extension.iridescenceThicknessMinimum != undefined) {
       materialParams.iridescenceThicknessRange[0] = extension.iridescenceThicknessMinimum
     }
 
-    if (extension.iridescenceThicknessMaximum !== undefined) {
+    if (extension.iridescenceThicknessMaximum != undefined) {
       materialParams.iridescenceThicknessRange[1] = extension.iridescenceThicknessMaximum
     }
 
-    if (extension.iridescenceThicknessTexture !== undefined) {
+    if (extension.iridescenceThicknessTexture != undefined) {
       pending.push(
         GLTFLoaderFunctions.assignTexture(options, extension.iridescenceThicknessTexture).then((map) => {
           materialParams.iridescenceThicknessMap = map
@@ -388,16 +392,16 @@ export const KHRSheenExtensionComponent = defineComponent({
       typeof KHRSheenExtensionComponent
     >
 
-    if (extension.sheenColorFactor !== undefined) {
+    if (extension.sheenColorFactor != undefined) {
       const colorFactor = extension.sheenColorFactor
       materialParams.sheenColor.setRGB(colorFactor[0], colorFactor[1], colorFactor[2], LinearSRGBColorSpace)
     }
 
-    if (extension.sheenRoughnessFactor !== undefined) {
+    if (extension.sheenRoughnessFactor != undefined) {
       materialParams.sheenRoughness = extension.sheenRoughnessFactor
     }
 
-    if (extension.sheenColorTexture !== undefined) {
+    if (extension.sheenColorTexture != undefined) {
       pending.push(
         GLTFLoaderFunctions.assignTexture(options, extension.sheenColorTexture).then((map) => {
           materialParams.sheenColorMap = map
@@ -406,7 +410,7 @@ export const KHRSheenExtensionComponent = defineComponent({
       )
     }
 
-    if (extension.sheenRoughnessTexture !== undefined) {
+    if (extension.sheenRoughnessTexture != undefined) {
       pending.push(
         GLTFLoaderFunctions.assignTexture(options, extension.sheenRoughnessTexture).then((map) => {
           materialParams.sheenRoughnessMap = map
@@ -464,11 +468,11 @@ export const KHRTransmissionExtensionComponent = defineComponent({
     const extension = materialDef.extensions![KHRTransmissionExtensionComponent.jsonID] as ComponentType<
       typeof KHRTransmissionExtensionComponent
     >
-    if (extension.transmissionFactor !== undefined) {
+    if (extension.transmissionFactor != undefined) {
       materialParams.transmission = extension.transmissionFactor
     }
 
-    if (extension.transmissionTexture !== undefined) {
+    if (extension.transmissionTexture != undefined) {
       pending.push(
         GLTFLoaderFunctions.assignTexture(options, extension.transmissionTexture).then((map) => {
           materialParams.transmissionMap = map
@@ -519,9 +523,9 @@ export const KHRVolumeExtensionComponent = defineComponent({
     const extension = materialDef.extensions![KHRVolumeExtensionComponent.jsonID] as ComponentType<
       typeof KHRVolumeExtensionComponent
     >
-    materialParams.thickness = extension.thicknessFactor !== undefined ? extension.thicknessFactor : 0
+    materialParams.thickness = extension.thicknessFactor != undefined ? extension.thicknessFactor : 0
 
-    if (extension.thicknessTexture !== undefined) {
+    if (extension.thicknessTexture != undefined) {
       pending.push(
         GLTFLoaderFunctions.assignTexture(options, extension.thicknessTexture).then((map) => {
           materialParams.thicknessMap = map
@@ -585,7 +589,7 @@ export const KHRIorExtensionComponent = defineComponent({
     const extension = materialDef.extensions![KHRIorExtensionComponent.jsonID] as ComponentType<
       typeof KHRIorExtensionComponent
     >
-    materialParams.ior = extension.ior !== undefined ? extension.ior : 1.5
+    materialParams.ior = extension.ior != undefined ? extension.ior : 1.5
 
     return Promise.resolve()
   },
@@ -625,7 +629,7 @@ export const KHRSpecularExtensionComponent = defineComponent({
     const extension = materialDef.extensions![KHRSpecularExtensionComponent.jsonID] as ComponentType<
       typeof KHRSpecularExtensionComponent
     >
-    materialParams.specularIntensity = extension.specularFactor !== undefined ? extension.specularFactor : 1.0
+    materialParams.specularIntensity = extension.specularFactor != undefined ? extension.specularFactor : 1.0
 
     if (extension?.specularTexture) {
       pending.push(
@@ -686,19 +690,15 @@ export const EXTBumpExtensionComponent = defineComponent({
     bumpTexture: S.Optional(TextureInfoSchema)
   }),
 
-  getMaterialType() {
-    return MeshPhysicalMaterial
-  },
-
   extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
     const pending = [] as Promise<any>[]
 
     const extension = materialDef.extensions![EXTBumpExtensionComponent.jsonID] as ComponentType<
       typeof EXTBumpExtensionComponent
     >
-    materialParams.bumpScale = extension.bumpFactor !== undefined ? extension.bumpFactor : 1.0
+    materialParams.bumpScale = extension.bumpFactor != undefined ? extension.bumpFactor : 1.0
 
-    if (extension.bumpTexture !== undefined) {
+    if (extension.bumpTexture != undefined) {
       pending.push(
         GLTFLoaderFunctions.assignTexture(options, extension.bumpTexture).then((map) => {
           materialParams.bumpMap = map
@@ -716,7 +716,7 @@ export const EXTBumpExtensionComponent = defineComponent({
       delete materialValues.bumpScale
     }
     if (materialValues.bumpMap != undefined) {
-      extension.bumpTexture = materialValues.bumpMap.contents
+      if (materialValues.bumpMap.contents != undefined) extension.bumpTexture = materialValues.bumpMap.contents
       delete materialValues.bumpMap
     }
 
@@ -748,15 +748,15 @@ export const KHRAnisotropyExtensionComponent = defineComponent({
     const extension = materialDef.extensions![KHRAnisotropyExtensionComponent.jsonID] as ComponentType<
       typeof KHRAnisotropyExtensionComponent
     >
-    if (extension.anisotropyStrength !== undefined) {
+    if (extension.anisotropyStrength != undefined) {
       materialParams.anisotropy = extension.anisotropyStrength
     }
 
-    if (extension.anisotropyRotation !== undefined) {
+    if (extension.anisotropyRotation != undefined) {
       materialParams.anisotropyRotation = extension.anisotropyRotation
     }
 
-    if (extension.anisotropyTexture !== undefined) {
+    if (extension.anisotropyTexture != undefined) {
       pending.push(
         GLTFLoaderFunctions.assignTexture(options, extension.anisotropyTexture).then((map) => {
           materialParams.anisotropyMap = map
@@ -823,19 +823,19 @@ export const KHRTextureTransformExtensionComponent = defineComponent({
     /** @todo this throws hookstate 109... */
     // texture = texture.clone()
 
-    if (transform.texCoord !== undefined) {
+    if (transform.texCoord != undefined) {
       texture.channel = transform.texCoord
     }
 
-    if (transform.offset !== undefined) {
+    if (transform.offset != undefined) {
       texture.offset.fromArray(transform.offset)
     }
 
-    if (transform.rotation !== undefined) {
+    if (transform.rotation != undefined) {
       texture.rotation = transform.rotation
     }
 
-    if (transform.scale !== undefined) {
+    if (transform.scale != undefined) {
       texture.repeat.fromArray(transform.scale)
     }
 

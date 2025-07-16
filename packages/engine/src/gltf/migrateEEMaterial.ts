@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
+import { materialValuesToMaterialDef } from './exportGLTFScene'
 
 export const EEMaterialMigrationRegistry = {} as Record<string, string> // prototype name to jsonID
 
@@ -60,26 +61,11 @@ export const migrateEEMaterial = (gltf: GLTF.IGLTF) => {
   for (const material of gltf.materials || []) {
     if (!material.extensions) continue
     const eeMaterial = material.extensions!.EE_material as any
-    if (!eeMaterial?.prototype) continue
-    if (!EEMaterialMigrationRegistry[eeMaterial.prototype]) continue
-    if (eeMaterial.prototype === 'MeshBasicMaterial') {
-      material.extensions.KHR_materials_unlit = {}
-      continue
-    } else if (eeMaterial.prototype === 'MeshPhysicalMaterial') {
-      material.extensions.KHR_materials_specular = {
-        specularFactor: eeMaterial.args.specularIntensity,
-        specularTexture: eeMaterial.args.specularIntensityMap,
-        specularColorFactor: eeMaterial.args.specularColor,
-        specularColorTexture: eeMaterial.args.specularColorMap
-      }
-      continue
-    }
-    const jsonID = EEMaterialMigrationRegistry[eeMaterial.prototype]
-    material.extensions[jsonID] = {
-      ...Object.fromEntries(
-        Object.entries(eeMaterial.args).map(([k, v]: [string, { type: string; contents: any }]) => [k, v.contents])
-      )
-    }
+    if (!eeMaterial?.args) continue
+
+    const converted = materialValuesToMaterialDef(eeMaterial.args)
+    delete material.extensions.EE_material
+    Object.assign(material, converted)
   }
 
   return gltf
