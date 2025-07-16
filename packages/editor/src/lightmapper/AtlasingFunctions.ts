@@ -133,8 +133,8 @@ const getEntities = (entity: Entity) => {
     const transform = getComponent(entity, TransformComponent)
     box.max.set(1, 1, 1).applyMatrix4(transform.matrixWorld)
     box.min.set(-1, -1, -1).applyMatrix4(transform.matrixWorld)
-    // const intersectsVolume = getComponent(entity, BoundingBoxComponent).box.containsBox(mesh.geometry.boundingBox!)
-    if (isValidMesh) {
+    const intersectsVolume = getComponent(entity, BoundingBoxComponent).box.containsBox(mesh.geometry.boundingBox!)
+    if (isValidMesh && intersectsVolume) {
       filteredMeshEntities.push(getSimulationCounterpart(meshEntity))
     }
   }

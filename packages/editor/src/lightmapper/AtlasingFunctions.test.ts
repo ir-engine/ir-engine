@@ -30,6 +30,7 @@ import {
   EntityID,
   EntityTreeComponent,
   getComponent,
+  Layers,
   setComponent,
   SourceID,
   UndefinedEntity,
@@ -40,7 +41,10 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { BoxGeometry, BufferAttribute, Mesh, MeshStandardMaterial } from 'three'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { Box3, BoxGeometry, BufferAttribute, Mesh, MeshStandardMaterial, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { EditorState } from '../services/EditorServices'
 import { AtlasingFunctions, UVUnwrapperState } from './AtlasingFunctions'
@@ -221,6 +225,55 @@ describe('AtlasingFunctions', () => {
       const result = await AtlasingFunctions.generateAtlas(entities, lightmapEntity)
 
       expect(result).toBeUndefined()
+    })
+  })
+
+  describe('getEntities', () => {
+    it('should return mesh entities that are inside the bounding box and filter out those outside', () => {
+      const meshEntity1 = createEntity(Layers.Authoring)
+      const meshEntity2 = createEntity(Layers.Authoring)
+      const meshEntity3 = createEntity(Layers.Authoring)
+
+      const geometry1 = new BoxGeometry(0.5, 0.5, 0.5)
+      const geometry2 = new BoxGeometry(0.5, 0.5, 0.5)
+      const geometry3 = new BoxGeometry(0.5, 0.5, 0.5)
+
+      geometry1.translate(0, 0, 0)
+      geometry1.computeBoundingBox()
+
+      geometry2.translate(0.5, 0.5, 0.5)
+      geometry2.computeBoundingBox()
+
+      geometry3.translate(5, 5, 5)
+      geometry3.computeBoundingBox()
+
+      const mesh1 = new Mesh(geometry1, new MeshStandardMaterial())
+      const mesh2 = new Mesh(geometry2, new MeshStandardMaterial())
+      const mesh3 = new Mesh(geometry3, new MeshStandardMaterial())
+
+      setComponent(meshEntity1, MeshComponent, mesh1)
+      setComponent(meshEntity1, VisibleComponent)
+      setComponent(meshEntity1, TransformComponent)
+
+      setComponent(meshEntity2, MeshComponent, mesh2)
+      setComponent(meshEntity2, VisibleComponent)
+      setComponent(meshEntity2, TransformComponent)
+
+      setComponent(meshEntity3, MeshComponent, mesh3)
+      setComponent(meshEntity3, VisibleComponent)
+      setComponent(meshEntity3, TransformComponent)
+
+      const lightmapEntity = createEntity()
+      setComponent(lightmapEntity, TransformComponent)
+
+      const boundingBox = new Box3(new Vector3(-1, -1, -1), new Vector3(1, 1, 1))
+      setComponent(lightmapEntity, BoundingBoxComponent, { box: boundingBox })
+
+      const result = AtlasingFunctions.getEntities(lightmapEntity)
+
+      // Should return 2 entities (meshEntity1 and meshEntity2) that are inside the bounding box
+      // meshEntity3 should be filtered out as it's outside the bounding box
+      expect(result).toHaveLength(2)
     })
   })
 })
