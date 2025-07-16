@@ -387,7 +387,7 @@ const generateAtlas = async (entities: Entity[], entity: Entity, uvChannel: UVCh
 
   const geometries = entities.map((entity) => getComponent(entity, MeshComponent).geometry)
 
-  unwrapper.packOptions.padding = 1
+  unwrapper.packOptions.padding = 2
 
   await unwrapper.packAtlas(geometries, uvChannel as any, 'uv')
 

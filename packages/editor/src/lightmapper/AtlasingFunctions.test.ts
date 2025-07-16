@@ -271,7 +271,7 @@ describe('AtlasingFunctions', () => {
 
       const result = AtlasingFunctions.getEntities(lightmapEntity)
 
-      // Should return 2 entities (meshEntity1 and meshEntity2) that are inside the bounding box
+      // Should return meshEntity1 and meshEntity2 inside the bounding box
       // meshEntity3 should be filtered out as it's outside the bounding box
       expect(result).toHaveLength(2)
     })
