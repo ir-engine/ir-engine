@@ -28,8 +28,7 @@ import React from 'react'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 // import { VrIcon } from '../../../common/components/Icons/VrIcon'
 import { respawnAvatar } from '@ir-engine/engine/src/avatar/functions/respawnAvatar'
-import { createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
-import { dispatchAction, getMutableState, hookstate, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 import { RegisteredWidgets, WidgetAppActions, WidgetAppState } from '../../WidgetAppService'
@@ -42,14 +41,6 @@ import { useMediaInstance } from '../../../common/services/MediaInstanceConnecti
 import XRIconButton from '../../components/XRIconButton'
 import HandSVG from './back_hand_24px.svg?react'
 import styleString from './index.scss?inline'
-
-export function createWidgetButtonsView() {
-  return createXRUI(WidgetButtons, createWidgetButtonsState())
-}
-
-function createWidgetButtonsState() {
-  return hookstate({})
-}
 
 type WidgetButtonProps = {
   Icon: SVGIconType | IconType

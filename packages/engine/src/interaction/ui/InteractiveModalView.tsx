@@ -25,20 +25,33 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { EntityTreeComponent, createEntity, setComponent } from '@ir-engine/ecs'
+import { EntityTreeComponent, createEntity, getComponent, setComponent } from '@ir-engine/ecs'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
 import { useXRUIState } from '@ir-engine/engine/src/xrui/useXRUIState'
 import { hookstate, isClient } from '@ir-engine/hyperflux'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-import { Color, DoubleSide, Mesh, MeshPhysicalMaterial, Shape, ShapeGeometry, Vector3 } from 'three'
+import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
+import { WebLayer3D } from '@ir-engine/xrui'
+import { Color, DoubleSide, Mesh, MeshBasicMaterial, MeshPhysicalMaterial, Shape, ShapeGeometry, Vector3 } from 'three'
 
 export interface InteractiveModalState {
   interactMessage: string
 }
 
+/**
+ * Creates and returns an XRUI on the specified entity
+ * @param entity entity to add the XRUI to
+ * @param uiMessage  text to display on the UI
+ * @param isInteractable  (optional, default = true) sets whether the UI is interactable or not
+ * @param borderRadiusPx (optional, default = 10) sets the border radius of the UI in px
+ * @param bgPaddingPx (optional, default = 30) sets the padding of the UI background in px
+ * @param contentVerticalPadPx (optional, default = 10) sets the padding of the UI content in px
+ * @param contentHorizontalPadPx (optional, default = 0) sets the padding of the UI content in px
+ */
 export const createModalView = (
   entity: Entity,
   interactMessage: string,
@@ -64,6 +77,17 @@ export const createModalView = (
     { interactable: isInteractable },
     uiEntity
   )
+  const nameComponent = getComponent(entity, NameComponent)
+  setComponent(ui.entity, NameComponent, 'interact-ui-' + interactMessage + '-' + nameComponent)
+
+  const xrui = getComponent(ui.entity, XRUIComponent)
+  xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
+    const mat = layer.contentMesh.material as MeshBasicMaterial
+    mat.transparent = true
+  })
+  const transform = getComponent(ui.entity, TransformComponent)
+  transform.scale.setScalar(1)
+
   return ui
 }
 

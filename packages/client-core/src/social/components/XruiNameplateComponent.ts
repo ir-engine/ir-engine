@@ -44,7 +44,7 @@ import {
   useEntityContext
 } from '@ir-engine/ecs'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
-import { createUI } from '@ir-engine/engine/src/interaction/functions/createUI'
+import { createModalView } from '@ir-engine/engine/src/interaction/ui/InteractiveModalView'
 import { getState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { inFrustum } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
@@ -102,7 +102,7 @@ export const XruiNameplateComponent = defineComponent({
 
 const addNameplateUI = (entity: Entity, username: string) => {
   const xruiNamePlateParams = getState(XruiNameplateState)
-  const uiEntity = createUI(
+  const uiEntity = createModalView(
     entity,
     username,
     xruiNamePlateParams.isInteractable,

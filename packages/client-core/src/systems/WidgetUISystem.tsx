@@ -62,9 +62,10 @@ import { TransformSystem } from '@ir-engine/spatial/src/transform/systems/Transf
 import { ReferenceSpace, XRState, isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import { RegisteredWidgets, WidgetAppActions, WidgetAppService, WidgetAppState } from './WidgetAppService'
 
+import { XRUI, createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { createAnchorWidget } from './createAnchorWidget'
-import { createWidgetButtonsView } from './ui/WidgetMenuView'
+import { WidgetButtons } from './ui/WidgetMenuView'
 
 const widgetLeftMenuGripOffset = new Vector3(0.08, 0, -0.05)
 const widgetRightMenuGripOffset = new Vector3(-0.08, 0, -0.05)
@@ -81,7 +82,7 @@ const widgetRightRotation = new Quaternion()
 const WidgetUISystemState = defineState({
   name: 'WidgetUISystemState',
   initial: {
-    widgetMenuUI: null as ReturnType<typeof createWidgetButtonsView> | null
+    widgetMenuUI: null as XRUI<null> | null
   }
 })
 
@@ -215,7 +216,7 @@ const Reactor = () => {
   }, [xrState.sessionActive])
 
   useEffect(() => {
-    const widgetMenuUI = createWidgetButtonsView()
+    const widgetMenuUI = createXRUI(WidgetButtons) as XRUI<null>
     setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
     setComponent(widgetMenuUI.entity, TransformComponent)
     removeComponent(widgetMenuUI.entity, VisibleComponent)

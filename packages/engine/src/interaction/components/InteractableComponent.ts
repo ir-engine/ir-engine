@@ -72,9 +72,8 @@ import {
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { useEffect } from 'react'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { createUI } from '../functions/createUI'
 import { InteractableState, InteractableTransitions } from '../functions/interactableFunctions'
-import { InteractiveModalState } from '../ui/InteractiveModalView'
+import { createModalView, InteractiveModalState } from '../ui/InteractiveModalView'
 
 /**
  * Visibility override for XRUI, none is default behavior, on or off forces that state
@@ -211,7 +210,7 @@ const addInteractableUI = (entity: Entity) => {
   const interactable = getComponent(entity, InteractableComponent)
   if (!interactable.label || interactable.label === '' || interactable.uiEntity != UndefinedEntity) return //null or empty label = no ui
 
-  const uiEntity = createUI(entity, interactable.label, interactable.uiInteractable).entity
+  const uiEntity = createModalView(entity, interactable.label, interactable.uiInteractable).entity
 
   const uiTransform = getComponent(uiEntity, TransformComponent)
   const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
