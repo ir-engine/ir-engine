@@ -22,6 +22,7 @@
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
     "declaration": true,
+    "erasableSyntaxOnly": true,
     "types": ["@types/node"]
   },
   "exclude": ["./src/*.test.ts", "./src/*.test.tsx"],

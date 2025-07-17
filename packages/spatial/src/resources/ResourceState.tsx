@@ -82,23 +82,25 @@ export interface DisposableObject {
 
 // Cache.enabled = true
 
-export enum ResourceType {
-  Mesh = 'Mesh',
-  SkinnedMesh = 'SkinnedMesh',
-  Texture = 'Texture',
-  Geometry = 'Geometry',
-  Material = 'Material',
-  AnimationClip = 'AnimationClip',
-  Line = 'Line',
-  Light = 'Light',
-  Audio = 'Audio',
-  File = 'File',
-  ArrayBuffer = 'ArrayBuffer',
-  BufferAttribute = 'BufferAttribute',
-  InterleavedBufferAttribute = 'InterleavedBufferAttribute',
-  Unknown = 'Unknown'
-  // ECSData = 'ECSData',
-}
+export const ResourceType = {
+  Mesh: 'Mesh',
+  SkinnedMesh: 'SkinnedMesh',
+  Texture: 'Texture',
+  Geometry: 'Geometry',
+  Material: 'Material',
+  AnimationClip: 'AnimationClip',
+  Line: 'Line',
+  Light: 'Light',
+  Audio: 'Audio',
+  File: 'File',
+  ArrayBuffer: 'ArrayBuffer',
+  BufferAttribute: 'BufferAttribute',
+  InterleavedBufferAttribute: 'InterleavedBufferAttribute',
+  Unknown: 'Unknown'
+  // ECSData: 'ECSData',
+} as const
+
+export type ResourceType = (typeof ResourceType)[keyof typeof ResourceType]
 
 export type ResourceAssetType =
   | Texture

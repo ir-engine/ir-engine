@@ -38,10 +38,12 @@ import {
   ditheringVertexUniform
 } from './ditherShaderChunk'
 
-export enum DitherCalculationType {
-  worldTransformed = 1,
-  localPosition = 0
-}
+export const DitherCalculationType = {
+  worldTransformed: 1,
+  localPosition: 0
+} as const
+
+export type DitherCalculationType = (typeof DitherCalculationType)[keyof typeof DitherCalculationType]
 
 export const MAX_DITHER_POINTS = 2 //should be equal to the length of the vec3 array in the shader
 
@@ -60,7 +62,7 @@ export const TransparencyDitheringPluginComponent = defineMaterialPlugin({
     exponents: S.Class(() => Array.from({ length: MAX_DITHER_POINTS }, () => 1)),
     distances: S.Class(() => Array.from({ length: MAX_DITHER_POINTS }, () => 1)),
     useWorldCalculation: S.Class(() =>
-      Array.from({ length: MAX_DITHER_POINTS }, () => DitherCalculationType.worldTransformed)
+      Array.from({ length: MAX_DITHER_POINTS }, () => DitherCalculationType.worldTransformed as DitherCalculationType)
     )
   }),
 

@@ -338,14 +338,14 @@ out vec2 custom_vUv;`,
 
       '#include <begin_vertex>': `
       vec3 transformed = vec3(position);
-      transformed.x += mix(keyframeAPosition.x, keyframeBPosition.x, mixRatio); 
+      transformed.x += mix(keyframeAPosition.x, keyframeBPosition.x, mixRatio);
       transformed.y += mix(keyframeAPosition.y, keyframeBPosition.y, mixRatio);
       transformed.z += mix(keyframeAPosition.z, keyframeBPosition.z, mixRatio);
-      
+
       #ifdef USE_ALPHAHASH
-      
+
         vPosition = vec3( transformed );
-      
+
       #endif`,
 
       '#include <beginnormal_vertex>': `
@@ -468,14 +468,14 @@ export const getResourceURL = (props: GetResourceURLProps) => {
         throw new Error('getResourceURL:Invalid manifest path for Corto geometry')
       }
     } else {
-      const absolutePlaceholderPath = combineURLs(props.manifestPath, props.path)
+      const absolutePlaceholderPath = combineURLs(props.manifestPath, (props as GetResourceURLNewGeometryProps).path)
       const padLength = countHashes(absolutePlaceholderPath)
       const paddedString = '[' + '#'.repeat(padLength) + ']'
-      const paddedIndex = props.index.toString().padStart(padLength, '0')
+      const paddedIndex = (props as GetResourceURLNewGeometryProps).index.toString().padStart(padLength, '0')
 
       const absolutePath = replaceSubstrings(absolutePlaceholderPath, {
-        '[ext]': FORMAT_TO_EXTENSION[props.format],
-        '[target]': props.target,
+        '[ext]': FORMAT_TO_EXTENSION[(props as GetResourceURLNewGeometryProps).format],
+        '[target]': (props as GetResourceURLNewGeometryProps).target,
         [paddedString]: paddedIndex
       })
 

@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -73,10 +73,12 @@ import PositionalAudioInput from '../audio/positional'
  * MediaNodeEditor used to render editor view for property customization.
  */
 
-export enum MediaMode {
-  video = 'video',
-  audio = 'audio'
-}
+export const MediaMode = {
+  video: 'video',
+  audio: 'audio'
+} as const
+
+export type MediaModeType = (typeof MediaMode)[keyof typeof MediaMode]
 
 const PlayModeOptions = [
   {
@@ -149,7 +151,7 @@ export function updateConeAngle(
 }
 
 export interface MediaInputProps {
-  mediaMode: MediaMode
+  mediaMode: MediaModeType
   entity: Entity
   mediaNodeId: EntityID
   OnMediaSourceUpdate: (value: EntityID) => void
@@ -388,7 +390,7 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
                         [&::-moz-range-thumb]:transition-all
                         [&::-moz-range-thumb]:duration-150
                         [&::-moz-range-thumb]:ease-in-out
-                        group-hover/editor-slider:[&::-moz-range-thumb]:bg-ui-select-secondary 
+                        group-hover/editor-slider:[&::-moz-range-thumb]:bg-ui-select-secondary
                         [&::-moz-range-track]:h-full
                         [&::-moz-range-track]:w-full
                         [&::-moz-range-track]:rounded
@@ -403,7 +405,7 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
                         [&::-webkit-slider-thumb]:transition-all
                         [&::-webkit-slider-thumb]:duration-150
                         [&::-webkit-slider-thumb]:ease-in-out
-                        group-hover/editor-slider:[&::-webkit-slider-thumb]:bg-ui-select-secondary 
+                        group-hover/editor-slider:[&::-webkit-slider-thumb]:bg-ui-select-secondary
                       `}
                       data-testid="slider-draggable-value-input"
                     />
@@ -541,7 +543,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
           Icon={MediaNodeEditor.iconComponent}
         >
           <MediaInput
-            mediaMode={MediaMode.audio}
+            mediaMode={MediaMode.audio as MediaModeType}
             entity={props.entity}
             mediaNodeId={audio.externalMediaNodeID.value}
             OnMediaSourceUpdate={commitProperty(MediaComponent, 'externalMediaNodeID')}

@@ -50,7 +50,7 @@ import { useEffect, useLayoutEffect } from 'react'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AudioState } from '../../audio/AudioState'
 import { removePannerNode } from '../../audio/PositionalAudioFunctions'
-import { PlayMode } from '../constants/PlayMode'
+import { PlayMode, PlayModeType } from '../constants/PlayMode'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
 import isHLS from '../functions/isHLS'
 
@@ -655,7 +655,7 @@ export function setTime(element: State<HTMLMediaElement>, time: number) {
   element.currentTime.set(time)
 }
 
-export function getNextTrack(currentTrack: number, trackCount: number, currentMode: PlayMode) {
+export function getNextTrack(currentTrack: number, trackCount: number, currentMode: PlayModeType) {
   if (trackCount === 0) return -1
 
   let nextTrack = 0

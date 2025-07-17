@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -96,7 +96,7 @@ import ModelTransformLoader from './ModelTransformLoader'
  * @param count
  * @returns
  */
-const createBatch = (doc: Document, batchExtension: EXTMeshGPUInstancing, mesh: Mesh, count) => {
+const createBatch = (doc: Document, batchExtension: EXTMeshGPUInstancing, mesh: Mesh, count: number) => {
   return mesh.listPrimitives().map((prim) => {
     const buffer = prim.getAttribute('POSITION')?.getBuffer() ?? doc.createBuffer()
 
@@ -124,7 +124,7 @@ const createBatch = (doc: Document, batchExtension: EXTMeshGPUInstancing, mesh: 
   })
 }
 
-const removeUVsOnUntexturedMeshes: Transform = (document: Document) => {
+function removeUVsOnUntexturedMeshes(document: Document): Document {
   document
     .getRoot()
     .listMeshes()
@@ -145,6 +145,7 @@ const removeUVsOnUntexturedMeshes: Transform = (document: Document) => {
       prim.setAttribute('TEXCOORD_0', null)
       prim.setAttribute('TEXCOORD_1', null)
     })
+  return document
 }
 
 const split: Transform = (document: Document) => {
@@ -187,7 +188,7 @@ const split: Transform = (document: Document) => {
   })
 }
 
-const pruneUnusedNodes = (nodes: Node[], logger) => {
+const pruneUnusedNodes = (nodes: Node[], logger: unknown) => {
   let node: Node | undefined
   let unusedNodes = 0
   while ((node = nodes.pop())) {
@@ -356,16 +357,17 @@ const hashBuffer = (buffer: Uint8Array): string => {
   return `buffer_${hash}`
 }
 
-enum Status {
-  TransformingModels,
-  ProcessingTexture,
-  WritingFiles,
-  Complete
-}
+const Status = {
+  TransformingModels: 0,
+  ProcessingTexture: 1,
+  WritingFiles: 2,
+  Complete: 3
+} as const
 
+export type ModelTransformStatus = (typeof Status)[keyof typeof Status]
 export { Status as ModelTransformStatus }
 
-const mimeToFileType = (mimeType) => {
+const mimeToFileType = (mimeType: string) => {
   switch (mimeType) {
     case 'image/jpg':
     case 'image/jpeg':
@@ -379,7 +381,7 @@ const mimeToFileType = (mimeType) => {
   }
 }
 
-const fileTypeToMime = (fileType) => {
+const fileTypeToMime = (fileType: string) => {
   switch (fileType) {
     case 'jpg':
       return 'image/jpg'
@@ -400,15 +402,21 @@ const loadIO = async () => {
 }
 let ktx2Encoder: KTX2Encoder | null = null
 
-const doUpload = async (projectName, fileName, buffer, path?: string, publishing = false) => {
+const doUpload = async (
+  projectName: string,
+  fileName: string,
+  buffer: ArrayBuffer | Blob,
+  path?: string,
+  publishing = false
+) => {
   const file = new File([buffer], fileName)
   const uploadRequestState = getMutableState(UploadRequestState)
   const queue = uploadRequestState.queue.get(NO_PROXY)
-  let resolver
-  const promise = new Promise((resolve) => {
-    resolver = resolve
+  let resolveFunc!: () => void
+  const promise = new Promise<void>((resolve) => {
+    resolveFunc = () => resolve()
   })
-  uploadRequestState.queue.set([...queue, { file, projectName, callback: resolver, path: path }])
+  uploadRequestState.queue.set([...queue, { file, projectName, callback: resolveFunc, path: path }])
   if (fileName.includes('compressed-published') || publishing) {
     uploadRequestState.isOnPublishing.set(true)
   }
@@ -613,7 +621,7 @@ const createTextureOperations = (
 
   return operations
 }
-const validTextureFileName = (input: string) => {
+function validTextureFileName(input: string): string {
   let result = ''
   if (VALID_FILENAME_REGEX.test(input)) {
     return input
@@ -731,7 +739,7 @@ const writeFiles = async (
   if (['glb', 'vrm'].includes(modelFormat)) {
     // For GLB/VRM, we keep textures embedded and don't process them separately
     const data = await io.writeBinary(document)
-    await doUpload(...toProjectAndFileName(finalPath, srcBaseURL), data, path, publishing)
+    await doUpload(...toProjectAndFileName(finalPath, srcBaseURL), new Blob([data]), path, publishing)
   } else if (modelFormat === 'gltf') {
     await Promise.all(
       [root.listBuffers(), root.listMeshes(), root.listTextures()].map(
@@ -783,7 +791,7 @@ const writeFiles = async (
         resourceUri.length > 0 ? resourceUri : resourceName + '_resources',
         `${
           (image.uri ?? '').length > 0 ? removeExtension(image.uri!).replaceAll(/^\.\//g, '') : image.name
-        }.${mimeToFileType(image.mimeType)}`
+        }.${mimeToFileType(image.mimeType || '')}`
       )
       resources[nuURI] = resources[image.uri!]
       delete resources[image.uri!]
@@ -822,7 +830,7 @@ const writeFiles = async (
 }
 
 // Add a function to preserve vertex colors
-const preserveVertexColors: Transform = (document: Document) => {
+function preserveVertexColors(document: Document): Document {
   document
     .getRoot()
     .listMeshes()
@@ -836,6 +844,7 @@ const preserveVertexColors: Transform = (document: Document) => {
         colorAttr.setExtras({ preserve: true })
       }
     })
+  return document
 }
 function hasKeywordInExtras(node: Node, keyword: string): boolean {
   const extras = node.getExtras()
@@ -915,8 +924,8 @@ async function preserveChildrenHierarchyAroundFlatten(document: Document, keywor
 export const transformModel = async (
   srcURL: string,
   modelOperations: ModelTransformParameters[],
-  onMetadata: (index: number, key: string, data: any) => void = (key, data) => {},
-  onProgress?: (progress: number, status: Status, numerator?: number, denominator?: number) => void
+  onMetadata: (index: number, key: string, data: any) => void = (_key, _data) => {},
+  onProgress?: (progress: number, status: ModelTransformStatus, numerator?: number, denominator?: number) => void
 ): Promise<string[]> => {
   onProgress?.(0, Status.TransformingModels)
 
@@ -978,7 +987,7 @@ export const transformModel = async (
   for (let i = 0; i < numDocOperations; i++) {
     const params = modelOperations[i]
     const isGLBFormat = ['glb', 'vrm'].includes(params.modelFormat)
-    const document = await cloneDocument(srcDocument)
+    const document = cloneDocument(srcDocument)
     // Preserve nodes with certain keywords in extras
     preserveNodesInScene(document, keyWordsToPreserveNode)
     // Preserve vertex colors before applying transformations
@@ -1236,14 +1245,14 @@ const getVertexDensityImportance = (mesh: Mesh): number => {
 }
 
 // adaptiveSimplify function with inverted logic to increase simplification
-const adaptiveSimplify = (document: Document, args: ModelTransformParameters) => {
+function adaptiveSimplify(document: Document, args: ModelTransformParameters): Document {
   const meshes = document.getRoot().listMeshes()
 
   for (const mesh of meshes) {
     const importance = calculateMeshImportance(mesh)
     const adaptiveRatio = args.simplifyRatio * importance
 
-    for (const prim of mesh.listPrimitives()) {
+    for (const _prim of mesh.listPrimitives()) {
       try {
         simplify({
           simplifier: MeshoptSimplifier,
@@ -1255,6 +1264,8 @@ const adaptiveSimplify = (document: Document, args: ModelTransformParameters) =>
       }
     }
   }
+
+  return document
 }
 
 async function resizeImage(
@@ -1306,7 +1317,7 @@ async function resizeImage(
 const safeImageCompress = async (
   document: Document,
   params: ModelTransformParameters,
-  onProgress?: (progress: number, status: Status, numerator?: number, denominator?: number) => void
+  onProgress?: (progress: number, status: ModelTransformStatus, numerator?: number, denominator?: number) => void
 ) => {
   const textures = document.getRoot().listTextures()
   const numTextures = textures.length
@@ -1341,7 +1352,7 @@ export async function safeCompressGLTFWeb(
   srcURL: string,
   destinationUrl: string,
   params: ModelTransformParameters,
-  onProgress?: (progress: number, status: Status, numerator?: number, denominator?: number) => void
+  onProgress?: (progress: number, status: ModelTransformStatus, numerator?: number, denominator?: number) => void
 ) {
   onProgress?.(0, Status.TransformingModels)
 

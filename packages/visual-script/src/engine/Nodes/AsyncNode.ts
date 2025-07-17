@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -29,11 +29,11 @@ import { IGraph } from '../Graphs/Graph'
 import { Socket } from '../Sockets/Socket'
 import { Node, NodeConfiguration } from './Node'
 import { IAsyncNodeDefinition, NodeCategory } from './NodeDefinitions'
-import { IAsyncNode, INode, NodeType } from './NodeInstance'
+import { IAsyncNode, INode } from './NodeInstance'
 import { NodeDescription } from './Registry/NodeDescription'
 
 // async flow node with only a single flow input
-export class AsyncNode extends Node<NodeType.Async> {
+export class AsyncNode extends Node<'Async'> {
   constructor(
     description: NodeDescription,
     graph: IGraph,
@@ -49,7 +49,7 @@ export class AsyncNode extends Node<NodeType.Async> {
       inputs,
       outputs,
       graph,
-      nodeType: NodeType.Async,
+      nodeType: 'Async',
       configuration
     })
 
@@ -75,16 +75,13 @@ export class AsyncNode2 extends AsyncNode {
   }
 }
 
-export class AsyncNodeInstance<TAsyncNodeDef extends IAsyncNodeDefinition>
-  extends Node<NodeType.Async>
-  implements IAsyncNode
-{
+export class AsyncNodeInstance<TAsyncNodeDef extends IAsyncNodeDefinition> extends Node<'Async'> implements IAsyncNode {
   private triggeredInner: TAsyncNodeDef['triggered']
   private disposeInner: TAsyncNodeDef['dispose']
   private state: TAsyncNodeDef['initialState']
 
   constructor(node: Omit<INode, 'nodeType'> & Pick<TAsyncNodeDef, 'triggered' | 'initialState' | 'dispose'>) {
-    super({ ...node, nodeType: NodeType.Async })
+    super({ ...node, nodeType: 'Async' })
 
     this.triggeredInner = node.triggered
     this.disposeInner = node.dispose

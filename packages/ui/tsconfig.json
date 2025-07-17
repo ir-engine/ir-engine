@@ -3,7 +3,11 @@
     "target": "ESNext",
     "useDefineForClassFields": true,
     "module": "CommonJS",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "skipLibCheck": true,
     "moduleResolution": "node",
     "allowImportingTsExtensions": true,
@@ -24,8 +28,21 @@
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
     "declaration": false,
-    "types": ["@types/node"]
+    "types": [
+      "@types/node"
+    ],
+    "erasableSyntaxOnly": true
   },
-  "exclude": ["./src/**/*.test.tsx"],
-  "include": ["../../__global.d.ts", "../server-core/src", "../client-core/src", "./src", "./index.ts", "./editor.ts", "scripts/build-icons.ts"]
+  "exclude": [
+    "./src/**/*.test.tsx"
+  ],
+  "include": [
+    "../../__global.d.ts",
+    "../server-core/src",
+    "../client-core/src",
+    "./src",
+    "./index.ts",
+    "./editor.ts",
+    "scripts/build-icons.ts"
+  ]
 }

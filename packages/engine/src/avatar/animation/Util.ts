@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -87,13 +87,15 @@ const matchesMovementType = matches.shape({
 export type MovementType = typeof matchesMovementType._TYPE
 
 /** Animation type */
-export enum AnimationType {
+export const AnimationType = {
   /** Static will be rendered on demand */
-  STATIC,
+  STATIC: 0,
 
   /** This type of animation will be rendred based on the velocity of the avatar */
-  VELOCITY_BASED
-}
+  VELOCITY_BASED: 1
+} as const
+
+export type AnimationTypeValue = (typeof AnimationType)[keyof typeof AnimationType]
 
 /** Type of calculate weights method parameters */
 export const matchesWeightsParameters = matches.partial({

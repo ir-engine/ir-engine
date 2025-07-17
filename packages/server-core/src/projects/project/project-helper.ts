@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -50,7 +50,7 @@ import {
   NPM_GIT_REFERENCE,
   PUBLIC_SIGNED_REGEX
 } from '@ir-engine/common/src/regex'
-import { AssetType, FileToAssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
+import { FileToAssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
 
 import { ManifestJson } from '@ir-engine/common/src/interfaces/ManifestJson'
 import { ProjectPackageJsonType } from '@ir-engine/common/src/interfaces/ProjectPackageJsonType'
@@ -77,7 +77,6 @@ import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import { getState } from '@ir-engine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@ir-engine/projects/ProjectConfigInterface'
 
-import { google } from '@google-cloud/artifact-registry/build/protos/protos'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { retry } from '@octokit/plugin-retry'
@@ -97,7 +96,8 @@ import { getGitConfigData, getGitHeadData, getGitOrigHeadData } from '../../util
 import { useGit } from '../../util/gitHelperFunctions'
 import { getAuthenticatedRepo, getOctokitForChecking, getUserRepos } from './github-helper'
 import { ProjectParams } from './project.class'
-import IDockerImage = google.devtools.artifactregistry.v1.IDockerImage
+// Define DockerImage type
+type DockerImage = any
 
 // Types for dependency resolution
 type DependencySpec =
@@ -617,7 +617,7 @@ export const checkDestination = async (app: Application, url: string, params?: P
 
     if (!repoAccessible) {
       returned.error = 'invalidDestinationURL'
-      returned.text = `You do not appear to have access to this repository. If this seems wrong, click the button 
+      returned.text = `You do not appear to have access to this repository. If this seems wrong, click the button
       "Refresh GitHub Repo Access" and try again. If you are only in the organization that owns this repo, make sure that the
       organization has installed the OAuth app associated with this installation, and that your personal GitHub account
       has granted access to the organization: https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-your-membership-in-organizations/requesting-organization-approval-for-oauth-apps`
@@ -904,7 +904,7 @@ export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> 
     }
   } else if (isGCP) {
     const arClient = new ArtifactRegistryClient()
-    let images = [] as IDockerImage[]
+    let images = [] as DockerImage[]
     let gcpBuilderRepo = `${process.env.SOURCE_REPO_URL}/${process.env.SOURCE_REPO_NAME_STEM}-builder`
     switch (config.server.releaseName) {
       case 'mt-qat-dev':
@@ -2074,16 +2074,7 @@ const getResourceType = (key: string, resource?: ResourceType) => {
   return 'file'
 }
 
-const staticResourceClasses = [
-  AssetType.Audio,
-  AssetType.Image,
-  AssetType.Model,
-  AssetType.Video,
-  AssetType.Volumetric,
-  AssetType.Lookdev,
-  AssetType.Material,
-  AssetType.Prefab
-]
+const staticResourceClasses = ['Audio', 'Image', 'Model', 'Video', 'Volumetric', 'Lookdev', 'Material', 'Prefab']
 
 const ignoreFiles = ['.ds_store']
 

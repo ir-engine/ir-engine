@@ -69,18 +69,20 @@ export type VariantLevel = {
 }
 
 export const Heuristic = {
-  DISTANCE: 'DISTANCE' as const,
-  MANUAL: 'MANUAL' as const,
-  DEVICE: 'DEVICE' as const
-}
+  DISTANCE: 'DISTANCE',
+  MANUAL: 'MANUAL',
+  DEVICE: 'DEVICE'
+} as const
 
-export type Heuristic = (typeof Heuristic)[keyof typeof Heuristic]
+export type HeuristicType = (typeof Heuristic)[keyof typeof Heuristic]
 
 export const Devices = {
-  DESKTOP: 'DESKTOP' as const,
-  MOBILE: 'MOBILE' as const,
-  XR: 'XR' as const
-}
+  DESKTOP: 'DESKTOP',
+  MOBILE: 'MOBILE',
+  XR: 'XR'
+} as const
+
+export type DevicesType = (typeof Devices)[keyof typeof Devices]
 
 export const distanceMetadataSchema = S.Object({
   minDistance: S.Union([S.Number(), S.Undefined()], { default: undefined }),

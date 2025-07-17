@@ -86,7 +86,7 @@ export const useNonSpatialInputSources = () => {
       const code = event.code
       const down = event.type === 'keydown'
 
-      const buttonState = inputSourceComponent.buttons
+      const buttonState = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonBindings>
       if (down) buttonState[code] = createInitialButtonState(eid)
       else if (buttonState[code]) buttonState[code].up = true
     }
@@ -103,14 +103,14 @@ export const useNonSpatialInputSources = () => {
     document.addEventListener('touchstickmove', handleTouchDirectionalPad)
 
     const handleTouchGamepadButtonDown = (event: CustomEvent) => {
-      const buttonState = inputSourceComponent.buttons
+      const buttonState = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonBindings>
       buttonState[event.detail.button] = createInitialButtonState(eid)
     }
     document.addEventListener('touchgamepadbuttondown', handleTouchGamepadButtonDown)
 
     const handleTouchGamepadButtonUp = (event: CustomEvent) => {
-      const buttonState = inputSourceComponent.buttons
-      if (buttonState[event.detail.button]) buttonState[event.detail.button].up = true
+      const buttonState = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonBindings>
+      if (buttonState[event.detail.button]) buttonState[event.detail.button]!.up = true
     }
     document.addEventListener('touchgamepadbuttonup', handleTouchGamepadButtonUp)
 

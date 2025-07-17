@@ -25,6 +25,7 @@
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
     "declaration": false,
+    "erasableSyntaxOnly": true,
     "types": ["@types/node"]
   },
   "include": ["./__global.d.ts"]

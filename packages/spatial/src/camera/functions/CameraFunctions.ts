@@ -98,15 +98,17 @@ export function computeCameraDistanceAndCenterFromBox(camera: PerspectiveCamera,
 /**
  * Camera view angles enum
  */
-export enum CameraViewAngle {
-  FRONT = 'front',
-  BACK = 'back',
-  LEFT = 'left',
-  RIGHT = 'right',
-  TOP = 'top',
-  BOTTOM = 'bottom',
-  PERSPECTIVE = 'perspective' // Default perspective view for thumbnail
-}
+export const CameraViewAngle = {
+  FRONT: 'front',
+  BACK: 'back',
+  LEFT: 'left',
+  RIGHT: 'right',
+  TOP: 'top',
+  BOTTOM: 'bottom',
+  PERSPECTIVE: 'perspective' // Default perspective view for thumbnail
+} as const
+
+export type CameraViewAngle = (typeof CameraViewAngle)[keyof typeof CameraViewAngle]
 
 export function setCameraFocusOnBoxFromAngle(
   modelEntity: Entity,

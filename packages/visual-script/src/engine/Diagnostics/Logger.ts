@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -28,12 +28,14 @@ Infinite Reality Engine. All Rights Reserved.
 import { LogSeverity } from '../../profiles/ProfilesModule'
 import { EventEmitter } from '../Events/EventEmitter'
 
-export enum LogLevel {
-  Verbose = 0,
-  Info = 1,
-  Warning = 2,
-  Error = 3
-}
+export const LogLevel = {
+  Verbose: 0,
+  Info: 1,
+  Warning: 2,
+  Error: 3
+} as const
+
+export type LogLevel = (typeof LogLevel)[keyof typeof LogLevel]
 
 export function logSeverityToLevel(severity: LogSeverity) {
   switch (severity) {
@@ -47,11 +49,13 @@ export function logSeverityToLevel(severity: LogSeverity) {
       return LogLevel.Error
   }
 }
-export enum PrefixStyle {
-  None = 0,
-  Default = 1,
-  Time = 2
-}
+export const PrefixStyle = {
+  None: 0,
+  Default: 1,
+  Time: 2
+} as const
+
+export type PrefixStyle = (typeof PrefixStyle)[keyof typeof PrefixStyle]
 
 const Reset = '\x1b[0m'
 const FgRed = '\x1b[31m'
@@ -62,35 +66,36 @@ export type LogMessage = { severity: LogSeverity; text: string }
 
 export class Logger {
   static logLevel = LogLevel.Info
-  static prefixStyle = PrefixStyle.Default
+  static prefixStyle: number = 1 // PrefixStyle.Default
 
   public static readonly onLog = new EventEmitter<LogMessage>()
 
   static {
     const prefix = (): string => {
-      switch (Logger.prefixStyle) {
-        case PrefixStyle.None:
-          return ''
-        case PrefixStyle.Default:
-          return '[ee Visual Script]:'
-        case PrefixStyle.Time:
-          return new Date().toLocaleTimeString().padStart(11, '0') + ' '
+      const prefixStyle = Logger.prefixStyle
+      if (prefixStyle === 0) {
+        // PrefixStyle.None
+        return ''
+      } else if (prefixStyle === 1) {
+        // PrefixStyle.Default
+        return '[ee Visual Script]:'
+      } else if (prefixStyle === 2) {
+        // PrefixStyle.Time
+        return new Date().toLocaleTimeString().padStart(11, '0') + ' '
       }
+      return ''
     }
 
     Logger.onLog.addListener((logMessage: LogMessage) => {
       if (Logger.logLevel > logSeverityToLevel(logMessage.severity)) return // verbose if for in graph only
 
-      switch (logSeverityToLevel(logMessage.severity)) {
-        case LogLevel.Info:
-          console.info(prefix() + logMessage.text)
-          break
-        case LogLevel.Warning:
-          console.warn(prefix() + logMessage.text)
-          break
-        case LogLevel.Error:
-          console.error(prefix() + logMessage.text)
-          break
+      const level = logSeverityToLevel(logMessage.severity)
+      if (level === LogLevel.Info) {
+        console.info(prefix() + logMessage.text)
+      } else if (level === LogLevel.Warning) {
+        console.warn(prefix() + logMessage.text)
+      } else if (level === LogLevel.Error) {
+        console.error(prefix() + logMessage.text)
       }
     })
   }

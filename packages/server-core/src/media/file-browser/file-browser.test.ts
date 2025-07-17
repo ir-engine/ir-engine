@@ -505,7 +505,9 @@ describe('file-browser.test', () => {
 
     const newData = getRandomizedName('new data')
     const body = Buffer.from(newData, 'utf-8')
-    const testFileSize = Buffer.byteLength(body)
+    // In TypeScript 5.8.3, Buffer needs to be explicitly converted to Uint8Array for compatibility
+    const uint8Array = new Uint8Array(body)
+    const testFileSize = uint8Array.byteLength
 
     it('creates a file if user1, an owner, does so', async () => {
       const resource = await app.service(fileBrowserPath).patch(

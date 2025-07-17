@@ -119,8 +119,8 @@
     "@types/cli": "0.11.21",
     "@types/primus": "^7.3.6",
     "@types/three": "0.176.0",
-    "@typescript-eslint/eslint-plugin": "^8.32.0",
-    "@typescript-eslint/parser": "^8.32.0",
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/parser": "^8.32.1",
     "@vitejs/plugin-react": "4.3.1",
     "@vitest/coverage-istanbul": "2.1.1",
     "@vitest/ui": "2.1.1",
@@ -174,6 +174,6 @@
     "ollama": "^0.5.16",
     "patch-package": "^8.0.0",
     "ts-node": "10.9.2",
-    "typescript": "5.6.3"
+    "typescript": "5.8.3"
   }
 }

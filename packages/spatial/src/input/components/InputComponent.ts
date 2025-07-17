@@ -388,11 +388,13 @@ function getLargestMagnitudeNumber(a: number, b: number) {
   return Math.abs(a) > Math.abs(b) ? a : b
 }
 
-export const enum InputExecutionOrder {
-  'Before' = -1,
-  'With' = 0,
-  'After' = 1
-}
+export const InputExecutionOrder = {
+  Before: -1,
+  With: 0,
+  After: 1
+} as const
+
+export type InputExecutionOrder = (typeof InputExecutionOrder)[keyof typeof InputExecutionOrder]
 
 function getInputExecutionInsert(order: InputExecutionOrder) {
   switch (order) {

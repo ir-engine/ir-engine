@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -69,6 +69,9 @@ export class WebLayer3D extends Object3D {
   static GEOMETRY = new PlaneGeometry(1, 1, 2, 2)
   static FLIPPED_GEOMETRY = flipY(new PlaneGeometry(1, 1, 2, 2))
 
+  element: Element
+  container: WebContainer3D
+
   static shouldApplyDOMLayout(layer: WebLayer3D) {
     const should = layer.shouldApplyDOMLayout
     if ((should as any) === 'always' || should === true) return true
@@ -83,62 +86,6 @@ export class WebLayer3D extends Object3D {
 
   private _camera?: PerspectiveCamera
 
-  constructor(
-    public element: Element,
-    public container: WebContainer3D
-  ) {
-    super()
-    this.name = element.id
-    this._webLayer = WebRenderer.getClosestLayer(element)!
-    ;(element as any).layer = this
-
-    // this.scalable = this.element.hasAttribute('xr-scalable')
-    const applyDomElement = this.element.getAttribute('xr-apply-dom-layout')
-    if (applyDomElement) this.shouldApplyDOMLayout = applyDomElement
-
-    // compressed textures need flipped geometry]
-    const geometry = this._webLayer.isMediaElement ? WebLayer3D.GEOMETRY : WebLayer3D.FLIPPED_GEOMETRY
-
-    this.contentMesh = new Mesh(
-      geometry,
-      new MeshBasicMaterial({
-        side: DoubleSide,
-        depthWrite: false,
-        transparent: true,
-        alphaTest: 0.001,
-        opacity: 1,
-        toneMapped: false
-      })
-    )
-    this._boundsMesh = new Mesh(
-      geometry,
-      new MeshBasicMaterial({
-        visible: false,
-        opacity: 0
-      })
-    )
-
-    this.add(this.contentMesh)
-    this.add(this._boundsMesh)
-    this.cursor.visible = false
-
-    this.matrixAutoUpdate = true
-
-    this.contentMesh.matrixAutoUpdate = true
-    this.contentMesh.visible = false
-    this.contentMesh['customDepthMaterial'] = this.depthMaterial
-    this.contentMesh.onBeforeRender = (renderer, scene, camera) => {
-      this._camera = camera as PerspectiveCamera
-    }
-
-    this._boundsMesh.matrixAutoUpdate = true
-
-    this.container.options.manager.layersByElement.set(this.element, this)
-    this.container.options.manager.layersByMesh.set(this.contentMesh, this)
-
-    // this.childContentMeshTemplate = this.contentMesh.clone()
-  }
-
   protected _webLayer: WebLayer
 
   private _localZ = 0
@@ -148,7 +95,7 @@ export class WebLayer3D extends Object3D {
   private _mediaSrc?: string
   private _mediaTexture?: VideoTexture | Texture
 
-  textures = new Set<Texture>()
+  textures: Set<Texture>
 
   private _previousTexture?: VideoTexture | CompressedTexture | Texture
 
@@ -248,18 +195,79 @@ export class WebLayer3D extends Object3D {
    */
   private _boundsMesh: Mesh
 
-  cursor = new Object3D()
-
+  cursor: Object3D
   /**
    * Allows correct shadow maps
    */
-  depthMaterial = new MeshDepthMaterial({
-    depthPacking: RGBADepthPacking,
-    alphaTest: 0.001
-  })
+  depthMaterial: MeshDepthMaterial
+  domLayout: Object3D
+  domSize: Vector3
 
-  domLayout = new Object3D()
-  domSize = new Vector3(1, 1, 1)
+  constructor(element: Element, container: WebContainer3D) {
+    super()
+    this.element = element
+    this.container = container
+    this.name = element.id
+    this._webLayer = WebRenderer.getClosestLayer(element)!
+    ;(element as any).layer = this
+
+    // Initialize properties that were previously class fields
+    this.cursor = new Object3D()
+    this.cursor.visible = false
+
+    this.depthMaterial = new MeshDepthMaterial({
+      depthPacking: RGBADepthPacking,
+      alphaTest: 0.001
+    })
+
+    this.domLayout = new Object3D()
+    this.domSize = new Vector3(1, 1, 1)
+
+    // this.scalable = this.element.hasAttribute('xr-scalable')
+    const applyDomElement = this.element.getAttribute('xr-apply-dom-layout')
+    if (applyDomElement) this.shouldApplyDOMLayout = applyDomElement
+
+    // compressed textures need flipped geometry]
+    const geometry = this._webLayer.isMediaElement ? WebLayer3D.GEOMETRY : WebLayer3D.FLIPPED_GEOMETRY
+
+    this.contentMesh = new Mesh(
+      geometry,
+      new MeshBasicMaterial({
+        side: DoubleSide,
+        depthWrite: false,
+        transparent: true,
+        alphaTest: 0.001,
+        opacity: 1,
+        toneMapped: false
+      })
+    )
+    this._boundsMesh = new Mesh(
+      geometry,
+      new MeshBasicMaterial({
+        visible: false,
+        opacity: 0
+      })
+    )
+
+    this.add(this.contentMesh)
+    this.add(this._boundsMesh)
+
+    this.matrixAutoUpdate = true
+
+    this.contentMesh.matrixAutoUpdate = true
+    this.contentMesh.visible = false
+    this.contentMesh['customDepthMaterial'] = this.depthMaterial
+    this.contentMesh.onBeforeRender = (renderer, scene, camera) => {
+      this._camera = camera as PerspectiveCamera
+    }
+
+    this._boundsMesh.matrixAutoUpdate = true
+
+    this.container.options.manager.layersByElement.set(this.element, this)
+    this.container.options.manager.layersByMesh.set(this.contentMesh, this)
+
+    // this.childContentMeshTemplate = this.contentMesh.clone()
+  }
 
   /**
    * The desired pseudo state (changing this will set needsRefresh to true)
@@ -302,14 +310,14 @@ export class WebLayer3D extends Object3D {
     return this._webLayer.needsRemoval
   }
 
-  bounds = new Bounds()
-  margin = new Edges()
+  bounds: Bounds
+  margin: Edges
 
   get parentWebLayer(): WebLayer3D | undefined {
     return this._webLayer.parentLayer && this.container.manager.layersByElement.get(this._webLayer.parentLayer.element)
   }
 
-  childWebLayers: WebLayer3D[] = []
+  childWebLayers = [] as WebLayer3D[]
 
   /**
    * Specifies whether or not the DOM layout should be applied.
@@ -324,7 +332,7 @@ export class WebLayer3D extends Object3D {
    *
    * Defaults to `auto`
    */
-  shouldApplyDOMLayout: true | false | string = 'auto'
+  shouldApplyDOMLayout: true | false | string
 
   /**
    * Refresh from DOM (potentially slow, call only when needed)

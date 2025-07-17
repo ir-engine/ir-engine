@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -31,53 +31,53 @@ import { WorkerPool } from '@ir-engine/spatial/src/common/classes/WorkerPool'
 // @ts-ignore
 const workerPath = isClient ? new URL('./KTX2Worker.bundle.js', import.meta.url).href : ''
 
-export enum UASTCFlags {
+export const UASTCFlags = {
   /** Fastest is the lowest quality, although it's stil substantially higher quality vs. BC1/ETC1. It supports 5 modes.
     /* The output may be somewhat blocky because this setting doesn't support 2/3-subset UASTC modes, but it should be less blocky vs. BC1/ETC1.
-    /* This setting doesn't write BC1 hints, so BC1 transcoding will be slower. 
+    /* This setting doesn't write BC1 hints, so BC1 transcoding will be slower.
     /* Transcoded ETC1 quality will be lower because it only considers 2 hints out of 32.
     /* Avg. 43.45 dB
      */
-  UASTCLevelFastest = 0,
+  UASTCLevelFastest: 0,
 
   /** Faster is ~3x slower than fastest. It supports 9 modes.
     /* Avg. 46.49 dB
     */
-  UASTCLevelFaster = 1,
+  UASTCLevelFaster: 1,
 
   /** Default is ~5.5x slower than fastest. It supports 14 modes.
     /* Avg. 47.47 dB
     */
-  UASTCLevelDefault = 2,
+  UASTCLevelDefault: 2,
 
   /** Slower is ~14.5x slower than fastest. It supports all 18 modes.
     /* Avg. 48.01 dB
     */
-  UASTCLevelSlower = 3,
+  UASTCLevelSlower: 3,
 
-  /** VerySlow is ~200x slower than fastest. 
+  /** VerySlow is ~200x slower than fastest.
     /* The best quality the codec is capable of, but you'll need to be patient or have a lot of cores.
     /* Avg. 48.24 dB
     */
-  UASTCLevelVerySlow = 4,
+  UASTCLevelVerySlow: 4,
 
-  UASTCLevelMask = 0xf,
+  UASTCLevelMask: 0xf,
 
   /** By default the encoder tries to strike a balance between UASTC and transcoded BC7 quality.
     /** These flags allow you to favor only optimizing for lowest UASTC error, or lowest BC7 error.
     */
-  UASTCFavorUASTCError = 8,
-  UASTCFavorBC7Error = 16,
+  UASTCFavorUASTCError: 8,
+  UASTCFavorBC7Error: 16,
 
-  UASTCETC1FasterHints = 64,
-  UASTCETC1FastestHints = 128,
-  UASTCETC1DisableFlipAndIndividual = 256,
+  UASTCETC1FasterHints: 64,
+  UASTCETC1FastestHints: 128,
+  UASTCETC1DisableFlipAndIndividual: 256,
 
   /**
    * Favor UASTC modes 0 and 10 more than the others (this is experimental, it's useful for RDO compression)
    */
-  UASTCFavorSimplerModes = 512
-}
+  UASTCFavorSimplerModes: 512
+} as const
 export interface KTX2EncodeOptions {
   /**
    * If true, the input is assumed to be in sRGB space. Be sure to set this correctly! (Examples: True on photos, albedo/spec maps, and false on normal maps.)
@@ -140,9 +140,10 @@ export type KTX2EncodeResponseData = {
 }
 
 export class KTX2Encoder {
-  pool = new WorkerPool(1)
+  pool: WorkerPool
 
   constructor() {
+    this.pool = new WorkerPool(1)
     this.pool.setWorkerCreator(() => createWorkerFromCrossOriginURL(workerPath, false, { name: 'KTX2 Encoder' }))
   }
 

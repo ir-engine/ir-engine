@@ -36,8 +36,10 @@ import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { useVisualScriptRunner } from '../systems/useVisualScriptRunner'
 
 export const VisualScriptDomain = {
-  ECS: 'ECS' as const
-}
+  ECS: 'ECS'
+} as const
+
+export type VisualScriptDomainType = (typeof VisualScriptDomain)[keyof typeof VisualScriptDomain]
 
 export const VisualScriptComponent = defineComponent({
   name: 'VisualScriptComponent',

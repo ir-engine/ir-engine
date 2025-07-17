@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -46,11 +46,13 @@ const moderationTableColumns: ITableHeadCell[] = [
   { id: 'action', label: t('admin:components.moderation.columns.action') }
 ]
 
-enum ModerationFilterStatus {
-  All = 'all',
-  Open = 'open',
-  Resolved = 'resolved'
-}
+const ModerationFilterStatus = {
+  All: 'all',
+  Open: 'open',
+  Resolved: 'resolved'
+} as const
+
+type ModerationFilterStatusType = (typeof ModerationFilterStatus)[keyof typeof ModerationFilterStatus]
 const getStatusFilterOptions = (t: (key: string) => string) =>
   Object.values(ModerationFilterStatus).map((option) => ({
     label: t(`admin:components.moderation.${option}`),
@@ -59,7 +61,7 @@ const getStatusFilterOptions = (t: (key: string) => string) =>
 
 export default function ModerationTable({ search }) {
   const { t } = useTranslation()
-  const [statusFilter, setStatusFilter] = useState(ModerationFilterStatus.All)
+  const [statusFilter, setStatusFilter] = useState<ModerationFilterStatusType>(ModerationFilterStatus.All)
   const [selectedReport, setSelectedReport] = useState<ModerationType>()
 
   const handleViewDetails = (report) => {
@@ -147,7 +149,7 @@ export default function ModerationTable({ search }) {
               labelProps={{ text: t('admin:components.moderation.statusFilter'), position: 'left' }}
               options={statusFilterOptions}
               value={statusFilter}
-              onChange={(selected) => setStatusFilter(selected as ModerationFilterStatus)}
+              onChange={(selected) => setStatusFilter(selected as ModerationFilterStatusType)}
             />
           </div>
           <DataTable

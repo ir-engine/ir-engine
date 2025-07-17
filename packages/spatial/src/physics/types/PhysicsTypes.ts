@@ -42,12 +42,14 @@ export interface Quat {
   w: number
 }
 
-export enum SceneQueryType {
+export const SceneQueryType = {
   // todo
-  // Any,
-  // Multiple,
-  Closest
-}
+  // Any: 'Any',
+  // Multiple: 'Multiple',
+  Closest: 'Closest'
+} as const
+
+export type SceneQueryType = (typeof SceneQueryType)[keyof typeof SceneQueryType]
 
 export interface RaycastHit {
   distance: number
@@ -58,14 +60,16 @@ export interface RaycastHit {
   entity: Entity
 }
 
-export enum CollisionEvents {
-  COLLISION_START = 'COLLISION_START',
-  COLLISION_PERSIST = 'COLLISION_PERSIST',
-  COLLISION_END = 'COLLISION_END',
-  TRIGGER_START = 'TRIGGER_START',
-  TRIGGER_PERSIST = 'TRIGGER_PERSIST',
-  TRIGGER_END = 'TRIGGER_END'
-}
+export const CollisionEvents = {
+  COLLISION_START: 'COLLISION_START',
+  COLLISION_PERSIST: 'COLLISION_PERSIST',
+  COLLISION_END: 'COLLISION_END',
+  TRIGGER_START: 'TRIGGER_START',
+  TRIGGER_PERSIST: 'TRIGGER_PERSIST',
+  TRIGGER_END: 'TRIGGER_END'
+} as const
+
+export type CollisionEvents = (typeof CollisionEvents)[keyof typeof CollisionEvents]
 
 export type ColliderHitEvent = {
   type: CollisionEvents

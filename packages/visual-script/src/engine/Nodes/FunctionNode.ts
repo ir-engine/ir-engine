@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -34,17 +34,19 @@ import {
   SocketsList,
   makeFunctionNodeDefinition
 } from './NodeDefinitions'
-import { IFunctionNode, INode, NodeType } from './NodeInstance'
+import { IFunctionNode, INode } from './NodeInstance'
 import { readInputFromSockets, writeOutputsToSocket } from './NodeSockets'
 import { NodeDescription } from './Registry/NodeDescription'
 
-export abstract class FunctionNode extends Node<NodeType.Function> implements IFunctionNode {
+export abstract class FunctionNode extends Node<'Function'> implements IFunctionNode {
+  readonly exec: (node: INode) => void
+
   constructor(
     description: NodeDescription,
     graph: IGraph,
     inputs: Socket[] = [],
     outputs: Socket[] = [],
-    public readonly exec: (node: INode) => void,
+    exec: (node: INode) => void,
     configuration: NodeConfiguration = {}
   ) {
     super({
@@ -56,8 +58,10 @@ export abstract class FunctionNode extends Node<NodeType.Function> implements IF
       outputs,
       graph,
       configuration,
-      nodeType: NodeType.Function
+      nodeType: 'Function'
     })
+
+    this.exec = exec
 
     // must have no input flow sockets
     Assert.mustBeTrue(!this.inputs.some((socket) => socket.valueTypeName === 'flow'))
@@ -68,12 +72,12 @@ export abstract class FunctionNode extends Node<NodeType.Function> implements IF
 }
 
 export class FunctionNodeInstance<TFunctionNodeDef extends IFunctionNodeDefinition>
-  extends Node<NodeType.Function>
+  extends Node<'Function'>
   implements IFunctionNode
 {
   private execInner: TFunctionNodeDef['exec']
   constructor(nodeProps: Omit<INode, 'nodeType'> & Pick<TFunctionNodeDef, 'exec'>) {
-    super({ ...nodeProps, nodeType: NodeType.Function })
+    super({ ...nodeProps, nodeType: 'Function' })
 
     this.execInner = nodeProps.exec
   }

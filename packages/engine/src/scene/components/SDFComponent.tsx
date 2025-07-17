@@ -51,11 +51,13 @@ import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/use
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 
 export const SDFMode = {
-  TORUS: 0 as const,
-  BOX: 1 as const,
-  SPHERE: 2 as const,
-  FOG: 3 as const
-}
+  TORUS: 0,
+  BOX: 1,
+  SPHERE: 2,
+  FOG: 3
+} as const
+
+export type SDFModeType = (typeof SDFMode)[keyof typeof SDFMode]
 
 // lazy load the shader to avoid generating a noise texture
 let SDFShader: ReturnType<typeof createSDFShader> | null = null
@@ -68,7 +70,7 @@ export const SDFComponent = defineComponent({
     color: T.Color(0xffffff),
     scale: T.Vec3(new Vector3(0.25, 0.001, 0.25)),
     enable: S.Bool({ default: false }),
-    mode: S.Enum(SDFMode, {
+    mode: S.Number({
       $comment:
         "A number enum, where: 0 represents 'TORUS', 1 represents 'BOX', 2 represents 'SPHERE', 3 represents 'FOG'",
       default: SDFMode.TORUS

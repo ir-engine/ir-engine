@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -31,12 +31,14 @@ import { NodeConfiguration } from './Node'
 import { readInputFromSockets, writeOutputsToSocket } from './NodeSockets'
 import { INodeDescription } from './Registry/NodeDescription'
 
-export enum NodeType {
-  Event = 'Event',
-  Flow = 'Flow',
-  Async = 'Async',
-  Function = 'Function'
-}
+export const NodeType = {
+  Event: 'Event',
+  Flow: 'Flow',
+  Async: 'Async',
+  Function: 'Function'
+} as const
+
+export type NodeType = (typeof NodeType)[keyof typeof NodeType]
 
 export interface INode {
   readonly inputs: Socket[]
@@ -50,34 +52,34 @@ export interface INode {
 }
 
 export interface IFunctionNode extends INode {
-  nodeType: NodeType.Function
+  nodeType: 'Function'
   exec: (node: INode) => void
 }
 
 export interface IEventNode extends INode {
-  nodeType: NodeType.Event
+  nodeType: 'Event'
   init: (engine: VisualScriptEngine) => void
   dispose: (engine: VisualScriptEngine) => void
 }
 
 export interface IFlowNode extends INode {
-  nodeType: NodeType.Flow
+  nodeType: 'Flow'
   triggered: (fiber: Fiber, triggeringSocketName: string) => void
 }
 
 export interface IAsyncNode extends INode {
-  nodeType: NodeType.Async
+  nodeType: 'Async'
   triggered: (engine: VisualScriptEngine, triggeringSocketName: string, finished: () => void) => void
   dispose: () => void
 }
 
-export const isFlowNode = (node: INode): node is IFlowNode => node.nodeType === NodeType.Flow
+export const isFlowNode = (node: INode): node is IFlowNode => node.nodeType === 'Flow'
 
-export const isEventNode = (node: INode): node is IEventNode => node.nodeType === NodeType.Event
+export const isEventNode = (node: INode): node is IEventNode => node.nodeType === 'Event'
 
-export const isAsyncNode = (node: INode): node is IAsyncNode => node.nodeType === NodeType.Async
+export const isAsyncNode = (node: INode): node is IAsyncNode => node.nodeType === 'Async'
 
-export const isFunctionNode = (node: INode): node is IFunctionNode => node.nodeType === NodeType.Function
+export const isFunctionNode = (node: INode): node is IFunctionNode => node.nodeType === 'Function'
 
 export const makeNodeInstance = (node: INode) => {
   const readInput = <T>(inputName: string): T => {

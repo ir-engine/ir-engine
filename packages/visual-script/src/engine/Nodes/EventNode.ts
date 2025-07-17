@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -29,11 +29,11 @@ import { IGraph } from '../Graphs/Graph'
 import { Socket } from '../Sockets/Socket'
 import { Node, NodeConfiguration } from './Node'
 import { IEventNodeDefinition, NodeCategory } from './NodeDefinitions'
-import { IEventNode, INode, NodeType } from './NodeInstance'
+import { IEventNode, INode } from './NodeInstance'
 import { NodeDescription } from './Registry/NodeDescription'
 
 // no flow inputs, always evaluated on startup
-export class EventNode extends Node<NodeType.Event> implements IEventNode {
+export class EventNode extends Node<'Event'> implements IEventNode {
   constructor(
     description: NodeDescription,
     graph: IGraph,
@@ -51,7 +51,7 @@ export class EventNode extends Node<NodeType.Event> implements IEventNode {
       outputs,
       graph,
       configuration,
-      nodeType: NodeType.Event
+      nodeType: 'Event'
     })
     // no input flow sockets allowed.
     Assert.mustBeTrue(!this.inputs.some((socket) => socket.valueTypeName === 'flow'))
@@ -81,17 +81,14 @@ export class EventNode2 extends EventNode {
   }
 }
 
-export class EventNodeInstance<TEventNodeDef extends IEventNodeDefinition>
-  extends Node<NodeType.Event>
-  implements IEventNode
-{
+export class EventNodeInstance<TEventNodeDef extends IEventNodeDefinition> extends Node<'Event'> implements IEventNode {
   private initInner: TEventNodeDef['init']
   private disposeInner: TEventNodeDef['dispose']
   private state: TEventNodeDef['initialState']
   private readonly outputSocketKeys: string[]
 
   constructor(nodeProps: Omit<INode, 'nodeType'> & Pick<TEventNodeDef, 'init' | 'dispose' | 'initialState'>) {
-    super({ ...nodeProps, nodeType: NodeType.Event })
+    super({ ...nodeProps, nodeType: 'Event' })
     this.initInner = nodeProps.init
     this.disposeInner = nodeProps.dispose
     this.state = nodeProps.initialState

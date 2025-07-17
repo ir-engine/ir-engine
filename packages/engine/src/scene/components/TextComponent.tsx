@@ -166,9 +166,11 @@ type TextMesh = Mesh & {
  * - `Standard`: Maps to THREE.MeshStandardMaterial
  */
 export const FontMaterialKind = {
-  Basic: 0 as const,
-  Standard: 1 as const
-}
+  Basic: 0,
+  Standard: 1
+} as const
+
+export type FontMaterialKindType = (typeof FontMaterialKind)[keyof typeof FontMaterialKind]
 
 /**
  *  @description

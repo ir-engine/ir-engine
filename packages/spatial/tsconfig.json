@@ -30,9 +30,15 @@
     "declaration": false,
     "types": [
       "@types/node"
-    ]
+    ],
+    "erasableSyntaxOnly": true
   },
-  "include": ["../../__global.d.ts", "./src", "./tests", "./index.ts"],
+  "include": [
+    "../../__global.d.ts",
+    "./src",
+    "./tests",
+    "./index.ts"
+  ],
   "exclude": [
     "./tests/webxr/emulator/**",
     "./tests/webxr/devtool/**",

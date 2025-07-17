@@ -43,12 +43,12 @@ import { FogComponent } from './SceneComponents'
 import { VisibleComponent } from './VisibleComponent'
 
 export const FogType = {
-  Disabled: 'disabled' as const,
-  Linear: 'linear' as const,
-  Exponential: 'exponential' as const,
-  Brownian: 'brownian' as const,
-  Height: 'height' as const
-}
+  Disabled: 'disabled',
+  Linear: 'linear',
+  Exponential: 'exponential',
+  Brownian: 'brownian',
+  Height: 'height'
+} as const
 
 export type FogType = (typeof FogType)[keyof typeof FogType]
 

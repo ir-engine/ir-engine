@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -26,12 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import { defineComponent, getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
-export const enum StandardCallbacks {
-  PLAY = 'xre.play',
-  PAUSE = 'xre.pause',
-  STOP = 'xre.stop',
-  RESET = 'xre.reset'
-}
+export const StandardCallbacks = {
+  PLAY: 'xre.play',
+  PAUSE: 'xre.pause',
+  STOP: 'xre.stop',
+  RESET: 'xre.reset'
+} as const
+
+export type StandardCallbacksType = (typeof StandardCallbacks)[keyof typeof StandardCallbacks]
 
 export const CallbackComponent = defineComponent({
   name: 'CallbackComponent',

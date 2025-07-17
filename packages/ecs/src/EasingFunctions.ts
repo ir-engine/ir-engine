@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -35,11 +35,15 @@ interface EasingType {
 }
 
 class EasingBuilder<P extends string> {
-  private constructor(
-    private fn: (t: number) => number,
-    private path: P,
-    private isFinal: boolean = false
-  ) {}
+  private fn: (t: number) => number
+  private path: P
+  private isFinal: boolean
+
+  private constructor(fn: (t: number) => number, path: P, isFinal: boolean = false) {
+    this.fn = fn
+    this.path = path
+    this.isFinal = isFinal
+  }
 
   static create<P extends string>(fn: (t: number) => number, path: P): EasingType {
     const builder = new EasingBuilder(fn, path)
@@ -66,42 +70,50 @@ class EasingBuilder<P extends string> {
   }
 }
 
-export const Easing = {
-  linear: EasingBuilder.create((t) => t, 'linear'),
-  quadratic: EasingBuilder.create((t) => t * t, 'quadratic'),
-  cubic: EasingBuilder.create((t) => t * t * t, 'cubic'),
-  quartic: EasingBuilder.create((t) => t * t * t * t, 'quartic'),
-  quintic: EasingBuilder.create((t) => t * t * t * t * t, 'quintic'),
-  sine: EasingBuilder.create((t) => 1 - Math.cos((t * Math.PI) / 2), 'sine'),
-  exponential: EasingBuilder.create((t) => Math.pow(2, 10 * (t - 1)), 'exponential'),
-  circle: EasingBuilder.create((t) => 1 - Math.sqrt(1 - t * t), 'circle'),
-  back: EasingBuilder.create((t) => {
-    const s = 1.70158
-    return t * t * ((s + 1) * t - s)
-  }, 'back'),
-  elastic: EasingBuilder.create((t) => 1 - Math.pow(Math.cos((t * Math.PI) / 2), 3) * Math.cos(t * Math.PI), 'elastic'),
-  bounce: EasingBuilder.create((t) => {
-    if (t < 1 / 2.75) return 7.5625 * t * t
-    if (t < 2 / 2.75) {
-      const t2 = t - 1.5 / 2.75
-      return 7.5625 * t2 * t2 + 0.75
-    }
-    if (t < 2.5 / 2.75) {
-      const t2 = t - 2.25 / 2.75
-      return 7.5625 * t2 * t2 + 0.9375
-    }
-    const t2 = t - 2.625 / 2.75
-    return 7.5625 * t2 * t2 + 0.984375
-  }, 'bounce'),
-  fromPath: <P extends string>(path: P): EasingFunction => {
-    const [name, mode] = path.split('.')
-    const easing = Easing[name as keyof typeof Easing]
-    if (!easing) {
-      throw new Error(`Invalid easing function path: ${path}`)
-    }
-    return easing[mode as keyof EasingType]
+export const Easing = (() => {
+  const easingObj = {
+    linear: EasingBuilder.create((t) => t, 'linear'),
+    quadratic: EasingBuilder.create((t) => t * t, 'quadratic'),
+    cubic: EasingBuilder.create((t) => t * t * t, 'cubic'),
+    quartic: EasingBuilder.create((t) => t * t * t * t, 'quartic'),
+    quintic: EasingBuilder.create((t) => t * t * t * t * t, 'quintic'),
+    sine: EasingBuilder.create((t) => 1 - Math.cos((t * Math.PI) / 2), 'sine'),
+    exponential: EasingBuilder.create((t) => Math.pow(2, 10 * (t - 1)), 'exponential'),
+    circle: EasingBuilder.create((t) => 1 - Math.sqrt(1 - t * t), 'circle'),
+    back: EasingBuilder.create((t) => {
+      const s = 1.70158
+      return t * t * ((s + 1) * t - s)
+    }, 'back'),
+    elastic: EasingBuilder.create(
+      (t) => 1 - Math.pow(Math.cos((t * Math.PI) / 2), 3) * Math.cos(t * Math.PI),
+      'elastic'
+    ),
+    bounce: EasingBuilder.create((t) => {
+      if (t < 1 / 2.75) return 7.5625 * t * t
+      if (t < 2 / 2.75) {
+        const t2 = t - 1.5 / 2.75
+        return 7.5625 * t2 * t2 + 0.75
+      }
+      if (t < 2.5 / 2.75) {
+        const t2 = t - 2.25 / 2.75
+        return 7.5625 * t2 * t2 + 0.9375
+      }
+      const t2 = t - 2.625 / 2.75
+      return 7.5625 * t2 * t2 + 0.984375
+    }, 'bounce')
   }
-} as const
+
+  return Object.assign(easingObj, {
+    fromPath: <P extends string>(path: P): EasingFunction => {
+      const [name, mode] = path.split('.')
+      const easing = easingObj[name as keyof typeof easingObj]
+      if (!easing) {
+        throw new Error(`Invalid easing function path: ${path}`)
+      }
+      return easing[mode as keyof EasingType]
+    }
+  })
+})()
 
 // export all of the easing function paths as a strongly typed string array
 export const EasingFunctionPaths = Object.values(Easing).reduce<string[]>((acc, easing) => {
