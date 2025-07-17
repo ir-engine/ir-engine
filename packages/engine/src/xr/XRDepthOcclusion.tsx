@@ -28,19 +28,97 @@ Infinite Reality Engine. All Rights Reserved.
  */
 
 import React, { useEffect } from 'react'
-import { Material, Matrix4, Mesh, Shader, ShaderMaterial, ShadowMaterial, Vector2 } from 'three'
+import { Matrix4, Shader, ShaderMaterial, Vector2 } from 'three'
 
-import { QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
+import { Entity, getComponent, removeComponent, S, setComponent } from '@ir-engine/ecs'
+import { defineQuery, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
+import { DepthCanvasTexture } from '@ir-engine/spatial/src/xr/DepthCanvasTexture'
+import { DepthDataTexture } from '@ir-engine/spatial/src/xr/DepthDataTexture'
+import { ReferenceSpace, XRState } from '@ir-engine/spatial/src/xr/XRState'
+import { XRSystem } from '@ir-engine/spatial/src/xr/XRSystem'
+import { XRCPUDepthInformation } from '@ir-engine/spatial/src/xr/XRTypes'
+import { defineMaterialPlugin, TextureSchema } from '../material/defineMaterialPlugin'
 
-import { addOBCPlugin, removeOBCPlugin } from '../common/functions/OnBeforeCompilePlugin'
-import { VisibleComponent } from '../renderer/components/VisibleComponent'
-import { DepthCanvasTexture } from './DepthCanvasTexture'
-import { DepthDataTexture } from './DepthDataTexture'
-import { ReferenceSpace, XRState } from './XRState'
-import { XRSystem } from './XRSystem'
-import { XRCPUDepthInformation } from './XRTypes'
+export const DepthOcclusionPluginComponent = defineMaterialPlugin({
+  name: 'DepthOcclusionPluginComponent',
+
+  jsonID: 'IR_depth_occlusion',
+
+  uniforms: S.Object({
+    uDepthTexture: TextureSchema(),
+    uResolution: T.Vec2(),
+    uUvTransform: T.Mat4(),
+    uOcclusionEnabled: S.Bool({ default: true }),
+    uRawValueToMeters: S.Number({ default: 0.0 })
+  }),
+
+  onApply(shader) {
+    // Fragment variables
+    shader.fragmentShader =
+      `
+        uniform sampler2D uDepthTexture;
+        uniform vec2 uResolution;
+        uniform mat4 uUvTransform;
+        uniform bool uOcclusionEnabled;
+        uniform float uRawValueToMeters;
+        varying float vDepth;
+        ` + shader.fragmentShader
+
+    let fragmentEntryPoint = '#include <clipping_planes_fragment>'
+    // if (mat instanceof ShadowMaterial) {
+    //   fragmentEntryPoint = '#include <fog_fragment>'
+    // }
+
+    // Fragment depth logic
+    shader.fragmentShader = shader.fragmentShader.replace(
+      'void main',
+      `float getDepthInMeters(in sampler2D depthText, in vec2 uv)
+        {
+          vec2 packedDepth = texture2D(depthText, uv).rg;
+          return dot(packedDepth, vec2(255.0, 256.0 * 255.0)) * uRawValueToMeters;
+        }
+        void main`
+    )
+
+    shader.fragmentShader = shader.fragmentShader.replace(
+      fragmentEntryPoint,
+      `
+        ${fragmentEntryPoint}
+        if(uOcclusionEnabled)
+        {
+          // Normalize x, y to range [0, 1]
+          vec2 uv = gl_FragCoord.xy / uResolution.xy;
+          
+          vec2 depthUV = (uUvTransform * vec4(uv, 0, 1)).xy;
+          float depth = getDepthInMeters(uDepthTexture, depthUV);
+          if (depth < vDepth)
+          {
+            discard;
+          }
+        }
+        `
+    )
+
+    // Vertex variables
+    shader.vertexShader =
+      `
+        varying float vDepth;
+        ` + shader.vertexShader
+
+    // Vertex depth logic
+    shader.vertexShader = shader.vertexShader.replace(
+      '#include <fog_vertex>',
+      `
+        #include <fog_vertex>
+        vDepth = gl_Position.z;
+        `
+    )
+  }
+})
 
 const DepthOcclusionPluginID = 'DepthOcclusionPlugin'
 
@@ -59,120 +137,6 @@ type XRDepthOcclusionMaterialType = Omit<ShaderMaterial, 'userData'> & {
       compile: (shader: Shader) => void
     }
   }
-}
-
-const XRDepthOcclusionMaterials = [] as XRDepthOcclusionMaterialType[]
-
-/**
- * Create a augmented reality occlusion enabled material from a standard three.js material.
- *
- * Can be used to test multiple material this.models with the AR functionality.
- *
- * @param {Material} mat - Material to be transformed into an augmented material.
- * @param {Texture} depthMap - Depth map bound to the material. A single depth map should be used for all AR materials.
- */
-function addDepthOBCPlugin(material: Material, depthMap: DepthDataTexture) {
-  const mat = material as XRDepthOcclusionMaterialType
-  if (!mat) return
-  if (!mat.userData) mat.userData = {}
-  if (mat.userData.DepthOcclusionPlugin) return
-
-  mat.userData.DepthOcclusionPlugin = {
-    id: DepthOcclusionPluginID,
-    uniforms: {
-      uDepthTexture: { value: depthMap },
-      uResolution: { value: new Vector2() },
-      uUvTransform: { value: new Matrix4() },
-      uOcclusionEnabled: { value: true },
-      uRawValueToMeters: { value: 0.0 }
-    },
-    compile: function (shader: Shader) {
-      if (!mat.userData.DepthOcclusionPlugin) return
-      // Pass uniforms from userData to the shader
-      for (const key in mat.userData.DepthOcclusionPlugin.uniforms) {
-        shader.uniforms[key] = mat.userData.DepthOcclusionPlugin.uniforms[key]
-      }
-      mat.shader = shader
-
-      // Fragment variables
-      shader.fragmentShader =
-        `
-        uniform sampler2D uDepthTexture;
-        uniform vec2 uResolution;
-        uniform mat4 uUvTransform;
-        uniform bool uOcclusionEnabled;
-        uniform float uRawValueToMeters;
-        varying float vDepth;
-        ` + shader.fragmentShader
-
-      let fragmentEntryPoint = '#include <clipping_planes_fragment>'
-      if (mat instanceof ShadowMaterial) {
-        fragmentEntryPoint = '#include <fog_fragment>'
-      }
-
-      // Fragment depth logic
-      shader.fragmentShader = shader.fragmentShader.replace(
-        'void main',
-        `float getDepthInMeters(in sampler2D depthText, in vec2 uv)
-        {
-          vec2 packedDepth = texture2D(depthText, uv).rg;
-          return dot(packedDepth, vec2(255.0, 256.0 * 255.0)) * uRawValueToMeters;
-        }
-        void main`
-      )
-
-      shader.fragmentShader = shader.fragmentShader.replace(
-        fragmentEntryPoint,
-        `
-        ${fragmentEntryPoint}
-        if(uOcclusionEnabled)
-        {
-          // Normalize x, y to range [0, 1]
-          vec2 uv = gl_FragCoord.xy / uResolution.xy;
-          
-          vec2 depthUV = (uUvTransform * vec4(uv, 0, 1)).xy;
-          float depth = getDepthInMeters(uDepthTexture, depthUV);
-          if (depth < vDepth)
-          {
-            discard;
-          }
-        }
-        `
-      )
-
-      // Vertex variables
-      shader.vertexShader =
-        `
-        varying float vDepth;
-        ` + shader.vertexShader
-
-      // Vertex depth logic
-      shader.vertexShader = shader.vertexShader.replace(
-        '#include <fog_vertex>',
-        `
-        #include <fog_vertex>
-        vDepth = gl_Position.z;
-        `
-      )
-    }
-  }
-
-  addOBCPlugin(mat, mat.userData.DepthOcclusionPlugin)
-  mat.needsUpdate = true
-
-  XRDepthOcclusionMaterials.push(mat)
-}
-
-function removeDepthOBCPlugin(material: Material) {
-  const mat = material as XRDepthOcclusionMaterialType
-  if (!mat?.userData?.DepthOcclusionPlugin) return
-
-  /** remove plugin */
-  removeOBCPlugin(mat, mat.userData.DepthOcclusionPlugin)
-  delete mat.userData.DepthOcclusionPlugin
-  XRDepthOcclusionMaterials.splice(XRDepthOcclusionMaterials.indexOf(mat), 1)
-
-  mat.needsUpdate = true
 }
 
 /** frame.getDepthInformation has no type currently */
@@ -201,10 +165,12 @@ function updateDepthMaterials(
       xrState.depthDataTexture.set(new DepthDataTexture(depthInfo.width, depthInfo.height))
     }
     xrState.depthDataTexture.value!.updateDepth(depthInfo)
-    XRDepthOcclusion.updateUniforms(XRDepthOcclusionMaterials, depthInfo)
+    XRDepthOcclusion.updateUniforms(depthInfo)
     depthTexture?.updateDepth(depthInfo)
   }
 }
+
+const materialPlugins = defineQuery([DepthOcclusionPluginComponent])
 
 /**
  * Update uniforms of materials to match the screen size and camera configuration.
@@ -214,12 +180,13 @@ function updateDepthMaterials(
  * @param {XRDepthOcclusionMaterialType} materials - Materials to be updated.
  * @param {XRRigidTransform} normTextureFromNormViewMatrix - Matrix obtained from AR depth from frame.getDepthInformation(view).
  */
-function updateUniforms(materials: XRDepthOcclusionMaterialType[], depthInfo: XRCPUDepthInformation) {
+function updateUniforms(depthInfo: XRCPUDepthInformation) {
   const normTextureFromNormViewMatrix = depthInfo.normDepthBufferFromNormView.matrix
   const rawValueToMeters = depthInfo.rawValueToMeters
   const width = Math.floor(window.devicePixelRatio * window.innerWidth)
   const height = Math.floor(window.devicePixelRatio * window.innerHeight)
-  for (const material of materials) {
+  for (const entity of materialPlugins()) {
+    const material = getComponent(entity, MaterialStateComponent).material
     if (!(material.userData.DepthOcclusionPlugin && material.shader)) continue
     material.shader.uniforms.uResolution.value.set(width, height)
     /** invert matrix as physics looks down +z, and webxr looks down -z */
@@ -229,9 +196,6 @@ function updateUniforms(materials: XRDepthOcclusionMaterialType[], depthInfo: XR
 }
 
 export const XRDepthOcclusion = {
-  XRDepthOcclusionMaterials,
-  addDepthOBCPlugin,
-  removeDepthOBCPlugin,
   updateDepthMaterials,
   updateUniforms
 }
@@ -252,16 +216,15 @@ const useDepthTextureDebug = false
 const depthTexture = _createDepthDebugCanvas(useDepthTextureDebug)
 let depthSupported = false
 
-function DepthOcclusionReactor({ obj }) {
+function DepthOcclusionReactor(props: { entity: Entity }) {
   const depthDataTexture = useHookstate(getMutableState(XRState).depthDataTexture)
 
   useEffect(() => {
-    const mesh = obj as any as Mesh<any, Material>
-    if (!mesh.isMesh || !depthDataTexture || !depthSupported) return
-
-    XRDepthOcclusion.addDepthOBCPlugin(mesh.material, depthDataTexture.value! as DepthDataTexture)
+    setComponent(props.entity, DepthOcclusionPluginComponent, {
+      uDepthTexture: depthDataTexture.value as DepthDataTexture
+    })
     return () => {
-      XRDepthOcclusion.removeDepthOBCPlugin(mesh.material)
+      removeComponent(props.entity, DepthOcclusionPluginComponent)
     }
   }, [depthDataTexture])
 
@@ -289,7 +252,10 @@ const reactor = () => {
     }
   }, [xrState.sessionActive])
 
-  return <QueryReactor ChildEntityReactor={DepthOcclusionReactor} Components={[VisibleComponent]} />
+  const depthDataTexture = useHookstate(getMutableState(XRState).depthDataTexture).value
+  if (!depthDataTexture || !depthSupported) return null
+
+  return <QueryReactor ChildEntityReactor={DepthOcclusionReactor} Components={[MaterialStateComponent]} />
 }
 
 export const XRDepthOcclusionSystem = defineSystem({

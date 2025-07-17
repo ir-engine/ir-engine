@@ -24,75 +24,60 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import { Mesh, MeshStandardMaterial, Shader } from 'three'
 
 import {
   Entity,
   PresentationSystemGroup,
   QueryReactor,
-  hasComponent,
+  removeComponent,
+  setComponent,
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
-import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { NO_PROXY, getState } from '@ir-engine/hyperflux'
-import {
-  PluginType,
-  addOBCPlugin,
-  removeOBCPlugin
-} from '@ir-engine/spatial/src/common/functions/OnBeforeCompilePlugin'
-import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
-import { FogSettingsComponent, FogType } from './components/FogSettingsComponent'
+import { FogSettingsComponent, FogType } from '@ir-engine/spatial/src/renderer/components/FogSettingsComponent'
+import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { defineMaterialPlugin } from '../../material/defineMaterialPlugin'
 
-export const FogShaders = [] as Shader[]
+export const FogShaderPluginComponent = defineMaterialPlugin({
+  name: 'FogShaderPluginComponent',
 
-const getFogPlugin = (): PluginType => {
-  return {
-    id: 'ee.engine.FogPlugin',
-    priority: 0,
-    compile: (shader) => {
-      FogShaders.push(shader)
-      shader.uniforms.fogTime = { value: 0.0 }
-      shader.uniforms.fogTimeScale = { value: 1 }
-      shader.uniforms.heightFactor = { value: 0.05 }
-    }
+  jsonID: 'IR_fog_shader',
+
+  uniforms: S.Object({
+    fogTime: S.Number(),
+    fogTimeScale: S.Number({ default: 1 }),
+    heightFactor: S.Number({ default: 0.05 })
+  }),
+
+  onApply(shader) {},
+
+  update: (component, deltaSeconds) => {
+    component.fogTime += deltaSeconds
   }
-}
-
-function addFogShaderPlugin(obj: Mesh<any, MeshStandardMaterial>) {
-  if (!obj.material || !obj.material.fog || obj.material.userData.fogPlugin) return
-  obj.material.userData.fogPlugin = getFogPlugin()
-  addOBCPlugin(obj.material, obj.material.userData.fogPlugin)
-  obj.material.needsUpdate = true
-}
-
-function removeFogShaderPlugin(obj: Mesh<any, MeshStandardMaterial>) {
-  if (!obj.material?.userData?.fogPlugin) return
-  removeOBCPlugin(obj.material, obj.material.userData.fogPlugin)
-  delete obj.material.userData.fogPlugin
-  obj.material.needsUpdate = true
-  const shader = (obj.material as any).shader // todo add typings somehow
-  FogShaders.splice(FogShaders.indexOf(shader), 1)
-}
+})
 
 function FogGroupReactor(props: { fogEntity: Entity }) {
   const entity = useEntityContext()
-  const fogComponent = useComponent(props.fogEntity, FogSettingsComponent)
-  const obj = useComponent(entity, ObjectComponent)?.get(NO_PROXY)
+  const fogSettings = useComponent(props.fogEntity, FogSettingsComponent)
 
   useEffect(() => {
-    const customShader = fogComponent.type.value === FogType.Brownian || fogComponent.type.value === FogType.Height
-    if (customShader) {
-      addFogShaderPlugin(obj as any)
-      return () => {
-        if (!hasComponent(entity, ObjectComponent)) return
-        removeFogShaderPlugin(obj as any)
-      }
+    setComponent(entity, FogShaderPluginComponent)
+    return () => {
+      removeComponent(entity, FogShaderPluginComponent)
     }
-  }, [fogComponent.type, !!obj])
+  }, [])
+
+  useEffect(() => {
+    setComponent(entity, FogShaderPluginComponent, { heightFactor: fogSettings.height.value })
+  }, [fogSettings.height.value])
+
+  useEffect(() => {
+    setComponent(entity, FogShaderPluginComponent, { fogTimeScale: fogSettings.timeScale.value })
+  }, [fogSettings.timeScale.value])
 
   return null
 }
@@ -104,7 +89,7 @@ const FogReactor = () => {
   return (
     <QueryReactor
       ChildEntityReactor={FogGroupReactor}
-      Components={[ObjectComponent, VisibleComponent]}
+      Components={[MaterialStateComponent, VisibleComponent]}
       props={{ fogEntity: entity }}
     />
   )
@@ -115,15 +100,8 @@ const reactor = () => {
   return <QueryReactor ChildEntityReactor={FogReactor} Components={[FogSettingsComponent]} />
 }
 
-const execute = () => {
-  for (const s of FogShaders) {
-    if (s.uniforms.fogTime) s.uniforms.fogTime.value = getState(ECSState).elapsedSeconds
-  }
-}
-
 export const FogSystem = defineSystem({
   uuid: 'ee.engine.FogSystem',
   insert: { after: PresentationSystemGroup },
-  execute,
   reactor
 })

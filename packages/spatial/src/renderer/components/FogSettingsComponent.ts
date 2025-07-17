@@ -37,7 +37,6 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { FogShaders } from '../FogSystem'
 import { initBrownianMotionFogShader, initHeightFogShader, removeFogShader } from './FogShaders'
 import { FogComponent } from './SceneComponents'
 import { VisibleComponent } from './VisibleComponent'
@@ -129,20 +128,6 @@ export const FogSettingsComponent = defineComponent({
       const fogComponent = getOptionalComponent(entity, FogComponent)
       if (fogComponent) (fogComponent as Fog).far = fog.far.value
     }, [fog.far])
-
-    useEffect(() => {
-      const fogComponent = getOptionalComponent(entity, FogComponent)
-      if (fogComponent && (fog.type.value === FogType.Brownian || fog.type.value === FogType.Height))
-        for (const s of FogShaders) s.uniforms.heightFactor.value = fog.height.value
-    }, [fog.height])
-
-    useEffect(() => {
-      const fogComponent = getOptionalComponent(entity, FogComponent)
-      if (fogComponent && fog.type.value === FogType.Brownian)
-        for (const s of FogShaders) {
-          s.uniforms.fogTimeScale.value = fog.timeScale.value
-        }
-    }, [fog.timeScale])
 
     return null
   }

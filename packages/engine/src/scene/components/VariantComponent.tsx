@@ -51,16 +51,17 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { addOBCPlugin } from '@ir-engine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import React from 'react'
-import { InstancedMesh, Material } from 'three'
+import { InstancedMesh } from 'three'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
+import { defineMaterialPlugin } from '../../material/defineMaterialPlugin'
 import { InstancingComponent } from './InstancingComponent'
 
 export type VariantLevel = {
@@ -203,6 +204,34 @@ export const VariantComponent = defineComponent({
   }
 })
 
+export const InstanceVariantMaterialPluginComponent = defineMaterialPlugin({
+  name: 'InstanceVariantMaterialPluginComponent',
+  jsonID: 'IR_instance_variant_material',
+  uniforms: S.Object({
+    minDistance: S.Number(),
+    maxDistance: S.Number()
+  }),
+  onApply: (shader) => {
+    shader.fragmentShader = shader.fragmentShader.replace(
+      'uniform float opacity;',
+      `uniform float opacity;
+uniform float maxDistance;
+uniform float minDistance;`
+    )
+
+    // Calculate the camera distance from the geometry
+    // Discard fragments outside the minDistance and maxDistance range
+    shader.fragmentShader = shader.fragmentShader.replace(
+      'void main() {',
+      `void main() {
+  float cameraDistance = length(vViewPosition);
+  if (cameraDistance <= minDistance || cameraDistance >= maxDistance) {
+    discard;
+  }`
+    )
+  }
+})
+
 const InstancingVariantReactor = (props: { entity: Entity }) => {
   const variantComponent = useComponent(props.entity, VariantComponent)
 
@@ -280,63 +309,36 @@ const ChildMeshReactor = (props: { variantEntity: Entity; modelEntity: Entity; m
     instancedMesh.instanceMatrix.copy(instancingComponent.instanceMatrix)
     instancedMesh.frustumCulled = false
 
-    //add distance culling shader plugin
-    const materials: Material[] = Array.isArray(instancedMesh.material)
-      ? instancedMesh.material
-      : [instancedMesh.material]
-    for (const material of materials) {
-      addOBCPlugin(material, {
-        id: 'lod-culling',
-        priority: 1,
-        compile: (shader, renderer) => {
-          shader.fragmentShader = shader.fragmentShader.replace(
-            'uniform float opacity;',
-            `uniform float opacity;
-uniform float maxDistance;
-uniform float minDistance;`
-          )
-
-          // Calculate the camera distance from the geometry
-          // Discard fragments outside the minDistance and maxDistance range
-          shader.fragmentShader = shader.fragmentShader.replace(
-            'void main() {',
-            `void main() {
-  float cameraDistance = length(vViewPosition);
-  if (cameraDistance <= minDistance || cameraDistance >= maxDistance) {
-    discard;
-  }`
-          )
-          material.shader.uniforms.minDistance = { value: minDistance }
-          material.shader.uniforms.maxDistance = { value: maxDistance }
-        }
-      })
-    }
-
     removeComponent(props.meshEntity, MeshComponent)
     setComponent(props.meshEntity, MeshComponent, instancedMesh)
   }, [])
 
+  const materialEntities = useComponent(props.meshEntity, MaterialInstanceComponent).entities
   const level = useComponent(props.variantEntity, VariantComponent).levels[props.level].value
 
   useEffect(() => {
-    const mesh = getComponent(props.meshEntity, MeshComponent)
-    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
-
-    for (const material of materials) {
-      if (!material.shader?.uniforms?.minDistance) continue
-      material.shader.uniforms.minDistance.value = level.metadata['minDistance']
+    const entities = [...materialEntities.value]
+    for (const materialEntity of entities) {
+      setComponent(materialEntity, InstanceVariantMaterialPluginComponent)
     }
-  }, [level.metadata['minDistance']])
+    return () => {
+      for (const materialEntity of entities) {
+        removeComponent(materialEntity, InstanceVariantMaterialPluginComponent)
+      }
+    }
+  }, [materialEntities])
 
   useEffect(() => {
-    const mesh = getComponent(props.meshEntity, MeshComponent)
-    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
-
-    for (const material of materials) {
-      if (!material.shader?.uniforms?.maxDistance) continue
-      material.shader.uniforms.maxDistance.value = level.metadata['maxDistance']
+    const entities = materialEntities.value
+    const minDistance = level.metadata['minDistance']
+    const maxDistance = level.metadata['maxDistance']
+    for (const materialEntity of entities) {
+      setComponent(materialEntity, InstanceVariantMaterialPluginComponent, {
+        minDistance: minDistance,
+        maxDistance: maxDistance
+      })
     }
-  }, [level.metadata['minDistance']])
+  }, [materialEntities, level.metadata['minDistance'], level.metadata['maxDistance']])
 
   return null
 }

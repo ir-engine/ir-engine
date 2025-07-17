@@ -49,51 +49,10 @@ import {
 
 export type PluginObjectType = {
   id: string
-  priority?: number
   compile
 }
 
 export type PluginType = PluginObjectType | typeof Material.prototype.onBeforeCompile
-
-/**@deprecated Use setPlugin instead */
-export function addOBCPlugin(material: Material, plugin: PluginType): void {
-  material.onBeforeCompile = plugin as any
-  material.needsUpdate = true
-}
-
-/**@deprecated Use removePlugin instead */
-export function removeOBCPlugin(material: Material, plugin: PluginType): void {
-  if (material.plugins) {
-    const index = indexOfPlugin(plugin, material.plugins)
-    if (index > -1) material.plugins.splice(index, 1)
-    material.plugins?.sort(sortPluginsByPriority)
-  }
-}
-
-/**@deprecated use hasPlugin instead */
-export function hasOBCPlugin(material: Material, plugin: PluginType): boolean {
-  if (!material.plugins) return false
-  return indexOfPlugin(plugin, material.plugins) > -1
-}
-
-function indexOfPlugin(plugin: PluginType, arr: PluginType[]): number {
-  if (typeof plugin === 'function') {
-    for (let i = 0; i < arr.length; i++) {
-      if (typeof arr[i] === 'function' && arr[i] === plugin) return i
-    }
-  } else {
-    for (let i = 0; i < arr.length; i++) {
-      if (typeof arr[i] === 'function') continue
-      else if ((arr[i] as PluginObjectType).id === plugin.id) return i
-    }
-  }
-
-  return -1
-}
-
-function sortPluginsByPriority(a: PluginType, b: PluginType): number {
-  return (b as PluginObjectType).priority! - (a as PluginObjectType).priority!
-}
 
 const onBeforeCompile = {
   get: function (this: Material) {
@@ -125,11 +84,8 @@ const onBeforeCompile = {
       const plugin = plugins
 
       if (!this.plugins) this.plugins = []
-      ;(plugin as PluginObjectType).priority =
-        typeof (plugin as PluginObjectType).priority === 'undefined' ? 1 : (plugin as PluginObjectType).priority
 
       this.plugins.unshift(plugin)
-      this.plugins.sort(sortPluginsByPriority)
 
       this.customProgramCacheKey = () => {
         let result = this.shader ? this.shader.fragmentShader + this.shader.vertexShader : ''

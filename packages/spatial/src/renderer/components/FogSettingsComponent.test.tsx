@@ -45,7 +45,6 @@ import { assertFloat } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { destroySpatialEngine, initializeSpatialEngine } from '../../initializeEngine'
-import { FogShaders as FogShadersList } from '../FogSystem'
 import { FogSettingsComponent, FogType } from './FogSettingsComponent'
 import { FogShaders } from './FogShaders'
 import { RendererComponent } from './RendererComponent'
@@ -354,9 +353,6 @@ describe('FogSettingsComponent', () => {
       setComponent(testEntity, FogSettingsComponent, { height: Expected })
       await vi.waitFor(() => {
         assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).height, Expected)
-        for (const shader of FogShadersList) {
-          assertFloat.approxEq(shader.uniforms.heightFactor.value, Expected)
-        }
       })
     })
 
@@ -380,9 +376,6 @@ describe('FogSettingsComponent', () => {
       setComponent(testEntity, FogSettingsComponent, { timeScale: Expected })
       await vi.waitFor(() => {
         assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).timeScale, Expected)
-        for (const shader of FogShadersList) {
-          assertFloat.approxEq(shader.uniforms.fogTimeScale.value, Expected)
-        }
       })
     })
   }) //:: reactor

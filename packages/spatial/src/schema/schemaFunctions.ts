@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Box3, Color, ColorRepresentation, Matrix4, Quaternion, Vector2, Vector3 } from 'three'
+import { Box3, Color, ColorRepresentation, Matrix4, Quaternion, Vector2, Vector3, Vector4 } from 'three'
 
 import { Options, TProperties } from '@ir-engine/ecs/src/schemas/JSONSchemaTypes'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -57,6 +57,21 @@ export const NonEmptyArray = (errMsg: string) => {
 type Init<T> = T
 
 export const T = {
+  /** Vector2 type schema helper, defaults to { x: 0, y: 0 } */
+  Vec2: (init = { x: 0, y: 0 } as Init<Vector2>, options?: Options<Vector2>) =>
+    S.SerializedClass(
+      {
+        x: S.Number(),
+        y: S.Number()
+      },
+      {
+        deserialize: (curr, value) => curr.copy(value),
+        default: () => new Vector2(init.x, init.y),
+        ...options,
+        id: 'Vec2'
+      }
+    ),
+
   /** Vector3 type schema helper, defaults to { x: 0, y: 0, z: 0 } */
   Vec3: (init = { x: 0, y: 0, z: 0 } as Init<Vector3>, options?: Options<Vector3>) =>
     S.SerializedClass(
@@ -73,18 +88,20 @@ export const T = {
       }
     ),
 
-  /** Vector2 type schema helper, defaults to { x: 0, y: 0 } */
-  Vec2: (init = { x: 0, y: 0 } as Init<Vector2>, options?: Options<Vector2>) =>
+  /** Vector4 type schema helper, defaults to { x: 0, y: 0, z: 0, w: 0 } */
+  Vec4: (init = { x: 0, y: 0, z: 0, w: 0 } as Init<Vector4>, options?: Options<Vector4>) =>
     S.SerializedClass(
       {
         x: S.Number(),
-        y: S.Number()
+        y: S.Number(),
+        z: S.Number(),
+        w: S.Number()
       },
       {
         deserialize: (curr, value) => curr.copy(value),
-        default: () => new Vector2(init.x, init.y),
+        default: () => new Vector4(init.x, init.y, init.z, init.w),
         ...options,
-        id: 'Vec2'
+        id: 'Vec4'
       }
     ),
 
