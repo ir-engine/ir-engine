@@ -41,6 +41,7 @@ import { LinkRedirectSystem } from './LinkRedirectSystem'
 import { PortalRedirectSystem } from './PortalRedirectSystem'
 
 import './ClientNetworkModule'
+import './ScriptNamespaceModule'
 
 export {
   AudioDuckingSystem,

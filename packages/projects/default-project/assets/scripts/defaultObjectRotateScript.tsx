@@ -19,13 +19,30 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { AssetLoader } from './classes/AssetLoader'
-import { AssetLoaderState } from './state/AssetLoaderState'
-import { DomainConfigState } from './state/DomainConfigState'
-import { ResourceLoadingManagerState } from './state/ResourceLoadingManagerState'
+import { AnimationSystemGroup, defineQuery, defineSystem, ECSState, getComponent } from '@ir-engine/ecs'
+import { GLTFComponent } from '@ir-engine/engine'
+import { getState } from '@ir-engine/hyperflux'
+import { TransformComponent, VisibleComponent } from '@ir-engine/spatial'
+import { Quaternion, Vector3 } from 'three'
 
-export { AssetLoader, AssetLoaderState, DomainConfigState, ResourceLoadingManagerState }
+const models = defineQuery([GLTFComponent, TransformComponent, VisibleComponent])
+
+const rotationSpeed = 0.1
+
+const execute = (): void => {
+  for (const model of models()) {
+    const delta = getState(ECSState).deltaSeconds
+    const rotationQuaternion = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), delta * rotationSpeed)
+    getComponent(model, TransformComponent).rotation.multiply(rotationQuaternion)
+  }
+}
+
+export const scriptObjectRotateSystem = defineSystem({
+  uuid: 'ee.editor.scriptObjectRotateSystem',
+  insert: { before: AnimationSystemGroup },
+  execute
+})

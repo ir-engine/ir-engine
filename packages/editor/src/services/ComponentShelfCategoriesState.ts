@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { Component } from '@ir-engine/ecs'
-import { VisualScriptComponent } from '@ir-engine/engine'
+import { ScriptComponent, VisualScriptComponent } from '@ir-engine/engine'
 import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GrabbableComponent } from '@ir-engine/engine/src/grabbable/GrabbableComponent'
@@ -155,8 +155,8 @@ export const ComponentShelfCategoriesState = defineState({
       if (portalEnabled) {
         cShelfState.Interaction.merge([PortalComponent])
         return () => {
-          cShelfState.Interaction.set((curr) => {
-            return curr.splice(curr.findIndex((item) => item.name == PortalComponent.name))
+          cShelfState.Scripting.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == ScriptComponent.name))
           })
         }
       }

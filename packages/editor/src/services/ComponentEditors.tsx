@@ -54,7 +54,6 @@ import { TextComponent } from '@ir-engine/engine/src/scene/components/TextCompon
 import { VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
-import { VisualScriptComponent } from '@ir-engine/engine/src/visualscript/components/VisualScriptComponent'
 import { defineState } from '@ir-engine/hyperflux'
 import {
   AmbientLightComponent,
@@ -126,12 +125,15 @@ import LightmapNodeEditor from '@ir-engine/ui/src/components/editor/properties/l
 import MediaNodeEditor from '@ir-engine/ui/src/components/editor/properties/media'
 import MixerNodeEditor from '@ir-engine/ui/src/components/editor/properties/mixer'
 import PlaylistNodeEditor from '@ir-engine/ui/src/components/editor/properties/playlist'
+import ScriptNodeEditor from '@ir-engine/ui/src/components/editor/properties/script'
+import VisualScriptNodeEditor from '@ir-engine/ui/src/components/editor/properties/script/visual'
 import SplineTrackNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline/track'
 import TextNodeEditor from '@ir-engine/ui/src/components/editor/properties/text'
 import TriggerComponentEditor from '@ir-engine/ui/src/components/editor/properties/trigger'
 import VariantNodeEditor from '@ir-engine/ui/src/components/editor/properties/variant'
 import VideoNodeEditor from '@ir-engine/ui/src/components/editor/properties/video'
-import VisualScriptNodeEditor from '@ir-engine/ui/src/components/editor/properties/visualScript'
+
+import { ScriptComponent, VisualScriptComponent } from '@ir-engine/engine'
 import VolumetricNodeEditor from '@ir-engine/ui/src/components/editor/properties/volumetric'
 import LegacyVolumetricNodeEditor from '@ir-engine/ui/src/components/editor/properties/volumetric/legacy'
 import PoiNodeEditor from '../../../ui/src/components/editor/properties/cameraPoi'
@@ -183,6 +185,7 @@ export const ComponentEditorsState = defineState({
       [SplineComponent.name]: SplineNodeEditor,
       [SplineTrackComponent.name]: SplineTrackNodeEditor,
       [VisualScriptComponent.name]: VisualScriptNodeEditor,
+      [ScriptComponent.name]: ScriptNodeEditor,
       [LinkComponent.name]: LinkNodeEditor,
       [OverlayComponent.name]: OverlayNodeEditor,
       [InteractableComponent.name]: InteractableComponentNodeEditor,

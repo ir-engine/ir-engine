@@ -96,7 +96,6 @@ export const SceneComponents = [
   // MediaSettingsComponent,
   MountPointComponent,
   // OceanComponent,
-
   ParticleSystemComponent,
   PostProcessingComponent,
   PrimitiveGeometryComponent,

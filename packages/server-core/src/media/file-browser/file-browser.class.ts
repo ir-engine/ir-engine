@@ -495,7 +495,7 @@ export class FileBrowserService
     /** @todo should we allow user-specific content types? Or standardize on the backend? */
     const contentType = data.contentType ?? getContentType(key)
     if (!isValidFileType(contentType, key)) {
-      throw new BadRequest('Unsupported file type')
+      throw new BadRequest('Unsupported file type ' + contentType)
     }
 
     const existingResourceQuery = (await this.app.service(staticResourcePath).find({

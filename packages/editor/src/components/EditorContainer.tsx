@@ -63,6 +63,7 @@ import { InspectorPanelTab } from '../panels/inspector'
 import { MaterialsPanelTab } from '../panels/materials'
 import { PropertiesPanelTab } from '../panels/properties'
 import { ScenePanelTab } from '../panels/scenes'
+import { ScriptPanelTab } from '../panels/script'
 import { ViewportPanelTab } from '../panels/viewport'
 import { VisualScriptPanelTab } from '../panels/visualscript'
 import { EditorWarningState } from '../services/EditorWarningServices'
@@ -108,10 +109,12 @@ const onEditorError = (error) => {
 
 const defaultLayout = (flags: {
   visualScriptPanelEnabled: boolean
+  scriptPanelEnabled: boolean
   activeLowerPanel: ActiveLowerPanel
 }): LayoutData => {
   const tabs = [AssetsPanelTab]
   flags.visualScriptPanelEnabled && tabs.push(VisualScriptPanelTab)
+  flags.scriptPanelEnabled && tabs.push(ScriptPanelTab)
   const activeLowerPane = flags.activeLowerPanel
 
   return {
@@ -177,17 +180,15 @@ const EditorContainer = () => {
   const { initialized, isWidgetVisible, openChat } = useZendesk()
   const { t } = useTranslation()
 
-  const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
-
+  const [visualScriptPanelEnabled, scriptPanelEnabled] = useFeatureFlags([
+    FeatureFlags.Studio.Panel.VisualScript,
+    FeatureFlags.Studio.Panel.Script
+  ])
   const originEntity = useMutableState(ReferenceSpaceState).originEntity.value
 
   const memoizedDefaultLayout = React.useMemo(
-    () =>
-      defaultLayout({
-        visualScriptPanelEnabled,
-        activeLowerPanel: activeLowerPanel.value
-      }),
-    [visualScriptPanelEnabled, activeLowerPanel.value]
+    () => defaultLayout({ visualScriptPanelEnabled, scriptPanelEnabled, activeLowerPanel: activeLowerPanel.value }),
+    [visualScriptPanelEnabled, scriptPanelEnabled, activeLowerPanel.value]
   )
 
   /**

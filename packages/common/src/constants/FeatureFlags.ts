@@ -50,6 +50,7 @@ export const FeatureFlags = {
       Spline: 'ir.studio.components.spline'
     },
     Panel: {
+      Script: 'ir.editor.panel.script',
       VisualScript: 'ir.editor.panel.visualScript',
       Portal: 'ir.editor.panel.portal',
       Grabble: 'ir.editor.panel.grabble'

@@ -32,9 +32,9 @@ import { MdIntegrationInstructions } from 'react-icons/md'
 
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { VisualScriptComponent } from '@ir-engine/engine/src/visualscript/components/VisualScriptComponent'
+import { VisualScriptComponent } from '@ir-engine/engine'
 import { Checkbox } from '@ir-engine/ui'
-import InputGroup from '../../input/Group'
+import InputGroup from '../../../input/Group'
 
 export const VisualScriptNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -44,8 +44,8 @@ export const VisualScriptNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor
       {...props}
-      name={'Visual Script Component'}
-      description={' Adds a visual script to the entity'}
+      name={t('editor:properties.visualScript.name')}
+      description={t('editor:properties.visualScript.description')}
       Icon={VisualScriptNodeEditor.iconComponent}
     >
       <InputGroup name="Disable Visual Script" label="Disable Visual Script">

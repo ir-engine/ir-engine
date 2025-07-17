@@ -19,13 +19,18 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { AssetLoader } from './classes/AssetLoader'
-import { AssetLoaderState } from './state/AssetLoaderState'
-import { DomainConfigState } from './state/DomainConfigState'
-import { ResourceLoadingManagerState } from './state/ResourceLoadingManagerState'
+import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import { CustomScriptFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
+import React from 'react'
+import FileBrowserInput from '../FileBrowser'
+import { StringInputProps } from '../String'
 
-export { AssetLoader, AssetLoaderState, DomainConfigState, ResourceLoadingManagerState }
+export function ScriptInput({ ...rest }: StringInputProps) {
+  return <FileBrowserInput acceptFileTypes={CustomScriptFileTypes} acceptDropItems={ItemTypes.Scripts} {...rest} />
+}
+
+export default ScriptInput

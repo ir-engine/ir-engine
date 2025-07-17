@@ -945,7 +945,7 @@ describe('file-browser.test', () => {
             }
           ),
         {
-          message: 'Unsupported file type'
+          message: 'Unsupported file type application/exe'
         }
       )
     })

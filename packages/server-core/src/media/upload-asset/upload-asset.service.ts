@@ -64,11 +64,12 @@ export type UploadAssetArgs = {
 }
 
 export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
-  logger.info('uploadAsset', {
+  logger.info('uploadAsset %o', {
     project: args.project,
     name: args.name,
     path: args.path
   })
+
   const hash = createStaticResourceHash(args.file.buffer)
 
   const query = {
@@ -86,11 +87,11 @@ export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
 
   const name = args.name ?? args.file.originalname
   const relativePath = args.path!.replace('projects/' + args.project + '/', '') + name
-  await app.service(fileBrowserPath).patch(
+  const result = await app.service(fileBrowserPath).patch(
     null,
     {
       project: args.project,
-      body: args.file,
+      body: args.file.buffer,
       path: relativePath
     },
     {
@@ -101,7 +102,7 @@ export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
   return (
     await app.service(staticResourcePath).find({
       query: {
-        key: args.path,
+        key: result.key,
         $limit: 1
       }
     })

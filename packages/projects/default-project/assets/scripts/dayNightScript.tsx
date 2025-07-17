@@ -19,53 +19,28 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2025
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { AvatarID } from '@ir-engine/common/src/schema.type.module'
+import { AnimationSystemGroup, defineQuery, defineSystem, ECSState, getComponent, setComponent } from '@ir-engine/ecs'
+import { SkyboxComponent, SkyTypeEnum } from '@ir-engine/engine'
+import { getState } from '@ir-engine/hyperflux'
 
-import { UserID } from '@ir-engine/hyperflux'
+const skyboxs = defineQuery([SkyboxComponent])
 
-export type AvatarUploadArgsType = {
-  avatarName: string
-  avatarId: AvatarID
-  isPublic: boolean
+setComponent(skyboxs()[0], SkyboxComponent, { backgroundType: SkyTypeEnum.skybox })
+
+const execute = (): void => {
+  for (const skybox of skyboxs()) {
+    const value = (getState(ECSState).elapsedSeconds % 24) / 24
+    const props = getComponent(skybox, SkyboxComponent).skyboxProps
+    setComponent(skybox, SkyboxComponent, { skyboxProps: { ...props, azimuth: value } })
+  }
 }
 
-export type AvatarUploadType = {
-  type: 'user-avatar-upload'
-  files: (Blob | Buffer)[]
-  userId?: UserID
-  path?: string
-  args: string | AvatarUploadArgsType
-}
-
-export type AdminAssetUploadArgumentsType = {
-  id?: string
-  path: string
-  userId?: UserID
-  name?: string
-  project?: string
-  hash?: string
-}
-
-export type AdminAssetUploadType = {
-  type: 'admin-file-upload'
-  project: string
-  files: Blob[]
-  args: AdminAssetUploadArgumentsType
-  variants: boolean
-  userId?: UserID
-}
-
-export type AssetUploadType = AvatarUploadType | AdminAssetUploadType
-
-export interface UploadFile {
-  fieldname?: string
-  originalname: string
-  encoding?: string
-  mimetype: string
-  buffer: Buffer
-  size: number
-}
+export const scriptDayNightCycleSystem = defineSystem({
+  uuid: 'ee.editor.scriptDayNightCycleSystem',
+  insert: { before: AnimationSystemGroup },
+  execute
+})

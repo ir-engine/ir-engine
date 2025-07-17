@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -74,6 +74,10 @@ export const getIncrementalName = async function (
 
 export const isValidFileType = function (fileType: string, fileName: string): boolean {
   return (
+    fileType === 'application/javascript' ||
+    fileType === 'text/javascript' ||
+    fileType === 'application/x-typescript' ||
+    fileType === 'text/typescript' ||
     fileType.startsWith('image/') ||
     fileType.startsWith('audio/') ||
     fileType.startsWith('video/') ||
@@ -82,7 +86,11 @@ export const isValidFileType = function (fileType: string, fileName: string): bo
       (fileName.endsWith('.ktx2') ||
         fileName.endsWith('.gltf') ||
         fileName.endsWith('.glb') ||
-        fileName.endsWith('.bin'))) ||
+        fileName.endsWith('.bin') ||
+        fileName.endsWith('.tsx') ||
+        fileName.endsWith('.ts') ||
+        fileName.endsWith('.jsx') ||
+        fileName.endsWith('.js'))) ||
     (fileType === 'application/macbinary' && fileName.endsWith('.bin')) // Mac changes the mimetype to this when using browser document upload.
   )
 }
