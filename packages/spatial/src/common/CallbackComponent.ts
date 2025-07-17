@@ -23,8 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent, getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import {
+  defineComponent,
+  getAuthoringCounterpart,
+  getComponent,
+  hasComponent,
+  setComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 
 export const enum StandardCallbacks {
   PLAY = 'xre.play',
@@ -39,25 +45,35 @@ export const CallbackComponent = defineComponent({
 })
 
 export function setCallback(entity: Entity, key: string, callback: (...params: any) => void) {
-  if (!hasComponent(entity, CallbackComponent)) setComponent(entity, CallbackComponent, new Map())
-  const callbacks = getComponent(entity, CallbackComponent)
+  // if set on authoring will set on sim automatically
+  const authoringEntity = getAuthoringCounterpart(entity)
+  const callbackEntity = authoringEntity == UndefinedEntity ? entity : authoringEntity
+
+  if (!hasComponent(callbackEntity, CallbackComponent)) setComponent(callbackEntity, CallbackComponent, new Map())
+  const callbacks = getComponent(callbackEntity, CallbackComponent)
   callbacks.set(key, callback)
   callbacks[key] = key // for inspector
 }
 
 export function removeCallback(entity: Entity, key: string) {
-  if (!hasComponent(entity, CallbackComponent)) return
-  const callbacks = getComponent(entity, CallbackComponent)
+  const authoringEntity = getAuthoringCounterpart(entity)
+  const callbackEntity = authoringEntity == UndefinedEntity ? entity : authoringEntity
+  if (!hasComponent(callbackEntity, CallbackComponent)) return
+  const callbacks = getComponent(callbackEntity, CallbackComponent)
   callbacks.delete(key)
   callbacks[key] = undefined // for inspector
 }
 
 export function getCallback(entity: Entity, key: string): ((...params: any) => void) | undefined {
-  if (!hasComponent(entity, CallbackComponent)) return undefined
-  return getComponent(entity, CallbackComponent).get(key)
+  const authoringEntity = getAuthoringCounterpart(entity)
+  const callbackEntity = authoringEntity == UndefinedEntity ? entity : authoringEntity
+  if (!hasComponent(callbackEntity, CallbackComponent)) return undefined
+  return getComponent(callbackEntity, CallbackComponent).get(key)
 }
 
 export function hasCallback(entity: Entity, key: string): boolean {
-  if (!hasComponent(entity, CallbackComponent)) return false
-  return !!getComponent(entity, CallbackComponent).get(key)
+  const authoringEntity = getAuthoringCounterpart(entity)
+  const callbackEntity = authoringEntity == UndefinedEntity ? entity : authoringEntity
+  if (!hasComponent(callbackEntity, CallbackComponent)) return false
+  return !!getComponent(callbackEntity, CallbackComponent).get(key)
 }
