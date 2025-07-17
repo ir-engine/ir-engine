@@ -1,0 +1,98 @@
+name: PR Title and Description Checks
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+jobs:
+  check-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - run: curl -fsSL https://ollama.com/install.sh | sh
+      - run: ollama list
+      - run: ollama serve & ollama pull qwen2.5:7b
+      - run: tree ~/.ollama
+      - name: Check PR Title and Description
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) {
+              core.setFailed("No pull request found.");
+              return;
+            }
+
+            const title = pr.title ? pr.title.trim() : "";
+            const body = pr.body ? pr.body.trim() : "";
+
+            const systemPrompt = `
+            You are an automated PR quality checker. Your job is to evaluate PR titles and descriptions to ensure they meet quality standards.
+
+            ## Input Format
+            The user will provide input in this format:
+            \`\`\`
+            Title: <title>
+            Description: <description>
+            \`\`\`
+
+            ## Evaluation Requirements
+
+            For a PR to be considered sufficient:
+
+            1. **Title requirements:**
+              - Must be concise
+              - Must clearly indicate the PR's purpose
+              - Must be specific rather than vague
+
+            2. **Description requirements:**
+              - Must explain what changes were made
+              - Must explain why the changes were needed
+              - Must provide sufficient context for reviewers
+
+            3. **JIRA ticket requirement:**
+              - Must include a valid JIRA ticket link in the format: \`https://tsu.atlassian.net/browse/IR-<number>\`
+              - OR explicitly state that no JIRA ticket is applicable
+
+            ## Response Behavior
+
+            - If the PR meets ALL requirements above, return NO MESSAGE.
+            - Only provide feedback if the PR title or description is insufficient.
+            - When providing feedback, be specific about what needs improvement.
+
+            ## Feedback Format (only when issues found)
+            \`\`\`
+            PR Review: Changes Needed
+
+            [List specific issues with the title and/or description that need to be addressed]
+            \`\`\`
+
+            Remember: Your goal is to only interrupt the workflow when improvements are necessary.
+            `
+
+            const userPrompt = `
+            Title: ${title}
+            Description: ${body}
+            `
+
+            const response = await fetch('http://localhost:11434/api/generate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  model: 'qwen2.5:7b',
+                  system: systemPrompt.trim(),
+                  prompt: userPrompt.trim(),
+                  stream: false
+              })
+            });
+
+            const output = await response.json()
+
+            console.log('debug', output)
+
+            core.info('output', output)
+            // await github.rest.issues.createComment({
+            //   issue_number: context.issue.number,
+            //   owner: context.repo.owner,
+            //   repo: context.repo.repo,
+            //   body: output
+            // })
