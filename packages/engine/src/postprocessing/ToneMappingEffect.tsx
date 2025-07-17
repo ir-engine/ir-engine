@@ -79,7 +79,7 @@ export const toneMappingAddToEffectRegistry = () => {
         isActive: false,
         blendFunction: BlendFunction.SRC,
         adaptive: false,
-        mode: ToneMappingMode.AGX,
+        mode: ToneMappingMode.REINHARD,
         resolution: 256,
         maxLuminance: 4.0,
         whitePoint: 4.0,

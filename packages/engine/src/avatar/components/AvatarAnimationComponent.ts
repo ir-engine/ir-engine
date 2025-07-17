@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type * as V0VRM from '@pixiv/types-vrm-0.0'
-
 import { AnimationAction, Euler, Group, Matrix4, Object3D, Quaternion } from 'three'
 
 import { EntityTreeComponent, UUIDComponent, iterateEntityNode } from '@ir-engine/ecs'
@@ -133,14 +131,14 @@ export function createVRM(rootEntity: Entity) {
 
   //formats an object of human bones to be used in the VRM constructor
   const formatHumanBones = (humanBones: { [key: string]: { node: number } }) => {
-    const bones = [] as V0VRM.HumanoidBone[]
+    const bones = [] as Array<{ bone: VRMHumanBoneName; node: number }>
     for (const bone in humanBones) {
-      bones.push({ bone: bone as V0VRM.HumanoidBoneName, node: humanBones[bone].node })
+      bones.push({ bone: bone as VRMHumanBoneName, node: humanBones[bone].node })
     }
     return bones
   }
 
-  const vrmExtensionDefinition = (gltf.extensions!.VRM as V0VRM.VRM) ?? (gltf.extensions.VRMC_vrm as V0VRM.VRM)
+  const vrmExtensionDefinition = (gltf.extensions!.VRM as any) ?? (gltf.extensions.VRMC_vrm as any)
   const humanBonesArray = Array.isArray(vrmExtensionDefinition.humanoid?.humanBones)
     ? vrmExtensionDefinition.humanoid?.humanBones
     : formatHumanBones(vrmExtensionDefinition.humanoid!.humanBones as any)

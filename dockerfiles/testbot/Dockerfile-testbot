@@ -7,7 +7,7 @@ FROM ${REPO_URL}/${REPO_NAME}:${TAG} AS builder
 # Create app directory
 WORKDIR /app
 COPY project-package-jsons ./
-RUN --mount=type=cache,target=/root/.npm npm install --loglevel notice --legacy-peer-deps --production
+RUN --mount=type=cache,target=/root/.npm npm install --loglevel notice --production
 # copy then compile the code
 COPY . .
 

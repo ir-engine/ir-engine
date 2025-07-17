@@ -9,7 +9,7 @@ COPY packages/spatial/package.json ./packages/spatial/
 COPY packages/visual-script/package.json ./packages/visual-script/
 COPY packages/xrui/package.json ./packages/xrui/
 
-RUN --mount=type=cache,target=/root/.npm npm install --loglevel notice --legacy-peer-deps
+RUN --mount=type=cache,target=/root/.npm npm install --loglevel notice 
 
 COPY . .
 

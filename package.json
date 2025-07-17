@@ -128,7 +128,7 @@
     "concurrently": "7.6.0",
     "deep-object-diff": "^1.1.9",
     "depcheck": "1.4.3",
-    "eslint": "9.5.0",
+    "eslint": "^8.56.0",
     "globals": "15.6.0",
     "kill-port": "2.0.1",
     "lerna": "6.5.1",
@@ -175,5 +175,9 @@
     "patch-package": "^8.0.0",
     "ts-node": "10.9.2",
     "typescript": "5.6.3"
+  },
+  "overrides": {
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   }
 }

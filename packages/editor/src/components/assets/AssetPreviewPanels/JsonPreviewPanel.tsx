@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import ReactJson from '@microlink/react-json-view'
 import React, { useEffect, useState } from 'react'
-import ReactJson from 'react-json-view'
 
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import styles from '../styles.module.scss'

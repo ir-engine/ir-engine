@@ -11,7 +11,7 @@ COPY project-package-jsons ./
 COPY packages/server/package.json ./packages/server/
 
 ARG NODE_ENV
-RUN --mount=type=cache,target=/root/.npm npm install --loglevel notice --legacy-peer-deps --production
+RUN --mount=type=cache,target=/root/.npm npm install --loglevel notice --production
 
 COPY . .
 

@@ -16,7 +16,7 @@ const compat = new FlatCompat({
 
 export default [
   {
-    ignores: ['packages/server/upload', 'packages/server/upload_test', '**/*.js', 'packages/projects/projects/**/*', 'packages/spatial/tests/webxr/emulator/**' ]
+    ignores: ['packages/server/upload', 'packages/server/upload_test', '**/*.js', 'packages/projects/projects/**/*', 'packages/spatial/tests/webxr/emulator/**', '**/dist/**' ]
   },
   ...compat.extends('eslint:recommended', 'plugin:@typescript-eslint/recommended'),
   {

@@ -47,6 +47,7 @@ const PWA = (clientSetting) =>
     // Merge custom client settings with default values from manifest.default.json
     manifest: {
       ...manifest,
+      display: 'standalone',
       name: clientSetting?.title || 'Infinite Reality Engine',
       description: clientSetting?.siteDescription || 'Connected Worlds for Everyone',
       short_name: clientSetting?.shortName || 'EE',

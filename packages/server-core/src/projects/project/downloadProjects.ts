@@ -35,7 +35,7 @@ import logger from '../../ServerLogger'
 
 /**
  * Downloads a specific project to the local file system from the storage provider cache
- * Then runs `npm install --legacy-peer-deps` inside the project to install it's dependencies
+ * Then runs `npm install` inside the project to install it's dependencies
  * @param projectName
  * @param storageProviderName
  * @returns {Promise<boolean>}

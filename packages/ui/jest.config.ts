@@ -35,9 +35,7 @@ const config: Config = {
   },
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  modulePathIgnorePatterns: ['node_modules', 'jest-test-results.json'],
-  setupFilesAfterEnv: ['<rootDir>src/setupTests.ts'],
-  snapshotSerializers: ['enzyme-to-json/serializer']
+  modulePathIgnorePatterns: ['node_modules', 'jest-test-results.json']
 }
 
 export default config
